@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+    <!--配置数据库连接的位置-->
+    <properties url="file:///opt/fit2cloud/conf/metersphere.properties"/>
+    <!-- 设置mysql驱动路径 -->
+    <!--<classPathEntry location="/Users/liuruibin/.m2/repository/mysql/mysql-connector-java/5.1.34/mysql-connector-java-5.1.34.jar"/>-->
+    <!-- 此处指定生成针对MyBatis3的DAO -->
+    <context id="mysql" targetRuntime="MyBatis3">
+        <plugin type="org.mybatis.generator.plugins.SerializablePlugin"/>
+        <plugin type="org.mybatis.generator.plugins.UnmergeableXmlMappersPlugin" />
+
+        <!-- 用来除去时间信息的，这在配合类似subversion的代码管理工具时使用很有效，因为可以减少没有必要的注释迁入 -->
+        <commentGenerator>
+            <property name="suppressDate" value="true"/>
+            <!--  关闭自动生成的注释  -->
+            <property name="suppressAllComments" value="true"/>
+        </commentGenerator>
+
+        <!-- jdbc连接信息 --> <!-- EduLoanManage EduTestDataBase -->
+        <!--<jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://192.168.20.180:3306/fit2cloud"-->
+        <!--userId="root" password="Fit2cloud2015!" />-->
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="${spring.datasource.url}"
+                        userId="${spring.datasource.username}" password="${spring.datasource.password}"/>
+
+        <!-- javaTypeResolver式类型转换的信息 -->
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+        <!-- 模型对象 -->
+        <javaModelGenerator targetPackage="com.fit2cloud.metersphere.base.domain" targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+        <!-- XML映射文件 -->
+        <sqlMapGenerator targetPackage="com.fit2cloud.metersphere.base.mapper" targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+        </sqlMapGenerator>
+        <!-- 接口 -->
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.fit2cloud.metersphere.base.mapper"
+                             targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+        </javaClientGenerator>
+
+        <!--要生成的数据库表 -->
+        <table tableName="user"/>
+    </context>
+</generatorConfiguration>
