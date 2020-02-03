@@ -21,7 +21,7 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
-.setting
+.settings
 .project
 .classpath
 yarn.lock
