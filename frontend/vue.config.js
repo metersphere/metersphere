@@ -6,7 +6,7 @@ module.exports = {
     devServer: {
         proxy: {
             ['^(?!/login)']: {
-                target: 'http://localhost:8888',
+                target: 'http://localhost:8081',
                 ws: true,
             }
         }
