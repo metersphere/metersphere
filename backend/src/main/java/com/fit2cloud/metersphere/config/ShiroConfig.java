@@ -1,5 +1,6 @@
 package com.fit2cloud.metersphere.config;
 
+import at.pollux.thymeleaf.shiro.dialect.ShiroDialect;
 import com.fit2cloud.metersphere.security.LoginFilter;
 import com.fit2cloud.metersphere.security.ShiroDBRealm;
 import org.apache.shiro.cache.MemoryConstrainedCacheManager;
@@ -97,6 +98,11 @@ public class ShiroConfig {
         DefaultAdvisorAutoProxyCreator daap = new DefaultAdvisorAutoProxyCreator();
         daap.setProxyTargetClass(true);
         return daap;
+    }
+
+    @Bean(name = "shiroDialect")
+    public ShiroDialect shiroDialect() {
+        return new ShiroDialect();
     }
 
     @Bean
