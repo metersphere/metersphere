@@ -14,7 +14,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     
-    <name>root</name>
+    <name>metersphere</name>
     <modules>
         <module>frontend</module>
         <module>backend</module>
