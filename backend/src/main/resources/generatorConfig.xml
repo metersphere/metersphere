@@ -46,5 +46,16 @@
 
         <!--要生成的数据库表 -->
         <table tableName="user"/>
+        <table tableName="user_role"/>
+        <table tableName="workspace"/>
+        <table tableName="test_resource_pool"/>
+        <table tableName="test_resource"/>
+        <table tableName="system_parameter"/>
+        <table tableName="role"/>
+        <table tableName="project"/>
+        <table tableName="organization"/>
+        <table tableName="load_test_report"/>
+        <table tableName="load_test"/>
+        <table tableName="file_store"/>
     </context>
 </generatorConfiguration>
