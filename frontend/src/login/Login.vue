@@ -81,7 +81,24 @@
         }
       });
     },
+    created: function () {
+      // 主页添加键盘事件,注意,不能直接在焦点事件上添加回车
+      document.addEventListener("keydown", this.watchEnter);
+    },
+    destroyed() {
+      //移除监听回车按键
+      document.removeEventListener("keydown", this.watchEnter);
+    },
     methods: {
+      //监听回车按钮事件
+      watchEnter(e) {
+        let keyNum = e.which; //获取被按下的键值
+        //判断如果用户按下了回车键（keycody=13）
+        if (keyNum === 13) {
+          // 按下回车按钮要做的事
+          this.submit('form');
+        }
+      },
       submit(form) {
         this.$refs[form].validate((valid) => {
           if (valid) {
