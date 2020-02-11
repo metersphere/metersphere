@@ -17,7 +17,7 @@ public class WorkspaceService {
     @Resource
     private WorkspaceMapper workspaceMapper;
 
-    public Workspace add(Workspace workspace) {
+    public Workspace saveWorkspace(Workspace workspace) {
         if (StringUtils.isBlank(workspace.getName())) {
             MSException.throwException("Workspace name cannot be null.");
         }
@@ -25,15 +25,24 @@ public class WorkspaceService {
         if (StringUtils.isBlank(workspace.getOrganizationId())) {
             workspace.setOrganizationId("root");
         }
-        long createTime = System.currentTimeMillis();
-        workspace.setCreateTime(createTime);
-        workspace.setUpdateTime(createTime); // 首次 update time
-        workspace.setId(UUID.randomUUID().toString()); // 设置ID
-        workspaceMapper.insertSelective(workspace);
+        long currentTime = System.currentTimeMillis();
+        if (StringUtils.isBlank(workspace.getId())) {
+            workspace.setId(UUID.randomUUID().toString()); // 设置ID
+            workspace.setCreateTime(currentTime);
+            workspace.setUpdateTime(currentTime); // 首次 update time
+            workspaceMapper.insertSelective(workspace);
+        } else {
+            workspace.setUpdateTime(currentTime);
+            workspaceMapper.updateByPrimaryKeySelective(workspace);
+        }
         return workspace;
     }
 
     public List<Workspace> getWorkspaceList() {
         return workspaceMapper.selectByExample(null);
+    }
+
+    public void deleteWorkspace(String workspaceId) {
+        workspaceMapper.deleteByPrimaryKey(workspaceId);
     }
 }

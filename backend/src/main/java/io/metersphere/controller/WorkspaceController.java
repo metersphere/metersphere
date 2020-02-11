@@ -2,10 +2,7 @@ package io.metersphere.controller;
 
 import io.metersphere.base.domain.Workspace;
 import io.metersphere.service.WorkspaceService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -16,9 +13,14 @@ public class WorkspaceController {
     @Resource
     private WorkspaceService workspaceService;
 
-    @PostMapping("add")
-    public Workspace addWorkspace(@RequestBody Workspace workspace) {
-        return workspaceService.add(workspace);
+    @PostMapping("save")
+    public Workspace saveWorkspace(@RequestBody Workspace workspace) {
+        return workspaceService.saveWorkspace(workspace);
+    }
+
+    @GetMapping("delete/{workspaceId}")
+    public void saveWorkspace(@PathVariable String workspaceId) {
+        workspaceService.deleteWorkspace(workspaceId);
     }
 
     @PostMapping("list")

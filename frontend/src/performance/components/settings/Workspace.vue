@@ -13,10 +13,15 @@
       <el-table :data="items" style="width: 100%">
         <el-table-column prop="name" label="名称"/>
         <el-table-column prop="description" label="描述"/>
-        <el-table-column width="50">
+        <el-table-column width="100">
           <template slot-scope="scope">
             <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle
                        class="edit"/>
+            <el-popconfirm title="这个工作空间确定要删除吗？" @onConfirm="del(scope.row)">
+              <el-button slot="reference" type="primary" icon="el-icon-delete" size="mini"
+                         circle
+                         class="edit"/>
+            </el-popconfirm>
           </template>
         </el-table-column>
       </el-table>
@@ -40,25 +45,28 @@
 
 <script>
   import MsCreateBox from "./CreateBox";
+  import {Message} from "element-ui";
 
   export default {
     name: "MsWorkspace",
     components: {MsCreateBox},
     mounted() {
-      this.$post('/workspace/list', {}, response => {
-        this.items = response.data;
-      })
+      this.list();
     },
     methods: {
       create() {
         this.createVisible = true;
+        this.form = {};
       },
       submit(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            this.createVisible = false;
-            this.$post("/workspace/add", this.form, () => {
-              this.$message({message: '保存成功', type: 'success'});
+            this.loading = true;
+            this.$post("/workspace/save", this.form, () => {
+              this.createVisible = false;
+              this.loading = false;
+              this.list();
+              Message.success('保存成功');
             })
           } else {
             return false;
@@ -66,15 +74,30 @@
         });
       },
       edit(row) {
+        this.createVisible = true;
         window.console.log(row);
         this.loading = true;
-        let self = this;
-        let getUser1 = this.$get("/test/user");
-        let getUser2 = this.$get("/test/sleep");
-        this.$all([getUser1, getUser2], function (r1, r2) {
-          window.console.log(r1.data.data, r2.data.data);
-          self.loading = false;
+        this.form = row;
+
+        // let self = this;
+        // let getUser1 = this.$get("/test/user");
+        // let getUser2 = this.$get("/test/sleep");
+        // this.$all([getUser1, getUser2], function (r1, r2) {
+        //   window.console.log(r1.data.data, r2.data.data);
+        //   self.loading = false;
+        // });
+      },
+      del(row) {
+        this.$get('/workspace/delete/' + row.id, () => {
+          Message.success('删除成功');
+          this.list();
         });
+        window.console.log(row);
+      },
+      list() {
+        this.$post('/workspace/list', {}, response => {
+          this.items = response.data;
+        })
       }
     },
     data() {
