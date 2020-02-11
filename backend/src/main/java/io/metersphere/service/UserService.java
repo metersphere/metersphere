@@ -9,6 +9,7 @@ import io.metersphere.dto.UserDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class UserService {
 
     @Resource
