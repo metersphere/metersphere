@@ -25,17 +25,17 @@
     </el-card>
     <ms-create-box :tips="btnTips" :exec="create"/>
     <el-dialog title="创建工作空间" :visible.sync="createVisible" width="30%">
-      <el-form :model="form" label-position="left" label-width="100px" size="small">
-        <el-form-item label="名称">
+      <el-form :model="form" :rules="rules" ref="form" label-position="left" label-width="100px" size="small">
+        <el-form-item label="名称" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
-        <el-form-item label="启用">
-          <el-switch v-model="form.enable"/>
+        <el-form-item label="描述">
+          <el-input type="textarea" v-model="form.description"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="createVisible = false" size="medium">创建</el-button>
-            </span>
+        <el-button type="primary" @click="submit('form')" size="medium">创建</el-button>
+      </span>
     </el-dialog>
   </div>
 </template>
@@ -49,8 +49,17 @@
     methods: {
       create() {
         this.createVisible = true;
-        this.$get("/test/user", function (response) {
-          window.console.log(response);
+      },
+      submit(formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            this.createVisible = false;
+            this.$post("/workspace/add", this.form, () => {
+              this.$message({message: '保存成功', type: 'success'});
+            })
+          } else {
+            return false;
+          }
         });
       },
       edit(row) {
@@ -78,9 +87,15 @@
           enable: "是"
         }],
         form: {
-          name: "",
-          enable: false
-        }
+          // name: "",
+          // description: ""
+        },
+        rules: {
+          name: [
+            {required: true, message: '请输入工作空间名称', trigger: 'blur'},
+            {min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur'}
+          ]
+        },
       }
     }
   }
