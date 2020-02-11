@@ -87,6 +87,16 @@ public class UserService {
         return userDTO;
     }
 
+    public List<User> getUserList() {
+        UserExample userExample = new UserExample();
+        return userMapper.selectByExample(userExample);
+    }
 
+    public void deleteUser(String userId) {
+        userMapper.deleteByPrimaryKey(userId);
+    }
 
+    public void updateUser(User user) {
+        userMapper.updateByPrimaryKey(user);
+    }
 }
