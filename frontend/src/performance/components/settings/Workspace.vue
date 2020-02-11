@@ -5,16 +5,14 @@
         <el-row type="flex" justify="space-between" align="middle">
           <span class="title">工作空间</span>
           <span class="search">
-                    <el-input type="text" size="small" placeholder="根据ID，名称搜索" prefix-icon="el-icon-search"
+                    <el-input type="text" size="small" placeholder="根据名称搜索" prefix-icon="el-icon-search"
                               maxlength="60" v-model="condition" clearable/>
                 </span>
         </el-row>
       </div>
       <el-table :data="items" style="width: 100%">
-        <el-table-column prop="id" label="ID" width="180"/>
         <el-table-column prop="name" label="名称"/>
-        <el-table-column prop="owner" label="创建者"/>
-        <el-table-column prop="enable" label="启用"/>
+        <el-table-column prop="description" label="描述"/>
         <el-table-column width="50">
           <template slot-scope="scope">
             <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle
@@ -46,6 +44,11 @@
   export default {
     name: "MsWorkspace",
     components: {MsCreateBox},
+    mounted() {
+      this.$post('/workspace/list', {}, response => {
+        this.items = response.data;
+      })
+    },
     methods: {
       create() {
         this.createVisible = true;
@@ -80,12 +83,7 @@
         createVisible: false,
         btnTips: "添加工作空间",
         condition: "",
-        items: [{
-          id: '123456',
-          name: 'Default workspace',
-          owner: 'mk',
-          enable: "是"
-        }],
+        items: [],
         form: {
           // name: "",
           // description: ""

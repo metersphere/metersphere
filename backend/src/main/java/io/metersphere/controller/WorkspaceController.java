@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @RequestMapping("workspace")
 @RestController
@@ -16,7 +17,12 @@ public class WorkspaceController {
     private WorkspaceService workspaceService;
 
     @PostMapping("add")
-    public Workspace insertUser(@RequestBody Workspace workspace) {
+    public Workspace addWorkspace(@RequestBody Workspace workspace) {
         return workspaceService.add(workspace);
+    }
+
+    @PostMapping("list")
+    public List<Workspace> getWorkspaceList() {
+        return workspaceService.getWorkspaceList();
     }
 }

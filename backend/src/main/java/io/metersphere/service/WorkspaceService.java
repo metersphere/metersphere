@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -30,5 +31,9 @@ public class WorkspaceService {
         workspace.setId(UUID.randomUUID().toString()); // 设置ID
         workspaceMapper.insertSelective(workspace);
         return workspace;
+    }
+
+    public List<Workspace> getWorkspaceList() {
+        return workspaceMapper.selectByExample(null);
     }
 }
