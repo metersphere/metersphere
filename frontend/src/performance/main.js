@@ -8,6 +8,7 @@ import App from './App.vue';
 import router from "./components/router/router";
 import store from './store'
 import i18n from "../i18n/i18n";
+import timestampFormatDate from "./components/common/filter/TimestampFormatDateFilter";
 
 Vue.config.productionTip = false;
 Vue.use(icon);
@@ -16,6 +17,9 @@ Vue.use(ElementUI, {
 });
 Vue.use(filters);
 Vue.use(ajax);
+
+// filter
+Vue.filter('timestampFormatDate', timestampFormatDate);
 
 new Vue({
   el: '#app',
