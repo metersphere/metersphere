@@ -49,7 +49,8 @@ public class UserService {
         BeanUtils.copyProperties(userRequest, user);
         user.setCreateTime(System.currentTimeMillis());
         user.setUpdateTime(System.currentTimeMillis());
-        user.setStatus("0");
+        // 默认1:启用状态
+        user.setStatus("1");
 
         UserExample userExample = new UserExample();
         UserExample.Criteria criteria = userExample.createCriteria();

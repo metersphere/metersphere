@@ -22,7 +22,7 @@ public class OrganizationService {
         organization.setCreateTime(currentTimeMillis);
         organization.setUpdateTime(currentTimeMillis);
         organizationMapper.insertSelective(organization);
-        return  organization;
+        return organization;
     }
 
     public List<Organization> getOrganizationList() {

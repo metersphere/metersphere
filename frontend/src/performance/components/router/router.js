@@ -5,6 +5,7 @@ import Setting from "../settings/Setting";
 import Workspace from "../settings/Workspace";
 import User from "../settings/User";
 import CreateTestPlan from "../testPlan/CreateTestPlan";
+import Organization from "../settings/Organization";
 
 Vue.use(VueRouter);
 
@@ -18,14 +19,22 @@ const router = new VueRouter({
     {
       path: "/content", components: {
         content: Setting
-      }, children: [
+      },
+      children: [
         {
           path: 'workspace',
-          component: Workspace
+          component: Workspace,
+          meta: {
+            roles: ['admin']
+          }
         },
         {
           path: 'user',
           component: User
+        },
+        {
+          path: 'organization',
+          component: Organization
         }
       ]
     },
@@ -33,7 +42,8 @@ const router = new VueRouter({
       path: "/createTest", components: {
         content: CreateTestPlan
       }
-    },]
+    },
+  ]
 });
 
 export default router

@@ -6,6 +6,7 @@ import filters from "../common/filter";
 import ajax from "../common/ajax";
 import App from './App.vue';
 import router from "./components/router/router";
+import store from './store'
 import i18n from "../i18n/i18n";
 import timestampFormatDate from "./components/common/filter/TimestampFormatDateFilter";
 
@@ -23,6 +24,7 @@ Vue.filter('timestampFormatDate', timestampFormatDate);
 new Vue({
   el: '#app',
   router,
+  store,
   i18n,
   render: h => h(App)
 });
