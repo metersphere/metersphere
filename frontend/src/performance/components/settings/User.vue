@@ -1,12 +1,12 @@
 <template>
   <div v-loading="loading">
+
     <el-card>
       <div slot="header">
         <el-row type="flex" justify="space-between" align="middle">
           <span class="title">用户</span>
           <span class="search">
-                    <el-input type="text" size="small" placeholder="根据ID，名称搜索" prefix-icon="el-icon-search"
-                              maxlength="60" v-model="condition" clearable/>
+            <el-input type="text" size="small" placeholder="根据ID，名称搜索" prefix-icon="el-icon-search" maxlength="60" v-model="condition" clearable/>
           </span>
         </el-row>
       </div>
@@ -25,6 +25,7 @@
         </el-table-column>
       </el-table>
     </el-card>
+
     <ms-create-box :tips="btnTips" :exec="create"/>
     <el-dialog title="创建用户" :visible.sync="createVisible" width="30%" @closed="closeFunc" :destroy-on-close="true">
       <el-form :model="form" label-position="left" label-width="100px" size="small" :rules="rule" ref="createUserForm">
@@ -45,8 +46,8 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="createUser('createUserForm')" size="medium">创建</el-button>
-            </span>
+        <el-button type="primary" @click="createUser('createUserForm')" size="medium">创建</el-button>
+      </span>
     </el-dialog>
 
     <el-dialog title="修改用户" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
@@ -68,9 +69,10 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="updateUser('updateUserForm')" size="medium">修改</el-button>
-            </span>
+        <el-button type="primary" @click="updateUser('updateUserForm')" size="medium">修改</el-button>
+      </span>
     </el-dialog>
+
   </div>
 </template>
 
@@ -114,7 +116,7 @@
         }).then(() => {
           this.$get(`/user/delete/${row.id}`).then(() => {
             this.getUserList()
-          }),
+          });
           this.$message({
             type: 'success',
             message: '删除成功!'
@@ -126,7 +128,7 @@
           });
         });
       },
-      createUser: function (createUserForm) {
+      createUser(createUserForm) {
         this.$refs[createUserForm].validate(valide => {
           if (valide) {
             this.$post("/user/add", this.form)
@@ -152,10 +154,9 @@
                     type: 'success',
                     message: '修改成功!'
                   },
-                  this.updateVisible = false,
-                  this.getUserList(),
-                  self.loading = false
-                )
+                this.updateVisible = false,
+                this.getUserList(),
+                self.loading = false)
               });
           } else {
             return false;
@@ -167,7 +168,7 @@
           this.items = response.data.data;
         })
       },
-      closeFunc: function () {
+      closeFunc() {
         this.form = {};
       }
     },
@@ -208,10 +209,9 @@
               message: '手机号码格式不正确！',
               trigger: 'blur'
             }
-
           ],
           email: [
-            {required: true, message: '请输入邮箱', trigger: 'blur'},
+            { required: true, message: '请输入邮箱', trigger: 'blur' },
             {
               required: true,
               pattern: /^([A-Za-z0-9_\-.])+@(163.com|qq.com|gmail.com|126.com)$/,
@@ -219,7 +219,6 @@
               trigger: 'blur'
             }
           ]
-
         }
       }
     }

@@ -6,6 +6,7 @@
         <span>账号</span>
       </template>
       <el-menu-item index="/content/user">用户</el-menu-item>
+      <el-menu-item index="/content/organization">组织</el-menu-item>
       <el-menu-item index="/content/workspace">工作空间</el-menu-item>
       <el-menu-item>API Keys</el-menu-item>
     </el-submenu>

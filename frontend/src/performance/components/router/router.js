@@ -5,6 +5,7 @@ import Setting from "../settings/Setting";
 import Workspace from "../settings/Workspace";
 import User from "../settings/User";
 import CreateTestPlan from "../testPlan/CreateTestPlan";
+import Organization from "../settings/Organization";
 
 Vue.use(VueRouter);
 
@@ -30,6 +31,10 @@ const router = new VueRouter({
         {
           path: 'user',
           component: User
+        },
+        {
+          path: 'organization',
+          component: Organization
         }
       ]
     },
