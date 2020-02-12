@@ -3,6 +3,7 @@
     <el-upload
       accept=".jmx"
       drag
+      :limit="1"
       :show-file-list="false"
       :action="jmxUploadPath"
       :before-upload="beforeUpload"
@@ -42,7 +43,7 @@
         label="操作">
         <template slot-scope="scope">
           <el-button @click="handleDownload(scope.row)" type="text" size="small">下载</el-button>
-          <el-button @click="handleDelete(scope.row)" type="text" size="small">删除</el-button>
+          <el-button @click="handleDelete(scope.row, scope.$index)" type="text" size="small">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -54,6 +55,8 @@
     data() {
       return {
         jmxUploadPath: '/testplan/file/upload',
+        jmxDownloadPath: '/testplan/file/download',
+        jmxDeletePath: '/testplan/file/delete',
         fileList: [],
         tableData: [],
       };
@@ -77,17 +80,61 @@
 
         return true;
       },
-      handleDownload(row) {
-        /// todo
-        window.console.log("download: " + row);
+      handleDownload(file) {
+        let data = {
+          name: file.name
+        };
+
+        this.$post(this.jmxDownloadPath, data).then(response => {
+          if (response) {
+            const content = response.data;
+            const blob = new Blob([content]);
+            if ("download" in document.createElement("a")) {
+              // 非IE下载
+              //  chrome/firefox
+              let aTag = document.createElement('a');
+              aTag.download = file.name;
+              aTag.href = URL.createObjectURL(blob)
+              aTag.click();
+              URL.revokeObjectURL(aTag.href)
+            } else {
+              // IE10+下载
+              navigator.msSaveBlob(blob, this.filename)
+            }
+          }
+        }).catch((response) => {
+            this.$message.error(response.message);
+          });
       },
-      handleDelete(row) {
-        /// todo
-        window.console.log("delete: " + row);
+      handleDelete(file, index) {
+        this.$alert('确认删除文件: ' + file.name + "？", '', {
+          confirmButtonText: '确定',
+          callback: () => {
+            this._handleDelete(file, index);
+          }
+        });
+      },
+      _handleDelete(file, index) {
+        let data = {
+          name: file.name
+        };
+
+        this.$post(this.jmxDeletePath, data).then(response => {
+          if (response.data.success) {
+            this.fileList.splice(index, 1);
+            this.tableData.splice(index, 1);
+
+            this.$message({
+              message: '删除成功！',
+              type: 'success'
+            });
+          } else {
+            this.$message.error(response.message);
+          }
+        });
       },
       fileValidator(file) {
         /// todo: 是否需要对文件内容和大小做限制
-
         return file.size > 0;
       },
     },
