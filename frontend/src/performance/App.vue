@@ -10,7 +10,7 @@
       </el-col>
       <el-col :span="4">
         <el-row type="flex" justify="center" align="middle">
-          <el-button type="primary" size="small">创建测试</el-button>
+          <el-button type="primary" size="small" @click="createTest">创建测试</el-button>
         </el-row>
       </el-col>
       <el-col :span="10">
@@ -47,7 +47,12 @@
         window.location.href = "/login"
       });
     },
-    components: {MsWebSocket, MsUser, MsMenus, MsSetting, MsView}
+    components: {MsWebSocket, MsUser, MsMenus, MsSetting, MsView},
+    methods: {
+      createTest() {
+        this.$router.push({path: '/createTest'})
+      }
+    }
   }
 </script>
 
