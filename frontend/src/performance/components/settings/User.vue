@@ -26,8 +26,8 @@
       </el-table>
     </el-card>
     <ms-create-box :tips="btnTips" :exec="create"/>
-    <el-dialog title="创建用户" :visible.sync="createVisible" width="30%">
-      <el-form :model="form" label-position="left" label-width="100px" size="small" :rules="rule" ref="validateForm">
+    <el-dialog title="创建用户" :visible.sync="createVisible" width="30%" @closed="closeFunc" :destroy-on-close="true">
+      <el-form :model="form" label-position="left" label-width="100px" size="small" :rules="rule" ref="createUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off"/>
         </el-form-item>
@@ -45,7 +45,30 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="createUser('validateForm')" size="medium">创建</el-button>
+                <el-button type="primary" @click="createUser('createUserForm')" size="medium">创建</el-button>
+            </span>
+    </el-dialog>
+
+    <el-dialog title="修改用户" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
+      <el-form :model="form" label-position="left" label-width="100px" size="small" :rules="rule" ref="updateUserForm">
+        <el-form-item label="ID" prop="id">
+          <el-input v-model="form.id" autocomplete="off" disabled="true"/>
+        </el-form-item>
+        <el-form-item label="用户名" prop="name">
+          <el-input v-model="form.name" autocomplete="off"/>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="form.email" autocomplete="off"/>
+        </el-form-item>
+        <el-form-item label="电话" prop="phone">
+          <el-input v-model="form.phone" autocomplete="off"/>
+        </el-form-item>
+        <el-form-item label="启用">
+          <el-switch v-model="form.enable"/>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="updateUser('updateUserForm')" size="medium">修改</el-button>
             </span>
     </el-dialog>
   </div>
@@ -63,26 +86,28 @@
     methods: {
       create() {
         this.createVisible = true;
-        this.$get("/test/list");
-
       },
       edit(row) {
         window.console.log(row);
-        this.loading = true;
-        let self = this;
+        // this.loading = true;
+        this.updateVisible = true;
+        this.form = row;
+        /*let self = this;
         let getUser1 = this.$get("/test/user");
         let getUser2 = this.$get("/test/sleep");
         this.$all([getUser1, getUser2], function (r1, r2) {
           window.console.log(r1.data.data, r2.data.data);
           self.loading = false;
-        });
-        /*this.$post("/update", row).then(()=>{
-          this.getUserList()
+        });*/
+        /*this.$post("/update", this.form).then(()=>{
+          this.updateVisible = false;
+          this.getUserList();
+          self.loading = false;
         })*/
       },
       del(row) {
         window.console.log(row);
-        this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+        this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
@@ -101,41 +126,63 @@
           });
         });
       },
-      createUser: function (validateForm) {
-        this.$refs[validateForm].validate(valide => {
+      createUser: function (createUserForm) {
+        this.$refs[createUserForm].validate(valide => {
           if (valide) {
             this.$post("/user/add", this.form)
               .then(() => {
                 this.$message({
                     type: 'success',
                     message: '添加成功!'
-                  },
-                  this.createVisible = false,
-                  this.getUserList())
+                },
+                this.createVisible = false,
+                this.getUserList())
               });
           } else {
             return false;
           }
         })
-
+      },
+      updateUser(updateUserForm) {
+        this.$refs[updateUserForm].validate(valide => {
+          if (valide) {
+            this.$post("/user/update", this.form)
+              .then(() => {
+                this.$message({
+                    type: 'success',
+                    message: '修改成功!'
+                  },
+                  this.updateVisible = false,
+                  this.getUserList(),
+                  self.loading = false
+                )
+              });
+          } else {
+            return false;
+          }
+        })
       },
       getUserList() {
         this.$get("/user/list").then(response => {
-          this.items = response.data;
+          this.items = response.data.data;
         })
+      },
+      closeFunc: function () {
+        this.form = {};
       }
     },
     data() {
       return {
         loading: false,
         createVisible: false,
+        updateVisible: false,
         btnTips: "添加用户",
         condition: "",
         items: [],
         form: {},
         rule: {
           id: [
-            {required: true, message: '请输入ID', trigger: 'blur'},
+            { required: true, message: '请输入ID', trigger: 'blur'},
             { min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur' },
             {
               required: true,
@@ -167,7 +214,7 @@
             {required: true, message: '请输入邮箱', trigger: 'blur'},
             {
               required: true,
-              pattern: /^([A-Za-z0-9_\-.])+@(163.com|qq.com|42du.cn)$/,
+              pattern: /^([A-Za-z0-9_\-.])+@(163.com|qq.com|gmail.com|126.com)$/,
               message: '邮箱格式不正确！',
               trigger: 'blur'
             }

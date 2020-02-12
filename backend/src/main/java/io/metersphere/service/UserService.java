@@ -90,8 +90,7 @@ public class UserService {
     }
 
     public List<User> getUserList() {
-        UserExample userExample = new UserExample();
-        return userMapper.selectByExample(userExample);
+        return userMapper.selectByExample(null);
     }
 
     public void deleteUser(String userId) {
@@ -99,6 +98,7 @@ public class UserService {
     }
 
     public void updateUser(User user) {
-        userMapper.updateByPrimaryKey(user);
+        user.setUpdateTime(System.currentTimeMillis());
+        userMapper.updateByPrimaryKeySelective(user);
     }
 }
