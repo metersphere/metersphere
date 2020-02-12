@@ -1,6 +1,6 @@
 <template>
-  <div class="container">
-    <el-tabs v-model="active">
+  <div class="testplan-container">
+    <el-tabs v-model="active" type="border-card" :stretch="true">
       <el-tab-pane
         v-for="item in tabs"
         :key="item.id"
@@ -44,3 +44,10 @@
     }
   }
 </script>
+
+<style>
+  .testplan-container .el-tabs__nav {
+    float: none;
+    text-align: center;
+  }
+</style>
