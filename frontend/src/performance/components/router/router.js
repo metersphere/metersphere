@@ -18,10 +18,14 @@ const router = new VueRouter({
     {
       path: "/content", components: {
         content: Setting
-      }, children: [
+      },
+      children: [
         {
           path: 'workspace',
-          component: Workspace
+          component: Workspace,
+          meta: {
+            roles: ['admin']
+          }
         },
         {
           path: 'user',
@@ -33,7 +37,8 @@ const router = new VueRouter({
       path: "/createTest", components: {
         content: CreateTestPlan
       }
-    },]
+    },
+  ]
 });
 
 export default router
