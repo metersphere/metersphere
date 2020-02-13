@@ -1,6 +1,7 @@
 package io.metersphere.controller;
 
-import io.metersphere.requests.testplan.FileOperationRequest;
+import io.metersphere.controller.request.testplan.FileOperationRequest;
+import io.metersphere.controller.request.testplan.SaveTestPlanRequest;
 import io.metersphere.service.FileService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -20,6 +21,11 @@ import java.io.IOException;
 public class TestPlanController {
     @Resource
     private FileService fileService;
+
+    @PostMapping("/save")
+    public void save(@RequestBody SaveTestPlanRequest request) {
+        System.out.println(String.format("save test plan: %s", request.getName()));
+    }
 
     @PostMapping("/file/upload")
     public void uploadJmx(MultipartFile file) throws IOException {

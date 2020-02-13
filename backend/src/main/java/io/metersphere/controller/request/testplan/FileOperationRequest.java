@@ -1,4 +1,4 @@
-package io.metersphere.requests.testplan;
+package io.metersphere.controller.request.testplan;
 
 public class FileOperationRequest {
     private String name;
