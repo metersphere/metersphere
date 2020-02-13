@@ -1,5 +1,5 @@
 <template>
-  <el-menu class="header-menu" :unique-opened="true" mode="horizontal"
+  <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router
            menu-trigger="click">
     <el-menu-item index="1"><a href="/" style="text-decoration: none;">{{ $t("i18n.home") }}</a></el-menu-item>
     <el-submenu index="2" popper-class="submenu">
@@ -19,10 +19,8 @@
     </el-submenu>
     <el-submenu index="4" popper-class="submenu">
       <template slot="title">测试</template>
-      <el-menu-item index="4-1">测试1</el-menu-item>
-      <el-menu-item index="4-2">测试2</el-menu-item>
-      <el-menu-item index="4-3">显示全部</el-menu-item>
-      <el-menu-item index="create-test" route="{path:'test'}">
+      <recent-test-plan/>
+      <el-menu-item index="/createTest">
         <el-button type="text">创建测试</el-button>
       </el-menu-item>
     </el-submenu>
@@ -36,8 +34,11 @@
 </template>
 
 <script>
+  import RecentTestPlan from "./testPlan/RecentTestPlan";
+
   export default {
-    name: "MsMenus"
+    name: "MsMenus",
+    components: {RecentTestPlan}
   }
 </script>
 
