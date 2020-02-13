@@ -1,4 +1,4 @@
-package io.metersphere.commons;
+package io.metersphere.commons.exception;
 
 public class MSException extends RuntimeException{
 

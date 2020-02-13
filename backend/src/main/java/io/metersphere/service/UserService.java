@@ -4,7 +4,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.RoleMapper;
 import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.base.mapper.UserRoleMapper;
-import io.metersphere.commons.MSException;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.dto.UserDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;

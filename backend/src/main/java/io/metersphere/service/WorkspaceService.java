@@ -2,7 +2,7 @@ package io.metersphere.service;
 
 import io.metersphere.base.domain.Workspace;
 import io.metersphere.base.mapper.WorkspaceMapper;
-import io.metersphere.commons.MSException;
+import io.metersphere.commons.exception.MSException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
