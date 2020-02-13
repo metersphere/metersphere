@@ -13,15 +13,10 @@
       <el-table :data="items" style="width: 100%">
         <el-table-column prop="name" label="名称"/>
         <el-table-column prop="description" label="描述"/>
-        <el-table-column width="100">
+        <el-table-column>
           <template slot-scope="scope">
-            <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle
-                       class="edit"/>
-            <el-popconfirm title="这个工作空间确定要删除吗？" @onConfirm="del(scope.row)">
-              <el-button slot="reference" type="primary" icon="el-icon-delete" size="mini"
-                         circle
-                         class="edit"/>
-            </el-popconfirm>
+            <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
+            <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
           </template>
         </el-table-column>
       </el-table>
@@ -88,9 +83,17 @@
         // });
       },
       del(row) {
-        this.$get('/workspace/delete/' + row.id, () => {
-          Message.success('删除成功');
-          this.list();
+        this.$confirm('这个工作空间确定要删除吗?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$get('/workspace/delete/' + row.id, () => {
+            Message.success('删除成功');
+            this.list();
+          });
+        }).catch(() => {
+
         });
         window.console.log(row);
       },
