@@ -1,62 +1,62 @@
 <template>
-  <el-menu menu-trigger="click" :default-active="$route.path" router>
-    <el-submenu index="1">
-      <template slot="title">
-        <font-awesome-icon class="icon account" :icon="['far', 'address-card']" size="lg"/>
-        <span>账号</span>
-      </template>
-      <el-menu-item index="/content/user">用户</el-menu-item>
-      <el-menu-item index="/content/organization">组织</el-menu-item>
-      <el-menu-item index="/content/workspace">工作空间</el-menu-item>
-      <el-menu-item>API Keys</el-menu-item>
-    </el-submenu>
-    <el-submenu index=2>
-      <template slot="title">
-        <font-awesome-icon class="icon workspace" :icon="['far', 'clone']" size="lg"/>
-        <span>工作空间</span>
-      </template>
-      <el-menu-item>成员</el-menu-item>
-      <el-menu-item>证书</el-menu-item>
-      <el-menu-item>测试计划</el-menu-item>
-      <el-menu-item>警告</el-menu-item>
-    </el-submenu>
-    <el-submenu index="3">
-      <template slot="title">
-        <font-awesome-icon class="icon" :icon="['far', 'user']" size="lg"/>
-        <span>个人</span>
-      </template>
-      <el-menu-item>个人设置</el-menu-item>
-      <el-menu-item>API Keys</el-menu-item>
-    </el-submenu>
-  </el-menu>
+    <el-menu menu-trigger="click" :default-active="$route.path" router>
+        <el-submenu index="1">
+            <template slot="title">
+                <font-awesome-icon class="icon account" :icon="['far', 'address-card']" size="lg"/>
+                <span>账号</span>
+            </template>
+            <el-menu-item index="/content/user">用户</el-menu-item>
+            <el-menu-item index="/content/organization">组织</el-menu-item>
+            <el-menu-item index="/content/workspace">工作空间</el-menu-item>
+            <el-menu-item>API Keys</el-menu-item>
+        </el-submenu>
+        <el-submenu index=2>
+            <template slot="title">
+                <font-awesome-icon class="icon workspace" :icon="['far', 'clone']" size="lg"/>
+                <span>工作空间</span>
+            </template>
+            <el-menu-item index="/content/workspace/user">成员</el-menu-item>
+            <el-menu-item>证书</el-menu-item>
+            <el-menu-item>测试计划</el-menu-item>
+            <el-menu-item>警告</el-menu-item>
+        </el-submenu>
+        <el-submenu index="3">
+            <template slot="title">
+                <font-awesome-icon class="icon" :icon="['far', 'user']" size="lg"/>
+                <span>个人</span>
+            </template>
+            <el-menu-item>个人设置</el-menu-item>
+            <el-menu-item>API Keys</el-menu-item>
+        </el-submenu>
+    </el-menu>
 </template>
 
 <script>
-  export default {
-    name: "MsSettingMenu"
-  }
+    export default {
+        name: "MsSettingMenu"
+    }
 </script>
 
 <style scoped>
-  .el-menu {
-    border-right: 0;
-  }
+    .el-menu {
+        border-right: 0;
+    }
 
-  .el-menu-item {
-    height: 40px;
-    line-height: 40px;
-  }
+    .el-menu-item {
+        height: 40px;
+        line-height: 40px;
+    }
 
-  .icon {
-    width: 24px;
-    margin-right: 10px;
-  }
+    .icon {
+        width: 24px;
+        margin-right: 10px;
+    }
 
-  .account {
-    color: #5a78f0;
-  }
+    .account {
+        color: #5a78f0;
+    }
 
-  .workspace {
-    color: #44b349;
-  }
+    .workspace {
+        color: #44b349;
+    }
 </style>
