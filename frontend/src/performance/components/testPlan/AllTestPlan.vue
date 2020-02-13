@@ -1,66 +1,70 @@
 <template>
-  <div>
-    <el-row>
-      <el-col :span="22" :offset="1">
-        <el-table
-          stripe
-          ref="multipleTable"
-          :data="tableData"
-          tooltip-effect="dark"
-          style="width: 100%"
-          @selection-change="handleSelectionChange">
-          <el-table-column
-            type="selection"
-            width="55">
-          </el-table-column>
-          <el-table-column
-            prop="name"
-            label="名称">
-          </el-table-column>
-          <el-table-column
-            prop="description"
-            label="描述"
-            show-overflow-tooltip>
-          </el-table-column>
-          <el-table-column
-            prop="projectName"
-            label="所属项目">
-          </el-table-column>
-          <el-table-column
-            label="创建时间">
-            <template slot-scope="scope">
-              <span>{{ scope.row.createTime | timestampFormatDate }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="updateTime"
-            label="更新时间">
-            <template slot-scope="scope">
-              <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="操作">
-            <template slot-scope="scope">
-              <el-button @click="handleEdit(scope.row)" type="text" size="small">编辑</el-button>
-              <el-button @click="handleDelete(scope.row)" type="text" size="small">删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </el-col>
-    </el-row>
-    <div class="block">
-      <div class="block">
-        <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page.sync="currentPage"
-          :page-sizes="[10, 20, 50, 100]"
-          :page-size="pageSize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total">
-        </el-pagination>
-      </div>
+  <div class="testplan-container">
+    <div>
+      <el-row>
+        <el-col :span="22" :offset="1">
+          <el-table
+            stripe
+            ref="multipleTable"
+            :data="tableData"
+            tooltip-effect="dark"
+            style="width: 100%"
+            @selection-change="handleSelectionChange">
+            <el-table-column
+              type="selection"
+              width="55">
+            </el-table-column>
+            <el-table-column
+              prop="name"
+              label="名称">
+            </el-table-column>
+            <el-table-column
+              prop="description"
+              label="描述"
+              show-overflow-tooltip>
+            </el-table-column>
+            <el-table-column
+              prop="projectName"
+              label="所属项目">
+            </el-table-column>
+            <el-table-column
+              label="创建时间">
+              <template slot-scope="scope">
+                <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="updateTime"
+              label="更新时间">
+              <template slot-scope="scope">
+                <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="操作">
+              <template slot-scope="scope">
+                <el-button @click="handleEdit(scope.row)" type="text" size="small">编辑</el-button>
+                <el-button @click="handleDelete(scope.row)" type="text" size="small">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="22" :offset="1">
+          <div class="table-page">
+            <el-pagination
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page.sync="currentPage"
+              :page-sizes="[5, 10, 20, 50, 100]"
+              :page-size="pageSize"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="total">
+            </el-pagination>
+          </div>
+        </el-col>
+      </el-row>
     </div>
   </div>
 </template>
@@ -74,7 +78,7 @@
         tableData: [],
         multipleSelection: [],
         currentPage: 1,
-        pageSize: 10,
+        pageSize: 5,
         total: 0,
       }
     },
@@ -111,8 +115,12 @@
         this.multipleSelection = val;
       },
       handleEdit(testPlan) {
-        /// todo: 跳到编辑页面
-        window.console.log(testPlan);
+        this.$router.push({
+          name: 'createTest',
+          params: {
+            testPlanObj: testPlan
+          }
+        })
       },
       handleDelete(testPlan) {
         this.$alert('确认删除测试: ' + testPlan.name + "？", '', {
@@ -124,7 +132,7 @@
       },
       _handleDelete(testPlan) {
         let data = {
-          name: testPlan.name
+          id: testPlan.id
         };
 
         this.$post(this.deletePath, data).then(response => {
@@ -133,6 +141,7 @@
               message: '删除成功！',
               type: 'success'
             });
+            this.initTableData();
           } else {
             this.$message.error(response.message);
           }
@@ -143,7 +152,13 @@
 </script>
 
 <style scoped>
-  .el-row {
+  .testplan-container {
     background: white;
+  }
+
+  .table-page {
+    padding-top: 20px;
+    margin-right: -9px;
+    float: right;
   }
 </style>

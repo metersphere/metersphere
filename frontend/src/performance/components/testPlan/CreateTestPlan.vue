@@ -44,10 +44,11 @@
       TestPlanPressureConfig,
       TestPlanAdvancedConfig,
     },
+    props: ['testPlanObj'],
     data() {
       return {
-        savePath: "/testplan/save",
         testPlan: {},
+        savePath: "/testplan/save",
         projects: [{
           id: '选项1',
           name: '黄金糕'
@@ -78,6 +79,12 @@
           id: '2',
           component: 'AdvancedConfig'
         }]
+      }
+    },
+    created() {
+      window.console.log("testPlanObj: " + this.testPlanObj);
+      if (this.testPlanObj) {
+        this.testPlan = this.testPlanObj;
       }
     },
     methods: {

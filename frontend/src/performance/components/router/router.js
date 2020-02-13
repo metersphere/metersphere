@@ -56,12 +56,23 @@ const router = new VueRouter({
       ]
     },
     {
-      path: "/createTest", components: {
+      path: "/createTest",
+      name: "createTest",
+      components: {
         content: CreateTestPlan
+      },
+      props: {
+        content: (route) => {
+          window.console.log("route.params: " + route.params);
+          return {
+            ...route.params
+          }
+        }
       }
     },
     {
-      path: "/allTest", components: {
+      path: "/allTest",
+      components: {
         content: AllTestPlan
       }
     },

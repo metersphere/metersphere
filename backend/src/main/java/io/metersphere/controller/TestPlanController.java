@@ -19,13 +19,15 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/testplan")
 public class TestPlanController {
-    private static List<LoadTestDTO> loadTests = new ArrayList<>();
+    private static List<LoadTestDTO> loadTests = Collections.synchronizedList(new ArrayList<LoadTestDTO>());
 
     static {
         // 模拟数据
@@ -63,7 +65,13 @@ public class TestPlanController {
 
     @PostMapping("/delete")
     public void delete(@RequestBody DeleteTestPlanRequest request) {
-        System.out.println(String.format("delete test plan: %s", request.getName()));
+        final Iterator<LoadTestDTO> iterator = loadTests.iterator();
+        while (iterator.hasNext()) {
+            if (iterator.next().getId().equals(request.getId())) {
+                iterator.remove();
+                return;
+            }
+        }
     }
 
     @PostMapping("/file/upload")
