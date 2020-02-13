@@ -2,8 +2,8 @@
   <div class="testplan-container">
     <el-row>
       <el-col :span="10">
-        <el-input placeholder="请输入名称" v-model="testplanName" class="input-with-select">
-          <el-select v-model="project" slot="prepend" placeholder="请选择项目">
+        <el-input placeholder="请输入名称" v-model="testPlan.name" class="input-with-select">
+          <el-select v-model="testPlan.project" slot="prepend" placeholder="请选择项目">
             <el-option
               v-for="item in projects"
               :key="item.id"
@@ -19,32 +19,35 @@
     </el-row>
 
     <el-tabs v-model="active" type="border-card" :stretch="true">
-      <el-tab-pane
-        v-for="item in tabs"
-        :key="item.id"
-        :label="item.title"
-      >
-        <component :is="active === item.id ? item.component : false"/>
+      <el-tab-pane label="基础配置">
+        <test-plan-basic-config v-on:change-test-plan="changeTestPlan"/>
+      </el-tab-pane>
+      <el-tab-pane label="压力配置">
+        <test-plan-pressure-config v-on:change-test-plan="changeTestPlan"/>
+      </el-tab-pane>
+      <el-tab-pane label="高级配置">
+        <test-plan-advanced-config v-on:change-test-plan="changeTestPlan"/>
       </el-tab-pane>
     </el-tabs>
   </div>
 </template>
 
 <script>
-  import BasicConfig from './components/BasicConfig';
-  import PressureConfig from './components/PressureConfig';
-  import AdvancedConfig from './components/AdvancedConfig';
+  import TestPlanBasicConfig from './components/BasicConfig';
+  import TestPlanPressureConfig from './components/PressureConfig';
+  import TestPlanAdvancedConfig from './components/AdvancedConfig';
 
   export default {
     name: "CreateTestPlan",
     components: {
-      BasicConfig,
-      PressureConfig,
-      AdvancedConfig
+      TestPlanBasicConfig,
+      TestPlanPressureConfig,
+      TestPlanAdvancedConfig,
     },
     data() {
       return {
-        project: '',
+        savePath: "/testplan/save",
+        testPlan: {},
         projects: [{
           id: '选项1',
           name: '黄金糕'
@@ -61,7 +64,6 @@
           id: '选项5',
           name: '北京烤鸭'
         }],
-        testplanName: '',
         active: '0',
         tabs: [{
           title: '场景配置',
@@ -80,22 +82,64 @@
     },
     methods: {
       save() {
-        window.console.log("save")
+        if (!this.validTestPlan()) {
+          return;
+        }
 
-        /// todo: save
-        this.$message({
-          message: '保存成功！',
-          type: 'success'
+        this.$post(this.savePath, this.testPlan).then(response => {
+          if (response) {
+            this.$message({
+              message: '保存成功！',
+              type: 'success'
+            });
+          }
+        }).catch((response) => {
+          this.$message.error(response.message);
         });
       },
       saveAndRun() {
-        window.console.log("saveAndRun")
+        window.console.log("saveAndRun");
 
         /// todo: saveAndRun
         this.$message({
           message: '保存成功，开始运行！',
           type: 'success'
         });
+      },
+      changeTestPlan(updateFunc) {
+        updateFunc(this.testPlan);
+        window.console.log(this.testPlan);
+      },
+      validTestPlan() {
+        if (!this.testPlan.name) {
+          this.$message({
+            message: '测试名称不能为空！',
+            type: 'error'
+          });
+
+          return false;
+        }
+
+        if (!this.testPlan.project) {
+          this.$message({
+            message: '项目不能为空！',
+            type: 'error'
+          });
+
+          return false;
+        }
+
+        if (!this.testPlan.fileId) {
+          this.$message({
+            message: 'jmx文件不能为空！',
+            type: 'error'
+          });
+
+          return false;
+        }
+
+        /// todo: 其他校验
+        return true;
       },
       cancel() {
         this.$router.push({path: '/'})

@@ -52,6 +52,7 @@
 
 <script>
   export default {
+    name: "TestPlanBasicConfig",
     data() {
       return {
         jmxUploadPath: '/testplan/file/upload',
@@ -64,6 +65,11 @@
     methods: {
       beforeUpload(file) {
         window.console.log(file);
+
+        /// todo: 上传的文件需要绑定到当前testPlan，这里暂时使用文件名
+        this._changeTestPlan(function (testPlan) {
+          testPlan.fileId = file.name;
+        });
 
         if (!this.fileValidator(file)) {
           /// todo: 显示错误信息
@@ -103,8 +109,8 @@
             }
           }
         }).catch((response) => {
-            this.$message.error(response.message);
-          });
+          this.$message.error(response.message);
+        });
       },
       handleDelete(file, index) {
         this.$alert('确认删除文件: ' + file.name + "？", '', {
@@ -132,6 +138,9 @@
             this.$message.error(response.message);
           }
         });
+      },
+      _changeTestPlan(updateTestPlanFunc) {
+        this.$emit('change-test-plan', updateTestPlanFunc);
       },
       fileValidator(file) {
         /// todo: 是否需要对文件内容和大小做限制

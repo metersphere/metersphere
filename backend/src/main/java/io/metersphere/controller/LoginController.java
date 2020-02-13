@@ -35,7 +35,8 @@ public class LoginController {
         try {
             subject.login(token);
             if (subject.isAuthenticated()) {
-                return ResultHolder.success("");
+                // 返回 userDTO
+                return ResultHolder.success(subject.getSession().getAttribute("user"));
             } else {
                 return ResultHolder.error("login fail");
             }

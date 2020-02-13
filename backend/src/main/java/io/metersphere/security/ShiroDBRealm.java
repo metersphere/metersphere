@@ -1,6 +1,8 @@
 package io.metersphere.security;
 
 
+import io.metersphere.dto.UserDTO;
+import io.metersphere.service.UserService;
 import io.metersphere.user.SessionUser;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
@@ -9,6 +11,8 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Resource;
 
 
 /**
@@ -23,6 +27,8 @@ import org.slf4j.LoggerFactory;
 public class ShiroDBRealm extends AuthorizingRealm {
 
     private Logger logger = LoggerFactory.getLogger(ShiroDBRealm.class);
+    @Resource
+    private UserService userService;
 
     /**
      * 权限认证
@@ -40,10 +46,16 @@ public class ShiroDBRealm extends AuthorizingRealm {
         UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
         String userId = token.getUsername();
         String password = String.valueOf(token.getPassword());
-        SessionUser sessionUser = new SessionUser();
+        UserDTO user = userService.getUserDTO(userId);
+        String msg;
+        if (user == null) {
+            msg = "not exist user is trying to login, user:" + userId;
+            logger.warn(msg);
+            throw new UnknownAccountException(msg);
+        }
+        // TODO 密码验证，roles 等内容填充
 
-        sessionUser.setName(userId);
-        sessionUser.setId(userId);
+        SessionUser sessionUser = SessionUser.fromUser(user);
         SecurityUtils.getSubject().getSession().setAttribute("user", sessionUser);
         return new SimpleAuthenticationInfo(userId, password, getName());
     }

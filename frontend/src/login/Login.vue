@@ -41,6 +41,10 @@
 </template>
 
 <script>
+  import Cookies from 'js-cookie';
+
+  const TokenKey = 'Admin-Token';
+
   export default {
     name: "Login",
     data() {
@@ -102,7 +106,9 @@
       submit(form) {
         this.$refs[form].validate((valid) => {
           if (valid) {
-            this.$post("signin", this.form, function () {
+            this.$post("signin", this.form, (response) => {
+              // 登录信息保存 cookie
+              Cookies.set(TokenKey, response.data);
               window.location.href = "/"
             });
           } else {
