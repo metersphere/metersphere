@@ -1,7 +1,7 @@
 <template>
   <el-dropdown size="medium" @command="handleCommand">
         <span class="dropdown-link">
-            莫 鹍<i class="el-icon-caret-bottom el-icon--right"/>
+            {{currentUser.name}}<i class="el-icon-caret-bottom el-icon--right"/>
         </span>
     <el-dropdown-menu slot="dropdown">
       <el-dropdown-item command="personal">个人信息</el-dropdown-item>
@@ -11,8 +11,18 @@
 </template>
 
 <script>
+  import Cookies from 'js-cookie';
+
+  const TokenKey = 'Admin-Token';
+
   export default {
     name: "MsUser",
+    computed: {
+      currentUser: () => {
+        let user = Cookies.get(TokenKey);
+        return JSON.parse(user);
+      }
+    },
     methods: {
       handleCommand(command) {
         switch (command) {

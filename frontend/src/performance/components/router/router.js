@@ -6,6 +6,8 @@ import Workspace from "../settings/Workspace";
 import User from "../settings/User";
 import CreateTestPlan from "../testPlan/CreateTestPlan";
 import Organization from "../settings/Organization";
+import WorkspaceUser from "../settings/WorkSpcaeUser";
+import TestResourcePool from "../settings/TestResourcePool";
 
 Vue.use(VueRouter);
 
@@ -35,6 +37,13 @@ const router = new VueRouter({
         {
           path: 'organization',
           component: Organization
+        },{
+          path:'workspace/user',
+          component: WorkspaceUser
+        },
+        {
+          path: 'testresourcepool',
+          component: TestResourcePool
         }
       ]
     },
