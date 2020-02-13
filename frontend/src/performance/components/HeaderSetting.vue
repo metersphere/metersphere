@@ -3,7 +3,7 @@
     <router-link to="/content">
       <font-awesome-icon :icon="['fas', 'user-plus']" size="lg"/>
     </router-link>
-    <router-link to="/content">
+    <router-link to="/setting">
       <font-awesome-icon :icon="['fas', 'cog']" size="lg"/>
     </router-link>
   </el-row>

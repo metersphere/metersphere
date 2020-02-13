@@ -17,6 +17,8 @@ public class User implements Serializable {
 
     private Long updateTime;
 
+    private String lastSourceId;
+
     private static final long serialVersionUID = 1L;
 
     public String getId() {
@@ -73,5 +75,13 @@ public class User implements Serializable {
 
     public void setUpdateTime(Long updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public String getLastSourceId() {
+        return lastSourceId;
+    }
+
+    public void setLastSourceId(String lastSourceId) {
+        this.lastSourceId = lastSourceId == null ? null : lastSourceId.trim();
     }
 }

@@ -7,6 +7,7 @@ import ajax from "../common/ajax";
 import App from './App.vue';
 import router from "./components/router/router";
 import store from './store'
+import './permission' // permission control
 import i18n from "../i18n/i18n";
 import timestampFormatDate from "./components/common/filter/TimestampFormatDateFilter";
 

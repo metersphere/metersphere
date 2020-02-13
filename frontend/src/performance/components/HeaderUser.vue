@@ -12,14 +12,14 @@
 
 <script>
   import Cookies from 'js-cookie';
-
-  const TokenKey = 'Admin-Token';
+  import {TokenKey} from '../../common/constants';
 
   export default {
     name: "MsUser",
     computed: {
       currentUser: () => {
         let user = Cookies.get(TokenKey);
+        window.console.log(user);
         return JSON.parse(user);
       }
     },
@@ -31,6 +31,7 @@
             break;
           case "logout":
             this.$get("/signout", function () {
+              Cookies.remove(TokenKey);
               window.location.href = "/login";
             });
             break;

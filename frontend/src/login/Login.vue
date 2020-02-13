@@ -42,8 +42,8 @@
 
 <script>
   import Cookies from 'js-cookie';
+  import {TokenKey} from '../common/constants';
 
-  const TokenKey = 'Admin-Token';
 
   export default {
     name: "Login",

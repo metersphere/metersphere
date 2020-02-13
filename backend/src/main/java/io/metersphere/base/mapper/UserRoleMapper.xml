@@ -5,7 +5,7 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="user_id" jdbcType="VARCHAR" property="userId" />
     <result column="role_id" jdbcType="VARCHAR" property="roleId" />
-    <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
+    <result column="source_id" jdbcType="VARCHAR" property="sourceId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
   </resultMap>
@@ -68,7 +68,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, user_id, role_id, resource_id, create_time, update_time
+    id, user_id, role_id, source_id, create_time, update_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.UserRoleExample" resultMap="BaseResultMap">
     select
@@ -102,10 +102,10 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.UserRole">
     insert into user_role (id, user_id, role_id, 
-      resource_id, create_time, update_time
+      source_id, create_time, update_time
       )
     values (#{id,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{roleId,jdbcType=VARCHAR}, 
-      #{resourceId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}
+      #{sourceId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.UserRole">
@@ -120,8 +120,8 @@
       <if test="roleId != null">
         role_id,
       </if>
-      <if test="resourceId != null">
-        resource_id,
+      <if test="sourceId != null">
+        source_id,
       </if>
       <if test="createTime != null">
         create_time,
@@ -140,8 +140,8 @@
       <if test="roleId != null">
         #{roleId,jdbcType=VARCHAR},
       </if>
-      <if test="resourceId != null">
-        #{resourceId,jdbcType=VARCHAR},
+      <if test="sourceId != null">
+        #{sourceId,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -169,8 +169,8 @@
       <if test="record.roleId != null">
         role_id = #{record.roleId,jdbcType=VARCHAR},
       </if>
-      <if test="record.resourceId != null">
-        resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      <if test="record.sourceId != null">
+        source_id = #{record.sourceId,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -188,7 +188,7 @@
     set id = #{record.id,jdbcType=VARCHAR},
       user_id = #{record.userId,jdbcType=VARCHAR},
       role_id = #{record.roleId,jdbcType=VARCHAR},
-      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      source_id = #{record.sourceId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT}
     <if test="_parameter != null">
@@ -204,8 +204,8 @@
       <if test="roleId != null">
         role_id = #{roleId,jdbcType=VARCHAR},
       </if>
-      <if test="resourceId != null">
-        resource_id = #{resourceId,jdbcType=VARCHAR},
+      <if test="sourceId != null">
+        source_id = #{sourceId,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -220,7 +220,7 @@
     update user_role
     set user_id = #{userId,jdbcType=VARCHAR},
       role_id = #{roleId,jdbcType=VARCHAR},
-      resource_id = #{resourceId,jdbcType=VARCHAR},
+      source_id = #{sourceId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}

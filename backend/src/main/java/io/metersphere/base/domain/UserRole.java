@@ -9,7 +9,7 @@ public class UserRole implements Serializable {
 
     private String roleId;
 
-    private String resourceId;
+    private String sourceId;
 
     private Long createTime;
 
@@ -41,12 +41,12 @@ public class UserRole implements Serializable {
         this.roleId = roleId == null ? null : roleId.trim();
     }
 
-    public String getResourceId() {
-        return resourceId;
+    public String getSourceId() {
+        return sourceId;
     }
 
-    public void setResourceId(String resourceId) {
-        this.resourceId = resourceId == null ? null : resourceId.trim();
+    public void setSourceId(String sourceId) {
+        this.sourceId = sourceId == null ? null : sourceId.trim();
     }
 
     public Long getCreateTime() {

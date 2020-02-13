@@ -573,6 +573,76 @@ public class UserExample {
             addCriterion("update_time not between", value1, value2, "updateTime");
             return (Criteria) this;
         }
+
+        public Criteria andLastSourceIdIsNull() {
+            addCriterion("last_source_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSourceIdIsNotNull() {
+            addCriterion("last_source_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSourceIdEqualTo(String value) {
+            addCriterion("last_source_id =", value, "lastSourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSourceIdNotEqualTo(String value) {
+            addCriterion("last_source_id <>", value, "lastSourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSourceIdGreaterThan(String value) {
+            addCriterion("last_source_id >", value, "lastSourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSourceIdGreaterThanOrEqualTo(String value) {
+            addCriterion("last_source_id >=", value, "lastSourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSourceIdLessThan(String value) {
+            addCriterion("last_source_id <", value, "lastSourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSourceIdLessThanOrEqualTo(String value) {
+            addCriterion("last_source_id <=", value, "lastSourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSourceIdLike(String value) {
+            addCriterion("last_source_id like", value, "lastSourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSourceIdNotLike(String value) {
+            addCriterion("last_source_id not like", value, "lastSourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSourceIdIn(List<String> values) {
+            addCriterion("last_source_id in", values, "lastSourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSourceIdNotIn(List<String> values) {
+            addCriterion("last_source_id not in", values, "lastSourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSourceIdBetween(String value1, String value2) {
+            addCriterion("last_source_id between", value1, value2, "lastSourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSourceIdNotBetween(String value1, String value2) {
+            addCriterion("last_source_id not between", value1, value2, "lastSourceId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

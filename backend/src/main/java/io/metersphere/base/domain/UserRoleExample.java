@@ -314,73 +314,73 @@ public class UserRoleExample {
             return (Criteria) this;
         }
 
-        public Criteria andResourceIdIsNull() {
-            addCriterion("resource_id is null");
+        public Criteria andSourceIdIsNull() {
+            addCriterion("source_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andResourceIdIsNotNull() {
-            addCriterion("resource_id is not null");
+        public Criteria andSourceIdIsNotNull() {
+            addCriterion("source_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andResourceIdEqualTo(String value) {
-            addCriterion("resource_id =", value, "resourceId");
+        public Criteria andSourceIdEqualTo(String value) {
+            addCriterion("source_id =", value, "sourceId");
             return (Criteria) this;
         }
 
-        public Criteria andResourceIdNotEqualTo(String value) {
-            addCriterion("resource_id <>", value, "resourceId");
+        public Criteria andSourceIdNotEqualTo(String value) {
+            addCriterion("source_id <>", value, "sourceId");
             return (Criteria) this;
         }
 
-        public Criteria andResourceIdGreaterThan(String value) {
-            addCriterion("resource_id >", value, "resourceId");
+        public Criteria andSourceIdGreaterThan(String value) {
+            addCriterion("source_id >", value, "sourceId");
             return (Criteria) this;
         }
 
-        public Criteria andResourceIdGreaterThanOrEqualTo(String value) {
-            addCriterion("resource_id >=", value, "resourceId");
+        public Criteria andSourceIdGreaterThanOrEqualTo(String value) {
+            addCriterion("source_id >=", value, "sourceId");
             return (Criteria) this;
         }
 
-        public Criteria andResourceIdLessThan(String value) {
-            addCriterion("resource_id <", value, "resourceId");
+        public Criteria andSourceIdLessThan(String value) {
+            addCriterion("source_id <", value, "sourceId");
             return (Criteria) this;
         }
 
-        public Criteria andResourceIdLessThanOrEqualTo(String value) {
-            addCriterion("resource_id <=", value, "resourceId");
+        public Criteria andSourceIdLessThanOrEqualTo(String value) {
+            addCriterion("source_id <=", value, "sourceId");
             return (Criteria) this;
         }
 
-        public Criteria andResourceIdLike(String value) {
-            addCriterion("resource_id like", value, "resourceId");
+        public Criteria andSourceIdLike(String value) {
+            addCriterion("source_id like", value, "sourceId");
             return (Criteria) this;
         }
 
-        public Criteria andResourceIdNotLike(String value) {
-            addCriterion("resource_id not like", value, "resourceId");
+        public Criteria andSourceIdNotLike(String value) {
+            addCriterion("source_id not like", value, "sourceId");
             return (Criteria) this;
         }
 
-        public Criteria andResourceIdIn(List<String> values) {
-            addCriterion("resource_id in", values, "resourceId");
+        public Criteria andSourceIdIn(List<String> values) {
+            addCriterion("source_id in", values, "sourceId");
             return (Criteria) this;
         }
 
-        public Criteria andResourceIdNotIn(List<String> values) {
-            addCriterion("resource_id not in", values, "resourceId");
+        public Criteria andSourceIdNotIn(List<String> values) {
+            addCriterion("source_id not in", values, "sourceId");
             return (Criteria) this;
         }
 
-        public Criteria andResourceIdBetween(String value1, String value2) {
-            addCriterion("resource_id between", value1, value2, "resourceId");
+        public Criteria andSourceIdBetween(String value1, String value2) {
+            addCriterion("source_id between", value1, value2, "sourceId");
             return (Criteria) this;
         }
 
-        public Criteria andResourceIdNotBetween(String value1, String value2) {
-            addCriterion("resource_id not between", value1, value2, "resourceId");
+        public Criteria andSourceIdNotBetween(String value1, String value2) {
+            addCriterion("source_id not between", value1, value2, "sourceId");
             return (Criteria) this;
         }
 

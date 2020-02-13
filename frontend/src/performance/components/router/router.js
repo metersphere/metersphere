@@ -18,7 +18,7 @@ const router = new VueRouter({
       }
     },
     {
-      path: "/content", components: {
+      path: "/setting", components: {
         content: Setting
       },
       children: [
@@ -26,18 +26,25 @@ const router = new VueRouter({
           path: 'workspace',
           component: Workspace,
           meta: {
-            roles: ['admin']
+            roles: ['org_admin']
           }
         },
         {
           path: 'user',
-          component: User
+          component: User,
+          meta: {
+            roles: ['admin']
+          }
         },
         {
           path: 'organization',
-          component: Organization
-        },{
-          path:'workspace/user',
+          component: Organization,
+          meta: {
+            roles: ['admin']
+          }
+        },
+        {
+          path: 'workspace/user',
           component: WorkspaceUser
         }
       ]
