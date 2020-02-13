@@ -98,13 +98,18 @@
         });
       },
       saveAndRun() {
-        window.console.log("saveAndRun");
+        if (!this.validTestPlan()) {
+          return;
+        }
 
         /// todo: saveAndRun
         this.$message({
           message: '保存成功，开始运行！',
           type: 'success'
         });
+      },
+      cancel() {
+        this.$router.push({path: '/'})
       },
       changeTestPlan(updateFunc) {
         updateFunc(this.testPlan);
@@ -140,9 +145,6 @@
 
         /// todo: 其他校验
         return true;
-      },
-      cancel() {
-        this.$router.push({path: '/'})
       }
     }
   }

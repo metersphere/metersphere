@@ -5,6 +5,7 @@ import Setting from "../settings/Setting";
 import Workspace from "../settings/Workspace";
 import User from "../settings/User";
 import CreateTestPlan from "../testPlan/CreateTestPlan";
+import AllTestPlan from "../testPlan/AllTestPlan";
 import Organization from "../settings/Organization";
 import WorkspaceUser from "../settings/WorkSpcaeUser";
 import TestResourcePool from "../settings/TestResourcePool";
@@ -57,6 +58,11 @@ const router = new VueRouter({
     {
       path: "/createTest", components: {
         content: CreateTestPlan
+      }
+    },
+    {
+      path: "/allTest", components: {
+        content: AllTestPlan
       }
     },
   ]

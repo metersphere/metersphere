@@ -20,6 +20,11 @@
     <el-submenu index="4" popper-class="submenu">
       <template slot="title">测试</template>
       <recent-test-plan/>
+      <el-divider/>
+      <el-menu-item index="/allTest">
+        <font-awesome-icon :icon="['fa', 'list-ul']"/>
+        <span style="padding-left: 5px;">所有测试</span>
+      </el-menu-item>
       <el-menu-item index="/createTest">
         <el-button type="text">创建测试</el-button>
       </el-menu-item>
@@ -57,5 +62,11 @@
     height: 39px;
     line-height: 40px;
     color: inherit;
+  }
+</style>
+
+<style scoped>
+  .el-divider--horizontal {
+    margin: 0;
   }
 </style>
