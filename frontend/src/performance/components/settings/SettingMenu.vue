@@ -5,10 +5,10 @@
                 <font-awesome-icon class="icon account" :icon="['far', 'address-card']" size="lg"/>
                 <span>账号</span>
             </template>
-            <el-menu-item index="/content/user">用户</el-menu-item>
-            <el-menu-item index="/content/testresourcepool">测试资源池</el-menu-item>
-            <el-menu-item index="/content/organization">组织</el-menu-item>
-            <el-menu-item index="/content/workspace">工作空间</el-menu-item>
+            <el-menu-item index="/setting/user">用户</el-menu-item>
+            <el-menu-item index="/setting/testresourcepool">测试资源池</el-menu-item>
+            <el-menu-item index="/setting/organization">组织</el-menu-item>
+            <el-menu-item index="/setting/workspace">工作空间</el-menu-item>
             <el-menu-item>API Keys</el-menu-item>
         </el-submenu>
         <el-submenu index=2>
@@ -16,7 +16,7 @@
                 <font-awesome-icon class="icon workspace" :icon="['far', 'clone']" size="lg"/>
                 <span>工作空间</span>
             </template>
-            <el-menu-item index="/content/workspace/user">成员</el-menu-item>
+            <el-menu-item index="/setting/workspace/user">成员</el-menu-item>
             <el-menu-item>证书</el-menu-item>
             <el-menu-item>测试计划</el-menu-item>
             <el-menu-item>警告</el-menu-item>
