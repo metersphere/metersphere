@@ -63,7 +63,6 @@ const router = new VueRouter({
       },
       props: {
         content: (route) => {
-          window.console.log("route.params: " + route.params);
           return {
             ...route.params
           }

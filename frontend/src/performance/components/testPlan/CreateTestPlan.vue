@@ -3,7 +3,7 @@
     <el-row>
       <el-col :span="10">
         <el-input placeholder="请输入名称" v-model="testPlan.name" class="input-with-select">
-          <el-select v-model="testPlan.project" slot="prepend" placeholder="请选择项目">
+          <el-select v-model="testPlan.projectId" slot="prepend" placeholder="请选择项目">
             <el-option
               v-for="item in projects"
               :key="item.id"
@@ -48,23 +48,9 @@
     data() {
       return {
         testPlan: {},
+        listProjectPath: "/project/listAll",
         savePath: "/testplan/save",
-        projects: [{
-          id: '选项1',
-          name: '黄金糕'
-        }, {
-          id: '选项2',
-          name: '双皮奶'
-        }, {
-          id: '选项3',
-          name: '蚵仔煎'
-        }, {
-          id: '选项4',
-          name: '龙须面'
-        }, {
-          id: '选项5',
-          name: '北京烤鸭'
-        }],
+        projects: [],
         active: '0',
         tabs: [{
           title: '场景配置',
@@ -82,12 +68,19 @@
       }
     },
     created() {
-      window.console.log("testPlanObj: " + this.testPlanObj);
       if (this.testPlanObj) {
         this.testPlan = this.testPlanObj;
       }
+      this.listProjects();
     },
     methods: {
+      listProjects() {
+        this.$get(this.listProjectPath).then(response => {
+          this.projects = response.data.data;
+        }).catch((response) => {
+          this.$message.error(response.message);
+        });
+      },
       save() {
         if (!this.validTestPlan()) {
           return;

@@ -1,6 +1,7 @@
 package io.metersphere.controller;
 
 import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.testplan.DeleteTestPlanRequest;
@@ -9,6 +10,7 @@ import io.metersphere.controller.request.testplan.QueryTestPlanRequest;
 import io.metersphere.controller.request.testplan.SaveTestPlanRequest;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.service.FileService;
+import io.metersphere.service.LoadTestService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,44 +20,20 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/testplan")
-public class TestPlanController {
-    private static List<LoadTestDTO> loadTests = Collections.synchronizedList(new ArrayList<LoadTestDTO>());
-
-    static {
-        // 模拟数据
-        for (int i = 0; i < 100; i++) {
-            final LoadTestDTO loadTest = new LoadTestDTO();
-            loadTest.setId(String.valueOf(i));
-            loadTest.setName("load test " + i);
-            loadTest.setDescription("no description");
-            loadTest.setScenarioDefinition("no scenario description");
-            loadTest.setCreateTime(System.currentTimeMillis());
-            loadTest.setUpdateTime(System.currentTimeMillis());
-            loadTest.setProjectId(String.valueOf(i));
-            loadTest.setProjectName("project " + i);
-            loadTests.add(loadTest);
-        }
-    }
-
+public class LoadTestController {
+    @Resource
+    private LoadTestService loadTestService;
     @Resource
     private FileService fileService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<LoadTestDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanRequest request) {
-        final Page page = new Page((int) Math.ceil(loadTests.size() * 1.0 / pageSize), pageSize);
-        page.setTotal(loadTests.size());
-        return PageUtils.setPageInfo(
-                page,
-                loadTests.stream().skip((goPage - 1) * pageSize).limit(pageSize).collect(Collectors.toList())
-        );
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, loadTestService.list(request));
     }
 
     @PostMapping("/save")
@@ -65,13 +43,7 @@ public class TestPlanController {
 
     @PostMapping("/delete")
     public void delete(@RequestBody DeleteTestPlanRequest request) {
-        final Iterator<LoadTestDTO> iterator = loadTests.iterator();
-        while (iterator.hasNext()) {
-            if (iterator.next().getId().equals(request.getId())) {
-                iterator.remove();
-                return;
-            }
-        }
+        loadTestService.delete(request);
     }
 
     @PostMapping("/file/upload")

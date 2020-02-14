@@ -115,8 +115,10 @@
       handleDelete(file, index) {
         this.$alert('确认删除文件: ' + file.name + "？", '', {
           confirmButtonText: '确定',
-          callback: () => {
-            this._handleDelete(file, index);
+          callback: (action) => {
+            if (action === 'confirm') {
+              this._handleDelete(file, index);
+            }
           }
         });
       },

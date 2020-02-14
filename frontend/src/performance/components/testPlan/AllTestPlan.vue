@@ -125,8 +125,10 @@
       handleDelete(testPlan) {
         this.$alert('确认删除测试: ' + testPlan.name + "？", '', {
           confirmButtonText: '确定',
-          callback: () => {
-            this._handleDelete(testPlan);
+          callback: (action) => {
+            if (action === 'confirm') {
+              this._handleDelete(testPlan);
+            }
           }
         });
       },
