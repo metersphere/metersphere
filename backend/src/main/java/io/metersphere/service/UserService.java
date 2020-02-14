@@ -6,6 +6,7 @@ import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.base.mapper.UserRoleMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.dto.UserDTO;
+import io.metersphere.dto.UserOperateDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -101,5 +102,15 @@ public class UserService {
     public void updateUser(User user) {
         user.setUpdateTime(System.currentTimeMillis());
         userMapper.updateByPrimaryKeySelective(user);
+    }
+
+    public List<Role> getUserRolesList(String userId) {
+        UserRoleExample userRoleExample = new UserRoleExample();
+        userRoleExample.createCriteria().andUserIdEqualTo(userId);
+        List<UserRole> userRolesList = userRoleMapper.selectByExample(userRoleExample);
+        List<String> roleIds = userRolesList.stream().map(UserRole::getRoleId).collect(Collectors.toList());
+        RoleExample roleExample = new RoleExample();
+        roleExample.createCriteria().andIdIn(roleIds);
+        return roleMapper.selectByExample(roleExample);
     }
 }
