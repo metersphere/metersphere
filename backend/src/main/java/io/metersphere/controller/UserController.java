@@ -1,7 +1,9 @@
 package io.metersphere.controller;
 
+import io.metersphere.base.domain.Role;
 import io.metersphere.base.domain.User;
 import io.metersphere.dto.UserDTO;
+import io.metersphere.dto.UserOperateDTO;
 import io.metersphere.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,4 +30,9 @@ public class UserController {
 
     @PostMapping("/update")
     public void updateUser(@RequestBody User user) { userService.updateUser(user); }
+
+    @GetMapping("/role/list/{userId}")
+    public List<Role> getUserRolesList(@PathVariable(value = "userId") String userId) {
+        return userService.getUserRolesList(userId);
+    }
 }
