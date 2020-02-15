@@ -7,6 +7,7 @@ import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
 import io.metersphere.controller.request.testplan.DeleteTestPlanRequest;
 import io.metersphere.controller.request.testplan.QueryTestPlanRequest;
+import io.metersphere.controller.request.testplan.SaveTestPlanRequest;
 import io.metersphere.dto.LoadTestDTO;
 import org.apache.commons.lang3.RandomUtils;
 import org.springframework.stereotype.Service;
@@ -60,5 +61,17 @@ public class LoadTestService {
         loadTestExample.createCriteria().andIdEqualTo(request.getId());
 
         loadTestMapper.deleteByExample(loadTestExample);
+    }
+
+    public void save(SaveTestPlanRequest request) {
+        final LoadTestWithBLOBs loadTest = new LoadTestWithBLOBs();
+        loadTest.setId(UUID.randomUUID().toString());
+        loadTest.setName(request.getName());
+        loadTest.setProjectId(request.getProjectId());
+        loadTest.setCreateTime(System.currentTimeMillis());
+        loadTest.setUpdateTime(System.currentTimeMillis());
+        loadTest.setScenarioDefinition("todo");
+        loadTest.setDescription("todo");
+        loadTestMapper.insert(loadTest);
     }
 }

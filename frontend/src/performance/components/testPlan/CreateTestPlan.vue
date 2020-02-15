@@ -1,5 +1,5 @@
 <template>
-  <div class="testplan-container">
+  <div class="edit-testplan-container">
     <el-row>
       <el-col :span="10">
         <el-input placeholder="请输入名称" v-model="testPlan.name" class="input-with-select">
@@ -8,7 +8,7 @@
               v-for="item in projects"
               :key="item.id"
               :label="item.name"
-              :value="item.name">
+              :value="item.id">
             </el-option>
           </el-select>
         </el-input>
@@ -125,7 +125,7 @@
           return false;
         }
 
-        if (!this.testPlan.project) {
+        if (!this.testPlan.projectId) {
           this.$message({
             message: '项目不能为空！',
             type: 'error'
@@ -151,16 +151,16 @@
 </script>
 
 <style>
-  .testplan-container .el-tabs__nav {
+  .edit-testplan-container .el-tabs__nav {
     float: none;
     text-align: center;
   }
 
-  .testplan-container .el-select .el-input {
+  .edit-testplan-container .el-select .el-input {
     width: 130px;
   }
 
-  .testplan-container .input-with-select .el-input-group__prepend {
+  .edit-testplan-container .input-with-select .el-input-group__prepend {
     background-color: #fff;
   }
 </style>

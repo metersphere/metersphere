@@ -38,7 +38,7 @@ public class LoadTestController {
 
     @PostMapping("/save")
     public void save(@RequestBody SaveTestPlanRequest request) {
-        System.out.println(String.format("save test plan: %s", request.getName()));
+        loadTestService.save(request);
     }
 
     @PostMapping("/delete")

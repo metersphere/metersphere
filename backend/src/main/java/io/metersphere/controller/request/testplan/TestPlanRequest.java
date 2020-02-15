@@ -3,7 +3,7 @@ package io.metersphere.controller.request.testplan;
 public class TestPlanRequest {
     private String id;
     private String fileId;
-    private String project;
+    private String projectId;
     private String name;
 
 
@@ -23,12 +23,12 @@ public class TestPlanRequest {
         this.fileId = fileId;
     }
 
-    public String getProject() {
-        return project;
+    public String getProjectId() {
+        return projectId;
     }
 
-    public void setProject(String project) {
-        this.project = project;
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
     }
 
     public String getName() {
