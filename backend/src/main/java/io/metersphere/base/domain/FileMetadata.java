@@ -2,12 +2,10 @@ package io.metersphere.base.domain;
 
 import java.io.Serializable;
 
-public class FileStore implements Serializable {
+public class FileMetadata implements Serializable {
     private String id;
 
     private String name;
-
-    private String description;
 
     private String type;
 
@@ -16,8 +14,6 @@ public class FileStore implements Serializable {
     private Long createTime;
 
     private Long updateTime;
-
-    private String file;
 
     private static final long serialVersionUID = 1L;
 
@@ -35,14 +31,6 @@ public class FileStore implements Serializable {
 
     public void setName(String name) {
         this.name = name == null ? null : name.trim();
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description == null ? null : description.trim();
     }
 
     public String getType() {
@@ -75,13 +63,5 @@ public class FileStore implements Serializable {
 
     public void setUpdateTime(Long updateTime) {
         this.updateTime = updateTime;
-    }
-
-    public String getFile() {
-        return file;
-    }
-
-    public void setFile(String file) {
-        this.file = file == null ? null : file.trim();
     }
 }

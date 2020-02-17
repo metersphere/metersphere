@@ -1,10 +1,7 @@
 package io.metersphere.service;
 
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.FileStoreMapper;
-import io.metersphere.base.mapper.FileStoreResourceMapper;
-import io.metersphere.base.mapper.LoadTestMapper;
-import io.metersphere.base.mapper.ProjectMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
 import io.metersphere.commons.constants.LoadTestFileType;
 import io.metersphere.commons.exception.MSException;
@@ -36,9 +33,11 @@ public class LoadTestService {
     @Resource
     private ProjectMapper projectMapper;
     @Resource
-    private FileStoreMapper fileStoreMapper;
+    private FileMetadataMapper fileMetadataMapper;
     @Resource
-    private FileStoreResourceMapper fileStoreResourceMapper;
+    private FileContentMapper fileContentMapper;
+    @Resource
+    private LoadTestFileMapper loadTestFileMapper;
 
     // 测试，模拟数据
     @PostConstruct
@@ -78,15 +77,14 @@ public class LoadTestService {
             throw new IllegalArgumentException("文件不能为空！");
         }
 
-        final FileStore fileStore = saveFileStore(file);
+        final FileMetadata fileMetadata = saveFile(file);
 
         final LoadTestWithBLOBs loadTest = saveLoadTest(request);
 
-        FileStoreResource fileStoreResource = new FileStoreResource();
-        fileStoreResource.setTestId(loadTest.getId());
-        fileStoreResource.setFileId(fileStore.getId());
-        fileStoreResource.setFileType(fileStore.getType());
-        fileStoreResourceMapper.insert(fileStoreResource);
+        LoadTestFile loadTestFile = new LoadTestFile();
+        loadTestFile.setTestId(loadTest.getId());
+        loadTestFile.setFileId(fileMetadata.getId());
+        loadTestFileMapper.insert(loadTestFile);
     }
 
     private LoadTestWithBLOBs saveLoadTest(SaveTestPlanRequest request) {
@@ -102,20 +100,25 @@ public class LoadTestService {
         return loadTest;
     }
 
-    private FileStore saveFileStore(MultipartFile file) {
-        final FileStore fileStore = new FileStore();
-        fileStore.setId(UUID.randomUUID().toString());
-        fileStore.setName(file.getOriginalFilename());
-        fileStore.setSize(file.getSize());
-        fileStore.setCreateTime(System.currentTimeMillis());
-        fileStore.setUpdateTime(System.currentTimeMillis());
-        fileStore.setType(LoadTestFileType.JMX.name());
+    private FileMetadata saveFile(MultipartFile file) {
+        final FileMetadata fileMetadata = new FileMetadata();
+        fileMetadata.setId(UUID.randomUUID().toString());
+        fileMetadata.setName(file.getOriginalFilename());
+        fileMetadata.setSize(file.getSize());
+        fileMetadata.setCreateTime(System.currentTimeMillis());
+        fileMetadata.setUpdateTime(System.currentTimeMillis());
+        fileMetadata.setType(LoadTestFileType.JMX.name());
+        fileMetadataMapper.insert(fileMetadata);
+
+        FileContent fileContent = new FileContent();
+        fileContent.setId(fileMetadata.getId());
         try {
-            fileStore.setFile(IOUtils.toString(file.getInputStream(), StandardCharsets.UTF_8));
+            fileContent.setFile(IOUtils.toString(file.getInputStream(), StandardCharsets.UTF_8));
         } catch (IOException e) {
             MSException.throwException(e);
         }
-        fileStoreMapper.insert(fileStore);
-        return fileStore;
+        fileContentMapper.insert(fileContent);
+
+        return fileMetadata;
     }
 }

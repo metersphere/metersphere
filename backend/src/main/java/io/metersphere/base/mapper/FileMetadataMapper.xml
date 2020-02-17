@@ -1,17 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.base.mapper.FileStoreMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.base.domain.FileStore">
+<mapper namespace="io.metersphere.base.mapper.FileMetadataMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.base.domain.FileMetadata">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="size" jdbcType="BIGINT" property="size" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
-  </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.FileStore">
-    <result column="file" jdbcType="LONGVARCHAR" property="file" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -72,20 +68,15 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, name, description, type, size, create_time, update_time
+    id, name, type, size, create_time, update_time
   </sql>
-  <sql id="Blob_Column_List">
-    file
-  </sql>
-  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.FileStoreExample" resultMap="ResultMapWithBLOBs">
+  <select id="selectByExample" parameterType="io.metersphere.base.domain.FileMetadataExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
-    from file_store
+    from file_metadata
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -93,57 +84,38 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByExample" parameterType="io.metersphere.base.domain.FileStoreExample" resultMap="BaseResultMap">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    from file_store
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
-    from file_store
+    from file_metadata
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from file_store
+    delete from file_metadata
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.base.domain.FileStoreExample">
-    delete from file_store
+  <delete id="deleteByExample" parameterType="io.metersphere.base.domain.FileMetadataExample">
+    delete from file_metadata
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.base.domain.FileStore">
-    insert into file_store (id, name, description, 
-      type, size, create_time, 
-      update_time, file)
-    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
-      #{type,jdbcType=VARCHAR}, #{size,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{file,jdbcType=LONGVARCHAR})
+  <insert id="insert" parameterType="io.metersphere.base.domain.FileMetadata">
+    insert into file_metadata (id, name, type, 
+      size, create_time, update_time
+      )
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
+      #{size,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}
+      )
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.base.domain.FileStore">
-    insert into file_store
+  <insert id="insertSelective" parameterType="io.metersphere.base.domain.FileMetadata">
+    insert into file_metadata
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
       </if>
       <if test="name != null">
         name,
-      </if>
-      <if test="description != null">
-        description,
       </if>
       <if test="type != null">
         type,
@@ -157,9 +129,6 @@
       <if test="updateTime != null">
         update_time,
       </if>
-      <if test="file != null">
-        file,
-      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -167,9 +136,6 @@
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="description != null">
-        #{description,jdbcType=VARCHAR},
       </if>
       <if test="type != null">
         #{type,jdbcType=VARCHAR},
@@ -183,28 +149,22 @@
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="file != null">
-        #{file,jdbcType=LONGVARCHAR},
-      </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.base.domain.FileStoreExample" resultType="java.lang.Long">
-    select count(*) from file_store
+  <select id="countByExample" parameterType="io.metersphere.base.domain.FileMetadataExample" resultType="java.lang.Long">
+    select count(*) from file_metadata
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update file_store
+    update file_metadata
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.name != null">
         name = #{record.name,jdbcType=VARCHAR},
-      </if>
-      <if test="record.description != null">
-        description = #{record.description,jdbcType=VARCHAR},
       </if>
       <if test="record.type != null">
         type = #{record.type,jdbcType=VARCHAR},
@@ -218,33 +178,15 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
-      <if test="record.file != null">
-        file = #{record.file,jdbcType=LONGVARCHAR},
-      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByExampleWithBLOBs" parameterType="map">
-    update file_store
-    set id = #{record.id,jdbcType=VARCHAR},
-      name = #{record.name,jdbcType=VARCHAR},
-      description = #{record.description,jdbcType=VARCHAR},
-      type = #{record.type,jdbcType=VARCHAR},
-      size = #{record.size,jdbcType=BIGINT},
-      create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT},
-      file = #{record.file,jdbcType=LONGVARCHAR}
-    <if test="_parameter != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
   <update id="updateByExample" parameterType="map">
-    update file_store
+    update file_metadata
     set id = #{record.id,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
-      description = #{record.description,jdbcType=VARCHAR},
       type = #{record.type,jdbcType=VARCHAR},
       size = #{record.size,jdbcType=BIGINT},
       create_time = #{record.createTime,jdbcType=BIGINT},
@@ -253,14 +195,11 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.FileStore">
-    update file_store
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.FileMetadata">
+    update file_metadata
     <set>
       <if test="name != null">
         name = #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="description != null">
-        description = #{description,jdbcType=VARCHAR},
       </if>
       <if test="type != null">
         type = #{type,jdbcType=VARCHAR},
@@ -274,27 +213,12 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="file != null">
-        file = #{file,jdbcType=LONGVARCHAR},
-      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.FileStore">
-    update file_store
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.FileMetadata">
+    update file_metadata
     set name = #{name,jdbcType=VARCHAR},
-      description = #{description,jdbcType=VARCHAR},
-      type = #{type,jdbcType=VARCHAR},
-      size = #{size,jdbcType=BIGINT},
-      create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT},
-      file = #{file,jdbcType=LONGVARCHAR}
-    where id = #{id,jdbcType=VARCHAR}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.FileStore">
-    update file_store
-    set name = #{name,jdbcType=VARCHAR},
-      description = #{description,jdbcType=VARCHAR},
       type = #{type,jdbcType=VARCHAR},
       size = #{size,jdbcType=BIGINT},
       create_time = #{createTime,jdbcType=BIGINT},

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.base.mapper.FileStoreResourceMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.base.domain.FileStoreResource">
-    <result column="test_id" jdbcType="VARCHAR" property="testId" />
-    <result column="file_id" jdbcType="VARCHAR" property="fileId" />
-    <result column="file_type" jdbcType="VARCHAR" property="fileType" />
+<mapper namespace="io.metersphere.base.mapper.FileContentMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.base.domain.FileContent">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.FileContent">
+    <result column="file" jdbcType="LONGVARCHAR" property="file" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -65,15 +66,20 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    test_id, file_id, file_type
+    id
   </sql>
-  <select id="selectByExample" parameterType="io.metersphere.base.domain.FileStoreResourceExample" resultMap="BaseResultMap">
+  <sql id="Blob_Column_List">
+    file
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.FileContentExample" resultMap="ResultMapWithBLOBs">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from file_store_resource
+    ,
+    <include refid="Blob_Column_List" />
+    from file_content
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -81,73 +87,108 @@
       order by ${orderByClause}
     </if>
   </select>
-  <delete id="deleteByExample" parameterType="io.metersphere.base.domain.FileStoreResourceExample">
-    delete from file_store_resource
+  <select id="selectByExample" parameterType="io.metersphere.base.domain.FileContentExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from file_content
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from file_content
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from file_content
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.base.domain.FileContentExample">
+    delete from file_content
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.base.domain.FileStoreResource">
-    insert into file_store_resource (test_id, file_id, file_type
-      )
-    values (#{testId,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, #{fileType,jdbcType=VARCHAR}
-      )
+  <insert id="insert" parameterType="io.metersphere.base.domain.FileContent">
+    insert into file_content (id, file)
+    values (#{id,jdbcType=VARCHAR}, #{file,jdbcType=LONGVARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.base.domain.FileStoreResource">
-    insert into file_store_resource
+  <insert id="insertSelective" parameterType="io.metersphere.base.domain.FileContent">
+    insert into file_content
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="testId != null">
-        test_id,
+      <if test="id != null">
+        id,
       </if>
-      <if test="fileId != null">
-        file_id,
-      </if>
-      <if test="fileType != null">
-        file_type,
+      <if test="file != null">
+        file,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="testId != null">
-        #{testId,jdbcType=VARCHAR},
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
       </if>
-      <if test="fileId != null">
-        #{fileId,jdbcType=VARCHAR},
-      </if>
-      <if test="fileType != null">
-        #{fileType,jdbcType=VARCHAR},
+      <if test="file != null">
+        #{file,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.base.domain.FileStoreResourceExample" resultType="java.lang.Long">
-    select count(*) from file_store_resource
+  <select id="countByExample" parameterType="io.metersphere.base.domain.FileContentExample" resultType="java.lang.Long">
+    select count(*) from file_content
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update file_store_resource
+    update file_content
     <set>
-      <if test="record.testId != null">
-        test_id = #{record.testId,jdbcType=VARCHAR},
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
       </if>
-      <if test="record.fileId != null">
-        file_id = #{record.fileId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.fileType != null">
-        file_type = #{record.fileType,jdbcType=VARCHAR},
+      <if test="record.file != null">
+        file = #{record.file,jdbcType=LONGVARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByExample" parameterType="map">
-    update file_store_resource
-    set test_id = #{record.testId,jdbcType=VARCHAR},
-      file_id = #{record.fileId,jdbcType=VARCHAR},
-      file_type = #{record.fileType,jdbcType=VARCHAR}
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update file_content
+    set id = #{record.id,jdbcType=VARCHAR},
+      file = #{record.file,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update file_content
+    set id = #{record.id,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.FileContent">
+    update file_content
+    <set>
+      <if test="file != null">
+        file = #{file,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.FileContent">
+    update file_content
+    set file = #{file,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

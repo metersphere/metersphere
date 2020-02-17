@@ -3,14 +3,14 @@ package io.metersphere.base.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileStoreResourceExample {
+public class LoadTestFileExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public FileStoreResourceExample() {
+    public LoadTestFileExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 
@@ -241,76 +241,6 @@ public class FileStoreResourceExample {
 
         public Criteria andFileIdNotBetween(String value1, String value2) {
             addCriterion("file_id not between", value1, value2, "fileId");
-            return (Criteria) this;
-        }
-
-        public Criteria andFileTypeIsNull() {
-            addCriterion("file_type is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andFileTypeIsNotNull() {
-            addCriterion("file_type is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andFileTypeEqualTo(String value) {
-            addCriterion("file_type =", value, "fileType");
-            return (Criteria) this;
-        }
-
-        public Criteria andFileTypeNotEqualTo(String value) {
-            addCriterion("file_type <>", value, "fileType");
-            return (Criteria) this;
-        }
-
-        public Criteria andFileTypeGreaterThan(String value) {
-            addCriterion("file_type >", value, "fileType");
-            return (Criteria) this;
-        }
-
-        public Criteria andFileTypeGreaterThanOrEqualTo(String value) {
-            addCriterion("file_type >=", value, "fileType");
-            return (Criteria) this;
-        }
-
-        public Criteria andFileTypeLessThan(String value) {
-            addCriterion("file_type <", value, "fileType");
-            return (Criteria) this;
-        }
-
-        public Criteria andFileTypeLessThanOrEqualTo(String value) {
-            addCriterion("file_type <=", value, "fileType");
-            return (Criteria) this;
-        }
-
-        public Criteria andFileTypeLike(String value) {
-            addCriterion("file_type like", value, "fileType");
-            return (Criteria) this;
-        }
-
-        public Criteria andFileTypeNotLike(String value) {
-            addCriterion("file_type not like", value, "fileType");
-            return (Criteria) this;
-        }
-
-        public Criteria andFileTypeIn(List<String> values) {
-            addCriterion("file_type in", values, "fileType");
-            return (Criteria) this;
-        }
-
-        public Criteria andFileTypeNotIn(List<String> values) {
-            addCriterion("file_type not in", values, "fileType");
-            return (Criteria) this;
-        }
-
-        public Criteria andFileTypeBetween(String value1, String value2) {
-            addCriterion("file_type between", value1, value2, "fileType");
-            return (Criteria) this;
-        }
-
-        public Criteria andFileTypeNotBetween(String value1, String value2) {
-            addCriterion("file_type not between", value1, value2, "fileType");
             return (Criteria) this;
         }
     }
