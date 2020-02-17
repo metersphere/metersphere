@@ -9,18 +9,21 @@ import AllTestPlan from "../testPlan/AllTestPlan";
 import Organization from "../settings/Organization";
 import WorkspaceUser from "../settings/WorkSpcaeUser";
 import TestResourcePool from "../settings/TestResourcePool";
+import MsProject from "../project/MsProject";
 
 Vue.use(VueRouter);
 
 const router = new VueRouter({
   routes: [
     {
-      path: "/sidebar", components: {
+      path: "/sidebar",
+      components: {
         sidebar: RouterSidebar
       }
     },
     {
-      path: "/setting", components: {
+      path: "/setting",
+      components: {
         content: Setting
       },
       children: [
@@ -75,6 +78,12 @@ const router = new VueRouter({
         content: AllTestPlan
       }
     },
+    {
+      path: "/project",
+      components: {
+        content: MsProject
+      }
+    }
   ]
 });
 
