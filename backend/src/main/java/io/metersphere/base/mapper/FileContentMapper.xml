@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.base.mapper.FileContentMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.FileContent">
-    <id column="id" jdbcType="VARCHAR" property="id" />
+    <id column="file_id" jdbcType="VARCHAR" property="fileId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.FileContent">
     <result column="file" jdbcType="LONGVARCHAR" property="file" />
@@ -66,7 +66,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id
+    file_id
   </sql>
   <sql id="Blob_Column_List">
     file
@@ -107,11 +107,11 @@
     ,
     <include refid="Blob_Column_List" />
     from file_content
-    where id = #{id,jdbcType=VARCHAR}
+    where file_id = #{fileId,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from file_content
-    where id = #{id,jdbcType=VARCHAR}
+    where file_id = #{fileId,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.base.domain.FileContentExample">
     delete from file_content
@@ -120,22 +120,22 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.FileContent">
-    insert into file_content (id, file)
-    values (#{id,jdbcType=VARCHAR}, #{file,jdbcType=LONGVARCHAR})
+    insert into file_content (file_id, file)
+    values (#{fileId,jdbcType=VARCHAR}, #{file,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.FileContent">
     insert into file_content
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
+      <if test="fileId != null">
+        file_id,
       </if>
       <if test="file != null">
         file,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=VARCHAR},
+      <if test="fileId != null">
+        #{fileId,jdbcType=VARCHAR},
       </if>
       <if test="file != null">
         #{file,jdbcType=LONGVARCHAR},
@@ -151,8 +151,8 @@
   <update id="updateByExampleSelective" parameterType="map">
     update file_content
     <set>
-      <if test="record.id != null">
-        id = #{record.id,jdbcType=VARCHAR},
+      <if test="record.fileId != null">
+        file_id = #{record.fileId,jdbcType=VARCHAR},
       </if>
       <if test="record.file != null">
         file = #{record.file,jdbcType=LONGVARCHAR},
@@ -164,7 +164,7 @@
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update file_content
-    set id = #{record.id,jdbcType=VARCHAR},
+    set file_id = #{record.fileId,jdbcType=VARCHAR},
       file = #{record.file,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -172,7 +172,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update file_content
-    set id = #{record.id,jdbcType=VARCHAR}
+    set file_id = #{record.fileId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -184,11 +184,11 @@
         file = #{file,jdbcType=LONGVARCHAR},
       </if>
     </set>
-    where id = #{id,jdbcType=VARCHAR}
+    where file_id = #{fileId,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.FileContent">
     update file_content
     set file = #{file,jdbcType=LONGVARCHAR}
-    where id = #{id,jdbcType=VARCHAR}
+    where file_id = #{fileId,jdbcType=VARCHAR}
   </update>
 </mapper>

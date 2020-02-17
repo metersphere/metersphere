@@ -60,14 +60,6 @@
 
     },
     methods: {
-      testChange() {
-        this._changeTestPlan(function (testPlan) {
-          testPlan.pressureConifg = "1"
-        })
-      },
-      _changeTestPlan(updateTestPlanFunc) {
-        this.$emit('change-test-plan', updateTestPlanFunc);
-      },
     }
   }
 </script>

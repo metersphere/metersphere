@@ -2,12 +2,10 @@ package io.metersphere.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
-import io.metersphere.controller.request.testplan.DeleteTestPlanRequest;
-import io.metersphere.controller.request.testplan.FileOperationRequest;
-import io.metersphere.controller.request.testplan.QueryTestPlanRequest;
-import io.metersphere.controller.request.testplan.SaveTestPlanRequest;
+import io.metersphere.controller.request.testplan.*;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.service.FileService;
 import io.metersphere.service.LoadTestService;
@@ -18,8 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -39,9 +35,17 @@ public class LoadTestController {
     @PostMapping(value = "/save", consumes = {"multipart/form-data"})
     public void save(
             @RequestPart("request") SaveTestPlanRequest request,
-            @RequestPart("file") MultipartFile file
+            @RequestPart(value = "file") MultipartFile file
     ) {
         loadTestService.save(request, file);
+    }
+
+    @PostMapping(value = "/edit", consumes = {"multipart/form-data"})
+    public void edit(
+            @RequestPart("request") EditTestPlanRequest request,
+            @RequestPart(value = "file", required = false) MultipartFile file
+    ) {
+        loadTestService.edit(request, file);
     }
 
     @PostMapping("/delete")
@@ -49,18 +53,13 @@ public class LoadTestController {
         loadTestService.delete(request);
     }
 
-    @PostMapping("/file/upload")
-    public void uploadJmx(MultipartFile file) throws IOException {
-        fileService.upload(file.getOriginalFilename(), file);
-    }
-
-    @PostMapping("/file/delete")
-    public void deleteJmx(@RequestBody FileOperationRequest request) {
-        System.out.println(String.format("delete %s", request.getName()));
+    @GetMapping("/file/metadata/{testId}")
+    public FileMetadata getFileMetadata(@PathVariable String testId) {
+        return fileService.getFileMetadataByTestId(testId);
     }
 
     @PostMapping("/file/download")
-    public ResponseEntity<org.springframework.core.io.Resource> downloadJmx(@RequestBody FileOperationRequest fileOperationRequest, HttpServletResponse response) {
+    public ResponseEntity<org.springframework.core.io.Resource> downloadJmx(@RequestBody FileOperationRequest fileOperationRequest) {
         org.springframework.core.io.Resource resource = fileService.loadFileAsResource(fileOperationRequest.getName());
 
         return ResponseEntity.ok()

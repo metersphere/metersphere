@@ -3,18 +3,18 @@ package io.metersphere.base.domain;
 import java.io.Serializable;
 
 public class FileContent implements Serializable {
-    private String id;
+    private String fileId;
 
     private String file;
 
     private static final long serialVersionUID = 1L;
 
-    public String getId() {
-        return id;
+    public String getFileId() {
+        return fileId;
     }
 
-    public void setId(String id) {
-        this.id = id == null ? null : id.trim();
+    public void setFileId(String fileId) {
+        this.fileId = fileId == null ? null : fileId.trim();
     }
 
     public String getFile() {

@@ -20,13 +20,13 @@
 
     <el-tabs v-model="active" type="border-card" :stretch="true">
       <el-tab-pane label="基础配置">
-        <test-plan-basic-config v-on:change-test-plan="changeTestPlan"/>
+        <test-plan-basic-config :test-plan="testPlan"/>
       </el-tab-pane>
       <el-tab-pane label="压力配置">
-        <test-plan-pressure-config v-on:change-test-plan="changeTestPlan"/>
+        <test-plan-pressure-config/>
       </el-tab-pane>
       <el-tab-pane label="高级配置">
-        <test-plan-advanced-config v-on:change-test-plan="changeTestPlan"/>
+        <test-plan-advanced-config/>
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -50,6 +50,7 @@
         testPlan: {},
         listProjectPath: "/project/listAll",
         savePath: "/testplan/save",
+        editPath: "/testplan/edit",
         projects: [],
         active: '0',
         tabs: [{
@@ -77,9 +78,7 @@
       listProjects() {
         this.$get(this.listProjectPath).then(response => {
           this.projects = response.data.data;
-        }).catch((response) => {
-          this.$message.error(response.message);
-        });
+        })
       },
       save() {
         if (!this.validTestPlan()) {
@@ -87,17 +86,22 @@
         }
 
         let formData = new FormData();
+        let url = this.testPlan.id ? this.editPath : this.savePath;
 
-        formData.append("file", this.testPlan.file);
+        if (!this.testPlan.file.id) {
+          formData.append("file", this.testPlan.file);
+        }
         // file属性不需要json化
-        let requestJson = JSON.stringify(this.testPlan, function (key, value) {return key === "file" ? undefined : value});
+        let requestJson = JSON.stringify(this.testPlan, function (key, value) {
+          return key === "file" ? undefined : value
+        });
         formData.append('request', new Blob([requestJson], {
           type: "application/json"
         }));
 
         let options = {
           method: 'POST',
-          url: this.savePath,
+          url: url,
           data: formData,
           headers: {
             'Content-Type': undefined
@@ -126,10 +130,6 @@
       },
       cancel() {
         this.$router.push({path: '/'})
-      },
-      changeTestPlan(updateFunc) {
-        updateFunc(this.testPlan);
-        window.console.log(this.testPlan);
       },
       validTestPlan() {
         if (!this.testPlan.name) {

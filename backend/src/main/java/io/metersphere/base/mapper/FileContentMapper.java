@@ -10,7 +10,7 @@ public interface FileContentMapper {
 
     int deleteByExample(FileContentExample example);
 
-    int deleteByPrimaryKey(String id);
+    int deleteByPrimaryKey(String fileId);
 
     int insert(FileContent record);
 
@@ -20,7 +20,7 @@ public interface FileContentMapper {
 
     List<FileContent> selectByExample(FileContentExample example);
 
-    FileContent selectByPrimaryKey(String id);
+    FileContent selectByPrimaryKey(String fileId);
 
     int updateByExampleSelective(@Param("record") FileContent record, @Param("example") FileContentExample example);
 

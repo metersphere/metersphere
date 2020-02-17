@@ -3,11 +3,12 @@
     <el-upload
       accept=".jmx"
       drag
+      action=""
       :limit="1"
       :show-file-list="false"
-      :action="jmxUploadPath"
       :before-upload="beforeUpload"
       :http-request="handleUpload"
+      :on-exceed="handleExceed"
       :file-list="fileList">
       <i class="el-icon-upload"/>
       <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
@@ -54,16 +55,42 @@
 <script>
   export default {
     name: "TestPlanBasicConfig",
+    props: ["testPlan"],
     data() {
       return {
-        jmxUploadPath: '/testplan/file/upload',
+        getFileMetadataPath: "/testplan/file/metadata",
         jmxDownloadPath: '/testplan/file/download',
         jmxDeletePath: '/testplan/file/delete',
         fileList: [],
         tableData: [],
       };
     },
+    created() {
+      if (this.testPlan.id) {
+        this.getFileMetadata(this.testPlan)
+      }
+    },
     methods: {
+      getFileMetadata(testPlan) {
+        this.$get(this.getFileMetadataPath + "/" + testPlan.id).then(response => {
+          let file = response.data.data;
+
+          this.testPlan.file = file;
+
+          this.fileList.push({
+            id: file.id,
+            name: file.name
+          });
+
+          this.tableData.push({
+            name: file.name,
+            size: file.size + 'Byte', /// todo: 按照大小显示Byte、KB、MB等
+            type: 'JMX',
+            lastModified: file.lastModified,
+            status: 'todo',
+          });
+        })
+      },
       beforeUpload(file) {
         if (!this.fileValidator(file)) {
           /// todo: 显示错误信息
@@ -81,11 +108,7 @@
         return true;
       },
       handleUpload(uploadResources) {
-        window.console.log(uploadResources);
-
-        this._changeTestPlan(function (testPlan) {
-          testPlan.file = uploadResources.file;
-        });
+        this.testPlan.file = uploadResources.file;
       },
       handleDownload(file) {
         let data = {
@@ -124,26 +147,12 @@
         });
       },
       _handleDelete(file, index) {
-        let data = {
-          name: file.name
-        };
-
-        this.$post(this.jmxDeletePath, data).then(response => {
-          if (response.data.success) {
-            this.fileList.splice(index, 1);
-            this.tableData.splice(index, 1);
-
-            this.$message({
-              message: '删除成功！',
-              type: 'success'
-            });
-          } else {
-            this.$message.error(response.message);
-          }
-        });
+        this.fileList.splice(index, 1);
+        this.tableData.splice(index, 1);
+        this.testPlan.file = null;
       },
-      _changeTestPlan(updateTestPlanFunc) {
-        this.$emit('change-test-plan', updateTestPlanFunc);
+      handleExceed() {
+        this.$message.error("请先删除已存在的文件！");
       },
       fileValidator(file) {
         /// todo: 是否需要对文件内容和大小做限制

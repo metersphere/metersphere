@@ -7,6 +7,7 @@ import io.metersphere.commons.constants.LoadTestFileType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.IOUtils;
 import io.metersphere.controller.request.testplan.DeleteTestPlanRequest;
+import io.metersphere.controller.request.testplan.EditTestPlanRequest;
 import io.metersphere.controller.request.testplan.QueryTestPlanRequest;
 import io.metersphere.controller.request.testplan.SaveTestPlanRequest;
 import io.metersphere.dto.LoadTestDTO;
@@ -38,6 +39,8 @@ public class LoadTestService {
     private FileContentMapper fileContentMapper;
     @Resource
     private LoadTestFileMapper loadTestFileMapper;
+    @Resource
+    private FileService fileService;
 
     // 测试，模拟数据
     @PostConstruct
@@ -66,10 +69,9 @@ public class LoadTestService {
     }
 
     public void delete(DeleteTestPlanRequest request) {
-        LoadTestExample loadTestExample = new LoadTestExample();
-        loadTestExample.createCriteria().andIdEqualTo(request.getId());
+        loadTestMapper.deleteByPrimaryKey(request.getId());
 
-        loadTestMapper.deleteByExample(loadTestExample);
+        fileService.deleteFileByTestId(request.getId());
     }
 
     public void save(SaveTestPlanRequest request, MultipartFile file) {
@@ -111,7 +113,7 @@ public class LoadTestService {
         fileMetadataMapper.insert(fileMetadata);
 
         FileContent fileContent = new FileContent();
-        fileContent.setId(fileMetadata.getId());
+        fileContent.setFileId(fileMetadata.getId());
         try {
             fileContent.setFile(IOUtils.toString(file.getInputStream(), StandardCharsets.UTF_8));
         } catch (IOException e) {
@@ -120,5 +122,29 @@ public class LoadTestService {
         fileContentMapper.insert(fileContent);
 
         return fileMetadata;
+    }
+
+    public void edit(EditTestPlanRequest request, MultipartFile file) {
+        // 新选择了一个文件，删除原来的文件
+        if (file != null) {
+            fileService.deleteFileByTestId(request.getId());
+            final FileMetadata fileMetadata = saveFile(file);
+            LoadTestFile loadTestFile = new LoadTestFile();
+            loadTestFile.setTestId(request.getId());
+            loadTestFile.setFileId(fileMetadata.getId());
+            loadTestFileMapper.insert(loadTestFile);
+        }
+
+        final LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(request.getId());
+        if (loadTest == null) {
+            MSException.throwException("无法编辑测试，未找到测试：" + request.getId());
+        } else {
+            loadTest.setName(request.getName());
+            loadTest.setProjectId(request.getProjectId());
+            loadTest.setUpdateTime(System.currentTimeMillis());
+            loadTest.setScenarioDefinition("todo");
+            loadTest.setDescription("todo");
+            loadTestMapper.updateByPrimaryKeySelective(loadTest);
+        }
     }
 }
