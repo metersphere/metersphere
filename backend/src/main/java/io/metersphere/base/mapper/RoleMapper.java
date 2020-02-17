@@ -2,9 +2,8 @@ package io.metersphere.base.mapper;
 
 import io.metersphere.base.domain.Role;
 import io.metersphere.base.domain.RoleExample;
-import org.apache.ibatis.annotations.Param;
-
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface RoleMapper {
     long countByExample(RoleExample example);

@@ -2,9 +2,8 @@ package io.metersphere.base.mapper;
 
 import io.metersphere.base.domain.Workspace;
 import io.metersphere.base.domain.WorkspaceExample;
-import org.apache.ibatis.annotations.Param;
-
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface WorkspaceMapper {
     long countByExample(WorkspaceExample example);

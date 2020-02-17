@@ -57,5 +57,6 @@
         <table tableName="load_test_report"/>
         <table tableName="load_test"/>
         <table tableName="file_store"/>
+        <table tableName="file_store_resource"/>
     </context>
 </generatorConfiguration>

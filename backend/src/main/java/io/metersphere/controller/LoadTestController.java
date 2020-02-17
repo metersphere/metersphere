@@ -36,9 +36,12 @@ public class LoadTestController {
         return PageUtils.setPageInfo(page, loadTestService.list(request));
     }
 
-    @PostMapping("/save")
-    public void save(@RequestBody SaveTestPlanRequest request) {
-        loadTestService.save(request);
+    @PostMapping(value = "/save", consumes = {"multipart/form-data"})
+    public void save(
+            @RequestPart("request") SaveTestPlanRequest request,
+            @RequestPart("file") MultipartFile file
+    ) {
+        loadTestService.save(request, file);
     }
 
     @PostMapping("/delete")

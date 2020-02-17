@@ -1,10 +1,14 @@
 package io.metersphere.service;
 
 import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.FileStoreMapper;
+import io.metersphere.base.mapper.FileStoreResourceMapper;
 import io.metersphere.base.mapper.LoadTestMapper;
-import io.metersphere.base.mapper.OrganizationMapper;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
+import io.metersphere.commons.constants.LoadTestFileType;
+import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.IOUtils;
 import io.metersphere.controller.request.testplan.DeleteTestPlanRequest;
 import io.metersphere.controller.request.testplan.QueryTestPlanRequest;
 import io.metersphere.controller.request.testplan.SaveTestPlanRequest;
@@ -13,11 +17,13 @@ import org.apache.commons.lang3.RandomUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 
 @Service
@@ -29,6 +35,10 @@ public class LoadTestService {
     private ExtLoadTestMapper extLoadTestMapper;
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private FileStoreMapper fileStoreMapper;
+    @Resource
+    private FileStoreResourceMapper fileStoreResourceMapper;
 
     // 测试，模拟数据
     @PostConstruct
@@ -63,7 +73,23 @@ public class LoadTestService {
         loadTestMapper.deleteByExample(loadTestExample);
     }
 
-    public void save(SaveTestPlanRequest request) {
+    public void save(SaveTestPlanRequest request, MultipartFile file) {
+        if (file == null) {
+            throw new IllegalArgumentException("文件不能为空！");
+        }
+
+        final FileStore fileStore = saveFileStore(file);
+
+        final LoadTestWithBLOBs loadTest = saveLoadTest(request);
+
+        FileStoreResource fileStoreResource = new FileStoreResource();
+        fileStoreResource.setTestId(loadTest.getId());
+        fileStoreResource.setFileId(fileStore.getId());
+        fileStoreResource.setFileType(fileStore.getType());
+        fileStoreResourceMapper.insert(fileStoreResource);
+    }
+
+    private LoadTestWithBLOBs saveLoadTest(SaveTestPlanRequest request) {
         final LoadTestWithBLOBs loadTest = new LoadTestWithBLOBs();
         loadTest.setId(UUID.randomUUID().toString());
         loadTest.setName(request.getName());
@@ -73,5 +99,23 @@ public class LoadTestService {
         loadTest.setScenarioDefinition("todo");
         loadTest.setDescription("todo");
         loadTestMapper.insert(loadTest);
+        return loadTest;
+    }
+
+    private FileStore saveFileStore(MultipartFile file) {
+        final FileStore fileStore = new FileStore();
+        fileStore.setId(UUID.randomUUID().toString());
+        fileStore.setName(file.getOriginalFilename());
+        fileStore.setSize(file.getSize());
+        fileStore.setCreateTime(System.currentTimeMillis());
+        fileStore.setUpdateTime(System.currentTimeMillis());
+        fileStore.setType(LoadTestFileType.JMX.name());
+        try {
+            fileStore.setFile(IOUtils.toString(file.getInputStream(), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            MSException.throwException(e);
+        }
+        fileStoreMapper.insert(fileStore);
+        return fileStore;
     }
 }

@@ -86,15 +86,31 @@
           return;
         }
 
-        this.$post(this.savePath, this.testPlan).then(response => {
+        let formData = new FormData();
+
+        formData.append("file", this.testPlan.file);
+        // file属性不需要json化
+        let requestJson = JSON.stringify(this.testPlan, function (key, value) {return key === "file" ? undefined : value});
+        formData.append('request', new Blob([requestJson], {
+          type: "application/json"
+        }));
+
+        let options = {
+          method: 'POST',
+          url: this.savePath,
+          data: formData,
+          headers: {
+            'Content-Type': undefined
+          }
+        };
+
+        this.$request(options).then(response => {
           if (response) {
             this.$message({
               message: '保存成功！',
               type: 'success'
             });
           }
-        }).catch((response) => {
-          this.$message.error(response.message);
         });
       },
       saveAndRun() {
@@ -134,7 +150,7 @@
           return false;
         }
 
-        if (!this.testPlan.fileId) {
+        if (!this.testPlan.file) {
           this.$message({
             message: 'jmx文件不能为空！',
             type: 'error'

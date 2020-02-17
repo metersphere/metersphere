@@ -2,9 +2,8 @@ package io.metersphere.base.mapper;
 
 import io.metersphere.base.domain.TestResourcePool;
 import io.metersphere.base.domain.TestResourcePoolExample;
-import org.apache.ibatis.annotations.Param;
-
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface TestResourcePoolMapper {
     long countByExample(TestResourcePoolExample example);

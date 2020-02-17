@@ -74,6 +74,27 @@ export default {
       }
     };
 
+    Vue.prototype.$request = function (axiosRequestConfig, success) {
+      if (!success) {
+        return axios.request(axiosRequestConfig);
+      } else {
+        axios.request(axiosRequestConfig).then(response => {
+          if (!response.data) {
+            return success(response);
+          }
+          if (response.data.success) {
+            return success(response.data);
+          } else {
+            window.console.warn(response.data);
+            Message.warning(response.data.message);
+          }
+        }).catch(error => {
+          window.console.error(error.response || error.message);
+          Message.error({message: error.message, showClose: true});
+        })
+      }
+    };
+
     Vue.prototype.$all = function (array, callback) {
       if (array.length < 1) return;
       axios.all(array).then(axios.spread(callback));

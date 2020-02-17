@@ -7,6 +7,7 @@
       :show-file-list="false"
       :action="jmxUploadPath"
       :before-upload="beforeUpload"
+      :http-request="handleUpload"
       :file-list="fileList">
       <i class="el-icon-upload"/>
       <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
@@ -64,13 +65,6 @@
     },
     methods: {
       beforeUpload(file) {
-        window.console.log(file);
-
-        /// todo: 上传的文件需要绑定到当前testPlan，这里暂时使用文件名
-        this._changeTestPlan(function (testPlan) {
-          testPlan.fileId = file.name;
-        });
-
         if (!this.fileValidator(file)) {
           /// todo: 显示错误信息
           return false;
@@ -85,6 +79,13 @@
         });
 
         return true;
+      },
+      handleUpload(uploadResources) {
+        window.console.log(uploadResources);
+
+        this._changeTestPlan(function (testPlan) {
+          testPlan.file = uploadResources.file;
+        });
       },
       handleDownload(file) {
         let data = {

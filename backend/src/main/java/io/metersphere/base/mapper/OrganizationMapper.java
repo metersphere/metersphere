@@ -2,9 +2,8 @@ package io.metersphere.base.mapper;
 
 import io.metersphere.base.domain.Organization;
 import io.metersphere.base.domain.OrganizationExample;
-import org.apache.ibatis.annotations.Param;
-
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface OrganizationMapper {
     long countByExample(OrganizationExample example);

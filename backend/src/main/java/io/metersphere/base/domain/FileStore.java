@@ -17,7 +17,7 @@ public class FileStore implements Serializable {
 
     private Long updateTime;
 
-    private byte[] file;
+    private String file;
 
     private static final long serialVersionUID = 1L;
 
@@ -77,11 +77,11 @@ public class FileStore implements Serializable {
         this.updateTime = updateTime;
     }
 
-    public byte[] getFile() {
+    public String getFile() {
         return file;
     }
 
-    public void setFile(byte[] file) {
-        this.file = file;
+    public void setFile(String file) {
+        this.file = file == null ? null : file.trim();
     }
 }

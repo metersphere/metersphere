@@ -2,9 +2,8 @@ package io.metersphere.base.mapper;
 
 import io.metersphere.base.domain.SystemParameter;
 import io.metersphere.base.domain.SystemParameterExample;
-import org.apache.ibatis.annotations.Param;
-
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface SystemParameterMapper {
     long countByExample(SystemParameterExample example);

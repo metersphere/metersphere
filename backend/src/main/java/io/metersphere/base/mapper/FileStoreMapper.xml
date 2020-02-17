@@ -11,7 +11,7 @@
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.FileStore">
-    <result column="file" jdbcType="LONGVARBINARY" property="file" />
+    <result column="file" jdbcType="LONGVARCHAR" property="file" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -131,7 +131,7 @@
       update_time, file)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
       #{type,jdbcType=VARCHAR}, #{size,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{file,jdbcType=LONGVARBINARY})
+      #{updateTime,jdbcType=BIGINT}, #{file,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.FileStore">
     insert into file_store
@@ -184,7 +184,7 @@
         #{updateTime,jdbcType=BIGINT},
       </if>
       <if test="file != null">
-        #{file,jdbcType=LONGVARBINARY},
+        #{file,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -219,7 +219,7 @@
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
       <if test="record.file != null">
-        file = #{record.file,jdbcType=LONGVARBINARY},
+        file = #{record.file,jdbcType=LONGVARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -235,7 +235,7 @@
       size = #{record.size,jdbcType=BIGINT},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      file = #{record.file,jdbcType=LONGVARBINARY}
+      file = #{record.file,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -275,7 +275,7 @@
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
       <if test="file != null">
-        file = #{file,jdbcType=LONGVARBINARY},
+        file = #{file,jdbcType=LONGVARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -288,7 +288,7 @@
       size = #{size,jdbcType=BIGINT},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      file = #{file,jdbcType=LONGVARBINARY}
+      file = #{file,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.FileStore">
