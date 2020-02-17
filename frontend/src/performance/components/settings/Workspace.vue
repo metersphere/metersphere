@@ -70,7 +70,6 @@
       },
       edit(row) {
         this.createVisible = true;
-        window.console.log(row);
         this.loading = true;
         this.form = row;
 
@@ -95,7 +94,6 @@
         }).catch(() => {
 
         });
-        window.console.log(row);
       },
       list() {
         this.$post('/workspace/list', {}, response => {
