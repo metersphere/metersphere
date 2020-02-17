@@ -109,6 +109,8 @@
             this.$post("signin", this.form, (response) => {
               // 登录信息保存 cookie
               Cookies.set(TokenKey, response.data);
+              // 保存上次角色
+              localStorage.setItem("lastSourceId", JSON.parse(Cookies.get(TokenKey)).lastSourceId);
               window.location.href = "/"
             });
           } else {

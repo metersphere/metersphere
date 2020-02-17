@@ -20,6 +20,16 @@ public class UserDTO {
 
     private Long updateTime;
 
+    private String lastSourceId;
+
+    public String getLastSourceId() {
+        return lastSourceId;
+    }
+
+    public void setLastSourceId(String lastSourceId) {
+        this.lastSourceId = lastSourceId;
+    }
+
     private List<Role> roles = new ArrayList<>();
 
     public List<Role> getRoles() {

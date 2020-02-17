@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtUserRoleMapper">
+
+    <resultMap id="BaseResultMap" type="io.metersphere.dto.LoadTestDTO"
+               extends="io.metersphere.base.mapper.LoadTestMapper.BaseResultMap">
+        <result column="project_name" property="projectName"/>
+    </resultMap>
+
+    <select id="getUserRoleHelpList" parameterType="java.lang.String"
+            resultType="io.metersphere.dto.UserRoleHelpDTO">
+        SELECT
+            user_role.role_id AS roleId,
+            role.`name` AS roleName,
+            user_role.source_id AS sourceId,
+
+            IF(workspace.id IS NULL,IF(organization.id IS NULL,'',organization.`name`),workspace.name) AS sourceName,
+
+            IF(workspace.id IS NULL,NULL,workspace.organization_id) AS parentId
+
+            FROM user_role LEFT JOIN role ON role.id = user_role.role_id
+
+            LEFT JOIN workspace ON workspace.id = user_role.source_id
+
+            LEFT JOIN organization ON organization.id = user_role.source_id
+
+            WHERE user_role.user_id = #{userId}
+    </select>
+
+</mapper>

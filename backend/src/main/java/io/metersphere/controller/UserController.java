@@ -3,10 +3,10 @@ package io.metersphere.controller;
 import io.metersphere.base.domain.Role;
 import io.metersphere.base.domain.User;
 import io.metersphere.dto.UserDTO;
-import io.metersphere.dto.UserOperateDTO;
+import io.metersphere.dto.UserRoleDTO;
 import io.metersphere.service.UserService;
+import io.metersphere.user.SessionUtils;
 import org.springframework.web.bind.annotation.*;
-
 import javax.annotation.Resource;
 import java.util.List;
 
@@ -34,5 +34,21 @@ public class UserController {
     @GetMapping("/role/list/{userId}")
     public List<Role> getUserRolesList(@PathVariable(value = "userId") String userId) {
         return userService.getUserRolesList(userId);
+    }
+
+    @GetMapping("/rolelist/{userId}")
+    public List<UserRoleDTO> convertUserRoleDTO(@PathVariable(value = "userId") String userId) {
+        return userService.getUserRoleList(userId);
+    }
+
+    @PostMapping("/switch/source/{sourceId}")
+    public void switchUserRole(@PathVariable (value = "sourceId") String sourceId) {
+        UserDTO user = SessionUtils.getUser();
+        userService.switchUserRole(user, sourceId);
+    }
+
+    @GetMapping("/info/{userId}")
+    public User getUserInfo(@PathVariable(value = "userId") String userId) {
+        return userService.getUserInfo(userId);
     }
 }

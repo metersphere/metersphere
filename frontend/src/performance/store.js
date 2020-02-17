@@ -3,17 +3,7 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex);
 
-const store = new Vuex.Store({
-  state: {
-    roles: []
-  },
-  mutations: {
-    setRoles(state, data) {
-      state.roles = data
-    }
-  }
-})
 
-export default store
+export default new Vuex.Store({})
 
 

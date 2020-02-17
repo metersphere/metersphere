@@ -5,9 +5,9 @@
                 <font-awesome-icon class="icon account" :icon="['far', 'address-card']" size="lg"/>
                 <span>账号</span>
             </template>
-            <el-menu-item index="/setting/user" v-permission="['admin']">用户</el-menu-item>
-            <el-menu-item index="/setting/testresourcepool" v-permission="['admin','org_admin']">测试资源池</el-menu-item>
-            <el-menu-item index="/setting/organization" v-permission="['test_user']">组织</el-menu-item>
+            <el-menu-item index="/setting/user" v-permission="['admin','test_user']">用户</el-menu-item>
+            <el-menu-item index="/setting/testresourcepool" v-permission="['test_user']">测试资源池</el-menu-item>
+            <el-menu-item index="/setting/organization" v-permission="['org_admin']">组织</el-menu-item>
             <el-menu-item index="/setting/workspace">工作空间</el-menu-item>
             <el-menu-item>API Keys</el-menu-item>
         </el-submenu>
