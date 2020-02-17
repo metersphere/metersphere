@@ -63,7 +63,7 @@ public class LoadTestService {
     }
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
-        return extLoadTestMapper.list(null);
+        return extLoadTestMapper.list(request);
     }
 
     public void delete(DeleteTestPlanRequest request) {

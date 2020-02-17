@@ -1,10 +1,11 @@
 package io.metersphere.base.mapper.ext;
 
+import io.metersphere.controller.request.testplan.QueryTestPlanRequest;
 import io.metersphere.dto.LoadTestDTO;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
-import java.util.Map;
 
 public interface ExtLoadTestMapper {
-    List<LoadTestDTO> list(Map<String, Object> params);
+    List<LoadTestDTO> list(@Param("request") QueryTestPlanRequest params);
 }

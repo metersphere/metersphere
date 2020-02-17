@@ -6,8 +6,8 @@
           <el-row type="flex" justify="space-between" align="middle">
             <span class="title">测试</span>
             <span class="search">
-            <el-input type="text" size="small" placeholder="根据ID，名称搜索" prefix-icon="el-icon-search" maxlength="60"
-                      v-model="condition" clearable/>
+            <el-input type="text" size="small" placeholder="根据名称搜索" prefix-icon="el-icon-search" maxlength="60"
+                      v-model="condition" @change="search" clearable/>
           </span>
           </el-row>
         </div>
@@ -97,8 +97,9 @@
     },
     methods: {
       initTableData() {
-        /// todo: 查询参数
-        let param = {};
+        let param = {
+          name: this.condition
+        };
 
         this.$post(this.buildPagePath(this.queryPath), param).then(response => {
           if (response.data.success) {
@@ -109,6 +110,9 @@
             this.$message.error(response.message);
           }
         })
+      },
+      search() {
+        this.initTableData();
       },
       buildPagePath(path) {
         return path + "/" + this.currentPage + "/" + this.pageSize;
