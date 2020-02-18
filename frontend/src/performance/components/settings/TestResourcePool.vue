@@ -4,7 +4,9 @@
     <el-card>
       <div slot="header">
         <el-row type="flex" justify="space-between" align="middle">
-          <span class="title">测试资源池</span>
+          <span class="title">测试资源池
+            <ms-create-box :tips="btnTips" :exec="create"/>
+          </span>
           <span class="search">
             <el-input type="text" size="small" placeholder="根据名称搜索" prefix-icon="el-icon-search"
                       maxlength="60" v-model="condition" clearable/>
@@ -34,7 +36,6 @@
       </el-table>
     </el-card>
 
-    <ms-create-box :tips="btnTips" :exec="create"/>
     <el-dialog title="创建资源池" :visible.sync="createVisible" width="30%" @closed="closeFunc" :destroy-on-close="true">
       <el-form :model="form" label-position="left" label-width="100px" size="small" :rules="rule" ref="createTestResourcePoolForm">
         <el-form-item label="名称" prop="name">
