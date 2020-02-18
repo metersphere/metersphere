@@ -1,6 +1,10 @@
 package io.metersphere.controller;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Workspace;
+import io.metersphere.commons.utils.PageUtils;
+import io.metersphere.commons.utils.Pager;
 import io.metersphere.service.WorkspaceService;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +27,9 @@ public class WorkspaceController {
         workspaceService.deleteWorkspace(workspaceId);
     }
 
-    @PostMapping("list")
-    public List<Workspace> getWorkspaceList() {
-        return workspaceService.getWorkspaceList();
+    @PostMapping("list/{goPage}/{pageSize}")
+    public Pager<List<Workspace>> getWorkspaceList(@PathVariable int goPage, @PathVariable int pageSize) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, workspaceService.getWorkspaceList());
     }
 }

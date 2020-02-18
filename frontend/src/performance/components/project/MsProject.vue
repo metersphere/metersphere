@@ -4,7 +4,10 @@
       <el-card>
         <div slot="header">
           <el-row type="flex" justify="space-between" align="middle">
-            <span class="title">项目</span>
+            <span class="title">
+              项目
+              <ms-create-box :tips="btnTips" :exec="create"/>
+            </span>
             <span class="search">
                     <el-input type="text" size="small" placeholder="根据名称搜索" prefix-icon="el-icon-search"
                               maxlength="60" v-model="condition" clearable/>
@@ -22,7 +25,6 @@
           </el-table-column>
         </el-table>
       </el-card>
-      <ms-create-box :tips="btnTips" :exec="create"/>
 
       <el-dialog title="创建项目" :visible.sync="createVisible">
         <el-form :model="form" :rules="rules" ref="form" label-position="left" label-width="100px" size="small">
