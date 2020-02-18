@@ -4,7 +4,10 @@
       <el-card>
         <div slot="header">
           <el-row type="flex" justify="space-between" align="middle">
-            <span class="title">项目</span>
+            <span class="title">
+              项目
+              <ms-create-box :tips="btnTips" :exec="create"/>
+            </span>
             <span class="search">
                     <el-input type="text" size="small" placeholder="根据名称搜索" prefix-icon="el-icon-search"
                               maxlength="60" v-model="condition" clearable/>
@@ -21,8 +24,24 @@
             </template>
           </el-table-column>
         </el-table>
+        <div>
+          <el-row>
+            <el-col :span="22" :offset="1">
+              <div class="table-page">
+                <el-pagination
+                  @size-change="handleSizeChange"
+                  @current-change="handleCurrentChange"
+                  :current-page.sync="currentPage"
+                  :page-sizes="[5, 10, 20, 50, 100]"
+                  :page-size="pageSize"
+                  layout="total, sizes, prev, pager, next, jumper"
+                  :total="total">
+                </el-pagination>
+              </div>
+            </el-col>
+          </el-row>
+        </div>
       </el-card>
-      <ms-create-box :tips="btnTips" :exec="create"/>
 
       <el-dialog title="创建项目" :visible.sync="createVisible">
         <el-form :model="form" :rules="rules" ref="form" label-position="left" label-width="100px" size="small">
@@ -56,6 +75,9 @@
         condition: "",
         items: [],
         form: {},
+        currentPage: 1,
+        pageSize: 5,
+        total: 0,
         rules: {
           name: [
             {required: true, message: '请输入项目名称', trigger: 'blur'},
@@ -113,10 +135,19 @@
         });
       },
       list() {
-        this.$post("/project/list/1/10", {}, (response) => {
+        let url = "/project/list/" + this.currentPage + '/' + this.pageSize;
+        this.$post(url, {}, (response) => {
           this.items = response.data;
         })
-      }
+      },
+      handleSizeChange(size) {
+        this.pageSize = size;
+        this.list();
+      },
+      handleCurrentChange(current) {
+        this.currentPage = current;
+        this.list();
+      },
     }
   }
 </script>

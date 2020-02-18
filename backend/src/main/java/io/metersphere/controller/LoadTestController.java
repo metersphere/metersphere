@@ -53,6 +53,11 @@ public class LoadTestController {
         loadTestService.delete(request);
     }
 
+    @PostMapping("/run")
+    public void delete(@RequestBody RunTestPlanRequest request) {
+        loadTestService.run(request);
+    }
+
     @GetMapping("/file/metadata/{testId}")
     public FileMetadata getFileMetadata(@PathVariable String testId) {
         return fileService.getFileMetadataByTestId(testId);

@@ -8,7 +8,6 @@ import App from './App.vue';
 import router from "./components/router/router";
 import './permission' // permission control
 import i18n from "../i18n/i18n";
-import timestampFormatDate from "./components/common/filter/TimestampFormatDateFilter";
 import store from "./store";
 import {permission} from './permission'
 
@@ -19,9 +18,6 @@ Vue.use(ElementUI, {
 });
 Vue.use(filters);
 Vue.use(ajax);
-
-// filter
-Vue.filter('timestampFormatDate', timestampFormatDate);
 
 // v-permission
 Vue.directive('permission', permission)
