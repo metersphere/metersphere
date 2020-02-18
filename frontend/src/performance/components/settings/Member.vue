@@ -93,6 +93,7 @@
     },
     methods: {
       initTableData() {
+        this.loading = true;
         let param = {
           name: this.condition,
           workspaceId: this.currentWorkspaceId
@@ -106,7 +107,9 @@
           } else {
             this.$message.error(response.message);
           }
+          this.loading = false;
         })
+
       },
       buildPagePath(path) {
         return path + "/" + this.currentPage + "/" + this.pageSize;
@@ -126,14 +129,17 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
+          this.loading = true;
           this.$get('/user/member/delete/' + this.currentWorkspaceId + '/' + row.id).then(() => {
             this.initTableData();
+            this.loading = false;
           });
           this.$message({
             type: 'success',
             message: '删除成功!'
           });
         }).catch(() => {
+          this.loading = false;
           this.$message({
             type: 'info',
             message: '已取消删除'
@@ -141,6 +147,7 @@
         });
       },
       create() {
+        this.loading = true;
         this.$get('/user/list').then(response => {
           if (response.data.success) {
             this.createVisible = true;
@@ -148,7 +155,9 @@
           } else {
             this.$message.error(response.message);
           }
+          this.loading = false;
         }).catch(() => {
+          this.loading = false;
           this.$message({
             type: 'error',
             message: '获取用户列表失败'
@@ -156,14 +165,19 @@
         });
       },
       submitForm(formName) {
+        this.loading = true;
         this.$refs[formName].validate((valid) => {
           if (valid) {
             let param = {
               userIds: this.form.userIds,
               workspaceId: this.currentWorkspaceId
             };
-            this.$post("user/member/add", param, function () {
+            this.$post("user/member/add", param).then(() => {
               this.initTableData();
+              this.createVisible = false;
+              this.loading = false;
+            }).catch(() => {
+              this.loading = false;
             })
           } else {
             return false;
