@@ -16,7 +16,7 @@
                 <font-awesome-icon class="icon workspace" :icon="['far', 'clone']" size="lg"/>
                 <span>工作空间</span>
             </template>
-            <el-menu-item index="/setting/workspace/user">成员</el-menu-item>
+            <el-menu-item index="/setting/member">成员</el-menu-item>
             <el-menu-item>证书</el-menu-item>
             <el-menu-item>测试计划</el-menu-item>
             <el-menu-item>警告</el-menu-item>
