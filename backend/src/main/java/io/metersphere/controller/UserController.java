@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Role;
 import io.metersphere.base.domain.User;
+import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.member.AddMemberRequest;
@@ -12,6 +13,7 @@ import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserRoleDTO;
 import io.metersphere.service.UserService;
 import io.metersphere.user.SessionUtils;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -69,6 +71,7 @@ public class UserController {
      * 获取成员用户
      */
     @PostMapping("/member/list/{goPage}/{pageSize}")
+    @RequiresRoles(RoleConstants.TEST_MANAGER)
     public Pager<List<User>> getMemberList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryMemberRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getMemberList(request));
@@ -78,6 +81,7 @@ public class UserController {
      * 添加成员
      */
     @PostMapping("/member/add")
+    @RequiresRoles(RoleConstants.TEST_MANAGER)
     public void addMember(@RequestBody AddMemberRequest request) {
         userService.addMember(request);
     }
@@ -86,6 +90,7 @@ public class UserController {
      * 删除成员
      */
     @GetMapping("/member/delete/{workspaceId}/{userId}")
+    @RequiresRoles(RoleConstants.TEST_MANAGER)
     public void deleteMember(@PathVariable String workspaceId, @PathVariable String userId) {
         userService.deleteMember(workspaceId, userId);
     }

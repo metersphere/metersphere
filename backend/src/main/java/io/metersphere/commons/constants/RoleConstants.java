@@ -1,14 +1,9 @@
 package io.metersphere.commons.constants;
 
-public enum RoleConstants {
-    ADMIN("admin"), ORGADMIN("org_admin"), TESTUSER("test_user"), TESTVIEWER("test_viewer"), TESTMANAGER("test_manager");
-    private String value;
-
-    RoleConstants(String value) {
-        this.value = value;
-    }
-
-    public String getValue() {
-        return value;
-    }
+public class RoleConstants {
+    public final static String ADMIN = "admin";
+    public final static String ORG_ADMIN = "org_admin";
+    public final static String TEST_VIEWER = "test_viewer";
+    public final static String TEST_MANAGER = "test_manager";
+    public final static String TEST_USER = "test_user";
 }

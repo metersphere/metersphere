@@ -3,7 +3,7 @@
     <el-card>
       <div slot="header">
         <el-row type="flex" justify="space-between" align="middle">
-          <span class="title">工作空间</span>
+          <span class="title">成员</span>
           <span class="search">
                     <el-input type="text" size="small" placeholder="根据名称搜索" prefix-icon="el-icon-search"
                               maxlength="60" v-model="condition" clearable/>
