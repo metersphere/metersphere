@@ -2,6 +2,7 @@
   <el-col v-if="auth">
     <el-row id="header-top" type="flex" justify="space-between" align="middle">
       <a class="logo"/>
+      <ms-switch-user/>
       <ms-user/>
     </el-row>
     <el-row id="header-bottom" type="flex" justify="space-between" align="middle">
@@ -29,6 +30,7 @@
   import MsSetting from "./components/HeaderSetting";
   import MsView from "./components/router/View";
   import MsUser from "./components/HeaderUser";
+  import MsSwitchUser from "./components/HeaderSwitchUser";
   import MsWebSocket from "./components/websocket/WebSocket";
 
   export default {
@@ -49,7 +51,7 @@
         window.location.href = "/login"
       });
     },
-    components: {MsWebSocket, MsUser, MsMenus, MsSetting, MsView},
+    components: {MsWebSocket, MsUser, MsMenus, MsSetting, MsView, MsSwitchUser},
     methods: {
     }
   }

@@ -7,7 +7,7 @@ import User from "../settings/User";
 import CreateTestPlan from "../testPlan/CreateTestPlan";
 import AllTestPlan from "../testPlan/AllTestPlan";
 import Organization from "../settings/Organization";
-import WorkspaceUser from "../settings/WorkSpcaeUser";
+import Member from "../settings/Member";
 import TestResourcePool from "../settings/TestResourcePool";
 import MsProject from "../project/MsProject";
 
@@ -49,8 +49,8 @@ const router = new VueRouter({
           }
         },
         {
-          path: 'workspace/user',
-          component: WorkspaceUser
+          path: 'member',
+          component: Member
         },
         {
           path: 'testresourcepool',
