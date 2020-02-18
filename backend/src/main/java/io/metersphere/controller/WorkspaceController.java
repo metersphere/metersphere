@@ -19,15 +19,23 @@ public class WorkspaceController {
     @Resource
     private WorkspaceService workspaceService;
 
-    @PostMapping("save")
+    @PostMapping("add")
     @RequiresRoles(RoleConstants.ORG_ADMIN)
-    public Workspace saveWorkspace(@RequestBody Workspace workspace) {
+    public Workspace addWorkspace(@RequestBody Workspace workspace) {
+        return workspaceService.saveWorkspace(workspace);
+    }
+
+    @PostMapping("update")
+    @RequiresRoles(RoleConstants.ORG_ADMIN)
+    public Workspace updateWorkspace(@RequestBody Workspace workspace) {
+        workspaceService.checkOwner(workspace.getId());
         return workspaceService.saveWorkspace(workspace);
     }
 
     @GetMapping("delete/{workspaceId}")
     @RequiresRoles(RoleConstants.ORG_ADMIN)
     public void saveWorkspace(@PathVariable String workspaceId) {
+        workspaceService.checkOwner(workspaceId);
         workspaceService.deleteWorkspace(workspaceId);
     }
 

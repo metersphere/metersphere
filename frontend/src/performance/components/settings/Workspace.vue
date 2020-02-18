@@ -77,12 +77,16 @@
         this.$refs[formName].validate((valid) => {
           if (valid) {
             this.loading = true;
-            this.$post("/workspace/save", this.form, () => {
+            let saveType = 'add';
+            if (this.form.id) {
+              saveType = 'update'
+            }
+            this.$post("/workspace/" + saveType, this.form, () => {
               this.createVisible = false;
               this.loading = false;
               this.list();
               Message.success('保存成功');
-            })
+            });
           } else {
             return false;
           }

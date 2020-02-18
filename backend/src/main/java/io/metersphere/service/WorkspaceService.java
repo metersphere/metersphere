@@ -45,4 +45,9 @@ public class WorkspaceService {
     public void deleteWorkspace(String workspaceId) {
         workspaceMapper.deleteByPrimaryKey(workspaceId);
     }
+
+    public void checkOwner(String workspaceId) {
+        // TODO 验证当前用户是否拥有当前此空间权限
+    }
+
 }
