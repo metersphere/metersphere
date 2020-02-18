@@ -7,7 +7,7 @@
             <ms-create-box :tips="btnTips" :exec="create"/>
           </span>
           <span class="search">
-                    <el-input type="text" size="small" placeholder="根据名称搜索" prefix-icon="el-icon-search"
+                    <el-input type="text" size="small" placeholder="根据用户名搜索" prefix-icon="el-icon-search"
                               maxlength="60" v-model="condition" @change="search" clearable/>
           </span>
         </el-row>
