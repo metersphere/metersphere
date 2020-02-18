@@ -6,9 +6,11 @@ import io.metersphere.base.mapper.RoleMapper;
 import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.base.mapper.UserRoleMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
+import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.controller.request.member.AddMemberRequest;
+import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.dto.UserDTO;
-import io.metersphere.dto.UserOperateDTO;
 import io.metersphere.dto.UserRoleDTO;
 import io.metersphere.dto.UserRoleHelpDTO;
 import org.apache.commons.lang3.StringUtils;
@@ -222,5 +224,32 @@ public class UserService {
 
     public User getUserInfo(String userId) {
         return userMapper.selectByPrimaryKey(userId);
+    }
+
+    public List<User> getMemberList(QueryMemberRequest request) {
+        return extUserRoleMapper.getMemberList(request);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void addMember(AddMemberRequest request) {
+        if (!CollectionUtils.isEmpty(request.getUserIds())) {
+            for (String userId : request.getUserIds()) {
+                UserRole userRole = new UserRole();
+                userRole.setRoleId(RoleConstants.TESTMANAGER.getValue());
+                userRole.setSourceId(request.getWorkspaceId());
+                userRole.setUserId(userId);
+                userRole.setId(UUID.randomUUID().toString());
+                userRole.setUpdateTime(System.currentTimeMillis());
+                userRole.setCreateTime(System.currentTimeMillis());
+                userRoleMapper.insertSelective(userRole);
+            }
+        }
+    }
+
+    public void deleteMember(String workspaceId, String userId) {
+        UserRoleExample example = new UserRoleExample();
+        example.createCriteria().andRoleIdEqualTo(RoleConstants.TESTMANAGER.getValue())
+                .andUserIdEqualTo(userId).andSourceIdEqualTo(workspaceId);
+        userRoleMapper.deleteByExample(example);
     }
 }
