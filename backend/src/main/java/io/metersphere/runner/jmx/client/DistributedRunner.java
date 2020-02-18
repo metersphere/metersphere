@@ -7,7 +7,6 @@ import org.apache.jmeter.samplers.Remoteable;
 import org.apache.jmeter.testelement.TestStateListener;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jorphan.collections.HashTree;
-import org.apache.jorphan.util.JOrphanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +19,8 @@ public class DistributedRunner extends org.apache.jmeter.engine.DistributedRunne
     private static final String HOSTS_SEPARATOR = ",";
     private HashTree jmxTree;
     private String hosts;
+    // 脚本运行完成后是否停止jmeter-server
+    private boolean remoteStop = false;
 
     public DistributedRunner(HashTree jmxTree, String hosts) {
         this.jmxTree = jmxTree;
@@ -28,7 +29,7 @@ public class DistributedRunner extends org.apache.jmeter.engine.DistributedRunne
 
     public void run() {
         final List<String> hosts = getRemoteHosts();
-        final ListenToTest listener = new ListenToTest(false, null);
+        final ListenToTest listener = new ListenToTest(remoteStop, null);
         jmxTree.add(jmxTree.getArray()[0], listener);
         init(hosts, jmxTree);
         listener.setStartedRemoteEngines(new ArrayList<>(getEngines()));
@@ -126,42 +127,11 @@ public class DistributedRunner extends org.apache.jmeter.engine.DistributedRunne
                     reportGenerator.generate();
                     log.info("Dashboard generated");
                 } catch (Exception ex) {
-                    System.err.println("Error generating the report: " + ex);//NOSONAR
+                    System.err.println("Error generating the report: " + ex);
                     log.error("Error generating the report: {}", ex.getMessage(), ex);
                 }
             }
-            checkForRemainingThreads();
             log.info("... end of run");
-        }
-
-        /**
-         * Runs daemon thread which waits a short while;
-         * if JVM does not exit, lists remaining non-daemon threads on stdout.
-         */
-        private void checkForRemainingThreads() {
-            // This cannot be a JMeter class variable, because properties
-            // are not initialised until later.
-            final int pauseToCheckForRemainingThreads =
-                    JMeterUtils.getPropDefault("jmeter.exit.check.pause", 2000); // $NON-NLS-1$
-
-            if (pauseToCheckForRemainingThreads > 0) {
-                Thread daemon = new Thread(() -> {
-                    try {
-                        TimeUnit.MILLISECONDS.sleep(pauseToCheckForRemainingThreads); // Allow enough time for JVM to exit
-                    } catch (InterruptedException ignored) {
-                        Thread.currentThread().interrupt();
-                    }
-                    // This is a daemon thread, which should only reach here if there are other
-                    // non-daemon threads still active
-                    System.out.println("The JVM should have exited but did not.");//NOSONAR
-                    System.out.println("The following non-daemon threads are still running (DestroyJavaVM is OK):");//NOSONAR
-                    JOrphanUtils.displayThreads(false);
-                });
-                daemon.setDaemon(true);
-                daemon.start();
-            } else if (pauseToCheckForRemainingThreads <= 0) {
-                log.debug("jmeter.exit.check.pause is <= 0, JMeter won't check for unterminated non-daemon threads");
-            }
         }
     }
 }
