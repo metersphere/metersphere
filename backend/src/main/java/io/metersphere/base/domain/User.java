@@ -19,6 +19,8 @@ public class User implements Serializable {
 
     private String lastSourceId;
 
+    private String lastRoleId;
+
     private static final long serialVersionUID = 1L;
 
     public String getId() {
@@ -83,5 +85,13 @@ public class User implements Serializable {
 
     public void setLastSourceId(String lastSourceId) {
         this.lastSourceId = lastSourceId == null ? null : lastSourceId.trim();
+    }
+
+    public String getLastRoleId() {
+        return lastRoleId;
+    }
+
+    public void setLastRoleId(String lastRoleId) {
+        this.lastRoleId = lastRoleId == null ? null : lastRoleId.trim();
     }
 }
