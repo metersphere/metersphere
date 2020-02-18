@@ -71,7 +71,7 @@ public class UserController {
      * 获取成员用户
      */
     @PostMapping("/member/list/{goPage}/{pageSize}")
-    @RequiresRoles(RoleConstants.TEST_MANAGER)
+    //@RequiresRoles(RoleConstants.TEST_MANAGER)
     public Pager<List<User>> getMemberList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryMemberRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getMemberList(request));
@@ -81,7 +81,7 @@ public class UserController {
      * 添加成员
      */
     @PostMapping("/member/add")
-    @RequiresRoles(RoleConstants.TEST_MANAGER)
+    //@RequiresRoles(RoleConstants.TEST_MANAGER)
     public void addMember(@RequestBody AddMemberRequest request) {
         userService.addMember(request);
     }
@@ -90,7 +90,7 @@ public class UserController {
      * 删除成员
      */
     @GetMapping("/member/delete/{workspaceId}/{userId}")
-    @RequiresRoles(RoleConstants.TEST_MANAGER)
+    //@RequiresRoles(RoleConstants.TEST_MANAGER)
     public void deleteMember(@PathVariable String workspaceId, @PathVariable String userId) {
         userService.deleteMember(workspaceId, userId);
     }

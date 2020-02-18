@@ -30,6 +30,9 @@
     <select id="getMemberList" resultType="io.metersphere.base.domain.User">
         SELECT `user`.* FROM user_role JOIN `user` ON user_role.user_id = `user`.id
         WHERE user_role.source_id = #{member.workspaceId} AND user_role.role_id = #{member.roleId}
+        <if test="member.name != null">
+            AND `user`.name like CONCAT('%', #{member.name},'%')
+        </if>
     </select>
 
 </mapper>

@@ -7,7 +7,7 @@
             <ms-create-box :tips="btnTips" :exec="create"/>
           </span>
           <span class="search">
-                    <el-input type="text" size="small" placeholder="根据名称搜索" prefix-icon="el-icon-search"
+                    <el-input type="text" size="small" placeholder="根据用户名搜索" prefix-icon="el-icon-search"
                               maxlength="60" v-model="condition" @change="search" clearable/>
           </span>
         </el-row>
@@ -42,16 +42,20 @@
     </el-card>
 
     <el-dialog title="添加成员" :visible.sync="createVisible" width="30%">
-      <el-form :model="form" :rules="rules" ref="form" label-position="left" label-width="100px" size="small">
-        <el-form-item label="名称" prop="name">
-          <el-input v-model="form.name" autocomplete="off"/>
-        </el-form-item>
-        <el-form-item label="描述">
-          <el-input type="textarea" v-model="form.description"></el-input>
+      <el-form :model="form" ref="form" :rules="rules" label-position="left" label-width="100px" size="small">
+        <el-form-item label="成员" prop="userIds">
+          <el-select v-model="form.userIds" multiple placeholder="请选择成员" class="select-width">
+            <el-option
+              v-for="item in form.userList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
+            </el-option>
+          </el-select>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submit('form')" size="medium">创建</el-button>
+        <el-button type="primary" @click="submitForm('form')" size="medium">保存</el-button>
       </span>
     </el-dialog>
   </div>
@@ -59,7 +63,6 @@
 
 <script>
   import MsCreateBox from "./CreateBox";
-  // import {Message} from "element-ui";
 
   export default {
     name: "Member",
@@ -73,6 +76,11 @@
         queryPath: "/user/member/list",
         condition: "",
         tableData: [],
+        rules: {
+          userIds: [
+            {required: true, message: '请选择成员', trigger: ['blur', 'change']}
+          ]
+        },
         multipleSelection: [],
         currentWorkspaceId: "0a2430b1-a818-4b9b-bc04-c1229c472896",
         currentPage: 1,
@@ -85,6 +93,7 @@
     },
     methods: {
       initTableData() {
+        this.loading = true;
         let param = {
           name: this.condition,
           workspaceId: this.currentWorkspaceId
@@ -98,13 +107,15 @@
           } else {
             this.$message.error(response.message);
           }
+          this.loading = false;
         })
+
       },
       buildPagePath(path) {
         return path + "/" + this.currentPage + "/" + this.pageSize;
       },
       search() {
-
+        this.initTableData();
       },
       handleSizeChange(size) {
         this.pageSize = size;
@@ -118,14 +129,17 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
+          this.loading = true;
           this.$get('/user/member/delete/' + this.currentWorkspaceId + '/' + row.id).then(() => {
             this.initTableData();
+            this.loading = false;
           });
           this.$message({
             type: 'success',
             message: '删除成功!'
           });
         }).catch(() => {
+          this.loading = false;
           this.$message({
             type: 'info',
             message: '已取消删除'
@@ -133,8 +147,42 @@
         });
       },
       create() {
-        this.createVisible = true;
-        this.form = {};
+        this.loading = true;
+        this.$get('/user/list').then(response => {
+          if (response.data.success) {
+            this.createVisible = true;
+            this.form = {userList: response.data.data};
+          } else {
+            this.$message.error(response.message);
+          }
+          this.loading = false;
+        }).catch(() => {
+          this.loading = false;
+          this.$message({
+            type: 'error',
+            message: '获取用户列表失败'
+          });
+        });
+      },
+      submitForm(formName) {
+        this.loading = true;
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            let param = {
+              userIds: this.form.userIds,
+              workspaceId: this.currentWorkspaceId
+            };
+            this.$post("user/member/add", param).then(() => {
+              this.initTableData();
+              this.createVisible = false;
+              this.loading = false;
+            }).catch(() => {
+              this.loading = false;
+            })
+          } else {
+            return false;
+          }
+        });
       }
     }
   }
@@ -145,10 +193,6 @@
     width: 240px;
   }
 
-  .edit {
-    opacity: 0;
-  }
-
   .el-table__row:hover .edit {
     opacity: 1;
   }
@@ -157,5 +201,9 @@
     padding-top: 20px;
     margin-right: -9px;
     float: right;
+  }
+
+  .select-width {
+    width: 100%;
   }
 </style>
