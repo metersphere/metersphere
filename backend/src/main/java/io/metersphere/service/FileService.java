@@ -64,6 +64,10 @@ public class FileService {
         return fileMetadataMapper.selectByPrimaryKey(loadTestFiles.get(0).getFileId());
     }
 
+    public FileContent getFileContent(String fileId) {
+        return fileContentMapper.selectByPrimaryKey(fileId);
+    }
+
     public void deleteFileByTestId(String testId) {
         LoadTestFileExample loadTestFileExample = new LoadTestFileExample();
         loadTestFileExample.createCriteria().andTestIdEqualTo(testId);
