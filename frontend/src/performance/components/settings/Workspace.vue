@@ -126,9 +126,11 @@
       },
       handleSizeChange(size) {
         this.pageSize = size;
+        this.list();
       },
       handleCurrentChange(current) {
         this.currentPage = current;
+        this.list();
       },
     },
     data() {
