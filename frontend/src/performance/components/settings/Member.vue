@@ -3,17 +3,24 @@
     <el-card>
       <div slot="header">
         <el-row type="flex" justify="space-between" align="middle">
-          <span class="title">成员</span>
+          <span class="title">成员
+            <ms-create-box :tips="btnTips" :exec="create"/>
+          </span>
           <span class="search">
                     <el-input type="text" size="small" placeholder="根据名称搜索" prefix-icon="el-icon-search"
                               maxlength="60" v-model="condition" @change="search" clearable/>
-                </span>
+          </span>
         </el-row>
       </div>
       <el-table :data="tableData" style="width: 100%">
         <el-table-column prop="name" label="用户名"/>
         <el-table-column prop="email" label="邮箱"/>
         <el-table-column prop="phone" label="电话"/>
+        <el-table-column>
+          <template slot-scope="scope">
+            <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
+          </template>
+        </el-table-column>
       </el-table>
       <div>
         <el-row>
@@ -33,23 +40,41 @@
         </el-row>
       </div>
     </el-card>
+
+    <el-dialog title="添加成员" :visible.sync="createVisible" width="30%">
+      <el-form :model="form" :rules="rules" ref="form" label-position="left" label-width="100px" size="small">
+        <el-form-item label="名称" prop="name">
+          <el-input v-model="form.name" autocomplete="off"/>
+        </el-form-item>
+        <el-form-item label="描述">
+          <el-input type="textarea" v-model="form.description"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submit('form')" size="medium">创建</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-  // import MsCreateBox from "./CreateBox";
+  import MsCreateBox from "./CreateBox";
   // import {Message} from "element-ui";
 
   export default {
     name: "Member",
-    // components: {MsCreateBox},
+    components: {MsCreateBox},
     data() {
       return {
         loading: false,
+        form: {},
+        btnTips: "添加成员",
+        createVisible: false,
         queryPath: "/user/member/list",
         condition: "",
         tableData: [],
         multipleSelection: [],
+        currentWorkspaceId: "0a2430b1-a818-4b9b-bc04-c1229c472896",
         currentPage: 1,
         pageSize: 5,
         total: 0,
@@ -62,7 +87,7 @@
       initTableData() {
         let param = {
           name: this.condition,
-          workspaceId: "0a2430b1-a818-4b9b-bc04-c1229c472896"
+          workspaceId: this.currentWorkspaceId
         };
 
         this.$post(this.buildPagePath(this.queryPath), param).then(response => {
@@ -86,6 +111,30 @@
       },
       handleCurrentChange(current) {
         this.currentPage = current;
+      },
+      del(row) {
+        this.$confirm('移除该成员, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$get('/user/member/delete/' + this.currentWorkspaceId + '/' + row.id).then(() => {
+            this.initTableData();
+          });
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
+      },
+      create() {
+        this.createVisible = true;
+        this.form = {};
       }
     }
   }
