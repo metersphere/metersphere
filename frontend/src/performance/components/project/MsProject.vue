@@ -24,6 +24,23 @@
             </template>
           </el-table-column>
         </el-table>
+        <div>
+          <el-row>
+            <el-col :span="22" :offset="1">
+              <div class="table-page">
+                <el-pagination
+                  @size-change="handleSizeChange"
+                  @current-change="handleCurrentChange"
+                  :current-page.sync="currentPage"
+                  :page-sizes="[5, 10, 20, 50, 100]"
+                  :page-size="pageSize"
+                  layout="total, sizes, prev, pager, next, jumper"
+                  :total="total">
+                </el-pagination>
+              </div>
+            </el-col>
+          </el-row>
+        </div>
       </el-card>
 
       <el-dialog title="创建项目" :visible.sync="createVisible">
@@ -58,6 +75,9 @@
         condition: "",
         items: [],
         form: {},
+        currentPage: 1,
+        pageSize: 5,
+        total: 0,
         rules: {
           name: [
             {required: true, message: '请输入项目名称', trigger: 'blur'},
@@ -115,10 +135,17 @@
         });
       },
       list() {
-        this.$post("/project/list/1/10", {}, (response) => {
+        let url = "/project/list/" + this.currentPage + '/' + this.pageSize;
+        this.$post(url, {}, (response) => {
           this.items = response.data;
         })
-      }
+      },
+      handleSizeChange(size) {
+        this.pageSize = size;
+      },
+      handleCurrentChange(current) {
+        this.currentPage = current;
+      },
     }
   }
 </script>
