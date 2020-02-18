@@ -51,6 +51,7 @@
         listProjectPath: "/project/listAll",
         savePath: "/testplan/save",
         editPath: "/testplan/edit",
+        runPath: "/testplan/run",
         projects: [],
         active: '0',
         tabs: [{
@@ -85,28 +86,7 @@
           return;
         }
 
-        let formData = new FormData();
-        let url = this.testPlan.id ? this.editPath : this.savePath;
-
-        if (!this.testPlan.file.id) {
-          formData.append("file", this.testPlan.file);
-        }
-        // file属性不需要json化
-        let requestJson = JSON.stringify(this.testPlan, function (key, value) {
-          return key === "file" ? undefined : value
-        });
-        formData.append('request', new Blob([requestJson], {
-          type: "application/json"
-        }));
-
-        let options = {
-          method: 'POST',
-          url: url,
-          data: formData,
-          headers: {
-            'Content-Type': undefined
-          }
-        };
+        let options = this.getSaveOption();
 
         this.$request(options).then(response => {
           if (response) {
@@ -122,11 +102,47 @@
           return;
         }
 
-        /// todo: saveAndRun
-        this.$message({
-          message: '保存成功，开始运行！',
-          type: 'success'
+        let options = this.getSaveOption();
+
+        this.$request(options).then(response => {
+          if (response) {
+            this.$message({
+              message: '保存成功！',
+              type: 'success'
+            });
+
+            this.$post(this.runPath, {id: this.testPlan.id}).then(() => {
+              this.$message({
+                message: '正在运行！',
+                type: 'success'
+              });
+            })
+          }
         });
+      },
+      getSaveOption() {
+        let formData = new FormData();
+        let url = this.testPlan.id ? this.editPath : this.savePath;
+
+        if (!this.testPlan.file.id) {
+          formData.append("file", this.testPlan.file);
+        }
+        // file属性不需要json化
+        let requestJson = JSON.stringify(this.testPlan, function (key, value) {
+          return key === "file" ? undefined : value
+        });
+        formData.append('request', new Blob([requestJson], {
+          type: "application/json"
+        }));
+
+        return  {
+          method: 'POST',
+          url: url,
+          data: formData,
+          headers: {
+            'Content-Type': undefined
+          }
+        };
       },
       cancel() {
         this.$router.push({path: '/'})

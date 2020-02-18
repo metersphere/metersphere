@@ -6,10 +6,7 @@ import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
 import io.metersphere.commons.constants.LoadTestFileType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.IOUtils;
-import io.metersphere.controller.request.testplan.DeleteTestPlanRequest;
-import io.metersphere.controller.request.testplan.EditTestPlanRequest;
-import io.metersphere.controller.request.testplan.QueryTestPlanRequest;
-import io.metersphere.controller.request.testplan.SaveTestPlanRequest;
+import io.metersphere.controller.request.testplan.*;
 import io.metersphere.dto.LoadTestDTO;
 import org.apache.commons.lang3.RandomUtils;
 import org.springframework.stereotype.Service;
@@ -146,5 +143,14 @@ public class LoadTestService {
             loadTest.setDescription("todo");
             loadTestMapper.updateByPrimaryKeySelective(loadTest);
         }
+    }
+
+    public void run(RunTestPlanRequest request) {
+        final LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(request.getId());
+        if (loadTest == null) {
+            MSException.throwException("无法运行测试，未找到测试：" + request.getId());
+        }
+
+        System.out.println("开始运行：" + loadTest.getName());
     }
 }
