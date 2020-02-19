@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading="result.loading">
     <el-upload
       accept=".jmx"
       drag
@@ -53,13 +53,14 @@
 </template>
 
 <script>
-  import {Message} from "element-ui";
+  import Message from "element-ui";
 
   export default {
     name: "TestPlanBasicConfig",
     props: ["testPlan"],
     data() {
       return {
+        result: {},
         getFileMetadataPath: "/testplan/file/metadata",
         jmxDownloadPath: '/testplan/file/download',
         jmxDeletePath: '/testplan/file/delete',
@@ -74,7 +75,7 @@
     },
     methods: {
       getFileMetadata(testPlan) {
-        this.$get(this.getFileMetadataPath + "/" + testPlan.id, response => {
+        this.result = this.$get(this.getFileMetadataPath + "/" + testPlan.id, response => {
           let file = response.data;
 
           if (!file) {
@@ -122,7 +123,7 @@
           name: file.name
         };
 
-        this.$post(this.jmxDownloadPath, data, response => {
+        this.result = this.$post(this.jmxDownloadPath, data, response => {
           const content = response.data;
           const blob = new Blob([content]);
           if ("download" in document.createElement("a")) {

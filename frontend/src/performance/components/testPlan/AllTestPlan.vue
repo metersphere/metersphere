@@ -1,5 +1,5 @@
 <template>
-  <div class="testplan-container" v-loading="loading">
+  <div class="testplan-container" v-loading="result.loading">
     <div class="main-content">
       <el-card>
         <div slot="header">
@@ -82,6 +82,7 @@
   export default {
     data() {
       return {
+        result: {},
         queryPath: "/testplan/list",
         deletePath: "/testplan/delete",
         condition: "",
@@ -98,16 +99,14 @@
     },
     methods: {
       initTableData() {
-        this.loading = true;
         let param = {
           name: this.condition
         };
 
-        this.$post(this.buildPagePath(this.queryPath), param, response => {
+        this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
-          this.loading = false;
         })
       },
       search() {
@@ -150,7 +149,7 @@
           id: testPlan.id
         };
 
-        this.$post(this.deletePath, data, () => {
+        this.result = this.$post(this.deletePath, data, () => {
           this.$message({
             message: '删除成功！',
             type: 'success'

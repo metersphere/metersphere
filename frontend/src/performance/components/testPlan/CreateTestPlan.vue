@@ -1,5 +1,5 @@
 <template>
-  <div class="edit-testplan-container">
+  <div class="edit-testplan-container" v-loading="result.loading">
     <el-row>
       <el-col :span="10">
         <el-input placeholder="请输入名称" v-model="testPlan.name" class="input-with-select">
@@ -47,6 +47,7 @@
     props: ['testPlanObj'],
     data() {
       return {
+        result: {},
         testPlan: {},
         listProjectPath: "/project/listAll",
         savePath: "/testplan/save",
@@ -77,7 +78,7 @@
     },
     methods: {
       listProjects() {
-        this.$get(this.listProjectPath, response => {
+        this.result = this.$get(this.listProjectPath, response => {
           this.projects = response.data;
         })
       },
@@ -88,7 +89,7 @@
 
         let options = this.getSaveOption();
 
-        this.$request(options, () => {
+        this.result = this.$request(options, () => {
           this.$message({
             message: '保存成功！',
             type: 'success'
@@ -102,13 +103,13 @@
 
         let options = this.getSaveOption();
 
-        this.$request(options, () => {
+        this.result = this.$request(options, () => {
           this.$message({
             message: '保存成功！',
             type: 'success'
           });
 
-          this.$post(this.runPath, {id: this.testPlan.id}).then(() => {
+          this.result = this.$post(this.runPath, {id: this.testPlan.id}).then(() => {
             this.$message({
               message: '正在运行！',
               type: 'success'
