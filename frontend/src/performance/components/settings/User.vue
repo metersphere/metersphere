@@ -12,12 +12,13 @@
           </span>
         </el-row>
       </div>
-      <el-table :data="items" style="width: 100%">
-        <el-table-column prop="id" label="ID" width="180"/>
-        <el-table-column prop="name" label="用户名"/>
+      <el-table :data="tableData" style="width: 100%">
+        <el-table-column type="selection" width="55"/>
+        <el-table-column prop="id" label="ID"/>
+        <el-table-column prop="name" label="用户名" width="120"/>
         <el-table-column prop="email" label="邮箱"/>
         <el-table-column prop="phone" label="电话"/>
-        <el-table-column prop="status" label="启用/禁用">
+        <el-table-column prop="status" label="启用/禁用" width="100">
           <template slot-scope="scope">
             <el-switch v-model="scope.row.status"
                        active-color="#13ce66"
@@ -28,14 +29,37 @@
             />
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" label="创建时间" :formatter="formatDate"/>
-        <el-table-column>
+        <el-table-column prop="createTime" label="创建时间" width="180">
+          <template slot-scope="scope">
+            <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
             <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
           </template>
         </el-table-column>
       </el-table>
+
+      <div>
+        <el-row>
+          <el-col :span="22" :offset="1">
+            <div class="table-page">
+              <el-pagination
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page.sync="currentPage"
+                :page-sizes="[5, 10, 20, 50, 100]"
+                :page-size="pageSize"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="total">
+              </el-pagination>
+            </div>
+          </el-col>
+        </el-row>
+      </div>
+
     </el-card>
 
     <el-dialog title="创建用户" :visible.sync="createVisible" width="30%" @closed="closeFunc" :destroy-on-close="true">
@@ -61,7 +85,7 @@
     <el-dialog title="修改用户" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
       <el-form :model="form" label-position="left" label-width="100px" size="small" :rules="rule" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
-          <el-input v-model="form.id" autocomplete="off" disabled="true"/>
+          <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item label="用户名" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
@@ -85,135 +109,27 @@
   import MsCreateBox from "./CreateBox";
 
   export default {
-    name: "MsUser",
-    components: {MsCreateBox},
-    created() {
-      this.getUserList();
-    },
-    methods: {
-      create() {
-        this.createVisible = true;
-      },
-      edit(row) {
-        window.console.log(row);
-        // this.loading = true;
-        this.updateVisible = true;
-        this.form = row;
-        /*let self = this;
-        let getUser1 = this.$get("/test/user");
-        let getUser2 = this.$get("/test/sleep");
-        this.$all([getUser1, getUser2], function (r1, r2) {
-          window.console.log(r1.data.data, r2.data.data);
-          self.loading = false;
-        });*/
-        /*this.$post("/update", this.form).then(()=>{
-          this.updateVisible = false;
-          this.getUserList();
-          self.loading = false;
-        })*/
-      },
-      del(row) {
-        window.console.log(row);
-        this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.$get(`/user/delete/${row.id}`).then(() => {
-            this.getUserList()
-          });
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          });
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          });
-        });
-      },
-      createUser(createUserForm) {
-        this.$refs[createUserForm].validate(valide => {
-          if (valide) {
-            this.$post("/user/add", this.form)
-              .then(() => {
-                this.$message({
-                    type: 'success',
-                    message: '添加成功!'
-                },
-                this.createVisible = false,
-                this.getUserList())
-              });
-          } else {
-            return false;
-          }
-        })
-      },
-      updateUser(updateUserForm) {
-        this.$refs[updateUserForm].validate(valide => {
-          if (valide) {
-            this.$post("/user/update", this.form)
-              .then(() => {
-                this.$message({
-                    type: 'success',
-                    message: '修改成功!'
-                  },
-                this.updateVisible = false,
-                this.getUserList(),
-                self.loading = false)
-              });
-          } else {
-            return false;
-          }
-        })
-      },
-      getUserList() {
-        this.$get("/user/list").then(response => {
-          this.items = response.data.data;
-        })
-      },
-      closeFunc() {
-        this.form = {};
-      },
-      changeSwitch(row) {
-        this.$post('/user/update', row).then(() =>{
-          this.$message({
-            type: 'success',
-            message: '状态修改成功!'
-          });
-        })
-      },
-      formatDate(row) {
-        let date = new Date(parseInt(row.createTime));
-        let Y = date.getFullYear() + '-';
-        let M = date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) + '-' : date.getMonth() + 1 + '-';
-        let D = date.getDate() < 10 ? '0' + date.getDate() + ' ' : date.getDate() + ' ';
-        // let h = date.getHours() < 10 ? '0' + date.getHours() + ':' : date.getHours() + ':';
-        // let m = date.getMinutes()  < 10 ? '0' + date.getMinutes() + ':' : date.getMinutes() + ':';
-        // let s = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
-        return Y + M + D;
-      }
-    },
     data() {
       return {
+        queryPath: '/user/list',
+        deletePath: '/user/delete/',
+        createPath: '/user/add',
+        updatePath: '/user/update',
         loading: false,
         createVisible: false,
         updateVisible: false,
+        multipleSelection: [],
+        currentPage: 1,
+        pageSize: 5,
+        total: 0,
         btnTips: "添加用户",
         condition: "",
-        items: [],
+        tableData: [],
         form: {},
         rule: {
           id: [
             { required: true, message: '请输入ID', trigger: 'blur'},
-            { min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur' },
-            {
-              required: true,
-              pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/,
-              message: 'ID不支持特殊字符',
-              trigger: 'blur'
-            }
+            { min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur' }
           ],
           name: [
             {required: true, message: '请输入姓名', trigger: 'blur'},
@@ -244,6 +160,127 @@
           ]
         }
       }
+    },
+    name: "MsUser",
+    components: {MsCreateBox},
+    created() {
+      this.initTableData();
+    },
+    methods: {
+      create() {
+        this.createVisible = true;
+      },
+      edit(row) {
+        this.updateVisible = true;
+        this.form = row;
+      },
+      del(row) {
+        this.$confirm('是否删除用户 ' + row.name + ' ?', '', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$get(this.deletePath + row.id).then(response => {
+            if (response.data.success) {
+              this.$message({
+                type: 'success',
+                message: '删除成功!'
+              });
+              this.initTableData()
+            } else {
+              this.$message.error(response.message)
+            }
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
+      },
+      createUser(createUserForm) {
+        this.$refs[createUserForm].validate(valide => {
+          if (valide) {
+            this.$post(this.createPath, this.form)
+              .then(response => {
+                if (response.data.success) {
+                  this.$message({
+                    type: 'success',
+                    message: '添加成功!'
+                  });
+                  this.initTableData();
+                } else {
+                  this.$message.error(response.message);
+                }
+                this.createVisible = false;
+              });
+          } else {
+            return false;
+          }
+        })
+      },
+      updateUser(updateUserForm) {
+        this.$refs[updateUserForm].validate(valide => {
+          if (valide) {
+            this.$post(this.updatePath, this.form)
+              .then(response => {
+                if (response.data.success) {
+                  this.$message({
+                      type: 'success',
+                      message: '修改成功!'
+                  });
+                  this.updateVisible = false;
+                } else {
+                  this.$message.error(response.message);
+                }
+                this.initTableData();
+                self.loading = false;
+              });
+          } else {
+            return false;
+          }
+        })
+      },
+      initTableData() {
+        this.$post(this.buildPagePath(this.queryPath)).then(response => {
+          if (response.data.success) {
+            let data = response.data.data;
+            this.total = data.itemCount;
+            this.tableData = data.listObject;
+          } else {
+            this.$message.error(response.message);
+          }
+        })
+      },
+      closeFunc() {
+        this.form = {};
+      },
+      changeSwitch(row) {
+        this.$post(this.updatePath, row).then(response =>{
+          if (response.data.success) {
+            this.$message({
+              type: 'success',
+              message: '状态修改成功!'
+            });
+          } else {
+            this.$message.error(response.message);
+          }
+        })
+      },
+      buildPagePath(path) {
+        return path + "/" + this.currentPage + "/" + this.pageSize;
+      },
+      handleSizeChange(size) {
+        this.pageSize = size;
+        this.initTableData();
+      },
+      handleCurrentChange(current) {
+        this.currentPage = current;
+        this.initTableData();
+      },
+      handleSelectionChange(val) {
+        this.multipleSelection = val;
+      }
     }
   }
 </script>
@@ -251,5 +288,11 @@
 <style scoped>
   .search {
     width: 240px;
+  }
+
+  .table-page {
+    padding-top: 20px;
+    margin-right: -9px;
+    float: right;
   }
 </style>

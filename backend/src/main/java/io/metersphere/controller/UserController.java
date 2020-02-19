@@ -4,7 +4,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Role;
 import io.metersphere.base.domain.User;
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.member.AddMemberRequest;
@@ -13,9 +12,7 @@ import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserRoleDTO;
 import io.metersphere.service.UserService;
 import io.metersphere.user.SessionUtils;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
-
 import javax.annotation.Resource;
 import java.util.List;
 
@@ -34,6 +31,12 @@ public class UserController {
     @GetMapping("/list")
     public List<User> getUserList() {
         return userService.getUserList();
+    }
+
+    @PostMapping("/list/{goPage}/{pageSize}")
+    public Pager<List<User>> getUserList(@PathVariable int goPage, @PathVariable int pageSize) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, userService.getUserList());
     }
 
     @GetMapping("/delete/{userId}")

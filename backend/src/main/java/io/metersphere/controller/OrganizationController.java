@@ -1,9 +1,12 @@
 package io.metersphere.controller;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Organization;
+import io.metersphere.commons.utils.PageUtils;
+import io.metersphere.commons.utils.Pager;
 import io.metersphere.service.OrganizationService;
 import org.springframework.web.bind.annotation.*;
-
 import javax.annotation.Resource;
 import java.util.List;
 
@@ -19,6 +22,12 @@ public class OrganizationController {
 
     @GetMapping("/list")
     public List<Organization> getOrganizationList() { return organizationService.getOrganizationList(); }
+
+    @PostMapping("/list/{goPage}/{pageSize}")
+    public Pager<List<Organization>> getUserList(@PathVariable int goPage, @PathVariable int pageSize) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, organizationService.getOrganizationList());
+    }
 
     @GetMapping("/delete/{organizationId}")
     public void deleteOrganization(@PathVariable(value = "organizationId") String organizationId) { organizationService.deleteOrganization(organizationId); }
