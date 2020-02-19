@@ -32,6 +32,13 @@ public class WorkspaceService {
 
         long currentTime = System.currentTimeMillis();
         if (StringUtils.isBlank(workspace.getId())) {
+            WorkspaceExample example = new WorkspaceExample();
+            example.createCriteria()
+                    .andOrganizationIdEqualTo(SessionUtils.getCurrentOrganizationId())
+                    .andNameEqualTo(workspace.getName());
+            if (workspaceMapper.countByExample(example) > 0) {
+                MSException.throwException("The workspace name already exists");
+            }
             workspace.setId(UUID.randomUUID().toString()); // 设置ID
             workspace.setCreateTime(currentTime);
             workspace.setUpdateTime(currentTime); // 首次 update time

@@ -34,7 +34,7 @@ public class WorkspaceController {
 
     @GetMapping("delete/{workspaceId}")
     @RequiresRoles(RoleConstants.ORG_ADMIN)
-    public void saveWorkspace(@PathVariable String workspaceId) {
+    public void deleteWorkspace(@PathVariable String workspaceId) {
         workspaceService.checkOwner(workspaceId);
         workspaceService.deleteWorkspace(workspaceId);
     }
