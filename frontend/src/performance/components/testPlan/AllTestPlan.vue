@@ -101,14 +101,10 @@
           name: this.condition
         };
 
-        this.$post(this.buildPagePath(this.queryPath), param).then(response => {
-          if (response.data.success) {
-            let data = response.data.data;
-            this.total = data.itemCount;
-            this.tableData = data.listObject;
-          } else {
-            this.$message.error(response.message);
-          }
+        this.$post(this.buildPagePath(this.queryPath), param, response => {
+          let data = response.data;
+          this.total = data.itemCount;
+          this.tableData = data.listObject;
         })
       },
       search() {
@@ -151,16 +147,12 @@
           id: testPlan.id
         };
 
-        this.$post(this.deletePath, data).then(response => {
-          if (response.data.success) {
-            this.$message({
-              message: '删除成功！',
-              type: 'success'
-            });
-            this.initTableData();
-          } else {
-            this.$message.error(response.message);
-          }
+        this.$post(this.deletePath, data, () => {
+          this.$message({
+            message: '删除成功！',
+            type: 'success'
+          });
+          this.initTableData();
         });
       },
     }
