@@ -1,8 +1,13 @@
 package io.metersphere.service;
 
+import io.metersphere.base.domain.UserRole;
 import io.metersphere.base.domain.Workspace;
+import io.metersphere.base.domain.WorkspaceExample;
 import io.metersphere.base.mapper.WorkspaceMapper;
+import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.user.SessionUser;
+import io.metersphere.user.SessionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -21,12 +27,18 @@ public class WorkspaceService {
         if (StringUtils.isBlank(workspace.getName())) {
             MSException.throwException("Workspace name cannot be null.");
         }
-        // TODO 组织ID 暂无
-        if (StringUtils.isBlank(workspace.getOrganizationId())) {
-            workspace.setOrganizationId("root");
-        }
+        // set organization id
+        workspace.setOrganizationId(SessionUtils.getCurrentOrganizationId());
+
         long currentTime = System.currentTimeMillis();
         if (StringUtils.isBlank(workspace.getId())) {
+            WorkspaceExample example = new WorkspaceExample();
+            example.createCriteria()
+                    .andOrganizationIdEqualTo(SessionUtils.getCurrentOrganizationId())
+                    .andNameEqualTo(workspace.getName());
+            if (workspaceMapper.countByExample(example) > 0) {
+                MSException.throwException("The workspace name already exists");
+            }
             workspace.setId(UUID.randomUUID().toString()); // 设置ID
             workspace.setCreateTime(currentTime);
             workspace.setUpdateTime(currentTime); // 首次 update time
@@ -47,7 +59,18 @@ public class WorkspaceService {
     }
 
     public void checkOwner(String workspaceId) {
-        // TODO 验证当前用户是否拥有当前此空间权限
+        SessionUser user = SessionUtils.getUser();
+        List<String> orgIds = user.getUserRoles().stream()
+                .filter(ur -> RoleConstants.ORG_ADMIN.equals(ur.getRoleId()))
+                .map(UserRole::getSourceId)
+                .collect(Collectors.toList());
+        WorkspaceExample example = new WorkspaceExample();
+        example.createCriteria()
+                .andOrganizationIdIn(orgIds)
+                .andIdEqualTo(workspaceId);
+        if (workspaceMapper.countByExample(example) == 0) {
+            MSException.throwException("The current workspace does not belong to the current user");
+        }
     }
 
 }

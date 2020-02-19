@@ -13,7 +13,7 @@
                 </span>
         </el-row>
       </div>
-      <el-table :data="items" style="width: 100%" v-loading="loading">
+      <el-table :data="items" style="width: 100%">
         <el-table-column prop="name" label="名称"/>
         <el-table-column prop="description" label="描述"/>
         <el-table-column>
@@ -76,14 +76,12 @@
       submit(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            this.loading = true;
             let saveType = 'add';
             if (this.form.id) {
               saveType = 'update'
             }
             this.$post("/workspace/" + saveType, this.form, () => {
               this.createVisible = false;
-              this.loading = false;
               this.list();
               Message.success('保存成功');
             });
@@ -94,7 +92,6 @@
       },
       edit(row) {
         this.createVisible = true;
-        this.loading = true;
         this.form = row;
 
         // let self = this;

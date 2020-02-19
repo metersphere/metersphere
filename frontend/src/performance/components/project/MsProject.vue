@@ -1,7 +1,7 @@
 <template>
   <div class="project-container">
     <div class="main-content">
-      <el-card>
+      <el-card v-loading="result.loading">
         <div slot="header">
           <el-row type="flex" justify="space-between" align="middle">
             <span class="title">
@@ -14,7 +14,7 @@
                 </span>
           </el-row>
         </div>
-        <el-table :data="items" style="width: 100%" v-loading="loading">
+        <el-table :data="items" style="width: 100%">
           <el-table-column prop="name" label="名称"/>
           <el-table-column prop="description" label="描述"/>
           <el-table-column>
@@ -70,7 +70,7 @@
     data() {
       return {
         createVisible: false,
-        loading: false,
+        result: {},
         btnTips: "添加项目",
         condition: "",
         items: [],
@@ -87,7 +87,7 @@
       }
     },
     mounted() {
-      // this.list();
+      this.list();
     },
     destroyed() {
       this.createVisible = false;
@@ -104,14 +104,12 @@
       submit(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            this.loading = true;
             let saveType = "add";
             if (this.form.id) {
               saveType = "update"
             }
-            this.$post("/project/" + saveType, this.form, () => {
+            this.result = this.$post("/project/" + saveType, this.form, () => {
               this.createVisible = false;
-              this.loading = false;
               this.list();
               Message.success('保存成功');
             });
@@ -136,8 +134,10 @@
       },
       list() {
         let url = "/project/list/" + this.currentPage + '/' + this.pageSize;
-        this.$post(url, {}, (response) => {
-          this.items = response.data;
+        this.result = this.$post(url, {}, (response) => {
+          let data = response.data;
+          this.items = data.listObject;
+          this.total = data.itemCount;
         })
       },
       handleSizeChange(size) {

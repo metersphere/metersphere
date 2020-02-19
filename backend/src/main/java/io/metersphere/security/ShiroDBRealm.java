@@ -5,7 +5,7 @@ import io.metersphere.base.domain.Role;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.service.UserService;
 import io.metersphere.user.SessionUser;
-import org.apache.shiro.SecurityUtils;
+import io.metersphere.user.SessionUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
@@ -68,7 +68,7 @@ public class ShiroDBRealm extends AuthorizingRealm {
         // TODO 密码验证
 
         SessionUser sessionUser = SessionUser.fromUser(user);
-        SecurityUtils.getSubject().getSession().setAttribute("user", sessionUser);
+        SessionUtils.putUser(sessionUser);
         return new SimpleAuthenticationInfo(userId, password, getName());
     }
 

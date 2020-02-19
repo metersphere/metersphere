@@ -89,6 +89,8 @@ public class UserService {
         if (CollectionUtils.isEmpty(userRoleList)) {
             return userDTO;
         }
+        // 设置 user_role
+        userDTO.setUserRoles(userRoleList);
 
         List<String> roleIds = userRoleList.stream().map(UserRole::getRoleId).collect(Collectors.toList());
 

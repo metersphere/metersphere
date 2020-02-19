@@ -1,17 +1,17 @@
 <template>
     <el-menu menu-trigger="click" :default-active="$route.path" router>
-        <el-submenu index="1">
+        <el-submenu index="1" v-permission="['admin']">
             <template slot="title">
                 <font-awesome-icon class="icon account" :icon="['far', 'address-card']" size="lg"/>
                 <span>账号</span>
             </template>
             <el-menu-item index="/setting/user">用户</el-menu-item>
-            <el-menu-item index="/setting/testresourcepool">测试资源池</el-menu-item>
+            <el-menu-item index="/setting/testresourcepool" v-permission="['test']">测试资源池</el-menu-item>
             <el-menu-item index="/setting/organization">组织</el-menu-item>
             <el-menu-item index="/setting/workspace">工作空间</el-menu-item>
             <el-menu-item>API Keys</el-menu-item>
         </el-submenu>
-        <el-submenu index=2>
+        <el-submenu index=2 v-permission="['admin','org_admin']">
             <template slot="title">
                 <font-awesome-icon class="icon workspace" :icon="['far', 'clone']" size="lg"/>
                 <span>工作空间</span>

@@ -16,7 +16,7 @@
           </div>
           <div class="form">
             <el-form-item prop="username">
-              <el-input v-model="form.username" placeholder="邮箱" autocomplete="off" maxlength="100"
+              <el-input v-model="form.username" placeholder="邮箱" autofocus autocomplete="off" maxlength="100"
                         show-word-limit/>
             </el-form-item>
             <el-form-item prop="password">
@@ -109,8 +109,10 @@
             this.$post("signin", this.form, (response) => {
               // 登录信息保存 cookie
               Cookies.set(TokenKey, response.data);
-              // 保存上次角色
-              localStorage.setItem("lastSourceId", JSON.parse(Cookies.get(TokenKey)).lastSourceId);
+              let rolesArray = response.data.roles;
+              let roles = rolesArray.map(r => r.id);
+              // 保存角色
+              localStorage.setItem("roles", roles);
               window.location.href = "/"
             });
           } else {
