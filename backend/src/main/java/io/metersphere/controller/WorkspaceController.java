@@ -45,4 +45,9 @@ public class WorkspaceController {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, workspaceService.getWorkspaceList());
     }
+
+    @GetMapping("/list/userworkspace/{userId}")
+    public List<Workspace> getWorkspaceListByUserId(@PathVariable String userId) {
+        return workspaceService.getWorkspaceListByUserId(userId);
+    }
 }
