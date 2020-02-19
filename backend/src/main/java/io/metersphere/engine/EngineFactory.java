@@ -1,9 +1,9 @@
-package io.metersphere.runner;
+package io.metersphere.engine;
 
 import io.metersphere.base.domain.FileContent;
 import io.metersphere.base.domain.LoadTestWithBLOBs;
 import io.metersphere.commons.constants.LoadTestFileType;
-import io.metersphere.runner.jmx.JmxEngine;
+import io.metersphere.engine.jmx.JmxEngine;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;

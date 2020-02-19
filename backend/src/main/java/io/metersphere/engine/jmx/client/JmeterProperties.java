@@ -1,4 +1,4 @@
-package io.metersphere.runner.jmx.client;
+package io.metersphere.engine.jmx.client;
 
 import org.apache.jmeter.util.JMeterUtils;
 import org.slf4j.Logger;
