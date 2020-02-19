@@ -72,8 +72,8 @@
     },
     methods: {
       getFileMetadata(testPlan) {
-        this.$get(this.getFileMetadataPath + "/" + testPlan.id).then(response => {
-          let file = response.data.data;
+        this.$get(this.getFileMetadataPath + "/" + testPlan.id, response => {
+          let file = response.data;
 
           this.testPlan.file = file;
 
@@ -115,25 +115,21 @@
           name: file.name
         };
 
-        this.$post(this.jmxDownloadPath, data).then(response => {
-          if (response) {
-            const content = response.data;
-            const blob = new Blob([content]);
-            if ("download" in document.createElement("a")) {
-              // 非IE下载
-              //  chrome/firefox
-              let aTag = document.createElement('a');
-              aTag.download = file.name;
-              aTag.href = URL.createObjectURL(blob)
-              aTag.click();
-              URL.revokeObjectURL(aTag.href)
-            } else {
-              // IE10+下载
-              navigator.msSaveBlob(blob, this.filename)
-            }
+        this.$post(this.jmxDownloadPath, data, response => {
+          const content = response.data;
+          const blob = new Blob([content]);
+          if ("download" in document.createElement("a")) {
+            // 非IE下载
+            //  chrome/firefox
+            let aTag = document.createElement('a');
+            aTag.download = file.name;
+            aTag.href = URL.createObjectURL(blob)
+            aTag.click();
+            URL.revokeObjectURL(aTag.href)
+          } else {
+            // IE10+下载
+            navigator.msSaveBlob(blob, this.filename)
           }
-        }).catch((response) => {
-          this.$message.error(response.message);
         });
       },
       handleDelete(file, index) {

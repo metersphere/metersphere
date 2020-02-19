@@ -77,8 +77,8 @@
     },
     methods: {
       listProjects() {
-        this.$get(this.listProjectPath).then(response => {
-          this.projects = response.data.data;
+        this.$get(this.listProjectPath, response => {
+          this.projects = response.data;
         })
       },
       save() {
@@ -88,13 +88,11 @@
 
         let options = this.getSaveOption();
 
-        this.$request(options).then(response => {
-          if (response) {
-            this.$message({
-              message: '保存成功！',
-              type: 'success'
-            });
-          }
+        this.$request(options, () => {
+          this.$message({
+            message: '保存成功！',
+            type: 'success'
+          });
         });
       },
       saveAndRun() {
@@ -104,20 +102,18 @@
 
         let options = this.getSaveOption();
 
-        this.$request(options).then(response => {
-          if (response) {
+        this.$request(options, () => {
+          this.$message({
+            message: '保存成功！',
+            type: 'success'
+          });
+
+          this.$post(this.runPath, {id: this.testPlan.id}).then(() => {
             this.$message({
-              message: '保存成功！',
+              message: '正在运行！',
               type: 'success'
             });
-
-            this.$post(this.runPath, {id: this.testPlan.id}).then(() => {
-              this.$message({
-                message: '正在运行！',
-                type: 'success'
-              });
-            })
-          }
+          })
         });
       },
       getSaveOption() {
@@ -135,7 +131,7 @@
           type: "application/json"
         }));
 
-        return  {
+        return {
           method: 'POST',
           url: url,
           data: formData,
