@@ -23,7 +23,7 @@
         <test-plan-basic-config :test-plan="testPlan"/>
       </el-tab-pane>
       <el-tab-pane label="压力配置">
-        <test-plan-pressure-config/>
+        <test-plan-pressure-config :test-plan="testPlan"/>
       </el-tab-pane>
       <el-tab-pane label="高级配置">
         <test-plan-advanced-config/>
@@ -124,10 +124,14 @@
         if (!this.testPlan.file.id) {
           formData.append("file", this.testPlan.file);
         }
+        if (this.testPlan.loadConfigurationObj) {
+          this.testPlan.loadConfiguration = JSON.stringify(this.testPlan.loadConfigurationObj);
+        }
         // file属性不需要json化
         let requestJson = JSON.stringify(this.testPlan, function (key, value) {
           return key === "file" ? undefined : value
         });
+
         formData.append('request', new Blob([requestJson], {
           type: "application/json"
         }));

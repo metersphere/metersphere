@@ -2,11 +2,12 @@
   <div class="pressure-config-container">
     <el-row type="flex">
       <div class="small-input">
-        <span>线程数：</span>
+        <span>并发用户数：</span>
         <el-input
           type="number"
           placeholder="请输入线程数"
           v-model="threadNumber"
+          @click="convertProperty"
           show-word-limit
         >
         </el-input>
@@ -17,19 +18,31 @@
           type="number"
           placeholder="请输入时长"
           v-model="duration"
+          @click="convertProperty"
           show-word-limit
         >
         </el-input>
       </div>
       <div class="small-input">
-        <span>Ramp-Up时间（秒）</span>
+        <span>在</span>
         <el-input
           type="number"
-          placeholder="请输入时间"
+          placeholder=""
           v-model="rampUpTime"
+          @click="convertProperty"
           show-word-limit
         >
         </el-input>
+        <span>分钟内，分</span>
+        <el-input
+          type="number"
+          placeholder=""
+          v-model="step"
+          @click="convertProperty"
+          show-word-limit
+        >
+        </el-input>
+        <span>次增加并发用户</span>
       </div>
     </el-row>
   </div>
@@ -38,28 +51,29 @@
 <script>
   export default {
     name: "TestPlanPressureConfig",
+    props: ["testPlan"],
     data() {
       return {
-        threadNumber: 10,
-        duration: 10,
-        rampUpTime: 5,
-        chartData: {
-          columns: ['压测时长（分钟）', '并发量'],
-          rows: [
-            {'压测时长（分钟）': '1月1日', '并发量': 123},
-            {'压测时长（分钟）': '1月2日', '并发量': 1223},
-            {'压测时长（分钟）': '1月3日', '并发量': 2123},
-            {'压测时长（分钟）': '1月4日', '并发量': 4123},
-            {'压测时长（分钟）': '1月5日', '并发量': 3123},
-            {'压测时长（分钟）': '1月6日', '并发量': 7123}
-          ]
-        },
+        threadNumber: 2,
+        duration: 3,
+        rampUpTime: 12,
+        step: 2,
       }
     },
-    beforeCreate() {
-
+    created() {
+      this.testPlan.loadConfigurationObj = [];
+      this.convertProperty();
     },
     methods: {
+      convertProperty() {
+        /// todo：下面4个属性是jmeter ConcurrencyThreadGroup plugin的属性，这种硬编码不太好吧，在哪能转换这种属性？
+        this.testPlan.loadConfigurationObj = [
+          {key: "TargetLevel", value: this.threadNumber},
+          {key: "RampUp", value: this.rampUpTime},
+          {key: "Steps", value: this.step},
+          {key: "Hold", value: this.duration}
+        ];
+      }
     }
   }
 </script>

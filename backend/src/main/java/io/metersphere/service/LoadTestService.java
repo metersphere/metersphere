@@ -97,6 +97,7 @@ public class LoadTestService {
         loadTest.setUpdateTime(System.currentTimeMillis());
         loadTest.setScenarioDefinition("todo");
         loadTest.setDescription("todo");
+        loadTest.setLoadConfiguration(request.getLoadConfiguration());
         loadTestMapper.insert(loadTest);
         return loadTest;
     }
@@ -143,6 +144,7 @@ public class LoadTestService {
             loadTest.setUpdateTime(System.currentTimeMillis());
             loadTest.setScenarioDefinition("todo");
             loadTest.setDescription("todo");
+            loadTest.setLoadConfiguration(request.getLoadConfiguration());
             loadTestMapper.updateByPrimaryKeySelective(loadTest);
         }
     }
