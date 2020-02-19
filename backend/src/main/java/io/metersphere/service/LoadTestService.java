@@ -3,7 +3,7 @@ package io.metersphere.service;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
-import io.metersphere.commons.constants.LoadTestFileType;
+import io.metersphere.commons.constants.EngineType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.IOUtils;
 import io.metersphere.controller.request.testplan.*;
@@ -108,7 +108,7 @@ public class LoadTestService {
         fileMetadata.setSize(file.getSize());
         fileMetadata.setCreateTime(System.currentTimeMillis());
         fileMetadata.setUpdateTime(System.currentTimeMillis());
-        fileMetadata.setType(LoadTestFileType.JMX.name());
+        fileMetadata.setType(EngineType.JMX.name());
         fileMetadataMapper.insert(fileMetadata);
 
         FileContent fileContent = new FileContent();
@@ -171,7 +171,12 @@ public class LoadTestService {
                     fileMetadata.getType()));
         }
 
-        final boolean init = engine.init(EngineFactory.createContext(loadTest, fileContent));
+        boolean init = true;
+        try {
+            init = engine.init(EngineFactory.createContext(loadTest, fileMetadata, fileContent));
+        } catch (Exception e) {
+            MSException.throwException(e);
+        }
         if (!init) {
             MSException.throwException(String.format("无法运行测试，初始化运行环境失败，测试ID：%s", request.getId()));
         }

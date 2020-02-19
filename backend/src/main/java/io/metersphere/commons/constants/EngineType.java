@@ -1,5 +1,5 @@
 package io.metersphere.commons.constants;
 
-public enum LoadTestFileType {
+public enum EngineType {
     JMX
 }
