@@ -7,10 +7,13 @@ const whiteList = ['/login']; // no redirect whitelist
 export const permission = {
   inserted(el, binding) {
     const { value } = binding;
-    const roles = localStorage.getItem("lastSourceId");
+    const rolesString = localStorage.getItem("roles");
+    const roles = rolesString.split(',');
     if (value && value instanceof Array && value.length > 0) {
       const permissionRoles = value;
-      const hasPermission = permissionRoles.includes(roles);
+      const hasPermission = roles.some(role => {
+        return permissionRoles.includes(role)
+      });
       if (!hasPermission) {
         el.parentNode && el.parentNode.removeChild(el)
       }
