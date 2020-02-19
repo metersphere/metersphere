@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="loading">
+  <div>
     <el-card>
       <div slot="header">
         <el-row type="flex" justify="space-between" align="middle">
@@ -13,7 +13,7 @@
                 </span>
         </el-row>
       </div>
-      <el-table :data="items" style="width: 100%">
+      <el-table :data="items" style="width: 100%" v-loading="loading">
         <el-table-column prop="name" label="名称"/>
         <el-table-column prop="description" label="描述"/>
         <el-table-column>

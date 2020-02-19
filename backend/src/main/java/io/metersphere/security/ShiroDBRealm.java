@@ -1,18 +1,22 @@
 package io.metersphere.security;
 
 
+import io.metersphere.base.domain.Role;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.service.UserService;
 import io.metersphere.user.SessionUser;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 /**
@@ -34,8 +38,16 @@ public class ShiroDBRealm extends AuthorizingRealm {
      * 权限认证
      */
     @Override
-    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
-        return null;
+    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
+        String userName = (String) principals.getPrimaryPrincipal();
+        SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
+
+        // roles 内容填充
+        UserDTO userDTO = userService.getUserDTO(userName);
+        Set<String> roles = userDTO.getRoles().stream().map(Role::getId).collect(Collectors.toSet());
+        authorizationInfo.setRoles(roles);
+
+        return authorizationInfo;
     }
 
     /**
@@ -53,7 +65,7 @@ public class ShiroDBRealm extends AuthorizingRealm {
             logger.warn(msg);
             throw new UnknownAccountException(msg);
         }
-        // TODO 密码验证，roles 等内容填充
+        // TODO 密码验证
 
         SessionUser sessionUser = SessionUser.fromUser(user);
         SecurityUtils.getSubject().getSession().setAttribute("user", sessionUser);
