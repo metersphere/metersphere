@@ -1,5 +1,5 @@
 <template>
-  <div class="testplan-container">
+  <div class="testplan-container" v-loading="loading">
     <div class="main-content">
       <el-card>
         <div slot="header">
@@ -90,6 +90,7 @@
         currentPage: 1,
         pageSize: 5,
         total: 0,
+        loading: false,
       }
     },
     created: function () {
@@ -97,6 +98,7 @@
     },
     methods: {
       initTableData() {
+        this.loading = true;
         let param = {
           name: this.condition
         };
@@ -105,6 +107,7 @@
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
+          this.loading = false;
         })
       },
       search() {

@@ -53,6 +53,8 @@
 </template>
 
 <script>
+  import {Message} from "element-ui";
+
   export default {
     name: "TestPlanBasicConfig",
     props: ["testPlan"],
@@ -74,6 +76,11 @@
       getFileMetadata(testPlan) {
         this.$get(this.getFileMetadataPath + "/" + testPlan.id, response => {
           let file = response.data;
+
+          if (!file) {
+            Message.error({message: "未找到关联的测试文件！", showClose: true});
+            return;
+          }
 
           this.testPlan.file = file;
 
