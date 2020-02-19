@@ -1,6 +1,7 @@
 package io.metersphere.dto;
 
 import io.metersphere.base.domain.Role;
+import io.metersphere.base.domain.UserRole;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,10 @@ public class UserDTO {
 
     private String lastSourceId;
 
+    private List<Role> roles = new ArrayList<>();
+
+    private List<UserRole> userRoles = new ArrayList<>();
+
     public String getLastSourceId() {
         return lastSourceId;
     }
@@ -29,8 +34,6 @@ public class UserDTO {
     public void setLastSourceId(String lastSourceId) {
         this.lastSourceId = lastSourceId;
     }
-
-    private List<Role> roles = new ArrayList<>();
 
     public List<Role> getRoles() {
         return roles;
@@ -96,5 +99,13 @@ public class UserDTO {
 
     public void setUpdateTime(Long updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public List<UserRole> getUserRoles() {
+        return userRoles;
+    }
+
+    public void setUserRoles(List<UserRole> userRoles) {
+        this.userRoles = userRoles;
     }
 }
