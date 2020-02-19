@@ -32,66 +32,64 @@ export default {
       return Promise.reject(error);
     });
 
+    function then(success, response, result) {
+      if (!response.data) {
+        success(response);
+      }
+      if (response.data.success) {
+        success(response.data);
+      } else {
+        window.console.warn(response.data);
+        Message.warning(response.data.message);
+      }
+      result.loading = false;
+    }
+
+    function exception(error, result) {
+      result.loading = false;
+      window.console.error(error.response || error.message);
+      Message.error({message: error.message, showClose: true});
+    }
+
     Vue.prototype.$get = function (url, success) {
+      let result = {loading: true};
       if (!success) {
         return axios.get(url);
       } else {
         axios.get(url).then(response => {
-          if (!response.data) {
-            return success(response);
-          }
-          if (response.data.success) {
-            return success(response.data);
-          } else {
-            window.console.warn(response.data);
-            Message.warning(response.data.message);
-          }
+          then(success, response, result);
         }).catch(error => {
-          window.console.error(error.response || error.message);
-          Message.error({message: error.message, showClose: true});
-        })
+          exception(error, result);
+        });
+        return result;
       }
     };
 
     Vue.prototype.$post = function (url, data, success) {
+      let result = {loading: true};
       if (!success) {
         return axios.post(url, data);
       } else {
         axios.post(url, data).then(response => {
-          if (!response.data) {
-            return success(response);
-          }
-          if (response.data.success) {
-            return success(response.data);
-          } else {
-            window.console.warn(response.data);
-            Message.warning(response.data.message);
-          }
+          then(success, response, result);
         }).catch(error => {
-          window.console.error(error.response || error.message);
-          Message.error({message: error.message, showClose: true});
-        })
+          exception(error, result);
+        });
+        return result;
       }
     };
 
     Vue.prototype.$request = function (axiosRequestConfig, success) {
+      let result = {loading: true};
       if (!success) {
         return axios.request(axiosRequestConfig);
       } else {
         axios.request(axiosRequestConfig).then(response => {
-          if (!response.data) {
-            return success(response);
-          }
-          if (response.data.success) {
-            return success(response.data);
-          } else {
-            window.console.warn(response.data);
-            Message.warning(response.data.message);
-          }
+          then(success, response, result);
         }).catch(error => {
-          window.console.error(error.response || error.message);
-          Message.error({message: error.message, showClose: true});
-        })
+          exception(error, result);
+        });
+        return result;
       }
     };
 

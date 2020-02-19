@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-card>
+    <el-card v-loading="result.loading">
       <div slot="header">
         <el-row type="flex" justify="space-between" align="middle">
           <span class="title">
@@ -121,12 +121,11 @@
       },
       list() {
         let url = '/workspace/list/' + this.currentPage + '/' + this.pageSize;
-        this.$post(url, {}, response => {
+        this.result = this.$post(url, {}, response => {
           let data = response.data;
-
           this.items = data.listObject;
           this.total = data.itemCount;
-        })
+        });
       },
       handleSizeChange(size) {
         this.pageSize = size;
@@ -139,6 +138,7 @@
     },
     data() {
       return {
+        result: {},
         loading: false,
         createVisible: false,
         btnTips: "添加工作空间",
