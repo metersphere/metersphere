@@ -135,7 +135,9 @@
       list() {
         let url = "/project/list/" + this.currentPage + '/' + this.pageSize;
         this.result = this.$post(url, {}, (response) => {
-          this.items = response.data;
+          let data = response.data;
+          this.items = data.listObject;
+          this.total = data.itemCount;
         })
       },
       handleSizeChange(size) {
