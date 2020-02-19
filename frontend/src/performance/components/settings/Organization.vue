@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="loading">
+  <div v-loading="result.loading">
 
     <el-card>
       <div slot="header">
@@ -87,7 +87,7 @@
         deletePath: '/organization/delete/',
         createPath: '/organization/add',
         updatePath: '/organization/update',
-        loading: false,
+        result: {},
         createVisible: false,
         updateVisible: false,
         multipleSelection: [],
@@ -133,7 +133,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$get(this.deletePath + row.id,() => {
+          this.result = this.$get(this.deletePath + row.id,() => {
             this.$message({
               type: 'success',
               message: '删除成功!'
@@ -150,7 +150,7 @@
       createOrganization(createOrganizationForm) {
         this.$refs[createOrganizationForm].validate( valide => {
           if (valide) {
-            this.$post(this.createPath, this.form,() => {
+            this.result = this.$post(this.createPath, this.form,() => {
               this.$message({
                 type: 'success',
                 message: '添加成功!'
@@ -166,14 +166,13 @@
       updateOrganization(udpateOrganizationForm) {
         this.$refs[udpateOrganizationForm].validate(valide => {
           if (valide) {
-            this.$post(this.updatePath, this.form,() => {
+            this.result = this.$post(this.updatePath, this.form,() => {
               this.$message({
                 type: 'success',
                 message: '修改成功!'
               });
               this.updateVisible = false;
               this.initTableData();
-              self.loading = false;
               });
           } else {
             return false;
@@ -181,7 +180,7 @@
         })
       },
       initTableData() {
-        this.$post(this.buildPagePath(this.queryPath),{},response => {
+        this.result = this.$post(this.buildPagePath(this.queryPath),{},response => {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
