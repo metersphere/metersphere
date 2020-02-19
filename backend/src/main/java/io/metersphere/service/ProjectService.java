@@ -2,6 +2,7 @@ package io.metersphere.service;
 
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.mapper.ProjectMapper;
+import io.metersphere.user.SessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,8 +21,8 @@ public class ProjectService {
         long createTime = System.currentTimeMillis();
         project.setCreateTime(createTime);
         project.setUpdateTime(createTime);
-        // todo set workspace id
-//        project.setWorkspaceId();
+        // set workspace id
+        project.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         projectMapper.insertSelective(project);
         return project;
     }
