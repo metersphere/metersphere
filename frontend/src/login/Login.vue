@@ -16,7 +16,7 @@
           </div>
           <div class="form">
             <el-form-item prop="username">
-              <el-input v-model="form.username" placeholder="邮箱" autocomplete="off" maxlength="100"
+              <el-input v-model="form.username" placeholder="邮箱" autofocus autocomplete="off" maxlength="100"
                         show-word-limit/>
             </el-form-item>
             <el-form-item prop="password">
