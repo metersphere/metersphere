@@ -180,16 +180,12 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$get(this.deletePath + row.id).then(response => {
-            if (response.data.success) {
-              this.$message({
-                type: 'success',
-                message: '删除成功!'
-              });
-              this.initTableData()
-            } else {
-              this.$message.error(response.message)
-            }
+          this.$get(this.deletePath + row.id, () => {
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            });
+            this.initTableData();
           });
         }).catch(() => {
           this.$message({
@@ -201,18 +197,13 @@
       createUser(createUserForm) {
         this.$refs[createUserForm].validate(valide => {
           if (valide) {
-            this.$post(this.createPath, this.form)
-              .then(response => {
-                if (response.data.success) {
-                  this.$message({
-                    type: 'success',
-                    message: '添加成功!'
-                  });
-                  this.initTableData();
-                } else {
-                  this.$message.error(response.message);
-                }
-                this.createVisible = false;
+            this.$post(this.createPath, this.form, () => {
+              this.$message({
+                type: 'success',
+                message: '添加成功!'
+              });
+              this.initTableData();
+              this.createVisible = false;
               });
           } else {
             return false;
@@ -222,19 +213,14 @@
       updateUser(updateUserForm) {
         this.$refs[updateUserForm].validate(valide => {
           if (valide) {
-            this.$post(this.updatePath, this.form)
-              .then(response => {
-                if (response.data.success) {
-                  this.$message({
-                      type: 'success',
-                      message: '修改成功!'
-                  });
-                  this.updateVisible = false;
-                } else {
-                  this.$message.error(response.message);
-                }
-                this.initTableData();
-                self.loading = false;
+            this.$post(this.updatePath, this.form,() => {
+              this.$message({
+                  type: 'success',
+                  message: '修改成功!'
+              });
+              this.updateVisible = false;
+              this.initTableData();
+              self.loading = false;
               });
           } else {
             return false;
@@ -242,29 +228,21 @@
         })
       },
       initTableData() {
-        this.$post(this.buildPagePath(this.queryPath)).then(response => {
-          if (response.data.success) {
-            let data = response.data.data;
+        this.$post(this.buildPagePath(this.queryPath),{},response => {
+            let data = response.data;
             this.total = data.itemCount;
             this.tableData = data.listObject;
-          } else {
-            this.$message.error(response.message);
-          }
         })
       },
       closeFunc() {
         this.form = {};
       },
       changeSwitch(row) {
-        this.$post(this.updatePath, row).then(response =>{
-          if (response.data.success) {
-            this.$message({
-              type: 'success',
-              message: '状态修改成功!'
-            });
-          } else {
-            this.$message.error(response.message);
-          }
+        this.$post(this.updatePath, row,() =>{
+          this.$message({
+            type: 'success',
+            message: '状态修改成功!'
+          });
         })
       },
       buildPagePath(path) {
