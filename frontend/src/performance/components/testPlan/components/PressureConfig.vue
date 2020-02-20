@@ -44,6 +44,17 @@
         </el-input>
         <span>次增加并发用户</span>
       </div>
+      <div class="small-input">
+        <span>RPS上限：</span>
+        <el-input
+          type="number"
+          placeholder="请输入限制"
+          v-model="rpsLimit"
+          @click="convertProperty"
+          show-word-limit
+        >
+        </el-input>
+      </div>
     </el-row>
   </div>
 </template>
@@ -58,6 +69,7 @@
         duration: 3,
         rampUpTime: 12,
         step: 2,
+        rpsLimit: 10,
       }
     },
     created() {
@@ -71,7 +83,8 @@
           {key: "TargetLevel", value: this.threadNumber},
           {key: "RampUp", value: this.rampUpTime},
           {key: "Steps", value: this.step},
-          {key: "Hold", value: this.duration}
+          {key: "duration", value: this.duration},
+          {key: "rpsLimit", value: this.rpsLimit}
         ];
       }
     }
