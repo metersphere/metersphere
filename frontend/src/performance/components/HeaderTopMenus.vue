@@ -4,7 +4,8 @@
            class="header-top-menus"
            text-color="#F2F2F2"
            active-text-color="#fff"
-           :default-active="$route.path"
+           :default-active="activeIndex"
+           @select="handleSelect"
            router>
     <el-menu-item index="1">功能测试</el-menu-item>
     <el-menu-item index="/createTest" onselectstart="return false">性能测试</el-menu-item>
@@ -14,7 +15,25 @@
 
 <script>
   export default {
-    name: "MsTopMenus"
+    name: "MsTopMenus",
+    data() {
+      return {
+        activeIndex: '/'
+      }
+    },
+    watch: {
+      '$route' () {
+        this.handleSelect(this.activeIndex);
+      }
+    },
+    mounted () {
+      this.activeIndex = this.$route.matched[0].path || '/'
+    },
+    methods: {
+      handleSelect (index) {
+        this.activeIndex = index
+      }
+    }
   }
 </script>
 <style>
