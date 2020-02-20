@@ -53,7 +53,7 @@
 </template>
 
 <script>
-  import Message from "element-ui";
+  import {Message} from "element-ui";
 
   export default {
     name: "TestPlanBasicConfig",
@@ -91,6 +91,7 @@
           });
 
           this.tableData.push({
+            id: file.id,
             name: file.name,
             size: file.size + 'Byte', /// todo: 按照大小显示Byte、KB、MB等
             type: 'JMX',
@@ -120,10 +121,16 @@
       },
       handleDownload(file) {
         let data = {
-          name: file.name
+          name: file.name,
+          id: file.id,
         };
-
-        this.result = this.$post(this.jmxDownloadPath, data, response => {
+        let config = {
+          url: this.jmxDownloadPath,
+          method: 'post',
+          data: data,
+          responseType: 'blob'
+        };
+        this.result = this.$request(config).then(response => {
           const content = response.data;
           const blob = new Blob([content]);
           if ("download" in document.createElement("a")) {
@@ -131,13 +138,15 @@
             //  chrome/firefox
             let aTag = document.createElement('a');
             aTag.download = file.name;
-            aTag.href = URL.createObjectURL(blob)
+            aTag.href = URL.createObjectURL(blob);
             aTag.click();
             URL.revokeObjectURL(aTag.href)
           } else {
             // IE10+下载
             navigator.msSaveBlob(blob, this.filename)
           }
+        }).catch(e => {
+          Message.error({message: e.message, showClose: true});
         });
       },
       handleDelete(file, index) {

@@ -1,8 +1,15 @@
 <template>
   <el-col v-if="auth">
     <el-row id="header-top" type="flex" justify="space-between" align="middle">
-      <a class="logo"/>
-      <ms-user/>
+      <el-col :span="4">
+        <a class="logo"/>
+      </el-col>
+      <el-col :span="10">
+        <ms-top-menus/>
+      </el-col>
+      <el-col :span="10">
+       <ms-user/>
+      </el-col>
     </el-row>
     <el-row id="header-bottom" type="flex" justify="space-between" align="middle">
       <el-col :span="10">
@@ -26,6 +33,7 @@
 
 <script>
   import MsMenus from "./components/HeaderMenus";
+  import MsTopMenus from "./components/HeaderTopMenus";
   import MsSetting from "./components/HeaderSetting";
   import MsView from "./components/router/View";
   import MsUser from "./components/HeaderUser";
@@ -49,7 +57,7 @@
         window.location.href = "/login"
       });
     },
-    components: {MsWebSocket, MsUser, MsMenus, MsSetting, MsView},
+    components: {MsWebSocket, MsUser, MsMenus, MsSetting, MsView, MsTopMenus},
     methods: {
     }
   }
