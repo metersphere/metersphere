@@ -23,8 +23,10 @@ public class ProjectController {
 
     @GetMapping("/listAll")
     public List<Project> listAll() {
-        // todo: 限制workspace和org
-        return projectService.listAll();
+        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
+        ProjectRequest request = new ProjectRequest();
+        request.setWorkspaceId(currentWorkspaceId);
+        return projectService.getProjectList(request);
     }
 
     @PostMapping("/add")
