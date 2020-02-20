@@ -6,7 +6,9 @@ import io.metersphere.base.domain.Project;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.controller.request.ProjectRequest;
 import io.metersphere.service.ProjectService;
+import io.metersphere.user.SessionUtils;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,9 +35,10 @@ public class ProjectController {
 
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresRoles(RoleConstants.TEST_MANAGER)
-    public Pager<List<Project>> getProjectList(@PathVariable int goPage, @PathVariable int pageSize) {
+    public Pager<List<Project>> getProjectList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ProjectRequest request) {
+        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, projectService.getProjectList());
+        return PageUtils.setPageInfo(page, projectService.getProjectList(request));
     }
 
     @GetMapping("/delete/{projectId}")

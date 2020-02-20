@@ -4,6 +4,7 @@ import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.ProjectExample;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.controller.request.ProjectRequest;
 import io.metersphere.user.SessionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -40,9 +41,13 @@ public class ProjectService {
         return project;
     }
 
-    public List<Project> getProjectList() {
-        // todo 查询条件设置
-        return projectMapper.selectByExample(null);
+    public List<Project> getProjectList(ProjectRequest request) {
+        ProjectExample example = new ProjectExample();
+        ProjectExample.Criteria criteria = example.createCriteria();
+        if (StringUtils.isNotBlank(request.getWorkspaceId())) {
+            criteria.andWorkspaceIdEqualTo(request.getWorkspaceId());
+        }
+        return projectMapper.selectByExample(example);
     }
 
     public void deleteProject(String projectId) {
