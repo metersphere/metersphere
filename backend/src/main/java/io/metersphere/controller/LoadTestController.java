@@ -41,11 +41,11 @@ public class LoadTestController {
     }
 
     @PostMapping(value = "/edit", consumes = {"multipart/form-data"})
-    public void edit(
+    public String edit(
             @RequestPart("request") EditTestPlanRequest request,
             @RequestPart(value = "file", required = false) MultipartFile file
     ) {
-        loadTestService.edit(request, file);
+        return loadTestService.edit(request, file);
     }
 
     @PostMapping("/delete")

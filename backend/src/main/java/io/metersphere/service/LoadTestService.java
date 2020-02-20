@@ -124,7 +124,7 @@ public class LoadTestService {
         return fileMetadata;
     }
 
-    public void edit(EditTestPlanRequest request, MultipartFile file) {
+    public String edit(EditTestPlanRequest request, MultipartFile file) {
         // 新选择了一个文件，删除原来的文件
         if (file != null) {
             fileService.deleteFileByTestId(request.getId());
@@ -147,6 +147,8 @@ public class LoadTestService {
             loadTest.setLoadConfiguration(request.getLoadConfiguration());
             loadTestMapper.updateByPrimaryKeySelective(loadTest);
         }
+
+        return request.getId();
     }
 
     public void run(RunTestPlanRequest request) {
