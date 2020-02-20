@@ -5,7 +5,6 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
 import io.metersphere.commons.constants.EngineType;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.IOUtils;
 import io.metersphere.controller.request.testplan.*;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.engine.Engine;
@@ -19,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
@@ -115,7 +113,7 @@ public class LoadTestService {
         FileContent fileContent = new FileContent();
         fileContent.setFileId(fileMetadata.getId());
         try {
-            fileContent.setFile(IOUtils.toString(file.getInputStream(), StandardCharsets.UTF_8));
+            fileContent.setFile(file.getBytes());
         } catch (IOException e) {
             MSException.throwException(e);
         }

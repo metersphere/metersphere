@@ -5,7 +5,7 @@
     <id column="file_id" jdbcType="VARCHAR" property="fileId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.FileContent">
-    <result column="file" jdbcType="LONGVARCHAR" property="file" />
+    <result column="file" jdbcType="LONGVARBINARY" property="file" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -121,7 +121,7 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.FileContent">
     insert into file_content (file_id, file)
-    values (#{fileId,jdbcType=VARCHAR}, #{file,jdbcType=LONGVARCHAR})
+    values (#{fileId,jdbcType=VARCHAR}, #{file,jdbcType=LONGVARBINARY})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.FileContent">
     insert into file_content
@@ -138,7 +138,7 @@
         #{fileId,jdbcType=VARCHAR},
       </if>
       <if test="file != null">
-        #{file,jdbcType=LONGVARCHAR},
+        #{file,jdbcType=LONGVARBINARY},
       </if>
     </trim>
   </insert>
@@ -155,7 +155,7 @@
         file_id = #{record.fileId,jdbcType=VARCHAR},
       </if>
       <if test="record.file != null">
-        file = #{record.file,jdbcType=LONGVARCHAR},
+        file = #{record.file,jdbcType=LONGVARBINARY},
       </if>
     </set>
     <if test="_parameter != null">
@@ -165,7 +165,7 @@
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update file_content
     set file_id = #{record.fileId,jdbcType=VARCHAR},
-      file = #{record.file,jdbcType=LONGVARCHAR}
+      file = #{record.file,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -181,14 +181,14 @@
     update file_content
     <set>
       <if test="file != null">
-        file = #{file,jdbcType=LONGVARCHAR},
+        file = #{file,jdbcType=LONGVARBINARY},
       </if>
     </set>
     where file_id = #{fileId,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.FileContent">
     update file_content
-    set file = #{file,jdbcType=LONGVARCHAR}
+    set file = #{file,jdbcType=LONGVARBINARY}
     where file_id = #{fileId,jdbcType=VARCHAR}
   </update>
 </mapper>

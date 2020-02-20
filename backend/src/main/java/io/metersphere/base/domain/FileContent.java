@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class FileContent implements Serializable {
     private String fileId;
 
-    private String file;
+    private byte[] file;
 
     private static final long serialVersionUID = 1L;
 
@@ -17,11 +17,11 @@ public class FileContent implements Serializable {
         this.fileId = fileId == null ? null : fileId.trim();
     }
 
-    public String getFile() {
+    public byte[] getFile() {
         return file;
     }
 
-    public void setFile(String file) {
-        this.file = file == null ? null : file.trim();
+    public void setFile(byte[] file) {
+        this.file = file;
     }
 }

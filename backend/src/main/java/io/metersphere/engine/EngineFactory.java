@@ -14,7 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
 public class EngineFactory {
     public static Engine createEngine(String engineType) {
@@ -29,7 +28,7 @@ public class EngineFactory {
     public static EngineContext createContext(LoadTestWithBLOBs loadTest, FileMetadata fileMetadata, FileContent fileContent) throws Exception {
         final EngineContext engineContext = new EngineContext();
         engineContext.setEngineId(loadTest.getId());
-        engineContext.setInputStream(new ByteArrayInputStream(fileContent.getFile().getBytes(StandardCharsets.UTF_8)));
+        engineContext.setInputStream(new ByteArrayInputStream(fileContent.getFile()));
         engineContext.setEngineType(fileMetadata.getType());
 
         if (!StringUtils.isEmpty(loadTest.getLoadConfiguration())) {
