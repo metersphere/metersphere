@@ -15,13 +15,8 @@ public class CompressUtils {
      * @return
      */
     public static Object zip(Object data) {
-        if (!(data instanceof byte[]) && !(data instanceof String)) {
+        if (!(data instanceof byte[])) {
             return data;
-        }
-        boolean isString = false;
-        if (data instanceof String) {
-            isString = true;
-            data = ((String) data).getBytes();
         }
 
         byte[] temp = (byte[]) data;
@@ -41,9 +36,6 @@ public class CompressUtils {
             LogUtil.error(ex);
         }
 
-        if (isString) {
-            return new String(b);
-        }
         return b;
     }
 
