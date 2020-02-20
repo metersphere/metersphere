@@ -33,11 +33,11 @@ public class LoadTestController {
     }
 
     @PostMapping(value = "/save", consumes = {"multipart/form-data"})
-    public void save(
+    public String save(
             @RequestPart("request") SaveTestPlanRequest request,
             @RequestPart(value = "file") MultipartFile file
     ) {
-        loadTestService.save(request, file);
+        return loadTestService.save(request, file);
     }
 
     @PostMapping(value = "/edit", consumes = {"multipart/form-data"})
