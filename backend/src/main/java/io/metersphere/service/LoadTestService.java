@@ -73,7 +73,7 @@ public class LoadTestService {
         fileService.deleteFileByTestId(request.getId());
     }
 
-    public void save(SaveTestPlanRequest request, MultipartFile file) {
+    public String save(SaveTestPlanRequest request, MultipartFile file) {
         if (file == null) {
             throw new IllegalArgumentException("文件不能为空！");
         }
@@ -86,6 +86,8 @@ public class LoadTestService {
         loadTestFile.setTestId(loadTest.getId());
         loadTestFile.setFileId(fileMetadata.getId());
         loadTestFileMapper.insert(loadTestFile);
+
+        return loadTest.getId();
     }
 
     private LoadTestWithBLOBs saveLoadTest(SaveTestPlanRequest request) {
