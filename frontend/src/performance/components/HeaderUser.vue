@@ -1,46 +1,44 @@
 <template>
-  <div class="ms-org-ws">
-    <el-row :gutter="10" style="height:200px;">
-      <el-col :span="16" :offset="4">
-        <el-menu :unique-opened="true" mode="horizontal" router
-                 menu-trigger="click"
-                 class="header-user-menu"
-                 background-color="rgb(44, 42, 72)"
-                 text-color="#fff">
-          <el-submenu index="1" popper-class="submenu">
-            <template slot="title">组织</template>
-            <label v-for="(item,index) in organizationList" :key="index">
-              <el-menu-item @click="clickMenu(item)">{{item.name}}
-                <i class="el-icon-check"
-                   v-if="item.id === currentUserInfo.lastSourceId || item.id === workspaceParentId"></i>
-              </el-menu-item>
-            </label>
-          </el-submenu>
-          <el-submenu index="2" popper-class="submenu">
-            <template slot="title">工作空间</template>
-            <label v-for="(item,index) in workspaceList" :key="index">
-              <el-menu-item @click="clickMenu(item)">
-                {{item.name}}
-                <i class="el-icon-check" v-if="item.id === currentUserInfo.lastSourceId"></i>
-              </el-menu-item>
-            </label>
-          </el-submenu>
-        </el-menu>
-      </el-col>
+  <el-row>
+    <el-col :span="10" :offset="8">
+      <el-menu :unique-opened="true" mode="horizontal" router
+               menu-trigger="click"
+               class="header-user-menu"
+               background-color="rgb(44, 42, 72)"
+               text-color="#fff">
+        <el-submenu index="1" popper-class="submenu">
+          <template slot="title">组织</template>
+          <label v-for="(item,index) in organizationList" :key="index">
+            <el-menu-item @click="clickMenu(item)">{{item.name}}
+              <i class="el-icon-check"
+                 v-if="item.id === currentUserInfo.lastSourceId || item.id === workspaceParentId"></i>
+            </el-menu-item>
+          </label>
+        </el-submenu>
+        <el-submenu index="2" popper-class="submenu">
+          <template slot="title">工作空间</template>
+          <label v-for="(item,index) in workspaceList" :key="index">
+            <el-menu-item @click="clickMenu(item)">
+              {{item.name}}
+              <i class="el-icon-check" v-if="item.id === currentUserInfo.lastSourceId"></i>
+            </el-menu-item>
+          </label>
+        </el-submenu>
+      </el-menu>
+    </el-col>
 
-      <el-col :span="4">
-        <el-dropdown size="medium" @command="handleCommand">
-          <span class="dropdown-link">
-              {{currentUser.name}}<i class="el-icon-caret-bottom el-icon--right"/>
-          </span>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="personal">个人信息</el-dropdown-item>
-            <el-dropdown-item command="logout">退出系统</el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
-      </el-col>
-    </el-row>
-  </div>
+    <el-col :span="3" :offset="3">
+      <el-dropdown size="medium" @command="handleCommand">
+        <span class="dropdown-link">
+            {{currentUser.name}}<i class="el-icon-caret-bottom el-icon--right"/>
+        </span>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item command="personal">个人信息</el-dropdown-item>
+          <el-dropdown-item command="logout">退出系统</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+    </el-col>
+  </el-row>
 </template>
 
 <script>
@@ -139,11 +137,6 @@
     cursor: pointer;
     font-size: 12px;
     color: rgb(245, 245, 245);
-  }
-
-  .ms-org-ws {
-    width: 30%;
-    height: 40px;
     line-height: 40px;
   }
 
