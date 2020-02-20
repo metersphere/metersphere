@@ -6,7 +6,7 @@
                class="header-user-menu"
                background-color="rgb(44, 42, 72)"
                text-color="#fff">
-        <el-submenu index="1" popper-class="submenu">
+        <el-submenu index="1" popper-class="submenu" v-permission="['org_admin']">
           <template slot="title">组织</template>
           <label v-for="(item,index) in organizationList" :key="index">
             <el-menu-item @click="clickMenu(item)">{{item.name}}
@@ -15,7 +15,7 @@
             </el-menu-item>
           </label>
         </el-submenu>
-        <el-submenu index="2" popper-class="submenu">
+        <el-submenu index="2" popper-class="submenu" v-permission="['test_manager', 'test_user', 'test_viewer']">
           <template slot="title">工作空间</template>
           <label v-for="(item,index) in workspaceList" :key="index">
             <el-menu-item @click="clickMenu(item)">
@@ -43,7 +43,7 @@
 
 <script>
   import Cookies from 'js-cookie';
-  import {TokenKey} from '../../common/constants';
+  import {ROLE_ORG_ADMIN, ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER, TokenKey} from '../../common/constants';
 
   export default {
     name: "MsUser",
@@ -98,13 +98,18 @@
         }
       },
       initMenuData() {
-        this.$get("/organization/list/userorg/" + this.currentUserId, response => {
-          this.organizationList = response.data;
-        })
-        this.$get("/workspace/list/userworkspace/" + this.currentUserId, response => {
-          this.workspaceList = response.data;
-          this.workspaceIds = response.data.map(r => r.id);
-        })
+        let roles = this.currentUser.roles.map(r => r.id);
+        if (roles.indexOf(ROLE_ORG_ADMIN) > 0) {
+          this.$get("/organization/list/userorg/" + this.currentUserId, response => {
+            this.organizationList = response.data;
+          });
+        }
+        if (roles.indexOf(ROLE_TEST_MANAGER) > 0 || roles.indexOf(ROLE_TEST_USER) > 0 || roles.indexOf(ROLE_TEST_VIEWER) > 0) {
+          this.$get("/workspace/list/userworkspace/" + this.currentUserId, response => {
+            this.workspaceList = response.data;
+            this.workspaceIds = response.data.map(r => r.id);
+          });
+        }
       },
       getCurrentUserInfo() {
         this.$get("/user/info/" + this.currentUserId, response => {

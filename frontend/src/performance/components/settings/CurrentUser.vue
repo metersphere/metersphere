@@ -1,10 +1,10 @@
 <template>
   <el-row type="flex" align="middle" class="current-user">
     <el-avatar shape="square" size="small" :src="squareUrl"/>
-    <span class="username">kun@fit2cloud.com</span>
+    <span class="username">{{currentUser.name}}</span>
     <el-button class="edit" type="primary" icon="el-icon-edit" size="mini"
-               circle @click="editVisible = true"/>
-    <el-dialog :title="title" :visible.sync="editVisible" width="30%">
+               circle @click="edit"/>
+    <el-dialog :title="currentUser.name" :visible.sync="editVisible" width="30%">
       <el-form :model="form" label-position="top" size="small">
         <el-form-item label="姓名">
           <el-input v-model="form.name" autocomplete="off"/>
@@ -14,28 +14,40 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="editVisible = false" size="medium">更新</el-button>
-            </span>
+        <el-button type="primary" @click="submit" size="medium">更新</el-button>
+      </span>
     </el-dialog>
   </el-row>
 </template>
 
 <script>
+  import Cookies from 'js-cookie';
+  import {TokenKey} from "../../../common/constants";
+
   export default {
     name: "MsCurrentUser",
+
     data() {
       return {
         editVisible: false,
         id: "123456",
         squareUrl: "https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png",
-        form: {
-          name: "kun@fit2cloud.com",
-          mobile: ""
-        }
+        form: {}
       }
-    }, computed: {
-      title: function () {
-        return "编辑账号(id: " + this.id + ")";
+    },
+    methods: {
+      edit() {
+        this.editVisible = true;
+        this.form = Object.assign({}, this.currentUser);
+      },
+      submit() {
+        this.editVisible = false;
+      }
+    },
+    computed: {
+      currentUser: () => {
+        let user = Cookies.get(TokenKey);
+        return JSON.parse(user);
       }
     }
   }
