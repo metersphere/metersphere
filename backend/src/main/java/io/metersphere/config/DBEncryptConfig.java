@@ -8,12 +8,11 @@ import java.util.Arrays;
 import java.util.List;
 
 @Configuration
-public class DBCompressConfig implements MybatisInterceptorConfigHolder {
+public class DBEncryptConfig implements MybatisInterceptorConfigHolder {
     @Override
     public List<MybatisInterceptorConfig> interceptorConfig() {
         return Arrays.asList(
                 new MybatisInterceptorConfig("io.metersphere.base.domain.FileContent", "file", "io.metersphere.commons.utils.CompressUtils", "zip", "unzip")
         );
-//        return Collections.emptyList();
     }
 }
