@@ -22,6 +22,7 @@ public class JmeterDocumentParser implements DocumentParser {
     private final static String HASH_TREE_ELEMENT = "hashTree";
     private final static String STRING_PROP = "stringProp";
     private final static String CONCURRENCY_THREAD_GROUP = "com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup";
+    private final static String VARIABLE_THROUGHPUT_TIMER = "kg.apc.jmeter.timers.VariableThroughputTimer";
     private EngineContext context;
 
     @Override
@@ -75,6 +76,8 @@ public class JmeterDocumentParser implements DocumentParser {
                         parseHashTree(ele);
                     } else if (nodeNameEquals(ele, CONCURRENCY_THREAD_GROUP)) {
                         processConcurrencyThreadGroup(ele);
+                    } else if (nodeNameEquals(ele, VARIABLE_THROUGHPUT_TIMER)) {
+                        processVariableThroughputTimer(ele);
                     }
                 }
             }
@@ -94,6 +97,34 @@ public class JmeterDocumentParser implements DocumentParser {
 
                     if (nodeNameEquals(ele, STRING_PROP)) {
                         parseStringProp(ele);
+                    }
+                }
+            }
+        }
+    }
+
+    private void processVariableThroughputTimer(Element variableThroughputTimer) {
+        if (variableThroughputTimer.getChildNodes().getLength() > 0) {
+            final NodeList childNodes = variableThroughputTimer.getChildNodes();
+            int stringPropCount = 0;
+            for (int i = 0; i < childNodes.getLength(); i++) {
+                Node node = childNodes.item(i);
+                if (node instanceof Element) {
+                    Element ele = (Element) node;
+                    if (invalid(ele)) {
+                        continue;
+                    }
+
+                    // kg.apc.jmeter.timers.VariableThroughputTimer的stringProp的name属性是动态的
+                    if (nodeNameEquals(ele, STRING_PROP)) {
+                        if (stringPropCount < 2) {
+                            stringPropCount++;
+                        } else {
+                            stringPropCount = 0;
+                            ele.getFirstChild().setNodeValue(context.getProperty("duration").toString());
+                            continue;
+                        }
+                        ele.getFirstChild().setNodeValue(context.getProperty("rpsLimit").toString());
                     }
                 }
             }
