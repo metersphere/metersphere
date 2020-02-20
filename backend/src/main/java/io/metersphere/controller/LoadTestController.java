@@ -9,6 +9,7 @@ import io.metersphere.controller.request.testplan.*;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.service.FileService;
 import io.metersphere.service.LoadTestService;
+import io.metersphere.user.SessionUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,7 @@ public class LoadTestController {
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<LoadTestDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return PageUtils.setPageInfo(page, loadTestService.list(request));
     }
 
@@ -64,12 +66,11 @@ public class LoadTestController {
     }
 
     @PostMapping("/file/download")
-    public ResponseEntity<org.springframework.core.io.Resource> downloadJmx(@RequestBody FileOperationRequest fileOperationRequest) {
-        org.springframework.core.io.Resource resource = fileService.loadFileAsResource(fileOperationRequest.getName());
-
+    public ResponseEntity<byte[]> downloadJmx(@RequestBody FileOperationRequest fileOperationRequest) {
+        byte[] bytes = fileService.loadFileAsBytes(fileOperationRequest.getId());
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileOperationRequest.getName() + "\"")
-                .body(resource);
+                .body(bytes);
     }
 }

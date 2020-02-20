@@ -38,18 +38,10 @@ public class FileService {
         fileMap.put(name, file);
     }
 
-    public org.springframework.core.io.Resource loadFileAsResource(String name) {
-        final MultipartFile file = fileMap.get(name);
+    public byte[] loadFileAsBytes(String id) {
+        FileContent fileContent = fileContentMapper.selectByPrimaryKey(id);
 
-        if (file != null) {
-            try {
-                return new InputStreamResource(file.getInputStream());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return null;
+        return fileContent.getFile();
     }
 
     public FileMetadata getFileMetadataByTestId(String testId) {
