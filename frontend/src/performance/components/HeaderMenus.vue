@@ -4,15 +4,11 @@
     <el-menu-item index="1"><a href="/" style="text-decoration: none;">{{ $t("i18n.home") }}</a></el-menu-item>
     <el-submenu index="3" popper-class="submenu" v-permission="['test_manager']">
       <template slot="title">项目</template>
-      <el-menu-item index="3-1">项目1</el-menu-item>
-      <el-menu-item index="3-2">项目2</el-menu-item>
+      <recent-project/>
       <el-divider/>
       <el-menu-item index="/project">
         <font-awesome-icon :icon="['fa', 'list-ul']"/>
         <span style="padding-left: 5px;">显示全部</span>
-      </el-menu-item>
-      <el-menu-item index="/createProject">
-        <el-button type="text">创建项目</el-button>
       </el-menu-item>
     </el-submenu>
     <el-submenu index="4" popper-class="submenu" v-permission="['test_manager', 'test_user']">
@@ -38,10 +34,11 @@
 
 <script>
   import RecentTestPlan from "./testPlan/RecentTestPlan";
+  import RecentProject from "./project/RecentProject";
 
   export default {
     name: "MsMenus",
-    components: {RecentTestPlan}
+    components: {RecentTestPlan, RecentProject}
   }
 </script>
 
