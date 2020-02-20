@@ -153,7 +153,7 @@
             { required: true, message: '请输入邮箱', trigger: 'blur' },
             {
               required: true,
-              pattern: /^([A-Za-z0-9_\-.])+@(163.com|qq.com|gmail.com|126.com)$/,
+              pattern: /^([A-Za-z0-9_\-.])+@([A-Za-z0-9]+\.)+[A-Za-z]{2,6}$/,
               message: '邮箱格式不正确！',
               trigger: 'blur'
             }
