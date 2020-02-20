@@ -24,7 +24,7 @@ public class OrganizationController {
     public List<Organization> getOrganizationList() { return organizationService.getOrganizationList(); }
 
     @PostMapping("/list/{goPage}/{pageSize}")
-    public Pager<List<Organization>> getUserList(@PathVariable int goPage, @PathVariable int pageSize) {
+    public Pager<List<Organization>> getOrganizationList(@PathVariable int goPage, @PathVariable int pageSize) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, organizationService.getOrganizationList());
     }
@@ -34,4 +34,9 @@ public class OrganizationController {
 
     @PostMapping("/update")
     public void updateOrganization(@RequestBody Organization organization) { organizationService.updateOrganization(organization); }
+
+    @GetMapping("/list/userorg/{userId}")
+    public List<Organization> getOrganizationListByUserId(@PathVariable String userId) {
+        return organizationService.getOrganizationListByUserId(userId);
+    }
 }
