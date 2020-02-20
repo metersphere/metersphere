@@ -103,7 +103,8 @@
 
         let options = this.getSaveOption();
 
-        this.result = this.$request(options, () => {
+        this.result = this.$request(options, (response) => {
+          this.testPlan.id = response.data;
           this.$message({
             message: '保存成功！',
             type: 'success'
