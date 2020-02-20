@@ -81,10 +81,10 @@
     data() {
       return {
         organizationList: [
-          { index: '7-1', name: '组织1'},
+          {index: '7-1', name: '组织1'},
         ],
         workspaceList: [
-          { index: '2-1', name: '无工作空间'},
+          {index: '2-1', name: '无工作空间'},
         ],
         currentUserInfo: {},
         currentUserId: JSON.parse(Cookies.get(TokenKey)).id,
@@ -93,7 +93,7 @@
     },
     methods: {
       initMenuData() {
-        this.$get("/organization/list/userorg/" + this.currentUserId,response => {
+        this.$get("/organization/list/userorg/" + this.currentUserId, response => {
           this.organizationList = response.data;
         })
         this.$get("/workspace/list/userworkspace/" + this.currentUserId, response => {
@@ -114,7 +114,7 @@
         let user = {};
         user.id = this.currentUserInfo.id;
         user.lastSourceId = data.id;
-        this.$post("/user/update", user);
+        this.$post("/user/switch/source/" + user.lastSourceId, {});
         window.location.reload();
       }
     }

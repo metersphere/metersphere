@@ -13,6 +13,8 @@ import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserRoleDTO;
 import io.metersphere.dto.UserRoleHelpDTO;
+import io.metersphere.user.SessionUser;
+import io.metersphere.user.SessionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -219,8 +221,10 @@ public class UserService {
 
     public void switchUserRole(UserDTO user, String sourceId) {
         User newUser = new User();
+        user.setLastSourceId(sourceId);
         BeanUtils.copyProperties(user, newUser);
-        newUser.setLastSourceId(sourceId);
+        // 切换工作空间或组织之后更新 session 里的 user
+        SessionUtils.putUser(SessionUser.fromUser(user));
         userMapper.updateByPrimaryKeySelective(newUser);
     }
 
