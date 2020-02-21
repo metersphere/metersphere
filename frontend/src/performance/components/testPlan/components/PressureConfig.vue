@@ -1,60 +1,91 @@
 <template>
   <div class="pressure-config-container">
-    <el-row type="flex">
-      <div class="small-input">
-        <span>并发用户数：</span>
-        <el-input
-          type="number"
-          placeholder="请输入线程数"
-          v-model="threadNumber"
-          @click="convertProperty"
-          show-word-limit
-        >
-        </el-input>
-      </div>
-      <div class="small-input">
-        <span>压测时长（分钟）：</span>
-        <el-input
-          type="number"
-          placeholder="请输入时长"
-          v-model="duration"
-          @click="convertProperty"
-          show-word-limit
-        >
-        </el-input>
-      </div>
-      <div class="small-input">
-        <span>在</span>
-        <el-input
-          type="number"
-          placeholder=""
-          v-model="rampUpTime"
-          @click="convertProperty"
-          show-word-limit
-        >
-        </el-input>
-        <span>分钟内，分</span>
-        <el-input
-          type="number"
-          placeholder=""
-          v-model="step"
-          @click="convertProperty"
-          show-word-limit
-        >
-        </el-input>
-        <span>次增加并发用户</span>
-      </div>
-      <div class="small-input">
-        <span>RPS上限：</span>
-        <el-input
-          type="number"
-          placeholder="请输入限制"
-          v-model="rpsLimit"
-          @click="convertProperty"
-          show-word-limit
-        >
-        </el-input>
-      </div>
+    <el-row>
+      <el-col :span="10">
+        <el-form :inline="true">
+          <el-col :span="12">
+            <el-form-item>
+              <div class="config-form-label">并发用户数：</div>
+            </el-form-item>
+            <el-form-item>
+              <el-input
+                type="number"
+                placeholder="请输入线程数"
+                v-model="threadNumber"
+                @click="convertProperty"
+                show-word-limit
+              >
+              </el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item>
+              <div class="config-form-label">压测时长（分钟）：</div>
+            </el-form-item>
+            <el-form-item>
+              <el-input
+                type="number"
+                placeholder="请输入时长"
+                v-model="duration"
+                @click="convertProperty"
+                show-word-limit
+              >
+              </el-input>
+            </el-form-item>
+          </el-col>
+          <el-row>
+            <el-form-item>
+              <el-col>
+                <el-form-item>
+                  <div class="config-form-label">RPS上限：</div>
+                </el-form-item>
+                <el-form-item>
+                  <el-input
+                    type="number"
+                    placeholder="请输入限制"
+                    v-model="rpsLimit"
+                    @click="convertProperty"
+                    show-word-limit
+                  >
+                  </el-input>
+                </el-form-item>
+              </el-col>
+            </el-form-item>
+          </el-row>
+        </el-form>
+
+        <el-form :inline="true" class="input-bottom-border">
+          <el-form-item>
+            <div>在</div>
+          </el-form-item>
+          <el-form-item>
+            <el-input
+              type="number"
+              placeholder=""
+              v-model="rampUpTime"
+              @click="convertProperty"
+              show-word-limit
+            >
+            </el-input>
+          </el-form-item>
+          <el-form-item>
+            <div>分钟内，分</div>
+          </el-form-item>
+          <el-form-item>
+            <el-input
+              type="number"
+              placeholder=""
+              v-model="step"
+              @click="convertProperty"
+              show-word-limit
+            >
+            </el-input>
+          </el-form-item>
+          <el-form-item>
+            <div>次增加并发用户</div>
+          </el-form-item>
+        </el-form>
+      </el-col>
     </el-row>
   </div>
 </template>
@@ -92,7 +123,16 @@
 </script>
 
 <style>
-  .pressure-config-container .small-input {
-    width: 150px;
+  .pressure-config-container .el-input {
+    width: 130px;
+  }
+
+  .pressure-config-container .config-form-label {
+    width: 130px;
+  }
+
+  .pressure-config-container .input-bottom-border input {
+    border: 0;
+    border-bottom: 1px solid #DCDFE6;
   }
 </style>
