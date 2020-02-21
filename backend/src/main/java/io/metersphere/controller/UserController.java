@@ -8,6 +8,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.member.AddMemberRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
+import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserRoleDTO;
 import io.metersphere.service.UserService;
@@ -96,6 +97,22 @@ public class UserController {
     //@RequiresRoles(RoleConstants.TEST_MANAGER)
     public void deleteMember(@PathVariable String workspaceId, @PathVariable String userId) {
         userService.deleteMember(workspaceId, userId);
+    }
+
+    /**
+     * 添加组织成员
+     */
+    @PostMapping("/orgmember/add")
+    public void addOrganizationMember(@RequestBody AddOrgMemberRequest request) {
+        userService.addOrganizationMember(request);
+    }
+
+    /**
+     * 删除组织成员
+     */
+    @GetMapping("/orgmember/delete/{organizationId}/{userId}")
+    public void delOrganizationMember(@PathVariable String organizationId, @PathVariable String userId) {
+        userService.delOrganizationMember(organizationId, userId);
     }
 
 }
