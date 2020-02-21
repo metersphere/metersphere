@@ -27,3 +27,6 @@ yarn-error.log*
 src/main/resources/static
 src/main/resources/templates
 target
+.settings
+.project
+.classpath
