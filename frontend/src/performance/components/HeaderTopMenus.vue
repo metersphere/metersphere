@@ -7,8 +7,13 @@
            :default-active="activeIndex"
            @select="handleSelect"
            router>
-    <el-menu-item index="1">功能测试</el-menu-item>
-    <el-menu-item index="/createTest" onselectstart="return false">性能测试</el-menu-item>
+    <el-menu-item index="1" v-permission="['test_manager','test_user','test_viewer']">
+      功能测试
+    </el-menu-item>
+    <el-menu-item index="/createTest" onselectstart="return false"
+                  v-permission="['test_manager','test_user','test_viewer']">
+      性能测试
+    </el-menu-item>
     <el-menu-item index="/setting" onselectstart="return false">系统设置</el-menu-item>
   </el-menu>
 </template>
@@ -22,15 +27,15 @@
       }
     },
     watch: {
-      '$route' () {
+      '$route'() {
         this.handleSelect(this.activeIndex);
       }
     },
-    mounted () {
+    mounted() {
       this.activeIndex = this.$route.matched[0].path || '/'
     },
     methods: {
-      handleSelect (index) {
+      handleSelect(index) {
         this.activeIndex = index
       }
     }
