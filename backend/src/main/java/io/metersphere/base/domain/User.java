@@ -19,6 +19,8 @@ public class User implements Serializable {
 
     private String lastSourceId;
 
+    private String language;
+
     private static final long serialVersionUID = 1L;
 
     public String getId() {
@@ -83,5 +85,13 @@ public class User implements Serializable {
 
     public void setLastSourceId(String lastSourceId) {
         this.lastSourceId = lastSourceId == null ? null : lastSourceId.trim();
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language == null ? null : language.trim();
     }
 }
