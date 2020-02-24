@@ -7,6 +7,7 @@ import io.metersphere.base.mapper.WorkspaceMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.controller.request.WorkspaceRequest;
 import io.metersphere.dto.UserRoleHelpDTO;
 import io.metersphere.user.SessionUser;
 import io.metersphere.user.SessionUtils;
@@ -55,8 +56,16 @@ public class WorkspaceService {
         return workspace;
     }
 
-    public List<Workspace> getWorkspaceList() {
-        return workspaceMapper.selectByExample(null);
+    public List<Workspace> getWorkspaceList(WorkspaceRequest request) {
+        WorkspaceExample example = new WorkspaceExample();
+        WorkspaceExample.Criteria criteria = example.createCriteria();
+        if (StringUtils.isNotBlank(request.getOrganizationId())) {
+            criteria.andOrganizationIdEqualTo(request.getOrganizationId());
+        }
+        if (StringUtils.isNotBlank(request.getName())) {
+            criteria.andNameLike(request.getName());
+        }
+        return workspaceMapper.selectByExample(example);
     }
 
     public void deleteWorkspace(String workspaceId) {

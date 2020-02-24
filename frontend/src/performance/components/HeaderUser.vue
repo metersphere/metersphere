@@ -99,12 +99,12 @@
       },
       initMenuData() {
         let roles = this.currentUser.roles.map(r => r.id);
-        if (roles.indexOf(ROLE_ORG_ADMIN) > 0) {
+        if (roles.indexOf(ROLE_ORG_ADMIN) > -1) {
           this.$get("/organization/list/userorg/" + this.currentUserId, response => {
             this.organizationList = response.data;
           });
         }
-        if (roles.indexOf(ROLE_TEST_MANAGER) > 0 || roles.indexOf(ROLE_TEST_USER) > 0 || roles.indexOf(ROLE_TEST_VIEWER) > 0) {
+        if (roles.indexOf(ROLE_TEST_MANAGER) > -1 || roles.indexOf(ROLE_TEST_USER) > -1 || roles.indexOf(ROLE_TEST_VIEWER) > -1) {
           this.$get("/workspace/list/userworkspace/" + this.currentUserId, response => {
             this.workspaceList = response.data;
             this.workspaceIds = response.data.map(r => r.id);
@@ -124,10 +124,10 @@
         let user = {};
         user.id = this.currentUserInfo.id;
         user.lastSourceId = data.id;
-        this.$post("/user/switch/source/" + user.lastSourceId, {},response => {
-            Cookies.set(TokenKey, response.data);
-            window.location.reload();
-          })
+        this.$post("/user/switch/source/" + user.lastSourceId, {}, response => {
+          Cookies.set(TokenKey, response.data);
+          window.location.reload();
+        })
 
       }
     }

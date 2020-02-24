@@ -118,7 +118,7 @@
       },
       list() {
         let url = '/workspace/list/' + this.currentPage + '/' + this.pageSize;
-        this.result = this.$post(url, {}, response => {
+        this.result = this.$post(url, {name: this.condition}, response => {
           let data = response.data;
           this.items = data.listObject;
           this.total = data.itemCount;

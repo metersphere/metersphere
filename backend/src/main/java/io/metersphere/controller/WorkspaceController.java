@@ -6,7 +6,9 @@ import io.metersphere.base.domain.Workspace;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.controller.request.WorkspaceRequest;
 import io.metersphere.service.WorkspaceService;
+import io.metersphere.user.SessionUtils;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,9 +43,10 @@ public class WorkspaceController {
 
     @PostMapping("list/{goPage}/{pageSize}")
     @RequiresRoles(RoleConstants.ORG_ADMIN)
-    public Pager<List<Workspace>> getWorkspaceList(@PathVariable int goPage, @PathVariable int pageSize) {
+    public Pager<List<Workspace>> getWorkspaceList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody WorkspaceRequest request) {
+        request.setOrganizationId(SessionUtils.getCurrentOrganizationId());
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, workspaceService.getWorkspaceList());
+        return PageUtils.setPageInfo(page, workspaceService.getWorkspaceList(request));
     }
 
     @GetMapping("/list/userworkspace/{userId}")
