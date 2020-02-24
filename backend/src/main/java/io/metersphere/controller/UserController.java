@@ -62,9 +62,10 @@ public class UserController {
     }
 
     @PostMapping("/switch/source/{sourceId}")
-    public void switchUserRole(@PathVariable(value = "sourceId") String sourceId) {
+    public UserDTO switchUserRole(@PathVariable(value = "sourceId") String sourceId) {
         UserDTO user = SessionUtils.getUser();
         userService.switchUserRole(user, sourceId);
+        return SessionUtils.getUser();
     }
 
     @GetMapping("/info/{userId}")

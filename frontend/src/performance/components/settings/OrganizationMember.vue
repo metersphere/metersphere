@@ -63,6 +63,8 @@
 
 <script>
   import MsCreateBox from "./CreateBox";
+  import Cookies from 'js-cookie';
+  import {TokenKey} from "../../../common/constants";
   export default {
     name: "OrganizationMember",
     components: {MsCreateBox},
@@ -84,19 +86,24 @@
           ]
         },
         multipleSelection: [],
-        currentOrganizationId: "d2f49498-3333-4872-ab98-59174d4a81da",
+        currentOrganizationId: JSON.parse(Cookies.get(TokenKey)).organizationId,
         currentPage: 1,
         pageSize: 5,
-        total: 0
+        total: 0,
       }
     },
     methods: {
+      currentUser: () => {
+        let user = Cookies.get(TokenKey);
+        window.console.log(user);
+        return JSON.parse(user);
+      },
       initTableData() {
         let param = {
           name: this.condition,
-          organizationId: this.currentOrganizationId
+          organizationId: this.currentUser().organizationId
+          // organizationId: this.currentOrganizationId
         };
-
         this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
           let data = response.data;
           this.total = data.itemCount;
@@ -116,22 +123,19 @@
         this.currentPage = current;
       },
       del(row) {
-        this.$confirm('移除该成员, 是否继续?', '提示', {
+        this.$confirm('是否删除用户 ' + row.name + ' ?', '', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.loading = true;
-          this.$get('/user/member/delete/' + this.currentWorkspaceId + '/' + row.id).then(() => {
+          this.result = this.$get('/user/orgmember/delete/' + this.currentOrganizationId + '/' + row.id, () => {
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            });
             this.initTableData();
-            this.loading = false;
-          });
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
           });
         }).catch(() => {
-          this.loading = false;
           this.$message({
             type: 'info',
             message: '已取消删除'
@@ -139,22 +143,10 @@
         });
       },
       create() {
-        this.loading = true;
-        this.$get('/user/list').then(response => {
-          if (response.data.success) {
+        this.result = this.$get('/user/list', response => {
             this.createVisible = true;
-            this.form = {userList: response.data.data};
-          } else {
-            this.$message.error(response.message);
-          }
-          this.loading = false;
-        }).catch(() => {
-          this.loading = false;
-          this.$message({
-            type: 'error',
-            message: '获取用户列表失败'
-          });
-        });
+            this.form = {userList: response.data};
+        })
       },
       submitForm(formName) {
         this.loading = true;
@@ -162,14 +154,11 @@
           if (valid) {
             let param = {
               userIds: this.form.userIds,
-              workspaceId: this.currentWorkspaceId
+              organizationId: this.currentOrganizationId
             };
-            this.$post("user/member/add", param).then(() => {
+            this.result = this.$post("user/orgmember/add", param,() => {
               this.initTableData();
               this.createVisible = false;
-              this.loading = false;
-            }).catch(() => {
-              this.loading = false;
             })
           } else {
             return false;

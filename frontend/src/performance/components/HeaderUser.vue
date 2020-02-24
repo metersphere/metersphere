@@ -124,8 +124,11 @@
         let user = {};
         user.id = this.currentUserInfo.id;
         user.lastSourceId = data.id;
-        this.$post("/user/switch/source/" + user.lastSourceId, {});
-        window.location.reload();
+        this.$post("/user/switch/source/" + user.lastSourceId, {},response => {
+            Cookies.set(TokenKey, response.data);
+            window.location.reload();
+          })
+
       }
     }
   }

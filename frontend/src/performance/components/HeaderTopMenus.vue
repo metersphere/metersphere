@@ -32,7 +32,9 @@
       }
     },
     mounted() {
-      this.activeIndex = this.$route.matched[0].path || '/'
+      if (this.$route.matched.length > 0) {
+        this.activeIndex = this.$route.matched[0].path;
+      }
     },
     methods: {
       handleSelect(index) {
