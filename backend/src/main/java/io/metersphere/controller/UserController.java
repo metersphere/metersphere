@@ -9,6 +9,7 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.member.AddMemberRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
+import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserRoleDTO;
 import io.metersphere.service.UserService;
@@ -113,6 +114,15 @@ public class UserController {
     @GetMapping("/orgmember/delete/{organizationId}/{userId}")
     public void delOrganizationMember(@PathVariable String organizationId, @PathVariable String userId) {
         userService.delOrganizationMember(organizationId, userId);
+    }
+
+    /**
+     * 查询组织成员列表
+     */
+    @PostMapping("/orgmember/list/{goPage}/{pageSize}")
+    public Pager<List<User>> getOrgMemberList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryOrgMemberRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, userService.getOrgMemberList(request));
     }
 
 }

@@ -2,6 +2,7 @@ package io.metersphere.base.mapper.ext;
 
 import io.metersphere.base.domain.User;
 import io.metersphere.controller.request.member.QueryMemberRequest;
+import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.dto.UserRoleHelpDTO;
 import org.apache.ibatis.annotations.Param;
 
@@ -12,4 +13,6 @@ public interface ExtUserRoleMapper {
     List<UserRoleHelpDTO> getUserRoleHelpList(@Param("userId") String userId);
 
     List<User> getMemberList(@Param("member") QueryMemberRequest request);
+
+    List<User> getOrgMemberList(@Param("orgMember") QueryOrgMemberRequest request);
 }

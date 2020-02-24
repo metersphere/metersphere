@@ -11,6 +11,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.request.member.AddMemberRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
+import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserRoleDTO;
 import io.metersphere.dto.UserRoleHelpDTO;
@@ -265,7 +266,7 @@ public class UserService {
             for (String userId : request.getUserIds()) {
                 UserRole userRole = new UserRole();
                 userRole.setId(UUID.randomUUID().toString());
-                userRole.setRoleId(RoleConstants.ORG_OTHER);
+                userRole.setRoleId(RoleConstants.ORG_ADMIN);
                 userRole.setSourceId(request.getOrganizationId());
                 userRole.setUserId(userId);
                 userRole.setUpdateTime(System.currentTimeMillis());
@@ -277,8 +278,12 @@ public class UserService {
 
     public void delOrganizationMember(String organizationId, String userId) {
         UserRoleExample userRoleExample = new UserRoleExample();
-        userRoleExample.createCriteria().andRoleIdEqualTo(RoleConstants.ORG_OTHER)
+        userRoleExample.createCriteria().andRoleIdEqualTo(RoleConstants.ORG_ADMIN)
                 .andUserIdEqualTo(userId).andSourceIdEqualTo(organizationId);
         userRoleMapper.deleteByExample(userRoleExample);
+    }
+
+    public List<User> getOrgMemberList(QueryOrgMemberRequest request) {
+        return extUserRoleMapper.getOrgMemberList(request);
     }
 }

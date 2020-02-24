@@ -35,4 +35,12 @@
         </if>
     </select>
 
+    <select id="getOrgMemberList" resultType="io.metersphere.base.domain.User">
+        SELECT `user`.* FROM user_role JOIN `user` ON user_role.user_id = `user`.id
+        WHERE user_role.source_id = #{orgMember.organizationId} AND user_role.role_id = #{orgMember.roleId}
+        <if test="orgMember.name != null">
+            AND `user`.name like CONCAT('%', #{orgMember.name},'%')
+        </if>
+    </select>
+
 </mapper>
