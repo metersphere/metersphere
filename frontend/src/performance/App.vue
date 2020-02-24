@@ -23,7 +23,6 @@
         </el-row>
       </el-col>
       <el-col :span="10">
-        <ms-setting/>
       </el-col>
     </el-row>
     <ms-view/>
@@ -34,7 +33,6 @@
 <script>
   import MsMenus from "./components/HeaderMenus";
   import MsTopMenus from "./components/HeaderTopMenus";
-  import MsSetting from "./components/HeaderSetting";
   import MsView from "./components/router/View";
   import MsUser from "./components/HeaderUser";
   import MsWebSocket from "./components/websocket/WebSocket";
@@ -57,7 +55,7 @@
         window.location.href = "/login"
       });
     },
-    components: {MsWebSocket, MsUser, MsMenus, MsSetting, MsView, MsTopMenus},
+    components: {MsWebSocket, MsUser, MsMenus, MsView, MsTopMenus},
     methods: {
     }
   }

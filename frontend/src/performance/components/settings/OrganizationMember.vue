@@ -95,7 +95,6 @@
     methods: {
       currentUser: () => {
         let user = Cookies.get(TokenKey);
-        window.console.log(user);
         return JSON.parse(user);
       },
       initTableData() {

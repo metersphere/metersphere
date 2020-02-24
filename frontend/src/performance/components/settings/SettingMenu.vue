@@ -3,33 +3,39 @@
     <el-submenu index="1" v-permission="['admin']">
       <template slot="title">
         <font-awesome-icon class="icon account" :icon="['far', 'address-card']" size="lg"/>
-        <span>账号</span>
+        <span>系统</span>
       </template>
       <el-menu-item index="/setting/user" v-permission="['admin']">用户</el-menu-item>
-      <el-menu-item index="/setting/testresourcepool" v-permission="['test']">测试资源池</el-menu-item>
       <el-menu-item index="/setting/organization" v-permission="['admin']">组织</el-menu-item>
-      <el-menu-item index="/setting/organizationmember" v-permission="['org_admin']">组织成员</el-menu-item>
       <el-menu-item index="/setting/workspace" v-permission="['org_admin']">工作空间</el-menu-item>
-      <el-menu-item>API Keys</el-menu-item>
+      <el-menu-item index="/setting/testresourcepool">测试资源池</el-menu-item>
     </el-submenu>
-    <el-submenu index=2 v-permission="['org_admin']">
+
+    <el-submenu index="2" v-permission="['org_admin']">
+      <template slot="title">
+        <font-awesome-icon class="icon workspace" :icon="['far', 'clone']" size="lg"/>
+        <span>组织</span>
+      </template>
+      <el-menu-item index="/setting/organizationmember" v-permission="['org_admin']">成员</el-menu-item>
+      <el-menu-item index="/setting/workspace" v-permission="['org_admin']">工作空间</el-menu-item>
+    </el-submenu>
+
+    <el-submenu index="3" v-permission="['test_manager','test_user','test_viewer']">
       <template slot="title">
         <font-awesome-icon class="icon workspace" :icon="['far', 'clone']" size="lg"/>
         <span>工作空间</span>
       </template>
       <el-menu-item index="/setting/member">成员</el-menu-item>
-      <el-menu-item>证书</el-menu-item>
-      <el-menu-item>测试计划</el-menu-item>
-      <el-menu-item>警告</el-menu-item>
     </el-submenu>
-    <el-submenu index="3">
+
+    <el-submenu index="4">
       <template slot="title">
         <font-awesome-icon class="icon" :icon="['far', 'user']" size="lg"/>
         <span>个人</span>
       </template>
       <el-menu-item>个人设置</el-menu-item>
-      <el-menu-item>API Keys</el-menu-item>
     </el-submenu>
+
   </el-menu>
 </template>
 
