@@ -127,7 +127,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.result = this.$get('/user/orgmember/delete/' + this.currentOrganizationId + '/' + row.id, () => {
+          this.result = this.$get('/user/orgmember/delete/' + this.currentUser().organizationId + '/' + row.id, () => {
             this.$message({
               type: 'success',
               message: '删除成功!'
@@ -153,7 +153,7 @@
           if (valid) {
             let param = {
               userIds: this.form.userIds,
-              organizationId: this.currentOrganizationId
+              organizationId: this.currentUser().organizationId
             };
             this.result = this.$post("user/orgmember/add", param,() => {
               this.initTableData();

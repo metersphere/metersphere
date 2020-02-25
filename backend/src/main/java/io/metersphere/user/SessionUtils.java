@@ -26,10 +26,10 @@ public class SessionUtils {
     }
 
     public static String getCurrentWorkspaceId() {
-        return Optional.ofNullable(getUser()).orElse(new SessionUser()).getWorkspaceId();
+        return Optional.ofNullable(getUser()).orElse(new SessionUser()).getLastWorkspaceId();
     }
 
     public static String getCurrentOrganizationId() {
-        return Optional.ofNullable(getUser()).orElse(new SessionUser()).getOrganizationId();
+        return Optional.ofNullable(getUser()).orElse(new SessionUser()).getLastOrganizationId();
     }
 }

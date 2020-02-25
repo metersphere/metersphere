@@ -1,10 +1,7 @@
 package io.metersphere.service;
 
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.OrganizationMapper;
-import io.metersphere.base.mapper.RoleMapper;
-import io.metersphere.base.mapper.UserMapper;
-import io.metersphere.base.mapper.UserRoleMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.exception.MSException;
@@ -22,7 +19,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -41,6 +37,8 @@ public class UserService {
     private ExtUserRoleMapper extUserRoleMapper;
     @Resource
     private OrganizationMapper organizationMapper;
+    @Resource
+    private WorkspaceMapper workspaceMapper;
 
     public UserDTO insert(User user) {
         checkUserParam(user);
@@ -221,10 +219,17 @@ public class UserService {
         return resultList;
     }
 
-    public void switchUserRole(UserDTO user, String sourceId) {
+    public void switchUserRole(UserDTO user,String sign,String sourceId) {
         User newUser = new User();
-        // todo 切换处理
-//        user.setLastSourceId(sourceId);
+        if (StringUtils.equals("organization", sign)) {
+            user.setLastOrganizationId(sourceId);
+            user.setLastWorkspaceId("");
+        }
+        if (StringUtils.equals("workspace", sign)) {
+            Workspace workspace = workspaceMapper.selectByPrimaryKey(sourceId);
+            user.setLastOrganizationId(workspace.getOrganizationId());
+            user.setLastWorkspaceId(sourceId);
+        }
         BeanUtils.copyProperties(user, newUser);
         // 切换工作空间或组织之后更新 session 里的 user
         SessionUtils.putUser(SessionUser.fromUser(user));

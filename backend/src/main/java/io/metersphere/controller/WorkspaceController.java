@@ -53,4 +53,10 @@ public class WorkspaceController {
     public List<Workspace> getWorkspaceListByUserId(@PathVariable String userId) {
         return workspaceService.getWorkspaceListByUserId(userId);
     }
+
+    @GetMapping("/list/orgworkspace/")
+    public List<Workspace> getWorkspaceListByOrgId() {
+        String currentOrganizationId = SessionUtils.getCurrentOrganizationId();
+        return workspaceService.getWorkspaceListByOrgId(currentOrganizationId);
+    }
 }

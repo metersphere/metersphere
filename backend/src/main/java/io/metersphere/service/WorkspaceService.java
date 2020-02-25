@@ -100,4 +100,10 @@ public class WorkspaceService {
         return workspaceMapper.selectByExample(workspaceExample);
     }
 
+    public List<Workspace> getWorkspaceListByOrgId(String orgId) {
+        WorkspaceExample workspaceExample = new WorkspaceExample();
+        workspaceExample.createCriteria().andOrganizationIdEqualTo(orgId);
+        return workspaceMapper.selectByExample(workspaceExample);
+    }
+
 }

@@ -61,10 +61,10 @@ public class UserController {
         return userService.getUserRoleList(userId);
     }
 
-    @PostMapping("/switch/source/{sourceId}")
-    public UserDTO switchUserRole(@PathVariable(value = "sourceId") String sourceId) {
+    @PostMapping("/switch/source/{sign}/{sourceId}")
+    public UserDTO switchUserRole(@PathVariable String sign, @PathVariable(value = "sourceId") String sourceId) {
         UserDTO user = SessionUtils.getUser();
-        userService.switchUserRole(user, sourceId);
+        userService.switchUserRole(user, sign, sourceId);
         return SessionUtils.getUser();
     }
 

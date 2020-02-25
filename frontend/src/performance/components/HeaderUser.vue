@@ -9,18 +9,18 @@
         <el-submenu index="1" popper-class="submenu" v-permission="['org_admin']">
           <template slot="title">组织</template>
           <label v-for="(item,index) in organizationList" :key="index">
-            <el-menu-item @click="clickMenu(item)">{{item.name}}
+            <el-menu-item @click="changeOrg(item)">{{item.name}}
               <i class="el-icon-check"
-                 v-if="item.id === currentUserInfo.lastSourceId || item.id === workspaceParentId"></i>
+                 v-if="item.id === currentUserInfo.lastOrganizationId"></i>
             </el-menu-item>
           </label>
         </el-submenu>
         <el-submenu index="2" popper-class="submenu" v-permission="['test_manager', 'test_user', 'test_viewer']">
           <template slot="title">工作空间</template>
           <label v-for="(item,index) in workspaceList" :key="index">
-            <el-menu-item @click="clickMenu(item)">
+            <el-menu-item @click="changeWs(item)">
               {{item.name}}
-              <i class="el-icon-check" v-if="item.id === currentUserInfo.lastSourceId"></i>
+              <i class="el-icon-check" v-if="item.id === currentUserInfo.lastWorkspaceId"></i>
             </el-menu-item>
           </label>
         </el-submenu>
@@ -54,7 +54,7 @@
     data() {
       return {
         organizationList: [
-          {index: '7-1', name: '组织1'},
+          {index: '7-1', name: '无组织'},
         ],
         workspaceList: [
           {index: '2-1', name: '无工作空间'},
@@ -105,10 +105,15 @@
           });
         }
         if (roles.indexOf(ROLE_TEST_MANAGER) > -1 || roles.indexOf(ROLE_TEST_USER) > -1 || roles.indexOf(ROLE_TEST_VIEWER) > -1) {
-          this.$get("/workspace/list/userworkspace/" + this.currentUserId, response => {
-            this.workspaceList = response.data;
-            this.workspaceIds = response.data.map(r => r.id);
-          });
+          this.$get("/workspace/list/orgworkspace/", response => {
+            let data = response.data;
+            if (data.length == 0) {
+              this.workspaceList = [{index:'1-1', name: '无工作区间'}]
+            } else {
+              this.workspaceList = data;
+            }
+            // this.workspaceIds = response.data.map(r = r.id);
+          })
         }
       },
       getCurrentUserInfo() {
@@ -116,19 +121,25 @@
           this.currentUserInfo = response.data;
         })
       },
-      clickMenu(data) {
-        if (data.id === this.currentUserInfo.lastSourceId) {
-          return false;
-        }
-        window.console.log(data.id);
-        let user = {};
-        user.id = this.currentUserInfo.id;
-        user.lastSourceId = data.id;
-        this.$post("/user/switch/source/" + user.lastSourceId, {}, response => {
+      changeOrg(data) {
+        let orgId = data.id;
+        let sign = "organization";
+        this.$post("/user/switch/source/" + sign + "/"  + orgId, {}, response => {
           Cookies.set(TokenKey, response.data);
           window.location.reload();
         })
-
+      },
+      changeWs(data) {
+        let sign = "workspace";
+        let workspaceId = data.id;
+        // todo 工作空间为空判断
+        if (typeof(workspaceId) == "undefined") {
+          return false;
+        }
+        this.$post("/user/switch/source/" + sign + "/" + workspaceId, {}, response => {
+          Cookies.set(TokenKey, response.data);
+          window.location.reload();
+        })
       }
     }
   }

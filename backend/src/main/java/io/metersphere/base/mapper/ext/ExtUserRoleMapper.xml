@@ -2,11 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="io.metersphere.base.mapper.ext.ExtUserRoleMapper">
 
-    <resultMap id="BaseResultMap" type="io.metersphere.dto.LoadTestDTO"
-               extends="io.metersphere.base.mapper.LoadTestMapper.BaseResultMap">
-        <result column="project_name" property="projectName"/>
-    </resultMap>
-
     <select id="getUserRoleHelpList" parameterType="java.lang.String"
             resultType="io.metersphere.dto.UserRoleHelpDTO">
         SELECT

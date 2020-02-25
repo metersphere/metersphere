@@ -21,9 +21,9 @@ public class UserDTO {
 
     private Long updateTime;
 
-    private String workspaceId;
+    private String lastWorkspaceId;
 
-    private String organizationId;
+    private String lastOrganizationId;
 
     private List<Role> roles = new ArrayList<>();
 
@@ -103,19 +103,19 @@ public class UserDTO {
         this.userRoles = userRoles;
     }
 
-    public String getWorkspaceId() {
-        return workspaceId;
+    public String getLastWorkspaceId() {
+        return lastWorkspaceId;
     }
 
-    public void setWorkspaceId(String workspaceId) {
-        this.workspaceId = workspaceId;
+    public void setLastWorkspaceId(String lastWorkspaceId) {
+        this.lastWorkspaceId = lastWorkspaceId;
     }
 
-    public String getOrganizationId() {
-        return organizationId;
+    public String getLastOrganizationId() {
+        return lastOrganizationId;
     }
 
-    public void setOrganizationId(String organizationId) {
-        this.organizationId = organizationId;
+    public void setLastOrganizationId(String lastOrganizationId) {
+        this.lastOrganizationId = lastOrganizationId;
     }
 }
