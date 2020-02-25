@@ -17,7 +17,7 @@
         <span>组织</span>
       </template>
       <el-menu-item index="/setting/organizationmember" v-permission="['org_admin']">成员</el-menu-item>
-      <el-menu-item index="/setting/workspace" v-permission="['org_admin']">工作空间</el-menu-item>
+      <el-menu-item index="/setting/organizationworkspace" v-permission="['org_admin']">工作空间</el-menu-item>
     </el-submenu>
 
     <el-submenu index="3" v-permission="['test_manager','test_user','test_viewer']">

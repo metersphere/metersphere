@@ -86,7 +86,6 @@
           ]
         },
         multipleSelection: [],
-        currentOrganizationId: JSON.parse(Cookies.get(TokenKey)).organizationId,
         currentPage: 1,
         pageSize: 5,
         total: 0,
@@ -100,8 +99,7 @@
       initTableData() {
         let param = {
           name: this.condition,
-          organizationId: this.currentUser().organizationId
-          // organizationId: this.currentOrganizationId
+          organizationId: this.currentUser().lastOrganizationId
         };
         this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
           let data = response.data;
@@ -127,7 +125,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.result = this.$get('/user/orgmember/delete/' + this.currentUser().organizationId + '/' + row.id, () => {
+          this.result = this.$get('/user/orgmember/delete/' + this.currentUser().lastOrganizationId + '/' + row.id, () => {
             this.$message({
               type: 'success',
               message: '删除成功!'
@@ -153,7 +151,7 @@
           if (valid) {
             let param = {
               userIds: this.form.userIds,
-              organizationId: this.currentUser().organizationId
+              organizationId: this.currentUser().lastOrganizationId
             };
             this.result = this.$post("user/orgmember/add", param,() => {
               this.initTableData();

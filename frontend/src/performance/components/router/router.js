@@ -11,6 +11,7 @@ import OrganizationMember from "../settings/OrganizationMember";
 import Member from "../settings/Member";
 import TestResourcePool from "../settings/TestResourcePool";
 import MsProject from "../project/MsProject";
+import OrganizationWorkspace from "../settings/OrganizationWorkspace";
 
 Vue.use(VueRouter);
 
@@ -52,6 +53,10 @@ const router = new VueRouter({
         {
           path: 'organizationmember',
           component: OrganizationMember,
+        },
+        {
+          path: 'organizationworkspace',
+          component: OrganizationWorkspace,
         },
         {
           path: 'member',

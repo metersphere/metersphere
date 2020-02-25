@@ -102,6 +102,9 @@
           });
         }
         if (roles.indexOf(ROLE_TEST_MANAGER) > -1 || roles.indexOf(ROLE_TEST_USER) > -1 || roles.indexOf(ROLE_TEST_VIEWER) > -1) {
+          if (this.currentUser.lastOrganizationId === null) {
+            return false;
+          }
           this.$get("/workspace/list/orgworkspace/", response => {
             let data = response.data;
             if (data.length == 0) {

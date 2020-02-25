@@ -113,7 +113,9 @@ public class WorkspaceService {
         userRoles.forEach(userRole -> {
             workspaces.forEach(workspace -> {
                 if (StringUtils.equals(userRole.getSourceId(),workspace.getId())) {
-                    resultWorkspaceList.add(workspace);
+                    if (!resultWorkspaceList.contains(workspace)) {
+                        resultWorkspaceList.add(workspace);
+                    }
                 }
             });
         });

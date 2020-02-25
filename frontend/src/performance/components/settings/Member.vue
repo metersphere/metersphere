@@ -63,6 +63,8 @@
 
 <script>
   import MsCreateBox from "./CreateBox";
+  import Cookies from 'js-cookie';
+  import {TokenKey} from "../../../common/constants";
 
   export default {
     name: "Member",
@@ -82,7 +84,6 @@
           ]
         },
         multipleSelection: [],
-        currentWorkspaceId: "0a2430b1-a818-4b9b-bc04-c1229c472896",
         currentPage: 1,
         pageSize: 5,
         total: 0,
@@ -92,11 +93,18 @@
       this.initTableData();
     },
     methods: {
+      currentUser: () => {
+        let user = Cookies.get(TokenKey);
+        return JSON.parse(user);
+      },
       initTableData() {
+        if (this.currentUser.lastWorkspaceId === null) {
+          return false;
+        }
         this.loading = true;
         let param = {
           name: this.condition,
-          workspaceId: this.currentWorkspaceId
+          workspaceId: this.currentUser().lastWorkspaceId
         };
 
         this.$post(this.buildPagePath(this.queryPath), param).then(response => {
@@ -130,7 +138,7 @@
           type: 'warning'
         }).then(() => {
           this.loading = true;
-          this.$get('/user/member/delete/' + this.currentWorkspaceId + '/' + row.id).then(() => {
+          this.$get('/user/member/delete/' + this.currentUser().lastWorkspaceId + '/' + row.id).then(() => {
             this.initTableData();
             this.loading = false;
           });
@@ -170,7 +178,7 @@
           if (valid) {
             let param = {
               userIds: this.form.userIds,
-              workspaceId: this.currentWorkspaceId
+              workspaceId: this.currentUser().lastWorkspaceId
             };
             this.$post("user/member/add", param).then(() => {
               this.initTableData();
