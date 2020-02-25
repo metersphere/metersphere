@@ -1,8 +1,7 @@
 package io.metersphere.service;
 
-import io.metersphere.base.domain.UserRole;
-import io.metersphere.base.domain.Workspace;
-import io.metersphere.base.domain.WorkspaceExample;
+import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.UserRoleMapper;
 import io.metersphere.base.mapper.WorkspaceMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
 import io.metersphere.commons.constants.RoleConstants;
@@ -28,6 +27,8 @@ public class WorkspaceService {
     private WorkspaceMapper workspaceMapper;
     @Resource
     private ExtUserRoleMapper extUserRoleMapper;
+    @Resource
+    private UserRoleMapper userRoleMapper;
 
     public Workspace saveWorkspace(Workspace workspace) {
         if (StringUtils.isBlank(workspace.getName())) {
@@ -100,10 +101,23 @@ public class WorkspaceService {
         return workspaceMapper.selectByExample(workspaceExample);
     }
 
-    public List<Workspace> getWorkspaceListByOrgId(String orgId) {
+    public List<Workspace> getWorkspaceListByOrgIdAndUserId(String orgId) {
+        String useId = SessionUtils.getUser().getId();
         WorkspaceExample workspaceExample = new WorkspaceExample();
         workspaceExample.createCriteria().andOrganizationIdEqualTo(orgId);
-        return workspaceMapper.selectByExample(workspaceExample);
+        List<Workspace> workspaces = workspaceMapper.selectByExample(workspaceExample);
+        UserRoleExample userRoleExample = new UserRoleExample();
+        userRoleExample.createCriteria().andUserIdEqualTo(useId);
+        List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
+        List<Workspace> resultWorkspaceList = new ArrayList<>();
+        userRoles.forEach(userRole -> {
+            workspaces.forEach(workspace -> {
+                if (StringUtils.equals(userRole.getSourceId(),workspace.getId())) {
+                    resultWorkspaceList.add(workspace);
+                }
+            });
+        });
+        return resultWorkspaceList;
     }
 
 }
