@@ -1,5 +1,7 @@
-package io.metersphere.commons.utils;
+package io.metersphere.interceptor;
 
+import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.utils.MybatisInterceptorConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
