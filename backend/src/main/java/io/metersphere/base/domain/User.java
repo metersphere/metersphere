@@ -17,9 +17,11 @@ public class User implements Serializable {
 
     private Long updateTime;
 
-    private String lastSourceId;
-
     private String language;
+
+    private String lastWorkspaceId;
+
+    private String lastOrganizationId;
 
     private static final long serialVersionUID = 1L;
 
@@ -79,19 +81,27 @@ public class User implements Serializable {
         this.updateTime = updateTime;
     }
 
-    public String getLastSourceId() {
-        return lastSourceId;
-    }
-
-    public void setLastSourceId(String lastSourceId) {
-        this.lastSourceId = lastSourceId == null ? null : lastSourceId.trim();
-    }
-
     public String getLanguage() {
         return language;
     }
 
     public void setLanguage(String language) {
         this.language = language == null ? null : language.trim();
+    }
+
+    public String getLastWorkspaceId() {
+        return lastWorkspaceId;
+    }
+
+    public void setLastWorkspaceId(String lastWorkspaceId) {
+        this.lastWorkspaceId = lastWorkspaceId == null ? null : lastWorkspaceId.trim();
+    }
+
+    public String getLastOrganizationId() {
+        return lastOrganizationId;
+    }
+
+    public void setLastOrganizationId(String lastOrganizationId) {
+        this.lastOrganizationId = lastOrganizationId == null ? null : lastOrganizationId.trim();
     }
 }

@@ -9,8 +9,9 @@
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
-    <result column="last_source_id" jdbcType="VARCHAR" property="lastSourceId" />
     <result column="language" jdbcType="VARCHAR" property="language" />
+    <result column="last_workspace_id" jdbcType="VARCHAR" property="lastWorkspaceId" />
+    <result column="last_organization_id" jdbcType="VARCHAR" property="lastOrganizationId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -71,7 +72,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, name, email, phone, status, create_time, update_time, last_source_id, language
+    id, name, email, phone, status, create_time, update_time, language, last_workspace_id, 
+    last_organization_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.UserExample" resultMap="BaseResultMap">
     select
@@ -106,12 +108,12 @@
   <insert id="insert" parameterType="io.metersphere.base.domain.User">
     insert into user (id, name, email, 
       phone, status, create_time, 
-      update_time, last_source_id, language
-      )
+      update_time, language, last_workspace_id, 
+      last_organization_id)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, 
       #{phone,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{lastSourceId,jdbcType=VARCHAR}, #{language,jdbcType=VARCHAR}
-      )
+      #{updateTime,jdbcType=BIGINT}, #{language,jdbcType=VARCHAR}, #{lastWorkspaceId,jdbcType=VARCHAR}, 
+      #{lastOrganizationId,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.User">
     insert into user
@@ -137,11 +139,14 @@
       <if test="updateTime != null">
         update_time,
       </if>
-      <if test="lastSourceId != null">
-        last_source_id,
-      </if>
       <if test="language != null">
         language,
+      </if>
+      <if test="lastWorkspaceId != null">
+        last_workspace_id,
+      </if>
+      <if test="lastOrganizationId != null">
+        last_organization_id,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -166,11 +171,14 @@
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="lastSourceId != null">
-        #{lastSourceId,jdbcType=VARCHAR},
-      </if>
       <if test="language != null">
         #{language,jdbcType=VARCHAR},
+      </if>
+      <if test="lastWorkspaceId != null">
+        #{lastWorkspaceId,jdbcType=VARCHAR},
+      </if>
+      <if test="lastOrganizationId != null">
+        #{lastOrganizationId,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -204,11 +212,14 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
-      <if test="record.lastSourceId != null">
-        last_source_id = #{record.lastSourceId,jdbcType=VARCHAR},
-      </if>
       <if test="record.language != null">
         language = #{record.language,jdbcType=VARCHAR},
+      </if>
+      <if test="record.lastWorkspaceId != null">
+        last_workspace_id = #{record.lastWorkspaceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.lastOrganizationId != null">
+        last_organization_id = #{record.lastOrganizationId,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -224,8 +235,9 @@
       status = #{record.status,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      last_source_id = #{record.lastSourceId,jdbcType=VARCHAR},
-      language = #{record.language,jdbcType=VARCHAR}
+      language = #{record.language,jdbcType=VARCHAR},
+      last_workspace_id = #{record.lastWorkspaceId,jdbcType=VARCHAR},
+      last_organization_id = #{record.lastOrganizationId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -251,11 +263,14 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="lastSourceId != null">
-        last_source_id = #{lastSourceId,jdbcType=VARCHAR},
-      </if>
       <if test="language != null">
         language = #{language,jdbcType=VARCHAR},
+      </if>
+      <if test="lastWorkspaceId != null">
+        last_workspace_id = #{lastWorkspaceId,jdbcType=VARCHAR},
+      </if>
+      <if test="lastOrganizationId != null">
+        last_organization_id = #{lastOrganizationId,jdbcType=VARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -268,8 +283,9 @@
       status = #{status,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      last_source_id = #{lastSourceId,jdbcType=VARCHAR},
-      language = #{language,jdbcType=VARCHAR}
+      language = #{language,jdbcType=VARCHAR},
+      last_workspace_id = #{lastWorkspaceId,jdbcType=VARCHAR},
+      last_organization_id = #{lastOrganizationId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

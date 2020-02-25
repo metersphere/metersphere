@@ -223,7 +223,8 @@ public class UserService {
 
     public void switchUserRole(UserDTO user, String sourceId) {
         User newUser = new User();
-        user.setLastSourceId(sourceId);
+        // todo 切换处理
+//        user.setLastSourceId(sourceId);
         BeanUtils.copyProperties(user, newUser);
         // 切换工作空间或组织之后更新 session 里的 user
         SessionUtils.putUser(SessionUser.fromUser(user));

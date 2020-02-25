@@ -574,76 +574,6 @@ public class UserExample {
             return (Criteria) this;
         }
 
-        public Criteria andLastSourceIdIsNull() {
-            addCriterion("last_source_id is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastSourceIdIsNotNull() {
-            addCriterion("last_source_id is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastSourceIdEqualTo(String value) {
-            addCriterion("last_source_id =", value, "lastSourceId");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastSourceIdNotEqualTo(String value) {
-            addCriterion("last_source_id <>", value, "lastSourceId");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastSourceIdGreaterThan(String value) {
-            addCriterion("last_source_id >", value, "lastSourceId");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastSourceIdGreaterThanOrEqualTo(String value) {
-            addCriterion("last_source_id >=", value, "lastSourceId");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastSourceIdLessThan(String value) {
-            addCriterion("last_source_id <", value, "lastSourceId");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastSourceIdLessThanOrEqualTo(String value) {
-            addCriterion("last_source_id <=", value, "lastSourceId");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastSourceIdLike(String value) {
-            addCriterion("last_source_id like", value, "lastSourceId");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastSourceIdNotLike(String value) {
-            addCriterion("last_source_id not like", value, "lastSourceId");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastSourceIdIn(List<String> values) {
-            addCriterion("last_source_id in", values, "lastSourceId");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastSourceIdNotIn(List<String> values) {
-            addCriterion("last_source_id not in", values, "lastSourceId");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastSourceIdBetween(String value1, String value2) {
-            addCriterion("last_source_id between", value1, value2, "lastSourceId");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastSourceIdNotBetween(String value1, String value2) {
-            addCriterion("last_source_id not between", value1, value2, "lastSourceId");
-            return (Criteria) this;
-        }
-
         public Criteria andLanguageIsNull() {
             addCriterion("language is null");
             return (Criteria) this;
@@ -711,6 +641,146 @@ public class UserExample {
 
         public Criteria andLanguageNotBetween(String value1, String value2) {
             addCriterion("language not between", value1, value2, "language");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastWorkspaceIdIsNull() {
+            addCriterion("last_workspace_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastWorkspaceIdIsNotNull() {
+            addCriterion("last_workspace_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastWorkspaceIdEqualTo(String value) {
+            addCriterion("last_workspace_id =", value, "lastWorkspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastWorkspaceIdNotEqualTo(String value) {
+            addCriterion("last_workspace_id <>", value, "lastWorkspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastWorkspaceIdGreaterThan(String value) {
+            addCriterion("last_workspace_id >", value, "lastWorkspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastWorkspaceIdGreaterThanOrEqualTo(String value) {
+            addCriterion("last_workspace_id >=", value, "lastWorkspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastWorkspaceIdLessThan(String value) {
+            addCriterion("last_workspace_id <", value, "lastWorkspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastWorkspaceIdLessThanOrEqualTo(String value) {
+            addCriterion("last_workspace_id <=", value, "lastWorkspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastWorkspaceIdLike(String value) {
+            addCriterion("last_workspace_id like", value, "lastWorkspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastWorkspaceIdNotLike(String value) {
+            addCriterion("last_workspace_id not like", value, "lastWorkspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastWorkspaceIdIn(List<String> values) {
+            addCriterion("last_workspace_id in", values, "lastWorkspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastWorkspaceIdNotIn(List<String> values) {
+            addCriterion("last_workspace_id not in", values, "lastWorkspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastWorkspaceIdBetween(String value1, String value2) {
+            addCriterion("last_workspace_id between", value1, value2, "lastWorkspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastWorkspaceIdNotBetween(String value1, String value2) {
+            addCriterion("last_workspace_id not between", value1, value2, "lastWorkspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastOrganizationIdIsNull() {
+            addCriterion("last_organization_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastOrganizationIdIsNotNull() {
+            addCriterion("last_organization_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastOrganizationIdEqualTo(String value) {
+            addCriterion("last_organization_id =", value, "lastOrganizationId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastOrganizationIdNotEqualTo(String value) {
+            addCriterion("last_organization_id <>", value, "lastOrganizationId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastOrganizationIdGreaterThan(String value) {
+            addCriterion("last_organization_id >", value, "lastOrganizationId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastOrganizationIdGreaterThanOrEqualTo(String value) {
+            addCriterion("last_organization_id >=", value, "lastOrganizationId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastOrganizationIdLessThan(String value) {
+            addCriterion("last_organization_id <", value, "lastOrganizationId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastOrganizationIdLessThanOrEqualTo(String value) {
+            addCriterion("last_organization_id <=", value, "lastOrganizationId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastOrganizationIdLike(String value) {
+            addCriterion("last_organization_id like", value, "lastOrganizationId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastOrganizationIdNotLike(String value) {
+            addCriterion("last_organization_id not like", value, "lastOrganizationId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastOrganizationIdIn(List<String> values) {
+            addCriterion("last_organization_id in", values, "lastOrganizationId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastOrganizationIdNotIn(List<String> values) {
+            addCriterion("last_organization_id not in", values, "lastOrganizationId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastOrganizationIdBetween(String value1, String value2) {
+            addCriterion("last_organization_id between", value1, value2, "lastOrganizationId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastOrganizationIdNotBetween(String value1, String value2) {
+            addCriterion("last_organization_id not between", value1, value2, "lastOrganizationId");
             return (Criteria) this;
         }
     }
