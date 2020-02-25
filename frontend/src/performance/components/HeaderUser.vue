@@ -1,13 +1,13 @@
 <template>
   <el-row>
-    <el-col :span="10" :offset="8">
+    <el-col :span="14" :offset="6">
       <el-menu :unique-opened="true" mode="horizontal" router
                menu-trigger="click"
                class="header-user-menu"
                background-color="rgb(44, 42, 72)"
                text-color="#fff">
         <el-submenu index="1" popper-class="submenu" v-permission="['org_admin']">
-          <template slot="title">组织</template>
+          <template slot="title">【组织】{{currrentOrganizationName}}</template>
           <label v-for="(item,index) in organizationList" :key="index">
             <el-menu-item @click="changeOrg(item)">{{item.name}}
               <i class="el-icon-check"
@@ -16,7 +16,7 @@
           </label>
         </el-submenu>
         <el-submenu index="2" popper-class="submenu" v-permission="['test_manager', 'test_user', 'test_viewer']">
-          <template slot="title">工作空间</template>
+          <template slot="title">【工作空间】{{currrentWorkspaceName}}</template>
           <label v-for="(item,index) in workspaceList" :key="index">
             <el-menu-item @click="changeWs(item)">
               {{item.name}}
@@ -27,7 +27,7 @@
       </el-menu>
     </el-col>
 
-    <el-col :span="3" :offset="3">
+    <el-col :span="2" :offset="2">
       <el-dropdown size="medium" @command="handleCommand">
         <span class="dropdown-link">
             {{currentUser.name}}<i class="el-icon-caret-bottom el-icon--right"/>
@@ -61,7 +61,9 @@
         ],
         currentUserInfo: {},
         currentUserId: JSON.parse(Cookies.get(TokenKey)).id,
-        workspaceIds: []
+        workspaceIds: [],
+        currrentOrganizationName: '选择组织',
+        currrentWorkspaceName: '选择工作空间'
       }
     },
     computed: {
@@ -69,16 +71,6 @@
         let user = Cookies.get(TokenKey);
         window.console.log(user);
         return JSON.parse(user);
-      },
-      workspaceParentId() {
-        let result = '';
-        if (this.workspaceIds.includes(this.currentUserInfo.lastSourceId)) {
-          let obj = this.workspaceList.filter(r => r.id === this.currentUserInfo.lastSourceId);
-          if (obj.length > 0) {
-            result = obj[0].organizationId;
-          }
-        }
-        return result;
       }
     },
     methods: {
@@ -101,7 +93,12 @@
         let roles = this.currentUser.roles.map(r => r.id);
         if (roles.indexOf(ROLE_ORG_ADMIN) > -1) {
           this.$get("/organization/list/userorg/" + this.currentUserId, response => {
-            this.organizationList = response.data;
+            let data = response.data;
+            this.organizationList = data;
+            let org = data.filter(r => r.id === this.currentUser.lastOrganizationId);
+            if (org.length > 0) {
+              this.currrentOrganizationName = org[0].name;
+            }
           });
         }
         if (roles.indexOf(ROLE_TEST_MANAGER) > -1 || roles.indexOf(ROLE_TEST_USER) > -1 || roles.indexOf(ROLE_TEST_VIEWER) > -1) {
@@ -111,6 +108,10 @@
               this.workspaceList = [{index:'1-1', name: '无工作区间'}]
             } else {
               this.workspaceList = data;
+              let workspace = data.filter(r => r.id === this.currentUser.lastWorkspaceId);
+              if (workspace.length > 0) {
+                this.currrentWorkspaceName = workspace[0].name;
+              }
             }
             // this.workspaceIds = response.data.map(r = r.id);
           })

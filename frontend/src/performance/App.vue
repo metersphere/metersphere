@@ -4,10 +4,10 @@
       <el-col :span="4">
         <a class="logo"/>
       </el-col>
-      <el-col :span="10">
+      <el-col :span="6">
         <ms-top-menus/>
       </el-col>
-      <el-col :span="10">
+      <el-col :span="14">
        <ms-user/>
       </el-col>
     </el-row>
