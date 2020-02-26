@@ -13,6 +13,7 @@ import TestResourcePool from "../settings/TestResourcePool";
 import MsProject from "../project/MsProject";
 import OrganizationWorkspace from "../settings/OrganizationWorkspace";
 import PersonSetting from "../settings/PersonSetting";
+import SystemWorkspace from "../settings/SystemWorkspace";
 
 Vue.use(VueRouter);
 
@@ -66,6 +67,10 @@ const router = new VueRouter({
         {
           path: 'member',
           component: Member
+        },
+        {
+          path: 'systemworkspace',
+          component: SystemWorkspace
         },
         {
           path: 'testresourcepool',

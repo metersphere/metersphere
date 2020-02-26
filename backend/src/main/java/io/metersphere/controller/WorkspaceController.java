@@ -49,6 +49,13 @@ public class WorkspaceController {
         return PageUtils.setPageInfo(page, workspaceService.getWorkspaceList(request));
     }
 
+    @PostMapping("list/all/{goPage}/{pageSize}")
+    @RequiresRoles(RoleConstants.ORG_ADMIN)
+    public Pager<List<Workspace>> getAllWorkspaceList(@PathVariable int goPage, @PathVariable int pageSize) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, workspaceService.getAllWorkspaceList());
+    }
+
     @GetMapping("/list/userworkspace/{userId}")
     public List<Workspace> getWorkspaceListByUserId(@PathVariable String userId) {
         return workspaceService.getWorkspaceListByUserId(userId);

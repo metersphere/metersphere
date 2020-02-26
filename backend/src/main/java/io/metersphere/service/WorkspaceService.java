@@ -69,6 +69,10 @@ public class WorkspaceService {
         return workspaceMapper.selectByExample(example);
     }
 
+    public List<Workspace> getAllWorkspaceList() {
+        return workspaceMapper.selectByExample(null);
+    }
+
     public void deleteWorkspace(String workspaceId) {
         workspaceMapper.deleteByPrimaryKey(workspaceId);
     }
