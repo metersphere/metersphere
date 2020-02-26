@@ -33,7 +33,7 @@
         <font-awesome-icon class="icon" :icon="['far', 'user']" size="lg"/>
         <span>个人</span>
       </template>
-      <el-menu-item>个人设置</el-menu-item>
+      <el-menu-item index="/setting/personsetting">个人设置</el-menu-item>
     </el-submenu>
 
   </el-menu>
