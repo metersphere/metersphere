@@ -19,6 +19,7 @@ Vue.use(VueRouter);
 
 const router = new VueRouter({
   routes: [
+    {path: "/", redirect: '/setting/personsetting'},
     {
       path: "/sidebar",
       components: {
@@ -34,23 +35,14 @@ const router = new VueRouter({
         {
           path: 'workspace',
           component: Workspace,
-          meta: {
-            roles: ['org_admin']
-          }
         },
         {
           path: 'user',
           component: User,
-          meta: {
-            roles: ['admin']
-          }
         },
         {
           path: 'organization',
           component: Organization,
-          meta: {
-            roles: ['admin']
-          }
         },
         {
           path: 'organizationmember',

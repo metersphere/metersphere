@@ -1,7 +1,10 @@
 <template>
   <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router
+           :default-active='$route.path'
            menu-trigger="click">
-    <el-menu-item index="1"><a href="/" style="text-decoration: none;">{{ $t("i18n.home") }}</a></el-menu-item>
+    <el-menu-item index="/setting/personsetting">
+      {{ $t("i18n.home") }}
+    </el-menu-item>
     <el-submenu index="3" popper-class="submenu" v-permission="['test_manager']">
       <template slot="title">项目</template>
       <recent-project/>
