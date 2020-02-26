@@ -3,13 +3,17 @@ package io.metersphere.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.FileMetadata;
+import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.controller.request.ProjectRequest;
 import io.metersphere.controller.request.testplan.*;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.service.FileService;
 import io.metersphere.service.LoadTestService;
 import io.metersphere.user.SessionUtils;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +30,16 @@ public class LoadTestController {
     private LoadTestService loadTestService;
     @Resource
     private FileService fileService;
+
+    @GetMapping("recent/{count}")
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
+    public List<LoadTestDTO> recentTestPlans(@PathVariable int count) {
+        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
+        QueryTestPlanRequest request = new QueryTestPlanRequest();
+        request.setWorkspaceId(currentWorkspaceId);
+        PageHelper.startPage(1, count, true);
+        return loadTestService.recentTestPlans(request);
+    }
 
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<LoadTestDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanRequest request) {

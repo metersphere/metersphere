@@ -19,6 +19,9 @@
                 AND project.workspace_id = #{request.workspaceId}
             </if>
         </where>
+        <if test="request.recent">
+            order by load_test.update_time desc
+        </if>
     </select>
 
 </mapper>

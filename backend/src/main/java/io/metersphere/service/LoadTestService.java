@@ -10,6 +10,7 @@ import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.engine.Engine;
 import io.metersphere.engine.EngineFactory;
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -189,4 +190,10 @@ public class LoadTestService {
 
         /// todo：通过调用stop方法能够停止正在运行的engine，但是如果部署了多个backend实例，页面发送的停止请求如何定位到具体的engine
     }
+
+    public List<LoadTestDTO> recentTestPlans(QueryTestPlanRequest request) {
+        // 查询最近的测试计划
+        request.setRecent(true);
+        return extLoadTestMapper.list(request);
+     }
 }
