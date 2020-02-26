@@ -8,7 +8,8 @@
             <ms-create-box :tips="btnTips" :exec="create"/>
           </span>
           <span class="search">
-                    <el-input type="text" size="small" placeholder="根据名称搜索" prefix-icon="el-icon-search"
+                    <el-input type="text" size="small" :placeholder="$t('workspace.search_by_name')"
+                              prefix-icon="el-icon-search"
                               maxlength="60" v-model="condition" clearable/>
                 </span>
         </el-row>
@@ -83,7 +84,7 @@
             this.$post("/workspace/" + saveType, this.form, () => {
               this.createVisible = false;
               this.list();
-              Message.success('保存成功');
+              Message.success(this.$t('commons.save_success'));
             });
           } else {
             return false;
@@ -92,7 +93,8 @@
       },
       edit(row) {
         this.createVisible = true;
-        this.form = row;
+        // copy user
+        this.form = Object.assign({}, row);
 
         // let self = this;
         // let getUser1 = this.$get("/test/user");
@@ -103,13 +105,13 @@
         // });
       },
       del(row) {
-        this.$confirm('这个工作空间确定要删除吗?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+        this.$confirm(this.$t('workspace.delete_confirm'), this.$t('commons.prompt'), {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
           this.$get('/workspace/delete/' + row.id, () => {
-            Message.success('删除成功');
+            Message.success(this.$t('commons.delete_success'));
             this.list();
           });
         }).catch(() => {
@@ -138,7 +140,7 @@
         result: {},
         loading: false,
         createVisible: false,
-        btnTips: "添加工作空间",
+        btnTips: this.$t('workspace.add'),
         condition: "",
         items: [],
         currentPage: 1,
@@ -150,8 +152,8 @@
         },
         rules: {
           name: [
-            {required: true, message: '请输入工作空间名称', trigger: 'blur'},
-            {min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur'}
+            {required: true, message: this.$t('workspace.input_name'), trigger: 'blur'},
+            {min: 2, max: 50, message: this.$t('workspace.input_name_2_50'), trigger: 'blur'}
           ]
         },
       }
