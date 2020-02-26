@@ -18,6 +18,9 @@ const zh_CN = {
     'input_name_2_50': '长度在 2 到 50 个字符',
     'search_by_name': '根据名称搜索',
   },
+  project: {
+    'recent': '最近的项目'
+  },
   i18n: {
     'home': '首页',
   }

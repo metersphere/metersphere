@@ -2,10 +2,10 @@
   <div>
     <div class="recent-text">
       <i class="el-icon-time"/>
-      最近的项目
+      {{$t('project.recent')}}
     </div>
-    <el-menu-item v-bind:key="recentTestPlan.id" v-for="recentTestPlan in recentTestPlans">
-      {{ recentTestPlan.name }}
+    <el-menu-item :key="recentProject.id" v-for="recentProject in recentProjects" @click="goTest(recentProject)">
+      {{ recentProject.name }}
     </el-menu-item>
   </div>
 </template>
@@ -13,26 +13,20 @@
 <script>
   export default {
     name: "RecentProject",
+    mounted() {
+      this.$get('/project/recent/5', (response) => {
+        this.recentProjects = response.data;
+      });
+    },
+    methods: {
+      goTest(project) {
+        window.console.log(project);
+        // this.$router.push({path: '/allTest', params: {projectId: project.id, projectName: project.name}});
+      }
+    },
     data() {
       return {
-        recentTestPlans: [
-          {
-            id: 1,
-            name: "项目1"
-          },
-          {
-            id: 2,
-            name: "项目2"
-          },
-          {
-            id: 3,
-            name: "项目3"
-          },
-          {
-            id: 4,
-            name: "项目4"
-          }
-        ]
+        recentProjects: [],
       }
     }
   }

@@ -86,7 +86,8 @@ const router = new VueRouter({
       path: "/allTest",
       components: {
         content: AllTestPlan
-      }
+      },
+      props: true,
     },
     {
       path: "/project",

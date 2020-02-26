@@ -18,6 +18,9 @@ const en_US = {
     'input_name_2_50': '2 to 50 characters in length',
     'search_by_name': 'Search by name',
   },
+  project: {
+    'recent': 'Recent Projects'
+  },
   i18n: {
     'home': 'Home',
   }

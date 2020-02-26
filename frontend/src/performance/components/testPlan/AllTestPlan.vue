@@ -80,6 +80,10 @@
 
 <script>
   export default {
+    props: {
+      projectId: String,
+      projectName: String
+    },
     data() {
       return {
         result: {},

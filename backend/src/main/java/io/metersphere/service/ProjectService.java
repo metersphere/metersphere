@@ -63,4 +63,15 @@ public class ProjectService {
     public List<Project> listAll() {
         return projectMapper.selectByExample(null);
     }
+
+    public List<Project> getRecentProjectList(ProjectRequest request) {
+        ProjectExample example = new ProjectExample();
+        ProjectExample.Criteria criteria = example.createCriteria();
+        if (StringUtils.isNotBlank(request.getWorkspaceId())) {
+            criteria.andWorkspaceIdEqualTo(request.getWorkspaceId());
+        }
+        // 按照修改时间排序
+        example.setOrderByClause("update_time desc");
+        return projectMapper.selectByExample(example);
+    }
 }

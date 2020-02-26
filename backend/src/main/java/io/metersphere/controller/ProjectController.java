@@ -9,6 +9,7 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.ProjectRequest;
 import io.metersphere.service.ProjectService;
 import io.metersphere.user.SessionUtils;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +28,17 @@ public class ProjectController {
         ProjectRequest request = new ProjectRequest();
         request.setWorkspaceId(currentWorkspaceId);
         return projectService.getProjectList(request);
+    }
+
+    @GetMapping("/recent/{count}")
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
+    public List<Project> recentProjects(@PathVariable int count) {
+        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
+        ProjectRequest request = new ProjectRequest();
+        request.setWorkspaceId(currentWorkspaceId);
+        // 最近 `count` 个项目
+        PageHelper.startPage(1, count);
+        return projectService.getRecentProjectList(request);
     }
 
     @PostMapping("/add")
