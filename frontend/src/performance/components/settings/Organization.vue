@@ -4,20 +4,20 @@
     <el-card>
       <div slot="header">
         <el-row type="flex" justify="space-between" align="middle">
-          <span class="title">组织
+          <span class="title">{{$t('commons.organization')}}
             <ms-create-box :tips="btnTips" :exec="create"/>
           </span>
           <span class="search">
-            <el-input type="text" size="small" placeholder="根据名称搜索" prefix-icon="el-icon-search"
+            <el-input type="text" size="small" :placeholder="$t('organization.search_by_name')" prefix-icon="el-icon-search"
                               maxlength="60" v-model="condition" clearable/>
           </span>
         </el-row>
       </div>
       <el-table :data="tableData" style="width: 100%">
         <el-table-column type="selection" width="55"/>
-        <el-table-column prop="name" label="名称"/>
-        <el-table-column prop="description" label="描述"/>
-        <el-table-column label="操作">
+        <el-table-column prop="name" :label="$t('commons.name')"/>
+        <el-table-column prop="description" :label="$t('commons.description')"/>
+        <el-table-column :label="$t('commons.operating')">
           <template slot-scope="scope">
             <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
             <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
@@ -44,31 +44,31 @@
       </div>
     </el-card>
 
-    <el-dialog title="创建组织" :visible.sync="createVisible" width="30%" @closed="closeFunc" :destroy-on-close="true">
+    <el-dialog :title="$t('organization.create')" :visible.sync="createVisible" width="30%" @closed="closeFunc" :destroy-on-close="true">
       <el-form :model="form" label-position="left" label-width="100px" size="small" :rules="rule" ref="createOrganization">
-        <el-form-item label="名称" prop="name">
+        <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
-        <el-form-item label="描述" prop="description">
+        <el-form-item :label="$t('commons.description')" prop="description">
           <el-input v-model="form.description" autocomplete="off"/>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="createOrganization('createOrganization')" size="medium">创建</el-button>
+        <el-button type="primary" @click="createOrganization('createOrganization')" size="medium">{{$t('commons.save')}}</el-button>
       </span>
     </el-dialog>
 
-    <el-dialog title="修改组织" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
+    <el-dialog :title="$t('organization.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
       <el-form :model="form" label-position="left" label-width="100px" size="small" :rules="rule" ref="updateOrganizationForm">
-        <el-form-item label="用户名" prop="name">
+        <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
-        <el-form-item label="描述" prop="description">
+        <el-form-item :label="$t('commons.description')" prop="description">
           <el-input v-model="form.description" autocomplete="off"/>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="updateOrganization('updateOrganizationForm')" size="medium">修改</el-button>
+        <el-button type="primary" @click="updateOrganization('updateOrganizationForm')" size="medium">{{$t('organization.modify')}}</el-button>
       </span>
     </el-dialog>
 
@@ -94,23 +94,23 @@
         currentPage: 1,
         pageSize: 5,
         total: 0,
-        btnTips: "添加组织",
+        btnTips: this.$t('organization.create'),
         condition: "",
         tableData: [],
         form: {},
         rule: {
           name: [
-            {required: true, message: '请输入姓名', trigger: 'blur'},
-            { min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur' },
+            {required: true, message: this.$t('organization.input_name'), trigger: 'blur'},
+            { min: 2, max: 10, message: this.$t('organization.input_name_2_50'), trigger: 'blur' },
             {
               required: true,
               pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/,
-              message: '姓名不支持特殊字符',
+              message: this.$t('organization.special_characters_are_not_supported'),
               trigger: 'blur'
             }
           ],
           description: [
-            { max: 60, message: '最大长度 60 个字符', trigger: 'blur'}
+            { max: 50, message: this.$t('organization.input_name_2_50'), trigger: 'blur'}
           ]
         }
       }
@@ -128,22 +128,22 @@
         this.form = row;
       },
       del(row) {
-        this.$confirm('是否删除组织' + row.name +' ？', '', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+        this.$confirm(this.$t('organization.delete_confirm'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
           this.result = this.$get(this.deletePath + row.id,() => {
             this.$message({
               type: 'success',
-              message: '删除成功!'
+              message: this.$t('commons.delete_success')
             });
             this.initTableData()
           });
         }).catch(() => {
           this.$message({
             type: 'info',
-            message: '已取消删除'
+            message: this.$t('commons.delete_cancel')
           });
         });
       },
@@ -153,7 +153,7 @@
             this.result = this.$post(this.createPath, this.form,() => {
               this.$message({
                 type: 'success',
-                message: '添加成功!'
+                message: this.$t('commons.save_success')
               });
               this.initTableData();
               this.createVisible = false;
@@ -169,7 +169,7 @@
             this.result = this.$post(this.updatePath, this.form,() => {
               this.$message({
                 type: 'success',
-                message: '修改成功!'
+                message: this.$t('commons.modify_success')
               });
               this.updateVisible = false;
               this.initTableData();

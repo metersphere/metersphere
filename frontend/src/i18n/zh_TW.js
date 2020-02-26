@@ -1,6 +1,7 @@
 const zh_TW = {
   commons: {
     'workspace': '工作空间',
+    'organization': '组织',
     'name': '名称',
     'description': '描述',
     'save': '保存',
@@ -9,6 +10,7 @@ const zh_TW = {
     'confirm': '确定',
     'cancel': '取消',
     'prompt': '提示',
+    'operating': '操作',
   },
   workspace: {
     'create': '创建工作空间',
@@ -19,6 +21,11 @@ const zh_TW = {
     'search_by_name': '根据名称搜索',
     'organization_name': '所属组织',
     'please_choose_organization': '请选择组织',
+  },
+  organization: {
+    'create': '创建组织',
+    'modify': '修改组织',
+    'search_by_name': '根据名称搜索',
   },
   project: {
     'recent': '最近的项目'
