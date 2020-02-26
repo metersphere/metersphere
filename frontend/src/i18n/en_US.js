@@ -17,6 +17,7 @@ const en_US = {
     'input_name': 'Please enter a workspace name',
     'input_name_2_50': '2 to 50 characters in length',
     'search_by_name': 'Search by name',
+    'organization_name': 'Organizationn Name'
   },
   project: {
     'recent': 'Recent Projects'

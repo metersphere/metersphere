@@ -7,6 +7,7 @@ import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.WorkspaceRequest;
+import io.metersphere.dto.WorkspaceDTO;
 import io.metersphere.service.WorkspaceService;
 import io.metersphere.user.SessionUtils;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -51,7 +52,7 @@ public class WorkspaceController {
 
     @PostMapping("list/all/{goPage}/{pageSize}")
     @RequiresRoles(RoleConstants.ORG_ADMIN)
-    public Pager<List<Workspace>> getAllWorkspaceList(@PathVariable int goPage, @PathVariable int pageSize) {
+    public Pager<List<WorkspaceDTO>> getAllWorkspaceList(@PathVariable int goPage, @PathVariable int pageSize) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, workspaceService.getAllWorkspaceList());
     }
