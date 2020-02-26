@@ -26,6 +26,8 @@ const zh_CN = {
     'create': '创建项目',
     'delete_confirm': '这个项目确定要删除吗?',
     'search_by_name': '根据名称搜索',
+    'input_name': '请输入项目名称',
+    'input_name_2_50': '长度在 2 到 50 个字符',
   },
   i18n: {
     'home': '首页',

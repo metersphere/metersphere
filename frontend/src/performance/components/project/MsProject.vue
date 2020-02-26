@@ -81,8 +81,8 @@
         total: 0,
         rules: {
           name: [
-            {required: true, message: '请输入项目名称', trigger: 'blur'},
-            {min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur'}
+            {required: true, message: this.$t('project.input_name'), trigger: 'blur'},
+            {min: 2, max: 50, message: this.$t('project.input_name_2_50'), trigger: 'blur'}
           ]
         },
       }

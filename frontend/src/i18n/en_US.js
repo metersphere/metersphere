@@ -26,6 +26,8 @@ const en_US = {
     'create': 'Create Project',
     'delete_confirm': 'Are you sure you want to delete this project?',
     'search_by_name': 'Search by name',
+    'input_name': 'Please enter a workspace name',
+    'input_name_2_50': '2 to 50 characters in length',
   },
   i18n: {
     'home': 'Home',
