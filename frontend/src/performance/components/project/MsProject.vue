@@ -5,18 +5,19 @@
         <div slot="header">
           <el-row type="flex" justify="space-between" align="middle">
             <span class="title">
-              项目
+              {{$t('commons.project')}}
               <ms-create-box :tips="btnTips" :exec="create"/>
             </span>
             <span class="search">
-                    <el-input type="text" size="small" placeholder="根据名称搜索" prefix-icon="el-icon-search"
+                    <el-input type="text" size="small" :placeholder="$t('project.search_by_name')"
+                              prefix-icon="el-icon-search"
                               maxlength="60" v-model="condition" clearable/>
                 </span>
           </el-row>
         </div>
         <el-table :data="items" style="width: 100%">
-          <el-table-column prop="name" label="名称"/>
-          <el-table-column prop="description" label="描述"/>
+          <el-table-column prop="name" :label="$t('commons.name')"/>
+          <el-table-column prop="description" :label="$t('commons.description')"/>
           <el-table-column>
             <template slot-scope="scope">
               <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
@@ -43,17 +44,17 @@
         </div>
       </el-card>
 
-      <el-dialog title="创建项目" :visible.sync="createVisible">
+      <el-dialog :title="$t('project.create')" :visible.sync="createVisible">
         <el-form :model="form" :rules="rules" ref="form" label-position="left" label-width="100px" size="small">
-          <el-form-item label="名称">
+          <el-form-item :label="$t('commons.name')">
             <el-input v-model="form.name" autocomplete="off"></el-input>
           </el-form-item>
-          <el-form-item label="描述">
+          <el-form-item :label="$t('commons.description')">
             <el-input type="textarea" v-model="form.description"></el-input>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="submit('form')" size="medium">创建</el-button>
+          <el-button type="primary" @click="submit('form')" size="medium">{{$t('commons.save')}}</el-button>
         </div>
       </el-dialog>
     </div>
@@ -71,7 +72,7 @@
       return {
         createVisible: false,
         result: {},
-        btnTips: "添加项目",
+        btnTips: this.$t('project.create'),
         condition: "",
         items: [],
         form: {},
@@ -99,7 +100,7 @@
       },
       edit(row) {
         this.createVisible = true;
-        this.form = row;
+        this.form = Object.assign({}, row);
       },
       submit(formName) {
         this.$refs[formName].validate((valid) => {
@@ -111,7 +112,7 @@
             this.result = this.$post("/project/" + saveType, this.form, () => {
               this.createVisible = false;
               this.list();
-              Message.success('保存成功');
+              Message.success(this.$t('commons.save_success'));
             });
           } else {
             return false;
@@ -119,17 +120,15 @@
         });
       },
       del(row) {
-        this.$confirm('这个项目确定要删除吗?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+        this.$confirm(this.$t('project.delete_confirm'), this.$t('commons.prompt'), {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
-        }).then(() => {
+        }, () => {
           this.$get('/project/delete/' + row.id, () => {
-            Message.success('删除成功');
+            Message.success(this.$t('commons.delete_success'));
             this.list();
           });
-        }).catch(() => {
-
         });
       },
       list() {

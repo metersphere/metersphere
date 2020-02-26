@@ -1,6 +1,7 @@
 const en_US = {
   commons: {
     'workspace': 'Workspace',
+    'project': 'Project',
     'name': 'Name',
     'description': 'Description',
     'save': 'Save',
@@ -17,11 +18,14 @@ const en_US = {
     'input_name': 'Please enter a workspace name',
     'input_name_2_50': '2 to 50 characters in length',
     'search_by_name': 'Search by name',
-    'organization_name': 'Organizationn Name',
+    'organization_name': 'Organization Name',
     'please_choose_organization': 'Please Choose Organization',
   },
   project: {
-    'recent': 'Recent Projects'
+    'recent': 'Recent Projects',
+    'create': 'Create Project',
+    'delete_confirm': 'Are you sure you want to delete this project?',
+    'search_by_name': 'Search by name',
   },
   i18n: {
     'home': 'Home',

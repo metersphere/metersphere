@@ -1,6 +1,7 @@
 const zh_CN = {
   commons: {
     'workspace': '工作空间',
+    'project': '项目',
     'name': '名称',
     'description': '描述',
     'save': '保存',
@@ -21,7 +22,10 @@ const zh_CN = {
     'please_choose_organization': '请选择组织',
   },
   project: {
-    'recent': '最近的项目'
+    'recent': '最近的项目',
+    'create': '创建项目',
+    'delete_confirm': '这个项目确定要删除吗?',
+    'search_by_name': '根据名称搜索',
   },
   i18n: {
     'home': '首页',

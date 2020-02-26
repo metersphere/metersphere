@@ -96,8 +96,7 @@
       }
     },
     watch: {
-      '$route'(to, from) {
-        window.console.log(to, from);
+      '$route'(to) {
         this.projectId = to.params.projectId;
         this.initTableData();
       }
