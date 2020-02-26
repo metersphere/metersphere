@@ -75,7 +75,7 @@
   import {Message} from "element-ui";
 
   export default {
-    name: "MsWorkspace",
+    name: "MsSystemWorkspace",
     components: {MsCreateBox},
     mounted() {
       this.list();

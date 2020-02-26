@@ -92,7 +92,7 @@
         }
       }
     },
-    name: "PersonSetting",
+    name: "MsPersonSetting",
     created() {
       this.initTableData();
     },

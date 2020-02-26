@@ -65,7 +65,7 @@
   import {TokenKey} from "../../../common/constants";
 
   export default {
-    name: "OrganizationWorkspace",
+    name: "MsOrganizationWorkspace",
     components: {MsCreateBox},
     mounted() {
       this.list();

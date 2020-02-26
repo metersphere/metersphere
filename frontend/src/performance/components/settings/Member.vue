@@ -67,7 +67,7 @@
   import {TokenKey} from "../../../common/constants";
 
   export default {
-    name: "Member",
+    name: "MsMember",
     components: {MsCreateBox},
     data() {
       return {
