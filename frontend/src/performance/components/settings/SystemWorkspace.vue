@@ -17,6 +17,7 @@
       <el-table :data="items" style="width: 100%">
         <el-table-column prop="name" :label="$t('commons.name')"/>
         <el-table-column prop="description" :label="$t('commons.description')"/>
+        <el-table-column prop="organizationName" :label="$t('workspace.organization_name')"/>
         <el-table-column>
           <template slot-scope="scope">
             <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>

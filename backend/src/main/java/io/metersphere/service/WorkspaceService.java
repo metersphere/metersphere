@@ -4,10 +4,12 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.UserRoleMapper;
 import io.metersphere.base.mapper.WorkspaceMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
+import io.metersphere.base.mapper.ext.ExtWorkspaceMapper;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.request.WorkspaceRequest;
 import io.metersphere.dto.UserRoleHelpDTO;
+import io.metersphere.dto.WorkspaceDTO;
 import io.metersphere.user.SessionUser;
 import io.metersphere.user.SessionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +27,8 @@ import java.util.stream.Collectors;
 public class WorkspaceService {
     @Resource
     private WorkspaceMapper workspaceMapper;
+    @Resource
+    private ExtWorkspaceMapper extWorkspaceMapper;
     @Resource
     private ExtUserRoleMapper extUserRoleMapper;
     @Resource
@@ -69,8 +73,8 @@ public class WorkspaceService {
         return workspaceMapper.selectByExample(example);
     }
 
-    public List<Workspace> getAllWorkspaceList() {
-        return workspaceMapper.selectByExample(null);
+    public List<WorkspaceDTO> getAllWorkspaceList() {
+        return extWorkspaceMapper.getWorkspaceWithOrg();
     }
 
     public void deleteWorkspace(String workspaceId) {

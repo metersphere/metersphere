@@ -17,6 +17,7 @@ const zh_CN = {
     'input_name': '请输入工作空间名称',
     'input_name_2_50': '长度在 2 到 50 个字符',
     'search_by_name': '根据名称搜索',
+    'organization_name': '所属组织'
   },
   project: {
     'recent': '最近的项目'

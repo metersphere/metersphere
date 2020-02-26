@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtWorkspaceMapper">
+
+    <select id="getWorkspaceWithOrg" resultType="io.metersphere.dto.WorkspaceDTO">
+        select w.id, w.name, w.organization_id as organizationId, w.description, o.name as organizationName
+          from workspace w join organization o on w.organization_id = o.id
+    </select>
+
+</mapper>
