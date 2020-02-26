@@ -18,7 +18,7 @@
       <template slot="title">测试</template>
       <ms-recent-test-plan/>
       <el-divider/>
-      <el-menu-item index="/allTest">
+      <el-menu-item index="/allTest/all">
         <font-awesome-icon :icon="['fa', 'list-ul']"/>
         <span style="padding-left: 5px;">所有测试</span>
       </el-menu-item>

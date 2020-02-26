@@ -1,11 +1,13 @@
 <template>
-  <el-menu>
+  <el-menu router menu-trigger="click" :default-active="$route.path">
     <div class="recent-text">
       <i class="el-icon-time"/>
       {{$t('project.recent')}}
     </div>
-    <el-menu-item :key="recentProject.id" v-for="recentProject in recentProjects" @click="goTest(recentProject)">
-      {{ recentProject.name }}
+
+    <el-menu-item :key="p.id" v-for="p in recentProjects"
+                  :index="'/allTest/' + p.id" :route="{name:'allTest', params:{projectId:p.id, projectName:p.name}}">
+      {{ p.name }}
     </el-menu-item>
   </el-menu>
 </template>
@@ -18,12 +20,7 @@
         this.recentProjects = response.data;
       });
     },
-    methods: {
-      goTest(project) {
-        window.console.log(project);
-        // this.$router.push({path: '/allTest', params: {projectId: project.id, projectName: project.name}});
-      }
-    },
+    methods: {},
     data() {
       return {
         recentProjects: [],
