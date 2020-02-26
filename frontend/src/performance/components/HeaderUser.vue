@@ -7,7 +7,7 @@
                background-color="rgb(44, 42, 72)"
                text-color="#fff">
         <el-submenu index="1" popper-class="submenu" v-permission="['org_admin']">
-          <template slot="title">【组织】{{currrentOrganizationName}}</template>
+          <template slot="title">【组织】{{currentOrganizationName}}</template>
           <label v-for="(item,index) in organizationList" :key="index">
             <el-menu-item @click="changeOrg(item)">{{item.name}}
               <i class="el-icon-check"
@@ -16,7 +16,7 @@
           </label>
         </el-submenu>
         <el-submenu index="2" popper-class="submenu" v-permission="['test_manager', 'test_user', 'test_viewer']">
-          <template slot="title">【工作空间】{{currrentWorkspaceName}}</template>
+          <template slot="title">【工作空间】{{currentWorkspaceName}}</template>
           <label v-for="(item,index) in workspaceList" :key="index">
             <el-menu-item @click="changeWs(item)">
               {{item.name}}
@@ -62,8 +62,8 @@
         currentUserInfo: {},
         currentUserId: JSON.parse(Cookies.get(TokenKey)).id,
         workspaceIds: [],
-        currrentOrganizationName: '选择组织',
-        currrentWorkspaceName: '选择工作空间'
+        currentOrganizationName: '选择组织',
+        currentWorkspaceName: '选择工作空间'
       }
     },
     computed: {
@@ -97,7 +97,7 @@
             this.organizationList = data;
             let org = data.filter(r => r.id === this.currentUser.lastOrganizationId);
             if (org.length > 0) {
-              this.currrentOrganizationName = org[0].name;
+              this.currentOrganizationName = org[0].name;
             }
           });
         }
@@ -107,13 +107,13 @@
           }
           this.$get("/workspace/list/orgworkspace/", response => {
             let data = response.data;
-            if (data.length == 0) {
+            if (data.length === 0) {
               this.workspaceList = [{index:'1-1', name: '无工作区间'}]
             } else {
               this.workspaceList = data;
               let workspace = data.filter(r => r.id === this.currentUser.lastWorkspaceId);
               if (workspace.length > 0) {
-                this.currrentWorkspaceName = workspace[0].name;
+                this.currentWorkspaceName = workspace[0].name;
               }
             }
             // this.workspaceIds = response.data.map(r = r.id);
