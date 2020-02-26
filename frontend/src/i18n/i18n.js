@@ -3,6 +3,7 @@ import VueI18n from "vue-i18n";
 import axios from "axios";
 import enLocale from "element-ui/lib/locale/lang/en";
 import zh_CNLocale from "element-ui/lib/locale/lang/zh-CN";
+import zh_TWLocale from "element-ui/lib/locale/lang/zh-TW";
 import zh_CN from "./zh_CN";
 
 Vue.use(VueI18n);
@@ -14,6 +15,9 @@ const messages = {
   'zh_CN': {
     ...zh_CN,
     ...zh_CNLocale
+  },
+  'zh_TW': {
+    ...zh_TWLocale
   }
 };
 
