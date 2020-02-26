@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <el-menu>
     <div class="recent-text">
       <i class="el-icon-time"/>
       {{$t('project.recent')}}
@@ -7,7 +7,7 @@
     <el-menu-item :key="recentProject.id" v-for="recentProject in recentProjects" @click="goTest(recentProject)">
       {{ recentProject.name }}
     </el-menu-item>
-  </div>
+  </el-menu>
 </template>
 
 <script>
