@@ -60,13 +60,22 @@
 
 <script>
   import MsCreateBox from "./CreateBox";
+  import Cookies from 'js-cookie';
   import {Message} from "element-ui";
+  import {TokenKey} from "../../../common/constants";
 
   export default {
     name: "OrganizationWorkspace",
     components: {MsCreateBox},
     mounted() {
       this.list();
+    },
+    computed: {
+      currentUser: () => {
+        let user = Cookies.get(TokenKey);
+        window.console.log(user);
+        return JSON.parse(user);
+      }
     },
     methods: {
       create() {
@@ -118,11 +127,21 @@
       },
       list() {
         let url = '/workspace/list/' + this.currentPage + '/' + this.pageSize;
-        this.result = this.$post(url, {name: this.condition}, response => {
-          let data = response.data;
-          this.items = data.listObject;
-          this.total = data.itemCount;
-        });
+        let lastOrganizationId = this.currentUser.lastOrganizationId;
+        let userRole = this.currentUser.userRoles.filter(r => r.sourceId === lastOrganizationId);
+        if (userRole.length > 0) {
+          if (userRole[0].roleId === "org_admin") {
+            this.result = this.$post(url, {name: this.condition}, response => {
+              let data = response.data;
+              this.items = data.listObject;
+              this.total = data.itemCount;
+            });
+          } else {
+            this.items = [];
+            this.total = 0;
+          }
+        }
+
       },
       handleSizeChange(size) {
         this.pageSize = size;
