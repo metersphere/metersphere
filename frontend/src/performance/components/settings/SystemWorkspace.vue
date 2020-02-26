@@ -52,6 +52,16 @@
         <el-form-item :label="$t('commons.description')">
           <el-input type="textarea" v-model="form.description"></el-input>
         </el-form-item>
+        <el-form-item :label="$t('workspace.organization_name')" prop="userIds">
+          <el-select v-model="form.organizationId" placeholder="请选择组织" class="select-width">
+            <el-option
+              v-for="item in form.orgList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submit('form')" size="medium">{{$t('commons.save')}}</el-button>
@@ -74,6 +84,9 @@
       create() {
         this.createVisible = true;
         this.form = {};
+        this.$get("/organization/list", response => {
+          this.form = { orgList: response.data }
+        })
       },
       submit(formName) {
         this.$refs[formName].validate((valid) => {
