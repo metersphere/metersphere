@@ -66,7 +66,7 @@
   import Cookies from 'js-cookie';
   import {TokenKey} from "../../../common/constants";
   export default {
-    name: "OrganizationMember",
+    name: "MsOrganizationMember",
     components: {MsCreateBox},
     created() {
       this.initTableData();
