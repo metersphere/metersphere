@@ -87,7 +87,19 @@
         },
       }
     },
+    watch: {
+      '$route'(to) {
+        let isCreate = this.$route.query.isCreate;
+        if (isCreate) {
+          this.createVisible = true;
+        }
+      }
+    },
     mounted() {
+      let isCreate = this.$route.query.isCreate;
+      if (isCreate) {
+        this.createVisible = true;
+      }
       this.list();
     },
     destroyed() {

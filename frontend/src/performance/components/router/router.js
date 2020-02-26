@@ -93,6 +93,7 @@ const router = new VueRouter({
     },
     {
       path: "/project",
+      name: 'project',
       components: {
         content: MsProject
       }

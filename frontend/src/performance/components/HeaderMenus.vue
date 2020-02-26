@@ -13,6 +13,9 @@
         <font-awesome-icon :icon="['fa', 'list-ul']"/>
         <span style="padding-left: 5px;">显示全部</span>
       </el-menu-item>
+      <el-menu-item index="/project" :route="{name:'project', query:{isCreate:true}}">
+        <el-button type="text">创建项目</el-button>
+      </el-menu-item>
     </el-submenu>
     <el-submenu index="4" popper-class="submenu" v-permission="['test_manager', 'test_user']">
       <template slot="title">测试</template>
