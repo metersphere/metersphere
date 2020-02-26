@@ -13,7 +13,9 @@ import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserRoleDTO;
 import io.metersphere.service.UserService;
+import io.metersphere.user.SessionUser;
 import io.metersphere.user.SessionUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.util.List;
@@ -49,6 +51,17 @@ public class UserController {
     @PostMapping("/update")
     public void updateUser(@RequestBody User user) {
         userService.updateUser(user);
+    }
+
+    /**
+     * 修改登录用户信息
+     */
+    @PostMapping("/update/currentuser")
+    public UserDTO updateCurrentUser(@RequestBody User user) {
+        SessionUser sessionUser = SessionUtils.getUser();
+        BeanUtils.copyProperties(user, sessionUser);
+        userService.updateUser(user);
+        return SessionUtils.getUser();
     }
 
     @GetMapping("/role/list/{userId}")
