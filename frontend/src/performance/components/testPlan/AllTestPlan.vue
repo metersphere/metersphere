@@ -80,16 +80,13 @@
 
 <script>
   export default {
-    props: {
-      projectId: String,
-      projectName: String
-    },
     data() {
       return {
         result: {},
         queryPath: "/testplan/list",
         deletePath: "/testplan/delete",
         condition: "",
+        projectId: null,
         tableData: [],
         multipleSelection: [],
         currentPage: 1,
@@ -98,20 +95,32 @@
         loading: false,
       }
     },
+    watch: {
+      '$route'(to, from) {
+        window.console.log(to, from);
+        this.projectId = to.params.projectId;
+        this.initTableData();
+      }
+    },
     created: function () {
+      this.projectId = this.$route.params.projectId;
       this.initTableData();
     },
     methods: {
       initTableData() {
         let param = {
-          name: this.condition
+          name: this.condition,
         };
+
+        if (this.projectId !== 'all') {
+          param.projectId = this.projectId;
+        }
 
         this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
-        })
+        });
       },
       search() {
         this.initTableData();

@@ -18,6 +18,9 @@
             <if test="request.workspaceId != null">
                 AND project.workspace_id = #{request.workspaceId}
             </if>
+            <if test="request.projectId != null">
+                AND project.id = #{request.projectId}
+            </if>
         </where>
         <if test="request.recent">
             order by load_test.update_time desc

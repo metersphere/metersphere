@@ -85,11 +85,11 @@ const router = new VueRouter({
       }
     },
     {
-      path: "/allTest",
+      path: "/allTest/:projectId",
+      name: "allTest",
       components: {
         content: AllTestPlan
       },
-      props: true,
     },
     {
       path: "/project",
