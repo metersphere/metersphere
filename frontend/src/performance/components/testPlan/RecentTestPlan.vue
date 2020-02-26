@@ -12,7 +12,7 @@
 
 <script>
   export default {
-    name: "RecentTestPlan",
+    name: "MsRecentTestPlan",
     mounted() {
       this.$get('/testplan/recent/5', (response) => {
         this.recentTestPlans = response.data;

@@ -7,7 +7,7 @@
     </el-menu-item>
     <el-submenu index="3" popper-class="submenu" v-permission="['test_manager']">
       <template slot="title">项目</template>
-      <recent-project/>
+      <ms-recent-project/>
       <el-divider/>
       <el-menu-item index="/project">
         <font-awesome-icon :icon="['fa', 'list-ul']"/>
@@ -16,7 +16,7 @@
     </el-submenu>
     <el-submenu index="4" popper-class="submenu" v-permission="['test_manager', 'test_user']">
       <template slot="title">测试</template>
-      <recent-test-plan/>
+      <ms-recent-test-plan/>
       <el-divider/>
       <el-menu-item index="/allTest">
         <font-awesome-icon :icon="['fa', 'list-ul']"/>
@@ -36,12 +36,12 @@
 </template>
 
 <script>
-  import RecentTestPlan from "./testPlan/RecentTestPlan";
-  import RecentProject from "./project/RecentProject";
+  import MsRecentTestPlan from "./testPlan/RecentTestPlan";
+  import MsRecentProject from "./project/RecentProject";
 
   export default {
     name: "MsMenus",
-    components: {RecentTestPlan, RecentProject}
+    components: {MsRecentTestPlan, MsRecentProject}
   }
 </script>
 
