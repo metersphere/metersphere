@@ -92,8 +92,8 @@ const router = new VueRouter({
       }
     },
     {
-      path: "/allTest/:projectId",
-      name: "allTest",
+      path: "/loadtest/:projectId",
+      name: "loadtest",
       components: {
         content: AllTestPlan
       },

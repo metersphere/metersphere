@@ -6,7 +6,7 @@
     </div>
 
     <el-menu-item :key="p.id" v-for="p in recentProjects"
-                  :index="'/allTest/' + p.id" :route="{name:'allTest', params:{projectId:p.id, projectName:p.name}}">
+                  :index="'/loadtest/' + p.id" :route="{name:'loadtest', params:{projectId:p.id, projectName:p.name}}">
       {{ p.name }}
     </el-menu-item>
   </el-menu>

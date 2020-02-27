@@ -10,7 +10,7 @@
     <el-menu-item index="1" v-permission="['test_manager','test_user','test_viewer']">
       功能测试
     </el-menu-item>
-    <el-menu-item index="/allTest" onselectstart="return false"
+    <el-menu-item index="/loadtest" onselectstart="return false"
                   v-permission="['test_manager','test_user','test_viewer']">
       性能测试
     </el-menu-item>
