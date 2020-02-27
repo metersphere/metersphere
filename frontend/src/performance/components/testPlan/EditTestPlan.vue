@@ -48,7 +48,6 @@
       MsTestPlanPressureConfig,
       MsTestPlanAdvancedConfig,
     },
-    props: ['testPlanObj'],
     data() {
       return {
         result: {},
