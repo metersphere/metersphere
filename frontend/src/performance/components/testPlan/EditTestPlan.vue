@@ -77,6 +77,11 @@
     watch: {
       '$route'(to) {
         window.console.log(to);
+        // 如果是创建测试
+        if (to.name === 'createTest') {
+          window.location.reload();
+          return;
+        }
         let testId = to.path.split('/')[2]; // find testId
         this.$get('/testplan/get/' + testId, response => {
           this.testPlan = response.data;
