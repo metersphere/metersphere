@@ -6,6 +6,7 @@ import io.metersphere.dto.UserDTO;
 import io.metersphere.service.UserService;
 import io.metersphere.user.SessionUser;
 import io.metersphere.user.SessionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
@@ -13,6 +14,7 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Resource;
 import java.util.Set;
@@ -34,11 +36,15 @@ public class ShiroDBRealm extends AuthorizingRealm {
     @Resource
     private UserService userService;
 
+    @Value("${run.mode:release}")
+    private String runMode;
+
     /**
      * 权限认证
      */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
+
         String userName = (String) principals.getPrimaryPrincipal();
         SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
 
@@ -65,8 +71,17 @@ public class ShiroDBRealm extends AuthorizingRealm {
             logger.warn(msg);
             throw new UnknownAccountException(msg);
         }
-        // TODO 密码验证
-
+        // local test
+        if (StringUtils.equals("local", runMode)) {
+            SessionUser sessionUser = SessionUser.fromUser(user);
+            SessionUtils.putUser(sessionUser);
+            return new SimpleAuthenticationInfo(userId, password, getName());
+        }
+        // 密码验证
+        if (!userService.checkUserPassword(userId, password)) {
+            throw new IncorrectCredentialsException("The password is incorrect");
+        }
+        //
         SessionUser sessionUser = SessionUser.fromUser(user);
         SessionUtils.putUser(sessionUser);
         return new SimpleAuthenticationInfo(userId, password, getName());

@@ -5,13 +5,14 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="email" jdbcType="VARCHAR" property="email" />
-    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="language" jdbcType="VARCHAR" property="language" />
     <result column="last_workspace_id" jdbcType="VARCHAR" property="lastWorkspaceId" />
     <result column="last_organization_id" jdbcType="VARCHAR" property="lastOrganizationId" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -72,8 +73,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, name, email, phone, status, create_time, update_time, language, last_workspace_id, 
-    last_organization_id
+    id, name, email, password, status, create_time, update_time, language, last_workspace_id, 
+    last_organization_id, phone
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.UserExample" resultMap="BaseResultMap">
     select
@@ -107,13 +108,13 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.User">
     insert into user (id, name, email, 
-      phone, status, create_time, 
+      password, status, create_time, 
       update_time, language, last_workspace_id, 
-      last_organization_id)
+      last_organization_id, phone)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, 
-      #{phone,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{password,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
       #{updateTime,jdbcType=BIGINT}, #{language,jdbcType=VARCHAR}, #{lastWorkspaceId,jdbcType=VARCHAR}, 
-      #{lastOrganizationId,jdbcType=VARCHAR})
+      #{lastOrganizationId,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.User">
     insert into user
@@ -127,8 +128,8 @@
       <if test="email != null">
         email,
       </if>
-      <if test="phone != null">
-        phone,
+      <if test="password != null">
+        password,
       </if>
       <if test="status != null">
         status,
@@ -148,6 +149,9 @@
       <if test="lastOrganizationId != null">
         last_organization_id,
       </if>
+      <if test="phone != null">
+        phone,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -159,8 +163,8 @@
       <if test="email != null">
         #{email,jdbcType=VARCHAR},
       </if>
-      <if test="phone != null">
-        #{phone,jdbcType=VARCHAR},
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
       </if>
       <if test="status != null">
         #{status,jdbcType=VARCHAR},
@@ -179,6 +183,9 @@
       </if>
       <if test="lastOrganizationId != null">
         #{lastOrganizationId,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        #{phone,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -200,8 +207,8 @@
       <if test="record.email != null">
         email = #{record.email,jdbcType=VARCHAR},
       </if>
-      <if test="record.phone != null">
-        phone = #{record.phone,jdbcType=VARCHAR},
+      <if test="record.password != null">
+        password = #{record.password,jdbcType=VARCHAR},
       </if>
       <if test="record.status != null">
         status = #{record.status,jdbcType=VARCHAR},
@@ -221,6 +228,9 @@
       <if test="record.lastOrganizationId != null">
         last_organization_id = #{record.lastOrganizationId,jdbcType=VARCHAR},
       </if>
+      <if test="record.phone != null">
+        phone = #{record.phone,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -231,13 +241,14 @@
     set id = #{record.id,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
       email = #{record.email,jdbcType=VARCHAR},
-      phone = #{record.phone,jdbcType=VARCHAR},
+      password = #{record.password,jdbcType=VARCHAR},
       status = #{record.status,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       language = #{record.language,jdbcType=VARCHAR},
       last_workspace_id = #{record.lastWorkspaceId,jdbcType=VARCHAR},
-      last_organization_id = #{record.lastOrganizationId,jdbcType=VARCHAR}
+      last_organization_id = #{record.lastOrganizationId,jdbcType=VARCHAR},
+      phone = #{record.phone,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -251,8 +262,8 @@
       <if test="email != null">
         email = #{email,jdbcType=VARCHAR},
       </if>
-      <if test="phone != null">
-        phone = #{phone,jdbcType=VARCHAR},
+      <if test="password != null">
+        password = #{password,jdbcType=VARCHAR},
       </if>
       <if test="status != null">
         status = #{status,jdbcType=VARCHAR},
@@ -272,6 +283,9 @@
       <if test="lastOrganizationId != null">
         last_organization_id = #{lastOrganizationId,jdbcType=VARCHAR},
       </if>
+      <if test="phone != null">
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -279,13 +293,14 @@
     update user
     set name = #{name,jdbcType=VARCHAR},
       email = #{email,jdbcType=VARCHAR},
-      phone = #{phone,jdbcType=VARCHAR},
+      password = #{password,jdbcType=VARCHAR},
       status = #{status,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       language = #{language,jdbcType=VARCHAR},
       last_workspace_id = #{lastWorkspaceId,jdbcType=VARCHAR},
-      last_organization_id = #{lastOrganizationId,jdbcType=VARCHAR}
+      last_organization_id = #{lastOrganizationId,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

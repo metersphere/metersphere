@@ -9,7 +9,7 @@ public class User implements Serializable {
 
     private String email;
 
-    private String phone;
+    private String password;
 
     private String status;
 
@@ -22,6 +22,8 @@ public class User implements Serializable {
     private String lastWorkspaceId;
 
     private String lastOrganizationId;
+
+    private String phone;
 
     private static final long serialVersionUID = 1L;
 
@@ -49,12 +51,12 @@ public class User implements Serializable {
         this.email = email == null ? null : email.trim();
     }
 
-    public String getPhone() {
-        return phone;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone == null ? null : phone.trim();
+    public void setPassword(String password) {
+        this.password = password == null ? null : password.trim();
     }
 
     public String getStatus() {
@@ -103,5 +105,13 @@ public class User implements Serializable {
 
     public void setLastOrganizationId(String lastOrganizationId) {
         this.lastOrganizationId = lastOrganizationId == null ? null : lastOrganizationId.trim();
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone == null ? null : phone.trim();
     }
 }

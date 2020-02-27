@@ -5,6 +5,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.CodingUtil;
 import io.metersphere.controller.request.member.AddMemberRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
@@ -19,6 +20,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -219,7 +221,7 @@ public class UserService {
         return resultList;
     }
 
-    public void switchUserRole(UserDTO user,String sign,String sourceId) {
+    public void switchUserRole(UserDTO user, String sign, String sourceId) {
         User newUser = new User();
         if (StringUtils.equals("organization", sign)) {
             user.setLastOrganizationId(sourceId);
@@ -291,5 +293,17 @@ public class UserService {
 
     public List<User> getOrgMemberList(QueryOrgMemberRequest request) {
         return extUserRoleMapper.getOrgMemberList(request);
+    }
+
+    public boolean checkUserPassword(String userId, String password) {
+        if (StringUtils.isBlank(userId)) {
+            MSException.throwException("Username cannot be null");
+        }
+        if (StringUtils.isBlank(password)) {
+            MSException.throwException("Password cannot be null");
+        }
+        UserExample example = new UserExample();
+        example.createCriteria().andIdEqualTo(userId).andPasswordEqualTo(CodingUtil.md5(password));
+        return userMapper.countByExample(example) > 0;
     }
 }
