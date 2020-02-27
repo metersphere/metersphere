@@ -15,6 +15,12 @@ const en_US = {
     'prompt': 'Prompt',
     'operating': 'Operating',
     'input_limit': 'Within {0} and {1} characters',
+    'login': 'Sign In',
+    'welcome': 'Welcome back, please enter username and password to log in to MeterSphere',
+    'username': 'Username',
+    'password': 'Password',
+    'input_username': 'Please enter username',
+    'input_password': 'Please enter password',
   },
   workspace: {
     'create': 'Create Workspace',

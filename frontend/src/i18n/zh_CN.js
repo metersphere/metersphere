@@ -15,6 +15,12 @@ const zh_CN = {
     'prompt': '提示',
     'operating': '操作',
     'input_limit': '长度在 {0} 到 {1} 个字符',
+    'login': '登录',
+    'welcome': '欢迎回来，请输入用户名和密码登录MeterSphere',
+    'username': '用户名',
+    'password': '密码',
+    'input_username': '请输入用户名',
+    'input_password': '请输入密码',
   },
   workspace: {
     'create': '创建工作空间',

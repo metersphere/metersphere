@@ -7,25 +7,27 @@
             <img src="../assets/MeterSphere-彩色.png" style="width: 224px" alt="">
           </div>
           <div class="title">
-            <span id="s1">登录</span>
+            <span id="s1">{{$t('commons.login')}}</span>
             <span id="s2">MeterSphere</span>
           </div>
           <div class="border"></div>
           <div class="welcome">
-            欢迎回来，请输入用户名和密码登录MeterSphere
+            {{$t('commons.welcome')}}
           </div>
           <div class="form">
             <el-form-item prop="username">
-              <el-input v-model="form.username" placeholder="邮箱" autofocus autocomplete="off" maxlength="100"
+              <el-input v-model="form.username" :placeholder="$t('commons.username')" autofocus autocomplete="off"
+                        maxlength="100"
                         show-word-limit/>
             </el-form-item>
             <el-form-item prop="password">
-              <el-input v-model="form.password" placeholder="密码" show-password autocomplete="off"
+              <el-input v-model="form.password" :placeholder="$t('commons.password')" show-password autocomplete="off"
                         maxlength="20" show-word-limit/>
             </el-form-item>
           </div>
           <div class="btn">
-            <el-button type="primary" class="submit" @click="submit('form')">登录
+            <el-button type="primary" class="submit" @click="submit('form')">
+              {{$t('commons.login')}}
             </el-button>
           </div>
           <div class="msg">
@@ -48,7 +50,7 @@
   export default {
     name: "Login",
     data() {
-      let validateEmail = (rule, value, callback) => {
+      /*let validateEmail = (rule, value, callback) => {
         // eslint-disable-next-line no-useless-escape
         let EMAIL_REGEX = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         if (!EMAIL_REGEX.test(value)) {
@@ -56,7 +58,7 @@
         } else {
           callback();
         }
-      };
+      };*/
       return {
         form: {
           username: '',
@@ -64,12 +66,11 @@
         },
         rules: {
           username: [
-            {required: true, message: '请输入邮箱', trigger: 'blur'},
-            {validator: validateEmail, trigger: 'blur'}
+            {required: true, message: this.$t('commons.input_username'), trigger: 'blur'},
           ],
           password: [
-            {required: true, message: '请输入密码', trigger: 'blur'},
-            {min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur'}
+            {required: true, message: this.$t('commons.input_password'), trigger: 'blur'},
+            {min: 6, max: 20, message: this.$t('commons.input_limit', [6, 20]), trigger: 'blur'}
           ]
         },
         msg: '',
