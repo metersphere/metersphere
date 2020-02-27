@@ -17,7 +17,6 @@ const zh_TW = {
     'delete_confirm': '这个工作空间确定要删除吗?',
     'add': '添加工作空间',
     'input_name': '请输入工作空间名称',
-    'input_name_2_50': '长度在 2 到 50 个字符',
     'search_by_name': '根据名称搜索',
     'organization_name': '所属组织',
     'please_choose_organization': '请选择组织',

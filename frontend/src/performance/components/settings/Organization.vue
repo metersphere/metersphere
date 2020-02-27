@@ -101,7 +101,7 @@
         rule: {
           name: [
             {required: true, message: this.$t('organization.input_name'), trigger: 'blur'},
-            { min: 2, max: 10, message: this.$t('organization.input_name_2_50'), trigger: 'blur' },
+            { min: 2, max: 10, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur' },
             {
               required: true,
               pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/,
@@ -110,7 +110,7 @@
             }
           ],
           description: [
-            { max: 50, message: this.$t('organization.input_name_2_50'), trigger: 'blur'}
+            { max: 50, message: this.$t('commons.input_limit', [0, 50]), trigger: 'blur'}
           ]
         }
       }

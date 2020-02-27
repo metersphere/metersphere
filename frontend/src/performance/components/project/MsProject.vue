@@ -82,7 +82,7 @@
         rules: {
           name: [
             {required: true, message: this.$t('project.input_name'), trigger: 'blur'},
-            {min: 2, max: 50, message: this.$t('project.input_name_2_50'), trigger: 'blur'}
+            {min: 2, max: 50, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'}
           ]
         },
       }

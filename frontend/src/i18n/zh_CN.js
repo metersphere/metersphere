@@ -21,7 +21,6 @@ const zh_CN = {
     'delete_confirm': '这个工作空间确定要删除吗?',
     'add': '添加工作空间',
     'input_name': '请输入工作空间名称',
-    'input_name_2_50': '长度在 2 到 50 个字符',
     'search_by_name': '根据名称搜索',
     'organization_name': '所属组织',
     'please_choose_organization': '请选择组织',
@@ -31,7 +30,6 @@ const zh_CN = {
     'modify': '修改组织',
     'delete_confirm': '这个组织确定要删除吗?',
     'input_name': '请输入组织名称',
-    'input_name_2_50': '长度在 2 到 50 个字符',
     'search_by_name': '根据名称搜索',
     'special_characters_are_not_supported': '不支持特殊字符',
   },
@@ -41,7 +39,6 @@ const zh_CN = {
     'delete_confirm': '这个项目确定要删除吗?',
     'search_by_name': '根据名称搜索',
     'input_name': '请输入项目名称',
-    'input_name_2_50': '长度在 2 到 50 个字符',
   },
   i18n: {
     'home': '首页',
