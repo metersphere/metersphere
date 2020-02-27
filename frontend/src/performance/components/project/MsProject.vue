@@ -88,7 +88,7 @@
       }
     },
     watch: {
-      '$route'(to) {
+      '$route'() {
         let isCreate = this.$route.query.isCreate;
         if (isCreate) {
           this.createVisible = true;
