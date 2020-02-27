@@ -15,9 +15,7 @@
       <div class="el-upload__tip" slot="tip">{{$t('load_test.upload_type')}}</div>
     </el-upload>
 
-    <el-table
-      :data="tableData"
-      style="width: 100%">
+    <el-table class="basic-config" :data="tableData">
       <el-table-column
         prop="name"
         :label="$t('load_test.file_name')">
@@ -34,7 +32,7 @@
         :label="$t('load_test.last_modify_time')">
         <template slot-scope="scope">
           <i class="el-icon-time"/>
-          <span style="margin-left: 10px">{{ scope.row.lastModified | timestampFormatDate }}</span>
+          <span class="last-modified">{{ scope.row.lastModified | timestampFormatDate }}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -105,7 +103,7 @@
             name: file.name,
             size: file.size + 'Byte', /// todo: 按照大小显示Byte、KB、MB等
             type: 'JMX',
-            lastModified: file.lastModified,
+            lastModified: file.updateTime,
             status: 'todo',
           });
         })
@@ -184,3 +182,13 @@
     },
   }
 </script>
+
+<style scoped>
+  .basic-config {
+    width: 100%
+  }
+
+  .last-modified {
+    margin-left: 5px;
+  }
+</style>
