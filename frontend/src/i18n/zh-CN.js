@@ -1,4 +1,4 @@
-const zh_CN = {
+export default {
   commons: {
     'workspace': '工作空间',
     'organization': '组织',
@@ -89,5 +89,3 @@ const zh_CN = {
     'home': '首页',
   }
 };
-
-export default zh_CN

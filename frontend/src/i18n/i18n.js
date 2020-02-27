@@ -4,29 +4,29 @@ import axios from "axios";
 import enLocale from "element-ui/lib/locale/lang/en";
 import zh_CNLocale from "element-ui/lib/locale/lang/zh-CN";
 import zh_TWLocale from "element-ui/lib/locale/lang/zh-TW";
-import zh_CN from "./zh_CN";
+import zh_CN from "./zh-CN";
 
 Vue.use(VueI18n);
 
 const messages = {
-  'en_US': {
+  'en-US': {
     ...enLocale
   },
-  'zh_CN': {
+  'zh-CN': {
     ...zh_CN,
     ...zh_CNLocale
   },
-  'zh_TW': {
+  'zh-TW': {
     ...zh_TWLocale
   }
 };
 
 const i18n = new VueI18n({
-  locale: 'zh_CN',
+  locale: 'zh-CN',
   messages,
 });
 
-const loadedLanguages = ['zh_CN'];
+const loadedLanguages = ['zh-CN'];
 
 function setI18nLanguage(lang) {
   i18n.locale = lang;

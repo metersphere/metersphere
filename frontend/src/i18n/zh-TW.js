@@ -1,4 +1,4 @@
-const zh_TW = {
+export default {
   commons: {
     'workspace': '工作空间',
     'organization': '组织',
@@ -33,5 +33,3 @@ const zh_TW = {
     'home': '首页',
   }
 };
-
-export default zh_TW
