@@ -1,4 +1,4 @@
-const en_US = {
+export default {
   commons: {
     'workspace': 'Workspace',
     'organization': 'Organization',
@@ -70,5 +70,3 @@ const en_US = {
     'home': 'Home',
   }
 };
-
-export default en_US

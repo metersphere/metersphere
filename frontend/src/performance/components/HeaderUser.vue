@@ -77,7 +77,7 @@
       handleCommand(command) {
         switch (command) {
           case "personal":
-            this.$setLang("en_US");
+            this.$setLang("en-US");
             break;
           case "logout":
             this.$get("/signout", function () {
