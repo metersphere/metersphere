@@ -75,7 +75,9 @@
     },
     watch: {
       testPlan() {
-        this.getFileMetadata(this.testPlan);
+        if (this.testPlan.id) {
+          this.getFileMetadata(this.testPlan)
+        }
       }
     },
     methods: {
