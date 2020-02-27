@@ -13,7 +13,7 @@
           </span>
           </el-row>
         </div>
-        <el-table :data="tableData" style="width: 100%">
+        <el-table :data="tableData" class="test-content">
           <el-table-column
             type="selection"
             width="55">
@@ -185,6 +185,10 @@
     margin: 0 auto;
     width: 100%;
     max-width: 1200px;
+  }
+
+  .test-content {
+    width: 100%;
   }
 
   .table-page {
