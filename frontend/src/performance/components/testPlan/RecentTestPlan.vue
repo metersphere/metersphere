@@ -1,11 +1,11 @@
 <template>
-  <el-menu>
+  <el-menu router menu-trigger="click" :default-active="$route.path">
     <div class="recent-text">
       <i class="el-icon-time"/>
       最近的测试
     </div>
-    <el-menu-item :key="recentTestPlan.id" v-for="recentTestPlan in recentTestPlans">
-      {{ recentTestPlan.name }}
+    <el-menu-item :key="t.id" v-for="t in recentTestPlans" :index="'/editTest/' + t.id">
+      {{ t.name }}
     </el-menu-item>
   </el-menu>
 </template>

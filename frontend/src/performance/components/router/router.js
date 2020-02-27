@@ -4,7 +4,7 @@ import RouterSidebar from "./RouterSidebar";
 import Setting from "../settings/Setting";
 import Workspace from "../settings/Workspace";
 import User from "../settings/User";
-import CreateTestPlan from "../testPlan/CreateTestPlan";
+import EditTestPlan from "../testPlan/EditTestPlan";
 import AllTestPlan from "../testPlan/AllTestPlan";
 import Organization from "../settings/Organization";
 import OrganizationMember from "../settings/OrganizationMember";
@@ -74,7 +74,14 @@ const router = new VueRouter({
       path: "/createTest",
       name: "createTest",
       components: {
-        content: CreateTestPlan
+        content: EditTestPlan
+      }
+    },
+    {
+      path: "/editTest/:testId",
+      name: "editTest",
+      components: {
+        content: EditTestPlan
       },
       props: {
         content: (route) => {

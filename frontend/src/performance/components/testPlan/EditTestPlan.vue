@@ -1,48 +1,52 @@
 <template>
   <div class="edit-testplan-container" v-loading="result.loading">
-    <el-row>
-      <el-col :span="10">
-        <el-input placeholder="请输入名称" v-model="testPlan.name" class="input-with-select">
-          <el-select v-model="testPlan.projectId" slot="prepend" placeholder="请选择项目">
-            <el-option
-              v-for="item in projects"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id">
-            </el-option>
-          </el-select>
-        </el-input>
-      </el-col>
-      <el-button type="primary" plain @click="save">保存</el-button>
-      <el-button type="primary" plain @click="saveAndRun">保存并执行</el-button>
-      <el-button type="warning" plain @click="cancel">取消</el-button>
-    </el-row>
+    <div class="main-content">
+      <el-card>
+        <el-row>
+          <el-col :span="10">
+            <el-input placeholder="请输入名称" v-model="testPlan.name" class="input-with-select">
+              <el-select v-model="testPlan.projectId" slot="prepend" placeholder="请选择项目">
+                <el-option
+                  v-for="item in projects"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </el-input>
+          </el-col>
+          <el-button type="primary" plain @click="save">保存</el-button>
+          <el-button type="primary" plain @click="saveAndRun">保存并执行</el-button>
+          <el-button type="warning" plain @click="cancel">取消</el-button>
+        </el-row>
 
-    <el-tabs v-model="active" type="border-card" :stretch="true">
-      <el-tab-pane label="基础配置">
-        <test-plan-basic-config :test-plan="testPlan"/>
-      </el-tab-pane>
-      <el-tab-pane label="压力配置">
-        <test-plan-pressure-config :test-plan="testPlan"/>
-      </el-tab-pane>
-      <el-tab-pane label="高级配置">
-        <test-plan-advanced-config/>
-      </el-tab-pane>
-    </el-tabs>
+        <el-tabs v-model="active" type="border-card" :stretch="true">
+          <el-tab-pane label="基础配置">
+            <ms-test-plan-basic-config :test-plan="testPlan"/>
+          </el-tab-pane>
+          <el-tab-pane label="压力配置">
+            <ms-test-plan-pressure-config :test-plan="testPlan"/>
+          </el-tab-pane>
+          <el-tab-pane label="高级配置">
+            <ms-test-plan-advanced-config/>
+          </el-tab-pane>
+        </el-tabs>
+      </el-card>
+    </div>
   </div>
 </template>
 
 <script>
-  import TestPlanBasicConfig from './components/BasicConfig';
-  import TestPlanPressureConfig from './components/PressureConfig';
-  import TestPlanAdvancedConfig from './components/AdvancedConfig';
+  import MsTestPlanBasicConfig from './components/BasicConfig';
+  import MsTestPlanPressureConfig from './components/PressureConfig';
+  import MsTestPlanAdvancedConfig from './components/AdvancedConfig';
 
   export default {
-    name: "CreateTestPlan",
+    name: "MsEditTestPlan",
     components: {
-      TestPlanBasicConfig,
-      TestPlanPressureConfig,
-      TestPlanAdvancedConfig,
+      MsTestPlanBasicConfig,
+      MsTestPlanPressureConfig,
+      MsTestPlanAdvancedConfig,
     },
     props: ['testPlanObj'],
     data() {
@@ -70,10 +74,25 @@
         }]
       }
     },
-    created() {
-      if (this.testPlanObj) {
-        this.testPlan = this.testPlanObj;
+    watch: {
+      '$route'(to) {
+        window.console.log(to);
+        let testId = to.path.split('/')[2]; // find testId
+        this.$get('/testplan/get/' + testId, response => {
+          this.testPlan = response.data;
+        });
       }
+
+    },
+    created() {
+      let testId = this.$route.path.split('/')[2];
+      window.console.log(testId);
+      if (testId) {
+        this.$get('/testplan/get/' + testId, response => {
+          this.testPlan = response.data;
+        });
+      }
+
       this.listProjects();
     },
     methods: {
@@ -185,9 +204,19 @@
 </script>
 
 <style>
-  .edit-testplan-container .el-tabs__nav {
+  .edit-testplan-container {
     float: none;
     text-align: center;
+    padding: 15px;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+  }
+
+  .main-content {
+    margin: 0 auto;
+    width: 100%;
+    max-width: 1200px;
   }
 
   .edit-testplan-container .el-select .el-input {

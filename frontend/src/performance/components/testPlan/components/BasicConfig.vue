@@ -56,7 +56,7 @@
   import {Message} from "element-ui";
 
   export default {
-    name: "TestPlanBasicConfig",
+    name: "MsTestPlanBasicConfig",
     props: ["testPlan"],
     data() {
       return {
@@ -73,8 +73,15 @@
         this.getFileMetadata(this.testPlan)
       }
     },
+    watch: {
+      testPlan() {
+        this.getFileMetadata(this.testPlan);
+      }
+    },
     methods: {
       getFileMetadata(testPlan) {
+        this.fileList = [];// 一个测试只有一个文件
+        this.tableData = [];// 一个测试只有一个文件
         this.result = this.$get(this.getFileMetadataPath + "/" + testPlan.id, response => {
           let file = response.data;
 
@@ -84,7 +91,6 @@
           }
 
           this.testPlan.file = file;
-
           this.fileList.push({
             id: file.id,
             name: file.name

@@ -93,6 +93,7 @@
         pageSize: 5,
         total: 0,
         loading: false,
+        testId: null,
       }
     },
     watch: {
@@ -140,8 +141,9 @@
       },
       handleEdit(testPlan) {
         this.$router.push({
-          name: 'createTest',
+          path: '/editTest/' + testPlan.id,
           params: {
+            testId: testPlan.id,
             testPlanObj: testPlan
           }
         })

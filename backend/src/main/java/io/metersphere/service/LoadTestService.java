@@ -195,5 +195,15 @@ public class LoadTestService {
         // 查询最近的测试计划
         request.setRecent(true);
         return extLoadTestMapper.list(request);
-     }
+    }
+
+    public LoadTestDTO get(String testId) {
+        QueryTestPlanRequest request = new QueryTestPlanRequest();
+        request.setId(testId);
+        List<LoadTestDTO> testDTOS = extLoadTestMapper.list(request);
+        if (!CollectionUtils.isEmpty(testDTOS)) {
+            return testDTOS.get(0);
+        }
+        return null;
+    }
 }

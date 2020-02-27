@@ -21,6 +21,9 @@
             <if test="request.projectId != null">
                 AND project.id = #{request.projectId}
             </if>
+            <if test="request.id != null">
+                AND load_test.id = #{request.id}
+            </if>
         </where>
         <if test="request.recent">
             order by load_test.update_time desc

@@ -64,6 +64,11 @@ public class LoadTestController {
         return loadTestService.edit(request, file);
     }
 
+    @GetMapping("/get/{testId}")
+    public LoadTestDTO get(@PathVariable String testId) {
+        return loadTestService.get(testId);
+    }
+
     @PostMapping("/delete")
     public void delete(@RequestBody DeleteTestPlanRequest request) {
         loadTestService.delete(request);

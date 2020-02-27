@@ -92,10 +92,10 @@
 
 <script>
   export default {
-    name: "TestPlanPressureConfig",
-    props: ["testPlan"],
+    name: "MsTestPlanPressureConfig",
     data() {
       return {
+        testPlan: {},
         threadNumber: 2,
         duration: 3,
         rampUpTime: 12,
@@ -106,6 +106,11 @@
     created() {
       this.testPlan.loadConfigurationObj = [];
       this.convertProperty();
+    },
+    watch: {
+      testPlan() {
+        this.convertProperty();
+      }
     },
     methods: {
       convertProperty() {
