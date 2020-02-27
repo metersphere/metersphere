@@ -61,6 +61,16 @@
             </el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="角色" prop="roleIds">
+          <el-select v-model="form.roleIds" multiple placeholder="请选择角色" class="select-width">
+            <el-option
+              v-for="item in form.roles"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm('form')" size="medium">保存</el-button>
@@ -91,6 +101,9 @@
         rules: {
           userIds: [
             {required: true, message: '请选择成员', trigger: ['blur', 'change']}
+          ],
+          roleIds: [
+            {required: true, message: '请选择角色', trigger: ['blur', 'change']}
           ]
         },
         multipleSelection: [],
@@ -130,9 +143,11 @@
       },
       handleSizeChange(size) {
         this.pageSize = size;
+        this.initTableData();
       },
       handleCurrentChange(current) {
         this.currentPage = current;
+        this.initTableData();
       },
       del(row) {
         this.$confirm('是否删除用户 ' + row.name + ' ?', '', {
@@ -157,7 +172,10 @@
       create() {
         this.result = this.$get('/user/list', response => {
             this.createVisible = true;
-            this.form = {userList: response.data};
+          this.$set(this.form, "userList", response.data);
+        });
+        this.result = this.$get('/role/list/org', response => {
+          this.$set(this.form, "roles", response.data);
         })
       },
       submitForm(formName) {
@@ -166,6 +184,7 @@
           if (valid) {
             let param = {
               userIds: this.form.userIds,
+              roleIds: this.form.roleIds,
               organizationId: this.currentUser().lastOrganizationId
             };
             this.result = this.$post("user/orgmember/add", param,() => {
