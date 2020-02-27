@@ -1,5 +1,6 @@
 package io.metersphere.base.mapper.ext;
 
+import io.metersphere.base.domain.Role;
 import io.metersphere.base.domain.User;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
@@ -18,6 +19,8 @@ public interface ExtUserRoleMapper {
     List<User> getOrgMemberList(@Param("orgMember") QueryOrgMemberRequest request);
 
     List<OrganizationMemberDTO> getOrganizationMemberDTO(@Param("orgMember") QueryOrgMemberRequest request);
+
+    List<Role> getOrganizationMemberRoles(@Param("orgId") String orgId, @Param("userId") String userId);
 
 
 }

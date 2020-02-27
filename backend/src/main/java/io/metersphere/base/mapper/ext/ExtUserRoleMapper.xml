@@ -63,6 +63,14 @@
          where o.id = #{orgMember.organizationId}
     </select>
 
+    <select id="getOrganizationMemberRoles" resultType="io.metersphere.base.domain.Role">
+        select r.id, r.name
+          from organization o
+          join user_role ur on o.id = ur.source_id
+          join role r on r.id = ur.role_id
+         where o.id = #{orgId} and ur.user_id = #{userId}
+    </select>
+
 
 
 </mapper>

@@ -85,7 +85,7 @@
         btnTips: "添加组织成员",
         createVisible: false,
         form: {},
-        queryPath: "/user/orgmemberdto/list",
+        queryPath: "/user/orgmember/list",
         condition: "",
         tableData: [],
         rules: {
@@ -111,8 +111,15 @@
         };
         this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
           let data = response.data;
-          this.total = data.itemCount;
           this.tableData = data.listObject;
+          let url = "/userrole/list/" + this.currentUser().lastOrganizationId;
+          for (let i = 0; i < this.tableData.length; i++) {
+            this.$get(url + "/" + this.tableData[i].id, response => {
+              let roles = response.data;
+              this.$set(this.tableData[i], "roles", roles);
+            })
+          }
+          this.total = data.itemCount;
         })
       },
       buildPagePath(path) {
