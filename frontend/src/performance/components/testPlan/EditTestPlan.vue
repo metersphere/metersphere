@@ -21,7 +21,7 @@
         </el-row>
 
 
-        <el-tabs style="margin-top: 15px;" v-model="active" type="border-card" :stretch="true">
+        <el-tabs class="testplan-config" v-model="active" type="border-card" :stretch="true">
           <el-tab-pane label="基础配置">
             <ms-test-plan-basic-config :test-plan="testPlan"/>
           </el-tab-pane>
@@ -208,7 +208,7 @@
   }
 </script>
 
-<style>
+<style scoped>
   .edit-testplan-container {
     float: none;
     text-align: center;
@@ -218,14 +218,18 @@
     box-sizing: border-box;
   }
 
-  .main-content {
+  .edit-testplan-container .main-content {
     margin: 0 auto;
     width: 100%;
     max-width: 1200px;
   }
 
-  .edit-testplan-container .el-select .el-input {
-    width: 130px;
+  .edit-testplan-container .testplan-config {
+    margin-top: 15px;
+  }
+
+  .el-select {
+    min-width: 130px;
   }
 
   .edit-testplan-container .input-with-select .el-input-group__prepend {
