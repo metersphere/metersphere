@@ -5,12 +5,12 @@
         <el-form :inline="true">
           <el-col :span="12">
             <el-form-item>
-              <div class="config-form-label">并发用户数：</div>
+              <div class="config-form-label">{{$t('load_test.thread_num')}}</div>
             </el-form-item>
             <el-form-item>
               <el-input
                 type="number"
-                placeholder="请输入线程数"
+                :placeholder="$t('load_test.input_thread_num')"
                 v-model="threadNumber"
                 @click="convertProperty"
                 show-word-limit
@@ -20,12 +20,12 @@
           </el-col>
           <el-col :span="12">
             <el-form-item>
-              <div class="config-form-label">压测时长（分钟）：</div>
+              <div class="config-form-label">{{$t('load_test.duration')}}</div>
             </el-form-item>
             <el-form-item>
               <el-input
                 type="number"
-                placeholder="请输入时长"
+                :placeholder="$t('load_test.duration')"
                 v-model="duration"
                 @click="convertProperty"
                 show-word-limit
@@ -37,12 +37,12 @@
             <el-form-item>
               <el-col>
                 <el-form-item>
-                  <div class="config-form-label">RPS上限：</div>
+                  <div class="config-form-label">{{$t('load_test.rps_limit')}}</div>
                 </el-form-item>
                 <el-form-item>
                   <el-input
                     type="number"
-                    placeholder="请输入限制"
+                    :placeholder="$t('load_test.input_rps_limit')"
                     v-model="rpsLimit"
                     @click="convertProperty"
                     show-word-limit
@@ -56,7 +56,7 @@
 
         <el-form :inline="true" class="input-bottom-border">
           <el-form-item>
-            <div>在</div>
+            <div>{{$t('load_test.ramp_up_time_within')}}</div>
           </el-form-item>
           <el-form-item>
             <el-input
@@ -69,7 +69,7 @@
             </el-input>
           </el-form-item>
           <el-form-item>
-            <div>分钟内，分</div>
+            <div>{{$t('load_test.ramp_up_time_minutes')}}</div>
           </el-form-item>
           <el-form-item>
             <el-input
@@ -82,7 +82,7 @@
             </el-input>
           </el-form-item>
           <el-form-item>
-            <div>次增加并发用户</div>
+            <div>{{$t('load_test.ramp_up_time_times')}}</div>
           </el-form-item>
         </el-form>
       </el-col>

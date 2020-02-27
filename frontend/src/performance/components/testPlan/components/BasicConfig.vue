@@ -11,8 +11,8 @@
       :on-exceed="handleExceed"
       :file-list="fileList">
       <i class="el-icon-upload"/>
-      <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-      <div class="el-upload__tip" slot="tip">只能上传jmx文件</div>
+      <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
+      <div class="el-upload__tip" slot="tip">{{$t('load_test.upload_type')}}</div>
     </el-upload>
 
     <el-table
@@ -20,18 +20,18 @@
       style="width: 100%">
       <el-table-column
         prop="name"
-        label="文件名">
+        :label="$t('load_test.file_name')">
       </el-table-column>
       <el-table-column
         prop="size"
-        label="文件大小">
+        :label="$t('load_test.file_size')">
       </el-table-column>
       <el-table-column
         prop="type"
-        label="文件类型">
+        :label="$t('load_test.file_type')">
       </el-table-column>
       <el-table-column
-        label="修改时间">
+        :label="$t('load_test.last_modify_time')">
         <template slot-scope="scope">
           <i class="el-icon-time"/>
           <span style="margin-left: 10px">{{ scope.row.lastModified | timestampFormatDate }}</span>
@@ -39,13 +39,15 @@
       </el-table-column>
       <el-table-column
         prop="status"
-        label="文件状态">
+        :label="$t('load_test.file_status')">
       </el-table-column>
       <el-table-column
-        label="操作">
+        :label="$t('commons.operating')">
         <template slot-scope="scope">
-          <el-button @click="handleDownload(scope.row)" type="text" size="small">下载</el-button>
-          <el-button @click="handleDelete(scope.row, scope.$index)" type="text" size="small">删除</el-button>
+          <el-button @click="handleDownload(scope.row)" :disabled="!scope.row.id" type="primary" icon="el-icon-download"
+                     size="mini" circle/>
+          <el-button @click="handleDelete(scope.row, scope.$index)" type="danger" icon="el-icon-delete" size="mini"
+                     circle/>
         </template>
       </el-table-column>
     </el-table>
@@ -88,7 +90,7 @@
           let file = response.data;
 
           if (!file) {
-            Message.error({message: "未找到关联的测试文件！", showClose: true});
+            Message.error({message: this.$t('load_test.related_file_not_found'), showClose: true});
             return;
           }
 
@@ -158,8 +160,8 @@
         });
       },
       handleDelete(file, index) {
-        this.$alert('确认删除文件: ' + file.name + "？", '', {
-          confirmButtonText: '确定',
+        this.$alert(this.$t('commons.delete_file_confirm') + file.name + "？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
               this._handleDelete(file, index);
@@ -173,7 +175,7 @@
         this.testPlan.file = null;
       },
       handleExceed() {
-        this.$message.error("请先删除已存在的文件！");
+        this.$message.error(this.$t('load_test.delete_file'));
       },
       fileValidator(file) {
         /// todo: 是否需要对文件内容和大小做限制
