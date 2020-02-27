@@ -139,11 +139,12 @@
           confirmButtonText: this.$t('commons.confirm'),
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
-        }, () => {
+        }).then(() => {
           this.$get('/project/delete/' + row.id, () => {
             Message.success(this.$t('commons.delete_success'));
             this.list();
           });
+        }).catch(() => {
         });
       },
       list() {
