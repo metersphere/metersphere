@@ -10,6 +10,7 @@ import io.metersphere.controller.request.member.AddMemberRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
+import io.metersphere.dto.OrganizationMemberDTO;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserRoleDTO;
 import io.metersphere.dto.UserRoleHelpDTO;
@@ -305,5 +306,9 @@ public class UserService {
         UserExample example = new UserExample();
         example.createCriteria().andIdEqualTo(userId).andPasswordEqualTo(CodingUtil.md5(password));
         return userMapper.countByExample(example) > 0;
+    }
+
+    public List<OrganizationMemberDTO> getOrganizationMemberDTO(QueryOrgMemberRequest request) {
+        return extUserRoleMapper.getOrganizationMemberDTO(request);
     }
 }
