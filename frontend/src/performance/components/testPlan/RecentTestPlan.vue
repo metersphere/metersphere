@@ -2,7 +2,7 @@
   <el-menu router menu-trigger="click" :default-active="$route.path">
     <div class="recent-text">
       <i class="el-icon-time"/>
-      最近的测试
+      {{$t('load_test.recent')}}
     </div>
     <el-menu-item :key="t.id" v-for="t in recentTestPlans" :index="'/editTest/' + t.id">
       {{ t.name }}

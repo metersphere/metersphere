@@ -4,8 +4,8 @@
       <el-card>
         <el-row>
           <el-col :span="10">
-            <el-input placeholder="请输入名称" v-model="testPlan.name" class="input-with-select">
-              <el-select v-model="testPlan.projectId" slot="prepend" placeholder="请选择项目">
+            <el-input :placeholder="$t('load_test.input_name')" v-model="testPlan.name" class="input-with-select">
+              <el-select v-model="testPlan.projectId" slot="prepend" :placeholder="$t('load_test.select_project')">
                 <el-option
                   v-for="item in projects"
                   :key="item.id"
@@ -15,20 +15,20 @@
               </el-select>
             </el-input>
           </el-col>
-          <el-button type="primary" plain @click="save">保存</el-button>
-          <el-button type="primary" plain @click="saveAndRun">保存并执行</el-button>
-          <el-button type="warning" plain @click="cancel">取消</el-button>
+          <el-button type="primary" plain @click="save">{{$t('commons.save')}}</el-button>
+          <el-button type="primary" plain @click="saveAndRun">{{$t('load_test.save_and_run')}}</el-button>
+          <el-button type="warning" plain @click="cancel">{{$t('commons.cancel')}}</el-button>
         </el-row>
 
 
         <el-tabs class="testplan-config" v-model="active" type="border-card" :stretch="true">
-          <el-tab-pane label="基础配置">
+          <el-tab-pane :label="$t('load_test.basic_config')">
             <ms-test-plan-basic-config :test-plan="testPlan"/>
           </el-tab-pane>
-          <el-tab-pane label="压力配置">
+          <el-tab-pane :label="$t('load_test.pressure_config')">
             <ms-test-plan-pressure-config :test-plan="testPlan"/>
           </el-tab-pane>
-          <el-tab-pane label="高级配置">
+          <el-tab-pane :label="$t('load_test.advanced_config')">
             <ms-test-plan-advanced-config/>
           </el-tab-pane>
         </el-tabs>
@@ -61,15 +61,15 @@
         projects: [],
         active: '0',
         tabs: [{
-          title: '场景配置',
+          title: this.$t('load_test.basic_config'),
           id: '0',
           component: 'BasicConfig'
         }, {
-          title: '压力配置',
+          title: this.$t('load_test.pressure_config'),
           id: '1',
           component: 'PressureConfig'
         }, {
-          title: '高级配置',
+          title: this.$t('load_test.advanced_config'),
           id: '2',
           component: 'AdvancedConfig'
         }]
@@ -115,7 +115,7 @@
 
         this.result = this.$request(options, () => {
           this.$message({
-            message: '保存成功！',
+            message: this.$t('commons.save_success'),
             type: 'success'
           });
         });
@@ -130,13 +130,13 @@
         this.result = this.$request(options, (response) => {
           this.testPlan.id = response.data;
           this.$message({
-            message: '保存成功！',
+            message: this.$t('commons.save_success'),
             type: 'success'
           });
 
           this.result = this.$post(this.runPath, {id: this.testPlan.id}).then(() => {
             this.$message({
-              message: '正在运行！',
+              message: this.$t('load_test.is_running'),
               type: 'success'
             });
           })
@@ -176,7 +176,7 @@
       validTestPlan() {
         if (!this.testPlan.name) {
           this.$message({
-            message: '测试名称不能为空！',
+            message: this.$t('load_test.test_name_is_null'),
             type: 'error'
           });
 
@@ -185,7 +185,7 @@
 
         if (!this.testPlan.projectId) {
           this.$message({
-            message: '项目不能为空！',
+            message: this.$t('load_test.project_is_null'),
             type: 'error'
           });
 
@@ -194,7 +194,7 @@
 
         if (!this.testPlan.file) {
           this.$message({
-            message: 'jmx文件不能为空！',
+            message: this.$t('load_test.jmx_is_null'),
             type: 'error'
           });
 

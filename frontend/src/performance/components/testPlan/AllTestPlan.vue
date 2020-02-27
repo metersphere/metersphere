@@ -4,9 +4,11 @@
       <el-card>
         <div slot="header">
           <el-row type="flex" justify="space-between" align="middle">
-            <span class="title">测试</span>
+            <span class="title">{{$t('commons.test')}}</span>
             <span class="search">
-            <el-input type="text" size="small" placeholder="根据名称搜索" prefix-icon="el-icon-search" maxlength="60"
+            <el-input type="text" size="small" :placeholder="$t('load_test.search_by_name')"
+                      prefix-icon="el-icon-search"
+                      maxlength="60"
                       v-model="condition" @change="search" clearable/>
           </span>
           </el-row>
@@ -18,41 +20,41 @@
           </el-table-column>
           <el-table-column
             prop="name"
-            label="名称"
+            :label="$t('commons.name')"
             width="150"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
             prop="description"
-            label="描述"
+            :label="$t('commons.description')"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
             prop="projectName"
-            label="所属项目"
+            :label="$t('load_test.project_name')"
             width="150"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
             width="250"
-            label="创建时间">
+            :label="$t('commons.create_time')">
             <template slot-scope="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
           <el-table-column
             width="250"
-            label="更新时间">
+            :label="$t('commons.update_time')">
             <template slot-scope="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
           <el-table-column
             width="150"
-            label="操作">
+            :label="$t('commons.operating')">
             <template slot-scope="scope">
-              <el-button @click="handleEdit(scope.row)" type="text" size="small">编辑</el-button>
-              <el-button @click="handleDelete(scope.row)" type="text" size="small">删除</el-button>
+              <el-button @click="handleEdit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
+              <el-button @click="handleDelete(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
             </template>
           </el-table-column>
         </el-table>
@@ -145,8 +147,8 @@
         })
       },
       handleDelete(testPlan) {
-        this.$alert('确认删除测试: ' + testPlan.name + "？", '', {
-          confirmButtonText: '确定',
+        this.$alert(this.$t('load_test.delete_confirm') + testPlan.name + "？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
               this._handleDelete(testPlan);
@@ -161,7 +163,7 @@
 
         this.result = this.$post(this.deletePath, data, () => {
           this.$message({
-            message: '删除成功！',
+            message: this.$t('commons.delete_success'),
             type: 'success'
           });
           this.initTableData();
