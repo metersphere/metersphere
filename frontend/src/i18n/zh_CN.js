@@ -42,6 +42,7 @@ const zh_CN = {
   project: {
     'recent': '最近的项目',
     'create': '创建项目',
+    'edit': '编辑项目',
     'delete_confirm': '这个项目确定要删除吗?',
     'search_by_name': '根据名称搜索',
     'input_name': '请输入项目名称',

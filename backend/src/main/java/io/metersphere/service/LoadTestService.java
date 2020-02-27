@@ -1,6 +1,9 @@
 package io.metersphere.service;
 
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.FileContent;
+import io.metersphere.base.domain.FileMetadata;
+import io.metersphere.base.domain.LoadTestFile;
+import io.metersphere.base.domain.LoadTestWithBLOBs;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
 import io.metersphere.commons.constants.EngineType;
@@ -9,14 +12,11 @@ import io.metersphere.controller.request.testplan.*;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.engine.Engine;
 import io.metersphere.engine.EngineFactory;
-import org.apache.commons.lang3.RandomUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
@@ -39,28 +39,6 @@ public class LoadTestService {
     private LoadTestFileMapper loadTestFileMapper;
     @Resource
     private FileService fileService;
-
-    // 测试，模拟数据
-    @PostConstruct
-    public void initData() {
-        if (!CollectionUtils.isEmpty(loadTestMapper.selectByExample(null))) {
-            return;
-        }
-
-        final List<Project> projects = projectMapper.selectByExample(null);
-
-        for (int i = 0; i < 100; i++) {
-            final LoadTestWithBLOBs loadTest = new LoadTestWithBLOBs();
-            loadTest.setId(UUID.randomUUID().toString());
-            loadTest.setName("load test " + i);
-            loadTest.setProjectId(projects.get(RandomUtils.nextInt(0, projects.size())).getId());
-            loadTest.setCreateTime(System.currentTimeMillis());
-            loadTest.setUpdateTime(System.currentTimeMillis());
-            loadTest.setScenarioDefinition(UUID.randomUUID().toString());
-            loadTest.setDescription(UUID.randomUUID().toString());
-            loadTestMapper.insert(loadTest);
-        }
-    }
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         return extLoadTestMapper.list(request);

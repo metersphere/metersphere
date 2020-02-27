@@ -44,7 +44,7 @@
         </div>
       </el-card>
 
-      <el-dialog :title="$t('project.create')" :visible.sync="createVisible">
+      <el-dialog :title="title" :visible.sync="createVisible">
         <el-form :model="form" :rules="rules" ref="form" label-position="left" label-width="100px" size="small">
           <el-form-item :label="$t('commons.name')">
             <el-input v-model="form.name" autocomplete="off"></el-input>
@@ -73,6 +73,7 @@
         createVisible: false,
         result: {},
         btnTips: this.$t('project.create'),
+        title: this.$t('project.create'),
         condition: "",
         items: [],
         form: {},
@@ -89,7 +90,7 @@
     },
     mounted() {
       if (this.$route.path.split('/')[2] === 'create') {
-        this.createVisible = true;
+        this.create();
         this.$router.push('/project/all');
       }
       this.list();
@@ -97,7 +98,7 @@
     watch: {
       '$route'(to) {
         if (to.path.split('/')[2] === 'create') {
-          this.createVisible = true;
+          this.create();
           this.$router.push('/project/all');
         }
       }
@@ -107,10 +108,12 @@
     },
     methods: {
       create() {
+        this.title = this.$t('project.create');
         this.createVisible = true;
         this.form = {};
       },
       edit(row) {
+        this.title = this.$t('project.edit');
         this.createVisible = true;
         this.form = Object.assign({}, row);
       },
