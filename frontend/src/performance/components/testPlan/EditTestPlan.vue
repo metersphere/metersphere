@@ -91,7 +91,6 @@
     },
     created() {
       let testId = this.$route.path.split('/')[2];
-      window.console.log(testId);
       if (testId) {
         this.$get('/testplan/get/' + testId, response => {
           this.testPlan = response.data;

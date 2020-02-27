@@ -69,7 +69,7 @@
     computed: {
       currentUser: () => {
         let user = Cookies.get(TokenKey);
-        window.console.log(user);
+        // window.console.log(user);
         return JSON.parse(user);
       }
     },
