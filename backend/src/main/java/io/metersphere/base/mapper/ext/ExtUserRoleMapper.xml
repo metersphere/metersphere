@@ -2,6 +2,21 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="io.metersphere.base.mapper.ext.ExtUserRoleMapper">
 
+    <resultMap id="BaseOrganizationMemberDTOMap" type="io.metersphere.dto.OrganizationMemberDTO">
+        <id column="id" jdbcType="VARCHAR" property="id" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="email" jdbcType="VARCHAR" property="email" />
+        <result column="phone" jdbcType="VARCHAR" property="phone" />
+        <result column="status" jdbcType="VARCHAR" property="status" />
+        <result column="create_time" jdbcType="BIGINT" property="createTime" />
+        <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+        <result column="language" jdbcType="VARCHAR" property="language" />
+        <collection property="roles" ofType="io.metersphere.base.domain.Role">
+            <id column="rid" jdbcType="VARCHAR" property="id" />
+            <result column="rname" jdbcType="VARCHAR" property="name" />
+        </collection>
+    </resultMap>
+
     <select id="getUserRoleHelpList" parameterType="java.lang.String"
             resultType="io.metersphere.dto.UserRoleHelpDTO">
         SELECT
@@ -37,5 +52,17 @@
             AND `user`.name like CONCAT('%', #{orgMember.name},'%')
         </if>
     </select>
+
+    <select id="getOrganizationMemberDTO" resultMap="BaseOrganizationMemberDTOMap">
+        select u.id, u.name, u.email, u.language, u.create_time, u.update_time, u.phone,
+               o.id, o.name, ur.id, r.id as rid, r.name as rname
+          from organization o
+          join user_role ur on o.id = ur.source_id
+          join user u on ur.user_id = u.id
+          join role r on r.id = ur.role_id
+         where o.id = #{orgMember.organizationId}
+    </select>
+
+
 
 </mapper>

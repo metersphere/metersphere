@@ -16,6 +16,14 @@
         <el-table-column prop="name" label="用户名"/>
         <el-table-column prop="email" label="邮箱"/>
         <el-table-column prop="phone" label="电话"/>
+        <el-table-column prop="roles" label="角色" width="140">
+          <template slot-scope="scope">
+            <el-tag v-for="(role, index) in scope.row.roles" :key="index" size="mini" effect="dark">
+              {{ role.name }}
+            </el-tag>
+          </template>
+
+        </el-table-column>
         <el-table-column>
           <template slot-scope="scope">
             <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
@@ -77,7 +85,7 @@
         btnTips: "添加组织成员",
         createVisible: false,
         form: {},
-        queryPath: "/user/orgmember/list",
+        queryPath: "/user/orgmemberdto/list",
         condition: "",
         tableData: [],
         rules: {
