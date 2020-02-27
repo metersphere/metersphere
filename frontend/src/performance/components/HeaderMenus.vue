@@ -9,11 +9,11 @@
       <template slot="title">项目</template>
       <ms-recent-project/>
       <el-divider/>
-      <el-menu-item index="/project">
+      <el-menu-item index="/project/all">
         <font-awesome-icon :icon="['fa', 'list-ul']"/>
         <span style="padding-left: 5px;">显示全部</span>
       </el-menu-item>
-      <el-menu-item index="/project" :route="{name:'project', query:{isCreate:true}}">
+      <el-menu-item index="/project/create">
         <el-button type="text">创建项目</el-button>
       </el-menu-item>
     </el-submenu>

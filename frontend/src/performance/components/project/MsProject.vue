@@ -44,7 +44,7 @@
         </div>
       </el-card>
 
-      <el-dialog :title="$t('project.create')" :visible.sync="createVisible" @close="close">
+      <el-dialog :title="$t('project.create')" :visible.sync="createVisible">
         <el-form :model="form" :rules="rules" ref="form" label-position="left" label-width="100px" size="small">
           <el-form-item :label="$t('commons.name')">
             <el-input v-model="form.name" autocomplete="off"></el-input>
@@ -88,8 +88,19 @@
       }
     },
     mounted() {
-      this.createVisible = this.$route.query.isCreate;
+      if (this.$route.path.split('/')[2] === 'create') {
+        this.createVisible = true;
+        this.$router.push('/project/all');
+      }
       this.list();
+    },
+    watch: {
+      '$route'(to) {
+        if (to.path.split('/')[2] === 'create') {
+          this.createVisible = true;
+          this.$router.push('/project/all');
+        }
+      }
     },
     destroyed() {
       this.createVisible = false;
@@ -102,10 +113,6 @@
       edit(row) {
         this.createVisible = true;
         this.form = Object.assign({}, row);
-      },
-      close() {
-        let query = {};
-        this.$router.push({query});
       },
       submit(formName) {
         this.$refs[formName].validate((valid) => {

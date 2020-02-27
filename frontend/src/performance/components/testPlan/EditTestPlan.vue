@@ -20,7 +20,8 @@
           <el-button type="warning" plain @click="cancel">取消</el-button>
         </el-row>
 
-        <el-tabs v-model="active" type="border-card" :stretch="true">
+
+        <el-tabs style="margin-top: 15px;" v-model="active" type="border-card" :stretch="true">
           <el-tab-pane label="基础配置">
             <ms-test-plan-basic-config :test-plan="testPlan"/>
           </el-tab-pane>
@@ -31,6 +32,7 @@
             <ms-test-plan-advanced-config/>
           </el-tab-pane>
         </el-tabs>
+
       </el-card>
     </div>
   </div>
