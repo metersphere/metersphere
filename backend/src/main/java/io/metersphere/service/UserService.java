@@ -273,22 +273,24 @@ public class UserService {
     public void addOrganizationMember(AddOrgMemberRequest request) {
         if (!CollectionUtils.isEmpty(request.getUserIds())) {
             for (String userId : request.getUserIds()) {
-                UserRole userRole = new UserRole();
-                userRole.setId(UUID.randomUUID().toString());
-                userRole.setRoleId(RoleConstants.ORG_ADMIN);
-                userRole.setSourceId(request.getOrganizationId());
-                userRole.setUserId(userId);
-                userRole.setUpdateTime(System.currentTimeMillis());
-                userRole.setCreateTime(System.currentTimeMillis());
-                userRoleMapper.insertSelective(userRole);
+                for (String roleId : request.getRoleIds()) {
+                    // todo 判断用户是否有该角色
+                    UserRole userRole = new UserRole();
+                    userRole.setId(UUID.randomUUID().toString());
+                    userRole.setRoleId(roleId);
+                    userRole.setSourceId(request.getOrganizationId());
+                    userRole.setUserId(userId);
+                    userRole.setUpdateTime(System.currentTimeMillis());
+                    userRole.setCreateTime(System.currentTimeMillis());
+                    userRoleMapper.insertSelective(userRole);
+                }
             }
         }
     }
 
     public void delOrganizationMember(String organizationId, String userId) {
         UserRoleExample userRoleExample = new UserRoleExample();
-        userRoleExample.createCriteria().andRoleIdEqualTo(RoleConstants.ORG_ADMIN)
-                .andUserIdEqualTo(userId).andSourceIdEqualTo(organizationId);
+        userRoleExample.createCriteria().andRoleIdLike("%org%").andUserIdEqualTo(userId).andSourceIdEqualTo(organizationId);
         userRoleMapper.deleteByExample(userRoleExample);
     }
 
