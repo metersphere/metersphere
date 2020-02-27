@@ -14,6 +14,7 @@ const zh_CN = {
     'cancel': '取消',
     'prompt': '提示',
     'operating': '操作',
+    'input_limit': '长度在 {0} 到 {1} 个字符',
   },
   workspace: {
     'create': '创建工作空间',
