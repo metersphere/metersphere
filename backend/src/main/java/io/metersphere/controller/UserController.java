@@ -140,6 +140,9 @@ public class UserController {
         return PageUtils.setPageInfo(page, userService.getOrgMemberList(request));
     }
 
+    /**
+     * 查询组织成员列表 带角色信息
+     */
     @PostMapping("/orgmemberdto/list/{goPage}/{pageSize}")
     public Pager<List<OrganizationMemberDTO>> getOrganizationMemberDTO(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryOrgMemberRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
