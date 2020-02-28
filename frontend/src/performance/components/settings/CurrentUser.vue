@@ -2,21 +2,6 @@
   <el-row type="flex" align="middle" class="current-user">
     <el-avatar shape="square" size="small" :src="squareUrl"/>
     <span class="username">{{currentUser.name}}</span>
-    <el-button class="edit" type="primary" icon="el-icon-edit" size="mini"
-               circle @click="edit"/>
-    <el-dialog :title="currentUser.name" :visible.sync="editVisible" width="30%">
-      <el-form :model="form" label-position="top" size="small">
-        <el-form-item label="姓名">
-          <el-input v-model="form.name" autocomplete="off"/>
-        </el-form-item>
-        <el-form-item label="手机号码">
-          <el-input v-model="form.mobile" autocomplete="off"/>
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submit" size="medium">更新</el-button>
-      </span>
-    </el-dialog>
   </el-row>
 </template>
 
