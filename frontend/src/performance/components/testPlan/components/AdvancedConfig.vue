@@ -26,15 +26,13 @@
           :label="$t('load_test.enable')"
           show-overflow-tooltip>
           <template slot-scope="{row}">
-            <template v-if="row.edit">
-              <el-switch
-                size="mini"
-                v-model="row.enable"
-                active-color="#13ce66"
-                inactive-color="#ff4949">
-              </el-switch>
-            </template>
-            <span v-else>{{ row.enable }}</span>
+            <el-switch
+              :disabled="!row.edit"
+              size="mini"
+              v-model="row.enable"
+              active-color="#13ce66"
+              inactive-color="#ff4949">
+            </el-switch>
           </template>
         </el-table-column>
         <el-table-column
@@ -112,15 +110,13 @@
           :label="$t('load_test.enable')"
           show-overflow-tooltip>
           <template slot-scope="{row}">
-            <template v-if="row.edit">
-              <el-switch
-                size="mini"
-                v-model="row.enable"
-                active-color="#13ce66"
-                inactive-color="#ff4949">
-              </el-switch>
-            </template>
-            <span v-else>{{ row.enable }}</span>
+            <el-switch
+              :disabled="!row.edit"
+              size="mini"
+              v-model="row.enable"
+              active-color="#13ce66"
+              inactive-color="#ff4949">
+            </el-switch>
           </template>
         </el-table-column>
         <el-table-column
