@@ -117,6 +117,7 @@
             type: 'success'
           });
           this.$refs.advancedConfig.cancelAllEdit();
+          this.$router.push({path: '/loadtest/all'})
         });
       },
       saveAndRun() {
