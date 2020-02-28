@@ -26,6 +26,7 @@
         </el-table-column>
         <el-table-column>
           <template slot-scope="scope">
+            <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
             <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
           </template>
         </el-table-column>
@@ -58,6 +59,8 @@
               :key="item.id"
               :label="item.name"
               :value="item.id">
+              <span style="float: left">{{ item.name }}</span>
+              <span style="float: right; color: #8492a6; font-size: 13px">{{ item.email }}</span>
             </el-option>
           </el-select>
         </el-form-item>
@@ -74,6 +77,36 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm('form')" size="medium">保存</el-button>
+      </span>
+    </el-dialog>
+
+    <el-dialog title="修改成员" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
+      <el-form :model="form" label-position="left" label-width="100px" size="small" ref="updateUserForm">
+        <el-form-item label="ID" prop="id">
+          <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
+        </el-form-item>
+        <el-form-item label="用户名" prop="name">
+          <el-input v-model="form.name" autocomplete="off"/>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="form.email" autocomplete="off"/>
+        </el-form-item>
+        <el-form-item label="电话" prop="phone">
+          <el-input v-model="form.phone" autocomplete="off"/>
+        </el-form-item>
+        <el-form-item label="角色" prop="roleIds">
+          <el-select v-model="form.roleIds" multiple placeholder="请选择角色" class="select-width" @remove-tag="checkTag" >
+            <el-option
+              v-for="item in form.allroles"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="updateOrgMember('updateUserForm')" size="medium">保存</el-button>
       </span>
     </el-dialog>
   </div>
@@ -94,6 +127,7 @@
         result: {},
         btnTips: "添加组织成员",
         createVisible: false,
+        updateVisible: false,
         form: {},
         queryPath: "/user/orgmember/list",
         condition: "",
@@ -143,6 +177,7 @@
       },
       closeFunc() {
         this.form = {};
+        this.initTableData();
       },
       handleSizeChange(size) {
         this.pageSize = size;
@@ -151,6 +186,37 @@
       handleCurrentChange(current) {
         this.currentPage = current;
         this.initTableData();
+      },
+      edit(row) {
+        this.updateVisible = true;
+        this.form = row;
+        let roleIds = this.form.roles.map(r => r.id);
+        this.result = this.$get('/role/list/org', response => {
+          this.$set(this.form, "allroles", response.data);
+        })
+        // 编辑使填充角色信息
+        this.$set(this.form, 'roleIds', roleIds);
+      },
+      updateOrgMember() {
+        let param = {
+          id: this.form.id,
+          name: this.form.name,
+          email: this.form.email,
+          phone: this.form.phone,
+          roleIds: this.form.roleIds,
+          organizationId: this.currentUser().lastOrganizationId
+        }
+        this.result = this.$post("/organization/member/update", param,() => {
+          this.$message({
+            type: 'success',
+            message: '修改成功!'
+          });
+          this.updateVisible = false;
+          this.initTableData();
+        });
+      },
+      checkTag() {
+        // todo 修改成员信息时必须保留一个组织级角色
       },
       del(row) {
         this.$confirm('是否删除用户 ' + row.name + ' ?', '', {
@@ -174,7 +240,7 @@
       },
       create() {
         this.form = {};
-        this.result = this.$get('/user/list', response => {
+        this.result = this.$get('/user/besideorg/list/' + this.currentUser().lastOrganizationId, response => {
           this.createVisible = true;
           this.$set(this.form, "userList", response.data);
         });

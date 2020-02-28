@@ -274,7 +274,6 @@ public class UserService {
         if (!CollectionUtils.isEmpty(request.getUserIds())) {
             for (String userId : request.getUserIds()) {
                 for (String roleId : request.getRoleIds()) {
-                    // todo 判断用户是否有该角色
                     UserRole userRole = new UserRole();
                     userRole.setId(UUID.randomUUID().toString());
                     userRole.setRoleId(roleId);
@@ -312,5 +311,12 @@ public class UserService {
 
     public List<OrganizationMemberDTO> getOrganizationMemberDTO(QueryOrgMemberRequest request) {
         return extUserRoleMapper.getOrganizationMemberDTO(request);
+    }
+
+    /**
+     * 查询该组织外的其他用户列表
+     */
+    public List<User> getBesideOrgMemberList(String orgId) {
+        return extUserRoleMapper.getBesideOrgMemberList(orgId);
     }
 }

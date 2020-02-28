@@ -149,4 +149,12 @@ public class UserController {
         return PageUtils.setPageInfo(page, userService.getOrganizationMemberDTO(request));
     }
 
+    /**
+     *
+     */
+    @GetMapping("/besideorg/list/{orgId}")
+    public List<User> getBesideOrgMemberList(@PathVariable String orgId) {
+        return userService.getBesideOrgMemberList(orgId);
+    }
+
 }

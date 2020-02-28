@@ -52,7 +52,7 @@
         <el-form-item :label="$t('commons.description')">
           <el-input type="textarea" v-model="form.description"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('workspace.organization_name')" prop="userIds">
+        <el-form-item :label="$t('workspace.organization_name')" prop="orgIds">
           <el-select v-model="form.organizationId" placeholder="请选择组织" class="select-width">
             <el-option
               v-for="item in form.orgList"
@@ -168,6 +168,9 @@
           name: [
             {required: true, message: this.$t('workspace.input_name'), trigger: 'blur'},
             {min: 2, max: 50, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'}
+          ],
+          orgIds: [
+            {required: true, message: '请选择组织', trigger: ['blur']}
           ]
         },
       }

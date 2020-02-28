@@ -70,6 +70,15 @@
           join role r on r.id = ur.role_id
          where o.id = #{orgId} and ur.user_id = #{userId}
     </select>
+    
+    <select id="getBesideOrgMemberList" parameterType="java.lang.String" resultType="io.metersphere.base.domain.User">
+        select *
+          from `user`
+         where `user`.id not in (select distinct u.id
+                                   from `user` u
+                                   join user_role ur on u.id = ur.user_id
+                                  where ur.source_id = #{orgId})
+    </select>
 
 
 

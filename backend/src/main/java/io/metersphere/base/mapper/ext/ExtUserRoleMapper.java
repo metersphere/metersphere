@@ -22,5 +22,7 @@ public interface ExtUserRoleMapper {
 
     List<Role> getOrganizationMemberRoles(@Param("orgId") String orgId, @Param("userId") String userId);
 
+    List<User> getBesideOrgMemberList(@Param("orgId") String orgId);
+
 
 }

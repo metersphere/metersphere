@@ -22,14 +22,24 @@ public class OrganizationMemberDTO {
 
     private String language;
 
-    private List<Role> roles = new ArrayList<>();
+    private String organizationId;
 
-    public List<Role> getRoles() {
-        return roles;
+    public String getOrganizationId() {
+        return organizationId;
     }
 
-    public void setRoles(List<Role> roles) {
-        this.roles = roles;
+    public void setOrganizationId(String organizationId) {
+        this.organizationId = organizationId;
+    }
+
+    private List<String> roleIds = new ArrayList<>();
+
+    public List<String> getRoleIds() {
+        return roleIds;
+    }
+
+    public void setRoleIds(List<String> roleIds) {
+        this.roleIds = roleIds;
     }
 
     public String getId() {

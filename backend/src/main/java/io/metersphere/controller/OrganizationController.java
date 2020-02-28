@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Organization;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.dto.OrganizationMemberDTO;
 import io.metersphere.service.OrganizationService;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
@@ -38,5 +39,10 @@ public class OrganizationController {
     @GetMapping("/list/userorg/{userId}")
     public List<Organization> getOrganizationListByUserId(@PathVariable String userId) {
         return organizationService.getOrganizationListByUserId(userId);
+    }
+
+    @PostMapping("/member/update")
+    public void updateOrgMember(@RequestBody OrganizationMemberDTO memberDTO) {
+        organizationService.updateOrgMember(memberDTO);
     }
 }
