@@ -7,7 +7,9 @@ import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.WorkspaceRequest;
+import io.metersphere.dto.OrganizationMemberDTO;
 import io.metersphere.dto.WorkspaceDTO;
+import io.metersphere.dto.WorkspaceMemberDTO;
 import io.metersphere.service.WorkspaceService;
 import io.metersphere.user.SessionUtils;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -66,5 +68,10 @@ public class WorkspaceController {
     public List<Workspace> getWorkspaceListByOrgIdAndUserId() {
         String currentOrganizationId = SessionUtils.getCurrentOrganizationId();
         return workspaceService.getWorkspaceListByOrgIdAndUserId(currentOrganizationId);
+    }
+
+    @PostMapping("/member/update")
+    public void updateOrgMember(@RequestBody WorkspaceMemberDTO memberDTO) {
+        workspaceService.updateWorkspaceMember(memberDTO);
     }
 }

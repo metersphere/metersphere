@@ -58,8 +58,8 @@
               :key="item.id"
               :label="item.name"
               :value="item.id">
-              <span style="float: left">{{ item.name }}</span>
-              <span style="float: right; color: #8492a6; font-size: 13px">{{ item.email }}</span>
+              <span class="org-member-name">{{ item.name }}</span>
+              <span class="org-member-email">{{ item.email }}</span>
             </el-option>
           </el-select>
         </el-form-item>
@@ -271,5 +271,19 @@
     padding-top: 20px;
     margin-right: -9px;
     float: right;
+  }
+
+  .org-member-name {
+    float: left;
+  }
+
+  .org-member-email {
+    float: right;
+    color: #8492a6;
+    font-size: 13px;
+  }
+
+  .select-width {
+    width: 100%;
   }
 </style>

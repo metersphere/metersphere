@@ -5,8 +5,16 @@ import java.util.List;
 public class AddMemberRequest {
 
     private String workspaceId;
-
     private List<String> userIds;
+    private List<String> roleIds;
+
+    public List<String> getRoleIds() {
+        return roleIds;
+    }
+
+    public void setRoleIds(List<String> roleIds) {
+        this.roleIds = roleIds;
+    }
 
     public String getWorkspaceId() {
         return workspaceId;

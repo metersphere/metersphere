@@ -1,8 +1,10 @@
 package io.metersphere.service;
 
 import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.base.mapper.UserRoleMapper;
 import io.metersphere.base.mapper.WorkspaceMapper;
+import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
 import io.metersphere.base.mapper.ext.ExtWorkspaceMapper;
 import io.metersphere.commons.constants.RoleConstants;
@@ -10,9 +12,11 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.request.WorkspaceRequest;
 import io.metersphere.dto.UserRoleHelpDTO;
 import io.metersphere.dto.WorkspaceDTO;
+import io.metersphere.dto.WorkspaceMemberDTO;
 import io.metersphere.user.SessionUser;
 import io.metersphere.user.SessionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +37,10 @@ public class WorkspaceService {
     private ExtUserRoleMapper extUserRoleMapper;
     @Resource
     private UserRoleMapper userRoleMapper;
+    @Resource
+    private UserMapper userMapper;
+    @Resource
+    private ExtOrganizationMapper extOrganizationMapper;
 
     public Workspace saveWorkspace(Workspace workspace) {
         if (StringUtils.isBlank(workspace.getName())) {
@@ -130,4 +138,43 @@ public class WorkspaceService {
         return resultWorkspaceList;
     }
 
+    public void updateWorkspaceMember(WorkspaceMemberDTO memberDTO) {
+        User user = new User();
+        BeanUtils.copyProperties(memberDTO, user);
+        userMapper.updateByPrimaryKeySelective(user);
+        //
+        String workspaceId = memberDTO.getWorkspaceId();
+        String userId = user.getId();
+        // 已有角色
+        List<Role> memberRoles = extUserRoleMapper.getWorkspaceMemberRoles(workspaceId, userId);
+        // 修改后的角色
+        List<String> roles = memberDTO.getRoleIds();
+        List<String> allRoleIds = memberRoles.stream().map(Role::getId).collect(Collectors.toList());
+        // 更新用户时添加了角色
+        if (roles.size() > allRoleIds.size()) {
+            for (int i = 0; i < roles.size(); i++) {
+                if (checkSourceRole(workspaceId, userId, roles.get(i)) == 0) {
+                    UserRole userRole = new UserRole();
+                    userRole.setId(UUID.randomUUID().toString());
+                    userRole.setUserId(userId);
+                    userRole.setRoleId(roles.get(i));
+                    userRole.setSourceId(workspaceId);
+                    userRole.setCreateTime(System.currentTimeMillis());
+                    userRole.setUpdateTime(System.currentTimeMillis());
+                    userRoleMapper.insertSelective(userRole);
+                }
+            }
+        } else if (roles.size() < allRoleIds.size()){
+            allRoleIds.removeAll(roles);
+            UserRoleExample userRoleExample = new UserRoleExample();
+            userRoleExample.createCriteria().andUserIdEqualTo(userId)
+                    .andSourceIdEqualTo(workspaceId)
+                    .andRoleIdIn(allRoleIds);
+            userRoleMapper.deleteByExample(userRoleExample);
+        }
+    }
+
+    public Integer checkSourceRole(String orgId, String userId, String roleId) {
+        return extOrganizationMapper.checkSourceRole(orgId, userId, roleId);
+    }
 }

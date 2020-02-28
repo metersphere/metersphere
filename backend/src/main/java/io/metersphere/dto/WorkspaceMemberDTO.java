@@ -3,42 +3,18 @@ package io.metersphere.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OrganizationMemberDTO {
+public class WorkspaceMemberDTO {
+
     private String id;
-
     private String name;
-
     private String email;
-
     private String phone;
-
     private String status;
-
     private Long createTime;
-
     private Long updateTime;
-
     private String language;
-
-    private String organizationId;
-
-    public String getOrganizationId() {
-        return organizationId;
-    }
-
-    public void setOrganizationId(String organizationId) {
-        this.organizationId = organizationId;
-    }
-
+    private String workspaceId;
     private List<String> roleIds = new ArrayList<>();
-
-    public List<String> getRoleIds() {
-        return roleIds;
-    }
-
-    public void setRoleIds(List<String> roleIds) {
-        this.roleIds = roleIds;
-    }
 
     public String getId() {
         return id;
@@ -102,5 +78,21 @@ public class OrganizationMemberDTO {
 
     public void setLanguage(String language) {
         this.language = language;
+    }
+
+    public String getWorkspaceId() {
+        return workspaceId;
+    }
+
+    public void setWorkspaceId(String workspaceId) {
+        this.workspaceId = workspaceId;
+    }
+
+    public List<String> getRoleIds() {
+        return roleIds;
+    }
+
+    public void setRoleIds(List<String> roleIds) {
+        this.roleIds = roleIds;
     }
 }
