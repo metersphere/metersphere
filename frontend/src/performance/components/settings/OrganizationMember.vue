@@ -49,7 +49,7 @@
       </div>
     </el-card>
 
-    <el-dialog title="添加成员" :visible.sync="createVisible" width="30%">
+    <el-dialog title="添加成员" :visible.sync="createVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
       <el-form :model="form" ref="form" :rules="rules" label-position="left" label-width="100px" size="small">
         <el-form-item label="成员" prop="userIds">
           <el-select v-model="form.userIds" multiple placeholder="请选择成员" class="select-width">
@@ -100,10 +100,10 @@
         tableData: [],
         rules: {
           userIds: [
-            {required: true, message: '请选择成员', trigger: ['blur', 'change']}
+            {required: true, message: '请选择成员', trigger: ['blur']}
           ],
           roleIds: [
-            {required: true, message: '请选择角色', trigger: ['blur', 'change']}
+            {required: true, message: '请选择角色', trigger: ['blur']}
           ]
         },
         multipleSelection: [],
@@ -141,6 +141,9 @@
       search() {
         this.initTableData();
       },
+      closeFunc() {
+        this.form = {};
+      },
       handleSizeChange(size) {
         this.pageSize = size;
         this.initTableData();
@@ -170,8 +173,9 @@
         });
       },
       create() {
+        this.form = {};
         this.result = this.$get('/user/list', response => {
-            this.createVisible = true;
+          this.createVisible = true;
           this.$set(this.form, "userList", response.data);
         });
         this.result = this.$get('/role/list/org', response => {
