@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="loading">
+  <div v-loading="result.loading">
     <el-card>
       <div slot="header">
         <el-row type="flex" justify="space-between" align="middle">
@@ -16,6 +16,13 @@
         <el-table-column prop="name" label="用户名"/>
         <el-table-column prop="email" label="邮箱"/>
         <el-table-column prop="phone" label="电话"/>
+        <el-table-column prop="roles" label="角色" width="140">
+          <template slot-scope="scope">
+            <el-tag v-for="(role, index) in scope.row.roles" :key="index" size="mini" effect="dark" type="success">
+              {{ role.name }}
+            </el-tag>
+          </template>
+        </el-table-column>
         <el-table-column>
           <template slot-scope="scope">
             <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
@@ -41,12 +48,22 @@
       </div>
     </el-card>
 
-    <el-dialog title="添加成员" :visible.sync="createVisible" width="30%">
+    <el-dialog title="添加成员" :visible.sync="createVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
       <el-form :model="form" ref="form" :rules="rules" label-position="left" label-width="100px" size="small">
         <el-form-item label="成员" prop="userIds">
           <el-select v-model="form.userIds" multiple placeholder="请选择成员" class="select-width">
             <el-option
               v-for="item in form.userList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="角色" prop="roleIds">
+          <el-select v-model="form.roleIds" multiple placeholder="请选择角色" class="select-width">
+            <el-option
+              v-for="item in form.roles"
               :key="item.id"
               :label="item.name"
               :value="item.id">
@@ -71,7 +88,7 @@
     components: {MsCreateBox},
     data() {
       return {
-        loading: false,
+        result: {},
         form: {},
         btnTips: "添加成员",
         createVisible: false,
@@ -81,6 +98,9 @@
         rules: {
           userIds: [
             {required: true, message: '请选择成员', trigger: ['blur', 'change']}
+          ],
+          roleIds: [
+            {required: true, message: '请选择角色', trigger: ['blur', 'change']}
           ]
         },
         multipleSelection: [],
@@ -107,15 +127,17 @@
           workspaceId: this.currentUser().lastWorkspaceId
         };
 
-        this.$post(this.buildPagePath(this.queryPath), param).then(response => {
-          if (response.data.success) {
-            let data = response.data.data;
-            this.total = data.itemCount;
-            this.tableData = data.listObject;
-          } else {
-            this.$message.error(response.message);
+        this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
+          let data = response.data;
+          this.tableData = data.listObject;
+          let url = "/userrole/list/ws/" + this.currentUser().lastWorkspaceId;
+          for (let i = 0; i < this.tableData.length; i++) {
+            this.$get(url + "/" + this.tableData[i].id, response => {
+              let roles = response.data;
+              this.$set(this.tableData[i], "roles", roles);
+            })
           }
-          this.loading = false;
+          this.total = data.itemCount;
         })
 
       },
@@ -130,6 +152,10 @@
       },
       handleCurrentChange(current) {
         this.currentPage = current;
+      },
+      closeFunc() {
+        this.form = {};
+        this.initTableData();
       },
       del(row) {
         this.$confirm('移除该成员, 是否继续?', '提示', {
@@ -171,6 +197,9 @@
             message: '获取用户列表失败'
           });
         });
+        this.result = this.$get('/role/list/test', response => {
+          this.$set(this.form, "roles", response.data);
+        })
       },
       submitForm(formName) {
         this.loading = true;

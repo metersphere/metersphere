@@ -80,6 +80,14 @@
                                   where ur.source_id = #{orgId})
     </select>
 
+    <select id="getWorkspaceMemberRoles" resultType="io.metersphere.base.domain.Role">
+        select r.id, r.name
+          from workspace w
+          join user_role ur on w.id = ur.source_id
+          join role r on r.id = ur.role_id
+         where w.id = #{workspaceId} and ur.user_id = #{userId}
+    </select>
+
 
 
 </mapper>
