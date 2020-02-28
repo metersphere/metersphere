@@ -19,4 +19,8 @@ public class UserRoleService {
         return extUserRoleMapper.getOrganizationMemberRoles(orgId, userId);
     }
 
+    public List<Role> getWorkspaceMemberRoles(String workspaceId, String userId) {
+        return extUserRoleMapper.getWorkspaceMemberRoles(workspaceId, userId);
+    }
+
 }

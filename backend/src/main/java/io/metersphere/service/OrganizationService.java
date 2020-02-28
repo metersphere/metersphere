@@ -86,7 +86,7 @@ public class OrganizationService {
         // 更新用户时添加了角色
         if (roles.size() > allRoleIds.size()) {
             for (int i = 0; i < roles.size(); i++) {
-                if (checkOrgRole(orgId, userId, roles.get(i)) == 0) {
+                if (checkSourceRole(orgId, userId, roles.get(i)) == 0) {
                     UserRole userRole = new UserRole();
                     userRole.setId(UUID.randomUUID().toString());
                     userRole.setUserId(userId);
@@ -107,8 +107,7 @@ public class OrganizationService {
         }
     }
 
-    // 检查组织成员是否有某一角色
-    public Integer checkOrgRole(String orgId, String userId, String roleId) {
-        return extOrganizationMapper.checkOrgRole(orgId, userId, roleId);
+    public Integer checkSourceRole(String orgId, String userId, String roleId) {
+        return extOrganizationMapper.checkSourceRole(orgId, userId, roleId);
     }
 }

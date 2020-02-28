@@ -22,7 +22,6 @@
               {{ role.name }}
             </el-tag>
           </template>
-
         </el-table-column>
         <el-table-column>
           <template slot-scope="scope">
@@ -59,8 +58,8 @@
               :key="item.id"
               :label="item.name"
               :value="item.id">
-              <span style="float: left">{{ item.name }}</span>
-              <span style="float: right; color: #8492a6; font-size: 13px">{{ item.email }}</span>
+              <span class="org-member-name">{{ item.name }}</span>
+              <span class="org-member-email">{{ item.email }}</span>
             </el-option>
           </el-select>
         </el-form-item>
@@ -95,7 +94,7 @@
           <el-input v-model="form.phone" autocomplete="off"/>
         </el-form-item>
         <el-form-item label="角色" prop="roleIds">
-          <el-select v-model="form.roleIds" multiple placeholder="请选择角色" class="select-width" @remove-tag="checkTag" >
+          <el-select v-model="form.roleIds" multiple placeholder="请选择角色" class="select-width">
             <el-option
               v-for="item in form.allroles"
               :key="item.id"
@@ -159,7 +158,7 @@
         this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
           let data = response.data;
           this.tableData = data.listObject;
-          let url = "/userrole/list/" + this.currentUser().lastOrganizationId;
+          let url = "/userrole/list/org/" + this.currentUser().lastOrganizationId;
           for (let i = 0; i < this.tableData.length; i++) {
             this.$get(url + "/" + this.tableData[i].id, response => {
               let roles = response.data;
@@ -214,9 +213,6 @@
           this.updateVisible = false;
           this.initTableData();
         });
-      },
-      checkTag() {
-        // todo 修改成员信息时必须保留一个组织级角色
       },
       del(row) {
         this.$confirm('是否删除用户 ' + row.name + ' ?', '', {
@@ -275,5 +271,19 @@
     padding-top: 20px;
     margin-right: -9px;
     float: right;
+  }
+
+  .org-member-name {
+    float: left;
+  }
+
+  .org-member-email {
+    float: right;
+    color: #8492a6;
+    font-size: 13px;
+  }
+
+  .select-width {
+    width: 100%;
   }
 </style>

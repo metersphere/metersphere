@@ -4,5 +4,5 @@ import org.apache.ibatis.annotations.Param;
 
 public interface ExtOrganizationMapper {
 
-    int checkOrgRole(@Param("orgId") String orgId,@Param("userId") String userId,@Param("roleId") String roleId);
+    int checkSourceRole(@Param("sourceId") String sourceId,@Param("userId") String userId,@Param("roleId") String roleId);
 }

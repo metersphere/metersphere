@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="loading">
+  <div v-loading="result.loading">
     <el-card>
       <div slot="header">
         <el-row type="flex" justify="space-between" align="middle">
@@ -16,8 +16,16 @@
         <el-table-column prop="name" label="用户名"/>
         <el-table-column prop="email" label="邮箱"/>
         <el-table-column prop="phone" label="电话"/>
+        <el-table-column prop="roles" label="角色" width="120">
+          <template slot-scope="scope">
+            <el-tag v-for="(role, index) in scope.row.roles" :key="index" size="mini" effect="dark" type="success">
+              {{ role.name }}
+            </el-tag>
+          </template>
+        </el-table-column>
         <el-table-column>
           <template slot-scope="scope">
+            <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
             <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
           </template>
         </el-table-column>
@@ -41,12 +49,24 @@
       </div>
     </el-card>
 
-    <el-dialog title="添加成员" :visible.sync="createVisible" width="30%">
+    <el-dialog title="添加成员" :visible.sync="createVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
       <el-form :model="form" ref="form" :rules="rules" label-position="left" label-width="100px" size="small">
         <el-form-item label="成员" prop="userIds">
           <el-select v-model="form.userIds" multiple placeholder="请选择成员" class="select-width">
             <el-option
               v-for="item in form.userList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
+              <span class="workspace-member-name">{{ item.name }}</span>
+              <span class="workspace-member-email">{{ item.email }}</span>
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="角色" prop="roleIds">
+          <el-select v-model="form.roleIds" multiple placeholder="请选择角色" class="select-width">
+            <el-option
+              v-for="item in form.roles"
               :key="item.id"
               :label="item.name"
               :value="item.id">
@@ -58,6 +78,37 @@
         <el-button type="primary" @click="submitForm('form')" size="medium">保存</el-button>
       </span>
     </el-dialog>
+
+    <el-dialog title="修改成员" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
+      <el-form :model="form" label-position="left" label-width="100px" size="small" ref="updateUserForm">
+        <el-form-item label="ID" prop="id">
+          <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
+        </el-form-item>
+        <el-form-item label="用户名" prop="name">
+          <el-input v-model="form.name" autocomplete="off"/>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="form.email" autocomplete="off"/>
+        </el-form-item>
+        <el-form-item label="电话" prop="phone">
+          <el-input v-model="form.phone" autocomplete="off"/>
+        </el-form-item>
+        <el-form-item label="角色" prop="roleIds">
+          <el-select v-model="form.roleIds" multiple placeholder="请选择角色" class="select-width">
+            <el-option
+              v-for="item in form.allroles"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="updateWorkspaceMember('updateUserForm')" size="medium">保存</el-button>
+      </span>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -71,16 +122,20 @@
     components: {MsCreateBox},
     data() {
       return {
-        loading: false,
+        result: {},
         form: {},
-        btnTips: "添加成员",
+        btnTips: "添加工作空间成员",
         createVisible: false,
+        updateVisible: false,
         queryPath: "/user/member/list",
         condition: "",
         tableData: [],
         rules: {
           userIds: [
-            {required: true, message: '请选择成员', trigger: ['blur', 'change']}
+            {required: true, message: '请选择成员', trigger: ['blur']}
+          ],
+          roleIds: [
+            {required: true, message: '请选择角色', trigger: ['blur']}
           ]
         },
         multipleSelection: [],
@@ -107,15 +162,17 @@
           workspaceId: this.currentUser().lastWorkspaceId
         };
 
-        this.$post(this.buildPagePath(this.queryPath), param).then(response => {
-          if (response.data.success) {
-            let data = response.data.data;
-            this.total = data.itemCount;
-            this.tableData = data.listObject;
-          } else {
-            this.$message.error(response.message);
+        this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
+          let data = response.data;
+          this.tableData = data.listObject;
+          let url = "/userrole/list/ws/" + this.currentUser().lastWorkspaceId;
+          for (let i = 0; i < this.tableData.length; i++) {
+            this.$get(url + "/" + this.tableData[i].id, response => {
+              let roles = response.data;
+              this.$set(this.tableData[i], "roles", roles);
+            })
           }
-          this.loading = false;
+          this.total = data.itemCount;
         })
 
       },
@@ -130,6 +187,10 @@
       },
       handleCurrentChange(current) {
         this.currentPage = current;
+      },
+      closeFunc() {
+        this.form = {};
+        this.initTableData();
       },
       del(row) {
         this.$confirm('移除该成员, 是否继续?', '提示', {
@@ -154,23 +215,55 @@
           });
         });
       },
-      create() {
-        this.loading = true;
-        this.$get('/user/list').then(response => {
-          if (response.data.success) {
-            this.createVisible = true;
-            this.form = {userList: response.data.data};
-          } else {
-            this.$message.error(response.message);
-          }
-          this.loading = false;
-        }).catch(() => {
-          this.loading = false;
+      edit(row) {
+        this.updateVisible = true;
+        this.form = row;
+        let roleIds = this.form.roles.map(r => r.id);
+        this.result = this.$get('/role/list/test', response => {
+          this.$set(this.form, "allroles", response.data);
+        })
+        // 编辑使填充角色信息
+        this.$set(this.form, 'roleIds', roleIds);
+      },
+      updateWorkspaceMember() {
+        let param = {
+          id: this.form.id,
+          name: this.form.name,
+          email: this.form.email,
+          phone: this.form.phone,
+          roleIds: this.form.roleIds,
+          workspaceId: this.currentUser().lastWorkspaceId
+        }
+        this.result = this.$post("/workspace/member/update", param,() => {
           this.$message({
-            type: 'error',
-            message: '获取用户列表失败'
+            type: 'success',
+            message: '修改成功!'
           });
+          this.updateVisible = false;
+          this.initTableData();
         });
+      },
+      create() {
+        this.form = {};
+        let param = {
+          name: this.condition,
+          organizationId: this.currentUser().lastOrganizationId
+        };
+        let wsId = this.currentUser().lastWorkspaceId;
+        if (typeof wsId == "undefined" || wsId == null || wsId == "") {
+          this.$message({
+            message:'请先选择工作空间！',
+            type: 'warning'
+          });
+          return false;
+        }
+        this.$post('/user/orgmember/list/all', param,response => {
+          this.createVisible = true;
+          this.$set(this.form, "userList", response.data);
+        })
+        this.result = this.$get('/role/list/test', response => {
+          this.$set(this.form, "roles", response.data);
+        })
       },
       submitForm(formName) {
         this.loading = true;
@@ -178,17 +271,13 @@
           if (valid) {
             let param = {
               userIds: this.form.userIds,
+              roleIds: this.form.roleIds,
               workspaceId: this.currentUser().lastWorkspaceId
             };
-            this.$post("user/member/add", param).then(() => {
+            this.$post("user/member/add", param, () => {
               this.initTableData();
               this.createVisible = false;
-              this.loading = false;
-            }).catch(() => {
-              this.loading = false;
             })
-          } else {
-            return false;
           }
         });
       }
@@ -214,4 +303,15 @@
   .select-width {
     width: 100%;
   }
+
+  .workspace-member-name {
+    float: left;
+  }
+
+  .workspace-member-email {
+    float: right;
+    color: #8492a6;
+    font-size: 13px;
+  }
+
 </style>

@@ -38,8 +38,8 @@
     </select>
 
     <select id="getMemberList" resultType="io.metersphere.base.domain.User">
-        SELECT `user`.* FROM user_role JOIN `user` ON user_role.user_id = `user`.id
-        WHERE user_role.source_id = #{member.workspaceId} AND user_role.role_id = #{member.roleId}
+        SELECT distinct `user`.* FROM user_role JOIN `user` ON user_role.user_id = `user`.id
+        WHERE user_role.source_id = #{member.workspaceId}
         <if test="member.name != null">
             AND `user`.name like CONCAT('%', #{member.name},'%')
         </if>
@@ -78,6 +78,14 @@
                                    from `user` u
                                    join user_role ur on u.id = ur.user_id
                                   where ur.source_id = #{orgId})
+    </select>
+
+    <select id="getWorkspaceMemberRoles" resultType="io.metersphere.base.domain.Role">
+        select r.id, r.name
+          from workspace w
+          join user_role ur on w.id = ur.source_id
+          join role r on r.id = ur.role_id
+         where w.id = #{workspaceId} and ur.user_id = #{userId}
     </select>
 
 

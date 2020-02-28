@@ -251,21 +251,23 @@ public class UserService {
     public void addMember(AddMemberRequest request) {
         if (!CollectionUtils.isEmpty(request.getUserIds())) {
             for (String userId : request.getUserIds()) {
-                UserRole userRole = new UserRole();
-                userRole.setRoleId(RoleConstants.TEST_MANAGER);
-                userRole.setSourceId(request.getWorkspaceId());
-                userRole.setUserId(userId);
-                userRole.setId(UUID.randomUUID().toString());
-                userRole.setUpdateTime(System.currentTimeMillis());
-                userRole.setCreateTime(System.currentTimeMillis());
-                userRoleMapper.insertSelective(userRole);
+                for (String roleId : request.getRoleIds()) {
+                    UserRole userRole = new UserRole();
+                    userRole.setRoleId(roleId);
+                    userRole.setSourceId(request.getWorkspaceId());
+                    userRole.setUserId(userId);
+                    userRole.setId(UUID.randomUUID().toString());
+                    userRole.setUpdateTime(System.currentTimeMillis());
+                    userRole.setCreateTime(System.currentTimeMillis());
+                    userRoleMapper.insertSelective(userRole);
+                }
             }
         }
     }
 
     public void deleteMember(String workspaceId, String userId) {
         UserRoleExample example = new UserRoleExample();
-        example.createCriteria().andRoleIdEqualTo(RoleConstants.TEST_MANAGER)
+        example.createCriteria().andRoleIdLike("%test%")
                 .andUserIdEqualTo(userId).andSourceIdEqualTo(workspaceId);
         userRoleMapper.deleteByExample(example);
     }
