@@ -84,6 +84,7 @@ export default {
     'ramp_up_time_within': '在',
     'ramp_up_time_minutes': '分钟内，分',
     'ramp_up_time_times': '次增加并发用户',
+    'advanced_config_error': '高级配置校验失败',
   },
   i18n: {
     'home': '首页',

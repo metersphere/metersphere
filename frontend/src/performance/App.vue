@@ -1,7 +1,7 @@
 <template>
   <el-col v-if="auth">
     <el-row id="header-top" type="flex" justify="space-between" align="middle">
-      <el-col :span="4">
+      <el-col :span="1">
         <a class="logo"/>
       </el-col>
       <el-col :span="6">

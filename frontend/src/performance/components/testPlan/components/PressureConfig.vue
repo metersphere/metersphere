@@ -127,7 +127,7 @@
   }
 </script>
 
-<style>
+<style scoped>
   .pressure-config-container .el-input {
     width: 130px;
   }

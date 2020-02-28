@@ -84,6 +84,7 @@ export default {
     'ramp_up_time_within': 'In',
     'ramp_up_time_minutes': 'minutes, separate',
     'ramp_up_time_times': 'add concurrent users',
+    'advanced_config_error': 'Advanced configuration verification failed',
   },
   i18n: {
     'home': 'Home',

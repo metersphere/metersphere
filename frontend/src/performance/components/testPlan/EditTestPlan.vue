@@ -23,16 +23,15 @@
 
         <el-tabs class="testplan-config" v-model="active" type="border-card" :stretch="true">
           <el-tab-pane :label="$t('load_test.basic_config')">
-            <ms-test-plan-basic-config :test-plan="testPlan"/>
+            <ms-test-plan-basic-config :test-plan="testPlan" ref="basicConfig"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.pressure_config')">
-            <ms-test-plan-pressure-config :test-plan="testPlan"/>
+            <ms-test-plan-pressure-config :test-plan="testPlan" ref="pressureConfig"/>
           </el-tab-pane>
-          <el-tab-pane :label="$t('load_test.advanced_config')">
-            <ms-test-plan-advanced-config/>
+          <el-tab-pane :label="$t('load_test.advanced_config')" class="advanced-config">
+            <ms-test-plan-advanced-config ref="advancedConfig"/>
           </el-tab-pane>
         </el-tabs>
-
       </el-card>
     </div>
   </div>
@@ -201,7 +200,16 @@
           return false;
         }
 
+        if (!this.$refs.advancedConfig.validConfig()) {
+          this.$message({
+            message: this.$t('load_test.advanced_config_error'),
+            type: 'error'
+          });
+          return false;
+        }
+
         /// todo: 其他校验
+
         return true;
       }
     }
@@ -234,5 +242,10 @@
 
   .edit-testplan-container .input-with-select .el-input-group__prepend {
     background-color: #fff;
+  }
+
+  .advanced-config {
+    height: calc(100vh - 280px);
+    overflow: auto;
   }
 </style>
