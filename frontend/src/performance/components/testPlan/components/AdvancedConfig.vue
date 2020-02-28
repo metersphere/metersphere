@@ -3,17 +3,17 @@
 
     <el-row type="flex" justify="start">
       <el-col :span="8">
-        <h3>域名绑定</h3>
+        <h3>{{$t('load_test.domain_bind')}}</h3>
       </el-col>
       <el-col :span="8">
-        <el-button type="primary" plain @click="add('domains')">添加</el-button>
+        <el-button type="primary" plain size="mini" @click="add('domains')">{{$t('commons.add')}}</el-button>
       </el-col>
     </el-row>
     <!-- -->
     <el-row>
       <el-table :data="domains">
         <el-table-column
-          label="域名"
+          :label="$t('load_test.domain')"
           show-overflow-tooltip>
           <template slot-scope="{row}">
             <template v-if="row.edit">
@@ -23,7 +23,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          label="是否启用"
+          :label="$t('load_test.enable')"
           show-overflow-tooltip>
           <template slot-scope="{row}">
             <template v-if="row.edit">
@@ -38,7 +38,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          label="IP地址"
+          :label="$t('load_test.ip')"
           show-overflow-tooltip>
           <template slot-scope="{row}">
             <template v-if="row.edit">
@@ -47,7 +47,7 @@
             <span v-else>{{ row.ip }}</span>
           </template>
         </el-table-column>
-        <el-table-column align="center" label="Actions">
+        <el-table-column align="center">
           <template slot-scope="{row}">
             <template v-if="row.edit">
               <el-button
@@ -89,17 +89,17 @@
 
     <el-row>
       <el-col :span="8">
-        <h3>自定义属性</h3>
+        <h3>{{$t('load_test.params')}}</h3>
       </el-col>
       <el-col :span="8">
-        <el-button type="primary" plain @click="add('params')">添加</el-button>
+        <el-button type="primary" plain size="mini" @click="add('params')">{{$t('commons.add')}}</el-button>
       </el-col>
     </el-row>
     <!-- -->
     <el-row>
       <el-table :data="params">
         <el-table-column
-          label="属性名"
+          :label="$t('load_test.param_name')"
           show-overflow-tooltip>
           <template slot-scope="{row}">
             <template v-if="row.edit">
@@ -109,7 +109,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          label="是否启用"
+          :label="$t('load_test.enable')"
           show-overflow-tooltip>
           <template slot-scope="{row}">
             <template v-if="row.edit">
@@ -124,7 +124,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          label="属性值"
+          :label="$t('load_test.param_value')"
           show-overflow-tooltip>
           <template slot-scope="{row}">
             <template v-if="row.edit">
@@ -133,7 +133,7 @@
             <span v-else>{{ row.value }}</span>
           </template>
         </el-table-column>
-        <el-table-column align="center" label="Actions">
+        <el-table-column align="center">
           <template slot-scope="{row}">
             <template v-if="row.edit">
               <el-button

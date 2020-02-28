@@ -24,6 +24,7 @@ export default {
     'test': '测试',
     'create_time': '创建时间',
     'update_time': '更新时间',
+    'add': '添加',
   },
   workspace: {
     'create': '创建工作空间',
@@ -85,6 +86,13 @@ export default {
     'ramp_up_time_minutes': '分钟内，分',
     'ramp_up_time_times': '次增加并发用户',
     'advanced_config_error': '高级配置校验失败',
+    'domain_bind': '域名绑定',
+    'domain': '域名',
+    'enable': '是否启用',
+    'ip': 'IP地址',
+    'params': '自定义属性',
+    'param_name': '属性名',
+    'param_value': '属性值',
   },
   i18n: {
     'home': '首页',

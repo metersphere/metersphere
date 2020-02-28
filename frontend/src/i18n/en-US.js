@@ -24,6 +24,7 @@ export default {
     'test': 'Test',
     'create_time': 'Created Time',
     'update_time': 'Updated Time',
+    'add': 'Add',
   },
   workspace: {
     'create': 'Create Workspace',
@@ -85,6 +86,13 @@ export default {
     'ramp_up_time_minutes': 'minutes, separate',
     'ramp_up_time_times': 'add concurrent users',
     'advanced_config_error': 'Advanced configuration verification failed',
+    'domain_bind': 'Domain bind',
+    'domain': 'Domain',
+    'enable': 'Enable',
+    'ip': 'IP',
+    'params': 'Parameters',
+    'param_name': 'Name',
+    'param_value': 'Value',
   },
   i18n: {
     'home': 'Home',
