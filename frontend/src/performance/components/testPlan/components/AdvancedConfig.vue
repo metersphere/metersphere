@@ -195,15 +195,16 @@
     mounted() {
       let testId = this.$route.path.split('/')[2];
       if (testId) {
-        this.$get('/testplan/get-advanced-config/' + testId, response => {
-          let data = JSON.parse(response.data);
-          this.timeout = data.timeout;
-          this.statusCode = data.statusCode;
-          this.domains = data.domains;
-          this.params = data.params;
-
-          this.domains.forEach(d => d.edit = false);
-          this.params.forEach(d => d.edit = false);
+        this.$get('/testplan/get-advanced-config/' + testId, (response) => {
+          if (response.data) {
+            let data = JSON.parse(response.data);
+            this.timeout = data.timeout || 10;
+            this.statusCode = data.statusCode || [302];
+            this.domains = data.domains || [];
+            this.params = data.params || [];
+            this.domains.forEach(d => d.edit = false);
+            this.params.forEach(d => d.edit = false);
+          }
         });
       }
     },

@@ -78,6 +78,7 @@ public class LoadTestService {
         loadTest.setScenarioDefinition("todo");
         loadTest.setDescription("todo");
         loadTest.setLoadConfiguration(request.getLoadConfiguration());
+        loadTest.setAdvancedConfiguration(request.getAdvancedConfiguration());
         loadTestMapper.insert(loadTest);
         return loadTest;
     }

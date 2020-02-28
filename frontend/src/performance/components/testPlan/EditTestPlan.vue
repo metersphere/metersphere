@@ -148,9 +148,8 @@
         if (!this.testPlan.file.id) {
           formData.append("file", this.testPlan.file);
         }
-        if (this.testPlan.loadConfigurationObj) {
-          this.testPlan.loadConfiguration = JSON.stringify(this.testPlan.loadConfigurationObj);
-        }
+        // 压力配置
+        this.testPlan.loadConfiguration = JSON.stringify(this.$refs.pressureConfig.convertProperty());
         // 高级配置
         this.testPlan.advancedConfiguration = JSON.stringify(this.$refs.advancedConfig.configurations());
 

@@ -15,10 +15,6 @@
         </div>
         <el-table :data="tableData" class="test-content">
           <el-table-column
-            type="selection"
-            width="55">
-          </el-table-column>
-          <el-table-column
             prop="name"
             :label="$t('commons.name')"
             width="150"

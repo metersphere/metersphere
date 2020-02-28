@@ -115,7 +115,7 @@
     methods: {
       convertProperty() {
         /// todo：下面4个属性是jmeter ConcurrencyThreadGroup plugin的属性，这种硬编码不太好吧，在哪能转换这种属性？
-        this.testPlan.loadConfigurationObj = [
+        return [
           {key: "TargetLevel", value: this.threadNumber},
           {key: "RampUp", value: this.rampUpTime},
           {key: "Steps", value: this.step},
