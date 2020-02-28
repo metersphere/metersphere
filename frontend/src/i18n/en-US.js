@@ -93,6 +93,10 @@ export default {
     'params': 'Parameters',
     'param_name': 'Name',
     'param_value': 'Value',
+    'domain_is_duplicate': 'Domain is duplicated',
+    'param_is_duplicate': 'Parameter name is duplicate',
+    'domain_ip_is_empty': 'Domain and IP cannot be empty',
+    'param_name_value_is_empty': 'Parameters cannot be empty',
   },
   i18n: {
     'home': 'Home',

@@ -93,6 +93,10 @@ export default {
     'params': '自定义属性',
     'param_name': '属性名',
     'param_value': '属性值',
+    'domain_is_duplicate': '域名不能重复',
+    'param_is_duplicate': '参数名不能重复',
+    'domain_ip_is_empty': '域名和IP不能为空',
+    'param_name_value_is_empty': '参数名和参数值不能为空',
   },
   i18n: {
     'home': '首页',

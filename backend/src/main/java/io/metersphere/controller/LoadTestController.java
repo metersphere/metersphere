@@ -69,6 +69,11 @@ public class LoadTestController {
         return loadTestService.get(testId);
     }
 
+    @GetMapping("/get-advanced-config/{testId}")
+    public String getAdvancedConfiguration(@PathVariable String testId) {
+        return loadTestService.getAdvancedConfiguration(testId);
+    }
+
     @PostMapping("/delete")
     public void delete(@RequestBody DeleteTestPlanRequest request) {
         loadTestService.delete(request);

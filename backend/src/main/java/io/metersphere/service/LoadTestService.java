@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -124,6 +125,7 @@ public class LoadTestService {
             loadTest.setScenarioDefinition("todo");
             loadTest.setDescription("todo");
             loadTest.setLoadConfiguration(request.getLoadConfiguration());
+            loadTest.setAdvancedConfiguration(request.getAdvancedConfiguration());
             loadTestMapper.updateByPrimaryKeySelective(loadTest);
         }
 
@@ -183,5 +185,10 @@ public class LoadTestService {
             return testDTOS.get(0);
         }
         return null;
+    }
+
+    public String getAdvancedConfiguration(String testId) {
+        LoadTestWithBLOBs loadTestWithBLOBs = loadTestMapper.selectByPrimaryKey(testId);
+        return Optional.ofNullable(loadTestWithBLOBs).orElse(new LoadTestWithBLOBs()).getAdvancedConfiguration();
     }
 }

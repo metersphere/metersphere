@@ -76,7 +76,6 @@
     },
     watch: {
       '$route'(to) {
-        window.console.log(to);
         // 如果是创建测试
         if (to.name === 'createTest') {
           window.location.reload();
@@ -117,6 +116,7 @@
             message: this.$t('commons.save_success'),
             type: 'success'
           });
+          this.$refs.advancedConfig.cancelAllEdit();
         });
       },
       saveAndRun() {
@@ -151,6 +151,9 @@
         if (this.testPlan.loadConfigurationObj) {
           this.testPlan.loadConfiguration = JSON.stringify(this.testPlan.loadConfigurationObj);
         }
+        // 高级配置
+        this.testPlan.advancedConfiguration = JSON.stringify(this.$refs.advancedConfig.configurations());
+
         // file属性不需要json化
         let requestJson = JSON.stringify(this.testPlan, function (key, value) {
           return key === "file" ? undefined : value
@@ -201,10 +204,6 @@
         }
 
         if (!this.$refs.advancedConfig.validConfig()) {
-          this.$message({
-            message: this.$t('load_test.advanced_config_error'),
-            type: 'error'
-          });
           return false;
         }
 

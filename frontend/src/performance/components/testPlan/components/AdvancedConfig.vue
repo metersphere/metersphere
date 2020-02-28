@@ -1,5 +1,5 @@
 <template>
-  <div class="el-tab-pane-box">
+  <div>
 
     <el-row type="flex" justify="start">
       <el-col :span="8">
@@ -48,7 +48,7 @@
           </template>
         </el-table-column>
         <el-table-column align="center">
-          <template slot-scope="{row}">
+          <template slot-scope="{row, $index}">
             <template v-if="row.edit">
               <el-button
                 class="cancel-btn"
@@ -79,7 +79,7 @@
               size="mini"
               icon="el-icon-delete"
               circle
-              @click="del(row, 'domains', 'domain')">
+              @click="del(row, 'domains', $index)">
             </el-button>
           </template>
         </el-table-column>
@@ -134,7 +134,7 @@
           </template>
         </el-table-column>
         <el-table-column align="center">
-          <template slot-scope="{row}">
+          <template slot-scope="{row, $index}">
             <template v-if="row.edit">
               <el-button
                 class="cancel-btn"
@@ -165,7 +165,7 @@
               size="mini"
               icon="el-icon-delete"
               circle
-              @click="del(row, 'params', 'name')">
+              @click="del(row, 'params', $index)">
             </el-button>
           </template>
         </el-table-column>
@@ -174,12 +174,12 @@
 
     <el-row>
       <el-col :span="8">
-        建立连接超时时间 10 ms
+        建立连接超时时间 {{timeout}} ms
       </el-col>
     </el-row>
     <el-row>
       <el-col :span="8">
-        自定义 HTTP 响应成功状态码 302
+        自定义 HTTP 响应成功状态码 {{statusCode}}
       </el-col>
     </el-row>
   </div>
@@ -190,18 +190,25 @@
     name: "MsTestPlanAdvancedConfig",
     data() {
       return {
-        domains: [
-          {domain: 'baidu.com0', enable: true, ip: '127.0.0.1', edit: false},
-          {domain: 'baidu.com1', enable: true, ip: '127.0.0.1', edit: false},
-          {domain: 'baidu.com2', enable: true, ip: '127.0.0.1', edit: false},
-          {domain: 'baidu.com3', enable: true, ip: '127.0.0.1', edit: false},
-        ],
-        params: [
-          {name: 'param1', value: '13134', enable: true, edit: false},
-          {name: 'param2', value: '13134', enable: true, edit: false},
-          {name: 'param3', value: '13134', enable: true, edit: false},
-          {name: 'param4', value: '13134', enable: true, edit: false},
-        ]
+        timeout: 10,
+        statusCode: [302],
+        domains: [],
+        params: [],
+      }
+    },
+    mounted() {
+      let testId = this.$route.path.split('/')[2];
+      if (testId) {
+        this.$get('/testplan/get-advanced-config/' + testId, response => {
+          let data = JSON.parse(response.data);
+          this.timeout = data.timeout;
+          this.statusCode = data.statusCode;
+          this.domains = data.domains;
+          this.params = data.params;
+
+          this.domains.forEach(d => d.edit = false);
+          this.params.forEach(d => d.edit = false);
+        });
       }
     },
     methods: {
@@ -215,21 +222,26 @@
           row[key + 'Origin'] = row[key];
         });
       },
+      delOriginObject(row) {
+        Object.keys(row).forEach(function (key) {
+          delete row[key + 'Origin'];
+        });
+      },
       add(dataName) {
         if (dataName === 'domains') {
           this[dataName].push({
-            domain: '',
+            domain: 'fit2cloud.com',
             enable: true,
-            ip: '',
-            edit: false,
+            ip: '127.0.0.1',
+            edit: true,
           });
         }
         if (dataName === 'params') {
           this[dataName].push({
-            name: '',
+            name: 'param1',
             enable: true,
-            value: '',
-            edit: false,
+            value: '0',
+            edit: true,
           });
         }
       },
@@ -237,30 +249,66 @@
         this.saveOriginObject(row);
         row.edit = !row.edit
       },
-      del(row, dataName, id) {
-        this[dataName] = this[dataName].filter((d) => d[id] !== row[id]);
+      del(row, dataName, index) {
+        this[dataName].splice(index, 1);
       },
       cancelEdit(row) {
         row.edit = false;
         // rollback changes
         this.revertObject(row);
-        this.$message({
-          message: 'The row has been restored to the original value',
-          type: 'warning'
-        })
       },
       confirmEdit(row) {
         row.edit = false;
         this.saveOriginObject(row);
-        this.$message({
-          message: 'The row has been edited',
-          type: 'success'
-        })
+      },
+      groupBy(data, key) {
+        return data.reduce((p, c) => {
+          let name = c[key];
+          if (!p.hasOwnProperty(name)) {
+            p[name] = 0;
+          }
+          p[name]++;
+          return p;
+        }, {});
       },
       validConfig() {
-        return this.domains.filter(d => !d.domain || !d.ip).length === 0
-          &&
-          this.params.filter(d => !d.name || !d.value).length === 0;
+        let counts = this.groupBy(this.domains, 'domain');
+        for (let c in counts) {
+          if (counts[c] > 1) {
+            this.$message.error(this.$t('load_test.domain_is_duplicate'));
+            return false;
+          }
+        }
+        counts = this.groupBy(this.params, 'name');
+        for (let c in counts) {
+          if (counts[c] > 1) {
+            this.$message.error(this.$t('load_test.param_is_duplicate'));
+            return false;
+          }
+        }
+        if (this.domains.filter(d => !d.domain || !d.ip).length > 0) {
+          this.$message.error(this.$t('load_test.domain_ip_is_empty'));
+          return false;
+        }
+        if (this.params.filter(d => !d.name || !d.value).length > 0) {
+          this.$message.error(this.$t('load_test.param_name_value_is_empty'));
+          return false;
+        }
+        return true;
+      },
+      cancelAllEdit() {
+        this.domains.forEach(d => d.edit = false);
+        this.params.forEach(d => d.edit = false);
+      },
+      configurations() {
+        this.domains.forEach(d => this.delOriginObject(d));
+        this.params.forEach(d => this.delOriginObject(d));
+        return {
+          timeout: this.timeout,
+          statusCode: this.statusCode,
+          params: this.params,
+          domains: this.domains,
+        }
       },
     }
   }
@@ -275,8 +323,4 @@
     padding-right: 100px;
   }
 
-  .container-tab >>> .el-tabs__content {
-    flex-grow: 1;
-    overflow-y: scroll;
-  }
 </style>
