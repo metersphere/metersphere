@@ -141,6 +141,14 @@ public class UserController {
     }
 
     /**
+     * 组织成员列表不分页
+     */
+    @PostMapping("/orgmember/list/all")
+    public List<User> getOrgMemberList(@RequestBody QueryOrgMemberRequest request) {
+        return userService.getOrgMemberList(request);
+    }
+
+    /**
      * 查询组织成员列表 带角色信息
      */
     @PostMapping("/orgmemberdto/list/{goPage}/{pageSize}")

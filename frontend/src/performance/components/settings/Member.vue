@@ -245,8 +245,20 @@
       },
       create() {
         this.form = {};
-        this.$get('/user/list',response => {
-            this.createVisible = true;
+        let param = {
+          name: this.condition,
+          organizationId: this.currentUser().lastOrganizationId
+        };
+        let wsId = this.currentUser().lastWorkspaceId;
+        if (typeof wsId == "undefined" || wsId == null || wsId == "") {
+          this.$message({
+            message:'请先选择工作空间！',
+            type: 'warning'
+          });
+          return false;
+        }
+        this.$post('/user/orgmember/list/all', param,response => {
+          this.createVisible = true;
           this.$set(this.form, "userList", response.data);
         })
         this.result = this.$get('/role/list/test', response => {
