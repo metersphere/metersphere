@@ -21,7 +21,6 @@
 </template>
 
 <script>
-  import Cookies from 'js-cookie';
   import {TokenKey} from "../../../common/constants";
 
   export default {
@@ -46,7 +45,7 @@
     },
     computed: {
       currentUser: () => {
-        let user = Cookies.get(TokenKey);
+        let user = localStorage.getItem(TokenKey);
         return JSON.parse(user);
       }
     }

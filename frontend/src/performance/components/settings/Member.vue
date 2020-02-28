@@ -114,7 +114,6 @@
 
 <script>
   import MsCreateBox from "./CreateBox";
-  import Cookies from 'js-cookie';
   import {TokenKey} from "../../../common/constants";
 
   export default {
@@ -149,7 +148,7 @@
     },
     methods: {
       currentUser: () => {
-        let user = Cookies.get(TokenKey);
+        let user = localStorage.getItem(TokenKey);
         return JSON.parse(user);
       },
       initTableData() {

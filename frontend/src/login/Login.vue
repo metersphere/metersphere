@@ -43,7 +43,6 @@
 </template>
 
 <script>
-  import Cookies from 'js-cookie';
   import {TokenKey} from '../common/constants';
 
 
@@ -109,7 +108,7 @@
           if (valid) {
             this.$post("signin", this.form, (response) => {
               // 登录信息保存 cookie
-              Cookies.set(TokenKey, response.data);
+              localStorage.setItem(TokenKey, JSON.stringify(response.data));
               let rolesArray = response.data.roles;
               let roles = rolesArray.map(r => r.id);
               // 保存角色

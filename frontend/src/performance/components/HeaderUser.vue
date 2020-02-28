@@ -42,7 +42,6 @@
 </template>
 
 <script>
-  import Cookies from 'js-cookie';
   import {ROLE_ORG_ADMIN, ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER, TokenKey} from '../../common/constants';
 
   export default {
@@ -60,7 +59,7 @@
           {index: '2-1', name: '无工作空间'},
         ],
         currentUserInfo: {},
-        currentUserId: JSON.parse(Cookies.get(TokenKey)).id,
+        currentUserId: JSON.parse(localStorage.getItem(TokenKey)).id,
         workspaceIds: [],
         currentOrganizationName: '选择组织',
         currentWorkspaceName: '选择工作空间'
@@ -68,7 +67,7 @@
     },
     computed: {
       currentUser: () => {
-        let user = Cookies.get(TokenKey);
+        let user = localStorage.getItem(TokenKey);
         // window.console.log(user);
         return JSON.parse(user);
       }
@@ -81,7 +80,7 @@
             break;
           case "logout":
             this.$get("/signout", function () {
-              Cookies.remove(TokenKey);
+              localStorage.removeItem(TokenKey);
               window.location.href = "/login";
             });
             break;
@@ -129,7 +128,7 @@
         let orgId = data.id;
         let sign = "organization";
         this.$post("/user/switch/source/" + sign + "/"  + orgId, {}, response => {
-          Cookies.set(TokenKey, response.data);
+          localStorage.setItem(TokenKey, JSON.stringify(response.data));
           window.location.reload();
         })
       },
@@ -141,7 +140,7 @@
           return false;
         }
         this.$post("/user/switch/source/" + sign + "/" + workspaceId, {}, response => {
-          Cookies.set(TokenKey, response.data);
+          localStorage.setItem(TokenKey, JSON.stringify(response.data));
           window.location.reload();
         })
       }

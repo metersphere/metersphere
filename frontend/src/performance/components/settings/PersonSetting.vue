@@ -50,7 +50,6 @@
 </template>
 
 <script>
-  import Cookies from 'js-cookie';
   import {TokenKey} from "../../../common/constants";
 
   export default {
@@ -98,7 +97,7 @@
     },
     methods: {
       currentUser: () => {
-        let user = Cookies.get(TokenKey);
+        let user = localStorage.getItem(TokenKey);
         return JSON.parse(user);
       },
       edit(row) {
@@ -113,7 +112,7 @@
                 type: 'success',
                 message: '修改成功!'
               });
-              Cookies.set(TokenKey, response.data);
+              localStorage.setItem(TokenKey, JSON.stringify(response.data));
               this.updateVisible = false;
               this.initTableData();
               window.location.reload();

@@ -1,5 +1,4 @@
 import router from './components/router/router'
-import Cookies from 'js-cookie' // get token from cookie
 import {TokenKey} from '../common/constants';
 
 const whiteList = ['/login']; // no redirect whitelist
@@ -26,7 +25,7 @@ export const permission = {
 router.beforeEach(async (to, from, next) => {
 
   // determine whether the user has logged in
-  const user = JSON.parse(Cookies.get(TokenKey));
+  const user = JSON.parse(localStorage.getItem(TokenKey));
 
   if (user) {
     if (to.path === '/login') {

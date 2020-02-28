@@ -60,7 +60,6 @@
 
 <script>
   import MsCreateBox from "./CreateBox";
-  import Cookies from 'js-cookie';
   import {Message} from "element-ui";
   import {TokenKey} from "../../../common/constants";
 
@@ -72,7 +71,7 @@
     },
     computed: {
       currentUser: () => {
-        let user = Cookies.get(TokenKey);
+        let user = localStorage.getItem(TokenKey);
         window.console.log(user);
         return JSON.parse(user);
       }
