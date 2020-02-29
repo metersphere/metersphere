@@ -1,10 +1,10 @@
 <template>
   <el-col v-if="auth">
     <el-row id="header-top" type="flex" justify="space-between" align="middle">
-      <el-col :span="1">
+      <el-col :span="3">
         <a class="logo"/>
       </el-col>
-      <el-col :span="6">
+      <el-col :span="7">
         <ms-top-menus/>
       </el-col>
       <el-col :span="14">
