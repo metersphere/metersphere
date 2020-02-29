@@ -1,9 +1,9 @@
 <template>
-  <el-row>
-    <el-col :span="14" :offset="6">
+  <el-row type="flex" justify="end">
+    <el-col :span="21">
       <el-menu :unique-opened="true" mode="horizontal" router
                menu-trigger="click"
-               class="header-user-menu"
+               class="header-user-menu align-right"
                background-color="rgb(44, 42, 72)"
                text-color="#fff">
         <el-submenu index="1" popper-class="submenu" v-permission="['org_admin']">
@@ -27,8 +27,8 @@
       </el-menu>
     </el-col>
 
-    <el-col :span="2" :offset="2">
-      <el-dropdown size="medium" @command="handleCommand">
+    <el-col :span="3">
+      <el-dropdown size="medium" @command="handleCommand" class="align-right">
         <span class="dropdown-link">
             {{currentUser.name}}<i class="el-icon-caret-bottom el-icon--right"/>
         </span>
@@ -107,7 +107,7 @@
           this.$get("/workspace/list/orgworkspace/", response => {
             let data = response.data;
             if (data.length === 0) {
-              this.workspaceList = [{index:'1-1', name: '无工作区间'}]
+              this.workspaceList = [{index: '1-1', name: '无工作区间'}]
             } else {
               this.workspaceList = data;
               let workspace = data.filter(r => r.id === this.currentUser.lastWorkspaceId);
@@ -127,7 +127,7 @@
       changeOrg(data) {
         let orgId = data.id;
         let sign = "organization";
-        this.$post("/user/switch/source/" + sign + "/"  + orgId, {}, response => {
+        this.$post("/user/switch/source/" + sign + "/" + orgId, {}, response => {
           localStorage.setItem(TokenKey, JSON.stringify(response.data));
           window.location.reload();
         })
@@ -136,7 +136,7 @@
         let sign = "workspace";
         let workspaceId = data.id;
         // todo 工作空间为空判断
-        if (typeof(workspaceId) == "undefined") {
+        if (typeof (workspaceId) == "undefined") {
           return false;
         }
         this.$post("/user/switch/source/" + sign + "/" + workspaceId, {}, response => {
@@ -165,6 +165,10 @@
   .el-icon-check {
     color: #44b349;
     margin-left: 10px;
+  }
+
+  .align-right {
+    float: right;
   }
 </style>
 
