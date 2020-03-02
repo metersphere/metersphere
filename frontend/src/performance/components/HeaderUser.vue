@@ -2,9 +2,8 @@
   <el-row type="flex" justify="end">
     <el-col :span="21">
       <el-menu :unique-opened="true" mode="horizontal" router
-               menu-trigger="click"
                class="header-user-menu align-right"
-               background-color="rgb(44, 42, 72)"
+               background-color="#2c2a48"
                text-color="#fff">
         <el-submenu index="1" popper-class="submenu" v-permission="['org_admin']">
           <template slot="title">【组织】{{currentOrganizationName}}</template>
