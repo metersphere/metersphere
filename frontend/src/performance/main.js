@@ -10,6 +10,7 @@ import './permission' // permission control
 import i18n from "../i18n/i18n";
 import store from "./store";
 import {permission} from './permission'
+import chart from "../common/chart";
 
 Vue.config.productionTip = false;
 Vue.use(icon);
@@ -18,9 +19,10 @@ Vue.use(ElementUI, {
 });
 Vue.use(filters);
 Vue.use(ajax);
+Vue.use(chart);
 
 // v-permission
-Vue.directive('permission', permission)
+Vue.directive('permission', permission);
 
 new Vue({
   el: '#app',

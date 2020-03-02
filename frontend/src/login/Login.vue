@@ -16,9 +16,7 @@
           </div>
           <div class="form">
             <el-form-item prop="username">
-              <el-input v-model="form.username" :placeholder="$t('commons.username')" autofocus autocomplete="off"
-                        maxlength="100"
-                        show-word-limit/>
+              <el-input v-model="form.username" :placeholder="$t('commons.username')" autofocus autocomplete="off"/>
             </el-form-item>
             <el-form-item prop="password">
               <el-input v-model="form.password" :placeholder="$t('commons.password')" show-password autocomplete="off"
