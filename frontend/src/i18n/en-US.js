@@ -97,6 +97,9 @@ export default {
     'param_is_duplicate': 'Parameter name is duplicate',
     'domain_ip_is_empty': 'Domain and IP cannot be empty',
     'param_name_value_is_empty': 'Parameters cannot be empty',
+    'connect_timeout': 'Timeout to establish a connection',
+    'custom_http_code': 'Custom HTTP response success status code',
+    'separated_by_commas': 'Separated by commas',
   },
   i18n: {
     'home': 'Home',

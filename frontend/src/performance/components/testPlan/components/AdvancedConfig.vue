@@ -170,12 +170,29 @@
 
     <el-row>
       <el-col :span="8">
-        建立连接超时时间 {{timeout}} ms
+        <el-form :inline="true">
+          <el-form-item>
+            <div>{{$t('load_test.connect_timeout')}}</div>
+          </el-form-item>
+          <el-form-item>
+            <el-input-number size="mini" v-model="timeout" :min="10" :max="100000"></el-input-number>
+          </el-form-item>
+          <el-form-item>
+            ms
+          </el-form-item>
+        </el-form>
       </el-col>
     </el-row>
     <el-row>
       <el-col :span="8">
-        自定义 HTTP 响应成功状态码 {{statusCode}}
+        <el-form :inline="true">
+          <el-form-item>
+            <div>{{$t('load_test.custom_http_code')}}</div>
+          </el-form-item>
+          <el-form-item>
+            <el-input size="mini" v-model="statusCodeStr" :placeholder="$t('load_test.separated_by_commas')" @input="checkStatusCode"></el-input>
+          </el-form-item>
+        </el-form>
       </el-col>
     </el-row>
   </div>
@@ -187,25 +204,24 @@
     data() {
       return {
         timeout: 10,
-        statusCode: [302],
+        statusCode: [],
         domains: [],
         params: [],
+        statusCodeStr: '',
       }
     },
     mounted() {
       let testId = this.$route.path.split('/')[2];
       if (testId) {
-        this.$get('/testplan/get-advanced-config/' + testId, (response) => {
-          if (response.data) {
-            let data = JSON.parse(response.data);
-            this.timeout = data.timeout || 10;
-            this.statusCode = data.statusCode || [302];
-            this.domains = data.domains || [];
-            this.params = data.params || [];
-            this.domains.forEach(d => d.edit = false);
-            this.params.forEach(d => d.edit = false);
-          }
-        });
+        this.getAdvancedConfig(testId);
+      }
+    },
+    watch: {
+      '$route'(to) {
+        let testId = to.path.split('/')[2];
+        if (testId) {
+          this.getAdvancedConfig(testId);
+        }
       }
     },
     methods: {
@@ -222,6 +238,20 @@
       delOriginObject(row) {
         Object.keys(row).forEach(function (key) {
           delete row[key + 'Origin'];
+        });
+      },
+      getAdvancedConfig(testId) {
+        this.$get('/testplan/get-advanced-config/' + testId, (response) => {
+          if (response.data) {
+            let data = JSON.parse(response.data);
+            this.timeout = data.timeout || 10;
+            this.statusCode = data.statusCode || [];
+            this.statusCodeStr = this.statusCode.join(',');
+            this.domains = data.domains || [];
+            this.params = data.params || [];
+            this.domains.forEach(d => d.edit = false);
+            this.params.forEach(d => d.edit = false);
+          }
         });
       },
       add(dataName) {
@@ -293,6 +323,11 @@
         }
         return true;
       },
+      checkStatusCode() {
+        let license_num = this.statusCodeStr;
+        license_num = license_num.replace(/[^\d,]/g, ''); // 清除“数字”和“.”以外的字符
+        this.statusCodeStr = license_num;
+      },
       cancelAllEdit() {
         this.domains.forEach(d => d.edit = false);
         this.params.forEach(d => d.edit = false);
@@ -302,7 +337,7 @@
         this.params.forEach(d => this.delOriginObject(d));
         return {
           timeout: this.timeout,
-          statusCode: this.statusCode,
+          statusCode: this.statusCodeStr.split(','),
           params: this.params,
           domains: this.domains,
         }
