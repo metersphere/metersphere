@@ -13,12 +13,20 @@
 </template>
 
 <script>
+
+  import {ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER} from "../../../common/constants";
+
   export default {
     name: "MsRecentProject",
     mounted() {
-      this.$get('/project/recent/5', (response) => {
-        this.recentProjects = response.data;
-      });
+      const rolesString = localStorage.getItem("roles");
+      const roles = rolesString.split(',');
+
+      if (roles.indexOf(ROLE_TEST_MANAGER) > -1 || roles.indexOf(ROLE_TEST_USER) > -1 || roles.indexOf(ROLE_TEST_VIEWER) > -1) {
+        this.$get('/project/recent/5', (response) => {
+          this.recentProjects = response.data;
+        });
+      }
     },
     methods: {},
     data() {

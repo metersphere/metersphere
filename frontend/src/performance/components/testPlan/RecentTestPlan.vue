@@ -11,12 +11,20 @@
 </template>
 
 <script>
+  import {ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER} from "../../../common/constants";
+
   export default {
     name: "MsRecentTestPlan",
     mounted() {
-      this.$get('/testplan/recent/5', (response) => {
-        this.recentTestPlans = response.data;
-      });
+      const rolesString = localStorage.getItem("roles");
+      const roles = rolesString.split(',');
+
+      if (roles.indexOf(ROLE_TEST_MANAGER) > -1 || roles.indexOf(ROLE_TEST_USER) > -1 || roles.indexOf(ROLE_TEST_VIEWER) > -1) {
+        this.$get('/testplan/recent/5', (response) => {
+          this.recentTestPlans = response.data;
+        });
+      }
+
     },
     data() {
       return {
