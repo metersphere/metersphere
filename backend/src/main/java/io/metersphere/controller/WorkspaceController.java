@@ -65,7 +65,7 @@ public class WorkspaceController {
     }
 
     @PostMapping("list/all/{goPage}/{pageSize}")
-    @RequiresRoles(RoleConstants.ORG_ADMIN)
+    @RequiresRoles(RoleConstants.ADMIN)
     public Pager<List<WorkspaceDTO>> getAllWorkspaceList(@PathVariable int goPage, @PathVariable int pageSize) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, workspaceService.getAllWorkspaceList());

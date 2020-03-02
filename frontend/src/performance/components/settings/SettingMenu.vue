@@ -5,9 +5,9 @@
         <font-awesome-icon class="icon account" :icon="['far', 'address-card']" size="lg"/>
         <span>系统</span>
       </template>
-      <el-menu-item index="/setting/user" v-permission="['admin']">用户</el-menu-item>
-      <el-menu-item index="/setting/organization" v-permission="['admin']">组织</el-menu-item>
-      <el-menu-item index="/setting/systemworkspace" v-permission="['org_admin']">工作空间</el-menu-item>
+      <el-menu-item index="/setting/user">用户</el-menu-item>
+      <el-menu-item index="/setting/organization">组织</el-menu-item>
+      <el-menu-item index="/setting/systemworkspace">工作空间</el-menu-item>
       <el-menu-item index="/setting/testresourcepool">测试资源池</el-menu-item>
     </el-submenu>
 
