@@ -2,6 +2,7 @@ package io.metersphere.interceptor;
 
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.MybatisInterceptorConfig;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
@@ -10,7 +11,6 @@ import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
-import org.thymeleaf.util.MapUtils;
 
 import java.lang.reflect.Method;
 import java.util.*;
