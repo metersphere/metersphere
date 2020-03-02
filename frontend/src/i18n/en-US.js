@@ -54,6 +54,9 @@ export default {
     'search_by_name': 'Search by name',
     'input_name': 'Please enter a workspace name',
   },
+  member: {
+    'create': 'Create'
+  },
   load_test: {
     'recent': 'Recent Tests',
     'search_by_name': 'Search by name',

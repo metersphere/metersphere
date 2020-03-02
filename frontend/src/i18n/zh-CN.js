@@ -54,6 +54,9 @@ export default {
     'search_by_name': '根据名称搜索',
     'input_name': '请输入项目名称',
   },
+  member: {
+    'create': '添加成员'
+  },
   load_test: {
     'recent': '最近的测试',
     'search_by_name': '根据名称搜索',
