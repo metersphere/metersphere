@@ -151,21 +151,20 @@ public class WorkspaceService {
         List<String> roles = memberDTO.getRoleIds();
         List<String> allRoleIds = memberRoles.stream().map(Role::getId).collect(Collectors.toList());
         // 更新用户时添加了角色
-        if (roles.size() > allRoleIds.size()) {
-            for (int i = 0; i < roles.size(); i++) {
-                if (checkSourceRole(workspaceId, userId, roles.get(i)) == 0) {
-                    UserRole userRole = new UserRole();
-                    userRole.setId(UUID.randomUUID().toString());
-                    userRole.setUserId(userId);
-                    userRole.setRoleId(roles.get(i));
-                    userRole.setSourceId(workspaceId);
-                    userRole.setCreateTime(System.currentTimeMillis());
-                    userRole.setUpdateTime(System.currentTimeMillis());
-                    userRoleMapper.insertSelective(userRole);
-                }
+        for (int i = 0; i < roles.size(); i++) {
+            if (checkSourceRole(workspaceId, userId, roles.get(i)) == 0) {
+                UserRole userRole = new UserRole();
+                userRole.setId(UUID.randomUUID().toString());
+                userRole.setUserId(userId);
+                userRole.setRoleId(roles.get(i));
+                userRole.setSourceId(workspaceId);
+                userRole.setCreateTime(System.currentTimeMillis());
+                userRole.setUpdateTime(System.currentTimeMillis());
+                userRoleMapper.insertSelective(userRole);
             }
-        } else if (roles.size() < allRoleIds.size()){
-            allRoleIds.removeAll(roles);
+        }
+        allRoleIds.removeAll(roles);
+        if (allRoleIds.size() > 0) {
             UserRoleExample userRoleExample = new UserRoleExample();
             userRoleExample.createCriteria().andUserIdEqualTo(userId)
                     .andSourceIdEqualTo(workspaceId)

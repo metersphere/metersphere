@@ -152,7 +152,7 @@
         return JSON.parse(user);
       },
       initTableData() {
-        if (this.currentUser.lastWorkspaceId === null) {
+        if (this.currentUser().lastWorkspaceId === null) {
           return false;
         }
         this.loading = true;
