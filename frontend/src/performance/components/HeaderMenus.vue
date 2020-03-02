@@ -1,7 +1,6 @@
 <template>
   <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router
-           :default-active='$route.path'
-           menu-trigger="click">
+           :default-active='$route.path'>
     <el-menu-item index="/setting/personsetting">
       {{ $t("i18n.home") }}
     </el-menu-item>

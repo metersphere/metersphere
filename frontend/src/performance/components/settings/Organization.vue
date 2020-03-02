@@ -13,10 +13,11 @@
           </span>
         </el-row>
       </div>
-      <el-table :data="tableData" style="width: 100%">
+      <el-table :data="tableData" style="width: 100%" @cell-click="cellClick">
         <el-table-column type="selection" width="55"/>
         <el-table-column prop="name" :label="$t('commons.name')"/>
         <el-table-column prop="description" :label="$t('commons.description')"/>
+        <el-table-column prop="member" :label="$t('commons.member')"> 123 </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template slot-scope="scope">
             <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
@@ -126,6 +127,9 @@
         // this.loading = true;
         this.updateVisible = true;
         this.form = row;
+      },
+      cellClick(){
+        alert(1)
       },
       del(row) {
         this.$confirm(this.$t('organization.delete_confirm'), '', {

@@ -25,9 +25,11 @@ export default {
     'create_time': '创建时间',
     'update_time': '更新时间',
     'add': '添加',
+    'member': '成员'
   },
   workspace: {
     'create': '创建工作空间',
+    'update': '修改工作空间',
     'delete_confirm': '这个工作空间确定要删除吗?',
     'add': '添加工作空间',
     'input_name': '请输入工作空间名称',
@@ -40,6 +42,7 @@ export default {
     'modify': '修改组织',
     'delete_confirm': '这个组织确定要删除吗?',
     'input_name': '请输入组织名称',
+    'select_organization': '请选择组织',
     'search_by_name': '根据名称搜索',
     'special_characters_are_not_supported': '不支持特殊字符',
   },

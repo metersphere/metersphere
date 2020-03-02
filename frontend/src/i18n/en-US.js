@@ -25,9 +25,11 @@ export default {
     'create_time': 'Created Time',
     'update_time': 'Updated Time',
     'add': 'Add',
+    'member': 'Member'
   },
   workspace: {
     'create': 'Create Workspace',
+    'update': 'Update Workspace',
     'delete_confirm': 'Are you sure you want to delete this workspace?',
     'add': 'Add Workspace',
     'input_name': 'Please enter a workspace name',
@@ -40,6 +42,7 @@ export default {
     'modify': 'Modify',
     'delete_confirm': 'Are you sure you want to delete this workspace?',
     'input_name': 'Please enter a organization name',
+    'select_organization': 'Please select organization',
     'search_by_name': 'Search by name',
     'special_characters_are_not_supported': 'Special characters are not supported',
   },

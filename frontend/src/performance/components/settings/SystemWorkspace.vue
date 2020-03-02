@@ -52,8 +52,8 @@
         <el-form-item :label="$t('commons.description')">
           <el-input type="textarea" v-model="form.description"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('workspace.organization_name')" prop="orgIds">
-          <el-select v-model="form.organizationId" placeholder="请选择组织" class="select-width">
+        <el-form-item :label="$t('workspace.organization_name')" prop="organizationId">
+          <el-select v-model="form.organizationId" :placeholder="$t('organization.select_organization')" class="select-width">
             <el-option
               v-for="item in form.orgList"
               :key="item.id"
@@ -65,6 +65,30 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submit('form')" size="medium">{{$t('commons.save')}}</el-button>
+      </span>
+    </el-dialog>
+
+    <el-dialog :title="$t('workspace.update')" :visible.sync="updateVisible" width="30%">
+      <el-form :model="form" :rules="rules" ref="updateForm" label-position="left" label-width="100px" size="small">
+        <el-form-item :label="$t('commons.name')" prop="name">
+          <el-input v-model="form.name" autocomplete="off"/>
+        </el-form-item>
+        <el-form-item :label="$t('commons.description')">
+          <el-input type="textarea" v-model="form.description"></el-input>
+        </el-form-item>
+        <el-form-item :label="$t('workspace.organization_name')" prop="organizationId">
+          <el-select v-model="form.organizationId" :placeholder="$t('organization.select_organization')" class="select-width">
+            <el-option
+              v-for="item in form.orgList1"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="updateWorkspace('updateForm')" size="medium">{{$t('commons.save')}}</el-button>
       </span>
     </el-dialog>
   </div>
@@ -85,13 +109,13 @@
         this.createVisible = true;
         this.form = {};
         this.$get("/organization/list", response => {
-          this.form = { orgList: response.data }
+          this.$set(this.form, "orgList", response.data);
         })
       },
       submit(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            let saveType = 'add';
+            let saveType = 'special/add';
             if (this.form.id) {
               saveType = 'update'
             }
@@ -106,10 +130,12 @@
         });
       },
       edit(row) {
-        this.createVisible = true;
+        this.updateVisible = true;
         // copy user
         this.form = Object.assign({}, row);
-
+        this.$get("/organization/list", response => {
+          this.$set(this.form, "orgList1", response.data);
+        })
         // let self = this;
         // let getUser1 = this.$get("/test/user");
         // let getUser2 = this.$get("/test/sleep");
@@ -117,6 +143,22 @@
         //   window.console.log(r1.data.data, r2.data.data);
         //   self.loading = false;
         // });
+      },
+      updateWorkspace(updateForm) {
+        this.$refs[updateForm].validate(valide => {
+          if (valide) {
+            this.result = this.$post("/workspace/special/update", this.form,() => {
+              this.$message({
+                type: 'success',
+                message: this.$t('commons.modify_success')
+              });
+              this.updateVisible = false;
+              this.list();
+            });
+          } else {
+            return false;
+          }
+        })
       },
       del(row) {
         this.$confirm(this.$t('workspace.delete_confirm'), this.$t('commons.prompt'), {
@@ -154,6 +196,7 @@
         result: {},
         loading: false,
         createVisible: false,
+        updateVisible: false,
         btnTips: this.$t('workspace.add'),
         condition: "",
         items: [],
@@ -169,7 +212,7 @@
             {required: true, message: this.$t('workspace.input_name'), trigger: 'blur'},
             {min: 2, max: 50, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'}
           ],
-          orgIds: [
+          organizationId: [
             {required: true, message: '请选择组织', trigger: ['blur']}
           ]
         },
