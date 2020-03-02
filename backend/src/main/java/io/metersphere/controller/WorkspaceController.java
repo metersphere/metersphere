@@ -30,11 +30,23 @@ public class WorkspaceController {
         return workspaceService.saveWorkspace(workspace);
     }
 
+    @PostMapping("special/add")
+    @RequiresRoles(RoleConstants.ADMIN)
+    public void addWorkspaceByAdmin(@RequestBody Workspace workspace) {
+        workspaceService.addWorkspaceByAdmin(workspace);
+    }
+
     @PostMapping("update")
     @RequiresRoles(RoleConstants.ORG_ADMIN)
     public Workspace updateWorkspace(@RequestBody Workspace workspace) {
         workspaceService.checkOwner(workspace.getId());
         return workspaceService.saveWorkspace(workspace);
+    }
+
+    @PostMapping("special/update")
+    @RequiresRoles(RoleConstants.ADMIN)
+    public void updateWorkspacebyAdmin(@RequestBody Workspace workspace) {
+        workspaceService.updateWorkspacebyAdmin(workspace);
     }
 
     @GetMapping("delete/{workspaceId}")
