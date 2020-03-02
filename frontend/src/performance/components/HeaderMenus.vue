@@ -30,9 +30,12 @@
     </el-submenu>
     <el-submenu index="5" popper-class="submenu" v-permission="['test_manager', 'test_user', 'test_viewer']">
       <template slot="title">报告</template>
-      <el-menu-item index="5-1">报告1</el-menu-item>
-      <el-menu-item index="5-2">报告2</el-menu-item>
-      <el-menu-item index="5-3">显示全部</el-menu-item>
+      <ms-recent-report/>
+      <el-divider/>
+      <el-menu-item index="/report/all">
+        <font-awesome-icon :icon="['fa', 'list-ul']"/>
+        <span style="padding-left: 5px;">显示全部</span>
+      </el-menu-item>
     </el-submenu>
   </el-menu>
 </template>
@@ -40,10 +43,11 @@
 <script>
   import MsRecentTestPlan from "./testPlan/RecentTestPlan";
   import MsRecentProject from "./project/RecentProject";
+  import MsRecentReport from "./report/RecentReport";
 
   export default {
     name: "MsMenus",
-    components: {MsRecentTestPlan, MsRecentProject}
+    components: {MsRecentReport, MsRecentTestPlan, MsRecentProject}
   }
 </script>
 
