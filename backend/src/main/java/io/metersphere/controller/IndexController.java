@@ -11,13 +11,13 @@ public class IndexController {
 
     @GetMapping(value = "/")
     public String index() {
-        return "index";
+        return "index.html";
     }
 
     @GetMapping(value = "/login")
     public String login() {
         if (SessionUtils.getUser() == null) {
-            return "login";
+            return "login.html";
         } else {
             return "redirect:/";
         }
