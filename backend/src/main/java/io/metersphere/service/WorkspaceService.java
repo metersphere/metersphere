@@ -177,4 +177,16 @@ public class WorkspaceService {
     public Integer checkSourceRole(String orgId, String userId, String roleId) {
         return extOrganizationMapper.checkSourceRole(orgId, userId, roleId);
     }
+
+    public void updateWorkspacebyAdmin(Workspace workspace) {
+        workspace.setUpdateTime(System.currentTimeMillis());
+        workspaceMapper.updateByPrimaryKeySelective(workspace);
+    }
+
+    public void addWorkspaceByAdmin(Workspace workspace) {
+        workspace.setId(UUID.randomUUID().toString());
+        workspace.setCreateTime(System.currentTimeMillis());
+        workspace.setUpdateTime(System.currentTimeMillis());
+        workspaceMapper.insertSelective(workspace);
+    }
 }
