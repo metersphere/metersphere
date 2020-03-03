@@ -72,7 +72,6 @@
     computed: {
       currentUser: () => {
         let user = localStorage.getItem(TokenKey);
-        window.console.log(user);
         return JSON.parse(user);
       }
     },

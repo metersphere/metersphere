@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Role;
 import io.metersphere.base.domain.User;
+import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.member.AddMemberRequest;
@@ -16,6 +17,7 @@ import io.metersphere.dto.UserRoleDTO;
 import io.metersphere.service.UserService;
 import io.metersphere.user.SessionUser;
 import io.metersphere.user.SessionUtils;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
@@ -88,13 +90,22 @@ public class UserController {
     }
 
     /**
-     * 获取成员用户
+     * 获取工作空间成员用户
      */
     @PostMapping("/member/list/{goPage}/{pageSize}")
     //@RequiresRoles(RoleConstants.TEST_MANAGER)
     public Pager<List<User>> getMemberList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryMemberRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getMemberList(request));
+    }
+
+    /**
+     * 获取工作空间成员用户 不分页
+     */
+    @PostMapping("/member/list/all")
+    @RequiresRoles(RoleConstants.ADMIN)
+    public List<User> getMemberList(@RequestBody QueryMemberRequest request) {
+        return userService.getMemberList(request);
     }
 
     /**
