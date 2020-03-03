@@ -13,7 +13,7 @@
 
     <el-submenu index="2" v-permission="['org_admin']">
       <template slot="title">
-        <font-awesome-icon class="icon workspace" :icon="['far', 'clone']" size="lg"/>
+        <font-awesome-icon class="icon organization" :icon="['far', 'building']" size="lg"/>
         <span>组织</span>
       </template>
       <el-menu-item index="/setting/organizationmember" v-permission="['org_admin']">成员</el-menu-item>
@@ -22,7 +22,7 @@
 
     <el-submenu index="3" v-permission="['test_manager','test_user','test_viewer']">
       <template slot="title">
-        <font-awesome-icon class="icon workspace" :icon="['far', 'clone']" size="lg"/>
+        <font-awesome-icon class="icon workspace" :icon="['far', 'list-alt']" size="lg"/>
         <span>工作空间</span>
       </template>
       <el-menu-item index="/setting/member">成员</el-menu-item>
@@ -62,6 +62,10 @@
 
   .account {
     color: #5a78f0;
+  }
+
+  .organization {
+    color: #b33a5b;
   }
 
   .workspace {
