@@ -16,9 +16,9 @@
         <el-table-column prop="name" label="用户名"/>
         <el-table-column prop="email" label="邮箱"/>
         <el-table-column prop="phone" label="电话"/>
-        <el-table-column prop="roles" label="角色" width="140">
+        <el-table-column prop="roles" label="角色" width="120">
           <template slot-scope="scope">
-            <el-tag v-for="(role, index) in scope.row.roles" :key="index" size="mini" effect="dark">
+            <el-tag v-for="(role, index) in scope.row.roles" :key="index" size="mini" effect="dark" type="success">
               {{ role.name }}
             </el-tag>
           </template>
@@ -58,8 +58,8 @@
               :key="item.id"
               :label="item.name"
               :value="item.id">
-              <span class="org-member-name">{{ item.name }}</span>
-              <span class="org-member-email">{{ item.email }}</span>
+              <span class="workspace-member-name">{{ item.name }}</span>
+              <span class="workspace-member-email">{{ item.email }}</span>
             </el-option>
           </el-select>
         </el-form-item>
@@ -105,30 +105,28 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="updateOrgMember('updateUserForm')" size="medium">保存</el-button>
+        <el-button type="primary" @click="updateWorkspaceMember('updateUserForm')" size="medium">保存</el-button>
       </span>
     </el-dialog>
+
   </div>
 </template>
 
 <script>
-  import MsCreateBox from "./CreateBox";
-  import {TokenKey} from "../../../common/constants";
+  import MsCreateBox from "../CreateBox";
+  import {TokenKey} from "../../../../common/constants";
 
   export default {
-    name: "MsOrganizationMember",
+    name: "MsMember",
     components: {MsCreateBox},
-    created() {
-      this.initTableData();
-    },
     data() {
       return {
         result: {},
-        btnTips: "添加组织成员",
+        form: {},
+        btnTips: "添加工作空间成员",
         createVisible: false,
         updateVisible: false,
-        form: {},
-        queryPath: "/user/orgmember/list",
+        queryPath: "/user/member/list",
         condition: "",
         tableData: [],
         rules: {
@@ -145,20 +143,28 @@
         total: 0,
       }
     },
+    created: function () {
+      this.initTableData();
+    },
     methods: {
       currentUser: () => {
         let user = localStorage.getItem(TokenKey);
         return JSON.parse(user);
       },
       initTableData() {
+        if (this.currentUser().lastWorkspaceId === null) {
+          return false;
+        }
+        this.loading = true;
         let param = {
           name: this.condition,
-          organizationId: this.currentUser().lastOrganizationId
+          workspaceId: this.currentUser().lastWorkspaceId
         };
+
         this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
           let data = response.data;
           this.tableData = data.listObject;
-          let url = "/userrole/list/org/" + this.currentUser().lastOrganizationId;
+          let url = "/userrole/list/ws/" + this.currentUser().lastWorkspaceId;
           for (let i = 0; i < this.tableData.length; i++) {
             this.$get(url + "/" + this.tableData[i].id, response => {
               let roles = response.data;
@@ -167,6 +173,7 @@
           }
           this.total = data.itemCount;
         })
+
       },
       buildPagePath(path) {
         return path + "/" + this.currentPage + "/" + this.pageSize;
@@ -174,38 +181,59 @@
       search() {
         this.initTableData();
       },
+      handleSizeChange(size) {
+        this.pageSize = size;
+      },
+      handleCurrentChange(current) {
+        this.currentPage = current;
+      },
       closeFunc() {
         this.form = {};
         this.initTableData();
       },
-      handleSizeChange(size) {
-        this.pageSize = size;
-        this.initTableData();
-      },
-      handleCurrentChange(current) {
-        this.currentPage = current;
-        this.initTableData();
+      del(row) {
+        this.$confirm('移除该成员, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.loading = true;
+          this.$get('/user/member/delete/' + this.currentUser().lastWorkspaceId + '/' + row.id).then(() => {
+            this.initTableData();
+            this.loading = false;
+          });
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          });
+        }).catch(() => {
+          this.loading = false;
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
       },
       edit(row) {
         this.updateVisible = true;
         this.form = row;
         let roleIds = this.form.roles.map(r => r.id);
-        this.result = this.$get('/role/list/org', response => {
+        this.result = this.$get('/role/list/test', response => {
           this.$set(this.form, "allroles", response.data);
         })
         // 编辑使填充角色信息
         this.$set(this.form, 'roleIds', roleIds);
       },
-      updateOrgMember() {
+      updateWorkspaceMember() {
         let param = {
           id: this.form.id,
           name: this.form.name,
           email: this.form.email,
           phone: this.form.phone,
           roleIds: this.form.roleIds,
-          organizationId: this.currentUser().lastOrganizationId
+          workspaceId: this.currentUser().lastWorkspaceId
         }
-        this.result = this.$post("/organization/member/update", param,() => {
+        this.result = this.$post("/workspace/member/update", param,() => {
           this.$message({
             type: 'success',
             message: '修改成功!'
@@ -214,51 +242,40 @@
           this.initTableData();
         });
       },
-      del(row) {
-        this.$confirm('是否删除用户 ' + row.name + ' ?', '', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.result = this.$get('/user/orgmember/delete/' + this.currentUser().lastOrganizationId + '/' + row.id, () => {
-            this.$message({
-              type: 'success',
-              message: '删除成功!'
-            });
-            this.initTableData();
-          });
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          });
-        });
-      },
       create() {
         this.form = {};
-        this.result = this.$get('/user/besideorg/list/' + this.currentUser().lastOrganizationId, response => {
+        let param = {
+          name: this.condition,
+          organizationId: this.currentUser().lastOrganizationId
+        };
+        let wsId = this.currentUser().lastWorkspaceId;
+        if (typeof wsId == "undefined" || wsId == null || wsId == "") {
+          this.$message({
+            message:'请先选择工作空间！',
+            type: 'warning'
+          });
+          return false;
+        }
+        this.$post('/user/orgmember/list/all', param,response => {
           this.createVisible = true;
           this.$set(this.form, "userList", response.data);
-        });
-        this.result = this.$get('/role/list/org', response => {
+        })
+        this.result = this.$get('/role/list/test', response => {
           this.$set(this.form, "roles", response.data);
         })
       },
       submitForm(formName) {
-        this.loading = true;
         this.$refs[formName].validate((valid) => {
           if (valid) {
             let param = {
               userIds: this.form.userIds,
               roleIds: this.form.roleIds,
-              organizationId: this.currentUser().lastOrganizationId
+              workspaceId: this.currentUser().lastWorkspaceId
             };
-            this.result = this.$post("user/orgmember/add", param,() => {
+            this.result = this.$post("user/member/add", param, () => {
               this.initTableData();
               this.createVisible = false;
             })
-          } else {
-            return false;
           }
         });
       }
@@ -267,23 +284,32 @@
 </script>
 
 <style scoped>
+  .search {
+    width: 240px;
+  }
+
+  .el-table__row:hover .edit {
+    opacity: 1;
+  }
+
   .table-page {
     padding-top: 20px;
     margin-right: -9px;
     float: right;
   }
 
-  .org-member-name {
+  .select-width {
+    width: 100%;
+  }
+
+  .workspace-member-name {
     float: left;
   }
 
-  .org-member-email {
+  .workspace-member-email {
     float: right;
     color: #8492a6;
     font-size: 13px;
   }
 
-  .select-width {
-    width: 100%;
-  }
 </style>

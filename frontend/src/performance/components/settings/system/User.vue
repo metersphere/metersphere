@@ -106,7 +106,7 @@
 </template>
 
 <script>
-  import MsCreateBox from "./CreateBox";
+  import MsCreateBox from "../CreateBox";
 
   export default {
     data() {

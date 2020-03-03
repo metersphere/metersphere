@@ -2,18 +2,17 @@ import Vue from "vue";
 import VueRouter from 'vue-router'
 import RouterSidebar from "./RouterSidebar";
 import Setting from "../settings/Setting";
-import Workspace from "../settings/Workspace";
-import User from "../settings/User";
+import User from "../settings/system/User";
 import EditTestPlan from "../testPlan/EditTestPlan";
 import AllTestPlan from "../testPlan/AllTestPlan";
-import Organization from "../settings/Organization";
-import OrganizationMember from "../settings/OrganizationMember";
-import Member from "../settings/Member";
-import TestResourcePool from "../settings/TestResourcePool";
+import Organization from "../settings/system/Organization";
+import OrganizationMember from "../settings/organization/OrganizationMember";
+import Member from "../settings/workspace/WorkspaceMember";
+import TestResourcePool from "../settings/system/TestResourcePool";
 import MsProject from "../project/MsProject";
-import OrganizationWorkspace from "../settings/OrganizationWorkspace";
-import PersonSetting from "../settings/PersonSetting";
-import SystemWorkspace from "../settings/SystemWorkspace";
+import OrganizationWorkspace from "../settings/organization/OrganizationWorkspace";
+import PersonSetting from "../settings/personal/PersonSetting";
+import SystemWorkspace from "../settings/system/SystemWorkspace";
 
 Vue.use(VueRouter);
 
@@ -32,10 +31,6 @@ const router = new VueRouter({
         content: Setting
       },
       children: [
-        {
-          path: 'workspace',
-          component: Workspace,
-        },
         {
           path: 'user',
           component: User,
