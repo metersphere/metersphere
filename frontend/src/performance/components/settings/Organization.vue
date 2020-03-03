@@ -13,6 +13,7 @@
           </span>
         </el-row>
       </div>
+      <!-- system menu organization table-->
       <el-table :data="tableData" style="width: 100%">
         <el-table-column type="selection" width="55"/>
         <el-table-column prop="name" :label="$t('commons.name')"/>
@@ -29,7 +30,6 @@
           </template>
         </el-table-column>
       </el-table>
-
       <div>
         <el-row>
           <el-col :span="22" :offset="1">
@@ -48,21 +48,24 @@
         </el-row>
       </div>
     </el-card>
-
+    <!-- dialog of organization member -->
     <el-dialog :visible.sync="memberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc">
       <el-row type="flex" justify="space-between" align="middle">
-          <span class="title">成员
-            <ms-create-box :tips="btnTips" :exec="addMember"/>
-          </span>
+        <span class="title">{{$t('commons.member')}}
+          <ms-create-box :tips="btnTips" :exec="addMember"/>
+        </span>
         <span class="search">
-          <el-input type="text" size="small" placeholder="根据用户名搜索" prefix-icon="el-icon-search"
+          <el-input type="text" size="small"
+                    :placeholder="$t('organization.search_by_name')"
+                    prefix-icon="el-icon-search"
                     maxlength="60" v-model="condition" clearable/>
         </span>
       </el-row>
+      <!-- organization member table -->
       <el-table :data="memberLineData" style="width: 100%">
-        <el-table-column prop="name" label="用户名"/>
-        <el-table-column prop="email" label="邮箱"/>
-        <el-table-column prop="phone" label="电话"/>
+        <el-table-column prop="name" :label="$t('commons.username')"/>
+        <el-table-column prop="email" :label="$t('commons.email')"/>
+        <el-table-column prop="phone" :label="$t('commons.phone')"/>
         <el-table-column label="角色" width="140">
           <template slot-scope="scope">
             <el-tag v-for="(role, index) in scope.row.roles" :key="index" size="mini" effect="dark">
@@ -96,6 +99,7 @@
       </div>
     </el-dialog>
 
+    <!-- add organization form -->
     <el-dialog :title="$t('organization.create')" :visible.sync="createVisible" width="30%" @closed="closeFunc" :destroy-on-close="true">
       <el-form :model="form" label-position="left" label-width="100px" size="small" :rules="rule" ref="createOrganization">
         <el-form-item :label="$t('commons.name')" prop="name">
@@ -110,6 +114,7 @@
       </span>
     </el-dialog>
 
+    <!-- update organization form -->
     <el-dialog :title="$t('organization.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
       <el-form :model="form" label-position="left" label-width="100px" size="small" :rules="rule" ref="updateOrganizationForm">
         <el-form-item :label="$t('commons.name')" prop="name">
@@ -124,10 +129,11 @@
       </span>
     </el-dialog>
 
-    <el-dialog title="添加成员" :visible.sync="addMemberVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
-      <el-form :model="memberForm" ref="form" :rules="rule" label-position="left" label-width="100px" size="small">
-        <el-form-item label="成员" prop="userIds">
-          <el-select v-model="memberForm.userIds" multiple placeholder="请选择成员" class="select-width">
+    <!-- add organization member form -->
+    <el-dialog :title="$t('member.create')" :visible.sync="addMemberVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
+      <el-form :model="memberForm" ref="form" :rules="orgMemberRule" label-position="left" label-width="100px" size="small">
+        <el-form-item :label="$t('commons.member')" prop="userIds">
+          <el-select v-model="memberForm.userIds" multiple :placeholder="$t('member.please_choose_member')" class="select-width">
             <el-option
               v-for="item in memberForm.userList"
               :key="item.id"
@@ -138,8 +144,8 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="角色" prop="roleIds">
-          <el-select v-model="memberForm.roleIds" multiple placeholder="请选择角色" class="select-width">
+        <el-form-item :label="$t('commons.role')" prop="roleIds">
+          <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
             <el-option
               v-for="item in memberForm.roles"
               :key="item.id"
@@ -150,26 +156,27 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm('form')" size="medium">保存</el-button>
+        <el-button type="primary" @click="submitForm('form')" size="medium">{{$t('commons.save')}}</el-button>
       </span>
     </el-dialog>
 
-    <el-dialog title="修改成员" :visible.sync="updateMemberVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
+    <!-- update organization member form -->
+    <el-dialog :title="$t('member.modify')" :visible.sync="updateMemberVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
       <el-form :model="memberForm" label-position="left" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="memberForm.id" autocomplete="off" :disabled="true"/>
         </el-form-item>
-        <el-form-item label="用户名" prop="name">
+        <el-form-item :label="$t('commons.username')" prop="name">
           <el-input v-model="memberForm.name" autocomplete="off"/>
         </el-form-item>
-        <el-form-item label="邮箱" prop="email">
+        <el-form-item :label="$t('commons.email')" prop="email">
           <el-input v-model="memberForm.email" autocomplete="off"/>
         </el-form-item>
-        <el-form-item label="电话" prop="phone">
+        <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="memberForm.phone" autocomplete="off"/>
         </el-form-item>
-        <el-form-item label="角色" prop="roleIds">
-          <el-select v-model="memberForm.roleIds" multiple placeholder="请选择角色" class="select-width">
+        <el-form-item :label="$t('commons.role')" prop="roleIds">
+          <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
             <el-option
               v-for="item in memberForm.allroles"
               :key="item.id"
@@ -180,7 +187,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="updateOrgMember('updateUserForm')" size="medium">保存</el-button>
+        <el-button type="primary" @click="updateOrgMember('updateUserForm')" size="medium">{{$t('commons.save')}}</el-button>
       </span>
     </el-dialog>
 
@@ -233,6 +240,14 @@
           description: [
             { max: 50, message: this.$t('commons.input_limit', [0, 50]), trigger: 'blur'}
           ]
+        },
+        orgMemberRule: {
+          userIds: [
+            {required: true, message: '请选择成员', trigger: ['blur']}
+          ],
+          roleIds: [
+            {required: true, message: '请选择角色', trigger: ['blur']}
+          ]
         }
       }
     },
@@ -254,7 +269,6 @@
         })
       },
       edit(row) {
-        // this.loading = true;
         this.updateVisible = true;
         this.form = row;
       },
@@ -269,6 +283,7 @@
         this.$set(this.memberForm, 'roleIds', roleIds);
       },
       cellClick(row){
+        // 保存当前点击的组织信息到currentRow
         this.currentRow = row;
         this.memberVisible = true;
         let param = {
@@ -310,22 +325,22 @@
         });
       },
       delMember(row) {
-        this.$confirm('是否删除用户 ' + row.name + ' ?', '', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+        this.$confirm(this.$t('member.delete_confirm'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
           this.result = this.$get('/user/orgmember/delete/' + this.currentRow.id + '/' + row.id, () => {
             this.$message({
               type: 'success',
-              message: '删除成功!'
+              message: this.$t('commons.delete_success')
             });
             this.cellClick(this.currentRow);
           });
         }).catch(() => {
           this.$message({
             type: 'info',
-            message: '已取消删除'
+            message: this.$t('commons.delete_cancel')
           });
         });
       },
@@ -397,7 +412,6 @@
         this.currentPage = current;
         this.initTableData();
       },
-      //
       handleMemberSizeChange(size) {
         this.pageMemberSize = size;
         this.cellClick(this.currentRow);
@@ -438,7 +452,7 @@
         this.result = this.$post("/organization/member/update", param,() => {
           this.$message({
             type: 'success',
-            message: '修改成功!'
+            message: this.$t('commons.modify_success')
           });
           this.updateMemberVisible = false;
           this.cellClick(this.currentRow);
