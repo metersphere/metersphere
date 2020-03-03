@@ -25,7 +25,10 @@ export default {
     'create_time': '创建时间',
     'update_time': '更新时间',
     'add': '添加',
-    'member': '成员'
+    'member': '成员',
+    'email': '邮箱',
+    'phone': '电话',
+    'role': '角色',
   },
   workspace: {
     'create': '创建工作空间',
@@ -55,7 +58,13 @@ export default {
     'input_name': '请输入项目名称',
   },
   member: {
-    'create': '添加成员'
+    'create': '添加成员',
+    'modify': '修改成员',
+    'delete_confirm': '这个用户确定要删除吗?',
+    'please_choose_member': '请选择成员',
+  },
+  role: {
+    'please_choose_role': '请选择角色',
   },
   load_test: {
     'recent': '最近的测试',

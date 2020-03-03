@@ -25,7 +25,10 @@ export default {
     'create_time': 'Created Time',
     'update_time': 'Updated Time',
     'add': 'Add',
-    'member': 'Member'
+    'member': 'Member',
+    'email': 'Email',
+    'phone': 'Phone',
+    'role': 'Role',
   },
   workspace: {
     'create': 'Create Workspace',
@@ -55,7 +58,13 @@ export default {
     'input_name': 'Please enter a workspace name',
   },
   member: {
-    'create': 'Create'
+    'create': 'Create',
+    'modify': 'Modify',
+    'delete_confirm': 'Are you sure you want to delete this Member?',
+    'please_choose_member': 'Please Choose Member',
+  },
+  role: {
+    'please_choose_role': 'Please Choose Role',
   },
   load_test: {
     'recent': 'Recent Tests',
