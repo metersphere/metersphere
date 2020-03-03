@@ -119,6 +119,18 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/kg.apc/jmeter-plugins-tst -->
+        <dependency>
+            <groupId>kg.apc</groupId>
+            <artifactId>jmeter-plugins-tst</artifactId>
+            <version>2.5</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/kg.apc/jmeter-plugins-casutg -->
+        <dependency>
+            <groupId>kg.apc</groupId>
+            <artifactId>jmeter-plugins-casutg</artifactId>
+            <version>2.9</version>
+        </dependency>
 
     </dependencies>
 
