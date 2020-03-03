@@ -1,29 +1,31 @@
 <template>
-  <div v-loading="result.loading">
-
-    <el-card>
+  <div>
+    <el-card v-loading="result.loading">
       <div slot="header">
         <el-row type="flex" justify="space-between" align="middle">
-          <span class="title">{{$t('commons.organization')}}
+          <span class="title">
+            {{$t('commons.workspace')}}
             <ms-create-box :tips="btnTips" :exec="create"/>
           </span>
           <span class="search">
-            <el-input type="text" size="small" :placeholder="$t('organization.search_by_name')" prefix-icon="el-icon-search"
-                              maxlength="60" v-model="condition" clearable/>
+            <el-input type="text" size="small"
+                      :placeholder="$t('workspace.search_by_name')"
+                      prefix-icon="el-icon-search"
+                      maxlength="60" v-model="condition" clearable/>
           </span>
         </el-row>
       </div>
-      <!-- system menu organization table-->
-      <el-table :data="tableData" style="width: 100%">
-        <el-table-column type="selection" width="55"/>
+      <!-- workspace table -->
+      <el-table :data="items" style="width: 100%">
         <el-table-column prop="name" :label="$t('commons.name')"/>
         <el-table-column prop="description" :label="$t('commons.description')"/>
+        <el-table-column prop="organizationName" :label="$t('workspace.organization_name')"/>
         <el-table-column :label="$t('commons.member')">
           <template slot-scope="scope">
             <el-button type="text" class="member-size" @click="cellClick(scope.row)">{{scope.row.memberSize}}</el-button>
           </template>
         </el-table-column>
-        <el-table-column :label="$t('commons.operating')">
+        <el-table-column>
           <template slot-scope="scope">
             <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
             <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
@@ -48,11 +50,62 @@
         </el-row>
       </div>
     </el-card>
-    <!-- dialog of organization member -->
+
+    <!-- add workspace dialog -->
+    <el-dialog :title="$t('workspace.create')" :visible.sync="createVisible" width="30%">
+      <el-form :model="form" :rules="rules" ref="form" label-position="left" label-width="100px" size="small">
+        <el-form-item :label="$t('commons.name')" prop="name">
+          <el-input v-model="form.name" autocomplete="off"/>
+        </el-form-item>
+        <el-form-item :label="$t('commons.description')">
+          <el-input type="textarea" v-model="form.description"></el-input>
+        </el-form-item>
+        <el-form-item :label="$t('workspace.organization_name')" prop="organizationId">
+          <el-select v-model="form.organizationId" :placeholder="$t('organization.select_organization')" class="select-width">
+            <el-option
+              v-for="item in form.orgList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submit('form')" size="medium">{{$t('commons.save')}}</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- update workspace dialog -->
+    <el-dialog :title="$t('workspace.update')" :visible.sync="updateVisible" width="30%">
+      <el-form :model="form" :rules="rules" ref="updateForm" label-position="left" label-width="100px" size="small">
+        <el-form-item :label="$t('commons.name')" prop="name">
+          <el-input v-model="form.name" autocomplete="off"/>
+        </el-form-item>
+        <el-form-item :label="$t('commons.description')">
+          <el-input type="textarea" v-model="form.description"></el-input>
+        </el-form-item>
+        <el-form-item :label="$t('workspace.organization_name')" prop="organizationId">
+          <el-select v-model="form.organizationId" :placeholder="$t('organization.select_organization')" class="select-width">
+            <el-option
+              v-for="item in form.orgList1"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="updateWorkspace('updateForm')" size="medium">{{$t('commons.save')}}</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- dialog of workspace member -->
     <el-dialog :visible.sync="memberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc">
       <el-row type="flex" justify="space-between" align="middle">
-        <span class="title">{{$t('commons.member')}}
-          <ms-create-box :tips="btnTips" :exec="addMember"/>
+        <span class="member-title">{{$t('commons.member')}}
+          <ms-create-box :tips="addTips" :exec="addMember"/>
         </span>
         <span class="search">
           <el-input type="text" size="small"
@@ -66,9 +119,9 @@
         <el-table-column prop="name" :label="$t('commons.username')"/>
         <el-table-column prop="email" :label="$t('commons.email')"/>
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
-        <el-table-column :label="$t('commons.role')" width="140">
+        <el-table-column :label="$t('commons.role')" width="120">
           <template slot-scope="scope">
-            <el-tag v-for="(role, index) in scope.row.roles" :key="index" size="mini" effect="dark">
+            <el-tag v-for="(role, index) in scope.row.roles" :key="index" size="mini" effect="dark" type="success">
               {{ role.name }}
             </el-tag>
           </template>
@@ -99,39 +152,9 @@
       </div>
     </el-dialog>
 
-    <!-- add organization form -->
-    <el-dialog :title="$t('organization.create')" :visible.sync="createVisible" width="30%" @closed="closeFunc" :destroy-on-close="true">
-      <el-form :model="form" label-position="left" label-width="100px" size="small" :rules="rule" ref="createOrganization">
-        <el-form-item :label="$t('commons.name')" prop="name">
-          <el-input v-model="form.name" autocomplete="off"/>
-        </el-form-item>
-        <el-form-item :label="$t('commons.description')" prop="description">
-          <el-input v-model="form.description" autocomplete="off"/>
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="createOrganization('createOrganization')" size="medium">{{$t('commons.save')}}</el-button>
-      </span>
-    </el-dialog>
-
-    <!-- update organization form -->
-    <el-dialog :title="$t('organization.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
-      <el-form :model="form" label-position="left" label-width="100px" size="small" :rules="rule" ref="updateOrganizationForm">
-        <el-form-item :label="$t('commons.name')" prop="name">
-          <el-input v-model="form.name" autocomplete="off"/>
-        </el-form-item>
-        <el-form-item :label="$t('commons.description')" prop="description">
-          <el-input v-model="form.description" autocomplete="off"/>
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="updateOrganization('updateOrganizationForm')" size="medium">{{$t('organization.modify')}}</el-button>
-      </span>
-    </el-dialog>
-
-    <!-- add organization member form -->
+    <!-- add workspace member dialog -->
     <el-dialog :title="$t('member.create')" :visible.sync="addMemberVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
-      <el-form :model="memberForm" ref="form" :rules="orgMemberRule" label-position="left" label-width="100px" size="small">
+      <el-form :model="memberForm" ref="form" :rules="wsMemberRule" label-position="left" label-width="100px" size="small">
         <el-form-item :label="$t('commons.member')" prop="userIds">
           <el-select v-model="memberForm.userIds" multiple :placeholder="$t('member.please_choose_member')" class="select-width">
             <el-option
@@ -139,8 +162,8 @@
               :key="item.id"
               :label="item.name"
               :value="item.id">
-              <span class="org-member-name">{{ item.name }}</span>
-              <span class="org-member-email">{{ item.email }}</span>
+              <span class="ws-member-name">{{ item.name }}</span>
+              <span class="ws-member-email">{{ item.email }}</span>
             </el-option>
           </el-select>
         </el-form-item>
@@ -160,7 +183,7 @@
       </span>
     </el-dialog>
 
-    <!-- update organization member form -->
+    <!-- update workspace member dialog -->
     <el-dialog :title="$t('member.modify')" :visible.sync="updateMemberVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
       <el-form :model="memberForm" label-position="left" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
@@ -195,68 +218,39 @@
 </template>
 
 <script>
-  import MsCreateBox from "./CreateBox";
+  import MsCreateBox from "../CreateBox";
+  import {Message} from "element-ui";
 
   export default {
-    name: "MsOrganization",
+    name: "MsSystemWorkspace",
     components: {MsCreateBox},
-    data() {
-      return {
-        queryPath: '/organization/list',
-        deletePath: '/organization/delete/',
-        createPath: '/organization/add',
-        updatePath: '/organization/update',
-        result: {},
-        createVisible: false,
-        updateVisible: false,
-        memberVisible: false,
-        addMemberVisible: false,
-        updateMemberVisible: false,
-        multipleSelection: [],
-        currentPage: 1,
-        pageSize: 5,
-        total: 0,
-        currentMemberPage: 1,
-        pageMemberSize: 5,
-        memberTotal: 0,
-        currentRow: {},
-        btnTips: this.$t('member.create'),
-        condition: "",
-        tableData: [],
-        memberLineData: [],
-        form: {},
-        memberForm: {},
-        rule: {
-          name: [
-            {required: true, message: this.$t('organization.input_name'), trigger: 'blur'},
-            { min: 2, max: 10, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur' },
-            {
-              required: true,
-              pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/,
-              message: this.$t('organization.special_characters_are_not_supported'),
-              trigger: 'blur'
-            }
-          ],
-          description: [
-            { max: 50, message: this.$t('commons.input_limit', [0, 50]), trigger: 'blur'}
-          ]
-        },
-        orgMemberRule: {
-          userIds: [
-            {required: true, message: '请选择成员', trigger: ['blur']}
-          ],
-          roleIds: [
-            {required: true, message: '请选择角色', trigger: ['blur']}
-          ]
-        }
-      }
-    },
-    created() {
-      this.initTableData();
+    mounted() {
+      this.list();
     },
     methods: {
       create() {
         this.createVisible = true;
+        this.form = {};
+        this.$get("/organization/list", response => {
+          this.$set(this.form, "orgList", response.data);
+        })
+      },
+      submit(formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            let saveType = 'special/add';
+            if (this.form.id) {
+              saveType = 'update'
+            }
+            this.$post("/workspace/" + saveType, this.form, () => {
+              this.createVisible = false;
+              this.list();
+              Message.success(this.$t('commons.save_success'));
+            });
+          } else {
+            return false;
+          }
+        });
       },
       addMember() {
         this.addMemberVisible = true;
@@ -264,37 +258,24 @@
         this.result = this.$get('/user/list/', response => {
           this.$set(this.memberForm, "userList", response.data);
         });
-        this.result = this.$get('/role/list/org', response => {
+        this.result = this.$get('/role/list/test', response => {
           this.$set(this.memberForm, "roles", response.data);
         })
       },
-      edit(row) {
-        this.updateVisible = true;
-        this.form = row;
-      },
-      editMember(row) {
-        this.updateMemberVisible = true;
-        this.memberForm = row;
-        let roleIds = this.memberForm.roles.map(r => r.id);
-        this.result = this.$get('/role/list/org', response => {
-          this.$set(this.memberForm, "allroles", response.data);
-        })
-        // 编辑时填充角色信息
-        this.$set(this.memberForm, 'roleIds', roleIds);
-      },
       cellClick(row){
         // 保存当前点击的组织信息到currentRow
-        this.currentRow = row;
+        this.currentWorkspaceRow = row;
         this.memberVisible = true;
         let param = {
           name: '',
-          organizationId: row.id
+          workspaceId: row.id
         };
-        let path = "/user/orgmember/list";
+        let path = "/user/member/list";
         this.result = this.$post(this.buildPagePath(path), param, res => {
           let data = res.data;
           this.memberLineData = data.listObject;
-          let url = "/userrole/list/org/" + row.id;
+          let url = "/userrole/list/ws/" + row.id;
+          // 填充角色信息
           for (let i = 0; i < this.memberLineData.length; i++) {
             this.$get(url + "/" + this.memberLineData[i].id, response => {
               let roles = response.data;
@@ -304,124 +285,88 @@
           this.memberTotal = data.itemCount;
         });
       },
-      del(row) {
-        this.$confirm(this.$t('organization.delete_confirm'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          cancelButtonText: this.$t('commons.cancel'),
-          type: 'warning'
-        }).then(() => {
-          this.result = this.$get(this.deletePath + row.id,() => {
-            this.$message({
-              type: 'success',
-              message: this.$t('commons.delete_success')
-            });
-            this.initTableData()
-          });
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: this.$t('commons.delete_cancel')
-          });
-        });
-      },
-      delMember(row) {
-        this.$confirm(this.$t('member.delete_confirm'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          cancelButtonText: this.$t('commons.cancel'),
-          type: 'warning'
-        }).then(() => {
-          this.result = this.$get('/user/orgmember/delete/' + this.currentRow.id + '/' + row.id, () => {
-            this.$message({
-              type: 'success',
-              message: this.$t('commons.delete_success')
-            });
-            this.cellClick(this.currentRow);
-          });
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: this.$t('commons.delete_cancel')
-          });
-        });
-      },
-      createOrganization(createOrganizationForm) {
-        this.$refs[createOrganizationForm].validate( valide => {
-          if (valide) {
-            this.result = this.$post(this.createPath, this.form,() => {
-              this.$message({
-                type: 'success',
-                message: this.$t('commons.save_success')
-              });
-              this.initTableData();
-              this.createVisible = false;
-              });
-          } else {
-            return false;
-          }
+      edit(row) {
+        this.updateVisible = true;
+        // copy user
+        this.form = Object.assign({}, row);
+        this.$get("/organization/list", response => {
+          this.$set(this.form, "orgList1", response.data);
         })
       },
-      updateOrganization(udpateOrganizationForm) {
-        this.$refs[udpateOrganizationForm].validate(valide => {
+      updateWorkspace(updateForm) {
+        this.$refs[updateForm].validate(valide => {
           if (valide) {
-            this.result = this.$post(this.updatePath, this.form,() => {
+            this.result = this.$post("/workspace/special/update", this.form,() => {
               this.$message({
                 type: 'success',
                 message: this.$t('commons.modify_success')
               });
               this.updateVisible = false;
-              this.initTableData();
-              });
+              this.list();
+            });
           } else {
             return false;
           }
         })
       },
-      initTableData() {
-        this.$post(this.buildPagePath(this.queryPath),{},response => {
-          let data = response.data;
-          this.tableData = data.listObject;
-          for (let i = 0; i < this.tableData.length; i++) {
-            let param = {
-              name: '',
-              organizationId: this.tableData[i].id
-            }
-            let path = "user/orgmember/list/all";
-            this.$post(path, param, res => {
-              let member = res.data;
-              this.$set(this.tableData[i], "memberSize", member.length);
-            })
-          }
-          this.total = data.itemCount;
-        })
+      del(row) {
+        this.$confirm(this.$t('workspace.delete_confirm'), this.$t('commons.prompt'), {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          type: 'warning'
+        }).then(() => {
+          this.$get('/workspace/delete/' + row.id, () => {
+            Message.success(this.$t('commons.delete_success'));
+            this.list();
+          });
+        }).catch(() => {
+
+        });
       },
       closeFunc() {
         this.form = {};
       },
       closeMemberFunc() {
         this.memberLineData = [];
-        this.initTableData();
+        this.list();
+      },
+      list() {
+        let url = '/workspace/list/all/' + this.currentPage + '/' + this.pageSize;
+        this.result = this.$post(url, {name: this.condition}, response => {
+          let data = response.data;
+          this.items = data.listObject;
+          for (let i = 0; i < this.items.length; i++) {
+            let param = {
+              name: '',
+              workspaceId: this.items[i].id
+            }
+            let path = "user/member/list/all";
+            this.$post(path, param, res => {
+              let member = res.data;
+              this.$set(this.items[i], "memberSize", member.length);
+            })
+          }
+          this.total = data.itemCount;
+        });
       },
       buildPagePath(path) {
         return path + "/" + this.currentPage + "/" + this.pageSize;
       },
       handleSizeChange(size) {
         this.pageSize = size;
-        this.initTableData();
+        this.list();
       },
       handleCurrentChange(current) {
         this.currentPage = current;
-        this.initTableData();
+        this.list();
       },
       handleMemberSizeChange(size) {
         this.pageMemberSize = size;
-        this.cellClick(this.currentRow);
+        this.cellClick(this.currentWorkspaceRow);
       },
       handleMemberCurrentChange(current) {
         this.currentMemberPage = current;
-        this.cellClick(this.currentRow);
-      },
-      handleSelectionChange(val) {
-        this.multipleSelection = val;
+        this.cellClick(this.currentWorkspaceRow);
       },
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {
@@ -429,15 +374,45 @@
             let param = {
               userIds: this.memberForm.userIds,
               roleIds: this.memberForm.roleIds,
-              organizationId: this.currentRow.id
+              workspaceId: this.currentWorkspaceRow.id
             };
-            this.result = this.$post("user/orgmember/add", param,() => {
-              this.cellClick(this.currentRow);
+            this.result = this.$post("user/member/add", param,() => {
+              this.cellClick(this.currentWorkspaceRow);
               this.addMemberVisible = false;
             })
           } else {
             return false;
           }
+        });
+      },
+      editMember(row) {
+        this.updateMemberVisible = true;
+        this.memberForm = row;
+        let roleIds = this.memberForm.roles.map(r => r.id);
+        this.result = this.$get('/role/list/test', response => {
+          this.$set(this.memberForm, "allroles", response.data);
+        })
+        // 编辑时填充角色信息
+        this.$set(this.memberForm, 'roleIds', roleIds);
+      },
+      delMember(row) {
+        this.$confirm(this.$t('member.delete_confirm'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          type: 'warning'
+        }).then(() => {
+          this.result = this.$get('/user/member/delete/' + this.currentWorkspaceRow.id + '/' + row.id, () => {
+            this.$message({
+              type: 'success',
+              message: this.$t('commons.delete_success')
+            });
+            this.cellClick(this.currentWorkspaceRow);
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: this.$t('commons.delete_cancel')
+          });
         });
       },
       updateOrgMember() {
@@ -447,25 +422,77 @@
           email: this.memberForm.email,
           phone: this.memberForm.phone,
           roleIds: this.memberForm.roleIds,
-          organizationId: this.currentRow.id
+          workspaceId: this.currentWorkspaceRow.id
         }
-        this.result = this.$post("/organization/member/update", param,() => {
+        this.result = this.$post("/workspace/member/update", param,() => {
           this.$message({
             type: 'success',
             message: this.$t('commons.modify_success')
           });
           this.updateMemberVisible = false;
-          this.cellClick(this.currentRow);
+          this.cellClick(this.currentWorkspaceRow);
         });
       },
+    },
+    data() {
+      return {
+        result: {},
+        loading: false,
+        createVisible: false,
+        updateVisible: false,
+        memberVisible: false,
+        addMemberVisible: false,
+        updateMemberVisible: false,
+        btnTips: this.$t('workspace.add'),
+        addTips: this.$t('member.create'),
+        condition: "",
+        items: [],
+        currentPage: 1,
+        pageSize: 5,
+        total: 0,
+        currentMemberPage: 1,
+        pageMemberSize: 5,
+        memberTotal: 0,
+        memberLineData: [],
+        memberForm: {},
+        form: {
+          // name: "",
+          // description: ""
+        },
+        rules: {
+          name: [
+            {required: true, message: this.$t('workspace.input_name'), trigger: 'blur'},
+            {min: 2, max: 50, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'}
+          ],
+          organizationId: [
+            {required: true, message: this.$t('organization.select_organization'), trigger: ['blur']}
+          ]
+        },
+        wsMemberRule: {
+          userIds: [
+            {required: true, message: this.$t('member.please_choose_member'), trigger: ['blur']}
+          ],
+          roleIds: [
+            {required: true, message: this.$t('role.please_choose_role'), trigger: ['blur']}
+          ]
+        },
+        currentWorkspaceRow: {},
+      }
     }
-
   }
 </script>
 
 <style scoped>
   .search {
     width: 240px;
+  }
+
+  .edit {
+    opacity: 0;
+  }
+
+  .el-table__row:hover .edit {
+    opacity: 1;
   }
 
   .table-page {
@@ -479,18 +506,11 @@
     cursor:pointer;
   }
 
-  .title {
-    margin-bottom: 50px;
-    font-size: 32px;
-    letter-spacing: 0;
-    text-align: center;
-  }
-
-  .org-member-name {
+  .ws-member-name {
     float: left;
   }
 
-  .org-member-email {
+  .ws-member-email {
     float: right;
     color: #8492a6;
     font-size: 13px;
@@ -499,4 +519,10 @@
   .select-width {
     width: 100%;
   }
+
+  .member-title {
+    margin-bottom: 30px;
+  }
+
 </style>
+

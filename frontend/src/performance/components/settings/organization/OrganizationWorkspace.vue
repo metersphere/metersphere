@@ -4,19 +4,18 @@
       <div slot="header">
         <el-row type="flex" justify="space-between" align="middle">
           <span class="title">
-            {{$t('commons.workspace')}}
+            工作空间
             <ms-create-box :tips="btnTips" :exec="create"/>
           </span>
           <span class="search">
-                    <el-input type="text" size="small" :placeholder="$t('workspace.search_by_name')"
-                              prefix-icon="el-icon-search"
+                    <el-input type="text" size="small" placeholder="根据名称搜索" prefix-icon="el-icon-search"
                               maxlength="60" v-model="condition" clearable/>
                 </span>
         </el-row>
       </div>
       <el-table :data="items" style="width: 100%">
-        <el-table-column prop="name" :label="$t('commons.name')"/>
-        <el-table-column prop="description" :label="$t('commons.description')"/>
+        <el-table-column prop="name" label="名称"/>
+        <el-table-column prop="description" label="描述"/>
         <el-table-column>
           <template slot-scope="scope">
             <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
@@ -43,31 +42,38 @@
       </div>
     </el-card>
 
-    <el-dialog :title="$t('workspace.create')" :visible.sync="createVisible" width="30%">
+    <el-dialog title="创建工作空间" :visible.sync="createVisible" width="30%">
       <el-form :model="form" :rules="rules" ref="form" label-position="left" label-width="100px" size="small">
-        <el-form-item :label="$t('commons.name')" prop="name">
+        <el-form-item label="名称" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
-        <el-form-item :label="$t('commons.description')">
+        <el-form-item label="描述">
           <el-input type="textarea" v-model="form.description"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submit('form')" size="medium">{{$t('commons.save')}}</el-button>
+        <el-button type="primary" @click="submit('form')" size="medium">创建</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
-  import MsCreateBox from "./CreateBox";
+  import MsCreateBox from "../CreateBox";
   import {Message} from "element-ui";
+  import {TokenKey} from "../../../../common/constants";
 
   export default {
-    name: "MsWorkspace",
+    name: "MsOrganizationWorkspace",
     components: {MsCreateBox},
     mounted() {
       this.list();
+    },
+    computed: {
+      currentUser: () => {
+        let user = localStorage.getItem(TokenKey);
+        return JSON.parse(user);
+      }
     },
     methods: {
       create() {
@@ -84,7 +90,7 @@
             this.$post("/workspace/" + saveType, this.form, () => {
               this.createVisible = false;
               this.list();
-              Message.success(this.$t('commons.save_success'));
+              Message.success('保存成功');
             });
           } else {
             return false;
@@ -93,8 +99,7 @@
       },
       edit(row) {
         this.createVisible = true;
-        // copy user
-        this.form = Object.assign({}, row);
+        this.form = row;
 
         // let self = this;
         // let getUser1 = this.$get("/test/user");
@@ -105,13 +110,13 @@
         // });
       },
       del(row) {
-        this.$confirm(this.$t('workspace.delete_confirm'), this.$t('commons.prompt'), {
-          confirmButtonText: this.$t('commons.confirm'),
-          cancelButtonText: this.$t('commons.cancel'),
+        this.$confirm('这个工作空间确定要删除吗?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
           this.$get('/workspace/delete/' + row.id, () => {
-            Message.success(this.$t('commons.delete_success'));
+            Message.success('删除成功');
             this.list();
           });
         }).catch(() => {
@@ -120,11 +125,21 @@
       },
       list() {
         let url = '/workspace/list/' + this.currentPage + '/' + this.pageSize;
-        this.result = this.$post(url, {name: this.condition}, response => {
-          let data = response.data;
-          this.items = data.listObject;
-          this.total = data.itemCount;
-        });
+        let lastOrganizationId = this.currentUser.lastOrganizationId;
+        let userRole = this.currentUser.userRoles.filter(r => r.sourceId === lastOrganizationId);
+        if (userRole.length > 0) {
+          if (userRole[0].roleId === "org_admin") {
+            this.result = this.$post(url, {name: this.condition}, response => {
+              let data = response.data;
+              this.items = data.listObject;
+              this.total = data.itemCount;
+            });
+          } else {
+            this.items = [];
+            this.total = 0;
+          }
+        }
+
       },
       handleSizeChange(size) {
         this.pageSize = size;
@@ -140,7 +155,7 @@
         result: {},
         loading: false,
         createVisible: false,
-        btnTips: this.$t('workspace.add'),
+        btnTips: "添加工作空间",
         condition: "",
         items: [],
         currentPage: 1,
@@ -152,8 +167,8 @@
         },
         rules: {
           name: [
-            {required: true, message: this.$t('workspace.input_name'), trigger: 'blur'},
-            {min: 2, max: 50, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'}
+            {required: true, message: '请输入工作空间名称', trigger: 'blur'},
+            {min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur'}
           ]
         },
       }
@@ -173,4 +188,11 @@
   .el-table__row:hover .edit {
     opacity: 1;
   }
+
+  .table-page {
+    padding-top: 20px;
+    margin-right: -9px;
+    float: right;
+  }
 </style>
+
