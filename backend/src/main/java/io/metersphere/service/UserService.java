@@ -3,7 +3,6 @@ package io.metersphere.service;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CodingUtil;
 import io.metersphere.controller.request.member.AddMemberRequest;
@@ -247,19 +246,27 @@ public class UserService {
         return extUserRoleMapper.getMemberList(request);
     }
 
-    @Transactional(rollbackFor = Exception.class)
     public void addMember(AddMemberRequest request) {
         if (!CollectionUtils.isEmpty(request.getUserIds())) {
             for (String userId : request.getUserIds()) {
-                for (String roleId : request.getRoleIds()) {
-                    UserRole userRole = new UserRole();
-                    userRole.setRoleId(roleId);
-                    userRole.setSourceId(request.getWorkspaceId());
-                    userRole.setUserId(userId);
-                    userRole.setId(UUID.randomUUID().toString());
-                    userRole.setUpdateTime(System.currentTimeMillis());
-                    userRole.setCreateTime(System.currentTimeMillis());
-                    userRoleMapper.insertSelective(userRole);
+                UserRoleExample userRoleExample = new UserRoleExample();
+                userRoleExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(request.getWorkspaceId());
+                List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
+                if (userRoles.size() > 0) {
+                    User user = userMapper.selectByPrimaryKey(userId);
+                    String username = user.getName();
+                    MSException.throwException("The user [" + username + "] already exists in the current workspace！");
+                } else {
+                    for (String roleId : request.getRoleIds()) {
+                        UserRole userRole = new UserRole();
+                        userRole.setRoleId(roleId);
+                        userRole.setSourceId(request.getWorkspaceId());
+                        userRole.setUserId(userId);
+                        userRole.setId(UUID.randomUUID().toString());
+                        userRole.setUpdateTime(System.currentTimeMillis());
+                        userRole.setCreateTime(System.currentTimeMillis());
+                        userRoleMapper.insertSelective(userRole);
+                    }
                 }
             }
         }
@@ -275,15 +282,24 @@ public class UserService {
     public void addOrganizationMember(AddOrgMemberRequest request) {
         if (!CollectionUtils.isEmpty(request.getUserIds())) {
             for (String userId : request.getUserIds()) {
-                for (String roleId : request.getRoleIds()) {
-                    UserRole userRole = new UserRole();
-                    userRole.setId(UUID.randomUUID().toString());
-                    userRole.setRoleId(roleId);
-                    userRole.setSourceId(request.getOrganizationId());
-                    userRole.setUserId(userId);
-                    userRole.setUpdateTime(System.currentTimeMillis());
-                    userRole.setCreateTime(System.currentTimeMillis());
-                    userRoleMapper.insertSelective(userRole);
+                UserRoleExample userRoleExample = new UserRoleExample();
+                userRoleExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(request.getOrganizationId());
+                List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
+                if (userRoles.size() > 0) {
+                    User user = userMapper.selectByPrimaryKey(userId);
+                    String username = user.getName();
+                    MSException.throwException("The user [" + username + "] already exists in the current organization！");
+                } else {
+                    for (String roleId : request.getRoleIds()) {
+                        UserRole userRole = new UserRole();
+                        userRole.setId(UUID.randomUUID().toString());
+                        userRole.setRoleId(roleId);
+                        userRole.setSourceId(request.getOrganizationId());
+                        userRole.setUserId(userId);
+                        userRole.setUpdateTime(System.currentTimeMillis());
+                        userRole.setCreateTime(System.currentTimeMillis());
+                        userRoleMapper.insertSelective(userRole);
+                    }
                 }
             }
         }
