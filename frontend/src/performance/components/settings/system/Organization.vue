@@ -243,10 +243,10 @@
         },
         orgMemberRule: {
           userIds: [
-            {required: true, message: '请选择成员', trigger: ['blur']}
+            {required: true, message: this.$t('member.please_choose_member'), trigger: ['blur']}
           ],
           roleIds: [
-            {required: true, message: '请选择角色', trigger: ['blur']}
+            {required: true, message: this.$t('role.please_choose_role'), trigger: ['blur']}
           ]
         }
       }

@@ -89,8 +89,8 @@
       del(row) {
         window.console.log(row);
         this.$confirm('此操作将永久删除该资源池, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
           this.$get(`/testresourcepool/delete/${row.id}`).then(() => {
@@ -98,12 +98,12 @@
           });
           this.$message({
             type: 'success',
-            message: '删除成功!'
+            message: this.$t('commons.delete_success')
           });
         }).catch(() => {
           this.$message({
             type: 'info',
-            message: '已取消删除'
+            message: this.$t('commons.delete_cancel')
           });
         });
       },
@@ -131,7 +131,7 @@
               .then(() => {
                 this.$message({
                     type: 'success',
-                    message: '修改成功!'
+                    message: this.$t('commons.modify_success')
                   },
                   this.updateVisible = false,
                   this.getOrganizationList(),
@@ -171,7 +171,7 @@
         rule: {
           name: [
             {required: true, message: '请输入资源池名称', trigger: 'blur'},
-            { min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur' },
+            { min: 2, max: 10, message: this.$t('commons.input_limit', [2, 10]), trigger: 'blur' },
             {
               required: true,
               pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/,

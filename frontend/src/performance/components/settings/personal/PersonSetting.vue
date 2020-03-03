@@ -4,44 +4,44 @@
 
       <div slot="header">
         <el-row type="flex" justify="space-between" align="middle">
-          <span class="title">个人信息</span>
+          <span class="title">{{$t('commons.personal_info')}}</span>
         </el-row>
       </div>
 
       <el-table :data="tableData" style="width: 100%">
         <el-table-column prop="id" label="ID"/>
-        <el-table-column prop="name" label="用户名" width="120"/>
-        <el-table-column prop="email" label="邮箱"/>
-        <el-table-column prop="phone" label="电话"/>
-        <el-table-column prop="createTime" label="创建时间" width="180">
+        <el-table-column prop="name" :label="$t('commons.username')" width="120"/>
+        <el-table-column prop="email" :label="$t('commons.email')"/>
+        <el-table-column prop="phone" :label="$t('commons.phone')"/>
+        <el-table-column prop="createTime" :label="$t('commons.create_time')" width="180">
           <template slot-scope="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作">
+        <el-table-column :label="$t('commons.operating')">
           <template slot-scope="scope">
             <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
           </template>
         </el-table-column>
       </el-table>
 
-      <el-dialog title="修改个人信息" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
+      <el-dialog :title="$t('member.modify_personal_info')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
         <el-form :model="form" label-position="left" label-width="100px" size="small" :rules="rule" ref="updateUserForm">
           <el-form-item label="ID" prop="id">
             <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
           </el-form-item>
-          <el-form-item label="用户名" prop="name">
+          <el-form-item :label="$t('commons.username')" prop="name">
             <el-input v-model="form.name" autocomplete="off"/>
           </el-form-item>
-          <el-form-item label="邮箱" prop="email">
+          <el-form-item :label="$t('commons.email')" prop="email">
             <el-input v-model="form.email" autocomplete="off"/>
           </el-form-item>
-          <el-form-item label="电话" prop="phone">
+          <el-form-item :label="$t('commons.phone')" prop="phone">
             <el-input v-model="form.phone" autocomplete="off"/>
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="updateUser('updateUserForm')" size="medium">修改</el-button>
+          <el-button type="primary" @click="updateUser('updateUserForm')" size="medium">{{$t('commons.save')}}</el-button>
         </span>
       </el-dialog>
 
@@ -62,12 +62,12 @@
         form: {},
         rule: {
           name: [
-            {required: true, message: '请输入姓名', trigger: 'blur'},
-            { min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur' },
+            {required: true, message: this.$t('member.input_name'), trigger: 'blur'},
+            { min: 2, max: 10, message: this.$t('commons.input_limit', [2, 10]), trigger: 'blur' },
             {
               required: true,
               pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/,
-              message: '姓名不支持特殊字符',
+              message: this.$t('member.special_characters_are_not_supported'),
               trigger: 'blur'
             }
           ],
@@ -75,16 +75,16 @@
             {
               required: false,
               pattern: '^1(3|4|5|7|8)\\d{9}$',
-              message: '手机号码格式不正确！',
+              message: this.$t('member.mobile_number_format_is_incorrect'),
               trigger: 'blur'
             }
           ],
           email: [
-            { required: true, message: '请输入邮箱', trigger: 'blur' },
+            { required: true, message: this.$t('member.input_email'), trigger: 'blur' },
             {
               required: true,
               pattern: /^([A-Za-z0-9_\-.])+@([A-Za-z0-9]+\.)+[A-Za-z]{2,6}$/,
-              message: '邮箱格式不正确！',
+              message: this.$t('member.email_format_is_incorrect'),
               trigger: 'blur'
             }
           ]
@@ -110,7 +110,7 @@
             this.result = this.$post(this.updatePath, this.form,response => {
               this.$message({
                 type: 'success',
-                message: '修改成功!'
+                message: this.$t('commons.modify_success')
               });
               localStorage.setItem(TokenKey, JSON.stringify(response.data));
               this.updateVisible = false;

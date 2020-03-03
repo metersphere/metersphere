@@ -4,21 +4,21 @@
     <el-card>
       <div slot="header">
         <el-row type="flex" justify="space-between" align="middle">
-          <span class="title">用户
+          <span class="title">{{$t('commons.member')}}
             <ms-create-box :tips="btnTips" :exec="create"/>
           </span>
           <span class="search">
-            <el-input type="text" size="small" placeholder="根据ID，名称搜索" prefix-icon="el-icon-search" maxlength="60" v-model="condition" clearable/>
+            <el-input type="text" size="small" :placeholder="$t('member.search_by_name')" prefix-icon="el-icon-search" maxlength="60" v-model="condition" clearable/>
           </span>
         </el-row>
       </div>
       <el-table :data="tableData" style="width: 100%">
         <el-table-column type="selection" width="55"/>
         <el-table-column prop="id" label="ID"/>
-        <el-table-column prop="name" label="用户名" width="120"/>
-        <el-table-column prop="email" label="邮箱"/>
-        <el-table-column prop="phone" label="电话"/>
-        <el-table-column prop="status" label="启用/禁用" width="100">
+        <el-table-column prop="name" :label="$t('commons.username')" width="120"/>
+        <el-table-column prop="email" :label="$t('commons.email')"/>
+        <el-table-column prop="phone" :label="$t('commons.phone')"/>
+        <el-table-column prop="status" :label="$t('commons.status')" width="100">
           <template slot-scope="scope">
             <el-switch v-model="scope.row.status"
                        active-color="#13ce66"
@@ -29,12 +29,12 @@
             />
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" label="创建时间" width="180">
+        <el-table-column prop="createTime" :label="$t('commons.create_time')" width="180">
           <template slot-scope="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作">
+        <el-table-column :label="$t('commons.operating')">
           <template slot-scope="scope">
             <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
             <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
@@ -62,18 +62,18 @@
 
     </el-card>
 
-    <el-dialog title="创建用户" :visible.sync="createVisible" width="30%" @closed="closeFunc" :destroy-on-close="true">
+    <el-dialog :title="$t('user.create')" :visible.sync="createVisible" width="30%" @closed="closeFunc" :destroy-on-close="true">
       <el-form :model="form" label-position="left" label-width="100px" size="small" :rules="rule" ref="createUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off"/>
         </el-form-item>
-        <el-form-item label="用户名" prop="name">
+        <el-form-item :label="$t('commons.username')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
-        <el-form-item label="邮箱" prop="email">
+        <el-form-item :label="$t('commons.email')" prop="email">
           <el-input v-model="form.email" autocomplete="off"/>
         </el-form-item>
-        <el-form-item label="电话" prop="phone">
+        <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off"/>
         </el-form-item>
       </el-form>
@@ -82,23 +82,23 @@
       </span>
     </el-dialog>
 
-    <el-dialog title="修改用户" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
+    <el-dialog :title="$t('user.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
       <el-form :model="form" label-position="left" label-width="100px" size="small" :rules="rule" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
         </el-form-item>
-        <el-form-item label="用户名" prop="name">
+        <el-form-item :label="$t('commons.username')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
-        <el-form-item label="邮箱" prop="email">
+        <el-form-item :label="$t('commons.email')" prop="email">
           <el-input v-model="form.email" autocomplete="off"/>
         </el-form-item>
-        <el-form-item label="电话" prop="phone">
+        <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off"/>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="updateUser('updateUserForm')" size="medium">修改</el-button>
+        <el-button type="primary" @click="updateUser('updateUserForm')" size="medium">{{$t('commons.save')}}</el-button>
       </span>
     </el-dialog>
 
@@ -122,22 +122,22 @@
         currentPage: 1,
         pageSize: 5,
         total: 0,
-        btnTips: "添加用户",
+        btnTips: this.$t('user.create'),
         condition: "",
         tableData: [],
         form: {},
         rule: {
           id: [
-            { required: true, message: '请输入ID', trigger: 'blur'},
-            { min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur' }
+            { required: true, message: this.$t('user.input_id'), trigger: 'blur'},
+            { min: 2, max: 10, message: this.$t('commons.input_limit', [2, 10]), trigger: 'blur' }
           ],
           name: [
-            {required: true, message: '请输入姓名', trigger: 'blur'},
-            { min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur' },
+            {required: true, message: this.$t('user.input_name'), trigger: 'blur'},
+            { min: 2, max: 10, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur' },
             {
               required: true,
               pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/,
-              message: '姓名不支持特殊字符',
+              message: this.$t('user.special_characters_are_not_supported'),
               trigger: 'blur'
             }
           ],
@@ -145,16 +145,16 @@
             {
               required: false,
               pattern: '^1(3|4|5|7|8)\\d{9}$',
-              message: '手机号码格式不正确！',
+              message: this.$t('user.mobile_number_format_is_incorrect'),
               trigger: 'blur'
             }
           ],
           email: [
-            { required: true, message: '请输入邮箱', trigger: 'blur' },
+            { required: true, message: this.$t('user.input_email'), trigger: 'blur' },
             {
               required: true,
               pattern: /^([A-Za-z0-9_\-.])+@([A-Za-z0-9]+\.)+[A-Za-z]{2,6}$/,
-              message: '邮箱格式不正确！',
+              message: this.$t('user.email_format_is_incorrect'),
               trigger: 'blur'
             }
           ]
@@ -175,22 +175,22 @@
         this.form = row;
       },
       del(row) {
-        this.$confirm('是否删除用户 ' + row.name + ' ?', '', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+        this.$confirm(this.$t('user.delete_confirm'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
           this.result = this.$get(this.deletePath + row.id, () => {
             this.$message({
               type: 'success',
-              message: '删除成功!'
+              message: this.$t('commons.delete_success')
             });
             this.initTableData();
           });
         }).catch(() => {
           this.$message({
             type: 'info',
-            message: '已取消删除'
+            message: this.$t('commons.delete_cancel')
           });
         });
       },
@@ -200,7 +200,7 @@
             this.result = this.$post(this.createPath, this.form, () => {
               this.$message({
                 type: 'success',
-                message: '添加成功!'
+                message: this.$t('commons.save_success')
               });
               this.initTableData();
               this.createVisible = false;
@@ -216,7 +216,7 @@
             this.result = this.$post(this.updatePath, this.form,() => {
               this.$message({
                   type: 'success',
-                  message: '修改成功!'
+                  message: this.$t('commons.modify_success')
               });
               this.updateVisible = false;
               this.initTableData();
@@ -240,7 +240,7 @@
         this.$post(this.updatePath, row,() =>{
           this.$message({
             type: 'success',
-            message: '状态修改成功!'
+            message: this.$t('commons.modify_success')
           });
         })
       },

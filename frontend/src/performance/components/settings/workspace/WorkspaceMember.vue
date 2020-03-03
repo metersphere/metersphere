@@ -13,9 +13,9 @@
         </el-row>
       </div>
       <el-table :data="tableData" style="width: 100%">
-        <el-table-column prop="name" label="用户名"/>
-        <el-table-column prop="email" label="邮箱"/>
-        <el-table-column prop="phone" label="电话"/>
+        <el-table-column prop="name" :label="$t('commons.username')"/>
+        <el-table-column prop="email" :label="$t('commons.email')"/>
+        <el-table-column prop="phone" :label="$t('commons.phone')"/>
         <el-table-column prop="roles" label="角色" width="120">
           <template slot-scope="scope">
             <el-tag v-for="(role, index) in scope.row.roles" :key="index" size="mini" effect="dark" type="success">
@@ -52,7 +52,7 @@
     <el-dialog title="添加成员" :visible.sync="createVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
       <el-form :model="form" ref="form" :rules="rules" label-position="left" label-width="100px" size="small">
         <el-form-item label="成员" prop="userIds">
-          <el-select v-model="form.userIds" multiple placeholder="请选择成员" class="select-width">
+          <el-select v-model="form.userIds" multiple :placeholder="$t('member.please_choose_member')" class="select-width">
             <el-option
               v-for="item in form.userList"
               :key="item.id"
@@ -64,7 +64,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="角色" prop="roleIds">
-          <el-select v-model="form.roleIds" multiple placeholder="请选择角色" class="select-width">
+          <el-select v-model="form.roleIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
             <el-option
               v-for="item in form.roles"
               :key="item.id"
@@ -75,7 +75,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm('form')" size="medium">保存</el-button>
+        <el-button type="primary" @click="submitForm('form')" size="medium">{{$t('commons.save')}}</el-button>
       </span>
     </el-dialog>
 
@@ -84,17 +84,17 @@
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
         </el-form-item>
-        <el-form-item label="用户名" prop="name">
+        <el-form-item :label="$t('commons.username')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
-        <el-form-item label="邮箱" prop="email">
+        <el-form-item :label="$t('commons.email')" prop="email">
           <el-input v-model="form.email" autocomplete="off"/>
         </el-form-item>
-        <el-form-item label="电话" prop="phone">
+        <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off"/>
         </el-form-item>
         <el-form-item label="角色" prop="roleIds">
-          <el-select v-model="form.roleIds" multiple placeholder="请选择角色" class="select-width">
+          <el-select v-model="form.roleIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
             <el-option
               v-for="item in form.allroles"
               :key="item.id"
@@ -105,7 +105,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="updateWorkspaceMember('updateUserForm')" size="medium">保存</el-button>
+        <el-button type="primary" @click="updateWorkspaceMember('updateUserForm')" size="medium">{{$t('commons.save')}}</el-button>
       </span>
     </el-dialog>
 
@@ -131,10 +131,10 @@
         tableData: [],
         rules: {
           userIds: [
-            {required: true, message: '请选择成员', trigger: ['blur']}
+            {required: true, message: this.$t('member.please_choose_member'), trigger: ['blur']}
           ],
           roleIds: [
-            {required: true, message: '请选择角色', trigger: ['blur']}
+            {required: true, message: this.$t('role.please_choose_role'), trigger: ['blur']}
           ]
         },
         multipleSelection: [],
@@ -193,8 +193,8 @@
       },
       del(row) {
         this.$confirm('移除该成员, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
           this.loading = true;
@@ -204,13 +204,13 @@
           });
           this.$message({
             type: 'success',
-            message: '删除成功!'
+            message: this.$t('commons.delete_success')
           });
         }).catch(() => {
           this.loading = false;
           this.$message({
             type: 'info',
-            message: '已取消删除'
+            message: this.$t('commons.delete_cancel')
           });
         });
       },
@@ -236,7 +236,7 @@
         this.result = this.$post("/workspace/member/update", param,() => {
           this.$message({
             type: 'success',
-            message: '修改成功!'
+            message: this.$t('commons.modify_success')
           });
           this.updateVisible = false;
           this.initTableData();
