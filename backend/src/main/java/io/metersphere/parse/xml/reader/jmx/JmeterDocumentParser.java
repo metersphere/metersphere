@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 public class JmeterDocumentParser implements DocumentParser {
     private final static String HASH_TREE_ELEMENT = "hashTree";
     private final static String STRING_PROP = "stringProp";
+    private final static String COLLECTION_PROP = "collectionProp";
     private final static String CONCURRENCY_THREAD_GROUP = "com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup";
     private final static String VARIABLE_THROUGHPUT_TIMER = "kg.apc.jmeter.timers.VariableThroughputTimer";
     private EngineContext context;
@@ -106,7 +107,6 @@ public class JmeterDocumentParser implements DocumentParser {
     private void processVariableThroughputTimer(Element variableThroughputTimer) {
         if (variableThroughputTimer.getChildNodes().getLength() > 0) {
             final NodeList childNodes = variableThroughputTimer.getChildNodes();
-            int stringPropCount = 0;
             for (int i = 0; i < childNodes.getLength(); i++) {
                 Node node = childNodes.item(i);
                 if (node instanceof Element) {
@@ -115,17 +115,32 @@ public class JmeterDocumentParser implements DocumentParser {
                         continue;
                     }
 
-                    // kg.apc.jmeter.timers.VariableThroughputTimer的stringProp的name属性是动态的
-                    if (nodeNameEquals(ele, STRING_PROP)) {
-                        if (stringPropCount < 2) {
-                            stringPropCount++;
-                        } else {
-                            stringPropCount = 0;
-                            ele.getFirstChild().setNodeValue(context.getProperty("duration").toString());
-                            continue;
+                    // TODO kg.apc.jmeter.timers.VariableThroughputTimer的stringProp的name属性是动态的
+                    if (nodeNameEquals(ele, COLLECTION_PROP)) {
+                        NodeList eleChildNodes = ele.getChildNodes();
+                        for (int j = 0; j < eleChildNodes.getLength(); j++) {
+                            Node item = eleChildNodes.item(j);
+                            if (nodeNameEquals(item, COLLECTION_PROP)) {
+                                int stringPropCount = 0;
+                                NodeList itemChildNodes = item.getChildNodes();
+                                for (int k = 0; k < itemChildNodes.getLength(); k++) {
+                                    Node prop = itemChildNodes.item(k);
+                                    if (nodeNameEquals(prop, STRING_PROP)) {
+                                        if (stringPropCount < 2) {
+                                            stringPropCount++;
+                                        } else {
+                                            stringPropCount = 0;
+                                            prop.getFirstChild().setNodeValue(context.getProperty("duration").toString());
+                                            continue;
+                                        }
+                                        prop.getFirstChild().setNodeValue(context.getProperty("rpsLimit").toString());
+                                    }
+                                }
+                            }
+
                         }
-                        ele.getFirstChild().setNodeValue(context.getProperty("rpsLimit").toString());
                     }
+
                 }
             }
         }
