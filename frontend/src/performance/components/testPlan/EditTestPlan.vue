@@ -134,7 +134,7 @@
             type: 'success'
           });
 
-          this.result = this.$post(this.runPath, {id: this.testPlan.id}).then(() => {
+          this.result = this.$post(this.runPath, {id: this.testPlan.id}, () => {
             this.$message({
               message: this.$t('load_test.is_running'),
               type: 'success'
