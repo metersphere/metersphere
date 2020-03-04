@@ -35,7 +35,7 @@ export default {
   workspace: {
     'create': '创建工作空间',
     'update': '修改工作空间',
-    'delete_confirm': '这个工作空间确定要删除吗?',
+    'delete_confirm': '删除工作空间会级联删除该工作空间下的资源，确定要删除吗?',
     'add': '添加工作空间',
     'input_name': '请输入工作空间名称',
     'search_by_name': '根据名称搜索',
@@ -58,6 +58,8 @@ export default {
     'delete_confirm': '这个项目确定要删除吗?',
     'search_by_name': '根据名称搜索',
     'input_name': '请输入项目名称',
+    'owning_workspace': '所属工作空间',
+    'please_choose_workspace': '选择工作空间',
   },
   member: {
     'create': '添加成员',
