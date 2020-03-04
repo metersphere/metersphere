@@ -24,8 +24,7 @@ public class RestControllerExceptionHandler {
 
     @ExceptionHandler(MSException.class)
     public ResultHolder msExceptionHandler(HttpServletRequest request, HttpServletResponse response, MSException e) {
-        // 自定义异常返回200
-        response.setStatus(HttpStatus.OK.value());
+        response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         return ResultHolder.error(e.getMessage());
     }
 }

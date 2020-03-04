@@ -48,7 +48,11 @@ export default {
     function exception(error, result) {
       result.loading = false;
       window.console.error(error.response || error.message);
-      Message.error({message: error.message, showClose: true});
+      if (error.response.data) {
+        Message.error({message: error.response.data.message, showClose: true});
+      } else {
+        Message.error({message: error.message, showClose: true});
+      }
     }
 
     Vue.prototype.$get = function (url, success) {
