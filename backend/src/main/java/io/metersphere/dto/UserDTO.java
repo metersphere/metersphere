@@ -21,6 +21,8 @@ public class UserDTO {
 
     private Long updateTime;
 
+    private String language;
+
     private String lastWorkspaceId;
 
     private String lastOrganizationId;
@@ -101,6 +103,14 @@ public class UserDTO {
 
     public void setUserRoles(List<UserRole> userRoles) {
         this.userRoles = userRoles;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     public String getLastWorkspaceId() {

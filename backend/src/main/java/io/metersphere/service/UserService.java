@@ -337,4 +337,14 @@ public class UserService {
     public List<User> getBesideOrgMemberList(String orgId) {
         return extUserRoleMapper.getBesideOrgMemberList(orgId);
     }
+
+    public void setLanguage(String lang) {
+        if (SessionUtils.getUser() != null) {
+            User user = new User();
+            user.setId(SessionUtils.getUser().getId());
+            user.setLanguage(lang);
+            updateUser(user);
+            SessionUtils.getUser().setLanguage(lang);
+        }
+    }
 }
