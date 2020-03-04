@@ -83,7 +83,6 @@ public class Translator {
         String preferLang = Lang.zh_CN.getDesc();
 
         try {
-
             if (request != null) {
                 Object sessionLang = request.getSession(true).getAttribute(I18nConstants.LANG_COOKIE_NAME);
                 if (sessionLang != null && StringUtils.isNotBlank(sessionLang.toString())) {
@@ -111,7 +110,6 @@ public class Translator {
             } else {
                 preferLang = getSystemParameterLanguage(preferLang);
             }
-
         } catch (Exception e) {
             LogUtil.error("Fail to getLang.", e);
         }

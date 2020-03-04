@@ -13,6 +13,7 @@ import io.metersphere.dto.OrganizationMemberDTO;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserRoleDTO;
 import io.metersphere.dto.UserRoleHelpDTO;
+import io.metersphere.i18n.Translator;
 import io.metersphere.user.SessionUser;
 import io.metersphere.user.SessionUtils;
 import org.apache.commons.lang3.StringUtils;

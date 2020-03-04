@@ -1,6 +1,8 @@
 package io.metersphere.controller;
 
 import io.metersphere.controller.request.LoginRequest;
+import io.metersphere.i18n.Translator;
+import io.metersphere.user.SessionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
@@ -15,7 +17,7 @@ public class LoginController {
     @GetMapping(value = "/isLogin")
     public ResultHolder isLogin() {
         if (SecurityUtils.getSubject().isAuthenticated()) {
-            return ResultHolder.success("");
+            return ResultHolder.success(Translator.getLangDes());
         }
         return ResultHolder.error("");
     }

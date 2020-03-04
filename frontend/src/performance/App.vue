@@ -47,6 +47,8 @@
     beforeCreate() {
       this.$get("/isLogin").then(response => {
         if (response.data.success) {
+          window.console.log(response.data);
+          this.$setLang(response.data.data);
           this.auth = true;
         } else {
           window.location.href = "/login"
