@@ -3,10 +3,13 @@ package io.metersphere.service;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.ProjectExample;
 import io.metersphere.base.mapper.ProjectMapper;
+import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.request.ProjectRequest;
+import io.metersphere.dto.ProjectDTO;
 import io.metersphere.user.SessionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +22,8 @@ import java.util.UUID;
 public class ProjectService {
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private ExtProjectMapper extProjectMapper;
 
     public Project addProject(Project project) {
         if (StringUtils.isBlank(project.getName())) {
@@ -41,13 +46,8 @@ public class ProjectService {
         return project;
     }
 
-    public List<Project> getProjectList(ProjectRequest request) {
-        ProjectExample example = new ProjectExample();
-        ProjectExample.Criteria criteria = example.createCriteria();
-        if (StringUtils.isNotBlank(request.getWorkspaceId())) {
-            criteria.andWorkspaceIdEqualTo(request.getWorkspaceId());
-        }
-        return projectMapper.selectByExample(example);
+    public List<ProjectDTO> getProjectList(ProjectRequest request) {
+       return extProjectMapper.getProjectWithWorkspace(request);
     }
 
     public void deleteProject(String projectId) {

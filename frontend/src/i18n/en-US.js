@@ -58,6 +58,8 @@ export default {
     'delete_confirm': 'Are you sure you want to delete this project?',
     'search_by_name': 'Search by name',
     'input_name': 'Please enter a workspace name',
+    'owning_workspace': 'Owning Workspace',
+    'please_choose_workspace': 'Please select Workspace',
   },
   member: {
     'create': 'Create',

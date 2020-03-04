@@ -18,6 +18,7 @@
         <el-table :data="items" style="width: 100%">
           <el-table-column prop="name" :label="$t('commons.name')"/>
           <el-table-column prop="description" :label="$t('commons.description')"/>
+          <el-table-column prop="workspaceName" label="所属工作空间"/>
           <el-table-column>
             <template slot-scope="scope">
               <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
@@ -51,6 +52,16 @@
           </el-form-item>
           <el-form-item :label="$t('commons.description')">
             <el-input type="textarea" v-model="form.description"></el-input>
+          </el-form-item>
+          <el-form-item :label="$t('project.owning_workspace')" v-permission="['org_admin']">
+            <el-select v-model="form.workspaceId" :placeholder="$t('project.please_choose_workspace')" class="select-width">
+              <el-option
+                v-for="item in form.allWorkspace"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id">
+              </el-option>
+            </el-select>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -116,6 +127,13 @@
         this.title = this.$t('project.edit');
         this.createVisible = true;
         this.form = Object.assign({}, row);
+
+        let workspaceId = this.form.workspaceId;
+        this.result = this.$get('workspace/list/orgworkspace/', response => {
+          this.$set(this.form, "allWorkspace", response.data);
+        })
+        // 编辑使填充角色信息
+        this.$set(this.form, 'workspaceId', workspaceId);
       },
       submit(formName) {
         this.$refs[formName].validate((valid) => {
@@ -185,5 +203,9 @@
     padding-top: 20px;
     margin-right: -9px;
     float: right;
+  }
+
+  .select-width {
+    width: 100%;
   }
 </style>
