@@ -12,6 +12,7 @@ import io.metersphere.dto.WorkspaceDTO;
 import io.metersphere.dto.WorkspaceMemberDTO;
 import io.metersphere.service.WorkspaceService;
 import io.metersphere.user.SessionUtils;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
@@ -83,6 +84,7 @@ public class WorkspaceController {
     }
 
     @PostMapping("/member/update")
+    @RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.ORG_ADMIN, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void updateOrgMember(@RequestBody WorkspaceMemberDTO memberDTO) {
         workspaceService.updateWorkspaceMember(memberDTO);
     }

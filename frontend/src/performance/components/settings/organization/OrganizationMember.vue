@@ -236,6 +236,14 @@
         });
       },
       create() {
+        let orgId = this.currentUser().lastOrganizationId;
+        if (!orgId) {
+          this.$message({
+            type: 'warning',
+            message: this.$t('organization.select_organization')
+          })
+          return false;
+        }
         this.form = {};
         this.result = this.$get('/user/besideorg/list/' + this.currentUser().lastOrganizationId, response => {
           this.createVisible = true;
@@ -246,13 +254,13 @@
         })
       },
       submitForm(formName) {
-        this.loading = true;
         this.$refs[formName].validate((valid) => {
+          let orgId = this.currentUser().lastOrganizationId;
           if (valid) {
             let param = {
               userIds: this.form.userIds,
               roleIds: this.form.roleIds,
-              organizationId: this.currentUser().lastOrganizationId
+              organizationId: orgId
             };
             this.result = this.$post("user/orgmember/add", param,() => {
               this.initTableData();

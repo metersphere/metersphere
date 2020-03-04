@@ -2,7 +2,7 @@
   <div v-loading="result.loading">
     <el-card>
       <div slot="header">
-        <el-row type="flex" justify="space-between" align="middle">
+        <el-row type="flex" justify="space-between" align="middle" v-permission="['test_manager']">
           <span class="title">成员
             <ms-create-box :tips="btnTips" :exec="create"/>
           </span>
@@ -25,8 +25,8 @@
         </el-table-column>
         <el-table-column>
           <template slot-scope="scope">
-            <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
-            <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
+            <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle v-permission="['test_manager']"/>
+            <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle v-permission="['test_manager']"/>
           </template>
         </el-table-column>
       </el-table>

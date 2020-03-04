@@ -65,7 +65,7 @@
     <el-dialog :visible.sync="memberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc">
       <el-row type="flex" justify="space-between" align="middle">
         <span class="member-title">{{$t('commons.member')}}
-          <ms-create-box :tips="addTips" :exec="addMember"/>
+          <ms-create-box :tips="addTips" :exec="addMember" v-permission="['admin','org_admin']"/>
         </span>
         <span class="search">
           <el-input type="text" size="small"

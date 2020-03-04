@@ -5,7 +5,7 @@
                class="header-user-menu align-right"
                background-color="#2c2a48"
                text-color="#fff">
-        <el-submenu index="1" popper-class="submenu" v-permission="['org_admin']">
+        <el-submenu index="1" popper-class="submenu">
           <template slot="title">【组织】{{currentOrganizationName}}</template>
           <label v-for="(item,index) in organizationList" :key="index">
             <el-menu-item @click="changeOrg(item)">{{item.name}}
@@ -41,7 +41,7 @@
 </template>
 
 <script>
-  import {ROLE_ORG_ADMIN, ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER, TokenKey} from '../../common/constants';
+  import { ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER, TokenKey} from '../../common/constants';
 
   export default {
     name: "MsUser",
@@ -89,7 +89,7 @@
       },
       initMenuData() {
         let roles = this.currentUser.roles.map(r => r.id);
-        if (roles.indexOf(ROLE_ORG_ADMIN) > -1) {
+        // if (roles.indexOf(ROLE_ORG_ADMIN) > -1) {
           this.$get("/organization/list/userorg/" + this.currentUserId, response => {
             let data = response.data;
             this.organizationList = data;
@@ -98,9 +98,9 @@
               this.currentOrganizationName = org[0].name;
             }
           });
-        }
+        // }
         if (roles.indexOf(ROLE_TEST_MANAGER) > -1 || roles.indexOf(ROLE_TEST_USER) > -1 || roles.indexOf(ROLE_TEST_VIEWER) > -1) {
-          if (this.currentUser.lastOrganizationId === null) {
+          if (!this.currentUser.lastOrganizationId) {
             return false;
           }
           this.$get("/workspace/list/orgworkspace/", response => {

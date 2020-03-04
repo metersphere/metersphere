@@ -17,6 +17,7 @@ import io.metersphere.dto.UserRoleDTO;
 import io.metersphere.service.UserService;
 import io.metersphere.user.SessionUser;
 import io.metersphere.user.SessionUtils;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +32,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/add")
+    @RequiresRoles(RoleConstants.ADMIN)
     public UserDTO insertUser(@RequestBody User user) {
         return userService.insert(user);
     }
@@ -41,17 +43,20 @@ public class UserController {
     }
 
     @PostMapping("/list/{goPage}/{pageSize}")
+    @RequiresRoles(RoleConstants.ADMIN)
     public Pager<List<User>> getUserList(@PathVariable int goPage, @PathVariable int pageSize) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getUserList());
     }
 
     @GetMapping("/delete/{userId}")
+    @RequiresRoles(RoleConstants.ADMIN)
     public void deleteUser(@PathVariable(value = "userId") String userId) {
         userService.deleteUser(userId);
     }
 
     @PostMapping("/update")
+    @RequiresRoles(RoleConstants.ADMIN)
     public void updateUser(@RequestBody User user) {
         userService.updateUser(user);
     }
@@ -103,7 +108,6 @@ public class UserController {
      * 获取工作空间成员用户 不分页
      */
     @PostMapping("/member/list/all")
-    @RequiresRoles(RoleConstants.ADMIN)
     public List<User> getMemberList(@RequestBody QueryMemberRequest request) {
         return userService.getMemberList(request);
     }
@@ -112,7 +116,7 @@ public class UserController {
      * 添加成员
      */
     @PostMapping("/member/add")
-    //@RequiresRoles(RoleConstants.TEST_MANAGER)
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER,RoleConstants.ORG_ADMIN,RoleConstants.ADMIN}, logical = Logical.OR)
     public void addMember(@RequestBody AddMemberRequest request) {
         userService.addMember(request);
     }
@@ -121,7 +125,7 @@ public class UserController {
      * 删除成员
      */
     @GetMapping("/member/delete/{workspaceId}/{userId}")
-    //@RequiresRoles(RoleConstants.TEST_MANAGER)
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.ADMIN, RoleConstants.ORG_ADMIN}, logical = Logical.OR)
     public void deleteMember(@PathVariable String workspaceId, @PathVariable String userId) {
         userService.deleteMember(workspaceId, userId);
     }
@@ -130,6 +134,7 @@ public class UserController {
      * 添加组织成员
      */
     @PostMapping("/orgmember/add")
+    @RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.ORG_ADMIN}, logical = Logical.OR)
     public void addOrganizationMember(@RequestBody AddOrgMemberRequest request) {
         userService.addOrganizationMember(request);
     }
@@ -138,6 +143,7 @@ public class UserController {
      * 删除组织成员
      */
     @GetMapping("/orgmember/delete/{organizationId}/{userId}")
+    @RequiresRoles(value = {RoleConstants.ADMIN,RoleConstants.ORG_ADMIN}, logical = Logical.OR)
     public void delOrganizationMember(@PathVariable String organizationId, @PathVariable String userId) {
         userService.delOrganizationMember(organizationId, userId);
     }
