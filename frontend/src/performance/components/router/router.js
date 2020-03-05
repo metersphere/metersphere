@@ -13,6 +13,7 @@ import MsProject from "../project/MsProject";
 import OrganizationWorkspace from "../settings/organization/OrganizationWorkspace";
 import PersonSetting from "../settings/personal/PersonSetting";
 import SystemWorkspace from "../settings/system/SystemWorkspace";
+import MsChart from "../project/MsChart";
 
 Vue.use(VueRouter);
 
@@ -98,6 +99,13 @@ const router = new VueRouter({
       name: 'project',
       components: {
         content: MsProject
+      }
+    },
+    {
+      path: "/chart",
+      name: 'chart',
+      components: {
+        content: MsChart
       }
     }
   ]

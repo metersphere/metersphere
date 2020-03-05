@@ -83,6 +83,8 @@
 </template>
 
 <script>
+  import echarts from "echarts";
+
   const TARGET_LEVEL = "TargetLevel";
   const RAMP_UP = "RampUp";
   const STEPS = "Steps";
@@ -170,11 +172,47 @@
           yAxis: {
             type: 'value'
           },
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              lineStyle: {
+                color: '#57617B'
+              }
+            }
+          },
           series: [{
             data: [],
             type: 'line',
             step: 'start',
             smooth: false,
+            symbol: 'circle',
+            symbolSize: 5,
+            showSymbol: false,
+            lineStyle: {
+              normal: {
+                width: 1
+              }
+            },
+            areaStyle: {
+              normal: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                  offset: 0,
+                  color: 'rgba(137, 189, 27, 0.3)'
+                }, {
+                  offset: 0.8,
+                  color: 'rgba(137, 189, 27, 0)'
+                }], false),
+                shadowColor: 'rgba(0, 0, 0, 0.1)',
+                shadowBlur: 10
+              }
+            },
+            itemStyle: {
+              normal: {
+                color: 'rgb(137,189,27)',
+                borderColor: 'rgba(137,189,2,0.27)',
+                borderWidth: 12
+              }
+            },
           }]
         };
         let timePeriod = Math.ceil(this.rampUpTime / this.step);
