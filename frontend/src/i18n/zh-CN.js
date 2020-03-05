@@ -61,7 +61,7 @@ export default {
     'search_by_name': '根据名称搜索',
     'input_name': '请输入项目名称',
     'owning_workspace': '所属工作空间',
-    'please_choose_workspace': '选择工作空间',
+    'please_choose_workspace': '请选择工作空间',
   },
   member: {
     'create': '添加成员',
