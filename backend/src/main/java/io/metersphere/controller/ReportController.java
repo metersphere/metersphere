@@ -1,17 +1,18 @@
 package io.metersphere.controller;
 
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.LoadTestReport;
 import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.commons.utils.PageUtils;
+import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.ReportRequest;
+import io.metersphere.dto.ReportDTO;
 import io.metersphere.service.ReportService;
 import io.metersphere.user.SessionUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -32,5 +33,16 @@ public class ReportController {
         // 最近 `count` 个项目
         PageHelper.startPage(1, count);
         return reportService.getRecentReportList(request);
+    }
+
+    @PostMapping("/list/all/{goPage}/{pageSize}")
+    public Pager<List<ReportDTO>> getReportList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ReportRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, reportService.getReportList(request));
+    }
+
+    @PostMapping("/delete/{reportId}")
+    public void deleteReport(@PathVariable String reportId) {
+        reportService.deleteReport(reportId);
     }
 }

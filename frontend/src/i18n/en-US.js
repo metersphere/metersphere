@@ -89,6 +89,11 @@ export default {
   role: {
     'please_choose_role': 'Please Choose Role',
   },
+  report: {
+    'recent': 'Recent Report',
+    'search_by_name': 'Search by Name',
+    'test_name': 'Test',
+  },
   load_test: {
     'recent': 'Recent Tests',
     'search_by_name': 'Search by name',

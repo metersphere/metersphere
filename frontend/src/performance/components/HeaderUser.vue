@@ -135,8 +135,7 @@
       changeWs(data) {
         let sign = "workspace";
         let workspaceId = data.id;
-        // todo 工作空间为空判断
-        if (typeof (workspaceId) == "undefined") {
+        if (!workspaceId) {
           return false;
         }
         this.$post("/user/switch/source/" + sign + "/" + workspaceId, {}, response => {
