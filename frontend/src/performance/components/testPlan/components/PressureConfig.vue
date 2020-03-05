@@ -75,8 +75,7 @@
         </el-form>
       </el-col>
       <el-col :span="12">
-        压力预估图
-        <chart ref="chart1" :options="orgOptions" :auto-resize="true"></chart>
+        <chart class="chart-container" ref="chart1" :options="orgOptions" :autoresize="true"></chart>
       </el-col>
     </el-row>
   </div>
