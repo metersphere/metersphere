@@ -7,7 +7,7 @@
                text-color="#fff">
         <el-submenu index="1" popper-class="submenu"
                     v-permission="['org_admin', 'test_manager', 'test_user', 'test_viewer']">
-          <template slot="title">【组织】{{currentOrganizationName}}</template>
+          <template slot="title">【{{$t('commons.organization')}}】{{currentOrganizationName}}</template>
           <label v-for="(item,index) in organizationList" :key="index">
             <el-menu-item @click="changeOrg(item)">{{item.name}}
               <i class="el-icon-check"
@@ -16,7 +16,7 @@
           </label>
         </el-submenu>
         <el-submenu index="2" popper-class="submenu" v-permission="['test_manager', 'test_user', 'test_viewer']">
-          <template slot="title">【工作空间】{{currentWorkspaceName}}</template>
+          <template slot="title">【{{$t('commons.workspace')}}】{{currentWorkspaceName}}</template>
           <label v-for="(item,index) in workspaceList" :key="index">
             <el-menu-item @click="changeWs(item)">
               {{item.name}}

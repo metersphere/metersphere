@@ -31,6 +31,8 @@ export default {
     'role': '角色',
     'personal_info': '个人信息',
     'status': '启用/禁用',
+    'show_all': '显示全部',
+    'report': '报告',
   },
   workspace: {
     'create': '创建工作空间',
@@ -137,6 +139,7 @@ export default {
     'connect_timeout': '建立连接超时时间',
     'custom_http_code': '自定义 HTTP 响应成功状态码',
     'separated_by_commas': '按逗号分隔',
+    'create': '创建测试',
   },
   i18n: {
     'home': '首页',

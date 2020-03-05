@@ -31,6 +31,8 @@ export default {
     'role': 'Role',
     'personal_info': 'Personal Info',
     'status': 'Enable/Disable',
+    'show_all': 'Show All',
+    'report': 'Report',
   },
   workspace: {
     'create': 'Create Workspace',
@@ -136,6 +138,7 @@ export default {
     'connect_timeout': 'Timeout to establish a connection',
     'custom_http_code': 'Custom HTTP response success status code',
     'separated_by_commas': 'Separated by commas',
+    'create': 'Create Test',
   },
   i18n: {
     'home': 'Home',

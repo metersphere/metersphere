@@ -8,7 +8,7 @@
         <ms-top-menus/>
       </el-col>
       <el-col :span="14">
-       <ms-user/>
+        <ms-user/>
       </el-col>
     </el-row>
     <el-row id="header-bottom" type="flex" justify="space-between" align="middle">
@@ -18,7 +18,7 @@
       <el-col :span="4">
         <el-row type="flex" justify="center" align="middle">
           <router-link to="/createTest" v-permission="['test_user','test_manager']">
-            <el-button type="primary" size="small">创建测试</el-button>
+            <el-button type="primary" size="small">{{$t('load_test.create')}}</el-button>
           </router-link>
         </el-row>
       </el-col>
@@ -58,8 +58,7 @@
       });
     },
     components: {MsWebSocket, MsUser, MsMenus, MsView, MsTopMenus},
-    methods: {
-    }
+    methods: {}
   }
 </script>
 
