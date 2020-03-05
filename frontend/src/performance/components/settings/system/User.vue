@@ -8,7 +8,9 @@
             <ms-create-box :tips="btnTips" :exec="create"/>
           </span>
           <span class="search">
-            <el-input type="text" size="small" :placeholder="$t('member.search_by_name')" prefix-icon="el-icon-search" maxlength="60" v-model="condition" clearable/>
+            <el-input type="text" size="small" :placeholder="$t('member.search_by_name')"
+                      prefix-icon="el-icon-search" maxlength="60" @change="search"
+                      v-model="condition" clearable/>
           </span>
         </el-row>
       </div>
@@ -226,8 +228,14 @@
           }
         })
       },
+      search() {
+        this.initTableData();
+      },
       initTableData() {
-        this.result = this.$post(this.buildPagePath(this.queryPath),{},response => {
+        let param = {
+          name: this.condition
+        };
+        this.result = this.$post(this.buildPagePath(this.queryPath),param,response => {
             let data = response.data;
             this.total = data.itemCount;
             this.tableData = data.listObject;

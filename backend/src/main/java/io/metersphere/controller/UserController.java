@@ -7,6 +7,7 @@ import io.metersphere.base.domain.User;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.controller.request.UserRequest;
 import io.metersphere.controller.request.member.AddMemberRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
@@ -44,9 +45,9 @@ public class UserController {
 
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresRoles(RoleConstants.ADMIN)
-    public Pager<List<User>> getUserList(@PathVariable int goPage, @PathVariable int pageSize) {
+    public Pager<List<User>> getUserList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody UserRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, userService.getUserList());
+        return PageUtils.setPageInfo(page, userService.getUserListWithRequest(request));
     }
 
     @GetMapping("/delete/{userId}")

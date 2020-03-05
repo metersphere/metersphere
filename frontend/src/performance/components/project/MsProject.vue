@@ -53,16 +53,6 @@
           <el-form-item :label="$t('commons.description')">
             <el-input type="textarea" v-model="form.description"></el-input>
           </el-form-item>
-          <el-form-item :label="$t('project.owning_workspace')" v-permission="['org_admin']">
-            <el-select v-model="form.workspaceId" :placeholder="$t('project.please_choose_workspace')" class="select-width">
-              <el-option
-                v-for="item in form.allWorkspace"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id">
-              </el-option>
-            </el-select>
-          </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button type="primary" @click="submit('form')" size="medium">{{$t('commons.save')}}</el-button>
@@ -75,6 +65,7 @@
 <script>
   import MsCreateBox from "../settings/CreateBox";
   import {Message} from "element-ui";
+  import {TokenKey} from "../../../common/constants";
 
   export default {
     name: "MsProject",
@@ -114,11 +105,25 @@
         }
       }
     },
+    computed: {
+      currentUser: () => {
+        let user = localStorage.getItem(TokenKey);
+        return JSON.parse(user);
+      }
+    },
     destroyed() {
       this.createVisible = false;
     },
     methods: {
       create() {
+        let workspaceId = this.currentUser.lastWorkspaceId;
+        if (!workspaceId) {
+          this.$message({
+            type: 'warning',
+            message: this.$t('project.please_choose_workspace')
+          })
+          return false;
+        }
         this.title = this.$t('project.create');
         this.createVisible = true;
         this.form = {};
@@ -127,13 +132,6 @@
         this.title = this.$t('project.edit');
         this.createVisible = true;
         this.form = Object.assign({}, row);
-
-        let workspaceId = this.form.workspaceId;
-        this.result = this.$get('workspace/list/orgworkspace/', response => {
-          this.$set(this.form, "allWorkspace", response.data);
-        })
-        // 编辑使填充角色信息
-        this.$set(this.form, 'workspaceId', workspaceId);
       },
       submit(formName) {
         this.$refs[formName].validate((valid) => {
@@ -205,7 +203,4 @@
     float: right;
   }
 
-  .select-width {
-    width: 100%;
-  }
 </style>

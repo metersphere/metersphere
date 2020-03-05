@@ -2,9 +2,11 @@ package io.metersphere.service;
 
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.ext.ExtUserMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CodingUtil;
+import io.metersphere.controller.request.UserRequest;
 import io.metersphere.controller.request.member.AddMemberRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
@@ -13,7 +15,6 @@ import io.metersphere.dto.OrganizationMemberDTO;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserRoleDTO;
 import io.metersphere.dto.UserRoleHelpDTO;
-import io.metersphere.i18n.Translator;
 import io.metersphere.user.SessionUser;
 import io.metersphere.user.SessionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -42,6 +43,8 @@ public class UserService {
     private OrganizationMapper organizationMapper;
     @Resource
     private WorkspaceMapper workspaceMapper;
+    @Resource
+    private ExtUserMapper extUserMapper;
 
     public UserDTO insert(User user) {
         checkUserParam(user);
@@ -110,6 +113,10 @@ public class UserService {
 
     public List<User> getUserList() {
         return userMapper.selectByExample(null);
+    }
+
+    public List<User> getUserListWithRequest(UserRequest request) {
+        return extUserMapper.getUserList(request);
     }
 
     public void deleteUser(String userId) {
