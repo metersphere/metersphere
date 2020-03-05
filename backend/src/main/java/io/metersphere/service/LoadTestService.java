@@ -1,9 +1,6 @@
 package io.metersphere.service;
 
-import io.metersphere.base.domain.FileContent;
-import io.metersphere.base.domain.FileMetadata;
-import io.metersphere.base.domain.LoadTestFile;
-import io.metersphere.base.domain.LoadTestWithBLOBs;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
 import io.metersphere.commons.constants.EngineType;
@@ -12,6 +9,7 @@ import io.metersphere.controller.request.testplan.*;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.engine.Engine;
 import io.metersphere.engine.EngineFactory;
+import io.metersphere.i18n.Translator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -69,6 +67,13 @@ public class LoadTestService {
     }
 
     private LoadTestWithBLOBs saveLoadTest(SaveTestPlanRequest request) {
+
+        LoadTestExample example = new LoadTestExample();
+        example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId());
+        if (loadTestMapper.countByExample(example) > 0) {
+            MSException.throwException(Translator.get("load_test_already_exists"));
+        }
+
         final LoadTestWithBLOBs loadTest = new LoadTestWithBLOBs();
         loadTest.setId(UUID.randomUUID().toString());
         loadTest.setName(request.getName());

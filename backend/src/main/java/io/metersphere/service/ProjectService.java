@@ -7,9 +7,9 @@ import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.request.ProjectRequest;
 import io.metersphere.dto.ProjectDTO;
+import io.metersphere.i18n.Translator;
 import io.metersphere.user.SessionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,14 +27,14 @@ public class ProjectService {
 
     public Project addProject(Project project) {
         if (StringUtils.isBlank(project.getName())) {
-            MSException.throwException("Project name cannot be null");
+            MSException.throwException(Translator.get("project_name_is_null"));
         }
         ProjectExample example = new ProjectExample();
         example.createCriteria()
                 .andWorkspaceIdEqualTo(SessionUtils.getCurrentWorkspaceId())
                 .andNameEqualTo(project.getName());
         if (projectMapper.countByExample(example) > 0) {
-            MSException.throwException("The project name already exists");
+            MSException.throwException(Translator.get("project_name_already_exists"));
         }
         project.setId(UUID.randomUUID().toString());
         long createTime = System.currentTimeMillis();
@@ -47,7 +47,7 @@ public class ProjectService {
     }
 
     public List<ProjectDTO> getProjectList(ProjectRequest request) {
-       return extProjectMapper.getProjectWithWorkspace(request);
+        return extProjectMapper.getProjectWithWorkspace(request);
     }
 
     public void deleteProject(String projectId) {

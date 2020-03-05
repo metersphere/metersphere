@@ -24,6 +24,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/testplan")
+@RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
 public class LoadTestController {
     @Resource
     private LoadTestService loadTestService;
@@ -31,7 +32,6 @@ public class LoadTestController {
     private FileService fileService;
 
     @GetMapping("recent/{count}")
-    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
     public List<LoadTestDTO> recentTestPlans(@PathVariable int count) {
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
         QueryTestPlanRequest request = new QueryTestPlanRequest();
@@ -84,7 +84,7 @@ public class LoadTestController {
     }
 
     @PostMapping("/run")
-    public void delete(@RequestBody RunTestPlanRequest request) {
+    public void run(@RequestBody RunTestPlanRequest request) {
         loadTestService.run(request);
     }
 

@@ -13,6 +13,7 @@ import io.metersphere.controller.request.WorkspaceRequest;
 import io.metersphere.dto.UserRoleHelpDTO;
 import io.metersphere.dto.WorkspaceDTO;
 import io.metersphere.dto.WorkspaceMemberDTO;
+import io.metersphere.i18n.Translator;
 import io.metersphere.user.SessionUser;
 import io.metersphere.user.SessionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -44,7 +45,7 @@ public class WorkspaceService {
 
     public Workspace saveWorkspace(Workspace workspace) {
         if (StringUtils.isBlank(workspace.getName())) {
-            MSException.throwException("Workspace name cannot be null.");
+            MSException.throwException(Translator.get("workspace_name_is_null"));
         }
         // set organization id
         workspace.setOrganizationId(SessionUtils.getCurrentOrganizationId());
@@ -56,7 +57,7 @@ public class WorkspaceService {
                     .andOrganizationIdEqualTo(SessionUtils.getCurrentOrganizationId())
                     .andNameEqualTo(workspace.getName());
             if (workspaceMapper.countByExample(example) > 0) {
-                MSException.throwException("The workspace name already exists");
+                MSException.throwException(Translator.get("workspace_name_already_exists"));
             }
             workspace.setId(UUID.randomUUID().toString()); // 设置ID
             workspace.setCreateTime(currentTime);
@@ -89,6 +90,9 @@ public class WorkspaceService {
         workspaceMapper.deleteByPrimaryKey(workspaceId);
     }
 
+    /**
+     * ORG_ADMIN 需要检查是否有操作此工作空间的权限
+     */
     public void checkOwner(String workspaceId) {
         SessionUser user = SessionUtils.getUser();
         List<String> orgIds = user.getUserRoles().stream()
@@ -100,7 +104,7 @@ public class WorkspaceService {
                 .andOrganizationIdIn(orgIds)
                 .andIdEqualTo(workspaceId);
         if (workspaceMapper.countByExample(example) == 0) {
-            MSException.throwException("The current workspace does not belong to the current user");
+            MSException.throwException(Translator.get("workspace_does_not_belong_to_user"));
         }
     }
 
@@ -128,7 +132,7 @@ public class WorkspaceService {
         List<Workspace> resultWorkspaceList = new ArrayList<>();
         userRoles.forEach(userRole -> {
             workspaces.forEach(workspace -> {
-                if (StringUtils.equals(userRole.getSourceId(),workspace.getId())) {
+                if (StringUtils.equals(userRole.getSourceId(), workspace.getId())) {
                     if (!resultWorkspaceList.contains(workspace)) {
                         resultWorkspaceList.add(workspace);
                     }

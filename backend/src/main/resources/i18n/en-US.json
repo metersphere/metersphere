@@ -1,3 +1,9 @@
 {
-    "error_lang_invalid": "Invalid language parameter"
+  "error_lang_invalid": "Invalid language parameter",
+  "load_test_already_exists": "Duplicate load test name",
+  "project_name_is_null": "Project name cannot be null",
+  "project_name_already_exists": "The project name already exists",
+  "workspace_name_is_null": "Workspace name cannot be null",
+  "workspace_name_already_exists": "The workspace name already exists",
+  "workspace_does_not_belong_to_user": "The current workspace does not belong to the current user"
 }
