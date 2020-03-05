@@ -64,7 +64,7 @@
             <el-input-number
               placeholder=""
               :min="1"
-              :max="Math.min(threadNumber, duration)"
+              :max="Math.min(threadNumber, rampUpTime)"
               v-model="step"
               @change="calculateChart"
               size="mini"/>
@@ -164,8 +164,8 @@
         if (this.duration < this.rampUpTime) {
           this.rampUpTime = this.duration;
         }
-        if (this.threadNumber < this.step) {
-          this.step = this.threadNumber;
+        if (this.rampUpTime < this.step) {
+          this.step = this.rampUpTime;
         }
         this.orgOptions = {
           xAxis: {
