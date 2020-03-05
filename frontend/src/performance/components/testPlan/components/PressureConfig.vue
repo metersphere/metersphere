@@ -52,6 +52,7 @@
             <el-input-number
               placeholder=""
               :min="1"
+              :max="duration"
               v-model="rampUpTime"
               @change="calculateChart"
               size="mini"/>
@@ -63,6 +64,7 @@
             <el-input-number
               placeholder=""
               :min="1"
+              :max="threadNumber"
               v-model="step"
               @change="calculateChart"
               size="mini"/>
@@ -93,9 +95,9 @@
       return {
         testPlan: {},
         threadNumber: 10,
-        duration: 30,
-        rampUpTime: 12,
-        step: 4,
+        duration: 10,
+        rampUpTime: 10,
+        step: 10,
         rpsLimit: 10,
         orgOptions: {},
       }
@@ -104,6 +106,8 @@
       let testId = this.$route.path.split('/')[2];
       if (testId) {
         this.getLoadConfig(testId);
+      } else {
+        this.calculateChart();
       }
     },
     watch: {
@@ -111,6 +115,8 @@
         let testId = to.path.split('/')[2];
         if (testId) {
           this.getLoadConfig(testId);
+        } else {
+          this.calculateChart();
         }
       }
     },
@@ -153,6 +159,9 @@
         });
       },
       calculateChart() {
+        if (this.duration < this.rampUpTime) {
+          this.rampUpTime = this.duration;
+        }
         this.orgOptions = {
           xAxis: {
             type: 'category',
@@ -164,18 +173,21 @@
           series: [{
             data: [],
             type: 'line',
+            step: 'start',
+            smooth: false,
           }]
         };
         let timePeriod = Math.ceil(this.rampUpTime / this.step);
         let threadPeriod = Math.ceil(this.threadNumber / this.step);
-        let inc = threadPeriod;
+        let threadInc = threadPeriod;
+        let timeInc = timePeriod;
 
         for (let i = 0; i < this.duration; i++) {
           // x 轴
           this.orgOptions.xAxis.data.push(i);
           if (i > timePeriod) {
-            threadPeriod = threadPeriod + inc;
-            timePeriod += timePeriod;
+            threadPeriod = threadPeriod + threadInc;
+            timePeriod += timeInc;
             if (threadPeriod > this.threadNumber) {
               threadPeriod = this.threadNumber;
             }
@@ -184,6 +196,9 @@
             this.orgOptions.series[0].data.push(threadPeriod);
           }
         }
+        //
+        this.orgOptions.xAxis.data.push(this.duration);
+        this.orgOptions.series[0].data.push(this.threadNumber);
       },
       convertProperty() {
         /// todo：下面4个属性是jmeter ConcurrencyThreadGroup plugin的属性，这种硬编码不太好吧，在哪能转换这种属性？
