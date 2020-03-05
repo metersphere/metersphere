@@ -90,6 +90,11 @@ export default {
   role: {
     'please_choose_role': '请选择角色',
   },
+  report: {
+    'recent': '最近的报告',
+    'search_by_name': '根据名称搜索',
+    'test_name': '所属测试',
+  },
   load_test: {
     'recent': '最近的测试',
     'search_by_name': '根据名称搜索',

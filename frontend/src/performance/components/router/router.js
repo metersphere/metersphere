@@ -14,6 +14,7 @@ import OrganizationWorkspace from "../settings/organization/OrganizationWorkspac
 import PersonSetting from "../settings/personal/PersonSetting";
 import SystemWorkspace from "../settings/system/SystemWorkspace";
 import MsChart from "../project/MsChart";
+import AllTestReport from "../report/AllTestReport";
 
 Vue.use(VueRouter);
 
@@ -99,6 +100,13 @@ const router = new VueRouter({
       name: 'project',
       components: {
         content: MsProject
+      }
+    },
+    {
+      path: "/report/:type",
+      name: 'report',
+      components: {
+        content: AllTestReport
       }
     },
     {
