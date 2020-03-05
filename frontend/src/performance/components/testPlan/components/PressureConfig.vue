@@ -170,6 +170,7 @@
         this.orgOptions = {
           xAxis: {
             type: 'category',
+            boundaryGap: false,
             data: []
           },
           yAxis: {
@@ -177,6 +178,7 @@
           },
           tooltip: {
             trigger: 'axis',
+            formatter: '{a}: {c0}',
             axisPointer: {
               lineStyle: {
                 color: '#57617B'
@@ -184,11 +186,11 @@
             }
           },
           series: [{
+            name: 'User',
             data: [],
             type: 'line',
             step: 'start',
             smooth: false,
-            symbol: 'circle',
             symbolSize: 5,
             showSymbol: false,
             lineStyle: {
@@ -219,16 +221,23 @@
           }]
         };
         let timePeriod = Math.floor(this.rampUpTime / this.step);
-        let threadPeriod = Math.floor(this.threadNumber / this.step);
-        let threadInc = threadPeriod;
         let timeInc = timePeriod;
 
-        for (let i = 0; i < this.duration; i++) {
+        let threadPeriod = Math.floor(this.threadNumber / this.step);
+        let threadInc1 = Math.floor(this.threadNumber / this.step);
+        let threadInc2 = Math.ceil(this.threadNumber / this.step);
+        let inc2count = this.threadNumber - this.step * threadInc1;
+        for (let i = 0; i <= this.duration; i++) {
           // x 轴
           this.orgOptions.xAxis.data.push(i);
           if (i > timePeriod) {
-            threadPeriod = threadPeriod + threadInc;
             timePeriod += timeInc;
+            if (inc2count > 0) {
+              threadPeriod = threadPeriod + threadInc2;
+              inc2count--;
+            } else {
+              threadPeriod = threadPeriod + threadInc1;
+            }
             if (threadPeriod > this.threadNumber) {
               threadPeriod = this.threadNumber;
             }
@@ -237,9 +246,6 @@
             this.orgOptions.series[0].data.push(threadPeriod);
           }
         }
-        //
-        this.orgOptions.xAxis.data.push(this.duration);
-        this.orgOptions.series[0].data.push(this.threadNumber);
       },
       convertProperty() {
         /// todo：下面4个属性是jmeter ConcurrencyThreadGroup plugin的属性，这种硬编码不太好吧，在哪能转换这种属性？
