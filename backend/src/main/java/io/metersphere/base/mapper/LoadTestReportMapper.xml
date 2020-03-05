@@ -6,9 +6,12 @@
     <result column="test_id" jdbcType="VARCHAR" property="testId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="description" jdbcType="VARCHAR" property="description" />
-    <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.LoadTestReport">
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -69,8 +72,27 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, test_id, name, description, status, create_time, update_time
+    id, test_id, name, description, create_time, update_time, status
   </sql>
+  <sql id="Blob_Column_List">
+    content
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.LoadTestReportExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from load_test_report
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.LoadTestReportExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
@@ -85,9 +107,11 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
     select 
     <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
     from load_test_report
     where id = #{id,jdbcType=VARCHAR}
   </select>
@@ -103,11 +127,11 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.LoadTestReport">
     insert into load_test_report (id, test_id, name, 
-      description, status, create_time, 
-      update_time)
+      description, create_time, update_time, 
+      status, content)
     values (#{id,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{description,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT})
+      #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
+      #{status,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.LoadTestReport">
     insert into load_test_report
@@ -124,14 +148,17 @@
       <if test="description != null">
         description,
       </if>
-      <if test="status != null">
-        status,
-      </if>
       <if test="createTime != null">
         create_time,
       </if>
       <if test="updateTime != null">
         update_time,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="content != null">
+        content,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -147,14 +174,17 @@
       <if test="description != null">
         #{description,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        #{status,jdbcType=VARCHAR},
-      </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -179,16 +209,33 @@
       <if test="record.description != null">
         description = #{record.description,jdbcType=VARCHAR},
       </if>
-      <if test="record.status != null">
-        status = #{record.status,jdbcType=VARCHAR},
-      </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=VARCHAR},
+      </if>
+      <if test="record.content != null">
+        content = #{record.content,jdbcType=LONGVARCHAR},
+      </if>
     </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update load_test_report
+    set id = #{record.id,jdbcType=VARCHAR},
+      test_id = #{record.testId,jdbcType=VARCHAR},
+      name = #{record.name,jdbcType=VARCHAR},
+      description = #{record.description,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      status = #{record.status,jdbcType=VARCHAR},
+      content = #{record.content,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -199,9 +246,9 @@
       test_id = #{record.testId,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
-      status = #{record.status,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT}
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      status = #{record.status,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -218,16 +265,30 @@
       <if test="description != null">
         description = #{description,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        status = #{status,jdbcType=VARCHAR},
-      </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
+      <if test="status != null">
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
     </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.LoadTestReport">
+    update load_test_report
+    set test_id = #{testId,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=BIGINT},
+      status = #{status,jdbcType=VARCHAR},
+      content = #{content,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.LoadTestReport">
@@ -235,9 +296,9 @@
     set test_id = #{testId,jdbcType=VARCHAR},
       name = #{name,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
-      status = #{status,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT}
+      update_time = #{updateTime,jdbcType=BIGINT},
+      status = #{status,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

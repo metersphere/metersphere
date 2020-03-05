@@ -2,8 +2,9 @@ package io.metersphere.base.mapper;
 
 import io.metersphere.base.domain.LoadTestReport;
 import io.metersphere.base.domain.LoadTestReportExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface LoadTestReportMapper {
     long countByExample(LoadTestReportExample example);
@@ -16,15 +17,21 @@ public interface LoadTestReportMapper {
 
     int insertSelective(LoadTestReport record);
 
+    List<LoadTestReport> selectByExampleWithBLOBs(LoadTestReportExample example);
+
     List<LoadTestReport> selectByExample(LoadTestReportExample example);
 
     LoadTestReport selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") LoadTestReport record, @Param("example") LoadTestReportExample example);
 
+    int updateByExampleWithBLOBs(@Param("record") LoadTestReport record, @Param("example") LoadTestReportExample example);
+
     int updateByExample(@Param("record") LoadTestReport record, @Param("example") LoadTestReportExample example);
 
     int updateByPrimaryKeySelective(LoadTestReport record);
+
+    int updateByPrimaryKeyWithBLOBs(LoadTestReport record);
 
     int updateByPrimaryKey(LoadTestReport record);
 }

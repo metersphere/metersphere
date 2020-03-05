@@ -11,11 +11,13 @@ public class LoadTestReport implements Serializable {
 
     private String description;
 
-    private String status;
-
     private Long createTime;
 
     private Long updateTime;
+
+    private String status;
+
+    private String content;
 
     private static final long serialVersionUID = 1L;
 
@@ -51,14 +53,6 @@ public class LoadTestReport implements Serializable {
         this.description = description == null ? null : description.trim();
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status == null ? null : status.trim();
-    }
-
     public Long getCreateTime() {
         return createTime;
     }
@@ -73,5 +67,21 @@ public class LoadTestReport implements Serializable {
 
     public void setUpdateTime(Long updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status == null ? null : status.trim();
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content == null ? null : content.trim();
     }
 }
