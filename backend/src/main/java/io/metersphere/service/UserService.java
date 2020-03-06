@@ -128,7 +128,7 @@ public class UserService {
         userMapper.updateByPrimaryKeySelective(user);
     }
 
-    public List<Role> getUserRolesList(String userId) {
+    /*public List<Role> getUserRolesList(String userId) {
         UserRoleExample userRoleExample = new UserRoleExample();
         userRoleExample.createCriteria().andUserIdEqualTo(userId);
         List<UserRole> userRolesList = userRoleMapper.selectByExample(userRoleExample);
@@ -143,7 +143,7 @@ public class UserService {
             return new ArrayList<>();
         }
         return convertUserRoleDTO(extUserRoleMapper.getUserRoleHelpList(userId));
-    }
+    }*/
 
     private List<UserRoleDTO> convertUserRoleDTO(List<UserRoleHelpDTO> helpDTOList) {
         StringBuilder buffer = new StringBuilder();

@@ -126,19 +126,17 @@
       },
       changeOrg(data) {
         let orgId = data.id;
-        let sign = "organization";
-        this.$post("/user/switch/source/" + sign + "/" + orgId, {}, response => {
+        this.$post("/user/switch/source/org/" + orgId, {}, response => {
           localStorage.setItem(TokenKey, JSON.stringify(response.data));
           window.location.reload();
         })
       },
       changeWs(data) {
-        let sign = "workspace";
         let workspaceId = data.id;
         if (!workspaceId) {
           return false;
         }
-        this.$post("/user/switch/source/" + sign + "/" + workspaceId, {}, response => {
+        this.$post("/user/switch/source/ws/" + workspaceId, {}, response => {
           localStorage.setItem(TokenKey, JSON.stringify(response.data));
           window.location.reload();
         })

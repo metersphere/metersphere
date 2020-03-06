@@ -113,10 +113,10 @@
   export default {
     data() {
       return {
-        queryPath: '/user/list',
-        deletePath: '/user/delete/',
-        createPath: '/user/add',
-        updatePath: '/user/update',
+        queryPath: '/user/special/list',
+        deletePath: '/user/special/delete/',
+        createPath: '/user/special/add',
+        updatePath: '/user/special/update',
         result: {},
         createVisible: false,
         updateVisible: false,
