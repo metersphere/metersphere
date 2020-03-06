@@ -33,6 +33,10 @@ export default {
     'status': '启用/禁用',
     'show_all': '显示全部',
     'report': '报告',
+    'user': '用户',
+    'system': '系统',
+    'personal_setting': '个人设置',
+    'test_resource_pool': '测试资源池',
   },
   workspace: {
     'create': '创建工作空间',
