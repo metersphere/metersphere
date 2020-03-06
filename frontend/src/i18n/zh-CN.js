@@ -37,6 +37,9 @@ export default {
     'system': '系统',
     'personal_setting': '个人设置',
     'test_resource_pool': '测试资源池',
+    'system_setting': '系统设置',
+    'functional': '功能测试',
+    'performance': '性能测试',
   },
   workspace: {
     'create': '创建工作空间',

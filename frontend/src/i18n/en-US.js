@@ -37,6 +37,9 @@ export default {
     'system': 'System',
     'personal_setting': 'Personal Setting',
     'test_resource_pool': 'Resource Pool',
+    'system_setting': 'Settings',
+    'functional': 'Functional',
+    'performance': 'Performance',
   },
   workspace: {
     'create': 'Create Workspace',
