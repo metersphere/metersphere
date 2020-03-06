@@ -42,7 +42,8 @@
 </template>
 
 <script>
-  import {ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER, TokenKey} from '../../common/constants';
+  import {ROLE_ORG_ADMIN, ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER, TokenKey} from '../../common/constants';
+  import {hasRoles} from "../../common/utils";
 
   export default {
     name: "MsUser",
@@ -89,18 +90,17 @@
         }
       },
       initMenuData() {
-        let roles = this.currentUser.roles.map(r => r.id);
-        // if (roles.indexOf(ROLE_ORG_ADMIN) > -1) {
-        this.$get("/organization/list/userorg/" + this.currentUserId, response => {
-          let data = response.data;
-          this.organizationList = data;
-          let org = data.filter(r => r.id === this.currentUser.lastOrganizationId);
-          if (org.length > 0) {
-            this.currentOrganizationName = org[0].name;
-          }
-        });
-        // }
-        if (roles.indexOf(ROLE_TEST_MANAGER) > -1 || roles.indexOf(ROLE_TEST_USER) > -1 || roles.indexOf(ROLE_TEST_VIEWER) > -1) {
+        if (hasRoles(ROLE_ORG_ADMIN, ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
+          this.$get("/organization/list/userorg/" + this.currentUserId, response => {
+            let data = response.data;
+            this.organizationList = data;
+            let org = data.filter(r => r.id === this.currentUser.lastOrganizationId);
+            if (org.length > 0) {
+              this.currentOrganizationName = org[0].name;
+            }
+          });
+        }
+        if (hasRoles(ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
           if (!this.currentUser.lastOrganizationId) {
             return false;
           }
