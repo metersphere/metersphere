@@ -17,7 +17,7 @@
       </el-col>
       <el-col :span="4">
         <el-row type="flex" justify="center" align="middle">
-          <router-link to="/createTest" v-permission="['test_user','test_manager']">
+          <router-link to="/createTest" v-permission="['test_user','test_manager']" v-if="isCurrentWorkspaceUser">
             <el-button type="primary" size="small">{{$t('load_test.create')}}</el-button>
           </router-link>
         </el-row>
@@ -36,12 +36,14 @@
   import MsView from "./components/router/View";
   import MsUser from "./components/HeaderUser";
   import MsWebSocket from "./components/websocket/WebSocket";
+  import {checkoutCurrentWorkspace} from "../common/utils";
 
   export default {
     name: 'app',
     data() {
       return {
         auth: false,
+        isCurrentWorkspaceUser: false,
       }
     },
     beforeCreate() {
@@ -58,7 +60,10 @@
       });
     },
     components: {MsWebSocket, MsUser, MsMenus, MsView, MsTopMenus},
-    methods: {}
+    methods: {},
+    mounted() {
+      this.isCurrentWorkspaceUser = checkoutCurrentWorkspace();
+    }
   }
 </script>
 

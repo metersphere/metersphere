@@ -1,4 +1,4 @@
-import {TokenKey} from "./constants";
+import {ROLE_ORG_ADMIN, ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER, TokenKey} from "./constants";
 
 export function hasRole(role) {
   let user = JSON.parse(localStorage.getItem(TokenKey));
@@ -15,4 +15,16 @@ export function hasRoles(...roles) {
     }
   }
   return false;
+}
+
+export function checkoutCurrentOrganization() {
+  let user = JSON.parse(localStorage.getItem(TokenKey));
+  // 查看当前用户是否是 lastOrganizationId 的组织管理员
+  return user.userRoles.filter(ur => hasRole(ROLE_ORG_ADMIN) && user.lastOrganizationId === ur.sourceId).length > 0;
+}
+
+export function checkoutCurrentWorkspace() {
+  let user = JSON.parse(localStorage.getItem(TokenKey));
+  // 查看当前用户是否是 lastWorkspaceId 的工作空间用户
+  return user.userRoles.filter(ur => hasRoles(ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER) && user.lastWorkspaceId === ur.sourceId).length > 0;
 }

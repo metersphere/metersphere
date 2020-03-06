@@ -11,7 +11,7 @@
       <el-menu-item index="/setting/testresourcepool">测试资源池</el-menu-item>
     </el-submenu>
 
-    <el-submenu index="2" v-permission="['org_admin']">
+    <el-submenu index="2" v-permission="['org_admin']" v-if="isCurrentOrganizationAdmin">
       <template slot="title">
         <font-awesome-icon class="icon organization" :icon="['far', 'building']" size="lg"/>
         <span>组织</span>
@@ -20,7 +20,7 @@
       <el-menu-item index="/setting/organizationworkspace" v-permission="['org_admin']">工作空间</el-menu-item>
     </el-submenu>
 
-    <el-submenu index="3" v-permission="['test_manager','test_user','test_viewer']">
+    <el-submenu index="3" v-permission="['test_manager','test_user','test_viewer']" v-if="isCurrentWorkspaceUser">
       <template slot="title">
         <font-awesome-icon class="icon workspace" :icon="['far', 'list-alt']" size="lg"/>
         <span>工作空间</span>
@@ -40,8 +40,20 @@
 </template>
 
 <script>
+  import {checkoutCurrentOrganization, checkoutCurrentWorkspace} from "../../../common/utils";
+
   export default {
-    name: "MsSettingMenu"
+    name: "MsSettingMenu",
+    data() {
+      return {
+        isCurrentOrganizationAdmin: false,
+        isCurrentWorkspaceUser: false,
+      }
+    },
+    mounted() {
+      this.isCurrentOrganizationAdmin = checkoutCurrentOrganization();
+      this.isCurrentWorkspaceUser = checkoutCurrentWorkspace();
+    },
   }
 </script>
 

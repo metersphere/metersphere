@@ -4,7 +4,7 @@
     <el-menu-item index="/setting/personsetting">
       {{ $t("i18n.home") }}
     </el-menu-item>
-    <el-submenu index="3" popper-class="submenu" v-permission="['test_manager']">
+    <el-submenu index="3" popper-class="submenu" v-permission="['test_manager']" v-if="isCurrentWorkspaceUser">
       <template slot="title">{{$t('commons.project')}}</template>
       <ms-recent-project/>
       <el-divider/>
@@ -16,7 +16,8 @@
         <el-button type="text">{{$t('project.create')}}</el-button>
       </el-menu-item>
     </el-submenu>
-    <el-submenu index="4" popper-class="submenu" v-permission="['test_manager', 'test_user']">
+    <el-submenu index="4" popper-class="submenu" v-permission="['test_manager', 'test_user']"
+                v-if="isCurrentWorkspaceUser">
       <template slot="title">{{$t('commons.test')}}</template>
       <ms-recent-test-plan/>
       <el-divider/>
@@ -28,7 +29,8 @@
         <el-button type="text">{{$t('load_test.create')}}</el-button>
       </el-menu-item>
     </el-submenu>
-    <el-submenu index="5" popper-class="submenu" v-permission="['test_manager', 'test_user', 'test_viewer']">
+    <el-submenu index="5" popper-class="submenu" v-permission="['test_manager', 'test_user', 'test_viewer']"
+                v-if="isCurrentWorkspaceUser">
       <template slot="title">{{$t('commons.report')}}</template>
       <ms-recent-report/>
       <el-divider/>
@@ -44,10 +46,19 @@
   import MsRecentTestPlan from "./testPlan/RecentTestPlan";
   import MsRecentProject from "./project/RecentProject";
   import MsRecentReport from "./report/RecentReport";
+  import {checkoutCurrentWorkspace} from "../../common/utils";
 
   export default {
     name: "MsMenus",
-    components: {MsRecentReport, MsRecentTestPlan, MsRecentProject}
+    components: {MsRecentReport, MsRecentTestPlan, MsRecentProject},
+    data() {
+      return {
+        isCurrentWorkspaceUser: false,
+      }
+    },
+    mounted() {
+      this.isCurrentWorkspaceUser = checkoutCurrentWorkspace();
+    }
   }
 </script>
 
