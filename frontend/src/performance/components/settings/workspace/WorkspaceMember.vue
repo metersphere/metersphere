@@ -3,7 +3,7 @@
     <el-card>
       <div slot="header">
         <el-row type="flex" justify="space-between" align="middle" v-permission="['test_manager']">
-          <span class="title">成员
+          <span class="title">{{$t('commons.member')}}
             <ms-create-box :tips="btnTips" :exec="create"/>
           </span>
           <span class="search">
