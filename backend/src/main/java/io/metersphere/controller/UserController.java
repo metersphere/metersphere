@@ -12,7 +12,9 @@ import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.dto.UserDTO;
+import io.metersphere.service.OrganizationService;
 import io.metersphere.service.UserService;
+import io.metersphere.service.WorkspaceService;
 import io.metersphere.user.SessionUser;
 import io.metersphere.user.SessionUtils;
 import org.apache.shiro.authz.annotation.Logical;
@@ -28,6 +30,10 @@ public class UserController {
 
     @Resource
     private UserService userService;
+    @Resource
+    private OrganizationService organizationService;
+    @Resource
+    private WorkspaceService workspaceService;
 
     // admin api
     @PostMapping("/special/add")
@@ -123,7 +129,6 @@ public class UserController {
     @PostMapping("/switch/source/org/{sourceId}")
     @RequiresRoles(RoleConstants.ORG_ADMIN)
     public UserDTO switchOrganization(@PathVariable(value = "sourceId") String sourceId) {
-        // todo checkOrganizationOwner()
         UserDTO user = SessionUtils.getUser();
         userService.switchUserRole(user,"organization",sourceId);
         return SessionUtils.getUser();
@@ -132,7 +137,6 @@ public class UserController {
     @PostMapping("/switch/source/ws/{sourceId}")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER,RoleConstants.TEST_VIEWER,RoleConstants.TEST_USER}, logical = Logical.OR)
     public UserDTO switchWorkspace(@PathVariable(value = "sourceId") String sourceId) {
-        // todo checkWorkspaceOwner()
         UserDTO user = SessionUtils.getUser();
         userService.switchUserRole(user, "workspace", sourceId);
         return SessionUtils.getUser();
@@ -150,7 +154,6 @@ public class UserController {
     @RequiresRoles(value = {RoleConstants.ORG_ADMIN,RoleConstants.TEST_MANAGER,
             RoleConstants.TEST_USER,RoleConstants.TEST_VIEWER}, logical = Logical.OR)
     public Pager<List<User>> getMemberList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryMemberRequest request) {
-        // todo 检查是否是该工作空间的所有者 或者是 该工作空间的父级组织的所有者
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getMemberList(request));
     }
@@ -162,7 +165,6 @@ public class UserController {
     @RequiresRoles(value = {RoleConstants.ORG_ADMIN,RoleConstants.TEST_MANAGER,
             RoleConstants.TEST_USER,RoleConstants.TEST_VIEWER}, logical = Logical.OR)
     public List<User> getMemberList(@RequestBody QueryMemberRequest request) {
-        // todo 检查是否是该工作空间的所有者 或者是 该工作空间的父级组织的所有者
         return userService.getMemberList(request);
     }
 
@@ -172,7 +174,8 @@ public class UserController {
     @PostMapping("/ws/member/add")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER,RoleConstants.ORG_ADMIN}, logical = Logical.OR)
     public void addMember(@RequestBody AddMemberRequest request) {
-        // todo check
+        String wsId = request.getWorkspaceId();
+        workspaceService.checkWorkspaceOwner(wsId);
         userService.addMember(request);
     }
 
@@ -182,7 +185,7 @@ public class UserController {
     @GetMapping("/ws/member/delete/{workspaceId}/{userId}")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER,RoleConstants.ORG_ADMIN}, logical = Logical.OR)
     public void deleteMember(@PathVariable String workspaceId, @PathVariable String userId) {
-        // todo check
+        workspaceService.checkWorkspaceOwner(workspaceId);
         userService.deleteMember(workspaceId, userId);
     }
 
@@ -190,9 +193,9 @@ public class UserController {
      * 添加组织成员
      */
     @PostMapping("/org/member/add")
-    @RequiresRoles(value = {RoleConstants.ORG_ADMIN,RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @RequiresRoles(RoleConstants.ORG_ADMIN)
     public void addOrganizationMember(@RequestBody AddOrgMemberRequest request) {
-        // todo check
+        organizationService.checkOrgOwner(request.getOrganizationId());
         userService.addOrganizationMember(request);
     }
 
@@ -200,9 +203,9 @@ public class UserController {
      * 删除组织成员
      */
     @GetMapping("/org/member/delete/{organizationId}/{userId}")
-    @RequiresRoles(value = {RoleConstants.ORG_ADMIN,RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @RequiresRoles(RoleConstants.ORG_ADMIN)
     public void delOrganizationMember(@PathVariable String organizationId, @PathVariable String userId) {
-        // todo check
+        organizationService.checkOrgOwner(organizationId);
         userService.delOrganizationMember(organizationId, userId);
     }
 
@@ -210,10 +213,8 @@ public class UserController {
      * 查询组织成员列表
      */
     @PostMapping("/org/member/list/{goPage}/{pageSize}")
-    @RequiresRoles(value = {RoleConstants.ORG_ADMIN,RoleConstants.TEST_MANAGER,
-            RoleConstants.TEST_USER,RoleConstants.TEST_VIEWER}, logical = Logical.OR)
+    @RequiresRoles(value = {RoleConstants.ORG_ADMIN,RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public Pager<List<User>> getOrgMemberList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryOrgMemberRequest request) {
-        // todo check
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getOrgMemberList(request));
     }
@@ -222,10 +223,8 @@ public class UserController {
      * 组织成员列表不分页
      */
     @PostMapping("/org/member/list/all")
-    @RequiresRoles(value = {RoleConstants.ORG_ADMIN,RoleConstants.TEST_MANAGER,
-            RoleConstants.TEST_USER,RoleConstants.TEST_VIEWER}, logical = Logical.OR)
+    @RequiresRoles(value = {RoleConstants.ORG_ADMIN,RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public List<User> getOrgMemberList(@RequestBody QueryOrgMemberRequest request) {
-        // todo check
         return userService.getOrgMemberList(request);
     }
 

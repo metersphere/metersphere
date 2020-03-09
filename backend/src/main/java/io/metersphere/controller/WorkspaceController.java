@@ -40,7 +40,7 @@ public class WorkspaceController {
     @PostMapping("update")
     @RequiresRoles(RoleConstants.ORG_ADMIN)
     public Workspace updateWorkspace(@RequestBody Workspace workspace) {
-        workspaceService.checkOwner(workspace.getId());
+        workspaceService.checkWorkspaceOwnerByOrgAdmin(workspace.getId());
         return workspaceService.saveWorkspace(workspace);
     }
 
@@ -53,7 +53,7 @@ public class WorkspaceController {
     @GetMapping("delete/{workspaceId}")
     @RequiresRoles(RoleConstants.ORG_ADMIN)
     public void deleteWorkspace(@PathVariable String workspaceId) {
-        workspaceService.checkOwner(workspaceId);
+        workspaceService.checkWorkspaceOwnerByOrgAdmin(workspaceId);
         workspaceService.deleteWorkspace(workspaceId);
     }
 

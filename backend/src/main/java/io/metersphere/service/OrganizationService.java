@@ -6,8 +6,13 @@ import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.base.mapper.UserRoleMapper;
 import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
+import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.dto.OrganizationMemberDTO;
 import io.metersphere.dto.UserRoleHelpDTO;
+import io.metersphere.i18n.Translator;
+import io.metersphere.user.SessionUser;
+import io.metersphere.user.SessionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -108,5 +113,17 @@ public class OrganizationService {
 
     public Integer checkSourceRole(String orgId, String userId, String roleId) {
         return extOrganizationMapper.checkSourceRole(orgId, userId, roleId);
+    }
+
+    public void checkOrgOwner(String organizationId) {
+        SessionUser user = SessionUtils.getUser();
+        List<String> collect = user.getUserRoles().stream()
+                .filter(ur -> RoleConstants.ORG_ADMIN.equals(ur.getRoleId()))
+                .map(UserRole::getSourceId)
+                .collect(Collectors.toList());
+        if (!collect.contains(organizationId)) {
+            MSException.throwException(Translator.get("organization_does_not_belong_to_user"));
+        }
+
     }
 }

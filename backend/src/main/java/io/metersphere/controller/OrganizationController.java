@@ -37,6 +37,7 @@ public class OrganizationController {
     }
 
     @GetMapping("/delete/{organizationId}")
+    @RequiresRoles(RoleConstants.ADMIN)
     public void deleteOrganization(@PathVariable(value = "organizationId") String organizationId) { organizationService.deleteOrganization(organizationId); }
 
     @PostMapping("/update")
