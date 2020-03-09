@@ -101,6 +101,10 @@ export default {
     'recent': 'Recent Report',
     'search_by_name': 'Search by Name',
     'test_name': 'Test',
+    'test_overview': 'Test Overview',
+    'test_request_statistics': 'Test Request Statistics',
+    'test_error_log': 'Test Error Log',
+    'test_log_details': 'Test Log Details'
   },
   load_test: {
     'recent': 'Recent Tests',

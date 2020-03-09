@@ -48,11 +48,11 @@
             </template>
           </el-table-column>
           <el-table-column
-            width="150"
+            width="200"
             :label="$t('commons.operating')">
             <template slot-scope="scope">
-              <el-button @click="handleEdit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
-              <el-button @click="handleDelete(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
+              <el-button @click="handleEdit(scope.row)" type="primary" size="mini">查看</el-button>
+              <el-button @click="handleDelete(scope.row)" type="danger" size="mini">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -129,8 +129,10 @@
       handleSelectionChange(val) {
         this.multipleSelection = val;
       },
-      handleEdit() {
-
+      handleEdit(testPlan) {
+        this.$router.push({
+          path: '/reportView/' + testPlan.id
+        })
       },
       handleDelete(report) {
         this.$alert(this.$t('load_test.delete_confirm') + report.name + "？", '', {

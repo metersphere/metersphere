@@ -101,6 +101,10 @@ export default {
     'recent': '最近的报告',
     'search_by_name': '根据名称搜索',
     'test_name': '所属测试',
+    'test_overview': '测试概览',
+    'test_request_statistics': '请求统计',
+    'test_error_log': '错误记录',
+    'test_log_details': '日志详情'
   },
   load_test: {
     'recent': '最近的测试',

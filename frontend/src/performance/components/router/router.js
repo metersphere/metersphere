@@ -15,6 +15,7 @@ import PersonSetting from "../settings/personal/PersonSetting";
 import SystemWorkspace from "../settings/system/SystemWorkspace";
 import MsChart from "../project/MsChart";
 import AllTestReport from "../report/AllTestReport";
+import ReportView from "../report/ReportView";
 
 Vue.use(VueRouter);
 
@@ -115,7 +116,21 @@ const router = new VueRouter({
       components: {
         content: MsChart
       }
-    }
+    },
+    {
+      path: "/reportView/:reportId",
+      name: "ReportView",
+      components: {
+        content: ReportView
+      },
+      props: {
+        content: (route) => {
+          return {
+            ...route.params
+          }
+        }
+      }
+    },
   ]
 });
 
