@@ -9,4 +9,6 @@ import java.util.List;
 public interface ExtLoadTestReportMapper {
 
     List<ReportDTO> getReportList(@Param("reportRequest")ReportRequest request);
+
+    ReportDTO getReportTestAndProInfo(@Param("id") String id);
 }

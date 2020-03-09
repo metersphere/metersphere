@@ -37,4 +37,8 @@ public class ReportService {
     public void deleteReport(String reportId) {
         loadTestReportMapper.deleteByPrimaryKey(reportId);
     }
+
+    public ReportDTO getReportTestAndProInfo(String reportId) {
+        return extLoadTestReportMapper.getReportTestAndProInfo(reportId);
+    }
 }

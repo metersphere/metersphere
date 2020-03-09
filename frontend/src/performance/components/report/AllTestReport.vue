@@ -129,9 +129,9 @@
       handleSelectionChange(val) {
         this.multipleSelection = val;
       },
-      handleEdit(testPlan) {
+      handleEdit(report) {
         this.$router.push({
-          path: '/reportView/' + testPlan.id
+          path: '/reportView/' + report.id
         })
       },
       handleDelete(report) {
