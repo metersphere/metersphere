@@ -32,7 +32,7 @@
         </el-row>
 
         <el-divider></el-divider>
-
+        
         <el-tabs v-model="active" type="border-card" :stretch="true">
           <el-tab-pane :label="$t('report.test_overview')">
             <ms-report-test-overview />
