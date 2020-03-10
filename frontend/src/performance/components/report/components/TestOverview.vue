@@ -74,32 +74,76 @@
     data() {
       return {
         option1: {
+          legend: {
+            top: 20,
+            data: ['Users', 'Hits/s', 'Error(s)']
+          },
           xAxis: {
             type: 'category',
-            boundaryGap: false,
-            data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+            data: ['12:40', '12:50', '13:00', '13:10', '13:20', '13:30', '13:40']
           },
-          yAxis: {
-            type: 'value'
+          yAxis: [{
+            name: 'User',
+            type: 'value',
           },
-          series: [{
-            data: [820, 932, 901, 934, 1290, 1330, 1320],
-            type: 'line',
-            areaStyle: {}
-          }]
+            {
+              name: 'Hits/s',
+              type: 'value'
+            }
+          ],
+          series: [
+            {
+              name: 'Users',
+              color: '#0CA74A',
+              data: [20, 40, 40, 40, 40, 40, 40],
+              type: 'line',
+            },
+            {
+              name: 'Hits/s',
+              color: '#65A2FF',
+              data: [15, 38, 35, 39, 36, 37, 5],
+              type: 'line',
+            },
+            {
+              name: 'Error(s)',
+              color: '#E6113C',
+              data: [0, 0, 0, 0, 0, 0, 0],
+              type: 'line',
+            }
+          ]
         },
         option2: {
+          legend: {
+            top: 20,
+            data: ['Users', 'Response Time']
+          },
           xAxis: {
             type: 'category',
-            data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+            data: ['12:40', '12:50', '13:00', '13:10', '13:20', '13:30', '13:40']
           },
-          yAxis: {
-            type: 'value'
-          },
-          series: [{
-            data: [820, 932, 901, 934, 1290, 1330, 1320],
-            type: 'line'
-          }]
+          yAxis: [{
+            name: 'User',
+            type: 'value',
+            },
+            {
+              name: 'Response Time',
+              type: 'value'
+            }
+          ],
+          series: [
+            {
+              name: 'Users',
+              color: '#0CA74A',
+              data: [20, 40, 40, 40, 40, 40, 40],
+              type: 'line',
+            },
+            {
+              name: 'Response Time',
+              color: '#99743C',
+              data: [15, 38, 35, 39, 36, 37, 5],
+              type: 'line',
+            }
+          ]
         }
       }
     }
@@ -147,20 +191,20 @@
   }
 
   .ms-card-index-3 .ms-card-data-digital {
-    color: #FFC265;
+    color: #E6113C;
   }
 
   .ms-card-index-3 {
-    border-left-color: #FFC265;
+    border-left-color: #E6113C;
     border-left-width: 3px;
   }
 
   .ms-card-index-4 .ms-card-data-digital {
-    color: #C265FF;
+    color: #99743C;
   }
 
   .ms-card-index-4 {
-    border-left-color: #C265FF;
+    border-left-color: #99743C;
     border-left-width: 3px;
   }
 
