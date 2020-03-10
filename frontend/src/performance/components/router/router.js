@@ -119,16 +119,9 @@ const router = new VueRouter({
     },
     {
       path: "/reportView/:reportId",
-      name: "ReportView",
+      name: "reportView",
       components: {
         content: ReportView
-      },
-      props: {
-        content: (route) => {
-          return {
-            ...route.params
-          }
-        }
       }
     },
   ]

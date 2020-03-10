@@ -32,7 +32,7 @@
         </el-row>
 
         <el-divider></el-divider>
-        
+
         <el-tabs v-model="active" type="border-card" :stretch="true">
           <el-tab-pane :label="$t('report.test_overview')">
             <ms-report-test-overview />
@@ -91,6 +91,17 @@
       this.reportId = this.$route.path.split('/')[2];
       this.initBreadcrumb();
     },
+    watch: {
+      '$route'(to) {
+        let reportId = to.path.split('/')[2]; // find testId
+        this.$get("report/test/pro/info/" + reportId, response => {
+          let data = response.data;
+          this.reportName = data.name;
+          this.testName = data.testName;
+          this.projectName = data.projectName;
+        });
+      }
+    }
   }
 </script>
 
