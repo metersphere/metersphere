@@ -3,19 +3,34 @@
     <div class="main-content">
       <el-card>
         <el-row>
-          <el-breadcrumb separator-class="el-icon-arrow-right">
-            <el-breadcrumb-item :to="{ path: '/' }">{{projectName}}</el-breadcrumb-item>
-            <el-breadcrumb-item>{{testName}}</el-breadcrumb-item>
-            <el-breadcrumb-item>{{reportName}}</el-breadcrumb-item>
-          </el-breadcrumb>
+          <el-col :span="16">
+            <el-row>
+              <el-breadcrumb separator-class="el-icon-arrow-right">
+                <el-breadcrumb-item :to="{ path: '/' }">{{projectName}}</el-breadcrumb-item>
+                <el-breadcrumb-item>{{testName}}</el-breadcrumb-item>
+                <el-breadcrumb-item>{{reportName}}</el-breadcrumb-item>
+              </el-breadcrumb>
+            </el-row>
+            <el-row class="ms-report-view-btns">
+              <el-button type="primary" plain size="mini">立即停止</el-button>
+              <el-button type="success" plain size="mini">再次执行</el-button>
+              <el-button type="info" plain size="mini">导出</el-button>
+              <el-button type="warning" plain size="mini">比较</el-button>
+            </el-row>
+          </el-col>
+          <el-col :span="8">
+            <span class="ms-report-time-desc">
+              持续时间：  30 分钟
+            </span>
+            <span class="ms-report-time-desc">
+              开始时间：  2020-3-10 12:00:00
+            </span>
+            <span class="ms-report-time-desc">
+              结束时间：  2020-3-10 12:30:00
+            </span>
+          </el-col>
         </el-row>
 
-        <el-row style="margin-top: 15px;margin-left: -300px;">
-          <el-button type="primary" plain size="mini">立即停止</el-button>
-          <el-button type="success" plain size="mini">再次执行</el-button>
-          <el-button type="info" plain size="mini">导出</el-button>
-          <el-button type="warning" plain size="mini">比较</el-button>
-        </el-row>
         <el-divider></el-divider>
 
         <el-tabs v-model="active" type="border-card" :stretch="true">
@@ -93,5 +108,15 @@
     margin: 0 auto;
     width: 100%;
     max-width: 1200px;
+  }
+
+  .ms-report-view-btns {
+    margin-top: 15px;
+  }
+
+  .ms-report-time-desc {
+    text-align: left;
+    display: block;
+    color: #5C7878;
   }
 </style>
