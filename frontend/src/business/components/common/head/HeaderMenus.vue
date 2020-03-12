@@ -60,8 +60,8 @@
 
 <script>
 
-  import PerformanceRecentTestPlan from "../../performance/testPlan/PerformanceRecentTestPlan";
-  import FunctionalRecentTestPlan from "../../functional/testPlan/FunctionalRecentTestPlan";
+  import PerformanceRecentTestPlan from "../../performance/plan/PerformanceRecentTestPlan";
+  import FunctionalRecentTestPlan from "../../functional/plan/FunctionalRecentTestPlan";
   import PerformanceRecentProject from "../../performance/project/PerformanceRecentProject";
   import FunctionalRecentProject from "../../functional/project/FunctionalRecentProject";
   import PerformanceRecentReport from "../../performance/report/PerformanceRecentReport";

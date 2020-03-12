@@ -3,8 +3,8 @@ import VueRouter from 'vue-router'
 import RouterSidebar from "./RouterSidebar";
 import Setting from "../../settings/Setting";
 import User from "../../settings/system/User";
-import EditPerformanceTestPlan from "../../performance/testPlan/EditPerformanceTestPlan";
-import PerformanceTestPlan from "../../performance/testPlan/PerformanceTestPlan";
+import EditPerformanceTestPlan from "../../performance/plan/EditPerformanceTestPlan";
+import PerformanceTestPlan from "../../performance/plan/PerformanceTestPlan";
 import Organization from "../../settings/system/Organization";
 import OrganizationMember from "../../settings/organization/OrganizationMember";
 import Member from "../../settings/workspace/WorkspaceMember";
@@ -18,9 +18,9 @@ import PerformanceTestReport from "../../performance/report/PerformanceTestRepor
 import FunctionalTestReport from "../../functional/report/FunctionalTestReport";
 import FunctionalTest from "../../functional/FunctionalTest";
 import PerformanceTest from "../../performance/PerformanceTest";
-import EditFunctionalTestPlan from "../../functional/testPlan/EditFunctionalTestPlan";
+import EditFunctionalTestPlan from "../../functional/plan/EditFunctionalTestPlan";
 import PerformanceTestHome from "../../performance/home/PerformanceTestHome";
-import FunctionalTestPlan from "../../functional/testPlan/FunctionalTestPlan";
+import FunctionalTestPlan from "../../functional/plan/FunctionalTestPlan";
 import FunctionalTestHome from "../../functional/home/FunctionalTestHome";
 import PerformanceReportView from "../../performance/report/PerformanceReportView";
 
