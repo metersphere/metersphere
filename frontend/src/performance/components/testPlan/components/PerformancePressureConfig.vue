@@ -92,7 +92,7 @@
   const RPS_LIMIT = "rpsLimit";
 
   export default {
-    name: "MsTestPlanPressureConfig",
+    name: "PerformancePressureConfig",
     data() {
       return {
         testPlan: {},
@@ -105,7 +105,7 @@
       }
     },
     mounted() {
-      let testId = this.$route.path.split('/')[2];
+      let testId = this.$route.path.split('/')[4];
       if (testId) {
         this.getLoadConfig(testId);
       } else {
@@ -114,7 +114,7 @@
     },
     watch: {
       '$route'(to) {
-        let testId = to.path.split('/')[2];
+        let testId = to.path.split('/')[4];
         if (testId) {
           this.getLoadConfig(testId);
         } else {

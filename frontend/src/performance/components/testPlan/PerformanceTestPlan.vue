@@ -1,20 +1,18 @@
 <template>
-  <div class="testreport-container" v-loading="result.loading">
-
+  <div class="testplan-container" v-loading="result.loading">
     <div class="main-content">
       <el-card>
         <div slot="header">
           <el-row type="flex" justify="space-between" align="middle">
-            <span class="title">{{$t('commons.report')}}</span>
+            <span class="title">{{$t('commons.test')}}</span>
             <span class="search">
-              <el-input type="text" size="small" :placeholder="$t('report.search_by_name')"
+            <el-input type="text" size="small" :placeholder="$t('load_test.search_by_name')"
                       prefix-icon="el-icon-search"
                       maxlength="60"
                       v-model="condition" @change="search" clearable/>
-            </span>
+          </span>
           </el-row>
         </div>
-
         <el-table :data="tableData" class="test-content">
           <el-table-column
             prop="name"
@@ -28,8 +26,8 @@
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
-            prop="testName"
-            :label="$t('report.test_name')"
+            prop="projectName"
+            :label="$t('load_test.project_name')"
             width="150"
             show-overflow-tooltip>
           </el-table-column>
@@ -75,21 +73,16 @@
         </div>
       </el-card>
     </div>
-
   </div>
 </template>
 
 <script>
   export default {
-    name: "MsAllTestReport",
-    created: function () {
-      this.initTableData();
-    },
     data() {
       return {
         result: {},
-        queryPath: "/report/list/all",
-        deletePath: "/report/delete/",
+        queryPath: "/testplan/list",
+        deletePath: "/testplan/delete",
         condition: "",
         projectId: null,
         tableData: [],
@@ -101,11 +94,26 @@
         testId: null,
       }
     },
+    watch: {
+      '$route'(to) {
+        this.projectId = to.params.projectId;
+        this.initTableData();
+      }
+    },
+    created: function () {
+      this.projectId = this.$route.params.projectId;
+      this.initTableData();
+    },
     methods: {
       initTableData() {
         let param = {
           name: this.condition,
         };
+
+        if (this.projectId !== 'all') {
+          param.projectId = this.projectId;
+        }
+
         this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
           let data = response.data;
           this.total = data.itemCount;
@@ -129,21 +137,27 @@
       handleSelectionChange(val) {
         this.multipleSelection = val;
       },
-      handleEdit() {
-
+      handleEdit(testPlan) {
+        this.$router.push({
+          path: '/performance/plan/edit/' + testPlan.id,
+        })
       },
-      handleDelete(report) {
-        this.$alert(this.$t('load_test.delete_confirm') + report.name + "？", '', {
+      handleDelete(testPlan) {
+        this.$alert(this.$t('load_test.delete_confirm') + testPlan.name + "？", '', {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              this._handleDelete(report);
+              this._handleDelete(testPlan);
             }
           }
         });
       },
-      _handleDelete(report) {
-        this.result = this.$post(this.deletePath + report.id, {},() => {
+      _handleDelete(testPlan) {
+        let data = {
+          id: testPlan.id
+        };
+
+        this.result = this.$post(this.deletePath, data, () => {
           this.$message({
             message: this.$t('commons.delete_success'),
             type: 'success'
@@ -156,8 +170,7 @@
 </script>
 
 <style scoped>
-
-  .testreport-container {
+  .testplan-container {
     padding: 15px;
     width: 100%;
     height: 100%;
@@ -179,5 +192,4 @@
     margin-right: -9px;
     float: right;
   }
-
 </style>

@@ -14,7 +14,7 @@
   import {ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER} from "../../../common/constants";
 
   export default {
-    name: "MsRecentTestPlan",
+    name: "PerformanceRecentTestPlan",
     mounted() {
       const rolesString = localStorage.getItem("roles");
       const roles = rolesString.split(',');

@@ -106,6 +106,7 @@ export default {
     'basic_config': '场景配置',
     'pressure_config': '压力配置',
     'advanced_config': '高级配置',
+    'runtime_config': '运行配置',
     'is_running': '正在运行！',
     'test_name_is_null': '测试名称不能为空！',
     'project_is_null': '项目不能为空！',

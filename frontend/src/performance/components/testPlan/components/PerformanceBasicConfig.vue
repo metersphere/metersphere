@@ -56,7 +56,7 @@
   import {Message} from "element-ui";
 
   export default {
-    name: "MsTestPlanBasicConfig",
+    name: "PerformanceBasicConfig",
     props: ["testPlan"],
     data() {
       return {

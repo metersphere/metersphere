@@ -105,6 +105,7 @@ export default {
     'basic_config': 'Scene Configuration',
     'pressure_config': 'Pressure configuration',
     'advanced_config': 'Advanced Configuration',
+    'runtime_config': 'Runtime Configuration',
     'is_running': 'Test is running! ',
     'test_name_is_null': 'Test name cannot be empty! ',
     'project_is_null': 'Project cannot be empty! ',
