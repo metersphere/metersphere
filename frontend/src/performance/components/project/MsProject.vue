@@ -90,18 +90,23 @@
         },
       }
     },
+    props: {
+      beaseUrl: {
+        type: String
+      }
+    },
     mounted() {
-      if (this.$route.path.split('/')[2] === 'create') {
+      if (this.$route.path.split('/')[3] === 'create') {
         this.create();
-        this.$router.push('/project/all');
+        this.$router.push( '/' + this.beaseUrl + '/project/all');
       }
       this.list();
     },
     watch: {
       '$route'(to) {
-        if (to.path.split('/')[2] === 'create') {
+        if (to.path.split('/')[3] === 'create') {
           this.create();
-          this.$router.push('/project/all');
+          this.$router.push('/' + this.beaseUrl + '/project/all');
         }
       }
     },

@@ -11,39 +11,23 @@
         <ms-user/>
       </el-col>
     </el-row>
-    <el-row id="header-bottom" type="flex" justify="space-between" align="middle">
-      <el-col :span="10">
-        <ms-menus/>
-      </el-col>
-      <el-col :span="4">
-        <el-row type="flex" justify="center" align="middle">
-          <router-link to="/createTest" v-permission="['test_user','test_manager']" v-if="isCurrentWorkspaceUser">
-            <el-button type="primary" size="small">{{$t('load_test.create')}}</el-button>
-          </router-link>
-        </el-row>
-      </el-col>
-      <el-col :span="10">
-      </el-col>
-    </el-row>
+
     <ms-view/>
     <ms-web-socket/>
   </el-col>
 </template>
 
 <script>
-  import MsMenus from "./components/HeaderMenus";
   import MsTopMenus from "./components/HeaderTopMenus";
   import MsView from "./components/router/View";
   import MsUser from "./components/HeaderUser";
   import MsWebSocket from "./components/websocket/WebSocket";
-  import {checkoutCurrentWorkspace} from "../common/utils";
 
   export default {
     name: 'app',
     data() {
       return {
-        auth: false,
-        isCurrentWorkspaceUser: false,
+        auth: false
       }
     },
     beforeCreate() {
@@ -59,11 +43,8 @@
         window.location.href = "/login"
       });
     },
-    components: {MsWebSocket, MsUser, MsMenus, MsView, MsTopMenus},
-    methods: {},
-    mounted() {
-      this.isCurrentWorkspaceUser = checkoutCurrentWorkspace();
-    }
+    components: {MsWebSocket, MsUser, MsView, MsTopMenus},
+    methods: {}
   }
 </script>
 
@@ -94,14 +75,6 @@
     background-repeat: no-repeat;
     background-position: 50% center;
     background-image: url("../assets/MeterSphere-反白.png");
-  }
-
-  #header-bottom {
-    height: 40px;
-    padding: 0 15px;
-    border-bottom: 1px solid #E6E6E6;
-    cursor: default;
-    color: #404040;
   }
 
   .menus > * {

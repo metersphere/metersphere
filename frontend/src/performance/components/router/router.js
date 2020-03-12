@@ -3,8 +3,8 @@ import VueRouter from 'vue-router'
 import RouterSidebar from "./RouterSidebar";
 import Setting from "../settings/Setting";
 import User from "../settings/system/User";
-import EditTestPlan from "../testPlan/EditTestPlan";
-import AllTestPlan from "../testPlan/AllTestPlan";
+import EditPerformanceTestPlan from "../testPlan/EditPerformanceTestPlan";
+import PerformanceTestPlan from "../testPlan/PerformanceTestPlan";
 import Organization from "../settings/system/Organization";
 import OrganizationMember from "../settings/organization/OrganizationMember";
 import Member from "../settings/workspace/WorkspaceMember";
@@ -13,9 +13,16 @@ import MsProject from "../project/MsProject";
 import OrganizationWorkspace from "../settings/organization/OrganizationWorkspace";
 import PersonSetting from "../settings/personal/PersonSetting";
 import SystemWorkspace from "../settings/system/SystemWorkspace";
-import MsChart from "../project/MsChart";
-import AllTestReport from "../report/AllTestReport";
-import ReportView from "../report/ReportView";
+import PerformanceChart from "../project/PerformanceChart";
+import PerformanceTestReport from "../report/PerformanceTestReport";
+import FunctionalTestReport from "../report/FunctionalTestReport";
+import FunctionalTest from "../testPlan/FunctionalTest";
+import PerformanceTest from "../testPlan/PerformanceTest";
+import EditFunctionalTestPlan from "../testPlan/EditFunctionalTestPlan";
+import PerformanceTestHome from "../testPlan/PerformanceTestHome";
+import FunctionalTestPlan from "../testPlan/FunctionalTestPlan";
+import FunctionalTestHome from "../testPlan/FunctionalTestHome";
+import PerformanceReportView from "../report/PerformanceReportView";
 
 Vue.use(VueRouter);
 
@@ -69,61 +76,109 @@ const router = new VueRouter({
       ]
     },
     {
-      path: "/createTest",
-      name: "createTest",
+      path: "/functional",
+      name: "functional",
+      redirect: "/functional/home",
       components: {
-        content: EditTestPlan
-      }
-    },
-    {
-      path: "/editTest/:testId",
-      name: "editTest",
-      components: {
-        content: EditTestPlan
+        content: FunctionalTest
       },
-      props: {
-        content: (route) => {
-          return {
-            ...route.params
+      children: [
+        {
+          path: 'home',
+          name: 'fucHome',
+          component: FunctionalTestHome,
+        },
+        {
+          path: 'plan/create',
+          name: "createFucTest",
+          component: EditFunctionalTestPlan,
+        },
+        {
+          path: "plan/edit/:testId",
+          name: "editFucTest",
+          component: EditFunctionalTestPlan,
+          props: {
+            content: (route) => {
+              return {
+                ...route.params
+              }
+            }
           }
+        },
+        {
+          path: "plan/:projectId",
+          name: "fucPlan",
+          component: FunctionalTestPlan
+        },
+        {
+          path: "project/:type",
+          name: "fucProject",
+          component: MsProject
+        },
+        {
+          path: "report/:type",
+          name: "fucReport",
+          component: FunctionalTestReport
         }
-      }
+      ]
     },
     {
-      path: "/loadtest/:projectId",
-      name: "loadtest",
+      path: "/performance",
+      name: "performance",
+      redirect: "/performance/home",
       components: {
-        content: AllTestPlan
+        content: PerformanceTest
       },
-    },
-    {
-      path: "/project/:type",
-      name: 'project',
-      components: {
-        content: MsProject
-      }
-    },
-    {
-      path: "/report/:type",
-      name: 'report',
-      components: {
-        content: AllTestReport
-      }
-    },
-    {
-      path: "/chart",
-      name: 'chart',
-      components: {
-        content: MsChart
-      }
-    },
-    {
-      path: "/reportView/:reportId",
-      name: "reportView",
-      components: {
-        content: ReportView
-      }
-    },
+      children: [
+        {
+          path: 'home',
+          name: 'perHome',
+          component: PerformanceTestHome,
+        },
+        {
+          path: 'plan/create',
+          name: "createPerTest",
+          component: EditPerformanceTestPlan,
+        },
+        {
+          path: "plan/edit/:testId",
+          name: "editPerTest",
+          component: EditPerformanceTestPlan,
+          props: {
+            content: (route) => {
+              return {
+                ...route.params
+              }
+            }
+          }
+        },
+        {
+          path: "plan/:projectId",
+          name: "perPlan",
+          component: PerformanceTestPlan
+        },
+        {
+          path: "project/:type",
+          name: "perProject",
+          component: MsProject
+        },
+        {
+          path: "report/:type",
+          name: "perReport",
+          component: PerformanceTestReport
+        },
+        {
+          path: "chart",
+          name: "perChart",
+          component: PerformanceChart
+        },
+        {
+          path: "report/view/:reportId",
+          name: "perReportView",
+          component: PerformanceReportView
+        }
+      ]
+    }
   ]
 });
 

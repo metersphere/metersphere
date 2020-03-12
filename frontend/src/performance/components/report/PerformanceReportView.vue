@@ -60,7 +60,7 @@
   import MsReportTestOverview from './components/TestOverview';
 
   export default {
-    name: "ReportView",
+    name: "PerformanceReportView",
     components: {
       MsReportErrorLog,
       MsReportLogDetails,
@@ -79,27 +79,35 @@
     },
     methods: {
       initBreadcrumb() {
-        this.result = this.$get("report/test/pro/info/" + this.reportId, res => {
-          let data = res.data;
-          this.reportName = data.name;
-          this.testName = data.testName;
-          this.projectName = data.projectName;
-        })
+        if(this.reportId){
+          this.result = this.$get("report/test/pro/info/" + this.reportId, res => {
+            let data = res.data;
+            if(data){
+              this.reportName = data.name;
+              this.testName = data.testName;
+              this.projectName = data.projectName;
+            }
+          })
+        }
       }
     },
     created() {
-      this.reportId = this.$route.path.split('/')[2];
+      this.reportId = this.$route.path.split('/')[4];
       this.initBreadcrumb();
     },
     watch: {
       '$route'(to) {
-        let reportId = to.path.split('/')[2]; // find testId
-        this.$get("report/test/pro/info/" + reportId, response => {
-          let data = response.data;
-          this.reportName = data.name;
-          this.testName = data.testName;
-          this.projectName = data.projectName;
-        });
+        let reportId = to.path.split('/')[4];
+        if(reportId){
+          this.$get("report/test/pro/info/" + reportId, response => {
+            let data = response.data;
+            if(data){
+              this.reportName = data.name;
+              this.testName = data.testName;
+              this.projectName = data.projectName;
+            }
+          });
+        }
       }
     }
   }

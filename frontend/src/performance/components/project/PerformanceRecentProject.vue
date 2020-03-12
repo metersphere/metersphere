@@ -6,7 +6,7 @@
     </div>
 
     <el-menu-item :key="p.id" v-for="p in recentProjects"
-                  :index="'/loadtest/' + p.id" :route="{name:'loadtest', params:{projectId:p.id, projectName:p.name}}">
+                  :index="'/performance/plan/' + p.id" :route="{name:'perPlan', params:{projectId:p.id, projectName:p.name}}">
       {{ p.name }}
     </el-menu-item>
   </el-menu>
@@ -18,7 +18,7 @@
   import {hasRoles} from "../../../common/utils";
 
   export default {
-    name: "MsRecentProject",
+    name: "PerformanceRecentProject",
     mounted() {
 
       if (hasRoles(ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {

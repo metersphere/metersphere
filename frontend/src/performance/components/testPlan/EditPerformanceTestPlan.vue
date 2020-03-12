@@ -23,13 +23,13 @@
 
         <el-tabs class="testplan-config" v-model="active" type="border-card" :stretch="true">
           <el-tab-pane :label="$t('load_test.basic_config')">
-            <ms-test-plan-basic-config :test-plan="testPlan" ref="basicConfig"/>
+            <performance-basic-config :test-plan="testPlan" ref="basicConfig"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.pressure_config')">
-            <ms-test-plan-pressure-config :test-plan="testPlan" ref="pressureConfig"/>
+            <performance-pressure-config :test-plan="testPlan" ref="pressureConfig"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.advanced_config')" class="advanced-config">
-            <ms-test-plan-advanced-config ref="advancedConfig"/>
+            <performance-advanced-config ref="advancedConfig"/>
           </el-tab-pane>
         </el-tabs>
       </el-card>
@@ -38,16 +38,16 @@
 </template>
 
 <script>
-  import MsTestPlanBasicConfig from './components/BasicConfig';
-  import MsTestPlanPressureConfig from './components/PressureConfig';
-  import MsTestPlanAdvancedConfig from './components/AdvancedConfig';
+  import PerformanceBasicConfig from "./components/PerformanceBasicConfig";
+  import PerformancePressureConfig from "./components/PerformancePressureConfig";
+  import PerformanceAdvancedConfig from "./components/PerformanceAdvancedConfig";
 
   export default {
-    name: "MsEditTestPlan",
+    name: "EditPerformanceTestPlan",
     components: {
-      MsTestPlanBasicConfig,
-      MsTestPlanPressureConfig,
-      MsTestPlanAdvancedConfig,
+      PerformancePressureConfig,
+      PerformanceBasicConfig,
+      PerformanceAdvancedConfig
     },
     data() {
       return {
@@ -62,34 +62,39 @@
         tabs: [{
           title: this.$t('load_test.basic_config'),
           id: '0',
-          component: 'BasicConfig'
+          component: 'PerformanceBasicConfig'
         }, {
           title: this.$t('load_test.pressure_config'),
           id: '1',
-          component: 'PressureConfig'
+          component: 'PerformancePressureConfig'
         }, {
           title: this.$t('load_test.advanced_config'),
           id: '2',
-          component: 'AdvancedConfig'
+          component: 'PerformanceAdvancedConfig'
         }]
       }
     },
     watch: {
       '$route'(to) {
         // 如果是创建测试
-        if (to.name === 'createTest') {
+        if (to.name === 'createPerTest') {
           window.location.reload();
           return;
         }
-        let testId = to.path.split('/')[2]; // find testId
-        this.$get('/testplan/get/' + testId, response => {
-          this.testPlan = response.data;
-        });
+
+        let testId = to.path.split('/')[4]; // find testId
+        if (testId) {
+          this.$get('/testplan/get/' + testId, response => {
+            if(response.data){
+              this.testPlan = response.data;
+            }
+          });
+        }
       }
 
     },
     created() {
-      let testId = this.$route.path.split('/')[2];
+      let testId = this.$route.path.split('/')[4];
       if (testId) {
         this.$get('/testplan/get/' + testId, response => {
           this.testPlan = response.data;
@@ -117,7 +122,7 @@
             type: 'success'
           });
           this.$refs.advancedConfig.cancelAllEdit();
-          this.$router.push({path: '/loadtest/all'})
+          this.$router.push({path: '/performance/plan/all'})
         });
       },
       saveAndRun() {
@@ -173,7 +178,7 @@
         };
       },
       cancel() {
-        this.$router.push({path: '/'})
+        this.$router.push({path: '/performance/plan/all'})
       },
       validTestPlan() {
         if (!this.testPlan.name) {

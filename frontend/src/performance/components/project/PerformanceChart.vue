@@ -6,7 +6,7 @@
   import echarts from 'echarts'
 
   export default {
-    name: "MsChart",
+    name: "PerformanceChart",
     data() {
       return {
         bar: {

@@ -200,7 +200,7 @@
 
 <script>
   export default {
-    name: "MsTestPlanAdvancedConfig",
+    name: "PerformanceAdvancedConfig",
     data() {
       return {
         timeout: 10,
@@ -211,14 +211,17 @@
       }
     },
     mounted() {
-      let testId = this.$route.path.split('/')[2];
+      let testId = this.$route.path.split('/')[4];
       if (testId) {
         this.getAdvancedConfig(testId);
       }
     },
     watch: {
-      '$route'(to) {
-        let testId = to.path.split('/')[2];
+      '$route'(to, from) {
+        if(from.name != 'createPerTest' || from.name != 'editPerTest'){
+          return;
+        }
+        let testId = to.path.split('/')[4];
         if (testId) {
           this.getAdvancedConfig(testId);
         }

@@ -91,7 +91,7 @@
   const RPS_LIMIT = "rpsLimit";
 
   export default {
-    name: "MsTestPlanPressureConfig",
+    name: "PerformancePressureConfig",
     data() {
       return {
         testPlan: {},
@@ -104,7 +104,7 @@
       }
     },
     mounted() {
-      let testId = this.$route.path.split('/')[2];
+      let testId = this.$route.path.split('/')[4];
       if (testId) {
         this.getLoadConfig(testId);
       } else {
@@ -112,8 +112,11 @@
       }
     },
     watch: {
-      '$route'(to) {
-        let testId = to.path.split('/')[2];
+      '$route'(to, from) {
+        if(from.name != 'createPerTest' || from.name != 'editPerTest'){
+          return;
+        }
+        let testId = to.path.split('/')[4];
         if (testId) {
           this.getLoadConfig(testId);
         } else {
@@ -123,41 +126,44 @@
     },
     methods: {
       getLoadConfig(testId) {
-        this.$get('/testplan/get-load-config/' + testId, (response) => {
-          if (response.data) {
-            let data = JSON.parse(response.data);
+        if(testId) {
 
-            data.forEach(d => {
-              switch (d.key) {
-                case TARGET_LEVEL:
-                  this.threadNumber = d.value;
-                  break;
-                case RAMP_UP:
-                  this.rampUpTime = d.value;
-                  break;
-                case DURATION:
-                  this.duration = d.value;
-                  break;
-                case STEPS:
-                  this.step = d.value;
-                  break;
-                case RPS_LIMIT:
-                  this.rpsLimit = d.value;
-                  break;
-                default:
-                  break;
-              }
-            });
+          this.$get('/testplan/get-load-config/' + testId, (response) => {
+            if (response.data && response.data != "") {
+              let data = JSON.parse(response.data);
 
-            this.threadNumber = this.threadNumber || 10;
-            this.duration = this.duration || 30;
-            this.rampUpTime = this.rampUpTime || 12;
-            this.step = this.step || 3;
-            this.rpsLimit = this.rpsLimit || 10;
+              data.forEach(d => {
+                switch (d.key) {
+                  case TARGET_LEVEL:
+                    this.threadNumber = d.value;
+                    break;
+                  case RAMP_UP:
+                    this.rampUpTime = d.value;
+                    break;
+                  case DURATION:
+                    this.duration = d.value;
+                    break;
+                  case STEPS:
+                    this.step = d.value;
+                    break;
+                  case RPS_LIMIT:
+                    this.rpsLimit = d.value;
+                    break;
+                  default:
+                    break;
+                }
+              });
 
-            this.calculateChart();
-          }
-        });
+              this.threadNumber = this.threadNumber || 10;
+              this.duration = this.duration || 30;
+              this.rampUpTime = this.rampUpTime || 12;
+              this.step = this.step || 3;
+              this.rpsLimit = this.rpsLimit || 10;
+
+              this.calculateChart();
+            }
+          });
+        }
       },
       calculateChart() {
         if (this.duration < this.rampUpTime) {

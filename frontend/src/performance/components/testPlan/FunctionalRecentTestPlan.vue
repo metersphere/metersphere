@@ -4,9 +4,8 @@
       <i class="el-icon-time"/>
       {{$t('load_test.recent')}}
     </div>
-    <el-menu-item :key="p.id" v-for="p in recentReports"
-                  :index="'/reportView/' + p.id" :route="{path: '/reportView/' + p.id}">
-      {{ p.name }}
+    <el-menu-item :key="t.id" v-for="t in recentTestPlans" :index="'/functional/plan/edit/' + t.id">
+      {{ t.name }}
     </el-menu-item>
   </el-menu>
 </template>
@@ -16,19 +15,19 @@
   import {hasRoles} from "../../../common/utils";
 
   export default {
-    name: "MsRecentReport",
+    name: "PerformanceRecentTestPlan",
     mounted() {
 
       if (hasRoles(ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
-        this.$get('/report/recent/5', (response) => {
-          this.recentReports = response.data;
+        this.$get('/testplan/recent/5', (response) => {
+          this.recentTestPlans = response.data;
         });
       }
+
     },
-    methods: {},
     data() {
       return {
-        recentReports: [],
+        recentTestPlans: []
       }
     }
   }
