@@ -7,7 +7,7 @@ import com.alibaba.fastjson.serializer.SerializeConfig;
 import io.metersphere.commons.constants.I18nConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.service.CommonBeanFactory;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.user.SessionUtils;
@@ -20,12 +20,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 
 public class Translator {
 

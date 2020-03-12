@@ -1,13 +1,18 @@
 package io.metersphere;
 
+import io.metersphere.config.KafkaProperties;
 import org.junit.Test;
 import org.junit.platform.commons.util.StringUtils;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import javax.annotation.Resource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
@@ -18,16 +23,27 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.StringWriter;
 
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class JmxFileParseTest {
     private final static String HASH_TREE_ELEMENT = "hashTree";
     private final static String STRING_PROP = "stringProp";
     private final static String CONCURRENCY_THREAD_GROUP = "com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup";
     private final static String VARIABLE_THROUGHPUT_TIMER = "kg.apc.jmeter.timers.VariableThroughputTimer";
+    private final static String BACKEND_LISTENER = "BackendListener";
     private final static String THREAD_GROUP = "ThreadGroup";
+    @Resource
+    private KafkaProperties kafkaProperties;
+
+    @Test
+    public void testProperties() {
+        System.out.println(kafkaProperties.getSsl());
+    }
 
     @Test
     public void parse() throws Exception {
         File file = new File("/Users/liuruibin/Downloads/blaze_meter_dev2.jmx");
+        file = new File("/Users/liuruibin/Desktop/test-jmeter.jmx");
 
         final FileInputStream inputStream = new FileInputStream(file);
         final InputSource inputSource = new InputSource(inputStream);
@@ -80,17 +96,102 @@ public class JmxFileParseTest {
                         parseHashTree(ele);
                     } else if (nodeNameEquals(ele, CONCURRENCY_THREAD_GROUP)) {
                         processConcurrencyThreadGroup(ele);
-                        processTimer(ele);
+                        processCheckoutTimer(ele);
+                        processCheckoutBackendListener(ele);
                     } else if (nodeNameEquals(ele, THREAD_GROUP)) {
                         processThreadGroup(ele);
                         processConcurrencyThreadGroup(ele);
-                        processTimer(ele);
+                        processCheckoutTimer(ele);
+                        processCheckoutBackendListener(ele);
                     } else if (nodeNameEquals(ele, VARIABLE_THROUGHPUT_TIMER)) {
 
+                    } else if (nodeNameEquals(ele, BACKEND_LISTENER)) {
+                        processBackendListener(ele);
                     }
                 }
             }
         }
+    }
+
+    private void processBackendListener(Element backendListener) {
+        Document document = backendListener.getOwnerDocument();
+        // 清空child
+        removeChildren(backendListener);
+        backendListener.appendChild(createStringProp(document, "classname", "io.github.rahulsinghai.jmeter.backendlistener.kafka.KafkaBackendClient"));
+        // elementProp
+        Element elementProp = document.createElement("elementProp");
+        elementProp.setAttribute("name", "arguments");
+        elementProp.setAttribute("elementType", "Arguments");
+        elementProp.setAttribute("guiclass", "ArgumentsPanel");
+        elementProp.setAttribute("testclass", "Arguments");
+        elementProp.setAttribute("enabled", "true");
+        Element collectionProp = document.createElement("collectionProp");
+        collectionProp.setAttribute("name", "Arguments.arguments");
+        collectionProp.appendChild(createKafkaProp(document, "kafka.acks", kafkaProperties.getAcks()));
+        collectionProp.appendChild(createKafkaProp(document, "kafka.bootstrap.servers", kafkaProperties.getBootstrapServers()));
+        collectionProp.appendChild(createKafkaProp(document, "kafka.topic", kafkaProperties.getTopic()));
+        collectionProp.appendChild(createKafkaProp(document, "kafka.sample.filter", kafkaProperties.getSampleFilter()));
+        collectionProp.appendChild(createKafkaProp(document, "kafka.fields", kafkaProperties.getFields()));
+        collectionProp.appendChild(createKafkaProp(document, "kafka.test.mode", kafkaProperties.getTestMode()));
+        collectionProp.appendChild(createKafkaProp(document, "kafka.parse.all.req.headers", kafkaProperties.getParseAllReqHeaders()));
+        collectionProp.appendChild(createKafkaProp(document, "kafka.parse.all.res.headers", kafkaProperties.getParseAllResHeaders()));
+        collectionProp.appendChild(createKafkaProp(document, "kafka.timestamp", kafkaProperties.getTimestamp()));
+        collectionProp.appendChild(createKafkaProp(document, "kafka.compression.type", kafkaProperties.getCompressionType()));
+        collectionProp.appendChild(createKafkaProp(document, "kafka.ssl.enabled", kafkaProperties.getSsl().getEnabled()));
+        collectionProp.appendChild(createKafkaProp(document, "kafka.ssl.key.password", kafkaProperties.getSsl().getKeyPassword()));
+        collectionProp.appendChild(createKafkaProp(document, "kafka.ssl.keystore.location", kafkaProperties.getSsl().getKeystoreLocation()));
+        collectionProp.appendChild(createKafkaProp(document, "kafka.ssl.keystore.password", kafkaProperties.getSsl().getKeystorePassword()));
+        collectionProp.appendChild(createKafkaProp(document, "kafka.ssl.truststore.location", kafkaProperties.getSsl().getTruststoreLocation()));
+        collectionProp.appendChild(createKafkaProp(document, "kafka.ssl.truststore.password", kafkaProperties.getSsl().getTruststorePassword()));
+        collectionProp.appendChild(createKafkaProp(document, "kafka.ssl.enabled.protocols", kafkaProperties.getSsl().getEnabledProtocols()));
+        collectionProp.appendChild(createKafkaProp(document, "kafka.ssl.keystore.type", kafkaProperties.getSsl().getKeystoreType()));
+        collectionProp.appendChild(createKafkaProp(document, "kafka.ssl.protocol", kafkaProperties.getSsl().getProtocol()));
+        collectionProp.appendChild(createKafkaProp(document, "kafka.ssl.provider", kafkaProperties.getSsl().getProvider()));
+        collectionProp.appendChild(createKafkaProp(document, "kafka.ssl.truststore.type", kafkaProperties.getSsl().getTruststoreType()));
+        collectionProp.appendChild(createKafkaProp(document, "kafka.batch.size", kafkaProperties.getBatchSize()));
+        collectionProp.appendChild(createKafkaProp(document, "kafka.client.id", kafkaProperties.getClientId()));
+        collectionProp.appendChild(createKafkaProp(document, "kafka.connections.max.idle.ms", kafkaProperties.getConnectionsMaxIdleMs()));
+
+        elementProp.appendChild(collectionProp);
+        // set elementProp
+        backendListener.appendChild(elementProp);
+    }
+
+    private void processCheckoutBackendListener(Element element) {
+        Document document = element.getOwnerDocument();
+
+        Node listenerParent = element.getNextSibling();
+        while (!(listenerParent instanceof Element)) {
+            listenerParent = listenerParent.getNextSibling();
+        }
+
+        NodeList childNodes = listenerParent.getChildNodes();
+        for (int i = 0, l = childNodes.getLength(); i < l; i++) {
+            Node item = childNodes.item(i);
+            if (nodeNameEquals(item, BACKEND_LISTENER)) {
+                // 如果已经存在，不再添加
+                return;
+            }
+        }
+
+        // add class name
+        Element backendListener = document.createElement(BACKEND_LISTENER);
+        backendListener.setAttribute("guiclass", "BackendListenerGui");
+        backendListener.setAttribute("testclass", "BackendListener");
+        backendListener.setAttribute("testname", "Backend Listener");
+        backendListener.setAttribute("enabled", "true");
+        listenerParent.appendChild(backendListener);
+        listenerParent.appendChild(document.createElement(HASH_TREE_ELEMENT));
+    }
+
+    private Element createKafkaProp(Document document, String name, String value) {
+        Element eleProp = document.createElement("elementProp");
+        eleProp.setAttribute("name", name);
+        eleProp.setAttribute("elementType", "Argument");
+        eleProp.appendChild(createStringProp(document, "Argument.name", name));
+        eleProp.appendChild(createStringProp(document, "Argument.value", value));
+        eleProp.appendChild(createStringProp(document, "Argument.metadata", "="));
+        return eleProp;
     }
 
     private void processThreadGroup(Element threadGroup) {
@@ -128,7 +229,7 @@ public class JmxFileParseTest {
         threadGroup.appendChild(createStringProp(document, "Unit", "S"));
     }
 
-    private void processTimer(Element element) {
+    private void processCheckoutTimer(Element element) {
         /*
         <kg.apc.jmeter.timers.VariableThroughputTimer guiclass="kg.apc.jmeter.timers.VariableThroughputTimerGui" testclass="kg.apc.jmeter.timers.VariableThroughputTimer" testname="jp@gc - Throughput Shaping Timer" enabled="true">
           <collectionProp name="load_profile">
@@ -148,6 +249,15 @@ public class JmxFileParseTest {
             timerParent = timerParent.getNextSibling();
         }
 
+        NodeList childNodes = timerParent.getChildNodes();
+        for (int i = 0, l = childNodes.getLength(); i < l; i++) {
+            Node item = childNodes.item(i);
+            if (nodeNameEquals(item, VARIABLE_THROUGHPUT_TIMER)) {
+                // 如果已经存在，不再添加
+                return;
+            }
+        }
+
         Element timer = document.createElement(VARIABLE_THROUGHPUT_TIMER);
         timer.setAttribute("guiclass", VARIABLE_THROUGHPUT_TIMER + "Gui");
         timer.setAttribute("testclass", VARIABLE_THROUGHPUT_TIMER);
@@ -164,6 +274,8 @@ public class JmxFileParseTest {
         collectionProp.appendChild(childCollectionProp);
         timer.appendChild(collectionProp);
         timerParent.appendChild(timer);
+        // 添加一个空的hashTree
+        timerParent.appendChild(document.createElement(HASH_TREE_ELEMENT));
     }
 
     private Element createStringProp(Document document, String name, String value) {
