@@ -11,6 +11,7 @@ import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.subject.Subject;
 import org.springframework.web.bind.annotation.*;
+
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,8 +50,8 @@ public class LoginController {
                 // 自动选中组织，工作空间
                 if (StringUtils.isBlank(user.getLastOrganizationId())) {
                     List<UserRole> userRoles = user.getUserRoles();
-                    List<UserRole> test = userRoles.stream().filter(ur -> ur.getRoleId().indexOf("test") > -1).collect(Collectors.toList());
-                    List<UserRole> org = userRoles.stream().filter(ur -> ur.getRoleId().indexOf("org") > -1).collect(Collectors.toList());
+                    List<UserRole> test = userRoles.stream().filter(ur -> ur.getRoleId().startsWith("test")).collect(Collectors.toList());
+                    List<UserRole> org = userRoles.stream().filter(ur -> ur.getRoleId().startsWith("org")).collect(Collectors.toList());
                     if (test.size() > 0) {
                         String wsId = test.get(0).getSourceId();
                         userService.switchUserRole(user, "workspace", wsId);
