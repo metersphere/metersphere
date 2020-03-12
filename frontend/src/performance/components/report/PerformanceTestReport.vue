@@ -129,8 +129,10 @@
       handleSelectionChange(val) {
         this.multipleSelection = val;
       },
-      handleEdit() {
-
+      handleEdit(report) {
+        this.$router.push({
+          path: '/performance/report/view/' + report.id
+        })
       },
       handleDelete(report) {
         this.$alert(this.$t('load_test.delete_confirm') + report.name + "？", '', {

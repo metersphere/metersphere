@@ -7,14 +7,17 @@
            :default-active="activeIndex"
            @select="handleSelect"
            router>
+
     <el-menu-item index="/functional" v-permission="['test_manager','test_user','test_viewer']">
-      功能测试
+      {{$t('commons.functional')}}
     </el-menu-item>
     <el-menu-item index="/performance" onselectstart="return false"
                   v-permission="['test_manager','test_user','test_viewer']">
-      性能测试
+      {{$t('commons.performance')}}
     </el-menu-item>
-    <el-menu-item index="/setting/personsetting" onselectstart="return false">系统设置</el-menu-item>
+    <el-menu-item index="/setting/personsetting" onselectstart="return false">
+      {{$t('commons.system_setting')}}
+    </el-menu-item>
   </el-menu>
 </template>
 

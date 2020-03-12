@@ -26,6 +26,7 @@ public class UserRoleController {
     }
 
     @GetMapping("/list/ws/{workspaceId}/{userId}")
+    @RequiresRoles(value = {RoleConstants.ADMIN,RoleConstants.ORG_ADMIN}, logical = Logical.OR)
     public List<Role> getWorkspaceMemberRole(@PathVariable String workspaceId, @PathVariable String userId) {
         return userRoleService.getWorkspaceMemberRoles(workspaceId, userId);
     }

@@ -33,6 +33,13 @@ export default {
     'status': 'Enable/Disable',
     'show_all': 'Show All',
     'report': 'Report',
+    'user': 'User',
+    'system': 'System',
+    'personal_setting': 'Personal Setting',
+    'test_resource_pool': 'Resource Pool',
+    'system_setting': 'Settings',
+    'functional': 'Functional',
+    'performance': 'Performance',
   },
   workspace: {
     'create': 'Create Workspace',
@@ -71,6 +78,7 @@ export default {
     'search_by_name': 'Search by name',
     'modify_personal_info': 'Modify Personal Information',
     'input_name': 'Please enter a user name',
+    'input_email': 'Please enter a email',
     'special_characters_are_not_supported': 'Special characters are not supported',
     'mobile_number_format_is_incorrect': 'Mobile number format is incorrect',
     'email_format_is_incorrect': 'Email format is incorrect',
@@ -93,6 +101,10 @@ export default {
     'recent': 'Recent Report',
     'search_by_name': 'Search by Name',
     'test_name': 'Test',
+    'test_overview': 'Test Overview',
+    'test_request_statistics': 'Test Request Statistics',
+    'test_error_log': 'Test Error Log',
+    'test_log_details': 'Test Log Details'
   },
   load_test: {
     'recent': 'Recent Tests',

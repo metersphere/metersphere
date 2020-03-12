@@ -217,7 +217,10 @@
       }
     },
     watch: {
-      '$route'(to) {
+      '$route'(to, from) {
+        if(from.name != 'createPerTest' || from.name != 'editPerTest'){
+          return;
+        }
         let testId = to.path.split('/')[4];
         if (testId) {
           this.getAdvancedConfig(testId);

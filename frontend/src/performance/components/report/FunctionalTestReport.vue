@@ -8,9 +8,9 @@
             <span class="title">{{$t('commons.report')}}</span>
             <span class="search">
               <el-input type="text" size="small" :placeholder="$t('report.search_by_name')"
-                      prefix-icon="el-icon-search"
-                      maxlength="60"
-                      v-model="condition" @change="search" clearable/>
+                        prefix-icon="el-icon-search"
+                        maxlength="60"
+                        v-model="condition" @change="search" clearable/>
             </span>
           </el-row>
         </div>
@@ -129,8 +129,10 @@
       handleSelectionChange(val) {
         this.multipleSelection = val;
       },
-      handleEdit() {
-
+      handleEdit(report) {
+        this.$router.push({
+          path: '/functional/reportView/' + report.id
+        })
       },
       handleDelete(report) {
         this.$alert(this.$t('load_test.delete_confirm') + report.name + "？", '', {

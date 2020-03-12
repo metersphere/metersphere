@@ -6,7 +6,7 @@
     </div>
 
     <el-menu-item :key="p.id" v-for="p in recentProjects"
-                  :index="'/loadtest/' + p.id" :route="{name:'loadtest', params:{projectId:p.id, projectName:p.name}}">
+                  :index="'/performance/plan/' + p.id" :route="{name:'perPlan', params:{projectId:p.id, projectName:p.name}}">
       {{ p.name }}
     </el-menu-item>
   </el-menu>
@@ -15,14 +15,13 @@
 <script>
 
   import {ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER} from "../../../common/constants";
+  import {hasRoles} from "../../../common/utils";
 
   export default {
-    name: "MsRecentProject",
+    name: "PerformanceRecentProject",
     mounted() {
-      const rolesString = localStorage.getItem("roles");
-      const roles = rolesString.split(',');
 
-      if (roles.indexOf(ROLE_TEST_MANAGER) > -1 || roles.indexOf(ROLE_TEST_USER) > -1 || roles.indexOf(ROLE_TEST_VIEWER) > -1) {
+      if (hasRoles(ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
         this.$get('/project/recent/5', (response) => {
           this.recentProjects = response.data;
         });

@@ -270,7 +270,7 @@
           name: '',
           workspaceId: row.id
         };
-        let path = "/user/member/list";
+        let path = "/user/special/ws/member/list";
         this.result = this.$post(this.buildPagePath(path), param, res => {
           let data = res.data;
           this.memberLineData = data.listObject;
@@ -340,7 +340,7 @@
               name: '',
               workspaceId: this.items[i].id
             }
-            let path = "user/member/list/all";
+            let path = "user/special/ws/member/list/all";
             this.$post(path, param, res => {
               let member = res.data;
               this.$set(this.items[i], "memberSize", member.length);
@@ -376,7 +376,7 @@
               roleIds: this.memberForm.roleIds,
               workspaceId: this.currentWorkspaceRow.id
             };
-            this.result = this.$post("user/member/add", param,() => {
+            this.result = this.$post("user/special/ws/member/add", param,() => {
               this.cellClick(this.currentWorkspaceRow);
               this.addMemberVisible = false;
             })
@@ -401,7 +401,7 @@
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
-          this.result = this.$get('/user/member/delete/' + this.currentWorkspaceRow.id + '/' + row.id, () => {
+          this.result = this.$get('/user/special/ws/member/delete/' + this.currentWorkspaceRow.id + '/' + row.id, () => {
             this.$message({
               type: 'success',
               message: this.$t('commons.delete_success')

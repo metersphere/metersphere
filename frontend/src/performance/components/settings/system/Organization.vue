@@ -290,7 +290,7 @@
           name: '',
           organizationId: row.id
         };
-        let path = "/user/orgmember/list";
+        let path = "/user/special/org/member/list";
         this.result = this.$post(this.buildPagePath(path), param, res => {
           let data = res.data;
           this.memberLineData = data.listObject;
@@ -330,7 +330,7 @@
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
-          this.result = this.$get('/user/orgmember/delete/' + this.currentRow.id + '/' + row.id, () => {
+          this.result = this.$get('/user/special/org/member/delete/' + this.currentRow.id + '/' + row.id, () => {
             this.$message({
               type: 'success',
               message: this.$t('commons.delete_success')
@@ -385,7 +385,7 @@
               name: '',
               organizationId: this.tableData[i].id
             }
-            let path = "user/orgmember/list/all";
+            let path = "user/special/org/member/list/all";
             this.$post(path, param, res => {
               let member = res.data;
               this.$set(this.tableData[i], "memberSize", member.length);
@@ -431,7 +431,7 @@
               roleIds: this.memberForm.roleIds,
               organizationId: this.currentRow.id
             };
-            this.result = this.$post("user/orgmember/add", param,() => {
+            this.result = this.$post("user/special/org/member/add", param,() => {
               this.cellClick(this.currentRow);
               this.addMemberVisible = false;
             })

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>性能测试首页</h1>
+    <h1>功能测试首页</h1>
   </div>
 
 </template>

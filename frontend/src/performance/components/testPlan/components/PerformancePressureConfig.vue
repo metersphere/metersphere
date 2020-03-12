@@ -64,7 +64,7 @@
             <el-input-number
               placeholder=""
               :min="1"
-              :max="Math.min(threadNumber, duration)"
+              :max="Math.min(threadNumber, rampUpTime)"
               v-model="step"
               @change="calculateChart"
               size="mini"/>
@@ -75,8 +75,7 @@
         </el-form>
       </el-col>
       <el-col :span="12">
-        压力预估图
-        <chart ref="chart1" :options="orgOptions" :auto-resize="true"></chart>
+        <chart class="chart-container" ref="chart1" :options="orgOptions" :autoresize="true"></chart>
       </el-col>
     </el-row>
   </div>
@@ -113,7 +112,10 @@
       }
     },
     watch: {
-      '$route'(to) {
+      '$route'(to, from) {
+        if(from.name != 'createPerTest' || from.name != 'editPerTest'){
+          return;
+        }
         let testId = to.path.split('/')[4];
         if (testId) {
           this.getLoadConfig(testId);
@@ -124,52 +126,56 @@
     },
     methods: {
       getLoadConfig(testId) {
-        this.$get('/testplan/get-load-config/' + testId, (response) => {
-          if (response.data) {
-            let data = JSON.parse(response.data);
+        if(testId) {
 
-            data.forEach(d => {
-              switch (d.key) {
-                case TARGET_LEVEL:
-                  this.threadNumber = d.value;
-                  break;
-                case RAMP_UP:
-                  this.rampUpTime = d.value;
-                  break;
-                case DURATION:
-                  this.duration = d.value;
-                  break;
-                case STEPS:
-                  this.step = d.value;
-                  break;
-                case RPS_LIMIT:
-                  this.rpsLimit = d.value;
-                  break;
-                default:
-                  break;
-              }
-            });
+          this.$get('/testplan/get-load-config/' + testId, (response) => {
+            if (response.data && response.data != "") {
+              let data = JSON.parse(response.data);
 
-            this.threadNumber = this.threadNumber || 10;
-            this.duration = this.duration || 30;
-            this.rampUpTime = this.rampUpTime || 12;
-            this.step = this.step || 3;
-            this.rpsLimit = this.rpsLimit || 10;
+              data.forEach(d => {
+                switch (d.key) {
+                  case TARGET_LEVEL:
+                    this.threadNumber = d.value;
+                    break;
+                  case RAMP_UP:
+                    this.rampUpTime = d.value;
+                    break;
+                  case DURATION:
+                    this.duration = d.value;
+                    break;
+                  case STEPS:
+                    this.step = d.value;
+                    break;
+                  case RPS_LIMIT:
+                    this.rpsLimit = d.value;
+                    break;
+                  default:
+                    break;
+                }
+              });
 
-            this.calculateChart();
-          }
-        });
+              this.threadNumber = this.threadNumber || 10;
+              this.duration = this.duration || 30;
+              this.rampUpTime = this.rampUpTime || 12;
+              this.step = this.step || 3;
+              this.rpsLimit = this.rpsLimit || 10;
+
+              this.calculateChart();
+            }
+          });
+        }
       },
       calculateChart() {
         if (this.duration < this.rampUpTime) {
           this.rampUpTime = this.duration;
         }
-        if (this.threadNumber < this.step) {
-          this.step = this.threadNumber;
+        if (this.rampUpTime < this.step) {
+          this.step = this.rampUpTime;
         }
         this.orgOptions = {
           xAxis: {
             type: 'category',
+            boundaryGap: false,
             data: []
           },
           yAxis: {
@@ -177,6 +183,7 @@
           },
           tooltip: {
             trigger: 'axis',
+            formatter: '{a}: {c0}',
             axisPointer: {
               lineStyle: {
                 color: '#57617B'
@@ -184,11 +191,11 @@
             }
           },
           series: [{
+            name: 'User',
             data: [],
             type: 'line',
             step: 'start',
             smooth: false,
-            symbol: 'circle',
             symbolSize: 5,
             showSymbol: false,
             lineStyle: {
@@ -219,16 +226,23 @@
           }]
         };
         let timePeriod = Math.floor(this.rampUpTime / this.step);
-        let threadPeriod = Math.floor(this.threadNumber / this.step);
-        let threadInc = threadPeriod;
         let timeInc = timePeriod;
 
-        for (let i = 0; i < this.duration; i++) {
+        let threadPeriod = Math.floor(this.threadNumber / this.step);
+        let threadInc1 = Math.floor(this.threadNumber / this.step);
+        let threadInc2 = Math.ceil(this.threadNumber / this.step);
+        let inc2count = this.threadNumber - this.step * threadInc1;
+        for (let i = 0; i <= this.duration; i++) {
           // x 轴
           this.orgOptions.xAxis.data.push(i);
           if (i > timePeriod) {
-            threadPeriod = threadPeriod + threadInc;
             timePeriod += timeInc;
+            if (inc2count > 0) {
+              threadPeriod = threadPeriod + threadInc2;
+              inc2count--;
+            } else {
+              threadPeriod = threadPeriod + threadInc1;
+            }
             if (threadPeriod > this.threadNumber) {
               threadPeriod = this.threadNumber;
             }
@@ -237,9 +251,6 @@
             this.orgOptions.series[0].data.push(threadPeriod);
           }
         }
-        //
-        this.orgOptions.xAxis.data.push(this.duration);
-        this.orgOptions.series[0].data.push(this.threadNumber);
       },
       convertProperty() {
         /// todo：下面4个属性是jmeter ConcurrencyThreadGroup plugin的属性，这种硬编码不太好吧，在哪能转换这种属性？

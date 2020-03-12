@@ -11,6 +11,7 @@
         <ms-user/>
       </el-col>
     </el-row>
+
     <ms-view/>
     <ms-web-socket/>
   </el-col>
@@ -26,7 +27,7 @@
     name: 'app',
     data() {
       return {
-        auth: false,
+        auth: false
       }
     },
     beforeCreate() {

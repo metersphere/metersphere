@@ -129,7 +129,7 @@
         createVisible: false,
         updateVisible: false,
         form: {},
-        queryPath: "/user/orgmember/list",
+        queryPath: "/user/org/member/list",
         condition: "",
         tableData: [],
         rules: {
@@ -221,7 +221,7 @@
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
-          this.result = this.$get('/user/orgmember/delete/' + this.currentUser().lastOrganizationId + '/' + row.id, () => {
+          this.result = this.$get('/user/org/member/delete/' + this.currentUser().lastOrganizationId + '/' + row.id, () => {
             this.$message({
               type: 'success',
               message: this.$t('commons.delete_success')
@@ -262,7 +262,7 @@
               roleIds: this.form.roleIds,
               organizationId: orgId
             };
-            this.result = this.$post("user/orgmember/add", param,() => {
+            this.result = this.$post("user/org/member/add", param,() => {
               this.initTableData();
               this.createVisible = false;
             })

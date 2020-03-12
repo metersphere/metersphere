@@ -45,4 +45,12 @@ public class ReportController {
     public void deleteReport(@PathVariable String reportId) {
         reportService.deleteReport(reportId);
     }
+
+
+    @GetMapping("/test/pro/info/{reportId}")
+    public ReportDTO getReportTestAndProInfo(@PathVariable String reportId) {
+        return reportService.getReportTestAndProInfo(reportId);
+    }
+
+
 }

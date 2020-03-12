@@ -81,10 +81,13 @@
           window.location.reload();
           return;
         }
+
         let testId = to.path.split('/')[4]; // find testId
         if (testId) {
           this.$get('/testplan/get/' + testId, response => {
-            this.testPlan = response.data;
+            if(response.data){
+              this.testPlan = response.data;
+            }
           });
         }
       }

@@ -5,7 +5,7 @@
       {{$t('load_test.recent')}}
     </div>
     <el-menu-item :key="p.id" v-for="p in recentReports"
-                  :index="'/report/' + p.id" :route="{name:'report', params:{projectId:p.id, projectName:p.name}}">
+                  :index="'/functional/report/view/' + p.id" :route="{path: '/functional/report/view/' + p.id}">
       {{ p.name }}
     </el-menu-item>
   </el-menu>

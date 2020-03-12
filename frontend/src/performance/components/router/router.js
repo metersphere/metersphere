@@ -22,6 +22,7 @@ import EditFunctionalTestPlan from "../testPlan/EditFunctionalTestPlan";
 import PerformanceTestHome from "../testPlan/PerformanceTestHome";
 import FunctionalTestPlan from "../testPlan/FunctionalTestPlan";
 import FunctionalTestHome from "../testPlan/FunctionalTestHome";
+import PerformanceReportView from "../report/PerformanceReportView";
 
 Vue.use(VueRouter);
 
@@ -84,6 +85,7 @@ const router = new VueRouter({
       children: [
         {
           path: 'home',
+          name: 'fucHome',
           component: FunctionalTestHome,
         },
         {
@@ -93,6 +95,7 @@ const router = new VueRouter({
         },
         {
           path: "plan/edit/:testId",
+          name: "editFucTest",
           component: EditFunctionalTestPlan,
           props: {
             content: (route) => {
@@ -104,14 +107,17 @@ const router = new VueRouter({
         },
         {
           path: "plan/:projectId",
+          name: "fucPlan",
           component: FunctionalTestPlan
         },
         {
           path: "project/:type",
+          name: "fucProject",
           component: MsProject
         },
         {
           path: "report/:type",
+          name: "fucReport",
           component: FunctionalTestReport
         }
       ]
@@ -126,6 +132,7 @@ const router = new VueRouter({
       children: [
         {
           path: 'home',
+          name: 'perHome',
           component: PerformanceTestHome,
         },
         {
@@ -135,6 +142,7 @@ const router = new VueRouter({
         },
         {
           path: "plan/edit/:testId",
+          name: "editPerTest",
           component: EditPerformanceTestPlan,
           props: {
             content: (route) => {
@@ -146,19 +154,28 @@ const router = new VueRouter({
         },
         {
           path: "plan/:projectId",
+          name: "perPlan",
           component: PerformanceTestPlan
         },
         {
           path: "project/:type",
+          name: "perProject",
           component: MsProject
         },
         {
           path: "report/:type",
+          name: "perReport",
           component: PerformanceTestReport
         },
         {
           path: "chart",
+          name: "perChart",
           component: PerformanceChart
+        },
+        {
+          path: "report/view/:reportId",
+          name: "perReportView",
+          component: PerformanceReportView
         }
       ]
     }

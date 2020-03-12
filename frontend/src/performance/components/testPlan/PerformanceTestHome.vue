@@ -7,7 +7,7 @@
 
 <script>
     export default {
-        name: "PerformanceTestHome"
+      name: "PerformanceTestHome"
     }
 </script>
 

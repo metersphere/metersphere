@@ -3,7 +3,7 @@
     <el-card>
       <div slot="header">
         <el-row type="flex" justify="space-between" align="middle" v-permission="['test_manager']">
-          <span class="title">成员
+          <span class="title">{{$t('commons.member')}}
             <ms-create-box :tips="btnTips" :exec="create"/>
           </span>
           <span class="search">
@@ -126,7 +126,7 @@
         btnTips: "添加工作空间成员",
         createVisible: false,
         updateVisible: false,
-        queryPath: "/user/member/list",
+        queryPath: "/user/ws/member/list",
         condition: "",
         tableData: [],
         rules: {
@@ -198,7 +198,7 @@
           type: 'warning'
         }).then(() => {
           this.loading = true;
-          this.$get('/user/member/delete/' + this.currentUser().lastWorkspaceId + '/' + row.id).then(() => {
+          this.$get('/user/ws/member/delete/' + this.currentUser().lastWorkspaceId + '/' + row.id).then(() => {
             this.initTableData();
             this.loading = false;
           });
@@ -256,7 +256,7 @@
           });
           return false;
         }
-        this.$post('/user/orgmember/list/all', param,response => {
+        this.$post('/user/org/member/list/all', param,response => {
           this.createVisible = true;
           this.$set(this.form, "userList", response.data);
         })
@@ -272,7 +272,7 @@
               roleIds: this.form.roleIds,
               workspaceId: this.currentUser().lastWorkspaceId
             };
-            this.result = this.$post("user/member/add", param, () => {
+            this.result = this.$post("user/ws/member/add", param, () => {
               this.initTableData();
               this.createVisible = false;
             })

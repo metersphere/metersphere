@@ -4,7 +4,7 @@
     <div>
       <transition>
         <keep-alive>
-          <router-view/>
+          <router-view :beaseUrl="beaseUrl"/>
         </keep-alive>
       </transition>
     </div>

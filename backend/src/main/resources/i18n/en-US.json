@@ -5,5 +5,6 @@
   "project_name_already_exists": "The project name already exists",
   "workspace_name_is_null": "Workspace name cannot be null",
   "workspace_name_already_exists": "The workspace name already exists",
-  "workspace_does_not_belong_to_user": "The current workspace does not belong to the current user"
+  "workspace_does_not_belong_to_user": "The current workspace does not belong to the current user",
+  "organization_does_not_belong_to_user": "The current organization does not belong to the current user"
 }

@@ -40,7 +40,9 @@
       "plugin:vue/essential",
       "eslint:recommended"
     ],
-    "rules": {},
+    "rules": {
+      "vue/no-unused-components": "off"
+    },
     "parserOptions": {
       "parser": "babel-eslint"
     }
