@@ -1,4 +1,4 @@
-package io.metersphere.service;
+package io.metersphere.commons.utils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeansException;
