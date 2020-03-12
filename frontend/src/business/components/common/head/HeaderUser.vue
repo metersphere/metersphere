@@ -42,8 +42,8 @@
 </template>
 
 <script>
-  import {ROLE_ORG_ADMIN, ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER, TokenKey} from '../../common/constants';
-  import {hasRoles} from "../../common/utils";
+  import {ROLE_ORG_ADMIN, ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER, TokenKey} from '../../../../common/constants';
+  import {hasRoles} from "../../../../common/utils";
 
   export default {
     name: "MsUser",

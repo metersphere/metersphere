@@ -60,13 +60,13 @@
 
 <script>
 
-  import PerformanceRecentTestPlan from "./testPlan/PerformanceRecentTestPlan";
-  import FunctionalRecentTestPlan from "./testPlan/FunctionalRecentTestPlan";
-  import PerformanceRecentProject from "./project/PerformanceRecentProject";
-  import FunctionalRecentProject from "./project/FunctionalRecentProject";
-  import PerformanceRecentReport from "./report/PerformanceRecentReport";
-  import FunctionalRecentReport from "./report/FunctionalRecentReport";
-  import {checkoutCurrentWorkspace} from "../../common/utils";
+  import PerformanceRecentTestPlan from "../../performance/testPlan/PerformanceRecentTestPlan";
+  import FunctionalRecentTestPlan from "../../functional/testPlan/FunctionalRecentTestPlan";
+  import PerformanceRecentProject from "../../performance/project/PerformanceRecentProject";
+  import FunctionalRecentProject from "../../functional/project/FunctionalRecentProject";
+  import PerformanceRecentReport from "../../performance/report/PerformanceRecentReport";
+  import FunctionalRecentReport from "../../functional/report/FunctionalRecentReport";
+  import {checkoutCurrentWorkspace} from "../../../../common/utils";
 
   export default {
     name: "MsMenus",

@@ -18,10 +18,10 @@
 </template>
 
 <script>
-  import MsTopMenus from "./components/HeaderTopMenus";
-  import MsView from "./components/router/View";
-  import MsUser from "./components/HeaderUser";
-  import MsWebSocket from "./components/websocket/WebSocket";
+  import MsTopMenus from "./components/common/head/HeaderTopMenus";
+  import MsView from "./components/common/router/View";
+  import MsUser from "./components/common/head/HeaderUser";
+  import MsWebSocket from "./components/common/websocket/WebSocket";
 
   export default {
     name: 'app',

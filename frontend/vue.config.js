@@ -12,9 +12,9 @@ module.exports = {
         }
     },
     pages: {
-        performance: {
-            entry: "src/performance/main.js",
-            template: "src/performance/index.html",
+        business: {
+            entry: "src/business/main.js",
+            template: "src/business/index.html",
             filename: "index.html"
         },
         login: {

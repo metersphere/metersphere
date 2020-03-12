@@ -96,7 +96,8 @@
       }
     },
     mounted() {
-      if (this.$route.path.split('/')[3] === 'create') {
+      if (this.$route.path.split('/')[2] === 'project' &&
+        this.$route.path.split('/')[3] === 'create') {
         this.create();
         this.$router.push( '/' + this.beaseUrl + '/project/all');
       }
@@ -104,7 +105,8 @@
     },
     watch: {
       '$route'(to) {
-        if (to.path.split('/')[3] === 'create') {
+        if (this.$route.path.split('/')[2] === 'project' &&
+          to.path.split('/')[3] === 'create') {
           this.create();
           this.$router.push('/' + this.beaseUrl + '/project/all');
         }

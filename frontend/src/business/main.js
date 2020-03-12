@@ -5,7 +5,7 @@ import icon from "../common/icon";
 import filters from "../common/filter";
 import ajax from "../common/ajax";
 import App from './App.vue';
-import router from "./components/router/router";
+import router from "./components/common/router/router";
 import './permission' // permission control
 import i18n from "../i18n/i18n";
 import store from "./store";

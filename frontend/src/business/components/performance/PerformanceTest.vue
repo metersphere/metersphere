@@ -10,16 +10,17 @@
     </div>
   </el-col>
 </template>
+
 <script>
 
-  import HeaderMenus from "../HeaderMenus";
+  import HeaderMenus from "../common/head/HeaderMenus";
 
   export default {
-    name: "FunctionalTest",
+    name: "PerformanceTest",
     components: {HeaderMenus},
     data() {
       return {
-        beaseUrl: "functional"
+        beaseUrl: "performance"
       }
     }
   }
