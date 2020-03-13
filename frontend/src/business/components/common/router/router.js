@@ -23,6 +23,7 @@ import PerformanceTestHome from "../../performance/home/PerformanceTestHome";
 import FunctionalTestPlan from "../../functional/plan/FunctionalTestPlan";
 import FunctionalTestHome from "../../functional/home/FunctionalTestHome";
 import PerformanceReportView from "../../performance/report/PerformanceReportView";
+import FunctionalReportView from "../../functional/report/FunctionalReportView";
 
 Vue.use(VueRouter);
 
@@ -119,6 +120,11 @@ const router = new VueRouter({
           path: "report/:type",
           name: "fucReport",
           component: FunctionalTestReport
+        },
+        {
+          path: "report/view/:reportId",
+          name: "fucReportView",
+          component: FunctionalReportView
         }
       ]
     },
