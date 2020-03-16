@@ -4,6 +4,7 @@ import io.metersphere.engine.EngineContext;
 import io.metersphere.parse.EngineSourceParser;
 import io.metersphere.parse.xml.reader.DocumentParser;
 import io.metersphere.parse.xml.reader.DocumentParserFactory;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -11,6 +12,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
 
+@Service
 public class XmlEngineSourceParse implements EngineSourceParser {
     @Override
     public String parse(EngineContext context, InputStream source) throws Exception {

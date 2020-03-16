@@ -11,9 +11,11 @@ import io.metersphere.engine.kubernetes.crds.jmeter.Jmeter;
 import io.metersphere.engine.kubernetes.crds.jmeter.JmeterSpec;
 import io.metersphere.engine.kubernetes.provider.ClientCredential;
 import io.metersphere.engine.kubernetes.provider.KubernetesProvider;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 
+@Service
 public class KubernetesTestEngine implements Engine {
     private EngineContext context;
 

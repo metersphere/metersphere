@@ -161,7 +161,7 @@ public class LoadTestService {
         LogUtil.info("Load test started " + loadTest.getName());
         // engine type (DOCKER|KUBERNETES)
         // todo set type
-        final Engine engine = EngineFactory.createEngine(fileMetadata.getEngine());
+        Engine engine = EngineFactory.createEngine(fileMetadata.getEngine());
         if (engine == null) {
             MSException.throwException(String.format("Test cannot be run，test ID：%s，file type：%s",
                     request.getId(),
