@@ -6,7 +6,6 @@ import io.metersphere.base.domain.FileContent;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.LoadTestWithBLOBs;
 import io.metersphere.commons.constants.EngineType;
-import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.engine.docker.DockerTestEngine;
 import io.metersphere.engine.kubernetes.KubernetesTestEngine;
@@ -20,11 +19,11 @@ public class EngineFactory {
     public static Engine createEngine(String engineType) {
         final EngineType type = EngineType.valueOf(engineType);
 
-        if (type == EngineType.DOCKER) {
-            return new DockerTestEngine();
-        }
-        if (type == EngineType.KUBERNETES) {
-            return new KubernetesTestEngine();
+        switch (type) {
+            case DOCKER:
+                return new DockerTestEngine();
+            case KUBERNETES:
+                return new KubernetesTestEngine();
         }
         return null;
     }
