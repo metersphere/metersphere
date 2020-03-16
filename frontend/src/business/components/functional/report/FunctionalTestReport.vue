@@ -88,8 +88,8 @@
     data() {
       return {
         result: {},
-        queryPath: "/report/list/all",
-        deletePath: "/report/delete/",
+        queryPath: "/functional/report/list/all",
+        deletePath: "/functional/report/delete/",
         condition: "",
         projectId: null,
         tableData: [],

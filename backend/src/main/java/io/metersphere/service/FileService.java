@@ -3,6 +3,7 @@ package io.metersphere.service;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.FileContentMapper;
 import io.metersphere.base.mapper.FileMetadataMapper;
+import io.metersphere.base.mapper.FucTestFileMapper;
 import io.metersphere.base.mapper.LoadTestFileMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -17,6 +18,8 @@ public class FileService {
     private FileMetadataMapper fileMetadataMapper;
     @Resource
     private LoadTestFileMapper loadTestFileMapper;
+    @Resource
+    private FucTestFileMapper fucTestFileMapper;
     @Resource
     private FileContentMapper fileContentMapper;
 
@@ -35,6 +38,17 @@ public class FileService {
             return null;
         }
 
+        return fileMetadataMapper.selectByPrimaryKey(loadTestFiles.get(0).getFileId());
+    }
+
+    public FileMetadata getFucFileMetadataByTestId(String testId) {
+        FucTestFileExample fucTestFileExample = new FucTestFileExample();
+        fucTestFileExample.createCriteria().andTestIdEqualTo(testId);
+        final List<FucTestFile> loadTestFiles = fucTestFileMapper.selectByExample(fucTestFileExample);
+
+        if (CollectionUtils.isEmpty(loadTestFiles)) {
+            return null;
+        }
         return fileMetadataMapper.selectByPrimaryKey(loadTestFiles.get(0).getFileId());
     }
 

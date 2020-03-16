@@ -25,7 +25,7 @@
             <functional-test-scene-config :test-plan="testPlan" />
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.runtime_config')">
-            <functional-test-runtime-config :test-plan="testPlan" />
+            <functional-test-runtime-config :test-plan="testPlan" ref="runtimeConfig"/>
           </el-tab-pane>
         </el-tabs>
       </el-card>
@@ -48,23 +48,19 @@
         result: {},
         testPlan: {},
         listProjectPath: "/project/listAll",
-        savePath: "/testplan/save",
-        editPath: "/testplan/edit",
-        runPath: "/testplan/run",
+        savePath: "/functional/plan/save",
+        editPath: "/functional/plan/edit",
+        runPath: "/functional/plan/run",
         projects: [],
         active: '0',
         tabs: [{
           title: this.$t('load_test.basic_config'),
           id: '0',
-          component: 'BasicConfig'
+          component: 'FunctionalTestSceneConfig'
         }, {
-          title: this.$t('load_test.pressure_config'),
+          title: this.$t('load_test.runtime_config'),
           id: '1',
-          component: 'PressureConfig'
-        }, {
-          title: this.$t('load_test.advanced_config'),
-          id: '2',
-          component: 'AdvancedConfig'
+          component: 'FunctionalTestRuntimeConfig'
         }]
       }
     },
@@ -77,7 +73,7 @@
         }
         let testId = to.path.split('/')[4]; // find testId
         if (testId) {
-          this.$get('/testplan/get/' + testId, response => {
+          this.$get('/functional/plan/get/' + testId, response => {
             this.testPlan = response.data;
           });
         }
@@ -87,7 +83,7 @@
     created() {
       let testId = this.$route.path.split('/')[4];
       if (testId) {
-        this.$get('/testplan/get/' + testId, response => {
+        this.$get('/functional/plan/get/' + testId, response => {
           this.testPlan = response.data;
         });
       }
@@ -112,8 +108,8 @@
             message: this.$t('commons.save_success'),
             type: 'success'
           });
-          this.$refs.advancedConfig.cancelAllEdit();
-          this.$router.push({path: '/loadtest/all'})
+          this.$refs.runtimeConfig.cancelAllEdit();
+          this.$router.push({path: '/functional/plan/all'})
         });
       },
       saveAndRun() {
@@ -145,10 +141,8 @@
         if (!this.testPlan.file.id) {
           formData.append("file", this.testPlan.file);
         }
-        // 压力配置
-        this.testPlan.loadConfiguration = JSON.stringify(this.$refs.pressureConfig.convertProperty());
-        // 高级配置
-        this.testPlan.advancedConfiguration = JSON.stringify(this.$refs.advancedConfig.configurations());
+
+        this.testPlan.runtimeConfiguration = JSON.stringify(this.$refs.runtimeConfig.configurations());
 
         // file属性不需要json化
         let requestJson = JSON.stringify(this.testPlan, function (key, value) {
@@ -169,7 +163,7 @@
         };
       },
       cancel() {
-        this.$router.push({path: '/'})
+        this.$router.push({path: '/functional/plan/all'})
       },
       validTestPlan() {
         if (!this.testPlan.name) {
@@ -199,7 +193,7 @@
           return false;
         }
 
-        if (!this.$refs.advancedConfig.validConfig()) {
+        if (!this.$refs.runtimeConfig.validConfig()) {
           return false;
         }
 

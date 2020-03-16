@@ -158,6 +158,9 @@ export default {
     'separated_by_commas': 'Separated by commas',
     'create': 'Create Test',
   },
+  fuc_test: {
+    'select_resource_pool': 'Please select resource pool',
+  },
   i18n: {
     'home': 'Home',
   }

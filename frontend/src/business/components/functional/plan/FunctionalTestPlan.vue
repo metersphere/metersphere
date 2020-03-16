@@ -81,8 +81,8 @@
     data() {
       return {
         result: {},
-        queryPath: "/testplan/list",
-        deletePath: "/testplan/delete",
+        queryPath: "/functional/plan/list",
+        deletePath: "/functional/plan/delete",
         condition: "",
         projectId: null,
         tableData: [],
@@ -139,7 +139,7 @@
       },
       handleEdit(testPlan) {
         this.$router.push({
-          path: '/performance/plan/edit/' + testPlan.id,
+          path: '/functional/plan/edit/' + testPlan.id,
         })
       },
       handleDelete(testPlan) {

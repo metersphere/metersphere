@@ -158,6 +158,9 @@ export default {
     'separated_by_commas': '按逗号分隔',
     'create': '创建测试',
   },
+  fuc_test: {
+    'select_resource_pool': '请选择资源池',
+  },
   i18n: {
     'home': '首页',
   }
