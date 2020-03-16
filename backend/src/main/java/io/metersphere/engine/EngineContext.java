@@ -4,18 +4,27 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EngineContext {
-    private String engineId;
+    private String testId;
+    private String namespace;
     private String engineType;
     private String fileType;
     private String content;
     private Map<String, Object> properties = new HashMap<>();
 
-    public String getEngineId() {
-        return engineId;
+    public String getTestId() {
+        return testId;
     }
 
-    public void setEngineId(String engineId) {
-        this.engineId = engineId;
+    public void setTestId(String testId) {
+        this.testId = testId;
+    }
+
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
     }
 
     public String getEngineType() {
