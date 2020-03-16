@@ -9,11 +9,13 @@ public class FileMetadata implements Serializable {
 
     private String type;
 
-    private Long size;
+    private String engine;
 
     private Long createTime;
 
     private Long updateTime;
+
+    private Long size;
 
     private static final long serialVersionUID = 1L;
 
@@ -41,12 +43,12 @@ public class FileMetadata implements Serializable {
         this.type = type == null ? null : type.trim();
     }
 
-    public Long getSize() {
-        return size;
+    public String getEngine() {
+        return engine;
     }
 
-    public void setSize(Long size) {
-        this.size = size;
+    public void setEngine(String engine) {
+        this.engine = engine == null ? null : engine.trim();
     }
 
     public Long getCreateTime() {
@@ -63,5 +65,13 @@ public class FileMetadata implements Serializable {
 
     public void setUpdateTime(Long updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public Long getSize() {
+        return size;
+    }
+
+    public void setSize(Long size) {
+        this.size = size;
     }
 }

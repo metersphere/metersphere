@@ -93,7 +93,9 @@ public class FuctionalTestService {
         fileMetadata.setSize(file.getSize());
         fileMetadata.setCreateTime(System.currentTimeMillis());
         fileMetadata.setUpdateTime(System.currentTimeMillis());
-        fileMetadata.setType(EngineType.JMX.name());
+        fileMetadata.setType("jmx");
+        // TODO engine 选择
+        fileMetadata.setEngine(EngineType.DOCKER.name());
         fileMetadataMapper.insert(fileMetadata);
 
         FileContent fileContent = new FileContent();

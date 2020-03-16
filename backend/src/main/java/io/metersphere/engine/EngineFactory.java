@@ -7,7 +7,8 @@ import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.LoadTestWithBLOBs;
 import io.metersphere.commons.constants.EngineType;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.engine.jmx.JmxEngine;
+import io.metersphere.engine.docker.DockerTestEngine;
+import io.metersphere.engine.kubernetes.KubernetesTestEngine;
 import io.metersphere.parse.EngineSourceParser;
 import io.metersphere.parse.EngineSourceParserFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -19,8 +20,11 @@ public class EngineFactory {
     public static Engine createEngine(String engineType) {
         final EngineType type = EngineType.valueOf(engineType);
 
-        if (type == EngineType.JMX) {
-            return new JmxEngine();
+        if (type == EngineType.DOCKER) {
+            return new DockerTestEngine();
+        }
+        if (type == EngineType.KUBERNETES) {
+            return new KubernetesTestEngine();
         }
         return null;
     }

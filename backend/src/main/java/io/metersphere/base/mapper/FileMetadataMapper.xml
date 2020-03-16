@@ -5,9 +5,10 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="type" jdbcType="VARCHAR" property="type" />
-    <result column="size" jdbcType="BIGINT" property="size" />
+    <result column="engine" jdbcType="VARCHAR" property="engine" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="size" jdbcType="BIGINT" property="size" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -68,7 +69,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, name, type, size, create_time, update_time
+    id, name, type, engine, create_time, update_time, size
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.FileMetadataExample" resultMap="BaseResultMap">
     select
@@ -102,11 +103,11 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.FileMetadata">
     insert into file_metadata (id, name, type, 
-      size, create_time, update_time
-      )
+      engine, create_time, update_time, 
+      size)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
-      #{size,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}
-      )
+      #{engine,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
+      #{size,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.FileMetadata">
     insert into file_metadata
@@ -120,14 +121,17 @@
       <if test="type != null">
         type,
       </if>
-      <if test="size != null">
-        size,
+      <if test="engine != null">
+        engine,
       </if>
       <if test="createTime != null">
         create_time,
       </if>
       <if test="updateTime != null">
         update_time,
+      </if>
+      <if test="size != null">
+        size,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -140,14 +144,17 @@
       <if test="type != null">
         #{type,jdbcType=VARCHAR},
       </if>
-      <if test="size != null">
-        #{size,jdbcType=BIGINT},
+      <if test="engine != null">
+        #{engine,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="size != null">
+        #{size,jdbcType=BIGINT},
       </if>
     </trim>
   </insert>
@@ -169,14 +176,17 @@
       <if test="record.type != null">
         type = #{record.type,jdbcType=VARCHAR},
       </if>
-      <if test="record.size != null">
-        size = #{record.size,jdbcType=BIGINT},
+      <if test="record.engine != null">
+        engine = #{record.engine,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.size != null">
+        size = #{record.size,jdbcType=BIGINT},
       </if>
     </set>
     <if test="_parameter != null">
@@ -188,9 +198,10 @@
     set id = #{record.id,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
       type = #{record.type,jdbcType=VARCHAR},
-      size = #{record.size,jdbcType=BIGINT},
+      engine = #{record.engine,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT}
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      size = #{record.size,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -204,14 +215,17 @@
       <if test="type != null">
         type = #{type,jdbcType=VARCHAR},
       </if>
-      <if test="size != null">
-        size = #{size,jdbcType=BIGINT},
+      <if test="engine != null">
+        engine = #{engine,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="size != null">
+        size = #{size,jdbcType=BIGINT},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -220,9 +234,10 @@
     update file_metadata
     set name = #{name,jdbcType=VARCHAR},
       type = #{type,jdbcType=VARCHAR},
-      size = #{size,jdbcType=BIGINT},
+      engine = #{engine,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT}
+      update_time = #{updateTime,jdbcType=BIGINT},
+      size = #{size,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
