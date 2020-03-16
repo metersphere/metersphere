@@ -6,6 +6,7 @@ import io.metersphere.base.domain.FileContent;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.LoadTestWithBLOBs;
 import io.metersphere.commons.constants.EngineType;
+import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.engine.docker.DockerTestEngine;
 import io.metersphere.engine.kubernetes.KubernetesTestEngine;
@@ -14,7 +15,6 @@ import io.metersphere.parse.EngineSourceParserFactory;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 
 public class EngineFactory {
     public static Engine createEngine(String engineType) {
@@ -32,8 +32,8 @@ public class EngineFactory {
     public static EngineContext createContext(LoadTestWithBLOBs loadTest, FileMetadata fileMetadata, FileContent fileContent) throws Exception {
         final EngineContext engineContext = new EngineContext();
         engineContext.setEngineId(loadTest.getId());
-        engineContext.setInputStream(new ByteArrayInputStream(fileContent.getFile()));
-        engineContext.setEngineType(fileMetadata.getType());
+        engineContext.setEngineType(fileMetadata.getEngine());
+        engineContext.setFileType(fileMetadata.getType());
 
         if (!StringUtils.isEmpty(loadTest.getLoadConfiguration())) {
             final JSONArray jsonArray = JSONObject.parseArray(loadTest.getLoadConfiguration());
@@ -44,14 +44,14 @@ public class EngineFactory {
             }
         }
 
-        final EngineSourceParser engineSourceParser = EngineSourceParserFactory.createEngineSourceParser(engineContext.getEngineType());
+        final EngineSourceParser engineSourceParser = EngineSourceParserFactory.createEngineSourceParser(engineContext.getFileType());
 
         if (engineSourceParser == null) {
             MSException.throwException("未知的文件类型！");
         }
 
-        final InputStream inputStream = engineSourceParser.parse(engineContext, engineContext.getInputStream());
-        engineContext.setInputStream(inputStream);
+        String content = engineSourceParser.parse(engineContext, new ByteArrayInputStream(fileContent.getFile()));
+        engineContext.setContent(content);
 
         return engineContext;
     }

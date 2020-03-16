@@ -13,7 +13,7 @@ import java.io.InputStream;
 
 public class XmlEngineSourceParse implements EngineSourceParser {
     @Override
-    public InputStream parse(EngineContext context, InputStream source) throws Exception {
+    public String parse(EngineContext context, InputStream source) throws Exception {
         final InputSource inputSource = new InputSource(source);
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -21,7 +21,7 @@ public class XmlEngineSourceParse implements EngineSourceParser {
         DocumentBuilder docBuilder = factory.newDocumentBuilder();
         final Document document = docBuilder.parse(inputSource);
 
-        final DocumentParser documentParser = createDocumentParser(context.getEngineType());
+        final DocumentParser documentParser = createDocumentParser(context.getFileType());
 
         return documentParser.parse(context, document);
     }

@@ -1,16 +1,18 @@
 package io.metersphere.parse.xml.reader;
 
-import io.metersphere.commons.constants.EngineType;
+import io.metersphere.commons.constants.FileType;
 import io.metersphere.parse.xml.reader.jmx.JmeterDocumentParser;
 
 public class DocumentParserFactory {
     public static DocumentParser createDocumentParser(String type) {
-        final EngineType engineType = EngineType.valueOf(type);
+        final FileType fileType = FileType.valueOf(type);
 
-        if (EngineType.JMX.equals(engineType)) {
-            return new JmeterDocumentParser();
+        switch (fileType) {
+            case JMX:
+                return new JmeterDocumentParser();
+            default:
+                break;
         }
-
         return null;
     }
 }

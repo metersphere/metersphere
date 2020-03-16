@@ -15,10 +15,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 
 public class JmeterDocumentParser implements DocumentParser {
     private final static String HASH_TREE_ELEMENT = "hashTree";
@@ -32,7 +29,7 @@ public class JmeterDocumentParser implements DocumentParser {
     private EngineContext context;
 
     @Override
-    public InputStream parse(EngineContext context, Document document) throws Exception {
+    public String parse(EngineContext context, Document document) throws Exception {
         this.context = context;
 
         final Element jmeterTestPlan = document.getDocumentElement();
@@ -49,18 +46,17 @@ public class JmeterDocumentParser implements DocumentParser {
             }
         }
 
-        return documentToInputStream(document);
+        return documentToString(document);
     }
 
-    private InputStream documentToInputStream(Document document) throws TransformerException {
+    private String documentToString(Document document) throws TransformerException {
         DOMSource domSource = new DOMSource(document);
         StringWriter writer = new StringWriter();
         StreamResult result = new StreamResult(writer);
         TransformerFactory tf = TransformerFactory.newInstance();
         Transformer transformer = tf.newTransformer();
         transformer.transform(domSource, result);
-        final String resultStr = writer.toString();
-        return new ByteArrayInputStream(resultStr.getBytes(StandardCharsets.UTF_8));
+        return writer.toString();
     }
 
     private void parseHashTree(Element hashTree) {

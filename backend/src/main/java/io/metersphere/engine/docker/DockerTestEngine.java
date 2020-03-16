@@ -4,9 +4,13 @@ import io.metersphere.engine.Engine;
 import io.metersphere.engine.EngineContext;
 
 public class DockerTestEngine implements Engine {
+    private EngineContext context;
+
     @Override
     public boolean init(EngineContext context) {
-        return false;
+        // todo 初始化操作
+        this.context = context;
+        return true;
     }
 
     @Override
