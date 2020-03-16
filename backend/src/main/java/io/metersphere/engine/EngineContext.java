@@ -5,6 +5,7 @@ import java.util.Map;
 
 public class EngineContext {
     private String testId;
+    private String testName;
     private String namespace;
     private String engineType;
     private String fileType;
@@ -17,6 +18,14 @@ public class EngineContext {
 
     public void setTestId(String testId) {
         this.testId = testId;
+    }
+
+    public String getTestName() {
+        return testName;
+    }
+
+    public void setTestName(String testName) {
+        this.testName = testName;
     }
 
     public String getNamespace() {

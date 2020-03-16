@@ -31,6 +31,7 @@ public class EngineFactory {
     public static EngineContext createContext(LoadTestWithBLOBs loadTest, FileMetadata fileMetadata, FileContent fileContent) throws Exception {
         final EngineContext engineContext = new EngineContext();
         engineContext.setTestId(loadTest.getId());
+        engineContext.setTestName(loadTest.getName());
         engineContext.setNamespace(loadTest.getProjectId());
         engineContext.setEngineType(fileMetadata.getEngine());
         engineContext.setFileType(fileMetadata.getType());

@@ -66,12 +66,11 @@ public abstract class AbstractClientProvider {
      * @param namespace namespace标识
      * @return
      */
-    public synchronized String confirmNamespace(String namespace, String displayName) {
+    public synchronized String confirmNamespace(String namespace) {
         KubernetesClient kubernetesClient = getKubernetesClient();
         Namespace currentNamespace = kubernetesClient.namespaces().withName(namespace).get();
         if (currentNamespace == null) {
             Map<String, String> annotations = new HashMap<>();
-            annotations.put("fit2cloud.com/workspace-name", displayName);
             Namespace newNamespace = new NamespaceBuilder()
                     .withNewMetadata()
                     .withName(namespace)

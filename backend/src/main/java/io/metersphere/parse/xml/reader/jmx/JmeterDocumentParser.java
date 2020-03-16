@@ -260,6 +260,8 @@ public class JmeterDocumentParser implements DocumentParser {
         collectionProp.appendChild(childCollectionProp);
         timer.appendChild(collectionProp);
         timerParent.appendChild(timer);
+        // 添加一个空的hashTree
+        timerParent.appendChild(document.createElement(HASH_TREE_ELEMENT));
     }
 
     private Element createStringProp(Document document, String name, String value) {
