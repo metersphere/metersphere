@@ -2,9 +2,7 @@ package io.metersphere.engine.docker;
 
 import io.metersphere.engine.Engine;
 import io.metersphere.engine.EngineContext;
-import org.springframework.stereotype.Service;
 
-@Service
 public class DockerTestEngine implements Engine {
     private EngineContext context;
 

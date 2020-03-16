@@ -7,7 +7,6 @@ import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.LoadTestWithBLOBs;
 import io.metersphere.commons.constants.EngineType;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.engine.docker.DockerTestEngine;
 import io.metersphere.engine.kubernetes.KubernetesTestEngine;
 import io.metersphere.parse.EngineSourceParser;
@@ -22,9 +21,9 @@ public class EngineFactory {
 
         switch (type) {
             case DOCKER:
-                return CommonBeanFactory.getBean(DockerTestEngine.class);
+                return new DockerTestEngine();
             case KUBERNETES:
-                return CommonBeanFactory.getBean(KubernetesTestEngine.class);
+                return new KubernetesTestEngine();
         }
         return null;
     }
