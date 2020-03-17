@@ -27,6 +27,10 @@ public class KubernetesTestEngine implements Engine {
 
     @Override
     public void start() {
+        if (context == null) {
+            LogUtil.warn("Please initial the engine.");
+            return;
+        }
         // todo 运行测试
         ClientCredential credential = new ClientCredential();
         credential.setMasterUrl("https://172.16.10.93:6443");
@@ -43,7 +47,7 @@ public class KubernetesTestEngine implements Engine {
                     setName(configMapName);
                 }});
                 item.setData(new HashMap<String, String>() {{
-                    put("sample.jmx", context.getContent());
+                    put(context.getTestId() + ".jmx", context.getContent());
                 }});
                 client.configMaps().inNamespace(context.getNamespace()).create(item);
             }
