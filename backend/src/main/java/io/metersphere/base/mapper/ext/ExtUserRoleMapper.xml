@@ -11,7 +11,7 @@
         <result column="create_time" jdbcType="BIGINT" property="createTime" />
         <result column="update_time" jdbcType="BIGINT" property="updateTime" />
         <result column="language" jdbcType="VARCHAR" property="language" />
-        <collection property="roles" ofType="io.metersphere.base.domain.Role">
+        <collection property="roles" javaType="arraylist" ofType="io.metersphere.base.domain.Role">
             <id column="rid" jdbcType="VARCHAR" property="id" />
             <result column="rname" jdbcType="VARCHAR" property="name" />
         </collection>
