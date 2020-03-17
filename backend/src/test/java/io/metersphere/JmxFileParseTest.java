@@ -152,8 +152,9 @@ public class JmxFileParseTest {
         collectionProp.appendChild(createKafkaProp(document, "kafka.batch.size", kafkaProperties.getBatchSize()));
         collectionProp.appendChild(createKafkaProp(document, "kafka.client.id", kafkaProperties.getClientId()));
         collectionProp.appendChild(createKafkaProp(document, "kafka.connections.max.idle.ms", kafkaProperties.getConnectionsMaxIdleMs()));
-        // 添加关联关系 test.id
-        collectionProp.appendChild(createKafkaProp(document, "test.id", "test_id"));
+        // 添加关联关系 test.id test.name
+        collectionProp.appendChild(createKafkaProp(document, "test.id", ""));
+        collectionProp.appendChild(createKafkaProp(document, "test.name", ""));
 
         elementProp.appendChild(collectionProp);
         // set elementProp
