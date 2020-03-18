@@ -97,7 +97,7 @@ public class LoadTestService {
         fileMetadata.setSize(file.getSize());
         fileMetadata.setCreateTime(System.currentTimeMillis());
         fileMetadata.setUpdateTime(System.currentTimeMillis());
-        fileMetadata.setType("jmx");
+        fileMetadata.setType("JMX");
         // TODO engine 选择
         fileMetadata.setEngine(EngineType.DOCKER.name());
         fileMetadataMapper.insert(fileMetadata);
