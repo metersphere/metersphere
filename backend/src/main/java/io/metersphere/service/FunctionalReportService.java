@@ -1,5 +1,8 @@
 package io.metersphere.service;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import io.metersphere.base.domain.FucTestLog;
 import io.metersphere.base.domain.FucTestReport;
 import io.metersphere.base.domain.FucTestReportExample;
 import io.metersphere.base.mapper.FucTestReportMapper;
@@ -20,6 +23,8 @@ public class FunctionalReportService {
     private FucTestReportMapper fucTestReportMapper;
     @Resource
     private ExtFunctionalTestReportMapper extFunctionalTestReportMapper;
+    @Resource
+    private ZaleniumService zaleniumService;
 
     public List<FucTestReport> getRecentReportList(ReportRequest request) {
         FucTestReportExample example = new FucTestReportExample();
@@ -37,5 +42,13 @@ public class FunctionalReportService {
 
     public FunctionalReportDTO getReportTestAndProInfo(String reportId) {
         return extFunctionalTestReportMapper.getReportTestAndProInfo(reportId);
+    }
+
+    public FucTestLog getTestLog(String reportId) {
+        FucTestReport fucTestReport = fucTestReportMapper.selectByPrimaryKey(reportId);
+        String content = fucTestReport.getContent();
+        String endpoint = "http://localhost:4444";
+        FucTestLog fucTestLogs = JSON.parseObject(content, FucTestLog.class);
+        return zaleniumService.getFucTestLog(endpoint, fucTestLogs);
     }
 }

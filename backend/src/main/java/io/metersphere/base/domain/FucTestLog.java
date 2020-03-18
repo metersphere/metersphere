@@ -1,6 +1,6 @@
 package io.metersphere.base.domain;
 
-public class FucLog {
+public class FucTestLog {
 
     private String seleniumLog;
     private String browserDriverLog;

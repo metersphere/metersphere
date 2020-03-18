@@ -2,19 +2,16 @@ package io.metersphere.config;
 
 import io.metersphere.proxy.ProxyServlet;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
-import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 
 @Configuration
-public class SolrProxyServletConfiguration {
+public class ProxyServletConfiguration {
 
   @Bean
   public ServletRegistrationBean servletRegistrationBean(){
-    ServletRegistrationBean servletRegistrationBean = new ServletRegistrationBean(new ProxyServlet(), "/solr/*");
-//    servletRegistrationBean.addInitParameter("targetUri", "http://localhost:4444");
-//    servletRegistrationBean.addInitParameter(ProxyServlet.P_LOG, "false");
+    //代理到hub节点获取录像
+    ServletRegistrationBean servletRegistrationBean = new ServletRegistrationBean(new ProxyServlet(), "/proxy/*");
     return servletRegistrationBean;
   }
 

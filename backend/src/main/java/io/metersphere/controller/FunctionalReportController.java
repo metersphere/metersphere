@@ -2,6 +2,7 @@ package io.metersphere.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.base.domain.FucTestLog;
 import io.metersphere.base.domain.FucTestReport;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
@@ -30,7 +31,6 @@ public class FunctionalReportController {
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
         ReportRequest request = new ReportRequest();
         request.setWorkspaceId(currentWorkspaceId);
-        // 最近 `count` 个项目
         PageHelper.startPage(1, count);
         return functionalReportService.getRecentReportList(request);
     }
@@ -46,10 +46,14 @@ public class FunctionalReportController {
         functionalReportService.deleteReport(reportId);
     }
 
-
     @GetMapping("/test/pro/info/{reportId}")
     public FunctionalReportDTO getReportTestAndProInfo(@PathVariable String reportId) {
         return functionalReportService.getReportTestAndProInfo(reportId);
+    }
+
+    @GetMapping("/test/log/{reportId}")
+    public FucTestLog getTestLog(@PathVariable String reportId) {
+        return functionalReportService.getTestLog(reportId);
     }
 
 
