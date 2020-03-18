@@ -131,7 +131,7 @@
       },
       handleEdit(report) {
         this.$router.push({
-          path: '/functional/reportView/' + report.id
+          path: '/functional/report/view/' + report.id
         })
       },
       handleDelete(report) {

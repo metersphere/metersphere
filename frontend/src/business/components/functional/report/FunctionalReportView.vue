@@ -6,9 +6,9 @@
           <el-col :span="16">
             <el-row>
               <el-breadcrumb separator-class="el-icon-arrow-right">
-                <el-breadcrumb-item :to="{ path: '/' }">{{projectName}}</el-breadcrumb-item>
-                <el-breadcrumb-item>{{testName}}</el-breadcrumb-item>
-                <el-breadcrumb-item>{{reportName}}</el-breadcrumb-item>
+                <el-breadcrumb-item :to="{ path: '/' }">{{report.projectName}}</el-breadcrumb-item>
+                <el-breadcrumb-item>{{report.testName}}</el-breadcrumb-item>
+                <el-breadcrumb-item>{{report.name}}</el-breadcrumb-item>
               </el-breadcrumb>
             </el-row>
             <el-row class="ms-report-view-btns">
@@ -34,9 +34,11 @@
         <el-divider></el-divider>
 
         <el-tabs v-model="active" type="border-card" :stretch="true">
-
+          <el-tab-pane :label="$t('report.test_details')">
+            <result-details v-if="isRouterAlive" :video-url="videoUrl" />
+          </el-tab-pane>
           <el-tab-pane :label="$t('report.test_log_details')">
-            <ms-report-log-details />
+            <ms-report-log-details :report-id="report.id"/>
           </el-tab-pane>
         </el-tabs>
 
@@ -47,20 +49,22 @@
 
 <script>
   import MsReportLogDetails from './components/LogDetails';
+  import ResultDetails from './components/ResultDetails';
 
   export default {
     name: "FunctionalReportView",
     components: {
-      MsReportLogDetails
+      MsReportLogDetails,
+      ResultDetails
     },
     data() {
       return {
         result: {},
         active: '0',
-        reportId: '',
-        reportName: '',
-        testName: '',
-        projectName: ''
+        videoPath: '',
+        videoUrl: null,
+        report: {},
+        isRouterAlive: true //控制视图是否显示的变量
       }
     },
     methods: {
@@ -69,31 +73,27 @@
           this.result = this.$get("/functional/report/test/pro/info/" + this.reportId, res => {
             let data = res.data;
             if(data){
-              this.reportName = data.name;
-              this.testName = data.testName;
-              this.projectName = data.projectName;
-            }
-          })
-        }
-      }
-    },
-    created() {
-      this.reportId = this.$route.path.split('/')[4];
-      this.initBreadcrumb();
-    },
-    watch: {
-      '$route'(to) {
-        let reportId = to.path.split('/')[4];
-        if(reportId){
-          this.$get("/functional/report/test/pro/info/" + reportId, response => {
-            let data = response.data;
-            if(data){
-              this.reportName = data.name;
-              this.testName = data.testName;
-              this.projectName = data.projectName;
+              this.report = data;
+              this.report.content = JSON.parse(this.report.content);
+              this.videoUrl = 'proxy/localhost:4444/' + this.report.content.videoUrl;
+              this.reload();//重新渲染组件
             }
           });
         }
+      },
+      reload () {
+        this.isRouterAlive = false;//先关闭，
+        this.$nextTick(function () {
+          this.isRouterAlive = true;//再打开
+        })
+      }
+    },
+    mounted() {
+      this.initBreadcrumb();
+    },
+    computed: {
+      reportId: function () {
+        return this.$route.params.reportId;
       }
     }
   }

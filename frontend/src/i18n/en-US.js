@@ -104,7 +104,8 @@ export default {
     'test_overview': 'Test Overview',
     'test_request_statistics': 'Test Request Statistics',
     'test_error_log': 'Test Error Log',
-    'test_log_details': 'Test Log Details'
+    'test_log_details': 'Test Log Details',
+    'test_details': 'Test Details',
   },
   load_test: {
     'recent': 'Recent Tests',
@@ -159,9 +160,9 @@ export default {
     'create': 'Create Test',
   },
   fuc_test: {
-    'select_resource_pool': 'Please select resource pool',
+    'select_resource_pool': 'Please select resource pool'
   },
   i18n: {
-    'home': 'Home',
+    'home': 'Home'
   }
 };

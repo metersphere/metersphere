@@ -104,7 +104,8 @@ export default {
     'test_overview': '测试概览',
     'test_request_statistics': '请求统计',
     'test_error_log': '错误记录',
-    'test_log_details': '日志详情'
+    'test_log_details': '日志详情',
+    'test_details': '测试详情',
   },
   load_test: {
     'recent': '最近的测试',
@@ -159,7 +160,7 @@ export default {
     'create': '创建测试',
   },
   fuc_test: {
-    'select_resource_pool': '请选择资源池',
+    'select_resource_pool': '请选择资源池'
   },
   i18n: {
     'home': '首页',
