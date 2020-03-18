@@ -6,5 +6,11 @@
   "workspace_name_is_null": "Workspace name cannot be null",
   "workspace_name_already_exists": "The workspace name already exists",
   "workspace_does_not_belong_to_user": "The current workspace does not belong to the current user",
-  "organization_does_not_belong_to_user": "The current organization does not belong to the current user"
+  "organization_does_not_belong_to_user": "The current organization does not belong to the current user",
+  "file_cannot_be_null": "File cannot be empty!",
+  "edit_load_test_not_found": "Cannot edit test, test not found:",
+  "run_load_test_not_found": "Cannot run test, test not found:",
+  "run_load_test_file_not_found": "Unable to run test, unable to get test file meta information, test ID:",
+  "run_load_test_file_content_not_found": "Cannot run test, cannot get test file content, test ID:",
+  "run_load_test_file_init_error": "Failed to run test, failed to initialize run environment, test ID:"
 }

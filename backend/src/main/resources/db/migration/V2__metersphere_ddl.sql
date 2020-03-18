@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS `file_metadata` (
     `id`          varchar(64) NOT NULL COMMENT 'File ID',
     `name`        varchar(64) NOT NULL COMMENT 'File name',
     `type`        varchar(64) DEFAULT NULL COMMENT 'File type',
+    `engine`      varchar(64) DEFAULT 'DOCKER' COMMENT 'engine type',
     `size`        bigint(13)  NOT NULL COMMENT 'File size',
     `create_time` bigint(13)  NOT NULL COMMENT 'Create timestamp',
     `update_time` bigint(13)  NOT NULL COMMENT 'Update timestamp',

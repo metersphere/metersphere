@@ -15,13 +15,11 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 
 public class JmeterDocumentParser implements DocumentParser {
     private final static String HASH_TREE_ELEMENT = "hashTree";
+    private final static String TEST_PLAN = "TestPlan";
     private final static String STRING_PROP = "stringProp";
     private final static String COLLECTION_PROP = "collectionProp";
     private final static String CONCURRENCY_THREAD_GROUP = "com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup";
@@ -32,7 +30,7 @@ public class JmeterDocumentParser implements DocumentParser {
     private EngineContext context;
 
     @Override
-    public InputStream parse(EngineContext context, Document document) throws Exception {
+    public String parse(EngineContext context, Document document) throws Exception {
         this.context = context;
 
         final Element jmeterTestPlan = document.getDocumentElement();
@@ -49,18 +47,17 @@ public class JmeterDocumentParser implements DocumentParser {
             }
         }
 
-        return documentToInputStream(document);
+        return documentToString(document);
     }
 
-    private InputStream documentToInputStream(Document document) throws TransformerException {
+    private String documentToString(Document document) throws TransformerException {
         DOMSource domSource = new DOMSource(document);
         StringWriter writer = new StringWriter();
         StreamResult result = new StreamResult(writer);
         TransformerFactory tf = TransformerFactory.newInstance();
         Transformer transformer = tf.newTransformer();
         transformer.transform(domSource, result);
-        final String resultStr = writer.toString();
-        return new ByteArrayInputStream(resultStr.getBytes(StandardCharsets.UTF_8));
+        return writer.toString();
     }
 
     private void parseHashTree(Element hashTree) {
@@ -80,6 +77,8 @@ public class JmeterDocumentParser implements DocumentParser {
 
                     if (nodeNameEquals(ele, HASH_TREE_ELEMENT)) {
                         parseHashTree(ele);
+                    } else if (nodeNameEquals(ele, TEST_PLAN)) {
+                        processTearDownTestPlan(ele);
                     } else if (nodeNameEquals(ele, CONCURRENCY_THREAD_GROUP)) {
                         processConcurrencyThreadGroup(ele);
                         processCheckoutTimer(ele);
@@ -100,12 +99,107 @@ public class JmeterDocumentParser implements DocumentParser {
         }
     }
 
+    private void processTearDownTestPlan(Element ele) {
+        /*<boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>*/
+        Document document = ele.getOwnerDocument();
+        Element tearDownSwitch = createBoolProp(document, "TestPlan.tearDown_on_shutdown", true);
+        ele.appendChild(tearDownSwitch);
+
+        Node hashTree = ele.getNextSibling();
+        while (!(hashTree instanceof Element)) {
+            hashTree = hashTree.getNextSibling();
+        }
+        /*
+        <PostThreadGroup guiclass="PostThreadGroupGui" testclass="PostThreadGroup" testname="tearDown Thread Group" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+      </PostThreadGroup>
+         */
+        Element tearDownElement = document.createElement("PostThreadGroup");
+        tearDownElement.setAttribute("guiclass", "PostThreadGroupGui");
+        tearDownElement.setAttribute("testclass", "PostThreadGroup");
+        tearDownElement.setAttribute("testname", "tearDown Thread Group");
+        tearDownElement.setAttribute("enabled", "true");
+        tearDownElement.appendChild(createStringProp(document, "ThreadGroup.on_sample_error", "continue"));
+        tearDownElement.appendChild(createStringProp(document, "ThreadGroup.num_threads", "1"));
+        tearDownElement.appendChild(createStringProp(document, "ThreadGroup.ramp_time", "1"));
+        tearDownElement.appendChild(createStringProp(document, "ThreadGroup.duration", ""));
+        tearDownElement.appendChild(createStringProp(document, "ThreadGroup.delay", ""));
+        tearDownElement.appendChild(createBoolProp(document, "ThreadGroup.scheduler", false));
+        tearDownElement.appendChild(createBoolProp(document, "ThreadGroup.same_user_on_next_iteration", true));
+        Element elementProp = document.createElement("elementProp");
+        elementProp.setAttribute("name", "ThreadGroup.main_controller");
+        elementProp.setAttribute("elementType", "LoopController");
+        elementProp.setAttribute("guiclass", "LoopControlPanel");
+        elementProp.setAttribute("testclass", "LoopController");
+        elementProp.setAttribute("testname", "Loop Controller");
+        elementProp.setAttribute("enabled", "true");
+        elementProp.appendChild(createBoolProp(document, "LoopController.continue_forever", false));
+        elementProp.appendChild(createStringProp(document, "LoopController.loops", "1"));
+        tearDownElement.appendChild(elementProp);
+        hashTree.appendChild(tearDownElement);
+
+        Element tearDownHashTree = document.createElement(HASH_TREE_ELEMENT);
+        /*
+        <OnceOnlyController guiclass="OnceOnlyControllerGui" testclass="OnceOnlyController" testname="Once Only Controller" enabled="true"/>
+         */
+        Element onceOnlyController = document.createElement("OnceOnlyController");
+        onceOnlyController.setAttribute("guiclass", "OnceOnlyControllerGui");
+        onceOnlyController.setAttribute("testclass", "OnceOnlyController");
+        onceOnlyController.setAttribute("testname", "Once Only Controller");
+        onceOnlyController.setAttribute("enabled", "true");
+        tearDownHashTree.appendChild(onceOnlyController);
+         /*
+                <hashTree>
+          <DebugSampler guiclass="TestBeanGUI" testclass="DebugSampler" testname="Debug Sampler" enabled="true">
+            <boolProp name="displayJMeterProperties">false</boolProp>
+            <boolProp name="displayJMeterVariables">true</boolProp>
+            <boolProp name="displaySystemProperties">false</boolProp>
+          </DebugSampler>
+          <hashTree/>
+        </hashTree>
+         */
+        Element onceOnlyHashTree = document.createElement(HASH_TREE_ELEMENT);
+        Element debugSampler = document.createElement("DebugSampler");
+        debugSampler.setAttribute("guiclass", "TestBeanGUI");
+        debugSampler.setAttribute("testclass", "DebugSampler");
+        debugSampler.setAttribute("testname", "Debug Sampler");
+        debugSampler.setAttribute("enabled", "true");
+        debugSampler.appendChild(createBoolProp(document, "displayJMeterProperties", false));
+        debugSampler.appendChild(createBoolProp(document, "displayJMeterVariables", true));
+        debugSampler.appendChild(createBoolProp(document, "displaySystemProperties", false));
+        onceOnlyHashTree.appendChild(debugSampler);
+        // 添加空的 hashTree
+        onceOnlyHashTree.appendChild(document.createElement(HASH_TREE_ELEMENT));
+        tearDownHashTree.appendChild(onceOnlyHashTree);
+        hashTree.appendChild(tearDownHashTree);
+        // 添加backend listener
+        processCheckoutBackendListener(tearDownElement);
+    }
+
+    private Element createBoolProp(Document document, String name, boolean value) {
+        Element tearDownSwitch = document.createElement("boolProp");
+        tearDownSwitch.setAttribute("name", name);
+        tearDownSwitch.appendChild(document.createTextNode(String.valueOf(value)));
+        return tearDownSwitch;
+    }
+
     private void processBackendListener(Element backendListener) {
         KafkaProperties kafkaProperties = CommonBeanFactory.getBean(KafkaProperties.class);
         Document document = backendListener.getOwnerDocument();
         // 清空child
         removeChildren(backendListener);
         backendListener.appendChild(createStringProp(document, "classname", "io.github.rahulsinghai.jmeter.backendlistener.kafka.KafkaBackendClient"));
+        backendListener.appendChild(createStringProp(document, "QUEUE_SIZE", "5000"));
         // elementProp
         Element elementProp = document.createElement("elementProp");
         elementProp.setAttribute("name", "arguments");
@@ -139,6 +233,9 @@ public class JmeterDocumentParser implements DocumentParser {
         collectionProp.appendChild(createKafkaProp(document, "kafka.batch.size", kafkaProperties.getBatchSize()));
         collectionProp.appendChild(createKafkaProp(document, "kafka.client.id", kafkaProperties.getClientId()));
         collectionProp.appendChild(createKafkaProp(document, "kafka.connections.max.idle.ms", kafkaProperties.getConnectionsMaxIdleMs()));
+        // 添加关联关系 test.id test.name
+        collectionProp.appendChild(createKafkaProp(document, "test.id", context.getTestId()));
+        collectionProp.appendChild(createKafkaProp(document, "test.name", context.getTestName()));
 
         elementProp.appendChild(collectionProp);
         // set elementProp
@@ -263,6 +360,8 @@ public class JmeterDocumentParser implements DocumentParser {
         collectionProp.appendChild(childCollectionProp);
         timer.appendChild(collectionProp);
         timerParent.appendChild(timer);
+        // 添加一个空的hashTree
+        timerParent.appendChild(document.createElement(HASH_TREE_ELEMENT));
     }
 
     private Element createStringProp(Document document, String name, String value) {

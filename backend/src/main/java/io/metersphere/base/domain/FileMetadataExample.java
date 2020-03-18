@@ -314,63 +314,73 @@ public class FileMetadataExample {
             return (Criteria) this;
         }
 
-        public Criteria andSizeIsNull() {
-            addCriterion("size is null");
+        public Criteria andEngineIsNull() {
+            addCriterion("engine is null");
             return (Criteria) this;
         }
 
-        public Criteria andSizeIsNotNull() {
-            addCriterion("size is not null");
+        public Criteria andEngineIsNotNull() {
+            addCriterion("engine is not null");
             return (Criteria) this;
         }
 
-        public Criteria andSizeEqualTo(Long value) {
-            addCriterion("size =", value, "size");
+        public Criteria andEngineEqualTo(String value) {
+            addCriterion("engine =", value, "engine");
             return (Criteria) this;
         }
 
-        public Criteria andSizeNotEqualTo(Long value) {
-            addCriterion("size <>", value, "size");
+        public Criteria andEngineNotEqualTo(String value) {
+            addCriterion("engine <>", value, "engine");
             return (Criteria) this;
         }
 
-        public Criteria andSizeGreaterThan(Long value) {
-            addCriterion("size >", value, "size");
+        public Criteria andEngineGreaterThan(String value) {
+            addCriterion("engine >", value, "engine");
             return (Criteria) this;
         }
 
-        public Criteria andSizeGreaterThanOrEqualTo(Long value) {
-            addCriterion("size >=", value, "size");
+        public Criteria andEngineGreaterThanOrEqualTo(String value) {
+            addCriterion("engine >=", value, "engine");
             return (Criteria) this;
         }
 
-        public Criteria andSizeLessThan(Long value) {
-            addCriterion("size <", value, "size");
+        public Criteria andEngineLessThan(String value) {
+            addCriterion("engine <", value, "engine");
             return (Criteria) this;
         }
 
-        public Criteria andSizeLessThanOrEqualTo(Long value) {
-            addCriterion("size <=", value, "size");
+        public Criteria andEngineLessThanOrEqualTo(String value) {
+            addCriterion("engine <=", value, "engine");
             return (Criteria) this;
         }
 
-        public Criteria andSizeIn(List<Long> values) {
-            addCriterion("size in", values, "size");
+        public Criteria andEngineLike(String value) {
+            addCriterion("engine like", value, "engine");
             return (Criteria) this;
         }
 
-        public Criteria andSizeNotIn(List<Long> values) {
-            addCriterion("size not in", values, "size");
+        public Criteria andEngineNotLike(String value) {
+            addCriterion("engine not like", value, "engine");
             return (Criteria) this;
         }
 
-        public Criteria andSizeBetween(Long value1, Long value2) {
-            addCriterion("size between", value1, value2, "size");
+        public Criteria andEngineIn(List<String> values) {
+            addCriterion("engine in", values, "engine");
             return (Criteria) this;
         }
 
-        public Criteria andSizeNotBetween(Long value1, Long value2) {
-            addCriterion("size not between", value1, value2, "size");
+        public Criteria andEngineNotIn(List<String> values) {
+            addCriterion("engine not in", values, "engine");
+            return (Criteria) this;
+        }
+
+        public Criteria andEngineBetween(String value1, String value2) {
+            addCriterion("engine between", value1, value2, "engine");
+            return (Criteria) this;
+        }
+
+        public Criteria andEngineNotBetween(String value1, String value2) {
+            addCriterion("engine not between", value1, value2, "engine");
             return (Criteria) this;
         }
 
@@ -491,6 +501,66 @@ public class FileMetadataExample {
 
         public Criteria andUpdateTimeNotBetween(Long value1, Long value2) {
             addCriterion("update_time not between", value1, value2, "updateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andSizeIsNull() {
+            addCriterion("size is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSizeIsNotNull() {
+            addCriterion("size is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSizeEqualTo(Long value) {
+            addCriterion("size =", value, "size");
+            return (Criteria) this;
+        }
+
+        public Criteria andSizeNotEqualTo(Long value) {
+            addCriterion("size <>", value, "size");
+            return (Criteria) this;
+        }
+
+        public Criteria andSizeGreaterThan(Long value) {
+            addCriterion("size >", value, "size");
+            return (Criteria) this;
+        }
+
+        public Criteria andSizeGreaterThanOrEqualTo(Long value) {
+            addCriterion("size >=", value, "size");
+            return (Criteria) this;
+        }
+
+        public Criteria andSizeLessThan(Long value) {
+            addCriterion("size <", value, "size");
+            return (Criteria) this;
+        }
+
+        public Criteria andSizeLessThanOrEqualTo(Long value) {
+            addCriterion("size <=", value, "size");
+            return (Criteria) this;
+        }
+
+        public Criteria andSizeIn(List<Long> values) {
+            addCriterion("size in", values, "size");
+            return (Criteria) this;
+        }
+
+        public Criteria andSizeNotIn(List<Long> values) {
+            addCriterion("size not in", values, "size");
+            return (Criteria) this;
+        }
+
+        public Criteria andSizeBetween(Long value1, Long value2) {
+            addCriterion("size between", value1, value2, "size");
+            return (Criteria) this;
+        }
+
+        public Criteria andSizeNotBetween(Long value1, Long value2) {
+            addCriterion("size not between", value1, value2, "size");
             return (Criteria) this;
         }
     }

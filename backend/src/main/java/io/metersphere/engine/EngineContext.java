@@ -1,21 +1,39 @@
 package io.metersphere.engine;
 
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 public class EngineContext {
-    private String engineId;
+    private String testId;
+    private String testName;
+    private String namespace;
     private String engineType;
-    private InputStream inputStream;
+    private String fileType;
+    private String content;
     private Map<String, Object> properties = new HashMap<>();
 
-    public String getEngineId() {
-        return engineId;
+    public String getTestId() {
+        return testId;
     }
 
-    public void setEngineId(String engineId) {
-        this.engineId = engineId;
+    public void setTestId(String testId) {
+        this.testId = testId;
+    }
+
+    public String getTestName() {
+        return testName;
+    }
+
+    public void setTestName(String testName) {
+        this.testName = testName;
+    }
+
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
     }
 
     public String getEngineType() {
@@ -26,19 +44,27 @@ public class EngineContext {
         this.engineType = engineType;
     }
 
-    public InputStream getInputStream() {
-        return inputStream;
-    }
-
-    public void setInputStream(InputStream inputStream) {
-        this.inputStream = inputStream;
-    }
-
     public void addProperty(String key, Object value) {
         this.properties.put(key, value);
     }
 
     public Object getProperty(String key) {
         return this.properties.get(key);
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public String getFileType() {
+        return fileType;
+    }
+
+    public void setFileType(String fileType) {
+        this.fileType = fileType;
     }
 }
