@@ -9,6 +9,7 @@
     <result column="scenario_definition" jdbcType="VARCHAR" property="scenarioDefinition" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.LoadTestWithBLOBs">
     <result column="load_configuration" jdbcType="LONGVARCHAR" property="loadConfiguration" />
@@ -74,7 +75,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, name, description, scenario_definition, create_time, update_time
+    id, project_id, name, description, scenario_definition, create_time, update_time, 
+    status
   </sql>
   <sql id="Blob_Column_List">
     load_configuration, advanced_configuration, schedule
@@ -130,12 +132,14 @@
   <insert id="insert" parameterType="io.metersphere.base.domain.LoadTestWithBLOBs">
     insert into load_test (id, project_id, name, 
       description, scenario_definition, create_time, 
-      update_time, load_configuration, advanced_configuration, 
-      schedule)
+      update_time, status, load_configuration, 
+      advanced_configuration, schedule
+      )
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{scenarioDefinition,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{loadConfiguration,jdbcType=LONGVARCHAR}, #{advancedConfiguration,jdbcType=LONGVARCHAR}, 
-      #{schedule,jdbcType=LONGVARCHAR})
+      #{updateTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, #{loadConfiguration,jdbcType=LONGVARCHAR}, 
+      #{advancedConfiguration,jdbcType=LONGVARCHAR}, #{schedule,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.LoadTestWithBLOBs">
     insert into load_test
@@ -160,6 +164,9 @@
       </if>
       <if test="updateTime != null">
         update_time,
+      </if>
+      <if test="status != null">
+        status,
       </if>
       <if test="loadConfiguration != null">
         load_configuration,
@@ -192,6 +199,9 @@
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
       </if>
       <if test="loadConfiguration != null">
         #{loadConfiguration,jdbcType=LONGVARCHAR},
@@ -234,6 +244,9 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=VARCHAR},
+      </if>
       <if test="record.loadConfiguration != null">
         load_configuration = #{record.loadConfiguration,jdbcType=LONGVARCHAR},
       </if>
@@ -257,6 +270,7 @@
       scenario_definition = #{record.scenarioDefinition,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
+      status = #{record.status,jdbcType=VARCHAR},
       load_configuration = #{record.loadConfiguration,jdbcType=LONGVARCHAR},
       advanced_configuration = #{record.advancedConfiguration,jdbcType=LONGVARCHAR},
       schedule = #{record.schedule,jdbcType=LONGVARCHAR}
@@ -272,7 +286,8 @@
       description = #{record.description,jdbcType=VARCHAR},
       scenario_definition = #{record.scenarioDefinition,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT}
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      status = #{record.status,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -298,6 +313,9 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
+      <if test="status != null">
+        status = #{status,jdbcType=VARCHAR},
+      </if>
       <if test="loadConfiguration != null">
         load_configuration = #{loadConfiguration,jdbcType=LONGVARCHAR},
       </if>
@@ -318,6 +336,7 @@
       scenario_definition = #{scenarioDefinition,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
+      status = #{status,jdbcType=VARCHAR},
       load_configuration = #{loadConfiguration,jdbcType=LONGVARCHAR},
       advanced_configuration = #{advancedConfiguration,jdbcType=LONGVARCHAR},
       schedule = #{schedule,jdbcType=LONGVARCHAR}
@@ -330,7 +349,8 @@
       description = #{description,jdbcType=VARCHAR},
       scenario_definition = #{scenarioDefinition,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT}
+      update_time = #{updateTime,jdbcType=BIGINT},
+      status = #{status,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

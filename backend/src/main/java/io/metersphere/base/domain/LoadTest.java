@@ -17,6 +17,8 @@ public class LoadTest implements Serializable {
 
     private Long updateTime;
 
+    private String status;
+
     private static final long serialVersionUID = 1L;
 
     public String getId() {
@@ -73,5 +75,13 @@ public class LoadTest implements Serializable {
 
     public void setUpdateTime(Long updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status == null ? null : status.trim();
     }
 }
