@@ -7,9 +7,13 @@ public class TestResourcePool implements Serializable {
 
     private String name;
 
+    private String type;
+
     private String description;
 
     private String status;
+
+    private String info;
 
     private Long createTime;
 
@@ -33,6 +37,14 @@ public class TestResourcePool implements Serializable {
         this.name = name == null ? null : name.trim();
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type == null ? null : type.trim();
+    }
+
     public String getDescription() {
         return description;
     }
@@ -47,6 +59,14 @@ public class TestResourcePool implements Serializable {
 
     public void setStatus(String status) {
         this.status = status == null ? null : status.trim();
+    }
+
+    public String getInfo() {
+        return info;
+    }
+
+    public void setInfo(String info) {
+        this.info = info == null ? null : info.trim();
     }
 
     public Long getCreateTime() {

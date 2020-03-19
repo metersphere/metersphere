@@ -1,8 +1,14 @@
 package io.metersphere.controller;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.TestResourcePool;
+import io.metersphere.commons.utils.PageUtils;
+import io.metersphere.commons.utils.Pager;
+import io.metersphere.controller.request.resourcepool.QueryResourcePoolRequest;
 import io.metersphere.service.TestResourcePoolService;
 import org.springframework.web.bind.annotation.*;
+
 import javax.annotation.Resource;
 import java.util.List;
 
@@ -28,6 +34,9 @@ public class TestResourcePoolController {
         testResourcePoolService.updateTestResourcePool(testResourcePool);
     }
 
-    @GetMapping("/list")
-    public List<TestResourcePool> getTestResourcePoolList() { return testResourcePoolService.getTestResourcePoolList(); }
+    @PostMapping("list/{goPage}/{pageSize}")
+    public Pager<List<TestResourcePool>> listResourcePools(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryResourcePoolRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, testResourcePoolService.listResourcePools(request));
+    }
 }
