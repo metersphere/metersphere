@@ -7,6 +7,7 @@ import io.metersphere.base.mapper.LoadTestFileMapper;
 import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
 import io.metersphere.commons.constants.EngineType;
+import io.metersphere.commons.constants.TestStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.controller.request.testplan.*;
@@ -179,7 +180,9 @@ public class LoadTestService {
         }
 
         engine.start();
-
+        // 标记running状态
+        loadTest.setStatus(TestStatus.Running.name());
+        loadTestMapper.updateByPrimaryKeySelective(loadTest);
         // todo：通过调用stop方法能够停止正在运行的engine，但是如果部署了多个backend实例，页面发送的停止请求如何定位到具体的engine
     }
 
