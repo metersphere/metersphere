@@ -138,39 +138,39 @@ public class FuctionalTestService {
 
     public void run(RunTestPlanRequest request) {
         final FucTestWithBLOBs fucTest = fucTestMapper.selectByPrimaryKey(request.getId());
-        if (fucTest == null) {
-            MSException.throwException("无法运行测试，未找到测试：" + request.getId());
-        }
-
-        final FileMetadata fileMetadata = fileService.getFileMetadataByTestId(request.getId());
-        if (fileMetadata == null) {
-            MSException.throwException("无法运行测试，无法获取测试文件元信息，测试ID：" + request.getId());
-        }
-
-        final FileContent fileContent = fileService.getFileContent(fileMetadata.getId());
-        if (fileContent == null) {
-            MSException.throwException("无法运行测试，无法获取测试文件内容，测试ID：" + request.getId());
-        }
-
-        System.out.println("开始运行：" + fucTest.getName());
-        final Engine engine = EngineFactory.createEngine(fileMetadata.getType());
-        if (engine == null) {
-            MSException.throwException(String.format("无法运行测试，未识别测试文件类型，测试ID：%s，文件类型：%s",
-                    request.getId(),
-                    fileMetadata.getType()));
-        }
-
-        boolean init = true;
-        try {
-//            init = engine.init(EngineFactory.createContext(fucTest, fileMetadata, fileContent));
-        } catch (Exception e) {
-            MSException.throwException(e);
-        }
-        if (!init) {
-            MSException.throwException(String.format("无法运行测试，初始化运行环境失败，测试ID：%s", request.getId()));
-        }
-
-//        engine.start();
+//        if (fucTest == null) {
+//            MSException.throwException("无法运行测试，未找到测试：" + request.getId());
+//        }
+//
+//        final List<FileMetadata> fileMetadataList = fileService.getFileMetadataByTestId(request.getId());
+//        if (fileMetadataList == null) {
+//            MSException.throwException("无法运行测试，无法获取测试文件元信息，测试ID：" + request.getId());
+//        }
+//
+//        final FileContent fileContent = fileService.getFileContent(fileMetadata.getId());
+//        if (fileContent == null) {
+//            MSException.throwException("无法运行测试，无法获取测试文件内容，测试ID：" + request.getId());
+//        }
+//
+//        System.out.println("开始运行：" + fucTest.getName());
+//        final Engine engine = EngineFactory.createEngine(fileMetadata.getType());
+//        if (engine == null) {
+//            MSException.throwException(String.format("无法运行测试，未识别测试文件类型，测试ID：%s，文件类型：%s",
+//                    request.getId(),
+//                    fileMetadata.getType()));
+//        }
+//
+//        boolean init = true;
+//        try {
+////            init = engine.init(EngineFactory.createContext(fucTest, fileMetadata, fileContent));
+//        } catch (Exception e) {
+//            MSException.throwException(e);
+//        }
+//        if (!init) {
+//            MSException.throwException(String.format("无法运行测试，初始化运行环境失败，测试ID：%s", request.getId()));
+//        }
+//
+////        engine.start();
 
         /// todo：通过调用stop方法能够停止正在运行的engine，但是如果部署了多个backend实例，页面发送的停止请求如何定位到具体的engine
     }

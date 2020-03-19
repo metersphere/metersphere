@@ -7,6 +7,7 @@ import io.metersphere.base.mapper.LoadTestFileMapper;
 import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
 import io.metersphere.commons.constants.EngineType;
+import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.constants.TestStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
@@ -15,6 +16,8 @@ import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.engine.Engine;
 import io.metersphere.engine.EngineFactory;
 import io.metersphere.i18n.Translator;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -25,6 +28,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -52,20 +56,18 @@ public class LoadTestService {
         fileService.deleteFileByTestId(request.getId());
     }
 
-    public String save(SaveTestPlanRequest request, MultipartFile file) {
-        if (file == null) {
+    public String save(SaveTestPlanRequest request, List<MultipartFile> files) {
+        if (files == null) {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
         }
-
-        final FileMetadata fileMetadata = saveFile(file);
-
         final LoadTestWithBLOBs loadTest = saveLoadTest(request);
-
-        LoadTestFile loadTestFile = new LoadTestFile();
-        loadTestFile.setTestId(loadTest.getId());
-        loadTestFile.setFileId(fileMetadata.getId());
-        loadTestFileMapper.insert(loadTestFile);
-
+        files.forEach(file -> {
+            final FileMetadata fileMetadata = saveFile(file);
+            LoadTestFile loadTestFile = new LoadTestFile();
+            loadTestFile.setTestId(loadTest.getId());
+            loadTestFile.setFileId(fileMetadata.getId());
+            loadTestFileMapper.insert(loadTestFile);
+        });
         return loadTest.getId();
     }
 
@@ -98,7 +100,8 @@ public class LoadTestService {
         fileMetadata.setSize(file.getSize());
         fileMetadata.setCreateTime(System.currentTimeMillis());
         fileMetadata.setUpdateTime(System.currentTimeMillis());
-        fileMetadata.setType("JMX");
+        FileType fileType = getFileType(fileMetadata.getName());
+        fileMetadata.setType(fileType.name());
         // TODO engine 选择
         fileMetadata.setEngine(EngineType.DOCKER.name());
         fileMetadataMapper.insert(fileMetadata);
@@ -115,15 +118,30 @@ public class LoadTestService {
         return fileMetadata;
     }
 
-    public String edit(EditTestPlanRequest request, MultipartFile file) {
+    private FileType getFileType(String filename) {
+        int s = filename.lastIndexOf(".") + 1;
+        String type = filename.substring(s);
+        return FileType.valueOf(type.toUpperCase());
+    }
+
+    public String edit(EditTestPlanRequest request, List<MultipartFile> files) {
         // 新选择了一个文件，删除原来的文件
-        if (file != null) {
-            fileService.deleteFileByTestId(request.getId());
-            final FileMetadata fileMetadata = saveFile(file);
-            LoadTestFile loadTestFile = new LoadTestFile();
-            loadTestFile.setTestId(request.getId());
-            loadTestFile.setFileId(fileMetadata.getId());
-            loadTestFileMapper.insert(loadTestFile);
+        if (files != null) {
+            List<FileMetadata> updatedFiles = request.getUpdatedFileList();
+            List<FileMetadata> originFiles = fileService.getFileMetadataByTestId(request.getId());
+            List<String> updatedFileIds = updatedFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
+            List<String> originFileIds = originFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
+            // 相减
+            List<String> deleteFileIds = ListUtils.subtract(originFileIds, updatedFileIds);
+            fileService.deleteFileByIds(deleteFileIds);
+
+            files.forEach(file -> {
+                final FileMetadata fileMetadata = saveFile(file);
+                LoadTestFile loadTestFile = new LoadTestFile();
+                loadTestFile.setTestId(request.getId());
+                loadTestFile.setFileId(fileMetadata.getId());
+                loadTestFileMapper.insert(loadTestFile);
+            });
         }
 
         final LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(request.getId());
@@ -149,10 +167,14 @@ public class LoadTestService {
             MSException.throwException(Translator.get("run_load_test_not_found") + request.getId());
         }
 
-        final FileMetadata fileMetadata = fileService.getFileMetadataByTestId(request.getId());
-        if (fileMetadata == null) {
+        final List<FileMetadata> fileMetadataList = fileService.getFileMetadataByTestId(request.getId());
+        if (CollectionUtils.isEmpty(fileMetadataList)) {
             MSException.throwException(Translator.get("run_load_test_file_not_found") + request.getId());
         }
+        FileMetadata fileMetadata = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), "JMX"))
+                .findFirst().orElseGet(() -> {
+                    throw new RuntimeException(Translator.get("run_load_test_file_not_found") + request.getId());
+                });
 
         final FileContent fileContent = fileService.getFileContent(fileMetadata.getId());
         if (fileContent == null) {

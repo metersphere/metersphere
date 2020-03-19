@@ -1,10 +1,11 @@
 <template>
   <div v-loading="result.loading">
     <el-upload
-      accept=".jmx"
+      accept=".jmx,.csv"
       drag
       action=""
-      :limit="1"
+      :limit="5"
+      multiple
       :show-file-list="false"
       :before-upload="beforeUpload"
       :http-request="handleUpload"
@@ -32,12 +33,8 @@
         :label="$t('load_test.last_modify_time')">
         <template slot-scope="scope">
           <i class="el-icon-time"/>
-          <span class="last-modified">{{ scope.row.lastModified | timestampFormatDate }}</span>
+          <span class="last-modified">{{ scope.row.updateTime | timestampFormatDate }}</span>
         </template>
-      </el-table-column>
-      <el-table-column
-        prop="status"
-        :label="$t('load_test.file_status')">
       </el-table-column>
       <el-table-column
         :label="$t('commons.operating')">
@@ -66,6 +63,7 @@
         jmxDeletePath: '/testplan/file/delete',
         fileList: [],
         tableData: [],
+        uploadList: [],
       };
     },
     created() {
@@ -82,29 +80,20 @@
     },
     methods: {
       getFileMetadata(testPlan) {
-        this.fileList = [];// 一个测试只有一个文件
-        this.tableData = [];// 一个测试只有一个文件
+        this.fileList = [];
+        this.tableData = [];
         this.result = this.$get(this.getFileMetadataPath + "/" + testPlan.id, response => {
-          let file = response.data;
+          let files = response.data;
 
-          if (!file) {
+          if (!files) {
             Message.error({message: this.$t('load_test.related_file_not_found'), showClose: true});
             return;
           }
-
-          this.testPlan.file = file;
-          this.fileList.push({
-            id: file.id,
-            name: file.name
-          });
-
-          this.tableData.push({
-            id: file.id,
-            name: file.name,
-            size: file.size + 'Byte', /// todo: 按照大小显示Byte、KB、MB等
-            type: 'JMX',
-            lastModified: file.updateTime,
-            status: 'todo',
+          // deep copy
+          this.fileList = JSON.parse(JSON.stringify(files));
+          this.tableData = JSON.parse(JSON.stringify(files));
+          this.tableData.map(f => {
+            f.size = f.size + ' Bytes';
           });
         })
       },
@@ -114,18 +103,24 @@
           return false;
         }
 
+        if (this.tableData.filter(f => f.name === file.name).length > 0) {
+          this.$message.error(this.$t('load_test.delete_file'));
+          return false;
+        }
+
+        let type = file.name.substring(file.name.lastIndexOf(".") + 1);
+
         this.tableData.push({
           name: file.name,
-          size: file.size + 'Byte', /// todo: 按照大小显示Byte、KB、MB等
-          type: 'JMX',
-          lastModified: file.lastModified,
-          status: 'todo',
+          size: file.size + ' Bytes', /// todo: 按照大小显示Byte、KB、MB等
+          type: type.toUpperCase(),
+          updateTime: file.lastModified,
         });
 
         return true;
       },
       handleUpload(uploadResources) {
-        this.testPlan.file = uploadResources.file;
+        this.uploadList.push(uploadResources.file);
       },
       handleDownload(file) {
         let data = {
@@ -158,7 +153,7 @@
         });
       },
       handleDelete(file, index) {
-        this.$alert(this.$t('commons.delete_file_confirm') + file.name + "？", '', {
+        this.$alert(this.$t('load_test.delete_file_confirm') + file.name + "？", '', {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
@@ -170,7 +165,9 @@
       _handleDelete(file, index) {
         this.fileList.splice(index, 1);
         this.tableData.splice(index, 1);
-        this.testPlan.file = null;
+        //
+        let i = this.uploadList.indexOf(file);
+        this.uploadList.splice(i, 1);
       },
       handleExceed() {
         this.$message.error(this.$t('load_test.delete_file'));
@@ -179,6 +176,26 @@
         /// todo: 是否需要对文件内容和大小做限制
         return file.size > 0;
       },
+      updatedFileList() {
+        return this.fileList;// 表示修改了已经上传的文件列表
+      },
+      validConfig() {
+        let newJmxNum = 0, oldJmxNum = 0;
+        if (this.uploadList.length > 0) {
+          newJmxNum = this.uploadList.filter(f => f.name.endsWith(".jmx")).length;
+        }
+        if (this.fileList.length > 0) {
+          oldJmxNum = this.fileList.filter(f => f.name.endsWith(".jmx")).length;
+        }
+        if (newJmxNum + oldJmxNum !== 1) {
+          this.$message({
+            message: this.$t('load_test.jmx_is_null'),
+            type: 'error'
+          });
+          return false;
+        }
+        return true;
+      }
     },
   }
 </script>

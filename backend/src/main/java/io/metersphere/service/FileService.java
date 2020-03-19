@@ -29,7 +29,7 @@ public class FileService {
         return fileContent.getFile();
     }
 
-    public FileMetadata getFileMetadataByTestId(String testId) {
+    public List<FileMetadata> getFileMetadataByTestId(String testId) {
         LoadTestFileExample loadTestFileExample = new LoadTestFileExample();
         loadTestFileExample.createCriteria().andTestIdEqualTo(testId);
         final List<LoadTestFile> loadTestFiles = loadTestFileMapper.selectByExample(loadTestFileExample);
@@ -37,8 +37,10 @@ public class FileService {
         if (CollectionUtils.isEmpty(loadTestFiles)) {
             return null;
         }
-
-        return fileMetadataMapper.selectByPrimaryKey(loadTestFiles.get(0).getFileId());
+        List<String> fileIds = loadTestFiles.stream().map(LoadTestFile::getFileId).collect(Collectors.toList());
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andIdIn(fileIds);
+        return fileMetadataMapper.selectByExample(example);
     }
 
     public FileMetadata getFucFileMetadataByTestId(String testId) {
@@ -73,5 +75,18 @@ public class FileService {
             fileContentExample.createCriteria().andFileIdIn(fileIds);
             fileContentMapper.deleteByExample(fileContentExample);
         }
+    }
+
+    public void deleteFileByIds(List<String> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andIdIn(ids);
+        fileMetadataMapper.deleteByExample(example);
+
+        FileContentExample example2 = new FileContentExample();
+        example2.createCriteria().andFileIdIn(ids);
+        fileContentMapper.deleteByExample(example2);
     }
 }
