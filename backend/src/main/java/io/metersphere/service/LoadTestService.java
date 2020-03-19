@@ -126,15 +126,15 @@ public class LoadTestService {
 
     public String edit(EditTestPlanRequest request, List<MultipartFile> files) {
         // 新选择了一个文件，删除原来的文件
-        if (files != null) {
-            List<FileMetadata> updatedFiles = request.getUpdatedFileList();
-            List<FileMetadata> originFiles = fileService.getFileMetadataByTestId(request.getId());
-            List<String> updatedFileIds = updatedFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
-            List<String> originFileIds = originFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
-            // 相减
-            List<String> deleteFileIds = ListUtils.subtract(originFileIds, updatedFileIds);
-            fileService.deleteFileByIds(deleteFileIds);
+        List<FileMetadata> updatedFiles = request.getUpdatedFileList();
+        List<FileMetadata> originFiles = fileService.getFileMetadataByTestId(request.getId());
+        List<String> updatedFileIds = updatedFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
+        List<String> originFileIds = originFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
+        // 相减
+        List<String> deleteFileIds = ListUtils.subtract(originFileIds, updatedFileIds);
+        fileService.deleteFileByIds(deleteFileIds);
 
+        if (files != null) {
             files.forEach(file -> {
                 final FileMetadata fileMetadata = saveFile(file);
                 LoadTestFile loadTestFile = new LoadTestFile();
@@ -171,29 +171,24 @@ public class LoadTestService {
         if (CollectionUtils.isEmpty(fileMetadataList)) {
             MSException.throwException(Translator.get("run_load_test_file_not_found") + request.getId());
         }
-        FileMetadata fileMetadata = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), "JMX"))
+        FileMetadata fileMetadata = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.JMX.name()))
                 .findFirst().orElseGet(() -> {
                     throw new RuntimeException(Translator.get("run_load_test_file_not_found") + request.getId());
                 });
 
-        final FileContent fileContent = fileService.getFileContent(fileMetadata.getId());
-        if (fileContent == null) {
-            MSException.throwException(Translator.get("run_load_test_file_content_not_found") + request.getId());
-        }
+        List<FileMetadata> csvFiles = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.CSV.name())).collect(Collectors.toList());
 
         LogUtil.info("Load test started " + loadTest.getName());
         // engine type (DOCKER|KUBERNETES)
         // todo set type
         final Engine engine = EngineFactory.createEngine(fileMetadata.getEngine());
         if (engine == null) {
-            MSException.throwException(String.format("Test cannot be run，test ID：%s，file type：%s",
-                    request.getId(),
-                    fileMetadata.getType()));
+            MSException.throwException(String.format("Test cannot be run，test ID：%s，file type：%s", request.getId(), fileMetadata.getType()));
         }
 
         boolean init = true;
         try {
-            init = engine.init(EngineFactory.createContext(loadTest, fileMetadata, fileContent));
+            init = engine.init(EngineFactory.createContext(loadTest, fileMetadata, csvFiles));
         } catch (Exception e) {
             MSException.throwException(e);
         }
