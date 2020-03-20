@@ -190,7 +190,8 @@
             <div>{{$t('load_test.custom_http_code')}}</div>
           </el-form-item>
           <el-form-item>
-            <el-input size="mini" v-model="statusCodeStr" :placeholder="$t('load_test.separated_by_commas')" @input="checkStatusCode"></el-input>
+            <el-input size="mini" v-model="statusCodeStr" :placeholder="$t('load_test.separated_by_commas')"
+                      @input="checkStatusCode"></el-input>
           </el-form-item>
         </el-form>
       </el-col>
@@ -218,7 +219,7 @@
     },
     watch: {
       '$route'(to, from) {
-        if(from.name != 'createPerTest' || from.name != 'editPerTest'){
+        if (from.name !== 'createPerTest' && from.name !== 'editPerTest') {
           return;
         }
         let testId = to.path.split('/')[4];

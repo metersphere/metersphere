@@ -84,8 +84,8 @@
 
         let testId = to.path.split('/')[4]; // find testId
         if (testId) {
-          this.$get('/testplan/get/' + testId, response => {
-            if(response.data){
+          this.result = this.$get('/testplan/get/' + testId, response => {
+            if (response.data) {
               this.testPlan = response.data;
             }
           });
@@ -96,7 +96,7 @@
     created() {
       let testId = this.$route.path.split('/')[4];
       if (testId) {
-        this.$get('/testplan/get/' + testId, response => {
+        this.result = this.$get('/testplan/get/' + testId, response => {
           this.testPlan = response.data;
         });
       }
@@ -151,9 +151,13 @@
         let formData = new FormData();
         let url = this.testPlan.id ? this.editPath : this.savePath;
 
-        if (!this.testPlan.file.id) {
-          formData.append("file", this.testPlan.file);
+        if (this.$refs.basicConfig.uploadList.length > 0) {
+          this.$refs.basicConfig.uploadList.forEach(f => {
+            formData.append("file", f);
+          });
         }
+        // 基本配置
+        this.testPlan.updatedFileList = this.$refs.basicConfig.updatedFileList();
         // 压力配置
         this.testPlan.loadConfiguration = JSON.stringify(this.$refs.pressureConfig.convertProperty());
         // 高级配置
@@ -199,12 +203,7 @@
           return false;
         }
 
-        if (!this.testPlan.file) {
-          this.$message({
-            message: this.$t('load_test.jmx_is_null'),
-            type: 'error'
-          });
-
+        if (!this.$refs.basicConfig.validConfig()) {
           return false;
         }
 

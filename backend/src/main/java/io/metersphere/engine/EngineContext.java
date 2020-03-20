@@ -11,6 +11,7 @@ public class EngineContext {
     private String fileType;
     private String content;
     private Map<String, Object> properties = new HashMap<>();
+    private Map<String, String> testData = new HashMap<>();
 
     public String getTestId() {
         return testId;
@@ -66,5 +67,13 @@ public class EngineContext {
 
     public void setFileType(String fileType) {
         this.fileType = fileType;
+    }
+
+    public Map<String, String> getTestData() {
+        return testData;
+    }
+
+    public void setTestData(Map<String, String> testData) {
+        this.testData = testData;
     }
 }

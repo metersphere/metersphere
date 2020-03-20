@@ -50,17 +50,17 @@ public class LoadTestController {
     @PostMapping(value = "/save", consumes = {"multipart/form-data"})
     public String save(
             @RequestPart("request") SaveTestPlanRequest request,
-            @RequestPart(value = "file") MultipartFile file
+            @RequestPart(value = "file") List<MultipartFile> files
     ) {
-        return loadTestService.save(request, file);
+        return loadTestService.save(request, files);
     }
 
     @PostMapping(value = "/edit", consumes = {"multipart/form-data"})
     public String edit(
             @RequestPart("request") EditTestPlanRequest request,
-            @RequestPart(value = "file", required = false) MultipartFile file
+            @RequestPart(value = "file", required = false) List<MultipartFile> files
     ) {
-        return loadTestService.edit(request, file);
+        return loadTestService.edit(request, files);
     }
 
     @GetMapping("/get/{testId}")
@@ -89,7 +89,7 @@ public class LoadTestController {
     }
 
     @GetMapping("/file/metadata/{testId}")
-    public FileMetadata getFileMetadata(@PathVariable String testId) {
+    public List<FileMetadata> getFileMetadata(@PathVariable String testId) {
         return fileService.getFileMetadataByTestId(testId);
     }
 
