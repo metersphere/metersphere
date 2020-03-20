@@ -69,18 +69,78 @@
       </div>
     </el-card>
 
-    <el-dialog title="创建资源池" :visible.sync="createVisible" width="30%" @closed="closeFunc" :destroy-on-close="true">
+    <el-dialog title="创建资源池" :visible.sync="createVisible" width="70%" @closed="closeFunc" :destroy-on-close="true">
       <el-form :model="form" label-position="left" label-width="100px" size="small" :rules="rule"
                ref="createTestResourcePoolForm">
         <el-form-item label="名称" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
-        <el-form-item label="资源类型" prop="type">
-          <el-input v-model="form.type" autocomplete="off"/>
-        </el-form-item>
         <el-form-item label="描述" prop="description">
           <el-input v-model="form.description" autocomplete="off"/>
         </el-form-item>
+        <el-form-item label="资源类型" prop="type">
+          <el-select v-model="form.type" placeholder="选择资源类型" @change="changeResourceType()">
+            <el-option key="K8S" value="K8S" label="Kubernetes">Kubernetes</el-option>
+            <el-option key="NODE" value="NODE" label="独立节点">独立节点</el-option>
+          </el-select>
+        </el-form-item>
+        <div v-for="(item,index) in infoList " :key="index">
+          <div class="current-row" v-if="form.type === 'K8S'">
+            <div style="width: 35%;float: left">
+              <label class="el-form-item__label">Master URL</label>
+              <div class="el-form-item__content" style="margin-left: 100px">
+                <input v-model="item.masterUrl" autocomplete="off" class="el-input__inner form-input"/>
+              </div>
+            </div>
+            <div style="width: 35%;float: left">
+              <label class="el-form-item__label" style="padding-left: 20px">Token</label>
+              <div class="el-form-item__content" style="margin-left: 100px">
+                <input v-model="item.token" autocomplete="off" class="el-input__inner form-input"/>
+              </div>
+            </div>
+            <div style="width: 30%;float: left">
+              <label class="el-form-item__label" style="padding-left: 20px">最大并发数</label>
+              <div class="el-form-item__content" style="margin-left: 102px">
+                <input v-model="item.maxConcurrency" autocomplete="off" type="number"
+                       class="el-input__inner form-input"/>
+              </div>
+            </div>
+          </div>
+          <div class="current-row" v-if="form.type === 'NODE'">
+            <div style="width: 42%;float: left">
+              <label class="el-form-item__label">IP</label>
+              <div class="el-form-item__content" style="margin-left: 100px">
+                <input v-model="item.ip" autocomplete="off" class="el-input__inner form-input"/>
+              </div>
+            </div>
+            <div style="width: 20%;float: left">
+              <label class="el-form-item__label" style="padding-left: 20px">port</label>
+              <div class="el-form-item__content" style="margin-left: 100px">
+                <input v-model="item.port" autocomplete="off" type="number" class="el-input__inner form-input"/>
+              </div>
+            </div>
+            <div style="width: 20%;float: left">
+              <label class="el-form-item__label" style="padding-left: 20px">最大并发数</label>
+              <div class="el-form-item__content" style="margin-left: 102px">
+                <input v-model="item.maxConcurrency" autocomplete="off" type="number"
+                       class="el-input__inner form-input"/>
+              </div>
+            </div>
+            <div class="op">
+                <span class="box">
+                    <el-button @click="addResourceInfo()" type="primary" size="mini" circle>
+                        <font-awesome-icon :icon="['fas', 'plus']"/>
+                    </el-button>
+                </span>
+              <span class="box">
+                    <el-button @click="removeResourceInfo(index)" type="primary" size="mini" circle>
+                        <font-awesome-icon :icon="['fas', 'minus']"/>
+                    </el-button>
+                </span>
+            </div>
+          </div>
+        </div>
+
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="createTestResourcePool('createTestResourcePoolForm')"
@@ -88,7 +148,7 @@
       </span>
     </el-dialog>
 
-    <el-dialog title="修改资源池" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
+    <el-dialog title="修改资源池" :visible.sync="updateVisible" width="70%" :destroy-on-close="true" @close="closeFunc">
       <el-form :model="form" label-position="left" label-width="100px" size="small" :rules="rule"
                ref="updateTestResourcePoolForm">
         <el-form-item label="名称" prop="name">
@@ -97,6 +157,68 @@
         <el-form-item label="描述" prop="description">
           <el-input v-model="form.description" autocomplete="off"/>
         </el-form-item>
+        <el-form-item label="资源类型" prop="type">
+          <el-select v-model="form.type" placeholder="选择资源类型">
+            <el-option key="K8S" value="K8S" label="Kubernetes">Kubernetes</el-option>
+            <el-option key="NODE" value="NODE" label="独立节点">独立节点</el-option>
+          </el-select>
+        </el-form-item>
+        <div v-for="(item,index) in infoList " :key="index">
+          <div class="current-row" v-if="form.type === 'K8S'">
+            <div style="width: 35%;float: left">
+              <label class="el-form-item__label">Master URL</label>
+              <div class="el-form-item__content" style="margin-left: 100px">
+                <input v-model="item.masterUrl" autocomplete="off" class="el-input__inner form-input"/>
+              </div>
+            </div>
+            <div style="width: 35%;float: left">
+              <label class="el-form-item__label" style="padding-left: 20px">Token</label>
+              <div class="el-form-item__content" style="margin-left: 100px">
+                <input v-model="item.token" autocomplete="off" class="el-input__inner form-input"/>
+              </div>
+            </div>
+            <div style="width: 30%;float: left">
+              <label class="el-form-item__label" style="padding-left: 20px">最大并发数</label>
+              <div class="el-form-item__content" style="margin-left: 102px">
+                <input v-model="item.maxConcurrency" autocomplete="off" type="number"
+                       class="el-input__inner form-input"/>
+              </div>
+            </div>
+          </div>
+          <div class="current-row" v-if="form.type === 'NODE'">
+            <div style="width: 42%;float: left">
+              <label class="el-form-item__label">IP</label>
+              <div class="el-form-item__content" style="margin-left: 100px">
+                <input v-model="item.ip" autocomplete="off" class="el-input__inner form-input"/>
+              </div>
+            </div>
+            <div style="width: 20%;float: left">
+              <label class="el-form-item__label" style="padding-left: 20px">port</label>
+              <div class="el-form-item__content" style="margin-left: 100px">
+                <input v-model="item.port" autocomplete="off" type="number" class="el-input__inner form-input"/>
+              </div>
+            </div>
+            <div style="width: 20%;float: left">
+              <label class="el-form-item__label" style="padding-left: 20px">最大并发数</label>
+              <div class="el-form-item__content" style="margin-left: 102px">
+                <input v-model="item.maxConcurrency" autocomplete="off" type="number"
+                       class="el-input__inner form-input"/>
+              </div>
+            </div>
+            <div class="op">
+                <span class="box">
+                    <el-button @click="addResourceInfo()" type="primary" size="mini" circle>
+                        <font-awesome-icon :icon="['fas', 'plus']"/>
+                    </el-button>
+                </span>
+              <span class="box">
+                    <el-button @click="removeResourceInfo(index)" type="primary" size="mini" circle>
+                        <font-awesome-icon :icon="['fas', 'minus']"/>
+                    </el-button>
+                </span>
+            </div>
+          </div>
+        </div>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="updateTestResourcePool('updateTestResourcePoolForm')"
@@ -117,9 +239,12 @@
       return {
         loading: false,
         createVisible: false,
+        infoList: [],
         updateVisible: false,
         btnTips: "添加资源池",
-        queryPath:"testresourcepool/list",
+        btnTipsAdd: "添加",
+        btnTipsDel: "删除",
+        queryPath: "testresourcepool/list",
         condition: "",
         items: [],
         currentPage: 1,
@@ -144,7 +269,6 @@
       }
     },
     created() {
-      this.getTestResourcePoolList();
       this.initTableData();
     },
     methods: {
@@ -160,6 +284,24 @@
           this.total = data.itemCount;
           this.loading = false;
         })
+      },
+      changeResourceType() {
+        this.infoList = [];
+        this.infoList.push({})
+      },
+
+      addResourceInfo() {
+        this.infoList.push({})
+      },
+      removeResourceInfo(index) {
+        if (this.infoList.length > 1) {
+          this.infoList.splice(index, 1)
+        } else {
+          this.$message({
+            type: 'warning',
+            message: "不能删除所有独立节点"
+          });
+        }
       },
       buildPagePath(path) {
         return path + "/" + this.currentPage + "/" + this.pageSize;
@@ -180,7 +322,8 @@
         window.console.log(row);
         // this.loading = true;
         this.updateVisible = true;
-        this.form = row;
+        this.form = JSON.parse(JSON.stringify(row));
+        this.infoList = JSON.parse(this.form.info);
       },
       del(row) {
         window.console.log(row);
@@ -190,7 +333,7 @@
           type: 'warning'
         }).then(() => {
           this.$get(`/testresourcepool/delete/${row.id}`).then(() => {
-            this.getTestResourcePoolList()
+            this.initTableData();
           });
           this.$message({
             type: 'success',
@@ -206,6 +349,7 @@
       createTestResourcePool(createTestResourcePoolForm) {
         this.$refs[createTestResourcePoolForm].validate(valide => {
           if (valide) {
+            this.form.info = JSON.stringify(this.infoList);
             this.$post("/testresourcepool/add", this.form)
               .then(() => {
                 this.$message({
@@ -213,7 +357,7 @@
                     message: '添加成功!'
                   },
                   this.createVisible = false,
-                  this.getTestResourcePoolList())
+                  this.initTableData())
               });
           } else {
             return false;
@@ -223,6 +367,7 @@
       updateTestResourcePool(updateTestResourcePoolForm) {
         this.$refs[updateTestResourcePoolForm].validate(valide => {
           if (valide) {
+            this.form.info = JSON.stringify(this.infoList);
             this.$post("/testresourcepool/update", this.form)
               .then(() => {
                 this.$message({
@@ -230,17 +375,12 @@
                     message: this.$t('commons.modify_success')
                   },
                   this.updateVisible = false,
-                  this.getOrganizationList(),
+                  this.initTableData(),
                   self.loading = false)
               });
           } else {
             return false;
           }
-        })
-      },
-      getTestResourcePoolList() {
-        this.$get("/testresourcepool/list").then(response => {
-          this.items = response.data.data;
         })
       },
       closeFunc() {
@@ -262,9 +402,24 @@
   .search {
     width: 240px;
   }
+
+  .form-input {
+    height: 32px !important;
+  }
+
   .table-page {
     padding-top: 20px;
     margin-right: -9px;
     float: right;
+  }
+
+  .op {
+    line-height: 40px;
+    float: left;
+    width: 16%;
+  }
+
+  .box {
+    padding-left: 5px;
   }
 </style>
