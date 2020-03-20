@@ -19,7 +19,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class EngineFactory {
@@ -68,10 +70,12 @@ public class EngineFactory {
         engineContext.setContent(content);
 
         if (CollectionUtils.isNotEmpty(csvFiles)) {
+            Map<String, String> data = new HashMap<>();
             csvFiles.forEach(cf -> {
                 FileContent csvContent = fileService.getFileContent(cf.getId());
-                engineContext.addProperty(cf.getName(), new String(csvContent.getFile()));
+                data.put(cf.getName(), new String(csvContent.getFile()));
             });
+            engineContext.setTestData(data);
         }
 
         return engineContext;

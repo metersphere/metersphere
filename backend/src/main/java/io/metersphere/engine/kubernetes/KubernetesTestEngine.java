@@ -11,6 +11,7 @@ import io.metersphere.engine.kubernetes.crds.jmeter.Jmeter;
 import io.metersphere.engine.kubernetes.crds.jmeter.JmeterSpec;
 import io.metersphere.engine.kubernetes.provider.ClientCredential;
 import io.metersphere.engine.kubernetes.provider.KubernetesProvider;
+import org.apache.commons.collections.MapUtils;
 
 import java.util.HashMap;
 
@@ -48,6 +49,9 @@ public class KubernetesTestEngine implements Engine {
                 }});
                 item.setData(new HashMap<String, String>() {{
                     put(context.getTestId() + ".jmx", context.getContent());
+                    if (MapUtils.isNotEmpty(context.getTestData())) {
+                        putAll(context.getTestData());
+                    }
                 }});
                 client.configMaps().inNamespace(context.getNamespace()).create(item);
             }
