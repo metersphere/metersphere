@@ -84,7 +84,7 @@
 
         let testId = to.path.split('/')[4]; // find testId
         if (testId) {
-          this.$get('/testplan/get/' + testId, response => {
+          this.result = this.$get('/testplan/get/' + testId, response => {
             if (response.data) {
               this.testPlan = response.data;
             }
@@ -96,7 +96,7 @@
     created() {
       let testId = this.$route.path.split('/')[4];
       if (testId) {
-        this.$get('/testplan/get/' + testId, response => {
+        this.result = this.$get('/testplan/get/' + testId, response => {
           this.testPlan = response.data;
         });
       }

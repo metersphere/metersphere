@@ -113,7 +113,7 @@
     },
     watch: {
       '$route'(to, from) {
-        if(from.name != 'createPerTest' || from.name != 'editPerTest'){
+        if (from.name !== 'createPerTest' && from.name !== 'editPerTest') {
           return;
         }
         let testId = to.path.split('/')[4];
@@ -126,7 +126,7 @@
     },
     methods: {
       getLoadConfig(testId) {
-        if(testId) {
+        if (testId) {
 
           this.$get('/testplan/get-load-config/' + testId, (response) => {
             if (response.data && response.data != "") {
