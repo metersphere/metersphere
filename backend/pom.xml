@@ -152,24 +152,12 @@
             <artifactId>jmeter-plugins-casutg</artifactId>
             <version>2.9</version>
         </dependency>
-        <!-- jmeter graph -->
-        <dependency>
-            <groupId>kg.apc</groupId>
-            <artifactId>jmeter-plugins-cmd</artifactId>
-            <version>2.2</version>
-        </dependency>
-        <dependency>
-            <groupId>kg.apc</groupId>
-            <artifactId>jmeter-plugins-synthesis</artifactId>
-            <version>2.2</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/kg.apc/jmeter-plugins-standard -->
-        <dependency>
-            <groupId>kg.apc</groupId>
-            <artifactId>jmeter-plugins-standard</artifactId>
-            <version>1.4.0</version>
-        </dependency>
 
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>5.1</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
