@@ -69,7 +69,8 @@
       </div>
     </el-card>
 
-    <el-dialog title="创建资源池" :visible.sync="createVisible" width="70%" @closed="closeFunc" :destroy-on-close="true">
+    <el-dialog v-loading="testLoading" title="创建资源池" :visible.sync="createVisible" width="70%" @closed="closeFunc"
+               :destroy-on-close="true">
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
                ref="createTestResourcePoolForm">
         <el-form-item label="名称" prop="name">
@@ -143,7 +144,8 @@
       </span>
     </el-dialog>
 
-    <el-dialog title="修改资源池" :visible.sync="updateVisible" width="70%" :destroy-on-close="true" @close="closeFunc">
+    <el-dialog v-loading="testLoading" title="修改资源池" :visible.sync="updateVisible" width="70%" :destroy-on-close="true"
+               @close="closeFunc">
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
                ref="updateTestResourcePoolForm">
         <el-form-item label="名称" prop="name">
@@ -225,6 +227,7 @@
     data() {
       return {
         loading: false,
+        testLoading: false,
         createVisible: false,
         infoList: [],
         updateVisible: false,
@@ -363,6 +366,7 @@
           if (valide) {
             let vri = this.validateResourceInfo();
             if (vri.validate) {
+              this.testLoading = true;
               this.form.info = JSON.stringify(this.infoList);
               this.$post("/testresourcepool/add", this.form)
                 .then(() => {
@@ -371,13 +375,15 @@
                       message: '添加成功!'
                     },
                     this.createVisible = false,
-                    this.initTableData())
+                    this.initTableData());
+                  this.testLoading = false;
                 });
             } else {
               this.$message({
                 type: 'warning',
                 message: vri.msg
               });
+              this.testLoading = false;
               return false;
             }
 
@@ -389,6 +395,7 @@
       updateTestResourcePool(updateTestResourcePoolForm) {
         this.$refs[updateTestResourcePoolForm].validate(valide => {
           if (valide) {
+            this.testLoading = true;
             let vri = this.validateResourceInfo();
             if (vri.validate) {
               this.form.info = JSON.stringify(this.infoList);
@@ -400,13 +407,15 @@
                     },
                     this.updateVisible = false,
                     this.initTableData(),
-                    self.loading = false)
+                    self.loading = false);
+                  this.testLoading = false;
                 });
             } else {
               this.$message({
                 type: 'warning',
                 message: vri.msg
               });
+              this.testLoading = false;
               return false;
             }
           } else {
