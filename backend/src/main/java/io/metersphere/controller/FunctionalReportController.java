@@ -51,10 +51,4 @@ public class FunctionalReportController {
         return functionalReportService.getReportTestAndProInfo(reportId);
     }
 
-    @GetMapping("/test/log/{reportId}")
-    public FucTestLog getTestLog(@PathVariable String reportId) {
-        return functionalReportService.getTestLog(reportId);
-    }
-
-
 }

@@ -23,8 +23,6 @@ public class FunctionalReportService {
     private FucTestReportMapper fucTestReportMapper;
     @Resource
     private ExtFunctionalTestReportMapper extFunctionalTestReportMapper;
-    @Resource
-    private ZaleniumService zaleniumService;
 
     public List<FucTestReport> getRecentReportList(ReportRequest request) {
         FucTestReportExample example = new FucTestReportExample();
@@ -44,11 +42,4 @@ public class FunctionalReportService {
         return extFunctionalTestReportMapper.getReportTestAndProInfo(reportId);
     }
 
-    public FucTestLog getTestLog(String reportId) {
-        FucTestReport fucTestReport = fucTestReportMapper.selectByPrimaryKey(reportId);
-        String content = fucTestReport.getContent();
-        String endpoint = "http://localhost:4444";
-        FucTestLog fucTestLogs = JSON.parseObject(content, FucTestLog.class);
-        return zaleniumService.getFucTestLog(endpoint, fucTestLogs);
-    }
 }
