@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.engine.Engine;
 import io.metersphere.engine.EngineContext;
@@ -11,17 +12,21 @@ import io.metersphere.engine.kubernetes.crds.jmeter.Jmeter;
 import io.metersphere.engine.kubernetes.crds.jmeter.JmeterSpec;
 import io.metersphere.engine.kubernetes.provider.ClientCredential;
 import io.metersphere.engine.kubernetes.provider.KubernetesProvider;
+import io.metersphere.service.TestResourcePoolService;
 import org.apache.commons.collections.MapUtils;
+import org.junit.Test;
 
 import java.util.HashMap;
 
 public class KubernetesTestEngine implements Engine {
     private EngineContext context;
+    private TestResourcePoolService testResourcePoolService;
 
     @Override
     public boolean init(EngineContext context) {
         // todo 初始化操作
         this.context = context;
+        this.testResourcePoolService = CommonBeanFactory.getBean(TestResourcePoolService.class);
         return true;
     }
 

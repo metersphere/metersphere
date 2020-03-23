@@ -207,6 +207,10 @@
           return false;
         }
 
+        if (!this.$refs.pressureConfig.validConfig()) {
+          return false;
+        }
+
         if (!this.$refs.advancedConfig.validConfig()) {
           return false;
         }
