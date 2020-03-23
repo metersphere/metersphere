@@ -7,7 +7,6 @@ public class EngineContext {
     private String testId;
     private String testName;
     private String namespace;
-    private String engineType;
     private String fileType;
     private String content;
     private Map<String, Object> properties = new HashMap<>();
@@ -35,14 +34,6 @@ public class EngineContext {
 
     public void setNamespace(String namespace) {
         this.namespace = namespace;
-    }
-
-    public String getEngineType() {
-        return engineType;
-    }
-
-    public void setEngineType(String engineType) {
-        this.engineType = engineType;
     }
 
     public void addProperty(String key, Object value) {

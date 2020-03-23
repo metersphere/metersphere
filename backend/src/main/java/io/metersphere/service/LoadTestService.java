@@ -6,7 +6,6 @@ import io.metersphere.base.mapper.FileMetadataMapper;
 import io.metersphere.base.mapper.LoadTestFileMapper;
 import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
-import io.metersphere.commons.constants.EngineType;
 import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.constants.TestStatus;
 import io.metersphere.commons.exception.MSException;
@@ -45,6 +44,8 @@ public class LoadTestService {
     private LoadTestFileMapper loadTestFileMapper;
     @Resource
     private FileService fileService;
+    @Resource
+    private TestResourcePoolService testResourcePoolService;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         return extLoadTestMapper.list(request);
@@ -102,8 +103,6 @@ public class LoadTestService {
         fileMetadata.setUpdateTime(System.currentTimeMillis());
         FileType fileType = getFileType(fileMetadata.getName());
         fileMetadata.setType(fileType.name());
-        // TODO engine 选择
-        fileMetadata.setEngine(EngineType.DOCKER.name());
         fileMetadataMapper.insert(fileMetadata);
 
         FileContent fileContent = new FileContent();
@@ -179,9 +178,8 @@ public class LoadTestService {
         List<FileMetadata> csvFiles = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.CSV.name())).collect(Collectors.toList());
 
         LogUtil.info("Load test started " + loadTest.getName());
-        // engine type (DOCKER|KUBERNETES)
-        // todo set type
-        final Engine engine = EngineFactory.createEngine(fileMetadata.getEngine());
+        // engine type (NODE|K8S)
+        final Engine engine = EngineFactory.createEngine(loadTest);
         if (engine == null) {
             MSException.throwException(String.format("Test cannot be run，test ID：%s，file type：%s", request.getId(), fileMetadata.getType()));
         }

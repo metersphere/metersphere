@@ -14,7 +14,6 @@ import io.metersphere.engine.kubernetes.provider.ClientCredential;
 import io.metersphere.engine.kubernetes.provider.KubernetesProvider;
 import io.metersphere.service.TestResourcePoolService;
 import org.apache.commons.collections.MapUtils;
-import org.junit.Test;
 
 import java.util.HashMap;
 

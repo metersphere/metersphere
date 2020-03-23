@@ -3,12 +3,9 @@ package io.metersphere.service;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtFunctionalTestMapper;
-import io.metersphere.commons.constants.EngineType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.request.testplan.*;
 import io.metersphere.dto.FunctionalTestDTO;
-import io.metersphere.engine.Engine;
-import io.metersphere.engine.EngineFactory;
 import io.metersphere.i18n.Translator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -94,8 +91,6 @@ public class FuctionalTestService {
         fileMetadata.setCreateTime(System.currentTimeMillis());
         fileMetadata.setUpdateTime(System.currentTimeMillis());
         fileMetadata.setType("jmx");
-        // TODO engine 选择
-        fileMetadata.setEngine(EngineType.DOCKER.name());
         fileMetadataMapper.insert(fileMetadata);
 
         FileContent fileContent = new FileContent();

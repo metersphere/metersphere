@@ -113,4 +113,8 @@ public class TestResourcePoolService {
         }
         testResourcePool.setInfo(JSON.toJSONString(dtos));
     }
+
+    public TestResourcePool getResourcePool(String resourcePoolId) {
+        return testResourcePoolMapper.selectByPrimaryKey(resourcePoolId);
+    }
 }
