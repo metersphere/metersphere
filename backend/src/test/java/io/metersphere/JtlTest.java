@@ -209,6 +209,7 @@ public class JtlTest {
             Map.Entry<String, List<Metric>> entry = iterator.next();
             String label = entry.getKey();
             List<Metric> list = entry.getValue();
+            List<String> timestampList = list.stream().map(Metric::getTimestamp).collect(Collectors.toList());
             int index=0;
             //总的响应时间
             int sumElapsed=0;
@@ -248,7 +249,7 @@ public class JtlTest {
             Integer tp95 = elapsedList.size()*95/100;
             Integer tp99 = elapsedList.size()*99/100;
 
-//        Long l = timestampList.get(index-1) - timestampList.get(0);
+            Long l = Long.valueOf(timestampList.get(index-1)) - Long.valueOf(timestampList.get(0));
 
             RequestStatistics sceneResult = new RequestStatistics();
             sceneResult.setRequestLabel(label);
@@ -260,7 +261,7 @@ public class JtlTest {
             sceneResult.setMin(elapsedList.get(0)+"");
             sceneResult.setMax(elapsedList.get(index-1)+"");
             sceneResult.setErrors(String.format("%.2f",failSize*100.0/index)+"%");
-//        sceneResult.setKbPerSec(String.format("%.2f",totalBytes*1.0/1024/(l*1.0/1000)));
+            sceneResult.setKbPerSec(String.format("%.2f",totalBytes*1.0/1024/(l*1.0/1000)));
             System.out.println(JSONObject.toJSONString(sceneResult));
 
             System.out.println();

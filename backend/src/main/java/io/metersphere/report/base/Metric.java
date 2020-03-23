@@ -5,39 +5,39 @@ import com.opencsv.bean.CsvBindByName;
 public class Metric {
     //    timestamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
 
-    @CsvBindByName(column = "timestamp")
+    @CsvBindByName(column = "timestamp") // 访问开始时间
     private String timestamp;
-    @CsvBindByName(column = "elapsed")
+    @CsvBindByName(column = "elapsed") // 访问开始到结束的用时 - 响应时间
     private String elapsed;
-    @CsvBindByName(column = "label")
+    @CsvBindByName(column = "label") // 请求的标签
     private String label;
-    @CsvBindByName(column = "responseCode")
+    @CsvBindByName(column = "responseCode") // 响应码
     private String responseCode;
-    @CsvBindByName(column = "responseMessage")
+    @CsvBindByName(column = "responseMessage") // 响应信息
     private String responseMessage;
-    @CsvBindByName(column = "threadName")
+    @CsvBindByName(column = "threadName") // 请求所属线程
     private String threadName;
-    @CsvBindByName(column = "dataType")
+    @CsvBindByName(column = "dataType") // 数据类型
     private String dataType;
-    @CsvBindByName(column = "success")
+    @CsvBindByName(column = "success") // 访问是否成功
     private String success;
-    @CsvBindByName(column = "failureMessage")
+    @CsvBindByName(column = "failureMessage") // 访问失败信息
     private String failureMessage;
-    @CsvBindByName(column = "bytes")
+    @CsvBindByName(column = "bytes") //
     private String bytes;
-    @CsvBindByName(column = "sentBytes")
+    @CsvBindByName(column = "sentBytes") //
     private String sentBytes;
-    @CsvBindByName(column = "grpThreads")
+    @CsvBindByName(column = "grpThreads") // 线程组
     private String grpThreads;
-    @CsvBindByName(column = "allThreads")
+    @CsvBindByName(column = "allThreads") //
     private String allThreads;
-    @CsvBindByName(column = "URL")
+    @CsvBindByName(column = "URL") //
     private String url;
-    @CsvBindByName(column = "Latency")
+    @CsvBindByName(column = "Latency") // 延时
     private String latency;
-    @CsvBindByName(column = "IdleTime")
+    @CsvBindByName(column = "IdleTime") // 闲置时间
     private String idleTime;
-    @CsvBindByName(column = "Connect")
+    @CsvBindByName(column = "Connect") //
     private String connect;
 
 
