@@ -26,7 +26,7 @@
       </el-table>
 
       <el-dialog :title="$t('member.modify_personal_info')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
-        <el-form :model="form" label-position="left" label-width="100px" size="small" :rules="rule" ref="updateUserForm">
+        <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule" ref="updateUserForm">
           <el-form-item label="ID" prop="id">
             <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
           </el-form-item>

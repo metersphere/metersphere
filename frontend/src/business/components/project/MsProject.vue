@@ -46,7 +46,7 @@
       </el-card>
 
       <el-dialog :title="title" :visible.sync="createVisible">
-        <el-form :model="form" :rules="rules" ref="form" label-position="left" label-width="100px" size="small">
+        <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="100px" size="small">
           <el-form-item :label="$t('commons.name')">
             <el-input v-model="form.name" autocomplete="off"></el-input>
           </el-form-item>

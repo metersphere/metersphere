@@ -53,7 +53,7 @@
 
     <!-- add workspace dialog -->
     <el-dialog :title="$t('workspace.create')" :visible.sync="createVisible" width="30%">
-      <el-form :model="form" :rules="rules" ref="form" label-position="left" label-width="100px" size="small">
+      <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="100px" size="small">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
@@ -78,7 +78,7 @@
 
     <!-- update workspace dialog -->
     <el-dialog :title="$t('workspace.update')" :visible.sync="updateVisible" width="30%">
-      <el-form :model="form" :rules="rules" ref="updateForm" label-position="left" label-width="100px" size="small">
+      <el-form :model="form" :rules="rules" ref="updateForm" label-position="right" label-width="100px" size="small">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
@@ -154,7 +154,7 @@
 
     <!-- add workspace member dialog -->
     <el-dialog :title="$t('member.create')" :visible.sync="addMemberVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
-      <el-form :model="memberForm" ref="form" :rules="wsMemberRule" label-position="left" label-width="100px" size="small">
+      <el-form :model="memberForm" ref="form" :rules="wsMemberRule" label-position="right" label-width="100px" size="small">
         <el-form-item :label="$t('commons.member')" prop="userIds">
           <el-select v-model="memberForm.userIds" multiple :placeholder="$t('member.please_choose_member')" class="select-width">
             <el-option
@@ -185,7 +185,7 @@
 
     <!-- update workspace member dialog -->
     <el-dialog :title="$t('member.modify')" :visible.sync="updateMemberVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
-      <el-form :model="memberForm" label-position="left" label-width="100px" size="small" ref="updateUserForm">
+      <el-form :model="memberForm" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="memberForm.id" autocomplete="off" :disabled="true"/>
         </el-form-item>
