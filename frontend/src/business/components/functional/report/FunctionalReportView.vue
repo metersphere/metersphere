@@ -35,10 +35,10 @@
 
         <el-tabs v-model="active" type="border-card" :stretch="true">
           <el-tab-pane :label="$t('report.test_details')">
-            <result-details v-if="isRouterAlive" :video-url="videoUrl" />
+            <result-details />
           </el-tab-pane>
           <el-tab-pane :label="$t('report.test_log_details')">
-            <ms-report-log-details :report-id="report.id"/>
+            <ms-report-log-details />
           </el-tab-pane>
         </el-tabs>
 
@@ -62,9 +62,7 @@
         result: {},
         active: '0',
         videoPath: '',
-        videoUrl: null,
-        report: {},
-        isRouterAlive: true //控制视图是否显示的变量
+        report: {}
       }
     },
     methods: {
@@ -75,17 +73,9 @@
             if(data){
               this.report = data;
               this.report.content = JSON.parse(this.report.content);
-              this.videoUrl = 'proxy/localhost:4444/' + this.report.content.videoUrl;
-              this.reload();//重新渲染组件
             }
           });
         }
-      },
-      reload () {
-        this.isRouterAlive = false;//先关闭，
-        this.$nextTick(function () {
-          this.isRouterAlive = true;//再打开
-        })
       }
     },
     mounted() {
