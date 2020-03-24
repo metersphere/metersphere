@@ -40,4 +40,13 @@ public class TestResourcePoolController {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testResourcePoolService.listResourcePools(request));
     }
+
+    @GetMapping("list/all")
+    public List<TestResourcePool> listResourcePools() {
+        PageHelper.startPage(1, 10000, true);
+        QueryResourcePoolRequest request = new QueryResourcePoolRequest();
+        return testResourcePoolService.listResourcePools(request);
+    }
+
+
 }

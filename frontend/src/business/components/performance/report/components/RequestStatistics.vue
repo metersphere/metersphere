@@ -4,14 +4,14 @@
       :data="tableData"
       border
       style="width: 100%"
-      :default-sort = "{prop: 'elementLabel'}"
+      :default-sort = "{prop: 'samples'}"
     >
       <el-table-column
-        prop="elementLabel"
+        prop="requestLabel"
         label="Element Label"
         fixed
-        width="150"
-        sortable>
+        width="450"
+      >
       </el-table-column>
       <el-table-column
         prop="samples"
@@ -20,59 +20,59 @@
         sortable>
       </el-table-column>
       <el-table-column
-        prop="avgResponseTime"
+        prop="average"
         label="Avg Response Time(ms)"
         width="220"
-        sortable>
+      >
       </el-table-column>
       <el-table-column
         prop="avgHits"
         label="Avg Hits/s"
         width="150"
-        sortable>
+      >
       </el-table-column>
       <el-table-column
-        prop="90line"
+        prop="tp90"
         label="90% line(ms)"
         width="150"
-        sortable>
+      >
       </el-table-column>
       <el-table-column
-        prop="95line"
+        prop="tp95"
         label="95% line(ms)"
         width="150"
-        sortable>
+      >
       </el-table-column>
       <el-table-column
-        prop="99line"
+        prop="tp99"
         label="99% line(ms)"
         width="150"
-        sortable>
+      >
       </el-table-column>
       <el-table-column
-        prop="minResponseTime"
+        prop="min"
         label="Min Response Time(ms)"
         width="220"
-        sortable>
+      >
       </el-table-column>
       <el-table-column
-        prop="maxResponseTime"
+        prop="max"
         label="Max Response Time(ms)"
         width="220"
-        sortable>
+      >
       </el-table-column>
       <el-table-column
-        prop="avgBandwidth"
+        prop="kbPerSec"
         label="Avg Bandwidth(KBytes/s)"
         width="220"
-        sortable>
+      >
       </el-table-column>
       <el-table-column
-        prop="errorPercentage"
+        prop="errors"
         label="Error Percentage"
         width="180"
         fixed="right"
-        sortable>
+      >
       </el-table-column>
     </el-table>
   </div>
@@ -83,11 +83,29 @@
     name: "RequestStatistics",
     data() {
       return {
-        tableData: [{},{},{},{},{}]
+        tableData: [{},{},{},{},{}],
       }
     },
     methods: {
-
+      initTableData() {
+        this.$get("/report/content/" + this.id, res => {
+          this.tableData = res.data;
+        })
+      }
+    },
+    created() {
+      this.initTableData()
+    },
+    props: ['id'],
+    watch: {
+      '$route'(to) {
+        let reportId = to.path.split('/')[4];
+        if(reportId){
+          this.$get("/report/content/" + reportId, res => {
+            this.tableData = res.data;
+          })
+        }
+      }
     }
   }
 </script>

@@ -73,6 +73,21 @@
             <div>{{$t('load_test.ramp_up_time_times')}}</div>
           </el-form-item>
         </el-form>
+        <el-form :inline="true" class="input-bottom-border">
+          <el-form-item>
+            <div>{{$t('load_test.select_resource_pool')}}</div>
+          </el-form-item>
+          <el-form-item>
+            <el-select v-model="resourcePool" size="mini">
+              <el-option
+                v-for="item in resourcePools"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id">
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
       </el-col>
       <el-col :span="12">
         <chart class="chart-container" ref="chart1" :options="orgOptions" :autoresize="true"></chart>
@@ -89,6 +104,7 @@
   const STEPS = "Steps";
   const DURATION = "duration";
   const RPS_LIMIT = "rpsLimit";
+  const RESOURCE_POOL = "resourcePoolId";
 
   export default {
     name: "PerformancePressureConfig",
@@ -101,6 +117,8 @@
         step: 10,
         rpsLimit: 10,
         orgOptions: {},
+        resourcePool: null,
+        resourcePools: [],
       }
     },
     mounted() {
@@ -110,6 +128,8 @@
       } else {
         this.calculateChart();
       }
+
+      this.getResourcePools();
     },
     watch: {
       '$route'(to, from) {
@@ -125,11 +145,16 @@
       }
     },
     methods: {
+      getResourcePools() {
+        this.$get('/testresourcepool/list/all', response => {
+          this.resourcePools = response.data;
+        })
+      },
       getLoadConfig(testId) {
         if (testId) {
 
           this.$get('/testplan/get-load-config/' + testId, (response) => {
-            if (response.data && response.data != "") {
+            if (response.data) {
               let data = JSON.parse(response.data);
 
               data.forEach(d => {
@@ -148,6 +173,9 @@
                     break;
                   case RPS_LIMIT:
                     this.rpsLimit = d.value;
+                    break;
+                  case RESOURCE_POOL:
+                    this.resourcePool = d.value;
                     break;
                   default:
                     break;
@@ -252,6 +280,17 @@
           }
         }
       },
+      validConfig() {
+        if (!this.resourcePool) {
+          this.$message({
+            message: this.$t('load_test.resource_pool_is_null'),
+            type: 'warning'
+          });
+          return false;
+        }
+
+        return true;
+      },
       convertProperty() {
         /// todo：下面4个属性是jmeter ConcurrencyThreadGroup plugin的属性，这种硬编码不太好吧，在哪能转换这种属性？
         return [
@@ -259,7 +298,8 @@
           {key: RAMP_UP, value: this.rampUpTime},
           {key: STEPS, value: this.step},
           {key: DURATION, value: this.duration},
-          {key: RPS_LIMIT, value: this.rpsLimit}
+          {key: RPS_LIMIT, value: this.rpsLimit},
+          {key: RESOURCE_POOL, value: this.resourcePool},
         ];
       }
     }

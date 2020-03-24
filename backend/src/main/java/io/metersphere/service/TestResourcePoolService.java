@@ -135,4 +135,8 @@ public class TestResourcePoolService {
         testResourceExample.createCriteria().andTestResourcePoolIdEqualTo(testResourcePoolId);
         testResourceMapper.deleteByExample(testResourceExample);
     }
+
+    public TestResourcePool getResourcePool(String resourcePoolId) {
+        return testResourcePoolMapper.selectByPrimaryKey(resourcePoolId);
+    }
 }

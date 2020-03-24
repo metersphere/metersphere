@@ -45,11 +45,12 @@
         </javaClientGenerator>
 
         <!--要生成的数据库表 -->
+
 <!--        <table tableName="user"/>-->
 <!--        <table tableName="user_role"/>-->
 <!--        <table tableName="workspace"/>-->
-        <table tableName="test_resource_pool"/>
-        <table tableName="test_resource"/>
+<!--        <table tableName="test_resource_pool"/>-->
+<!--        <table tableName="test_resource"/>-->
 <!--        <table tableName="system_parameter"/>-->
 <!--        <table tableName="role"/>-->
 <!--        <table tableName="project"/>-->
@@ -57,7 +58,7 @@
 <!--        <table tableName="load_test_report"/>-->
 <!--        <table tableName="load_test"/>-->
 <!--        <table tableName="file_content"/>-->
-<!--        <table tableName="file_metadata"/>-->
+        <table tableName="file_metadata"/>
 <!--        <table tableName="load_test_file"/>-->
     </context>
 </generatorConfiguration>

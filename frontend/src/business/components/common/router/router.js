@@ -24,6 +24,10 @@ import FunctionalTestPlan from "../../functional/plan/FunctionalTestPlan";
 import FunctionalTestHome from "../../functional/home/FunctionalTestHome";
 import PerformanceReportView from "../../performance/report/PerformanceReportView";
 import FunctionalReportView from "../../functional/report/FunctionalReportView";
+import TrackHome from "../../track/home/TrackHome";
+import TestPlan from "../../track/plan/TestPlan";
+import TestCase from "../../track/case/TestCase";
+import TestTrack from "../../track/TestTrack";
 
 Vue.use(VueRouter);
 
@@ -182,6 +186,36 @@ const router = new VueRouter({
           path: "report/view/:reportId",
           name: "perReportView",
           component: PerformanceReportView
+        }
+      ]
+    },
+    {
+      path: "/track",
+      name: "track",
+      redirect: "/track/home",
+      components: {
+        content: TestTrack
+      },
+      children: [
+        {
+          path: 'home',
+          name: 'trackHome',
+          component: TrackHome,
+        },
+        {
+          path: 'case',
+          name: 'testCase',
+          component: TestCase,
+        },
+        {
+          path: "plan/:projectId",
+          name: "testPlan",
+          component: TestPlan
+        },
+        {
+          path: "project/:type",
+          name: "trackProject",
+          component: MsProject
         }
       ]
     }

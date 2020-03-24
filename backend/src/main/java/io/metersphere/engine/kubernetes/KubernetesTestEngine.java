@@ -4,6 +4,10 @@ import com.alibaba.fastjson.JSON;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.metersphere.base.domain.TestResource;
+import io.metersphere.base.domain.TestResourcePool;
+import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.engine.Engine;
 import io.metersphere.engine.EngineContext;
@@ -11,17 +15,24 @@ import io.metersphere.engine.kubernetes.crds.jmeter.Jmeter;
 import io.metersphere.engine.kubernetes.crds.jmeter.JmeterSpec;
 import io.metersphere.engine.kubernetes.provider.ClientCredential;
 import io.metersphere.engine.kubernetes.provider.KubernetesProvider;
+import io.metersphere.service.TestResourcePoolService;
+import io.metersphere.service.TestResourceService;
 import org.apache.commons.collections.MapUtils;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class KubernetesTestEngine implements Engine {
     private EngineContext context;
+    private TestResourcePoolService testResourcePoolService;
+    private TestResourceService testResourceService;
 
     @Override
     public boolean init(EngineContext context) {
         // todo 初始化操作
         this.context = context;
+        this.testResourcePoolService = CommonBeanFactory.getBean(TestResourcePoolService.class);
+        this.testResourceService = CommonBeanFactory.getBean(TestResourceService.class);
         return true;
     }
 
@@ -32,6 +43,11 @@ public class KubernetesTestEngine implements Engine {
             LogUtil.warn("Please initial the engine.");
             return;
         }
+        TestResourcePool resourcePool = testResourcePoolService.getResourcePool(context.getResourcePoolId());
+        if (resourcePool == null) {
+            MSException.throwException("Resource Pool is empty");
+        }
+        List<TestResource> resourceList = testResourceService.getResourcesByPoolId(resourcePool.getId());
         // todo 运行测试
         ClientCredential credential = new ClientCredential();
         credential.setMasterUrl("https://172.16.10.93:6443");

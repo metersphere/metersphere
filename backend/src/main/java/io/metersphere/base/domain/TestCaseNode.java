@@ -2,18 +2,20 @@ package io.metersphere.base.domain;
 
 import java.io.Serializable;
 
-public class FileMetadata implements Serializable {
+public class TestCaseNode implements Serializable {
     private String id;
+
+    private String projectId;
 
     private String name;
 
-    private String type;
+    private String pId;
+
+    private Long order;
 
     private Long createTime;
 
     private Long updateTime;
-
-    private Long size;
 
     private static final long serialVersionUID = 1L;
 
@@ -25,6 +27,14 @@ public class FileMetadata implements Serializable {
         this.id = id == null ? null : id.trim();
     }
 
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId == null ? null : projectId.trim();
+    }
+
     public String getName() {
         return name;
     }
@@ -33,12 +43,20 @@ public class FileMetadata implements Serializable {
         this.name = name == null ? null : name.trim();
     }
 
-    public String getType() {
-        return type;
+    public String getpId() {
+        return pId;
     }
 
-    public void setType(String type) {
-        this.type = type == null ? null : type.trim();
+    public void setpId(String pId) {
+        this.pId = pId == null ? null : pId.trim();
+    }
+
+    public Long getOrder() {
+        return order;
+    }
+
+    public void setOrder(Long order) {
+        this.order = order;
     }
 
     public Long getCreateTime() {
@@ -55,13 +73,5 @@ public class FileMetadata implements Serializable {
 
     public void setUpdateTime(Long updateTime) {
         this.updateTime = updateTime;
-    }
-
-    public Long getSize() {
-        return size;
-    }
-
-    public void setSize(Long size) {
-        this.size = size;
     }
 }
