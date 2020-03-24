@@ -69,8 +69,9 @@
       </div>
     </el-card>
 
-    <el-dialog title="创建资源池" :visible.sync="createVisible" width="70%" @closed="closeFunc" :destroy-on-close="true">
-      <el-form :model="form" label-position="left" label-width="100px" size="small" :rules="rule"
+    <el-dialog v-loading="testLoading" title="创建资源池" :visible.sync="createVisible" width="70%" @closed="closeFunc"
+               :destroy-on-close="true">
+      <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
                ref="createTestResourcePoolForm">
         <el-form-item label="名称" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
@@ -85,46 +86,41 @@
           </el-select>
         </el-form-item>
         <div v-for="(item,index) in infoList " :key="index">
-          <div class="current-row" v-if="form.type === 'K8S'">
-            <div style="width: 35%;float: left">
-              <label class="el-form-item__label">Master URL</label>
-              <div class="el-form-item__content" style="margin-left: 100px">
-                <input v-model="item.masterUrl" autocomplete="off" class="el-input__inner form-input"/>
-              </div>
+          <div class="node-line" v-if="form.type === 'K8S'">
+            <div class="k8s-master">
+              <el-col :span="11">
+
+              </el-col>
+              <el-form-item prop="masterUrl" label="Master URL">
+                <el-input v-model="item.masterUrl" autocomplete="off"/>
+              </el-form-item>
             </div>
-            <div style="width: 35%;float: left">
-              <label class="el-form-item__label" style="padding-left: 20px">Token</label>
-              <div class="el-form-item__content" style="margin-left: 100px">
-                <input v-model="item.token" autocomplete="off" class="el-input__inner form-input"/>
-              </div>
+            <div class="k8s-token">
+              <el-form-item prop="token" label="Token">
+                <el-input v-model="item.token" show-password autocomplete="off"/>
+              </el-form-item>
             </div>
             <div style="width: 30%;float: left">
-              <label class="el-form-item__label" style="padding-left: 20px">最大并发数</label>
-              <div class="el-form-item__content" style="margin-left: 102px">
-                <input v-model="item.maxConcurrency" autocomplete="off" type="number"
-                       class="el-input__inner form-input"/>
-              </div>
+              <el-form-item prop="maxConcurrency" label="最大并发数">
+                <el-input-number v-model="item.maxConcurrency" :min="1" :max="9999"></el-input-number>
+              </el-form-item>
             </div>
           </div>
-          <div class="current-row" v-if="form.type === 'NODE'">
-            <div style="width: 42%;float: left">
-              <label class="el-form-item__label">IP</label>
-              <div class="el-form-item__content" style="margin-left: 100px">
-                <input v-model="item.ip" autocomplete="off" class="el-input__inner form-input"/>
-              </div>
+          <div class="node-line" v-if="form.type === 'NODE'">
+            <div style="width: 30%;float: left">
+              <el-form-item prop="ip" label="IP">
+                <el-input v-model="item.ip" autocomplete="off"/>
+              </el-form-item>
             </div>
-            <div style="width: 20%;float: left">
-              <label class="el-form-item__label" style="padding-left: 20px">port</label>
-              <div class="el-form-item__content" style="margin-left: 100px">
-                <input v-model="item.port" autocomplete="off" type="number" class="el-input__inner form-input"/>
-              </div>
+            <div style="width: 30%;float: left">
+              <el-form-item prop="port" label="Port">
+                <el-input-number v-model="item.port" :min="1" :max="9999"></el-input-number>
+              </el-form-item>
             </div>
-            <div style="width: 20%;float: left">
-              <label class="el-form-item__label" style="padding-left: 20px">最大并发数</label>
-              <div class="el-form-item__content" style="margin-left: 102px">
-                <input v-model="item.maxConcurrency" autocomplete="off" type="number"
-                       class="el-input__inner form-input"/>
-              </div>
+            <div style="width: 30%;float: left">
+              <el-form-item prop="maxConcurrency" label="最大并发数">
+                <el-input-number v-model="item.maxConcurrency" :min="1" :max="9999"></el-input-number>
+              </el-form-item>
             </div>
             <div class="op">
                 <span class="box">
@@ -148,8 +144,9 @@
       </span>
     </el-dialog>
 
-    <el-dialog title="修改资源池" :visible.sync="updateVisible" width="70%" :destroy-on-close="true" @close="closeFunc">
-      <el-form :model="form" label-position="left" label-width="100px" size="small" :rules="rule"
+    <el-dialog v-loading="testLoading" title="修改资源池" :visible.sync="updateVisible" width="70%" :destroy-on-close="true"
+               @close="closeFunc">
+      <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
                ref="updateTestResourcePoolForm">
         <el-form-item label="名称" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
@@ -158,52 +155,44 @@
           <el-input v-model="form.description" autocomplete="off"/>
         </el-form-item>
         <el-form-item label="资源类型" prop="type">
-          <el-select v-model="form.type" placeholder="选择资源类型">
+          <el-select v-model="form.type" placeholder="选择资源类型" @change="changeResourceType()">
             <el-option key="K8S" value="K8S" label="Kubernetes">Kubernetes</el-option>
             <el-option key="NODE" value="NODE" label="独立节点">独立节点</el-option>
           </el-select>
         </el-form-item>
         <div v-for="(item,index) in infoList " :key="index">
-          <div class="current-row" v-if="form.type === 'K8S'">
-            <div style="width: 35%;float: left">
-              <label class="el-form-item__label">Master URL</label>
-              <div class="el-form-item__content" style="margin-left: 100px">
-                <input v-model="item.masterUrl" autocomplete="off" class="el-input__inner form-input"/>
-              </div>
+          <div class="node-line" v-if="form.type === 'K8S'">
+            <div class="k8s-master">
+              <el-form-item prop="masterUrl" label="Master URL">
+                <el-input v-model="item.masterUrl" autocomplete="off"/>
+              </el-form-item>
             </div>
-            <div style="width: 35%;float: left">
-              <label class="el-form-item__label" style="padding-left: 20px">Token</label>
-              <div class="el-form-item__content" style="margin-left: 100px">
-                <input v-model="item.token" autocomplete="off" class="el-input__inner form-input"/>
-              </div>
+            <div class="k8s-token">
+              <el-form-item prop="password" label="Token" style="padding-left: 20px">
+                <el-input v-model="item.token" show-password autocomplete="off"/>
+              </el-form-item>
             </div>
             <div style="width: 30%;float: left">
-              <label class="el-form-item__label" style="padding-left: 20px">最大并发数</label>
-              <div class="el-form-item__content" style="margin-left: 102px">
-                <input v-model="item.maxConcurrency" autocomplete="off" type="number"
-                       class="el-input__inner form-input"/>
-              </div>
+              <el-form-item prop="maxConcurrency" label="最大并发数" style="padding-left: 20px">
+                <el-input-number v-model="item.maxConcurrency" :min="1" :max="9999"></el-input-number>
+              </el-form-item>
             </div>
           </div>
-          <div class="current-row" v-if="form.type === 'NODE'">
-            <div style="width: 42%;float: left">
-              <label class="el-form-item__label">IP</label>
-              <div class="el-form-item__content" style="margin-left: 100px">
-                <input v-model="item.ip" autocomplete="off" class="el-input__inner form-input"/>
-              </div>
+          <div class="node-line" v-if="form.type === 'NODE'">
+            <div style="width: 30%;float: left">
+              <el-form-item prop="ip" label="IP">
+                <el-input v-model="item.ip" autocomplete="off"/>
+              </el-form-item>
             </div>
-            <div style="width: 20%;float: left">
-              <label class="el-form-item__label" style="padding-left: 20px">port</label>
-              <div class="el-form-item__content" style="margin-left: 100px">
-                <input v-model="item.port" autocomplete="off" type="number" class="el-input__inner form-input"/>
-              </div>
+            <div style="width: 30%;float: left">
+              <el-form-item prop="port" label="Port" style="padding-left: 20px">
+                <el-input-number v-model="item.port" :min="1" :max="9999"></el-input-number>
+              </el-form-item>
             </div>
-            <div style="width: 20%;float: left">
-              <label class="el-form-item__label" style="padding-left: 20px">最大并发数</label>
-              <div class="el-form-item__content" style="margin-left: 102px">
-                <input v-model="item.maxConcurrency" autocomplete="off" type="number"
-                       class="el-input__inner form-input"/>
-              </div>
+            <div style="width: 30%;float: left">
+              <el-form-item prop="maxConcurrency" label="最大并发数" style="padding-left: 20px">
+                <el-input-number v-model="item.maxConcurrency" :min="1" :max="9999"></el-input-number>
+              </el-form-item>
             </div>
             <div class="op">
                 <span class="box">
@@ -238,6 +227,7 @@
     data() {
       return {
         loading: false,
+        testLoading: false,
         createVisible: false,
         infoList: [],
         updateVisible: false,
@@ -264,6 +254,9 @@
           ],
           description: [
             {max: 60, message: '最大长度 60 个字符', trigger: 'blur'}
+          ],
+          type: [
+            {required: true, message: '请选择资源类型', trigger: 'blur'}
           ]
         }
       }
@@ -302,6 +295,28 @@
             message: "不能删除所有独立节点"
           });
         }
+      },
+      validateResourceInfo() {
+        if (this.infoList.length <= 0) {
+          return {validate: false, msg: "资源池不能为空"}
+        }
+
+        let resultValidate = {validate: true, msg: "请完善数据"}
+        this.infoList.forEach(function (info) {
+          for (let key in info) {
+            if (info[key] != '0' && !info[key]) {
+              resultValidate.validate = false
+              return false;
+            }
+          }
+
+          if (!info.maxConcurrency) {
+            resultValidate.validate = false
+            return false;
+          }
+        });
+
+        return resultValidate;
       },
       buildPagePath(path) {
         return path + "/" + this.currentPage + "/" + this.pageSize;
@@ -349,16 +364,29 @@
       createTestResourcePool(createTestResourcePoolForm) {
         this.$refs[createTestResourcePoolForm].validate(valide => {
           if (valide) {
-            this.form.info = JSON.stringify(this.infoList);
-            this.$post("/testresourcepool/add", this.form)
-              .then(() => {
-                this.$message({
-                    type: 'success',
-                    message: '添加成功!'
-                  },
-                  this.createVisible = false,
-                  this.initTableData())
+            let vri = this.validateResourceInfo();
+            if (vri.validate) {
+              this.testLoading = true;
+              this.form.info = JSON.stringify(this.infoList);
+              this.$post("/testresourcepool/add", this.form)
+                .then(() => {
+                  this.$message({
+                      type: 'success',
+                      message: '添加成功!'
+                    },
+                    this.createVisible = false,
+                    this.initTableData());
+                  this.testLoading = false;
+                });
+            } else {
+              this.$message({
+                type: 'warning',
+                message: vri.msg
               });
+              this.testLoading = false;
+              return false;
+            }
+
           } else {
             return false;
           }
@@ -367,17 +395,29 @@
       updateTestResourcePool(updateTestResourcePoolForm) {
         this.$refs[updateTestResourcePoolForm].validate(valide => {
           if (valide) {
-            this.form.info = JSON.stringify(this.infoList);
-            this.$post("/testresourcepool/update", this.form)
-              .then(() => {
-                this.$message({
-                    type: 'success',
-                    message: this.$t('commons.modify_success')
-                  },
-                  this.updateVisible = false,
-                  this.initTableData(),
-                  self.loading = false)
+            this.testLoading = true;
+            let vri = this.validateResourceInfo();
+            if (vri.validate) {
+              this.form.info = JSON.stringify(this.infoList);
+              this.$post("/testresourcepool/update", this.form)
+                .then(() => {
+                  this.$message({
+                      type: 'success',
+                      message: this.$t('commons.modify_success')
+                    },
+                    this.updateVisible = false,
+                    this.initTableData(),
+                    self.loading = false);
+                  this.testLoading = false;
+                });
+            } else {
+              this.$message({
+                type: 'warning',
+                message: vri.msg
               });
+              this.testLoading = false;
+              return false;
+            }
           } else {
             return false;
           }
@@ -414,12 +454,29 @@
   }
 
   .op {
-    line-height: 40px;
     float: left;
-    width: 16%;
+    width: 10%;
   }
 
   .box {
     padding-left: 5px;
+  }
+
+  .k8s-master {
+    width: 34%;
+    float: left
+  }
+
+  .k8s-token {
+    width: 36%;
+    float: left
+  }
+
+  .k8s-token .el-form-item__label {
+    padding-left: 20px;
+  }
+
+  .node-line {
+    clear: both;
   }
 </style>

@@ -51,7 +51,7 @@
     </el-card>
 
     <el-dialog :title="$t('member.create')" :visible.sync="createVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
-      <el-form :model="form" ref="form" :rules="rules" label-position="left" label-width="100px" size="small">
+      <el-form :model="form" ref="form" :rules="rules" label-position="right" label-width="100px" size="small">
         <el-form-item :label="$t('commons.member')" prop="userIds">
           <el-select v-model="form.userIds" multiple :placeholder="$t('member.please_choose_member')" class="select-width">
             <el-option
@@ -81,7 +81,7 @@
     </el-dialog>
 
     <el-dialog :title="$t('member.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
-      <el-form :model="form" label-position="left" label-width="100px" size="small" ref="updateUserForm">
+      <el-form :model="form" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
         </el-form-item>

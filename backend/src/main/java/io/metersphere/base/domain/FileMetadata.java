@@ -9,8 +9,6 @@ public class FileMetadata implements Serializable {
 
     private String type;
 
-    private String engine;
-
     private Long createTime;
 
     private Long updateTime;
@@ -41,14 +39,6 @@ public class FileMetadata implements Serializable {
 
     public void setType(String type) {
         this.type = type == null ? null : type.trim();
-    }
-
-    public String getEngine() {
-        return engine;
-    }
-
-    public void setEngine(String engine) {
-        this.engine = engine == null ? null : engine.trim();
     }
 
     public Long getCreateTime() {

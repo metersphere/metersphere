@@ -65,7 +65,7 @@
     </el-card>
 
     <el-dialog :title="$t('user.create')" :visible.sync="createVisible" width="30%" @closed="closeFunc" :destroy-on-close="true">
-      <el-form :model="form" label-position="left" label-width="100px" size="small" :rules="rule" ref="createUserForm">
+      <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule" ref="createUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off"/>
         </el-form-item>
@@ -85,7 +85,7 @@
     </el-dialog>
 
     <el-dialog :title="$t('user.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
-      <el-form :model="form" label-position="left" label-width="100px" size="small" :rules="rule" ref="updateUserForm">
+      <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
         </el-form-item>

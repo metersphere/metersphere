@@ -5,7 +5,6 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="type" jdbcType="VARCHAR" property="type" />
-    <result column="engine" jdbcType="VARCHAR" property="engine" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="size" jdbcType="BIGINT" property="size" />
@@ -69,7 +68,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, name, type, engine, create_time, update_time, size
+    id, name, type, create_time, update_time, size
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.FileMetadataExample" resultMap="BaseResultMap">
     select
@@ -103,11 +102,11 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.FileMetadata">
     insert into file_metadata (id, name, type, 
-      engine, create_time, update_time, 
-      size)
+      create_time, update_time, size
+      )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
-      #{engine,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{size,jdbcType=BIGINT})
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{size,jdbcType=BIGINT}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.FileMetadata">
     insert into file_metadata
@@ -120,9 +119,6 @@
       </if>
       <if test="type != null">
         type,
-      </if>
-      <if test="engine != null">
-        engine,
       </if>
       <if test="createTime != null">
         create_time,
@@ -143,9 +139,6 @@
       </if>
       <if test="type != null">
         #{type,jdbcType=VARCHAR},
-      </if>
-      <if test="engine != null">
-        #{engine,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -176,9 +169,6 @@
       <if test="record.type != null">
         type = #{record.type,jdbcType=VARCHAR},
       </if>
-      <if test="record.engine != null">
-        engine = #{record.engine,jdbcType=VARCHAR},
-      </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
@@ -198,7 +188,6 @@
     set id = #{record.id,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
       type = #{record.type,jdbcType=VARCHAR},
-      engine = #{record.engine,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       size = #{record.size,jdbcType=BIGINT}
@@ -214,9 +203,6 @@
       </if>
       <if test="type != null">
         type = #{type,jdbcType=VARCHAR},
-      </if>
-      <if test="engine != null">
-        engine = #{engine,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -234,7 +220,6 @@
     update file_metadata
     set name = #{name,jdbcType=VARCHAR},
       type = #{type,jdbcType=VARCHAR},
-      engine = #{engine,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       size = #{size,jdbcType=BIGINT}

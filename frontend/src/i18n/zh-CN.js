@@ -158,6 +158,8 @@ export default {
     'custom_http_code': '自定义 HTTP 响应成功状态码',
     'separated_by_commas': '按逗号分隔',
     'create': '创建测试',
+    'select_resource_pool': '请选择资源池',
+    'resource_pool_is_null': '资源池为空',
   },
   fuc_test: {
     'select_resource_pool': '请选择资源池'

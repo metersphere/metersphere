@@ -41,4 +41,8 @@ public class ReportService {
     public ReportDTO getReportTestAndProInfo(String reportId) {
         return extLoadTestReportMapper.getReportTestAndProInfo(reportId);
     }
+
+    public LoadTestReport getReport(String id) {
+        return loadTestReportMapper.selectByPrimaryKey(id);
+    }
 }

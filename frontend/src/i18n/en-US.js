@@ -158,6 +158,8 @@ export default {
     'custom_http_code': 'Custom HTTP response success status code',
     'separated_by_commas': 'Separated by commas',
     'create': 'Create Test',
+    'select_resource_pool': 'Please Select Resource Pool',
+    'resource_pool_is_null': 'Resource Pool is empty',
   },
   fuc_test: {
     'select_resource_pool': 'Please select resource pool'

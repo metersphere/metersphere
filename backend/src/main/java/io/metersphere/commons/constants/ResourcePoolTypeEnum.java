@@ -1,6 +1,6 @@
 package io.metersphere.commons.constants;
 
-public enum ResourceTypeEnum {
+public enum ResourcePoolTypeEnum {
     /**
      * k8s 资源池
      */
