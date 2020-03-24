@@ -69,7 +69,7 @@
       </div>
     </el-card>
 
-    <el-dialog v-loading="testLoading" title="创建资源池" :visible.sync="createVisible" width="70%" @closed="closeFunc"
+    <el-dialog title="创建资源池" :visible.sync="createVisible" width="70%" @closed="closeFunc"
                :destroy-on-close="true">
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
                ref="createTestResourcePoolForm">
@@ -144,7 +144,7 @@
       </span>
     </el-dialog>
 
-    <el-dialog v-loading="testLoading" title="修改资源池" :visible.sync="updateVisible" width="70%" :destroy-on-close="true"
+    <el-dialog title="修改资源池" :visible.sync="updateVisible" width="70%" :destroy-on-close="true"
                @close="closeFunc">
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
                ref="updateTestResourcePoolForm">
@@ -244,7 +244,7 @@
         rule: {
           name: [
             {required: true, message: '请输入资源池名称', trigger: 'blur'},
-            {min: 2, max: 10, message: this.$t('commons.input_limit', [2, 10]), trigger: 'blur'},
+            {min: 2, max: 64, message: this.$t('commons.input_limit', [2, 64]), trigger: 'blur'},
             {
               required: true,
               pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/,
@@ -338,7 +338,16 @@
         // this.loading = true;
         this.updateVisible = true;
         this.form = JSON.parse(JSON.stringify(row));
-        this.infoList = JSON.parse(this.form.info);
+        this.convertResources();
+      },
+      convertResources() {
+        let resources = [];
+        if (this.form.resources) {
+          this.form.resources.forEach(function (resource) {
+            resources.push(JSON.parse(resource.configuration));
+          })
+        }
+        this.infoList = resources;
       },
       del(row) {
         window.console.log(row);
@@ -367,7 +376,7 @@
             let vri = this.validateResourceInfo();
             if (vri.validate) {
               this.testLoading = true;
-              this.form.info = JSON.stringify(this.infoList);
+              this.convertSubmitResources();
               this.$post("/testresourcepool/add", this.form)
                 .then(() => {
                   this.$message({
@@ -392,13 +401,25 @@
           }
         })
       },
+      convertSubmitResources() {
+        let resources = [];
+        let poolId = this.form.id;
+        this.infoList.forEach(function (info) {
+          let resource = {"configuration": JSON.stringify(info)};
+          if (poolId) {
+            resource.testResourcePoolId = poolId;
+          }
+          resources.push(resource);
+        });
+        this.form.resources = resources;
+      },
       updateTestResourcePool(updateTestResourcePoolForm) {
         this.$refs[updateTestResourcePoolForm].validate(valide => {
           if (valide) {
             this.testLoading = true;
             let vri = this.validateResourceInfo();
             if (vri.validate) {
-              this.form.info = JSON.stringify(this.infoList);
+              this.convertSubmitResources();
               this.$post("/testresourcepool/update", this.form)
                 .then(() => {
                   this.$message({

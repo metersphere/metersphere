@@ -6,6 +6,7 @@ import io.metersphere.base.domain.TestResourcePool;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.resourcepool.QueryResourcePoolRequest;
+import io.metersphere.dto.TestResourcePoolDTO;
 import io.metersphere.service.TestResourcePoolService;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,8 +21,8 @@ public class TestResourcePoolController {
     private TestResourcePoolService testResourcePoolService;
 
     @PostMapping("/add")
-    public TestResourcePool addTestResourcePool(@RequestBody TestResourcePool testResourcePool) {
-        return testResourcePoolService.addTestResourcePool(testResourcePool);
+    public TestResourcePoolDTO addTestResourcePool(@RequestBody TestResourcePoolDTO testResourcePoolDTO) {
+        return testResourcePoolService.addTestResourcePool(testResourcePoolDTO);
     }
 
     @GetMapping("/delete/{testResourcePoolId}")
@@ -30,12 +31,12 @@ public class TestResourcePoolController {
     }
 
     @PostMapping("/update")
-    public void updateTestResourcePool(@RequestBody TestResourcePool testResourcePool) {
-        testResourcePoolService.updateTestResourcePool(testResourcePool);
+    public void updateTestResourcePool(@RequestBody TestResourcePoolDTO testResourcePoolDTO) {
+        testResourcePoolService.updateTestResourcePool(testResourcePoolDTO);
     }
 
     @PostMapping("list/{goPage}/{pageSize}")
-    public Pager<List<TestResourcePool>> listResourcePools(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryResourcePoolRequest request) {
+    public Pager<List<TestResourcePoolDTO>> listResourcePools(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryResourcePoolRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testResourcePoolService.listResourcePools(request));
     }
