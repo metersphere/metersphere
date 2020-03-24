@@ -162,6 +162,13 @@ export default {
   fuc_test: {
     'select_resource_pool': 'Please select resource pool'
   },
+  test_track: {
+    'test_track': 'Test Track',
+    'test_case': 'Test Case',
+    'create_case': 'Create Case',
+    'test_plan': 'Test Plan',
+    'create_plan': 'Create Plan',
+  },
   i18n: {
     'home': 'Home'
   }
