@@ -32,7 +32,7 @@
                        @change="changeSwitch(scope.row)"
             />
           </template>
-        </el-table-column>changeSwitch
+        </el-table-column>
         <el-table-column prop="createTime" label="创建时间" width="180">
           <template slot-scope="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
