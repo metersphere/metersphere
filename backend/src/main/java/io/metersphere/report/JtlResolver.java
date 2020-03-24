@@ -84,7 +84,7 @@ public class JtlResolver {
 
             RequestStatistics requestStatistics = new RequestStatistics();
             requestStatistics.setRequestLabel(label);
-            requestStatistics.setSamples(index+"");
+            requestStatistics.setSamples(index);
             DecimalFormat df = new DecimalFormat("0.00");
             String s = df.format((float)sumElapsed/index);
             requestStatistics.setAverage(s+"");
