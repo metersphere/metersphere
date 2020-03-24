@@ -643,6 +643,76 @@ public class LoadTestExample {
             addCriterion("status not between", value1, value2, "status");
             return (Criteria) this;
         }
+
+        public Criteria andTestResourcePoolIdIsNull() {
+            addCriterion("test_resource_pool_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestResourcePoolIdIsNotNull() {
+            addCriterion("test_resource_pool_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestResourcePoolIdEqualTo(String value) {
+            addCriterion("test_resource_pool_id =", value, "testResourcePoolId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestResourcePoolIdNotEqualTo(String value) {
+            addCriterion("test_resource_pool_id <>", value, "testResourcePoolId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestResourcePoolIdGreaterThan(String value) {
+            addCriterion("test_resource_pool_id >", value, "testResourcePoolId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestResourcePoolIdGreaterThanOrEqualTo(String value) {
+            addCriterion("test_resource_pool_id >=", value, "testResourcePoolId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestResourcePoolIdLessThan(String value) {
+            addCriterion("test_resource_pool_id <", value, "testResourcePoolId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestResourcePoolIdLessThanOrEqualTo(String value) {
+            addCriterion("test_resource_pool_id <=", value, "testResourcePoolId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestResourcePoolIdLike(String value) {
+            addCriterion("test_resource_pool_id like", value, "testResourcePoolId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestResourcePoolIdNotLike(String value) {
+            addCriterion("test_resource_pool_id not like", value, "testResourcePoolId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestResourcePoolIdIn(List<String> values) {
+            addCriterion("test_resource_pool_id in", values, "testResourcePoolId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestResourcePoolIdNotIn(List<String> values) {
+            addCriterion("test_resource_pool_id not in", values, "testResourcePoolId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestResourcePoolIdBetween(String value1, String value2) {
+            addCriterion("test_resource_pool_id between", value1, value2, "testResourcePoolId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestResourcePoolIdNotBetween(String value1, String value2) {
+            addCriterion("test_resource_pool_id not between", value1, value2, "testResourcePoolId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

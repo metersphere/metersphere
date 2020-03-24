@@ -27,6 +27,7 @@ import java.util.Map;
 
 @Service
 public class EngineFactory {
+    private static final String RESOURCE_POOL_ID = "resourcePoolId";
     private static FileService fileService;
     private static TestResourcePoolService testResourcePoolService;
 
@@ -36,7 +37,7 @@ public class EngineFactory {
             final JSONArray jsonArray = JSONObject.parseArray(loadTest.getLoadConfiguration());
             for (int i = 0; i < jsonArray.size(); i++) {
                 final JSONObject jsonObject = jsonArray.getJSONObject(i);
-                if (StringUtils.equals(jsonObject.getString("key"), "resourcePoolId")) {
+                if (StringUtils.equals(jsonObject.getString("key"), RESOURCE_POOL_ID)) {
                     resourcePoolId = jsonObject.getString("value");
                     break;
                 }
@@ -79,7 +80,7 @@ public class EngineFactory {
             for (int i = 0; i < jsonArray.size(); i++) {
                 final JSONObject jsonObject = jsonArray.getJSONObject(i);
                 engineContext.addProperty(jsonObject.getString("key"), jsonObject.get("value"));
-                if (StringUtils.equals(jsonObject.getString("key"), "resourcePoolId")) {
+                if (StringUtils.equals(jsonObject.getString("key"), RESOURCE_POOL_ID)) {
                     engineContext.setResourcePoolId(jsonObject.getString("value"));
                 }
             }
@@ -91,8 +92,10 @@ public class EngineFactory {
             MSException.throwException("File type unknown");
         }
 
-        String content = engineSourceParser.parse(engineContext, new ByteArrayInputStream(fileContent.getFile()));
-        engineContext.setContent(content);
+        try (ByteArrayInputStream source = new ByteArrayInputStream(fileContent.getFile())) {
+            String content = engineSourceParser.parse(engineContext, source);
+            engineContext.setContent(content);
+        }
 
         if (CollectionUtils.isNotEmpty(csvFiles)) {
             Map<String, String> data = new HashMap<>();

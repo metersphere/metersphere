@@ -186,7 +186,7 @@ public class LoadTestService {
 
         boolean init = true;
         try {
-            init = engine.init(EngineFactory.createContext(loadTest, fileMetadata, csvFiles));
+            init = engine.init(loadTest, fileMetadata, csvFiles);
         } catch (Exception e) {
             MSException.throwException(e);
         }
@@ -225,5 +225,11 @@ public class LoadTestService {
     public String getLoadConfiguration(String testId) {
         LoadTestWithBLOBs loadTestWithBLOBs = loadTestMapper.selectByPrimaryKey(testId);
         return Optional.ofNullable(loadTestWithBLOBs).orElse(new LoadTestWithBLOBs()).getLoadConfiguration();
+    }
+
+    public List<LoadTestWithBLOBs> selectByTestResourcePoolId(String resourcePoolId) {
+        LoadTestExample example = new LoadTestExample();
+        example.createCriteria().andTestResourcePoolIdEqualTo(resourcePoolId);
+        return loadTestMapper.selectByExampleWithBLOBs(example);
     }
 }

@@ -104,7 +104,6 @@
   const STEPS = "Steps";
   const DURATION = "duration";
   const RPS_LIMIT = "rpsLimit";
-  const RESOURCE_POOL = "resourcePoolId";
 
   export default {
     name: "PerformancePressureConfig",
@@ -173,9 +172,6 @@
                     break;
                   case RPS_LIMIT:
                     this.rpsLimit = d.value;
-                    break;
-                  case RESOURCE_POOL:
-                    this.resourcePool = d.value;
                     break;
                   default:
                     break;
@@ -299,7 +295,6 @@
           {key: STEPS, value: this.step},
           {key: DURATION, value: this.duration},
           {key: RPS_LIMIT, value: this.rpsLimit},
-          {key: RESOURCE_POOL, value: this.resourcePool},
         ];
       }
     }

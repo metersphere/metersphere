@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS `load_test` (
     `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
     `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
     `status`                 varchar(64)  DEFAULT NULL COMMENT 'Test Status Running, Completed, Error, etc.',
+    `test_resource_pool_id` varchar(50) DEFAULT NULL,
     PRIMARY KEY (`id`)
 )
     ENGINE = InnoDB

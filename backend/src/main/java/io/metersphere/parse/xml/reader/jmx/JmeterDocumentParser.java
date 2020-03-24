@@ -313,7 +313,7 @@ public class JmeterDocumentParser implements DocumentParser {
         threadGroup.appendChild(createStringProp(document, "LogFilename", ""));
         threadGroup.appendChild(createStringProp(document, "Iterations", "1"));
         // todo 单位是S 要修改 成M
-        threadGroup.appendChild(createStringProp(document, "Unit", "S"));
+        threadGroup.appendChild(createStringProp(document, "Unit", "M"));
     }
 
     private void processCheckoutTimer(Element element) {

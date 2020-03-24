@@ -56,9 +56,9 @@
 <!--        <table tableName="project"/>-->
 <!--        <table tableName="organization"/>-->
 <!--        <table tableName="load_test_report"/>-->
-<!--        <table tableName="load_test"/>-->
+        <table tableName="load_test"/>
 <!--        <table tableName="file_content"/>-->
-        <table tableName="file_metadata"/>
+<!--        <table tableName="file_metadata"/>-->
 <!--        <table tableName="load_test_file"/>-->
     </context>
 </generatorConfiguration>

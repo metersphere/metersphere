@@ -160,6 +160,7 @@
         this.testPlan.updatedFileList = this.$refs.basicConfig.updatedFileList();
         // 压力配置
         this.testPlan.loadConfiguration = JSON.stringify(this.$refs.pressureConfig.convertProperty());
+        this.testPlan.testResourcePoolId = this.$refs.pressureConfig.resourcePool;
         // 高级配置
         this.testPlan.advancedConfiguration = JSON.stringify(this.$refs.advancedConfig.configurations());
 
