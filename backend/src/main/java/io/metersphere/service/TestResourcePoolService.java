@@ -8,6 +8,7 @@ import io.metersphere.base.mapper.TestResourceMapper;
 import io.metersphere.base.mapper.TestResourcePoolMapper;
 import io.metersphere.base.mapper.ext.ExtTestReourcePoolMapper;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
+import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.controller.request.resourcepool.QueryResourcePoolRequest;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.dto.TestResourcePoolDTO;
@@ -44,7 +45,7 @@ public class TestResourcePoolService {
         testResourcePool.setId(UUID.randomUUID().toString());
         testResourcePool.setCreateTime(System.currentTimeMillis());
         testResourcePool.setUpdateTime(System.currentTimeMillis());
-        testResourcePool.setStatus("1");
+        testResourcePool.setStatus(ResourceStatusEnum.VALID.name());
         validateTestResourcePool(testResourcePool);
         testResourcePoolMapper.insertSelective(testResourcePool);
         return testResourcePool;
@@ -83,10 +84,11 @@ public class TestResourcePoolService {
             NodeDTO nodeDTO = JSON.parseObject(resource.getConfiguration(), NodeDTO.class);
             boolean isValidate = validateNode(nodeDTO);
             if (!isValidate) {
-                testResourcePool.setStatus("0");
-                resource.setStatus("0");
+                testResourcePool.setStatus(ResourceStatusEnum.INVALID.name());
+                resource.setStatus(ResourceStatusEnum.INVALID.name());
+            } else {
+                resource.setStatus(ResourceStatusEnum.VALID.name());
             }
-            resource.setStatus("1");
             resource.setTestResourcePoolId(testResourcePool.getId());
             updateTestResource(resource);
 
@@ -114,10 +116,10 @@ public class TestResourcePoolService {
         try {
             KubernetesProvider provider = new KubernetesProvider(testResource.getConfiguration());
             provider.validateCredential();
-            testResource.setStatus("1");
+            testResource.setStatus(ResourceStatusEnum.VALID.name());
         } catch (Exception e) {
-            testResource.setStatus("0");
-            testResourcePool.setStatus("0");
+            testResource.setStatus(ResourceStatusEnum.INVALID.name());
+            testResourcePool.setStatus(ResourceStatusEnum.INVALID.name());
         }
         deleteTestResource(testResourcePool.getId());
         updateTestResource(testResource);
