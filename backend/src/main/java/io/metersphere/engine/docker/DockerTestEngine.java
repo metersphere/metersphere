@@ -3,6 +3,7 @@ package io.metersphere.engine.docker;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.LoadTestWithBLOBs;
+import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.controller.request.TestRequest;
@@ -15,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DockerTestEngine extends AbstractEngine {
 
@@ -31,16 +33,32 @@ public class DockerTestEngine extends AbstractEngine {
 
     @Override
     public void start() {
-        Integer runningSumThreadNum = getSumThreadNum();
-        Integer integer = resourceList.stream().map(r -> {
-            NodeDTO nodeDTO = JSON.parseObject(r.getConfiguration(), NodeDTO.class);
-            return nodeDTO.getMaxConcurrency();
-        }).reduce(Integer::sum).orElse(0);
+        Integer runningSumThreadNum = getRunningThreadNum();
+        Integer totalThreadNum = resourceList.stream()
+                .filter(r -> ResourceStatusEnum.VALID.name().equals(r.getStatus()))
+                .map(r -> JSON.parseObject(r.getConfiguration(), NodeDTO.class).getMaxConcurrency())
+                .reduce(Integer::sum)
+                .orElse(0);
+        if (threadNum > totalThreadNum - runningSumThreadNum) {
+            MSException.throwException("资源不足");
+        }
+        List<Integer> resourceRatio = resourceList.stream()
+                .filter(r -> ResourceStatusEnum.VALID.name().equals(r.getStatus()))
+                .map(r -> JSON.parseObject(r.getConfiguration(), NodeDTO.class).getMaxConcurrency())
+                .collect(Collectors.toList());
 
+        resourceRatio.forEach(ratio -> {
+            double realThreadNum = ((double) ratio / totalThreadNum) * threadNum;
+            runTest(Math.round(realThreadNum));
+        });
+
+    }
+
+    private void runTest(long realThreadNum) {
         // todo 运行测试
         EngineContext context = null;
         try {
-            context = EngineFactory.createContext(loadTest, jmxFile, csvFiles);
+            context = EngineFactory.createContext(loadTest, jmxFile, csvFiles, realThreadNum);
         } catch (Exception e) {
             e.printStackTrace();
         }

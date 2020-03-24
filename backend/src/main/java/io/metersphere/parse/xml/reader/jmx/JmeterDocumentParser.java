@@ -386,6 +386,11 @@ public class JmeterDocumentParser implements DocumentParser {
                     if (nodeNameEquals(ele, STRING_PROP)) {
                         parseStringProp(ele);
                     }
+
+                    // 设置具体的线程数
+                    if (nodeNameEquals(ele, STRING_PROP) && "TargetLevel".equals(ele.getAttribute("name"))) {
+                        ele.getFirstChild().setNodeValue(context.getThreadNum().toString());
+                    }
                 }
             }
         }

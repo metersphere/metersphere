@@ -36,14 +36,7 @@ public abstract class AbstractEngine implements Engine {
         TestResourceService testResourceService = CommonBeanFactory.getBean(TestResourceService.class);
         this.loadTestService = CommonBeanFactory.getBean(LoadTestService.class);
 
-        String loadConfiguration = loadTest.getLoadConfiguration();
-        JSONArray jsonArray = JSON.parseArray(loadConfiguration);
-        for (int i = 0; i < jsonArray.size(); i++) {
-            JSONObject o = jsonArray.getJSONObject(i);
-            if (StringUtils.equals(o.getString("key"), "TargetLevel")) {
-                threadNum = o.getInteger("value");
-            }
-        }
+        threadNum = getThreadNum(loadTest);
         String resourcePoolId = loadTest.getTestResourcePoolId();
         if (StringUtils.isBlank(resourcePoolId)) {
             MSException.throwException("Resource Pool ID is empty");
@@ -62,20 +55,26 @@ public abstract class AbstractEngine implements Engine {
         return true;
     }
 
-    protected Integer getSumThreadNum() {
+    protected Integer getRunningThreadNum() {
         List<LoadTestWithBLOBs> loadTests = loadTestService.selectByTestResourcePoolId(loadTest.getTestResourcePoolId());
         // 使用当前资源池正在运行的测试占用的并发数
-        return loadTests.stream().filter(t -> TestStatus.Running.name().equals(t.getStatus())).map(t -> {
-            Integer s = 0;
-            String loadConfiguration = t.getLoadConfiguration();
-            JSONArray jsonArray = JSON.parseArray(loadConfiguration);
-            for (int i = 0; i < jsonArray.size(); i++) {
-                JSONObject o = jsonArray.getJSONObject(i);
-                if (StringUtils.equals(o.getString("key"), "TargetLevel")) {
-                    s = o.getInteger("value");
-                }
+        return loadTests.stream()
+                .filter(t -> TestStatus.Running.name().equals(t.getStatus()))
+                .map(this::getThreadNum)
+                .reduce(Integer::sum)
+                .orElse(0);
+    }
+
+    private Integer getThreadNum(LoadTestWithBLOBs t) {
+        Integer s = 0;
+        String loadConfiguration = t.getLoadConfiguration();
+        JSONArray jsonArray = JSON.parseArray(loadConfiguration);
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JSONObject o = jsonArray.getJSONObject(i);
+            if (StringUtils.equals(o.getString("key"), "TargetLevel")) {
+                s = o.getInteger("value");
             }
-            return s;
-        }).reduce(Integer::sum).orElse(0);
+        }
+        return s;
     }
 }

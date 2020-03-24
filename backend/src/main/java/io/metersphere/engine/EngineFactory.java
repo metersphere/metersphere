@@ -27,22 +27,11 @@ import java.util.Map;
 
 @Service
 public class EngineFactory {
-    private static final String RESOURCE_POOL_ID = "resourcePoolId";
     private static FileService fileService;
     private static TestResourcePoolService testResourcePoolService;
 
     public static Engine createEngine(LoadTestWithBLOBs loadTest) {
-        String resourcePoolId = null;
-        if (!StringUtils.isEmpty(loadTest.getLoadConfiguration())) {
-            final JSONArray jsonArray = JSONObject.parseArray(loadTest.getLoadConfiguration());
-            for (int i = 0; i < jsonArray.size(); i++) {
-                final JSONObject jsonObject = jsonArray.getJSONObject(i);
-                if (StringUtils.equals(jsonObject.getString("key"), RESOURCE_POOL_ID)) {
-                    resourcePoolId = jsonObject.getString("value");
-                    break;
-                }
-            }
-        }
+        String resourcePoolId = loadTest.getTestResourcePoolId();
         if (StringUtils.isBlank(resourcePoolId)) {
             MSException.throwException("Resource Pool ID is empty.");
         }
@@ -63,7 +52,7 @@ public class EngineFactory {
         return null;
     }
 
-    public static EngineContext createContext(LoadTestWithBLOBs loadTest, FileMetadata fileMetadata, List<FileMetadata> csvFiles) throws Exception {
+    public static EngineContext createContext(LoadTestWithBLOBs loadTest, FileMetadata fileMetadata, List<FileMetadata> csvFiles, long threadNum) throws Exception {
         final FileContent fileContent = fileService.getFileContent(fileMetadata.getId());
         if (fileContent == null) {
             MSException.throwException(Translator.get("run_load_test_file_content_not_found") + loadTest.getId());
@@ -73,6 +62,8 @@ public class EngineFactory {
         engineContext.setTestName(loadTest.getName());
         engineContext.setNamespace(loadTest.getProjectId());
         engineContext.setFileType(fileMetadata.getType());
+        engineContext.setThreadNum(threadNum);
+        engineContext.setResourcePoolId(loadTest.getTestResourcePoolId());
 
         if (!StringUtils.isEmpty(loadTest.getLoadConfiguration())) {
             final JSONArray jsonArray = JSONObject.parseArray(loadTest.getLoadConfiguration());
@@ -80,9 +71,6 @@ public class EngineFactory {
             for (int i = 0; i < jsonArray.size(); i++) {
                 final JSONObject jsonObject = jsonArray.getJSONObject(i);
                 engineContext.addProperty(jsonObject.getString("key"), jsonObject.get("value"));
-                if (StringUtils.equals(jsonObject.getString("key"), RESOURCE_POOL_ID)) {
-                    engineContext.setResourcePoolId(jsonObject.getString("value"));
-                }
             }
         }
 

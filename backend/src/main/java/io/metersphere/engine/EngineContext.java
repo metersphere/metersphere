@@ -10,6 +10,7 @@ public class EngineContext {
     private String fileType;
     private String content;
     private String resourcePoolId;
+    private Long threadNum;
     private Map<String, Object> properties = new HashMap<>();
     private Map<String, String> testData = new HashMap<>();
 
@@ -75,5 +76,13 @@ public class EngineContext {
 
     public void setResourcePoolId(String resourcePoolId) {
         this.resourcePoolId = resourcePoolId;
+    }
+
+    public Long getThreadNum() {
+        return threadNum;
+    }
+
+    public void setThreadNum(Long threadNum) {
+        this.threadNum = threadNum;
     }
 }

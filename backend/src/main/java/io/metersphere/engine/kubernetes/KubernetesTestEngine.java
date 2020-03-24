@@ -31,7 +31,7 @@ public class KubernetesTestEngine extends AbstractEngine {
 
     @Override
     public void start() {
-        Integer sumThreadNum = getSumThreadNum();
+        Integer sumThreadNum = getRunningThreadNum();
         // resourceList size 1
         resourceList.forEach(r -> {
             String configuration = r.getConfiguration();
@@ -43,7 +43,7 @@ public class KubernetesTestEngine extends AbstractEngine {
                 MSException.throwException("资源不足");
             }
             try {
-                EngineContext context = EngineFactory.createContext(loadTest, jmxFile, csvFiles);
+                EngineContext context = EngineFactory.createContext(loadTest, jmxFile, csvFiles, threadNum);
                 runTest(context, clientCredential, 1);
             } catch (Exception e) {
                 LogUtil.error(e);
