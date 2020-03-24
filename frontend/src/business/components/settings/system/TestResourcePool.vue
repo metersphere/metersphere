@@ -334,8 +334,6 @@
         this.createVisible = true;
       },
       edit(row) {
-        window.console.log(row);
-        // this.loading = true;
         this.updateVisible = true;
         this.form = JSON.parse(JSON.stringify(row));
         this.convertResources();

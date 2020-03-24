@@ -42,7 +42,7 @@ public class TestResourcePoolController {
     }
 
     @GetMapping("list/all")
-    public List<TestResourcePool> listResourcePools() {
+    public List<TestResourcePoolDTO> listResourcePools() {
         PageHelper.startPage(1, 10000, true);
         QueryResourcePoolRequest request = new QueryResourcePoolRequest();
         return testResourcePoolService.listResourcePools(request);
