@@ -79,6 +79,9 @@ public class EngineFactory {
             for (int i = 0; i < jsonArray.size(); i++) {
                 final JSONObject jsonObject = jsonArray.getJSONObject(i);
                 engineContext.addProperty(jsonObject.getString("key"), jsonObject.get("value"));
+                if (StringUtils.equals(jsonObject.getString("key"), "resourcePoolId")) {
+                    engineContext.setResourcePoolId(jsonObject.getString("value"));
+                }
             }
         }
 

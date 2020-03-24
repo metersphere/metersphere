@@ -9,6 +9,7 @@ public class EngineContext {
     private String namespace;
     private String fileType;
     private String content;
+    private String resourcePoolId;
     private Map<String, Object> properties = new HashMap<>();
     private Map<String, String> testData = new HashMap<>();
 
@@ -66,5 +67,13 @@ public class EngineContext {
 
     public void setTestData(Map<String, String> testData) {
         this.testData = testData;
+    }
+
+    public String getResourcePoolId() {
+        return resourcePoolId;
+    }
+
+    public void setResourcePoolId(String resourcePoolId) {
+        this.resourcePoolId = resourcePoolId;
     }
 }

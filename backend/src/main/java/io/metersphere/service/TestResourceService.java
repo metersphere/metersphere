@@ -41,4 +41,10 @@ public class TestResourceService {
         testResource.setUpdateTime(System.currentTimeMillis());
         testResourceMapper.updateByPrimaryKeySelective(testResource);
     }
+
+    public List<TestResource> getResourcesByPoolId(String resourcePoolId) {
+        TestResourceExample example = new TestResourceExample();
+        example.createCriteria().andTestResourcePoolIdEqualTo(resourcePoolId);
+        return testResourceMapper.selectByExampleWithBLOBs(example);
+    }
 }
