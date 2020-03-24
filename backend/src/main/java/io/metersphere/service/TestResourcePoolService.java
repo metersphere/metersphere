@@ -3,6 +3,7 @@ package io.metersphere.service;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.base.domain.TestResourceExample;
+import io.metersphere.base.domain.TestResourcePool;
 import io.metersphere.base.mapper.TestResourceMapper;
 import io.metersphere.base.mapper.TestResourcePoolMapper;
 import io.metersphere.base.mapper.ext.ExtTestReourcePoolMapper;

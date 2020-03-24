@@ -5,7 +5,6 @@ public class KubernetesDTO {
     private String masterUrl;
     private String token;
     private Integer maxConcurrency;
-    private Boolean validate;
 
     public String getMasterUrl() {
         return masterUrl;
@@ -31,11 +30,4 @@ public class KubernetesDTO {
         this.maxConcurrency = maxConcurrency;
     }
 
-    public Boolean getValidate() {
-        return validate;
-    }
-
-    public void setValidate(Boolean validate) {
-        this.validate = validate;
-    }
 }
