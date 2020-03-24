@@ -4,8 +4,6 @@
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.TestResource">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="test_resource_pool_id" jdbcType="VARCHAR" property="testResourcePoolId" />
-    <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
@@ -72,7 +70,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, test_resource_pool_id, name, description, status, create_time, update_time
+    id, test_resource_pool_id, status, create_time, update_time
   </sql>
   <sql id="Blob_Column_List">
     configuration
@@ -126,12 +124,12 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestResource">
-    insert into test_resource (id, test_resource_pool_id, name, 
-      description, status, create_time, 
-      update_time, configuration)
-    values (#{id,jdbcType=VARCHAR}, #{testResourcePoolId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{description,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{configuration,jdbcType=LONGVARCHAR})
+    insert into test_resource (id, test_resource_pool_id, status, 
+      create_time, update_time, configuration
+      )
+    values (#{id,jdbcType=VARCHAR}, #{testResourcePoolId,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{configuration,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestResource">
     insert into test_resource
@@ -141,12 +139,6 @@
       </if>
       <if test="testResourcePoolId != null">
         test_resource_pool_id,
-      </if>
-      <if test="name != null">
-        name,
-      </if>
-      <if test="description != null">
-        description,
       </if>
       <if test="status != null">
         status,
@@ -167,12 +159,6 @@
       </if>
       <if test="testResourcePoolId != null">
         #{testResourcePoolId,jdbcType=VARCHAR},
-      </if>
-      <if test="name != null">
-        #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="description != null">
-        #{description,jdbcType=VARCHAR},
       </if>
       <if test="status != null">
         #{status,jdbcType=VARCHAR},
@@ -203,12 +189,6 @@
       <if test="record.testResourcePoolId != null">
         test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
       </if>
-      <if test="record.name != null">
-        name = #{record.name,jdbcType=VARCHAR},
-      </if>
-      <if test="record.description != null">
-        description = #{record.description,jdbcType=VARCHAR},
-      </if>
       <if test="record.status != null">
         status = #{record.status,jdbcType=VARCHAR},
       </if>
@@ -230,8 +210,6 @@
     update test_resource
     set id = #{record.id,jdbcType=VARCHAR},
       test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
-      name = #{record.name,jdbcType=VARCHAR},
-      description = #{record.description,jdbcType=VARCHAR},
       status = #{record.status,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
@@ -244,8 +222,6 @@
     update test_resource
     set id = #{record.id,jdbcType=VARCHAR},
       test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
-      name = #{record.name,jdbcType=VARCHAR},
-      description = #{record.description,jdbcType=VARCHAR},
       status = #{record.status,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT}
@@ -258,12 +234,6 @@
     <set>
       <if test="testResourcePoolId != null">
         test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
-      </if>
-      <if test="name != null">
-        name = #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="description != null">
-        description = #{description,jdbcType=VARCHAR},
       </if>
       <if test="status != null">
         status = #{status,jdbcType=VARCHAR},
@@ -283,8 +253,6 @@
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.TestResource">
     update test_resource
     set test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
-      name = #{name,jdbcType=VARCHAR},
-      description = #{description,jdbcType=VARCHAR},
       status = #{status,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
@@ -294,8 +262,6 @@
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestResource">
     update test_resource
     set test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
-      name = #{name,jdbcType=VARCHAR},
-      description = #{description,jdbcType=VARCHAR},
       status = #{status,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT}
