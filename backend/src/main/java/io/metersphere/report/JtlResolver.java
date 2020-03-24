@@ -9,12 +9,13 @@ import io.metersphere.report.base.RequestStatistics;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class JtlResolver {
 
-    private List<Metric> resolver(String jtlString) {
+    private static List<Metric> resolver(String jtlString) {
         HeaderColumnNameMappingStrategy<Metric> ms = new HeaderColumnNameMappingStrategy<>();
         ms.setType(Metric.class);
         try (Reader reader = new StringReader(jtlString)) {
@@ -32,7 +33,7 @@ public class JtlResolver {
         return null;
     }
 
-    private List<RequestStatistics> getOneRpsResult(Map<String, List<Metric>> map){
+    private static List<RequestStatistics> getOneRpsResult(Map<String, List<Metric>> map){
         List<RequestStatistics> requestStatisticsList = new ArrayList<>();
         Iterator<Map.Entry<String, List<Metric>>> iterator = map.entrySet().iterator();
         while (iterator.hasNext()) {
@@ -45,7 +46,7 @@ public class JtlResolver {
             int sumElapsed=0;
             Integer failSize = 0;
             Integer totalBytes = 0;
-            List<Integer> elapsedList = new ArrayList<Integer>();
+            List<Integer> elapsedList = new ArrayList<>();
 
             for (int i = 0; i < list.size(); i++) {
                 try {
@@ -84,7 +85,9 @@ public class JtlResolver {
             RequestStatistics requestStatistics = new RequestStatistics();
             requestStatistics.setRequestLabel(label);
             requestStatistics.setSamples(index+"");
-            requestStatistics.setAverage(sumElapsed/index+"");
+            DecimalFormat df = new DecimalFormat("0.00");
+            String s = df.format((float)sumElapsed/index);
+            requestStatistics.setAverage(s+"");
             /**
              * TP90的计算
              * 1，把一段时间内全部的请求的响应时间，从小到大排序，获得序列A
@@ -104,7 +107,7 @@ public class JtlResolver {
         return requestStatisticsList;
     }
 
-    public List<RequestStatistics> getRequestStatistics(String jtlString) {
+    public static List<RequestStatistics> getRequestStatistics(String jtlString) {
         List<Metric> totalLines = resolver(jtlString);
         Map<String, List<Metric>> map = totalLines.stream().collect(Collectors.groupingBy(Metric::getLabel));
         return getOneRpsResult(map);
