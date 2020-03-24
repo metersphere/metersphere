@@ -2,78 +2,73 @@
   <div>
     <el-table
       :data="tableData"
+      stripe
       border
       style="width: 100%"
-      :default-sort = "{prop: 'samples'}"
+      show-summary
+      :default-sort = "{prop: 'samples', order: 'descending'}"
     >
-      <el-table-column
-        prop="requestLabel"
-        label="Element Label"
-        fixed
-        width="450"
-      >
+      <el-table-column label="Requests" fixed width="450" align="center">
+        <el-table-column
+          prop="requestLabel"
+          label="Label"
+          width="450"/>
       </el-table-column>
-      <el-table-column
-        prop="samples"
-        label="Samples"
-        width="150"
-        sortable>
+
+      <el-table-column label="Executions" align="center">
+        <el-table-column
+          prop="samples"
+          label="Samples"
+          sortable
+          width="110"
+        />
+
+        <el-table-column
+          prop="errors"
+          label="Error%"
+          align="center"
+          fixed="right"/>
       </el-table-column>
-      <el-table-column
-        prop="average"
-        label="Avg Response Time(ms)"
-        width="220"
-      >
+
+      <el-table-column label="Response Times(ms)" align="center">
+        <el-table-column
+          prop="average"
+          label="Average"
+        />
+        <el-table-column
+          prop="min"
+          label="Min"
+        />
+        <el-table-column
+          prop="max"
+          label="Max"
+        />
+        <el-table-column
+          prop="tp90"
+          label="90% line"
+        />
+        <el-table-column
+          prop="tp95"
+          label="95% line"
+        />
+        <el-table-column
+          prop="tp99"
+          label="99% line"
+        />
       </el-table-column>
-      <el-table-column
-        prop="avgHits"
-        label="Avg Hits/s"
-        width="150"
-      >
-      </el-table-column>
-      <el-table-column
-        prop="tp90"
-        label="90% line(ms)"
-        width="150"
-      >
-      </el-table-column>
-      <el-table-column
-        prop="tp95"
-        label="95% line(ms)"
-        width="150"
-      >
-      </el-table-column>
-      <el-table-column
-        prop="tp99"
-        label="99% line(ms)"
-        width="150"
-      >
-      </el-table-column>
-      <el-table-column
-        prop="min"
-        label="Min Response Time(ms)"
-        width="220"
-      >
-      </el-table-column>
-      <el-table-column
-        prop="max"
-        label="Max Response Time(ms)"
-        width="220"
-      >
-      </el-table-column>
+
+<!--      <el-table-column-->
+<!--        prop="avgHits"-->
+<!--        label="Avg Hits/s"-->
+<!--        width="150"-->
+<!--      />-->
+
       <el-table-column
         prop="kbPerSec"
         label="Avg Bandwidth(KBytes/s)"
-        width="220"
-      >
-      </el-table-column>
-      <el-table-column
-        prop="errors"
-        label="Error Percentage"
-        width="180"
-        fixed="right"
-      >
-      </el-table-column>
+        align="center"
+        width="200"
+      />
     </el-table>
   </div>
 </template>

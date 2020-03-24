@@ -255,8 +255,8 @@ public class JtlTest {
 
             RequestStatistics sceneResult = new RequestStatistics();
             sceneResult.setRequestLabel(label);
-            sceneResult.setSamples(index+"");
-            sceneResult.setAverage(sumElapsed/index+"");
+            sceneResult.setSamples(index);
+//            sceneResult.setAverage(sumElapsed/index);
             sceneResult.setTp90(elapsedList.get(tp90)+"");
             sceneResult.setTp95(elapsedList.get(tp95)+"");
             sceneResult.setTp99(elapsedList.get(tp99)+"");
