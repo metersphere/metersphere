@@ -6,6 +6,7 @@ import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.base.domain.TestResourcePool;
+import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
@@ -17,6 +18,7 @@ import io.metersphere.engine.kubernetes.provider.ClientCredential;
 import io.metersphere.engine.kubernetes.provider.KubernetesProvider;
 import io.metersphere.service.TestResourcePoolService;
 import io.metersphere.service.TestResourceService;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 
 import java.util.HashMap;
@@ -29,7 +31,6 @@ public class KubernetesTestEngine implements Engine {
 
     @Override
     public boolean init(EngineContext context) {
-        // todo 初始化操作
         this.context = context;
         this.testResourcePoolService = CommonBeanFactory.getBean(TestResourcePoolService.class);
         this.testResourceService = CommonBeanFactory.getBean(TestResourceService.class);
@@ -47,10 +48,22 @@ public class KubernetesTestEngine implements Engine {
         if (resourcePool == null) {
             MSException.throwException("Resource Pool is empty");
         }
+        if (!ResourcePoolTypeEnum.K8S.name().equals(resourcePool.getType())) {
+            MSException.throwException("Invalid Resource Pool type.");
+        }
         List<TestResource> resourceList = testResourceService.getResourcesByPoolId(resourcePool.getId());
-        // todo 运行测试
-        ClientCredential credential = new ClientCredential();
-        credential.setMasterUrl("https://172.16.10.93:6443");
+        if (CollectionUtils.isEmpty(resourceList)) {
+            MSException.throwException("Test Resource is empty");
+        }
+        // resourceList size 1
+        resourceList.forEach(r -> {
+            String configuration = r.getConfiguration();
+            ClientCredential clientCredential = JSON.parseObject(configuration, ClientCredential.class);
+            runTest(clientCredential);
+        });
+    }
+
+    private void runTest(ClientCredential credential) {
         KubernetesProvider kubernetesProvider = new KubernetesProvider(JSON.toJSONString(credential));
         // create namespace
         kubernetesProvider.confirmNamespace(context.getNamespace());
@@ -73,6 +86,7 @@ public class KubernetesTestEngine implements Engine {
             }
         }
         // create jmeter
+        // todo image
         try {
             Jmeter jmeter = new Jmeter();
             jmeter.setMetadata(new ObjectMeta() {{
