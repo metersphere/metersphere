@@ -164,6 +164,13 @@ export default {
   fuc_test: {
     'select_resource_pool': '请选择资源池'
   },
+  test_track: {
+    'test_track': '测试跟踪',
+    'test_case': '测试用例',
+    'create_case': '创建用例',
+    'test_plan': '测试计划',
+    'create_plan': '创建计划',
+  },
   i18n: {
     'home': '首页',
   }
