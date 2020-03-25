@@ -47,14 +47,14 @@ public class KubernetesTestEngine extends AbstractEngine {
             }
             try {
                 EngineContext context = EngineFactory.createContext(loadTest, threadNum);
-                runTest(context, clientCredential, 1);
+                runTest(context, clientCredential);
             } catch (Exception e) {
                 MSException.throwException(e);
             }
         });
     }
 
-    private void runTest(EngineContext context, ClientCredential credential, int replicas) {
+    private void runTest(EngineContext context, ClientCredential credential) {
         KubernetesProvider kubernetesProvider = new KubernetesProvider(JSON.toJSONString(credential));
 
         // create namespace
@@ -88,7 +88,7 @@ public class KubernetesTestEngine extends AbstractEngine {
                 setName(context.getTestId());
             }});
             jmeter.setSpec(new JmeterSpec() {{
-                setReplicas(replicas);
+                setReplicas(1);
                 setImage(registryService.getRegistry() + "jmeter-master:0.0.2");
             }});
             LogUtil.info("Load test started. " + context.getTestId());
