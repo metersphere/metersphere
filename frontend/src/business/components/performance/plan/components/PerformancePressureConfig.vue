@@ -107,9 +107,9 @@
 
   export default {
     name: "PerformancePressureConfig",
+    props: ['testPlan'],
     data() {
       return {
-        testPlan: {},
         threadNumber: 10,
         duration: 10,
         rampUpTime: 10,
@@ -127,7 +127,7 @@
       } else {
         this.calculateChart();
       }
-
+      this.resourcePool = this.testPlan.testResourcePoolId;
       this.getResourcePools();
     },
     watch: {
@@ -141,6 +141,10 @@
         } else {
           this.calculateChart();
         }
+      },
+      testPlan(n) {
+        this.resourcePool = n.testResourcePoolId;
+        window.console.log(this.resourcePool);
       }
     },
     methods: {

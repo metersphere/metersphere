@@ -87,6 +87,7 @@ public class LoadTestService {
         loadTest.setUpdateTime(System.currentTimeMillis());
         loadTest.setScenarioDefinition("todo");
         loadTest.setDescription("todo");
+        loadTest.setTestResourcePoolId(request.getTestResourcePoolId());
         loadTest.setLoadConfiguration(request.getLoadConfiguration());
         loadTest.setAdvancedConfiguration(request.getAdvancedConfiguration());
         loadTestMapper.insert(loadTest);
@@ -153,6 +154,7 @@ public class LoadTestService {
             loadTest.setDescription("todo");
             loadTest.setLoadConfiguration(request.getLoadConfiguration());
             loadTest.setAdvancedConfiguration(request.getAdvancedConfiguration());
+            loadTest.setTestResourcePoolId(request.getTestResourcePoolId());
             loadTestMapper.updateByPrimaryKeySelective(loadTest);
         }
 
