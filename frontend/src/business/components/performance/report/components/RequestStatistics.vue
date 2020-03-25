@@ -80,37 +80,33 @@
     data() {
       return {
         tableData: [{},{},{},{},{}],
+        totalInfo: {}
       }
     },
     methods: {
       initTableData() {
         this.$get("/report/content/" + this.id, res => {
-          this.tableData = res.data;
+          this.tableData = res.data.requestStatisticsList;
+          this.totalInfo = res.data;
         })
       },
-      getSummaries (param) {
-        const { data } = param
+      getSummaries () {
         const sums = []
-        let allSamples = data.reduce(function (total, currentValue) {
-          return total + currentValue.samples;
-        }, 0);
-        let failSize = data.reduce(function (total, currentValue) {
-          return total + currentValue.ko;
-        }, 0);
-        let allAverageTime = data.reduce(function (total, currentValue) {
-          return total + parseFloat(currentValue.average) * currentValue.samples;
-        }, 0);
-        sums[0] = 'Total'
-        sums[1] = allSamples;
-        sums[2] = (Math.round(failSize / allSamples * 10000) / 100) + '%';
-        sums[3] = (allAverageTime / allSamples).toFixed(2);
-        sums[4] = Math.min.apply(Math, data.map(function(o) {return parseFloat(o.min)}));
-        sums[5] = Math.max.apply(Math, data.map(function(o) {return parseFloat(o.max)}));
-        return sums
+        sums[0] = this.totalInfo.totalLabel;
+        sums[1] = this.totalInfo.totalSamples;
+        sums[2] = this.totalInfo.totalErrors;
+        sums[3] = this.totalInfo.totalAverage;
+        sums[4] = this.totalInfo.totalMin;
+        sums[5] = this.totalInfo.totalMax;
+        sums[6] = this.totalInfo.totalTP90;
+        sums[7] = this.totalInfo.totalTP95;
+        sums[8] = this.totalInfo.totalTP99;
+        return sums;
       }
     },
     created() {
       this.initTableData()
+      this.getSummaries()
     },
     props: ['id'],
     watch: {
@@ -119,7 +115,8 @@
           let reportId = to.path.split('/')[4];
           if(reportId){
             this.$get("/report/content/" + reportId, res => {
-              this.tableData = res.data;
+              this.tableData = res.data.requestStatisticsList;
+              this.totalInfo = res.data;
             })
           }
         }
