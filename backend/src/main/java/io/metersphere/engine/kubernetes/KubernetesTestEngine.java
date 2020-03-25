@@ -6,6 +6,7 @@ import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.metersphere.base.domain.LoadTestWithBLOBs;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.engine.AbstractEngine;
 import io.metersphere.engine.EngineContext;
@@ -14,15 +15,19 @@ import io.metersphere.engine.kubernetes.crds.jmeter.Jmeter;
 import io.metersphere.engine.kubernetes.crds.jmeter.JmeterSpec;
 import io.metersphere.engine.kubernetes.provider.ClientCredential;
 import io.metersphere.engine.kubernetes.provider.KubernetesProvider;
+import io.metersphere.engine.kubernetes.registry.RegistryService;
 import org.apache.commons.collections.MapUtils;
 
 import java.util.HashMap;
 
 public class KubernetesTestEngine extends AbstractEngine {
 
+    private RegistryService registryService;
+
     @Override
     public boolean init(LoadTestWithBLOBs loadTest) {
         super.init(loadTest);
+        this.registryService = CommonBeanFactory.getBean(RegistryService.class);
         return true;
     }
 
@@ -44,15 +49,18 @@ public class KubernetesTestEngine extends AbstractEngine {
                 EngineContext context = EngineFactory.createContext(loadTest, threadNum);
                 runTest(context, clientCredential, 1);
             } catch (Exception e) {
-                LogUtil.error(e);
+                MSException.throwException(e);
             }
         });
     }
 
     private void runTest(EngineContext context, ClientCredential credential, int replicas) {
         KubernetesProvider kubernetesProvider = new KubernetesProvider(JSON.toJSONString(credential));
+
         // create namespace
         kubernetesProvider.confirmNamespace(context.getNamespace());
+        // docker registry
+        registryService.dockerRegistry(kubernetesProvider, context.getNamespace());
         // create cm
         try (KubernetesClient client = kubernetesProvider.getKubernetesClient()) {
             String configMapName = context.getTestId() + "-files";
@@ -81,12 +89,12 @@ public class KubernetesTestEngine extends AbstractEngine {
             }});
             jmeter.setSpec(new JmeterSpec() {{
                 setReplicas(replicas);
-                setImage("registry.fit2cloud.com/metersphere/jmeter-master:0.0.2");
+                setImage(registryService.getRegistry() + "jmeter-master:0.0.2");
             }});
             LogUtil.info("Load test started. " + context.getTestId());
             kubernetesProvider.applyCustomResource(jmeter);
         } catch (Exception e) {
-            LogUtil.error(e);
+            MSException.throwException(e);
         }
     }
 

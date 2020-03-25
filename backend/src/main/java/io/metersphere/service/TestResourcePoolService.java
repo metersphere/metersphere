@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.base.domain.TestResourceExample;
 import io.metersphere.base.domain.TestResourcePool;
+import io.metersphere.base.domain.TestResourcePoolExample;
 import io.metersphere.base.mapper.TestResourceMapper;
 import io.metersphere.base.mapper.TestResourcePoolMapper;
 import io.metersphere.base.mapper.ext.ExtTestReourcePoolMapper;
@@ -25,6 +26,8 @@ import javax.annotation.Resource;
 import java.util.List;
 import java.util.UUID;
 
+import static io.metersphere.commons.constants.ResourceStatusEnum.VALID;
+
 /**
  * @author dongbin
  */
@@ -45,7 +48,7 @@ public class TestResourcePoolService {
         testResourcePool.setId(UUID.randomUUID().toString());
         testResourcePool.setCreateTime(System.currentTimeMillis());
         testResourcePool.setUpdateTime(System.currentTimeMillis());
-        testResourcePool.setStatus(ResourceStatusEnum.VALID.name());
+        testResourcePool.setStatus(VALID.name());
         validateTestResourcePool(testResourcePool);
         testResourcePoolMapper.insertSelective(testResourcePool);
         return testResourcePool;
@@ -87,7 +90,7 @@ public class TestResourcePoolService {
                 testResourcePool.setStatus(ResourceStatusEnum.INVALID.name());
                 resource.setStatus(ResourceStatusEnum.INVALID.name());
             } else {
-                resource.setStatus(ResourceStatusEnum.VALID.name());
+                resource.setStatus(VALID.name());
             }
             resource.setTestResourcePoolId(testResourcePool.getId());
             updateTestResource(resource);
@@ -116,7 +119,7 @@ public class TestResourcePoolService {
         try {
             KubernetesProvider provider = new KubernetesProvider(testResource.getConfiguration());
             provider.validateCredential();
-            testResource.setStatus(ResourceStatusEnum.VALID.name());
+            testResource.setStatus(VALID.name());
         } catch (Exception e) {
             testResource.setStatus(ResourceStatusEnum.INVALID.name());
             testResourcePool.setStatus(ResourceStatusEnum.INVALID.name());
@@ -141,5 +144,11 @@ public class TestResourcePoolService {
 
     public TestResourcePool getResourcePool(String resourcePoolId) {
         return testResourcePoolMapper.selectByPrimaryKey(resourcePoolId);
+    }
+
+    public List<TestResourcePool> listValidResourcePools() {
+        TestResourcePoolExample example = new TestResourcePoolExample();
+        example.createCriteria().andStatusEqualTo(ResourceStatusEnum.VALID.name());
+        return testResourcePoolMapper.selectByExample(example);
     }
 }

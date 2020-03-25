@@ -148,7 +148,7 @@
     },
     methods: {
       getResourcePools() {
-        this.$get('/testresourcepool/list/all', response => {
+        this.$get('/testresourcepool/list/all/valid', response => {
           this.resourcePools = response.data;
         })
       },
