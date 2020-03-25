@@ -41,7 +41,7 @@ public class KubernetesTestEngine extends AbstractEngine {
                 MSException.throwException("Insufficient resources");
             }
             try {
-                EngineContext context = EngineFactory.createContext(loadTest, jmxFile, csvFiles, threadNum);
+                EngineContext context = EngineFactory.createContext(loadTest, threadNum);
                 runTest(context, clientCredential, 1);
             } catch (Exception e) {
                 LogUtil.error(e);

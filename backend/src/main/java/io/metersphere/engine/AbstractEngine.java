@@ -3,17 +3,13 @@ package io.metersphere.engine;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.LoadTestWithBLOBs;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.base.domain.TestResourcePool;
-import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.commons.constants.TestStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.i18n.Translator;
-import io.metersphere.service.FileService;
 import io.metersphere.service.LoadTestService;
 import io.metersphere.service.TestResourcePoolService;
 import io.metersphere.service.TestResourceService;
@@ -21,11 +17,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public abstract class AbstractEngine implements Engine {
-    protected FileMetadata jmxFile;
-    protected List<FileMetadata> csvFiles;
     protected LoadTestWithBLOBs loadTest;
     protected LoadTestService loadTestService;
     protected Integer threadNum;
@@ -33,12 +26,10 @@ public abstract class AbstractEngine implements Engine {
 
     private TestResourcePoolService testResourcePoolService;
     private TestResourceService testResourceService;
-    private FileService fileService;
 
     public AbstractEngine() {
         testResourcePoolService = CommonBeanFactory.getBean(TestResourcePoolService.class);
         testResourceService = CommonBeanFactory.getBean(TestResourceService.class);
-        fileService = CommonBeanFactory.getBean(FileService.class);
     }
 
     @Override
@@ -47,18 +38,6 @@ public abstract class AbstractEngine implements Engine {
             MSException.throwException("LoadTest is null.");
         }
         this.loadTest = loadTest;
-
-        final List<FileMetadata> fileMetadataList = fileService.getFileMetadataByTestId(loadTest.getId());
-        if (org.springframework.util.CollectionUtils.isEmpty(fileMetadataList)) {
-            MSException.throwException(Translator.get("run_load_test_file_not_found") + loadTest.getId());
-        }
-        jmxFile = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.JMX.name()))
-                .findFirst().orElseGet(() -> {
-                    throw new RuntimeException(Translator.get("run_load_test_file_not_found") + loadTest.getId());
-                });
-
-        csvFiles = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.CSV.name())).collect(Collectors.toList());
-
 
         this.loadTestService = CommonBeanFactory.getBean(LoadTestService.class);
 

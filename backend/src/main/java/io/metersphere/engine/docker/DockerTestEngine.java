@@ -57,7 +57,7 @@ public class DockerTestEngine extends AbstractEngine {
         // todo 运行测试
         EngineContext context = null;
         try {
-            context = EngineFactory.createContext(loadTest, jmxFile, csvFiles, realThreadNum);
+            context = EngineFactory.createContext(loadTest, realThreadNum);
         } catch (Exception e) {
             e.printStackTrace();
         }
