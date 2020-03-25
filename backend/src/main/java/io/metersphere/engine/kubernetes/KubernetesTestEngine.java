@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.LoadTestWithBLOBs;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
@@ -18,13 +17,12 @@ import io.metersphere.engine.kubernetes.provider.KubernetesProvider;
 import org.apache.commons.collections.MapUtils;
 
 import java.util.HashMap;
-import java.util.List;
 
 public class KubernetesTestEngine extends AbstractEngine {
 
     @Override
-    public boolean init(LoadTestWithBLOBs loadTest, FileMetadata fileMetadata, List<FileMetadata> csvFiles) {
-        super.init(loadTest, fileMetadata, csvFiles);
+    public boolean init(LoadTestWithBLOBs loadTest) {
+        super.init(loadTest);
         return true;
     }
 

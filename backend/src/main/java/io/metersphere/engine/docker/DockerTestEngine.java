@@ -1,7 +1,6 @@
 package io.metersphere.engine.docker;
 
 import com.alibaba.fastjson.JSON;
-import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.LoadTestWithBLOBs;
 import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.exception.MSException;
@@ -24,8 +23,8 @@ public class DockerTestEngine extends AbstractEngine {
 
 
     @Override
-    public boolean init(LoadTestWithBLOBs loadTest, FileMetadata fileMetadata, List<FileMetadata> csvFiles) {
-        super.init(loadTest, fileMetadata, csvFiles);
+    public boolean init(LoadTestWithBLOBs loadTest) {
+        super.init(loadTest);
         this.restTemplate = CommonBeanFactory.getBean(RestTemplate.class);
         // todo 初始化操作
         return true;

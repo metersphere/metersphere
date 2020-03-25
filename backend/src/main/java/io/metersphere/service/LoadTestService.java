@@ -16,7 +16,6 @@ import io.metersphere.engine.Engine;
 import io.metersphere.engine.EngineFactory;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -166,27 +165,16 @@ public class LoadTestService {
             MSException.throwException(Translator.get("run_load_test_not_found") + request.getId());
         }
 
-        final List<FileMetadata> fileMetadataList = fileService.getFileMetadataByTestId(request.getId());
-        if (CollectionUtils.isEmpty(fileMetadataList)) {
-            MSException.throwException(Translator.get("run_load_test_file_not_found") + request.getId());
-        }
-        FileMetadata fileMetadata = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.JMX.name()))
-                .findFirst().orElseGet(() -> {
-                    throw new RuntimeException(Translator.get("run_load_test_file_not_found") + request.getId());
-                });
-
-        List<FileMetadata> csvFiles = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.CSV.name())).collect(Collectors.toList());
-
         LogUtil.info("Load test started " + loadTest.getName());
         // engine type (NODE|K8S)
         final Engine engine = EngineFactory.createEngine(loadTest);
         if (engine == null) {
-            MSException.throwException(String.format("Test cannot be run，test ID：%s，file type：%s", request.getId(), fileMetadata.getType()));
+            MSException.throwException(String.format("Test cannot be run，test ID：%s", request.getId()));
         }
 
         boolean init = true;
         try {
-            init = engine.init(loadTest, fileMetadata, csvFiles);
+            init = engine.init(loadTest);
         } catch (Exception e) {
             MSException.throwException(e);
         }
