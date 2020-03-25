@@ -144,7 +144,6 @@
       },
       testPlan(n) {
         this.resourcePool = n.testResourcePoolId;
-        window.console.log(this.resourcePool);
       }
     },
     methods: {
