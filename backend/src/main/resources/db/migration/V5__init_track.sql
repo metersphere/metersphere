@@ -18,16 +18,16 @@ CREATE TABLE IF NOT EXISTS `test_plan` (
 
 
 CREATE TABLE IF NOT EXISTS `test_case_node` (
-    `id`                     varchar(50) NOT NULL COMMENT 'Test case node ID',
+    `id`                     int(13) PRIMARY KEY AUTO_INCREMENT COMMENT 'Test case node ID',
     `project_id`             varchar(50) NOT NULL COMMENT 'Project ID this node belongs to',
     `name`                   varchar(64) NOT NULL COMMENT 'Node name',
     `p_id`                   varchar(50) NOT NULL COMMENT 'Parent node ID',
     `order`                  bigint(13)  COMMENT 'Node order',
     `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
     `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
-    PRIMARY KEY (`id`),
     FOREIGN KEY (`project_id`) references project(`id`)
 )
+    AUTO_INCREMENT = 1
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS `test_case_node` (
 
 CREATE TABLE IF NOT EXISTS `test_case` (
     `id`                     varchar(50) NOT NULL COMMENT 'Test case ID',
-    `node_id`                varchar(50) NOT NULL COMMENT 'Node ID this case belongs to',
+    `node_id`                int(13) NOT NULL COMMENT 'Node ID this case belongs to',
     `project_id`             varchar(50) NOT NULL COMMENT 'Project ID this test belongs to',
     `name`                   varchar(64) NOT NULL COMMENT 'Case name',
     `type`                   varchar(25) NOT NULL COMMENT 'Test case type',
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS `test_case` (
 
 
 CREATE TABLE IF NOT EXISTS `test_plan_test_case` (
-    `id`                     varchar(50) NOT NULL COMMENT 'ID',
+    `id`                     int(13) PRIMARY KEY AUTO_INCREMENT COMMENT 'ID',
     `plan_id`                varchar(50) NOT NULL COMMENT 'Plan ID relation to',
     `case_id`                varchar(50) NOT NULL COMMENT 'Case ID relation to',
     `executor`               varchar(64) NOT NULL COMMENT 'Test case executor',
@@ -66,10 +66,10 @@ CREATE TABLE IF NOT EXISTS `test_plan_test_case` (
     `remark`                 varchar(255) DEFAULT NULL COMMENT 'Test case remark',
     `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
     `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
-    PRIMARY KEY (`id`),
     FOREIGN KEY (`plan_id`) references test_plan(`id`),
     FOREIGN KEY (`case_id`) references test_case(`id`)
 )
+    AUTO_INCREMENT = 1
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;

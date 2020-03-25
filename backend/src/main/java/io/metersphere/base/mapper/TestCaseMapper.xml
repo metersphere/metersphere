@@ -3,7 +3,7 @@
 <mapper namespace="io.metersphere.base.mapper.TestCaseMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.TestCase">
     <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="node_id" jdbcType="VARCHAR" property="nodeId" />
+    <result column="node_id" jdbcType="INTEGER" property="nodeId" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="type" jdbcType="VARCHAR" property="type" />
@@ -137,7 +137,7 @@
       method, prerequisite, create_time, 
       update_time, detail, steps, 
       tags)
-    values (#{id,jdbcType=VARCHAR}, #{nodeId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=VARCHAR}, #{nodeId,jdbcType=INTEGER}, #{projectId,jdbcType=VARCHAR}, 
       #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{priority,jdbcType=VARCHAR}, 
       #{method,jdbcType=VARCHAR}, #{prerequisite,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
       #{updateTime,jdbcType=BIGINT}, #{detail,jdbcType=LONGVARCHAR}, #{steps,jdbcType=LONGVARCHAR}, 
@@ -191,7 +191,7 @@
         #{id,jdbcType=VARCHAR},
       </if>
       <if test="nodeId != null">
-        #{nodeId,jdbcType=VARCHAR},
+        #{nodeId,jdbcType=INTEGER},
       </if>
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
@@ -241,7 +241,7 @@
         id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.nodeId != null">
-        node_id = #{record.nodeId,jdbcType=VARCHAR},
+        node_id = #{record.nodeId,jdbcType=INTEGER},
       </if>
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
@@ -284,7 +284,7 @@
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update test_case
     set id = #{record.id,jdbcType=VARCHAR},
-      node_id = #{record.nodeId,jdbcType=VARCHAR},
+      node_id = #{record.nodeId,jdbcType=INTEGER},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
       type = #{record.type,jdbcType=VARCHAR},
@@ -303,7 +303,7 @@
   <update id="updateByExample" parameterType="map">
     update test_case
     set id = #{record.id,jdbcType=VARCHAR},
-      node_id = #{record.nodeId,jdbcType=VARCHAR},
+      node_id = #{record.nodeId,jdbcType=INTEGER},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
       type = #{record.type,jdbcType=VARCHAR},
@@ -320,7 +320,7 @@
     update test_case
     <set>
       <if test="nodeId != null">
-        node_id = #{nodeId,jdbcType=VARCHAR},
+        node_id = #{nodeId,jdbcType=INTEGER},
       </if>
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
@@ -360,7 +360,7 @@
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.TestCaseWithBLOBs">
     update test_case
-    set node_id = #{nodeId,jdbcType=VARCHAR},
+    set node_id = #{nodeId,jdbcType=INTEGER},
       project_id = #{projectId,jdbcType=VARCHAR},
       name = #{name,jdbcType=VARCHAR},
       type = #{type,jdbcType=VARCHAR},
@@ -376,7 +376,7 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestCase">
     update test_case
-    set node_id = #{nodeId,jdbcType=VARCHAR},
+    set node_id = #{nodeId,jdbcType=INTEGER},
       project_id = #{projectId,jdbcType=VARCHAR},
       name = #{name,jdbcType=VARCHAR},
       type = #{type,jdbcType=VARCHAR},

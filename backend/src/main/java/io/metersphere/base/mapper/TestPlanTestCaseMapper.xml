@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.base.mapper.TestPlanTestCaseMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.TestPlanTestCase">
-    <id column="id" jdbcType="VARCHAR" property="id" />
+    <id column="id" jdbcType="INTEGER" property="id" />
     <result column="plan_id" jdbcType="VARCHAR" property="planId" />
     <result column="case_id" jdbcType="VARCHAR" property="caseId" />
     <result column="executor" jdbcType="VARCHAR" property="executor" />
@@ -108,17 +108,17 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
     select 
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
     from test_plan_test_case
-    where id = #{id,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from test_plan_test_case
-    where id = #{id,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.base.domain.TestPlanTestCaseExample">
     delete from test_plan_test_case
@@ -131,7 +131,7 @@
       executor, status, remark, 
       create_time, update_time, results
       )
-    values (#{id,jdbcType=VARCHAR}, #{planId,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=INTEGER}, #{planId,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, 
       #{executor,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{results,jdbcType=LONGVARCHAR}
       )
@@ -169,7 +169,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
-        #{id,jdbcType=VARCHAR},
+        #{id,jdbcType=INTEGER},
       </if>
       <if test="planId != null">
         #{planId,jdbcType=VARCHAR},
@@ -207,7 +207,7 @@
     update test_plan_test_case
     <set>
       <if test="record.id != null">
-        id = #{record.id,jdbcType=VARCHAR},
+        id = #{record.id,jdbcType=INTEGER},
       </if>
       <if test="record.planId != null">
         plan_id = #{record.planId,jdbcType=VARCHAR},
@@ -240,7 +240,7 @@
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update test_plan_test_case
-    set id = #{record.id,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=INTEGER},
       plan_id = #{record.planId,jdbcType=VARCHAR},
       case_id = #{record.caseId,jdbcType=VARCHAR},
       executor = #{record.executor,jdbcType=VARCHAR},
@@ -255,7 +255,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update test_plan_test_case
-    set id = #{record.id,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=INTEGER},
       plan_id = #{record.planId,jdbcType=VARCHAR},
       case_id = #{record.caseId,jdbcType=VARCHAR},
       executor = #{record.executor,jdbcType=VARCHAR},
@@ -295,7 +295,7 @@
         results = #{results,jdbcType=LONGVARCHAR},
       </if>
     </set>
-    where id = #{id,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.TestPlanTestCase">
     update test_plan_test_case
@@ -307,7 +307,7 @@
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       results = #{results,jdbcType=LONGVARCHAR}
-    where id = #{id,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestPlanTestCase">
     update test_plan_test_case
@@ -318,6 +318,6 @@
       remark = #{remark,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT}
-    where id = #{id,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

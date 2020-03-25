@@ -28,6 +28,7 @@ import TrackHome from "../../track/home/TrackHome";
 import TestPlan from "../../track/plan/TestPlan";
 import TestCase from "../../track/case/TestCase";
 import TestTrack from "../../track/TestTrack";
+import EditTestCase from "../../track/case/EditTestCase";
 
 Vue.use(VueRouter);
 
@@ -203,7 +204,24 @@ const router = new VueRouter({
           component: TrackHome,
         },
         {
-          path: 'case',
+          path: 'case/create',
+          name: "createCase",
+          component: EditTestCase,
+        },
+        {
+          path: "case/edit/:caseId",
+          name: "editCase",
+          component: EditTestCase,
+          props: {
+            content: (route) => {
+              return {
+                ...route.params
+              }
+            }
+          }
+        },
+        {
+          path: 'case/:caseId',
           name: 'testCase',
           component: TestCase,
         },

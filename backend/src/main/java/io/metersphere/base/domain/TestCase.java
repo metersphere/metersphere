@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class TestCase implements Serializable {
     private String id;
 
-    private String nodeId;
+    private Integer nodeId;
 
     private String projectId;
 
@@ -33,12 +33,12 @@ public class TestCase implements Serializable {
         this.id = id == null ? null : id.trim();
     }
 
-    public String getNodeId() {
+    public Integer getNodeId() {
         return nodeId;
     }
 
-    public void setNodeId(String nodeId) {
-        this.nodeId = nodeId == null ? null : nodeId.trim();
+    public void setNodeId(Integer nodeId) {
+        this.nodeId = nodeId;
     }
 
     public String getProjectId() {

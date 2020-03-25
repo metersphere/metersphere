@@ -1,12 +1,10 @@
 package io.metersphere.report;
 
-import com.alibaba.fastjson.JSONObject;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
 import io.metersphere.report.base.Metric;
 import io.metersphere.report.base.RequestStatistics;
-
 import java.io.Reader;
 import java.io.StringReader;
 import java.text.DecimalFormat;
@@ -76,10 +74,9 @@ public class JtlResolver {
                 }
             });
 
-            Integer tp90 = elapsedList.size()*9/10;
+            Integer tp90 = elapsedList.size()*90/100;
             Integer tp95 = elapsedList.size()*95/100;
             Integer tp99 = elapsedList.size()*99/100;
-
             Long l = Long.valueOf(timestampList.get(index-1)) - Long.valueOf(timestampList.get(0));
 
             RequestStatistics requestStatistics = new RequestStatistics();
@@ -101,6 +98,11 @@ public class JtlResolver {
             requestStatistics.setMin(elapsedList.get(0)+"");
             requestStatistics.setMax(elapsedList.get(index-1)+"");
             requestStatistics.setErrors(String.format("%.2f",failSize*100.0/index)+"%");
+            requestStatistics.setKo(failSize);
+            /**
+             * #Samples/（取最大值(ts+t)-取最小值(ts))*1000
+             */
+            // todo Avg Bandwidth(KBytes/s)
             requestStatistics.setKbPerSec(String.format("%.2f",totalBytes*1.0/1024/(l*1.0/1000)));
             requestStatisticsList.add(requestStatistics);
         }
