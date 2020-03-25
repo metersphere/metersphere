@@ -39,7 +39,7 @@ public class DockerTestEngine extends AbstractEngine {
                 .reduce(Integer::sum)
                 .orElse(0);
         if (threadNum > totalThreadNum - runningSumThreadNum) {
-            MSException.throwException("资源不足");
+            MSException.throwException("Insufficient resources");
         }
         List<Integer> resourceRatio = resourceList.stream()
                 .filter(r -> ResourceStatusEnum.VALID.name().equals(r.getStatus()))

@@ -38,7 +38,7 @@ public class KubernetesTestEngine extends AbstractEngine {
             Integer maxConcurrency = clientCredential.getMaxConcurrency();
             // 当前测试需要的并发数大于剩余的并发数报错
             if (threadNum > maxConcurrency - sumThreadNum) {
-                MSException.throwException("资源不足");
+                MSException.throwException("Insufficient resources");
             }
             try {
                 EngineContext context = EngineFactory.createContext(loadTest, jmxFile, csvFiles, threadNum);
