@@ -1,15 +1,17 @@
 package io.metersphere.service;
 
 import com.alibaba.fastjson.JSON;
+import io.metersphere.base.domain.TestResource;
+import io.metersphere.base.domain.TestResourceExample;
 import io.metersphere.base.domain.TestResourcePool;
-import io.metersphere.base.domain.TestResourcePoolExample;
+import io.metersphere.base.mapper.TestResourceMapper;
 import io.metersphere.base.mapper.TestResourcePoolMapper;
+import io.metersphere.base.mapper.ext.ExtTestReourcePoolMapper;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
-import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.controller.request.resourcepool.QueryResourcePoolRequest;
-import io.metersphere.dto.KubernetesDTO;
 import io.metersphere.dto.NodeDTO;
-import io.metersphere.engine.kubernetes.provider.ClientCredential;
+import io.metersphere.dto.TestResourcePoolDTO;
 import io.metersphere.engine.kubernetes.provider.KubernetesProvider;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -30,40 +32,41 @@ import java.util.UUID;
 @Transactional(rollbackFor = Exception.class)
 public class TestResourcePoolService {
 
-    private final static String nodeControllerUrl = "%s:%s/status";
+    private final static String nodeControllerUrl = "http://%s:%s/status";
 
     @Resource
     private TestResourcePoolMapper testResourcePoolMapper;
+    @Resource
+    private TestResourceMapper testResourceMapper;
+    @Resource
+    private ExtTestReourcePoolMapper extTestReourcePoolMapper;
 
-    public TestResourcePool addTestResourcePool(TestResourcePool testResourcePool) {
+    public TestResourcePoolDTO addTestResourcePool(TestResourcePoolDTO testResourcePool) {
         testResourcePool.setId(UUID.randomUUID().toString());
         testResourcePool.setCreateTime(System.currentTimeMillis());
         testResourcePool.setUpdateTime(System.currentTimeMillis());
-        testResourcePool.setStatus("1");
+        testResourcePool.setStatus(ResourceStatusEnum.VALID.name());
         validateTestResourcePool(testResourcePool);
         testResourcePoolMapper.insertSelective(testResourcePool);
         return testResourcePool;
     }
 
     public void deleteTestResourcePool(String testResourcePoolId) {
+        deleteTestResource(testResourcePoolId);
         testResourcePoolMapper.deleteByPrimaryKey(testResourcePoolId);
     }
 
-    public void updateTestResourcePool(TestResourcePool testResourcePool) {
+    public void updateTestResourcePool(TestResourcePoolDTO testResourcePool) {
         testResourcePool.setUpdateTime(System.currentTimeMillis());
         validateTestResourcePool(testResourcePool);
         testResourcePoolMapper.updateByPrimaryKeySelective(testResourcePool);
     }
 
-    public List<TestResourcePool> listResourcePools(QueryResourcePoolRequest request) {
-        TestResourcePoolExample example = new TestResourcePoolExample();
-        if (!StringUtils.isEmpty(request.getName())) {
-            example.createCriteria().andNameLike("%" + request.getName() + "%");
-        }
-        return testResourcePoolMapper.selectByExample(example);
+    public List<TestResourcePoolDTO> listResourcePools(QueryResourcePoolRequest request) {
+        return extTestReourcePoolMapper.listResourcePools(request);
     }
 
-    private void validateTestResourcePool(TestResourcePool testResourcePool) {
+    private void validateTestResourcePool(TestResourcePoolDTO testResourcePool) {
         if (StringUtils.equalsIgnoreCase(testResourcePool.getType(), ResourcePoolTypeEnum.K8S.name())) {
             validateK8s(testResourcePool);
             return;
@@ -71,47 +74,69 @@ public class TestResourcePoolService {
         validateNodes(testResourcePool);
     }
 
-    private void validateNodes(TestResourcePool testResourcePool) {
-        List<NodeDTO> nodes = JSON.parseArray(testResourcePool.getInfo(), NodeDTO.class);
-
-        if (CollectionUtils.isEmpty(nodes)) {
+    private void validateNodes(TestResourcePoolDTO testResourcePool) {
+        if (CollectionUtils.isEmpty(testResourcePool.getResources())) {
             throw new RuntimeException("没有节点信息");
         }
 
-        for (NodeDTO node : nodes) {
-            boolean isValidate = validateNode(node);
+        deleteTestResource(testResourcePool.getId());
+        for (TestResource resource : testResourcePool.getResources()) {
+            NodeDTO nodeDTO = JSON.parseObject(resource.getConfiguration(), NodeDTO.class);
+            boolean isValidate = validateNode(nodeDTO);
             if (!isValidate) {
-                testResourcePool.setStatus("0");
+                testResourcePool.setStatus(ResourceStatusEnum.INVALID.name());
+                resource.setStatus(ResourceStatusEnum.INVALID.name());
+            } else {
+                resource.setStatus(ResourceStatusEnum.VALID.name());
             }
-            node.setValidate(isValidate);
+            resource.setTestResourcePoolId(testResourcePool.getId());
+            updateTestResource(resource);
+
         }
-        testResourcePool.setInfo(JSON.toJSONString(nodes));
     }
 
-    private boolean validateNode(NodeDTO dto) {
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> entity = restTemplate.getForEntity(String.format(nodeControllerUrl, dto.getIp(), dto.getPort()), String.class);
-        return entity.getStatusCode().value() == HttpStatus.SC_OK;
+    private boolean validateNode(NodeDTO node) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<String> entity = restTemplate.getForEntity(String.format(nodeControllerUrl, node.getIp(), node.getPort()), String.class);
+            return entity.getStatusCode().value() == HttpStatus.SC_OK;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
-    private void validateK8s(TestResourcePool testResourcePool) {
-        List<KubernetesDTO> dtos = JSON.parseArray(testResourcePool.getInfo(), KubernetesDTO.class);
+    private void validateK8s(TestResourcePoolDTO testResourcePool) {
 
-        if (CollectionUtils.isEmpty(dtos) || dtos.size() != 1) {
+        if (CollectionUtils.isEmpty(testResourcePool.getResources()) || testResourcePool.getResources().size() != 1) {
             throw new RuntimeException("只能添加一个 K8s");
         }
 
-        ClientCredential clientCredential = new ClientCredential();
-        BeanUtils.copyBean(clientCredential, dtos.get(0));
+        TestResource testResource = testResourcePool.getResources().get(0);
+        testResource.setTestResourcePoolId(testResourcePool.getId());
         try {
-            KubernetesProvider provider = new KubernetesProvider(JSON.toJSONString(clientCredential));
+            KubernetesProvider provider = new KubernetesProvider(testResource.getConfiguration());
             provider.validateCredential();
-            dtos.get(0).setValidate(true);
+            testResource.setStatus(ResourceStatusEnum.VALID.name());
         } catch (Exception e) {
-            dtos.get(0).setValidate(false);
-            testResourcePool.setStatus("0");
+            testResource.setStatus(ResourceStatusEnum.INVALID.name());
+            testResourcePool.setStatus(ResourceStatusEnum.INVALID.name());
         }
-        testResourcePool.setInfo(JSON.toJSONString(dtos));
+        deleteTestResource(testResourcePool.getId());
+        updateTestResource(testResource);
+
+    }
+
+    private void updateTestResource(TestResource testResource) {
+        testResource.setUpdateTime(System.currentTimeMillis());
+        testResource.setCreateTime(System.currentTimeMillis());
+        testResource.setId(UUID.randomUUID().toString());
+        testResourceMapper.insertSelective(testResource);
+    }
+
+    private void deleteTestResource(String testResourcePoolId) {
+        TestResourceExample testResourceExample = new TestResourceExample();
+        testResourceExample.createCriteria().andTestResourcePoolIdEqualTo(testResourcePoolId);
+        testResourceMapper.deleteByExample(testResourceExample);
     }
 
     public TestResourcePool getResourcePool(String resourcePoolId) {

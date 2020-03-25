@@ -4,7 +4,6 @@ public class NodeDTO {
     private String ip;
     private Integer port;
     private Integer maxConcurrency;
-    private Boolean validate;
 
     public String getIp() {
         return ip;
@@ -28,13 +27,5 @@ public class NodeDTO {
 
     public void setMaxConcurrency(Integer maxConcurrency) {
         this.maxConcurrency = maxConcurrency;
-    }
-
-    public Boolean getValidate() {
-        return validate;
-    }
-
-    public void setValidate(Boolean validate) {
-        this.validate = validate;
     }
 }

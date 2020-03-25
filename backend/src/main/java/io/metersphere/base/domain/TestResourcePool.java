@@ -13,8 +13,6 @@ public class TestResourcePool implements Serializable {
 
     private String status;
 
-    private String info;
-
     private Long createTime;
 
     private Long updateTime;
@@ -59,14 +57,6 @@ public class TestResourcePool implements Serializable {
 
     public void setStatus(String status) {
         this.status = status == null ? null : status.trim();
-    }
-
-    public String getInfo() {
-        return info;
-    }
-
-    public void setInfo(String info) {
-        this.info = info == null ? null : info.trim();
     }
 
     public Long getCreateTime() {

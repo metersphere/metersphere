@@ -199,6 +199,7 @@ public class JtlTest {
                 "1584602504095,65,https://rddev2.fit2cloud.com/auth/realms/cmp/login-actions/authenticate?session_code=YWUneSay4qlQuHRZsD4kPaZDIIR50KJLaNpW7uhsD-Q&execution=c7620733-54ab-46b2-802b-66764e42682b&client_id=cmp-client&tab_id=S8xOQPgCmhQ,400,Bad Request,Thread Group 1-7,text,false,,4469,1745,3,3,https://rddev2.fit2cloud.com/auth/realms/cmp/login-actions/authenticate,65,0,4\n" +
                 "1584602504200,12,https://rddev2.fit2cloud.com/dashboard/web-public/project/html/notification-menus.html?_t=1577351137654,200,OK,Thread Group 1-3,text,true,,1570,582,2,2,https://rddev2.fit2cloud.com/dashboard/web-public/project/html/notification-menus.html?_t=1577351137654,12,0,0\n";
         List<Metric> metrics = beanBuilderExample(jtlString);
+        // 根据label分组，label作为map的key
         Map<String, List<Metric>> map = metrics.stream().collect(Collectors.groupingBy(Metric::getLabel));
         getOneRpsResult(map);
     }
@@ -215,7 +216,8 @@ public class JtlTest {
             int sumElapsed=0;
             Integer failSize = 0;
             Integer totalBytes = 0;
-            List<Integer> elapsedList = new ArrayList<Integer>();
+            // 响应时间的列表排序之后 用于计算90%line、95%line、99line
+            List<Integer> elapsedList = new ArrayList<>();
 
             for (int i = 0; i < list.size(); i++) {
                 try {
@@ -253,8 +255,8 @@ public class JtlTest {
 
             RequestStatistics sceneResult = new RequestStatistics();
             sceneResult.setRequestLabel(label);
-            sceneResult.setSamples(index+"");
-            sceneResult.setAverage(sumElapsed/index+"");
+            sceneResult.setSamples(index);
+//            sceneResult.setAverage(sumElapsed/index);
             sceneResult.setTp90(elapsedList.get(tp90)+"");
             sceneResult.setTp95(elapsedList.get(tp95)+"");
             sceneResult.setTp99(elapsedList.get(tp99)+"");

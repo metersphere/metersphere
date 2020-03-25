@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS `load_test` (
     `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
     `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
     `status`                 varchar(64)  DEFAULT NULL COMMENT 'Test Status Running, Completed, Error, etc.',
+    `test_resource_pool_id` varchar(50) DEFAULT NULL,
     PRIMARY KEY (`id`)
 )
     ENGINE = InnoDB
@@ -112,8 +113,6 @@ CREATE TABLE IF NOT EXISTS `system_parameter` (
 
 CREATE TABLE IF NOT EXISTS `test_resource` (
     `id`                    varchar(50) NOT NULL COMMENT 'Test resource ID',
-    `test_resource_pool_id` varchar(50) NOT NULL COMMENT 'Test resource pool ID this test resource belongs to',
-    `name`                  varchar(64) NOT NULL COMMENT 'Test resource name',
     `description`           varchar(255) DEFAULT NULL COMMENT 'Test resource description',
     `configuration`         longtext COMMENT 'Test resource configuration',
     `status`                varchar(64) NOT NULL COMMENT 'Test resource status',
@@ -128,6 +127,7 @@ CREATE TABLE IF NOT EXISTS `test_resource` (
 CREATE TABLE IF NOT EXISTS `test_resource_pool` (
     `id`          varchar(50) NOT NULL COMMENT 'Test resource pool ID',
     `name`        varchar(64) NOT NULL COMMENT 'Test resource pool name',
+    `type`        varchar(30) NOT NULL COMMENT 'Test resource pool type',
     `description` varchar(255) DEFAULT NULL COMMENT 'Test resource pool description',
     `status`      varchar(64) NOT NULL COMMENT 'Test resource pool status',
     `create_time` bigint(13)  NOT NULL COMMENT 'Create timestamp',

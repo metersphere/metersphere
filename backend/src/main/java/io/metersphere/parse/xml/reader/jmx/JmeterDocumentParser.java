@@ -233,11 +233,10 @@ public class JmeterDocumentParser implements DocumentParser {
         collectionProp.appendChild(createKafkaProp(document, "kafka.batch.size", kafkaProperties.getBatchSize()));
         collectionProp.appendChild(createKafkaProp(document, "kafka.client.id", kafkaProperties.getClientId()));
         collectionProp.appendChild(createKafkaProp(document, "kafka.connections.max.idle.ms", kafkaProperties.getConnectionsMaxIdleMs()));
-        // 添加关联关系 test.id test.name test.startTime test.size
+        // 添加关联关系 test.id test.name test.startTime
         collectionProp.appendChild(createKafkaProp(document, "test.id", context.getTestId()));
         collectionProp.appendChild(createKafkaProp(document, "test.name", context.getTestName()));
         collectionProp.appendChild(createKafkaProp(document, "test.startTime", "" + System.currentTimeMillis()));
-        collectionProp.appendChild(createKafkaProp(document, "test.size", "1"));
 
         elementProp.appendChild(collectionProp);
         // set elementProp
@@ -314,7 +313,7 @@ public class JmeterDocumentParser implements DocumentParser {
         threadGroup.appendChild(createStringProp(document, "LogFilename", ""));
         threadGroup.appendChild(createStringProp(document, "Iterations", "1"));
         // todo 单位是S 要修改 成M
-        threadGroup.appendChild(createStringProp(document, "Unit", "S"));
+        threadGroup.appendChild(createStringProp(document, "Unit", "M"));
     }
 
     private void processCheckoutTimer(Element element) {
@@ -386,6 +385,11 @@ public class JmeterDocumentParser implements DocumentParser {
 
                     if (nodeNameEquals(ele, STRING_PROP)) {
                         parseStringProp(ele);
+                    }
+
+                    // 设置具体的线程数
+                    if (nodeNameEquals(ele, STRING_PROP) && "TargetLevel".equals(ele.getAttribute("name"))) {
+                        ele.getFirstChild().setNodeValue(context.getThreadNum().toString());
                     }
                 }
             }

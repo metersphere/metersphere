@@ -4,6 +4,7 @@ public class ClientCredential {
 
     private String masterUrl;
     private String token;
+    private Integer maxConcurrency;
 
     public String getMasterUrl() {
         return masterUrl;
@@ -19,5 +20,13 @@ public class ClientCredential {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public Integer getMaxConcurrency() {
+        return maxConcurrency;
+    }
+
+    public void setMaxConcurrency(Integer maxConcurrency) {
+        this.maxConcurrency = maxConcurrency;
     }
 }

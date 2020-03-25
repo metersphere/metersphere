@@ -6,7 +6,7 @@ public class RequestStatistics {
     private String requestLabel;
 
     /**压测请求数*/
-    private String samples;
+    private Integer samples;
 
     /**平均响应时间*/
     private String average;
@@ -43,11 +43,11 @@ public class RequestStatistics {
         this.requestLabel = requestLabel;
     }
 
-    public String getSamples() {
+    public Integer getSamples() {
         return samples;
     }
 
-    public void setSamples(String samples) {
+    public void setSamples(Integer samples) {
         this.samples = samples;
     }
 

@@ -19,6 +19,8 @@ public class LoadTest implements Serializable {
 
     private String status;
 
+    private String testResourcePoolId;
+
     private static final long serialVersionUID = 1L;
 
     public String getId() {
@@ -83,5 +85,13 @@ public class LoadTest implements Serializable {
 
     public void setStatus(String status) {
         this.status = status == null ? null : status.trim();
+    }
+
+    public String getTestResourcePoolId() {
+        return testResourcePoolId;
+    }
+
+    public void setTestResourcePoolId(String testResourcePoolId) {
+        this.testResourcePoolId = testResourcePoolId == null ? null : testResourcePoolId.trim();
     }
 }

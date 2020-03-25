@@ -104,13 +104,12 @@
   const STEPS = "Steps";
   const DURATION = "duration";
   const RPS_LIMIT = "rpsLimit";
-  const RESOURCE_POOL = "resourcePoolId";
 
   export default {
     name: "PerformancePressureConfig",
+    props: ['testPlan'],
     data() {
       return {
-        testPlan: {},
         threadNumber: 10,
         duration: 10,
         rampUpTime: 10,
@@ -128,7 +127,7 @@
       } else {
         this.calculateChart();
       }
-
+      this.resourcePool = this.testPlan.testResourcePoolId;
       this.getResourcePools();
     },
     watch: {
@@ -142,6 +141,9 @@
         } else {
           this.calculateChart();
         }
+      },
+      testPlan(n) {
+        this.resourcePool = n.testResourcePoolId;
       }
     },
     methods: {
@@ -173,9 +175,6 @@
                     break;
                   case RPS_LIMIT:
                     this.rpsLimit = d.value;
-                    break;
-                  case RESOURCE_POOL:
-                    this.resourcePool = d.value;
                     break;
                   default:
                     break;
@@ -299,7 +298,6 @@
           {key: STEPS, value: this.step},
           {key: DURATION, value: this.duration},
           {key: RPS_LIMIT, value: this.rpsLimit},
-          {key: RESOURCE_POOL, value: this.resourcePool},
         ];
       }
     }

@@ -24,6 +24,8 @@ public class TestPlanRequest {
 
     private String schedule;
 
+    private String testResourcePoolId;
+
     private static final long serialVersionUID = 1L;
 
 
@@ -115,4 +117,11 @@ public class TestPlanRequest {
         this.schedule = schedule == null ? null : schedule.trim();
     }
 
+    public String getTestResourcePoolId() {
+        return testResourcePoolId;
+    }
+
+    public void setTestResourcePoolId(String testResourcePoolId) {
+        this.testResourcePoolId = testResourcePoolId;
+    }
 }

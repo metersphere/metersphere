@@ -6,6 +6,7 @@ import io.metersphere.base.domain.FileContent;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.LoadTestWithBLOBs;
 import io.metersphere.base.domain.TestResourcePool;
+import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.engine.docker.DockerTestEngine;
@@ -24,6 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class EngineFactory {
@@ -31,17 +33,7 @@ public class EngineFactory {
     private static TestResourcePoolService testResourcePoolService;
 
     public static Engine createEngine(LoadTestWithBLOBs loadTest) {
-        String resourcePoolId = null;
-        if (!StringUtils.isEmpty(loadTest.getLoadConfiguration())) {
-            final JSONArray jsonArray = JSONObject.parseArray(loadTest.getLoadConfiguration());
-            for (int i = 0; i < jsonArray.size(); i++) {
-                final JSONObject jsonObject = jsonArray.getJSONObject(i);
-                if (StringUtils.equals(jsonObject.getString("key"), "resourcePoolId")) {
-                    resourcePoolId = jsonObject.getString("value");
-                    break;
-                }
-            }
-        }
+        String resourcePoolId = loadTest.getTestResourcePoolId();
         if (StringUtils.isBlank(resourcePoolId)) {
             MSException.throwException("Resource Pool ID is empty.");
         }
@@ -62,8 +54,18 @@ public class EngineFactory {
         return null;
     }
 
-    public static EngineContext createContext(LoadTestWithBLOBs loadTest, FileMetadata fileMetadata, List<FileMetadata> csvFiles) throws Exception {
-        final FileContent fileContent = fileService.getFileContent(fileMetadata.getId());
+    public static EngineContext createContext(LoadTestWithBLOBs loadTest, long threadNum) throws Exception {
+        final List<FileMetadata> fileMetadataList = fileService.getFileMetadataByTestId(loadTest.getId());
+        if (org.springframework.util.CollectionUtils.isEmpty(fileMetadataList)) {
+            MSException.throwException(Translator.get("run_load_test_file_not_found") + loadTest.getId());
+        }
+        FileMetadata jmxFile = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.JMX.name()))
+                .findFirst().orElseGet(() -> {
+                    throw new RuntimeException(Translator.get("run_load_test_file_not_found") + loadTest.getId());
+                });
+
+        List<FileMetadata> csvFiles = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.CSV.name())).collect(Collectors.toList());
+        final FileContent fileContent = fileService.getFileContent(jmxFile.getId());
         if (fileContent == null) {
             MSException.throwException(Translator.get("run_load_test_file_content_not_found") + loadTest.getId());
         }
@@ -71,7 +73,9 @@ public class EngineFactory {
         engineContext.setTestId(loadTest.getId());
         engineContext.setTestName(loadTest.getName());
         engineContext.setNamespace(loadTest.getProjectId());
-        engineContext.setFileType(fileMetadata.getType());
+        engineContext.setFileType(jmxFile.getType());
+        engineContext.setThreadNum(threadNum);
+        engineContext.setResourcePoolId(loadTest.getTestResourcePoolId());
 
         if (!StringUtils.isEmpty(loadTest.getLoadConfiguration())) {
             final JSONArray jsonArray = JSONObject.parseArray(loadTest.getLoadConfiguration());
@@ -88,8 +92,10 @@ public class EngineFactory {
             MSException.throwException("File type unknown");
         }
 
-        String content = engineSourceParser.parse(engineContext, new ByteArrayInputStream(fileContent.getFile()));
-        engineContext.setContent(content);
+        try (ByteArrayInputStream source = new ByteArrayInputStream(fileContent.getFile())) {
+            String content = engineSourceParser.parse(engineContext, source);
+            engineContext.setContent(content);
+        }
 
         if (CollectionUtils.isNotEmpty(csvFiles)) {
             Map<String, String> data = new HashMap<>();
