@@ -35,6 +35,9 @@ public class RequestStatistics {
     /**错误率 Error Percentage */
     private String errors;
 
+    /**错误个数*/
+    private Integer ko;
+
     public String getRequestLabel() {
         return requestLabel;
     }
@@ -121,5 +124,13 @@ public class RequestStatistics {
 
     public void setErrors(String errors) {
         this.errors = errors;
+    }
+
+    public Integer getKo() {
+        return ko;
+    }
+
+    public void setKo(Integer ko) {
+        this.ko = ko;
     }
 }
