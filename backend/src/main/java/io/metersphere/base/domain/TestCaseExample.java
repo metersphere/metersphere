@@ -184,62 +184,52 @@ public class TestCaseExample {
             return (Criteria) this;
         }
 
-        public Criteria andNodeIdEqualTo(String value) {
+        public Criteria andNodeIdEqualTo(Integer value) {
             addCriterion("node_id =", value, "nodeId");
             return (Criteria) this;
         }
 
-        public Criteria andNodeIdNotEqualTo(String value) {
+        public Criteria andNodeIdNotEqualTo(Integer value) {
             addCriterion("node_id <>", value, "nodeId");
             return (Criteria) this;
         }
 
-        public Criteria andNodeIdGreaterThan(String value) {
+        public Criteria andNodeIdGreaterThan(Integer value) {
             addCriterion("node_id >", value, "nodeId");
             return (Criteria) this;
         }
 
-        public Criteria andNodeIdGreaterThanOrEqualTo(String value) {
+        public Criteria andNodeIdGreaterThanOrEqualTo(Integer value) {
             addCriterion("node_id >=", value, "nodeId");
             return (Criteria) this;
         }
 
-        public Criteria andNodeIdLessThan(String value) {
+        public Criteria andNodeIdLessThan(Integer value) {
             addCriterion("node_id <", value, "nodeId");
             return (Criteria) this;
         }
 
-        public Criteria andNodeIdLessThanOrEqualTo(String value) {
+        public Criteria andNodeIdLessThanOrEqualTo(Integer value) {
             addCriterion("node_id <=", value, "nodeId");
             return (Criteria) this;
         }
 
-        public Criteria andNodeIdLike(String value) {
-            addCriterion("node_id like", value, "nodeId");
-            return (Criteria) this;
-        }
-
-        public Criteria andNodeIdNotLike(String value) {
-            addCriterion("node_id not like", value, "nodeId");
-            return (Criteria) this;
-        }
-
-        public Criteria andNodeIdIn(List<String> values) {
+        public Criteria andNodeIdIn(List<Integer> values) {
             addCriterion("node_id in", values, "nodeId");
             return (Criteria) this;
         }
 
-        public Criteria andNodeIdNotIn(List<String> values) {
+        public Criteria andNodeIdNotIn(List<Integer> values) {
             addCriterion("node_id not in", values, "nodeId");
             return (Criteria) this;
         }
 
-        public Criteria andNodeIdBetween(String value1, String value2) {
+        public Criteria andNodeIdBetween(Integer value1, Integer value2) {
             addCriterion("node_id between", value1, value2, "nodeId");
             return (Criteria) this;
         }
 
-        public Criteria andNodeIdNotBetween(String value1, String value2) {
+        public Criteria andNodeIdNotBetween(Integer value1, Integer value2) {
             addCriterion("node_id not between", value1, value2, "nodeId");
             return (Criteria) this;
         }

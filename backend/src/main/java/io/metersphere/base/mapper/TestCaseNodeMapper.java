@@ -10,7 +10,7 @@ public interface TestCaseNodeMapper {
 
     int deleteByExample(TestCaseNodeExample example);
 
-    int deleteByPrimaryKey(String id);
+    int deleteByPrimaryKey(Integer id);
 
     int insert(TestCaseNode record);
 
@@ -18,7 +18,7 @@ public interface TestCaseNodeMapper {
 
     List<TestCaseNode> selectByExample(TestCaseNodeExample example);
 
-    TestCaseNode selectByPrimaryKey(String id);
+    TestCaseNode selectByPrimaryKey(Integer id);
 
     int updateByExampleSelective(@Param("record") TestCaseNode record, @Param("example") TestCaseNodeExample example);
 

@@ -42,7 +42,8 @@
     ],
     "rules": {
       "vue/no-unused-components": "off",
-      "no-console":"off"
+      "no-console":"off",
+      "no-unused-vars": "off"
     },
     "parserOptions": {
       "parser": "babel-eslint"
