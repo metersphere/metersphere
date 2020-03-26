@@ -84,6 +84,7 @@ public class DockerTestEngine extends AbstractEngine {
         testRequest.setTestId(testId);
         testRequest.setFileString(content);
         testRequest.setImage(registryService.getRegistry() + JMETER_IMAGE);
+        testRequest.setTestData(context.getTestData());
 
         // todo 判断测试状态
         String taskStatusUri = String.format(BASE_URL + "/jmeter/task/status/" + testId, nodeIp, port);

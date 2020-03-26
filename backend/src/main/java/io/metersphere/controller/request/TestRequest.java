@@ -1,11 +1,15 @@
 package io.metersphere.controller.request;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class TestRequest {
 
     private int size;
     private String fileString;
     private String testId;
     private String image;
+    private Map<String, String> testData = new HashMap<>();
 
     public int getSize() {
         return size;
@@ -37,5 +41,13 @@ public class TestRequest {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public Map<String, String> getTestData() {
+        return testData;
+    }
+
+    public void setTestData(Map<String, String> testData) {
+        this.testData = testData;
     }
 }
