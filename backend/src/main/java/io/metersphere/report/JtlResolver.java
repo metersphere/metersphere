@@ -4,9 +4,11 @@ import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
 import io.metersphere.report.base.Errors;
+import io.metersphere.report.base.ErrorsTop5;
 import io.metersphere.report.base.Metric;
 import io.metersphere.report.base.RequestStatistics;
-import io.metersphere.report.base.RequestStatisticsDTO;
+import io.metersphere.report.dto.ErrorsTop5DTO;
+import io.metersphere.report.dto.RequestStatisticsDTO;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Reader;
@@ -176,6 +178,54 @@ public class JtlResolver {
 
     private static String getResponseCodeAndFailureMessage(Metric metric) {
         return metric.getResponseCode() + "/" + metric.getResponseMessage();
+    }
+
+    public static ErrorsTop5DTO getErrorsTop5DTO(String jtlString) {
+        List<Metric> totalLines = resolver(jtlString);
+        ErrorsTop5DTO top5DTO = new ErrorsTop5DTO();
+        List<Metric> falseList = totalLines.stream().filter(metric -> StringUtils.equals("false", metric.getSuccess())).collect(Collectors.toList());
+        Map<String, List<Metric>> collect = falseList.stream().collect(Collectors.groupingBy(JtlResolver::getResponseCodeAndFailureMessage));
+        Iterator<Map.Entry<String, List<Metric>>> iterator = collect.entrySet().iterator();
+        List<ErrorsTop5> errorsTop5s = new ArrayList<>();
+        while (iterator.hasNext()) {
+            Map.Entry<String, List<Metric>> next = iterator.next();
+            String key = next.getKey();
+            List<Metric> value = next.getValue();
+            ErrorsTop5 errorsTop5 = new ErrorsTop5();
+            List<Metric> list = totalLines.stream()
+                    .filter(metric -> StringUtils.equals(metric.getLabel(), value.get(0).getLabel())).collect(Collectors.toList());
+            errorsTop5.setSamples(String.valueOf(list.size()));
+            errorsTop5.setSample(value.get(0).getLabel());
+            errorsTop5.setErrors(String.valueOf(value.size()));
+            errorsTop5.setErrorsAllSize(value.size());
+            errorsTop5.setError(key);
+            errorsTop5s.add(errorsTop5);
+        }
+
+        Collections.sort(errorsTop5s, (t0, t1) -> t1.getErrorsAllSize().compareTo(t0.getErrorsAllSize()));
+
+        if (errorsTop5s.size() >= 5) {
+            errorsTop5s = errorsTop5s.subList(0, 5);
+        }
+
+        top5DTO.setLabel("Total");
+        top5DTO.setErrorsTop5List(errorsTop5s);
+        top5DTO.setTotalSamples(String.valueOf(totalLines.size()));
+        top5DTO.setTotalErrors(String.valueOf(falseList.size()));
+        Integer size = errorsTop5s.size();
+        // Total行 信息
+        top5DTO.setError1(size > 0 ? errorsTop5s.get(0).getError() : null);
+        top5DTO.setError1Size(size > 0 ? errorsTop5s.get(0).getErrors() : null);
+        top5DTO.setError2(size > 1 ? errorsTop5s.get(1).getError() : null);
+        top5DTO.setError2Size(size > 1 ? errorsTop5s.get(1).getErrors() : null);
+        top5DTO.setError3(size > 2 ? errorsTop5s.get(2).getError() : null);
+        top5DTO.setError3Size(size > 2 ? errorsTop5s.get(2).getErrors() : null);
+        top5DTO.setError4(size > 3 ? errorsTop5s.get(3).getError() : null);
+        top5DTO.setError4Size(size > 3 ? errorsTop5s.get(3).getErrors() : null);
+        top5DTO.setError5(size > 4 ? errorsTop5s.get(4).getError() : null);
+        top5DTO.setError5Size(size > 4 ? errorsTop5s.get(4).getErrors() : null);
+
+        return top5DTO;
     }
 
 }
