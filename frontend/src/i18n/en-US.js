@@ -167,6 +167,7 @@ export default {
   test_track: {
     'test_track': 'Test Track',
     'test_case': 'Test Case',
+    'case_list': 'Test Case List',
     'create_case': 'Create Case',
     'test_plan': 'Test Plan',
     'create_plan': 'Create Plan',

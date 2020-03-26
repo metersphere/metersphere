@@ -1,13 +1,28 @@
 <template>
-  <div class="case_container" v-loading="result.loading">
-
-
-    <!--<div class="main-content">-->
-
+  <div class="case_container" v-loading="loadingRequire.project && loadingRequire.testCase">
     <el-container>
       <el-aside width="250px">
-        <node-tree class="node_tree"></node-tree>
+
+        <el-menu :unique-opened="true" mode="horizontal" active-text-color="write"
+          class="project_menu">
+          <el-submenu index="1" popper-class="submenu" v-permission="['test_user', 'test_viewer']">
+            <template slot="title">
+              {{currentProject.name}}
+            </template>
+            <el-scrollbar style="height:500px">
+                <label v-for="(item,index) in projects" :key="index">
+                  <el-menu-item @click="changeProject(item)">
+                    {{item.name}}
+                    <i class="el-icon-check" v-if="item.id === currentProject.id"></i>
+                  </el-menu-item>
+                </label>
+            </el-scrollbar>
+          </el-submenu>
+        </el-menu>
+        <node-tree class="node_tree" :project-id="currentProject.id"
+                   @nodeSelectEvent="getCaseByNodeIds"></node-tree>
       </el-aside>
+
 
       <el-main>
         <el-card>
@@ -82,10 +97,8 @@
           </div>
         </el-card>
       </el-main>
-
     </el-container>
 
-    <!--</div>-->
   </div>
 </template>
 
@@ -109,8 +122,11 @@
         currentPage: 1,
         pageSize: 5,
         total: 0,
-        loading: false,
+        loadingRequire: {project: true, testCase: true},
         testId: null,
+        projects: [],
+        initProjects: [],
+        currentProject: null,
       }
     },
     watch: {
@@ -122,6 +138,7 @@
     created: function () {
       this.projectId = this.$route.params.projectId;
       this.initTableData();
+      this.getProjects();
     },
     methods: {
       initTableData() {
@@ -134,10 +151,29 @@
         }
 
         this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
+          this.loadingRequire.testCase = false;
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
         });
+      },
+      getProjects() {
+          this.$get("/project/listAll", (response) => {
+            if (response.success) {
+              this.projects = response.data;
+              this.initProjects = this.projects.slice(0, 4);
+              this.currentProject = response.data[0];
+            } else {
+              this.$message()({
+                type: 'warning',
+                message: response.message
+              });
+            }
+            this.loadingRequire.project = false;
+
+            this.checkProject();
+
+          });
       },
       search() {
         this.initTableData();
@@ -184,6 +220,24 @@
           this.initTableData();
         });
       },
+      checkProject() {
+        if(this.currentProject === null) {
+          this.$alert('该工作空间下无项目，请先创建项目', '创建项目', {
+            confirmButtonText: '去创建项目',
+            callback: action => {
+              this.$router.push("/track/project/create");
+            }
+          });
+        }
+      },
+      changeProject(project) {
+        this.currentProject = project;
+      },
+      getCaseByNodeIds(data) {
+
+        console.log(data);
+
+      }
     }
   }
 </script>
@@ -219,5 +273,11 @@
   .node_tree {
     /*box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);*/
     margin: 10%;
+  }
+
+  .project_menu {
+    /*border-style:none;*/
+    margin-left: 20px;
+    height: 50px;
   }
 </style>

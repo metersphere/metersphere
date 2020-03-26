@@ -21,10 +21,11 @@ CREATE TABLE IF NOT EXISTS `test_case_node` (
     `id`                     int(13) PRIMARY KEY AUTO_INCREMENT COMMENT 'Test case node ID',
     `project_id`             varchar(50) NOT NULL COMMENT 'Project ID this node belongs to',
     `name`                   varchar(64) NOT NULL COMMENT 'Node name',
-    `p_id`                   varchar(50) NOT NULL COMMENT 'Parent node ID',
-    `order`                  bigint(13)  COMMENT 'Node order',
+    `p_id`                   int(13) DEFAULT NULL COMMENT 'Parent node ID',
+    `level`                  int(10)  DEFAULT 1 COMMENT 'Node level',
     `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
     `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
+    FOREIGN KEY (`p_id`) references test_case_node(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`project_id`) references project(`id`)
 )
     AUTO_INCREMENT = 1

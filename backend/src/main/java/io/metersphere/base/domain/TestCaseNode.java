@@ -9,9 +9,9 @@ public class TestCaseNode implements Serializable {
 
     private String name;
 
-    private String pId;
+    private Integer pId;
 
-    private Long order;
+    private Integer level;
 
     private Long createTime;
 
@@ -43,20 +43,20 @@ public class TestCaseNode implements Serializable {
         this.name = name == null ? null : name.trim();
     }
 
-    public String getpId() {
+    public Integer getpId() {
         return pId;
     }
 
-    public void setpId(String pId) {
-        this.pId = pId == null ? null : pId.trim();
+    public void setpId(Integer pId) {
+        this.pId = pId;
     }
 
-    public Long getOrder() {
-        return order;
+    public Integer getLevel() {
+        return level;
     }
 
-    public void setOrder(Long order) {
-        this.order = order;
+    public void setLevel(Integer level) {
+        this.level = level;
     }
 
     public Long getCreateTime() {

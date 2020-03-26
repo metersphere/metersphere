@@ -5,8 +5,8 @@
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="p_id" jdbcType="VARCHAR" property="pId" />
-    <result column="order" jdbcType="BIGINT" property="order" />
+    <result column="p_id" jdbcType="INTEGER" property="pId" />
+    <result column="level" jdbcType="INTEGER" property="level" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
   </resultMap>
@@ -69,7 +69,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, name, p_id, order, create_time, update_time
+    id, project_id, name, p_id, level, create_time, update_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.TestCaseNodeExample" resultMap="BaseResultMap">
     select
@@ -102,19 +102,22 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseNode">
-    insert into test_case_node (id, project_id, name, 
-      p_id, order, create_time, 
-      update_time)
-    values (#{id,jdbcType=INTEGER}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{pId,jdbcType=VARCHAR}, #{order,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT})
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into test_case_node (project_id, name, p_id, 
+      level, create_time, update_time
+      )
+    values (#{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{pId,jdbcType=INTEGER}, 
+      #{level,jdbcType=INTEGER}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseNode">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
     insert into test_case_node
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
       <if test="projectId != null">
         project_id,
       </if>
@@ -124,8 +127,8 @@
       <if test="pId != null">
         p_id,
       </if>
-      <if test="order != null">
-        order,
+      <if test="level != null">
+        level,
       </if>
       <if test="createTime != null">
         create_time,
@@ -135,9 +138,6 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=INTEGER},
-      </if>
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
       </if>
@@ -145,10 +145,10 @@
         #{name,jdbcType=VARCHAR},
       </if>
       <if test="pId != null">
-        #{pId,jdbcType=VARCHAR},
+        #{pId,jdbcType=INTEGER},
       </if>
-      <if test="order != null">
-        #{order,jdbcType=BIGINT},
+      <if test="level != null">
+        #{level,jdbcType=INTEGER},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -177,10 +177,10 @@
         name = #{record.name,jdbcType=VARCHAR},
       </if>
       <if test="record.pId != null">
-        p_id = #{record.pId,jdbcType=VARCHAR},
+        p_id = #{record.pId,jdbcType=INTEGER},
       </if>
-      <if test="record.order != null">
-        order = #{record.order,jdbcType=BIGINT},
+      <if test="record.level != null">
+        level = #{record.level,jdbcType=INTEGER},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -198,8 +198,8 @@
     set id = #{record.id,jdbcType=INTEGER},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
-      p_id = #{record.pId,jdbcType=VARCHAR},
-      order = #{record.order,jdbcType=BIGINT},
+      p_id = #{record.pId,jdbcType=INTEGER},
+      level = #{record.level,jdbcType=INTEGER},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT}
     <if test="_parameter != null">
@@ -216,10 +216,10 @@
         name = #{name,jdbcType=VARCHAR},
       </if>
       <if test="pId != null">
-        p_id = #{pId,jdbcType=VARCHAR},
+        p_id = #{pId,jdbcType=INTEGER},
       </if>
-      <if test="order != null">
-        order = #{order,jdbcType=BIGINT},
+      <if test="level != null">
+        level = #{level,jdbcType=INTEGER},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -234,8 +234,8 @@
     update test_case_node
     set project_id = #{projectId,jdbcType=VARCHAR},
       name = #{name,jdbcType=VARCHAR},
-      p_id = #{pId,jdbcType=VARCHAR},
-      order = #{order,jdbcType=BIGINT},
+      p_id = #{pId,jdbcType=INTEGER},
+      level = #{level,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=INTEGER}

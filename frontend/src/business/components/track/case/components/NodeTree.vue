@@ -2,48 +2,47 @@
 
   <div>
 
-
     <el-input placeholder="搜索模块" v-model="filterText"
               size="small">
-      <el-button slot="append" icon="el-icon-folder-add" @click="editNode('add')"></el-button>
+      <el-button slot="append" icon="el-icon-folder-add" @click="openEditNodeDialog('add')"></el-button>
     </el-input>
 
     <el-tree
-      class="filter-tree node-tree"
-      :data="trees"
-      node-key="id"
-      @node-drag-start="handleDragStart"
-      @node-drag-enter="handleDragEnter"
-      @node-drag-leave="handleDragLeave"
-      @node-drag-over="handleDragOver"
-      @node-drag-end="handleDragEnd"
-      @node-drop="handleDrop"
-      :filter-node-method="filterNode"
-      :expand-on-click-node="false"
-      draggable
-      :allow-drop="allowDrop"
-      :allow-drag="allowDrag"
-      ref="tree">
+        class="filter-tree node-tree"
+        :data="treeNodes"
+        node-key="id"
+        @node-drag-start="handleDragStart"
+        @node-drag-enter="handleDragEnter"
+        @node-drag-leave="handleDragLeave"
+        @node-drag-over="handleDragOver"
+        @node-drag-end="handleDragEnd"
+        @node-drop="handleDrop"
+        :filter-node-method="filterNode"
+        :expand-on-click-node="false"
+        draggable
+        :allow-drop="allowDrop"
+        :allow-drag="allowDrag"
+        ref="tree">
 
-      <span class="custom-tree-node father" slot-scope="{ node, data }" @click="selectNode">
-              <span>{{node.label}}</span>
-              <el-dropdown class="node-dropdown child">
-                <span class="el-dropdown-link">
-                  <i class="el-icon-folder-add"></i>
-                </span>
-                <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item>
-                  <div @click="editNode('edit', data)">重命名</div>
-                </el-dropdown-item>
-                <el-dropdown-item >
-                  <div @click="editNode('add', data)">添加子模块</div>
-                </el-dropdown-item>
-                <el-dropdown-item>
-                  <div @click="test">删除</div>
-                </el-dropdown-item>
-              </el-dropdown-menu>
-              </el-dropdown>
+      <span class="custom-tree-node father" slot-scope="{ node, data }" @click="selectNode(node)">
+          <span>{{node.label}}</span>
+          <el-dropdown class="node-dropdown child">
+            <span class="el-dropdown-link">
+              <i class="el-icon-folder-add"></i>
             </span>
+            <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item>
+              <div @click="openEditNodeDialog('edit', data)">重命名</div>
+            </el-dropdown-item>
+            <el-dropdown-item >
+              <div @click="openEditNodeDialog('add', data)">添加子模块</div>
+            </el-dropdown-item>
+            <el-dropdown-item>
+              <div @click="remove(node, data)">删除</div>
+            </el-dropdown-item>
+          </el-dropdown-menu>
+          </el-dropdown>
+        </span>
     </el-tree>
 
     <el-dialog title="添加模块" :visible.sync="dialogFormVisible" width="500px">
@@ -60,7 +59,7 @@
 
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="saveNode">确 定</el-button>
+        <el-button type="primary" @click="editNode">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -75,51 +74,6 @@
       data() {
         return {
           filterText: '',
-          trees: [{
-            id: 1,
-            label: '一级 1',
-            children: [{
-              id: 4,
-              label: '二级 1-1',
-              children: [{
-                id: 9,
-                label: '三级 1-1-1'
-              }, {
-                id: 10,
-                label: '三级 1-1-2'
-              }]
-            }]
-          }, {
-            id: 2,
-            label: '一级 2',
-            children: [{
-              id: 5,
-              label: '二级 2-1'
-            }, {
-              id: 6,
-              label: '二级 2-2'
-            }]
-          }, {
-            id: 3,
-            label: '一级 3',
-            children: [{
-              id: 7,
-              label: '二级 3-1'
-            }, {
-              id: 8,
-              label: '二级 3-2',
-              children: [{
-                id: 11,
-                label: '三级 3-2-1'
-              }, {
-                id: 12,
-                label: '三级 3-2-2'
-              }, {
-                id: 13,
-                label: '三级 3-2-3'
-              }]
-            }]
-          }],
           defaultProps: {
             children: 'children',
             label: 'label'
@@ -138,15 +92,25 @@
           dialogTableVisible: false,
           dialogFormVisible: false,
           editType: '',
-          editData: {}
+          editData: {},
+          treeNodes: [],
+          defaultKeys: []
         };
+      },
+      props: {
+        projectId: null
       },
       watch: {
         filterText(val) {
           this.$refs.tree.filter(val);
+        },
+        projectId(val){
+          this.getNodeTree(val);
         }
       },
-
+      created() {
+        this.getNodeTree(this.projectId);
+      },
       methods: {
         handleDragStart(node, ev) {
           console.log('drag start', node);
@@ -176,59 +140,87 @@
         allowDrag(draggingNode) {
           return draggingNode.data.label.indexOf('三级 3-2-2') === -1;
         },
-
-        append(data) {
-          let id = 0;
-          const newChild = { id: id++, label: 'testtest', children: [] };
-          if (!data.children) {
-            this.$set(data, 'children', []);
-          }
-          data.children.push(newChild);
-        },
-
         remove(node, data) {
-          const parent = node.parent;
-          const children = parent.data.children || parent.data;
-          const index = children.findIndex(d => d.id === data.id);
-          children.splice(index, 1);
+          this.$post("/case/node/delete/" + data.id, null, () => {
+            const parent = node.parent;
+            const children = parent.data.children || parent.data;
+            const index = children.findIndex(d => d.id === data.id);
+            children.splice(index, 1);
+          });
         },
-        selectNode() {
-          console.log("selet node-----");
+        selectNode(node) {
+          let nodeIds = [];
+          this.getChildNodeId(node, nodeIds);
+          this.$emit("nodeSelectEvent", nodeIds);
+        },
+        getChildNodeId(rootNode, nodeIds) {
+          //递归获取所有子节点ID
+          nodeIds.push(rootNode.data.id)
+          for (let i = 0; i < rootNode.childNodes.length; i++){
+            this.getChildNodeId(rootNode.childNodes[i], nodeIds);
+          }
+          return nodeIds;
         },
         filterNode(value, data) {
           if (!value) return true;
           return data.label.indexOf(value) !== -1;
         },
-        saveNode() {
-
-          let type = this.editType;
-          let node = this.editData;
-          if( type === 'add' ){
-            if(node === undefined){
-              console.log("add root node");
-            } else {
-              console.log("add node");
-            }
-          } else if(type === 'edit'){
-            console.log("rename");
-          }
-
-          this.form.name = '';
-
+        editNode() {
+          this.saveNode(this.editType, this.editData);
           this.dialogFormVisible = false;
         },
-        editNode(type, data) {
-
+        openEditNodeDialog(type, data) {
           this.editType = type;
           this.editData = data;
           this.dialogFormVisible = true;
         },
-        test() {
+        getNodeTree(projectId) {
+          if(projectId){
+            this.$get("/case/node/list/" + projectId, response => {
+              this.treeNodes = response.data;
+            });
+          }
+        },
+        saveNode(type, pNode) {
+          let param = {};
+          let url = '';
 
-          console.log("----");
-          alert("ehllo");
-          // this.dialogFormVisible = true;
-        }
+          if(type === 'add'){
+            url = '/case/node/add';
+            param.level = 1;
+            if(pNode){
+              //非根节点
+              param.pId = pNode.id;
+              param.level = pNode.level + 1;
+            }
+          } else if(type === 'edit'){
+            url = '/case/node/edit';
+            param.id = this.editData.id
+          }
+
+          param.name = this.form.name;
+          param.label = this.form.name;
+          param.projectId = this.projectId;
+
+          this.$post(url, param, response => {
+            if(type === 'edit'){
+              this.editData.label = param.label;
+            } if(type === 'add') {
+              param.id = response.data;
+              if(pNode){
+                if(pNode.children){
+                  pNode.children.push(param);
+                } else {
+                  pNode.children = [param];
+                }
+              } else {
+                this.treeNodes.push(param);
+              }
+            }
+          });
+
+          this.form.name = '';
+        },
       }
     }
 </script>
