@@ -218,8 +218,8 @@
       }
     },
     watch: {
-      '$route'(to, from) {
-        if (from.name !== 'createPerTest' && from.name !== 'editPerTest') {
+      '$route'(to) {
+        if (to.name !== 'createPerTest' && to.name !== 'editPerTest') {
           return;
         }
         let testId = to.path.split('/')[4];
