@@ -6,11 +6,12 @@ import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.controller.request.TestRequest;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.engine.AbstractEngine;
 import io.metersphere.engine.EngineContext;
 import io.metersphere.engine.EngineFactory;
+import io.metersphere.engine.docker.request.DockerLoginRequest;
+import io.metersphere.engine.docker.request.TestRequest;
 import io.metersphere.engine.kubernetes.registry.RegistryService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.client.RestTemplate;
@@ -85,10 +86,12 @@ public class DockerTestEngine extends AbstractEngine {
         testRequest.setFileString(content);
         testRequest.setImage(registryService.getRegistry() + JMETER_IMAGE);
         testRequest.setTestData(context.getTestData());
-
+        testRequest.setRegistry(registryService.getRegistryUrl());
+        testRequest.setPassword(registryService.getRegistryPassword());
+        testRequest.setUsername(registryService.getRegistryUsername());
         // todo 判断测试状态
         String taskStatusUri = String.format(BASE_URL + "/jmeter/task/status/" + testId, nodeIp, port);
-        List containerList = restTemplate.getForObject(taskStatusUri, List.class);
+        List containerList = restTemplate.postForObject(taskStatusUri, testRequest, List.class);
         for (int i = 0; i < containerList.size(); i++) {
             HashMap h = (HashMap) containerList.get(i);
             if (StringUtils.equals((String) h.get("State"), "running")) {
@@ -103,13 +106,14 @@ public class DockerTestEngine extends AbstractEngine {
     public void stop() {
         // TODO 停止运行测试
         String testId = loadTest.getId();
+        DockerLoginRequest request = new DockerLoginRequest();
         this.resourceList.forEach(r -> {
             NodeDTO node = JSON.parseObject(r.getConfiguration(), NodeDTO.class);
             String ip = node.getIp();
             Integer port = node.getPort();
 
             String uri = String.format(BASE_URL + "/jmeter/container/stop/" + testId, ip, port);
-            restTemplate.postForObject(uri, "", String.class);
+            restTemplate.postForObject(uri, request, String.class);
         });
 
 
