@@ -52,16 +52,16 @@
 
       <el-submenu v-if="isCurrentWorkspaceUser && beaseUrl == 'track'"
                   index="6" popper-class="submenu" v-permission="['test_manager', 'test_user']">
-        <template slot="title">{{$t('test_track.test_track')}}</template>
+        <template slot="title">{{$t('test_track.test_case')}}</template>
         <recent-case-plan/>
         <el-divider/>
         <el-menu-item :index="'/' + beaseUrl + '/case/all'">
           <font-awesome-icon :icon="['fa', 'list-ul']"/>
-          <span style="padding-left: 5px;">{{$t('commons.show_all')}}</span>
+          <span style="padding-left: 5px;">{{$t('test_track.case_list')}}</span>
         </el-menu-item>
-        <el-menu-item :index="'/' + beaseUrl + '/case/create'">
-          <el-button type="text">{{$t('test_track.create_case')}}</el-button>
-        </el-menu-item>
+        <!--<el-menu-item :index="'/' + beaseUrl + '/case/create'">-->
+          <!--<el-button type="text">{{$t('test_track.create_case')}}</el-button>-->
+        <!--</el-menu-item>-->
       </el-submenu>
 
       <el-submenu v-if="isCurrentWorkspaceUser && beaseUrl == 'track'"

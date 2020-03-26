@@ -314,123 +314,113 @@ public class TestCaseNodeExample {
             return (Criteria) this;
         }
 
-        public Criteria andPIdEqualTo(String value) {
+        public Criteria andPIdEqualTo(Integer value) {
             addCriterion("p_id =", value, "pId");
             return (Criteria) this;
         }
 
-        public Criteria andPIdNotEqualTo(String value) {
+        public Criteria andPIdNotEqualTo(Integer value) {
             addCriterion("p_id <>", value, "pId");
             return (Criteria) this;
         }
 
-        public Criteria andPIdGreaterThan(String value) {
+        public Criteria andPIdGreaterThan(Integer value) {
             addCriterion("p_id >", value, "pId");
             return (Criteria) this;
         }
 
-        public Criteria andPIdGreaterThanOrEqualTo(String value) {
+        public Criteria andPIdGreaterThanOrEqualTo(Integer value) {
             addCriterion("p_id >=", value, "pId");
             return (Criteria) this;
         }
 
-        public Criteria andPIdLessThan(String value) {
+        public Criteria andPIdLessThan(Integer value) {
             addCriterion("p_id <", value, "pId");
             return (Criteria) this;
         }
 
-        public Criteria andPIdLessThanOrEqualTo(String value) {
+        public Criteria andPIdLessThanOrEqualTo(Integer value) {
             addCriterion("p_id <=", value, "pId");
             return (Criteria) this;
         }
 
-        public Criteria andPIdLike(String value) {
-            addCriterion("p_id like", value, "pId");
-            return (Criteria) this;
-        }
-
-        public Criteria andPIdNotLike(String value) {
-            addCriterion("p_id not like", value, "pId");
-            return (Criteria) this;
-        }
-
-        public Criteria andPIdIn(List<String> values) {
+        public Criteria andPIdIn(List<Integer> values) {
             addCriterion("p_id in", values, "pId");
             return (Criteria) this;
         }
 
-        public Criteria andPIdNotIn(List<String> values) {
+        public Criteria andPIdNotIn(List<Integer> values) {
             addCriterion("p_id not in", values, "pId");
             return (Criteria) this;
         }
 
-        public Criteria andPIdBetween(String value1, String value2) {
+        public Criteria andPIdBetween(Integer value1, Integer value2) {
             addCriterion("p_id between", value1, value2, "pId");
             return (Criteria) this;
         }
 
-        public Criteria andPIdNotBetween(String value1, String value2) {
+        public Criteria andPIdNotBetween(Integer value1, Integer value2) {
             addCriterion("p_id not between", value1, value2, "pId");
             return (Criteria) this;
         }
 
-        public Criteria andOrderIsNull() {
-            addCriterion("order is null");
+        public Criteria andLevelIsNull() {
+            addCriterion("level is null");
             return (Criteria) this;
         }
 
-        public Criteria andOrderIsNotNull() {
-            addCriterion("order is not null");
+        public Criteria andLevelIsNotNull() {
+            addCriterion("level is not null");
             return (Criteria) this;
         }
 
-        public Criteria andOrderEqualTo(Long value) {
-            addCriterion("order =", value, "order");
+        public Criteria andLevelEqualTo(Integer value) {
+            addCriterion("level =", value, "level");
             return (Criteria) this;
         }
 
-        public Criteria andOrderNotEqualTo(Long value) {
-            addCriterion("order <>", value, "order");
+        public Criteria andLevelNotEqualTo(Integer value) {
+            addCriterion("level <>", value, "level");
             return (Criteria) this;
         }
 
-        public Criteria andOrderGreaterThan(Long value) {
-            addCriterion("order >", value, "order");
+        public Criteria andLevelGreaterThan(Integer value) {
+            addCriterion("level >", value, "level");
             return (Criteria) this;
         }
 
-        public Criteria andOrderGreaterThanOrEqualTo(Long value) {
-            addCriterion("order >=", value, "order");
+        public Criteria andLevelGreaterThanOrEqualTo(Integer value) {
+            addCriterion("level >=", value, "level");
             return (Criteria) this;
         }
 
-        public Criteria andOrderLessThan(Long value) {
-            addCriterion("order <", value, "order");
+        public Criteria andLevelLessThan(Integer value) {
+            addCriterion("level <", value, "level");
             return (Criteria) this;
         }
 
-        public Criteria andOrderLessThanOrEqualTo(Long value) {
-            addCriterion("order <=", value, "order");
+        public Criteria andLevelLessThanOrEqualTo(Integer value) {
+            addCriterion("level <=", value, "level");
             return (Criteria) this;
         }
 
-        public Criteria andOrderIn(List<Long> values) {
-            addCriterion("order in", values, "order");
+        public Criteria andLevelIn(List<Integer> values) {
+            addCriterion("level in", values, "level");
             return (Criteria) this;
         }
 
-        public Criteria andOrderNotIn(List<Long> values) {
-            addCriterion("order not in", values, "order");
+        public Criteria andLevelNotIn(List<Integer> values) {
+            addCriterion("level not in", values, "level");
             return (Criteria) this;
         }
 
-        public Criteria andOrderBetween(Long value1, Long value2) {
-            addCriterion("order between", value1, value2, "order");
+        public Criteria andLevelBetween(Integer value1, Integer value2) {
+            addCriterion("level between", value1, value2, "level");
             return (Criteria) this;
         }
 
-        public Criteria andOrderNotBetween(Long value1, Long value2) {
-            addCriterion("order not between", value1, value2, "order");
+        public Criteria andLevelNotBetween(Integer value1, Integer value2) {
+            addCriterion("level not between", value1, value2, "level");
             return (Criteria) this;
         }
 
