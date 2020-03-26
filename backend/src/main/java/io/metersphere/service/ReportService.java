@@ -7,6 +7,7 @@ import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.controller.request.ReportRequest;
 import io.metersphere.dto.ReportDTO;
 import io.metersphere.report.JtlResolver;
+import io.metersphere.report.base.Errors;
 import io.metersphere.report.base.RequestStatistics;
 import io.metersphere.report.base.RequestStatisticsDTO;
 import org.springframework.stereotype.Service;
@@ -50,5 +51,12 @@ public class ReportService {
         String content = loadTestReport.getContent();
         RequestStatisticsDTO requestStatistics = JtlResolver.getRequestStatistics(content);
         return requestStatistics;
+    }
+
+    public List<Errors> getReportErrors(String id) {
+        LoadTestReport loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
+        String content = loadTestReport.getContent();
+        List<Errors> errors = JtlResolver.getErrorsList(content);
+        return errors;
     }
 }
