@@ -24,11 +24,14 @@ public class KubernetesTestEngine extends AbstractEngine {
 
     private RegistryService registryService;
 
+    public KubernetesTestEngine(LoadTestWithBLOBs loadTest) {
+        this.init(loadTest);
+    }
+
     @Override
-    public boolean init(LoadTestWithBLOBs loadTest) {
+    public void init(LoadTestWithBLOBs loadTest) {
         super.init(loadTest);
         this.registryService = CommonBeanFactory.getBean(RegistryService.class);
-        return true;
     }
 
 
@@ -89,7 +92,7 @@ public class KubernetesTestEngine extends AbstractEngine {
             }});
             jmeter.setSpec(new JmeterSpec() {{
                 setReplicas(1);
-                setImage(registryService.getRegistry() + "jmeter-master:0.0.2");
+                setImage(registryService.getRegistry() + JMETER_IMAGE);
             }});
             LogUtil.info("Load test started. " + context.getTestId());
             kubernetesProvider.applyCustomResource(jmeter);
@@ -100,6 +103,28 @@ public class KubernetesTestEngine extends AbstractEngine {
 
     @Override
     public void stop() {
+        resourceList.forEach(r -> {
+            try {
+                EngineContext context = EngineFactory.createContext(loadTest, threadNum);
+                String configuration = r.getConfiguration();
+                ClientCredential clientCredential = JSON.parseObject(configuration, ClientCredential.class);
+                KubernetesProvider provider = new KubernetesProvider(JSON.toJSONString(clientCredential));
+                provider.confirmNamespace(context.getNamespace());
+                Jmeter jmeter = new Jmeter();
+                jmeter.setMetadata(new ObjectMeta() {{
+                    setName(context.getTestId());
+                    setNamespace(context.getNamespace());
+                }});
+                jmeter.setSpec(new JmeterSpec() {{
+                    setReplicas(1);
+                    setImage(registryService.getRegistry() + JMETER_IMAGE);
+                }});
+                provider.deleteCustomResource(jmeter);
+            } catch (Exception e) {
+                MSException.throwException(e);
+            }
+
+        });
 
     }
 }

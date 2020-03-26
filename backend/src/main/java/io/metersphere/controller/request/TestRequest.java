@@ -2,9 +2,10 @@ package io.metersphere.controller.request;
 
 public class TestRequest {
 
-    int size;
-    String fileString;
-    String testId;
+    private int size;
+    private String fileString;
+    private String testId;
+    private String image;
 
     public int getSize() {
         return size;
@@ -28,5 +29,13 @@ public class TestRequest {
 
     public void setTestId(String testId) {
         this.testId = testId;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }
