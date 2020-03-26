@@ -6,6 +6,7 @@
       border
       style="width: 100%"
       show-summary
+      :summary-method="getSummaries"
       :default-sort = "{prop: 'samples', order: 'descending'}"
     >
       <el-table-column label="Requests" fixed width="450" align="center">
@@ -27,7 +28,7 @@
           prop="errors"
           label="Error%"
           align="center"
-          fixed="right"/>
+        />
       </el-table-column>
 
       <el-table-column label="Response Times(ms)" align="center">
@@ -79,26 +80,45 @@
     data() {
       return {
         tableData: [{},{},{},{},{}],
+        totalInfo: {}
       }
     },
     methods: {
       initTableData() {
         this.$get("/report/content/" + this.id, res => {
-          this.tableData = res.data;
+          this.tableData = res.data.requestStatisticsList;
+          this.totalInfo = res.data;
         })
+      },
+      getSummaries () {
+        const sums = []
+        sums[0] = this.totalInfo.totalLabel;
+        sums[1] = this.totalInfo.totalSamples;
+        sums[2] = this.totalInfo.totalErrors;
+        sums[3] = this.totalInfo.totalAverage;
+        sums[4] = this.totalInfo.totalMin;
+        sums[5] = this.totalInfo.totalMax;
+        sums[6] = this.totalInfo.totalTP90;
+        sums[7] = this.totalInfo.totalTP95;
+        sums[8] = this.totalInfo.totalTP99;
+        return sums;
       }
     },
     created() {
       this.initTableData()
+      this.getSummaries()
     },
     props: ['id'],
     watch: {
       '$route'(to) {
-        let reportId = to.path.split('/')[4];
-        if(reportId){
-          this.$get("/report/content/" + reportId, res => {
-            this.tableData = res.data;
-          })
+        if (to.name === "perReportView") {
+          let reportId = to.path.split('/')[4];
+          if(reportId){
+            this.$get("/report/content/" + reportId, res => {
+              this.tableData = res.data.requestStatisticsList;
+              this.totalInfo = res.data;
+            })
+          }
         }
       }
     }

@@ -41,11 +41,9 @@ public class TestResourcePoolController {
         return PageUtils.setPageInfo(page, testResourcePoolService.listResourcePools(request));
     }
 
-    @GetMapping("list/all")
-    public List<TestResourcePoolDTO> listResourcePools() {
-        PageHelper.startPage(1, 10000, true);
-        QueryResourcePoolRequest request = new QueryResourcePoolRequest();
-        return testResourcePoolService.listResourcePools(request);
+    @GetMapping("list/all/valid")
+    public List<TestResourcePool> listValidResourcePools() {
+        return testResourcePoolService.listValidResourcePools();
     }
 
 

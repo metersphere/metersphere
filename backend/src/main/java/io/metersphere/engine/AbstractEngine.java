@@ -19,6 +19,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 
 public abstract class AbstractEngine implements Engine {
+    public static final String JMETER_IMAGE = "jmeter-master:0.0.2";
+
     protected LoadTestWithBLOBs loadTest;
     protected LoadTestService loadTestService;
     protected Integer threadNum;
@@ -32,8 +34,7 @@ public abstract class AbstractEngine implements Engine {
         testResourceService = CommonBeanFactory.getBean(TestResourceService.class);
     }
 
-    @Override
-    public boolean init(LoadTestWithBLOBs loadTest) {
+    protected void init(LoadTestWithBLOBs loadTest) {
         if (loadTest == null) {
             MSException.throwException("LoadTest is null.");
         }
@@ -50,14 +51,13 @@ public abstract class AbstractEngine implements Engine {
         if (resourcePool == null) {
             MSException.throwException("Resource Pool is empty");
         }
-        if (!ResourcePoolTypeEnum.K8S.name().equals(resourcePool.getType())) {
+        if (!ResourcePoolTypeEnum.K8S.name().equals(resourcePool.getType()) && !ResourcePoolTypeEnum.NODE.name().equals(resourcePool.getType())) {
             MSException.throwException("Invalid Resource Pool type.");
         }
         this.resourceList = testResourceService.getResourcesByPoolId(resourcePool.getId());
         if (CollectionUtils.isEmpty(this.resourceList)) {
             MSException.throwException("Test Resource is empty");
         }
-        return true;
     }
 
     protected Integer getRunningThreadNum() {

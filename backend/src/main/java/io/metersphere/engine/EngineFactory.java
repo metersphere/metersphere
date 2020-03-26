@@ -47,9 +47,9 @@ public class EngineFactory {
 
         switch (type) {
             case NODE:
-                return new DockerTestEngine();
+                return new DockerTestEngine(loadTest);
             case K8S:
-                return new KubernetesTestEngine();
+                return new KubernetesTestEngine(loadTest);
         }
         return null;
     }

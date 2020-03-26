@@ -1,11 +1,13 @@
 package io.metersphere.report;
 
-import com.alibaba.fastjson.JSONObject;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
+import io.metersphere.report.base.Errors;
 import io.metersphere.report.base.Metric;
 import io.metersphere.report.base.RequestStatistics;
+import io.metersphere.report.base.RequestStatisticsDTO;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -33,9 +35,12 @@ public class JtlResolver {
         return null;
     }
 
-    private static List<RequestStatistics> getOneRpsResult(Map<String, List<Metric>> map){
+    private static RequestStatisticsDTO getOneRpsResult(Map<String, List<Metric>> map){
+        RequestStatisticsDTO statisticsDTO = new RequestStatisticsDTO();
         List<RequestStatistics> requestStatisticsList = new ArrayList<>();
         Iterator<Map.Entry<String, List<Metric>>> iterator = map.entrySet().iterator();
+        List<Integer> allelapse = new ArrayList<>();
+        Integer totalAverage = 0;
         while (iterator.hasNext()) {
             Map.Entry<String, List<Metric>> entry = iterator.next();
             String label = entry.getKey();
@@ -45,7 +50,7 @@ public class JtlResolver {
             //总的响应时间
             int sumElapsed=0;
             Integer failSize = 0;
-            Integer totalBytes = 0;
+            Float totalBytes = 0f;
             List<Integer> elapsedList = new ArrayList<>();
 
             for (int i = 0; i < list.size(); i++) {
@@ -54,7 +59,9 @@ public class JtlResolver {
                     //响应时间
                     String elapsed = row.getElapsed();
                     sumElapsed += Integer.valueOf(elapsed);
+                    totalAverage += Integer.valueOf(elapsed);
                     elapsedList.add(Integer.valueOf(elapsed));
+                    allelapse.add(Integer.valueOf(elapsed));
                     //成功与否
                     String success = row.getSuccess();
                     if (!"true".equals(success)){
@@ -62,25 +69,19 @@ public class JtlResolver {
                     }
                     //字节
                     String bytes = row.getBytes();
-                    totalBytes += Integer.valueOf(bytes);
-
+                    totalBytes += Float.valueOf(bytes);
                     index++;
                 }catch (Exception e){
                     System.out.println("exception i:"+i);
                 }
             }
 
-            Collections.sort(elapsedList, new Comparator<Integer>() {
-                public int compare(Integer o1, Integer o2) {
-                    return o1-o2;
-                }
-            });
+            Collections.sort(elapsedList);
 
-            Integer tp90 = elapsedList.size()*9/10;
+            Integer tp90 = elapsedList.size()*90/100;
             Integer tp95 = elapsedList.size()*95/100;
             Integer tp99 = elapsedList.size()*99/100;
-
-            Long l = Long.valueOf(timestampList.get(index-1)) - Long.valueOf(timestampList.get(0));
+            Long l = Long.valueOf(timestampList.get(timestampList.size()-1)) - Long.valueOf(timestampList.get(0));
 
             RequestStatistics requestStatistics = new RequestStatistics();
             requestStatistics.setRequestLabel(label);
@@ -101,16 +102,80 @@ public class JtlResolver {
             requestStatistics.setMin(elapsedList.get(0)+"");
             requestStatistics.setMax(elapsedList.get(index-1)+"");
             requestStatistics.setErrors(String.format("%.2f",failSize*100.0/index)+"%");
+            requestStatistics.setKo(failSize);
+            /**
+             * 所有的相同请求的bytes总和 / 1024 / 请求持续运行的时间=sum(bytes)/1024/total time
+             */
+            // todo Avg Bandwidth(KBytes/s)          请求之间时间戳间隔l 可能为0
             requestStatistics.setKbPerSec(String.format("%.2f",totalBytes*1.0/1024/(l*1.0/1000)));
             requestStatisticsList.add(requestStatistics);
         }
-        return requestStatisticsList;
+        Collections.sort(allelapse);
+
+        Integer totalTP90 = allelapse.size()*90/100;
+        Integer totalTP95 = allelapse.size()*95/100;
+        Integer totalTP99 = allelapse.size()*99/100;
+
+        Integer min = allelapse.get(0);
+        Integer max = allelapse.get(allelapse.size() - 1);
+
+        Integer allSamples = requestStatisticsList.stream().mapToInt(RequestStatistics::getSamples).sum();
+        Integer failSize = requestStatisticsList.stream().mapToInt(RequestStatistics::getKo).sum();
+        DecimalFormat df = new DecimalFormat("0.00");
+        double errors = (double)failSize / allSamples * 100;
+        String totalerrors = df.format(errors);
+        double average = (double)totalAverage / allSamples;
+        String totalaverage = df.format(average);
+
+        statisticsDTO.setRequestStatisticsList(requestStatisticsList);
+        statisticsDTO.setTotalLabel("Total");
+        statisticsDTO.setTotalSamples(String.valueOf(allSamples));
+        statisticsDTO.setTotalErrors(totalerrors + "%");
+        statisticsDTO.setTotalAverage(totalaverage);
+        statisticsDTO.setTotalMin(String.valueOf(min));
+        statisticsDTO.setTotalMax(String.valueOf(max));
+        statisticsDTO.setTotalTP90(String.valueOf(allelapse.get(totalTP90)));
+        statisticsDTO.setTotalTP95(String.valueOf(allelapse.get(totalTP95)));
+        statisticsDTO.setTotalTP99(String.valueOf(allelapse.get(totalTP99)));
+        // todo
+//        statisticsDTO.setTotalAvgBandwidth();
+        return statisticsDTO;
     }
 
-    public static List<RequestStatistics> getRequestStatistics(String jtlString) {
+    // Aggregate Report
+    public static RequestStatisticsDTO getRequestStatistics(String jtlString) {
         List<Metric> totalLines = resolver(jtlString);
         Map<String, List<Metric>> map = totalLines.stream().collect(Collectors.groupingBy(Metric::getLabel));
         return getOneRpsResult(map);
+    }
+
+    // Errors
+    public static List<Errors> getErrorsList(String jtlString) {
+        List<Metric> totalLines = resolver(jtlString);
+        List<Metric> falseList = totalLines.stream().filter(metric -> StringUtils.equals("false", metric.getSuccess())).collect(Collectors.toList());
+        List<Errors> errorsList = new ArrayList<>();
+        Map<String, List<Metric>> collect = falseList.stream().collect(Collectors.groupingBy(JtlResolver::getResponseCodeAndFailureMessage));
+        Iterator<Map.Entry<String, List<Metric>>> iterator = collect.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, List<Metric>> next = iterator.next();
+            String key = next.getKey();
+            List<Metric> value = next.getValue();
+            Errors errors = new Errors();
+            errors.setErrorType(key);
+            errors.setErrorNumber(String.valueOf(value.size()));
+            Integer errorSize = value.size();
+            Integer errorAllSize = falseList.size();
+            Integer allSamples = totalLines.size();
+            DecimalFormat df = new DecimalFormat("0.00");
+            errors.setPrecentOfErrors(df.format((double)errorSize / errorAllSize * 100) + "%");
+            errors.setPrecentOfAllSamples(df.format((double)errorSize / allSamples * 100) + "%");
+            errorsList.add(errors);
+        }
+        return errorsList;
+    }
+
+    private static String getResponseCodeAndFailureMessage(Metric metric) {
+        return metric.getResponseCode() + "/" + metric.getResponseMessage();
     }
 
 }

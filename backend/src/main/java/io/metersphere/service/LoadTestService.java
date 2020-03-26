@@ -174,16 +174,7 @@ public class LoadTestService {
             MSException.throwException(String.format("Test cannot be run，test ID：%s", request.getId()));
         }
 
-        boolean init = true;
-        try {
-            init = engine.init(loadTest);
-        } catch (Exception e) {
-            MSException.throwException(e);
-        }
-        if (!init) {
-            MSException.throwException(Translator.get("run_load_test_file_init_error") + request.getId());
-        }
-
+        // 启动测试
         engine.start();
         // 标记running状态
         loadTest.setStatus(TestStatus.Running.name());

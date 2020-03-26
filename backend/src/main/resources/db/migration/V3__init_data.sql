@@ -9,3 +9,8 @@ INSERT INTO role (id, name, description, type, create_time, update_time) VALUES 
 INSERT INTO role (id, name, description, type, create_time, update_time) VALUES ('test_manager', '测试经理', null, null, 1581576575948, 1581576575948);
 INSERT INTO role (id, name, description, type, create_time, update_time) VALUES ('test_user', '测试人员', null, null, 1581576575948, 1581576575948);
 INSERT INTO role (id, name, description, type, create_time, update_time) VALUES ('test_viewer', 'Viewer', null, null, 1581576575948, 1581576575948);
+
+INSERT INTO `system_parameter`(`param_key`, `param_value`, `type`, `sort`) VALUES ('registry.password', '', 'password', 4);
+INSERT INTO `system_parameter`(`param_key`, `param_value`, `type`, `sort`) VALUES ('registry.repo', '', 'text', 2);
+INSERT INTO `system_parameter`(`param_key`, `param_value`, `type`, `sort`) VALUES ('registry.url', '', 'text', 1);
+INSERT INTO `system_parameter`(`param_key`, `param_value`, `type`, `sort`) VALUES ('registry.username', '', 'text', 3);

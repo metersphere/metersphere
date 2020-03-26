@@ -6,6 +6,7 @@ import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.metersphere.base.domain.LoadTestWithBLOBs;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.engine.AbstractEngine;
 import io.metersphere.engine.EngineContext;
@@ -14,16 +15,23 @@ import io.metersphere.engine.kubernetes.crds.jmeter.Jmeter;
 import io.metersphere.engine.kubernetes.crds.jmeter.JmeterSpec;
 import io.metersphere.engine.kubernetes.provider.ClientCredential;
 import io.metersphere.engine.kubernetes.provider.KubernetesProvider;
+import io.metersphere.engine.kubernetes.registry.RegistryService;
 import org.apache.commons.collections.MapUtils;
 
 import java.util.HashMap;
 
 public class KubernetesTestEngine extends AbstractEngine {
 
+    private RegistryService registryService;
+
+    public KubernetesTestEngine(LoadTestWithBLOBs loadTest) {
+        this.init(loadTest);
+    }
+
     @Override
-    public boolean init(LoadTestWithBLOBs loadTest) {
+    public void init(LoadTestWithBLOBs loadTest) {
         super.init(loadTest);
-        return true;
+        this.registryService = CommonBeanFactory.getBean(RegistryService.class);
     }
 
 
@@ -42,17 +50,20 @@ public class KubernetesTestEngine extends AbstractEngine {
             }
             try {
                 EngineContext context = EngineFactory.createContext(loadTest, threadNum);
-                runTest(context, clientCredential, 1);
+                runTest(context, clientCredential);
             } catch (Exception e) {
-                LogUtil.error(e);
+                MSException.throwException(e);
             }
         });
     }
 
-    private void runTest(EngineContext context, ClientCredential credential, int replicas) {
+    private void runTest(EngineContext context, ClientCredential credential) {
         KubernetesProvider kubernetesProvider = new KubernetesProvider(JSON.toJSONString(credential));
+
         // create namespace
         kubernetesProvider.confirmNamespace(context.getNamespace());
+        // docker registry
+        registryService.dockerRegistry(kubernetesProvider, context.getNamespace());
         // create cm
         try (KubernetesClient client = kubernetesProvider.getKubernetesClient()) {
             String configMapName = context.getTestId() + "-files";
@@ -80,18 +91,40 @@ public class KubernetesTestEngine extends AbstractEngine {
                 setName(context.getTestId());
             }});
             jmeter.setSpec(new JmeterSpec() {{
-                setReplicas(replicas);
-                setImage("registry.fit2cloud.com/metersphere/jmeter-master:0.0.2");
+                setReplicas(1);
+                setImage(registryService.getRegistry() + JMETER_IMAGE);
             }});
             LogUtil.info("Load test started. " + context.getTestId());
             kubernetesProvider.applyCustomResource(jmeter);
         } catch (Exception e) {
-            LogUtil.error(e);
+            MSException.throwException(e);
         }
     }
 
     @Override
     public void stop() {
+        resourceList.forEach(r -> {
+            try {
+                EngineContext context = EngineFactory.createContext(loadTest, threadNum);
+                String configuration = r.getConfiguration();
+                ClientCredential clientCredential = JSON.parseObject(configuration, ClientCredential.class);
+                KubernetesProvider provider = new KubernetesProvider(JSON.toJSONString(clientCredential));
+                provider.confirmNamespace(context.getNamespace());
+                Jmeter jmeter = new Jmeter();
+                jmeter.setMetadata(new ObjectMeta() {{
+                    setName(context.getTestId());
+                    setNamespace(context.getNamespace());
+                }});
+                jmeter.setSpec(new JmeterSpec() {{
+                    setReplicas(1);
+                    setImage(registryService.getRegistry() + JMETER_IMAGE);
+                }});
+                provider.deleteCustomResource(jmeter);
+            } catch (Exception e) {
+                MSException.throwException(e);
+            }
+
+        });
 
     }
 }

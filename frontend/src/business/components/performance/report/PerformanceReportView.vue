@@ -41,7 +41,7 @@
             <ms-report-request-statistics :id="reportId"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('report.test_error_log')">
-            <ms-report-error-log />
+            <ms-report-error-log :id="reportId"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('report.test_log_details')">
             <ms-report-log-details />
