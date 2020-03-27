@@ -161,8 +161,8 @@
           this.avgThroughput = data.avgThroughput;
           this.errors = data.errors;
           this.avgResponseTime = data.avgResponseTime;
-          // this.responseTime90 = data.responseTime90;
-          // this.avgBandwidth = data.avgBandwidth;
+          this.responseTime90 = data.responseTime90;
+          this.avgBandwidth = data.avgBandwidth;
         })
       }
     },
@@ -181,8 +181,8 @@
               this.avgThroughput = data.avgThroughput;
               this.errors = data.errors;
               this.avgResponseTime = data.avgResponseTime;
-              // this.responseTime90 = data.responseTime90;
-              // this.avgBandwidth = data.avgBandwidth;
+              this.responseTime90 = data.responseTime90;
+              this.avgBandwidth = data.avgBandwidth;
             })
           }
         }
