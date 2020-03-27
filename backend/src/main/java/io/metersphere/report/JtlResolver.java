@@ -3,18 +3,17 @@ package io.metersphere.report;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
-import io.metersphere.report.base.Errors;
-import io.metersphere.report.base.ErrorsTop5;
-import io.metersphere.report.base.Metric;
-import io.metersphere.report.base.RequestStatistics;
+import io.metersphere.report.base.*;
 import io.metersphere.report.dto.ErrorsTop5DTO;
 import io.metersphere.report.dto.RequestStatisticsDTO;
+import org.apache.bcel.verifier.statics.LONG_Upper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Reader;
 import java.io.StringReader;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class JtlResolver {
@@ -144,14 +143,14 @@ public class JtlResolver {
         return statisticsDTO;
     }
 
-    // Aggregate Report
+    // report - Aggregate Report
     public static RequestStatisticsDTO getRequestStatistics(String jtlString) {
         List<Metric> totalLines = resolver(jtlString);
         Map<String, List<Metric>> map = totalLines.stream().collect(Collectors.groupingBy(Metric::getLabel));
         return getOneRpsResult(map);
     }
 
-    // Errors
+    // report - Errors
     public static List<Errors> getErrorsList(String jtlString) {
         List<Metric> totalLines = resolver(jtlString);
         List<Metric> falseList = totalLines.stream().filter(metric -> StringUtils.equals("false", metric.getSuccess())).collect(Collectors.toList());
@@ -180,6 +179,7 @@ public class JtlResolver {
         return metric.getResponseCode() + "/" + metric.getResponseMessage();
     }
 
+    // report - Errors Top 5
     public static ErrorsTop5DTO getErrorsTop5DTO(String jtlString) {
         List<Metric> totalLines = resolver(jtlString);
         ErrorsTop5DTO top5DTO = new ErrorsTop5DTO();
@@ -226,6 +226,47 @@ public class JtlResolver {
         top5DTO.setError5Size(size > 4 ? errorsTop5s.get(4).getErrors() : null);
 
         return top5DTO;
+    }
+
+    // report - TestOverview
+    public static TestOverview getTestOverview(String jtlString) {
+        TestOverview testOverview = new TestOverview();
+        List<Metric> total = JtlResolver.resolver(jtlString);
+        Map<String, List<Metric>> collect = total.stream().collect(Collectors.groupingBy(Metric::getTimestamp));
+        Iterator<Map.Entry<String, List<Metric>>> iterator = collect.entrySet().iterator();
+        Integer max = 0;
+        Integer totalElapsed = 0;
+        while (iterator.hasNext()) {
+            Map.Entry<String, List<Metric>> entry = iterator.next();
+            List<Metric> list = entry.getValue();
+            if (list.size() > max) {
+                max = list.size();
+            }
+            for (int i = 0; i < list.size(); i++) {
+                Metric metric = list.get(i);
+                String elapsed = metric.getElapsed();
+                totalElapsed += Integer.valueOf(elapsed);
+            }
+        }
+
+        Collections.sort(total, Comparator.comparing(t0 -> Long.valueOf(t0.getTimestamp())));
+        Long timestamp1 = Long.valueOf(total.get(0).getTimestamp());
+        Long timestamp2 = Long.valueOf(total.get(total.size()-1).getTimestamp());
+        Long seconds = (timestamp2 - timestamp1) / 1000;
+        DecimalFormat df = new DecimalFormat("0.00");
+        double avgThroughput = (double)total.size() / seconds;
+
+        List<Metric> falseList = total.stream().filter(metric -> StringUtils.equals("false", metric.getSuccess())).collect(Collectors.toList());
+        double errors = (double)falseList.size() / total.size() * 100;
+
+        testOverview.setMaxUsers(String.valueOf(max));
+        testOverview.setAvgThroughput(df.format(avgThroughput));
+        testOverview.setErrors(df.format(errors));
+        double avg = (double)totalElapsed / total.size() / 1000; // s
+        testOverview.setAvgResponseTime(df.format(avg));
+//        testOverview.setResponseTime90();
+//        testOverview.setAvgBandwidth();
+        return testOverview;
     }
 
 }

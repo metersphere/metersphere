@@ -4,7 +4,7 @@
       <el-col :span="4">
         <el-card shadow="always" class="ms-card-index-1">
           <span class="ms-card-data">
-            <span class="ms-card-data-digital">40</span>
+            <span class="ms-card-data-digital">{{maxUsers}}</span>
             <span class="ms-card-data-unit"> VU</span>
           </span>
           <span class="ms-card-desc">Max Users</span>
@@ -13,7 +13,7 @@
       <el-col :span="4">
         <el-card shadow="always" class="ms-card-index-2">
           <span class="ms-card-data">
-            <span class="ms-card-data-digital">5.4</span>
+            <span class="ms-card-data-digital">{{avgThroughput}}</span>
             <span class="ms-card-data-unit"> Hits/s</span>
           </span>
           <span class="ms-card-desc">Avg.Throughput</span>
@@ -22,7 +22,7 @@
       <el-col :span="4">
         <el-card shadow="always" class="ms-card-index-3">
           <span class="ms-card-data">
-            <span class="ms-card-data-digital">0.41</span>
+            <span class="ms-card-data-digital">{{errors}}</span>
             <span class="ms-card-data-unit"> %</span>
           </span>
           <span class="ms-card-desc">Errors</span>
@@ -31,7 +31,7 @@
       <el-col :span="4">
         <el-card shadow="always" class="ms-card-index-4">
           <span class="ms-card-data">
-            <span class="ms-card-data-digital">1.28</span>
+            <span class="ms-card-data-digital">{{avgResponseTime}}</span>
             <span class="ms-card-data-unit"> s</span>
           </span>
           <span class="ms-card-desc">Avg.Response Time</span>
@@ -40,7 +40,7 @@
       <el-col :span="4">
         <el-card shadow="always" class="ms-card-index-5">
           <span class="ms-card-data">
-            <span class="ms-card-data-digital">1.41</span>
+            <span class="ms-card-data-digital">{{responseTime90}}</span>
             <span class="ms-card-data-unit"> s</span>
           </span>
           <span class="ms-card-desc">90% Response Time</span>
@@ -49,7 +49,7 @@
       <el-col :span="4">
         <el-card shadow="always" class="ms-card-index-6">
           <span class="ms-card-data">
-            <span class="ms-card-data-digital">817.29</span>
+            <span class="ms-card-data-digital">{{avgBandwidth}}</span>
             <span class="ms-card-data-unit"> KiB/s</span>
           </span>
           <span class="ms-card-desc">Avg.Bandwidth</span>
@@ -73,6 +73,12 @@
     name: "TestOverview",
     data() {
       return {
+        maxUsers: "0",
+        avgThroughput: "0",
+        errors: "0",
+        avgResponseTime: "0",
+        responseTime90: "0",
+        avgBandwidth: "0",
         option1: {
           legend: {
             top: 20,
@@ -144,6 +150,41 @@
               type: 'line',
             }
           ]
+        }
+      }
+    },
+    methods: {
+      initTableData() {
+        this.$get("/report/content/testoverview/" + this.id, res => {
+          let data = res.data;
+          this.maxUsers = data.maxUsers;
+          this.avgThroughput = data.avgThroughput;
+          this.errors = data.errors;
+          this.avgResponseTime = data.avgResponseTime;
+          // this.responseTime90 = data.responseTime90;
+          // this.avgBandwidth = data.avgBandwidth;
+        })
+      }
+    },
+    created() {
+      this.initTableData()
+    },
+    props: ['id'],
+    watch: {
+      '$route'(to) {
+        if (to.name === "perReportView") {
+          let reportId = to.path.split('/')[4];
+          if(reportId){
+            this.$get("/report/content/testoverview/" + reportId, res => {
+              let data = res.data;
+              this.maxUsers = data.maxUsers;
+              this.avgThroughput = data.avgThroughput;
+              this.errors = data.errors;
+              this.avgResponseTime = data.avgResponseTime;
+              // this.responseTime90 = data.responseTime90;
+              // this.avgBandwidth = data.avgBandwidth;
+            })
+          }
         }
       }
     }

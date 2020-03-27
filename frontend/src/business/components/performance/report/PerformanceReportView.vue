@@ -35,7 +35,7 @@
 
         <el-tabs v-model="active" type="border-card" :stretch="true">
           <el-tab-pane :label="$t('report.test_overview')">
-            <ms-report-test-overview />
+            <ms-report-test-overview :id="reportId"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('report.test_request_statistics')">
             <ms-report-request-statistics :id="reportId"/>
@@ -44,7 +44,7 @@
             <ms-report-error-log :id="reportId"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('report.test_log_details')">
-            <ms-report-log-details />
+            <ms-report-log-details :id="reportId"/>
           </el-tab-pane>
         </el-tabs>
 
