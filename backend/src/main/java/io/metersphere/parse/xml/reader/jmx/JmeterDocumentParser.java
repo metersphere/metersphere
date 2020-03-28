@@ -422,7 +422,8 @@ public class JmeterDocumentParser implements DocumentParser {
                                             stringPropCount++;
                                         } else {
                                             stringPropCount = 0;
-                                            prop.getFirstChild().setNodeValue(context.getProperty("duration").toString());
+                                            Integer duration = (Integer) context.getProperty("duration");// 传入的是分钟数, 需要转化成秒数
+                                            prop.getFirstChild().setNodeValue(String.valueOf(duration * 60));
                                             continue;
                                         }
                                         prop.getFirstChild().setNodeValue(context.getProperty("rpsLimit").toString());
