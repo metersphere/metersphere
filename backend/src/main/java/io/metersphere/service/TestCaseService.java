@@ -1,18 +1,18 @@
 package io.metersphere.service;
 
 
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.TestCase;
+import io.metersphere.base.domain.TestCaseExample;
+import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.base.mapper.TestCaseMapper;
-import io.metersphere.base.mapper.TestCaseNodeMapper;
-import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.controller.request.testcase.QueryTestCaseRequest;
-import io.metersphere.dto.TestCaseNodeDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional(rollbackFor = Exception.class)

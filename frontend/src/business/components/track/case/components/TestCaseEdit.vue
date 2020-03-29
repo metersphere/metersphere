@@ -2,15 +2,15 @@
 
   <div>
 
-    <el-dialog title="新建用例" :visible.sync="dialogFormVisible" width="65%">
+    <el-dialog :title="$t('test_track.create')" :visible.sync="dialogFormVisible" width="65%">
 
       <el-form :model="form" :rules="rules" ref="caseFrom">
 
         <el-row>
           <el-col :span="8" :offset="1">
             <el-form-item
-              placeholder="请输入内容"
-              label="用例名称"
+              :placeholder="$t('test_track.input_name')"
+              :label="$t('test_track.name')"
               :label-width="formLabelWidth"
               prop="name">
               <el-input v-model="form.name"></el-input>
@@ -18,10 +18,10 @@
           </el-col>
 
           <el-col :span="11" :offset="2">
-            <el-form-item label="所属模块" :label-width="formLabelWidth" prop="module">
+            <el-form-item :label="$t('test_track.module')" :label-width="formLabelWidth" prop="module">
               <el-select
                 v-model="form.module"
-                placeholder="请选择模块"
+                :placeholder="$t('test_track.input_module')"
                 filterable>
                 <el-option
                   v-for="item in moduleOptions"
@@ -36,8 +36,8 @@
 
         <el-row>
           <el-col :span="10" :offset="1">
-            <el-form-item label="维护人" :label-width="formLabelWidth" prop="maintainer">
-              <el-select v-model="form.maintainer" placeholder="请选择维护人" filterable>
+            <el-form-item :label="$t('test_track.maintainer')" :label-width="formLabelWidth" prop="maintainer">
+              <el-select v-model="form.maintainer" :placeholder="$t('test_track.input_maintainer')" filterable>
                 <el-option
                   v-for="item in maintainerOptions"
                   :key="item.id"
@@ -48,8 +48,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="优先级" :label-width="formLabelWidth" prop="priority">
-              <el-select v-model="form.priority" clearable placeholder="请选择优先级">
+            <el-form-item :label="$t('test_track.priority')" :label-width="formLabelWidth" prop="priority">
+              <el-select v-model="form.priority" clearable :placeholder="$t('test_track.input_priority')">
                 <el-option label="P0" value="P0"></el-option>
                 <el-option label="P1" value="P1"></el-option>
                 <el-option label="P2" value="P2"></el-option>
@@ -61,26 +61,26 @@
 
         <el-row>
           <el-col :span="10" :offset="1">
-            <el-form-item label="用例类型" :label-width="formLabelWidth" prop="type">
-              <el-select v-model="form.type" placeholder="请选择用例类型">
-                <el-option label="功能测试" value="functional"></el-option>
-                <el-option label="性能测试" value="performance"></el-option>
-                <el-option label="接口测试" value="interface"></el-option>
+            <el-form-item :label="$t('test_track.type')" :label-width="formLabelWidth" prop="type">
+              <el-select v-model="form.type" :placeholder="$t('test_track.input_type')">
+                <el-option :label="$t('commons.functional')" value="functional"></el-option>
+                <el-option :label="$t('commons.performance')" value="performance"></el-option>
+                <el-option :label="$t('commons.interface')" value="interface"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="测试方式" :label-width="formLabelWidth" prop="method">
-              <el-select v-model="form.method" placeholder="请选择测试方式">
-                <el-option label="手动" value="manual"></el-option>
-                <el-option label="自动" value="auto"></el-option>
+            <el-form-item :label="$t('test_track.method')" :label-width="formLabelWidth" prop="method">
+              <el-select v-model="form.method" :placeholder="$t('test_track.input_method')">
+                <el-option :label="$t('test_track.manual')" value="manual"></el-option>
+                <el-option :label="$t('test_track.auto')" value="auto"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
         </el-row>
 
         <el-row style="margin-top: 15px;">
-          <el-col :offset="2">前置条件:</el-col>
+          <el-col :offset="2">{{$t('test_track.prerequisite')}}:</el-col>
         </el-row>
         <el-row type="flex" justify="center" style="margin-top: 10px;">
           <el-col :span="20">
@@ -89,13 +89,13 @@
                         type="textarea"
                         :autosize="{ minRows: 2, maxRows: 4}"
                         :rows="2"
-                        placeholder="请输入前置条件"></el-input>
+                        :placeholder="$t('test_track.input_prerequisite')"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
 
         <el-row style="margin-bottom: 10px">
-          <el-col :offset="2">执行步骤:</el-col>
+          <el-col :offset="2">{{$t('test_track.steps')}}:</el-col>
         </el-row>
         <el-row type="flex" justify="center">
           <el-col :span="20">
@@ -105,28 +105,28 @@
               border
               :default-sort = "{prop: 'num', order: 'ascending'}"
               highlight-current-row>
-              <el-table-column label="编号" prop="num" min-width="15%"></el-table-column>
-              <el-table-column label="步骤描述" prop="desc" min-width="35%">
+              <el-table-column :label="$t('test_track.number')" prop="num" min-width="15%"></el-table-column>
+              <el-table-column :label="$t('test_track.step_desc')" prop="desc" min-width="35%">
                 <template slot-scope="scope">
                   <el-input
                     size="small"
                     v-model="scope.row.desc"
-                    placeholder="请输入内容"
+                    :placeholder="$t('commons.input_content')"
                     clearable></el-input>
                   <span>{{scope.row.desc}}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="预期结果" prop="result" min-width="35%">
+              <el-table-column :label="$t('test_track.expected_results')" prop="result" min-width="35%">
                 <template slot-scope="scope">
                   <el-input
                     size="small"
                     v-model="scope.row.result"
-                    placeholder="请输入内容"
+                    :placeholder="$t('commons.input_content')"
                     clearable></el-input>
                   <span>{{scope.row.result}}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="操作" min-width="15%">
+              <el-table-column :label="$t('commons.input_content')" min-width="15%">
                 <template slot-scope="scope">
                   <el-button
                     type="primary"
@@ -146,7 +146,7 @@
         </el-row>
 
         <el-row style="margin-top: 15px;margin-bottom: 10px">
-          <el-col :offset="2">备注:</el-col>
+          <el-col :offset="2">{{$t('commons.remark')}}:</el-col>
         </el-row>
         <el-row type="flex" justify="center">
           <el-col :span="20">
@@ -155,7 +155,7 @@
                         :autosize="{ minRows: 2, maxRows: 4}"
                         type="textarea"
                         :rows="2"
-                        placeholder="请输入内容"></el-input>
+                        :placeholder="$t('commons.input_content')"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -164,12 +164,12 @@
       <div slot="footer" class="dialog-footer">
         <el-button
           @click="dialogFormVisible = false">
-          取 消
+          {{$t('test_track.cancel')}}
         </el-button>
         <el-button
           type="primary"
           @click="saveCase">
-          确 定
+          {{$t('test_track.confirm')}}
         </el-button>
       </div>
     </el-dialog>
@@ -203,12 +203,12 @@
           moduleOptions: [],
           maintainerOptions: [],
           rules:{
-            name :[{required: true, message: '请输入用例名称', trigger: 'blur'}],
-            module :[{required: true, message: '请选择模块', trigger: 'change'}],
-            maintainer :[{required: true, message: '请选择维护人', trigger: 'change'}],
-            priority :[{required: true, message: '请选择优先级', trigger: 'change'}],
-            type :[{required: true, message: '请选择用例类型', trigger: 'change'}],
-            method :[{required: true, message: '请选择测试方式', trigger: 'change'}]
+            name :[{required: true, message: this.$t('test_track.input_name'), trigger: 'blur'}],
+            module :[{required: true, message: this.$t('test_track.input_module'), trigger: 'change'}],
+            maintainer :[{required: true, message: this.$t('test_track.input_maintainer'), trigger: 'change'}],
+            priority :[{required: true, message: this.$t('test_track.input_priority'), trigger: 'change'}],
+            type :[{required: true, message: this.$t('test_track.input_type'), trigger: 'change'}],
+            method :[{required: true, message: this.$t('test_track.input_method'), trigger: 'change'}]
           },
           formLabelWidth: "120px",
           operationType: ''
@@ -261,7 +261,7 @@
               param.nodeId = this.form.module;
               param.projectId = this.projectId;
               this.$post('/test/case/' + this.operationType, param, () => {
-                this.$message.success("保存成功！");
+                this.$message.success(this.$t('commons.save_success'));
                 this.resetForm();
                 this.dialogFormVisible = false;
                 this.$emit("refresh");

@@ -96,8 +96,8 @@
       },
       checkProject() {
         if(this.currentProject === null) {
-          this.$alert('该工作空间下无项目，请先创建项目', '创建项目', {
-            confirmButtonText: '去创建项目',
+          this.$alert(this.$t('test_track.no_project'), {
+            confirmButtonText: this.$t('project.create'),
             callback: action => {
               this.$router.push("/track/project/create");
             }

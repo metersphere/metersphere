@@ -10,13 +10,13 @@
 
           <el-col :span="1" :offset="8">
             <el-button icon="el-icon-circle-plus-outline" size="small" round
-                       @click="opentestCaseEditDialog" >新建</el-button>
+                       @click="$emit('opentestCaseEditDialog')" >{{$t('commons.create')}}</el-button>
           </el-col>
 
           <el-col :span="1" >
             <el-button
               icon="el-icon-refresh" size="small" round
-              @click="initTableData(null)">刷新</el-button>
+              @click="initTableData(null)">{{$t('commons.refresh')}}</el-button>
           </el-col>
 
           <el-col :span="5">
@@ -41,34 +41,34 @@
         </el-table-column>
         <el-table-column
           prop="priority"
-          label="优先级"
+          :label="$t('test_track.priority')"
           width="130"
           show-overflow-tooltip>
         </el-table-column>
         <el-table-column
           prop="type"
-          label="类型"
+          :label="$t('test_track.type')"
           width="130"
           show-overflow-tooltip>
           <template slot-scope="scope">
-            <span v-if="scope.row.type == 'functional'">功能测试</span>
-            <span v-if="scope.row.type == 'performance'">性能测试</span>
-            <span v-if="scope.row.type == 'interface'">接口测试</span>
+            <span v-if="scope.row.type == 'functional'">{{$t('commons.functional')}}</span>
+            <span v-if="scope.row.type == 'performance'">{{$t('commons.performance')}}</span>
+            <span v-if="scope.row.type == 'interface'">{{$t('commons.interface')}}</span>
           </template>
         </el-table-column>
         <el-table-column
           prop="method"
-          label="测试方式"
+          :label="$t('test_track.method')"
           width="130"
           show-overflow-tooltip>
           <template slot-scope="scope">
-            <span v-if="scope.row.method == 'manual'">手动</span>
-            <span v-if="scope.row.method == 'auto'">自动</span>
+            <span v-if="scope.row.method == 'manual'">{{$t('test_track.manual')}}</span>
+            <span v-if="scope.row.method == 'auto'">{{$t('test_track.auto')}}</span>
           </template>
         </el-table-column>
         <el-table-column
           prop="remark"
-          label="备注"
+          :label="$t('commons.remark')"
           width="160"
           show-overflow-tooltip>
         </el-table-column>
@@ -193,9 +193,6 @@
               type: 'success'
             });
           });
-        },
-        opentestCaseEditDialog() {
-          this.$emit('opentestCaseEditDialog');
         }
       }
     }

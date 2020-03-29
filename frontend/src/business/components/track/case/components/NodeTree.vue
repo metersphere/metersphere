@@ -2,7 +2,7 @@
 
   <div>
 
-    <el-input placeholder="搜索模块" v-model="filterText"
+    <el-input :placeholder="$t('test_track.search_module')" v-model="filterText"
               size="small">
       <el-button slot="append" icon="el-icon-folder-add" @click="openEditNodeDialog('add')"></el-button>
     </el-input>
@@ -32,25 +32,25 @@
             </span>
             <el-dropdown-menu slot="dropdown">
             <el-dropdown-item>
-              <div @click="openEditNodeDialog('edit', data)">重命名</div>
+              <div @click="openEditNodeDialog('edit', data)">{{$t('test_track.rename')}}</div>
             </el-dropdown-item>
             <el-dropdown-item >
-              <div @click="openEditNodeDialog('add', data)">添加子模块</div>
+              <div @click="openEditNodeDialog('add', data)">{{$t('test_track.add_submodule')}}</div>
             </el-dropdown-item>
             <el-dropdown-item>
-              <div @click="remove(node, data)">删除</div>
+              <div @click="remove(node, data)">{{$t('commons.delete')}}</div>
             </el-dropdown-item>
           </el-dropdown-menu>
           </el-dropdown>
         </span>
     </el-tree>
 
-    <el-dialog title="添加模块" :visible.sync="dialogFormVisible" width="500px">
+    <el-dialog :title="$t('test_track.add_module')" :visible.sync="dialogFormVisible" width="500px">
 
         <el-row type="flex" justify="center">
           <el-col :span="18">
             <el-form :model="form">
-              <el-form-item label="模块名称" :label-width="formLabelWidth">
+              <el-form-item :label="$t('test_track.module_name')" :label-width="formLabelWidth">
                 <el-input v-model="form.name" autocomplete="off"></el-input>
               </el-form-item>
             </el-form>
@@ -58,8 +58,8 @@
         </el-row>
 
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="editNode">确 定</el-button>
+        <el-button @click="dialogFormVisible = false">{{$t('test_track.cancel')}}</el-button>
+        <el-button type="primary" @click="editNode">{{$t('test_track.confirm')}}</el-button>
       </div>
     </el-dialog>
 
