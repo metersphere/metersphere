@@ -7,6 +7,7 @@
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="maintainer" jdbcType="VARCHAR" property="maintainer" />
     <result column="priority" jdbcType="VARCHAR" property="priority" />
     <result column="method" jdbcType="VARCHAR" property="method" />
     <result column="prerequisite" jdbcType="VARCHAR" property="prerequisite" />
@@ -14,9 +15,8 @@
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestCaseWithBLOBs">
-    <result column="detail" jdbcType="LONGVARCHAR" property="detail" />
+    <result column="remark" jdbcType="LONGVARCHAR" property="remark" />
     <result column="steps" jdbcType="LONGVARCHAR" property="steps" />
-    <result column="tags" jdbcType="LONGVARCHAR" property="tags" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -77,11 +77,11 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, node_id, project_id, name, type, priority, method, prerequisite, create_time, 
-    update_time
+    id, node_id, project_id, name, type, maintainer, priority, method, prerequisite, 
+    create_time, update_time
   </sql>
   <sql id="Blob_Column_List">
-    detail, steps, tags
+    remark, steps
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.TestCaseExample" resultMap="ResultMapWithBLOBs">
     select
@@ -133,15 +133,15 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseWithBLOBs">
     insert into test_case (id, node_id, project_id, 
-      name, type, priority, 
-      method, prerequisite, create_time, 
-      update_time, detail, steps, 
-      tags)
+      name, type, maintainer, 
+      priority, method, prerequisite, 
+      create_time, update_time, remark, 
+      steps)
     values (#{id,jdbcType=VARCHAR}, #{nodeId,jdbcType=INTEGER}, #{projectId,jdbcType=VARCHAR}, 
-      #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{priority,jdbcType=VARCHAR}, 
-      #{method,jdbcType=VARCHAR}, #{prerequisite,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{detail,jdbcType=LONGVARCHAR}, #{steps,jdbcType=LONGVARCHAR}, 
-      #{tags,jdbcType=LONGVARCHAR})
+      #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{maintainer,jdbcType=VARCHAR}, 
+      #{priority,jdbcType=VARCHAR}, #{method,jdbcType=VARCHAR}, #{prerequisite,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{remark,jdbcType=LONGVARCHAR}, 
+      #{steps,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseWithBLOBs">
     insert into test_case
@@ -161,6 +161,9 @@
       <if test="type != null">
         type,
       </if>
+      <if test="maintainer != null">
+        maintainer,
+      </if>
       <if test="priority != null">
         priority,
       </if>
@@ -176,14 +179,11 @@
       <if test="updateTime != null">
         update_time,
       </if>
-      <if test="detail != null">
-        detail,
+      <if test="remark != null">
+        remark,
       </if>
       <if test="steps != null">
         steps,
-      </if>
-      <if test="tags != null">
-        tags,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -202,6 +202,9 @@
       <if test="type != null">
         #{type,jdbcType=VARCHAR},
       </if>
+      <if test="maintainer != null">
+        #{maintainer,jdbcType=VARCHAR},
+      </if>
       <if test="priority != null">
         #{priority,jdbcType=VARCHAR},
       </if>
@@ -217,14 +220,11 @@
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="detail != null">
-        #{detail,jdbcType=LONGVARCHAR},
+      <if test="remark != null">
+        #{remark,jdbcType=LONGVARCHAR},
       </if>
       <if test="steps != null">
         #{steps,jdbcType=LONGVARCHAR},
-      </if>
-      <if test="tags != null">
-        #{tags,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -252,6 +252,9 @@
       <if test="record.type != null">
         type = #{record.type,jdbcType=VARCHAR},
       </if>
+      <if test="record.maintainer != null">
+        maintainer = #{record.maintainer,jdbcType=VARCHAR},
+      </if>
       <if test="record.priority != null">
         priority = #{record.priority,jdbcType=VARCHAR},
       </if>
@@ -267,14 +270,11 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
-      <if test="record.detail != null">
-        detail = #{record.detail,jdbcType=LONGVARCHAR},
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=LONGVARCHAR},
       </if>
       <if test="record.steps != null">
         steps = #{record.steps,jdbcType=LONGVARCHAR},
-      </if>
-      <if test="record.tags != null">
-        tags = #{record.tags,jdbcType=LONGVARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -288,14 +288,14 @@
       project_id = #{record.projectId,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
       type = #{record.type,jdbcType=VARCHAR},
+      maintainer = #{record.maintainer,jdbcType=VARCHAR},
       priority = #{record.priority,jdbcType=VARCHAR},
       method = #{record.method,jdbcType=VARCHAR},
       prerequisite = #{record.prerequisite,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      detail = #{record.detail,jdbcType=LONGVARCHAR},
-      steps = #{record.steps,jdbcType=LONGVARCHAR},
-      tags = #{record.tags,jdbcType=LONGVARCHAR}
+      remark = #{record.remark,jdbcType=LONGVARCHAR},
+      steps = #{record.steps,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -307,6 +307,7 @@
       project_id = #{record.projectId,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
       type = #{record.type,jdbcType=VARCHAR},
+      maintainer = #{record.maintainer,jdbcType=VARCHAR},
       priority = #{record.priority,jdbcType=VARCHAR},
       method = #{record.method,jdbcType=VARCHAR},
       prerequisite = #{record.prerequisite,jdbcType=VARCHAR},
@@ -331,6 +332,9 @@
       <if test="type != null">
         type = #{type,jdbcType=VARCHAR},
       </if>
+      <if test="maintainer != null">
+        maintainer = #{maintainer,jdbcType=VARCHAR},
+      </if>
       <if test="priority != null">
         priority = #{priority,jdbcType=VARCHAR},
       </if>
@@ -346,14 +350,11 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="detail != null">
-        detail = #{detail,jdbcType=LONGVARCHAR},
+      <if test="remark != null">
+        remark = #{remark,jdbcType=LONGVARCHAR},
       </if>
       <if test="steps != null">
         steps = #{steps,jdbcType=LONGVARCHAR},
-      </if>
-      <if test="tags != null">
-        tags = #{tags,jdbcType=LONGVARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -364,14 +365,14 @@
       project_id = #{projectId,jdbcType=VARCHAR},
       name = #{name,jdbcType=VARCHAR},
       type = #{type,jdbcType=VARCHAR},
+      maintainer = #{maintainer,jdbcType=VARCHAR},
       priority = #{priority,jdbcType=VARCHAR},
       method = #{method,jdbcType=VARCHAR},
       prerequisite = #{prerequisite,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      detail = #{detail,jdbcType=LONGVARCHAR},
-      steps = #{steps,jdbcType=LONGVARCHAR},
-      tags = #{tags,jdbcType=LONGVARCHAR}
+      remark = #{remark,jdbcType=LONGVARCHAR},
+      steps = #{steps,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestCase">
@@ -380,6 +381,7 @@
       project_id = #{projectId,jdbcType=VARCHAR},
       name = #{name,jdbcType=VARCHAR},
       type = #{type,jdbcType=VARCHAR},
+      maintainer = #{maintainer,jdbcType=VARCHAR},
       priority = #{priority,jdbcType=VARCHAR},
       method = #{method,jdbcType=VARCHAR},
       prerequisite = #{prerequisite,jdbcType=VARCHAR},

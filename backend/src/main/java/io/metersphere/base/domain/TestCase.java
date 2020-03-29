@@ -13,6 +13,8 @@ public class TestCase implements Serializable {
 
     private String type;
 
+    private String maintainer;
+
     private String priority;
 
     private String method;
@@ -63,6 +65,14 @@ public class TestCase implements Serializable {
 
     public void setType(String type) {
         this.type = type == null ? null : type.trim();
+    }
+
+    public String getMaintainer() {
+        return maintainer;
+    }
+
+    public void setMaintainer(String maintainer) {
+        this.maintainer = maintainer == null ? null : maintainer.trim();
     }
 
     public String getPriority() {

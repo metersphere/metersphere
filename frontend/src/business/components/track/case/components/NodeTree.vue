@@ -80,13 +80,6 @@
           },
           form: {
             name: '',
-            region: '',
-            date1: '',
-            date2: '',
-            delivery: false,
-            type: [],
-            resource: '',
-            desc: ''
           },
           formLabelWidth: '80px',
           dialogTableVisible: false,
@@ -248,16 +241,6 @@
   .node-tree {
     margin-top: 15px;
   }
-
-
-  .node-dropdown {
-    /*align-items: right;*/
-    /*margin-left: 50px;*/
-    /*color: darkgrey;*/
-    /*opacity:0.1;*/
-    /*filter:alpha(opacity=1); !* 针对 IE8 以及更早的版本 *!*/
-  }
-
 
   .father .child{
     display:none;

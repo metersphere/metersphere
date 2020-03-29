@@ -182,3 +182,126 @@ CREATE TABLE IF NOT EXISTS `workspace` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
 
+-- funcional start
+
+CREATE TABLE IF NOT EXISTS `fuc_test` (
+    `id`                     varchar(50) NOT NULL COMMENT 'Test ID',
+    `project_id`             varchar(50) NOT NULL COMMENT 'Project ID this test belongs to',
+    `name`                   varchar(64) NOT NULL COMMENT 'Test name',
+    `description`            varchar(255) DEFAULT NULL COMMENT 'Test description',
+    `runtime_configuration`     longtext COMMENT 'Load configuration (JSON format)',
+    `schedule`               longtext COMMENT 'Test schedule (cron list)',
+    `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
+    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
+    PRIMARY KEY (`id`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_bin;
+
+CREATE TABLE IF NOT EXISTS `fuc_test_file` (
+    `test_id` varchar(64) DEFAULT NULL,
+    `file_id` varchar(64) DEFAULT NULL,
+    UNIQUE KEY `load_test_file_unique_key` (`test_id`, `file_id`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4 COMMENT ='功能测试和文件的关联表';
+
+CREATE TABLE IF NOT EXISTS `fuc_test_report` (
+    `id`          varchar(50) NOT NULL COMMENT 'Test report ID',
+    `test_id`     varchar(50) NOT NULL COMMENT 'Test ID this test report belongs to',
+    `name`        varchar(64) NOT NULL COMMENT 'Test report name',
+    `description` varchar(255) DEFAULT NULL COMMENT 'Test report name',
+    `content`     longtext,
+    `create_time` bigint(13)  NOT NULL COMMENT 'Create timestamp',
+    `update_time` bigint(13)  NOT NULL COMMENT 'Update timestamp',
+    `status`      varchar(64) NOT NULL COMMENT 'Status of this test run',
+    PRIMARY KEY (`id`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_bin;
+
+-- funcional end
+
+
+-- track start
+
+CREATE TABLE IF NOT EXISTS `test_plan` (
+    `id`                     varchar(50) NOT NULL COMMENT 'Test Plan ID',
+    `project_id`             varchar(50) NOT NULL COMMENT 'Project ID this plan belongs to',
+    `name`                   varchar(64) NOT NULL COMMENT 'Plan name',
+    `description`            varchar(255) DEFAULT NULL COMMENT 'Plan description',
+    `status`                 varchar(20) NOT NULL COMMENT 'Plan status',
+    `test_case_match_rule`   varchar(255) DEFAULT NULL COMMENT 'Test case match rule',
+    `executor_match_rule`    varchar(255) DEFAULT NULL  COMMENT 'Executor match rule)',
+    `tags`                   text COMMENT 'Test plan tags (JSON format)',
+    `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
+    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`project_id`) references project(`id`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_bin;
+
+
+CREATE TABLE IF NOT EXISTS `test_case_node` (
+    `id`                     int(13) PRIMARY KEY AUTO_INCREMENT COMMENT 'Test case node ID',
+    `project_id`             varchar(50) NOT NULL COMMENT 'Project ID this node belongs to',
+    `name`                   varchar(64) NOT NULL COMMENT 'Node name',
+    `p_id`                   int(13) DEFAULT NULL COMMENT 'Parent node ID',
+    `level`                  int(10)  DEFAULT 1 COMMENT 'Node level',
+    `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
+    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
+    FOREIGN KEY (`p_id`) references test_case_node(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`project_id`) references project(`id`)
+)
+    AUTO_INCREMENT = 1
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_bin;
+
+
+CREATE TABLE IF NOT EXISTS `test_case` (
+    `id`                     varchar(50) NOT NULL COMMENT 'Test case ID',
+    `node_id`                int(13) NOT NULL COMMENT 'Node ID this case belongs to',
+    `project_id`             varchar(50) NOT NULL COMMENT 'Project ID this test belongs to',
+    `name`                   varchar(64) NOT NULL COMMENT 'Case name',
+    `type`                   varchar(25) NOT NULL COMMENT 'Test case type',
+    `maintainer`             varchar(25) NOT NULL COMMENT 'Test case maintainer',
+    `priority`               varchar(50) NOT NULL COMMENT 'Test case priority',
+    `method`                 varchar(15) NOT NULL COMMENT 'Test case method type',
+    `prerequisite`           varchar(255) DEFAULT NULL COMMENT 'Test case prerequisite condition',
+    `remark`                 text DEFAULT NULL COMMENT 'Test case remark',
+    `steps`                  text DEFAULT NULL COMMENT 'Test case steps (JSON format)',
+    `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
+    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`project_id`) references project(`id`),
+    FOREIGN KEY (`node_id`) references test_case_node(`id`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_bin;
+
+
+CREATE TABLE IF NOT EXISTS `test_plan_test_case` (
+    `id`                     int(13) PRIMARY KEY AUTO_INCREMENT COMMENT 'ID',
+    `plan_id`                varchar(50) NOT NULL COMMENT 'Plan ID relation to',
+    `case_id`                varchar(50) NOT NULL COMMENT 'Case ID relation to',
+    `executor`               varchar(64) NOT NULL COMMENT 'Test case executor',
+    `status`                 varchar(15) NULL COMMENT 'Test case status',
+    `results`                longtext COMMENT 'Test case result',
+    `remark`                 varchar(255) DEFAULT NULL COMMENT 'Test case remark',
+    `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
+    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
+    FOREIGN KEY (`plan_id`) references test_plan(`id`),
+    FOREIGN KEY (`case_id`) references test_case(`id`)
+)
+    AUTO_INCREMENT = 1
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_bin;
+
+-- track end

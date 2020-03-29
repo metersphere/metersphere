@@ -444,6 +444,76 @@ public class TestCaseExample {
             return (Criteria) this;
         }
 
+        public Criteria andMaintainerIsNull() {
+            addCriterion("maintainer is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaintainerIsNotNull() {
+            addCriterion("maintainer is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaintainerEqualTo(String value) {
+            addCriterion("maintainer =", value, "maintainer");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaintainerNotEqualTo(String value) {
+            addCriterion("maintainer <>", value, "maintainer");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaintainerGreaterThan(String value) {
+            addCriterion("maintainer >", value, "maintainer");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaintainerGreaterThanOrEqualTo(String value) {
+            addCriterion("maintainer >=", value, "maintainer");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaintainerLessThan(String value) {
+            addCriterion("maintainer <", value, "maintainer");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaintainerLessThanOrEqualTo(String value) {
+            addCriterion("maintainer <=", value, "maintainer");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaintainerLike(String value) {
+            addCriterion("maintainer like", value, "maintainer");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaintainerNotLike(String value) {
+            addCriterion("maintainer not like", value, "maintainer");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaintainerIn(List<String> values) {
+            addCriterion("maintainer in", values, "maintainer");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaintainerNotIn(List<String> values) {
+            addCriterion("maintainer not in", values, "maintainer");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaintainerBetween(String value1, String value2) {
+            addCriterion("maintainer between", value1, value2, "maintainer");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaintainerNotBetween(String value1, String value2) {
+            addCriterion("maintainer not between", value1, value2, "maintainer");
+            return (Criteria) this;
+        }
+
         public Criteria andPriorityIsNull() {
             addCriterion("priority is null");
             return (Criteria) this;

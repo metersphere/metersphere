@@ -20,84 +20,21 @@
           </el-submenu>
         </el-menu>
         <node-tree class="node_tree" :project-id="currentProject.id"
-                   @nodeSelectEvent="getCaseByNodeIds"></node-tree>
+                   @nodeSelectEvent="getCaseByNodeIds"
+                   ref="nodeTree"></node-tree>
       </el-aside>
 
+      <test-case-list
+        @opentestCaseEditDialog="opentestCaseEditDialog"
+        @testCaseEdit="opentestCaseEditDialog"
+        ref="testCaseList"></test-case-list>
 
-      <el-main>
-        <el-card>
-          <div slot="header">
-            <el-row type="flex" justify="space-between" align="middle">
-              <span class="title">{{$t('commons.test')}}</span>
-              <span class="search">
-            <el-input type="text" size="small" :placeholder="$t('load_test.search_by_name')"
-                      prefix-icon="el-icon-search"
-                      maxlength="60"
-                      v-model="condition" @change="search" clearable/>
-          </span>
-            </el-row>
-          </div>
-          <el-table :data="tableData" class="test-content">
-            <el-table-column
-              prop="name"
-              :label="$t('commons.name')"
-              width="150"
-              show-overflow-tooltip>
-            </el-table-column>
-            <el-table-column
-              prop="description"
-              :label="$t('commons.description')"
-              show-overflow-tooltip>
-            </el-table-column>
-            <el-table-column
-              prop="projectName"
-              :label="$t('load_test.project_name')"
-              width="150"
-              show-overflow-tooltip>
-            </el-table-column>
-            <el-table-column
-              width="250"
-              :label="$t('commons.create_time')">
-              <template slot-scope="scope">
-                <span>{{ scope.row.createTime | timestampFormatDate }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column
-              width="250"
-              :label="$t('commons.update_time')">
-              <template slot-scope="scope">
-                <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column
-              width="150"
-              :label="$t('commons.operating')">
-              <template slot-scope="scope">
-                <el-button @click="handleEdit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
-                <el-button @click="handleDelete(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
-              </template>
-            </el-table-column>
-          </el-table>
-          <div>
-            <el-row>
-              <el-col :span="22" :offset="1">
-                <div class="table-page">
-                  <el-pagination
-                    @size-change="handleSizeChange"
-                    @current-change="handleCurrentChange"
-                    :current-page.sync="currentPage"
-                    :page-sizes="[5, 10, 20, 50, 100]"
-                    :page-size="pageSize"
-                    layout="total, sizes, prev, pager, next, jumper"
-                    :total="total">
-                  </el-pagination>
-                </div>
-              </el-col>
-            </el-row>
-          </div>
-        </el-card>
-      </el-main>
     </el-container>
+
+    <test-case-edit
+      :project-id="currentProject.id"
+      @refresh="getCaseByNodeIds"
+      ref="testCaseEditDialog"></test-case-edit>
 
   </div>
 </template>
@@ -105,10 +42,13 @@
 <script>
 
   import NodeTree from './components/NodeTree';
+  import TestCaseEdit from './components/TestCaseEdit';
+  import {WORKSPACE_ID} from '../../../../common/constants';
+  import TestCaseList from "./components/TestCaseList";
 
   export default {
     name: "TestCase",
-    components: {NodeTree},
+    components: {TestCaseList, NodeTree, TestCaseEdit},
     comments: {},
     data() {
       return {
@@ -127,36 +67,15 @@
         projects: [],
         initProjects: [],
         currentProject: null,
-      }
-    },
-    watch: {
-      '$route'(to) {
-        this.projectId = to.params.projectId;
-        this.initTableData();
+        treeNodes: []
       }
     },
     created: function () {
       this.projectId = this.$route.params.projectId;
-      this.initTableData();
       this.getProjects();
     },
     methods: {
-      initTableData() {
-        let param = {
-          name: this.condition,
-        };
 
-        if (this.projectId !== 'all') {
-          param.projectId = this.projectId;
-        }
-
-        this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
-          this.loadingRequire.testCase = false;
-          let data = response.data;
-          this.total = data.itemCount;
-          this.tableData = data.listObject;
-        });
-      },
       getProjects() {
           this.$get("/project/listAll", (response) => {
             if (response.success) {
@@ -175,51 +94,6 @@
 
           });
       },
-      search() {
-        this.initTableData();
-      },
-      buildPagePath(path) {
-        return path + "/" + this.currentPage + "/" + this.pageSize;
-      },
-      handleSizeChange(size) {
-        this.pageSize = size;
-        this.initTableData();
-      },
-      handleCurrentChange(current) {
-        this.currentPage = current;
-        this.initTableData();
-      },
-      handleSelectionChange(val) {
-        this.multipleSelection = val;
-      },
-      handleEdit(testPlan) {
-        this.$router.push({
-          path: '/performance/plan/edit/' + testPlan.id,
-        })
-      },
-      handleDelete(testPlan) {
-        this.$alert(this.$t('load_test.delete_confirm') + testPlan.name + "？", '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              this._handleDelete(testPlan);
-            }
-          }
-        });
-      },
-      _handleDelete(testPlan) {
-        let data = {
-          id: testPlan.id
-        };
-
-        this.result = this.$post(this.deletePath, data, () => {
-          this.$message({
-            message: this.$t('commons.delete_success'),
-            type: 'success'
-          });
-          this.initTableData();
-        });
-      },
       checkProject() {
         if(this.currentProject === null) {
           this.$alert('该工作空间下无项目，请先创建项目', '创建项目', {
@@ -234,9 +108,36 @@
         this.currentProject = project;
       },
       getCaseByNodeIds(data) {
-
-        console.log(data);
-
+        this.$refs.testCaseList.initTableData(data);
+      },
+      opentestCaseEditDialog(data) {
+        this.setNodePathOption(this.$refs.nodeTree.treeNodes);
+        this.setMaintainerOptions();
+        this.$refs.testCaseEditDialog.opentestCaseEditDialog(data);
+      },
+      setNodePathOption(nodes) {
+        let moduleOptions = [];
+        nodes.forEach(node => {
+          this.buildNodePath(node, {path: ''}, moduleOptions);
+        });
+        this.$refs.testCaseEditDialog.moduleOptions = moduleOptions;
+      },
+      buildNodePath(node, option, moduleOptions) {
+        //递归构建节点路径
+        option.id = node.id;
+        option.path = option.path + '/' + node.name;
+        moduleOptions.push(option);
+        if(node.children){
+          for (let i = 0; i < node.children.length; i++){
+            this.buildNodePath(node.children[i], { path: '/' + node.children[i].name }, moduleOptions);
+          }
+        }
+      },
+      setMaintainerOptions() {
+        let workspaceId = localStorage.getItem(WORKSPACE_ID);
+        this.$post('/user/ws/member/list/all', {workspaceId:workspaceId}, response => {
+          this.$refs.testCaseEditDialog.maintainerOptions = response.data;
+        });
       }
     }
   }
@@ -271,7 +172,6 @@
   }
 
   .node_tree {
-    /*box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);*/
     margin: 10%;
   }
 
@@ -280,4 +180,9 @@
     margin-left: 20px;
     height: 50px;
   }
+
+  .case_container {
+    height: 600px;
+  }
+
 </style>

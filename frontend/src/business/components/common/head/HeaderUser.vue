@@ -42,7 +42,7 @@
 </template>
 
 <script>
-  import {ROLE_ORG_ADMIN, ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER, TokenKey} from '../../../../common/constants';
+  import {ROLE_ORG_ADMIN, ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER, TokenKey, WORKSPACE_ID} from '../../../../common/constants';
   import {hasRoles} from "../../../../common/utils";
 
   export default {
@@ -113,6 +113,7 @@
               let workspace = data.filter(r => r.id === this.currentUser.lastWorkspaceId);
               if (workspace.length > 0) {
                 this.currentWorkspaceName = workspace[0].name;
+                localStorage.setItem(WORKSPACE_ID, workspace[0].id);
               }
             }
             // this.workspaceIds = response.data.map(r = r.id);
@@ -138,6 +139,7 @@
         }
         this.$post("/user/switch/source/ws/" + workspaceId, {}, response => {
           localStorage.setItem(TokenKey, JSON.stringify(response.data));
+          localStorage.setItem("workspace_id", workspaceId);
           window.location.reload();
         })
       }
