@@ -166,6 +166,9 @@ public class LoadTestService {
         if (loadTest == null) {
             MSException.throwException(Translator.get("run_load_test_not_found") + request.getId());
         }
+        if (TestStatus.Running.name().equals(loadTest.getStatus())) {
+            MSException.throwException(Translator.get("load_test_is_running") + request.getId());
+        }
 
         LogUtil.info("Load test started " + loadTest.getName());
         // engine type (NODE|K8S)

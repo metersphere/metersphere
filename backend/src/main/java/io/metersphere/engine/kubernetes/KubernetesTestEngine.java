@@ -105,15 +105,14 @@ public class KubernetesTestEngine extends AbstractEngine {
     public void stop() {
         resourceList.forEach(r -> {
             try {
-                EngineContext context = EngineFactory.createContext(loadTest, threadNum);
                 String configuration = r.getConfiguration();
                 ClientCredential clientCredential = JSON.parseObject(configuration, ClientCredential.class);
                 KubernetesProvider provider = new KubernetesProvider(JSON.toJSONString(clientCredential));
-                provider.confirmNamespace(context.getNamespace());
+                provider.confirmNamespace(loadTest.getProjectId());
                 Jmeter jmeter = new Jmeter();
                 jmeter.setMetadata(new ObjectMeta() {{
-                    setName(context.getTestId());
-                    setNamespace(context.getNamespace());
+                    setName(loadTest.getId());
+                    setNamespace(loadTest.getProjectId());
                 }});
                 jmeter.setSpec(new JmeterSpec() {{
                     setReplicas(1);

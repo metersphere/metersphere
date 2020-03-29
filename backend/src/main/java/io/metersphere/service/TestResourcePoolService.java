@@ -16,7 +16,7 @@ import io.metersphere.dto.TestResourcePoolDTO;
 import io.metersphere.engine.kubernetes.provider.KubernetesProvider;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpStatus;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +43,8 @@ public class TestResourcePoolService {
     private TestResourceMapper testResourceMapper;
     @Resource
     private ExtTestReourcePoolMapper extTestReourcePoolMapper;
+    @Resource
+    private RestTemplate restTemplate;
 
     public TestResourcePoolDTO addTestResourcePool(TestResourcePoolDTO testResourcePool) {
         testResourcePool.setId(UUID.randomUUID().toString());
@@ -100,9 +102,8 @@ public class TestResourcePoolService {
 
     private boolean validateNode(NodeDTO node) {
         try {
-            RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> entity = restTemplate.getForEntity(String.format(nodeControllerUrl, node.getIp(), node.getPort()), String.class);
-            return entity.getStatusCode().value() == HttpStatus.SC_OK;
+            return HttpStatus.OK.equals(entity.getStatusCode());
         } catch (Exception e) {
             return false;
         }

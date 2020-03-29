@@ -34,37 +34,39 @@
 
     <span class="table-title">Top 5 Errors by sampler </span>
     <el-table
-      :data="tableData"
+      :data="errorTop5"
       border
       stripe
       style="width: 100%"
+      show-summary
+      :summary-method="getSummaries"
     >
       <el-table-column
-        prop="errorType"
+        prop="sample"
         label="Sample"
         width="400"
       >
       </el-table-column>
       <el-table-column
-        prop="errorNumber"
+        prop="samples"
         label="#Samples"
         width="120"
       >
       </el-table-column>
       <el-table-column
-        prop="#Errors"
+        prop="errorsAllSize"
         label="#Errors"
         width="100"
       >
       </el-table-column>
       <el-table-column
-        prop="Error"
+        prop="error"
         label="Error"
         width="400"
       >
       </el-table-column>
       <el-table-column
-        prop="#Errors"
+        prop="errors"
         label="#Errors"
         width="100"
       >
@@ -126,7 +128,9 @@
     name: "ErrorLog",
     data() {
       return {
-        tableData: [{},{},{},{},{}]
+        tableData: [{},{},{},{},{}],
+        errorTotal: {},
+        errorTop5: []
       }
     },
     methods: {
@@ -134,10 +138,32 @@
         this.$get("/report/content/errors/" + this.id, res => {
           this.tableData = res.data;
         })
+        this.$get("/report/content/errors_top5/" + this.id, res => {
+          this.errorTotal = res.data
+          this.errorTop5 = res.data.errorsTop5List;
+        })
+      },
+      getSummaries () {
+        const sums = []
+        sums[0] = this.errorTotal.label;
+        sums[1] = this.errorTotal.totalSamples;
+        sums[2] = this.errorTotal.totalErrors;
+        sums[3] = this.errorTotal.error1;
+        sums[4] = this.errorTotal.error1Size;
+        sums[5] = this.errorTotal.error2;
+        sums[6] = this.errorTotal.error2Size;
+        sums[7] = this.errorTotal.error3;
+        sums[8] = this.errorTotal.error3Size;
+        sums[9] = this.errorTotal.error4;
+        sums[10] = this.errorTotal.error4Size;
+        sums[11] = this.errorTotal.error5;
+        sums[12] = this.errorTotal.error5Size;
+        return sums;
       }
     },
     created() {
       this.initTableData();
+      this.getSummaries()
     },
     props: ['id'],
     watch: {
@@ -145,8 +171,12 @@
         if (to.name === "perReportView") {
           let reportId = to.path.split('/')[4];
           if(reportId){
-            this.$get("/report/content/errors/" + this.id, res => {
+            this.$get("/report/content/errors/" + reportId, res => {
               this.tableData = res.data;
+            })
+            this.$get("/report/content/errors_top5/" + reportId, res => {
+              this.errorTop5 = res.data.errorsTop5List;
+              this.errorTotal = res.data
             })
           }
         }

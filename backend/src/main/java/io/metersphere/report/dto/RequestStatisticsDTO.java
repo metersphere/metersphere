@@ -1,4 +1,6 @@
-package io.metersphere.report.base;
+package io.metersphere.report.dto;
+
+import io.metersphere.report.base.RequestStatistics;
 
 import java.util.List;
 

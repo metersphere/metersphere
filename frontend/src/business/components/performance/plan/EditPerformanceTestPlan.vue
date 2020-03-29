@@ -82,6 +82,10 @@
           return;
         }
 
+        if (to.name !== 'editPerTest') {
+          return;
+        }
+
         let testId = to.path.split('/')[4]; // find testId
         if (testId) {
           this.result = this.$get('/testplan/get/' + testId, response => {

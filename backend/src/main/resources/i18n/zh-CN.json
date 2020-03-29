@@ -12,5 +12,6 @@
   "run_load_test_not_found": "无法运行测试，未找到测试：",
   "run_load_test_file_not_found": "无法运行测试，无法获取测试文件元信息，测试ID：",
   "run_load_test_file_content_not_found": "无法运行测试，无法获取测试文件内容，测试ID：",
-  "run_load_test_file_init_error": "无法运行测试，初始化运行环境失败，测试ID："
+  "run_load_test_file_init_error": "无法运行测试，初始化运行环境失败，测试ID：",
+  "load_test_is_running": "测试正在运行, 请等待"
 }

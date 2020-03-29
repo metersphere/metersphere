@@ -1,9 +1,9 @@
-package io.metersphere.controller.request;
+package io.metersphere.engine.docker.request;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class TestRequest {
+public class TestRequest extends DockerLoginRequest {
 
     private int size;
     private String fileString;
