@@ -28,6 +28,8 @@ public class RequestStatisticsDTO extends RequestStatistics {
 
     private String totalAvgBandwidth;
 
+    private String totalAvgHits;
+
     public List<RequestStatistics> getRequestStatisticsList() {
         return requestStatisticsList;
     }
@@ -114,5 +116,13 @@ public class RequestStatisticsDTO extends RequestStatistics {
 
     public void setTotalAvgBandwidth(String totalAvgBandwidth) {
         this.totalAvgBandwidth = totalAvgBandwidth;
+    }
+
+    public String getTotalAvgHits() {
+        return totalAvgHits;
+    }
+
+    public void setTotalAvgHits(String totalAvgHits) {
+        this.totalAvgHits = totalAvgHits;
     }
 }

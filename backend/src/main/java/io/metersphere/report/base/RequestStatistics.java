@@ -12,7 +12,7 @@ public class RequestStatistics {
     private String average;
 
     /**平均点击率*/
-    private Double avgHits;
+    private String avgHits;
 
     /**90% Line*/
     private String tp90;
@@ -62,11 +62,11 @@ public class RequestStatistics {
         this.average = average;
     }
 
-    public Double getAvgHits() {
+    public String getAvgHits() {
         return avgHits;
     }
 
-    public void setAvgHits(Double avgHits) {
+    public void setAvgHits(String avgHits) {
         this.avgHits = avgHits;
     }
 
