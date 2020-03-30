@@ -239,7 +239,7 @@ CREATE TABLE IF NOT EXISTS `test_plan` (
     `executor_match_rule`    varchar(255) DEFAULT NULL  COMMENT 'Executor match rule)',
     `tags`                   text COMMENT 'Test plan tags (JSON format)',
     `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
-    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
+    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp'
     PRIMARY KEY (`id`)
 )
     ENGINE = InnoDB
@@ -254,7 +254,7 @@ CREATE TABLE IF NOT EXISTS `test_case_node` (
     `p_id`                   int(13) DEFAULT NULL COMMENT 'Parent node ID',
     `level`                  int(10)  DEFAULT 1 COMMENT 'Node level',
     `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
-    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
+    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp'
 )
     AUTO_INCREMENT = 1
     ENGINE = InnoDB
@@ -275,7 +275,7 @@ CREATE TABLE IF NOT EXISTS `test_case` (
     `remark`                 text DEFAULT NULL COMMENT 'Test case remark',
     `steps`                  text DEFAULT NULL COMMENT 'Test case steps (JSON format)',
     `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
-    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
+    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp'
     PRIMARY KEY (`id`),
 )
     ENGINE = InnoDB
@@ -292,7 +292,7 @@ CREATE TABLE IF NOT EXISTS `test_plan_test_case` (
     `results`                longtext COMMENT 'Test case result',
     `remark`                 varchar(255) DEFAULT NULL COMMENT 'Test case remark',
     `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
-    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
+    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp'
 )
     AUTO_INCREMENT = 1
     ENGINE = InnoDB
