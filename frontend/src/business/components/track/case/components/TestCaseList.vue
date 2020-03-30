@@ -10,13 +10,13 @@
 
           <el-col :span="1" :offset="8">
             <el-button icon="el-icon-circle-plus-outline" size="small" round
-                       @click="$emit('opentestCaseEditDialog')" >{{$t('commons.create')}}</el-button>
+                       @click="$emit('openTestCaseEditDialog')" >{{$t('commons.create')}}</el-button>
           </el-col>
 
           <el-col :span="1" >
             <el-button
               icon="el-icon-refresh" size="small" round
-              @click="initTableData(null)">{{$t('commons.refresh')}}</el-button>
+              @click="initTableData()">{{$t('commons.refresh')}}</el-button>
           </el-col>
 
           <el-col :span="5">
@@ -138,7 +138,7 @@
       },
       created: function () {
         this.projectId = this.$route.params.projectId;
-        this.initTableData(null);
+        this.initTableData();
       },
       methods: {
         initTableData(nodeIds) {
@@ -155,18 +155,18 @@
           });
         },
         search() {
-          this.initTableData(null);
+          this.initTableData();
         },
         buildPagePath(path) {
           return path + "/" + this.currentPage + "/" + this.pageSize;
         },
         handleSizeChange(size) {
           this.pageSize = size;
-          this.initTableData(null);
+          this.initTableData();
         },
         handleCurrentChange(current) {
           this.currentPage = current;
-          this.initTableData(null);
+          this.initTableData();
         },
         handleSelectionChange(val) {
           this.multipleSelection = val;
@@ -185,9 +185,9 @@
           });
         },
         _handleDelete(testCase) {
-          let testCaseId = testCase.id
+          let testCaseId = testCase.id;
           this.$post('/test/case/delete/' + testCaseId, {}, () => {
-            this.initTableData(null);
+            this.initTableData();
             this.$message({
               message: this.$t('commons.delete_success'),
               type: 'success'

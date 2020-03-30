@@ -58,11 +58,11 @@
         />
       </el-table-column>
 
-<!--      <el-table-column-->
-<!--        prop="avgHits"-->
-<!--        label="Avg Hits/s"-->
-<!--        width="150"-->
-<!--      />-->
+      <el-table-column
+        prop="avgHits"
+        label="Avg Hits/s"
+        width="100"
+      />
 
       <el-table-column
         prop="kbPerSec"
@@ -101,6 +101,8 @@
         sums[6] = this.totalInfo.totalTP90;
         sums[7] = this.totalInfo.totalTP95;
         sums[8] = this.totalInfo.totalTP99;
+        sums[9] = this.totalInfo.totalAvgHits;
+        sums[10] = this.totalInfo.totalAvgBandwidth;
         return sums;
       }
     },

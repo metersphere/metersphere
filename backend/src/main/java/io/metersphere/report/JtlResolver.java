@@ -32,24 +32,25 @@ public class JtlResolver {
         return null;
     }
 
-    private static RequestStatisticsDTO getOneRpsResult(Map<String, List<Metric>> map){
-        RequestStatisticsDTO statisticsDTO = new RequestStatisticsDTO();
+    public static RequestStatisticsDTO getRequestStatistics(String jtlString){
+        List<Metric> total = resolver(jtlString);
+        Map<String, List<Metric>> map = total.stream().collect(Collectors.groupingBy(Metric::getLabel));
         List<RequestStatistics> requestStatisticsList = new ArrayList<>();
         Iterator<Map.Entry<String, List<Metric>>> iterator = map.entrySet().iterator();
         List<Integer> allelapse = new ArrayList<>();
         DecimalFormat df = new DecimalFormat("0.00");
         int totalAverage = 0;
+        float allBytes = 0f;
         while (iterator.hasNext()) {
             Map.Entry<String, List<Metric>> entry = iterator.next();
             String label = entry.getKey();
             List<Metric> list = entry.getValue();
-            List<String> timestampList = list.stream().map(Metric::getTimestamp).collect(Collectors.toList());
             int index=0;
             int sumElapsed=0;
             int failSize = 0;
+            // 以list为单位 total bytes
             float totalBytes = 0f;
             List<Integer> elapsedList = new ArrayList<>();
-
             for (int i = 0; i < list.size(); i++) {
                 try {
                     Metric row = list.get(i);
@@ -64,23 +65,24 @@ public class JtlResolver {
                     }
                     String bytes = row.getBytes();
                     totalBytes += Float.parseFloat(bytes);
+                    allBytes += Float.parseFloat(bytes);
                     index++;
                 }catch (Exception e){
                     System.out.println("exception i:"+i);
                 }
             }
-
             Collections.sort(elapsedList);
 
             int tp90 = elapsedList.size()*90/100;
             int tp95 = elapsedList.size()*95/100;
             int tp99 = elapsedList.size()*99/100;
-            long l = Long.valueOf(timestampList.get(timestampList.size()-1)) - Long.valueOf(timestampList.get(0));
+
+            list.sort(Comparator.comparing(t0 -> Long.valueOf(t0.getTimestamp())));
+            long time = Long.parseLong(list.get(list.size()-1).getTimestamp()) - Long.parseLong(list.get(0).getTimestamp()) + Long.parseLong(list.get(list.size()-1).getElapsed());
 
             RequestStatistics requestStatistics = new RequestStatistics();
             requestStatistics.setRequestLabel(label);
             requestStatistics.setSamples(index);
-
 
             String s = df.format((float)sumElapsed/index);
             requestStatistics.setAverage(s+"");
@@ -92,23 +94,27 @@ public class JtlResolver {
              * 3，从序列A中找到第C个请求，它的响应时间，即为TP90的值
              * 其余相似的指标还有TP95, TP99
              */
+            // todo tp90
             requestStatistics.setTp90(elapsedList.get(tp90)+"");
             requestStatistics.setTp95(elapsedList.get(tp95)+"");
             requestStatistics.setTp99(elapsedList.get(tp99)+"");
 
+            double avgHits = (double)list.size() / (time * 1.0 / 1000);
+            requestStatistics.setAvgHits(df.format(avgHits));
+
             requestStatistics.setMin(elapsedList.get(0)+"");
             requestStatistics.setMax(elapsedList.get(index-1)+"");
-            requestStatistics.setErrors(String.format("%.2f",failSize*100.0/index)+"%");
+            requestStatistics.setErrors(df.format(failSize * 100.0 / index)+"%");
             requestStatistics.setKo(failSize);
             /**
              * 所有的相同请求的bytes总和 / 1024 / 请求持续运行的时间=sum(bytes)/1024/total time
+             * total time = 最大时间戳 - 最小时间戳 + 最后请求的响应时间
              */
-            // todo Avg Bandwidth(KBytes/s)          请求之间时间戳间隔l 可能为0
-            requestStatistics.setKbPerSec(String.format("%.2f",totalBytes*1.0/1024/(l*1.0/1000)));
+            requestStatistics.setKbPerSec(df.format(totalBytes * 1.0 / 1024 / (time * 1.0 / 1000)));
             requestStatisticsList.add(requestStatistics);
         }
-        Collections.sort(allelapse);
 
+        Collections.sort(allelapse);
         int totalTP90 = allelapse.size()*90/100;
         int totalTP95 = allelapse.size()*95/100;
         int totalTP99 = allelapse.size()*99/100;
@@ -118,11 +124,13 @@ public class JtlResolver {
 
         int allSamples = requestStatisticsList.stream().mapToInt(RequestStatistics::getSamples).sum();
         int failSize = requestStatisticsList.stream().mapToInt(RequestStatistics::getKo).sum();
+
         double errors = (double)failSize / allSamples * 100;
         String totalerrors = df.format(errors);
         double average = (double)totalAverage / allSamples;
         String totalaverage = df.format(average);
 
+        RequestStatisticsDTO statisticsDTO = new RequestStatisticsDTO();
         statisticsDTO.setRequestStatisticsList(requestStatisticsList);
         statisticsDTO.setTotalLabel("Total");
         statisticsDTO.setTotalSamples(String.valueOf(allSamples));
@@ -133,16 +141,14 @@ public class JtlResolver {
         statisticsDTO.setTotalTP90(String.valueOf(allelapse.get(totalTP90)));
         statisticsDTO.setTotalTP95(String.valueOf(allelapse.get(totalTP95)));
         statisticsDTO.setTotalTP99(String.valueOf(allelapse.get(totalTP99)));
-        // todo
-//        statisticsDTO.setTotalAvgBandwidth();
-        return statisticsDTO;
-    }
 
-    // report - Aggregate Report
-    public static RequestStatisticsDTO getRequestStatistics(String jtlString) {
-        List<Metric> totalLines = resolver(jtlString);
-        Map<String, List<Metric>> map = totalLines.stream().collect(Collectors.groupingBy(Metric::getLabel));
-        return getOneRpsResult(map);
+        total.sort(Comparator.comparing(t0 -> Long.valueOf(t0.getTimestamp())));
+        long ms = Long.valueOf(total.get(total.size()-1).getTimestamp()) - Long.valueOf(total.get(0).getTimestamp()) + Long.parseLong(total.get(total.size()-1).getElapsed());
+        double avgThroughput = (double)total.size() / (ms * 1.0 / 1000);
+        statisticsDTO.setTotalAvgHits(df.format(avgThroughput));
+
+        statisticsDTO.setTotalAvgBandwidth(df.format(allBytes * 1.0 / 1024 / (ms * 1.0 / 1000)));
+        return statisticsDTO;
     }
 
     // report - Errors
@@ -259,8 +265,8 @@ public class JtlResolver {
 
         Long timestamp1 = Long.valueOf(total.get(0).getTimestamp());
         Long timestamp2 = Long.valueOf(total.get(total.size()-1).getTimestamp());
-        long seconds = (timestamp2 - timestamp1) / 1000;
-        double avgThroughput = (double)total.size() / seconds;
+        long time = timestamp2 - timestamp1 + Long.parseLong(total.get(total.size()-1).getElapsed());
+        double avgThroughput = (double)total.size() / (time * 1.0 / 1000);
         testOverview.setAvgThroughput(df.format(avgThroughput));
 
         List<Metric> falseList = total.stream().filter(metric -> StringUtils.equals("false", metric.getSuccess())).collect(Collectors.toList());
@@ -270,7 +276,7 @@ public class JtlResolver {
         double avg = totalElapsed * 1.0 / total.size() / 1000; // s
         testOverview.setAvgResponseTime(df.format(avg));
 
-        double bandwidth = totalBytes * 1.0 / 1024 / seconds;
+        double bandwidth = totalBytes * 1.0 / time;
         testOverview.setAvgBandwidth(df.format(bandwidth));
 
         return testOverview;

@@ -25,8 +25,8 @@
       </el-aside>
 
       <test-case-list
-        @opentestCaseEditDialog="opentestCaseEditDialog"
-        @testCaseEdit="opentestCaseEditDialog"
+        @openTestCaseEditDialog="openTestCaseEditDialog"
+        @testCaseEdit="openTestCaseEditDialog"
         ref="testCaseList"></test-case-list>
 
     </el-container>
@@ -110,10 +110,10 @@
       getCaseByNodeIds(data) {
         this.$refs.testCaseList.initTableData(data);
       },
-      opentestCaseEditDialog(data) {
+      openTestCaseEditDialog(data) {
         this.setNodePathOption(this.$refs.nodeTree.treeNodes);
         this.setMaintainerOptions();
-        this.$refs.testCaseEditDialog.opentestCaseEditDialog(data);
+        this.$refs.testCaseEditDialog.openTestCaseEditDialog(data);
       },
       setNodePathOption(nodes) {
         let moduleOptions = [];
