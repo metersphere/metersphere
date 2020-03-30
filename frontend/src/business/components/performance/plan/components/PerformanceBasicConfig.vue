@@ -167,7 +167,9 @@
         this.tableData.splice(index, 1);
         //
         let i = this.uploadList.indexOf(file);
-        this.uploadList.splice(i, 1);
+        if (i > -1) {
+          this.uploadList.splice(i, 1);
+        }
       },
       handleExceed() {
         this.$message.error(this.$t('load_test.delete_file'));
