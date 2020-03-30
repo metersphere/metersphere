@@ -176,7 +176,6 @@ export default {
     'case_list': '用例列表',
     'create_case': '创建用例',
     'test_plan': '测试计划',
-    'create_plan': '创建计划',
     'no_project': '该工作空间下无项目，请先创建项目',
     'priority': '优先级',
     'type': '类型',
@@ -205,7 +204,25 @@ export default {
     'rename': '重命名',
     'add_submodule': '添加子模块',
     'add_module': '添加模块',
-    'module_name': '模块名称'
+    'module_name': '模块名称',
+
+    'create_plan': '新建测试计划',
+    'plan_name': '计划名称',
+    'plan_project': '所属项目',
+    'plan_stage': '测试阶段',
+    'plan_status': '当前状态',
+    'smoke_test': '冒烟测试',
+    'functional_test': '功能测试',
+    'integration_testing': '集成测试',
+    'system_test': '系统测试',
+    'version_validation': '版本验证',
+    'plan_principal': '负责人',
+    'input_plan_principal': '请选择负责人',
+    'input_plan_project': '请选择所属项目',
+    'input_plan_stage': '请选择测试阶段',
+    'plan_status_prepare': '未开始',
+    'plan_status_running': '进行中',
+    'plan_status_completed': '已完成'
   },
   i18n: {
     'home': '首页'

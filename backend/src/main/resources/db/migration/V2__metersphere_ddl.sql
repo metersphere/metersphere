@@ -224,22 +224,23 @@ CREATE TABLE IF NOT EXISTS `fuc_test_report` (
 
 -- funcional end
 
-
 -- track start
 
 CREATE TABLE IF NOT EXISTS `test_plan` (
     `id`                     varchar(50) NOT NULL COMMENT 'Test Plan ID',
     `project_id`             varchar(50) NOT NULL COMMENT 'Project ID this plan belongs to',
+    `workspace_id`           varchar(50) NOT NULL COMMENT 'Workspace ID this plan belongs to',
     `name`                   varchar(64) NOT NULL COMMENT 'Plan name',
     `description`            varchar(255) DEFAULT NULL COMMENT 'Plan description',
     `status`                 varchar(20) NOT NULL COMMENT 'Plan status',
+    `stage`                  varchar(30) NOT NULL COMMENT 'Plan stage',
+    `principal`              varchar(50) NOT NULL COMMENT 'Plan principal',
     `test_case_match_rule`   varchar(255) DEFAULT NULL COMMENT 'Test case match rule',
     `executor_match_rule`    varchar(255) DEFAULT NULL  COMMENT 'Executor match rule)',
     `tags`                   text COMMENT 'Test plan tags (JSON format)',
     `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
     `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
-    PRIMARY KEY (`id`),
-    FOREIGN KEY (`project_id`) references project(`id`)
+    PRIMARY KEY (`id`)
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
@@ -254,8 +255,6 @@ CREATE TABLE IF NOT EXISTS `test_case_node` (
     `level`                  int(10)  DEFAULT 1 COMMENT 'Node level',
     `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
     `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
-    FOREIGN KEY (`p_id`) references test_case_node(`id`) ON DELETE CASCADE,
-    FOREIGN KEY (`project_id`) references project(`id`)
 )
     AUTO_INCREMENT = 1
     ENGINE = InnoDB
@@ -278,8 +277,6 @@ CREATE TABLE IF NOT EXISTS `test_case` (
     `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
     `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
     PRIMARY KEY (`id`),
-    FOREIGN KEY (`project_id`) references project(`id`),
-    FOREIGN KEY (`node_id`) references test_case_node(`id`)
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
@@ -296,8 +293,6 @@ CREATE TABLE IF NOT EXISTS `test_plan_test_case` (
     `remark`                 varchar(255) DEFAULT NULL COMMENT 'Test case remark',
     `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
     `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
-    FOREIGN KEY (`plan_id`) references test_plan(`id`),
-    FOREIGN KEY (`case_id`) references test_case(`id`)
 )
     AUTO_INCREMENT = 1
     ENGINE = InnoDB

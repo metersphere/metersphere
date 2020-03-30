@@ -181,7 +181,7 @@
 
 <script>
     export default {
-      name: "CreateCaseDialog",
+      name: "TestCaseEdit",
       data() {
         return {
           dialogFormVisible: false,
@@ -218,7 +218,7 @@
         projectId: null
       },
       methods: {
-        opentestCaseEditDialog(testCase) {
+        openTestCaseEditDialog(testCase) {
           this.resetForm();
           this.operationType = 'add';
           if(testCase){
@@ -262,7 +262,6 @@
               param.projectId = this.projectId;
               this.$post('/test/case/' + this.operationType, param, () => {
                 this.$message.success(this.$t('commons.save_success'));
-                this.resetForm();
                 this.dialogFormVisible = false;
                 this.$emit("refresh");
               });

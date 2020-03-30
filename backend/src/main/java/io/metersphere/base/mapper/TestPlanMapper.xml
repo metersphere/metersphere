@@ -4,9 +4,12 @@
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.TestPlan">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="workspace_id" jdbcType="VARCHAR" property="workspaceId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="stage" jdbcType="VARCHAR" property="stage" />
+    <result column="principal" jdbcType="VARCHAR" property="principal" />
     <result column="test_case_match_rule" jdbcType="VARCHAR" property="testCaseMatchRule" />
     <result column="executor_match_rule" jdbcType="VARCHAR" property="executorMatchRule" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
@@ -74,8 +77,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, name, description, status, test_case_match_rule, executor_match_rule, 
-    create_time, update_time
+    id, project_id, workspace_id, name, description, status, stage, principal, test_case_match_rule, 
+    executor_match_rule, create_time, update_time
   </sql>
   <sql id="Blob_Column_List">
     tags
@@ -129,12 +132,14 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestPlan">
-    insert into test_plan (id, project_id, name, 
-      description, status, test_case_match_rule, 
+    insert into test_plan (id, project_id, workspace_id, 
+      name, description, status, 
+      stage, principal, test_case_match_rule, 
       executor_match_rule, create_time, update_time, 
       tags)
-    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{description,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{testCaseMatchRule,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, 
+      #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
+      #{stage,jdbcType=VARCHAR}, #{principal,jdbcType=VARCHAR}, #{testCaseMatchRule,jdbcType=VARCHAR}, 
       #{executorMatchRule,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{tags,jdbcType=LONGVARCHAR})
   </insert>
@@ -147,6 +152,9 @@
       <if test="projectId != null">
         project_id,
       </if>
+      <if test="workspaceId != null">
+        workspace_id,
+      </if>
       <if test="name != null">
         name,
       </if>
@@ -155,6 +163,12 @@
       </if>
       <if test="status != null">
         status,
+      </if>
+      <if test="stage != null">
+        stage,
+      </if>
+      <if test="principal != null">
+        principal,
       </if>
       <if test="testCaseMatchRule != null">
         test_case_match_rule,
@@ -179,6 +193,9 @@
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
       </if>
+      <if test="workspaceId != null">
+        #{workspaceId,jdbcType=VARCHAR},
+      </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
       </if>
@@ -187,6 +204,12 @@
       </if>
       <if test="status != null">
         #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="stage != null">
+        #{stage,jdbcType=VARCHAR},
+      </if>
+      <if test="principal != null">
+        #{principal,jdbcType=VARCHAR},
       </if>
       <if test="testCaseMatchRule != null">
         #{testCaseMatchRule,jdbcType=VARCHAR},
@@ -220,6 +243,9 @@
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
+      <if test="record.workspaceId != null">
+        workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
+      </if>
       <if test="record.name != null">
         name = #{record.name,jdbcType=VARCHAR},
       </if>
@@ -228,6 +254,12 @@
       </if>
       <if test="record.status != null">
         status = #{record.status,jdbcType=VARCHAR},
+      </if>
+      <if test="record.stage != null">
+        stage = #{record.stage,jdbcType=VARCHAR},
+      </if>
+      <if test="record.principal != null">
+        principal = #{record.principal,jdbcType=VARCHAR},
       </if>
       <if test="record.testCaseMatchRule != null">
         test_case_match_rule = #{record.testCaseMatchRule,jdbcType=VARCHAR},
@@ -253,9 +285,12 @@
     update test_plan
     set id = #{record.id,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
+      workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
       status = #{record.status,jdbcType=VARCHAR},
+      stage = #{record.stage,jdbcType=VARCHAR},
+      principal = #{record.principal,jdbcType=VARCHAR},
       test_case_match_rule = #{record.testCaseMatchRule,jdbcType=VARCHAR},
       executor_match_rule = #{record.executorMatchRule,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
@@ -269,9 +304,12 @@
     update test_plan
     set id = #{record.id,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
+      workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
       status = #{record.status,jdbcType=VARCHAR},
+      stage = #{record.stage,jdbcType=VARCHAR},
+      principal = #{record.principal,jdbcType=VARCHAR},
       test_case_match_rule = #{record.testCaseMatchRule,jdbcType=VARCHAR},
       executor_match_rule = #{record.executorMatchRule,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
@@ -286,6 +324,9 @@
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
       </if>
+      <if test="workspaceId != null">
+        workspace_id = #{workspaceId,jdbcType=VARCHAR},
+      </if>
       <if test="name != null">
         name = #{name,jdbcType=VARCHAR},
       </if>
@@ -294,6 +335,12 @@
       </if>
       <if test="status != null">
         status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="stage != null">
+        stage = #{stage,jdbcType=VARCHAR},
+      </if>
+      <if test="principal != null">
+        principal = #{principal,jdbcType=VARCHAR},
       </if>
       <if test="testCaseMatchRule != null">
         test_case_match_rule = #{testCaseMatchRule,jdbcType=VARCHAR},
@@ -316,9 +363,12 @@
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.TestPlan">
     update test_plan
     set project_id = #{projectId,jdbcType=VARCHAR},
+      workspace_id = #{workspaceId,jdbcType=VARCHAR},
       name = #{name,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
       status = #{status,jdbcType=VARCHAR},
+      stage = #{stage,jdbcType=VARCHAR},
+      principal = #{principal,jdbcType=VARCHAR},
       test_case_match_rule = #{testCaseMatchRule,jdbcType=VARCHAR},
       executor_match_rule = #{executorMatchRule,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
@@ -329,9 +379,12 @@
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestPlan">
     update test_plan
     set project_id = #{projectId,jdbcType=VARCHAR},
+      workspace_id = #{workspaceId,jdbcType=VARCHAR},
       name = #{name,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
       status = #{status,jdbcType=VARCHAR},
+      stage = #{stage,jdbcType=VARCHAR},
+      principal = #{principal,jdbcType=VARCHAR},
       test_case_match_rule = #{testCaseMatchRule,jdbcType=VARCHAR},
       executor_match_rule = #{executorMatchRule,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},

@@ -1,0 +1,195 @@
+<template>
+
+  <div>
+
+    <el-dialog :title="$t('test_track.create_plan')"
+               :visible.sync="dialogFormVisible"
+               width="65%">
+
+      <el-form :model="form" :rules="rules" ref="planFrom">
+
+        <el-row>
+          <el-col :span="8" :offset="1">
+            <el-form-item
+              :placeholder="$t('test_track.input_name')"
+              :label="$t('test_track.plan_name')"
+              :label-width="formLabelWidth"
+              prop="name">
+              <el-input v-model="form.name"></el-input>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="11" :offset="2">
+            <el-form-item :label="$t('test_track.plan_project')" :label-width="formLabelWidth" prop="projectId">
+              <el-select
+                v-model="form.projectId"
+                :placeholder="$t('test_track.input_plan_project')"
+                filterable>
+                <el-option
+                  v-for="item in projects"
+                  :key="item.id"
+                  :label="item.path"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="10" :offset="1">
+            <el-form-item :label="$t('test_track.plan_principal')" :label-width="formLabelWidth" prop="principal">
+              <el-select v-model="form.principal" :placeholder="$t('test_track.input_plan_principal')" filterable>
+                <el-option
+                  v-for="item in principalOptions"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12">
+            <el-form-item :label="$t('test_track.plan_stage')" :label-width="formLabelWidth" prop="stage">
+              <el-select v-model="form.stage" clearable :placeholder="$t('test_track.input_plan_stage')">
+                <el-option :label="$t('test_track.smoke_test')" value="smoke"></el-option>
+                <el-option :label="$t('test_track.functional_test')" value="functional"></el-option>
+                <el-option :label="$t('test_track.integration_testing')" value="integration"></el-option>
+                <el-option :label="$t('test_track.system_test')" value="system"></el-option>
+                <el-option :label="$t('test_track.version_validation')" value="version"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row type="flex" justify="left" style="margin-top: 10px;">
+          <el-col :span="19" :offset="1">
+            <el-form-item :label="$t('commons.description')" :label-width="formLabelWidth" prop="description">
+              <el-input v-model="form.description"
+                        type="textarea"
+                        :autosize="{ minRows: 2, maxRows: 4}"
+                        :rows="2"
+                        :placeholder="$t('commons.input_content')"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+      </el-form>
+
+      <div slot="footer" class="dialog-footer">
+        <el-button
+          @click="dialogFormVisible = false">
+          {{$t('test_track.cancel')}}
+        </el-button>
+        <el-button
+          type="primary"
+          @click="savePlan">
+          {{$t('test_track.confirm')}}
+        </el-button>
+      </div>
+    </el-dialog>
+
+  </div>
+
+
+</template>
+
+<script>
+
+  import {WORKSPACE_ID} from '../../../../../common/constants';
+
+  export default {
+      name: "TestPlanEdit",
+      data() {
+        return {
+          dialogFormVisible: false,
+          form: {
+            name: '',
+            projectId: '',
+            principal: '',
+            stage: '',
+            description: ''
+          },
+          rules:{
+            name :[{required: true, message: this.$t('test_track.input_name'), trigger: 'blur'}],
+            projectId :[{required: true, message: this.$t('test_track.input_plan_project'), trigger: 'change'}],
+            principal :[{required: true, message: this.$t('test_track.input_plan_principal'), trigger: 'change'}],
+            stage :[{required: true, message: this.$t('test_track.input_plan_stage'), trigger: 'change'}]
+          },
+          formLabelWidth: "120px",
+          operationType: '',
+          projects: [],
+          principalOptions: []
+        };
+      },
+    methods: {
+        openTestPlanEditDialog(testPlan) {
+          this.resetForm();
+          this.getProjects();
+          this.setPrincipalOptions();
+          this.operationType = 'add';
+          if(testPlan){
+            //修改
+            this.operationType = 'edit';
+            let tmp = {};
+            Object.assign(tmp, testPlan);
+            Object.assign(this.form, tmp);
+          }
+          this.dialogFormVisible = true;
+        },
+        savePlan(){
+          this.$refs['planFrom'].validate((valid) => {
+            if (valid) {
+              let param = {};
+              Object.assign(param, this.form);
+              param.workspaceId = localStorage.getItem(WORKSPACE_ID);
+              this.$post('/test/plan/' + this.operationType, param, () => {
+                this.$message.success(this.$t('commons.save_success'));
+                this.dialogFormVisible = false;
+                this.$emit("refresh");
+              });
+            } else {
+              return false;
+            }
+          });
+        },
+        getProjects() {
+          this.$get("/project/listAll", (response) => {
+            if (response.success) {
+              this.projects = response.data;
+            } else {
+              this.$message()({
+                type: 'warning',
+                message: response.message
+              });
+            }
+          });
+        },
+        setPrincipalOptions() {
+          let workspaceId = localStorage.getItem(WORKSPACE_ID);
+          this.$post('/user/ws/member/list/all', {workspaceId:workspaceId}, response => {
+            this.principalOptions = response.data;
+          });
+        },
+        resetForm() {
+          //防止点击修改后，点击新建触发校验
+          if (this.$refs['planFrom']) {
+            this.$refs['planFrom'].validate((valid) => {
+              this.$refs['planFrom'].resetFields();
+              this.form.name = '';
+              this.form.projectId = '';
+              this.form.principal = '';
+              this.form.stage = '';
+              this.form.description = '';
+              return true;
+            });
+          }
+        }
+      }
+    }
+</script>
+
+<style scoped>
+
+</style>

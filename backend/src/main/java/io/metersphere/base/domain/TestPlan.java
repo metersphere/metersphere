@@ -7,11 +7,17 @@ public class TestPlan implements Serializable {
 
     private String projectId;
 
+    private String workspaceId;
+
     private String name;
 
     private String description;
 
     private String status;
+
+    private String stage;
+
+    private String principal;
 
     private String testCaseMatchRule;
 
@@ -41,6 +47,14 @@ public class TestPlan implements Serializable {
         this.projectId = projectId == null ? null : projectId.trim();
     }
 
+    public String getWorkspaceId() {
+        return workspaceId;
+    }
+
+    public void setWorkspaceId(String workspaceId) {
+        this.workspaceId = workspaceId == null ? null : workspaceId.trim();
+    }
+
     public String getName() {
         return name;
     }
@@ -63,6 +77,22 @@ public class TestPlan implements Serializable {
 
     public void setStatus(String status) {
         this.status = status == null ? null : status.trim();
+    }
+
+    public String getStage() {
+        return stage;
+    }
+
+    public void setStage(String stage) {
+        this.stage = stage == null ? null : stage.trim();
+    }
+
+    public String getPrincipal() {
+        return principal;
+    }
+
+    public void setPrincipal(String principal) {
+        this.principal = principal == null ? null : principal.trim();
     }
 
     public String getTestCaseMatchRule() {
