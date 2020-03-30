@@ -1,8 +1,8 @@
 package io.metersphere;
 
 import io.metersphere.config.KafkaProperties;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
-import org.junit.platform.commons.util.StringUtils;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -33,6 +33,9 @@ public class JmxFileParseTest {
     private final static String VARIABLE_THROUGHPUT_TIMER = "kg.apc.jmeter.timers.VariableThroughputTimer";
     private final static String BACKEND_LISTENER = "BackendListener";
     private final static String THREAD_GROUP = "ThreadGroup";
+    private final static String CONFIG_TEST_ELEMENT = "ConfigTestElement";
+    private final static String DNS_CACHE_MANAGER = "DNSCacheManager";
+    private final static String ARGUMENTS = "Arguments";
     @Resource
     private KafkaProperties kafkaProperties;
 
@@ -110,8 +113,113 @@ public class JmxFileParseTest {
 
                     } else if (nodeNameEquals(ele, BACKEND_LISTENER)) {
                         processBackendListener(ele);
+                    } else if (nodeNameEquals(ele, CONFIG_TEST_ELEMENT)) {
+                        processConfigTestElement(ele);
+                    } else if (nodeNameEquals(ele, DNS_CACHE_MANAGER)) {
+                        processDnsCacheManager(ele);
+                    } else if (nodeNameEquals(ele, ARGUMENTS)) {
+                        processArguments(ele);
                     }
                 }
+            }
+        }
+    }
+
+    private void processArguments(Element ele) {
+        /*
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="BASE_URL_1" elementType="Argument">
+            <stringProp name="Argument.name">BASE_URL_1</stringProp>
+            <stringProp name="Argument.value">rddev2.fit2cloud.com</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
+      </Arguments>
+         */
+        NodeList childNodes = ele.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node item = childNodes.item(i);
+            if (item instanceof Element && nodeNameEquals(item, "collectionProp")) {
+                removeChildren(item);
+                Document document = item.getOwnerDocument();
+                Element elementProp = document.createElement("elementProp");
+                elementProp.setAttribute("name", "");
+                elementProp.setAttribute("elementType", "");
+                elementProp.appendChild(createStringProp(document, "Argument.name", ""));
+                elementProp.appendChild(createStringProp(document, "Argument.value", ""));
+                elementProp.appendChild(createStringProp(document, "Argument.metadata", "="));
+                item.appendChild(elementProp);
+            }
+        }
+
+    }
+
+    private void processDnsCacheManager(Element ele) {
+        /*
+        <DNSCacheManager guiclass="DNSCachePanel" testclass="DNSCacheManager" testname="DNS Cache Manager" enabled="true">
+        <collectionProp name="DNSCacheManager.servers"/>
+        <collectionProp name="DNSCacheManager.hosts">
+          <elementProp name="baiud.com" elementType="StaticHost">
+            <stringProp name="StaticHost.Name">baiud.com</stringProp>
+            <stringProp name="StaticHost.Address">172.16.10.187</stringProp>
+          </elementProp>
+        </collectionProp>
+        <boolProp name="DNSCacheManager.clearEachIteration">true</boolProp>
+        <boolProp name="DNSCacheManager.isCustomResolver">true</boolProp>
+      </DNSCacheManager>
+         */
+        NodeList childNodes = ele.getChildNodes();
+        for (int i = 0, size = childNodes.getLength(); i < size; i++) {
+            Node item = childNodes.item(i);
+            if (item instanceof Element && nodeNameEquals(item, "collectionProp")
+                    && StringUtils.equals(((Element) item).getAttribute("name"), "DNSCacheManager.hosts")) {
+                Node childNode = item.getFirstChild();
+                // todo 绑定域名 多个
+                while (!(childNode instanceof Element)) {
+                    childNode = childNode.getNextSibling();
+                }
+                Element elementProp = ((Element) childNode);
+                elementProp.setAttribute("name", "baidu.com");
+                elementProp.setAttribute("elementType", "StaticHost");
+                removeChildren(elementProp);
+                elementProp.appendChild(createStringProp(ele.getOwnerDocument(), "StaticHost.Name", ""));
+                elementProp.appendChild(createStringProp(ele.getOwnerDocument(), "StaticHost.Address", ""));
+            }
+
+            if (item instanceof Element && nodeNameEquals(item, "boolProp")
+                    && StringUtils.equals(((Element) item).getAttribute("name"), "DNSCacheManager.isCustomResolver")) {
+                item.getFirstChild().setNodeValue("true");
+            }
+        }
+
+    }
+
+    private void processConfigTestElement(Element ele) {
+        /*
+        <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+        <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+          <collectionProp name="Arguments.arguments"/>
+        </elementProp>
+        <stringProp name="HTTPSampler.domain"></stringProp>
+        <stringProp name="HTTPSampler.port"></stringProp>
+        <stringProp name="HTTPSampler.protocol"></stringProp>
+        <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+        <stringProp name="HTTPSampler.path"></stringProp>
+        <boolProp name="HTTPSampler.image_parser">true</boolProp>
+        <boolProp name="HTTPSampler.concurrentDwn">true</boolProp>
+        <stringProp name="HTTPSampler.concurrentPool">6</stringProp>
+        <stringProp name="HTTPSampler.connect_timeout">30000</stringProp>
+        <stringProp name="HTTPSampler.response_timeout"></stringProp>
+        </ConfigTestElement>
+         */
+        NodeList childNodes = ele.getChildNodes();
+        for (int i = 0, size = childNodes.getLength(); i < size; i++) {
+            Node item = childNodes.item(i);
+            if (item instanceof Element && nodeNameEquals(item, STRING_PROP)
+                    && StringUtils.equals(((Element) item).getAttribute("name"), "HTTPSampler.connect_timeout")) {
+
+                item.getFirstChild().setNodeValue("30000");
             }
         }
     }

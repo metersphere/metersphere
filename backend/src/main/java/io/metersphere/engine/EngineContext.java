@@ -42,6 +42,10 @@ public class EngineContext {
         this.properties.put(key, value);
     }
 
+    public void addProperties(Map<String, Object> props) {
+        this.properties.putAll(props);
+    }
+
     public Object getProperty(String key) {
         return this.properties.get(key);
     }

@@ -77,13 +77,20 @@ public class EngineFactory {
         engineContext.setThreadNum(threadNum);
         engineContext.setResourcePoolId(loadTest.getTestResourcePoolId());
 
-        if (!StringUtils.isEmpty(loadTest.getLoadConfiguration())) {
+        if (StringUtils.isNotEmpty(loadTest.getLoadConfiguration())) {
             final JSONArray jsonArray = JSONObject.parseArray(loadTest.getLoadConfiguration());
 
             for (int i = 0; i < jsonArray.size(); i++) {
                 final JSONObject jsonObject = jsonArray.getJSONObject(i);
                 engineContext.addProperty(jsonObject.getString("key"), jsonObject.get("value"));
             }
+        }
+        /*
+        {"timeout":10,"statusCode":["302","301"],"params":[{"name":"param1","enable":true,"value":"0","edit":false}],"domains":[{"domain":"baidu.com","enable":true,"ip":"127.0.0.1","edit":false}]}
+         */
+        if (StringUtils.isNotEmpty(loadTest.getAdvancedConfiguration())) {
+            JSONObject advancedConfiguration = JSONObject.parseObject(loadTest.getAdvancedConfiguration());
+            engineContext.addProperties(advancedConfiguration);
         }
 
         final EngineSourceParser engineSourceParser = EngineSourceParserFactory.createEngineSourceParser(engineContext.getFileType());
@@ -95,6 +102,8 @@ public class EngineFactory {
         try (ByteArrayInputStream source = new ByteArrayInputStream(fileContent.getFile())) {
             String content = engineSourceParser.parse(engineContext, source);
             engineContext.setContent(content);
+        } catch (Exception e) {
+            MSException.throwException(e);
         }
 
         if (CollectionUtils.isNotEmpty(csvFiles)) {
