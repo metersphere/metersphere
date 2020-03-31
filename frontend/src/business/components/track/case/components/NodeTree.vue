@@ -10,17 +10,11 @@
         class="filter-tree node-tree"
         :data="treeNodes"
         node-key="id"
-        @node-drag-start="handleDragStart"
-        @node-drag-enter="handleDragEnter"
-        @node-drag-leave="handleDragLeave"
-        @node-drag-over="handleDragOver"
         @node-drag-end="handleDragEnd"
-        @node-drop="handleDrop"
         :filter-node-method="filterNode"
         :expand-on-click-node="false"
         draggable
-        :allow-drop="allowDrop"
-        :allow-drag="allowDrag"
+
         ref="tree">
 
       <span class="custom-tree-node father" slot-scope="{ node, data }" @click="selectNode(node)">
@@ -98,33 +92,23 @@
         this.getNodeTree();
       },
       methods: {
-        handleDragStart(node, ev) {
-          console.log('drag start', node);
-        },
-        handleDragEnter(draggingNode, dropNode, ev) {
-          console.log('tree drag enter: ', dropNode.label);
-        },
-        handleDragLeave(draggingNode, dropNode, ev) {
-          console.log('tree drag leave: ', dropNode.label);
-        },
-        handleDragOver(draggingNode, dropNode, ev) {
-          console.log('tree drag over: ', dropNode.label);
-        },
+
         handleDragEnd(draggingNode, dropNode, dropType, ev) {
-          console.log('tree drag end: ', dropNode && dropNode.label, dropType);
-        },
-        handleDrop(draggingNode, dropNode, dropType, ev) {
-          console.log('tree drop: ', dropNode.label, dropType);
-        },
-        allowDrop(draggingNode, dropNode, type) {
-          if (dropNode.data.label === '二级 3-1') {
-            return type !== 'inner';
+          let param = {};
+          param.id = draggingNode.data.id;
+          if(dropType === 'inner'){
+            param.pId = dropNode.data.id;
+            param.level = dropNode.data.level + 1;
           } else {
-            return true;
+            if(dropNode.parent.id === 0){
+              param.pId = 0;
+              param.level = 1;
+            } else {
+              param.pId = dropNode.parent.data.id;
+              param.level = dropNode.parent.data.level + 1;
+            }
           }
-        },
-        allowDrag(draggingNode) {
-          return draggingNode.data.label.indexOf('三级 3-2-2') === -1;
+          this.$post('/case/node/edit', param);
         },
         remove(node, data) {
           this.$alert(this.$t('test_track.delete_module_confirm') + data.label + "，" +
