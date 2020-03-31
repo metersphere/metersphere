@@ -137,7 +137,7 @@ public class JmeterDocumentParser implements DocumentParser {
     }
 
     private void processCheckoutResponseAssertion(Element element) {
-        if (context.getProperty("statusCode") == null || JSON.parseArray("statusCode").size() == 0) {
+        if (context.getProperty("statusCode") == null || JSON.parseArray(context.getProperty("statusCode").toString()).size() == 0) {
             return;
         }
         Document document = element.getOwnerDocument();
@@ -187,7 +187,7 @@ public class JmeterDocumentParser implements DocumentParser {
     }
 
     private void processCheckoutArguments(Element ele) {
-        if (context.getProperty("params") == null || JSON.parseArray("params").size() == 0) {
+        if (context.getProperty("params") == null || JSON.parseArray(context.getProperty("params").toString()).size() == 0) {
             return;
         }
         Node hashTree = ele.getNextSibling();
@@ -230,7 +230,7 @@ public class JmeterDocumentParser implements DocumentParser {
     }
 
     private void processCheckoutDnsCacheManager(Element ele) {
-        if (context.getProperty("domains") == null || JSON.parseArray("domains").size() == 0) {
+        if (context.getProperty("domains") == null || JSON.parseArray(context.getProperty("domains").toString()).size() == 0) {
             return;
         }
         Node hashTree = ele.getNextSibling();
