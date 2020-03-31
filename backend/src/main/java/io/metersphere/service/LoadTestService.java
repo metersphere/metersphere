@@ -167,7 +167,7 @@ public class LoadTestService {
             MSException.throwException(Translator.get("run_load_test_not_found") + request.getId());
         }
         if (TestStatus.Running.name().equals(loadTest.getStatus())) {
-            MSException.throwException(Translator.get("load_test_is_running") + request.getId());
+            MSException.throwException(Translator.get("load_test_is_running"));
         }
 
         LogUtil.info("Load test started " + loadTest.getName());
