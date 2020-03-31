@@ -10,6 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.Reader;
 import java.io.StringReader;
 import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -282,4 +284,69 @@ public class JtlResolver {
         return testOverview;
     }
 
+
+    public static ChartsData getLoadChartData(String jtlString) {
+        ChartsData data = new ChartsData();
+        List<Metric> total = JtlResolver.resolver(jtlString);
+
+        ////
+        List<String> users = new ArrayList<>();
+        List<String> hits = new ArrayList<>();
+        List<String> erorrs = new ArrayList<>();
+        List<String> timeList = new ArrayList<>();
+        ////
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        DecimalFormat df = new DecimalFormat("0.0");
+
+        total.sort(Comparator.comparing(metric -> Long.valueOf(metric.getTimestamp())));
+        total.forEach(metric -> {
+            metric.setTimestamp(stampToDate(metric.getTimestamp()));
+        });
+
+        Map<String, List<Metric>> collect = total.stream().collect(Collectors.groupingBy(Metric::getTimestamp));
+        List<Map.Entry<String, List<Metric>>> entries = new ArrayList<>(collect.entrySet());
+        Collections.sort(entries, new Comparator<Map.Entry<String, List<Metric>>>() {
+            @Override
+            public int compare(Map.Entry<String, List<Metric>> t1, Map.Entry<String, List<Metric>> t2) {
+                Date date1 = null,date2 = null;
+                try {
+                    date1 = sdf.parse(t1.getKey());
+                    date2 = sdf.parse(t2.getKey());
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                return (int) (date1.getTime() - date2.getTime());
+            }
+        });
+
+        for (int i = 0; i < entries.size(); i++) {
+            int failSize = 0;
+            Map.Entry<String, List<Metric>> map = entries.get(i);
+            List<Metric> metrics = map.getValue();
+            for (int j = 0; j < metrics.size(); j++) {
+                Metric metric = metrics.get(j);
+                String success = metric.getSuccess();
+                if (!"true".equals(success)){
+                    failSize++;
+                }
+            }
+            timeList.add(map.getKey());
+            hits.add(String.valueOf(metrics.size()));
+            users.add(String.valueOf(metrics.size()));
+            erorrs.add(String.valueOf(failSize));
+
+        }
+
+        return data;
+    }
+
+
+    private static String stampToDate(String s){
+        String res;
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        long lt = Long.parseLong(s);
+        Date date = new Date(lt);
+        res = simpleDateFormat.format(date);
+        return res;
+    }
 }
