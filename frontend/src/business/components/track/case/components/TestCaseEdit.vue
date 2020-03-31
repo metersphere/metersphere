@@ -214,9 +214,6 @@
           operationType: ''
         };
       },
-      props: {
-        projectId: null
-      },
       methods: {
         openTestCaseEditDialog(testCase) {
           this.resetForm();
@@ -259,7 +256,9 @@
               Object.assign(param, this.form);
               param.steps = JSON.stringify(this.form.steps);
               param.nodeId = this.form.module;
-              param.projectId = this.projectId;
+              if(localStorage.getItem('currentProject')){
+                param.projectId = JSON.parse(localStorage.getItem('currentProject')).id;
+              }
               this.$post('/test/case/' + this.operationType, param, () => {
                 this.$message.success(this.$t('commons.save_success'));
                 this.dialogFormVisible = false;

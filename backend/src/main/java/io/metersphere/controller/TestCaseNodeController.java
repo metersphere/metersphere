@@ -30,9 +30,10 @@ public class TestCaseNodeController {
         return testCaseNodeService.editNode(node);
     }
 
-    @PostMapping("/delete/{nodeId}")
-    public int deleteNode(@PathVariable int nodeId){
-        return testCaseNodeService.deleteNode(nodeId);
+    @PostMapping("/delete")
+    public int deleteNode(@RequestBody List<Integer> nodeIds){
+        //nodeIds 包含删除节点ID及其所有子节点ID
+        return testCaseNodeService.deleteNode(nodeIds);
     }
 
 

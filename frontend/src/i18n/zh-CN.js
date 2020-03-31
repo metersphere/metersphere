@@ -222,7 +222,9 @@ export default {
     'input_plan_stage': '请选择测试阶段',
     'plan_status_prepare': '未开始',
     'plan_status_running': '进行中',
-    'plan_status_completed': '已完成'
+    'plan_status_completed': '已完成',
+    'delete_module_confirm': '确认删除模块: ',
+    'delete_module_resource': '以及模块下所有子模块和测试用例',
   },
   i18n: {
     'home': '首页'

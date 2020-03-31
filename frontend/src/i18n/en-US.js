@@ -222,6 +222,8 @@ export default {
     'plan_status_prepare': ' Not started',
     'plan_status_running': 'Starting',
     'plan_status_completed': 'Completed',
+    'delete_module_confirm': 'Confirm delete module: ',
+    'delete_module_resource': 'and all submodules and test cases under the module'
   },
   i18n: {
     'home': 'Home'

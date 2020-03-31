@@ -54,7 +54,10 @@ public class TestCaseService {
         TestCaseExample.Criteria criteria = testCaseExample.createCriteria();
         if( StringUtils.isNotBlank(request.getName()) ){
             criteria.andNameLike("%" + request.getName() + "%");
-        };
+        }
+        if( StringUtils.isNotBlank(request.getProjectId()) ){
+            criteria.andProjectIdEqualTo(request.getProjectId());
+        }
         if( request.getNodeIds() != null && request.getNodeIds().size() > 0){
             criteria.andNodeIdIn(request.getNodeIds());
         }

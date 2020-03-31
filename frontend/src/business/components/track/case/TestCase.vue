@@ -21,6 +21,7 @@
         </el-menu>
         <node-tree class="node_tree" :project-id="currentProject.id"
                    @nodeSelectEvent="getCaseByNodeIds"
+                   @refresh="getCaseByNodeIds"
                    ref="nodeTree"></node-tree>
       </el-aside>
 
@@ -32,7 +33,6 @@
     </el-container>
 
     <test-case-edit
-      :project-id="currentProject.id"
       @refresh="getCaseByNodeIds"
       ref="testCaseEditDialog"></test-case-edit>
 
@@ -53,9 +53,6 @@
     data() {
       return {
         result: {},
-        queryPath: "/testplan/list",
-        deletePath: "/testplan/delete",
-        condition: "",
         projectId: null,
         tableData: [],
         multipleSelection: [],
@@ -63,7 +60,6 @@
         pageSize: 5,
         total: 0,
         loadingRequire: {project: true, testCase: true},
-        testId: null,
         projects: [],
         initProjects: [],
         currentProject: null,
@@ -75,13 +71,17 @@
       this.getProjects();
     },
     methods: {
-
       getProjects() {
           this.$get("/project/listAll", (response) => {
             if (response.success) {
               this.projects = response.data;
               this.initProjects = this.projects.slice(0, 4);
-              this.currentProject = response.data[0];
+              if(localStorage.getItem('currentProject')) {
+                this.currentProject = JSON.parse(localStorage.getItem('currentProject'));
+              } else {
+                this.currentProject = this.projects[0];
+                localStorage.setItem('currentProject', JSON.stringify(this.projects[0]));
+              }
             } else {
               this.$message()({
                 type: 'warning',
@@ -89,9 +89,7 @@
               });
             }
             this.loadingRequire.project = false;
-
             this.checkProject();
-
           });
       },
       checkProject() {
@@ -106,6 +104,9 @@
       },
       changeProject(project) {
         this.currentProject = project;
+        localStorage.setItem('currentProject', JSON.stringify(project));
+        this.$refs.testCaseList.initTableData()
+        this.$refs.nodeTree.getNodeTree();
       },
       getCaseByNodeIds(data) {
         this.$refs.testCaseList.initTableData(data);

@@ -1,7 +1,6 @@
 <template>
 
   <div>
-
     <el-input :placeholder="$t('test_track.search_module')" v-model="filterText"
               size="small">
       <el-button slot="append" icon="el-icon-folder-add" @click="openEditNodeDialog('add')"></el-button>
@@ -90,19 +89,13 @@
           defaultKeys: []
         };
       },
-      props: {
-        projectId: null
-      },
       watch: {
         filterText(val) {
           this.$refs.tree.filter(val);
-        },
-        projectId(val){
-          this.getNodeTree(val);
         }
       },
       created() {
-        this.getNodeTree(this.projectId);
+        this.getNodeTree();
       },
       methods: {
         handleDragStart(node, ev) {
@@ -134,11 +127,22 @@
           return draggingNode.data.label.indexOf('三级 3-2-2') === -1;
         },
         remove(node, data) {
-          this.$post("/case/node/delete/" + data.id, null, () => {
-            const parent = node.parent;
-            const children = parent.data.children || parent.data;
-            const index = children.findIndex(d => d.id === data.id);
-            children.splice(index, 1);
+          this.$alert(this.$t('test_track.delete_module_confirm') + data.label + "，" +
+            this.$t('test_track.delete_module_resource') + "？", '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                let nodeIds = [];
+                this.getChildNodeId(node, nodeIds);
+                this.$post("/case/node/delete", nodeIds, () => {
+                  const parent = node.parent;
+                  const children = parent.data.children || parent.data;
+                  const index = children.findIndex(d => d.id === data.id);
+                  children.splice(index, 1);
+                  this.$emit("refresh");
+                });
+              }
+            }
           });
         },
         selectNode(node) {
@@ -167,8 +171,9 @@
           this.editData = data;
           this.dialogFormVisible = true;
         },
-        getNodeTree(projectId) {
-          if(projectId){
+        getNodeTree() {
+          if(localStorage.getItem('currentProject')){
+            let projectId = JSON.parse(localStorage.getItem('currentProject')).id;
             this.$get("/case/node/list/" + projectId, response => {
               this.treeNodes = response.data;
             });
@@ -193,7 +198,10 @@
 
           param.name = this.form.name;
           param.label = this.form.name;
-          param.projectId = this.projectId;
+
+          if(localStorage.getItem('currentProject')){
+            param.projectId = JSON.parse(localStorage.getItem('currentProject')).id;
+          }
 
           this.$post(url, param, response => {
             if(type === 'edit'){
@@ -201,17 +209,12 @@
             } if(type === 'add') {
               param.id = response.data;
               if(pNode){
-                if(pNode.children){
-                  pNode.children.push(param);
-                } else {
-                  pNode.children = [param];
-                }
+                this.$refs.tree.append(param, pNode);
               } else {
                 this.treeNodes.push(param);
               }
             }
           });
-
           this.form.name = '';
         },
       }

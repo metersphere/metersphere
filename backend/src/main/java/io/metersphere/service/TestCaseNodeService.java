@@ -1,8 +1,10 @@
 package io.metersphere.service;
 
 
+import io.metersphere.base.domain.TestCaseExample;
 import io.metersphere.base.domain.TestCaseNode;
 import io.metersphere.base.domain.TestCaseNodeExample;
+import io.metersphere.base.mapper.TestCaseMapper;
 import io.metersphere.base.mapper.TestCaseNodeMapper;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.dto.TestCaseNodeDTO;
@@ -18,6 +20,8 @@ public class TestCaseNodeService {
 
     @Resource
     TestCaseNodeMapper testCaseNodeMapper;
+    @Resource
+    TestCaseMapper testCaseMapper;
 
     public int addNode(TestCaseNode node) {
 
@@ -90,7 +94,13 @@ public class TestCaseNodeService {
         return testCaseNodeMapper.updateByPrimaryKeySelective(node);
     }
 
-    public int deleteNode(int nodeId) {
-        return testCaseNodeMapper.deleteByPrimaryKey(nodeId);
+    public int deleteNode(List<Integer> nodeIds) {
+        TestCaseExample testCaseExample = new TestCaseExample();
+        testCaseExample.createCriteria().andNodeIdIn(nodeIds);
+        testCaseMapper.deleteByExample(testCaseExample);
+
+        TestCaseNodeExample testCaseNodeExample = new TestCaseNodeExample();
+        testCaseNodeExample.createCriteria().andIdIn(nodeIds);
+        return testCaseNodeMapper.deleteByExample(testCaseNodeExample);
     }
 }

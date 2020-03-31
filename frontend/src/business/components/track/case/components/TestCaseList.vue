@@ -133,11 +133,11 @@
           pageSize: 5,
           total: 0,
           loadingRequire: {project: true, testCase: true},
-          testId: null,
+          testId: null
         }
       },
       created: function () {
-        this.projectId = this.$route.params.projectId;
+
         this.initTableData();
       },
       methods: {
@@ -146,6 +146,10 @@
             name: this.condition,
           };
           param.nodeIds = nodeIds;
+
+          if(localStorage.getItem('currentProject')){
+            param.projectId = JSON.parse(localStorage.getItem('currentProject')).id;
+          }
 
           this.$post(this.buildPagePath('/test/case/list'), param, response => {
             this.loadingRequire.testCase = false;
