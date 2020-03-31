@@ -239,7 +239,7 @@ CREATE TABLE IF NOT EXISTS `test_plan` (
     `executor_match_rule`    varchar(255) DEFAULT NULL  COMMENT 'Executor match rule)',
     `tags`                   text COMMENT 'Test plan tags (JSON format)',
     `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
-    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp'
+    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
     PRIMARY KEY (`id`)
 )
     ENGINE = InnoDB
@@ -275,8 +275,8 @@ CREATE TABLE IF NOT EXISTS `test_case` (
     `remark`                 text DEFAULT NULL COMMENT 'Test case remark',
     `steps`                  text DEFAULT NULL COMMENT 'Test case steps (JSON format)',
     `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
-    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp'
-    PRIMARY KEY (`id`),
+    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
+    PRIMARY KEY (`id`)
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
