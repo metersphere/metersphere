@@ -204,7 +204,7 @@
     name: "PerformanceAdvancedConfig",
     data() {
       return {
-        timeout: 10,
+        timeout: 100,
         statusCode: [],
         domains: [],
         params: [],
