@@ -339,12 +339,16 @@
       configurations() {
         this.domains.forEach(d => this.delOriginObject(d));
         this.params.forEach(d => this.delOriginObject(d));
+        let statusCode = [];
+        if (this.statusCodeStr) {
+          statusCode = this.statusCodeStr.split(',');
+        }
         return {
           timeout: this.timeout,
-          statusCode: this.statusCodeStr.split(','),
+          statusCode: statusCode,
           params: this.params,
           domains: this.domains,
-        }
+        };
       },
     }
   }

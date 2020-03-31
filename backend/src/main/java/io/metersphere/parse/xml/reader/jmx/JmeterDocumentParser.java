@@ -18,6 +18,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
+import java.util.HashSet;
 import java.util.List;
 
 public class JmeterDocumentParser implements DocumentParser {
@@ -32,6 +33,7 @@ public class JmeterDocumentParser implements DocumentParser {
     private final static String CONFIG_TEST_ELEMENT = "ConfigTestElement";
     private final static String DNS_CACHE_MANAGER = "DNSCacheManager";
     private final static String ARGUMENTS = "Arguments";
+    private final static String RESPONSE_ASSERTION = "ResponseAssertion";
     private EngineContext context;
 
     @Override
@@ -87,6 +89,7 @@ public class JmeterDocumentParser implements DocumentParser {
                         processCheckoutConfigTestElement(ele);
                         processCheckoutDnsCacheManager(ele);
                         processCheckoutArguments(ele);
+                        processCheckoutResponseAssertion(ele);
                     } else if (nodeNameEquals(ele, CONCURRENCY_THREAD_GROUP)) {
                         processConcurrencyThreadGroup(ele);
                         processCheckoutTimer(ele);
@@ -107,13 +110,86 @@ public class JmeterDocumentParser implements DocumentParser {
                         processDnsCacheManager(ele);
                     } else if (nodeNameEquals(ele, ARGUMENTS)) {
                         processArguments(ele);
+                    } else if (nodeNameEquals(ele, RESPONSE_ASSERTION)) {
+                        processResponseAssertion(ele);
                     }
                 }
             }
         }
     }
 
+    private void processResponseAssertion(Element element) {
+        NodeList childNodes = element.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node item = childNodes.item(i);
+            if (item instanceof Element && nodeNameEquals(item, "collectionProp")) {
+                removeChildren(item);
+                Document document = item.getOwnerDocument();
+                Object params = context.getProperty("statusCode");
+                if (params instanceof List) {
+                    HashSet set = new HashSet((List) params);
+                    for (Object p : set) {
+                        element.appendChild(createStringProp(document, p.toString(), p.toString()));
+                    }
+                }
+            }
+        }
+    }
+
+    private void processCheckoutResponseAssertion(Element element) {
+        if (context.getProperty("statusCode") == null || JSON.parseArray("statusCode").size() == 0) {
+            return;
+        }
+        Document document = element.getOwnerDocument();
+
+        Node hashTree = element.getNextSibling();
+        while (!(hashTree instanceof Element)) {
+            hashTree = hashTree.getNextSibling();
+        }
+
+        NodeList childNodes = hashTree.getChildNodes();
+        for (int i = 0, l = childNodes.getLength(); i < l; i++) {
+            Node item = childNodes.item(i);
+            if (nodeNameEquals(item, RESPONSE_ASSERTION)) {
+                // 如果已经存在，不再添加
+                return;
+            }
+        }
+        /*
+        <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+          <collectionProp name="Asserion.test_strings">
+            <stringProp name="50548">301</stringProp>
+            <stringProp name="49586">200</stringProp>
+          </collectionProp>
+          <stringProp name="Assertion.custom_message"></stringProp>
+          <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+          <boolProp name="Assertion.assume_success">false</boolProp>
+          <intProp name="Assertion.test_type">33</intProp>
+        </ResponseAssertion>
+         */
+
+        // add class name
+        Element responseAssertion = document.createElement(RESPONSE_ASSERTION);
+        responseAssertion.setAttribute("guiclass", "AssertionGui");
+        responseAssertion.setAttribute("testclass", "ResponseAssertion");
+        responseAssertion.setAttribute("testname", "Response Assertion");
+        responseAssertion.setAttribute("enabled", "true");
+        Element collectionProp = document.createElement(COLLECTION_PROP);
+        collectionProp.setAttribute("name", "Asserion.test_strings");
+        //
+        responseAssertion.appendChild(collectionProp);
+        responseAssertion.appendChild(createStringProp(document, "Assertion.custom_message", ""));
+        responseAssertion.appendChild(createStringProp(document, "Assertion.test_field", ""));
+        responseAssertion.appendChild(createBoolProp(document, "Assertion.assume_success", false));
+        responseAssertion.appendChild(createIntProp(document, "Assertion.test_type", 33));
+        hashTree.appendChild(responseAssertion);
+        hashTree.appendChild(document.createElement(HASH_TREE_ELEMENT));
+    }
+
     private void processCheckoutArguments(Element ele) {
+        if (context.getProperty("params") == null || JSON.parseArray("params").size() == 0) {
+            return;
+        }
         Node hashTree = ele.getNextSibling();
         while (!(hashTree instanceof Element)) {
             hashTree = hashTree.getNextSibling();
@@ -154,6 +230,9 @@ public class JmeterDocumentParser implements DocumentParser {
     }
 
     private void processCheckoutDnsCacheManager(Element ele) {
+        if (context.getProperty("domains") == null || JSON.parseArray("domains").size() == 0) {
+            return;
+        }
         Node hashTree = ele.getNextSibling();
         while (!(hashTree instanceof Element)) {
             hashTree = hashTree.getNextSibling();
@@ -204,6 +283,9 @@ public class JmeterDocumentParser implements DocumentParser {
     }
 
     private void processCheckoutConfigTestElement(Element ele) {
+        if (context.getProperty("timeout") == null || StringUtils.isBlank(context.getProperty("timeout").toString())) {
+            return;
+        }
         Node hashTree = ele.getNextSibling();
         while (!(hashTree instanceof Element)) {
             hashTree = hashTree.getNextSibling();
@@ -438,6 +520,13 @@ public class JmeterDocumentParser implements DocumentParser {
         return tearDownSwitch;
     }
 
+    private Element createIntProp(Document document, String name, int value) {
+        Element tearDownSwitch = document.createElement("intProp");
+        tearDownSwitch.setAttribute("name", name);
+        tearDownSwitch.appendChild(document.createTextNode(String.valueOf(value)));
+        return tearDownSwitch;
+    }
+
     private void processBackendListener(Element backendListener) {
         KafkaProperties kafkaProperties = CommonBeanFactory.getBean(KafkaProperties.class);
         Document document = backendListener.getOwnerDocument();
@@ -557,7 +646,6 @@ public class JmeterDocumentParser implements DocumentParser {
         threadGroup.appendChild(createStringProp(document, "Hold", "12"));
         threadGroup.appendChild(createStringProp(document, "LogFilename", ""));
         threadGroup.appendChild(createStringProp(document, "Iterations", "1"));
-        // todo 单位是S 要修改 成M
         threadGroup.appendChild(createStringProp(document, "Unit", "M"));
     }
 
