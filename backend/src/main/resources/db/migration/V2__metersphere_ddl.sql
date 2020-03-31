@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS `system_parameter` (
 
 CREATE TABLE IF NOT EXISTS `test_resource` (
     `id`                    varchar(50) NOT NULL COMMENT 'Test resource ID',
-    `description`           varchar(255) DEFAULT NULL COMMENT 'Test resource description',
+    `test_resource_pool_id` varchar(50) COLLATE utf8mb4_bin NOT NULL COMMENT 'Test resource pool ID this test resource belongs to',
     `configuration`         longtext COMMENT 'Test resource configuration',
     `status`                varchar(64) NOT NULL COMMENT 'Test resource status',
     `create_time`           bigint(13)  NOT NULL COMMENT 'Create timestamp',
