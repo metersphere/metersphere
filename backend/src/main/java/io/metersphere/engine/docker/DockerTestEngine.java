@@ -89,7 +89,7 @@ public class DockerTestEngine extends AbstractEngine {
         for (int i = 0; i < containerList.size(); i++) {
             HashMap h = (HashMap) containerList.get(i);
             if (StringUtils.equals((String) h.get("State"), "running")) {
-                MSException.throwException("the test is running!");
+                MSException.throwException("The test is running!");
             }
         }
 

@@ -14,6 +14,7 @@ import io.metersphere.engine.Engine;
 import io.metersphere.engine.EngineFactory;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -163,12 +164,13 @@ public class LoadTestService {
         return request.getId();
     }
 
-    public void run(RunTestPlanRequest request) {
+    public boolean run(RunTestPlanRequest request) {
         final LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(request.getId());
         if (loadTest == null) {
             MSException.throwException(Translator.get("run_load_test_not_found") + request.getId());
         }
-        if (TestStatus.Running.name().equals(loadTest.getStatus())) {
+
+        if (StringUtils.equalsAny(loadTest.getStatus(), TestStatus.Running.name(), TestStatus.Starting.name())) {
             MSException.throwException(Translator.get("load_test_is_running"));
         }
 
@@ -178,14 +180,21 @@ public class LoadTestService {
         if (engine == null) {
             MSException.throwException(String.format("Test cannot be run，test ID：%s", request.getId()));
         }
+
+        return startEngine(loadTest, engine);
+
+        // todo：通过调用stop方法能够停止正在运行的engine，但是如果部署了多个backend实例，页面发送的停止请求如何定位到具体的engine
+    }
+
+    private boolean startEngine(LoadTestWithBLOBs loadTest, Engine engine) {
         LoadTestReportWithBLOBs testReport = new LoadTestReportWithBLOBs();
         testReport.setId(engine.getReportId());
         testReport.setCreateTime(engine.getStartTime());
         testReport.setUpdateTime(engine.getStartTime());
         testReport.setTestId(loadTest.getId());
         testReport.setName(loadTest.getName());
-
         // 启动测试
+        boolean started = true;
         try {
             engine.start();
             // 标记running状态
@@ -199,6 +208,9 @@ public class LoadTestService {
             extLoadTestReportMapper.appendLine(testReport.getId(), "\n");
 
         } catch (Exception e) {
+            LogUtil.error(e);
+            started = false;
+
             loadTest.setStatus(TestStatus.Error.name());
             loadTestMapper.updateByPrimaryKeySelective(loadTest);
             //
@@ -206,7 +218,7 @@ public class LoadTestService {
             testReport.setDescription(e.getMessage());
             loadTestReportMapper.insertSelective(testReport);
         }
-        // todo：通过调用stop方法能够停止正在运行的engine，但是如果部署了多个backend实例，页面发送的停止请求如何定位到具体的engine
+        return started;
     }
 
     public List<LoadTestDTO> recentTestPlans(QueryTestPlanRequest request) {
