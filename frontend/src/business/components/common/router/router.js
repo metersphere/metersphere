@@ -26,6 +26,7 @@ import PerformanceReportView from "../../performance/report/PerformanceReportVie
 import FunctionalReportView from "../../functional/report/FunctionalReportView";
 import TrackHome from "../../track/home/TrackHome";
 import TestPlan from "../../track/plan/TestPlan";
+import TestPlanView from "../../track/plan/TestPlanView";
 import TestCase from "../../track/case/TestCase";
 import TestTrack from "../../track/TestTrack";
 
@@ -211,6 +212,11 @@ const router = new VueRouter({
           path: "plan/:projectId",
           name: "testPlan",
           component: TestPlan
+        },
+        {
+          path: "plan/view/:planId",
+          name: "planView",
+          component: TestPlanView
         },
         {
           path: "project/:type",

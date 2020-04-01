@@ -19,7 +19,7 @@
             </el-scrollbar>
           </el-submenu>
         </el-menu>
-        <node-tree class="node_tree" :project-id="currentProject.id"
+        <node-tree class="node_tree"
                    @nodeSelectEvent="getCaseByNodeIds"
                    @refresh="getCaseByNodeIds"
                    ref="nodeTree"></node-tree>
@@ -170,6 +170,7 @@
 
   .case_container {
     background: white;
+    height: 600px;
   }
 
   .node_tree {
@@ -177,13 +178,8 @@
   }
 
   .project_menu {
-    /*border-style:none;*/
     margin-left: 20px;
     height: 50px;
-  }
-
-  .case_container {
-    height: 600px;
   }
 
 </style>

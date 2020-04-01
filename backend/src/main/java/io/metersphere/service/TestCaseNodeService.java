@@ -1,11 +1,11 @@
 package io.metersphere.service;
 
 
-import io.metersphere.base.domain.TestCaseExample;
-import io.metersphere.base.domain.TestCaseNode;
-import io.metersphere.base.domain.TestCaseNodeExample;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.TestCaseMapper;
 import io.metersphere.base.mapper.TestCaseNodeMapper;
+import io.metersphere.base.mapper.TestPlanMapper;
+import io.metersphere.base.mapper.TestPlanTestCaseMapper;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.dto.TestCaseNodeDTO;
 import org.springframework.stereotype.Service;
@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -22,6 +23,10 @@ public class TestCaseNodeService {
     TestCaseNodeMapper testCaseNodeMapper;
     @Resource
     TestCaseMapper testCaseMapper;
+    @Resource
+    TestPlanMapper testPlanMapper;
+    @Resource
+    TestPlanTestCaseMapper testPlanTestCaseMapper;
 
     public int addNode(TestCaseNode node) {
 
@@ -34,13 +39,16 @@ public class TestCaseNodeService {
         return node.getId();
     }
 
-    public List<TestCaseNodeDTO> getNodeByProjectId(String projectId) {
-
-        List<TestCaseNodeDTO> nodeTreeList = new ArrayList<>();
-
+    public List<TestCaseNodeDTO> getNodeTreeByProjectId(String projectId) {
         TestCaseNodeExample testCaseNodeExample = new TestCaseNodeExample();
         testCaseNodeExample.createCriteria().andProjectIdEqualTo(projectId);
         List<TestCaseNode> nodes = testCaseNodeMapper.selectByExample(testCaseNodeExample);
+        return getNodeTrees(nodes);
+    }
+
+    private List<TestCaseNodeDTO> getNodeTrees(List<TestCaseNode> nodes) {
+
+        List<TestCaseNodeDTO> nodeTreeList = new ArrayList<>();
 
         Map<Integer, List<TestCaseNode>> nodeLevelMap = new HashMap<>();
 
@@ -57,6 +65,7 @@ public class TestCaseNodeService {
 
         List<TestCaseNode> rootNodes = Optional.ofNullable(nodeLevelMap.get(1)).orElse(new ArrayList<>());
         rootNodes.forEach(rootNode -> nodeTreeList.add(buildNodeTree(nodeLevelMap, rootNode)));
+
         return nodeTreeList;
     }
 
@@ -72,14 +81,14 @@ public class TestCaseNodeService {
         BeanUtils.copyBean(nodeTree, rootNode);
         nodeTree.setLabel(rootNode.getName());
 
-        List<TestCaseNode> testCaseNodes = nodeLevelMap.get(rootNode.getLevel() + 1);
-        if(testCaseNodes == null){
+        List<TestCaseNode> lowerNodes = nodeLevelMap.get(rootNode.getLevel() + 1);
+        if(lowerNodes == null){
             return nodeTree;
         }
 
         List<TestCaseNodeDTO> childrens = Optional.ofNullable(nodeTree.getChildren()).orElse(new ArrayList<>());
 
-        testCaseNodes.forEach(node -> {
+        lowerNodes.forEach(node -> {
             if (node.getpId().equals(rootNode.getId())){
                 childrens.add(buildNodeTree(nodeLevelMap, node));
                 nodeTree.setChildren(childrens);
@@ -103,4 +112,69 @@ public class TestCaseNodeService {
         testCaseNodeExample.createCriteria().andIdIn(nodeIds);
         return testCaseNodeMapper.deleteByExample(testCaseNodeExample);
     }
+
+    public List<TestCaseNodeDTO> getNodeByPlanId(String planId) {
+
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
+
+        TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
+        testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(planId);
+        List<TestPlanTestCase> testPlanTestCases = testPlanTestCaseMapper.selectByExample(testPlanTestCaseExample);
+
+        TestCaseNodeExample testCaseNodeExample = new TestCaseNodeExample();
+        testCaseNodeExample.createCriteria().andProjectIdEqualTo(testPlan.getProjectId());
+        List<TestCaseNode> nodes = testCaseNodeMapper.selectByExample(testCaseNodeExample);
+
+        List<String> caseIds = testPlanTestCases.stream()
+                .map(TestPlanTestCase::getCaseId)
+                .collect(Collectors.toList());
+
+        List<Integer> nodeIds = nodes.stream()
+                .filter(node -> caseIds.contains(node.getId()))
+                .map(TestCaseNode::getId)
+                .collect(Collectors.toList());
+
+        List<TestCaseNodeDTO> nodeTrees = getNodeTrees(nodes);
+
+        Iterator<TestCaseNodeDTO> iterator = nodeTrees.iterator();
+        while(iterator.hasNext()){
+            TestCaseNodeDTO rootNode = iterator.next();
+            if(pruningTree(rootNode, nodeIds)){
+                iterator.remove();
+            }
+        }
+
+        return nodeTrees;
+    }
+
+    /**
+     * 去除没有数据的节点
+     * @param rootNode
+     * @param nodeIds
+     * @return 是否剪枝
+     * */
+    public boolean pruningTree(TestCaseNodeDTO rootNode, List<Integer> nodeIds) {
+
+        List<TestCaseNodeDTO> children = rootNode.getChildren();
+
+        if(children != null) {
+            Iterator<TestCaseNodeDTO> iterator = children.iterator();
+            while(iterator.hasNext()){
+                TestCaseNodeDTO subNode = iterator.next();
+                if(pruningTree(subNode, nodeIds)){
+                    iterator.remove();
+                }
+            }
+        }
+
+        if(children == null || children.isEmpty()){
+            //叶子节点,并且该节点无数据
+            if(!nodeIds.contains(rootNode.getId())){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }

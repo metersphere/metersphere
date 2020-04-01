@@ -33,7 +33,8 @@
 
         <el-table
           :data="tableData"
-          class="test-content">
+          class="test-content"
+          @row-click="intoPlan">
           <el-table-column
             prop="name"
             :label="$t('commons.name')"
@@ -94,8 +95,12 @@
             width="160"
             :label="$t('commons.operating')">
             <template slot-scope="scope">
-              <el-button @click="handleEdit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
-              <el-button @click="handleDelete(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
+              <el-button @click="handleEdit(scope.row)"
+                         @click.stop="deleteVisible = true" type="primary"
+                         icon="el-icon-edit" size="mini" circle/>
+              <el-button @click="handleDelete(scope.row)"
+                         @click.stop="deleteVisible = true" type="danger"
+                         icon="el-icon-delete" size="mini" circle/>
             </template>
           </el-table-column>
         </el-table>
@@ -198,6 +203,9 @@
               type: 'success'
             });
           });
+        },
+        intoPlan(row, event, column) {
+          this.$router.push('/track/plan/view/' + row.id);
         }
       }
     }

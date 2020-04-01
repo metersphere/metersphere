@@ -18,14 +18,13 @@ public class TestCaseTest {
 
     @Test
     public void addNode() {
-
         TestCaseNode node = new TestCaseNode();
         node.setName("node01");
         node.setProjectId("2ade216b-01a6-43d0-b48c-4a3898306096");
         node.setCreateTime(System.currentTimeMillis());
         node.setUpdateTime(System.currentTimeMillis());
         testCaseNodeService.addNode(node);
-
     }
+
 
 }

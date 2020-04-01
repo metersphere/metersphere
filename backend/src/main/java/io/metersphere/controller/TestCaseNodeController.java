@@ -17,7 +17,12 @@ public class TestCaseNodeController {
 
     @GetMapping("/list/{projectId}")
     public List<TestCaseNodeDTO> getNodeByProjectId(@PathVariable String projectId){
-        return testCaseNodeService.getNodeByProjectId(projectId);
+        return testCaseNodeService.getNodeTreeByProjectId(projectId);
+    }
+
+    @GetMapping("/list/plan/{planId}")
+    public List<TestCaseNodeDTO> getNodeByPlanId(@PathVariable String planId){
+        return testCaseNodeService.getNodeByPlanId(planId);
     }
 
     @PostMapping("/add")
@@ -35,7 +40,4 @@ public class TestCaseNodeController {
         //nodeIds 包含删除节点ID及其所有子节点ID
         return testCaseNodeService.deleteNode(nodeIds);
     }
-
-
-
 }
