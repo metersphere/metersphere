@@ -7,7 +7,7 @@
           class="project_menu">
           <el-submenu index="1" popper-class="submenu" v-permission="['test_user', 'test_viewer']">
             <template slot="title">
-              {{currentProject.name}}
+              {{currentProject == null ? '' : currentProject.name}}
             </template>
             <el-scrollbar style="height:500px">
                 <label v-for="(item,index) in projects" :key="index">
@@ -130,7 +130,7 @@
         moduleOptions.push(option);
         if(node.children){
           for (let i = 0; i < node.children.length; i++){
-            this.buildNodePath(node.children[i], { path: '/' + node.children[i].name }, moduleOptions);
+            this.buildNodePath(node.children[i], { path: '/' + node.name }, moduleOptions);
           }
         }
       },
