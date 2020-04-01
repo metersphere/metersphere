@@ -3,6 +3,7 @@ package io.metersphere.service;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
+import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.constants.TestStatus;
 import io.metersphere.commons.exception.MSException;
@@ -44,6 +45,8 @@ public class LoadTestService {
     private FileService fileService;
     @Resource
     private LoadTestReportMapper loadTestReportMapper;
+    @Resource
+    private ExtLoadTestReportMapper extLoadTestReportMapper;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         return extLoadTestMapper.list(request);
@@ -179,7 +182,7 @@ public class LoadTestService {
         // 启动测试
         engine.start();
         // 标记running状态
-        loadTest.setStatus(TestStatus.Running.name());
+        loadTest.setStatus(TestStatus.Starting.name());
         loadTestMapper.updateByPrimaryKeySelective(loadTest);
 
         LoadTestReport testReport = new LoadTestReport();
@@ -190,9 +193,10 @@ public class LoadTestService {
         testReport.setName(loadTest.getName());
         testReport.setContent(HEADERS);
         testReport.setStatus(TestStatus.Starting.name());
-
-
         loadTestReportMapper.insertSelective(testReport);
+        // append \n
+        extLoadTestReportMapper.appendLine(testReport.getId(), "\n");
+
         // todo：通过调用stop方法能够停止正在运行的engine，但是如果部署了多个backend实例，页面发送的停止请求如何定位到具体的engine
     }
 

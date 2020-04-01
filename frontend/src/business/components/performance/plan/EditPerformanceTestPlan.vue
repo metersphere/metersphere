@@ -148,6 +148,7 @@
               message: this.$t('load_test.is_running'),
               type: 'success'
             });
+            this.$router.push({path: '/performance/report/all'})
           })
         });
       },
