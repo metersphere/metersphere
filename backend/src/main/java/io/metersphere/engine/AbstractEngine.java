@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 
 public abstract class AbstractEngine implements Engine {
+    public static final String REGISTRY = "registry.fit2cloud.com/metersphere/";
     public static final String JMETER_IMAGE = "jmeter-master:0.0.2";
 
     protected LoadTestWithBLOBs loadTest;

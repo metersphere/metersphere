@@ -3,7 +3,7 @@ package io.metersphere.engine.docker.request;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TestRequest extends DockerLoginRequest {
+public class TestRequest extends BaseRequest {
 
     private int size;
     private String fileString;
