@@ -82,6 +82,7 @@
       getFileMetadata(testPlan) {
         this.fileList = [];
         this.tableData = [];
+        this.uploadList = [];
         this.result = this.$get(this.getFileMetadataPath + "/" + testPlan.id, response => {
           let files = response.data;
 
