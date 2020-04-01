@@ -12,6 +12,7 @@ public class EngineContext {
     private String resourcePoolId;
     private Long threadNum;
     private Long startTime;
+    private String reportId;
     private Map<String, Object> properties = new HashMap<>();
     private Map<String, String> testData = new HashMap<>();
 
@@ -97,5 +98,13 @@ public class EngineContext {
 
     public void setStartTime(Long startTime) {
         this.startTime = startTime;
+    }
+
+    public String getReportId() {
+        return reportId;
+    }
+
+    public void setReportId(String reportId) {
+        this.reportId = reportId;
     }
 }

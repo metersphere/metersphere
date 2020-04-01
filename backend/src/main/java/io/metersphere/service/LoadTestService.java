@@ -178,25 +178,34 @@ public class LoadTestService {
         if (engine == null) {
             MSException.throwException(String.format("Test cannot be run，test ID：%s", request.getId()));
         }
-
-        // 启动测试
-        engine.start();
-        // 标记running状态
-        loadTest.setStatus(TestStatus.Starting.name());
-        loadTestMapper.updateByPrimaryKeySelective(loadTest);
-
-        LoadTestReport testReport = new LoadTestReport();
-        testReport.setId(UUID.randomUUID().toString());
+        LoadTestReportWithBLOBs testReport = new LoadTestReportWithBLOBs();
+        testReport.setId(engine.getReportId());
         testReport.setCreateTime(engine.getStartTime());
         testReport.setUpdateTime(engine.getStartTime());
         testReport.setTestId(loadTest.getId());
         testReport.setName(loadTest.getName());
-        testReport.setContent(HEADERS);
-        testReport.setStatus(TestStatus.Starting.name());
-        loadTestReportMapper.insertSelective(testReport);
-        // append \n
-        extLoadTestReportMapper.appendLine(testReport.getId(), "\n");
 
+        // 启动测试
+        try {
+            engine.start();
+            // 标记running状态
+            loadTest.setStatus(TestStatus.Starting.name());
+            loadTestMapper.updateByPrimaryKeySelective(loadTest);
+
+            testReport.setContent(HEADERS);
+            testReport.setStatus(TestStatus.Starting.name());
+            loadTestReportMapper.insertSelective(testReport);
+            // append \n
+            extLoadTestReportMapper.appendLine(testReport.getId(), "\n");
+
+        } catch (Exception e) {
+            loadTest.setStatus(TestStatus.Error.name());
+            loadTestMapper.updateByPrimaryKeySelective(loadTest);
+            //
+            testReport.setStatus(TestStatus.Error.name());
+            testReport.setDescription(e.getMessage());
+            loadTestReportMapper.insertSelective(testReport);
+        }
         // todo：通过调用stop方法能够停止正在运行的engine，但是如果部署了多个backend实例，页面发送的停止请求如何定位到具体的engine
     }
 
