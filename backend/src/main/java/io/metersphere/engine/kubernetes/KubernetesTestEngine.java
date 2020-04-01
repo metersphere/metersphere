@@ -7,7 +7,6 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.metersphere.base.domain.LoadTestWithBLOBs;
 import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.engine.AbstractEngine;
 import io.metersphere.engine.EngineContext;
@@ -16,14 +15,12 @@ import io.metersphere.engine.kubernetes.crds.jmeter.Jmeter;
 import io.metersphere.engine.kubernetes.crds.jmeter.JmeterSpec;
 import io.metersphere.engine.kubernetes.provider.ClientCredential;
 import io.metersphere.engine.kubernetes.provider.KubernetesProvider;
-import io.metersphere.engine.kubernetes.registry.RegistryService;
 import org.apache.commons.collections.MapUtils;
 
 import java.util.HashMap;
 
 public class KubernetesTestEngine extends AbstractEngine {
 
-    private RegistryService registryService;
 
     public KubernetesTestEngine(LoadTestWithBLOBs loadTest) {
         this.init(loadTest);
@@ -32,7 +29,6 @@ public class KubernetesTestEngine extends AbstractEngine {
     @Override
     public void init(LoadTestWithBLOBs loadTest) {
         super.init(loadTest);
-        this.registryService = CommonBeanFactory.getBean(RegistryService.class);
     }
 
 
@@ -50,7 +46,7 @@ public class KubernetesTestEngine extends AbstractEngine {
                 MSException.throwException("Insufficient resources");
             }
             try {
-                EngineContext context = EngineFactory.createContext(loadTest, threadNum);
+                EngineContext context = EngineFactory.createContext(loadTest, threadNum, this.getStartTime(), this.getReportId());
                 runTest(context, clientCredential);
             } catch (Exception e) {
                 MSException.throwException(e);
@@ -63,8 +59,6 @@ public class KubernetesTestEngine extends AbstractEngine {
 
         // create namespace
         kubernetesProvider.confirmNamespace(context.getNamespace());
-        // docker registry
-        registryService.dockerRegistry(kubernetesProvider, context.getNamespace());
         // create cm
         try (KubernetesClient client = kubernetesProvider.getKubernetesClient()) {
             String configMapName = context.getTestId() + "-files";
@@ -93,7 +87,7 @@ public class KubernetesTestEngine extends AbstractEngine {
             }});
             jmeter.setSpec(new JmeterSpec() {{
                 setReplicas(1);
-                setImage(registryService.getRegistry() + JMETER_IMAGE);
+                setImage(REGISTRY + JMETER_IMAGE);
             }});
             LogUtil.info("Load test started. " + context.getTestId());
             kubernetesProvider.applyCustomResource(jmeter);
@@ -117,7 +111,7 @@ public class KubernetesTestEngine extends AbstractEngine {
                 }});
                 jmeter.setSpec(new JmeterSpec() {{
                     setReplicas(1);
-                    setImage(registryService.getRegistry() + JMETER_IMAGE);
+                    setImage(REGISTRY + JMETER_IMAGE);
                 }});
                 provider.deleteCustomResource(jmeter);
             } catch (Exception e) {

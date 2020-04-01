@@ -2,11 +2,13 @@ package io.metersphere.service;
 
 import io.metersphere.base.domain.LoadTestReport;
 import io.metersphere.base.domain.LoadTestReportExample;
+import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.controller.request.ReportRequest;
 import io.metersphere.dto.ReportDTO;
 import io.metersphere.report.JtlResolver;
+import io.metersphere.report.base.ChartsData;
 import io.metersphere.report.base.Errors;
 import io.metersphere.report.base.TestOverview;
 import io.metersphere.report.dto.ErrorsTop5DTO;
@@ -48,30 +50,37 @@ public class ReportService {
     }
 
     public RequestStatisticsDTO getReport(String id) {
-        LoadTestReport loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
+        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
         RequestStatisticsDTO requestStatistics = JtlResolver.getRequestStatistics(content);
         return requestStatistics;
     }
 
     public List<Errors> getReportErrors(String id) {
-        LoadTestReport loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
+        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
         List<Errors> errors = JtlResolver.getErrorsList(content);
         return errors;
     }
 
     public ErrorsTop5DTO getReportErrorsTOP5(String id) {
-        LoadTestReport loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
+        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
         ErrorsTop5DTO errors = JtlResolver.getErrorsTop5DTO(content);
         return errors;
     }
 
     public TestOverview getTestOverview(String id) {
-        LoadTestReport loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
+        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
         TestOverview testOverview = JtlResolver.getTestOverview(content);
         return testOverview;
+    }
+
+    public ChartsData getLoadChartData(String id) {
+        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
+        String content = loadTestReport.getContent();
+        ChartsData chartsData = JtlResolver.getLoadChartData(content);
+        return chartsData;
     }
 }

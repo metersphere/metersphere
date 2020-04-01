@@ -5,12 +5,12 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="test_id" jdbcType="VARCHAR" property="testId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="status" jdbcType="VARCHAR" property="status" />
   </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.LoadTestReport">
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.LoadTestReportWithBLOBs">
+    <result column="description" jdbcType="LONGVARCHAR" property="description" />
     <result column="content" jdbcType="LONGVARCHAR" property="content" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -72,10 +72,10 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, test_id, name, description, create_time, update_time, status
+    id, test_id, name, create_time, update_time, status
   </sql>
   <sql id="Blob_Column_List">
-    content
+    description, content
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.LoadTestReportExample" resultMap="ResultMapWithBLOBs">
     select
@@ -125,15 +125,15 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.base.domain.LoadTestReport">
+  <insert id="insert" parameterType="io.metersphere.base.domain.LoadTestReportWithBLOBs">
     insert into load_test_report (id, test_id, name, 
-      description, create_time, update_time, 
-      status, content)
+      create_time, update_time, status, 
+      description, content)
     values (#{id,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{status,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR})
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, 
+      #{description,jdbcType=LONGVARCHAR}, #{content,jdbcType=LONGVARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.base.domain.LoadTestReport">
+  <insert id="insertSelective" parameterType="io.metersphere.base.domain.LoadTestReportWithBLOBs">
     insert into load_test_report
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -145,9 +145,6 @@
       <if test="name != null">
         name,
       </if>
-      <if test="description != null">
-        description,
-      </if>
       <if test="createTime != null">
         create_time,
       </if>
@@ -156,6 +153,9 @@
       </if>
       <if test="status != null">
         status,
+      </if>
+      <if test="description != null">
+        description,
       </if>
       <if test="content != null">
         content,
@@ -171,9 +171,6 @@
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
       </if>
-      <if test="description != null">
-        #{description,jdbcType=VARCHAR},
-      </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
       </if>
@@ -182,6 +179,9 @@
       </if>
       <if test="status != null">
         #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=LONGVARCHAR},
       </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARCHAR},
@@ -206,9 +206,6 @@
       <if test="record.name != null">
         name = #{record.name,jdbcType=VARCHAR},
       </if>
-      <if test="record.description != null">
-        description = #{record.description,jdbcType=VARCHAR},
-      </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
@@ -217,6 +214,9 @@
       </if>
       <if test="record.status != null">
         status = #{record.status,jdbcType=VARCHAR},
+      </if>
+      <if test="record.description != null">
+        description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
       <if test="record.content != null">
         content = #{record.content,jdbcType=LONGVARCHAR},
@@ -231,10 +231,10 @@
     set id = #{record.id,jdbcType=VARCHAR},
       test_id = #{record.testId,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
-      description = #{record.description,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       status = #{record.status,jdbcType=VARCHAR},
+      description = #{record.description,jdbcType=LONGVARCHAR},
       content = #{record.content,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -245,7 +245,6 @@
     set id = #{record.id,jdbcType=VARCHAR},
       test_id = #{record.testId,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
-      description = #{record.description,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       status = #{record.status,jdbcType=VARCHAR}
@@ -253,7 +252,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.LoadTestReport">
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.LoadTestReportWithBLOBs">
     update load_test_report
     <set>
       <if test="testId != null">
@@ -261,9 +260,6 @@
       </if>
       <if test="name != null">
         name = #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="description != null">
-        description = #{description,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -274,20 +270,23 @@
       <if test="status != null">
         status = #{status,jdbcType=VARCHAR},
       </if>
+      <if test="description != null">
+        description = #{description,jdbcType=LONGVARCHAR},
+      </if>
       <if test="content != null">
         content = #{content,jdbcType=LONGVARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.LoadTestReport">
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.LoadTestReportWithBLOBs">
     update load_test_report
     set test_id = #{testId,jdbcType=VARCHAR},
       name = #{name,jdbcType=VARCHAR},
-      description = #{description,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       status = #{status,jdbcType=VARCHAR},
+      description = #{description,jdbcType=LONGVARCHAR},
       content = #{content,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -295,7 +294,6 @@
     update load_test_report
     set test_id = #{testId,jdbcType=VARCHAR},
       name = #{name,jdbcType=VARCHAR},
-      description = #{description,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       status = #{status,jdbcType=VARCHAR}

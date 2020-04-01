@@ -17,10 +17,14 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.UUID;
 
 public abstract class AbstractEngine implements Engine {
+    public static final String REGISTRY = "registry.fit2cloud.com/metersphere/";
     public static final String JMETER_IMAGE = "jmeter-master:0.0.2";
 
+    private Long startTime;
+    private String reportId;
     protected LoadTestWithBLOBs loadTest;
     protected LoadTestService loadTestService;
     protected Integer threadNum;
@@ -32,6 +36,8 @@ public abstract class AbstractEngine implements Engine {
     public AbstractEngine() {
         testResourcePoolService = CommonBeanFactory.getBean(TestResourcePoolService.class);
         testResourceService = CommonBeanFactory.getBean(TestResourceService.class);
+        this.startTime = System.currentTimeMillis();
+        this.reportId = UUID.randomUUID().toString();
     }
 
     protected void init(LoadTestWithBLOBs loadTest) {
@@ -81,5 +87,15 @@ public abstract class AbstractEngine implements Engine {
             }
         }
         return s;
+    }
+
+    @Override
+    public Long getStartTime() {
+        return startTime;
+    }
+
+    @Override
+    public String getReportId() {
+        return reportId;
     }
 }

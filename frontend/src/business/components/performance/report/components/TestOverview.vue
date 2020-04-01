@@ -59,7 +59,7 @@
 
     <el-row>
       <el-col :span="12">
-        <chart ref="chart1" :options="option1" :autoresize="true"></chart>
+        <chart ref="chart1" :options="option" :autoresize="true"></chart>
       </el-col>
       <el-col :span="12">
         <chart ref="chart2" :options="option2" :autoresize="true"></chart>
@@ -79,53 +79,7 @@
         avgResponseTime: "0",
         responseTime90: "0",
         avgBandwidth: "0",
-        option1: {
-          legend: {
-            top: 20,
-            data: ['Users', 'Hits/s', 'Error(s)']
-          },
-          xAxis: {
-            type: 'category',
-            data: ["10:22:01", "10:22:02", "10:22:04", "10:22:06",
-              "10:22:07", "10:22:08", "10:22:09", "10:22:10", "10:22:11", "10:22:12"]
-          },
-          yAxis: [{
-            name: 'User',
-            type: 'value',
-            min: 0,
-            max: 30,
-            splitNumber: 5,
-            interval: 30 / 5
-          },
-            {
-              name: 'Hits/s',
-              type: 'value'
-            }
-          ],
-          series: [
-            {
-              name: 'Users',
-              color: '#0CA74A',
-              data: [6,9,10,15,1,10,25,19,15,2],
-              type: 'line',
-              yAxisIndex: 0
-            },
-            {
-              name: 'Hits/s',
-              color: '#65A2FF',
-              data: [1,1,1,1,1,1,1,1,1,1],
-              type: 'line',
-              yAxisIndex: 1
-            },
-            {
-              name: 'Error(s)',
-              color: '#E6113C',
-              data: [0,0,0,0,1,1,2,0,5,2],
-              type: 'line',
-              yAxisIndex: 1
-            }
-          ]
-        },
+        option: {},
         option2: {
           legend: {
             top: 20,
@@ -173,6 +127,59 @@
           this.responseTime90 = data.responseTime90;
           this.avgBandwidth = data.avgBandwidth;
         })
+        this.$get("/report/content/load_chart/" + this.id, res => {
+          let data = res.data;
+          this.option = this.generateOption(data);
+        })
+      },
+      generateOption(data) {
+        let option = {
+          legend: {
+            top: 20,
+            data: ['Users', 'Hits/s', 'Error(s)']
+          },
+          xAxis: {
+            type: 'category',
+          },
+          yAxis: [{
+            name: 'User',
+            type: 'value',
+            min: 0,
+            splitNumber: 5,
+            interval: 10 / 5
+            },
+            {
+              name: 'Hits/s',
+              type: 'value'
+            }
+          ],
+          series: [
+            {
+              name: 'Users',
+              color: '#0CA74A',
+              type: 'line',
+              yAxisIndex: 0
+            },
+            {
+              name: 'Hits/s',
+              color: '#65A2FF',
+              type: 'line',
+              yAxisIndex: 1
+            },
+            {
+              name: 'Error(s)',
+              color: '#E6113C',
+              type: 'line',
+              yAxisIndex: 1
+            }
+          ]
+        }
+
+        this.$set(option.xAxis, "data", data.time);
+        this.$set(option.series[0], "data", data.users);
+        this.$set(option.series[1], "data", data.hits);
+        this.$set(option.series[2], "data", data.errors);
+        return option;
       }
     },
     created() {
@@ -192,6 +199,10 @@
               this.avgResponseTime = data.avgResponseTime;
               this.responseTime90 = data.responseTime90;
               this.avgBandwidth = data.avgBandwidth;
+            })
+            this.$get("/report/content/load_chart/" + reportId, res => {
+              let data = res.data;
+              this.option1 = this.generateOption(data);
             })
           }
         }

@@ -5,7 +5,6 @@ import io.metersphere.base.domain.SystemParameter;
 import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.utils.CompressUtils;
-import io.metersphere.engine.kubernetes.registry.RegistryService;
 import io.metersphere.service.RegistryParamService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,8 +21,6 @@ public class ApplicationTests {
     UserMapper userMapper;
     @Resource
     private RegistryParamService registryParamService;
-    @Resource
-    private RegistryService registryService;
 
     @Test
     public void test1() {
@@ -53,11 +50,5 @@ public class ApplicationTests {
         registryParamService.updateRegistry(registry);
     }
 
-
-    @Test
-    public void test3() {
-        String registry = registryService.getRegistry();
-        System.out.println(registry);
-    }
 
 }
