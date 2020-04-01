@@ -294,8 +294,8 @@ public class JtlResolver {
         List<String> hits = new ArrayList<>();
         List<String> erorrs = new ArrayList<>();
         List<String> timeList = new ArrayList<>();
-        ////
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        //// todo SimpleDateFormat
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         DecimalFormat df = new DecimalFormat("0.0");
 
         total.sort(Comparator.comparing(metric -> Long.valueOf(metric.getTimestamp())));
@@ -310,8 +310,8 @@ public class JtlResolver {
             public int compare(Map.Entry<String, List<Metric>> t1, Map.Entry<String, List<Metric>> t2) {
                 Date date1 = null,date2 = null;
                 try {
-                    date1 = sdf.parse(t1.getKey());
-                    date2 = sdf.parse(t2.getKey());
+                    date1 = simpleDateFormat.parse(t1.getKey());
+                    date2 = simpleDateFormat.parse(t2.getKey());
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
@@ -323,6 +323,8 @@ public class JtlResolver {
             int failSize = 0;
             Map.Entry<String, List<Metric>> map = entries.get(i);
             List<Metric> metrics = map.getValue();
+            Map<String, List<Metric>> metricsMap = metrics.stream().collect(Collectors.groupingBy(Metric::getThreadName));
+            int maxUsers = metricsMap.size();
             for (int j = 0; j < metrics.size(); j++) {
                 Metric metric = metrics.get(j);
                 String success = metric.getSuccess();
@@ -330,16 +332,21 @@ public class JtlResolver {
                     failSize++;
                 }
             }
+            // todo
             timeList.add(map.getKey());
-            hits.add(String.valueOf(metrics.size()));
-            users.add(String.valueOf(metrics.size()));
+            hits.add(df.format(metrics.size() * 1.0 / maxUsers));
+            users.add(String.valueOf(maxUsers));
             erorrs.add(String.valueOf(failSize));
 
         }
 
+        data.setTime(timeList);
+        data.setUsers(users);
+        data.setHits(hits);
+        data.setErrors(erorrs);
+
         return data;
     }
-
 
     private static String stampToDate(String s){
         String res;

@@ -8,6 +8,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.ReportRequest;
 import io.metersphere.dto.ReportDTO;
+import io.metersphere.report.base.ChartsData;
 import io.metersphere.report.base.Errors;
 import io.metersphere.report.base.TestOverview;
 import io.metersphere.report.dto.ErrorsTop5DTO;
@@ -76,5 +77,9 @@ public class ReportController {
         return reportService.getTestOverview(reportId);
     }
 
+    @GetMapping("/content/load_chart/{reportId}")
+    public ChartsData getLoadChartData(@PathVariable String reportId) {
+        return reportService.getLoadChartData(reportId);
+    }
 
 }
