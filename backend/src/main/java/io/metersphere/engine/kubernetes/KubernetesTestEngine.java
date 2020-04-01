@@ -5,6 +5,7 @@ import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.metersphere.base.domain.LoadTestWithBLOBs;
+import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
@@ -74,7 +75,7 @@ public class KubernetesTestEngine extends AbstractEngine {
                     setName(configMapName);
                 }});
                 item.setData(new HashMap<String, String>() {{
-                    put(context.getTestId() + ".jmx", context.getContent());
+                    put(context.getTestId() + FileType.JMX.suffix(), context.getContent());
                     if (MapUtils.isNotEmpty(context.getTestData())) {
                         putAll(context.getTestData());
                     }

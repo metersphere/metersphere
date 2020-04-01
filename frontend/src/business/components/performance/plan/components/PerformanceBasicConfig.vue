@@ -82,6 +82,7 @@
       getFileMetadata(testPlan) {
         this.fileList = [];
         this.tableData = [];
+        this.uploadList = [];
         this.result = this.$get(this.getFileMetadataPath + "/" + testPlan.id, response => {
           let files = response.data;
 
@@ -184,10 +185,10 @@
       validConfig() {
         let newJmxNum = 0, oldJmxNum = 0;
         if (this.uploadList.length > 0) {
-          newJmxNum = this.uploadList.filter(f => f.name.endsWith(".jmx")).length;
+          newJmxNum = this.uploadList.filter(f => f.name.toLowerCase().endsWith(".jmx")).length;
         }
         if (this.fileList.length > 0) {
-          oldJmxNum = this.fileList.filter(f => f.name.endsWith(".jmx")).length;
+          oldJmxNum = this.fileList.filter(f => f.name.toLowerCase().endsWith(".jmx")).length;
         }
         if (newJmxNum + oldJmxNum !== 1) {
           this.$message({

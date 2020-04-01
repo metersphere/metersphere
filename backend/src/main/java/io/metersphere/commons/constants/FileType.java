@@ -1,5 +1,16 @@
 package io.metersphere.commons.constants;
 
 public enum FileType {
-    JMX, CSV
+    JMX(".jmx"), CSV(".csv");
+
+    // 保存后缀
+    private String suffix;
+
+    FileType(String suffix) {
+        this.suffix = suffix;
+    }
+
+    public String suffix() {
+        return this.suffix;
+    }
 }

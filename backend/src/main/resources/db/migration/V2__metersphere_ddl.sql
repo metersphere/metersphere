@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS `system_parameter` (
 
 CREATE TABLE IF NOT EXISTS `test_resource` (
     `id`                    varchar(50) NOT NULL COMMENT 'Test resource ID',
-    `description`           varchar(255) DEFAULT NULL COMMENT 'Test resource description',
+    `test_resource_pool_id` varchar(50) COLLATE utf8mb4_bin NOT NULL COMMENT 'Test resource pool ID this test resource belongs to',
     `configuration`         longtext COMMENT 'Test resource configuration',
     `status`                varchar(64) NOT NULL COMMENT 'Test resource status',
     `create_time`           bigint(13)  NOT NULL COMMENT 'Create timestamp',
@@ -239,7 +239,7 @@ CREATE TABLE IF NOT EXISTS `test_plan` (
     `executor_match_rule`    varchar(255) DEFAULT NULL  COMMENT 'Executor match rule)',
     `tags`                   text COMMENT 'Test plan tags (JSON format)',
     `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
-    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp'
+    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
     PRIMARY KEY (`id`)
 )
     ENGINE = InnoDB
@@ -275,8 +275,8 @@ CREATE TABLE IF NOT EXISTS `test_case` (
     `remark`                 text DEFAULT NULL COMMENT 'Test case remark',
     `steps`                  text DEFAULT NULL COMMENT 'Test case steps (JSON format)',
     `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
-    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp'
-    PRIMARY KEY (`id`),
+    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
+    PRIMARY KEY (`id`)
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
