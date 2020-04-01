@@ -14,7 +14,6 @@
         :filter-node-method="filterNode"
         :expand-on-click-node="false"
         draggable
-
         ref="tree">
 
       <span class="custom-tree-node father" slot-scope="{ node, data }" @click="selectNode(node)">
@@ -58,7 +57,6 @@
 
   </div>
 
-
 </template>
 
 <script>
@@ -92,7 +90,6 @@
         this.getNodeTree();
       },
       methods: {
-
         handleDragEnd(draggingNode, dropNode, dropType, ev) {
           let param = {};
           param.id = draggingNode.data.id;
