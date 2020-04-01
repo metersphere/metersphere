@@ -1,8 +1,10 @@
 package io.metersphere.report;
 
+import com.alibaba.fastjson.JSONObject;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.report.base.*;
 import io.metersphere.report.dto.ErrorsTop5DTO;
 import io.metersphere.report.dto.RequestStatisticsDTO;
@@ -289,12 +291,13 @@ public class JtlResolver {
         ChartsData data = new ChartsData();
         List<Metric> total = JtlResolver.resolver(jtlString);
 
-        ////
         List<String> users = new ArrayList<>();
         List<String> hits = new ArrayList<>();
         List<String> erorrs = new ArrayList<>();
         List<String> timeList = new ArrayList<>();
-        //// todo SimpleDateFormat
+        Map<String, Object> resultMap = new HashMap<>();
+
+        // todo SimpleDateFormat
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         DecimalFormat df = new DecimalFormat("0.0");
 
@@ -340,11 +343,12 @@ public class JtlResolver {
 
         }
 
-        data.setTime(timeList);
-        data.setUsers(users);
-        data.setHits(hits);
-        data.setErrors(erorrs);
-
+        resultMap.put("users", users);
+        resultMap.put("hits", hits);
+        resultMap.put("errors", erorrs);
+        JSONObject serices = new JSONObject(resultMap);
+        data.setxAxis(StringUtils.join(",", timeList));
+        data.setSerices(serices.toString());
         return data;
     }
 
