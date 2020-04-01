@@ -570,7 +570,7 @@ public class JmeterDocumentParser implements DocumentParser {
         // 添加关联关系 test.id test.name test.startTime
         collectionProp.appendChild(createKafkaProp(document, "test.id", context.getTestId()));
         collectionProp.appendChild(createKafkaProp(document, "test.name", context.getTestName()));
-        collectionProp.appendChild(createKafkaProp(document, "test.startTime", "" + System.currentTimeMillis()));
+        collectionProp.appendChild(createKafkaProp(document, "test.startTime", context.getStartTime().toString()));
 
         elementProp.appendChild(collectionProp);
         // set elementProp

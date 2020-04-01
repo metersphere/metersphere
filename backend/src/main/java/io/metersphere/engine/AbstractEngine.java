@@ -22,6 +22,7 @@ public abstract class AbstractEngine implements Engine {
     public static final String REGISTRY = "registry.fit2cloud.com/metersphere/";
     public static final String JMETER_IMAGE = "jmeter-master:0.0.2";
 
+    private Long startTime;
     protected LoadTestWithBLOBs loadTest;
     protected LoadTestService loadTestService;
     protected Integer threadNum;
@@ -33,6 +34,7 @@ public abstract class AbstractEngine implements Engine {
     public AbstractEngine() {
         testResourcePoolService = CommonBeanFactory.getBean(TestResourcePoolService.class);
         testResourceService = CommonBeanFactory.getBean(TestResourceService.class);
+        this.startTime = System.currentTimeMillis();
     }
 
     protected void init(LoadTestWithBLOBs loadTest) {
@@ -82,5 +84,9 @@ public abstract class AbstractEngine implements Engine {
             }
         }
         return s;
+    }
+
+    public Long getStartTime() {
+        return startTime;
     }
 }

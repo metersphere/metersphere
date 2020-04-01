@@ -11,6 +11,7 @@ public class EngineContext {
     private String content;
     private String resourcePoolId;
     private Long threadNum;
+    private Long startTime;
     private Map<String, Object> properties = new HashMap<>();
     private Map<String, String> testData = new HashMap<>();
 
@@ -88,5 +89,13 @@ public class EngineContext {
 
     public void setThreadNum(Long threadNum) {
         this.threadNum = threadNum;
+    }
+
+    public Long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Long startTime) {
+        this.startTime = startTime;
     }
 }

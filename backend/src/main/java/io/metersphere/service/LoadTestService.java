@@ -1,10 +1,7 @@
 package io.metersphere.service;
 
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.FileContentMapper;
-import io.metersphere.base.mapper.FileMetadataMapper;
-import io.metersphere.base.mapper.LoadTestFileMapper;
-import io.metersphere.base.mapper.LoadTestMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
 import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.constants.TestStatus;
@@ -31,6 +28,8 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class LoadTestService {
+    private static final String HEADERS = "timestamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect";
+
     @Resource
     private LoadTestMapper loadTestMapper;
     @Resource
@@ -44,7 +43,7 @@ public class LoadTestService {
     @Resource
     private FileService fileService;
     @Resource
-    private TestResourcePoolService testResourcePoolService;
+    private LoadTestReportMapper loadTestReportMapper;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         return extLoadTestMapper.list(request);
@@ -182,6 +181,18 @@ public class LoadTestService {
         // 标记running状态
         loadTest.setStatus(TestStatus.Running.name());
         loadTestMapper.updateByPrimaryKeySelective(loadTest);
+
+        LoadTestReport testReport = new LoadTestReport();
+        testReport.setId(UUID.randomUUID().toString());
+        testReport.setCreateTime(engine.getStartTime());
+        testReport.setUpdateTime(engine.getStartTime());
+        testReport.setTestId(loadTest.getId());
+        testReport.setName(loadTest.getName());
+        testReport.setContent(HEADERS);
+        testReport.setStatus(TestStatus.Starting.name());
+
+
+        loadTestReportMapper.insertSelective(testReport);
         // todo：通过调用stop方法能够停止正在运行的engine，但是如果部署了多个backend实例，页面发送的停止请求如何定位到具体的engine
     }
 
