@@ -265,6 +265,7 @@ CREATE TABLE IF NOT EXISTS `test_case_node` (
 CREATE TABLE IF NOT EXISTS `test_case` (
     `id`                     varchar(50) NOT NULL COMMENT 'Test case ID',
     `node_id`                int(13) NOT NULL COMMENT 'Node ID this case belongs to',
+    `node_path`              varchar(50) NOT NULL COMMENT 'Node path this case belongs to',
     `project_id`             varchar(50) NOT NULL COMMENT 'Project ID this test belongs to',
     `name`                   varchar(64) NOT NULL COMMENT 'Case name',
     `type`                   varchar(25) NOT NULL COMMENT 'Test case type',

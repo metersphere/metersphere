@@ -7,6 +7,8 @@ public class TestCase implements Serializable {
 
     private Integer nodeId;
 
+    private String nodePath;
+
     private String projectId;
 
     private String name;
@@ -41,6 +43,14 @@ public class TestCase implements Serializable {
 
     public void setNodeId(Integer nodeId) {
         this.nodeId = nodeId;
+    }
+
+    public String getNodePath() {
+        return nodePath;
+    }
+
+    public void setNodePath(String nodePath) {
+        this.nodePath = nodePath == null ? null : nodePath.trim();
     }
 
     public String getProjectId() {

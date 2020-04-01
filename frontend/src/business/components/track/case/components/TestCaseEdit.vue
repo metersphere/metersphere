@@ -256,6 +256,11 @@
               Object.assign(param, this.form);
               param.steps = JSON.stringify(this.form.steps);
               param.nodeId = this.form.module;
+              this.moduleOptions.forEach(item => {
+                if(this.form.module === item.id){
+                  param.nodePath = item.path;
+                }
+              });
               if(localStorage.getItem('currentProject')){
                 param.projectId = JSON.parse(localStorage.getItem('currentProject')).id;
               }

@@ -36,19 +36,19 @@
         <el-table-column
           prop="name"
           :label="$t('commons.name')"
-          width="130"
+          width="120"
           show-overflow-tooltip>
         </el-table-column>
         <el-table-column
           prop="priority"
           :label="$t('test_track.priority')"
-          width="130"
+          width="120"
           show-overflow-tooltip>
         </el-table-column>
         <el-table-column
           prop="type"
           :label="$t('test_track.type')"
-          width="130"
+          width="120"
           show-overflow-tooltip>
           <template slot-scope="scope">
             <span v-if="scope.row.type == 'functional'">{{$t('commons.functional')}}</span>
@@ -59,7 +59,7 @@
         <el-table-column
           prop="method"
           :label="$t('test_track.method')"
-          width="130"
+          width="120"
           show-overflow-tooltip>
           <template slot-scope="scope">
             <span v-if="scope.row.method == 'manual'">{{$t('test_track.manual')}}</span>
@@ -67,8 +67,8 @@
           </template>
         </el-table-column>
         <el-table-column
-          prop="remark"
-          :label="$t('commons.remark')"
+          prop="nodePath"
+          :label="$t('test_track.module')"
           width="160"
           show-overflow-tooltip>
         </el-table-column>
@@ -87,7 +87,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          width="160"
+          width="100"
           :label="$t('commons.operating')">
           <template slot-scope="scope">
             <el-button @click="handleEdit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
@@ -95,7 +95,6 @@
           </template>
         </el-table-column>
       </el-table>
-
 
       <div>
         <el-row>
@@ -203,5 +202,11 @@
 </script>
 
 <style scoped>
+
+  .table-page {
+    padding-top: 20px;
+    margin-right: -9px;
+    float: right;
+  }
 
 </style>

@@ -234,6 +234,76 @@ public class TestCaseExample {
             return (Criteria) this;
         }
 
+        public Criteria andNodePathIsNull() {
+            addCriterion("node_path is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodePathIsNotNull() {
+            addCriterion("node_path is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodePathEqualTo(String value) {
+            addCriterion("node_path =", value, "nodePath");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodePathNotEqualTo(String value) {
+            addCriterion("node_path <>", value, "nodePath");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodePathGreaterThan(String value) {
+            addCriterion("node_path >", value, "nodePath");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodePathGreaterThanOrEqualTo(String value) {
+            addCriterion("node_path >=", value, "nodePath");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodePathLessThan(String value) {
+            addCriterion("node_path <", value, "nodePath");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodePathLessThanOrEqualTo(String value) {
+            addCriterion("node_path <=", value, "nodePath");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodePathLike(String value) {
+            addCriterion("node_path like", value, "nodePath");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodePathNotLike(String value) {
+            addCriterion("node_path not like", value, "nodePath");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodePathIn(List<String> values) {
+            addCriterion("node_path in", values, "nodePath");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodePathNotIn(List<String> values) {
+            addCriterion("node_path not in", values, "nodePath");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodePathBetween(String value1, String value2) {
+            addCriterion("node_path between", value1, value2, "nodePath");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodePathNotBetween(String value1, String value2) {
+            addCriterion("node_path not between", value1, value2, "nodePath");
+            return (Criteria) this;
+        }
+
         public Criteria andProjectIdIsNull() {
             addCriterion("project_id is null");
             return (Criteria) this;
