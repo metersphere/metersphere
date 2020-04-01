@@ -8,6 +8,7 @@ import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.controller.request.ReportRequest;
 import io.metersphere.dto.ReportDTO;
 import io.metersphere.report.JtlResolver;
+import io.metersphere.report.base.ChartsData;
 import io.metersphere.report.base.Errors;
 import io.metersphere.report.base.TestOverview;
 import io.metersphere.report.dto.ErrorsTop5DTO;
@@ -74,5 +75,12 @@ public class ReportService {
         String content = loadTestReport.getContent();
         TestOverview testOverview = JtlResolver.getTestOverview(content);
         return testOverview;
+    }
+
+    public ChartsData getLoadChartData(String id) {
+        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
+        String content = loadTestReport.getContent();
+        ChartsData chartsData = JtlResolver.getLoadChartData(content);
+        return chartsData;
     }
 }

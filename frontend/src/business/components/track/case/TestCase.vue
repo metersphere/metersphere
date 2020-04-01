@@ -25,10 +25,14 @@
                    ref="nodeTree"></node-tree>
       </el-aside>
 
-      <test-case-list
-        @openTestCaseEditDialog="openTestCaseEditDialog"
-        @testCaseEdit="openTestCaseEditDialog"
-        ref="testCaseList"></test-case-list>
+      <el-main class="main-content">
+
+        <test-case-list
+          @openTestCaseEditDialog="openTestCaseEditDialog"
+          @testCaseEdit="openTestCaseEditDialog"
+          ref="testCaseList"></test-case-list>
+      </el-main>
+
 
     </el-container>
 
@@ -130,7 +134,7 @@
         moduleOptions.push(option);
         if(node.children){
           for (let i = 0; i < node.children.length; i++){
-            this.buildNodePath(node.children[i], { path: '/' + node.name }, moduleOptions);
+            this.buildNodePath(node.children[i], { path: option.path }, moduleOptions);
           }
         }
       },
@@ -145,10 +149,12 @@
 </script>
 
 <style scoped>
-  .testplan-container {
+  .case_container {
     padding: 15px;
     width: 100%;
     height: 100%;
+    background: white;
+    height: 1000px;
     box-sizing: border-box;
   }
 
@@ -156,21 +162,6 @@
     margin: 0 auto;
     width: 100%;
     max-width: 1200px;
-  }
-
-  .test-content {
-    width: 100%;
-  }
-
-  .table-page {
-    padding-top: 20px;
-    margin-right: -9px;
-    float: right;
-  }
-
-  .case_container {
-    background: white;
-    height: 600px;
   }
 
   .node_tree {
