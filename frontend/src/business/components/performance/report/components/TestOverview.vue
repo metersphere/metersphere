@@ -132,6 +132,16 @@
           this.option = this.generateOption(data);
         })
       },
+      _objToStrMap(obj){
+        let strMap = new Map();
+        for (let k of Object.keys(obj)) {
+          strMap.set(k,obj[k]);
+        }
+        return strMap;
+      },
+      _jsonToMap(jsonStr){
+        return this._objToStrMap(JSON.parse(jsonStr));
+      },
       generateOption(data) {
         let option = {
           legend: {
@@ -174,11 +184,12 @@
             }
           ]
         }
-
-        this.$set(option.xAxis, "data", data.time);
-        this.$set(option.series[0], "data", data.users);
-        this.$set(option.series[1], "data", data.hits);
-        this.$set(option.series[2], "data", data.errors);
+        let map = this._jsonToMap(data.serices);
+        let xAxis = data.xAxis;
+        this.$set(option.xAxis, "data", xAxis.split(','));
+        this.$set(option.series[0], "data", map.get("users"));
+        this.$set(option.series[1], "data", map.get("hits"));
+        this.$set(option.series[2], "data", map.get("errors"));
         return option;
       }
     },
