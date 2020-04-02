@@ -18,12 +18,11 @@
     </el-tree>
   </div>
 
-
 </template>
 
 <script>
     export default {
-      name: "NodeTree",
+      name: "PlanNodeTree",
       data() {
         return {
           filterText: '',
@@ -31,30 +30,22 @@
             children: 'children',
             label: 'label'
           },
-          form: {
-            name: '',
-          },
-          formLabelWidth: '80px',
           dialogTableVisible: false,
-          dialogFormVisible: false,
-          editType: '',
-          editData: {},
-          treeNodes: [],
           defaultKeys: []
         };
       },
       props: {
         planId: {
           type: String
-        }
+        },
+        treeNodes: {
+          Array
+        },
       },
       watch: {
         filterText(val) {
           this.$refs.tree.filter(val);
         }
-      },
-      created() {
-        this.getNodeTree();
       },
       methods: {
         handleDragEnd(draggingNode, dropNode, dropType, ev) {
@@ -91,7 +82,7 @@
           if (!value) return true;
           return data.label.indexOf(value) !== -1;
         },
-        getNodeTree() {
+        getNodeTreeByNodeIds() {
           if(this.planId){
             this.$get("/case/node/list/plan/" + this.planId, response => {
               this.treeNodes = response.data;

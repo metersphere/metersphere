@@ -8,9 +8,9 @@
             <span class="title">{{$t('test_track.test_case')}}</span>
           </el-col>
 
-          <el-col :span="1" :offset="8">
+          <el-col :span="1" :offset="6">
             <el-button icon="el-icon-circle-plus-outline" size="small" round
-                       @click="$emit('openTestCaseRelevanceDialog')" >{{$t('commons.create')}}</el-button>
+                       @click="$emit('openTestCaseRelevanceDialog')" >关联测试用例</el-button>
           </el-col>
 
           <el-col :span="1" >

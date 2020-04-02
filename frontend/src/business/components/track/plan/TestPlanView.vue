@@ -51,9 +51,8 @@
         get() {
 
         },
-        openTestCaseRelevanceDialog(data) {
-          this.$refs.testCaseRelevance.dialogFormVisible = true;
-          this.$refs.testCaseRelevance.getCaseNames(this.planId);
+        openTestCaseRelevanceDialog() {
+          this.$refs.testCaseRelevance.openTestCaseRelevanceDialog(this.planId);
         },
         getCaseByNodeIds() {
 

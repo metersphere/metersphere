@@ -20,6 +20,11 @@ public class TestCaseNodeController {
         return testCaseNodeService.getNodeTreeByProjectId(projectId);
     }
 
+    @GetMapping("/list/all/plan/{planId}")
+    public List<TestCaseNodeDTO> getAllNodeByPlanId(@PathVariable String planId){
+        return testCaseNodeService.getAllNodeByPlanId(planId);
+    }
+
     @GetMapping("/list/plan/{planId}")
     public List<TestCaseNodeDTO> getNodeByPlanId(@PathVariable String planId){
         return testCaseNodeService.getNodeByPlanId(planId);

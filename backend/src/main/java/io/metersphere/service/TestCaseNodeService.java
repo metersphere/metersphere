@@ -113,6 +113,12 @@ public class TestCaseNodeService {
         return testCaseNodeMapper.deleteByExample(testCaseNodeExample);
     }
 
+    /**
+     * 获取当前计划下
+     * 有关联数据的节点
+     * @param planId
+     * @return
+     */
     public List<TestCaseNodeDTO> getNodeByPlanId(String planId) {
 
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
@@ -177,4 +183,8 @@ public class TestCaseNodeService {
         return false;
     }
 
+    public List<TestCaseNodeDTO> getAllNodeByPlanId(String planId) {
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
+        return getNodeTreeByProjectId(testPlan.getProjectId());
+    }
 }

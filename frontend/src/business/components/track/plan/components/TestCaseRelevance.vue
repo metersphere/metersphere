@@ -2,32 +2,35 @@
 
   <div>
 
-    <el-dialog :title="$t('test_track.create')"
+    <el-dialog title="关联测试用例"
                :visible.sync="dialogFormVisible"
                width="65%">
 
-      <el-container style="min-height: 350px">
-        <el-aside class="node_tree" width="200px" style="background-color: rgb(238, 241, 246)">
-          <plan-node-tree></plan-node-tree>
+      <el-container class="main-content">
+        <el-aside class="node-tree" width="250px">
+          <plan-node-tree
+            :tree-nodes="treeNodes" ref="tree"></plan-node-tree>
         </el-aside>
 
         <el-container>
-          <el-header >
-            <el-checkbox ></el-checkbox>
-          </el-header>
-          <el-main style="height: 100px;">
+          <el-main class="case-content">
             <el-scrollbar style="height:100%">
                 <el-table
-                  :data="testCases">
+                  :data="testCases"
+                  row-key="id"
+                  @select-all="handleSelectAll"
+                  @select="handleSelectionChange"
+                  ref="table">
+
+                  <el-table-column
+                    type="selection"
+                    :reserve-selection="true"></el-table-column>
+
                   <el-table-column
                     prop="name"
+                    label="用例名称"
                     style="width: 100%">
-                    <template slot="header">
-                      <el-checkbox v-model="checkAll"></el-checkbox>
-                      用例名称
-                    </template>
                     <template slot-scope="scope">
-                      <el-checkbox v-model="scope.row.checked"></el-checkbox>
                       {{scope.row.name}}
                     </template>
                   </el-table-column>
@@ -35,10 +38,7 @@
             </el-scrollbar>
           </el-main>
         </el-container>
-
       </el-container>
-
-
 
       <div slot="footer" class="dialog-footer">
         <el-button
@@ -47,12 +47,11 @@
         </el-button>
         <el-button
           type="primary"
-          @click="saveCase">
+          @click="saveCaseRelevance">
           {{$t('test_track.confirm')}}
         </el-button>
       </div>
     </el-dialog>
-
 
   </div>
 
@@ -61,93 +60,30 @@
 
 <script>
 
-  import {CURRENT_PROJECT} from '../../../../../common/constants';
   import PlanNodeTree from './PlanNodeTree';
 
     export default {
-      name: "TestCaseEdit",
+      name: "TestCaseRelevance",
       components: {PlanNodeTree},
       data() {
         return {
           dialogFormVisible: false,
-          count: 6,
-          checkAll: false,
+          isCheckAll: false,
           testCases: [],
-          form: {
-            name: '',
-          }
-
+          selectIds: new Set(),
+          treeNodes: []
         };
       },
       methods: {
-        openTestCaseEditDialog(testCase) {
-          this.resetForm();
-          this.operationType = 'add';
-          if(testCase){
-            //修改
-            this.operationType = 'edit';
-            let tmp = {};
-            Object.assign(tmp, testCase);
-            tmp.steps = JSON.parse(testCase.steps);
-            Object.assign(this.form, tmp);
-            this.form.module = testCase.nodeId;
-          }
+        openTestCaseRelevanceDialog(planId) {
+          console.log(planId);
+          this.getNodeTreeByPlanId(planId);
+          console.log(this.$refs);
+          this.getCaseNames(planId);
           this.dialogFormVisible = true;
         },
-        handleAddStep(index, data) {
-          let step = {};
-          step.num = data.num + 1;
-          step.desc = null;
-          step.result = null;
-          this.form.steps.forEach(step => {
-            if(step.num > data.num){
-              step.num ++;
-            }
-          });
-          this.form.steps.push(step);
-        },
-        handleDeleteStep(index, data) {
-          this.form.steps.splice(index, 1);
-          this.form.steps.forEach(step => {
-            if(step.num > data.num){
-              step.num --;
-            }
-          });
-        },
-        saveCase(){
-          this.$refs['relevanceFrom'].validate((valid) => {
-            if (valid) {
-              let param = {};
-              Object.assign(param, this.form);
-              param.steps = JSON.stringify(this.form.steps);
-              param.nodeId = this.form.module;
-              this.moduleOptions.forEach(item => {
-                if(this.form.module === item.id){
-                  param.nodePath = item.path;
-                }
-              });
-              if(localStorage.getItem(CURRENT_PROJECT)) {
-                param.projectId = JSON.parse(localStorage.getItem(CURRENT_PROJECT)).id;
-              }
-              this.$post('/test/case/' + this.operationType, param, () => {
-                this.$message.success(this.$t('commons.save_success'));
-                this.dialogFormVisible = false;
-                this.$emit("refresh");
-              });
-            } else {
-              return false;
-            }
-          });
-        }
-        ,
-        resetForm() {
-          if (this.$refs['relevanceFrom']) {
-            this.$refs['relevanceFrom'].resetFields();
-          }
+        saveCaseRelevance(){
 
-        },
-        load () {
-          this.count += 2
         },
         getCaseNames(planId) {
           if(planId){
@@ -160,7 +96,37 @@
               });
             });
           }
+        },
+        checkAll() {
+          this.testCases.forEach(item => {
+            item.checked = this.isCheckAll;
+          });
+          this.dialogFormVisible = true;
+        },
+        handleSelectAll(selection) {
+          if(selection.length > 0){
+            this.testCases.forEach(item => {
+              this.selectIds.add(item.id);
+            });
+          } else {
+            this.selectIds.clear();
+          }
+        },
+        handleSelectionChange(selection, row) {
+          if(this.selectIds.has(row.id)){
+            this.selectIds.delete(row.id);
+          } else {
+            this.selectIds.add(row.id);
+          }
+        },
+        getNodeTreeByPlanId(planId) {
+          if(planId){
+            this.$get("/case/node/list/all/plan/" + planId, response => {
+              this.treeNodes = response.data;
+            });
+          }
         }
+
       }
     }
 </script>
@@ -180,10 +146,11 @@
 
   }
 
-  .node_tree{
+  .node-tree{
     /*border-radius: 1px;*/
     /*padding-top: 5px ;*/
     /*height: 100%;*/
+    margin-right: 5px;
     /*box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);*/
   }
 
@@ -195,7 +162,15 @@
   }
 
   .el-aside {
-    color: #333;
+    /*color: #333;*/
+    /*background-color: rgb(238, 241, 246)*/
+  }
+  .case-content {
+    height: 100%;
+  }
+
+  .main-content {
+    min-height: 300px;
   }
 
 </style>
