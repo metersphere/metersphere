@@ -29,11 +29,11 @@
         <performance-recent-test-plan v-if="beaseUrl == 'performance'"/>
         <functional-recent-test-plan v-if="beaseUrl == 'functional'"/>
         <el-divider/>
-        <el-menu-item :index="'/' + beaseUrl + '/plan/all'">
+        <el-menu-item :index="'/' + beaseUrl + '/test/all'">
           <font-awesome-icon :icon="['fa', 'list-ul']"/>
           <span style="padding-left: 5px;">{{$t('commons.show_all')}}</span>
         </el-menu-item>
-        <el-menu-item :index="'/' + beaseUrl + '/plan/create'">
+        <el-menu-item :index="'/' + beaseUrl + '/test/create'">
           <el-button type="text">{{$t('load_test.create')}}</el-button>
         </el-menu-item>
       </el-submenu>
@@ -68,17 +68,17 @@
                   index="7" popper-class="submenu" v-permission="['test_manager', 'test_user', 'test_viewer']">
         <template slot="title">{{$t('test_track.test_plan')}}</template>
         <el-divider/>
-        <el-menu-item :index="'/' + beaseUrl + '/plan/all'">
+        <el-menu-item :index="'/' + beaseUrl + '/test/all'">
           <font-awesome-icon :icon="['fa', 'list-ul']"/>
           <span style="padding-left: 5px;">{{$t('commons.show_all')}}</span>
         </el-menu-item>
-        <el-menu-item :index="'/' + beaseUrl + '/plan/create'">
+        <el-menu-item :index="'/' + beaseUrl + '/test/create'">
           <el-button type="text">{{$t('test_track.create_plan')}}</el-button>
         </el-menu-item>
       </el-submenu>
 
       <router-link  v-if="isCurrentWorkspaceUser && (beaseUrl == 'performance' || beaseUrl == 'functional')"
-                    class="header-bottom" :to="'/' + beaseUrl + '/plan/create'" v-permission="['test_user','test_manager']">
+                    class="header-bottom" :to="'/' + beaseUrl + '/test/create'" v-permission="['test_user','test_manager']">
         <el-button type="primary" size="small">{{$t('load_test.create')}}</el-button>
       </router-link>
 
@@ -89,7 +89,7 @@
 
 <script>
 
-  import PerformanceRecentTestPlan from "../../performance/plan/PerformanceRecentTestPlan";
+  import PerformanceRecentTestPlan from "../../performance/test/PerformanceRecentTestPlan";
   import FunctionalRecentTestPlan from "../../functional/plan/FunctionalRecentTestPlan";
   import PerformanceRecentProject from "../../performance/project/PerformanceRecentProject";
   import FunctionalRecentProject from "../../functional/project/FunctionalRecentProject";

@@ -48,9 +48,9 @@
         result: {},
         testPlan: {},
         listProjectPath: "/project/listAll",
-        savePath: "/functional/plan/save",
-        editPath: "/functional/plan/edit",
-        runPath: "/functional/plan/run",
+        savePath: "/functional/test/save",
+        editPath: "/functional/test/edit",
+        runPath: "/functional/test/run",
         projects: [],
         active: '0',
         tabs: [{
@@ -73,7 +73,7 @@
         }
         let testId = to.path.split('/')[4]; // find testId
         if (testId) {
-          this.$get('/functional/plan/get/' + testId, response => {
+          this.$get('/functional/test/get/' + testId, response => {
             this.testPlan = response.data;
           });
         }
@@ -83,7 +83,7 @@
     created() {
       let testId = this.$route.path.split('/')[4];
       if (testId) {
-        this.$get('/functional/plan/get/' + testId, response => {
+        this.$get('/functional/test/get/' + testId, response => {
           this.testPlan = response.data;
         });
       }
@@ -109,7 +109,7 @@
             type: 'success'
           });
           this.$refs.runtimeConfig.cancelAllEdit();
-          this.$router.push({path: '/functional/plan/all'})
+          this.$router.push({path: '/functional/test/all'})
         });
       },
       saveAndRun() {
@@ -163,7 +163,7 @@
         };
       },
       cancel() {
-        this.$router.push({path: '/functional/plan/all'})
+        this.$router.push({path: '/functional/test/all'})
       },
       validTestPlan() {
         if (!this.testPlan.name) {

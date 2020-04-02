@@ -61,9 +61,9 @@
     data() {
       return {
         result: {},
-        getFileMetadataPath: "/functional/plan/file/metadata",
-        jmxDownloadPath: '/functional/plan/file/download',
-        jmxDeletePath: '/functional/plan/file/delete',
+        getFileMetadataPath: "/functional/test/file/metadata",
+        jmxDownloadPath: '/functional/test/file/download',
+        jmxDeletePath: '/functional/test/file/delete',
         fileList: [],
         tableData: [],
       };

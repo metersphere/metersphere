@@ -139,7 +139,7 @@
       },
       handleEdit(testPlan) {
         this.$router.push({
-          path: '/performance/plan/edit/' + testPlan.id,
+          path: '/performance/test/edit/' + testPlan.id,
         })
       },
       handleDelete(testPlan) {

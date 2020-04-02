@@ -4,7 +4,7 @@
       <i class="el-icon-time"/>
       {{$t('load_test.recent')}}
     </div>
-    <el-menu-item :key="t.id" v-for="t in recentTestPlans" :index="'/performance/plan/edit/' + t.id">
+    <el-menu-item :key="t.id" v-for="t in recentTestPlans" :index="'/performance/test/edit/' + t.id">
       {{ t.name }}
     </el-menu-item>
   </el-menu>

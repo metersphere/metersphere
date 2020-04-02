@@ -126,7 +126,7 @@
             type: 'success'
           });
           this.$refs.advancedConfig.cancelAllEdit();
-          this.$router.push({path: '/performance/plan/all'})
+          this.$router.push({path: '/performance/test/all'})
         });
       },
       saveAndRun() {
@@ -188,7 +188,7 @@
         };
       },
       cancel() {
-        this.$router.push({path: '/performance/plan/all'})
+        this.$router.push({path: '/performance/test/all'})
       },
       validTestPlan() {
         if (!this.testPlan.name) {

@@ -93,7 +93,7 @@
       },
       getNodeTree() {
         if (this.planId) {
-          this.$get("/case/node/list/plan/" + this.planId, response => {
+          this.$get("/case/node/list/test/" + this.planId, response => {
             this.treeNodes = response.data;
           });
         }

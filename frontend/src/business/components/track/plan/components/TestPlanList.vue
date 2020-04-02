@@ -134,8 +134,8 @@
       data() {
         return {
           result: {},
-          queryPath: "/test/plan/list",
-          deletePath: "/test/plan/delete",
+          queryPath: "/test/test/list",
+          deletePath: "/test/test/delete",
           condition: "",
           tableData: [],
           multipleSelection: [],
@@ -196,7 +196,7 @@
         },
         _handleDelete(testPlan) {
           let testPlanId = testPlan.id;
-          this.$post('/test/plan/delete/' + testPlanId, {}, () => {
+          this.$post('/test/test/delete/' + testPlanId, {}, () => {
             this.initTableData();
             this.$message({
               message: this.$t('commons.delete_success'),
@@ -205,7 +205,7 @@
           });
         },
         intoPlan(row, event, column) {
-          this.$router.push('/track/plan/view/' + row.id);
+          this.$router.push('/track/test/view/' + row.id);
         }
       }
     }

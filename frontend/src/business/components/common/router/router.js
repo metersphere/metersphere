@@ -3,8 +3,8 @@ import VueRouter from 'vue-router'
 import RouterSidebar from "./RouterSidebar";
 import Setting from "../../settings/Setting";
 import User from "../../settings/system/User";
-import EditPerformanceTestPlan from "../../performance/plan/EditPerformanceTestPlan";
-import PerformanceTestPlan from "../../performance/plan/PerformanceTestPlan";
+import EditPerformanceTestPlan from "../../performance/test/EditPerformanceTestPlan";
+import PerformanceTestPlan from "../../performance/test/PerformanceTestPlan";
 import Organization from "../../settings/system/Organization";
 import OrganizationMember from "../../settings/organization/OrganizationMember";
 import Member from "../../settings/workspace/WorkspaceMember";
@@ -147,12 +147,12 @@ const router = new VueRouter({
           component: PerformanceTestHome,
         },
         {
-          path: 'plan/create',
+          path: 'test/create',
           name: "createPerTest",
           component: EditPerformanceTestPlan,
         },
         {
-          path: "plan/edit/:testId",
+          path: "test/edit/:testId",
           name: "editPerTest",
           component: EditPerformanceTestPlan,
           props: {
@@ -164,7 +164,7 @@ const router = new VueRouter({
           }
         },
         {
-          path: "plan/:projectId",
+          path: "test/:projectId",
           name: "perPlan",
           component: PerformanceTestPlan
         },
