@@ -1,13 +1,13 @@
 <template>
   <el-col v-if="auth">
     <el-row id="header-top" type="flex" justify="space-between" align="middle">
-      <el-col :span="3">
+      <el-col :span="2">
         <a class="logo"/>
       </el-col>
-      <el-col :span="7">
+      <el-col :span="10">
         <ms-top-menus/>
       </el-col>
-      <el-col :span="14">
+      <el-col :span="12">
         <ms-user/>
       </el-col>
     </el-row>
