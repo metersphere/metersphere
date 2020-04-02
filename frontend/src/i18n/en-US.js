@@ -30,7 +30,7 @@ export default {
     'phone': 'Phone',
     'role': 'Role',
     'personal_info': 'Personal Info',
-    'status': 'Enable/Disable',
+    'status': 'Status',
     'show_all': 'Show All',
     'report': 'Report',
     'user': 'User',

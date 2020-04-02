@@ -8,9 +8,9 @@
             <span class="title">{{$t('commons.report')}}</span>
             <span class="search">
               <el-input type="text" size="small" :placeholder="$t('report.search_by_name')"
-                      prefix-icon="el-icon-search"
-                      maxlength="60"
-                      v-model="condition" @change="search" clearable/>
+                        prefix-icon="el-icon-search"
+                        maxlength="60"
+                        v-model="condition" @change="search" clearable/>
             </span>
           </el-row>
         </div>
@@ -19,12 +19,6 @@
           <el-table-column
             prop="name"
             :label="$t('commons.name')"
-            width="150"
-            show-overflow-tooltip>
-          </el-table-column>
-          <el-table-column
-            prop="description"
-            :label="$t('commons.description')"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
@@ -45,6 +39,27 @@
             :label="$t('commons.update_time')">
             <template slot-scope="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="status"
+            :label="$t('commons.status')">
+            <template slot-scope="{row}">
+              <el-tag size="mini" type="primary" v-if="row.status === 'Starting'">
+                {{ row.status }}
+              </el-tag>
+              <el-tag size="mini" type="success" v-else-if="row.status === 'Running'">
+                {{ row.status }}
+              </el-tag>
+              <el-tooltip placement="top" v-else-if="row.status === 'Error'" effect="light">
+                <div slot="content">{{row.description}}</div>
+                <el-tag size="mini" type="danger">
+                  {{ row.status }}
+                </el-tag>
+              </el-tooltip>
+              <el-tag size="mini" type="info" v-else>
+                {{ row.status }}
+              </el-tag>
             </template>
           </el-table-column>
           <el-table-column
@@ -145,7 +160,7 @@
         });
       },
       _handleDelete(report) {
-        this.result = this.$post(this.deletePath + report.id, {},() => {
+        this.result = this.$post(this.deletePath + report.id, {}, () => {
           this.$message({
             message: this.$t('commons.delete_success'),
             type: 'success'
