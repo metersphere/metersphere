@@ -20,7 +20,7 @@
           <el-table-column prop="description" :label="$t('commons.description')"/>
           <el-table-column prop="workspaceName" label="所属工作空间"/>
           <el-table-column>
-            <template slot-scope="scope">
+            <template v-slot:default="scope">
               <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
               <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
             </template>
@@ -65,7 +65,7 @@
 <script>
   import MsCreateBox from "../settings/CreateBox";
   import {Message} from "element-ui";
-  import {TokenKey,CURRENT_PROJECT} from "../../../common/constants";
+  import {CURRENT_PROJECT, TokenKey} from "../../../common/constants";
 
   export default {
     name: "MsProject",

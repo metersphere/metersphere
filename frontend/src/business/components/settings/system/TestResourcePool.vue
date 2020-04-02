@@ -17,13 +17,13 @@
         <el-table-column prop="name" label="名称"/>
         <el-table-column prop="description" label="描述"/>
         <el-table-column prop="type" label="类型">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <span v-if="scope.row.type === 'NODE'">独立节点</span>
             <span v-if="scope.row.type === 'K8S'">Kubernetes</span>
           </template>
         </el-table-column>
         <el-table-column prop="status" label="启用/禁用">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <el-switch v-model="scope.row.status"
                        active-color="#13ce66"
                        inactive-color="#ff4949"
@@ -34,17 +34,17 @@
           </template>
         </el-table-column>
         <el-table-column prop="createTime" label="创建时间" width="180">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="updateTime" label="更新时间" width="180">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
         <el-table-column>
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
             <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
           </template>

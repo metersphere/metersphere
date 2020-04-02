@@ -18,14 +18,14 @@
         <el-table-column prop="email" :label="$t('commons.email')"/>
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
         <el-table-column prop="roles" :label="$t('commons.role')" width="140">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <el-tag v-for="(role, index) in scope.row.roles" :key="index" size="mini" effect="dark">
               {{ role.name }}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column>
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
             <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
           </template>

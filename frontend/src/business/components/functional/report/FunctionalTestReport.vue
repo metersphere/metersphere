@@ -36,21 +36,21 @@
           <el-table-column
             width="250"
             :label="$t('commons.create_time')">
-            <template slot-scope="scope">
+            <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
           <el-table-column
             width="250"
             :label="$t('commons.update_time')">
-            <template slot-scope="scope">
+            <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
           <el-table-column
             width="150"
             :label="$t('commons.operating')">
-            <template slot-scope="scope">
+            <template v-slot:default="scope">
               <el-button @click="handleEdit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
               <el-button @click="handleDelete(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
             </template>

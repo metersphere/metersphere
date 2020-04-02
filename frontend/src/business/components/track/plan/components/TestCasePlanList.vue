@@ -50,7 +50,7 @@
           :label="$t('test_track.type')"
           width="120"
           show-overflow-tooltip>
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <span v-if="scope.row.type == 'functional'">{{$t('commons.functional')}}</span>
             <span v-if="scope.row.type == 'performance'">{{$t('commons.performance')}}</span>
             <span v-if="scope.row.type == 'interface'">{{$t('commons.interface')}}</span>
@@ -61,7 +61,7 @@
           :label="$t('test_track.method')"
           width="120"
           show-overflow-tooltip>
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <span v-if="scope.row.method == 'manual'">{{$t('test_track.manual')}}</span>
             <span v-if="scope.row.method == 'auto'">{{$t('test_track.auto')}}</span>
           </template>
@@ -75,21 +75,21 @@
         <el-table-column
           width="160"
           :label="$t('commons.create_time')">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
         <el-table-column
           width="160"
           :label="$t('commons.update_time')">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
         <el-table-column
           width="100"
           :label="$t('commons.operating')">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <el-button @click="handleEdit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
             <el-button @click="handleDelete(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
           </template>
@@ -122,7 +122,7 @@
   import {CURRENT_PROJECT} from '../../../../../common/constants';
   import PlanNodeTree from './PlanNodeTree';
 
-    export default {
+  export default {
       name: "TestCaseList",
       components: {PlanNodeTree},
       data() {

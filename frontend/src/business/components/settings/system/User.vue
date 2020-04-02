@@ -21,7 +21,7 @@
         <el-table-column prop="email" :label="$t('commons.email')"/>
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
         <el-table-column prop="status" :label="$t('commons.status')" width="100">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <el-switch v-model="scope.row.status"
                        active-color="#13ce66"
                        inactive-color="#ff4949"
@@ -32,12 +32,12 @@
           </template>
         </el-table-column>
         <el-table-column prop="createTime" :label="$t('commons.create_time')" width="180">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
             <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
           </template>

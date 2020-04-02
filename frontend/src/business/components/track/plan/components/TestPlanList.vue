@@ -52,7 +52,7 @@
             :label="$t('test_track.plan_status')"
             width="130"
             show-overflow-tooltip>
-            <template slot-scope="scope">
+            <template v-slot:default="scope">
               <span v-if="scope.row.status == 'Prepare'">{{$t('test_track.plan_status_prepare')}}</span>
               <span v-if="scope.row.status == 'Running'">{{$t('test_track.plan_status_running')}}</span>
               <span v-if="scope.row.status == 'Completed'">{{$t('test_track.plan_status_completed')}}</span>
@@ -63,7 +63,7 @@
             :label="$t('test_track.plan_stage')"
             width="130"
             show-overflow-tooltip>
-            <template slot-scope="scope">
+            <template v-slot:default="scope">
               <span v-if="scope.row.stage == 'smoke'">{{$t('test_track.smoke_test')}}</span>
               <span v-if="scope.row.stage == 'functional'">{{$t('test_track.functional_test')}}</span>
               <span v-if="scope.row.stage == 'integration'">{{$t('test_track.integration_testing')}}</span>
@@ -80,21 +80,21 @@
           <el-table-column
             width="160"
             :label="$t('commons.create_time')">
-            <template slot-scope="scope">
+            <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
           <el-table-column
             width="160"
             :label="$t('commons.update_time')">
-            <template slot-scope="scope">
+            <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
           <el-table-column
             width="160"
             :label="$t('commons.operating')">
-            <template slot-scope="scope">
+            <template v-slot:default="scope">
               <el-button @click="handleEdit(scope.row)"
                          @click.stop="deleteVisible = true" type="primary"
                          icon="el-icon-edit" size="mini" circle/>

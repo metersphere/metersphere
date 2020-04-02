@@ -31,14 +31,14 @@
       </el-table-column>
       <el-table-column
         :label="$t('load_test.last_modify_time')">
-        <template slot-scope="scope">
+        <template v-slot:default="scope">
           <i class="el-icon-time"/>
           <span class="last-modified">{{ scope.row.updateTime | timestampFormatDate }}</span>
         </template>
       </el-table-column>
       <el-table-column
         :label="$t('commons.operating')">
-        <template slot-scope="scope">
+        <template v-slot:default="scope">
           <el-button @click="handleDownload(scope.row)" :disabled="!scope.row.id" type="primary" icon="el-icon-download"
                      size="mini" circle/>
           <el-button @click="handleDelete(scope.row, scope.$index)" type="danger" icon="el-icon-delete" size="mini"

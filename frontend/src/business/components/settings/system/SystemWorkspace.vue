@@ -21,12 +21,12 @@
         <el-table-column prop="description" :label="$t('commons.description')"/>
         <el-table-column prop="organizationName" :label="$t('workspace.organization_name')"/>
         <el-table-column :label="$t('commons.member')">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <el-button type="text" class="member-size" @click="cellClick(scope.row)">{{scope.row.memberSize}}</el-button>
           </template>
         </el-table-column>
         <el-table-column>
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
             <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
           </template>
@@ -120,14 +120,14 @@
         <el-table-column prop="email" :label="$t('commons.email')"/>
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
         <el-table-column :label="$t('commons.role')" width="120">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <el-tag v-for="(role, index) in scope.row.roles" :key="index" size="mini" effect="dark" type="success">
               {{ role.name }}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <el-button @click="editMember(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
             <el-button @click="delMember(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
           </template>

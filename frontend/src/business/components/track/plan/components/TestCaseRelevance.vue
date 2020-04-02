@@ -26,7 +26,7 @@
                       <el-checkbox v-model="checkAll"></el-checkbox>
                       用例名称
                     </template>
-                    <template slot-scope="scope">
+                    <template v-slot:default="scope">
                       <el-checkbox v-model="scope.row.checked"></el-checkbox>
                       {{scope.row.name}}
                     </template>
@@ -64,7 +64,7 @@
   import {CURRENT_PROJECT} from '../../../../../common/constants';
   import PlanNodeTree from './PlanNodeTree';
 
-    export default {
+  export default {
       name: "TestCaseEdit",
       components: {PlanNodeTree},
       data() {
