@@ -119,6 +119,8 @@
 </template>
 
 <script>
+  import {CURRENT_PROJECT} from '../../../../../common/constants';
+
     export default {
       name: "TestCaseList",
       data() {
@@ -146,8 +148,8 @@
           };
           param.nodeIds = nodeIds;
 
-          if(localStorage.getItem('currentProject')){
-            param.projectId = JSON.parse(localStorage.getItem('currentProject')).id;
+          if(localStorage.getItem(CURRENT_PROJECT)) {
+            param.projectId = JSON.parse(localStorage.getItem(CURRENT_PROJECT)).id;
           }
 
           this.$post(this.buildPagePath('/test/case/list'), param, response => {

@@ -180,6 +180,9 @@
 </template>
 
 <script>
+
+  import {CURRENT_PROJECT} from '../../../../../common/constants';
+
     export default {
       name: "TestCaseEdit",
       data() {
@@ -261,8 +264,8 @@
                   param.nodePath = item.path;
                 }
               });
-              if(localStorage.getItem('currentProject')){
-                param.projectId = JSON.parse(localStorage.getItem('currentProject')).id;
+              if(localStorage.getItem(CURRENT_PROJECT)) {
+                param.projectId = JSON.parse(localStorage.getItem(CURRENT_PROJECT)).id;
               }
               this.$post('/test/case/' + this.operationType, param, () => {
                 this.$message.success(this.$t('commons.save_success'));

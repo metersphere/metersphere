@@ -72,7 +72,7 @@
             </template>
           </el-table-column>
           <el-table-column
-            prop="projectId"
+            prop="projectName"
             :label="$t('test_track.plan_project')"
             width="160"
             show-overflow-tooltip>

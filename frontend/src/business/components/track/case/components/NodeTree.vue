@@ -60,6 +60,9 @@
 </template>
 
 <script>
+
+  import {CURRENT_PROJECT} from '../../../../../common/constants';
+
     export default {
       name: "NodeTree",
       data() {
@@ -133,7 +136,7 @@
         },
         getChildNodeId(rootNode, nodeIds) {
           //递归获取所有子节点ID
-          nodeIds.push(rootNode.data.id)
+          nodeIds.push(rootNode.data.id);
           for (let i = 0; i < rootNode.childNodes.length; i++){
             this.getChildNodeId(rootNode.childNodes[i], nodeIds);
           }
@@ -153,8 +156,8 @@
           this.dialogFormVisible = true;
         },
         getNodeTree() {
-          if(localStorage.getItem('currentProject')){
-            let projectId = JSON.parse(localStorage.getItem('currentProject')).id;
+          if(localStorage.getItem(CURRENT_PROJECT)) {
+            let projectId = JSON.parse(localStorage.getItem(CURRENT_PROJECT)).id;
             this.$get("/case/node/list/" + projectId, response => {
               this.treeNodes = response.data;
             });
@@ -180,8 +183,8 @@
           param.name = this.form.name;
           param.label = this.form.name;
 
-          if(localStorage.getItem('currentProject')){
-            param.projectId = JSON.parse(localStorage.getItem('currentProject')).id;
+          if(localStorage.getItem(CURRENT_PROJECT)) {
+            param.projectId = JSON.parse(localStorage.getItem(CURRENT_PROJECT)).id;
           }
 
           this.$post(url, param, response => {
