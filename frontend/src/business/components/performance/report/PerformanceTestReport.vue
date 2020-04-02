@@ -145,6 +145,19 @@
         this.multipleSelection = val;
       },
       handleEdit(report) {
+        if (report.status === "Error") {
+          this.$message({
+            type: 'warning',
+            message: "报告生成错误,无法查看！"
+          });
+          return false
+        } else if (report.status === "Starting") {
+          this.$message({
+            type: 'info',
+            message: "报告生成中..."
+          });
+          return false
+        }
         this.$router.push({
           path: '/performance/report/view/' + report.id
         })
