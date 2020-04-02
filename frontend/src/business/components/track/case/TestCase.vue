@@ -5,7 +5,7 @@
 
         <el-menu :unique-opened="true" mode="horizontal" active-text-color="write"
           class="project_menu">
-          <el-submenu index="1" popper-class="submenu" v-permission="['test_user', 'test_viewer']">
+          <el-submenu index="1" popper-class="submenu">
             <template slot="title">
               {{currentProject == null ? '' : currentProject.name}}
             </template>
@@ -78,8 +78,6 @@
     },
     watch: {
       '$route'(to, from) {
-        console.log(from);
-        console.log(to);
         if (from.name.indexOf("Project") > 0){
           this.getProjects();
         }

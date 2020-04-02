@@ -12,12 +12,10 @@
         :expand-on-click-node="false"
         draggable
         ref="tree">
-
       <span class="custom-tree-node father" slot-scope="{node}" @click="selectNode(node)">
           {{node.label}}
       </span>
     </el-tree>
-
   </div>
 
 
@@ -56,8 +54,6 @@
         }
       },
       created() {
-        console.log("created");
-        console.log(this.planId);
         this.getNodeTree();
       },
       methods: {

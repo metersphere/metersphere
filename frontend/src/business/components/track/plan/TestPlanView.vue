@@ -7,11 +7,20 @@
           :plan-id="planId"
           class="node_tree"
           @nodeSelectEvent="get"
-          @refresh="refresh"
           ref="nodeTree"></plan-node-tree>
       </el-aside>
 
+      <el-main>
+        <test-case-plan-list
+          @openTestCaseRelevanceDialog="openTestCaseRelevanceDialog"
+          ref="testCasePlanList"></test-case-plan-list>
+      </el-main>
     </el-container>
+
+    <test-case-relevance
+      @refresh="getCaseByNodeIds"
+      ref="testCaseRelevance"></test-case-relevance>
+
   </div>
 
 </template>
@@ -19,10 +28,12 @@
 <script>
 
     import PlanNodeTree from "./components/PlanNodeTree";
+    import TestCasePlanList from "./components/TestCasePlanList";
+    import TestCaseRelevance from "./components/TestCaseRelevance";
 
     export default {
       name: "TestPlanView",
-      components: {PlanNodeTree},
+      components: {PlanNodeTree, TestCasePlanList, TestCaseRelevance},
       data() {
         return {
           currentProject: {}
@@ -38,6 +49,13 @@
 
         },
         get() {
+
+        },
+        openTestCaseRelevanceDialog(data) {
+          this.$refs.testCaseRelevance.dialogFormVisible = true;
+          this.$refs.testCaseRelevance.getCaseNames(this.planId);
+        },
+        getCaseByNodeIds() {
 
         }
       }

@@ -4,7 +4,10 @@ package io.metersphere.service;
 import io.metersphere.base.domain.TestCase;
 import io.metersphere.base.domain.TestCaseExample;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
+import io.metersphere.base.domain.TestPlan;
 import io.metersphere.base.mapper.TestCaseMapper;
+import io.metersphere.base.mapper.TestPlanMapper;
+import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.controller.request.testcase.QueryTestCaseRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,12 @@ public class TestCaseService {
 
     @Resource
     TestCaseMapper testCaseMapper;
+
+    @Resource
+    ExtTestCaseMapper extTestCaseMapper;
+
+    @Resource
+    TestPlanMapper testPlanMapper;
 
     public void addTestCase(TestCaseWithBLOBs testCase) {
         testCase.setId(UUID.randomUUID().toString());
@@ -62,5 +71,14 @@ public class TestCaseService {
             criteria.andNodeIdIn(request.getNodeIds());
         }
         return testCaseMapper.selectByExampleWithBLOBs(testCaseExample);
+    }
+
+    public List<TestCase> getTestCaseNames(QueryTestCaseRequest request) {
+
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
+
+        request.setProjectId(testPlan.getProjectId());
+
+        return extTestCaseMapper.getTestCaseNames(request);
     }
 }

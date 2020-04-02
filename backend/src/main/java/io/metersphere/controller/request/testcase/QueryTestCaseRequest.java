@@ -8,6 +8,16 @@ public class QueryTestCaseRequest extends TestCase {
 
     List<Integer> nodeIds;
 
+    String planId;
+
+    public String getPlanId() {
+        return planId;
+    }
+
+    public void setPlanId(String planId) {
+        this.planId = planId;
+    }
+
     public List<Integer> getNodeIds() {
         return nodeIds;
     }

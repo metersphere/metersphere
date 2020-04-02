@@ -38,6 +38,11 @@ public class TestCaseController {
         return testCaseService.getTestCaseByNodeId(nodeIds);
     }
 
+    @PostMapping("/name/all")
+    public List<TestCase> getTestCaseNames(@RequestBody QueryTestCaseRequest request){
+        return testCaseService.getTestCaseNames(request);
+    }
+
     @PostMapping("/get/{testCaseId}")
     public List<TestCaseWithBLOBs> getTestCase(@PathVariable String testCaseId){
         return testCaseService.getTestCase(testCaseId);

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtTestCaseMapper">
+
+    <select id="getTestCaseNames" resultType="io.metersphere.base.domain.TestCase">
+        select test_case.id, test_case.name
+        from test_case
+        <where>
+            <if test="request.projectId != null">
+                AND test_case.project_id = #{request.projectId}
+            </if>
+            <if test="request.nodeIds != null and request.nodeIds.size() > 0">
+                AND test_case.node_id IN
+                <foreach collection="request.nodeIds" open="(" close=")" separator="," item="nodeId">
+                    #{nodeId}
+                </foreach>
+
+            </if>
+        </where>
+        ORDER BY test_case.update_time DESC
+    </select>
+
+</mapper>
