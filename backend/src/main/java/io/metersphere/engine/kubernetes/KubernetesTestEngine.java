@@ -87,7 +87,7 @@ public class KubernetesTestEngine extends AbstractEngine {
             }});
             jmeter.setSpec(new JmeterSpec() {{
                 setReplicas(1);
-                setImage(REGISTRY + JMETER_IMAGE);
+                setImage(JMETER_IMAGE);
             }});
             LogUtil.info("Load test started. " + context.getTestId());
             kubernetesProvider.applyCustomResource(jmeter);
@@ -111,7 +111,7 @@ public class KubernetesTestEngine extends AbstractEngine {
                 }});
                 jmeter.setSpec(new JmeterSpec() {{
                     setReplicas(1);
-                    setImage(REGISTRY + JMETER_IMAGE);
+                    setImage(JMETER_IMAGE);
                 }});
                 provider.deleteCustomResource(jmeter);
             } catch (Exception e) {

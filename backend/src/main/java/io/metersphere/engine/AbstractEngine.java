@@ -10,6 +10,7 @@ import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.commons.constants.TestStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.config.JmeterProperties;
 import io.metersphere.service.LoadTestService;
 import io.metersphere.service.TestResourcePoolService;
 import io.metersphere.service.TestResourceService;
@@ -20,9 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 public abstract class AbstractEngine implements Engine {
-    public static final String REGISTRY = "registry.fit2cloud.com/metersphere/";
-    public static final String JMETER_IMAGE = "jmeter-master:0.0.3";
-
+    protected String JMETER_IMAGE;
     private Long startTime;
     private String reportId;
     protected LoadTestWithBLOBs loadTest;
@@ -36,6 +35,7 @@ public abstract class AbstractEngine implements Engine {
     public AbstractEngine() {
         testResourcePoolService = CommonBeanFactory.getBean(TestResourcePoolService.class);
         testResourceService = CommonBeanFactory.getBean(TestResourceService.class);
+        JMETER_IMAGE = CommonBeanFactory.getBean(JmeterProperties.class).getImage();
         this.startTime = System.currentTimeMillis();
         this.reportId = UUID.randomUUID().toString();
     }
