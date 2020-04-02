@@ -35,16 +35,16 @@
 
         <el-tabs v-model="active" type="border-card" :stretch="true">
           <el-tab-pane :label="$t('report.test_overview')">
-            <ms-report-test-overview :id="reportId"/>
+            <ms-report-test-overview :id="reportId" :status="status"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('report.test_request_statistics')">
-            <ms-report-request-statistics :id="reportId"/>
+            <ms-report-request-statistics :id="reportId" :status="status"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('report.test_error_log')">
-            <ms-report-error-log :id="reportId"/>
+            <ms-report-error-log :id="reportId" :status="status"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('report.test_log_details')">
-            <ms-report-log-details :id="reportId"/>
+            <ms-report-log-details :id="reportId" :status="status"/>
           </el-tab-pane>
         </el-tabs>
 
@@ -72,6 +72,7 @@
         result: {},
         active: '0',
         reportId: '',
+        status: '',
         reportName: '',
         testName: '',
         projectName: ''
@@ -91,8 +92,23 @@
         }
       }
     },
-    created() {
+    mounted() {
       this.reportId = this.$route.path.split('/')[4];
+      this.$get("report/" + this.reportId, res => {
+        let data = res.data;
+        this.status = data.status;
+        if (data.status === "Error") {
+          this.$message({
+            type: 'warning',
+            message: "报告生成错误,无法查看！"
+          });
+        } else if (data.status === "Starting") {
+          this.$message({
+            type: 'info',
+            message: "报告生成中...."
+          });
+        }
+      })
       this.initBreadcrumb();
     },
     watch: {
@@ -107,6 +123,7 @@
               this.projectName = data.projectName;
             }
           });
+          window.location.reload();
         }
       }
     }

@@ -106,24 +106,15 @@
         return sums;
       }
     },
-    created() {
-      this.initTableData()
-      this.getSummaries()
-    },
-    props: ['id'],
     watch: {
-      '$route'(to) {
-        if (to.name === "perReportView") {
-          let reportId = to.path.split('/')[4];
-          if(reportId){
-            this.$get("/report/content/" + reportId, res => {
-              this.tableData = res.data.requestStatisticsList;
-              this.totalInfo = res.data;
-            })
-          }
+      status() {
+        if ("Completed" === this.status) {
+          this.initTableData()
+          this.getSummaries()
         }
       }
-    }
+    },
+    props: ['id','status']
   }
 </script>
 

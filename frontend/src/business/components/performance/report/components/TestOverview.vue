@@ -79,7 +79,51 @@
         avgResponseTime: "0",
         responseTime90: "0",
         avgBandwidth: "0",
-        option: {},
+        option: {
+          legend: {
+            top: 20,
+            data: ['Users', 'Hits/s', 'Error(s)']
+          },
+          xAxis: {
+            type: 'category',
+          },
+          yAxis: [{
+            name: 'User',
+            type: 'value',
+            min: 0,
+            splitNumber: 5,
+            // interval: 10 / 5
+          },
+            {
+              name: 'Hits/s',
+              type: 'value',
+              splitNumber: 5,
+              min: 0,
+              // max: 5,
+              // interval: 5 / 5
+            }
+          ],
+          series: [
+            {
+              name: 'Users',
+              color: '#0CA74A',
+              type: 'line',
+              yAxisIndex: 0
+            },
+            {
+              name: 'Hits/s',
+              color: '#65A2FF',
+              type: 'line',
+              yAxisIndex: 1
+            },
+            {
+              name: 'Error(s)',
+              color: '#E6113C',
+              type: 'line',
+              yAxisIndex: 1
+            }
+          ]
+        },
         option2: {
           legend: {
             top: 20,
@@ -87,8 +131,7 @@
           },
           xAxis: {
             type: 'category',
-            data: ["2020-03-25 10:22:01", "2020-03-25 10:22:02", "2020-03-25 10:22:04", "2020-03-25 10:22:06",
-              "2020-03-25 10:22:07", "2020-03-25 10:22:08", "2020-03-25 10:22:09", "2020-03-25 10:22:10", "2020-03-25 10:22:11", "2020-03-25 10:22:12"]
+            data: []
           },
           yAxis: [{
             name: 'User',
@@ -103,13 +146,13 @@
             {
               name: 'Users',
               color: '#0CA74A',
-              data: [20, 40, 40, 40, 40, 40, 40],
+              data: [],
               type: 'line',
             },
             {
               name: 'Response Time',
               color: '#99743C',
-              data: [15, 38, 35, 39, 36, 37, 5],
+              data: [],
               type: 'line',
             }
           ]
@@ -156,11 +199,15 @@
             type: 'value',
             min: 0,
             splitNumber: 5,
-            interval: 10 / 5
+            // interval: 10 / 5
             },
             {
               name: 'Hits/s',
-              type: 'value'
+              type: 'value',
+              splitNumber: 5,
+              min: 0,
+              // max: 5,
+              // interval: 5 / 5
             }
           ],
           series: [
@@ -187,38 +234,33 @@
         let map = this._jsonToMap(data.serices);
         let xAxis = data.xAxis;
         this.$set(option.xAxis, "data", xAxis.split(','));
+        let user = map.get("users").slice(0);
+        let hit = map.get("hits").slice(0);
+        user.sort(function (a,b) {
+          return parseInt(a) - parseInt(b);
+        })
+        hit.sort(function (a,b) {
+          return parseFloat(a) - parseFloat(b);
+        })
+        this.$set(option.yAxis[0], "max",user[user.length-1]);
+        this.$set(option.yAxis[0], "interval", user[user.length-1]/5);
+        this.$set(option.yAxis[1], "max", hit[hit.length-1]);
+        this.$set(option.yAxis[1], "interval", hit[hit.length-1]/5);
+
         this.$set(option.series[0], "data", map.get("users"));
         this.$set(option.series[1], "data", map.get("hits"));
         this.$set(option.series[2], "data", map.get("errors"));
         return option;
       }
     },
-    created() {
-      this.initTableData()
-    },
-    props: ['id'],
     watch: {
-      '$route'(to) {
-        if (to.name === "perReportView") {
-          let reportId = to.path.split('/')[4];
-          if(reportId){
-            this.$get("/report/content/testoverview/" + reportId, res => {
-              let data = res.data;
-              this.maxUsers = data.maxUsers;
-              this.avgThroughput = data.avgThroughput;
-              this.errors = data.errors;
-              this.avgResponseTime = data.avgResponseTime;
-              this.responseTime90 = data.responseTime90;
-              this.avgBandwidth = data.avgBandwidth;
-            })
-            this.$get("/report/content/load_chart/" + reportId, res => {
-              let data = res.data;
-              this.option1 = this.generateOption(data);
-            })
-          }
+      status() {
+        if ("Completed" === this.status) {
+          this.initTableData()
         }
       }
-    }
+    },
+    props: ['id', 'status']
   }
 </script>
 
