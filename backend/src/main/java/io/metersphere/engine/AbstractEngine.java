@@ -21,7 +21,7 @@ import java.util.UUID;
 
 public abstract class AbstractEngine implements Engine {
     public static final String REGISTRY = "registry.fit2cloud.com/metersphere/";
-    public static final String JMETER_IMAGE = "jmeter-master:0.0.2";
+    public static final String JMETER_IMAGE = "jmeter-master:0.0.3";
 
     private Long startTime;
     private String reportId;
