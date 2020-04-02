@@ -30,7 +30,7 @@ export default {
     'phone': '电话',
     'role': '角色',
     'personal_info': '个人信息',
-    'status': '启用/禁用',
+    'status': '状态',
     'show_all': '显示全部',
     'report': '报告',
     'user': '用户',
