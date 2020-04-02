@@ -54,9 +54,9 @@
         result: {},
         testPlan: {},
         listProjectPath: "/project/listAll",
-        savePath: "/testplan/save",
-        editPath: "/testplan/edit",
-        runPath: "/testplan/run",
+        savePath: "/performance/save",
+        editPath: "/performance/edit",
+        runPath: "/performance/run",
         projects: [],
         active: '0',
         tabs: [{
@@ -88,7 +88,7 @@
 
         let testId = to.path.split('/')[4]; // find testId
         if (testId) {
-          this.result = this.$get('/testplan/get/' + testId, response => {
+          this.result = this.$get('/performance/get/' + testId, response => {
             if (response.data) {
               this.testPlan = response.data;
             }
@@ -100,7 +100,7 @@
     created() {
       let testId = this.$route.path.split('/')[4];
       if (testId) {
-        this.result = this.$get('/testplan/get/' + testId, response => {
+        this.result = this.$get('/performance/get/' + testId, response => {
           this.testPlan = response.data;
         });
       }

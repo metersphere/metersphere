@@ -19,7 +19,7 @@
     mounted() {
 
       if (hasRoles(ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
-        this.$get('/testplan/recent/5', (response) => {
+        this.$get('/performance/recent/5', (response) => {
           this.recentTestPlans = response.data;
         });
       }

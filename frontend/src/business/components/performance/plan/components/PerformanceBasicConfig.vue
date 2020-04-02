@@ -58,9 +58,9 @@
     data() {
       return {
         result: {},
-        getFileMetadataPath: "/testplan/file/metadata",
-        jmxDownloadPath: '/testplan/file/download',
-        jmxDeletePath: '/testplan/file/delete',
+        getFileMetadataPath: "/performance/file/metadata",
+        jmxDownloadPath: '/performance/file/download',
+        jmxDeletePath: '/performance/file/delete',
         fileList: [],
         tableData: [],
         uploadList: [],

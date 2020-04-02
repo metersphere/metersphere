@@ -10,7 +10,7 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.testplan.*;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.service.FileService;
-import io.metersphere.service.LoadTestService;
+import io.metersphere.service.PerformanceTestService;
 import io.metersphere.user.SessionUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -24,11 +24,11 @@ import javax.annotation.Resource;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/testplan")
+@RequestMapping(value = "performance")
 @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
-public class LoadTestController {
+public class PerformanceTestController {
     @Resource
-    private LoadTestService loadTestService;
+    private PerformanceTestService performanceTestService;
     @Resource
     private FileService fileService;
 
@@ -38,14 +38,14 @@ public class LoadTestController {
         QueryTestPlanRequest request = new QueryTestPlanRequest();
         request.setWorkspaceId(currentWorkspaceId);
         PageHelper.startPage(1, count, true);
-        return loadTestService.recentTestPlans(request);
+        return performanceTestService.recentTestPlans(request);
     }
 
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<LoadTestDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-        return PageUtils.setPageInfo(page, loadTestService.list(request));
+        return PageUtils.setPageInfo(page, performanceTestService.list(request));
     }
 
     @PostMapping(value = "/save", consumes = {"multipart/form-data"})
@@ -53,7 +53,7 @@ public class LoadTestController {
             @RequestPart("request") SaveTestPlanRequest request,
             @RequestPart(value = "file") List<MultipartFile> files
     ) {
-        return loadTestService.save(request, files);
+        return performanceTestService.save(request, files);
     }
 
     @PostMapping(value = "/edit", consumes = {"multipart/form-data"})
@@ -61,32 +61,32 @@ public class LoadTestController {
             @RequestPart("request") EditTestPlanRequest request,
             @RequestPart(value = "file", required = false) List<MultipartFile> files
     ) {
-        return loadTestService.edit(request, files);
+        return performanceTestService.edit(request, files);
     }
 
     @GetMapping("/get/{testId}")
     public LoadTestDTO get(@PathVariable String testId) {
-        return loadTestService.get(testId);
+        return performanceTestService.get(testId);
     }
 
     @GetMapping("/get-advanced-config/{testId}")
     public String getAdvancedConfiguration(@PathVariable String testId) {
-        return loadTestService.getAdvancedConfiguration(testId);
+        return performanceTestService.getAdvancedConfiguration(testId);
     }
 
     @GetMapping("/get-load-config/{testId}")
     public String getLoadConfiguration(@PathVariable String testId) {
-        return loadTestService.getLoadConfiguration(testId);
+        return performanceTestService.getLoadConfiguration(testId);
     }
 
     @PostMapping("/delete")
     public void delete(@RequestBody DeleteTestPlanRequest request) {
-        loadTestService.delete(request);
+        performanceTestService.delete(request);
     }
 
     @PostMapping("/run")
     public void run(@RequestBody RunTestPlanRequest request) {
-        boolean started = loadTestService.run(request);
+        boolean started = performanceTestService.run(request);
         if (!started) {
             MSException.throwException("Start engine error, please check log.");
         }

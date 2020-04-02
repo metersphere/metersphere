@@ -245,7 +245,7 @@
         });
       },
       getAdvancedConfig(testId) {
-        this.$get('/testplan/get-advanced-config/' + testId, (response) => {
+        this.$get('/performance/get-advanced-config/' + testId, (response) => {
           if (response.data) {
             let data = JSON.parse(response.data);
             this.timeout = data.timeout || 10;

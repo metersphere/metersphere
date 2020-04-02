@@ -11,7 +11,7 @@ import io.metersphere.commons.constants.TestStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.config.JmeterProperties;
-import io.metersphere.service.LoadTestService;
+import io.metersphere.service.PerformanceTestService;
 import io.metersphere.service.TestResourcePoolService;
 import io.metersphere.service.TestResourceService;
 import org.apache.commons.collections.CollectionUtils;
@@ -25,7 +25,7 @@ public abstract class AbstractEngine implements Engine {
     private Long startTime;
     private String reportId;
     protected LoadTestWithBLOBs loadTest;
-    protected LoadTestService loadTestService;
+    protected PerformanceTestService performanceTestService;
     protected Integer threadNum;
     protected List<TestResource> resourceList;
 
@@ -46,7 +46,7 @@ public abstract class AbstractEngine implements Engine {
         }
         this.loadTest = loadTest;
 
-        this.loadTestService = CommonBeanFactory.getBean(LoadTestService.class);
+        this.performanceTestService = CommonBeanFactory.getBean(PerformanceTestService.class);
 
         threadNum = getThreadNum(loadTest);
         String resourcePoolId = loadTest.getTestResourcePoolId();
@@ -67,7 +67,7 @@ public abstract class AbstractEngine implements Engine {
     }
 
     protected Integer getRunningThreadNum() {
-        List<LoadTestWithBLOBs> loadTests = loadTestService.selectByTestResourcePoolId(loadTest.getTestResourcePoolId());
+        List<LoadTestWithBLOBs> loadTests = performanceTestService.selectByTestResourcePoolId(loadTest.getTestResourcePoolId());
         // 使用当前资源池正在运行的测试占用的并发数
         return loadTests.stream()
                 .filter(t -> TestStatus.Running.name().equals(t.getStatus()))

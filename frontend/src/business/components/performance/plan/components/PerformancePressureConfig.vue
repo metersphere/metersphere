@@ -155,7 +155,7 @@
       getLoadConfig(testId) {
         if (testId) {
 
-          this.$get('/testplan/get-load-config/' + testId, (response) => {
+          this.$get('/performance/get-load-config/' + testId, (response) => {
             if (response.data) {
               let data = JSON.parse(response.data);
 
