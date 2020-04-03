@@ -89,7 +89,8 @@ public class JmeterDocumentParser implements DocumentParser {
                         processCheckoutConfigTestElement(ele);
                         processCheckoutDnsCacheManager(ele);
                         processCheckoutArguments(ele);
-                        processCheckoutResponseAssertion(ele);
+                        // TODO: 2020/4/3 使用断言导致backend-listener不可用
+//                        processCheckoutResponseAssertion(ele);
                     } else if (nodeNameEquals(ele, CONCURRENCY_THREAD_GROUP)) {
                         processConcurrencyThreadGroup(ele);
                         processCheckoutTimer(ele);
@@ -111,7 +112,8 @@ public class JmeterDocumentParser implements DocumentParser {
                     } else if (nodeNameEquals(ele, ARGUMENTS)) {
                         processArguments(ele);
                     } else if (nodeNameEquals(ele, RESPONSE_ASSERTION)) {
-                        processResponseAssertion(ele);
+                        // TODO: 2020/4/3 使用断言导致backend-listener不可用
+//                        processResponseAssertion(ele);
                     }
                 }
             }
