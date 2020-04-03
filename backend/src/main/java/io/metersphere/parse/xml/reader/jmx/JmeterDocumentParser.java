@@ -129,7 +129,7 @@ public class JmeterDocumentParser implements DocumentParser {
                 if (params instanceof List) {
                     HashSet set = new HashSet((List) params);
                     for (Object p : set) {
-                        element.appendChild(createStringProp(document, p.toString(), p.toString()));
+                        item.appendChild(createStringProp(document, p.toString(), p.toString()));
                     }
                 }
             }
@@ -179,7 +179,7 @@ public class JmeterDocumentParser implements DocumentParser {
         //
         responseAssertion.appendChild(collectionProp);
         responseAssertion.appendChild(createStringProp(document, "Assertion.custom_message", ""));
-        responseAssertion.appendChild(createStringProp(document, "Assertion.test_field", ""));
+        responseAssertion.appendChild(createStringProp(document, "Assertion.test_field", "Assertion.response_code"));
         responseAssertion.appendChild(createBoolProp(document, "Assertion.assume_success", false));
         responseAssertion.appendChild(createIntProp(document, "Assertion.test_type", 33));
         hashTree.appendChild(responseAssertion);
