@@ -82,6 +82,11 @@ public class ReportController {
         return reportService.getLoadChartData(reportId);
     }
 
+    @GetMapping("/content/res_chart/{reportId}")
+    public ChartsData getResponseTimeChartData(@PathVariable String reportId) {
+        return reportService.getResponseTimeChartData(reportId);
+    }
+
     @GetMapping("/{reportId}")
     public LoadTestReport getLoadTestReport(@PathVariable String reportId) {
         return reportService.getLoadTestReport(reportId);

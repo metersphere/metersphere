@@ -80,7 +80,19 @@
     data() {
       return {
         tableData: [{},{},{},{},{}],
-        totalInfo: {}
+        totalInfo: {
+          totalLabel: '',
+          totalSamples: '',
+          totalErrors: '',
+          totalAverage: '',
+          totalMin: '',
+          totalMax: '',
+          totalTP90: '',
+          totalTP95: '',
+          totalTP99: '',
+          totalAvgHits: '',
+          totalAvgBandwidth: ''
+        }
       }
     },
     methods: {
