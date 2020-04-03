@@ -129,7 +129,21 @@
     data() {
       return {
         tableData: [{},{},{},{},{}],
-        errorTotal: {},
+        errorTotal: {
+          label: '',
+          totalSamples: '',
+          totalErrors: '',
+          error1: '',
+          error1Size: '',
+          error2: '',
+          error2Size: '',
+          error3: '',
+          error3Size: '',
+          error4: '',
+          error4Size: '',
+          error5: '',
+          error5Size: ''
+        },
         errorTop5: []
       }
     },
