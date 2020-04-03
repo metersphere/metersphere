@@ -2,18 +2,20 @@
   <div v-loading="result.loading">
 
     <el-card>
-      <div slot="header">
-        <el-row type="flex" justify="space-between" align="middle">
+      <template v-slot:header>
+        <div>
+          <el-row type="flex" justify="space-between" align="middle">
           <span class="title">{{$t('commons.member')}}
             <ms-create-box :tips="btnTips" :exec="create"/>
           </span>
-          <span class="search">
+            <span class="search">
             <el-input type="text" size="small" :placeholder="$t('member.search_by_name')"
                       prefix-icon="el-icon-search" maxlength="60" @change="search"
                       v-model="condition" clearable/>
           </span>
-        </el-row>
-      </div>
+          </el-row>
+        </div>
+      </template>
       <el-table :data="tableData" style="width: 100%">
         <el-table-column type="selection" width="55"/>
         <el-table-column prop="id" label="ID"/>
@@ -21,7 +23,7 @@
         <el-table-column prop="email" :label="$t('commons.email')"/>
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
         <el-table-column prop="status" :label="$t('commons.status')" width="100">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <el-switch v-model="scope.row.status"
                        active-color="#13ce66"
                        inactive-color="#ff4949"
@@ -32,12 +34,12 @@
           </template>
         </el-table-column>
         <el-table-column prop="createTime" :label="$t('commons.create_time')" width="180">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
             <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
           </template>
@@ -79,9 +81,11 @@
           <el-input v-model="form.phone" autocomplete="off"/>
         </el-form-item>
       </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="createUser('createUserForm')" size="medium">创建</el-button>
-      </span>
+      <template v-slot:footer>
+        <span class="dialog-footer">
+          <el-button type="primary" @click="createUser('createUserForm')" size="medium">创建</el-button>
+        </span>
+      </template>
     </el-dialog>
 
     <el-dialog :title="$t('user.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
@@ -99,9 +103,11 @@
           <el-input v-model="form.phone" autocomplete="off"/>
         </el-form-item>
       </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="updateUser('updateUserForm')" size="medium">{{$t('commons.save')}}</el-button>
-      </span>
+      <template v-slot:footer>
+        <span  class="dialog-footer">
+          <el-button type="primary" @click="updateUser('updateUserForm')" size="medium">{{$t('commons.save')}}</el-button>
+        </span>
+      </template>
     </el-dialog>
 
   </div>

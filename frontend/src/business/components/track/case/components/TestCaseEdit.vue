@@ -107,7 +107,7 @@
               highlight-current-row>
               <el-table-column :label="$t('test_track.number')" prop="num" min-width="15%"></el-table-column>
               <el-table-column :label="$t('test_track.step_desc')" prop="desc" min-width="35%">
-                <template slot-scope="scope">
+                <template v-slot:default="scope">
                   <el-input
                     size="small"
                     v-model="scope.row.desc"
@@ -117,7 +117,7 @@
                 </template>
               </el-table-column>
               <el-table-column :label="$t('test_track.expected_results')" prop="result" min-width="35%">
-                <template slot-scope="scope">
+                <template v-slot:default="scope">
                   <el-input
                     size="small"
                     v-model="scope.row.result"
@@ -127,7 +127,7 @@
                 </template>
               </el-table-column>
               <el-table-column :label="$t('commons.input_content')" min-width="15%">
-                <template slot-scope="scope">
+                <template v-slot:default="scope">
                   <el-button
                     type="primary"
                     icon="el-icon-plus"
@@ -161,17 +161,19 @@
         </el-row>
       </el-form>
 
-      <div slot="footer" class="dialog-footer">
-        <el-button
-          @click="dialogFormVisible = false">
-          {{$t('test_track.cancel')}}
-        </el-button>
-        <el-button
-          type="primary"
-          @click="saveCase">
-          {{$t('test_track.confirm')}}
-        </el-button>
-      </div>
+      <template v-slot:footer>
+        <div class="dialog-footer">
+          <el-button
+            @click="dialogFormVisible = false">
+            {{$t('test_track.cancel')}}
+          </el-button>
+          <el-button
+            type="primary"
+            @click="saveCase">
+            {{$t('test_track.confirm')}}
+          </el-button>
+        </div>
+      </template>
     </el-dialog>
 
   </div>
@@ -183,7 +185,7 @@
 
   import {CURRENT_PROJECT} from '../../../../../common/constants';
 
-    export default {
+  export default {
       name: "TestCaseEdit",
       data() {
         return {

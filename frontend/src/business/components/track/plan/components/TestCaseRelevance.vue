@@ -30,7 +30,10 @@
                     prop="name"
                     label="用例名称"
                     style="width: 100%">
-                    <template slot-scope="scope">
+                    <template v-slot:header>
+                      用例名称
+                    </template>
+                    <template v-slot:default="scope">
                       {{scope.row.name}}
                     </template>
                   </el-table-column>
@@ -40,17 +43,19 @@
         </el-container>
       </el-container>
 
-      <div slot="footer" class="dialog-footer">
-        <el-button
-          @click="dialogFormVisible = false">
-          {{$t('test_track.cancel')}}
-        </el-button>
-        <el-button
-          type="primary"
-          @click="saveCaseRelevance">
-          {{$t('test_track.confirm')}}
-        </el-button>
-      </div>
+      <template v-slot:footer>
+        <div class="dialog-footer">
+          <el-button
+            @click="dialogFormVisible = false">
+            {{$t('test_track.cancel')}}
+          </el-button>
+          <el-button
+            type="primary"
+            @click="saveCaseRelevance">
+            {{$t('test_track.confirm')}}
+          </el-button>
+        </div>
+      </template>
     </el-dialog>
 
   </div>

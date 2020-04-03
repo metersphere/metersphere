@@ -2,17 +2,19 @@
   <div class="testplan-container" v-loading="result.loading">
     <div class="main-content">
       <el-card>
-        <div slot="header">
-          <el-row type="flex" justify="space-between" align="middle">
-            <span class="title">{{$t('commons.test')}}</span>
-            <span class="search">
+        <template v-slot:header>
+          <div>
+            <el-row type="flex" justify="space-between" align="middle">
+              <span class="title">{{$t('commons.test')}}</span>
+              <span class="search">
             <el-input type="text" size="small" :placeholder="$t('load_test.search_by_name')"
                       prefix-icon="el-icon-search"
                       maxlength="60"
                       v-model="condition" @change="search" clearable/>
           </span>
-          </el-row>
-        </div>
+            </el-row>
+          </div>
+        </template>
         <el-table :data="tableData" class="test-content">
           <el-table-column
             prop="name"
@@ -34,21 +36,21 @@
           <el-table-column
             width="250"
             :label="$t('commons.create_time')">
-            <template slot-scope="scope">
+            <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
           <el-table-column
             width="250"
             :label="$t('commons.update_time')">
-            <template slot-scope="scope">
+            <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
           <el-table-column
             width="150"
             :label="$t('commons.operating')">
-            <template slot-scope="scope">
+            <template v-slot:default="scope">
               <el-button @click="handleEdit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
               <el-button @click="handleDelete(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
             </template>
@@ -81,8 +83,8 @@
     data() {
       return {
         result: {},
-        queryPath: "/testplan/list",
-        deletePath: "/testplan/delete",
+        queryPath: "/functional/test/list",
+        deletePath: "/functional/test/delete",
         condition: "",
         projectId: null,
         tableData: [],
@@ -139,7 +141,7 @@
       },
       handleEdit(testPlan) {
         this.$router.push({
-          path: '/performance/plan/edit/' + testPlan.id,
+          path: '/functional/test/edit/' + testPlan.id,
         })
       },
       handleDelete(testPlan) {

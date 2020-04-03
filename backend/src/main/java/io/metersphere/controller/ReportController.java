@@ -82,4 +82,9 @@ public class ReportController {
         return reportService.getLoadChartData(reportId);
     }
 
+    @GetMapping("/{reportId}")
+    public LoadTestReport getLoadTestReport(@PathVariable String reportId) {
+        return reportService.getLoadTestReport(reportId);
+    }
+
 }

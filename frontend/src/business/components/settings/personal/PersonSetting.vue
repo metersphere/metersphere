@@ -2,11 +2,13 @@
   <div v-loading="result.loading">
     <el-card>
 
-      <div slot="header">
-        <el-row type="flex" justify="space-between" align="middle">
-          <span class="title">{{$t('commons.personal_info')}}</span>
-        </el-row>
-      </div>
+      <template v-slot:header>
+        <div>
+          <el-row type="flex" justify="space-between" align="middle">
+            <span class="title">{{$t('commons.personal_info')}}</span>
+          </el-row>
+        </div>
+      </template>
 
       <el-table :data="tableData" style="width: 100%">
         <el-table-column prop="id" label="ID"/>
@@ -14,12 +16,12 @@
         <el-table-column prop="email" :label="$t('commons.email')"/>
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
         <el-table-column prop="createTime" :label="$t('commons.create_time')" width="180">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
           </template>
         </el-table-column>
@@ -40,9 +42,11 @@
             <el-input v-model="form.phone" autocomplete="off"/>
           </el-form-item>
         </el-form>
-        <span slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="updateUser('updateUserForm')" size="medium">{{$t('commons.save')}}</el-button>
-        </span>
+        <template v-slot:footer>
+          <span class="dialog-footer">
+            <el-button type="primary" @click="updateUser('updateUserForm')" size="medium">{{$t('commons.save')}}</el-button>
+          </span>
+        </template>
       </el-dialog>
 
     </el-card>

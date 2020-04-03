@@ -2,7 +2,7 @@
   <div class="project-container">
     <div class="main-content">
       <el-card v-loading="result.loading">
-        <div slot="header">
+        <template v-slot:header>
           <el-row type="flex" justify="space-between" align="middle">
             <span class="title">
               {{$t('commons.project')}}
@@ -14,13 +14,13 @@
                               maxlength="60" v-model="condition" clearable/>
                 </span>
           </el-row>
-        </div>
+        </template>
         <el-table :data="items" style="width: 100%">
           <el-table-column prop="name" :label="$t('commons.name')"/>
           <el-table-column prop="description" :label="$t('commons.description')"/>
           <el-table-column prop="workspaceName" label="所属工作空间"/>
           <el-table-column>
-            <template slot-scope="scope">
+            <template v-slot:default="scope">
               <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
               <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
             </template>
@@ -54,9 +54,11 @@
             <el-input type="textarea" v-model="form.description"></el-input>
           </el-form-item>
         </el-form>
-        <div slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="submit('form')" size="medium">{{$t('commons.save')}}</el-button>
-        </div>
+        <template v-slot:footer>
+          <div class="dialog-footer">
+            <el-button type="primary" @click="submit('form')" size="medium">{{$t('commons.save')}}</el-button>
+          </div>
+        </template>
       </el-dialog>
     </div>
   </div>
@@ -65,7 +67,7 @@
 <script>
   import MsCreateBox from "../settings/CreateBox";
   import {Message} from "element-ui";
-  import {TokenKey,CURRENT_PROJECT} from "../../../common/constants";
+  import {CURRENT_PROJECT, TokenKey} from "../../../common/constants";
 
   export default {
     name: "MsProject",

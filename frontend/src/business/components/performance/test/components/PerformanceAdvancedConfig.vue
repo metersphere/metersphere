@@ -15,7 +15,7 @@
         <el-table-column
           :label="$t('load_test.domain')"
           show-overflow-tooltip>
-          <template slot-scope="{row}">
+          <template v-slot:default="{row}">
             <template v-if="row.edit">
               <el-input v-model="row.domain" class="edit-input" size="mini"/>
             </template>
@@ -25,7 +25,7 @@
         <el-table-column
           :label="$t('load_test.enable')"
           show-overflow-tooltip>
-          <template slot-scope="{row}">
+          <template v-slot:default="{row}">
             <el-switch
               :disabled="!row.edit"
               size="mini"
@@ -38,7 +38,7 @@
         <el-table-column
           :label="$t('load_test.ip')"
           show-overflow-tooltip>
-          <template slot-scope="{row}">
+          <template v-slot:default="{row}">
             <template v-if="row.edit">
               <el-input v-model="row.ip" class="edit-input" size="mini"/>
             </template>
@@ -46,7 +46,7 @@
           </template>
         </el-table-column>
         <el-table-column align="center">
-          <template slot-scope="{row, $index}">
+          <template v-slot:default="{row, $index}">
             <template v-if="row.edit">
               <el-button
                 class="cancel-btn"
@@ -99,7 +99,7 @@
         <el-table-column
           :label="$t('load_test.param_name')"
           show-overflow-tooltip>
-          <template slot-scope="{row}">
+          <template v-slot:default="{row}">
             <template v-if="row.edit">
               <el-input v-model="row.name" class="edit-input" size="mini"/>
             </template>
@@ -109,7 +109,7 @@
         <el-table-column
           :label="$t('load_test.enable')"
           show-overflow-tooltip>
-          <template slot-scope="{row}">
+          <template v-slot:default="{row}">
             <el-switch
               :disabled="!row.edit"
               size="mini"
@@ -122,7 +122,7 @@
         <el-table-column
           :label="$t('load_test.param_value')"
           show-overflow-tooltip>
-          <template slot-scope="{row}">
+          <template v-slot:default="{row}">
             <template v-if="row.edit">
               <el-input v-model="row.value" class="edit-input" size="mini"/>
             </template>
@@ -130,7 +130,7 @@
           </template>
         </el-table-column>
         <el-table-column align="center">
-          <template slot-scope="{row, $index}">
+          <template v-slot:default="{row, $index}">
             <template v-if="row.edit">
               <el-button
                 class="cancel-btn"
@@ -245,7 +245,7 @@
         });
       },
       getAdvancedConfig(testId) {
-        this.$get('/testplan/get-advanced-config/' + testId, (response) => {
+        this.$get('/performance/get-advanced-config/' + testId, (response) => {
           if (response.data) {
             let data = JSON.parse(response.data);
             this.timeout = data.timeout || 10;

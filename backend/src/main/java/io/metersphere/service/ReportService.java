@@ -5,6 +5,7 @@ import io.metersphere.base.domain.LoadTestReportExample;
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.request.ReportRequest;
 import io.metersphere.dto.ReportDTO;
 import io.metersphere.report.JtlResolver;
@@ -13,6 +14,7 @@ import io.metersphere.report.base.Errors;
 import io.metersphere.report.base.TestOverview;
 import io.metersphere.report.dto.ErrorsTop5DTO;
 import io.metersphere.report.dto.RequestStatisticsDTO;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,5 +84,17 @@ public class ReportService {
         String content = loadTestReport.getContent();
         ChartsData chartsData = JtlResolver.getLoadChartData(content);
         return chartsData;
+    }
+
+//    public void checkReportStatus(String id) {
+//        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
+//        String status=loadTestReport.getStatus();
+//        if (StringUtils.equals("Error",status)) {
+//            MSException.throwException("test run error!");
+//        }
+//    }
+
+    public LoadTestReport getLoadTestReport(String id) {
+        return extLoadTestReportMapper.selectByPrimaryKey(id);
     }
 }

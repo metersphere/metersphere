@@ -12,7 +12,9 @@
       :file-list="fileList">
       <i class="el-icon-upload"/>
       <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
-      <div class="el-upload__tip" slot="tip">{{$t('load_test.upload_type')}}</div>
+      <template v-slot:tip>
+        <div class="el-upload__tip">{{$t('load_test.upload_type')}}</div>
+      </template>
     </el-upload>
 
     <el-table class="basic-config" :data="tableData">
@@ -30,7 +32,7 @@
       </el-table-column>
       <el-table-column
         :label="$t('load_test.last_modify_time')">
-        <template slot-scope="scope">
+        <template v-slot:default="scope">
           <i class="el-icon-time"/>
           <span class="last-modified">{{ scope.row.lastModified | timestampFormatDate }}</span>
         </template>
@@ -41,7 +43,7 @@
       </el-table-column>
       <el-table-column
         :label="$t('commons.operating')">
-        <template slot-scope="scope">
+        <template v-slot:default="scope">
           <el-button @click="handleDownload(scope.row)" :disabled="!scope.row.id" type="primary" icon="el-icon-download"
                      size="mini" circle/>
           <el-button @click="handleDelete(scope.row, scope.$index)" type="danger" icon="el-icon-delete" size="mini"
@@ -61,9 +63,9 @@
     data() {
       return {
         result: {},
-        getFileMetadataPath: "/functional/plan/file/metadata",
-        jmxDownloadPath: '/functional/plan/file/download',
-        jmxDeletePath: '/functional/plan/file/delete',
+        getFileMetadataPath: "/functional/test/file/metadata",
+        jmxDownloadPath: '/functional/test/file/download',
+        jmxDeletePath: '/functional/test/file/delete',
         fileList: [],
         tableData: [],
       };

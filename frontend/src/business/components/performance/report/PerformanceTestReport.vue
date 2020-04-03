@@ -3,17 +3,19 @@
 
     <div class="main-content">
       <el-card>
-        <div slot="header">
-          <el-row type="flex" justify="space-between" align="middle">
-            <span class="title">{{$t('commons.report')}}</span>
-            <span class="search">
+        <template v-slot:header>
+          <div>
+            <el-row type="flex" justify="space-between" align="middle">
+              <span class="title">{{$t('commons.report')}}</span>
+              <span class="search">
               <el-input type="text" size="small" :placeholder="$t('report.search_by_name')"
                         prefix-icon="el-icon-search"
                         maxlength="60"
                         v-model="condition" @change="search" clearable/>
             </span>
-          </el-row>
-        </div>
+            </el-row>
+          </div>
+        </template>
 
         <el-table :data="tableData" class="test-content">
           <el-table-column
@@ -30,21 +32,21 @@
           <el-table-column
             width="250"
             :label="$t('commons.create_time')">
-            <template slot-scope="scope">
+            <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
           <el-table-column
             width="250"
             :label="$t('commons.update_time')">
-            <template slot-scope="scope">
+            <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
           <el-table-column
             prop="status"
             :label="$t('commons.status')">
-            <template slot-scope="{row}">
+            <template v-slot:default="{row}">
               <el-tag size="mini" type="primary" v-if="row.status === 'Starting'">
                 {{ row.status }}
               </el-tag>
@@ -52,7 +54,9 @@
                 {{ row.status }}
               </el-tag>
               <el-tooltip placement="top" v-else-if="row.status === 'Error'" effect="light">
-                <div slot="content">{{row.description}}</div>
+                <template v-slot:content>
+                  <div>{{row.description}}</div>
+                </template>
                 <el-tag size="mini" type="danger">
                   {{ row.status }}
                 </el-tag>
@@ -65,7 +69,7 @@
           <el-table-column
             width="150"
             :label="$t('commons.operating')">
-            <template slot-scope="scope">
+            <template v-slot:default="scope">
               <el-button @click="handleEdit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
               <el-button @click="handleDelete(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
             </template>
@@ -145,6 +149,19 @@
         this.multipleSelection = val;
       },
       handleEdit(report) {
+        if (report.status === "Error") {
+          this.$message({
+            type: 'warning',
+            message: "报告生成错误,无法查看！"
+          });
+          return false
+        } else if (report.status === "Starting") {
+          this.$message({
+            type: 'info',
+            message: "报告生成中..."
+          });
+          return false
+        }
         this.$router.push({
           path: '/performance/report/view/' + report.id
         })

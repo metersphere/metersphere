@@ -6,7 +6,7 @@
         <el-menu :unique-opened="true" mode="horizontal" active-text-color="write"
           class="project_menu">
           <el-submenu index="1" popper-class="submenu">
-            <template slot="title">
+            <template v-slot:title>
               {{currentProject == null ? '' : currentProject.name}}
             </template>
             <div style="height:400px;">

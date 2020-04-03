@@ -1,7 +1,7 @@
 <template>
   <el-menu menu-trigger="click" :default-active="$route.path" router>
     <el-submenu index="1" v-permission="['admin']">
-      <template slot="title">
+      <template v-slot:title>
         <font-awesome-icon class="icon account" :icon="['far', 'address-card']" size="lg"/>
         <span>{{$t('commons.system')}}</span>
       </template>
@@ -12,7 +12,7 @@
     </el-submenu>
 
     <el-submenu index="2" v-permission="['org_admin']" v-if="isCurrentOrganizationAdmin">
-      <template slot="title">
+      <template v-slot:title>
         <font-awesome-icon class="icon organization" :icon="['far', 'building']" size="lg"/>
         <span>{{$t('commons.organization')}}</span>
       </template>
@@ -23,7 +23,7 @@
     </el-submenu>
 
     <el-submenu index="3" v-permission="['test_manager','test_user','test_viewer']" v-if="isCurrentWorkspaceUser">
-      <template slot="title">
+      <template v-slot:title>
         <font-awesome-icon class="icon workspace" :icon="['far', 'list-alt']" size="lg"/>
         <span>{{$t('commons.workspace')}}</span>
       </template>
@@ -31,7 +31,7 @@
     </el-submenu>
 
     <el-submenu index="4">
-      <template slot="title">
+      <template v-slot:title>
         <font-awesome-icon class="icon" :icon="['far', 'user']" size="lg"/>
         <span>{{$t('commons.personal_info')}}</span>
       </template>

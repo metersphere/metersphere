@@ -2,28 +2,30 @@
   <div v-loading="loading">
 
     <el-card>
-      <div slot="header">
-        <el-row type="flex" justify="space-between" align="middle">
+      <template v-slot:header>
+        <div>
+          <el-row type="flex" justify="space-between" align="middle">
           <span class="title">测试资源池
             <ms-create-box :tips="btnTips" :exec="create"/>
           </span>
-          <span class="search">
+            <span class="search">
             <el-input type="text" size="small" placeholder="根据名称搜索" prefix-icon="el-icon-search"
                       maxlength="60" v-model="condition" @change="search" clearable/>
           </span>
-        </el-row>
-      </div>
+          </el-row>
+        </div>
+      </template>
       <el-table :data="items" style="width: 100%">
         <el-table-column prop="name" label="名称"/>
         <el-table-column prop="description" label="描述"/>
         <el-table-column prop="type" label="类型">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <span v-if="scope.row.type === 'NODE'">独立节点</span>
             <span v-if="scope.row.type === 'K8S'">Kubernetes</span>
           </template>
         </el-table-column>
         <el-table-column prop="status" label="启用/禁用">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <el-switch v-model="scope.row.status"
                        active-color="#13ce66"
                        inactive-color="#ff4949"
@@ -34,17 +36,17 @@
           </template>
         </el-table-column>
         <el-table-column prop="createTime" label="创建时间" width="180">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="updateTime" label="更新时间" width="180">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
         <el-table-column>
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
             <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
           </template>
@@ -138,10 +140,12 @@
         </div>
 
       </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="createTestResourcePool('createTestResourcePoolForm')"
-                   size="medium">创建</el-button>
-      </span>
+      <template v-slot:footer>
+        <span class="dialog-footer">
+          <el-button type="primary" @click="createTestResourcePool('createTestResourcePoolForm')"
+                     size="medium">创建</el-button>
+        </span>
+      </template>
     </el-dialog>
 
     <el-dialog title="修改资源池" :visible.sync="updateVisible" width="70%" :destroy-on-close="true"
@@ -209,10 +213,12 @@
           </div>
         </div>
       </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="updateTestResourcePool('updateTestResourcePoolForm')"
-                   size="medium">修改</el-button>
-      </span>
+      <template v-slot:footer>
+        <span class="dialog-footer">
+          <el-button type="primary" @click="updateTestResourcePool('updateTestResourcePoolForm')"
+                     size="medium">修改</el-button>
+        </span>
+      </template>
     </el-dialog>
 
   </div>

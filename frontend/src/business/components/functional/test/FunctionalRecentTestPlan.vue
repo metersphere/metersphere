@@ -4,7 +4,7 @@
       <i class="el-icon-time"/>
       {{$t('load_test.recent')}}
     </div>
-    <el-menu-item :key="t.id" v-for="t in recentTestPlans" :index="'/functional/plan/edit/' + t.id">
+    <el-menu-item :key="t.id" v-for="t in recentTestPlans" :index="'/functional/test/edit/' + t.id">
       {{ t.name }}
     </el-menu-item>
   </el-menu>
@@ -19,7 +19,7 @@
     mounted() {
 
       if (hasRoles(ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
-        this.$get('/testplan/recent/5', (response) => {
+        this.$get('/performance/recent/5', (response) => {
           this.recentTestPlans = response.data;
         });
       }

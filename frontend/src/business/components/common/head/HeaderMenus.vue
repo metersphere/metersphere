@@ -9,7 +9,7 @@
 
       <el-submenu v-if="isCurrentWorkspaceUser"
                   index="3" popper-class="submenu" v-permission="['test_manager']" >
-        <template slot="title">{{$t('commons.project')}}</template>
+        <template v-slot:title>{{$t('commons.project')}}</template>
         <performance-recent-project v-if="beaseUrl == 'performance'"/>
         <functional-recent-project v-if="beaseUrl == 'functional'"/>
         <track-recent-project v-if="beaseUrl == 'tack'"/>
@@ -25,22 +25,22 @@
 
       <el-submenu v-if="isCurrentWorkspaceUser && (beaseUrl == 'performance' || beaseUrl == 'functional')"
                   index="4" popper-class="submenu" v-permission="['test_manager', 'test_user']">
-        <template slot="title">{{$t('commons.test')}}</template>
+        <template v-slot:title>{{$t('commons.test')}}</template>
         <performance-recent-test-plan v-if="beaseUrl == 'performance'"/>
         <functional-recent-test-plan v-if="beaseUrl == 'functional'"/>
         <el-divider/>
-        <el-menu-item :index="'/' + beaseUrl + '/plan/all'">
+        <el-menu-item :index="'/' + beaseUrl + '/test/all'">
           <font-awesome-icon :icon="['fa', 'list-ul']"/>
           <span style="padding-left: 5px;">{{$t('commons.show_all')}}</span>
         </el-menu-item>
-        <el-menu-item :index="'/' + beaseUrl + '/plan/create'">
+        <el-menu-item :index="'/' + beaseUrl + '/test/create'">
           <el-button type="text">{{$t('load_test.create')}}</el-button>
         </el-menu-item>
       </el-submenu>
 
       <el-submenu v-if="isCurrentWorkspaceUser && (beaseUrl == 'performance' || beaseUrl == 'functional')"
                   index="5" popper-class="submenu" v-permission="['test_manager', 'test_user', 'test_viewer']">
-        <template slot="title">{{$t('commons.report')}}</template>
+        <template v-slot:title>{{$t('commons.report')}}</template>
         <performance-recent-report v-if="beaseUrl == 'performance'"/>
         <functional-recent-report v-if="beaseUrl == 'functional'"/>
         <el-divider/>
@@ -52,7 +52,7 @@
 
       <el-submenu v-if="isCurrentWorkspaceUser && beaseUrl == 'track'"
                   index="6" popper-class="submenu" v-permission="['test_manager', 'test_user']">
-        <template slot="title">{{$t('test_track.test_case')}}</template>
+        <template v-slot:title>{{$t('test_track.test_case')}}</template>
         <recent-case-plan/>
         <el-divider/>
         <el-menu-item :index="'/' + beaseUrl + '/case/all'">
@@ -66,7 +66,7 @@
 
       <el-submenu v-if="isCurrentWorkspaceUser && beaseUrl == 'track'"
                   index="7" popper-class="submenu" v-permission="['test_manager', 'test_user', 'test_viewer']">
-        <template slot="title">{{$t('test_track.test_plan')}}</template>
+        <template v-slot:title>{{$t('test_track.test_plan')}}</template>
         <el-divider/>
         <el-menu-item :index="'/' + beaseUrl + '/plan/all'">
           <font-awesome-icon :icon="['fa', 'list-ul']"/>
@@ -78,7 +78,7 @@
       </el-submenu>
 
       <router-link  v-if="isCurrentWorkspaceUser && (beaseUrl == 'performance' || beaseUrl == 'functional')"
-                    class="header-bottom" :to="'/' + beaseUrl + '/plan/create'" v-permission="['test_user','test_manager']">
+                    class="header-bottom" :to="'/' + beaseUrl + '/test/create'" v-permission="['test_user','test_manager']">
         <el-button type="primary" size="small">{{$t('load_test.create')}}</el-button>
       </router-link>
 
@@ -89,8 +89,8 @@
 
 <script>
 
-  import PerformanceRecentTestPlan from "../../performance/plan/PerformanceRecentTestPlan";
-  import FunctionalRecentTestPlan from "../../functional/plan/FunctionalRecentTestPlan";
+  import PerformanceRecentTestPlan from "../../performance/test/PerformanceRecentTestPlan";
+  import FunctionalRecentTestPlan from "../../functional/test/FunctionalRecentTestPlan";
   import PerformanceRecentProject from "../../performance/project/PerformanceRecentProject";
   import FunctionalRecentProject from "../../functional/project/FunctionalRecentProject";
   import PerformanceRecentReport from "../../performance/report/PerformanceRecentReport";

@@ -77,17 +77,19 @@
 
       </el-form>
 
-      <div slot="footer" class="dialog-footer">
-        <el-button
-          @click="dialogFormVisible = false">
-          {{$t('test_track.cancel')}}
-        </el-button>
-        <el-button
-          type="primary"
-          @click="savePlan">
-          {{$t('test_track.confirm')}}
-        </el-button>
-      </div>
+      <template v-slot:footer>
+        <div class="dialog-footer">
+          <el-button
+            @click="dialogFormVisible = false">
+            {{$t('test_track.cancel')}}
+          </el-button>
+          <el-button
+            type="primary"
+            @click="savePlan">
+            {{$t('test_track.confirm')}}
+          </el-button>
+        </div>
+      </template>
     </el-dialog>
 
   </div>

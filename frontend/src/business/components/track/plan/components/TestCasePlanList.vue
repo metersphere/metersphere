@@ -1,34 +1,36 @@
 <template>
 
-  <el-main>
+  <el-main class="main-content">
     <el-card>
-      <div slot="header">
-        <el-row type="flex" justify="space-between" align="middle">
-          <el-col :span="5">
-            <span class="title">{{$t('test_track.test_case')}}</span>
-          </el-col>
+      <template v-slot:header>
+        <div>
+          <el-row type="flex" justify="space-between" align="middle">
+            <el-col :span="5">
+              <span class="title">{{$t('test_track.test_case')}}</span>
+            </el-col>
 
-          <el-col :span="1" :offset="6">
-            <el-button icon="el-icon-circle-plus-outline" size="small" round
-                       @click="$emit('openTestCaseRelevanceDialog')" >关联测试用例</el-button>
-          </el-col>
+            <el-col :span="1" :offset="6">
+              <el-button icon="el-icon-circle-plus-outline" size="small" round
+                         @click="$emit('openTestCaseRelevanceDialog')" >关联测试用例</el-button>
+            </el-col>
 
-          <el-col :span="1" >
-            <el-button
-              icon="el-icon-refresh" size="small" round
-              @click="initTableData()">{{$t('commons.refresh')}}</el-button>
-          </el-col>
+            <el-col :span="1" >
+              <el-button
+                icon="el-icon-refresh" size="small" round
+                @click="initTableData()">{{$t('commons.refresh')}}</el-button>
+            </el-col>
 
-          <el-col :span="5">
+            <el-col :span="5">
                   <span class="search">
                     <el-input type="text" size="small" :placeholder="$t('load_test.search_by_name')"
                               prefix-icon="el-icon-search"
                               maxlength="60"
                               v-model="condition" @change="search" clearable/>
                   </span>
-          </el-col>
-        </el-row>
-      </div>
+            </el-col>
+          </el-row>
+        </div>
+      </template>
 
       <el-table
         :data="tableData"
@@ -50,7 +52,7 @@
           :label="$t('test_track.type')"
           width="120"
           show-overflow-tooltip>
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <span v-if="scope.row.type == 'functional'">{{$t('commons.functional')}}</span>
             <span v-if="scope.row.type == 'performance'">{{$t('commons.performance')}}</span>
             <span v-if="scope.row.type == 'interface'">{{$t('commons.interface')}}</span>
@@ -61,7 +63,7 @@
           :label="$t('test_track.method')"
           width="120"
           show-overflow-tooltip>
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <span v-if="scope.row.method == 'manual'">{{$t('test_track.manual')}}</span>
             <span v-if="scope.row.method == 'auto'">{{$t('test_track.auto')}}</span>
           </template>
@@ -75,21 +77,21 @@
         <el-table-column
           width="160"
           :label="$t('commons.create_time')">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
         <el-table-column
           width="160"
           :label="$t('commons.update_time')">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
         <el-table-column
           width="100"
           :label="$t('commons.operating')">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <el-button @click="handleEdit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
             <el-button @click="handleDelete(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
           </template>
@@ -122,7 +124,7 @@
   import {CURRENT_PROJECT} from '../../../../../common/constants';
   import PlanNodeTree from './PlanNodeTree';
 
-    export default {
+  export default {
       name: "TestCaseList",
       components: {PlanNodeTree},
       data() {
@@ -210,6 +212,13 @@
     padding-top: 20px;
     margin-right: -9px;
     float: right;
+  }
+
+
+  .main-content {
+    margin: 0 auto;
+    width: 100%;
+    max-width: 1200px;
   }
 
 </style>

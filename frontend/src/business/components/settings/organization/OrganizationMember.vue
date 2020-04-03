@@ -1,31 +1,33 @@
 <template>
   <div v-loading="result.loading">
     <el-card>
-      <div slot="header">
-        <el-row type="flex" justify="space-between" align="middle">
+      <template v-slot:header>
+        <div >
+          <el-row type="flex" justify="space-between" align="middle">
           <span class="title">{{$t('commons.member')}}
             <ms-create-box :tips="btnTips" :exec="create"/>
           </span>
-          <span class="search">
+            <span class="search">
             <el-input type="text" size="small" :placeholder="$t('member.search_by_name')"
                       prefix-icon="el-icon-search"
                       maxlength="60" v-model="condition" @change="search" clearable/>
           </span>
-        </el-row>
-      </div>
+          </el-row>
+        </div>
+      </template>
       <el-table :data="tableData" style="width: 100%">
         <el-table-column prop="name" :label="$t('commons.username')"/>
         <el-table-column prop="email" :label="$t('commons.email')"/>
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
         <el-table-column prop="roles" :label="$t('commons.role')" width="140">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <el-tag v-for="(role, index) in scope.row.roles" :key="index" size="mini" effect="dark">
               {{ role.name }}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column>
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
             <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
           </template>
@@ -75,9 +77,11 @@
           </el-select>
         </el-form-item>
       </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm('form')" size="medium">{{$t('commons.save')}}</el-button>
-      </span>
+      <template v-slot:footer>
+        <span class="dialog-footer">
+          <el-button type="primary" @click="submitForm('form')" size="medium">{{$t('commons.save')}}</el-button>
+        </span>
+      </template>
     </el-dialog>
 
     <el-dialog :title="$t('member.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
@@ -105,9 +109,11 @@
           </el-select>
         </el-form-item>
       </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="updateOrgMember('updateUserForm')" size="medium">{{$t('commons.save')}}</el-button>
-      </span>
+      <template v-slot:footer>
+        <span class="dialog-footer">
+          <el-button type="primary" @click="updateOrgMember('updateUserForm')" size="medium">{{$t('commons.save')}}</el-button>
+        </span>
+      </template>
     </el-dialog>
   </div>
 </template>

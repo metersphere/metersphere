@@ -7,7 +7,7 @@
                text-color="#fff">
         <el-submenu index="1" popper-class="submenu"
                     v-permission="['org_admin', 'test_manager', 'test_user', 'test_viewer']">
-          <template slot="title">【{{$t('commons.organization')}}】{{currentOrganizationName}}</template>
+          <template v-slot:title>【{{$t('commons.organization')}}】{{currentOrganizationName}}</template>
           <label v-for="(item,index) in organizationList" :key="index">
             <el-menu-item @click="changeOrg(item)">{{item.name}}
               <i class="el-icon-check"
@@ -16,7 +16,7 @@
           </label>
         </el-submenu>
         <el-submenu index="2" popper-class="submenu" v-permission="['test_manager', 'test_user', 'test_viewer']">
-          <template slot="title">【{{$t('commons.workspace')}}】{{currentWorkspaceName}}</template>
+          <template v-slot:title>【{{$t('commons.workspace')}}】{{currentWorkspaceName}}</template>
           <label v-for="(item,index) in workspaceList" :key="index">
             <el-menu-item @click="changeWs(item)">
               {{item.name}}
@@ -32,10 +32,12 @@
         <span class="dropdown-link">
             {{currentUser.name}}<i class="el-icon-caret-bottom el-icon--right"/>
         </span>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item command="personal">个人信息</el-dropdown-item>
-          <el-dropdown-item command="logout">退出系统</el-dropdown-item>
-        </el-dropdown-menu>
+        <template v-slot:dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item command="personal">个人信息</el-dropdown-item>
+            <el-dropdown-item command="logout">退出系统</el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
       </el-dropdown>
     </el-col>
   </el-row>
