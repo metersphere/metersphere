@@ -92,6 +92,14 @@ public class ReportService {
         return chartsData;
     }
 
+    public ChartsData getResponseTimeChartData(String id) {
+        checkReportStatus(id);
+        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
+        String content = loadTestReport.getContent();
+        ChartsData chartsData = JtlResolver.getResponseTimeChartData(content);
+        return chartsData;
+    }
+
     public void checkReportStatus(String reportId) {
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
         String reportStatus = loadTestReport.getStatus();

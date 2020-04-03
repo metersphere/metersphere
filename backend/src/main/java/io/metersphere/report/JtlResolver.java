@@ -8,6 +8,7 @@ import io.metersphere.report.base.*;
 import io.metersphere.report.dto.ErrorsTop5DTO;
 import io.metersphere.report.dto.RequestStatisticsDTO;
 import org.apache.commons.lang3.StringUtils;
+
 import java.io.Reader;
 import java.io.StringReader;
 import java.text.DecimalFormat;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 public class JtlResolver {
 
     private static final Integer ERRORS_TOP_SIZE = 5;
+    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private static List<Metric> resolver(String jtlString) {
         HeaderColumnNameMappingStrategy<Metric> ms = new HeaderColumnNameMappingStrategy<>();
@@ -37,13 +39,13 @@ public class JtlResolver {
         return null;
     }
 
-    public static RequestStatisticsDTO getRequestStatistics(String jtlString){
+    public static RequestStatisticsDTO getRequestStatistics(String jtlString) {
         List<Integer> allElapseTimeList = new ArrayList<>();
         List<RequestStatistics> requestStatisticsList = new ArrayList<>();
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
-        List<Metric> totalLines = resolver(jtlString);
-        Map<String, List<Metric>> jtlLabelMap = totalLines.stream().collect(Collectors.groupingBy(Metric::getLabel));
+        List<Metric> totalMetricList = resolver(jtlString);
+        Map<String, List<Metric>> jtlLabelMap = totalMetricList.stream().collect(Collectors.groupingBy(Metric::getLabel));
         Iterator<Map.Entry<String, List<Metric>>> iterator = jtlLabelMap.entrySet().iterator();
 
         int totalElapsedTime = 0;
@@ -68,33 +70,33 @@ public class JtlResolver {
                     allElapseTimeList.add(Integer.valueOf(elapsed));
 
                     String isSuccess = row.getSuccess();
-                    if (!"true".equals(isSuccess)){
+                    if (!"true".equals(isSuccess)) {
                         failSize++;
                     }
                     String bytes = row.getBytes();
                     oneLineBytes += Float.parseFloat(bytes);
                     totalBytes += Float.parseFloat(bytes);
                     jtlSamplesSize++;
-                }catch (Exception e){
-                    System.out.println("exception i:"+i);
+                } catch (Exception e) {
+                    System.out.println("exception i:" + i);
                 }
             }
 
             Collections.sort(elapsedList);
 
-            int tp90 = elapsedList.size()*90/100;
-            int tp95 = elapsedList.size()*95/100;
-            int tp99 = elapsedList.size()*99/100;
+            int tp90 = elapsedList.size() * 90 / 100;
+            int tp95 = elapsedList.size() * 95 / 100;
+            int tp99 = elapsedList.size() * 99 / 100;
 
             metricList.sort(Comparator.comparing(t0 -> Long.valueOf(t0.getTimestamp())));
-            long time = Long.parseLong(metricList.get(metricList.size()-1).getTimestamp()) - Long.parseLong(metricList.get(0).getTimestamp())
-                      + Long.parseLong(metricList.get(metricList.size()-1).getElapsed());
+            long time = Long.parseLong(metricList.get(metricList.size() - 1).getTimestamp()) - Long.parseLong(metricList.get(0).getTimestamp())
+                    + Long.parseLong(metricList.get(metricList.size() - 1).getElapsed());
 
             RequestStatistics requestStatistics = new RequestStatistics();
             requestStatistics.setRequestLabel(label);
             requestStatistics.setSamples(jtlSamplesSize);
 
-            String average = decimalFormat.format((float)oneLineElapsedTime / jtlSamplesSize);
+            String average = decimalFormat.format((float) oneLineElapsedTime / jtlSamplesSize);
             requestStatistics.setAverage(average);
 
             /**
@@ -105,16 +107,16 @@ public class JtlResolver {
              * 其余相似的指标还有TP95, TP99
              */
             // todo tp90
-            requestStatistics.setTp90(elapsedList.get(tp90)+"");
-            requestStatistics.setTp95(elapsedList.get(tp95)+"");
-            requestStatistics.setTp99(elapsedList.get(tp99)+"");
+            requestStatistics.setTp90(elapsedList.get(tp90) + "");
+            requestStatistics.setTp95(elapsedList.get(tp95) + "");
+            requestStatistics.setTp99(elapsedList.get(tp99) + "");
 
-            double avgHits = (double)metricList.size() / (time * 1.0 / 1000);
+            double avgHits = (double) metricList.size() / (time * 1.0 / 1000);
             requestStatistics.setAvgHits(decimalFormat.format(avgHits));
 
-            requestStatistics.setMin(elapsedList.get(0)+"");
-            requestStatistics.setMax(elapsedList.get(jtlSamplesSize-1)+"");
-            requestStatistics.setErrors(decimalFormat.format(failSize * 100.0 / jtlSamplesSize)+"%");
+            requestStatistics.setMin(elapsedList.get(0) + "");
+            requestStatistics.setMax(elapsedList.get(jtlSamplesSize - 1) + "");
+            requestStatistics.setErrors(decimalFormat.format(failSize * 100.0 / jtlSamplesSize) + "%");
             requestStatistics.setKo(failSize);
             /**
              * 所有的相同请求的bytes总和 / 1024 / 请求持续运行的时间=sum(bytes)/1024/total time
@@ -125,9 +127,9 @@ public class JtlResolver {
         }
 
         Collections.sort(allElapseTimeList);
-        int totalTP90 = allElapseTimeList.size()*90/100;
-        int totalTP95 = allElapseTimeList.size()*95/100;
-        int totalTP99 = allElapseTimeList.size()*99/100;
+        int totalTP90 = allElapseTimeList.size() * 90 / 100;
+        int totalTP95 = allElapseTimeList.size() * 95 / 100;
+        int totalTP99 = allElapseTimeList.size() * 99 / 100;
 
         Integer min = allElapseTimeList.get(0);
         Integer max = allElapseTimeList.get(allElapseTimeList.size() - 1);
@@ -135,9 +137,9 @@ public class JtlResolver {
         int allSamples = requestStatisticsList.stream().mapToInt(RequestStatistics::getSamples).sum();
         int failSize = requestStatisticsList.stream().mapToInt(RequestStatistics::getKo).sum();
 
-        double errors = (double)failSize / allSamples * 100;
+        double errors = (double) failSize / allSamples * 100;
         String totalErrors = decimalFormat.format(errors);
-        double average = (double)totalElapsedTime / allSamples;
+        double average = (double) totalElapsedTime / allSamples;
         String totalAverage = decimalFormat.format(average);
 
         RequestStatisticsDTO statisticsDTO = new RequestStatisticsDTO();
@@ -152,11 +154,11 @@ public class JtlResolver {
         statisticsDTO.setTotalTP95(String.valueOf(allElapseTimeList.get(totalTP95)));
         statisticsDTO.setTotalTP99(String.valueOf(allElapseTimeList.get(totalTP99)));
 
-        totalLines.sort(Comparator.comparing(t0 -> Long.valueOf(t0.getTimestamp())));
+        totalMetricList.sort(Comparator.comparing(t0 -> Long.valueOf(t0.getTimestamp())));
 
-        long ms = Long.parseLong(totalLines.get(totalLines.size()-1).getTimestamp()) - Long.parseLong(totalLines.get(0).getTimestamp())
-                + Long.parseLong(totalLines.get(totalLines.size()-1).getElapsed());
-        double avgThroughput = (double)totalLines.size() / (ms * 1.0 / 1000);
+        long ms = Long.parseLong(totalMetricList.get(totalMetricList.size() - 1).getTimestamp()) - Long.parseLong(totalMetricList.get(0).getTimestamp())
+                + Long.parseLong(totalMetricList.get(totalMetricList.size() - 1).getElapsed());
+        double avgThroughput = (double) totalMetricList.size() / (ms * 1.0 / 1000);
 
         statisticsDTO.setTotalAvgHits(decimalFormat.format(avgThroughput));
         statisticsDTO.setTotalAvgBandwidth(decimalFormat.format(totalBytes * 1.0 / 1024 / (ms * 1.0 / 1000)));
@@ -165,22 +167,20 @@ public class JtlResolver {
     }
 
     public static List<Errors> getErrorsList(String jtlString) {
-        List<Metric> totalLines = resolver(jtlString);
+        List<Metric> totalMetricList = resolver(jtlString);
         List<Errors> errorsList = new ArrayList<>();
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
         List<Metric> falseList = new ArrayList<>();
-        for (Metric metric : totalLines) {
+        for (Metric metric : totalMetricList) {
             if (StringUtils.equals("false", metric.getSuccess())) {
                 falseList.add(metric);
             }
         }
 
         Map<String, List<Metric>> jtlMap = falseList.stream().collect(Collectors.groupingBy(JtlResolver::getResponseCodeAndFailureMessage));
-        Iterator<Map.Entry<String, List<Metric>>> iterator = jtlMap.entrySet().iterator();
 
-        while (iterator.hasNext()) {
-            Map.Entry<String, List<Metric>> next = iterator.next();
+        for (Map.Entry<String, List<Metric>> next : jtlMap.entrySet()) {
             String key = next.getKey();
             List<Metric> metricList = next.getValue();
             Errors errors = new Errors();
@@ -188,9 +188,9 @@ public class JtlResolver {
             errors.setErrorNumber(String.valueOf(metricList.size()));
             int errorSize = metricList.size();
             int errorAllSize = falseList.size();
-            int allSamples = totalLines.size();
-            errors.setPrecentOfErrors(decimalFormat.format((double)errorSize / errorAllSize * 100) + "%");
-            errors.setPrecentOfAllSamples(decimalFormat.format((double)errorSize / allSamples * 100) + "%");
+            int allSamples = totalMetricList.size();
+            errors.setPrecentOfErrors(decimalFormat.format((double) errorSize / errorAllSize * 100) + "%");
+            errors.setPrecentOfAllSamples(decimalFormat.format((double) errorSize / allSamples * 100) + "%");
             errorsList.add(errors);
         }
 
@@ -202,21 +202,26 @@ public class JtlResolver {
     }
 
     public static ErrorsTop5DTO getErrorsTop5DTO(String jtlString) {
-        List<Metric> totalLines = resolver(jtlString);
+        List<Metric> totalMetricList = resolver(jtlString);
         ErrorsTop5DTO top5DTO = new ErrorsTop5DTO();
         List<ErrorsTop5> errorsTop5s = new ArrayList<>();
 
-        List<Metric> falseList = Objects.requireNonNull(totalLines).stream().filter(metric -> StringUtils.equals("false", metric.getSuccess())).collect(Collectors.toList());
-        Map<String, List<Metric>> collect = falseList.stream().collect(Collectors.groupingBy(JtlResolver::getResponseCodeAndFailureMessage));
-        Iterator<Map.Entry<String, List<Metric>>> iterator = collect.entrySet().iterator();
+        List<Metric> falseList = Objects.requireNonNull(totalMetricList).stream()
+                .filter(metric -> StringUtils.equals("false", metric.getSuccess()))
+                .collect(Collectors.toList());
 
-        while (iterator.hasNext()) {
-            Map.Entry<String, List<Metric>> next = iterator.next();
+        Map<String, List<Metric>> collect = falseList.stream()
+                .collect(Collectors.groupingBy(JtlResolver::getResponseCodeAndFailureMessage));
+
+        for (Map.Entry<String, List<Metric>> next : collect.entrySet()) {
             String key = next.getKey();
             List<Metric> metricList = next.getValue();
-            List<Metric> list = totalLines.stream()
-                    .filter(metric -> StringUtils.equals(metric.getLabel(), metricList.get(0).getLabel()))
-                    .collect(Collectors.toList());
+            List<Metric> list = new ArrayList<>();
+            for (Metric metric : totalMetricList) {
+                if (StringUtils.equals(metric.getLabel(), metricList.get(0).getLabel())) {
+                    list.add(metric);
+                }
+            }
 
             ErrorsTop5 errorsTop5 = new ErrorsTop5();
             errorsTop5.setSamples(String.valueOf(list.size()));
@@ -235,7 +240,7 @@ public class JtlResolver {
 
         top5DTO.setLabel("Total");
         top5DTO.setErrorsTop5List(errorsTop5s);
-        top5DTO.setTotalSamples(String.valueOf(totalLines.size()));
+        top5DTO.setTotalSamples(String.valueOf(totalMetricList.size()));
         top5DTO.setTotalErrors(String.valueOf(falseList.size()));
         int size = errorsTop5s.size();
         // Total行 信息
@@ -272,8 +277,7 @@ public class JtlResolver {
                 maxUsers = metricList.size();
             }
 
-            for (int i = 0; i < metricList.size(); i++) {
-                Metric metric = metricList.get(i);
+            for (Metric metric : metricList) {
                 String elapsed = metric.getElapsed();
                 totalElapsed += Integer.parseInt(elapsed);
                 String bytes = metric.getBytes();
@@ -287,13 +291,13 @@ public class JtlResolver {
 
         List<Metric> list90 = totalLineList.subList(0, totalLineList.size() * 9 / 10);
         long sum = list90.stream().mapToLong(metric -> Long.parseLong(metric.getElapsed())).sum();
-        double avg90 = (double)sum / 1000 / list90.size();
+        double avg90 = (double) sum / 1000 / list90.size();
         testOverview.setResponseTime90(decimalFormat.format(avg90));
 
         long timesStampStart = Long.parseLong(totalLineList.get(0).getTimestamp());
-        long timesStampEnd = Long.parseLong(totalLineList.get(totalLineList.size()-1).getTimestamp());
-        long time = timesStampEnd - timesStampStart + Long.parseLong(totalLineList.get(totalLineList.size()-1).getElapsed());
-        double avgThroughput = (double)totalLineList.size() / (time * 1.0 / 1000);
+        long timesStampEnd = Long.parseLong(totalLineList.get(totalLineList.size() - 1).getTimestamp());
+        long time = timesStampEnd - timesStampStart + Long.parseLong(totalLineList.get(totalLineList.size() - 1).getElapsed());
+        double avgThroughput = (double) totalLineList.size() / (time * 1.0 / 1000);
         testOverview.setAvgThroughput(decimalFormat.format(avgThroughput));
 
         List<Metric> falseList = totalLineList.stream().filter(metric -> StringUtils.equals("false", metric.getSuccess())).collect(Collectors.toList());
@@ -312,7 +316,7 @@ public class JtlResolver {
 
     public static ChartsData getLoadChartData(String jtlString) {
         ChartsData data = new ChartsData();
-        List<Metric> total = JtlResolver.resolver(jtlString);
+        List<Metric> totalMetricList = JtlResolver.resolver(jtlString);
 
         List<String> users = new ArrayList<>();
         List<String> hits = new ArrayList<>();
@@ -320,45 +324,30 @@ public class JtlResolver {
         List<String> timeList = new ArrayList<>();
         Map<String, Object> resultMap = new HashMap<>(5);
 
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         DecimalFormat decimalFormat = new DecimalFormat("0.0");
 
-        total.sort(Comparator.comparing(metric -> Long.valueOf(metric.getTimestamp())));
-        total.forEach(metric -> {
-            metric.setTimestamp(stampToDate(metric.getTimestamp()));
-        });
-
-        Map<String, List<Metric>> collect = total.stream().collect(Collectors.groupingBy(Metric::getTimestamp));
-        List<Map.Entry<String, List<Metric>>> entries = new ArrayList<>(collect.entrySet());
-        Collections.sort(entries, new Comparator<Map.Entry<String, List<Metric>>>() {
-            @Override
-            public int compare(Map.Entry<String, List<Metric>> t1, Map.Entry<String, List<Metric>> t2) {
-                Date date1 = null,date2 = null;
-                try {
-                    date1 = simpleDateFormat.parse(t1.getKey());
-                    date2 = simpleDateFormat.parse(t2.getKey());
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                return (int) (date1.getTime() - date2.getTime());
+        if (totalMetricList != null) {
+            for (Metric metric : totalMetricList) {
+                metric.setTimestamp(stampToDate(metric.getTimestamp()));
             }
-        });
+        }
+        Map<String, List<Metric>> collect = Objects.requireNonNull(totalMetricList).stream().collect(Collectors.groupingBy(Metric::getTimestamp));
+        List<Map.Entry<String, List<Metric>>> entries = new ArrayList<>(collect.entrySet());
+        entries.sort(JtlResolver::sortByDate);
 
-        for (int i = 0; i < entries.size(); i++) {
+        for (Map.Entry<String, List<Metric>> entry : entries) {
             int failSize = 0;
-            Map.Entry<String, List<Metric>> map = entries.get(i);
-            List<Metric> metrics = map.getValue();
+            List<Metric> metrics = entry.getValue();
             Map<String, List<Metric>> metricsMap = metrics.stream().collect(Collectors.groupingBy(Metric::getThreadName));
             int maxUsers = metricsMap.size();
-            for (int j = 0; j < metrics.size(); j++) {
-                Metric metric = metrics.get(j);
-                String success = metric.getSuccess();
-                if (!"true".equals(success)){
+            for (Metric metric : metrics) {
+                String isSuccess = metric.getSuccess();
+                if (!"true".equals(isSuccess)) {
                     failSize++;
                 }
             }
             // todo
-            timeList.add(map.getKey());
+            timeList.add(entry.getKey());
             hits.add(decimalFormat.format(metrics.size() * 1.0 / maxUsers));
             users.add(String.valueOf(maxUsers));
             errors.add(String.valueOf(failSize));
@@ -376,10 +365,47 @@ public class JtlResolver {
         return data;
     }
 
-    private static String stampToDate(String s){
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public static ChartsData getResponseTimeChartData(String jtlString) {
+        ChartsData chartsData = new ChartsData();
+        List<Metric> totalMetricList = JtlResolver.resolver(jtlString);
+
+        totalMetricList.forEach(metric -> {
+            metric.setTimestamp(stampToDate(metric.getTimestamp()));
+        });
+
+        Map<String, List<Metric>> metricMap = totalMetricList.stream().collect(Collectors.groupingBy(Metric::getTimestamp));
+        List<Map.Entry<String, List<Metric>>> entries = new ArrayList<>(metricMap.entrySet());
+        entries.sort(JtlResolver::sortByDate);
+
+        List<String> resTimeList = new ArrayList<>();
+        List<String> timestampList = new ArrayList<>();
+
+        for (Map.Entry<String, List<Metric>> entry : entries) {
+            List<Metric> metricList = entry.getValue();
+            int sumElapsedTime = metricList.stream().mapToInt(metric -> Integer.parseInt(metric.getElapsed())).sum();
+            timestampList.add(entry.getKey());
+            resTimeList.add(String.valueOf(sumElapsedTime / metricList.size()));
+        }
+
+        chartsData.setxAxis(StringUtils.join(",", timestampList));
+        chartsData.setSerices(StringUtils.join(",", resTimeList));
+        return chartsData;
+    }
+
+    private static String stampToDate(String s) {
         long lt = Long.parseLong(s);
         Date date = new Date(lt);
         return simpleDateFormat.format(date);
+    }
+
+    private static int sortByDate(Map.Entry<String, List<Metric>> map1, Map.Entry<String, List<Metric>> map2) {
+        Date date1 = null, date2 = null;
+        try {
+            date1 = simpleDateFormat.parse(map1.getKey());
+            date2 = simpleDateFormat.parse(map2.getKey());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return (int) (Objects.requireNonNull(date1).getTime() - Objects.requireNonNull(date2).getTime());
     }
 }
