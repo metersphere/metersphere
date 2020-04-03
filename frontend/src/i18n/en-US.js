@@ -38,7 +38,7 @@ export default {
     'personal_setting': 'Personal Setting',
     'test_resource_pool': 'Resource Pool',
     'system_setting': 'Settings',
-    'functional': 'Functional',
+    'api': 'Api',
     'performance': 'Performance',
     'interface': 'Interface test',
     'input_content': 'Please enter content',
@@ -167,7 +167,7 @@ export default {
     'select_resource_pool': 'Please Select Resource Pool',
     'resource_pool_is_null': 'Resource Pool is empty',
   },
-  fuc_test: {
+  api_test: {
     'select_resource_pool': 'Please select resource pool'
   },
   test_track: {

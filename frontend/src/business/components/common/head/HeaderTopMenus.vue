@@ -11,8 +11,8 @@
     <el-menu-item index="/track" v-permission="['test_manager','test_user','test_viewer']">
       {{$t('test_track.test_track')}}
     </el-menu-item>
-    <el-menu-item index="/functional" v-permission="['test_manager','test_user','test_viewer']">
-      {{$t('commons.functional')}}
+    <el-menu-item index="/api" v-permission="['test_manager','test_user','test_viewer']">
+      {{$t('commons.api')}}
     </el-menu-item>
     <el-menu-item index="/performance" onselectstart="return false"
                   v-permission="['test_manager','test_user','test_viewer']">

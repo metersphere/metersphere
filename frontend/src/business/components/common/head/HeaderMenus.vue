@@ -11,7 +11,7 @@
                   index="3" popper-class="submenu" v-permission="['test_manager']" >
         <template v-slot:title>{{$t('commons.project')}}</template>
         <performance-recent-project v-if="beaseUrl == 'performance'"/>
-        <functional-recent-project v-if="beaseUrl == 'functional'"/>
+        <api-recent-project v-if="beaseUrl == 'api'"/>
         <track-recent-project v-if="beaseUrl == 'tack'"/>
         <el-divider/>
         <el-menu-item :index="'/' + beaseUrl + '/project/all'">
@@ -23,11 +23,11 @@
         </el-menu-item>
       </el-submenu>
 
-      <el-submenu v-if="isCurrentWorkspaceUser && (beaseUrl == 'performance' || beaseUrl == 'functional')"
+      <el-submenu v-if="isCurrentWorkspaceUser && (beaseUrl == 'performance' || beaseUrl == 'api')"
                   index="4" popper-class="submenu" v-permission="['test_manager', 'test_user']">
         <template v-slot:title>{{$t('commons.test')}}</template>
         <performance-recent-test-plan v-if="beaseUrl == 'performance'"/>
-        <functional-recent-test-plan v-if="beaseUrl == 'functional'"/>
+        <api-recent-test-plan v-if="beaseUrl == 'api'"/>
         <el-divider/>
         <el-menu-item :index="'/' + beaseUrl + '/test/all'">
           <font-awesome-icon :icon="['fa', 'list-ul']"/>
@@ -38,11 +38,11 @@
         </el-menu-item>
       </el-submenu>
 
-      <el-submenu v-if="isCurrentWorkspaceUser && (beaseUrl == 'performance' || beaseUrl == 'functional')"
+      <el-submenu v-if="isCurrentWorkspaceUser && (beaseUrl == 'performance' || beaseUrl == 'api')"
                   index="5" popper-class="submenu" v-permission="['test_manager', 'test_user', 'test_viewer']">
         <template v-slot:title>{{$t('commons.report')}}</template>
         <performance-recent-report v-if="beaseUrl == 'performance'"/>
-        <functional-recent-report v-if="beaseUrl == 'functional'"/>
+        <api-recent-report v-if="beaseUrl == 'api'"/>
         <el-divider/>
         <el-menu-item :index="'/' + beaseUrl + '/report/all'">
           <font-awesome-icon :icon="['fa', 'list-ul']"/>
@@ -77,7 +77,7 @@
         </el-menu-item>
       </el-submenu>
 
-      <router-link  v-if="isCurrentWorkspaceUser && (beaseUrl == 'performance' || beaseUrl == 'functional')"
+      <router-link  v-if="isCurrentWorkspaceUser && (beaseUrl == 'performance' || beaseUrl == 'api')"
                     class="header-bottom" :to="'/' + beaseUrl + '/test/create'" v-permission="['test_user','test_manager']">
         <el-button type="primary" size="small">{{$t('load_test.create')}}</el-button>
       </router-link>
@@ -90,19 +90,19 @@
 <script>
 
   import PerformanceRecentTestPlan from "../../performance/test/PerformanceRecentTestPlan";
-  import FunctionalRecentTestPlan from "../../functional/test/FunctionalRecentTestPlan";
+  import ApiRecentTestPlan from "../../api/test/ApiRecentTestPlan";
   import PerformanceRecentProject from "../../performance/project/PerformanceRecentProject";
-  import FunctionalRecentProject from "../../functional/project/FunctionalRecentProject";
+  import ApiRecentProject from "../../api/project/ApiRecentProject";
   import PerformanceRecentReport from "../../performance/report/PerformanceRecentReport";
-  import FunctionalRecentReport from "../../functional/report/FunctionalRecentReport";
+  import ApiRecentReport from "../../api/report/ApiRecentReport";
   import {checkoutCurrentWorkspace} from "../../../../common/utils";
   import TrackRecentProject from "../../track/project/TrackRecentProject";
   import RecentCasePlan from "../../track/case/RecentCasePlan";
 
   export default {
     name: "MsMenus",
-    components: {PerformanceRecentReport, PerformanceRecentTestPlan, FunctionalRecentTestPlan, FunctionalRecentReport,
-      PerformanceRecentProject, FunctionalRecentProject, TrackRecentProject, RecentCasePlan},
+    components: {PerformanceRecentReport, PerformanceRecentTestPlan, ApiRecentTestPlan, ApiRecentReport,
+      PerformanceRecentProject, ApiRecentProject, TrackRecentProject, RecentCasePlan},
     data() {
       return {
         isCurrentWorkspaceUser: false,

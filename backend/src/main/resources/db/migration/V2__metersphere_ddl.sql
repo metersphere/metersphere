@@ -182,9 +182,9 @@ CREATE TABLE IF NOT EXISTS `workspace` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
 
--- funcional start
+-- api start
 
-CREATE TABLE IF NOT EXISTS `fuc_test` (
+CREATE TABLE IF NOT EXISTS `api_test` (
     `id`                     varchar(50) NOT NULL COMMENT 'Test ID',
     `project_id`             varchar(50) NOT NULL COMMENT 'Project ID this test belongs to',
     `name`                   varchar(64) NOT NULL COMMENT 'Test name',
@@ -199,15 +199,15 @@ CREATE TABLE IF NOT EXISTS `fuc_test` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `fuc_test_file` (
+CREATE TABLE IF NOT EXISTS `api_test_file` (
     `test_id` varchar(64) DEFAULT NULL,
     `file_id` varchar(64) DEFAULT NULL,
-    UNIQUE KEY `load_test_file_unique_key` (`test_id`, `file_id`)
+    UNIQUE KEY `api_test_file_unique_key` (`test_id`, `file_id`)
 )
     ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4 COMMENT ='功能测试和文件的关联表';
+    DEFAULT CHARSET = utf8mb4 COMMENT ='Api test test file relevance table';
 
-CREATE TABLE IF NOT EXISTS `fuc_test_report` (
+CREATE TABLE IF NOT EXISTS `api_test_report` (
     `id`          varchar(50) NOT NULL COMMENT 'Test report ID',
     `test_id`     varchar(50) NOT NULL COMMENT 'Test ID this test report belongs to',
     `name`        varchar(64) NOT NULL COMMENT 'Test report name',
@@ -222,7 +222,7 @@ CREATE TABLE IF NOT EXISTS `fuc_test_report` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
 
--- funcional end
+-- api end
 
 -- track start
 

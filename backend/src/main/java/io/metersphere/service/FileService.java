@@ -3,7 +3,7 @@ package io.metersphere.service;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.FileContentMapper;
 import io.metersphere.base.mapper.FileMetadataMapper;
-import io.metersphere.base.mapper.FucTestFileMapper;
+import io.metersphere.base.mapper.ApiTestFileMapper;
 import io.metersphere.base.mapper.LoadTestFileMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -19,7 +19,7 @@ public class FileService {
     @Resource
     private LoadTestFileMapper loadTestFileMapper;
     @Resource
-    private FucTestFileMapper fucTestFileMapper;
+    private ApiTestFileMapper ApiTestFileMapper;
     @Resource
     private FileContentMapper fileContentMapper;
 
@@ -43,10 +43,10 @@ public class FileService {
         return fileMetadataMapper.selectByExample(example);
     }
 
-    public FileMetadata getFucFileMetadataByTestId(String testId) {
-        FucTestFileExample fucTestFileExample = new FucTestFileExample();
-        fucTestFileExample.createCriteria().andTestIdEqualTo(testId);
-        final List<FucTestFile> loadTestFiles = fucTestFileMapper.selectByExample(fucTestFileExample);
+    public FileMetadata getApiFileMetadataByTestId(String testId) {
+        ApiTestFileExample ApiTestFileExample = new ApiTestFileExample();
+        ApiTestFileExample.createCriteria().andTestIdEqualTo(testId);
+        final List<ApiTestFile> loadTestFiles = ApiTestFileMapper.selectByExample(ApiTestFileExample);
 
         if (CollectionUtils.isEmpty(loadTestFiles)) {
             return null;

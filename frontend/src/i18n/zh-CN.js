@@ -38,7 +38,7 @@ export default {
     'personal_setting': '个人设置',
     'test_resource_pool': '测试资源池',
     'system_setting': '系统设置',
-    'functional': '功能测试',
+    'api': '接口测试',
     'performance': '性能测试',
     'interface': '接口测试',
     'input_content': '请输入内容',
@@ -167,7 +167,7 @@ export default {
     'select_resource_pool': '请选择资源池',
     'resource_pool_is_null': '资源池为空',
   },
-  fuc_test: {
+  api_test: {
     'select_resource_pool': '请选择资源池'
   },
   test_track: {

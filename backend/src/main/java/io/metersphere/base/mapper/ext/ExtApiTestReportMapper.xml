@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtApiTestReportMapper">
+
+    <select id="getReportList" resultType="io.metersphere.dto.ApiReportDTO">
+        select ltr.id, ltr.name, ltr.test_id as testId, ltr.description,
+               ltr.create_time as createTime, ltr.update_time as updateTime, ltr.status as status, lt.name as testName
+          from api_test_report ltr left join api_test lt on ltr.test_id = lt.id
+        <where>
+            <if test="reportRequest.name != null">
+                AND ltr.name like CONCAT('%', #{reportRequest.name},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="getReportTestAndProInfo" resultType="io.metersphere.dto.ApiReportDTO">
+        select ltr.id, ltr.name, ltr.test_id as testId, ltr.description,
+        ltr.create_time as createTime, ltr.update_time as updateTime, ltr.status as status, ltr.content as content,
+        lt.name as testName,
+        p.id as projectId, p.name as projectName
+        from api_test_report ltr left join api_test lt on ltr.test_id = lt.id left join project p on lt.project_id = p.id
+        where ltr.id = #{id}
+    </select>
+
+</mapper>

@@ -15,15 +15,15 @@ import PersonSetting from "../../settings/personal/PersonSetting";
 import SystemWorkspace from "../../settings/system/SystemWorkspace";
 import PerformanceChart from "../../performance/report/components/PerformanceChart";
 import PerformanceTestReport from "../../performance/report/PerformanceTestReport";
-import FunctionalTestReport from "../../functional/report/FunctionalTestReport";
-import FunctionalTest from "../../functional/FunctionalTest";
+import ApiTestReport from "../../api/report/ApiTestReport";
+import ApiTest from "../../api/ApiTest";
 import PerformanceTest from "../../performance/PerformanceTest";
-import EditFunctionalTestPlan from "../../functional/test/EditFunctionalTestPlan";
+import EditApiTestPlan from "../../api/test/EditApiTestPlan";
 import PerformanceTestHome from "../../performance/home/PerformanceTestHome";
-import FunctionalTestPlan from "../../functional/test/FunctionalTestPlan";
-import FunctionalTestHome from "../../functional/home/FunctionalTestHome";
+import ApiTestPlan from "../../api/test/ApiTestPlan";
+import ApiTestHome from "../../api/home/ApiTestHome";
 import PerformanceReportView from "../../performance/report/PerformanceReportView";
-import FunctionalReportView from "../../functional/report/FunctionalReportView";
+import ApiReportView from "../../api/report/ApiReportView";
 import TrackHome from "../../track/home/TrackHome";
 import TestPlan from "../../track/plan/TestPlan";
 import TestPlanView from "../../track/plan/TestPlanView";
@@ -82,27 +82,27 @@ const router = new VueRouter({
       ]
     },
     {
-      path: "/functional",
-      name: "functional",
-      redirect: "/functional/home",
+      path: "/api",
+      name: "api",
+      redirect: "/api/home",
       components: {
-        content: FunctionalTest
+        content: ApiTest
       },
       children: [
         {
           path: 'home',
           name: 'fucHome',
-          component: FunctionalTestHome,
+          component: ApiTestHome,
         },
         {
           path: 'test/create',
           name: "createFucTest",
-          component: EditFunctionalTestPlan,
+          component: EditApiTestPlan,
         },
         {
           path: "test/edit/:testId",
           name: "editFucTest",
-          component: EditFunctionalTestPlan,
+          component: EditApiTestPlan,
           props: {
             content: (route) => {
               return {
@@ -114,7 +114,7 @@ const router = new VueRouter({
         {
           path: "test/:projectId",
           name: "fucPlan",
-          component: FunctionalTestPlan
+          component: ApiTestPlan
         },
         {
           path: "project/:type",
@@ -124,12 +124,12 @@ const router = new VueRouter({
         {
           path: "report/:type",
           name: "fucReport",
-          component: FunctionalTestReport
+          component: ApiTestReport
         },
         {
           path: "report/view/:reportId",
           name: "fucReportView",
-          component: FunctionalReportView
+          component: ApiReportView
         }
       ]
     },
