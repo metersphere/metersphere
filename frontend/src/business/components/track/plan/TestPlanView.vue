@@ -24,8 +24,8 @@
       ref="testCaseRelevance"></test-case-relevance>
 
     <test-plan-test-case-edit
-      ref="testPlanTestCaseEdit">
-
+      ref="testPlanTestCaseEdit"
+      @refresh="getPlanCases">
     </test-plan-test-case-edit>
 
 
@@ -61,7 +61,7 @@
 
         },
         getPlanCases(nodeIds) {
-          this.$refs.testCasePlanList(nodeIds);
+          this.$refs.testCasePlanList.initTableData(nodeIds);
         },
         openTestCaseRelevanceDialog() {
           this.$refs.testCaseRelevance.openTestCaseRelevanceDialog(this.planId);
@@ -73,8 +73,12 @@
             });
           }
         },
-        editTestPlanTestCase() {
-          this.$refs.testPlanTestCaseEdit.drawer = true;
+        editTestPlanTestCase(testCase) {
+          let item = {};
+          Object.assign(item, testCase);
+          item.results = JSON.parse(item.results);
+          this.$refs.testPlanTestCaseEdit.testCase = item;
+          this.$refs.testPlanTestCaseEdit.dialog = true;
         }
       }
     }

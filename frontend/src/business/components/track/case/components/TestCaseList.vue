@@ -53,7 +53,7 @@
           width="120"
           show-overflow-tooltip>
           <template v-slot:default="scope">
-            <span v-if="scope.row.type == 'functional'">{{$t('commons.functional')}}</span>
+            <span v-if="scope.row.type == 'functional'">{{$t('test_track.functional_test')}}</span>
             <span v-if="scope.row.type == 'performance'">{{$t('commons.performance')}}</span>
             <span v-if="scope.row.type == 'api'">{{$t('commons.api')}}</span>
           </template>

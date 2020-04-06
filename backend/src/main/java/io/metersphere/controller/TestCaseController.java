@@ -39,13 +39,7 @@ public class TestCaseController {
         return testCaseService.getTestCaseByNodeId(nodeIds);
     }
 
-    @PostMapping("/plan/list/{goPage}/{pageSize}")
-    public  Pager<List<TestPlanCaseDTO>> getTestPlanCases(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request){
-        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, testCaseService.getTestPlanCases(request));
-    }
-
-    @PostMapping("/name/all")
+    @PostMapping("/name")
     public List<TestCase> getTestCaseNames(@RequestBody QueryTestCaseRequest request){
         return testCaseService.getTestCaseNames(request);
     }

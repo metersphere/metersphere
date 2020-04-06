@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -30,10 +31,10 @@ public class TestCaseService {
     ExtTestCaseMapper extTestCaseMapper;
 
     @Resource
-    TestPlanTestCaseMapper testPlanTestCaseMapper;
+    TestPlanMapper testPlanMapper;
 
     @Resource
-    TestPlanMapper testPlanMapper;
+    TestPlanTestCaseMapper testPlanTestCaseMapper;
 
     public void addTestCase(TestCaseWithBLOBs testCase) {
         testCase.setId(UUID.randomUUID().toString());
@@ -78,17 +79,35 @@ public class TestCaseService {
         return testCaseMapper.selectByExampleWithBLOBs(testCaseExample);
     }
 
+    /**
+     * 获取测试用例
+     * 过滤已关联
+     * @param request
+     * @return
+     */
     public List<TestCase> getTestCaseNames(QueryTestCaseRequest request) {
-
         if ( StringUtils.isNotBlank(request.getPlanId()) ) {
             TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
             request.setProjectId(testPlan.getProjectId());
         }
 
-        return extTestCaseMapper.getTestCaseNames(request);
+        List<TestCase> testCaseNames = extTestCaseMapper.getTestCaseNames(request);
+
+        if ( StringUtils.isNotBlank(request.getPlanId()) ) {
+            TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
+            testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(request.getPlanId());
+            List<String> relevanceIds = testPlanTestCaseMapper.selectByExample(testPlanTestCaseExample).stream()
+                    .map(TestPlanTestCase::getCaseId)
+                    .collect(Collectors.toList());
+
+            return testCaseNames.stream()
+                    .filter(testcase -> !relevanceIds.contains(testcase.getId()))
+                    .collect(Collectors.toList());
+        }
+
+        return testCaseNames;
+
     }
 
-    public List<TestPlanCaseDTO> getTestPlanCases(QueryTestCaseRequest request) {
-        return extTestCaseMapper.getTestPlanTestCases(request);
-    }
+
 }

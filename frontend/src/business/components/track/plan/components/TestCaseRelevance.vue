@@ -84,9 +84,7 @@
       },
       methods: {
         openTestCaseRelevanceDialog(planId) {
-          console.log(planId);
           this.getAllNodeTreeByPlanId(planId);
-          console.log(this.$refs);
           this.getCaseNames(planId);
           this.dialogFormVisible = true;
         },
@@ -95,7 +93,9 @@
           param.planId = this.planId;
           param.testCaseIds = [...this.selectIds];
           this.$post('/test/plan/relevance' , param, () => {
+            this.dialogFormVisible = false;
             this.$message.success("保存成功");
+            this.$emit('refresh');
           });
         },
         getCaseNames(planId, nodeIds) {
@@ -106,7 +106,7 @@
           if (nodeIds && nodeIds.length > 0){
             param.nodeIds = nodeIds;
           }
-          this.$post('/test/case/name/all', param, response => {
+          this.$post('/test/case/name', param, response => {
             this.testCases = response.data;
             this.testCases.forEach(item => {
               item.checked = false;
@@ -116,12 +116,6 @@
         getCaseNameByNodeIds(nodeIds) {
           this.dialogFormVisible = true;
           this.getCaseNames(null, nodeIds);
-        },
-        checkAll() {
-          this.testCases.forEach(item => {
-            item.checked = this.isCheckAll;
-          });
-          this.dialogFormVisible = true;
         },
         handleSelectAll(selection) {
           if(selection.length > 0){

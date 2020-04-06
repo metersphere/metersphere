@@ -53,7 +53,7 @@
           width="120"
           show-overflow-tooltip>
           <template v-slot:default="scope">
-            <span v-if="scope.row.type == 'functional'">{{$t('commons.functional')}}</span>
+            <span v-if="scope.row.type == 'functional'">{{$t('test_track.functional_test')}}</span>
             <span v-if="scope.row.type == 'performance'">{{$t('commons.performance')}}</span>
             <span v-if="scope.row.type == 'api'">{{$t('commons.api')}}</span>
           </template>
@@ -129,7 +129,6 @@
 </template>
 
 <script>
-  import {CURRENT_PROJECT} from '../../../../../common/constants';
   import PlanNodeTree from './PlanNodeTree';
 
   export default {
@@ -165,7 +164,7 @@
             };
             param.nodeIds = nodeIds;
             param.planId = this.planId;
-            this.$post(this.buildPagePath('/test/case/plan/list'), param, response => {
+            this.$post(this.buildPagePath('/test/plan/case/list'), param, response => {
               this.loadingRequire.testCase = false;
               let data = response.data;
               this.total = data.itemCount;
@@ -205,7 +204,7 @@
         },
         _handleDelete(testCase) {
           let testCaseId = testCase.id;
-          this.$post('/test/case/delete/' + testCaseId, {}, () => {
+          this.$post('/test/plan/case/delete/' + testCaseId, {}, () => {
             this.initTableData();
             this.$message({
               message: this.$t('commons.delete_success'),

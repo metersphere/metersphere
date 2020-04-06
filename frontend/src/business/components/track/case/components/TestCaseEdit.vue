@@ -63,7 +63,7 @@
           <el-col :span="10" :offset="1">
             <el-form-item :label="$t('test_track.type')" :label-width="formLabelWidth" prop="type">
               <el-select v-model="form.type" :placeholder="$t('test_track.input_type')">
-                <el-option :label="$t('commons.functional')" value="functional"></el-option>
+                <el-option :label="$t('test_track.functional_test')" value="functional"></el-option>
                 <el-option :label="$t('commons.performance')" value="performance"></el-option>
                 <el-option :label="$t('commons.api')" value="api"></el-option>
               </el-select>
@@ -306,15 +306,12 @@
 
   .tb-edit .el-input {
     display: none;
-    color: black;
   }
   .tb-edit .current-row .el-input {
     display: block;
-
   }
   .tb-edit .current-row .el-input+span {
     display: none;
-
   }
 
 </style>
