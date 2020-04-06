@@ -89,7 +89,8 @@ public class JmeterDocumentParser implements DocumentParser {
                         processCheckoutConfigTestElement(ele);
                         processCheckoutDnsCacheManager(ele);
                         processCheckoutArguments(ele);
-                        processCheckoutResponseAssertion(ele);
+                        // TODO: 2020/4/3 使用断言导致backend-listener不可用
+//                        processCheckoutResponseAssertion(ele);
                     } else if (nodeNameEquals(ele, CONCURRENCY_THREAD_GROUP)) {
                         processConcurrencyThreadGroup(ele);
                         processCheckoutTimer(ele);
@@ -111,7 +112,8 @@ public class JmeterDocumentParser implements DocumentParser {
                     } else if (nodeNameEquals(ele, ARGUMENTS)) {
                         processArguments(ele);
                     } else if (nodeNameEquals(ele, RESPONSE_ASSERTION)) {
-                        processResponseAssertion(ele);
+                        // TODO: 2020/4/3 使用断言导致backend-listener不可用
+//                        processResponseAssertion(ele);
                     }
                 }
             }
@@ -123,13 +125,12 @@ public class JmeterDocumentParser implements DocumentParser {
         for (int i = 0; i < childNodes.getLength(); i++) {
             Node item = childNodes.item(i);
             if (item instanceof Element && nodeNameEquals(item, "collectionProp")) {
-                removeChildren(item);
                 Document document = item.getOwnerDocument();
                 Object params = context.getProperty("statusCode");
                 if (params instanceof List) {
                     HashSet set = new HashSet((List) params);
                     for (Object p : set) {
-                        element.appendChild(createStringProp(document, p.toString(), p.toString()));
+                        item.appendChild(createStringProp(document, p.toString(), p.toString()));
                     }
                 }
             }
@@ -152,6 +153,15 @@ public class JmeterDocumentParser implements DocumentParser {
             Node item = childNodes.item(i);
             if (nodeNameEquals(item, RESPONSE_ASSERTION)) {
                 // 如果已经存在，不再添加
+                removeChildren(item);
+                Element collectionProp = document.createElement(COLLECTION_PROP);
+                collectionProp.setAttribute("name", "Asserion.test_strings");
+                //
+                item.appendChild(collectionProp);
+                item.appendChild(createStringProp(document, "Assertion.custom_message", ""));
+                item.appendChild(createStringProp(document, "Assertion.test_field", "Assertion.response_code"));
+                item.appendChild(createBoolProp(document, "Assertion.assume_success", false));
+                item.appendChild(createIntProp(document, "Assertion.test_type", 40));
                 return;
             }
         }
@@ -179,9 +189,9 @@ public class JmeterDocumentParser implements DocumentParser {
         //
         responseAssertion.appendChild(collectionProp);
         responseAssertion.appendChild(createStringProp(document, "Assertion.custom_message", ""));
-        responseAssertion.appendChild(createStringProp(document, "Assertion.test_field", ""));
+        responseAssertion.appendChild(createStringProp(document, "Assertion.test_field", "Assertion.response_code"));
         responseAssertion.appendChild(createBoolProp(document, "Assertion.assume_success", false));
-        responseAssertion.appendChild(createIntProp(document, "Assertion.test_type", 33));
+        responseAssertion.appendChild(createIntProp(document, "Assertion.test_type", 40));
         hashTree.appendChild(responseAssertion);
         hashTree.appendChild(document.createElement(HASH_TREE_ELEMENT));
     }
@@ -352,7 +362,7 @@ public class JmeterDocumentParser implements DocumentParser {
         for (int i = 0; i < childNodes.getLength(); i++) {
             Node item = childNodes.item(i);
             if (item instanceof Element && nodeNameEquals(item, "collectionProp")) {
-                removeChildren(item);
+                //
                 Document document = item.getOwnerDocument();
                 Object params = context.getProperty("params");
                 if (params instanceof List) {
@@ -377,31 +387,33 @@ public class JmeterDocumentParser implements DocumentParser {
 
     private void processDnsCacheManager(Element ele) {
 
+        Object domains = context.getProperty("domains");
+        if (!(domains instanceof List)) {
+            return;
+        }
+        if (((List) domains).size() == 0) {
+            return;
+        }
         NodeList childNodes = ele.getChildNodes();
         for (int i = 0, size = childNodes.getLength(); i < size; i++) {
             Node item = childNodes.item(i);
             if (item instanceof Element && nodeNameEquals(item, "collectionProp")
                     && org.apache.commons.lang3.StringUtils.equals(((Element) item).getAttribute("name"), "DNSCacheManager.hosts")) {
 
-                removeChildren(item);
                 Document document = item.getOwnerDocument();
-                Object domains = context.getProperty("domains");
-                if (domains instanceof List) {
-                    for (Object d : (List) domains) {
-                        JSONObject jsonObject = JSON.parseObject(d.toString());
-                        if (!jsonObject.getBooleanValue("enable")) {
-                            continue;
-                        }
-                        Element elementProp = document.createElement("elementProp");
-                        elementProp.setAttribute("name", jsonObject.getString("domain"));
-                        elementProp.setAttribute("elementType", "StaticHost");
-                        elementProp.appendChild(createStringProp(document, "StaticHost.Name", jsonObject.getString("domain")));
-                        elementProp.appendChild(createStringProp(document, "StaticHost.Address", jsonObject.getString("ip")));
-                        item.appendChild(elementProp);
+                for (Object d : (List) domains) {
+                    JSONObject jsonObject = JSON.parseObject(d.toString());
+                    if (!jsonObject.getBooleanValue("enable")) {
+                        continue;
                     }
+                    Element elementProp = document.createElement("elementProp");
+                    elementProp.setAttribute("name", jsonObject.getString("domain"));
+                    elementProp.setAttribute("elementType", "StaticHost");
+                    elementProp.appendChild(createStringProp(document, "StaticHost.Name", jsonObject.getString("domain")));
+                    elementProp.appendChild(createStringProp(document, "StaticHost.Address", jsonObject.getString("ip")));
+                    item.appendChild(elementProp);
                 }
             }
-
             if (item instanceof Element && nodeNameEquals(item, "boolProp")
                     && org.apache.commons.lang3.StringUtils.equals(((Element) item).getAttribute("name"), "DNSCacheManager.isCustomResolver")) {
                 item.getFirstChild().setNodeValue("true");

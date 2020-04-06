@@ -23,11 +23,6 @@
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
-            prop="description"
-            :label="$t('commons.description')"
-            show-overflow-tooltip>
-          </el-table-column>
-          <el-table-column
             prop="projectName"
             :label="$t('load_test.project_name')"
             width="150"
@@ -45,6 +40,29 @@
             :label="$t('commons.update_time')">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="status"
+            :label="$t('commons.status')">
+            <template v-slot:default="{row}">
+              <el-tag size="mini" type="primary" v-if="row.status === 'Starting'">
+                {{ row.status }}
+              </el-tag>
+              <el-tag size="mini" type="success" v-else-if="row.status === 'Running'">
+                {{ row.status }}
+              </el-tag>
+              <el-tooltip placement="top" v-else-if="row.status === 'Error'" effect="light">
+                <template v-slot:content>
+                  <div>{{row.description}}</div>
+                </template>
+                <el-tag size="mini" type="danger">
+                  {{ row.status }}
+                </el-tag>
+              </el-tooltip>
+              <el-tag size="mini" type="info" v-else>
+                {{ row.status }}
+              </el-tag>
             </template>
           </el-table-column>
           <el-table-column

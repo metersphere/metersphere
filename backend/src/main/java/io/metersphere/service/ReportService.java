@@ -5,6 +5,7 @@ import io.metersphere.base.domain.LoadTestReportExample;
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
+import io.metersphere.commons.constants.TestStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.request.ReportRequest;
 import io.metersphere.dto.ReportDTO;
@@ -52,6 +53,7 @@ public class ReportService {
     }
 
     public RequestStatisticsDTO getReport(String id) {
+        checkReportStatus(id);
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
         RequestStatisticsDTO requestStatistics = JtlResolver.getRequestStatistics(content);
@@ -59,6 +61,7 @@ public class ReportService {
     }
 
     public List<Errors> getReportErrors(String id) {
+        checkReportStatus(id);
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
         List<Errors> errors = JtlResolver.getErrorsList(content);
@@ -66,6 +69,7 @@ public class ReportService {
     }
 
     public ErrorsTop5DTO getReportErrorsTOP5(String id) {
+        checkReportStatus(id);
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
         ErrorsTop5DTO errors = JtlResolver.getErrorsTop5DTO(content);
@@ -73,6 +77,7 @@ public class ReportService {
     }
 
     public TestOverview getTestOverview(String id) {
+        checkReportStatus(id);
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
         TestOverview testOverview = JtlResolver.getTestOverview(content);
@@ -80,19 +85,30 @@ public class ReportService {
     }
 
     public ChartsData getLoadChartData(String id) {
+        checkReportStatus(id);
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
         ChartsData chartsData = JtlResolver.getLoadChartData(content);
         return chartsData;
     }
 
-//    public void checkReportStatus(String id) {
-//        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
-//        String status=loadTestReport.getStatus();
-//        if (StringUtils.equals("Error",status)) {
-//            MSException.throwException("test run error!");
-//        }
-//    }
+    public ChartsData getResponseTimeChartData(String id) {
+        checkReportStatus(id);
+        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
+        String content = loadTestReport.getContent();
+        ChartsData chartsData = JtlResolver.getResponseTimeChartData(content);
+        return chartsData;
+    }
+
+    public void checkReportStatus(String reportId) {
+        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
+        String reportStatus = loadTestReport.getStatus();
+        if (StringUtils.equals(TestStatus.Running.name(), reportStatus)) {
+            MSException.throwException("Reporting in progress...");
+        } else if (StringUtils.equals(TestStatus.Error.name(), reportStatus)) {
+            MSException.throwException("Report generation error!");
+        }
+    }
 
     public LoadTestReport getLoadTestReport(String id) {
         return extLoadTestReportMapper.selectByPrimaryKey(id);
