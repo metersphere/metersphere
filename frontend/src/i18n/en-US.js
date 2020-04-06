@@ -40,7 +40,6 @@ export default {
     'system_setting': 'Settings',
     'api': 'Api',
     'performance': 'Performance',
-    'interface': 'Interface test',
     'input_content': 'Please enter content',
     'create': 'create',
     'refresh': 'refresh',

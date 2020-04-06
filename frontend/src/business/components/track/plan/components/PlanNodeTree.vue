@@ -10,10 +10,13 @@
       @node-drag-end="handleDragEnd"
       :filter-node-method="filterNode"
       :expand-on-click-node="false"
+      highlight-current
       draggable
       ref="tree">
-      <template @click="selectNode(node)" v-slot:default="{node}">
-        {{node.label}}
+      <template v-slot:default="{node}">
+        <span class="custom-tree-node" @click="selectNode(node)">
+          {{node.label}}
+        </span>
       </template>
     </el-tree>
   </div>
@@ -41,6 +44,11 @@
         treeNodes: {
           Array
         },
+      },
+      watch: {
+        filterText(val) {
+          this.$refs.tree.filter(val);
+        }
       },
       selectNode(node) {
         let nodeIds = [];
@@ -119,7 +127,7 @@
     justify-content: space-between;
     font-size: 14px;
     padding-right: 8px;
-    width: 100px;
+    width: 100%;
   }
 
   .node-tree {

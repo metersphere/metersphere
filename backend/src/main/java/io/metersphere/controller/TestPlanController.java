@@ -7,6 +7,7 @@ import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.base.domain.TestPlan;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.controller.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.controller.request.testcase.QueryTestPlanRequest;
 import io.metersphere.dto.TestPlanDTO;
 import io.metersphere.service.TestCaseService;
@@ -47,6 +48,11 @@ public class TestPlanController {
     @PostMapping("/delete/{testPlanId}")
     public int deleteTestPlan(@PathVariable String testPlanId){
         return testPlanService.deleteTestPlan(testPlanId);
+    }
+
+    @PostMapping("/relevance")
+    public void testPlanRelevance(@RequestBody PlanCaseRelevanceRequest request){
+        testPlanService.testPlanRelevance(request);
     }
 
 

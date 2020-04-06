@@ -148,7 +148,7 @@
           testId: null,
         }
       },
-      created: function () {
+      created() {
         this.projectId = this.$route.params.projectId;
         this.initTableData();
       },

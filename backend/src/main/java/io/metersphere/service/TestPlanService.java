@@ -4,18 +4,24 @@ package io.metersphere.service;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.TestCaseMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
+import io.metersphere.base.mapper.TestPlanTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.commons.constants.TestPlanStatus;
+import io.metersphere.commons.constants.TestPlanTestCaseStatus;
+import io.metersphere.controller.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.controller.request.testcase.QueryTestCaseRequest;
 import io.metersphere.controller.request.testcase.QueryTestPlanRequest;
 import io.metersphere.dto.TestPlanDTO;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -26,6 +32,15 @@ public class TestPlanService {
 
     @Resource
     ExtTestPlanMapper extTestPlanMapper;
+
+    @Resource
+    TestCaseMapper testCaseMapper;
+
+    @Resource
+    TestPlanTestCaseMapper testPlanTestCaseMapper;
+
+    @Resource
+    SqlSessionFactory sqlSessionFactory;
 
     public void addTestPlan(TestPlan testPlan) {
         testPlan.setId(UUID.randomUUID().toString());
@@ -53,5 +68,37 @@ public class TestPlanService {
 
     public List<TestPlanDTO> listTestPlan(QueryTestPlanRequest request) {
         return extTestPlanMapper.list(request);
+    }
+
+    public void testPlanRelevance(PlanCaseRelevanceRequest request) {
+
+        List<String> testCaseIds = request.getTestCaseIds();
+        TestCaseExample testCaseExample = new TestCaseExample();
+        testCaseExample.createCriteria().andIdIn(testCaseIds);
+
+        Map<String, TestCaseWithBLOBs> testCaseMap =
+                testCaseMapper.selectByExampleWithBLOBs(testCaseExample)
+                .stream()
+                .collect(Collectors.toMap(TestCase::getId, testcase -> testcase));
+
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestPlanTestCaseMapper batchMapper = sqlSession.getMapper(TestPlanTestCaseMapper.class);
+
+        if (!testCaseIds.isEmpty()) {
+            testCaseIds.forEach(caseId -> {
+                TestCaseWithBLOBs testCase = testCaseMap.get(caseId);
+                TestPlanTestCase testPlanTestCase = new TestPlanTestCase();
+                testPlanTestCase.setExecutor(testCase.getMaintainer());
+                testPlanTestCase.setCaseId(caseId);
+                testPlanTestCase.setCreateTime(System.currentTimeMillis());
+                testPlanTestCase.setUpdateTime(System.currentTimeMillis());
+                testPlanTestCase.setPlanId(request.getPlanId());
+                testPlanTestCase.setStatus(TestPlanTestCaseStatus.Prepare.name());
+                testPlanTestCase.setResults(testCase.getSteps());
+                batchMapper.insert(testPlanTestCase);
+            });
+        }
+
+        sqlSession.flushStatements();
     }
 }

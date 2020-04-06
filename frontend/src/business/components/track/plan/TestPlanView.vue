@@ -2,24 +2,32 @@
 
   <div class="plan_container">
     <el-container>
-      <el-aside width="250px">
+      <el-aside class="node-tree" width="250px">
         <plan-node-tree
-          :plan-id="planId"
-          class="node_tree"
-          @nodeSelectEvent="get"
-          ref="nodeTree"></plan-node-tree>
+          :tree-nodes="treeNodes"
+          @nodeSelectEvent="getPlanCases"
+          ref="tree"></plan-node-tree>
       </el-aside>
 
       <el-main>
         <test-case-plan-list
           @openTestCaseRelevanceDialog="openTestCaseRelevanceDialog"
+          @editTestPlanTestCase="editTestPlanTestCase"
+          :plan-id="planId"
           ref="testCasePlanList"></test-case-plan-list>
       </el-main>
     </el-container>
 
     <test-case-relevance
-      @refresh="getCaseByNodeIds"
+      @refresh="getPlanCases"
+      :plan-id="planId"
       ref="testCaseRelevance"></test-case-relevance>
+
+    <test-plan-test-case-edit
+      ref="testPlanTestCaseEdit">
+
+    </test-plan-test-case-edit>
+
 
   </div>
 
@@ -30,14 +38,18 @@
     import PlanNodeTree from "./components/PlanNodeTree";
     import TestCasePlanList from "./components/TestCasePlanList";
     import TestCaseRelevance from "./components/TestCaseRelevance";
+    import TestPlanTestCaseEdit from "./components/TestPlanTestCaseEdit";
 
     export default {
       name: "TestPlanView",
-      components: {PlanNodeTree, TestCasePlanList, TestCaseRelevance},
+      components: {PlanNodeTree, TestCasePlanList, TestCaseRelevance, TestPlanTestCaseEdit},
       data() {
         return {
-          currentProject: {}
+          treeNodes: []
         }
+      },
+      created() {
+        this.getNodeTreeByPlanId();
       },
       computed: {
         planId: function () {
@@ -48,14 +60,21 @@
         refresh() {
 
         },
-        get() {
-
+        getPlanCases(nodeIds) {
+          this.$refs.testCasePlanList(nodeIds);
         },
         openTestCaseRelevanceDialog() {
           this.$refs.testCaseRelevance.openTestCaseRelevanceDialog(this.planId);
         },
-        getCaseByNodeIds() {
-
+        getNodeTreeByPlanId() {
+          if(this.planId){
+            this.$get("/case/node/list/plan/" + this.planId, response => {
+              this.treeNodes = response.data;
+            });
+          }
+        },
+        editTestPlanTestCase() {
+          this.$refs.testPlanTestCaseEdit.drawer = true;
         }
       }
     }
@@ -68,5 +87,9 @@
     height: 600px;
   }
 
+  .node-tree {
+    margin-top: 2%;
+    margin-left: 15px;
+  }
 
 </style>

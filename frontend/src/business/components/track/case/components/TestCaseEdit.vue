@@ -65,7 +65,7 @@
               <el-select v-model="form.type" :placeholder="$t('test_track.input_type')">
                 <el-option :label="$t('commons.functional')" value="functional"></el-option>
                 <el-option :label="$t('commons.performance')" value="performance"></el-option>
-                <el-option :label="$t('commons.interface')" value="interface"></el-option>
+                <el-option :label="$t('commons.api')" value="api"></el-option>
               </el-select>
             </el-form-item>
           </el-col>

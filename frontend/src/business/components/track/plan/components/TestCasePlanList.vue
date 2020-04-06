@@ -55,7 +55,7 @@
           <template v-slot:default="scope">
             <span v-if="scope.row.type == 'functional'">{{$t('commons.functional')}}</span>
             <span v-if="scope.row.type == 'performance'">{{$t('commons.performance')}}</span>
-            <span v-if="scope.row.type == 'interface'">{{$t('commons.interface')}}</span>
+            <span v-if="scope.row.type == 'api'">{{$t('commons.api')}}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -68,19 +68,27 @@
             <span v-if="scope.row.method == 'auto'">{{$t('test_track.auto')}}</span>
           </template>
         </el-table-column>
+
+
         <el-table-column
-          prop="nodePath"
-          :label="$t('test_track.module')"
+          width="160"
+          prop="executor"
+          label="执行人">
+        </el-table-column>
+        <el-table-column
+          prop="status"
+          label="执行结果"
           width="160"
           show-overflow-tooltip>
-        </el-table-column>
-        <el-table-column
-          width="160"
-          :label="$t('commons.create_time')">
           <template v-slot:default="scope">
-            <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+            <span v-if="scope.row.status == 'Prepare'">未开始</span>
+            <span v-if="scope.row.status == 'Pass'">通过</span>
+            <span v-if="scope.row.status == 'Failure'">失败</span>
+            <span v-if="scope.row.status == 'Blocking'">阻塞</span>
+            <span v-if="scope.row.status == 'Skip'">跳过</span>
           </template>
         </el-table-column>
+
         <el-table-column
           width="160"
           :label="$t('commons.update_time')">
@@ -141,26 +149,29 @@
           testId: null
         }
       },
+      props:{
+        planId: {
+          type: String
+        }
+      },
       created: function () {
         this.initTableData();
       },
       methods: {
         initTableData(nodeIds) {
-          let param = {
-            name: this.condition,
-          };
-          param.nodeIds = nodeIds;
-
-          if(localStorage.getItem(CURRENT_PROJECT)) {
-            param.projectId = JSON.parse(localStorage.getItem(CURRENT_PROJECT)).id;
+          if (this.planId) {
+            let param = {
+              name: this.condition,
+            };
+            param.nodeIds = nodeIds;
+            param.planId = this.planId;
+            this.$post(this.buildPagePath('/test/case/plan/list'), param, response => {
+              this.loadingRequire.testCase = false;
+              let data = response.data;
+              this.total = data.itemCount;
+              this.tableData = data.listObject;
+            });
           }
-
-          this.$post(this.buildPagePath('/test/case/list'), param, response => {
-            this.loadingRequire.testCase = false;
-            let data = response.data;
-            this.total = data.itemCount;
-            this.tableData = data.listObject;
-          });
         },
         search() {
           this.initTableData();
@@ -180,7 +191,7 @@
           this.multipleSelection = val;
         },
         handleEdit(testCase) {
-          this.$emit('testCaseRelevance', testCase);
+          this.$emit('editTestPlanTestCase', testCase);
         },
         handleDelete(testCase) {
           this.$alert(this.$t('load_test.delete_confirm') + testCase.name + "？", '', {

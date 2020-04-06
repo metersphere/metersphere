@@ -4,12 +4,14 @@
 
     <el-dialog title="关联测试用例"
                :visible.sync="dialogFormVisible"
-               width="65%">
+               width="50%">
 
       <el-container class="main-content">
         <el-aside class="node-tree" width="250px">
           <plan-node-tree
-            :tree-nodes="treeNodes" ref="tree"></plan-node-tree>
+            :tree-nodes="treeNodes"
+            @nodeSelectEvent="getCaseNameByNodeIds"
+            ref="tree"></plan-node-tree>
         </el-aside>
 
         <el-container>
@@ -23,16 +25,12 @@
                   ref="table">
 
                   <el-table-column
-                    type="selection"
-                    :reserve-selection="true"></el-table-column>
+                    type="selection"></el-table-column>
 
                   <el-table-column
                     prop="name"
                     label="用例名称"
                     style="width: 100%">
-                    <template v-slot:header>
-                      用例名称
-                    </template>
                     <template v-slot:default="scope">
                       {{scope.row.name}}
                     </template>
@@ -79,28 +77,45 @@
           treeNodes: []
         };
       },
+      props: {
+        planId: {
+          type: String
+        }
+      },
       methods: {
         openTestCaseRelevanceDialog(planId) {
           console.log(planId);
-          this.getNodeTreeByPlanId(planId);
+          this.getAllNodeTreeByPlanId(planId);
           console.log(this.$refs);
           this.getCaseNames(planId);
           this.dialogFormVisible = true;
         },
         saveCaseRelevance(){
-
+          let param = {};
+          param.planId = this.planId;
+          param.testCaseIds = [...this.selectIds];
+          this.$post('/test/plan/relevance' , param, () => {
+            this.$message.success("保存成功");
+          });
         },
-        getCaseNames(planId) {
-          if(planId){
-            let param = {};
+        getCaseNames(planId, nodeIds) {
+          let param = {};
+          if (planId) {
             param.planId = planId;
-            this.$post('/test/case/name/all', param, response => {
-              this.testCases = response.data;
-              this.testCases.forEach(item => {
-                item.checked = false;
-              });
-            });
           }
+          if (nodeIds && nodeIds.length > 0){
+            param.nodeIds = nodeIds;
+          }
+          this.$post('/test/case/name/all', param, response => {
+            this.testCases = response.data;
+            this.testCases.forEach(item => {
+              item.checked = false;
+            });
+          });
+        },
+        getCaseNameByNodeIds(nodeIds) {
+          this.dialogFormVisible = true;
+          this.getCaseNames(null, nodeIds);
         },
         checkAll() {
           this.testCases.forEach(item => {
@@ -124,14 +139,13 @@
             this.selectIds.add(row.id);
           }
         },
-        getNodeTreeByPlanId(planId) {
-          if(planId){
+        getAllNodeTreeByPlanId(planId) {
+          if (planId) {
             this.$get("/case/node/list/all/plan/" + planId, response => {
               this.treeNodes = response.data;
             });
           }
         }
-
       }
     }
 </script>
@@ -155,7 +169,7 @@
     /*border-radius: 1px;*/
     /*padding-top: 5px ;*/
     /*height: 100%;*/
-    margin-right: 5px;
+    margin-right: 10px;
     /*box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);*/
   }
 
@@ -163,7 +177,6 @@
     background-color: darkgrey;
     color: #333;
     line-height: 60px;
-    height: 1%;
   }
 
   .el-aside {

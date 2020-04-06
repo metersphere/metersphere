@@ -7,7 +7,6 @@ import java.util.List;
 
 public class QueryTestPlanRequest extends TestPlan {
 
-    private String workspaceId;
     private boolean recent = false;
 
     public boolean isRecent() {
@@ -16,13 +15,5 @@ public class QueryTestPlanRequest extends TestPlan {
 
     public void setRecent(boolean recent) {
         this.recent = recent;
-    }
-
-    public String getWorkspaceId() {
-        return workspaceId;
-    }
-
-    public void setWorkspaceId(String workspaceId) {
-        this.workspaceId = workspaceId;
     }
 }

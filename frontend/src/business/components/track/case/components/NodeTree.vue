@@ -15,6 +15,7 @@
       @node-drag-end="handleDragEnd"
       :filter-node-method="filterNode"
       :expand-on-click-node="false"
+      highlight-current
       draggable
       ref="tree">
 
@@ -230,7 +231,7 @@
     justify-content: space-between;
     font-size: 14px;
     padding-right: 8px;
-    width: 100px;
+    width: 100%;
   }
 
   .node-tree {

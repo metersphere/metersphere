@@ -4,6 +4,7 @@ import io.metersphere.base.domain.TestCase;
 import io.metersphere.controller.request.ReportRequest;
 import io.metersphere.controller.request.testcase.QueryTestCaseRequest;
 import io.metersphere.dto.ReportDTO;
+import io.metersphere.dto.TestPlanCaseDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -11,4 +12,6 @@ import java.util.List;
 public interface ExtTestCaseMapper {
 
     List<TestCase> getTestCaseNames(@Param("request") QueryTestCaseRequest request);
+
+    List<TestPlanCaseDTO> getTestPlanTestCases(@Param("request") QueryTestCaseRequest request);
 }

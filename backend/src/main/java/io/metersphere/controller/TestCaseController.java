@@ -12,6 +12,7 @@ import io.metersphere.controller.request.testcase.QueryTestCaseRequest;
 import io.metersphere.controller.request.testplan.QueryTestPlanRequest;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.dto.TestCaseNodeDTO;
+import io.metersphere.dto.TestPlanCaseDTO;
 import io.metersphere.service.TestCaseNodeService;
 import io.metersphere.service.TestCaseService;
 import io.metersphere.user.SessionUtils;
@@ -36,6 +37,12 @@ public class TestCaseController {
     @PostMapping("/list")
     public List<TestCase> getTestCaseByNodeId(@RequestBody List<Integer> nodeIds){
         return testCaseService.getTestCaseByNodeId(nodeIds);
+    }
+
+    @PostMapping("/plan/list/{goPage}/{pageSize}")
+    public  Pager<List<TestPlanCaseDTO>> getTestPlanCases(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request){
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, testCaseService.getTestPlanCases(request));
     }
 
     @PostMapping("/name/all")

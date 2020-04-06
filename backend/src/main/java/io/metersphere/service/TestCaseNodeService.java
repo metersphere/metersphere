@@ -135,9 +135,10 @@ public class TestCaseNodeService {
                 .map(TestPlanTestCase::getCaseId)
                 .collect(Collectors.toList());
 
-        List<Integer> nodeIds = nodes.stream()
-                .filter(node -> caseIds.contains(node.getId()))
-                .map(TestCaseNode::getId)
+        TestCaseExample testCaseExample = new TestCaseExample();
+        testCaseExample.createCriteria().andIdIn(caseIds);
+        List<Integer> dataNodeIds = testCaseMapper.selectByExample(testCaseExample).stream()
+                .map(TestCase::getNodeId)
                 .collect(Collectors.toList());
 
         List<TestCaseNodeDTO> nodeTrees = getNodeTrees(nodes);
@@ -145,7 +146,7 @@ public class TestCaseNodeService {
         Iterator<TestCaseNodeDTO> iterator = nodeTrees.iterator();
         while(iterator.hasNext()){
             TestCaseNodeDTO rootNode = iterator.next();
-            if(pruningTree(rootNode, nodeIds)){
+            if(pruningTree(rootNode, dataNodeIds)){
                 iterator.remove();
             }
         }
@@ -163,6 +164,13 @@ public class TestCaseNodeService {
 
         List<TestCaseNodeDTO> children = rootNode.getChildren();
 
+        if(children == null || children.isEmpty()){
+            //叶子节点,并且该节点无数据
+            if(!nodeIds.contains(rootNode.getId())){
+                return true;
+            }
+        }
+
         if(children != null) {
             Iterator<TestCaseNodeDTO> iterator = children.iterator();
             while(iterator.hasNext()){
@@ -171,11 +179,8 @@ public class TestCaseNodeService {
                     iterator.remove();
                 }
             }
-        }
 
-        if(children == null || children.isEmpty()){
-            //叶子节点,并且该节点无数据
-            if(!nodeIds.contains(rootNode.getId())){
+            if (children.isEmpty() && !nodeIds.contains(rootNode.getId())) {
                 return true;
             }
         }

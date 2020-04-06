@@ -40,7 +40,6 @@ export default {
     'system_setting': '系统设置',
     'api': '接口测试',
     'performance': '性能测试',
-    'interface': '接口测试',
     'input_content': '请输入内容',
     'create': '新建',
     'refresh': '刷新',

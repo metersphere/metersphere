@@ -143,7 +143,7 @@
         option.id = node.id;
         option.path = option.path + '/' + node.name;
         moduleOptions.push(option);
-        if(node.children){
+        if (node.children) {
           for (let i = 0; i < node.children.length; i++){
             this.buildNodePath(node.children[i], { path: option.path }, moduleOptions);
           }
