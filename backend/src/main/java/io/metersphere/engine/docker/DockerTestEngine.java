@@ -12,10 +12,8 @@ import io.metersphere.engine.EngineContext;
 import io.metersphere.engine.EngineFactory;
 import io.metersphere.engine.docker.request.BaseRequest;
 import io.metersphere.engine.docker.request.TestRequest;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -82,16 +80,6 @@ public class DockerTestEngine extends AbstractEngine {
         testRequest.setFileString(content);
         testRequest.setImage(JMETER_IMAGE);
         testRequest.setTestData(context.getTestData());
-
-        // todo 判断测试状态
-        String taskStatusUri = String.format(BASE_URL + "/jmeter/task/status/" + testId, nodeIp, port);
-        List containerList = restTemplate.postForObject(taskStatusUri, testRequest, List.class);
-        for (int i = 0; i < containerList.size(); i++) {
-            HashMap h = (HashMap) containerList.get(i);
-            if (StringUtils.equals((String) h.get("State"), "running")) {
-                MSException.throwException("The test is running!");
-            }
-        }
 
         restTemplate.postForObject(uri, testRequest, String.class);
     }
