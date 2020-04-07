@@ -5,26 +5,27 @@
       <template v-slot:header>
         <div>
           <el-row type="flex" justify="space-between" align="middle">
-          <span class="title">测试资源池
+          <span class="title">{{$t('commons.test_resource_pool')}}
             <ms-create-box :tips="btnTips" :exec="create"/>
           </span>
             <span class="search">
-            <el-input type="text" size="small" placeholder="根据名称搜索" prefix-icon="el-icon-search"
+            <el-input type="text" size="small" :placeholder="$t('test_resource_pool.search_by_name')"
+                      prefix-icon="el-icon-search"
                       maxlength="60" v-model="condition" @change="search" clearable/>
           </span>
           </el-row>
         </div>
       </template>
       <el-table :data="items" style="width: 100%">
-        <el-table-column prop="name" label="名称"/>
-        <el-table-column prop="description" label="描述"/>
-        <el-table-column prop="type" label="类型">
+        <el-table-column prop="name" :label="$t('commons.name')"/>
+        <el-table-column prop="description" :label="$t('commons.description')"/>
+        <el-table-column prop="type" :label="$t('test_resource_pool.type')">
           <template v-slot:default="scope">
-            <span v-if="scope.row.type === 'NODE'">独立节点</span>
+            <span v-if="scope.row.type === 'NODE'">Single Docker</span>
             <span v-if="scope.row.type === 'K8S'">Kubernetes</span>
           </template>
         </el-table-column>
-        <el-table-column prop="status" label="启用/禁用">
+        <el-table-column prop="status" :label="$t('test_resource_pool.enable_disable')">
           <template v-slot:default="scope">
             <el-switch v-model="scope.row.status"
                        active-color="#13ce66"
@@ -35,12 +36,12 @@
             />
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" label="创建时间" width="180">
+        <el-table-column prop="createTime" :label="$t('commons.create_time')" width="180">
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="updateTime" label="更新时间" width="180">
+        <el-table-column prop="updateTime" :label="$t('commons.update_time')" width="180">
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
@@ -71,20 +72,22 @@
       </div>
     </el-card>
 
-    <el-dialog title="创建资源池" :visible.sync="createVisible" width="70%" @closed="closeFunc"
+    <el-dialog :title="$t('test_resource_pool.create_resource_pool')" :visible.sync="createVisible" width="70%"
+               @closed="closeFunc"
                :destroy-on-close="true">
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
                ref="createTestResourcePoolForm">
-        <el-form-item label="名称" prop="name">
+        <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
-        <el-form-item label="描述" prop="description">
+        <el-form-item :label="$t('commons.description')" prop="description">
           <el-input v-model="form.description" autocomplete="off"/>
         </el-form-item>
-        <el-form-item label="资源类型" prop="type">
-          <el-select v-model="form.type" placeholder="选择资源类型" @change="changeResourceType()">
+        <el-form-item :label="$t('test_resource_pool.type')" prop="type">
+          <el-select v-model="form.type" :placeholder="$t('test_resource_pool.select_pool_type')"
+                     @change="changeResourceType()">
             <el-option key="K8S" value="K8S" label="Kubernetes">Kubernetes</el-option>
-            <el-option key="NODE" value="NODE" label="独立节点">独立节点</el-option>
+            <el-option key="NODE" value="NODE" label="Node">Single Docker</el-option>
           </el-select>
         </el-form-item>
         <div v-for="(item,index) in infoList " :key="index">
@@ -103,7 +106,7 @@
               </el-form-item>
             </div>
             <div style="width: 30%;float: left">
-              <el-form-item prop="maxConcurrency" label="最大并发数">
+              <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')">
                 <el-input-number v-model="item.maxConcurrency" :min="1" :max="9999"></el-input-number>
               </el-form-item>
             </div>
@@ -120,7 +123,7 @@
               </el-form-item>
             </div>
             <div style="width: 30%;float: left">
-              <el-form-item prop="maxConcurrency" label="最大并发数">
+              <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')">
                 <el-input-number v-model="item.maxConcurrency" :min="1" :max="9999"></el-input-number>
               </el-form-item>
             </div>
@@ -143,25 +146,27 @@
       <template v-slot:footer>
         <span class="dialog-footer">
           <el-button type="primary" @click="createTestResourcePool('createTestResourcePoolForm')"
-                     size="medium">创建</el-button>
+                     size="medium">{{$t('commons.create')}}</el-button>
         </span>
       </template>
     </el-dialog>
 
-    <el-dialog title="修改资源池" :visible.sync="updateVisible" width="70%" :destroy-on-close="true"
+    <el-dialog :title="$t('test_resource_pool.update_resource_pool')" :visible.sync="updateVisible" width="70%"
+               :destroy-on-close="true"
                @close="closeFunc">
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
                ref="updateTestResourcePoolForm">
-        <el-form-item label="名称" prop="name">
+        <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
-        <el-form-item label="描述" prop="description">
+        <el-form-item :label="$t('commons.description')" prop="description">
           <el-input v-model="form.description" autocomplete="off"/>
         </el-form-item>
-        <el-form-item label="资源类型" prop="type">
-          <el-select v-model="form.type" placeholder="选择资源类型" @change="changeResourceType()">
+        <el-form-item :label="$t('test_resource_pool.type')" prop="type">
+          <el-select v-model="form.type" :placeholder="$t('test_resource_pool.select_pool_type')"
+                     @change="changeResourceType()">
             <el-option key="K8S" value="K8S" label="Kubernetes">Kubernetes</el-option>
-            <el-option key="NODE" value="NODE" label="独立节点">独立节点</el-option>
+            <el-option key="NODE" value="NODE" label="Node">Single Docker</el-option>
           </el-select>
         </el-form-item>
         <div v-for="(item,index) in infoList " :key="index">
@@ -177,7 +182,8 @@
               </el-form-item>
             </div>
             <div style="width: 30%;float: left">
-              <el-form-item prop="maxConcurrency" label="最大并发数" style="padding-left: 20px">
+              <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"
+                            style="padding-left: 20px">
                 <el-input-number v-model="item.maxConcurrency" :min="1" :max="9999"></el-input-number>
               </el-form-item>
             </div>
@@ -194,7 +200,8 @@
               </el-form-item>
             </div>
             <div style="width: 30%;float: left">
-              <el-form-item prop="maxConcurrency" label="最大并发数" style="padding-left: 20px">
+              <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"
+                            style="padding-left: 20px">
                 <el-input-number v-model="item.maxConcurrency" :min="1" :max="9999"></el-input-number>
               </el-form-item>
             </div>
@@ -216,7 +223,7 @@
       <template v-slot:footer>
         <span class="dialog-footer">
           <el-button type="primary" @click="updateTestResourcePool('updateTestResourcePoolForm')"
-                     size="medium">修改</el-button>
+                     size="medium">{{$t('commons.save')}}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -238,8 +245,8 @@
         infoList: [],
         updateVisible: false,
         btnTips: "添加资源池",
-        btnTipsAdd: "添加",
-        btnTipsDel: "删除",
+        btnTipsAdd: this.$t("commons.add"),
+        btnTipsDel: this.$t("commons.delete"),
         queryPath: "testresourcepool/list",
         condition: "",
         items: [],
@@ -381,16 +388,15 @@
             if (vri.validate) {
               this.testLoading = true;
               this.convertSubmitResources();
-              this.$post("/testresourcepool/add", this.form)
-                .then(() => {
-                  this.$message({
-                      type: 'success',
-                      message: '添加成功!'
-                    },
-                    this.createVisible = false,
-                    this.initTableData());
-                  this.testLoading = false;
-                });
+              this.$post("/testresourcepool/add", this.form, () => {
+                this.$message({
+                    type: 'success',
+                    message: '添加成功!'
+                  },
+                  this.createVisible = false,
+                  this.initTableData());
+                this.testLoading = false;
+              });
             } else {
               this.$message({
                 type: 'warning',
@@ -424,17 +430,16 @@
             let vri = this.validateResourceInfo();
             if (vri.validate) {
               this.convertSubmitResources();
-              this.$post("/testresourcepool/update", this.form)
-                .then(() => {
-                  this.$message({
-                      type: 'success',
-                      message: this.$t('commons.modify_success')
-                    },
-                    this.updateVisible = false,
-                    this.initTableData(),
-                    self.loading = false);
-                  this.testLoading = false;
-                });
+              this.$post("/testresourcepool/update", this.form, () => {
+                this.$message({
+                    type: 'success',
+                    message: this.$t('commons.modify_success')
+                  },
+                  this.updateVisible = false,
+                  this.initTableData(),
+                  self.loading = false);
+                this.testLoading = false;
+              });
             } else {
               this.$message({
                 type: 'warning',

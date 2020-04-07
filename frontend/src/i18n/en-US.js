@@ -237,6 +237,15 @@ export default {
     'select_execute_result': 'Select execute result',
     'save': 'Save'
   },
+  'test_resource_pool': {
+    'type': 'type',
+    'enable_disable': 'Enable / disable',
+    'search_by_name': 'Search by name',
+    'create_resource_pool': 'Create resource pool',
+    'update_resource_pool': 'Create resource pool',
+    'select_pool_type': 'Select resource type',
+    'max_threads': 'Maximum concurrent number',
+  },
   i18n: {
     'home': 'Home'
   }

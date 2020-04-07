@@ -239,6 +239,15 @@ export default {
     'save': '保 存'
 
   },
+  'test_resource_pool': {
+    'type': '类型',
+    'enable_disable': '启用/禁用',
+    'search_by_name': '根据名称搜索',
+    'create_resource_pool': '创建资源池',
+    'update_resource_pool': '创建资源池',
+    'select_pool_type': '选择资源类型',
+    'max_threads': '最大并发数',
+  },
   i18n: {
     'home': '首页'
   }
