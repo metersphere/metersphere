@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="loading">
+  <div v-loading="result.loading">
 
     <el-card>
       <template v-slot:header>
@@ -72,7 +72,9 @@
       </div>
     </el-card>
 
-    <el-dialog :title="$t('test_resource_pool.create_resource_pool')" :visible.sync="createVisible" width="70%"
+    <el-dialog v-loading="result.loading"
+               :title="$t('test_resource_pool.create_resource_pool')"
+               :visible.sync="createVisible" width="70%"
                @closed="closeFunc"
                :destroy-on-close="true">
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
@@ -151,9 +153,11 @@
       </template>
     </el-dialog>
 
-    <el-dialog :title="$t('test_resource_pool.update_resource_pool')" :visible.sync="updateVisible" width="70%"
-               :destroy-on-close="true"
-               @close="closeFunc">
+    <el-dialog
+      v-loading="result.loading"
+      :title="$t('test_resource_pool.update_resource_pool')" :visible.sync="updateVisible" width="70%"
+      :destroy-on-close="true"
+      @close="closeFunc">
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
                ref="updateTestResourcePoolForm">
         <el-form-item :label="$t('commons.name')" prop="name">
@@ -239,7 +243,7 @@
     components: {MsCreateBox},
     data() {
       return {
-        loading: false,
+        result: {},
         testLoading: false,
         createVisible: false,
         infoList: [],
@@ -367,7 +371,7 @@
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
-          this.$get(`/testresourcepool/delete/${row.id}`).then(() => {
+          this.result = this.$get(`/testresourcepool/delete/${row.id}`).then(() => {
             this.initTableData();
           });
           this.$message({
@@ -388,7 +392,7 @@
             if (vri.validate) {
               this.testLoading = true;
               this.convertSubmitResources();
-              this.$post("/testresourcepool/add", this.form, () => {
+              this.result = this.$post("/testresourcepool/add", this.form, () => {
                 this.$message({
                     type: 'success',
                     message: this.$t('commons.save_success')
@@ -430,7 +434,7 @@
             let vri = this.validateResourceInfo();
             if (vri.validate) {
               this.convertSubmitResources();
-              this.$post("/testresourcepool/update", this.form, () => {
+              this.result = this.$post("/testresourcepool/update", this.form, () => {
                 this.$message({
                     type: 'success',
                     message: this.$t('commons.modify_success')
@@ -457,7 +461,7 @@
         this.form = {};
       },
       changeSwitch(row) {
-        this.$post('/testresourcepool/update', row).then(() => {
+        this.result = this.$post('/testresourcepool/update', row).then(() => {
           this.$message({
             type: 'success',
             message: this.$t('test_resource_pool.status_change_success')
