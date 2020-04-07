@@ -11,10 +11,10 @@
 </template>
 
 <script>
-  import {ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER} from "../../../../common/constants";
+  import {ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER} from "../../../../../common/constants";
 
   export default {
-    name: "PerformanceRecentTestPlan",
+    name: "RecentTestCase",
     mounted() {
       const rolesString = localStorage.getItem("roles");
       const roles = rolesString.split(',');
@@ -24,7 +24,6 @@
           this.recentTestPlans = response.data;
         });
       }
-
     },
     data() {
       return {

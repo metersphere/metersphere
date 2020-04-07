@@ -153,6 +153,11 @@
           type: String
         }
       },
+      watch: {
+        planId() {
+          this.initTableData();
+        }
+      },
       created: function () {
         this.initTableData();
       },

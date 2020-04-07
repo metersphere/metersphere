@@ -110,4 +110,7 @@ public class TestCaseService {
     }
 
 
+    public List<TestCase> recentTestPlans(QueryTestCaseRequest request) {
+        return null;
+    }
 }

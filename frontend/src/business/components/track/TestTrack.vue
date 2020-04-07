@@ -1,6 +1,6 @@
 <template>
   <el-col>
-    <header-menus :beaseUrl="beaseUrl"/>
+    <header-menus/>
     <div>
       <transition>
         <keep-alive>

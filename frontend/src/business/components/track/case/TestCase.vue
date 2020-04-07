@@ -78,7 +78,7 @@
     },
     watch: {
       '$route'(to, from) {
-        if (from.name.indexOf("Project") > 0){
+        if (from.name.indexOf("Project") >= 0){
           this.getProjects();
         }
       }

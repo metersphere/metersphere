@@ -6,9 +6,11 @@ import java.util.List;
 
 public class QueryTestCaseRequest extends TestCase {
 
-    List<Integer> nodeIds;
+    private List<Integer> nodeIds;
 
-    String planId;
+    private String planId;
+
+    private String workspaceId;
 
     public String getPlanId() {
         return planId;
@@ -24,5 +26,13 @@ public class QueryTestCaseRequest extends TestCase {
 
     public void setNodeIds(List<Integer> nodeIds) {
         this.nodeIds = nodeIds;
+    }
+
+    public String getWorkspaceId() {
+        return workspaceId;
+    }
+
+    public void setWorkspaceId(String workspaceId) {
+        this.workspaceId = workspaceId;
     }
 }

@@ -127,6 +127,10 @@ public class TestCaseNodeService {
         testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(planId);
         List<TestPlanTestCase> testPlanTestCases = testPlanTestCaseMapper.selectByExample(testPlanTestCaseExample);
 
+        if (testPlanTestCases.isEmpty()) {
+            return null;
+        }
+
         TestCaseNodeExample testCaseNodeExample = new TestCaseNodeExample();
         testCaseNodeExample.createCriteria().andProjectIdEqualTo(testPlan.getProjectId());
         List<TestCaseNode> nodes = testCaseNodeMapper.selectByExample(testCaseNodeExample);

@@ -34,6 +34,15 @@ public class TestCaseController {
         return PageUtils.setPageInfo(page, testCaseService.listTestCase(request));
     }
 
+    @GetMapping("recent/{count}")
+    public List<TestCase> recentTestPlans(@PathVariable int count) {
+        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
+        QueryTestCaseRequest request = new QueryTestCaseRequest();
+        request.setWorkspaceId(currentWorkspaceId);
+        PageHelper.startPage(1, count, true);
+        return testCaseService.recentTestPlans(request);
+    }
+
     @PostMapping("/list")
     public List<TestCase> getTestCaseByNodeId(@RequestBody List<Integer> nodeIds){
         return testCaseService.getTestCaseByNodeId(nodeIds);

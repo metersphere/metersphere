@@ -6,15 +6,14 @@
     </div>
 
     <el-menu-item :key="p.id" v-for="p in recentProjects"
-                  :index="'/performance/test/' + p.id" :route="{name:'perPlan', params:{projectId:p.id, projectName:p.name}}">
+                  @click="routeToTestCase(p)">
       {{ p.name }}
     </el-menu-item>
   </el-menu>
 </template>
-
 <script>
 
-  import {ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER} from "../../../../common/constants";
+  import {ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER, CURRENT_PROJECT} from "../../../../common/constants";
   import {hasRoles} from "../../../../common/utils";
 
   export default {
@@ -27,14 +26,24 @@
         });
       }
     },
-    methods: {},
     data() {
       return {
         recentProjects: [],
       }
+    },
+    methods: {
+      routeToTestCase(project) {
+        localStorage.setItem(CURRENT_PROJECT, JSON.stringify(project));
+        if(this.$router.currentRoute.path === '/track/case/all'){
+          this.$router.go(0);
+        } else {
+          this.$router.push("/track/case/all");
+        }
+      }
     }
   }
 </script>
+
 
 <style scoped>
   .recent-text {

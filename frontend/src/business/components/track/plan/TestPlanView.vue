@@ -51,6 +51,13 @@
       created() {
         this.getNodeTreeByPlanId();
       },
+      watch: {
+        '$route'(to, from) {
+          if (to.path.indexOf("/track/plan/view/") >= 0){
+            this.getNodeTreeByPlanId();
+          }
+        }
+      },
       computed: {
         planId: function () {
           return this.$route.params.planId;

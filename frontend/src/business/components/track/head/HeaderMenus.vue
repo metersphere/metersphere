@@ -10,7 +10,7 @@
       <el-submenu v-if="isCurrentWorkspaceUser"
                   index="3" popper-class="submenu" v-permission="['test_manager']" >
         <template v-slot:title>{{$t('commons.project')}}</template>
-        <track-recent-project v-if="beaseUrl == 'tack'"/>
+        <track-recent-project/>
         <el-divider/>
         <el-menu-item :index="'/track/project/all'">
           <font-awesome-icon :icon="['fa', 'list-ul']"/>
@@ -24,7 +24,7 @@
       <el-submenu v-if="isCurrentWorkspaceUser"
                   index="6" popper-class="submenu" v-permission="['test_manager', 'test_user']">
         <template v-slot:title>{{$t('test_track.test_case')}}</template>
-        <recent-case-plan/>
+        <recent-test-case/>
         <el-divider/>
         <el-menu-item :index="'/track/case/all'">
           <font-awesome-icon :icon="['fa', 'list-ul']"/>
@@ -55,20 +55,13 @@
 
 <script>
 
-  import PerformanceRecentTestPlan from "../../performance/test/PerformanceRecentTestPlan";
-  import ApiRecentTest from "../../api/test/ApiRecentTest";
-  import PerformanceRecentProject from "../../performance/project/PerformanceRecentProject";
-  import ApiRecentProject from "../../api/project/ApiRecentProject";
-  import PerformanceRecentReport from "../../performance/report/PerformanceRecentReport";
-  import ApiRecentReport from "../../api/report/ApiRecentReport";
   import {checkoutCurrentWorkspace} from "../../../../common/utils";
   import TrackRecentProject from "../../track/project/TrackRecentProject";
-  import RecentCasePlan from "../../track/case/RecentCasePlan";
+  import RecentTestCase from "../case/components/RecentTestCase";
 
   export default {
     name: "MsMenus",
-    components: {PerformanceRecentReport, PerformanceRecentTestPlan, ApiRecentTest, ApiRecentReport,
-      PerformanceRecentProject, ApiRecentProject, TrackRecentProject, RecentCasePlan},
+    components: {RecentTestCase, TrackRecentProject },
     data() {
       return {
         isCurrentWorkspaceUser: false,
