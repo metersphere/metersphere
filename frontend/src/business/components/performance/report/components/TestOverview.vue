@@ -59,10 +59,10 @@
 
     <el-row>
       <el-col :span="12">
-        <chart ref="chart1" :options="option" :autoresize="true"></chart>
+        <chart ref="chart1" :options="loadOption" :autoresize="true"></chart>
       </el-col>
       <el-col :span="12">
-        <chart ref="chart2" :options="option2" :autoresize="true"></chart>
+        <chart ref="chart2" :options="resOption" :autoresize="true"></chart>
       </el-col>
     </el-row>
   </div>
@@ -79,84 +79,8 @@
         avgResponseTime: "0",
         responseTime90: "0",
         avgBandwidth: "0",
-        option: {
-          legend: {
-            top: 20,
-            data: ['Users', 'Hits/s', 'Error(s)']
-          },
-          xAxis: {
-            type: 'category',
-          },
-          yAxis: [{
-            name: 'User',
-            type: 'value',
-            min: 0,
-            splitNumber: 5,
-            // interval: 10 / 5
-          },
-            {
-              name: 'Hits/s',
-              type: 'value',
-              splitNumber: 5,
-              min: 0,
-              // max: 5,
-              // interval: 5 / 5
-            }
-          ],
-          series: [
-            {
-              name: 'Users',
-              color: '#0CA74A',
-              type: 'line',
-              yAxisIndex: 0
-            },
-            {
-              name: 'Hits/s',
-              color: '#65A2FF',
-              type: 'line',
-              yAxisIndex: 1
-            },
-            {
-              name: 'Error(s)',
-              color: '#E6113C',
-              type: 'line',
-              yAxisIndex: 1
-            }
-          ]
-        },
-        option2: {
-          legend: {
-            top: 20,
-            data: ['Users', 'Response Time']
-          },
-          xAxis: {
-            type: 'category',
-            data: []
-          },
-          yAxis: [{
-            name: 'User',
-            type: 'value',
-            },
-            {
-              name: 'Response Time',
-              type: 'value'
-            }
-          ],
-          series: [
-            {
-              name: 'Users',
-              color: '#0CA74A',
-              data: [],
-              type: 'line',
-            },
-            {
-              name: 'Response Time',
-              color: '#99743C',
-              data: [],
-              type: 'line',
-            }
-          ]
-        }
+        loadOption: {},
+        resOption: {}
       }
     },
     methods: {
@@ -172,7 +96,108 @@
         })
         this.$get("/report/content/load_chart/" + this.id, res => {
           let data = res.data;
-          this.option = this.generateOption(data);
+          let loadOption = {
+            title: {
+              text: 'Load',
+              left: 'center',
+              top: 20,
+              textStyle: {
+                color: '#65A2FF'
+              },
+            },
+            legend: {
+              bottom: 10,
+              data: ['Users', 'Hits/s', 'Error(s)']
+            },
+            xAxis: {
+              type: 'category',
+            },
+            yAxis: [{
+              name: 'User',
+              type: 'value',
+              min: 0,
+              splitNumber: 5,
+              // interval: 10 / 5
+            },
+              {
+                name: 'Hits/s',
+                type: 'value',
+                splitNumber: 5,
+                min: 0,
+                // max: 5,
+                // interval: 5 / 5
+              }
+            ],
+            series: [
+              {
+                name: 'Users',
+                color: '#0CA74A',
+                type: 'line',
+                yAxisIndex: 0
+              },
+              {
+                name: 'Hits/s',
+                color: '#65A2FF',
+                type: 'line',
+                yAxisIndex: 1
+              },
+              {
+                name: 'Error(s)',
+                color: '#E6113C',
+                type: 'line',
+                yAxisIndex: 1
+              }
+            ]
+          }
+          this.loadOption = this.generateLoadOption(loadOption, data);
+        })
+        this.$get("/report/content/res_chart/" + this.id, res => {
+          let data = res.data;
+          let resOption = {
+            title: {
+              text: 'Response Time',
+              left: 'center',
+              top: 20,
+              textStyle: {
+                color: '#99743C'
+              },
+            },
+            legend: {
+              bottom: 10,
+              data: ['Users', 'Response Time']
+            },
+            xAxis: {
+              type: 'category'
+            },
+            yAxis: [{
+              name: 'User',
+              type: 'value',
+              splitNumber: 5,
+              min: 0
+            },
+              {
+                name: 'Response Time',
+                type: 'value',
+                splitNumber: 5,
+                min: 0
+              }
+            ],
+            series: [
+              {
+                name: 'Users',
+                color: '#0CA74A',
+                type: 'line',
+                yAxisIndex: 0
+              },
+              {
+                name: 'Response Time',
+                color: '#99743C',
+                type: 'line',
+                yAxisIndex: 1
+              }
+            ]
+          }
+          this.resOption = this.generateResponseOption(resOption, data);
         })
       },
       _objToStrMap(obj){
@@ -185,55 +210,10 @@
       _jsonToMap(jsonStr){
         return this._objToStrMap(JSON.parse(jsonStr));
       },
-      generateOption(data) {
-        let option = {
-          legend: {
-            top: 20,
-            data: ['Users', 'Hits/s', 'Error(s)']
-          },
-          xAxis: {
-            type: 'category',
-          },
-          yAxis: [{
-            name: 'User',
-            type: 'value',
-            min: 0,
-            splitNumber: 5,
-            // interval: 10 / 5
-            },
-            {
-              name: 'Hits/s',
-              type: 'value',
-              splitNumber: 5,
-              min: 0,
-              // max: 5,
-              // interval: 5 / 5
-            }
-          ],
-          series: [
-            {
-              name: 'Users',
-              color: '#0CA74A',
-              type: 'line',
-              yAxisIndex: 0
-            },
-            {
-              name: 'Hits/s',
-              color: '#65A2FF',
-              type: 'line',
-              yAxisIndex: 1
-            },
-            {
-              name: 'Error(s)',
-              color: '#E6113C',
-              type: 'line',
-              yAxisIndex: 1
-            }
-          ]
-        }
+      generateLoadOption(loadOption, data) {
         let map = this._jsonToMap(data.serices);
         let xAxis = data.xAxis;
-        this.$set(option.xAxis, "data", xAxis.split(','));
+        this.$set(loadOption.xAxis, "data", xAxis.split(','));
         let user = map.get("users").slice(0);
         let hit = map.get("hits").slice(0);
         user.sort(function (a,b) {
@@ -242,16 +222,38 @@
         hit.sort(function (a,b) {
           return parseFloat(a) - parseFloat(b);
         })
-        this.$set(option.yAxis[0], "max",user[user.length-1]);
-        this.$set(option.yAxis[0], "interval", user[user.length-1]/5);
-        this.$set(option.yAxis[1], "max", hit[hit.length-1]);
-        this.$set(option.yAxis[1], "interval", hit[hit.length-1]/5);
+        this.$set(loadOption.yAxis[0], "max",user[user.length-1]);
+        this.$set(loadOption.yAxis[0], "interval", user[user.length-1]/5);
+        this.$set(loadOption.yAxis[1], "max", hit[hit.length-1]);
+        this.$set(loadOption.yAxis[1], "interval", hit[hit.length-1]/5);
 
-        this.$set(option.series[0], "data", map.get("users"));
-        this.$set(option.series[1], "data", map.get("hits"));
-        this.$set(option.series[2], "data", map.get("errors"));
-        return option;
-      }
+        this.$set(loadOption.series[0], "data", map.get("users"));
+        this.$set(loadOption.series[1], "data", map.get("hits"));
+        this.$set(loadOption.series[2], "data", map.get("errors"));
+        return loadOption;
+      },
+      generateResponseOption(resOption, data) {
+        let map = this._jsonToMap(data.serices);
+        let user = map.get("users").slice(0);
+        let res = map.get("resTime").slice(0);
+        user.sort(function (a,b) {
+          return parseInt(a) - parseInt(b);
+        })
+        res.sort(function (a,b) {
+          return parseFloat(a) - parseFloat(b);
+        })
+
+        this.$set(resOption.yAxis[0], "max",user[user.length-1]);
+        this.$set(resOption.yAxis[0], "interval", user[user.length-1]/5);
+        this.$set(resOption.yAxis[1], "max", res[res.length-1]);
+        this.$set(resOption.yAxis[1], "interval", res[res.length-1]/5);
+
+        let xAxis = data.xAxis;
+        this.$set(resOption.xAxis, "data", xAxis.split(','));
+        this.$set(resOption.series[0], "data", map.get("users"));
+        this.$set(resOption.series[1], "data", map.get("resTime"));
+        return resOption;
+      },
     },
     watch: {
       status() {
