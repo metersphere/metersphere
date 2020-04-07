@@ -1,6 +1,6 @@
 <template>
   <el-row type="flex" justify="end">
-    <el-col :span="21">
+    <el-col :span="15" :offset="3">
       <el-menu :unique-opened="true" mode="horizontal" router
                class="header-user-menu align-right"
                background-color="#2c2a48"
@@ -27,19 +27,18 @@
       </el-menu>
     </el-col>
 
-    <el-col :span="3">
-      <el-dropdown size="medium" @command="handleCommand" class="align-right">
-        <span class="dropdown-link">
-            {{currentUser.name}}<i class="el-icon-caret-bottom el-icon--right"/>
-        </span>
-        <template v-slot:dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item command="personal">个人信息</el-dropdown-item>
-            <el-dropdown-item command="logout">退出系统</el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
-    </el-col>
+    <el-dropdown size="medium" @command="handleCommand" class="align-right">
+      <span class="dropdown-link">
+          {{currentUser.name}}<i class="el-icon-caret-bottom el-icon--right"/>
+      </span>
+      <template v-slot:dropdown>
+        <el-dropdown-menu>
+          <el-dropdown-item command="personal">个人信息</el-dropdown-item>
+          <el-dropdown-item command="logout">退出系统</el-dropdown-item>
+        </el-dropdown-menu>
+      </template>
+    </el-dropdown>
+
   </el-row>
 </template>
 
