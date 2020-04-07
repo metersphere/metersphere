@@ -40,11 +40,7 @@
   import ApiTestRuntimeConfig from './components/ApiTestRuntimeConfig';
 
   export default {
-    name: "EditApiTestPlan",
-    components: {
-      ApiTestSceneConfig,
-      ApiTestRuntimeConfig,
-    },
+    name: "EditApiTest",
     data() {
       return {
         result: {},
@@ -65,6 +61,10 @@
           component: 'ApiTestRuntimeConfig'
         }]
       }
+    },
+    components: {
+      ApiTestSceneConfig,
+      ApiTestRuntimeConfig,
     },
     watch: {
       '$route'(to) {

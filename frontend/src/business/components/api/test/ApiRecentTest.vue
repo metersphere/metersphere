@@ -4,7 +4,7 @@
       <i class="el-icon-time"/>
       {{$t('load_test.recent')}}
     </div>
-    <el-menu-item :key="t.id" v-for="t in recentTestPlans" :index="'/api/edit/' + t.id">
+    <el-menu-item :key="t.id" v-for="t in recentTestPlans" :index="'/api/test/edit/' + t.id">
       {{ t.name }}
     </el-menu-item>
   </el-menu>
@@ -15,7 +15,7 @@
   import {hasRoles} from "../../../../common/utils";
 
   export default {
-    name: "ApiRecentTestPlan",
+    name: "ApiRecentTest",
     mounted() {
 
       if (hasRoles(ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {

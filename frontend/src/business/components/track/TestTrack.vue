@@ -13,7 +13,7 @@
 
 <script>
 
-  import HeaderMenus from "../common/head/HeaderMenus";
+  import HeaderMenus from "./head/HeaderMenus";
 
     export default {
       name: "TrackHome",

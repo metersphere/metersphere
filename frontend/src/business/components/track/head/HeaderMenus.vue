@@ -3,59 +3,30 @@
   <div id="menu-bar">
     <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router
              :default-active='$route.path'>
-      <el-menu-item :index="'/' + beaseUrl + '/home'">
+      <el-menu-item :index="'/track/home'">
         {{ $t("i18n.home") }}
       </el-menu-item>
 
       <el-submenu v-if="isCurrentWorkspaceUser"
                   index="3" popper-class="submenu" v-permission="['test_manager']" >
         <template v-slot:title>{{$t('commons.project')}}</template>
-        <performance-recent-project v-if="beaseUrl == 'performance'"/>
-        <api-recent-project v-if="beaseUrl == 'api'"/>
         <track-recent-project v-if="beaseUrl == 'tack'"/>
         <el-divider/>
-        <el-menu-item :index="'/' + beaseUrl + '/project/all'">
+        <el-menu-item :index="'/track/project/all'">
           <font-awesome-icon :icon="['fa', 'list-ul']"/>
           <span style="padding-left: 5px;">{{$t('commons.show_all')}}</span>
         </el-menu-item>
-        <el-menu-item :index="'/' + beaseUrl + '/project/create'">
+        <el-menu-item :index="'/track/project/create'">
           <el-button type="text">{{$t('project.create')}}</el-button>
         </el-menu-item>
       </el-submenu>
 
-      <el-submenu v-if="isCurrentWorkspaceUser && (beaseUrl == 'performance' || beaseUrl == 'api')"
-                  index="4" popper-class="submenu" v-permission="['test_manager', 'test_user']">
-        <template v-slot:title>{{$t('commons.test')}}</template>
-        <performance-recent-test-plan v-if="beaseUrl == 'performance'"/>
-        <api-recent-test-plan v-if="beaseUrl == 'api'"/>
-        <el-divider/>
-        <el-menu-item :index="'/' + beaseUrl + '/test/all'">
-          <font-awesome-icon :icon="['fa', 'list-ul']"/>
-          <span style="padding-left: 5px;">{{$t('commons.show_all')}}</span>
-        </el-menu-item>
-        <el-menu-item :index="'/' + beaseUrl + '/test/create'">
-          <el-button type="text">{{$t('load_test.create')}}</el-button>
-        </el-menu-item>
-      </el-submenu>
-
-      <el-submenu v-if="isCurrentWorkspaceUser && (beaseUrl == 'performance' || beaseUrl == 'api')"
-                  index="5" popper-class="submenu" v-permission="['test_manager', 'test_user', 'test_viewer']">
-        <template v-slot:title>{{$t('commons.report')}}</template>
-        <performance-recent-report v-if="beaseUrl == 'performance'"/>
-        <api-recent-report v-if="beaseUrl == 'api'"/>
-        <el-divider/>
-        <el-menu-item :index="'/' + beaseUrl + '/report/all'">
-          <font-awesome-icon :icon="['fa', 'list-ul']"/>
-          <span style="padding-left: 5px;">{{$t('commons.show_all')}}</span>
-        </el-menu-item>
-      </el-submenu>
-
-      <el-submenu v-if="isCurrentWorkspaceUser && beaseUrl == 'track'"
+      <el-submenu v-if="isCurrentWorkspaceUser"
                   index="6" popper-class="submenu" v-permission="['test_manager', 'test_user']">
         <template v-slot:title>{{$t('test_track.test_case')}}</template>
         <recent-case-plan/>
         <el-divider/>
-        <el-menu-item :index="'/' + beaseUrl + '/case/all'">
+        <el-menu-item :index="'/track/case/all'">
           <font-awesome-icon :icon="['fa', 'list-ul']"/>
           <span style="padding-left: 5px;">{{$t('test_track.case_list')}}</span>
         </el-menu-item>
@@ -64,23 +35,18 @@
         <!--</el-menu-item>-->
       </el-submenu>
 
-      <el-submenu v-if="isCurrentWorkspaceUser && beaseUrl == 'track'"
+      <el-submenu v-if="isCurrentWorkspaceUser"
                   index="7" popper-class="submenu" v-permission="['test_manager', 'test_user', 'test_viewer']">
         <template v-slot:title>{{$t('test_track.test_plan')}}</template>
         <el-divider/>
-        <el-menu-item :index="'/' + beaseUrl + '/plan/all'">
+        <el-menu-item :index="'/track/plan/all'">
           <font-awesome-icon :icon="['fa', 'list-ul']"/>
           <span style="padding-left: 5px;">{{$t('commons.show_all')}}</span>
         </el-menu-item>
-        <el-menu-item :index="'/' + beaseUrl + '/plan/create'">
+        <el-menu-item :index="'/track/plan/create'">
           <el-button type="text">{{$t('test_track.create_plan')}}</el-button>
         </el-menu-item>
       </el-submenu>
-
-      <router-link  v-if="isCurrentWorkspaceUser && (beaseUrl == 'performance' || beaseUrl == 'api')"
-                    class="header-bottom" :to="'/' + beaseUrl + '/test/create'" v-permission="['test_user','test_manager']">
-        <el-button type="primary" size="small">{{$t('load_test.create')}}</el-button>
-      </router-link>
 
     </el-menu>
   </div>
@@ -90,7 +56,7 @@
 <script>
 
   import PerformanceRecentTestPlan from "../../performance/test/PerformanceRecentTestPlan";
-  import ApiRecentTestPlan from "../../api/test/ApiRecentTestPlan";
+  import ApiRecentTest from "../../api/test/ApiRecentTest";
   import PerformanceRecentProject from "../../performance/project/PerformanceRecentProject";
   import ApiRecentProject from "../../api/project/ApiRecentProject";
   import PerformanceRecentReport from "../../performance/report/PerformanceRecentReport";
@@ -101,7 +67,7 @@
 
   export default {
     name: "MsMenus",
-    components: {PerformanceRecentReport, PerformanceRecentTestPlan, ApiRecentTestPlan, ApiRecentReport,
+    components: {PerformanceRecentReport, PerformanceRecentTestPlan, ApiRecentTest, ApiRecentReport,
       PerformanceRecentProject, ApiRecentProject, TrackRecentProject, RecentCasePlan},
     data() {
       return {

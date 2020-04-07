@@ -1,6 +1,6 @@
 <template>
   <el-col>
-    <header-menus :beaseUrl="beaseUrl"/>
+    <header-menus/>
     <div>
       <transition>
         <keep-alive>
@@ -12,7 +12,7 @@
 </template>
 <script>
 
-  import HeaderMenus from "../common/head/HeaderMenus";
+  import HeaderMenus from "./head/HeaderMenus";
 
   export default {
     name: "ApiTest",
