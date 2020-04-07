@@ -4,8 +4,8 @@
       <i class="el-icon-time"/>
       {{$t('load_test.recent')}}
     </div>
-    <el-menu-item :key="t.id" v-for="t in recentTestCases"
-                  :index="'/track/case/edit/' + t.id">
+    <el-menu-item :key="t.id" v-for="t in recentTestPlans"
+                  :index="'/track/plan/view/' + t.id">
       {{ t.name }}
     </el-menu-item>
   </el-menu>
@@ -15,20 +15,20 @@
   import {ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER} from "../../../../../common/constants";
 
   export default {
-    name: "RecentTestCase",
+    name: "RecentTestPlan",
     mounted() {
       const rolesString = localStorage.getItem("roles");
       const roles = rolesString.split(',');
 
       if (roles.indexOf(ROLE_TEST_MANAGER) > -1 || roles.indexOf(ROLE_TEST_USER) > -1 || roles.indexOf(ROLE_TEST_VIEWER) > -1) {
-        this.$get('/test/case/recent/5', (response) => {
-          this.recentTestCases = response.data;
+        this.$get('/test/plan/recent/5', (response) => {
+          this.recentTestPlans = response.data;
         });
       }
     },
     data() {
       return {
-        recentTestCases: []
+        recentTestPlans: []
       }
     }
   }

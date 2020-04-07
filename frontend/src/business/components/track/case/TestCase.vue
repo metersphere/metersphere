@@ -22,8 +22,8 @@
           </el-submenu>
         </el-menu>
         <node-tree class="node_tree"
-                   @nodeSelectEvent="getCaseByNodeIds"
-                   @refresh="getCaseByNodeIds"
+                   @nodeSelectEvent="refreshTable"
+                   @refresh="refreshTable"
                    ref="nodeTree"></node-tree>
       </el-aside>
 
@@ -39,7 +39,7 @@
     </el-container>
 
     <test-case-edit
-      @refresh="getCaseByNodeIds"
+      @refresh="refreshTable"
       ref="testCaseEditDialog"></test-case-edit>
 
   </div>
@@ -73,13 +73,22 @@
       }
     },
     created: function () {
-      this.projectId = this.$route.params.projectId;
+      this.caseId = this.$route.params.caseId;
       this.getProjects();
     },
     watch: {
       '$route'(to, from) {
-        if (from.name.indexOf("Project") >= 0){
+        let path = to.path;
+        if (path.indexOf("/track/case/all") >= 0){
           this.getProjects();
+          this.refresh();
+        }
+        if (path.indexOf("/track/case/edit") >= 0){
+          let caseId = this.$route.params.caseId;
+          this.$get('/test/case/get/' + caseId, response => {
+            console.log(response.data);
+            this.openTestCaseEditDialog(response.data[0]);
+          });
         }
       }
     },
@@ -120,10 +129,10 @@
       changeProject(project) {
         this.currentProject = project;
         localStorage.setItem(CURRENT_PROJECT, JSON.stringify(project));
-        this.$refs.testCaseList.initTableData()
+        this.$refs.testCaseList.initTableData();
         this.$refs.nodeTree.getNodeTree();
       },
-      getCaseByNodeIds(data) {
+      refreshTable(data) {
         this.$refs.testCaseList.initTableData(data);
       },
       openTestCaseEditDialog(data) {
@@ -154,6 +163,10 @@
         this.$post('/user/ws/member/list/all', {workspaceId:workspaceId}, response => {
           this.$refs.testCaseEditDialog.maintainerOptions = response.data;
         });
+      },
+      refresh() {
+        this.$refs.testCaseList.initTableData();
+        this.$refs.nodeTree.getNodeTree();
       }
     }
   }

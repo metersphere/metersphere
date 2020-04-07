@@ -101,4 +101,14 @@ public class TestPlanService {
 
         sqlSession.flushStatements();
     }
+
+    public List<TestPlan> recentTestPlans(String currentWorkspaceId) {
+        if (StringUtils.isBlank(currentWorkspaceId)) {
+            return null;
+        }
+        TestPlanExample testPlanTestCaseExample = new TestPlanExample();
+        testPlanTestCaseExample.createCriteria().andWorkspaceIdEqualTo(currentWorkspaceId);
+        testPlanTestCaseExample.setOrderByClause("update_time desc");
+        return testPlanMapper.selectByExample(testPlanTestCaseExample);
+    }
 }

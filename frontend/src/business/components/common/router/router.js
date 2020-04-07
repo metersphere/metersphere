@@ -204,8 +204,13 @@ const router = new VueRouter({
           component: TrackHome,
         },
         {
-          path: 'case/:caseId',
+          path: 'case/:projectId',
           name: 'testCase',
+          component: TestCase,
+        },
+        {
+          path: 'case/edit/:caseId',
+          name: 'testCaseEdit',
           component: TestCase,
         },
         {

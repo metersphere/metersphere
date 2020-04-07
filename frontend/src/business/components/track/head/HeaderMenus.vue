@@ -38,6 +38,7 @@
       <el-submenu v-if="isCurrentWorkspaceUser"
                   index="7" popper-class="submenu" v-permission="['test_manager', 'test_user', 'test_viewer']">
         <template v-slot:title>{{$t('test_track.test_plan')}}</template>
+        <recent-test-plan/>
         <el-divider/>
         <el-menu-item :index="'/track/plan/all'">
           <font-awesome-icon :icon="['fa', 'list-ul']"/>
@@ -58,10 +59,11 @@
   import {checkoutCurrentWorkspace} from "../../../../common/utils";
   import TrackRecentProject from "../../track/project/TrackRecentProject";
   import RecentTestCase from "../case/components/RecentTestCase";
+  import RecentTestPlan from "../plan/components/RecentTestPlan";
 
   export default {
     name: "MsMenus",
-    components: {RecentTestCase, TrackRecentProject },
+    components: {RecentTestCase, TrackRecentProject, RecentTestPlan},
     data() {
       return {
         isCurrentWorkspaceUser: false,
