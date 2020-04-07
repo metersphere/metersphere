@@ -2,6 +2,7 @@ package io.metersphere.service;
 
 
 import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.TestCaseMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.TestPlanTestCaseMapper;
@@ -35,6 +36,9 @@ public class TestCaseService {
 
     @Resource
     TestPlanTestCaseMapper testPlanTestCaseMapper;
+
+    @Resource
+    ProjectMapper projectMapper;
 
     public void addTestCase(TestCaseWithBLOBs testCase) {
         testCase.setId(UUID.randomUUID().toString());
@@ -111,6 +115,20 @@ public class TestCaseService {
 
 
     public List<TestCase> recentTestPlans(QueryTestCaseRequest request) {
-        return null;
+
+        if (StringUtils.isBlank(request.getWorkspaceId())) {
+            return null;
+        }
+
+        ProjectExample projectExample = new ProjectExample();
+        projectExample.createCriteria().andWorkspaceIdEqualTo(request.getWorkspaceId());
+
+        List<String> projectIds = projectMapper.selectByExample(projectExample).stream()
+                .map(Project::getId).collect(Collectors.toList());
+
+        TestCaseExample testCaseExample = new TestCaseExample();
+        testCaseExample.createCriteria().andProjectIdIn(projectIds);
+        testCaseExample.setOrderByClause("update_time desc");
+        return testCaseMapper.selectByExample(testCaseExample);
     }
 }

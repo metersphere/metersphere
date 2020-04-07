@@ -8,10 +8,12 @@ import io.metersphere.base.domain.TestPlan;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.testcase.PlanCaseRelevanceRequest;
+import io.metersphere.controller.request.testcase.QueryTestCaseRequest;
 import io.metersphere.controller.request.testcase.QueryTestPlanRequest;
 import io.metersphere.dto.TestPlanDTO;
 import io.metersphere.service.TestCaseService;
 import io.metersphere.service.TestPlanService;
+import io.metersphere.user.SessionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -28,6 +30,14 @@ public class TestPlanController {
     public Pager<List<TestPlanDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testPlanService.listTestPlan(request));
+    }
+
+
+    @GetMapping("recent/{count}")
+    public List<TestPlan> recentTestPlans(@PathVariable int count) {
+        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
+        PageHelper.startPage(1, count, true);
+        return testPlanService.recentTestPlans(currentWorkspaceId);
     }
 
     @PostMapping("/get/{testPlanId}")

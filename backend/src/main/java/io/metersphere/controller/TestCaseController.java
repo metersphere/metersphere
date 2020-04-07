@@ -53,7 +53,7 @@ public class TestCaseController {
         return testCaseService.getTestCaseNames(request);
     }
 
-    @PostMapping("/get/{testCaseId}")
+    @GetMapping("/get/{testCaseId}")
     public List<TestCaseWithBLOBs> getTestCase(@PathVariable String testCaseId){
         return testCaseService.getTestCase(testCaseId);
     }
