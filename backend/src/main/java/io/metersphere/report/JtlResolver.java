@@ -8,7 +8,6 @@ import io.metersphere.report.base.*;
 import io.metersphere.report.dto.ErrorsTop5DTO;
 import io.metersphere.report.dto.RequestStatisticsDTO;
 import org.apache.commons.lang3.StringUtils;
-
 import java.io.Reader;
 import java.io.StringReader;
 import java.text.DecimalFormat;
@@ -20,7 +19,6 @@ import java.util.stream.Collectors;
 public class JtlResolver {
 
     private static final Integer ERRORS_TOP_SIZE = 5;
-    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private static List<Metric> resolver(String jtlString) {
         HeaderColumnNameMappingStrategy<Metric> ms = new HeaderColumnNameMappingStrategy<>();
@@ -378,27 +376,37 @@ public class JtlResolver {
         entries.sort(JtlResolver::sortByDate);
 
         List<String> resTimeList = new ArrayList<>();
+        List<String> users = new ArrayList<>();
         List<String> timestampList = new ArrayList<>();
 
         for (Map.Entry<String, List<Metric>> entry : entries) {
             List<Metric> metricList = entry.getValue();
+            Map<String, List<Metric>> metricsMap = metricList.stream().collect(Collectors.groupingBy(Metric::getThreadName));
+            int maxUsers = metricsMap.size();
             int sumElapsedTime = metricList.stream().mapToInt(metric -> Integer.parseInt(metric.getElapsed())).sum();
             timestampList.add(entry.getKey());
+            users.add(String.valueOf(maxUsers));
             resTimeList.add(String.valueOf(sumElapsedTime / metricList.size()));
         }
 
+        Map<String, Object> resultMap = new HashMap<>(2);
+        resultMap.put("users", users);
+        resultMap.put("resTime", resTimeList);
+        JSONObject serices = new JSONObject(resultMap);
         chartsData.setxAxis(StringUtils.join(",", timestampList));
-        chartsData.setSerices(StringUtils.join(",", resTimeList));
+        chartsData.setSerices(serices.toString());
         return chartsData;
     }
 
-    private static String stampToDate(String s) {
-        long lt = Long.parseLong(s);
+    private static String stampToDate(String timeStamp) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        long lt = Long.parseLong(timeStamp);
         Date date = new Date(lt);
         return simpleDateFormat.format(date);
     }
 
     private static int sortByDate(Map.Entry<String, List<Metric>> map1, Map.Entry<String, List<Metric>> map2) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date1 = null, date2 = null;
         try {
             date1 = simpleDateFormat.parse(map1.getKey());
@@ -406,6 +414,15 @@ public class JtlResolver {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        return (int) (Objects.requireNonNull(date1).getTime() - Objects.requireNonNull(date2).getTime());
+
+        Long time1 = date1.getTime();
+        Long time2 = date2.getTime();
+
+        if (time1.equals(time2)) {
+            return 0;
+        } else {
+            return time1 > time2 ? 1 : -1;
+        }
+
     }
 }
