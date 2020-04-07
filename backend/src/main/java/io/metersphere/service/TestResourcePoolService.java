@@ -10,6 +10,7 @@ import io.metersphere.base.mapper.TestResourcePoolMapper;
 import io.metersphere.base.mapper.ext.ExtTestReourcePoolMapper;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.commons.constants.ResourceStatusEnum;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.request.resourcepool.QueryResourcePoolRequest;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.dto.TestResourcePoolDTO;
@@ -25,6 +26,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static io.metersphere.commons.constants.ResourceStatusEnum.VALID;
 
@@ -81,10 +83,20 @@ public class TestResourcePoolService {
 
     private void validateNodes(TestResourcePoolDTO testResourcePool) {
         if (CollectionUtils.isEmpty(testResourcePool.getResources())) {
-            throw new RuntimeException("没有节点信息");
+            MSException.throwException("没有节点信息");
         }
 
         deleteTestResource(testResourcePool.getId());
+        List<String> nodeIps = testResourcePool.getResources().stream()
+                .map(resource -> {
+                    NodeDTO nodeDTO = JSON.parseObject(resource.getConfiguration(), NodeDTO.class);
+                    return nodeDTO.getIp();
+                })
+                .distinct()
+                .collect(Collectors.toList());
+        if (nodeIps.size() < testResourcePool.getResources().size()) {
+            MSException.throwException("节点 IP 重复");
+        }
         for (TestResource resource : testResourcePool.getResources()) {
             NodeDTO nodeDTO = JSON.parseObject(resource.getConfiguration(), NodeDTO.class);
             boolean isValidate = validateNode(nodeDTO);

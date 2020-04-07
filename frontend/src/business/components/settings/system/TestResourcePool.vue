@@ -244,7 +244,7 @@
         createVisible: false,
         infoList: [],
         updateVisible: false,
-        btnTips: "添加资源池",
+        btnTips: this.$t('test_resource_pool.create_resource_pool'),
         btnTipsAdd: this.$t("commons.add"),
         btnTipsDel: this.$t("commons.delete"),
         queryPath: "testresourcepool/list",
@@ -256,20 +256,20 @@
         form: {},
         rule: {
           name: [
-            {required: true, message: '请输入资源池名称', trigger: 'blur'},
+            {required: true, message: this.$t('test_resource_pool.input_pool_name'), trigger: 'blur'},
             {min: 2, max: 64, message: this.$t('commons.input_limit', [2, 64]), trigger: 'blur'},
             {
               required: true,
               pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/,
-              message: '资源池名称不支持特殊字符',
+              message: this.$t('test_resource_pool.pool_name_valid'),
               trigger: 'blur'
             }
           ],
           description: [
-            {max: 60, message: '最大长度 60 个字符', trigger: 'blur'}
+            {max: 60, message: this.$t('commons.input_limit', [0, 60]), trigger: 'blur'}
           ],
           type: [
-            {required: true, message: '请选择资源类型', trigger: 'blur'}
+            {required: true, message: this.$t('test_resource_pool.select_pool_type'), trigger: 'blur'}
           ]
         }
       }
@@ -305,16 +305,16 @@
         } else {
           this.$message({
             type: 'warning',
-            message: "不能删除所有独立节点"
+            message: this.$t('test_resource_pool.cannot_remove_all_node')
           });
         }
       },
       validateResourceInfo() {
         if (this.infoList.length <= 0) {
-          return {validate: false, msg: "资源池不能为空"}
+          return {validate: false, msg: this.$t('test_resource_pool.cannot_empty')}
         }
 
-        let resultValidate = {validate: true, msg: "请完善数据"}
+        let resultValidate = {validate: true, msg: this.$t('test_resource_pool.fill_the_data')};
         this.infoList.forEach(function (info) {
           for (let key in info) {
             if (info[key] != '0' && !info[key]) {
@@ -362,7 +362,7 @@
       },
       del(row) {
         window.console.log(row);
-        this.$confirm('此操作将永久删除该资源池, 是否继续?', '提示', {
+        this.$confirm(this.$t('test_resource_pool.delete_prompt'), this.$t('commons.prompt'), {
           confirmButtonText: this.$t('commons.confirm'),
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
@@ -391,7 +391,7 @@
               this.$post("/testresourcepool/add", this.form, () => {
                 this.$message({
                     type: 'success',
-                    message: '添加成功!'
+                    message: this.$t('commons.save_success')
                   },
                   this.createVisible = false,
                   this.initTableData());
@@ -460,7 +460,7 @@
         this.$post('/testresourcepool/update', row).then(() => {
           this.$message({
             type: 'success',
-            message: '状态修改成功!'
+            message: this.$t('test_resource_pool.status_change_success')
           });
         })
       }
