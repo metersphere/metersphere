@@ -44,7 +44,8 @@ export default {
     'create': '新建',
     'refresh': '刷新',
     'remark': '备注',
-    'delete': '删除'
+    'delete': '删除',
+    'not_filled': '未填写'
   },
   workspace: {
     'create': '创建工作空间',
@@ -204,7 +205,6 @@ export default {
     'add_submodule': '添加子模块',
     'add_module': '添加模块',
     'module_name': '模块名称',
-
     'create_plan': '新建测试计划',
     'plan_name': '计划名称',
     'plan_project': '所属项目',
@@ -224,6 +224,20 @@ export default {
     'plan_status_completed': '已完成',
     'delete_module_confirm': '确认删除模块: ',
     'delete_module_resource': '以及模块下所有子模块和测试用例',
+
+    'relevance_test_case': '关联测试用例',
+    'executor': '执行人',
+    'execute_result': '执行结果',
+    'case_type': '用例类型',
+    'pass': '成功',
+    'failure': '失败',
+    'blocking': '阻塞',
+    'skip': '跳过',
+    'actual_result': '实际结果',
+    'step_result': '步骤执行结果',
+    'select_execute_result': '选择执行结果',
+    'save': '保 存'
+
   },
   i18n: {
     'home': '首页'

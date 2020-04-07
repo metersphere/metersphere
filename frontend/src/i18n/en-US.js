@@ -45,6 +45,7 @@ export default {
     'refresh': 'refresh',
     'remark': 'remark',
     'delete': 'delete',
+    'not_filled': 'Not filled'
   },
   workspace: {
     'create': 'Create Workspace',
@@ -206,7 +207,7 @@ export default {
     'module_name': 'Module name',
     'create_plan': 'Create test plan',
     'plan_name': 'Test plan name',
-    'plan_project': 'Related projects',
+    'plan_project': 'Related project',
     'plan_stage': 'Testing phase',
     'plan_status': 'The current state',
     'smoke_test': 'Smoke test',
@@ -222,7 +223,19 @@ export default {
     'plan_status_running': 'Starting',
     'plan_status_completed': 'Completed',
     'delete_module_confirm': 'Confirm delete module: ',
-    'delete_module_resource': 'and all submodules and test cases under the module'
+    'delete_module_resource': 'and all submodules and test cases under the module',
+    'relevance_test_case': 'Relevance test case',
+    'executor': 'executor',
+    'execute_result': 'Execute result',
+    'case_type': 'Case type',
+    'pass': 'Success',
+    'failure': 'Failure',
+    'blocking': 'Blocking',
+    'skip': 'Skip',
+    'actual_result': 'Actual result',
+    'step_result': 'Step result',
+    'select_execute_result': 'Select execute result',
+    'save': 'Save'
   },
   i18n: {
     'home': 'Home'

@@ -11,12 +11,12 @@
     <div>
 
       <el-row >
-        <el-col :span="3" :offset="1">
-          <span class="cast_label">优先级：</span>
+        <el-col :span="4" :offset="1">
+          <span class="cast_label">{{$t('test_track.priority')}}：</span>
           <span class="cast_item">{{testCase.priority}}</span>
         </el-col>
-        <el-col :span="3">
-          <span class="cast_label">用例类型：</span>
+        <el-col :span="5">
+          <span class="cast_label">{{$t('test_track.case_type')}}：</span>
           <span class="cast_item" v-if="testCase.type == 'functional'">{{$t('test_track.functional_test')}}</span>
           <span class="cast_item" v-if="testCase.type == 'performance'">{{$t('commons.performance')}}</span>
           <span class="cast_item" v-if="testCase.type == 'api'">{{$t('commons.api')}}</span>
@@ -24,13 +24,13 @@
       </el-row>
 
       <el-row>
-        <el-col :span="3" :offset="1">
-          <span class="cast_label">测试方式：</span>
+        <el-col :span="4" :offset="1">
+          <span class="cast_label">{{$t('test_track.method')}}：</span>
           <span v-if="testCase.method == 'manual'">{{$t('test_track.manual')}}</span>
           <span v-if="testCase.method == 'auto'">{{$t('test_track.auto')}}</span>
         </el-col>
-        <el-col :span="3">
-          <span class="cast_label">所属模块：</span>
+        <el-col :span="5">
+          <span class="cast_label">{{$t('test_track.module')}}：</span>
           <span class="cast_item">{{testCase.nodePath}}</span>
         </el-col>
       </el-row>
@@ -39,22 +39,22 @@
         <el-col :offset="1" :span="2">
           <el-button type="success" round
                      :icon="testCase.status == 'Pass' ? 'el-icon-check' : ''"
-                     @click="setTestCaseStatus('Pass')"> 成功</el-button>
+                     @click="setTestCaseStatus('Pass')"> {{$t('test_track.pass')}}</el-button>
         </el-col>
         <el-col :span="2">
           <el-button type="danger" round
                      :icon="testCase.status == 'Failure' ? 'el-icon-check' : ''"
-                     @click="setTestCaseStatus('Failure')"> 失败</el-button>
+                     @click="setTestCaseStatus('Failure')"> {{$t('test_track.failure')}}</el-button>
         </el-col>
         <el-col :span="2">
           <el-button type="warning" round
                      :icon="testCase.status == 'Blocking' ? 'el-icon-check' : ''"
-                     @click="setTestCaseStatus('Blocking')"> 阻塞</el-button>
+                     @click="setTestCaseStatus('Blocking')"> {{$t('test_track.blocking')}}</el-button>
         </el-col>
         <el-col :span="2">
           <el-button type="info" round
                      :icon="testCase.status == 'Skip' ? 'el-icon-check' : ''"
-                     @click="setTestCaseStatus('Skip')"> 跳过</el-button>
+                     @click="setTestCaseStatus('Skip')"> {{$t('test_track.skip')}}</el-button>
         </el-col>
       </el-row>
 
@@ -77,7 +77,7 @@
                 <span>{{scope.row.result}}</span>
               </template>
             </el-table-column>
-            <el-table-column label="实际结果" min-width="30%">
+            <el-table-column :label="$t('test_track.actual_result')" min-width="30%">
               <template v-slot:default="scope">
                 <el-input
                   size="small"
@@ -87,13 +87,13 @@
                 <span>{{scope.row.actualResult}}</span>
               </template>
             </el-table-column>
-            <el-table-column label="步骤执行结果" min-width="15%">
+            <el-table-column :label="$t('test_track.step_result')" min-width="15%">
               <template v-slot:default="scope">
-                  <el-select v-model="scope.row.stepResult" placeholder="选择执行结果">
-                    <el-option label="通过" value="Pass"></el-option>
-                    <el-option label="失败" value="Failure"></el-option>
-                    <el-option label="阻塞" value="Blocking"></el-option>
-                    <el-option label="跳过" value="Skip"></el-option>
+                  <el-select v-model="scope.row.stepResult" :placeholder="$t('test_track.select_execute_result')">
+                    <el-option :label="$t('test_track.pass')" value="Pass"></el-option>
+                    <el-option :label="$t('test_track.failure')" value="Failure"></el-option>
+                    <el-option :label="$t('test_track.blocking')" value="Blocking"></el-option>
+                    <el-option :label="$t('test_track.skip')" value="Skip"></el-option>
                   </el-select>
               </template>
             </el-table-column>
@@ -103,17 +103,17 @@
 
       <el-row >
         <el-col :span="40" :offset="1">
-          <span>备注：</span>
+          <span>{{$t('commons.remark')}}：</span>
           <span>{{testCase.remark}}</span>
-          <span v-if="testCase.remark == null" style="color: gainsboro">未填写</span>
+          <span v-if="testCase.remark == null" style="color: gainsboro">{{$t('commons.not_filled')}}</span>
         </el-col>
       </el-row>
 
       <el-row type="flex" justify="end">
         <el-col :span="5">
           <div>
-            <el-button @click="cancel">取 消</el-button>
-            <el-button type="primary" @click="saveCase">{{ '保 存' }}</el-button>
+            <el-button @click="cancel">{{$t('test_track.cancel')}}</el-button>
+            <el-button type="primary" @click="saveCase">{{$t('test_track.save')}}</el-button>
           </div>
         </el-col>
       </el-row>

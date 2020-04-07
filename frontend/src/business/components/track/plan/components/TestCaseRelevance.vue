@@ -2,7 +2,7 @@
 
   <div>
 
-    <el-dialog title="关联测试用例"
+    <el-dialog :title="$t('test_track.relevance_test_case')"
                :visible.sync="dialogFormVisible"
                width="50%">
 
@@ -29,7 +29,7 @@
 
                   <el-table-column
                     prop="name"
-                    label="用例名称"
+                    :label="$t('test_track.name')"
                     style="width: 100%">
                     <template v-slot:default="scope">
                       {{scope.row.name}}
@@ -115,7 +115,7 @@
         },
         getCaseNameByNodeIds(nodeIds) {
           this.dialogFormVisible = true;
-          this.getCaseNames(null, nodeIds);
+          this.getCaseNames(this.planId, nodeIds);
         },
         handleSelectAll(selection) {
           if(selection.length > 0){

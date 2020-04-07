@@ -9,12 +9,12 @@
               <span class="title">{{$t('test_track.test_case')}}</span>
             </el-col>
 
-            <el-col :span="1" :offset="6">
+            <el-col :span="1" :offset="4">
               <el-button icon="el-icon-circle-plus-outline" size="small" round
-                         @click="$emit('openTestCaseRelevanceDialog')" >关联测试用例</el-button>
+                         @click="$emit('openTestCaseRelevanceDialog')" >{{$t('test_track.relevance_test_case')}}</el-button>
             </el-col>
 
-            <el-col :span="1" >
+            <el-col :span="1" :offset="1">
               <el-button
                 icon="el-icon-refresh" size="small" round
                 @click="initTableData()">{{$t('commons.refresh')}}</el-button>
@@ -73,19 +73,19 @@
         <el-table-column
           width="160"
           prop="executor"
-          label="执行人">
+          :label="$t('test_track.executor')">
         </el-table-column>
         <el-table-column
           prop="status"
-          label="执行结果"
+          :label="$t('test_track.execute_result')"
           width="160"
           show-overflow-tooltip>
           <template v-slot:default="scope">
-            <span v-if="scope.row.status == 'Prepare'">未开始</span>
-            <span v-if="scope.row.status == 'Pass'">通过</span>
-            <span v-if="scope.row.status == 'Failure'">失败</span>
-            <span v-if="scope.row.status == 'Blocking'">阻塞</span>
-            <span v-if="scope.row.status == 'Skip'">跳过</span>
+            <span v-if="scope.row.status == 'Prepare'">{{$t('test_track.plan_status_prepare')}}</span>
+            <span v-if="scope.row.status == 'Pass'">{{$t('test_track.pass')}}</span>
+            <span v-if="scope.row.status == 'Failure'">{{$t('test_track.failure')}}</span>
+            <span v-if="scope.row.status == 'Blocking'">{{$t('test_track.blocking')}}</span>
+            <span v-if="scope.row.status == 'Skip'">{{$t('test_track.skip')}}</span>
           </template>
         </el-table-column>
 
