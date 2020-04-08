@@ -344,8 +344,13 @@ public class JtlResolver {
                     failSize++;
                 }
             }
-            // todo
-            timeList.add(entry.getKey());
+
+            try {
+                timeList.add(formatDate(entry.getKey()));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
             hits.add(decimalFormat.format(metrics.size() * 1.0 / maxUsers));
             users.add(String.valueOf(maxUsers));
             errors.add(String.valueOf(failSize));
@@ -357,7 +362,7 @@ public class JtlResolver {
         resultMap.put("errors", errors);
 
         JSONObject serices = new JSONObject(resultMap);
-        data.setxAxis(StringUtils.join(",", timeList));
+        data.setxAxis(String.join(",", timeList));
         data.setSerices(serices.toString());
 
         return data;
@@ -384,7 +389,13 @@ public class JtlResolver {
             Map<String, List<Metric>> metricsMap = metricList.stream().collect(Collectors.groupingBy(Metric::getThreadName));
             int maxUsers = metricsMap.size();
             int sumElapsedTime = metricList.stream().mapToInt(metric -> Integer.parseInt(metric.getElapsed())).sum();
-            timestampList.add(entry.getKey());
+
+            try {
+                timestampList.add(formatDate(entry.getKey()));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
             users.add(String.valueOf(maxUsers));
             resTimeList.add(String.valueOf(sumElapsedTime / metricList.size()));
         }
@@ -393,7 +404,7 @@ public class JtlResolver {
         resultMap.put("users", users);
         resultMap.put("resTime", resTimeList);
         JSONObject serices = new JSONObject(resultMap);
-        chartsData.setxAxis(StringUtils.join(",", timestampList));
+        chartsData.setxAxis(String.join(",", timestampList));
         chartsData.setSerices(serices.toString());
         return chartsData;
     }
@@ -403,6 +414,16 @@ public class JtlResolver {
         long lt = Long.parseLong(timeStamp);
         Date date = new Date(lt);
         return simpleDateFormat.format(date);
+    }
+
+    /**
+     * @param "yyyy-MM-dd HH:mm:ss"
+     * @return "HH:mm:ss"
+     */
+    private static String formatDate(String dateString) throws ParseException {
+        SimpleDateFormat before = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat after = new SimpleDateFormat("HH:mm:ss");
+        return after.format(before.parse(dateString));
     }
 
     private static int sortByDate(Map.Entry<String, List<Metric>> map1, Map.Entry<String, List<Metric>> map2) {
