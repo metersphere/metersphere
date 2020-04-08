@@ -140,7 +140,6 @@
         }
       },
       created: function () {
-
         this.initTableData();
       },
       methods: {

@@ -1,6 +1,6 @@
 <template>
   <el-col>
-    <header-menus/>
+    <api-header-menus/>
     <div>
       <transition>
         <keep-alive>
@@ -12,11 +12,11 @@
 </template>
 <script>
 
-  import HeaderMenus from "./head/HeaderMenus";
+  import ApiHeaderMenus from "./head/ApiHeaderMenus";
 
   export default {
     name: "ApiTest",
-    components: {HeaderMenus},
+    components: {ApiHeaderMenus},
     data() {
       return {
         beaseUrl: "api"

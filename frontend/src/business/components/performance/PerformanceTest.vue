@@ -1,6 +1,6 @@
 <template>
   <el-col>
-    <header-menus/>
+    <performance-header-menus/>
     <div>
       <transition>
         <keep-alive>
@@ -13,11 +13,11 @@
 
 <script>
 
-  import HeaderMenus from "./head/HeaderMenus";
+  import PerformanceHeaderMenus from "./head/PerformanceHeaderMenus";
 
   export default {
     name: "PerformanceTest",
-    components: {HeaderMenus},
+    components: {PerformanceHeaderMenus},
     data() {
       return {
         beaseUrl: "performance"

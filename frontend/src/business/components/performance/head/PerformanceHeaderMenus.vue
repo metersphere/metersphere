@@ -1,6 +1,6 @@
 <template>
 
-  <div id="menu-bar">
+  <div id="menu-bar" v-if="isRouterAlive">
     <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router
              :default-active='$route.path'>
       <el-menu-item :index="'/performance/home'">
@@ -33,6 +33,8 @@
         <el-menu-item :index="'/performance/test/create'">
           <el-button type="text">{{$t('load_test.create')}}</el-button>
         </el-menu-item>
+        <el-menu-item :index="testCaseProjectPath" class="blank_item"></el-menu-item>
+        <el-menu-item :index="testEditPath" class="blank_item"></el-menu-item>
       </el-submenu>
 
       <el-submenu v-if="isCurrentWorkspaceUser"
@@ -44,6 +46,7 @@
           <font-awesome-icon :icon="['fa', 'list-ul']"/>
           <span style="padding-left: 5px;">{{$t('commons.show_all')}}</span>
         </el-menu-item>
+        <el-menu-item :index="reportViewPath" class="blank_item"></el-menu-item>
       </el-submenu>
 
       <router-link  v-if="isCurrentWorkspaceUser"
@@ -64,20 +67,45 @@
   import {checkoutCurrentWorkspace} from "../../../../common/utils";
 
   export default {
-    name: "MsMenus",
+    name: "PerformanceHeaderMenus",
     components: {PerformanceRecentReport, PerformanceRecentTestPlan, PerformanceRecentProject},
     data() {
       return {
         isCurrentWorkspaceUser: false,
+        testCaseProjectPath: '',
+        testEditPath: '',
+        reportViewPath: '',
+        isRouterAlive: true
       }
-    },
-    props: {
-        beaseUrl: {
-          type: String
-        }
     },
     mounted() {
       this.isCurrentWorkspaceUser = checkoutCurrentWorkspace();
+    },
+    watch: {
+      '$route'(to, from) {
+        let path = to.path;
+        //激活菜单栏
+        if (path.indexOf("/performance/test/") >= 0){
+          this.testCaseProjectPath = '/performance/test/' + this.$route.params.projectId;
+          this.reload();
+        }
+        if (path.indexOf("/performance/test/edit/") >= 0){
+          this.testEditPath = '/performance/test/edit/' + this.$route.params.testId;
+          this.reload();
+        }
+        if (path.indexOf("/performance/report/view/") >= 0){
+          this.reportViewPath = '/performance/report/view/' + this.$route.params.reportId;
+          this.reload();
+        }
+      }
+    },
+    methods: {
+      reload () {
+        this.isRouterAlive = false;
+        this.$nextTick(function () {
+          this.isRouterAlive = true;
+        })
+      }
     }
   }
 
@@ -110,5 +138,9 @@
   }
   #menu-bar {
     border-bottom: 1px solid #E6E6E6;
+  }
+
+  .blank_item {
+    display: none;
   }
 </style>

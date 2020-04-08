@@ -72,23 +72,22 @@
         treeNodes: []
       }
     },
-    created: function () {
-      this.caseId = this.$route.params.caseId;
+    created() {
       this.getProjects();
+    },
+    mounted() {
+      if (this.$route.path.indexOf("/track/case/edit") >= 0){
+        this.openRecentTestCaseEditDialog();
+      }
     },
     watch: {
       '$route'(to, from) {
         let path = to.path;
         if (path.indexOf("/track/case/all") >= 0){
-          this.getProjects();
           this.refresh();
         }
         if (path.indexOf("/track/case/edit") >= 0){
-          let caseId = this.$route.params.caseId;
-          this.$get('/test/case/get/' + caseId, response => {
-            console.log(response.data);
-            this.openTestCaseEditDialog(response.data[0]);
-          });
+          this.openRecentTestCaseEditDialog();
         }
       }
     },
@@ -164,9 +163,24 @@
           this.$refs.testCaseEditDialog.maintainerOptions = response.data;
         });
       },
+      getProjectByCaseId(caseId) {
+        return this.$get('/test/case/project/' + caseId, async response => {
+          localStorage.setItem(CURRENT_PROJECT, JSON.stringify(response.data));
+          this.refresh();
+        });
+      },
       refresh() {
         this.$refs.testCaseList.initTableData();
         this.$refs.nodeTree.getNodeTree();
+        this.getProjects();
+      },
+      openRecentTestCaseEditDialog() {
+        let caseId = this.$route.params.caseId;
+        this.getProjectByCaseId(caseId);
+        this.refresh();
+        this.$get('/test/case/get/' + caseId, response => {
+          this.openTestCaseEditDialog(response.data[0]);
+        });
       }
     }
   }
