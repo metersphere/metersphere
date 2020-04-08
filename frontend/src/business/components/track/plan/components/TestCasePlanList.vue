@@ -211,6 +211,7 @@
           let testCaseId = testCase.id;
           this.$post('/test/plan/case/delete/' + testCaseId, {}, () => {
             this.initTableData();
+            this.$emit("refresh");
             this.$message({
               message: this.$t('commons.delete_success'),
               type: 'success'

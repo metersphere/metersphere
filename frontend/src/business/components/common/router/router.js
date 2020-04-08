@@ -214,7 +214,7 @@ const router = new VueRouter({
           component: TestCase,
         },
         {
-          path: "plan/:projectId",
+          path: "plan/:type",
           name: "testPlan",
           component: TestPlan
         },

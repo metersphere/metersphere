@@ -25,6 +25,20 @@
       return {
       }
     },
+    mounted() {
+      if (this.$route.path.indexOf("/track/plan/create") >= 0){
+        this.openTestPlanEditDialog();
+        this.$router.push('/track/plan/all');
+      }
+    },
+    watch: {
+      '$route'(to, from) {
+        if (to.path.indexOf("/track/plan/create") >= 0){
+          this.openTestPlanEditDialog();
+          this.$router.push('/track/plan/all');
+        }
+      }
+    },
     methods: {
       openTestPlanEditDialog(data) {
         this.$refs.testPlanEditDialog.openTestPlanEditDialog(data);

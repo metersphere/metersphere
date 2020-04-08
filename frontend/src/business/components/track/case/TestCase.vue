@@ -88,6 +88,7 @@
         }
         if (path.indexOf("/track/case/edit") >= 0){
           this.openRecentTestCaseEditDialog();
+          this.$router.push('/track/case/all');
         }
       }
     },
