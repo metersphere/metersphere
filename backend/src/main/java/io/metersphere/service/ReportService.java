@@ -84,20 +84,20 @@ public class ReportService {
         return testOverview;
     }
 
-    public ChartsData getLoadChartData(String id) {
+    public List<ChartsData> getLoadChartData(String id) {
         checkReportStatus(id);
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
-        ChartsData chartsData = JtlResolver.getLoadChartData(content);
-        return chartsData;
+        List<ChartsData> chartsDataList = JtlResolver.getLoadChartData(content);
+        return chartsDataList;
     }
 
-    public ChartsData getResponseTimeChartData(String id) {
+    public List<ChartsData> getResponseTimeChartData(String id) {
         checkReportStatus(id);
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
-        ChartsData chartsData = JtlResolver.getResponseTimeChartData(content);
-        return chartsData;
+        List<ChartsData> chartsDataList = JtlResolver.getResponseTimeChartData(content);
+        return chartsDataList;
     }
 
     public void checkReportStatus(String reportId) {

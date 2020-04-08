@@ -1,6 +1,5 @@
 package io.metersphere.report;
 
-import com.alibaba.fastjson.JSONObject;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
@@ -10,6 +9,7 @@ import io.metersphere.report.dto.RequestStatisticsDTO;
 import org.apache.commons.lang3.StringUtils;
 import java.io.Reader;
 import java.io.StringReader;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -312,17 +312,9 @@ public class JtlResolver {
     }
 
 
-    public static ChartsData getLoadChartData(String jtlString) {
-        ChartsData data = new ChartsData();
+    public static List<ChartsData> getLoadChartData(String jtlString) {
+        List<ChartsData> chartsDataList = new ArrayList<>();
         List<Metric> totalMetricList = JtlResolver.resolver(jtlString);
-
-        List<String> users = new ArrayList<>();
-        List<String> hits = new ArrayList<>();
-        List<String> errors = new ArrayList<>();
-        List<String> timeList = new ArrayList<>();
-        Map<String, Object> resultMap = new HashMap<>(5);
-
-        DecimalFormat decimalFormat = new DecimalFormat("0.0");
 
         if (totalMetricList != null) {
             for (Metric metric : totalMetricList) {
@@ -331,7 +323,6 @@ public class JtlResolver {
         }
         Map<String, List<Metric>> collect = Objects.requireNonNull(totalMetricList).stream().collect(Collectors.groupingBy(Metric::getTimestamp));
         List<Map.Entry<String, List<Metric>>> entries = new ArrayList<>(collect.entrySet());
-        entries.sort(JtlResolver::sortByDate);
 
         for (Map.Entry<String, List<Metric>> entry : entries) {
             int failSize = 0;
@@ -345,31 +336,38 @@ public class JtlResolver {
                 }
             }
 
+            String timeStamp = "";
             try {
-                timeList.add(formatDate(entry.getKey()));
+                timeStamp = formatDate(entry.getKey());
             } catch (ParseException e) {
                 e.printStackTrace();
             }
 
-            hits.add(decimalFormat.format(metrics.size() * 1.0 / maxUsers));
-            users.add(String.valueOf(maxUsers));
-            errors.add(String.valueOf(failSize));
+            ChartsData chartsData = new ChartsData();
+            chartsData.setxAxis(timeStamp);
+            chartsData.setGroupName("hits");
+            chartsData.setyAxis(new BigDecimal(metrics.size() * 1.0 / maxUsers));
+            chartsDataList.add(chartsData);
+
+            chartsData = new ChartsData();
+            chartsData.setxAxis(timeStamp);
+            chartsData.setGroupName("users");
+            chartsData.setyAxis(new BigDecimal(maxUsers));
+            chartsDataList.add(chartsData);
+
+            chartsData = new ChartsData();
+            chartsData.setxAxis(timeStamp);
+            chartsData.setGroupName("errors");
+            chartsData.setyAxis(new BigDecimal(failSize));
+            chartsDataList.add(chartsData);
 
         }
 
-        resultMap.put("users", users);
-        resultMap.put("hits", hits);
-        resultMap.put("errors", errors);
-
-        JSONObject serices = new JSONObject(resultMap);
-        data.setxAxis(String.join(",", timeList));
-        data.setSerices(serices.toString());
-
-        return data;
+        return chartsDataList;
     }
 
-    public static ChartsData getResponseTimeChartData(String jtlString) {
-        ChartsData chartsData = new ChartsData();
+    public static List<ChartsData> getResponseTimeChartData(String jtlString) {
+        List<ChartsData> chartsDataList = new ArrayList<>();
         List<Metric> totalMetricList = JtlResolver.resolver(jtlString);
 
         totalMetricList.forEach(metric -> {
@@ -378,35 +376,34 @@ public class JtlResolver {
 
         Map<String, List<Metric>> metricMap = totalMetricList.stream().collect(Collectors.groupingBy(Metric::getTimestamp));
         List<Map.Entry<String, List<Metric>>> entries = new ArrayList<>(metricMap.entrySet());
-        entries.sort(JtlResolver::sortByDate);
-
-        List<String> resTimeList = new ArrayList<>();
-        List<String> users = new ArrayList<>();
-        List<String> timestampList = new ArrayList<>();
 
         for (Map.Entry<String, List<Metric>> entry : entries) {
             List<Metric> metricList = entry.getValue();
             Map<String, List<Metric>> metricsMap = metricList.stream().collect(Collectors.groupingBy(Metric::getThreadName));
             int maxUsers = metricsMap.size();
             int sumElapsedTime = metricList.stream().mapToInt(metric -> Integer.parseInt(metric.getElapsed())).sum();
-
+            String timeStamp = "";
             try {
-                timestampList.add(formatDate(entry.getKey()));
+                timeStamp = formatDate(entry.getKey());
             } catch (ParseException e) {
                 e.printStackTrace();
             }
 
-            users.add(String.valueOf(maxUsers));
-            resTimeList.add(String.valueOf(sumElapsedTime / metricList.size()));
+            ChartsData chartsData = new ChartsData();
+            chartsData.setxAxis(timeStamp);
+            chartsData.setGroupName("users");
+            chartsData.setyAxis(new BigDecimal(maxUsers));
+            chartsDataList.add(chartsData);
+
+            ChartsData chartsData2 = new ChartsData();
+            chartsData2.setxAxis(timeStamp);
+            chartsData2.setGroupName("responseTime");
+            chartsData2.setyAxis(new BigDecimal(sumElapsedTime * 1.0 / metricList.size()));
+            chartsDataList.add(chartsData2);
+
         }
 
-        Map<String, Object> resultMap = new HashMap<>(2);
-        resultMap.put("users", users);
-        resultMap.put("resTime", resTimeList);
-        JSONObject serices = new JSONObject(resultMap);
-        chartsData.setxAxis(String.join(",", timestampList));
-        chartsData.setSerices(serices.toString());
-        return chartsData;
+        return chartsDataList;
     }
 
     private static String stampToDate(String timeStamp) {
@@ -426,24 +423,4 @@ public class JtlResolver {
         return after.format(before.parse(dateString));
     }
 
-    private static int sortByDate(Map.Entry<String, List<Metric>> map1, Map.Entry<String, List<Metric>> map2) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date1 = null, date2 = null;
-        try {
-            date1 = simpleDateFormat.parse(map1.getKey());
-            date2 = simpleDateFormat.parse(map2.getKey());
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        Long time1 = date1.getTime();
-        Long time2 = date2.getTime();
-
-        if (time1.equals(time2)) {
-            return 0;
-        } else {
-            return time1 > time2 ? 1 : -1;
-        }
-
-    }
 }

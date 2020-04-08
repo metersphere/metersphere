@@ -105,13 +105,8 @@
                 color: '#65A2FF'
               },
             },
-            legend: {
-              bottom: 10,
-              data: ['Users', 'Hits/s', 'Error(s)']
-            },
-            xAxis: {
-              type: 'category',
-            },
+            legend: {},
+            xAxis: {},
             yAxis: [{
               name: 'User',
               type: 'value',
@@ -128,28 +123,9 @@
                 // interval: 5 / 5
               }
             ],
-            series: [
-              {
-                name: 'Users',
-                color: '#0CA74A',
-                type: 'line',
-                yAxisIndex: 0
-              },
-              {
-                name: 'Hits/s',
-                color: '#65A2FF',
-                type: 'line',
-                yAxisIndex: 1
-              },
-              {
-                name: 'Error(s)',
-                color: '#E6113C',
-                type: 'line',
-                yAxisIndex: 1
-              }
-            ]
+            series: []
           }
-          this.loadOption = this.generateLoadOption(loadOption, data);
+          this.loadOption = this.generateOption(loadOption, data);
         })
         this.$get("/report/content/res_chart/" + this.id, res => {
           let data = res.data;
@@ -162,13 +138,8 @@
                 color: '#99743C'
               },
             },
-            legend: {
-              bottom: 10,
-              data: ['Users', 'Response Time']
-            },
-            xAxis: {
-              type: 'category'
-            },
+            legend: {},
+            xAxis: {},
             yAxis: [{
               name: 'User',
               type: 'value',
@@ -182,77 +153,40 @@
                 min: 0
               }
             ],
-            series: [
-              {
-                name: 'Users',
-                color: '#0CA74A',
-                type: 'line',
-                yAxisIndex: 0
-              },
-              {
-                name: 'Response Time',
-                color: '#99743C',
-                type: 'line',
-                yAxisIndex: 1
-              }
-            ]
+            series: []
           }
-          this.resOption = this.generateResponseOption(resOption, data);
+          this.resOption = this.generateOption(resOption, data);
         })
       },
-      _objToStrMap(obj){
-        let strMap = new Map();
-        for (let k of Object.keys(obj)) {
-          strMap.set(k,obj[k]);
+      generateOption(option, data) {
+        let chartData = data;
+        let legend = [], series = {}, xAxis = [], seriesData = [];
+        chartData.forEach(item => {
+          if (!xAxis.includes(item.xAxis)) {
+            xAxis.push(item.xAxis);
+          }
+          xAxis.sort()
+          let name = item.groupName
+          if (!legend.includes(name)) {
+            legend.push(name)
+            series[name] = []
+          }
+          series[name].splice(xAxis.indexOf(item.xAxis), 0, item.yAxis.toFixed(2));
+        })
+        this.$set(option.legend, "data", legend);
+        this.$set(option.legend, "bottom", 10);
+        this.$set(option.xAxis, "data", xAxis);
+        for (let name in series) {
+          let data = series[name];
+          let items = {
+            name: name,
+            type: 'line',
+            data: data
+          };
+          seriesData.push(items);
         }
-        return strMap;
-      },
-      _jsonToMap(jsonStr){
-        return this._objToStrMap(JSON.parse(jsonStr));
-      },
-      generateLoadOption(loadOption, data) {
-        let map = this._jsonToMap(data.serices);
-        let xAxis = data.xAxis;
-        this.$set(loadOption.xAxis, "data", xAxis.split(','));
-        let user = map.get("users").slice(0);
-        let hit = map.get("hits").slice(0);
-        user.sort(function (a,b) {
-          return parseInt(a) - parseInt(b);
-        })
-        hit.sort(function (a,b) {
-          return parseFloat(a) - parseFloat(b);
-        })
-        this.$set(loadOption.yAxis[0], "max",user[user.length-1]);
-        this.$set(loadOption.yAxis[0], "interval", user[user.length-1]/5);
-        this.$set(loadOption.yAxis[1], "max", hit[hit.length-1]);
-        this.$set(loadOption.yAxis[1], "interval", hit[hit.length-1]/5);
-
-        this.$set(loadOption.series[0], "data", map.get("users"));
-        this.$set(loadOption.series[1], "data", map.get("hits"));
-        this.$set(loadOption.series[2], "data", map.get("errors"));
-        return loadOption;
-      },
-      generateResponseOption(resOption, data) {
-        let map = this._jsonToMap(data.serices);
-        let user = map.get("users").slice(0);
-        let res = map.get("resTime").slice(0);
-        user.sort(function (a,b) {
-          return parseInt(a) - parseInt(b);
-        })
-        res.sort(function (a,b) {
-          return parseFloat(a) - parseFloat(b);
-        })
-
-        this.$set(resOption.yAxis[0], "max",user[user.length-1]);
-        this.$set(resOption.yAxis[0], "interval", user[user.length-1]/5);
-        this.$set(resOption.yAxis[1], "max", res[res.length-1]);
-        this.$set(resOption.yAxis[1], "interval", res[res.length-1]/5);
-
-        let xAxis = data.xAxis;
-        this.$set(resOption.xAxis, "data", xAxis.split(','));
-        this.$set(resOption.series[0], "data", map.get("users"));
-        this.$set(resOption.series[1], "data", map.get("resTime"));
-        return resOption;
+        this.$set(option, "series", seriesData);
+        return option;
       },
     },
     watch: {

@@ -24,7 +24,8 @@
         <el-table-column prop="organizationName" :label="$t('workspace.organization_name')"/>
         <el-table-column :label="$t('commons.member')">
           <template v-slot:default="scope">
-            <el-button type="text" class="member-size" @click="cellClick(scope.row)">{{scope.row.memberSize}}</el-button>
+            <el-button type="text" class="member-size" @click="cellClick(scope.row)">{{scope.row.memberSize}}
+            </el-button>
           </template>
         </el-table-column>
         <el-table-column>
@@ -63,7 +64,8 @@
           <el-input type="textarea" v-model="form.description"></el-input>
         </el-form-item>
         <el-form-item :label="$t('workspace.organization_name')" prop="organizationId">
-          <el-select v-model="form.organizationId" :placeholder="$t('organization.select_organization')" class="select-width">
+          <el-select v-model="form.organizationId" :placeholder="$t('organization.select_organization')"
+                     class="select-width">
             <el-option
               v-for="item in form.orgList"
               :key="item.id"
@@ -90,7 +92,8 @@
           <el-input type="textarea" v-model="form.description"></el-input>
         </el-form-item>
         <el-form-item :label="$t('workspace.organization_name')" prop="organizationId">
-          <el-select v-model="form.organizationId" :placeholder="$t('organization.select_organization')" class="select-width">
+          <el-select v-model="form.organizationId" :placeholder="$t('organization.select_organization')"
+                     class="select-width">
             <el-option
               v-for="item in form.orgList1"
               :key="item.id"
@@ -102,7 +105,8 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="updateWorkspace('updateForm')" size="medium">{{$t('commons.save')}}</el-button>
+          <el-button type="primary" @click="updateWorkspace('updateForm')"
+                     size="medium">{{$t('commons.save')}}</el-button>
         </span>
       </template>
 
@@ -160,10 +164,13 @@
     </el-dialog>
 
     <!-- add workspace member dialog -->
-    <el-dialog :title="$t('member.create')" :visible.sync="addMemberVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
-      <el-form :model="memberForm" ref="form" :rules="wsMemberRule" label-position="right" label-width="100px" size="small">
+    <el-dialog :title="$t('member.create')" :visible.sync="addMemberVisible" width="30%" :destroy-on-close="true"
+               @close="closeFunc">
+      <el-form :model="memberForm" ref="form" :rules="wsMemberRule" label-position="right" label-width="100px"
+               size="small">
         <el-form-item :label="$t('commons.member')" prop="userIds">
-          <el-select v-model="memberForm.userIds" multiple :placeholder="$t('member.please_choose_member')" class="select-width">
+          <el-select v-model="memberForm.userIds" multiple :placeholder="$t('member.please_choose_member')"
+                     class="select-width">
             <el-option
               v-for="item in memberForm.userList"
               :key="item.id"
@@ -175,7 +182,8 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('commons.role')" prop="roleIds">
-          <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
+          <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
+                     class="select-width">
             <el-option
               v-for="item in memberForm.roles"
               :key="item.id"
@@ -193,7 +201,8 @@
     </el-dialog>
 
     <!-- update workspace member dialog -->
-    <el-dialog :title="$t('member.modify')" :visible.sync="updateMemberVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
+    <el-dialog :title="$t('member.modify')" :visible.sync="updateMemberVisible" width="30%" :destroy-on-close="true"
+               @close="closeFunc">
       <el-form :model="memberForm" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="memberForm.id" autocomplete="off" :disabled="true"/>
@@ -208,7 +217,8 @@
           <el-input v-model="memberForm.phone" autocomplete="off"/>
         </el-form-item>
         <el-form-item :label="$t('commons.role')" prop="roleIds">
-          <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
+          <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
+                     class="select-width">
             <el-option
               v-for="item in memberForm.allroles"
               :key="item.id"
@@ -220,7 +230,8 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="updateOrgMember('updateUserForm')" size="medium">{{$t('commons.save')}}</el-button>
+          <el-button type="primary" @click="updateOrgMember('updateUserForm')"
+                     size="medium">{{$t('commons.save')}}</el-button>
         </span>
       </template>
 
@@ -254,7 +265,7 @@
             if (this.form.id) {
               saveType = 'update'
             }
-            this.$post("/workspace/" + saveType, this.form, () => {
+            this.result = this.$post("/workspace/" + saveType, this.form, () => {
               this.createVisible = false;
               this.list();
               Message.success(this.$t('commons.save_success'));
@@ -274,7 +285,7 @@
           this.$set(this.memberForm, "roles", response.data);
         })
       },
-      cellClick(row){
+      cellClick(row) {
         // 保存当前点击的组织信息到currentRow
         this.currentWorkspaceRow = row;
         this.memberVisible = true;
@@ -308,7 +319,7 @@
       updateWorkspace(updateForm) {
         this.$refs[updateForm].validate(valide => {
           if (valide) {
-            this.result = this.$post("/workspace/special/update", this.form,() => {
+            this.result = this.$post("/workspace/special/update", this.form, () => {
               this.$message({
                 type: 'success',
                 message: this.$t('commons.modify_success')
@@ -388,7 +399,7 @@
               roleIds: this.memberForm.roleIds,
               workspaceId: this.currentWorkspaceRow.id
             };
-            this.result = this.$post("user/special/ws/member/add", param,() => {
+            this.result = this.$post("user/special/ws/member/add", param, () => {
               this.cellClick(this.currentWorkspaceRow);
               this.addMemberVisible = false;
             })
@@ -436,7 +447,7 @@
           roleIds: this.memberForm.roleIds,
           workspaceId: this.currentWorkspaceRow.id
         }
-        this.result = this.$post("/workspace/member/update", param,() => {
+        this.result = this.$post("/workspace/member/update", param, () => {
           this.$message({
             type: 'success',
             message: this.$t('commons.modify_success')
@@ -514,8 +525,8 @@
   }
 
   .member-size {
-    text-decoration:underline;
-    cursor:pointer;
+    text-decoration: underline;
+    cursor: pointer;
   }
 
   .ws-member-name {
