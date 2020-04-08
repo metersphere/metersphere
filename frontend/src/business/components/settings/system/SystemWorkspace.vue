@@ -338,7 +338,7 @@
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
-          this.$get('/workspace/delete/' + row.id, () => {
+          this.$get('/workspace/special/delete/' + row.id, () => {
             Message.success(this.$t('commons.delete_success'));
             this.list();
           });
