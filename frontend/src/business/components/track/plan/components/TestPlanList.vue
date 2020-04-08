@@ -237,4 +237,8 @@
     margin-right: -9px;
     float: right;
   }
+
+  .el-table {
+    cursor:pointer;
+  }
 </style>

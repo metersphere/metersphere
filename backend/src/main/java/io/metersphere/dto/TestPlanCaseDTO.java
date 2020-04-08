@@ -1,13 +1,13 @@
 package io.metersphere.dto;
 
 import io.metersphere.base.domain.TestCase;
+import io.metersphere.base.domain.TestCaseWithBLOBs;
 
-public class TestPlanCaseDTO extends TestCase {
+public class TestPlanCaseDTO extends TestCaseWithBLOBs {
 
     private String executor;
     private String status;
     private String results;
-    private String remark;
 
     public String getExecutor() {
         return executor;
@@ -31,13 +31,5 @@ public class TestPlanCaseDTO extends TestCase {
 
     public void setResults(String results) {
         this.results = results;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark;
     }
 }

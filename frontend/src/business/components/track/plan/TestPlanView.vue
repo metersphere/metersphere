@@ -86,6 +86,16 @@
           let item = {};
           Object.assign(item, testCase);
           item.results = JSON.parse(item.results);
+          item.steps = JSON.parse(item.steps);
+
+          item.steptResults = [];
+          for (let i = 0; i < item.steps.length; i++){
+            if(item.results[i]){
+              item.steps[i].actualResult = item.results[i].actualResult;
+              item.steps[i].executeResult = item.results[i].executeResult;
+            }
+            item.steptResults.push(item.steps[i]);
+          }
           this.$refs.testPlanTestCaseEdit.testCase = item;
           this.$refs.testPlanTestCaseEdit.dialog = true;
         }
