@@ -13,19 +13,20 @@
         <test-case-plan-list
           @openTestCaseRelevanceDialog="openTestCaseRelevanceDialog"
           @editTestPlanTestCase="editTestPlanTestCase"
+          @refresh="refresh"
           :plan-id="planId"
           ref="testCasePlanList"></test-case-plan-list>
       </el-main>
     </el-container>
 
     <test-case-relevance
-      @refresh="getPlanCases"
+      @refresh="refresh"
       :plan-id="planId"
       ref="testCaseRelevance"></test-case-relevance>
 
     <test-plan-test-case-edit
       ref="testPlanTestCaseEdit"
-      @refresh="getPlanCases">
+      @refresh="refresh">
     </test-plan-test-case-edit>
 
 
@@ -65,7 +66,8 @@
       },
       methods: {
         refresh() {
-
+          this.getPlanCases();
+          this.getNodeTreeByPlanId();
         },
         getPlanCases(nodeIds) {
           this.$refs.testCasePlanList.initTableData(nodeIds);

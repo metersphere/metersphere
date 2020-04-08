@@ -31,9 +31,6 @@
           <span style="padding-left: 5px;">{{$t('test_track.case_list')}}</span>
         </el-menu-item>
         <el-menu-item :index="testCaseEditPath" class="blank_item"></el-menu-item>
-        <!--<el-menu-item :index="'/' + beaseUrl + '/case/create'">-->
-          <!--<el-button type="text">{{$t('test_track.create_case')}}</el-button>-->
-        <!--</el-menu-item>-->
       </el-submenu>
 
       <el-submenu v-if="isCurrentWorkspaceUser"
