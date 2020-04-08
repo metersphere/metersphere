@@ -14,5 +14,8 @@
   "run_load_test_file_content_not_found": "无法运行测试，无法获取测试文件内容，测试ID：",
   "run_load_test_file_init_error": "无法运行测试，初始化运行环境失败，测试ID：",
   "load_test_is_running": "测试正在运行, 请等待",
-  "node_deep_limit": "节点深度不超过5层！"
+  "node_deep_limit": "节点深度不超过5层！",
+  "no_nodes_message": "没有节点信息",
+  "duplicate_node_ip": "节点 IP 重复",
+  "only_one_k8s": "只能添加一个 K8s"
 }

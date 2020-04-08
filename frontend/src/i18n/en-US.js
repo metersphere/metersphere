@@ -237,6 +237,22 @@ export default {
     'select_execute_result': 'Select execute result',
     'save': 'Save'
   },
+  test_resource_pool: {
+    'type': 'type',
+    'enable_disable': 'Enable / disable',
+    'search_by_name': 'Search by name',
+    'create_resource_pool': 'Create resource pool',
+    'update_resource_pool': 'Create resource pool',
+    'select_pool_type': 'Select resource type',
+    'max_threads': 'Maximum concurrent number',
+    'input_pool_name': 'Please enter the resource pool name',
+    'pool_name_valid': 'Resource pool name does not support special characters',
+    'cannot_remove_all_node': 'Cannot delete all independent nodes',
+    'cannot_empty': 'Resource pool cannot be empty',
+    'fill_the_data': 'Please complete the data',
+    'delete_prompt': 'This operation will permanently delete the resource pool, continue?',
+    'status_change_success': 'Successfully changed the status!',
+  },
   i18n: {
     'home': 'Home'
   }

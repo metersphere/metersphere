@@ -70,7 +70,7 @@
             width="150"
             :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <el-button @click="handleEdit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
+              <el-button @click="handleEdit(scope.row)" type="primary" icon="el-icon-s-data" size="mini" circle/>
               <el-button @click="handleDelete(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
             </template>
           </el-table-column>

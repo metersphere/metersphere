@@ -14,5 +14,8 @@
   "run_load_test_file_content_not_found": "Cannot run test, cannot get test file content, test ID:",
   "run_load_test_file_init_error": "Failed to run test, failed to initialize run environment, test ID:",
   "load_test_is_running": "Load test is running, please wait.",
-  "node_deep_limit": "The node depth does not exceed 5 layers!"
+  "node_deep_limit": "The node depth does not exceed 5 layers!",
+  "no_nodes_message": "No node message",
+  "duplicate_node_ip": "Duplicate IPs",
+  "only_one_k8s": "Only one K8s can be added"
 }
