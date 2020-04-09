@@ -3,29 +3,19 @@
     <el-container>
       <el-aside width="250px">
 
-        <el-menu :unique-opened="true" mode="horizontal" active-text-color="write"
-          class="project_menu">
-          <el-submenu index="1" popper-class="submenu">
-            <template v-slot:title>
-              {{currentProject == null ? '' : currentProject.name}}
-            </template>
-            <div style="height:400px;">
-              <el-scrollbar style="height:100%">
-                <label v-for="(item,index) in projects" :key="index">
-                  <el-menu-item @click="changeProject(item)">
-                    {{item.name}}
-                    <i class="el-icon-check" v-if="currentProject && item.id === currentProject.id"></i>
-                  </el-menu-item>
-                </label>
-              </el-scrollbar>
-          </div>
-          </el-submenu>
-        </el-menu>
+        <select-menu
+          :data="projects"
+          :current-data="currentProject"
+          :title="$t('test_track.project')"
+          @dataChange="changeProject">
+        </select-menu>
+
         <node-tree class="node_tree"
                    :current-project="currentProject"
                    @nodeSelectEvent="refreshTable"
                    @refresh="refreshTable"
-                   ref="nodeTree"></node-tree>
+                   ref="nodeTree">
+        </node-tree>
       </el-aside>
 
       <el-main class="main-content">
@@ -34,9 +24,9 @@
           :current-project="currentProject"
           @openTestCaseEditDialog="openTestCaseEditDialog"
           @testCaseEdit="openTestCaseEditDialog"
-          ref="testCaseList"></test-case-list>
+          ref="testCaseList">
+        </test-case-list>
       </el-main>
-
 
     </el-container>
 
@@ -53,10 +43,11 @@
   import TestCaseEdit from './components/TestCaseEdit';
   import {CURRENT_PROJECT, WORKSPACE_ID} from '../../../../common/js/constants';
   import TestCaseList from "./components/TestCaseList";
+  import SelectMenu from "../common/SelectMenu";
 
   export default {
     name: "TestCase",
-    components: {TestCaseList, NodeTree, TestCaseEdit},
+    components: {TestCaseList, NodeTree, TestCaseEdit, SelectMenu},
     comments: {},
     data() {
       return {
@@ -193,7 +184,6 @@
 
 <style scoped>
   .case_container {
-    padding: 15px;
     width: 100%;
     height: 100%;
     background: white;
@@ -208,7 +198,7 @@
   }
 
   .node_tree {
-    margin: 10%;
+    margin: 5%;
   }
 
   .project_menu {

@@ -235,7 +235,10 @@ export default {
     'actual_result': '实际结果',
     'step_result': '步骤执行结果',
     'select_execute_result': '选择执行结果',
-    'save': '保 存'
+    'save': '保 存',
+    'confirm_cancel_relevance': '确认取消关联',
+    'plan': '计划',
+    'project': '项目',
   },
   test_resource_pool: {
     'type': '类型',

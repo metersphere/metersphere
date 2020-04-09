@@ -34,6 +34,12 @@ public class TestPlanController {
         return PageUtils.setPageInfo(page, testPlanService.listTestPlan(request));
     }
 
+    @PostMapping("/list/all")
+    public List<TestPlan> listAll() {
+        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
+        return testPlanService.listTestAllPlan(currentWorkspaceId);
+    }
+
 
     @GetMapping("recent/{count}")
     public List<TestPlan> recentTestPlans(@PathVariable int count) {

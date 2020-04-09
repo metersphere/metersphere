@@ -10,7 +10,7 @@
             </el-col>
 
             <el-col :span="2" :offset="8">
-              <el-button icon="el-icon-circle-plus-outline" size="small" round
+              <el-button icon="el-icon-connection" size="small" round
                          @click="$emit('openTestCaseRelevanceDialog')" >{{$t('test_track.relevance_test_case')}}</el-button>
             </el-col>
 
@@ -75,11 +75,25 @@
           width="160"
           show-overflow-tooltip>
           <template v-slot:default="scope">
-            <span v-if="scope.row.status == 'Prepare'">{{$t('test_track.plan_status_prepare')}}</span>
-            <span v-if="scope.row.status == 'Pass'">{{$t('test_track.pass')}}</span>
-            <span v-if="scope.row.status == 'Failure'">{{$t('test_track.failure')}}</span>
-            <span v-if="scope.row.status == 'Blocking'">{{$t('test_track.blocking')}}</span>
-            <span v-if="scope.row.status == 'Skip'">{{$t('test_track.skip')}}</span>
+            <el-tag v-if="scope.row.status == 'Prepare'"
+                    e ffect="info"
+                    size="mini">{{$t('test_track.plan_status_prepare')}}</el-tag>
+            <el-tag v-if="scope.row.status == 'Pass'"
+                    type="success"
+                    effect="dark"
+                    size="mini">{{$t('test_track.pass')}}</el-tag>
+            <el-tag v-if="scope.row.status == 'Failure'"
+                    type="danger"
+                    effect="dark"
+                    size="mini">{{$t('test_track.failure')}}</el-tag>
+            <el-tag v-if="scope.row.status == 'Blocking'"
+                    type="warning"
+                    effect="dark"
+                    size="mini">{{$t('test_track.blocking')}}</el-tag>
+            <el-tag v-if="scope.row.status == 'Skip'"
+                    type="info"
+                    effect="dark"
+                    size="mini">{{$t('test_track.skip')}}</el-tag>
           </template>
         </el-table-column>
 
@@ -95,7 +109,7 @@
           :label="$t('commons.operating')">
           <template v-slot:default="scope">
             <el-button @click="handleEdit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
-            <el-button @click="handleDelete(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
+            <el-button @click="handleDelete(scope.row)" type="danger" icon="el-icon-unlock" size="mini" circle/>
           </template>
         </el-table-column>
       </el-table>
@@ -126,7 +140,7 @@
   import PlanNodeTree from './PlanNodeTree';
 
   export default {
-      name: "TestCaseList",
+      name: "TestPlanTestCaseList",
       components: {PlanNodeTree},
       data() {
         return {
@@ -192,7 +206,7 @@
           this.$emit('editTestPlanTestCase', testCase);
         },
         handleDelete(testCase) {
-          this.$alert(this.$t('load_test.delete_confirm') + testCase.name + "？", '', {
+          this.$alert(this.$t('test_track.confirm_cancel_relevance') + ' ' + testCase.name + " ？", '', {
             confirmButtonText: this.$t('commons.confirm'),
             callback: (action) => {
               if (action === 'confirm') {

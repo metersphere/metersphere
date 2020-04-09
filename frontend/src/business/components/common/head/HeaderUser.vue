@@ -137,6 +137,7 @@
         let orgId = data.id;
         this.$post("/user/switch/source/org/" + orgId, {}, response => {
           localStorage.setItem(TokenKey, JSON.stringify(response.data));
+          this.$router.push('/');
           window.location.reload();
         })
       },
@@ -148,6 +149,7 @@
         this.$post("/user/switch/source/ws/" + workspaceId, {}, response => {
           localStorage.setItem(TokenKey, JSON.stringify(response.data));
           localStorage.setItem("workspace_id", workspaceId);
+          this.$router.push('/');
           window.location.reload();
         })
       }
