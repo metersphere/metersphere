@@ -1,14 +1,14 @@
 <template>
-  <el-menu router menu-trigger="click" :default-active="$route.path">
+  <div>
     <div class="recent-text">
       <i class="el-icon-time"/>
-      {{$t('load_test.recent')}}
+      <span>{{$t('load_test.recent')}}</span>
     </div>
     <el-menu-item :key="p.id" v-for="p in recentReports"
                   :index="'/api/report/view/' + p.id" :route="{path: '/api/report/view/' + p.id}">
-      {{ p.name }}
+      <span class="title">{{ p.name }}</span>
     </el-menu-item>
-  </el-menu>
+  </div>
 </template>
 
 <script>
@@ -37,7 +37,18 @@
 
 <style scoped>
   .recent-text {
-    padding-left: 10%;
+    padding: 0 10px;
+    margin-top: -5px;
+    line-height: 36px;
     color: #777777;
+    background-color: #F5F5F5;
+  }
+
+  .recent-text span {
+    padding-left: 6px;
+  }
+
+  .title {
+    padding-left: 20px;
   }
 </style>
