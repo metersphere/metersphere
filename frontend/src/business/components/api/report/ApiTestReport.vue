@@ -1,6 +1,5 @@
 <template>
-  <div class="testreport-container" v-loading="result.loading">
-
+  <div class="container" v-loading="result.loading">
     <div class="main-content">
       <el-card>
         <template v-slot:header>
@@ -75,7 +74,6 @@
         </div>
       </el-card>
     </div>
-
   </div>
 </template>
 
@@ -145,7 +143,7 @@
         });
       },
       _handleDelete(report) {
-        this.result = this.$post(this.deletePath + report.id, {},() => {
+        this.result = this.$post(this.deletePath + report.id, {}, () => {
           this.$message({
             message: this.$t('commons.delete_success'),
             type: 'success'
@@ -158,20 +156,6 @@
 </script>
 
 <style scoped>
-
-  .testreport-container {
-    padding: 15px;
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-  }
-
-  .main-content {
-    margin: 0 auto;
-    width: 100%;
-    max-width: 1200px;
-  }
-
   .test-content {
     width: 100%;
   }

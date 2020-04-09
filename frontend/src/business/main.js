@@ -12,6 +12,7 @@ import store from "./store";
 import {permission} from './permission'
 import chart from "../common/js/chart";
 import '../common/css/menu-header.css';
+import '../common/css/main.css';
 
 Vue.config.productionTip = false;
 Vue.use(icon);
