@@ -46,6 +46,10 @@ export default {
     }
 
     function exception(error, result) {
+      if (error.response && error.response.status === 401) {
+        login();
+        return;
+      }
       result.loading = false;
       window.console.error(error.response || error.message);
       if (error.response.data) {
