@@ -127,6 +127,10 @@ public class TestCaseService {
         List<String> projectIds = projectMapper.selectByExample(projectExample).stream()
                 .map(Project::getId).collect(Collectors.toList());
 
+        if (projectIds.isEmpty()) {
+            return null;
+        }
+
         PageHelper.startPage(1, count, true);
 
         TestCaseExample testCaseExample = new TestCaseExample();
