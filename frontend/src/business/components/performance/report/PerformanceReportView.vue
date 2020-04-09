@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="result.loading" class="report-view-container">
+  <div v-loading="result.loading" class="container">
     <div class="main-content">
       <el-card>
         <el-row>
@@ -131,20 +131,6 @@
 </script>
 
 <style scoped>
-  .report-view-container {
-    float: none;
-    text-align: center;
-    padding: 15px;
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-  }
-
-  .report-view-container .main-content {
-    margin: 0 auto;
-    width: 100%;
-    max-width: 1200px;
-  }
 
   .ms-report-view-btns {
     margin-top: 15px;
