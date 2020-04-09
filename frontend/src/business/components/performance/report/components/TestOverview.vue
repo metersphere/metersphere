@@ -85,7 +85,7 @@
     },
     methods: {
       initTableData() {
-        this.$get("/report/content/testoverview/" + this.id, res => {
+        this.$get("/performance/report/content/testoverview/" + this.id, res => {
           let data = res.data;
           this.maxUsers = data.maxUsers;
           this.avgThroughput = data.avgThroughput;
@@ -94,7 +94,7 @@
           this.responseTime90 = data.responseTime90;
           this.avgBandwidth = data.avgBandwidth;
         })
-        this.$get("/report/content/load_chart/" + this.id, res => {
+        this.$get("/performance/report/content/load_chart/" + this.id, res => {
           let data = res.data;
           let loadOption = {
             title: {
@@ -127,7 +127,7 @@
           }
           this.loadOption = this.generateOption(loadOption, data);
         })
-        this.$get("/report/content/res_chart/" + this.id, res => {
+        this.$get("/performance/report/content/res_chart/" + this.id, res => {
           let data = res.data;
           let resOption = {
             title: {

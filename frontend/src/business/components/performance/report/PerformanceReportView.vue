@@ -81,7 +81,7 @@
     methods: {
       initBreadcrumb() {
         if(this.reportId){
-          this.result = this.$get("report/test/pro/info/" + this.reportId, res => {
+          this.result = this.$get("/performance/report/test/pro/info/" + this.reportId, res => {
             let data = res.data;
             if(data){
               this.reportName = data.name;
@@ -94,7 +94,7 @@
     },
     mounted() {
       this.reportId = this.$route.path.split('/')[4];
-      this.$get("report/" + this.reportId, res => {
+      this.$get("/performance/report/" + this.reportId, res => {
         let data = res.data;
         this.status = data.status;
         if (data.status === "Error") {
@@ -115,7 +115,7 @@
       '$route'(to) {
         let reportId = to.path.split('/')[4];
         if(reportId){
-          this.$get("report/test/pro/info/" + reportId, response => {
+          this.$get("/performance/report/test/pro/info/" + reportId, response => {
             let data = response.data;
             if(data){
               this.reportName = data.name;

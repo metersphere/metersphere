@@ -107,8 +107,8 @@
     data() {
       return {
         result: {},
-        queryPath: "/report/list/all",
-        deletePath: "/report/delete/",
+        queryPath: "/performance/report/list/all",
+        deletePath: "/performance/report/delete/",
         condition: "",
         projectId: null,
         tableData: [],

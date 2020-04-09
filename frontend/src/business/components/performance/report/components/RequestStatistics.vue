@@ -97,7 +97,7 @@
     },
     methods: {
       initTableData() {
-        this.$get("/report/content/" + this.id, res => {
+        this.$get("/performance/report/content/" + this.id, res => {
           this.tableData = res.data.requestStatisticsList;
           this.totalInfo = res.data;
         })

@@ -149,10 +149,10 @@
     },
     methods: {
       initTableData() {
-        this.$get("/report/content/errors/" + this.id, res => {
+        this.$get("/performance/report/content/errors/" + this.id, res => {
           this.tableData = res.data;
         })
-        this.$get("/report/content/errors_top5/" + this.id, res => {
+        this.$get("/performance/report/content/errors_top5/" + this.id, res => {
           this.errorTotal = res.data
           this.errorTop5 = res.data.errorsTop5List;
         })

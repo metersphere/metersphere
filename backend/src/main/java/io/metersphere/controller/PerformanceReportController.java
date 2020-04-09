@@ -23,8 +23,8 @@ import javax.annotation.Resource;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "report")
-public class ReportController {
+@RequestMapping(value = "performance/report")
+public class PerformanceReportController {
 
     @Resource
     private ReportService reportService;
