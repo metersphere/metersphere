@@ -244,7 +244,6 @@
     data() {
       return {
         result: {},
-        testLoading: false,
         createVisible: false,
         infoList: [],
         updateVisible: false,
@@ -386,11 +385,13 @@
         });
       },
       createTestResourcePool(createTestResourcePoolForm) {
+        if (this.result.loading) {
+          return;
+        }
         this.$refs[createTestResourcePoolForm].validate(valide => {
           if (valide) {
             let vri = this.validateResourceInfo();
             if (vri.validate) {
-              this.testLoading = true;
               this.convertSubmitResources();
               this.result = this.$post("/testresourcepool/add", this.form, () => {
                 this.$message({
@@ -399,14 +400,12 @@
                   },
                   this.createVisible = false,
                   this.initTableData());
-                this.testLoading = false;
               });
             } else {
               this.$message({
                 type: 'warning',
                 message: vri.msg
               });
-              this.testLoading = false;
               return false;
             }
 
@@ -428,9 +427,11 @@
         this.form.resources = resources;
       },
       updateTestResourcePool(updateTestResourcePoolForm) {
+        if (this.result.loading) {
+          return;
+        }
         this.$refs[updateTestResourcePoolForm].validate(valide => {
           if (valide) {
-            this.testLoading = true;
             let vri = this.validateResourceInfo();
             if (vri.validate) {
               this.convertSubmitResources();
@@ -442,20 +443,18 @@
                   this.updateVisible = false,
                   this.initTableData(),
                   self.loading = false);
-                this.testLoading = false;
               });
             } else {
               this.$message({
                 type: 'warning',
                 message: vri.msg
               });
-              this.testLoading = false;
               return false;
             }
           } else {
             return false;
           }
-        })
+        });
       },
       closeFunc() {
         this.form = {};

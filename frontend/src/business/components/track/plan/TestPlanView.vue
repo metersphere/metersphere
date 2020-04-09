@@ -5,6 +5,7 @@
       <el-aside class="node-tree" width="250px">
         <plan-node-tree
           :tree-nodes="treeNodes"
+          :plan-id="planId"
           @nodeSelectEvent="getPlanCases"
           ref="tree"></plan-node-tree>
       </el-aside>
@@ -49,16 +50,6 @@
           treeNodes: []
         }
       },
-      created() {
-        this.getNodeTreeByPlanId();
-      },
-      watch: {
-        '$route'(to, from) {
-          if (to.path.indexOf("/track/plan/view/") >= 0){
-            this.getNodeTreeByPlanId();
-          }
-        }
-      },
       computed: {
         planId: function () {
           return this.$route.params.planId;
@@ -67,20 +58,13 @@
       methods: {
         refresh() {
           this.getPlanCases();
-          this.getNodeTreeByPlanId();
+          this.$refs.tree.initTree();
         },
         getPlanCases(nodeIds) {
           this.$refs.testCasePlanList.initTableData(nodeIds);
         },
         openTestCaseRelevanceDialog() {
-          this.$refs.testCaseRelevance.openTestCaseRelevanceDialog(this.planId);
-        },
-        getNodeTreeByPlanId() {
-          if(this.planId){
-            this.$get("/case/node/list/plan/" + this.planId, response => {
-              this.treeNodes = response.data;
-            });
-          }
+          this.$refs.testCaseRelevance.openTestCaseRelevanceDialog();
         },
         editTestPlanTestCase(testCase) {
           let item = {};

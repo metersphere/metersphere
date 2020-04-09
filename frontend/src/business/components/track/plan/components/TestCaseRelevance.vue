@@ -4,18 +4,21 @@
 
     <el-dialog :title="$t('test_track.relevance_test_case')"
                :visible.sync="dialogFormVisible"
+               @close="close"
                width="50%">
 
       <el-container class="main-content">
         <el-aside class="node-tree" width="250px">
           <plan-node-tree
             :tree-nodes="treeNodes"
+            :plan-id="planId"
+            :showAll=true
             @nodeSelectEvent="getCaseNameByNodeIds"
             ref="tree"></plan-node-tree>
         </el-aside>
 
         <el-container>
-          <el-main class="case-content">
+          <el-main class="case-content" v-loading="result.loading">
             <el-scrollbar style="height:100%">
                 <el-table
                   :data="testCases"
@@ -70,6 +73,7 @@
       components: {PlanNodeTree},
       data() {
         return {
+          result: {},
           dialogFormVisible: false,
           isCheckAll: false,
           testCases: [],
@@ -82,10 +86,14 @@
           type: String
         }
       },
+      watch: {
+        planId() {
+          this.getCaseNames();
+        }
+      },
       methods: {
-        openTestCaseRelevanceDialog(planId) {
-          this.getAllNodeTreeByPlanId(planId);
-          this.getCaseNames(planId);
+        openTestCaseRelevanceDialog() {
+          this.getCaseNames();
           this.dialogFormVisible = true;
         },
         saveCaseRelevance(){
@@ -93,20 +101,21 @@
           param.planId = this.planId;
           param.testCaseIds = [...this.selectIds];
           this.$post('/test/plan/relevance' , param, () => {
-            this.dialogFormVisible = false;
+            this.selectIds.clear();
             this.$message.success("保存成功");
+            this.dialogFormVisible = false;
             this.$emit('refresh');
           });
         },
-        getCaseNames(planId, nodeIds) {
+        getCaseNames(nodeIds) {
           let param = {};
-          if (planId) {
-            param.planId = planId;
+          if (this.planId) {
+            param.planId = this.planId;
           }
           if (nodeIds && nodeIds.length > 0){
             param.nodeIds = nodeIds;
           }
-          this.$post('/test/case/name', param, response => {
+          this.result = this.$post('/test/case/name', param, response => {
             this.testCases = response.data;
             this.testCases.forEach(item => {
               item.checked = false;
@@ -115,7 +124,7 @@
         },
         getCaseNameByNodeIds(nodeIds) {
           this.dialogFormVisible = true;
-          this.getCaseNames(this.planId, nodeIds);
+          this.getCaseNames(nodeIds);
         },
         handleSelectAll(selection) {
           if(selection.length > 0){
@@ -133,12 +142,9 @@
             this.selectIds.add(row.id);
           }
         },
-        getAllNodeTreeByPlanId(planId) {
-          if (planId) {
-            this.$get("/case/node/list/all/plan/" + planId, response => {
-              this.treeNodes = response.data;
-            });
-          }
+        close() {
+          console.log("clear");
+          this.selectIds.clear();
         }
       }
     }
