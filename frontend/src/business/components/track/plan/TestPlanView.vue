@@ -1,44 +1,45 @@
 <template>
+  <div class="container">
+    <div class="main-content">
+      <el-container>
+        <el-aside class="aside-container" width="250px">
+          <select-menu
+            :data="testPlans"
+            :current-data="currentPlan"
+            :title="$t('test_track.plan')"
+            @dataChange="changePlan">
+          </select-menu>
 
-  <div class="plan_container">
-    <el-container>
-      <el-aside class="aside-container" width="250px">
-        <select-menu
-          :data="testPlans"
-          :current-data="currentPlan"
-          :title="$t('test_track.plan')"
-          @dataChange="changePlan">
-        </select-menu>
+          <plan-node-tree
+            class="node-tree"
+            :plan-id="planId"
+            @nodeSelectEvent="getPlanCases"
+            ref="tree">
+          </plan-node-tree>
 
-        <plan-node-tree
-          class="node_tree"
-          :plan-id="planId"
-          @nodeSelectEvent="getPlanCases"
-          ref="tree">
-        </plan-node-tree>
+        </el-aside>
 
-      </el-aside>
+        <el-main>
+          <test-plan-test-case-list
+            @openTestCaseRelevanceDialog="openTestCaseRelevanceDialog"
+            @editTestPlanTestCase="editTestPlanTestCase"
+            @refresh="refresh"
+            :plan-id="planId"
+            ref="testCasePlanList"></test-plan-test-case-list>
+        </el-main>
+      </el-container>
 
-      <el-main>
-        <test-plan-test-case-list
-          @openTestCaseRelevanceDialog="openTestCaseRelevanceDialog"
-          @editTestPlanTestCase="editTestPlanTestCase"
-          @refresh="refresh"
-          :plan-id="planId"
-          ref="testCasePlanList"></test-plan-test-case-list>
-      </el-main>
-    </el-container>
+      <test-case-relevance
+        @refresh="refresh"
+        :plan-id="planId"
+        ref="testCaseRelevance"></test-case-relevance>
 
-    <test-case-relevance
-      @refresh="refresh"
-      :plan-id="planId"
-      ref="testCaseRelevance"></test-case-relevance>
+      <test-plan-test-case-edit
+        ref="testPlanTestCaseEdit"
+        @refresh="refresh">
+      </test-plan-test-case-edit>
 
-    <test-plan-test-case-edit
-      ref="testPlanTestCaseEdit"
-      @refresh="refresh">
-    </test-plan-test-case-edit>
-
+    </div>
   </div>
 
 </template>
@@ -120,16 +121,21 @@
 
 <style scoped>
 
-  .plan_container {
+  .main-content {
+    padding: 0px;
     background: white;
     height: 600px;
+  }
+
+  .container {
+    padding: 0px;
   }
 
   .aside-container {
     margin-left: 15px;
   }
 
-  .node_tree {
+  .node-tree {
     margin: 3%;
   }
 

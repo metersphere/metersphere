@@ -1,16 +1,15 @@
 <template>
-
-  <div>
-    <test-plan-list
-      @openTestPlanEditDialog="openTestPlanEditDialog"
-      @testPlanEdit="openTestPlanEditDialog"
-      ref="testPlanList"></test-plan-list>
-    <test-plan-edit
-      ref="testPlanEditDialog"
-      @refresh="refreshTestPlanList"></test-plan-edit>
+  <div class="container">
+    <div class="main-content">
+      <test-plan-list
+        @openTestPlanEditDialog="openTestPlanEditDialog"
+        @testPlanEdit="openTestPlanEditDialog"
+        ref="testPlanList"></test-plan-list>
+      <test-plan-edit
+        ref="testPlanEditDialog"
+        @refresh="refreshTestPlanList"></test-plan-edit>
+    </div>
   </div>
-
-
 </template>
 
 <script>

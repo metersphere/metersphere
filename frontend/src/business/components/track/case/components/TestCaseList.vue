@@ -32,19 +32,16 @@
         <el-table-column
           prop="name"
           :label="$t('commons.name')"
-          width="120"
           show-overflow-tooltip>
         </el-table-column>
         <el-table-column
           prop="priority"
           :label="$t('test_track.priority')"
-          width="120"
           show-overflow-tooltip>
         </el-table-column>
         <el-table-column
           prop="type"
           :label="$t('test_track.type')"
-          width="120"
           show-overflow-tooltip>
           <template v-slot:default="scope">
             <span v-if="scope.row.type == 'functional'">{{$t('test_track.functional_test')}}</span>
@@ -55,7 +52,6 @@
         <el-table-column
           prop="method"
           :label="$t('test_track.method')"
-          width="120"
           show-overflow-tooltip>
           <template v-slot:default="scope">
             <span v-if="scope.row.method == 'manual'">{{$t('test_track.manual')}}</span>
@@ -65,25 +61,21 @@
         <el-table-column
           prop="nodePath"
           :label="$t('test_track.module')"
-          width="160"
           show-overflow-tooltip>
         </el-table-column>
         <el-table-column
-          width="160"
           :label="$t('commons.create_time')">
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
         <el-table-column
-          width="160"
           :label="$t('commons.update_time')">
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
         <el-table-column
-          width="100"
           :label="$t('commons.operating')">
           <template v-slot:default="scope">
             <el-button @click="handleEdit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>

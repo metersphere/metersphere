@@ -38,6 +38,7 @@
           </el-submenu>
         </el-menu>
       </el-col>
+      <el-col :span="16"/>
     </el-row>
   </div>
 
@@ -121,6 +122,7 @@
 
   #menu-bar {
     border-bottom: 1px solid #E6E6E6;
+    background-color: #FFF;
   }
 
   .blank_item {
