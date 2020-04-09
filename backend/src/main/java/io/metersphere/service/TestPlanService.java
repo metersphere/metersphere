@@ -73,6 +73,11 @@ public class TestPlanService {
     public void testPlanRelevance(PlanCaseRelevanceRequest request) {
 
         List<String> testCaseIds = request.getTestCaseIds();
+
+        if (testCaseIds.isEmpty()) {
+            return;
+        }
+
         TestCaseExample testCaseExample = new TestCaseExample();
         testCaseExample.createCriteria().andIdIn(testCaseIds);
 

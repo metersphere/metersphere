@@ -1,7 +1,7 @@
 <template>
 
   <el-main>
-    <el-card>
+    <el-card v-loading="result.loading">
       <template v-slot:header>
         <div>
           <el-row type="flex" justify="space-between" align="middle">
@@ -9,15 +9,9 @@
               <span class="title">{{$t('test_track.test_case')}}</span>
             </el-col>
 
-            <el-col :span="1" :offset="8">
+            <el-col :span="2" :offset="10">
               <el-button icon="el-icon-circle-plus-outline" size="small" round
                          @click="$emit('openTestCaseEditDialog')" >{{$t('commons.create')}}</el-button>
-            </el-col>
-
-            <el-col :span="1" >
-              <el-button
-                icon="el-icon-refresh" size="small" round
-                @click="initTableData()">{{$t('commons.refresh')}}</el-button>
             </el-col>
 
             <el-col :span="5">
@@ -161,7 +155,7 @@
 
           if (this.currentProject) {
             param.projectId = this.currentProject.id;
-            this.$post(this.buildPagePath('/test/case/list'), param, response => {
+            this.result = this.$post(this.buildPagePath('/test/case/list'), param, response => {
               this.loadingRequire.testCase = false;
               let data = response.data;
               this.total = data.itemCount;

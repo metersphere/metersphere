@@ -4,6 +4,7 @@
     <el-input :placeholder="$t('test_track.search_module')" v-model="filterText" size="small"></el-input>
 
     <el-tree
+      v-loading="result.loading"
       class="filter-tree node-tree"
       :data="treeNodes"
       node-key="id"
@@ -28,26 +29,39 @@
       name: "PlanNodeTree",
       data() {
         return {
+          result: {},
           filterText: '',
           defaultProps: {
             children: 'children',
             label: 'label'
           },
           dialogTableVisible: false,
-          defaultKeys: []
+          defaultKeys: [],
+          treeNodes: []
         };
       },
       props: {
         planId: {
           type: String
         },
-        treeNodes: {
-          Array
-        },
+        showAll: {
+          type: Boolean
+        }
+      },
+      created() {
+        this.initTree();
       },
       watch: {
         filterText(val) {
           this.$refs.tree.filter(val);
+        },
+        planId() {
+          this.initTree();
+        },
+        '$route'(to, from) {
+          if (to.path.indexOf("/track/plan/view/") >= 0){
+            this.initTree();
+          }
         }
       },
       selectNode(node) {
@@ -64,6 +78,13 @@
         return nodeIds;
       },
       methods: {
+        initTree() {
+          if (this.showAll) {
+            this.getAllNodeTreeByPlanId();
+          } else {
+            this.getNodeTreeByPlanId();
+          }
+        },
         handleDragEnd(draggingNode, dropNode, dropType, ev) {
           let param = {};
           param.id = draggingNode.data.id;
@@ -98,9 +119,16 @@
           if (!value) return true;
           return data.label.indexOf(value) !== -1;
         },
-        getNodeTreeByNodeIds() {
+        getNodeTreeByPlanId() {
           if(this.planId){
-            this.$get("/case/node/list/plan/" + this.planId, response => {
+            this.result = this.$get("/case/node/list/plan/" + this.planId, response => {
+              this.treeNodes = response.data;
+            });
+          }
+        },
+        getAllNodeTreeByPlanId() {
+          if (this.planId) {
+            this.result = this.$get("/case/node/list/all/plan/" + this.planId, response => {
               this.treeNodes = response.data;
             });
           }

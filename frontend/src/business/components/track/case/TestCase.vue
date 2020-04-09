@@ -1,5 +1,5 @@
 <template>
-  <div class="case_container" v-loading="loadingRequire.project && loadingRequire.testCase">
+  <div class="case_container">
     <el-container>
       <el-aside width="250px">
 
@@ -67,7 +67,6 @@
         currentPage: 1,
         pageSize: 5,
         total: 0,
-        loadingRequire: {project: true, testCase: true},
         projects: [],
         currentProject: null,
         treeNodes: []
@@ -120,7 +119,6 @@
                 localStorage.setItem(CURRENT_PROJECT, JSON.stringify(this.projects[0]));
               }
             }
-            this.loadingRequire.project = false;
             // this.checkProject();
           });
       },
@@ -137,8 +135,6 @@
       changeProject(project) {
         this.currentProject = project;
         localStorage.setItem(CURRENT_PROJECT, JSON.stringify(project));
-        this.$refs.testCaseList.initTableData();
-        this.$refs.nodeTree.getNodeTree();
       },
       refreshTable(data) {
         this.$refs.testCaseList.initTableData(data);
