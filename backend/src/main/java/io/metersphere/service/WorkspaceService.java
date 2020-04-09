@@ -230,6 +230,19 @@ public class WorkspaceService {
     }
 
     public void addWorkspaceByAdmin(Workspace workspace) {
+        if (StringUtils.isBlank(workspace.getName())) {
+            MSException.throwException(Translator.get("workspace_name_is_null"));
+        }
+        if (StringUtils.isBlank(workspace.getOrganizationId())) {
+            MSException.throwException(Translator.get("organization_id_is_null"));
+        }
+        WorkspaceExample example = new WorkspaceExample();
+        example.createCriteria()
+                .andOrganizationIdEqualTo(workspace.getOrganizationId())
+                .andNameEqualTo(workspace.getName());
+        if (workspaceMapper.countByExample(example) > 0) {
+            MSException.throwException(Translator.get("workspace_name_already_exists"));
+        }
         workspace.setId(UUID.randomUUID().toString());
         workspace.setCreateTime(System.currentTimeMillis());
         workspace.setUpdateTime(System.currentTimeMillis());

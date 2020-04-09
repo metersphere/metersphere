@@ -17,5 +17,6 @@
   "node_deep_limit": "The node depth does not exceed 5 layers!",
   "no_nodes_message": "No node message",
   "duplicate_node_ip": "Duplicate IPs",
-  "only_one_k8s": "Only one K8s can be added"
+  "only_one_k8s": "Only one K8s can be added",
+  "organization_id_is_null": "Organization ID cannot be null"
 }
