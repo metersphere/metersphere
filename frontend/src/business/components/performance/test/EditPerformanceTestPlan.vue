@@ -17,9 +17,11 @@
               </template>
             </el-input>
           </el-col>
-          <el-button type="primary" plain @click="save">{{$t('commons.save')}}</el-button>
-          <el-button type="primary" plain @click="saveAndRun">{{$t('load_test.save_and_run')}}</el-button>
-          <el-button type="warning" plain @click="cancel">{{$t('commons.cancel')}}</el-button>
+          <el-col :span="12" :offset="2">
+            <el-button type="primary" plain @click="save">{{$t('commons.save')}}</el-button>
+            <el-button type="primary" plain @click="saveAndRun">{{$t('load_test.save_and_run')}}</el-button>
+            <el-button type="warning" plain @click="cancel">{{$t('commons.cancel')}}</el-button>
+          </el-col>
         </el-row>
 
 
@@ -235,6 +237,7 @@
 
   .testplan-config {
     margin-top: 15px;
+    text-align: center;
   }
 
   .el-select {
