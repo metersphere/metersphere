@@ -139,7 +139,6 @@
           currentPage: 1,
           pageSize: 5,
           total: 0,
-          loadingRequire: {project: true, testCase: true},
           testId: null,
         }
       },
@@ -148,14 +147,11 @@
         this.initTableData();
       },
       methods: {
-        initTableData(nodeIds) {
+        initTableData() {
           let param = {
             name: this.condition,
           };
-          param.nodeIds = nodeIds;
-
           this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
-            this.loadingRequire.testCase = false;
             let data = response.data;
             this.total = data.itemCount;
             this.tableData = data.listObject;

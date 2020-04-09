@@ -116,4 +116,10 @@ public class TestPlanService {
         testPlanTestCaseExample.setOrderByClause("update_time desc");
         return testPlanMapper.selectByExample(testPlanTestCaseExample);
     }
+
+    public List<TestPlan> listTestAllPlan(String currentWorkspaceId) {
+        TestPlanExample testPlanExample = new TestPlanExample();
+        testPlanExample.createCriteria().andWorkspaceIdEqualTo(currentWorkspaceId);
+        return testPlanMapper.selectByExample(testPlanExample);
+    }
 }
