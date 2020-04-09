@@ -20,13 +20,13 @@
           </el-col>
           <el-col :span="8">
             <span class="ms-report-time-desc">
-              持续时间：  30 分钟
+              持续时间：  {{duration}} 分钟
             </span>
             <span class="ms-report-time-desc">
-              开始时间：  2020-3-10 12:00:00
+              开始时间：  {{startTime}}
             </span>
             <span class="ms-report-time-desc">
-              结束时间：  2020-3-10 12:30:00
+              结束时间：  {{endTime}}
             </span>
           </el-col>
         </el-row>
@@ -75,7 +75,10 @@
         status: '',
         reportName: '',
         testName: '',
-        projectName: ''
+        projectName: '',
+        startTime: '0',
+        endTime: '0',
+        duration: '0'
       }
     },
     methods: {
@@ -87,6 +90,18 @@
               this.reportName = data.name;
               this.testName = data.testName;
               this.projectName = data.projectName;
+            }
+          })
+        }
+      },
+      initReportTimeInfo() {
+        if(this.reportId){
+          this.result = this.$get("/performance/report/content/report_time/" + this.reportId, res => {
+            let data = res.data;
+            if(data){
+              this.startTime = data.startTime;
+              this.endTime = data.endTime;
+              this.duration = data.duration;
             }
           })
         }
@@ -110,6 +125,7 @@
         }
       })
       this.initBreadcrumb();
+      this.initReportTimeInfo();
     },
     watch: {
       '$route'(to) {
@@ -123,6 +139,14 @@
               this.projectName = data.projectName;
             }
           });
+          this.result = this.$get("/performance/report/content/report_time/" + this.reportId, res => {
+            let data = res.data;
+            if(data){
+              this.startTime = data.startTime;
+              this.endTime = data.endTime;
+              this.duration = data.duration;
+            }
+          })
           window.location.reload();
         }
       }

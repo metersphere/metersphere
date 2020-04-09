@@ -12,6 +12,7 @@ import io.metersphere.dto.ReportDTO;
 import io.metersphere.report.JtlResolver;
 import io.metersphere.report.base.ChartsData;
 import io.metersphere.report.base.Errors;
+import io.metersphere.report.base.ReportTimeInfo;
 import io.metersphere.report.base.TestOverview;
 import io.metersphere.report.dto.ErrorsTop5DTO;
 import io.metersphere.report.dto.RequestStatisticsDTO;
@@ -82,6 +83,14 @@ public class ReportService {
         String content = loadTestReport.getContent();
         TestOverview testOverview = JtlResolver.getTestOverview(content);
         return testOverview;
+    }
+
+    public ReportTimeInfo getReportTimeInfo(String id) {
+        checkReportStatus(id);
+        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
+        String content = loadTestReport.getContent();
+        ReportTimeInfo reportTimeInfo = JtlResolver.getReportTimeInfo(content);
+        return reportTimeInfo;
     }
 
     public List<ChartsData> getLoadChartData(String id) {

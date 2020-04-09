@@ -10,6 +10,7 @@ import io.metersphere.controller.request.ReportRequest;
 import io.metersphere.dto.ReportDTO;
 import io.metersphere.report.base.ChartsData;
 import io.metersphere.report.base.Errors;
+import io.metersphere.report.base.ReportTimeInfo;
 import io.metersphere.report.base.TestOverview;
 import io.metersphere.report.dto.ErrorsTop5DTO;
 import io.metersphere.report.dto.RequestStatisticsDTO;
@@ -75,6 +76,11 @@ public class PerformanceReportController {
     @GetMapping("/content/testoverview/{reportId}")
     public TestOverview getTestOverview(@PathVariable String reportId) {
         return reportService.getTestOverview(reportId);
+    }
+
+    @GetMapping("/content/report_time/{reportId}")
+    public ReportTimeInfo getReportTimeInfo(@PathVariable String reportId) {
+        return reportService.getReportTimeInfo(reportId);
     }
 
     @GetMapping("/content/load_chart/{reportId}")

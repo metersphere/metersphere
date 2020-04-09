@@ -460,7 +460,6 @@
     data() {
       return {
         result: {},
-        loading: false,
         createVisible: false,
         updateVisible: false,
         memberVisible: false,
