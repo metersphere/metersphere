@@ -6,7 +6,7 @@
         <select-menu
           :data="projects"
           :current-data="currentProject"
-          :title="'项目'"
+          :title="$t('test_track.project')"
           @dataChange="changeProject">
         </select-menu>
 
@@ -184,7 +184,6 @@
 
 <style scoped>
   .case_container {
-    padding: 15px;
     width: 100%;
     height: 100%;
     background: white;

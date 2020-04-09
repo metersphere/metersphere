@@ -6,7 +6,7 @@
         <select-menu
           :data="testPlans"
           :current-data="currentPlan"
-          :title="'计划'"
+          :title="$t('test_track.plan')"
           @dataChange="changePlan">
         </select-menu>
 
@@ -20,12 +20,12 @@
       </el-aside>
 
       <el-main>
-        <test-case-plan-list
+        <test-plan-test-case-list
           @openTestCaseRelevanceDialog="openTestCaseRelevanceDialog"
           @editTestPlanTestCase="editTestPlanTestCase"
           @refresh="refresh"
           :plan-id="planId"
-          ref="testCasePlanList"></test-case-plan-list>
+          ref="testCasePlanList"></test-plan-test-case-list>
       </el-main>
     </el-container>
 
@@ -46,14 +46,14 @@
 <script>
 
     import PlanNodeTree from "./components/PlanNodeTree";
-    import TestCasePlanList from "./components/TestCasePlanList";
+    import TestPlanTestCaseList from "./components/TestPlanTestCaseList";
     import TestCaseRelevance from "./components/TestCaseRelevance";
     import TestPlanTestCaseEdit from "./components/TestPlanTestCaseEdit";
     import SelectMenu from "../common/SelectMenu";
 
     export default {
       name: "TestPlanView",
-      components: {PlanNodeTree, TestCasePlanList, TestCaseRelevance, TestPlanTestCaseEdit, SelectMenu},
+      components: {PlanNodeTree, TestPlanTestCaseList, TestCaseRelevance, TestPlanTestCaseEdit, SelectMenu},
       data() {
         return {
           testPlans: [],
