@@ -406,6 +406,28 @@ public class JtlResolver {
         return chartsDataList;
     }
 
+    public static ReportTimeInfo getReportTimeInfo(String jtlString) {
+        ReportTimeInfo reportTimeInfo = new ReportTimeInfo();
+        List<Metric> totalLineList = JtlResolver.resolver(jtlString);
+
+        totalLineList.sort(Comparator.comparing(t0 -> Long.valueOf(t0.getTimestamp())));
+
+        String startTimeStamp = totalLineList.get(0).getTimestamp();
+        String endTimeStamp = totalLineList.get(totalLineList.size()-1).getTimestamp();
+        String startTime = stampToDate(startTimeStamp);
+        String endTime = stampToDate(endTimeStamp);
+        reportTimeInfo.setStartTime(startTime);
+        reportTimeInfo.setEndTime(endTime);
+
+        Date startDate = new Date(Long.parseLong(startTimeStamp));
+        Date endDate = new Date(Long.parseLong(endTimeStamp));
+        long timestamp = endDate.getTime() - startDate.getTime();
+        reportTimeInfo.setDuration(String.valueOf(timestamp*1.0 / 1000 / 60));
+
+
+        return reportTimeInfo;
+    }
+
     private static String stampToDate(String timeStamp) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         long lt = Long.parseLong(timeStamp);
