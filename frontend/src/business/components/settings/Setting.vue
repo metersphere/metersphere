@@ -37,17 +37,5 @@
     font-weight: 500;
   }
 
-  .container {
-    padding: 15px;
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-  }
-
-  .main-content {
-    margin: 0 auto;
-    width: 100%;
-    max-width: 1200px;
-  }
 </style>
 
