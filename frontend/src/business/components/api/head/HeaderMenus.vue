@@ -1,20 +1,20 @@
 <template>
 
   <div id="menu-bar">
-    <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router
+    <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router menu-trigger="click"
              :default-active='$route.path'>
       <el-menu-item :index="'/api/home'">
         {{ $t("i18n.home") }}
       </el-menu-item>
 
       <el-submenu v-if="isCurrentWorkspaceUser"
-                  index="3" popper-class="submenu" v-permission="['test_manager']" >
+                  index="3" popper-class="submenu" v-permission="['test_manager']">
         <template v-slot:title>{{$t('commons.project')}}</template>
         <api-recent-project/>
         <el-divider/>
         <el-menu-item :index="'/api/project/all'">
           <font-awesome-icon :icon="['fa', 'list-ul']"/>
-          <span style="padding-left: 5px;">{{$t('commons.show_all')}}</span>
+          <span>{{$t('commons.show_all')}}</span>
         </el-menu-item>
         <el-menu-item :index="'/api/project/create'">
           <el-button type="text">{{$t('project.create')}}</el-button>
@@ -28,7 +28,7 @@
         <el-divider/>
         <el-menu-item :index="'/api/test/all'">
           <font-awesome-icon :icon="['fa', 'list-ul']"/>
-          <span style="padding-left: 5px;">{{$t('commons.show_all')}}</span>
+          <span>{{$t('commons.show_all')}}</span>
         </el-menu-item>
         <el-menu-item :index="'/api/test/create'">
           <el-button type="text">{{$t('load_test.create')}}</el-button>
@@ -42,12 +42,12 @@
         <el-divider/>
         <el-menu-item :index="'/api/report/all'">
           <font-awesome-icon :icon="['fa', 'list-ul']"/>
-          <span style="padding-left: 5px;">{{$t('commons.show_all')}}</span>
+          <span>{{$t('commons.show_all')}}</span>
         </el-menu-item>
       </el-submenu>
 
-      <router-link  v-if="isCurrentWorkspaceUser"
-                    class="header-bottom" :to="'/api/test/create'" v-permission="['test_user','test_manager']">
+      <router-link v-if="isCurrentWorkspaceUser"
+                   class="header-bottom" :to="'/api/test/create'" v-permission="['test_user','test_manager']">
         <el-button type="primary" size="small">{{$t('load_test.create')}}</el-button>
       </router-link>
 
@@ -100,9 +100,18 @@
 </style>
 
 <style scoped>
+  svg + span {
+    padding-left: 5px;
+  }
+
+  .submenu button {
+    padding-left: 18px;
+  }
+
   .el-divider--horizontal {
     margin: 0;
   }
+
   #menu-bar {
     border-bottom: 1px solid #E6E6E6;
   }
