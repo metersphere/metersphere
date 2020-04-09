@@ -13,8 +13,8 @@
 </template>
 <script>
 
-  import {ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER, CURRENT_PROJECT} from "../../../../common/constants";
-  import {hasRoles} from "../../../../common/utils";
+  import {CURRENT_PROJECT, ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER} from "../../../../common/js/constants";
+  import {hasRoles} from "../../../../common/js/utils";
 
   export default {
     name: "TrackRecentProject",

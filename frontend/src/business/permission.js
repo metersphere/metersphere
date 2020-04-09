@@ -1,5 +1,5 @@
 import router from './components/common/router/router'
-import {TokenKey} from '../common/constants';
+import {TokenKey} from '../common/js/constants';
 
 const whiteList = ['/login']; // no redirect whitelist
 

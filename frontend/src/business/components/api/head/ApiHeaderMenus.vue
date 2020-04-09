@@ -51,7 +51,7 @@
 
 <script>
 
-  import {checkoutCurrentWorkspace} from "../../../../common/utils";
+  import {checkoutCurrentWorkspace} from "../../../../common/js/utils";
   import MsRecentList from "../../common/head/RecentList";
   import MsShowAll from "../../common/head/ShowAll";
   import MsCreateButton from "../../common/head/CreateButton";
@@ -125,22 +125,6 @@
   }
 
 </script>
-
-<style>
-  .header-menu.el-menu--horizontal > li {
-    height: 39px;
-    line-height: 40px;
-    color: dimgray;
-  }
-
-  .header-menu.el-menu--horizontal > li.el-submenu > * {
-    height: 39px;
-    line-height: 40px;
-    color: dimgray;
-  }
-
-
-</style>
 
 <style scoped>
   .el-divider--horizontal {

@@ -115,7 +115,6 @@
 </template>
 
 <script>
-  import {CURRENT_PROJECT} from '../../../../../common/constants';
 
   export default {
       name: "TestCaseList",

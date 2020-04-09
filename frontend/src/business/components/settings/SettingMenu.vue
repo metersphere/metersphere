@@ -42,7 +42,7 @@
 </template>
 
 <script>
-  import {checkoutCurrentOrganization, checkoutCurrentWorkspace} from "../../../common/utils";
+  import {checkoutCurrentOrganization, checkoutCurrentWorkspace} from "../../../common/js/utils";
 
   export default {
     name: "MsSettingMenu",

@@ -68,7 +68,7 @@
 
 <script>
 
-  import {CURRENT_PROJECT} from '../../../../../common/constants';
+  import {CURRENT_PROJECT} from '../../../../../common/js/constants';
 
   export default {
     name: "NodeTree",

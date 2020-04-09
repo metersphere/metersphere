@@ -41,7 +41,7 @@
 </template>
 
 <script>
-  import {TokenKey} from '../common/constants';
+  import {TokenKey} from '../common/js/constants';
 
 
   export default {

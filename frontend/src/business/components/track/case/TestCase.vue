@@ -51,7 +51,7 @@
 
   import NodeTree from './components/NodeTree';
   import TestCaseEdit from './components/TestCaseEdit';
-  import {WORKSPACE_ID,CURRENT_PROJECT} from '../../../../common/constants';
+  import {CURRENT_PROJECT, WORKSPACE_ID} from '../../../../common/js/constants';
   import TestCaseList from "./components/TestCaseList";
 
   export default {

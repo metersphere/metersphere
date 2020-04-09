@@ -12,7 +12,7 @@
 </template>
 
 <script>
-  import {ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER} from "../../../../../common/constants";
+  import {ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER} from "../../../../../common/js/constants";
 
   export default {
     name: "RecentTestPlan",
