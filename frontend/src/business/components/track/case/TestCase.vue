@@ -52,7 +52,6 @@
     data() {
       return {
         result: {},
-        projectId: null,
         tableData: [],
         multipleSelection: [],
         currentPage: 1,
@@ -67,15 +66,19 @@
       this.getProjects();
     },
     mounted() {
+      if (this.$route.params.projectId){
+        this.getProjectById(this.$route.params.projectId)
+      }
       if (this.$route.path.indexOf("/track/case/edit") >= 0){
         this.openRecentTestCaseEditDialog();
+        this.$router.push('/track/case/all');
       }
     },
     watch: {
       '$route'(to, from) {
         let path = to.path;
-        if (path.indexOf("/track/case/all") >= 0){
-          this.refresh();
+        if (to.params.projectId){
+          this.getProjectById(to.params.projectId)
         }
         if (path.indexOf("/track/case/edit") >= 0){
           this.openRecentTestCaseEditDialog();
@@ -87,9 +90,9 @@
       getProjects() {
           this.$get("/project/listAll", (response) => {
             this.projects = response.data;
-            if (localStorage.getItem(CURRENT_PROJECT)) {
-              let lastProject = JSON.parse(localStorage.getItem(CURRENT_PROJECT));
-              let hasCurrentProject = false;
+            let lastProject = JSON.parse(localStorage.getItem(CURRENT_PROJECT));
+            if (lastProject) {
+              let hasCurrentProject   = false;
               for (let i = 0; i < this.projects.length; i++) {
                 if (this.projects[i].id == lastProject.id) {
                   this.currentProject = lastProject;
@@ -100,14 +103,9 @@
               if (!hasCurrentProject) {
                 this.currentProject = null;
               }
-              if(this.projects.length > 0){
-                this.currentProject = this.projects[0];
-                localStorage.setItem(CURRENT_PROJECT, JSON.stringify(this.projects[0]));
-              }
             } else {
               if(this.projects.length > 0){
-                this.currentProject = this.projects[0];
-                localStorage.setItem(CURRENT_PROJECT, JSON.stringify(this.projects[0]));
+                this.setCurrentProject(this.projects[0]);
               }
             }
             // this.checkProject();
@@ -124,8 +122,7 @@
         }
       },
       changeProject(project) {
-        this.currentProject = project;
-        localStorage.setItem(CURRENT_PROJECT, JSON.stringify(project));
+        this.setCurrentProject(project);
       },
       refreshTable(data) {
         this.$refs.testCaseList.initTableData(data);
@@ -161,8 +158,7 @@
       },
       getProjectByCaseId(caseId) {
         return this.$get('/test/case/project/' + caseId, async response => {
-          localStorage.setItem(CURRENT_PROJECT, JSON.stringify(response.data));
-          this.refresh();
+          this.setCurrentProject(response.data);
         });
       },
       refresh() {
@@ -173,11 +169,32 @@
       openRecentTestCaseEditDialog() {
         let caseId = this.$route.params.caseId;
         this.getProjectByCaseId(caseId);
-        this.refresh();
+        // this.refresh();
         this.$get('/test/case/get/' + caseId, response => {
-          this.openTestCaseEditDialog(response.data[0]);
+          if (response.data) {
+            this.openTestCaseEditDialog(response.data);
+          }
         });
+      },
+      getProjectById(id) {
+        if (id && id != 'all'){
+          this.$get('/project/get/' + id, response => {
+            let project = response.data;
+            this.setCurrentProject(project);
+          });
+        }
+        if (id === 'all') {
+          this.refresh();
+        }
+      },
+      setCurrentProject(project) {
+        if (project) {
+          this.currentProject = project;
+          localStorage.setItem(CURRENT_PROJECT, JSON.stringify(project));
+        }
+        this.refresh();
       }
+
     }
   }
 </script>

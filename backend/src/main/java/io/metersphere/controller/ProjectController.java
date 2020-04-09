@@ -42,6 +42,11 @@ public class ProjectController {
         return projectService.getRecentProjectList(request);
     }
 
+    @GetMapping("/get/{id}")
+    public Project getProject(@PathVariable String id) {
+        return projectService.getProjectById(id);
+    }
+
     @PostMapping("/add")
     @RequiresRoles(RoleConstants.TEST_MANAGER)
     public Project addProject(@RequestBody Project project) {

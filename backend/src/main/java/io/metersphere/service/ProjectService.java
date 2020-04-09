@@ -74,4 +74,8 @@ public class ProjectService {
         example.setOrderByClause("update_time desc");
         return projectMapper.selectByExample(example);
     }
+
+    public Project getProjectById(String id) {
+        return projectMapper.selectByPrimaryKey(id);
+    }
 }

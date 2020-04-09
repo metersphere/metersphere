@@ -50,7 +50,7 @@ public class TestCaseController {
     }
 
     @GetMapping("/get/{testCaseId}")
-    public List<TestCaseWithBLOBs> getTestCase(@PathVariable String testCaseId){
+    public TestCaseWithBLOBs getTestCase(@PathVariable String testCaseId){
         return testCaseService.getTestCase(testCaseId);
     }
 

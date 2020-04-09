@@ -54,10 +54,8 @@ public class TestCaseService {
         return testCaseMapper.selectByExample(testCaseExample);
     }
 
-    public List<TestCaseWithBLOBs> getTestCase(String testCaseId) {
-        TestCaseExample testCaseExample = new TestCaseExample();
-        testCaseExample.createCriteria().andIdEqualTo(testCaseId);
-        return testCaseMapper.selectByExampleWithBLOBs(testCaseExample);
+    public TestCaseWithBLOBs getTestCase(String testCaseId) {
+        return testCaseMapper.selectByPrimaryKey(testCaseId);
     }
 
     public int editTestCase(TestCaseWithBLOBs testCase) {

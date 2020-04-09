@@ -1,73 +1,91 @@
 <template>
 
   <div id="menu-bar" v-if="isRouterAlive">
-    <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router
-             :default-active='$route.path'>
-      <el-menu-item :index="'/track/home'">
-        {{ $t("i18n.home") }}
-      </el-menu-item>
+    <el-row type="flex">
+      <el-col :span="8">
+        <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router
+                 :default-active='$route.path'>
+          <el-menu-item :index="'/track/home'">
+            {{ $t("i18n.home") }}
+          </el-menu-item>
 
-      <el-submenu v-if="isCurrentWorkspaceUser"
-                  index="3" popper-class="submenu" v-permission="['test_manager']" >
-        <template v-slot:title>{{$t('commons.project')}}</template>
-        <track-recent-project/>
-        <el-divider/>
-        <el-menu-item :index="'/track/project/all'">
-          <font-awesome-icon :icon="['fa', 'list-ul']"/>
-          <span style="padding-left: 5px;">{{$t('commons.show_all')}}</span>
-        </el-menu-item>
-        <el-menu-item :index="'/track/project/create'">
-          <el-button type="text">{{$t('project.create')}}</el-button>
-        </el-menu-item>
-      </el-submenu>
+          <el-submenu v-if="isCurrentWorkspaceUser"
+                      index="3" popper-class="submenu" v-permission="['test_manager']" >
+            <template v-slot:title>{{$t('commons.project')}}</template>
+            <ms-recent-list :options="projectRecent"/>
+            <el-divider/>
+            <ms-show-all :index="'/track/project/all'"/>
+            <ms-create-button :index="'/track/project/create'" :title="$t('project.create')"/>
+          </el-submenu>
 
-      <el-submenu v-if="isCurrentWorkspaceUser"
-                  index="6" popper-class="submenu" v-permission="['test_manager', 'test_user']">
-        <template v-slot:title>{{$t('test_track.test_case')}}</template>
-        <recent-test-case/>
-        <el-divider/>
-        <el-menu-item :index="'/track/case/all'">
-          <font-awesome-icon :icon="['fa', 'list-ul']"/>
-          <span style="padding-left: 5px;">{{$t('test_track.case_list')}}</span>
-        </el-menu-item>
-        <el-menu-item :index="testCaseEditPath" class="blank_item"></el-menu-item>
-      </el-submenu>
+          <el-submenu v-if="isCurrentWorkspaceUser"
+                      index="6" popper-class="submenu" v-permission="['test_manager', 'test_user']">
+            <template v-slot:title>{{$t('test_track.test_case')}}</template>
+            <ms-recent-list :options="testRecent"/>
+            <el-divider/>
+            <ms-show-all :index="'/track/case/all'"/>
+            <el-menu-item :index="testCaseEditPath" class="blank_item"></el-menu-item>
+          </el-submenu>
 
-      <el-submenu v-if="isCurrentWorkspaceUser"
-                  index="7" popper-class="submenu" v-permission="['test_manager', 'test_user', 'test_viewer']">
-        <template v-slot:title>{{$t('test_track.test_plan')}}</template>
-        <recent-test-plan/>
-        <el-divider/>
-        <el-menu-item index="/track/plan/all">
-          <font-awesome-icon :icon="['fa', 'list-ul']"/>
-          <span style="padding-left: 5px;">{{$t('commons.show_all')}}</span>
-        </el-menu-item>
-        <el-menu-item :index="testPlanViewPath" class="blank_item"></el-menu-item>
-        <el-menu-item index="/track/plan/create">
-          <el-button type="text">{{$t('test_track.create_plan')}}</el-button>
-        </el-menu-item>
-      </el-submenu>
+          <el-submenu v-if="isCurrentWorkspaceUser"
+                      index="7" popper-class="submenu" v-permission="['test_manager', 'test_user', 'test_viewer']">
+            <template v-slot:title>{{$t('test_track.test_plan')}}</template>
+            <ms-recent-list :options="planRecent"/>
+            <el-divider/>
+            <ms-show-all :index="'/track/plan/all'"/>
+            <el-menu-item :index="testPlanViewPath" class="blank_item"></el-menu-item>
+            <ms-create-button :index="'/track/plan/create'" :title="$t('project.create')"/>
+          </el-submenu>
+        </el-menu>
+      </el-col>
 
-    </el-menu>
+    </el-row>
   </div>
 
 </template>
 <script>
 
   import {checkoutCurrentWorkspace} from "../../../../common/utils";
-  import TrackRecentProject from "../../track/project/TrackRecentProject";
-  import RecentTestCase from "../case/components/RecentTestCase";
-  import RecentTestPlan from "../plan/components/RecentTestPlan";
+  import MsShowAll from "../../common/head/ShowAll";
+  import MsRecentList from "../../common/head/RecentList";
+  import MsCreateButton from "../../common/head/CreateButton";
+
 
   export default {
     name: "TrackHeaderMenus",
-    components: {RecentTestCase, TrackRecentProject, RecentTestPlan},
+    components: {MsShowAll, MsRecentList, MsCreateButton},
     data() {
       return {
         isCurrentWorkspaceUser: false,
         testPlanViewPath: '',
         isRouterAlive: true,
-        testCaseEditPath: ''
+        testCaseEditPath: '',
+        projectRecent: {
+          title: this.$t('project.recent'),
+          url: "/project/recent/5",
+          index: function (item) {
+            return '/track/case/' + item.id;
+          },
+          router: function (item) {
+            return {name: 'testCase', params: {projectId: item.id, projectName: item.name}}
+          }
+        },
+        testRecent: {
+          title: this.$t('load_test.recent'),
+          url: "/test/case/recent/5",
+          index: function (item) {
+            return '/track/case/edit/' + item.id;
+          },
+          router: function (item) {}
+        },
+        planRecent: {
+          title: this.$t('report.recent'),
+          url: "/test/plan/recent/5",
+          index: function (item) {
+            return '/track/plan/view/' + item.id;
+          },
+          router: function (item) {}
+        }
       }
     },
     watch: {
@@ -132,5 +150,9 @@
 
   .blank_item {
     display: none;
+  }
+
+  .el-divider--horizontal {
+    margin: 0;
   }
 </style>
