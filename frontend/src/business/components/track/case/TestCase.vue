@@ -1,39 +1,43 @@
 <template>
-  <div class="case_container">
-    <el-container>
-      <el-aside width="250px">
+  <div class="container">
+    <div class="main-content">
+      <el-container>
+        <el-aside width="250px">
 
-        <select-menu
-          :data="projects"
-          :current-data="currentProject"
-          :title="$t('test_track.project')"
-          @dataChange="changeProject">
-        </select-menu>
+          <select-menu
+            :data="projects"
+            :current-data="currentProject"
+            :title="$t('test_track.project')"
+            @dataChange="changeProject">
+          </select-menu>
 
-        <node-tree class="node_tree"
-                   :current-project="currentProject"
-                   @nodeSelectEvent="refreshTable"
-                   @refresh="refreshTable"
-                   ref="nodeTree">
-        </node-tree>
-      </el-aside>
+          <node-tree class="node-tree"
+                     :current-project="currentProject"
+                     @nodeSelectEvent="refreshTable"
+                     @refresh="refreshTable"
+                     ref="nodeTree">
+          </node-tree>
 
-      <el-main class="main-content">
+        </el-aside>
 
-        <test-case-list
-          :current-project="currentProject"
-          @openTestCaseEditDialog="openTestCaseEditDialog"
-          @testCaseEdit="openTestCaseEditDialog"
-          ref="testCaseList">
-        </test-case-list>
-      </el-main>
+        <el-main class="main-content">
 
-    </el-container>
+          <test-case-list
+            :current-project="currentProject"
+            @openTestCaseEditDialog="openTestCaseEditDialog"
+            @testCaseEdit="openTestCaseEditDialog"
+            ref="testCaseList">
+          </test-case-list>
+        </el-main>
 
-    <test-case-edit
-      @refresh="refreshTable"
-      ref="testCaseEditDialog"></test-case-edit>
+      </el-container>
 
+      <test-case-edit
+        @refresh="refreshTable"
+        ref="testCaseEditDialog">
+      </test-case-edit>
+
+    </div>
   </div>
 </template>
 
@@ -177,7 +181,7 @@
         });
       },
       getProjectById(id) {
-        if (id && id != 'all'){
+        if (id && id != 'all') {
           this.$get('/project/get/' + id, response => {
             let project = response.data;
             this.setCurrentProject(project);
@@ -200,7 +204,8 @@
 </script>
 
 <style scoped>
-  .case_container {
+
+  .main-content {
     width: 100%;
     height: 100%;
     background: white;
@@ -208,19 +213,12 @@
     box-sizing: border-box;
   }
 
-  .main-content {
-    margin: 0 auto;
-    width: 100%;
-    max-width: 1200px;
-  }
-
-  .node_tree {
+  .node-tree {
     margin: 5%;
   }
 
-  .project_menu {
-    margin-left: 20px;
-    height: 50px;
+  .container {
+    padding: 0px;
   }
 
 </style>

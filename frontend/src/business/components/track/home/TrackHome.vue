@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="main-content">
     <h1>测试跟踪首页</h1>
   </div>
 

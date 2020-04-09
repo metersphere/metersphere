@@ -1,6 +1,6 @@
 <template>
 
-  <div class="testplan-container">
+  <div class="container">
     <el-main class="main-content">
       <el-card v-loading="result.loading">
         <template v-slot:header>
@@ -30,24 +30,20 @@
 
         <el-table
           :data="tableData"
-          class="test-content"
           @row-click="intoPlan">
           <el-table-column
             prop="name"
             :label="$t('commons.name')"
-            width="130"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
             prop="principal"
             :label="$t('test_track.plan_principal')"
-            width="130"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
             prop="status"
             :label="$t('test_track.plan_status')"
-            width="130"
             show-overflow-tooltip>
             <template v-slot:default="scope">
               <span v-if="scope.row.status == 'Prepare'">{{$t('test_track.plan_status_prepare')}}</span>
@@ -58,7 +54,6 @@
           <el-table-column
             prop="stage"
             :label="$t('test_track.plan_stage')"
-            width="130"
             show-overflow-tooltip>
             <template v-slot:default="scope">
               <span v-if="scope.row.stage == 'smoke'">{{$t('test_track.smoke_test')}}</span>
@@ -71,25 +66,21 @@
           <el-table-column
             prop="projectName"
             :label="$t('test_track.plan_project')"
-            width="160"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
-            width="160"
             :label="$t('commons.create_time')">
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
           <el-table-column
-            width="160"
             :label="$t('commons.update_time')">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
           <el-table-column
-            width="160"
             :label="$t('commons.operating')">
             <template v-slot:default="scope">
               <el-button @click="handleEdit(scope.row)"
@@ -205,23 +196,6 @@
 </script>
 
 <style scoped>
-
-  .testplan-container {
-    padding: 15px;
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-  }
-
-  .main-content {
-    margin: 0 auto;
-    width: 100%;
-    max-width: 1200px;
-  }
-
-  .test-content {
-    width: 100%;
-  }
 
   .table-page {
     padding-top: 20px;
