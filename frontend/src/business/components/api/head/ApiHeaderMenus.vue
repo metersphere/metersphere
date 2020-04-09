@@ -58,7 +58,7 @@
   import MsCreateTest from "../../common/head/CreateTest";
 
   export default {
-    name: "ApiHeaderMenus",
+    name: "MsApiHeaderMenus",
     components: {MsCreateTest, MsCreateButton, MsShowAll, MsRecentList},
     data() {
       return {
