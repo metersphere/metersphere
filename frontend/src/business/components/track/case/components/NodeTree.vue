@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div v-loading="result.loading">
     <el-input :placeholder="$t('test_track.search_module')" v-model="filterText"
               size="small">
       <template v-slot:append>
@@ -74,6 +74,7 @@
     name: "NodeTree",
     data() {
       return {
+        result: {},
         filterText: '',
         defaultProps: {
           children: 'children',
@@ -173,7 +174,7 @@
       getNodeTree() {
         if (this.currentProject) {
           let projectId = this.currentProject.id;
-          this.$get("/case/node/list/" + projectId, response => {
+          this.result = this.$get("/case/node/list/" + projectId, response => {
             this.treeNodes = response.data;
           });
         }
