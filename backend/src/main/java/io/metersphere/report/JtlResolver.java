@@ -13,6 +13,11 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -414,16 +419,16 @@ public class JtlResolver {
 
         String startTimeStamp = totalLineList.get(0).getTimestamp();
         String endTimeStamp = totalLineList.get(totalLineList.size()-1).getTimestamp();
-        String startTime = stampToDate(startTimeStamp);
-        String endTime = stampToDate(endTimeStamp);
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        String startTime = dtf.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(startTimeStamp)), ZoneId.systemDefault()));
+        String endTime = dtf.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(endTimeStamp)), ZoneId.systemDefault()));
         reportTimeInfo.setStartTime(startTime);
         reportTimeInfo.setEndTime(endTime);
 
-        Date startDate = new Date(Long.parseLong(startTimeStamp));
-        Date endDate = new Date(Long.parseLong(endTimeStamp));
-        long timestamp = endDate.getTime() - startDate.getTime();
-        reportTimeInfo.setDuration(String.valueOf(timestamp*1.0 / 1000 / 60));
-
+        // todo 时间问题
+        long seconds = Duration.between(Instant.ofEpochMilli(Long.parseLong(startTimeStamp)), Instant.ofEpochMilli(Long.parseLong(endTimeStamp))).getSeconds();
+        reportTimeInfo.setDuration(String.valueOf(seconds));
 
         return reportTimeInfo;
     }
