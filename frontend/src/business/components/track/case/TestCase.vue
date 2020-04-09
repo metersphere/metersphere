@@ -14,7 +14,7 @@
                 <label v-for="(item,index) in projects" :key="index">
                   <el-menu-item @click="changeProject(item)">
                     {{item.name}}
-                    <i class="el-icon-check" v-if="item.id === currentProject.id"></i>
+                    <i class="el-icon-check" v-if="currentProject && item.id === currentProject.id"></i>
                   </el-menu-item>
                 </label>
               </el-scrollbar>
@@ -22,6 +22,7 @@
           </el-submenu>
         </el-menu>
         <node-tree class="node_tree"
+                   :current-project="currentProject"
                    @nodeSelectEvent="refreshTable"
                    @refresh="refreshTable"
                    ref="nodeTree"></node-tree>
@@ -30,6 +31,7 @@
       <el-main class="main-content">
 
         <test-case-list
+          :current-project="currentProject"
           @openTestCaseEditDialog="openTestCaseEditDialog"
           @testCaseEdit="openTestCaseEditDialog"
           ref="testCaseList"></test-case-list>
@@ -67,7 +69,6 @@
         total: 0,
         loadingRequire: {project: true, testCase: true},
         projects: [],
-        initProjects: [],
         currentProject: null,
         treeNodes: []
       }
@@ -95,22 +96,29 @@
     methods: {
       getProjects() {
           this.$get("/project/listAll", (response) => {
-            if (response.success) {
-              this.projects = response.data;
-              this.initProjects = this.projects.slice(0, 4);
-              if(localStorage.getItem(CURRENT_PROJECT)) {
-                this.currentProject = JSON.parse(localStorage.getItem(CURRENT_PROJECT));
-              } else {
-                this.currentProject = this.projects[0];
-                if(this.projects.length > 0){
-                  localStorage.setItem(CURRENT_PROJECT, JSON.stringify(this.projects[0]));
+            this.projects = response.data;
+            if (localStorage.getItem(CURRENT_PROJECT)) {
+              let lastProject = JSON.parse(localStorage.getItem(CURRENT_PROJECT));
+              let hasCurrentProject = false;
+              for (let i = 0; i < this.projects.length; i++) {
+                if (this.projects[i].id == lastProject.id) {
+                  this.currentProject = lastProject;
+                  hasCurrentProject = true;
+                  break;
                 }
               }
+              if (!hasCurrentProject) {
+                this.currentProject = null;
+              }
+              if(this.projects.length > 0){
+                this.currentProject = this.projects[0];
+                localStorage.setItem(CURRENT_PROJECT, JSON.stringify(this.projects[0]));
+              }
             } else {
-              this.$message()({
-                type: 'warning',
-                message: response.message
-              });
+              if(this.projects.length > 0){
+                this.currentProject = this.projects[0];
+                localStorage.setItem(CURRENT_PROJECT, JSON.stringify(this.projects[0]));
+              }
             }
             this.loadingRequire.project = false;
             // this.checkProject();

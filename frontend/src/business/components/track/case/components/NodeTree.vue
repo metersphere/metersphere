@@ -91,9 +91,17 @@
         defaultKeys: []
       };
     },
+    props: {
+      currentProject: {
+        type: Object
+      }
+    },
     watch: {
       filterText(val) {
         this.$refs.tree.filter(val);
+      },
+      currentProject() {
+        this.getNodeTree();
       }
     },
     created() {
@@ -163,8 +171,8 @@
         this.dialogFormVisible = true;
       },
       getNodeTree() {
-        if (localStorage.getItem(CURRENT_PROJECT)) {
-          let projectId = JSON.parse(localStorage.getItem(CURRENT_PROJECT)).id;
+        if (this.currentProject) {
+          let projectId = this.currentProject.id;
           this.$get("/case/node/list/" + projectId, response => {
             this.treeNodes = response.data;
           });
