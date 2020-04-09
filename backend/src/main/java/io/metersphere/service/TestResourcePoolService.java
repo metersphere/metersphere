@@ -15,6 +15,7 @@ import io.metersphere.controller.request.resourcepool.QueryResourcePoolRequest;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.dto.TestResourcePoolDTO;
 import io.metersphere.engine.kubernetes.provider.KubernetesProvider;
+import io.metersphere.i18n.Translator;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
@@ -83,7 +84,7 @@ public class TestResourcePoolService {
 
     private void validateNodes(TestResourcePoolDTO testResourcePool) {
         if (CollectionUtils.isEmpty(testResourcePool.getResources())) {
-            MSException.throwException("没有节点信息");
+            MSException.throwException(Translator.get("no_nodes_message"));
         }
 
         deleteTestResource(testResourcePool.getId());
@@ -95,7 +96,7 @@ public class TestResourcePoolService {
                 .distinct()
                 .collect(Collectors.toList());
         if (nodeIps.size() < testResourcePool.getResources().size()) {
-            MSException.throwException("节点 IP 重复");
+            MSException.throwException(Translator.get("duplicate_node_ip"));
         }
         for (TestResource resource : testResourcePool.getResources()) {
             NodeDTO nodeDTO = JSON.parseObject(resource.getConfiguration(), NodeDTO.class);
@@ -124,7 +125,7 @@ public class TestResourcePoolService {
     private void validateK8s(TestResourcePoolDTO testResourcePool) {
 
         if (CollectionUtils.isEmpty(testResourcePool.getResources()) || testResourcePool.getResources().size() != 1) {
-            throw new RuntimeException("只能添加一个 K8s");
+            throw new RuntimeException(Translator.get("only_one_k8s"));
         }
 
         TestResource testResource = testResourcePool.getResources().get(0);

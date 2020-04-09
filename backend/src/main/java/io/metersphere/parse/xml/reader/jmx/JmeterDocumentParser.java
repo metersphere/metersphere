@@ -89,8 +89,7 @@ public class JmeterDocumentParser implements DocumentParser {
                         processCheckoutConfigTestElement(ele);
                         processCheckoutDnsCacheManager(ele);
                         processCheckoutArguments(ele);
-                        // TODO: 2020/4/3 使用断言导致backend-listener不可用
-//                        processCheckoutResponseAssertion(ele);
+                        processCheckoutResponseAssertion(ele);
                     } else if (nodeNameEquals(ele, CONCURRENCY_THREAD_GROUP)) {
                         processConcurrencyThreadGroup(ele);
                         processCheckoutTimer(ele);
@@ -112,8 +111,7 @@ public class JmeterDocumentParser implements DocumentParser {
                     } else if (nodeNameEquals(ele, ARGUMENTS)) {
                         processArguments(ele);
                     } else if (nodeNameEquals(ele, RESPONSE_ASSERTION)) {
-                        // TODO: 2020/4/3 使用断言导致backend-listener不可用
-//                        processResponseAssertion(ele);
+                        processResponseAssertion(ele);
                     }
                 }
             }
@@ -160,7 +158,7 @@ public class JmeterDocumentParser implements DocumentParser {
                 item.appendChild(collectionProp);
                 item.appendChild(createStringProp(document, "Assertion.custom_message", ""));
                 item.appendChild(createStringProp(document, "Assertion.test_field", "Assertion.response_code"));
-                item.appendChild(createBoolProp(document, "Assertion.assume_success", false));
+                item.appendChild(createBoolProp(document, "Assertion.assume_success", true));
                 item.appendChild(createIntProp(document, "Assertion.test_type", 40));
                 return;
             }
@@ -190,7 +188,7 @@ public class JmeterDocumentParser implements DocumentParser {
         responseAssertion.appendChild(collectionProp);
         responseAssertion.appendChild(createStringProp(document, "Assertion.custom_message", ""));
         responseAssertion.appendChild(createStringProp(document, "Assertion.test_field", "Assertion.response_code"));
-        responseAssertion.appendChild(createBoolProp(document, "Assertion.assume_success", false));
+        responseAssertion.appendChild(createBoolProp(document, "Assertion.assume_success", true));
         responseAssertion.appendChild(createIntProp(document, "Assertion.test_type", 40));
         hashTree.appendChild(responseAssertion);
         hashTree.appendChild(document.createElement(HASH_TREE_ELEMENT));

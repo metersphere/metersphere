@@ -2,10 +2,7 @@ package io.metersphere.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.base.domain.LoadTest;
-import io.metersphere.base.domain.TestCase;
-import io.metersphere.base.domain.TestCaseNode;
-import io.metersphere.base.domain.TestCaseWithBLOBs;
+import io.metersphere.base.domain.*;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.testcase.QueryTestCaseRequest;
@@ -39,8 +36,7 @@ public class TestCaseController {
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
         QueryTestCaseRequest request = new QueryTestCaseRequest();
         request.setWorkspaceId(currentWorkspaceId);
-        PageHelper.startPage(1, count, true);
-        return testCaseService.recentTestPlans(request);
+        return testCaseService.recentTestPlans(request, count);
     }
 
     @PostMapping("/list")
@@ -56,6 +52,11 @@ public class TestCaseController {
     @GetMapping("/get/{testCaseId}")
     public List<TestCaseWithBLOBs> getTestCase(@PathVariable String testCaseId){
         return testCaseService.getTestCase(testCaseId);
+    }
+
+    @GetMapping("/project/{testCaseId}")
+    public Project getProjectByTestCaseId(@PathVariable String testCaseId){
+        return testCaseService.getProjectByTestCaseId(testCaseId);
     }
 
     @PostMapping("/add")

@@ -139,9 +139,18 @@
           testId: null
         }
       },
+      props: {
+        currentProject: {
+          type: Object
+        }
+      },
       created: function () {
-
         this.initTableData();
+      },
+      watch: {
+        currentProject() {
+          this.initTableData();
+        }
       },
       methods: {
         initTableData(nodeIds) {
@@ -150,16 +159,15 @@
           };
           param.nodeIds = nodeIds;
 
-          if(localStorage.getItem(CURRENT_PROJECT)) {
-            param.projectId = JSON.parse(localStorage.getItem(CURRENT_PROJECT)).id;
+          if (this.currentProject) {
+            param.projectId = this.currentProject.id;
+            this.$post(this.buildPagePath('/test/case/list'), param, response => {
+              this.loadingRequire.testCase = false;
+              let data = response.data;
+              this.total = data.itemCount;
+              this.tableData = data.listObject;
+            });
           }
-
-          this.$post(this.buildPagePath('/test/case/list'), param, response => {
-            this.loadingRequire.testCase = false;
-            let data = response.data;
-            this.total = data.itemCount;
-            this.tableData = data.listObject;
-          });
         },
         search() {
           this.initTableData();

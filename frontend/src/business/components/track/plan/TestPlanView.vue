@@ -13,19 +13,20 @@
         <test-case-plan-list
           @openTestCaseRelevanceDialog="openTestCaseRelevanceDialog"
           @editTestPlanTestCase="editTestPlanTestCase"
+          @refresh="refresh"
           :plan-id="planId"
           ref="testCasePlanList"></test-case-plan-list>
       </el-main>
     </el-container>
 
     <test-case-relevance
-      @refresh="getPlanCases"
+      @refresh="refresh"
       :plan-id="planId"
       ref="testCaseRelevance"></test-case-relevance>
 
     <test-plan-test-case-edit
       ref="testPlanTestCaseEdit"
-      @refresh="getPlanCases">
+      @refresh="refresh">
     </test-plan-test-case-edit>
 
 
@@ -65,7 +66,8 @@
       },
       methods: {
         refresh() {
-
+          this.getPlanCases();
+          this.getNodeTreeByPlanId();
         },
         getPlanCases(nodeIds) {
           this.$refs.testCasePlanList.initTableData(nodeIds);
@@ -84,6 +86,16 @@
           let item = {};
           Object.assign(item, testCase);
           item.results = JSON.parse(item.results);
+          item.steps = JSON.parse(item.steps);
+
+          item.steptResults = [];
+          for (let i = 0; i < item.steps.length; i++){
+            if(item.results[i]){
+              item.steps[i].actualResult = item.results[i].actualResult;
+              item.steps[i].executeResult = item.results[i].executeResult;
+            }
+            item.steptResults.push(item.steps[i]);
+          }
           this.$refs.testPlanTestCaseEdit.testCase = item;
           this.$refs.testPlanTestCaseEdit.dialog = true;
         }

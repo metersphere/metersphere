@@ -67,7 +67,7 @@
 <script>
   import MsCreateBox from "../settings/CreateBox";
   import {Message} from "element-ui";
-  import {CURRENT_PROJECT, TokenKey} from "../../../common/constants";
+  import {TokenKey} from "../../../common/constants";
 
   export default {
     name: "MsProject",
@@ -168,10 +168,6 @@
           this.$get('/project/delete/' + row.id, () => {
             Message.success(this.$t('commons.delete_success'));
             this.list();
-            let currentProject = JSON.parse(localStorage.getItem(CURRENT_PROJECT));
-            if(currentProject && row.id === currentProject.id){
-              localStorage.removeItem(CURRENT_PROJECT);
-            }
           });
         }).catch(() => {
         });

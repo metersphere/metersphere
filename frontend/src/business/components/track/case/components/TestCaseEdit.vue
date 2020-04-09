@@ -103,13 +103,16 @@
               :data="form.steps"
               class="tb-edit"
               border
+              size="mini"
               :default-sort = "{prop: 'num', order: 'ascending'}"
               highlight-current-row>
               <el-table-column :label="$t('test_track.number')" prop="num" min-width="15%"></el-table-column>
               <el-table-column :label="$t('test_track.step_desc')" prop="desc" min-width="35%">
                 <template v-slot:default="scope">
                   <el-input
-                    size="small"
+                    size="mini"
+                    type="textarea"
+                    :rows="2"
                     v-model="scope.row.desc"
                     :placeholder="$t('commons.input_content')"
                     clearable></el-input>
@@ -119,7 +122,9 @@
               <el-table-column :label="$t('test_track.expected_results')" prop="result" min-width="35%">
                 <template v-slot:default="scope">
                   <el-input
-                    size="small"
+                    size="mini"
+                    type="textarea"
+                    :rows="2"
                     v-model="scope.row.result"
                     :placeholder="$t('commons.input_content')"
                     clearable></el-input>
@@ -304,13 +309,13 @@
 
 <style scoped>
 
-  .tb-edit .el-input {
+  .tb-edit .el-textarea {
     display: none;
   }
-  .tb-edit .current-row .el-input {
+  .tb-edit .current-row .el-textarea {
     display: block;
   }
-  .tb-edit .current-row .el-input+span {
+  .tb-edit .current-row .el-textarea+span {
     display: none;
   }
 

@@ -1,6 +1,6 @@
 <template>
   <el-col>
-    <header-menus/>
+    <track-header-menus/>
     <div>
       <transition>
         <keep-alive>
@@ -13,11 +13,11 @@
 
 <script>
 
-  import HeaderMenus from "./head/HeaderMenus";
+  import TrackHeaderMenus from "./head/TrackHeaderMenus";
 
     export default {
       name: "TrackHome",
-      components: {HeaderMenus},
+      components: {TrackHeaderMenus},
       data() {
         return {
           beaseUrl: "track"
