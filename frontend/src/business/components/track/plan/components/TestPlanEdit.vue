@@ -99,7 +99,7 @@
 
 <script>
 
-  import {WORKSPACE_ID} from '../../../../../common/constants';
+  import {WORKSPACE_ID} from '../../../../../common/js/constants';
 
   export default {
       name: "TestPlanEdit",

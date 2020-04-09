@@ -38,18 +38,16 @@
           </el-submenu>
         </el-menu>
       </el-col>
-
     </el-row>
   </div>
 
 </template>
 <script>
 
-  import {checkoutCurrentWorkspace} from "../../../../common/utils";
+  import {checkoutCurrentWorkspace} from "../../../../common/js/utils";
   import MsShowAll from "../../common/head/ShowAll";
   import MsRecentList from "../../common/head/RecentList";
   import MsCreateButton from "../../common/head/CreateButton";
-
 
   export default {
     name: "TrackHeaderMenus",
@@ -91,11 +89,11 @@
     watch: {
       '$route'(to, from) {
         let path = to.path;
-        if (path.indexOf("/track/plan/view") >= 0){
+        if (path.indexOf("/track/plan/view") >= 0) {
           this.testPlanViewPath = '/track/plan/view/' + this.$route.params.planId;
           this.reload();
         }
-        if (path.indexOf("/track/case/edit") >= 0){
+        if (path.indexOf("/track/case/edit") >= 0) {
           this.testCaseEditPath = '/track/case/edit/' + this.$route.params.caseId;
           this.reload();
         }
@@ -105,7 +103,7 @@
       this.isCurrentWorkspaceUser = checkoutCurrentWorkspace();
     },
     methods: {
-      reload () {
+      reload() {
         this.isRouterAlive = false;
         this.$nextTick(function () {
           this.isRouterAlive = true;
@@ -116,34 +114,11 @@
 
 </script>
 
-
-<style>
-
-  .header-menu.el-menu--horizontal > li {
-    height: 39px;
-    line-height: 40px;
-    color: dimgray;
-  }
-
-  .header-menu.el-menu--horizontal > li.el-submenu > * {
-    height: 39px;
-    line-height: 40px;
-    color: dimgray;
-  }
-
-  .header-bottom {
-    line-height: 40px;
-    margin-left: 20%;
-  }
-
-
-
-</style>
-
 <style scoped>
   .el-divider--horizontal {
     margin: 0;
   }
+
   #menu-bar {
     border-bottom: 1px solid #E6E6E6;
   }

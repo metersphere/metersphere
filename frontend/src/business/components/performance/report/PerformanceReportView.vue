@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="result.loading" class="report-view-container">
+  <div v-loading="result.loading" class="container">
     <div class="main-content">
       <el-card>
         <el-row>
@@ -20,13 +20,13 @@
           </el-col>
           <el-col :span="8">
             <span class="ms-report-time-desc">
-              持续时间：  30 分钟
+              持续时间：  {{duration}} 分钟
             </span>
             <span class="ms-report-time-desc">
-              开始时间：  2020-3-10 12:00:00
+              开始时间：  {{startTime}}
             </span>
             <span class="ms-report-time-desc">
-              结束时间：  2020-3-10 12:30:00
+              结束时间：  {{endTime}}
             </span>
           </el-col>
         </el-row>
@@ -75,13 +75,16 @@
         status: '',
         reportName: '',
         testName: '',
-        projectName: ''
+        projectName: '',
+        startTime: '0',
+        endTime: '0',
+        duration: '0'
       }
     },
     methods: {
       initBreadcrumb() {
         if(this.reportId){
-          this.result = this.$get("report/test/pro/info/" + this.reportId, res => {
+          this.result = this.$get("/performance/report/test/pro/info/" + this.reportId, res => {
             let data = res.data;
             if(data){
               this.reportName = data.name;
@@ -90,11 +93,23 @@
             }
           })
         }
+      },
+      initReportTimeInfo() {
+        if(this.reportId){
+          this.result = this.$get("/performance/report/content/report_time/" + this.reportId, res => {
+            let data = res.data;
+            if(data){
+              this.startTime = data.startTime;
+              this.endTime = data.endTime;
+              this.duration = data.duration;
+            }
+          })
+        }
       }
     },
     mounted() {
       this.reportId = this.$route.path.split('/')[4];
-      this.$get("report/" + this.reportId, res => {
+      this.$get("/performance/report/" + this.reportId, res => {
         let data = res.data;
         this.status = data.status;
         if (data.status === "Error") {
@@ -110,12 +125,13 @@
         }
       })
       this.initBreadcrumb();
+      this.initReportTimeInfo();
     },
     watch: {
       '$route'(to) {
         let reportId = to.path.split('/')[4];
         if(reportId){
-          this.$get("report/test/pro/info/" + reportId, response => {
+          this.$get("/performance/report/test/pro/info/" + reportId, response => {
             let data = response.data;
             if(data){
               this.reportName = data.name;
@@ -123,6 +139,14 @@
               this.projectName = data.projectName;
             }
           });
+          this.result = this.$get("/performance/report/content/report_time/" + this.reportId, res => {
+            let data = res.data;
+            if(data){
+              this.startTime = data.startTime;
+              this.endTime = data.endTime;
+              this.duration = data.duration;
+            }
+          })
           window.location.reload();
         }
       }
@@ -131,20 +155,6 @@
 </script>
 
 <style scoped>
-  .report-view-container {
-    float: none;
-    text-align: center;
-    padding: 15px;
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-  }
-
-  .report-view-container .main-content {
-    margin: 0 auto;
-    width: 100%;
-    max-width: 1200px;
-  }
 
   .ms-report-view-btns {
     margin-top: 15px;

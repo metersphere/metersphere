@@ -1,5 +1,5 @@
 <template>
-  <div class="project-container">
+  <div class="container">
     <div class="main-content">
       <el-card v-loading="result.loading">
         <template v-slot:header>
@@ -67,7 +67,7 @@
 <script>
   import MsCreateBox from "../settings/CreateBox";
   import {Message} from "element-ui";
-  import {TokenKey} from "../../../common/constants";
+  import {TokenKey} from "../../../common/js/constants";
 
   export default {
     name: "MsProject",
@@ -193,18 +193,6 @@
 </script>
 
 <style scoped>
-  .project-container {
-    padding: 15px;
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-  }
-
-  .main-content {
-    margin: 0 auto;
-    width: 100%;
-    max-width: 1200px;
-  }
 
   .table-page {
     padding-top: 20px;

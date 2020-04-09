@@ -2,7 +2,7 @@ import Vue from 'vue';
 import ElementUI, {Button, Col, Form, FormItem, Input, Row} from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import Login from "./Login.vue";
-import Ajax from "../common/ajax";
+import Ajax from "../common/js/ajax";
 import i18n from "../i18n/i18n";
 
 Vue.config.productionTip = false;

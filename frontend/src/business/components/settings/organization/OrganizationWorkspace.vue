@@ -188,7 +188,7 @@
 <script>
   import MsCreateBox from "../CreateBox";
   import {Message} from "element-ui";
-  import {TokenKey} from "../../../../common/constants";
+  import {TokenKey} from "../../../../common/js/constants";
 
   export default {
     name: "MsOrganizationWorkspace",

@@ -1,5 +1,5 @@
 <template>
-  <div class="testreport-container" v-loading="result.loading">
+  <div class="container" v-loading="result.loading">
 
     <div class="main-content">
       <el-card>
@@ -107,8 +107,8 @@
     data() {
       return {
         result: {},
-        queryPath: "/report/list/all",
-        deletePath: "/report/delete/",
+        queryPath: "/performance/report/list/all",
+        deletePath: "/performance/report/delete/",
         condition: "",
         projectId: null,
         tableData: [],
@@ -190,19 +190,6 @@
 </script>
 
 <style scoped>
-
-  .testreport-container {
-    padding: 15px;
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-  }
-
-  .main-content {
-    margin: 0 auto;
-    width: 100%;
-    max-width: 1200px;
-  }
 
   .test-content {
     width: 100%;

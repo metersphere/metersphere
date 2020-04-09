@@ -49,23 +49,6 @@
     }
   }
 </script>
-<style>
-  .header-top-menus.el-menu--horizontal > li {
-    height: 40px;
-    line-height: 40px;
-    color: inherit;
-  }
-
-  .header-top-menus.el-menu--horizontal > li.el-submenu > * {
-    height: 39px;
-    line-height: 40px;
-    color: inherit;
-  }
-
-  .header-top-menus.el-menu--horizontal > li.is-active {
-    background: #595591 !important;
-  }
-</style>
 <style scoped>
 
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="edit-testplan-container" v-loading="result.loading">
+  <div class="container" v-loading="result.loading">
     <div class="main-content">
       <el-card>
         <el-row>
@@ -17,9 +17,11 @@
               </template>
             </el-input>
           </el-col>
-          <el-button type="primary" plain @click="save">{{$t('commons.save')}}</el-button>
-          <el-button type="primary" plain @click="saveAndRun">{{$t('load_test.save_and_run')}}</el-button>
-          <el-button type="warning" plain @click="cancel">{{$t('commons.cancel')}}</el-button>
+          <el-col :span="12" :offset="2">
+            <el-button type="primary" plain @click="save">{{$t('commons.save')}}</el-button>
+            <el-button type="primary" plain @click="saveAndRun">{{$t('load_test.save_and_run')}}</el-button>
+            <el-button type="warning" plain @click="cancel">{{$t('commons.cancel')}}</el-button>
+          </el-col>
         </el-row>
 
 
@@ -232,23 +234,10 @@
 </script>
 
 <style scoped>
-  .edit-testplan-container {
-    float: none;
-    text-align: center;
-    padding: 15px;
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-  }
 
-  .edit-testplan-container .main-content {
-    margin: 0 auto;
-    width: 100%;
-    max-width: 1200px;
-  }
-
-  .edit-testplan-container .testplan-config {
+  .testplan-config {
     margin-top: 15px;
+    text-align: center;
   }
 
   .el-select {

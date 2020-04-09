@@ -43,8 +43,15 @@
 </template>
 
 <script>
-  import {ROLE_ORG_ADMIN, ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER, TokenKey, WORKSPACE_ID} from '../../../../common/constants';
-  import {hasRoles} from "../../../../common/utils";
+  import {
+    ROLE_ORG_ADMIN,
+    ROLE_TEST_MANAGER,
+    ROLE_TEST_USER,
+    ROLE_TEST_VIEWER,
+    TokenKey,
+    WORKSPACE_ID
+  } from '../../../../common/js/constants';
+  import {hasRoles} from "../../../../common/js/utils";
 
   export default {
     name: "MsUser",
@@ -149,13 +156,7 @@
     }
   }
 </script>
-<style>
-  .header-user-menu.el-menu--horizontal > li.el-submenu > * {
-    height: 40px;
-    line-height: 40px;
-    color: inherit;
-  }
-</style>
+
 <style scoped>
   .dropdown-link {
     cursor: pointer;
