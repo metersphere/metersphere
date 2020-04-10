@@ -60,9 +60,6 @@
                   {{ row.status }}
                 </el-tag>
               </el-tooltip>
-              <el-tag size="mini" type="info" v-else>
-                {{ row.status }}
-              </el-tag>
             </template>
           </el-table-column>
           <el-table-column
