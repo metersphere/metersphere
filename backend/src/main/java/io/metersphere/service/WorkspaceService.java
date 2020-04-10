@@ -17,7 +17,6 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.user.SessionUser;
 import io.metersphere.user.SessionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.jetty.util.StringUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -229,6 +228,7 @@ public class WorkspaceService {
     }
 
     public void updateWorkspacebyAdmin(Workspace workspace) {
+        workspace.setCreateTime(null);
         workspace.setUpdateTime(System.currentTimeMillis());
         workspaceMapper.updateByPrimaryKeySelective(workspace);
     }
