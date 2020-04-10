@@ -57,7 +57,9 @@
         </el-form>
         <template v-slot:footer>
           <div class="dialog-footer">
-            <el-button type="primary" @click="submit('form')" size="medium">{{$t('commons.save')}}</el-button>
+            <el-button type="primary" onkeydown="return false;" @click="submit('form')" size="medium">
+              {{$t('commons.save')}}
+            </el-button>
           </div>
         </template>
       </el-dialog>
