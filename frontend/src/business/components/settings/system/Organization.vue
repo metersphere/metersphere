@@ -29,28 +29,15 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <el-button @click="edit(scope.row)" onkeydown="return false;" type="primary" icon="el-icon-edit" size="mini" circle/>
-            <el-button @click="del(scope.row)" onkeydown="return false;" type="danger" icon="el-icon-delete" size="mini" circle/>
+            <el-button @click="edit(scope.row)" onkeydown="return false;" type="primary" icon="el-icon-edit" size="mini"
+                       circle/>
+            <el-button @click="del(scope.row)" onkeydown="return false;" type="danger" icon="el-icon-delete" size="mini"
+                       circle/>
           </template>
         </el-table-column>
       </el-table>
-      <div>
-        <el-row>
-          <el-col :span="22" :offset="1">
-            <div class="table-page">
-              <el-pagination
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :current-page.sync="currentPage"
-                :page-sizes="[5, 10, 20, 50, 100]"
-                :page-size="pageSize"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="total">
-              </el-pagination>
-            </div>
-          </el-col>
-        </el-row>
-      </div>
+      <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                           :total="total"/>
     </el-card>
     <!-- dialog of organization member -->
     <el-dialog :visible.sync="memberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc">
@@ -79,28 +66,16 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <el-button @click="editMember(scope.row)" onkeydown="return false;" type="primary" icon="el-icon-edit" size="mini" circle/>
-            <el-button @click="delMember(scope.row)" onkeydown="return false;" type="danger" icon="el-icon-delete" size="mini" circle/>
+            <el-button @click="editMember(scope.row)" onkeydown="return false;" type="primary" icon="el-icon-edit"
+                       size="mini" circle/>
+            <el-button @click="delMember(scope.row)" onkeydown="return false;" type="danger" icon="el-icon-delete"
+                       size="mini" circle/>
           </template>
         </el-table-column>
       </el-table>
-      <div>
-        <el-row>
-          <el-col :span="22" :offset="1">
-            <div class="table-page">
-              <el-pagination
-                @size-change="handleMemberSizeChange"
-                @current-change="handleMemberCurrentChange"
-                :current-page.sync="currentMemberPage"
-                :page-sizes="[5, 10, 20, 50, 100]"
-                :page-size="pageMemberSize"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="memberTotal">
-              </el-pagination>
-            </div>
-          </el-col>
-        </el-row>
-      </div>
+      <ms-table-pagination :change="orgMemberList" :current-page.sync="currentMemberPage"
+                           :page-size.sync="pageMemberSize"
+                           :total="memberTotal"/>
     </el-dialog>
 
     <!-- add organization form -->
@@ -138,7 +113,8 @@
       <template v-slot:footer>
         <span class="dialog-footer">
           <el-button type="primary" onkeydown="return false;"
-                     @click="updateOrganization('updateOrganizationForm')" size="medium">{{$t('organization.modify')}}</el-button>
+                     @click="updateOrganization('updateOrganizationForm')"
+                     size="medium">{{$t('organization.modify')}}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -174,7 +150,7 @@
         </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <span  class="dialog-footer">
+        <span class="dialog-footer">
           <el-button type="primary" onkeydown="return false;"
                      @click="submitForm('form')" size="medium">{{$t('commons.save')}}</el-button>
         </span>
@@ -222,10 +198,11 @@
 
 <script>
   import MsCreateBox from "../CreateBox";
+  import MsTablePagination from "../../common/pagination/TablePagination";
 
   export default {
     name: "MsOrganization",
-    components: {MsCreateBox},
+    components: {MsCreateBox, MsTablePagination},
     data() {
       return {
         queryPath: '/organization/list',
@@ -317,7 +294,28 @@
           organizationId: row.id
         };
         let path = "/user/special/org/member/list";
-        this.result = this.$post(this.buildPagePath(path), param, res => {
+        this.result = this.$post(path + "/" + this.currentMemberPage + "/" + this.pageMemberSize, param, res => {
+          let data = res.data;
+          this.memberLineData = data.listObject;
+          let url = "/userrole/list/org/" + row.id;
+          for (let i = 0; i < this.memberLineData.length; i++) {
+            this.$get(url + "/" + this.memberLineData[i].id, response => {
+              let roles = response.data;
+              this.$set(this.memberLineData[i], "roles", roles);
+            })
+          }
+          this.memberTotal = data.itemCount;
+        });
+      },
+      orgMemberList() {
+        let row = this.currentRow;
+        this.memberVisible = true;
+        let param = {
+          name: '',
+          organizationId: row.id
+        };
+        let path = "/user/special/org/member/list";
+        this.result = this.$post(path + "/" + this.currentMemberPage + "/" + this.pageMemberSize, param, res => {
           let data = res.data;
           this.memberLineData = data.listObject;
           let url = "/userrole/list/org/" + row.id;
@@ -409,7 +407,7 @@
         let param = {
           name: this.condition
         };
-        this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
+        this.result = this.$post(this.queryPath + "/" + this.currentPage + "/" + this.pageSize, param, response => {
           let data = response.data;
           this.tableData = data.listObject;
           for (let i = 0; i < this.tableData.length; i++) {
@@ -432,25 +430,6 @@
       closeMemberFunc() {
         this.memberLineData = [];
         this.initTableData();
-      },
-      buildPagePath(path) {
-        return path + "/" + this.currentPage + "/" + this.pageSize;
-      },
-      handleSizeChange(size) {
-        this.pageSize = size;
-        this.initTableData();
-      },
-      handleCurrentChange(current) {
-        this.currentPage = current;
-        this.initTableData();
-      },
-      handleMemberSizeChange(size) {
-        this.pageMemberSize = size;
-        this.cellClick(this.currentRow);
-      },
-      handleMemberCurrentChange(current) {
-        this.currentMemberPage = current;
-        this.cellClick(this.currentRow);
       },
       handleSelectionChange(val) {
         this.multipleSelection = val;

@@ -7,7 +7,6 @@ import io.metersphere.report.base.*;
 import io.metersphere.report.dto.ErrorsTop5DTO;
 import io.metersphere.report.dto.RequestStatisticsDTO;
 import org.apache.commons.lang3.StringUtils;
-
 import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigDecimal;
@@ -19,13 +18,14 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class JtlResolver {
 
     private static final Integer ERRORS_TOP_SIZE = 5;
+    private static final String DATE_TIME_PATTERN = "yyyy/MM/dd HH:mm:ss";
+    private static final String TIME_PATTERN = "HH:mm:ss";
 
     private static List<Metric> resolver(String jtlString) {
         HeaderColumnNameMappingStrategy<Metric> ms = new HeaderColumnNameMappingStrategy<>();
@@ -325,7 +325,7 @@ public class JtlResolver {
 
         if (totalMetricList != null) {
             for (Metric metric : totalMetricList) {
-                metric.setTimestamp(stampToDate(metric.getTimestamp()));
+                metric.setTimestamp(stampToDate(DATE_TIME_PATTERN, metric.getTimestamp()));
             }
         }
         Map<String, List<Metric>> collect = Objects.requireNonNull(totalMetricList).stream().collect(Collectors.groupingBy(Metric::getTimestamp));
@@ -378,7 +378,7 @@ public class JtlResolver {
         List<Metric> totalMetricList = JtlResolver.resolver(jtlString);
 
         totalMetricList.forEach(metric -> {
-            metric.setTimestamp(stampToDate(metric.getTimestamp()));
+            metric.setTimestamp(stampToDate(DATE_TIME_PATTERN, metric.getTimestamp()));
         });
 
         Map<String, List<Metric>> metricMap = totalMetricList.stream().collect(Collectors.groupingBy(Metric::getTimestamp));
@@ -422,7 +422,7 @@ public class JtlResolver {
         String startTimeStamp = totalLineList.get(0).getTimestamp();
         String endTimeStamp = totalLineList.get(totalLineList.size() - 1).getTimestamp();
 
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(DATE_TIME_PATTERN);
         String startTime = dtf.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(startTimeStamp)), ZoneId.systemDefault()));
         String endTime = dtf.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(endTimeStamp)), ZoneId.systemDefault()));
         reportTimeInfo.setStartTime(startTime);
@@ -440,11 +440,10 @@ public class JtlResolver {
         return reportTimeInfo;
     }
 
-    private static String stampToDate(String timeStamp) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        long lt = Long.parseLong(timeStamp);
-        Date date = new Date(lt);
-        return simpleDateFormat.format(date);
+    private static String stampToDate(String pattern, String timeStamp) {
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(timeStamp)), ZoneId.systemDefault());
+        return localDateTime.format(dateTimeFormatter);
     }
 
     /**
@@ -452,8 +451,8 @@ public class JtlResolver {
      * @return "HH:mm:ss"
      */
     private static String formatDate(String dateString) throws ParseException {
-        SimpleDateFormat before = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        SimpleDateFormat after = new SimpleDateFormat("HH:mm:ss");
+        SimpleDateFormat before = new SimpleDateFormat(DATE_TIME_PATTERN);
+        SimpleDateFormat after = new SimpleDateFormat(TIME_PATTERN);
         return after.format(before.parse(dateString));
     }
 

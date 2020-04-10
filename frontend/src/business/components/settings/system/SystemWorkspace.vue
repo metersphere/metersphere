@@ -35,23 +35,8 @@
           </template>
         </el-table-column>
       </el-table>
-      <div>
-        <el-row>
-          <el-col :span="22" :offset="1">
-            <div class="table-page">
-              <el-pagination
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :current-page.sync="currentPage"
-                :page-sizes="[5, 10, 20, 50, 100]"
-                :page-size="pageSize"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="total">
-              </el-pagination>
-            </div>
-          </el-col>
-        </el-row>
-      </div>
+      <ms-table-pagination :change="list" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                           :total="total"/>
     </el-card>
 
     <!-- add workspace dialog -->
@@ -139,28 +124,15 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <el-button @click="editMember(scope.row)" onkeydown="return false;" type="primary" icon="el-icon-edit" size="mini" circle/>
-            <el-button @click="delMember(scope.row)" onkeydown="return false;" type="danger" icon="el-icon-delete" size="mini" circle/>
+            <el-button @click="editMember(scope.row)" onkeydown="return false;" type="primary" icon="el-icon-edit"
+                       size="mini" circle/>
+            <el-button @click="delMember(scope.row)" onkeydown="return false;" type="danger" icon="el-icon-delete"
+                       size="mini" circle/>
           </template>
         </el-table-column>
       </el-table>
-      <div>
-        <el-row>
-          <el-col :span="22" :offset="1">
-            <div class="table-page">
-              <el-pagination
-                @size-change="handleMemberSizeChange"
-                @current-change="handleMemberCurrentChange"
-                :current-page.sync="currentMemberPage"
-                :page-sizes="[5, 10, 20, 50, 100]"
-                :page-size="pageMemberSize"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="memberTotal">
-              </el-pagination>
-            </div>
-          </el-col>
-        </el-row>
-      </div>
+      <ms-table-pagination :change="wsMemberList" :current-page.sync="currentMemberPage" :page-size.sync="pageMemberSize"
+                           :total="memberTotal"/>
     </el-dialog>
 
     <!-- add workspace member dialog -->
@@ -243,10 +215,11 @@
 <script>
   import MsCreateBox from "../CreateBox";
   import {Message} from "element-ui";
+  import MsTablePagination from "../../common/pagination/TablePagination";
 
   export default {
     name: "MsSystemWorkspace",
-    components: {MsCreateBox},
+    components: {MsCreateBox, MsTablePagination},
     mounted() {
       this.list();
     },
@@ -288,6 +261,28 @@
       cellClick(row) {
         // 保存当前点击的组织信息到currentRow
         this.currentWorkspaceRow = row;
+        this.memberVisible = true;
+        let param = {
+          name: '',
+          workspaceId: row.id
+        };
+        let path = "/user/special/ws/member/list";
+        this.result = this.$post(this.buildPagePath(path), param, res => {
+          let data = res.data;
+          this.memberLineData = data.listObject;
+          let url = "/userrole/list/ws/" + row.id;
+          // 填充角色信息
+          for (let i = 0; i < this.memberLineData.length; i++) {
+            this.$get(url + "/" + this.memberLineData[i].id, response => {
+              let roles = response.data;
+              this.$set(this.memberLineData[i], "roles", roles);
+            })
+          }
+          this.memberTotal = data.itemCount;
+        });
+      },
+      wsMemberList() {
+        let row = this.currentWorkspaceRow;
         this.memberVisible = true;
         let param = {
           name: '',
@@ -376,23 +371,7 @@
         });
       },
       buildPagePath(path) {
-        return path + "/" + this.currentPage + "/" + this.pageSize;
-      },
-      handleSizeChange(size) {
-        this.pageSize = size;
-        this.list();
-      },
-      handleCurrentChange(current) {
-        this.currentPage = current;
-        this.list();
-      },
-      handleMemberSizeChange(size) {
-        this.pageMemberSize = size;
-        this.cellClick(this.currentWorkspaceRow);
-      },
-      handleMemberCurrentChange(current) {
-        this.currentMemberPage = current;
-        this.cellClick(this.currentWorkspaceRow);
+        return path + "/" + this.currentMemberPage + "/" + this.pageMemberSize;
       },
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {
