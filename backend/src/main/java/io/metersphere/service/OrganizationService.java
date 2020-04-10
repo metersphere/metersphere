@@ -63,6 +63,7 @@ public class OrganizationService {
     }
 
     public void updateOrganization(Organization organization) {
+        organization.setCreateTime(null);
         organization.setUpdateTime(System.currentTimeMillis());
         organizationMapper.updateByPrimaryKeySelective(organization);
     }
