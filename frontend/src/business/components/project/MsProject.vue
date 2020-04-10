@@ -27,23 +27,8 @@
             </template>
           </el-table-column>
         </el-table>
-        <div>
-          <el-row>
-            <el-col :span="22" :offset="1">
-              <div class="table-page">
-                <el-pagination
-                  @size-change="handleSizeChange"
-                  @current-change="handleCurrentChange"
-                  :current-page.sync="currentPage"
-                  :page-sizes="[5, 10, 20, 50, 100]"
-                  :page-size="pageSize"
-                  layout="total, sizes, prev, pager, next, jumper"
-                  :total="total">
-                </el-pagination>
-              </div>
-            </el-col>
-          </el-row>
-        </div>
+        <ms-table-pagination :change="list" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                             :total="total"/>
       </el-card>
 
       <el-dialog :title="title" :visible.sync="createVisible">
@@ -71,10 +56,11 @@
   import MsCreateBox from "../settings/CreateBox";
   import {Message} from "element-ui";
   import {TokenKey} from "../../../common/js/constants";
+  import MsTablePagination from "../common/pagination/TablePagination";
 
   export default {
     name: "MsProject",
-    components: {MsCreateBox},
+    components: {MsCreateBox, MsTablePagination},
     data() {
       return {
         createVisible: false,
@@ -186,24 +172,10 @@
           this.total = data.itemCount;
         })
       },
-      handleSizeChange(size) {
-        this.pageSize = size;
-        this.list();
-      },
-      handleCurrentChange(current) {
-        this.currentPage = current;
-        this.list();
-      },
     }
   }
 </script>
 
 <style scoped>
-
-  .table-page {
-    padding-top: 20px;
-    margin-right: -9px;
-    float: right;
-  }
 
 </style>
