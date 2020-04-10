@@ -147,7 +147,8 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="createTestResourcePool('createTestResourcePoolForm')"
+          <el-button type="primary" onkeydown="return false;"
+                     @click="createTestResourcePool('createTestResourcePoolForm')"
                      size="medium">{{$t('commons.create')}}</el-button>
         </span>
       </template>
