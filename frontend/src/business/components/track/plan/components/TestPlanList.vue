@@ -8,13 +8,8 @@
             <el-row type="flex" justify="space-between" align="middle">
               <el-col :span="5">
                 <span class="title">{{$t('test_track.test_plan')}}</span>
+                <ms-create-box :tips="$t('test_track.create_plan')" :exec="testPlanCreate"/>
               </el-col>
-
-              <el-col :span="2" :offset="10">
-                <el-button icon="el-icon-circle-plus-outline" size="small" round
-                           @click="$emit('openTestPlanEditDialog')" >{{$t('commons.create')}}</el-button>
-              </el-col>
-
 
               <el-col :span="5">
                     <span class="search">
@@ -117,8 +112,11 @@
 </template>
 
 <script>
-    export default {
+  import MsCreateBox from '../../../settings/CreateBox';
+
+  export default {
       name: "TestPlanList",
+      components: {MsCreateBox},
       data() {
         return {
           result: {},
@@ -154,6 +152,9 @@
         buildPagePath(path) {
           return path + "/" + this.currentPage + "/" + this.pageSize;
         },
+        testPlanCreate() {
+          this.$emit('openTestPlanEditDialog');
+        },
         handleSizeChange(size) {
           this.pageSize = size;
           this.initTableData();
@@ -169,7 +170,7 @@
           this.$emit('testPlanEdit', testPlan);
         },
         handleDelete(testPlan) {
-          this.$alert(this.$t('load_test.delete_confirm') + testPlan.name + "？", '', {
+          this.$alert(this.$t('test_track.plan_delete_confirm') + testPlan.name + "？", '', {
             confirmButtonText: this.$t('commons.confirm'),
             callback: (action) => {
               if (action === 'confirm') {

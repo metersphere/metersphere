@@ -7,11 +7,7 @@
           <el-row type="flex" justify="space-between" align="middle">
             <el-col :span="5">
               <span class="title">{{$t('test_track.test_case')}}</span>
-            </el-col>
-
-            <el-col :span="2" :offset="10">
-              <el-button icon="el-icon-circle-plus-outline" size="small" round
-                         @click="$emit('openTestCaseEditDialog')" >{{$t('commons.create')}}</el-button>
+              <ms-create-box :tips="$t('test_track.create')" :exec="testCaseCreate"/>
             </el-col>
 
             <el-col :span="5">
@@ -108,21 +104,24 @@
 
 <script>
 
+  import MsCreateBox from '../../../settings/CreateBox';
+
   export default {
-      name: "TestCaseList",
-      data() {
-        return {
-          result: {},
-          deletePath: "/test/case/delete",
-          condition: "",
-          tableData: [],
-          multipleSelection: [],
-          currentPage: 1,
-          pageSize: 5,
-          total: 0,
-          loadingRequire: {project: true, testCase: true},
-          testId: null
-        }
+    name: "TestCaseList",
+    components: {MsCreateBox},
+    data() {
+      return {
+        result: {},
+        deletePath: "/test/case/delete",
+        condition: "",
+        tableData: [],
+        multipleSelection: [],
+        currentPage: 1,
+        pageSize: 5,
+        total: 0,
+        loadingRequire: {project: true, testCase: true},
+        testId: null
+      }
       },
       props: {
         currentProject: {
@@ -160,6 +159,9 @@
         buildPagePath(path) {
           return path + "/" + this.currentPage + "/" + this.pageSize;
         },
+        testCaseCreate() {
+          this.$emit('openTestCaseEditDialog');
+        },
         handleSizeChange(size) {
           this.pageSize = size;
           this.initTableData();
@@ -175,7 +177,7 @@
           this.$emit('testCaseEdit', testCase);
         },
         handleDelete(testCase) {
-          this.$alert(this.$t('load_test.delete_confirm') + testCase.name + "？", '', {
+          this.$alert(this.$t('test_track.case_delete_confirm') + testCase.name + "？", '', {
             confirmButtonText: this.$t('commons.confirm'),
             callback: (action) => {
               if (action === 'confirm') {
