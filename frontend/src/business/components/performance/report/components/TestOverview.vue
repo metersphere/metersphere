@@ -59,10 +59,10 @@
 
     <el-row>
       <el-col :span="12">
-        <chart ref="chart1" :options="loadOption" :autoresize="true"></chart>
+        <chart ref="chart1" :options="loadOption" class="chart-config" :autoresize="true"></chart>
       </el-col>
       <el-col :span="12">
-        <chart ref="chart2" :options="resOption" :autoresize="true"></chart>
+        <chart ref="chart2" :options="resOption" class="chart-config" :autoresize="true"></chart>
       </el-col>
     </el-row>
   </div>
@@ -274,6 +274,10 @@
   .ms-card-index-6 {
     border-left-color: #3C9899;
     border-left-width: 3px;
+  }
+
+  .chart-config {
+    width: 100%;
   }
 
 </style>
