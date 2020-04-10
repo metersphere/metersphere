@@ -11,6 +11,7 @@
             <span class="search">
                     <el-input type="text" size="small" :placeholder="$t('project.search_by_name')"
                               prefix-icon="el-icon-search"
+                              @change="search"
                               maxlength="60" v-model="condition" clearable/>
                 </span>
           </el-row>
@@ -101,7 +102,7 @@
       if (this.$route.path.split('/')[2] === 'project' &&
         this.$route.path.split('/')[3] === 'create') {
         this.create();
-        this.$router.push( '/' + this.beaseUrl + '/project/all');
+        this.$router.push('/' + this.beaseUrl + '/project/all');
       }
       this.list();
     },
@@ -172,9 +173,12 @@
         }).catch(() => {
         });
       },
+      search() {
+        this.list();
+      },
       list() {
         let url = "/project/list/" + this.currentPage + '/' + this.pageSize;
-        this.result = this.$post(url, {}, (response) => {
+        this.result = this.$post(url, {name: this.condition}, (response) => {
           let data = response.data;
           this.items = data.listObject;
           this.total = data.itemCount;
