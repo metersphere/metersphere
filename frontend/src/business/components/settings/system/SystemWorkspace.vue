@@ -11,7 +11,7 @@
             <span class="search">
             <el-input type="text" size="small"
                       :placeholder="$t('workspace.search_by_name')"
-                      prefix-icon="el-icon-search"
+                      prefix-icon="el-icon-search" @change="search"
                       maxlength="60" v-model="condition" clearable/>
           </span>
           </el-row>
@@ -351,6 +351,9 @@
       },
       closeMemberFunc() {
         this.memberLineData = [];
+        this.list();
+      },
+      search() {
         this.list();
       },
       list() {

@@ -17,6 +17,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.user.SessionUser;
 import io.metersphere.user.SessionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jetty.util.StringUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,13 +78,16 @@ public class WorkspaceService {
             criteria.andOrganizationIdEqualTo(request.getOrganizationId());
         }
         if (StringUtils.isNotBlank(request.getName())) {
-            criteria.andNameLike(request.getName());
+            criteria.andNameLike(StringUtils.wrapIfMissing(request.getName(), "%"));
         }
         return workspaceMapper.selectByExample(example);
     }
 
-    public List<WorkspaceDTO> getAllWorkspaceList() {
-        return extWorkspaceMapper.getWorkspaceWithOrg();
+    public List<WorkspaceDTO> getAllWorkspaceList(WorkspaceRequest request) {
+        if (StringUtils.isNotBlank(request.getName())) {
+            request.setName(StringUtils.wrapIfMissing(request.getName(), "%"));
+        }
+        return extWorkspaceMapper.getWorkspaceWithOrg(request);
     }
 
     public void deleteWorkspace(String workspaceId) {

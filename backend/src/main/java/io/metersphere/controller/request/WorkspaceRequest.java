@@ -1,10 +1,7 @@
 package io.metersphere.controller.request;
 
-import io.metersphere.commons.annotations.FuzzyQuery;
-
 public class WorkspaceRequest {
     private String organizationId;
-    @FuzzyQuery
     private String name;
 
     public String getOrganizationId() {
