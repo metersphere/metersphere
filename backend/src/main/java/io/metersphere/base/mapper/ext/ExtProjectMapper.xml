@@ -8,7 +8,7 @@
           from project p
           join workspace w on p.workspace_id = w.id
         <where>
-            <if test="proRequest.name != ''">
+            <if test="proRequest.name != null and proRequest.name != ''">
                 and p.name like #{proRequest.name, jdbcType=VARCHAR}
             </if>
             <if test="proRequest.workspaceId != null">
