@@ -29,8 +29,8 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
-            <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
+            <el-button @click="edit(scope.row)" onkeydown="return false;" type="primary" icon="el-icon-edit" size="mini" circle/>
+            <el-button @click="del(scope.row)" onkeydown="return false;" type="danger" icon="el-icon-delete" size="mini" circle/>
           </template>
         </el-table-column>
       </el-table>
@@ -79,8 +79,8 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <el-button @click="editMember(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
-            <el-button @click="delMember(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
+            <el-button @click="editMember(scope.row)" onkeydown="return false;" type="primary" icon="el-icon-edit" size="mini" circle/>
+            <el-button @click="delMember(scope.row)" onkeydown="return false;" type="danger" icon="el-icon-delete" size="mini" circle/>
           </template>
         </el-table-column>
       </el-table>
@@ -117,7 +117,8 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="createOrganization('createOrganization')" size="medium">{{$t('commons.save')}}</el-button>
+          <el-button type="primary" onkeydown="return false;"
+                     @click="createOrganization('createOrganization')" size="medium">{{$t('commons.save')}}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -136,7 +137,8 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="updateOrganization('updateOrganizationForm')" size="medium">{{$t('organization.modify')}}</el-button>
+          <el-button type="primary" onkeydown="return false;"
+                     @click="updateOrganization('updateOrganizationForm')" size="medium">{{$t('organization.modify')}}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -172,8 +174,9 @@
         </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <span class="dialog-footer">
-          <el-button type="primary" @click="submitForm('form')" size="medium">{{$t('commons.save')}}</el-button>
+        <span  class="dialog-footer">
+          <el-button type="primary" onkeydown="return false;"
+                     @click="submitForm('form')" size="medium">{{$t('commons.save')}}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -208,8 +211,8 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="updateOrgMember('updateUserForm')"
-                     size="medium">{{$t('commons.save')}}</el-button>
+          <el-button type="primary" onkeydown="return false;"
+                     @click="updateOrgMember('updateUserForm')" size="medium">{{$t('commons.save')}}</el-button>
         </span>
       </template>
     </el-dialog>
