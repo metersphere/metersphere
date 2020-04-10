@@ -44,7 +44,8 @@
         </el-form>
         <template v-slot:footer>
           <span class="dialog-footer">
-            <el-button type="primary" @click="updateUser('updateUserForm')" size="medium">{{$t('commons.save')}}</el-button>
+            <el-button type="primary" onkeydown="return false;"
+                       @click="updateUser('updateUserForm')" size="medium">{{$t('commons.save')}}</el-button>
           </span>
         </template>
       </el-dialog>
