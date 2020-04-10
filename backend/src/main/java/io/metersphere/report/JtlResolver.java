@@ -7,6 +7,7 @@ import io.metersphere.report.base.*;
 import io.metersphere.report.dto.ErrorsTop5DTO;
 import io.metersphere.report.dto.RequestStatisticsDTO;
 import org.apache.commons.lang3.StringUtils;
+
 import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigDecimal;
@@ -18,6 +19,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -418,7 +420,7 @@ public class JtlResolver {
         totalLineList.sort(Comparator.comparing(t0 -> Long.valueOf(t0.getTimestamp())));
 
         String startTimeStamp = totalLineList.get(0).getTimestamp();
-        String endTimeStamp = totalLineList.get(totalLineList.size()-1).getTimestamp();
+        String endTimeStamp = totalLineList.get(totalLineList.size() - 1).getTimestamp();
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         String startTime = dtf.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(startTimeStamp)), ZoneId.systemDefault()));
@@ -426,9 +428,14 @@ public class JtlResolver {
         reportTimeInfo.setStartTime(startTime);
         reportTimeInfo.setEndTime(endTime);
 
-        // todo 时间问题
         long seconds = Duration.between(Instant.ofEpochMilli(Long.parseLong(startTimeStamp)), Instant.ofEpochMilli(Long.parseLong(endTimeStamp))).getSeconds();
-        reportTimeInfo.setDuration(String.valueOf(seconds));
+        String duration;
+        if (seconds / 60 == 0) {
+            duration = String.valueOf(1);
+        } else {
+            duration = String.valueOf(seconds / 60);
+        }
+        reportTimeInfo.setDuration(duration);
 
         return reportTimeInfo;
     }
