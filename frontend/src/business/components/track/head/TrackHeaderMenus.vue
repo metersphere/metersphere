@@ -21,7 +21,7 @@
           <el-submenu v-if="isCurrentWorkspaceUser"
                       index="6" popper-class="submenu" v-permission="['test_manager', 'test_user']">
             <template v-slot:title>{{$t('test_track.test_case')}}</template>
-            <ms-recent-list :options="testRecent"/>
+            <ms-recent-list :options="caseRecent"/>
             <el-divider/>
             <ms-show-all :index="'/track/case/all'"/>
             <el-menu-item :index="testCaseEditPath" class="blank_item"></el-menu-item>
@@ -34,7 +34,7 @@
             <el-divider/>
             <ms-show-all :index="'/track/plan/all'"/>
             <el-menu-item :index="testPlanViewPath" class="blank_item"></el-menu-item>
-            <ms-create-button :index="'/track/plan/create'" :title="$t('project.create')"/>
+            <ms-create-button :index="'/track/plan/create'" :title="$t('test_track.create_plan')"/>
           </el-submenu>
         </el-menu>
       </el-col>
@@ -69,8 +69,8 @@
             return {name: 'testCase', params: {projectId: item.id, projectName: item.name}}
           }
         },
-        testRecent: {
-          title: this.$t('load_test.recent'),
+        caseRecent: {
+          title: this.$t('test_track.recent_case'),
           url: "/test/case/recent/5",
           index: function (item) {
             return '/track/case/edit/' + item.id;
@@ -78,7 +78,7 @@
           router: function (item) {}
         },
         planRecent: {
-          title: this.$t('report.recent'),
+          title: this.$t('test_track.recent_plan'),
           url: "/test/plan/recent/5",
           index: function (item) {
             return '/track/plan/view/' + item.id;
