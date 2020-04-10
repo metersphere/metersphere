@@ -192,6 +192,7 @@
     font-size: 20px;
     color: #8492a6;
     display: block;
+    text-align: center;
     margin-bottom: 8px;
   }
 </style>
