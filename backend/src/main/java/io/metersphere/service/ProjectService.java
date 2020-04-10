@@ -47,6 +47,9 @@ public class ProjectService {
     }
 
     public List<ProjectDTO> getProjectList(ProjectRequest request) {
+        if (StringUtils.isNotBlank(request.getName())) {
+            request.setName(StringUtils.wrapIfMissing(request.getName(), "%"));
+        }
         return extProjectMapper.getProjectWithWorkspace(request);
     }
 

@@ -9,7 +9,8 @@
             <ms-create-box :tips="btnTips" :exec="create"/>
           </span>
             <span class="search">
-            <el-input type="text" size="small" :placeholder="$t('organization.search_by_name')" prefix-icon="el-icon-search"
+            <el-input type="text" size="small" :placeholder="$t('organization.search_by_name')"
+                      prefix-icon="el-icon-search" @change="search"
                       maxlength="60" v-model="condition" clearable/>
           </span>
           </el-row>
@@ -22,13 +23,14 @@
         <el-table-column prop="description" :label="$t('commons.description')"/>
         <el-table-column :label="$t('commons.member')">
           <template v-slot:default="scope">
-            <el-button type="text" class="member-size" @click="cellClick(scope.row)">{{scope.row.memberSize}}</el-button>
+            <el-button type="text" class="member-size" @click="cellClick(scope.row)">{{scope.row.memberSize}}
+            </el-button>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
-            <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
+            <el-button @click="edit(scope.row)" onkeydown="return false;" type="primary" icon="el-icon-edit" size="mini" circle/>
+            <el-button @click="del(scope.row)" onkeydown="return false;" type="danger" icon="el-icon-delete" size="mini" circle/>
           </template>
         </el-table-column>
       </el-table>
@@ -77,8 +79,8 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <el-button @click="editMember(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
-            <el-button @click="delMember(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
+            <el-button @click="editMember(scope.row)" onkeydown="return false;" type="primary" icon="el-icon-edit" size="mini" circle/>
+            <el-button @click="delMember(scope.row)" onkeydown="return false;" type="danger" icon="el-icon-delete" size="mini" circle/>
           </template>
         </el-table-column>
       </el-table>
@@ -102,8 +104,10 @@
     </el-dialog>
 
     <!-- add organization form -->
-    <el-dialog :title="$t('organization.create')" :visible.sync="createVisible" width="30%" @closed="closeFunc" :destroy-on-close="true">
-      <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule" ref="createOrganization">
+    <el-dialog :title="$t('organization.create')" :visible.sync="createVisible" width="30%" @closed="closeFunc"
+               :destroy-on-close="true">
+      <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
+               ref="createOrganization">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
@@ -113,14 +117,17 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="createOrganization('createOrganization')" size="medium">{{$t('commons.save')}}</el-button>
+          <el-button type="primary" onkeydown="return false;"
+                     @click="createOrganization('createOrganization')" size="medium">{{$t('commons.save')}}</el-button>
         </span>
       </template>
     </el-dialog>
 
     <!-- update organization form -->
-    <el-dialog :title="$t('organization.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
-      <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule" ref="updateOrganizationForm">
+    <el-dialog :title="$t('organization.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true"
+               @close="closeFunc">
+      <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
+               ref="updateOrganizationForm">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
@@ -130,16 +137,20 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="updateOrganization('updateOrganizationForm')" size="medium">{{$t('organization.modify')}}</el-button>
+          <el-button type="primary" onkeydown="return false;"
+                     @click="updateOrganization('updateOrganizationForm')" size="medium">{{$t('organization.modify')}}</el-button>
         </span>
       </template>
     </el-dialog>
 
     <!-- add organization member form -->
-    <el-dialog :title="$t('member.create')" :visible.sync="addMemberVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
-      <el-form :model="memberForm" ref="form" :rules="orgMemberRule" label-position="right" label-width="100px" size="small">
+    <el-dialog :title="$t('member.create')" :visible.sync="addMemberVisible" width="30%" :destroy-on-close="true"
+               @close="closeFunc">
+      <el-form :model="memberForm" ref="form" :rules="orgMemberRule" label-position="right" label-width="100px"
+               size="small">
         <el-form-item :label="$t('commons.member')" prop="userIds">
-          <el-select v-model="memberForm.userIds" multiple :placeholder="$t('member.please_choose_member')" class="select-width">
+          <el-select v-model="memberForm.userIds" multiple :placeholder="$t('member.please_choose_member')"
+                     class="select-width">
             <el-option
               v-for="item in memberForm.userList"
               :key="item.id"
@@ -151,7 +162,8 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('commons.role')" prop="roleIds">
-          <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
+          <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
+                     class="select-width">
             <el-option
               v-for="item in memberForm.roles"
               :key="item.id"
@@ -163,13 +175,15 @@
       </el-form>
       <template v-slot:footer>
         <span  class="dialog-footer">
-          <el-button type="primary" @click="submitForm('form')" size="medium">{{$t('commons.save')}}</el-button>
+          <el-button type="primary" onkeydown="return false;"
+                     @click="submitForm('form')" size="medium">{{$t('commons.save')}}</el-button>
         </span>
       </template>
     </el-dialog>
 
     <!-- update organization member form -->
-    <el-dialog :title="$t('member.modify')" :visible.sync="updateMemberVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
+    <el-dialog :title="$t('member.modify')" :visible.sync="updateMemberVisible" width="30%" :destroy-on-close="true"
+               @close="closeFunc">
       <el-form :model="memberForm" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="memberForm.id" autocomplete="off" :disabled="true"/>
@@ -184,7 +198,8 @@
           <el-input v-model="memberForm.phone" autocomplete="off"/>
         </el-form-item>
         <el-form-item :label="$t('commons.role')" prop="roleIds">
-          <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
+          <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
+                     class="select-width">
             <el-option
               v-for="item in memberForm.allroles"
               :key="item.id"
@@ -196,7 +211,8 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="updateOrgMember('updateUserForm')" size="medium">{{$t('commons.save')}}</el-button>
+          <el-button type="primary" onkeydown="return false;"
+                     @click="updateOrgMember('updateUserForm')" size="medium">{{$t('commons.save')}}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -239,7 +255,7 @@
         rule: {
           name: [
             {required: true, message: this.$t('organization.input_name'), trigger: 'blur'},
-            { min: 2, max: 10, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur' },
+            {min: 2, max: 10, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'},
             {
               required: true,
               pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/,
@@ -248,7 +264,7 @@
             }
           ],
           description: [
-            { max: 50, message: this.$t('commons.input_limit', [0, 50]), trigger: 'blur'}
+            {max: 50, message: this.$t('commons.input_limit', [0, 50]), trigger: 'blur'}
           ]
         },
         orgMemberRule: {
@@ -292,7 +308,7 @@
         // 编辑时填充角色信息
         this.$set(this.memberForm, 'roleIds', roleIds);
       },
-      cellClick(row){
+      cellClick(row) {
         // 保存当前点击的组织信息到currentRow
         this.currentRow = row;
         this.memberVisible = true;
@@ -320,7 +336,7 @@
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
-          this.result = this.$get(this.deletePath + row.id,() => {
+          this.result = this.$get(this.deletePath + row.id, () => {
             this.$message({
               type: 'success',
               message: this.$t('commons.delete_success')
@@ -355,16 +371,16 @@
         });
       },
       createOrganization(createOrganizationForm) {
-        this.$refs[createOrganizationForm].validate( valide => {
+        this.$refs[createOrganizationForm].validate(valide => {
           if (valide) {
-            this.result = this.$post(this.createPath, this.form,() => {
+            this.result = this.$post(this.createPath, this.form, () => {
               this.$message({
                 type: 'success',
                 message: this.$t('commons.save_success')
               });
               this.initTableData();
               this.createVisible = false;
-              });
+            });
           } else {
             return false;
           }
@@ -373,21 +389,27 @@
       updateOrganization(udpateOrganizationForm) {
         this.$refs[udpateOrganizationForm].validate(valide => {
           if (valide) {
-            this.result = this.$post(this.updatePath, this.form,() => {
+            this.result = this.$post(this.updatePath, this.form, () => {
               this.$message({
                 type: 'success',
                 message: this.$t('commons.modify_success')
               });
               this.updateVisible = false;
               this.initTableData();
-              });
+            });
           } else {
             return false;
           }
         })
       },
+      search() {
+        this.initTableData();
+      },
       initTableData() {
-        this.result = this.$post(this.buildPagePath(this.queryPath),{},response => {
+        let param = {
+          name: this.condition
+        };
+        this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
           let data = response.data;
           this.tableData = data.listObject;
           for (let i = 0; i < this.tableData.length; i++) {
@@ -441,7 +463,7 @@
               roleIds: this.memberForm.roleIds,
               organizationId: this.currentRow.id
             };
-            this.result = this.$post("user/special/org/member/add", param,() => {
+            this.result = this.$post("user/special/org/member/add", param, () => {
               this.cellClick(this.currentRow);
               this.addMemberVisible = false;
             })
@@ -459,7 +481,7 @@
           roleIds: this.memberForm.roleIds,
           organizationId: this.currentRow.id
         }
-        this.result = this.$post("/organization/member/update", param,() => {
+        this.result = this.$post("/organization/member/update", param, () => {
           this.$message({
             type: 'success',
             message: this.$t('commons.modify_success')
@@ -485,8 +507,8 @@
   }
 
   .member-size {
-    text-decoration:underline;
-    cursor:pointer;
+    text-decoration: underline;
+    cursor: pointer;
   }
 
   .org-member-name {

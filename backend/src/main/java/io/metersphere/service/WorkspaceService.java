@@ -77,13 +77,16 @@ public class WorkspaceService {
             criteria.andOrganizationIdEqualTo(request.getOrganizationId());
         }
         if (StringUtils.isNotBlank(request.getName())) {
-            criteria.andNameLike(request.getName());
+            criteria.andNameLike(StringUtils.wrapIfMissing(request.getName(), "%"));
         }
         return workspaceMapper.selectByExample(example);
     }
 
-    public List<WorkspaceDTO> getAllWorkspaceList() {
-        return extWorkspaceMapper.getWorkspaceWithOrg();
+    public List<WorkspaceDTO> getAllWorkspaceList(WorkspaceRequest request) {
+        if (StringUtils.isNotBlank(request.getName())) {
+            request.setName(StringUtils.wrapIfMissing(request.getName(), "%"));
+        }
+        return extWorkspaceMapper.getWorkspaceWithOrg(request);
     }
 
     public void deleteWorkspace(String workspaceId) {
@@ -225,6 +228,7 @@ public class WorkspaceService {
     }
 
     public void updateWorkspacebyAdmin(Workspace workspace) {
+        workspace.setCreateTime(null);
         workspace.setUpdateTime(System.currentTimeMillis());
         workspaceMapper.updateByPrimaryKeySelective(workspace);
     }

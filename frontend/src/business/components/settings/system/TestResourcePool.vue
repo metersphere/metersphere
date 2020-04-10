@@ -147,7 +147,8 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="createTestResourcePool('createTestResourcePoolForm')"
+          <el-button type="primary" onkeydown="return false;"
+                     @click="createTestResourcePool('createTestResourcePoolForm')"
                      size="medium">{{$t('commons.create')}}</el-button>
         </span>
       </template>
@@ -226,7 +227,8 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="updateTestResourcePool('updateTestResourcePoolForm')"
+          <el-button type="primary" onkeydown="return false;"
+                     @click="updateTestResourcePool('updateTestResourcePoolForm')"
                      size="medium">{{$t('commons.save')}}</el-button>
         </span>
       </template>
@@ -282,7 +284,6 @@
     },
     methods: {
       initTableData() {
-        this.loading = true;
         let param = {
           name: this.condition
         };
@@ -291,7 +292,6 @@
           let data = response.data;
           this.items = data.listObject;
           this.total = data.itemCount;
-          this.loading = false;
         })
       },
       changeResourceType() {

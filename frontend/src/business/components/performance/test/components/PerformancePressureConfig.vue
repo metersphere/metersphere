@@ -1,7 +1,7 @@
 <template>
   <div class="pressure-config-container">
     <el-row>
-      <el-col :span="12">
+      <el-col :span="10">
         <el-form :inline="true">
           <el-form-item>
             <div class="config-form-label">{{$t('load_test.thread_num')}}</div>
@@ -89,7 +89,7 @@
           </el-form-item>
         </el-form>
       </el-col>
-      <el-col :span="12">
+      <el-col :span="14">
         <chart class="chart-container" ref="chart1" :options="orgOptions" :autoresize="true"></chart>
       </el-col>
     </el-row>

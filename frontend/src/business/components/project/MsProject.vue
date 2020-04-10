@@ -11,6 +11,7 @@
             <span class="search">
                     <el-input type="text" size="small" :placeholder="$t('project.search_by_name')"
                               prefix-icon="el-icon-search"
+                              @change="search"
                               maxlength="60" v-model="condition" clearable/>
                 </span>
           </el-row>
@@ -56,7 +57,9 @@
         </el-form>
         <template v-slot:footer>
           <div class="dialog-footer">
-            <el-button type="primary" @click="submit('form')" size="medium">{{$t('commons.save')}}</el-button>
+            <el-button type="primary" onkeydown="return false;" @click="submit('form')" size="medium">
+              {{$t('commons.save')}}
+            </el-button>
           </div>
         </template>
       </el-dialog>
@@ -101,7 +104,7 @@
       if (this.$route.path.split('/')[2] === 'project' &&
         this.$route.path.split('/')[3] === 'create') {
         this.create();
-        this.$router.push( '/' + this.beaseUrl + '/project/all');
+        this.$router.push('/' + this.beaseUrl + '/project/all');
       }
       this.list();
     },
@@ -172,9 +175,12 @@
         }).catch(() => {
         });
       },
+      search() {
+        this.list();
+      },
       list() {
         let url = "/project/list/" + this.currentPage + '/' + this.pageSize;
-        this.result = this.$post(url, {}, (response) => {
+        this.result = this.$post(url, {name: this.condition}, (response) => {
           let data = response.data;
           this.items = data.listObject;
           this.total = data.itemCount;
