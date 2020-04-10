@@ -226,7 +226,8 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="updateTestResourcePool('updateTestResourcePoolForm')"
+          <el-button type="primary" onkeydown="return false;"
+                     @click="updateTestResourcePool('updateTestResourcePoolForm')"
                      size="medium">{{$t('commons.save')}}</el-button>
         </span>
       </template>
