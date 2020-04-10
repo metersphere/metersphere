@@ -1,12 +1,8 @@
 package io.metersphere.commons.utils;
 
-import io.metersphere.commons.annotations.FuzzyQuery;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 
 public class BeanUtils {
 
@@ -69,38 +65,4 @@ public class BeanUtils {
             return null;
         }
     }
-
-    /**
-     * @param obj
-     * @return
-     */
-    public static Map<String, Object> objectToMap(Object obj) {
-
-        HashMap<String, Object> map = new HashMap<>();
-        if (obj != null) {
-            ReflectionUtils.doWithFields(obj.getClass(), field -> {
-                boolean accessFlag = field.isAccessible();
-                try {
-                    String varName = field.getName();
-                    field.setAccessible(true);
-                    Object o = field.get(obj);
-                    if (o != null) {
-                        if (field.isAnnotationPresent(FuzzyQuery.class) && o instanceof String) {
-                            String value = "%" + o + "%";
-                            map.put(varName, value);
-                        } else {
-                            map.put(varName, field.get(obj));
-                        }
-                    }
-                    field.setAccessible(accessFlag);
-                } catch (Exception e) {
-
-                } finally {
-                    field.setAccessible(accessFlag);
-                }
-            });
-        }
-        return map;
-    }
-
 }

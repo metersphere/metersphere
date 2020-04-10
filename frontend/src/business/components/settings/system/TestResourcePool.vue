@@ -284,7 +284,6 @@
     },
     methods: {
       initTableData() {
-        this.loading = true;
         let param = {
           name: this.condition
         };
@@ -293,7 +292,6 @@
           let data = response.data;
           this.items = data.listObject;
           this.total = data.itemCount;
-          this.loading = false;
         })
       },
       changeResourceType() {

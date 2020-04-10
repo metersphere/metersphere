@@ -9,7 +9,7 @@
           </span>
             <span class="search">
             <el-input type="text" size="small" :placeholder="$t('workspace.search_by_name')"
-                      prefix-icon="el-icon-search"
+                      prefix-icon="el-icon-search" @change="search"
                       maxlength="60" v-model="condition" clearable/>
           </span>
           </el-row>
@@ -20,13 +20,16 @@
         <el-table-column prop="description" :label="$t('commons.description')"/>
         <el-table-column :label="$t('commons.member')">
           <template v-slot:default="scope">
-            <el-button type="text" class="member-size" @click="cellClick(scope.row)">{{scope.row.memberSize}}</el-button>
+            <el-button type="text" class="member-size" @click="cellClick(scope.row)">{{scope.row.memberSize}}
+            </el-button>
           </template>
         </el-table-column>
         <el-table-column>
           <template v-slot:default="scope">
-            <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
-            <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
+            <el-button @click="edit(scope.row)" onkeydown="return false;" type="primary" icon="el-icon-edit" size="mini"
+                       circle/>
+            <el-button @click="del(scope.row)" onkeydown="return false;" type="danger" icon="el-icon-delete" size="mini"
+                       circle/>
           </template>
         </el-table-column>
       </el-table>
@@ -60,7 +63,8 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="submit('form')" size="medium">{{$t('commons.save')}}</el-button>
+          <el-button type="primary" onkeydown="return false;"
+                     @click="submit('form')" size="medium">{{$t('commons.save')}}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -92,8 +96,10 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <el-button @click="editMember(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
-            <el-button @click="delMember(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
+            <el-button @click="editMember(scope.row)" onkeydown="return false;" type="primary" icon="el-icon-edit"
+                       size="mini" circle/>
+            <el-button @click="delMember(scope.row)" onkeydown="return false;" type="danger" icon="el-icon-delete"
+                       size="mini" circle/>
           </template>
         </el-table-column>
       </el-table>
@@ -117,10 +123,13 @@
     </el-dialog>
 
     <!-- add workspace member dialog -->
-    <el-dialog :title="$t('member.create')" :visible.sync="addMemberVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
-      <el-form :model="memberForm" ref="form" :rules="wsMemberRule" label-position="right" label-width="100px" size="small">
+    <el-dialog :title="$t('member.create')" :visible.sync="addMemberVisible" width="30%" :destroy-on-close="true"
+               @close="closeFunc">
+      <el-form :model="memberForm" ref="form" :rules="wsMemberRule" label-position="right" label-width="100px"
+               size="small">
         <el-form-item :label="$t('commons.member')" prop="userIds">
-          <el-select v-model="memberForm.userIds" multiple :placeholder="$t('member.please_choose_member')" class="select-width">
+          <el-select v-model="memberForm.userIds" multiple :placeholder="$t('member.please_choose_member')"
+                     class="select-width">
             <el-option
               v-for="item in memberForm.userList"
               :key="item.id"
@@ -132,7 +141,8 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('commons.role')" prop="roleIds">
-          <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
+          <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
+                     class="select-width">
             <el-option
               v-for="item in memberForm.roles"
               :key="item.id"
@@ -144,13 +154,15 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="submitForm('form')" size="medium">{{$t('commons.save')}}</el-button>
+          <el-button type="primary" onkeydown="return false;"
+                     @click="submitForm('form')" size="medium">{{$t('commons.save')}}</el-button>
         </span>
       </template>
     </el-dialog>
 
     <!-- update workspace member dialog -->
-    <el-dialog :title="$t('member.modify')" :visible.sync="updateMemberVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
+    <el-dialog :title="$t('member.modify')" :visible.sync="updateMemberVisible" width="30%" :destroy-on-close="true"
+               @close="closeFunc">
       <el-form :model="memberForm" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="memberForm.id" autocomplete="off" :disabled="true"/>
@@ -165,7 +177,8 @@
           <el-input v-model="memberForm.phone" autocomplete="off"/>
         </el-form-item>
         <el-form-item :label="$t('commons.role')" prop="roleIds">
-          <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
+          <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
+                     class="select-width">
             <el-option
               v-for="item in memberForm.allroles"
               :key="item.id"
@@ -177,7 +190,8 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="updateOrgMember('updateUserForm')" size="medium">{{$t('commons.save')}}</el-button>
+          <el-button type="primary" onkeydown="return false;"
+                     @click="updateOrgMember('updateUserForm')" size="medium">{{$t('commons.save')}}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -250,6 +264,9 @@
 
         });
       },
+      search() {
+        this.list();
+      },
       list() {
         let url = '/workspace/list/' + this.currentPage + '/' + this.pageSize;
         let lastOrganizationId = this.currentUser.lastOrganizationId;
@@ -297,7 +314,7 @@
           this.$set(this.memberForm, "roles", response.data);
         })
       },
-      cellClick(row){
+      cellClick(row) {
         // 保存当前点击的组织信息到currentRow
         this.currentWorkspaceRow = row;
         this.memberVisible = true;
@@ -343,7 +360,7 @@
               roleIds: this.memberForm.roleIds,
               workspaceId: this.currentWorkspaceRow.id
             };
-            this.result = this.$post("user/ws/member/add", param,() => {
+            this.result = this.$post("user/ws/member/add", param, () => {
               this.cellClick(this.currentWorkspaceRow);
               this.addMemberVisible = false;
             })
@@ -391,7 +408,7 @@
           roleIds: this.memberForm.roleIds,
           workspaceId: this.currentWorkspaceRow.id
         }
-        this.result = this.$post("/workspace/member/update", param,() => {
+        this.result = this.$post("/workspace/member/update", param, () => {
           this.$message({
             type: 'success',
             message: this.$t('commons.modify_success')
@@ -469,8 +486,8 @@
   }
 
   .member-size {
-    text-decoration:underline;
-    cursor:pointer;
+    text-decoration: underline;
+    cursor: pointer;
   }
 
   .member-title {

@@ -8,6 +8,7 @@ import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.controller.request.OrganizationRequest;
 import io.metersphere.dto.OrganizationMemberDTO;
 import io.metersphere.dto.UserRoleHelpDTO;
 import io.metersphere.i18n.Translator;
@@ -48,8 +49,13 @@ public class OrganizationService {
         return organization;
     }
 
-    public List<Organization> getOrganizationList() {
-        return organizationMapper.selectByExample(null);
+    public List<Organization> getOrganizationList(OrganizationRequest request) {
+        OrganizationExample example = new OrganizationExample();
+        OrganizationExample.Criteria criteria = example.createCriteria();
+        if (StringUtils.isNotBlank(request.getName())) {
+            criteria.andNameLike(StringUtils.wrapIfMissing(request.getName(), "%"));
+        }
+        return organizationMapper.selectByExample(example);
     }
 
     public void deleteOrganization(String organizationId) {
@@ -57,6 +63,7 @@ public class OrganizationService {
     }
 
     public void updateOrganization(Organization organization) {
+        organization.setCreateTime(null);
         organization.setUpdateTime(System.currentTimeMillis());
         organizationMapper.updateByPrimaryKeySelective(organization);
     }
