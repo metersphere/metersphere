@@ -7,11 +7,11 @@
             <el-row type="flex" justify="space-between" align="middle">
               <span class="title">{{$t('commons.test')}}</span>
               <span class="search">
-            <el-input type="text" size="small" :placeholder="$t('load_test.search_by_name')"
-                      prefix-icon="el-icon-search"
-                      maxlength="60"
-                      v-model="condition" @change="search" clearable/>
-          </span>
+                <el-input type="text" size="small" :placeholder="$t('load_test.search_by_name')"
+                          prefix-icon="el-icon-search"
+                          maxlength="60"
+                          v-model="condition" @change="search" clearable/>
+              </span>
             </el-row>
           </div>
         </template>
@@ -56,34 +56,21 @@
             </template>
           </el-table-column>
         </el-table>
-        <div>
-          <el-row>
-            <el-col :span="22" :offset="1">
-              <div class="table-page">
-                <el-pagination
-                  @size-change="handleSizeChange"
-                  @current-change="handleCurrentChange"
-                  :current-page.sync="currentPage"
-                  :page-sizes="[5, 10, 20, 50, 100]"
-                  :page-size="pageSize"
-                  layout="total, sizes, prev, pager, next, jumper"
-                  :total="total">
-                </el-pagination>
-              </div>
-            </el-col>
-          </el-row>
-        </div>
+        <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                             :total="total"/>
       </el-card>
     </div>
   </div>
 </template>
 
 <script>
+  import MsTablePagination from "../../common/pagination/TablePagination";
+
   export default {
+    components: {MsTablePagination},
     data() {
       return {
         result: {},
-        queryPath: "/api/list",
         deletePath: "/api/delete",
         condition: "",
         projectId: null,
@@ -99,15 +86,15 @@
     watch: {
       '$route'(to) {
         this.projectId = to.params.projectId;
-        this.initTableData();
+        this.search();
       }
     },
     created: function () {
       this.projectId = this.$route.params.projectId;
-      this.initTableData();
+      this.search();
     },
     methods: {
-      initTableData() {
+      search() {
         let param = {
           name: this.condition,
         };
@@ -116,25 +103,12 @@
           param.projectId = this.projectId;
         }
 
-        this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
+        let url = "/api/list/" + this.currentPage + "/" + this.pageSize
+        this.result = this.$post(url, param, response => {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
         });
-      },
-      search() {
-        this.initTableData();
-      },
-      buildPagePath(path) {
-        return path + "/" + this.currentPage + "/" + this.pageSize;
-      },
-      handleSizeChange(size) {
-        this.pageSize = size;
-        this.initTableData();
-      },
-      handleCurrentChange(current) {
-        this.currentPage = current;
-        this.initTableData();
       },
       handleSelectionChange(val) {
         this.multipleSelection = val;
@@ -176,9 +150,5 @@
     width: 100%;
   }
 
-  .table-page {
-    padding-top: 20px;
-    margin-right: -9px;
-    float: right;
-  }
+
 </style>

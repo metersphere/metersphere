@@ -40,7 +40,9 @@
       },
       getRouter: function () {
         return function (item) {
-          return this.options.router(item);
+          if (this.options.router) {
+            return this.options.router(item);
+          }
         }
       }
     }
