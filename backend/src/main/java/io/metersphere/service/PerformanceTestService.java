@@ -3,6 +3,7 @@ package io.metersphere.service;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
+import io.metersphere.base.mapper.ext.ExtLoadTestReportDetailMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.constants.TestStatus;
@@ -48,6 +49,10 @@ public class PerformanceTestService {
     private LoadTestReportMapper loadTestReportMapper;
     @Resource
     private ExtLoadTestReportMapper extLoadTestReportMapper;
+    @Resource
+    private LoadTestReportDetailMapper loadTestReportDetailMapper;
+    @Resource
+    private ExtLoadTestReportDetailMapper extLoadTestReportDetailMapper;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         return extLoadTestMapper.list(request);
@@ -194,19 +199,26 @@ public class PerformanceTestService {
         testReport.setTestId(loadTest.getId());
         testReport.setName(loadTest.getName());
         // 启动测试
+        testReport.setContent(HEADERS);
+        testReport.setStatus(TestStatus.Starting.name());
+        loadTestReportMapper.insertSelective(testReport);
+
+        LoadTestReportDetail reportDetail = new LoadTestReportDetail();
+        reportDetail.setContent(HEADERS);
+        reportDetail.setReportId(testReport.getId());
+        loadTestReportDetailMapper.insertSelective(reportDetail);
+
         boolean started = true;
         try {
-            engine.start();
             // 标记running状态
             loadTest.setStatus(TestStatus.Starting.name());
             loadTestMapper.updateByPrimaryKeySelective(loadTest);
-
-            testReport.setContent(HEADERS);
-            testReport.setStatus(TestStatus.Starting.name());
-            loadTestReportMapper.insertSelective(testReport);
             // append \n
             extLoadTestReportMapper.appendLine(testReport.getId(), "\n");
-
+            // append \n
+            extLoadTestReportDetailMapper.appendLine(testReport.getId(), "\n");
+            //
+            engine.start();
         } catch (Exception e) {
             LogUtil.error(e);
             started = false;
@@ -216,7 +228,7 @@ public class PerformanceTestService {
             //
             testReport.setStatus(TestStatus.Error.name());
             testReport.setDescription(e.getMessage());
-            loadTestReportMapper.insertSelective(testReport);
+            loadTestReportMapper.updateByPrimaryKeySelective(testReport);
         }
         return started;
     }
