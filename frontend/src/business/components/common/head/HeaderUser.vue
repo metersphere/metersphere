@@ -51,7 +51,7 @@
     TokenKey,
     WORKSPACE_ID
   } from '../../../../common/js/constants';
-  import {hasRoles} from "../../../../common/js/utils";
+  import {hasRoles, saveLocalStorage} from "../../../../common/js/utils";
 
   export default {
     name: "MsUser",
@@ -136,7 +136,7 @@
       changeOrg(data) {
         let orgId = data.id;
         this.$post("/user/switch/source/org/" + orgId, {}, response => {
-          localStorage.setItem(TokenKey, JSON.stringify(response.data));
+          saveLocalStorage(response);
           this.$router.push('/');
           window.location.reload();
         })
@@ -147,7 +147,7 @@
           return false;
         }
         this.$post("/user/switch/source/ws/" + workspaceId, {}, response => {
-          localStorage.setItem(TokenKey, JSON.stringify(response.data));
+          saveLocalStorage(response);
           localStorage.setItem("workspace_id", workspaceId);
           this.$router.push('/');
           window.location.reload();

@@ -28,3 +28,12 @@ export function checkoutCurrentWorkspace() {
   // 查看当前用户是否是 lastWorkspaceId 的工作空间用户
   return user.userRoles.filter(ur => hasRoles(ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER) && user.lastWorkspaceId === ur.sourceId).length > 0;
 }
+
+export function saveLocalStorage(response) {
+  // 登录信息保存 cookie
+  localStorage.setItem(TokenKey, JSON.stringify(response.data));
+  let rolesArray = response.data.roles;
+  let roles = rolesArray.map(r => r.id);
+  // 保存角色
+  localStorage.setItem("roles", roles);
+}
