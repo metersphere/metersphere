@@ -53,6 +53,9 @@
               <el-tag size="mini" type="success" v-else-if="row.status === 'Running'">
                 {{ row.status }}
               </el-tag>
+              <el-tag size="mini" type="info" v-else-if="row.status === 'Completed'">
+                {{ row.status }}
+              </el-tag>
               <el-tooltip placement="top" v-else-if="row.status === 'Error'" effect="light">
                 <template v-slot:content>
                   <div>{{row.description}}</div>
@@ -61,9 +64,9 @@
                   {{ row.status }}
                 </el-tag>
               </el-tooltip>
-              <el-tag size="mini" type="info" v-else>
+              <span v-else>
                 {{ row.status }}
-              </el-tag>
+              </span>
             </template>
           </el-table-column>
           <el-table-column
