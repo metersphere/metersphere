@@ -434,22 +434,22 @@ public class JtlResolver {
         totalLineList.sort(Comparator.comparing(t0 -> Long.valueOf(t0.getTimestamp())));
 
         String startTimeStamp = totalLineList.get(0).getTimestamp();
-        String endTimeStamp = totalLineList.get(totalLineList.size() - 1).getTimestamp();
+        String endTimeStamp = totalLineList.get(totalLineList.size()-1).getTimestamp();
 
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(DATE_TIME_PATTERN);
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         String startTime = dtf.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(startTimeStamp)), ZoneId.systemDefault()));
         String endTime = dtf.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(endTimeStamp)), ZoneId.systemDefault()));
         reportTimeInfo.setStartTime(startTime);
         reportTimeInfo.setEndTime(endTime);
 
+        Date startDate = new Date(Long.parseLong(startTimeStamp));
+        Date endDate = new Date(Long.parseLong(endTimeStamp));
+        long timestamp = endDate.getTime() - startDate.getTime();
+        reportTimeInfo.setDuration(String.valueOf(timestamp*1.0 / 1000 / 60));
+
+        // todo 时间问题
         long seconds = Duration.between(Instant.ofEpochMilli(Long.parseLong(startTimeStamp)), Instant.ofEpochMilli(Long.parseLong(endTimeStamp))).getSeconds();
-        String duration;
-        if (seconds / 60 == 0) {
-            duration = String.valueOf(1);
-        } else {
-            duration = String.valueOf(seconds / 60);
-        }
-        reportTimeInfo.setDuration(duration);
+        reportTimeInfo.setDuration(String.valueOf(seconds));
 
         return reportTimeInfo;
     }
