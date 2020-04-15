@@ -6,7 +6,7 @@ import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportDetailMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.commons.constants.FileType;
-import io.metersphere.commons.constants.TestStatus;
+import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.controller.request.testplan.*;
@@ -98,6 +98,7 @@ public class PerformanceTestService {
         loadTest.setTestResourcePoolId(request.getTestResourcePoolId());
         loadTest.setLoadConfiguration(request.getLoadConfiguration());
         loadTest.setAdvancedConfiguration(request.getAdvancedConfiguration());
+        loadTest.setStatus(PerformanceTestStatus.Saved.name());
         loadTestMapper.insert(loadTest);
         return loadTest;
     }
@@ -163,6 +164,7 @@ public class PerformanceTestService {
             loadTest.setLoadConfiguration(request.getLoadConfiguration());
             loadTest.setAdvancedConfiguration(request.getAdvancedConfiguration());
             loadTest.setTestResourcePoolId(request.getTestResourcePoolId());
+            loadTest.setStatus(PerformanceTestStatus.Saved.name());
             loadTestMapper.updateByPrimaryKeySelective(loadTest);
         }
 
@@ -176,7 +178,7 @@ public class PerformanceTestService {
             MSException.throwException(Translator.get("run_load_test_not_found") + request.getId());
         }
 
-        if (StringUtils.equalsAny(loadTest.getStatus(), TestStatus.Running.name(), TestStatus.Starting.name())) {
+        if (StringUtils.equalsAny(loadTest.getStatus(), PerformanceTestStatus.Running.name(), PerformanceTestStatus.Starting.name())) {
             MSException.throwException(Translator.get("load_test_is_running"));
         }
 
@@ -204,11 +206,11 @@ public class PerformanceTestService {
         try {
             engine.start();
             // 启动正常修改状态 starting
-            loadTest.setStatus(TestStatus.Starting.name());
+            loadTest.setStatus(PerformanceTestStatus.Starting.name());
             loadTestMapper.updateByPrimaryKeySelective(loadTest);
             // 启动正常插入 report
             testReport.setContent(HEADERS);
-            testReport.setStatus(TestStatus.Starting.name());
+            testReport.setStatus(PerformanceTestStatus.Starting.name());
             loadTestReportMapper.insertSelective(testReport);
 
             LoadTestReportDetail reportDetail = new LoadTestReportDetail();
@@ -221,7 +223,7 @@ public class PerformanceTestService {
             extLoadTestReportDetailMapper.appendLine(testReport.getId(), "\n");
         } catch (MSException e) {
             LogUtil.error(e);
-            loadTest.setStatus(TestStatus.Error.name());
+            loadTest.setStatus(PerformanceTestStatus.Error.name());
             loadTest.setDescription(e.getMessage());
             loadTestMapper.updateByPrimaryKeySelective(loadTest);
             throw e;

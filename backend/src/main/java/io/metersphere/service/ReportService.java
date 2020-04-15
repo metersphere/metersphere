@@ -5,7 +5,7 @@ import io.metersphere.base.domain.LoadTestReportExample;
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
-import io.metersphere.commons.constants.TestStatus;
+import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.request.ReportRequest;
 import io.metersphere.dto.ReportDTO;
@@ -112,9 +112,9 @@ public class ReportService {
     public void checkReportStatus(String reportId) {
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
         String reportStatus = loadTestReport.getStatus();
-        if (StringUtils.equals(TestStatus.Running.name(), reportStatus)) {
+        if (StringUtils.equals(PerformanceTestStatus.Running.name(), reportStatus)) {
             MSException.throwException("Reporting in progress...");
-        } else if (StringUtils.equals(TestStatus.Error.name(), reportStatus)) {
+        } else if (StringUtils.equals(PerformanceTestStatus.Error.name(), reportStatus)) {
             MSException.throwException("Report generation error!");
         }
     }

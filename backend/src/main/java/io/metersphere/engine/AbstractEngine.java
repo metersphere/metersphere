@@ -6,8 +6,8 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.LoadTestWithBLOBs;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.base.domain.TestResourcePool;
+import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
-import io.metersphere.commons.constants.TestStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.config.JmeterProperties;
@@ -70,7 +70,7 @@ public abstract class AbstractEngine implements Engine {
         List<LoadTestWithBLOBs> loadTests = performanceTestService.selectByTestResourcePoolId(loadTest.getTestResourcePoolId());
         // 使用当前资源池正在运行的测试占用的并发数
         return loadTests.stream()
-                .filter(t -> TestStatus.Running.name().equals(t.getStatus()))
+                .filter(t -> PerformanceTestStatus.Running.name().equals(t.getStatus()))
                 .map(this::getThreadNum)
                 .reduce(Integer::sum)
                 .orElse(0);

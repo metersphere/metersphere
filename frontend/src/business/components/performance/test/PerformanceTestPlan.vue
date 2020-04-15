@@ -46,7 +46,10 @@
             prop="status"
             :label="$t('commons.status')">
             <template v-slot:default="{row}">
-              <el-tag size="mini" type="primary" v-if="row.status === 'Starting'">
+              <el-tag size="mini" type="info" v-if="row.status === 'Saved'">
+                {{ row.status }}
+              </el-tag>
+              <el-tag size="mini" type="primary" v-else-if="row.status === 'Starting'">
                 {{ row.status }}
               </el-tag>
               <el-tag size="mini" type="success" v-else-if="row.status === 'Running'">
