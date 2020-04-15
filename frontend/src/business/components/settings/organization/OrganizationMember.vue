@@ -2,7 +2,7 @@
   <div v-loading="result.loading">
     <el-card>
       <template v-slot:header>
-        <div >
+        <div>
           <el-row type="flex" justify="space-between" align="middle">
           <span class="title">{{$t('commons.member')}}
             <ms-create-box :tips="btnTips" :exec="create"/>
@@ -28,34 +28,23 @@
         </el-table-column>
         <el-table-column>
           <template v-slot:default="scope">
-            <el-button @click="edit(scope.row)" onkeydown="return false;" type="primary" icon="el-icon-edit" size="mini" circle/>
-            <el-button @click="del(scope.row)" onkeydown="return false;" type="danger" icon="el-icon-delete" size="mini" circle/>
+            <el-button @click="edit(scope.row)" onkeydown="return false;" type="primary" icon="el-icon-edit" size="mini"
+                       circle/>
+            <el-button @click="del(scope.row)" onkeydown="return false;" type="danger" icon="el-icon-delete" size="mini"
+                       circle/>
           </template>
         </el-table-column>
       </el-table>
-      <div>
-        <el-row>
-          <el-col :span="22" :offset="1">
-            <div class="table-page">
-              <el-pagination
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :current-page.sync="currentPage"
-                :page-sizes="[5, 10, 20, 50, 100]"
-                :page-size="pageSize"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="total">
-              </el-pagination>
-            </div>
-          </el-col>
-        </el-row>
-      </div>
+      <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                           :total="total"/>
     </el-card>
 
-    <el-dialog :title="$t('member.create')" :visible.sync="createVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
+    <el-dialog :title="$t('member.create')" :visible.sync="createVisible" width="30%" :destroy-on-close="true"
+               @close="closeFunc">
       <el-form :model="form" ref="form" :rules="rules" label-position="right" label-width="100px" size="small">
         <el-form-item :label="$t('commons.member')" prop="userIds">
-          <el-select v-model="form.userIds" multiple :placeholder="$t('member.please_choose_member')" class="select-width">
+          <el-select v-model="form.userIds" multiple :placeholder="$t('member.please_choose_member')"
+                     class="select-width">
             <el-option
               v-for="item in form.userList"
               :key="item.id"
@@ -85,7 +74,8 @@
       </template>
     </el-dialog>
 
-    <el-dialog :title="$t('member.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
+    <el-dialog :title="$t('member.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true"
+               @close="closeFunc">
       <el-form :model="form" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
@@ -123,10 +113,11 @@
 <script>
   import MsCreateBox from "../CreateBox";
   import {TokenKey} from "../../../../common/js/constants";
+  import MsTablePagination from "../../common/pagination/TablePagination";
 
   export default {
     name: "MsOrganizationMember",
-    components: {MsCreateBox},
+    components: {MsCreateBox, MsTablePagination},
     created() {
       this.initTableData();
     },
@@ -187,14 +178,6 @@
         this.form = {};
         this.initTableData();
       },
-      handleSizeChange(size) {
-        this.pageSize = size;
-        this.initTableData();
-      },
-      handleCurrentChange(current) {
-        this.currentPage = current;
-        this.initTableData();
-      },
       edit(row) {
         this.updateVisible = true;
         this.form = row;
@@ -214,7 +197,7 @@
           roleIds: this.form.roleIds,
           organizationId: this.currentUser().lastOrganizationId
         }
-        this.result = this.$post("/organization/member/update", param,() => {
+        this.result = this.$post("/organization/member/update", param, () => {
           this.$message({
             type: 'success',
             message: this.$t('commons.modify_success')
@@ -270,7 +253,7 @@
               roleIds: this.form.roleIds,
               organizationId: orgId
             };
-            this.result = this.$post("user/org/member/add", param,() => {
+            this.result = this.$post("user/org/member/add", param, () => {
               this.initTableData();
               this.createVisible = false;
             })

@@ -18,5 +18,6 @@
   "no_nodes_message": "没有节点信息",
   "duplicate_node_ip": "节点 IP 重复",
   "only_one_k8s": "只能添加一个 K8s",
-  "organization_id_is_null": "组织 ID 不能为空"
+  "organization_id_is_null": "组织 ID 不能为空",
+  "max_thread_insufficient": "并发用户数超额"
 }

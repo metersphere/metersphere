@@ -33,23 +33,8 @@
           </template>
         </el-table-column>
       </el-table>
-      <div>
-        <el-row>
-          <el-col :span="22" :offset="1">
-            <div class="table-page">
-              <el-pagination
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :current-page.sync="currentPage"
-                :page-sizes="[5, 10, 20, 50, 100]"
-                :page-size="pageSize"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="total">
-              </el-pagination>
-            </div>
-          </el-col>
-        </el-row>
-      </div>
+      <ms-table-pagination :change="list" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                           :total="total"/>
     </el-card>
 
     <el-dialog :title="$t('workspace.create')" :visible.sync="createVisible" width="30%">
@@ -103,23 +88,8 @@
           </template>
         </el-table-column>
       </el-table>
-      <div>
-        <el-row>
-          <el-col :span="22" :offset="1">
-            <div class="table-page">
-              <el-pagination
-                @size-change="handleMemberSizeChange"
-                @current-change="handleMemberCurrentChange"
-                :current-page.sync="currentMemberPage"
-                :page-sizes="[5, 10, 20, 50, 100]"
-                :page-size="pageMemberSize"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="memberTotal">
-              </el-pagination>
-            </div>
-          </el-col>
-        </el-row>
-      </div>
+      <ms-table-pagination :change="wsMemberList" :current-page.sync="currentMemberPage" :page-size.sync="pageMemberSize"
+                           :total="memberTotal"/>
     </el-dialog>
 
     <!-- add workspace member dialog -->
@@ -203,10 +173,11 @@
   import MsCreateBox from "../CreateBox";
   import {Message} from "element-ui";
   import {TokenKey} from "../../../../common/js/constants";
+  import MsTablePagination from "../../common/pagination/TablePagination";
 
   export default {
     name: "MsOrganizationWorkspace",
-    components: {MsCreateBox},
+    components: {MsCreateBox, MsTablePagination},
     mounted() {
       this.list();
     },
@@ -296,14 +267,6 @@
         }
 
       },
-      handleSizeChange(size) {
-        this.pageSize = size;
-        this.list();
-      },
-      handleCurrentChange(current) {
-        this.currentPage = current;
-        this.list();
-      },
       addMember() {
         this.addMemberVisible = true;
         this.memberForm = {};
@@ -337,20 +300,34 @@
           this.memberTotal = data.itemCount;
         });
       },
+      wsMemberList() {
+        let row = this.currentWorkspaceRow;
+        this.memberVisible = true;
+        let param = {
+          name: '',
+          workspaceId: row.id
+        };
+        let path = "/user/ws/member/list";
+        this.result = this.$post(this.buildPagePath(path), param, res => {
+          let data = res.data;
+          this.memberLineData = data.listObject;
+          let url = "/userrole/list/ws/" + row.id;
+          // 填充角色信息
+          for (let i = 0; i < this.memberLineData.length; i++) {
+            this.$get(url + "/" + this.memberLineData[i].id, response => {
+              let roles = response.data;
+              this.$set(this.memberLineData[i], "roles", roles);
+            })
+          }
+          this.memberTotal = data.itemCount;
+        });
+      },
       closeFunc() {
         this.form = {};
       },
       closeMemberFunc() {
         this.memberLineData = [];
         this.list();
-      },
-      handleMemberSizeChange(size) {
-        this.pageMemberSize = size;
-        this.cellClick(this.currentWorkspaceRow);
-      },
-      handleMemberCurrentChange(current) {
-        this.currentMemberPage = current;
-        this.cellClick(this.currentWorkspaceRow);
       },
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {
@@ -418,7 +395,7 @@
         });
       },
       buildPagePath(path) {
-        return path + "/" + this.currentPage + "/" + this.pageSize;
+        return path + "/" + this.currentMemberPage + "/" + this.pageMemberSize;
       },
     },
     data() {

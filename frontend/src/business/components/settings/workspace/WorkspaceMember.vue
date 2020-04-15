@@ -32,23 +32,8 @@
           </template>
         </el-table-column>
       </el-table>
-      <div>
-        <el-row>
-          <el-col :span="22" :offset="1">
-            <div class="table-page">
-              <el-pagination
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :current-page.sync="currentPage"
-                :page-sizes="[5, 10, 20, 50, 100]"
-                :page-size="pageSize"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="total">
-              </el-pagination>
-            </div>
-          </el-col>
-        </el-row>
-      </div>
+      <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                           :total="total"/>
     </el-card>
 
     <el-dialog title="添加成员" :visible.sync="createVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
@@ -123,10 +108,11 @@
 <script>
   import MsCreateBox from "../CreateBox";
   import {TokenKey} from "../../../../common/js/constants";
+  import MsTablePagination from "../../common/pagination/TablePagination";
 
   export default {
     name: "MsMember",
-    components: {MsCreateBox},
+    components: {MsCreateBox, MsTablePagination},
     data() {
       return {
         result: {},
@@ -188,12 +174,6 @@
       },
       search() {
         this.initTableData();
-      },
-      handleSizeChange(size) {
-        this.pageSize = size;
-      },
-      handleCurrentChange(current) {
-        this.currentPage = current;
       },
       closeFunc() {
         this.form = {};

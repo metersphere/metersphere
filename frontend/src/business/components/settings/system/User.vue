@@ -46,27 +46,13 @@
         </el-table-column>
       </el-table>
 
-      <div>
-        <el-row>
-          <el-col :span="22" :offset="1">
-            <div class="table-page">
-              <el-pagination
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :current-page.sync="currentPage"
-                :page-sizes="[5, 10, 20, 50, 100]"
-                :page-size="pageSize"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="total">
-              </el-pagination>
-            </div>
-          </el-col>
-        </el-row>
-      </div>
+      <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                           :total="total"/>
 
     </el-card>
 
-    <el-dialog :title="$t('user.create')" :visible.sync="createVisible" width="30%" @closed="closeFunc" :destroy-on-close="true">
+    <el-dialog :title="$t('user.create')" :visible.sync="createVisible" width="30%" @closed="closeFunc"
+               :destroy-on-close="true">
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule" ref="createUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off"/>
@@ -89,7 +75,8 @@
       </template>
     </el-dialog>
 
-    <el-dialog :title="$t('user.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
+    <el-dialog :title="$t('user.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true"
+               @close="closeFunc">
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
@@ -105,7 +92,7 @@
         </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <span  class="dialog-footer">
+        <span class="dialog-footer">
           <el-button type="primary" onkeydown="return false;"
                      @click="updateUser('updateUserForm')" size="medium">{{$t('commons.save')}}</el-button>
         </span>
@@ -117,6 +104,7 @@
 
 <script>
   import MsCreateBox from "../CreateBox";
+  import MsTablePagination from "../../common/pagination/TablePagination";
 
   export default {
     data() {
@@ -138,12 +126,12 @@
         form: {},
         rule: {
           id: [
-            { required: true, message: this.$t('user.input_id'), trigger: 'blur'},
-            { min: 2, max: 20, message: this.$t('commons.input_limit', [2, 20]), trigger: 'blur' }
+            {required: true, message: this.$t('user.input_id'), trigger: 'blur'},
+            {min: 2, max: 20, message: this.$t('commons.input_limit', [2, 20]), trigger: 'blur'}
           ],
           name: [
             {required: true, message: this.$t('user.input_name'), trigger: 'blur'},
-            { min: 2, max: 20, message: this.$t('commons.input_limit', [2, 20]), trigger: 'blur' },
+            {min: 2, max: 20, message: this.$t('commons.input_limit', [2, 20]), trigger: 'blur'},
             {
               required: true,
               pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/,
@@ -160,7 +148,7 @@
             }
           ],
           email: [
-            { required: true, message: this.$t('user.input_email'), trigger: 'blur' },
+            {required: true, message: this.$t('user.input_email'), trigger: 'blur'},
             {
               required: true,
               pattern: /^([A-Za-z0-9_\-.])+@([A-Za-z0-9]+\.)+[A-Za-z]{2,6}$/,
@@ -172,9 +160,9 @@
       }
     },
     name: "MsUser",
-    components: {MsCreateBox},
+    components: {MsCreateBox, MsTablePagination},
     created() {
-      this.initTableData();
+      this.search();
     },
     methods: {
       create() {
@@ -195,7 +183,7 @@
               type: 'success',
               message: this.$t('commons.delete_success')
             });
-            this.initTableData();
+            this.search();
           });
         }).catch(() => {
           this.$message({
@@ -212,9 +200,9 @@
                 type: 'success',
                 message: this.$t('commons.save_success')
               });
-              this.initTableData();
+              this.search();
               this.createVisible = false;
-              });
+            });
           } else {
             return false;
           }
@@ -223,37 +211,34 @@
       updateUser(updateUserForm) {
         this.$refs[updateUserForm].validate(valide => {
           if (valide) {
-            this.result = this.$post(this.updatePath, this.form,() => {
+            this.result = this.$post(this.updatePath, this.form, () => {
               this.$message({
-                  type: 'success',
-                  message: this.$t('commons.modify_success')
+                type: 'success',
+                message: this.$t('commons.modify_success')
               });
               this.updateVisible = false;
-              this.initTableData();
-              });
+              this.search();
+            });
           } else {
             return false;
           }
         })
       },
       search() {
-        this.initTableData();
-      },
-      initTableData() {
         let param = {
           name: this.condition
         };
-        this.result = this.$post(this.buildPagePath(this.queryPath),param,response => {
-            let data = response.data;
-            this.total = data.itemCount;
-            this.tableData = data.listObject;
+        this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
+          let data = response.data;
+          this.total = data.itemCount;
+          this.tableData = data.listObject;
         })
       },
       closeFunc() {
         this.form = {};
       },
       changeSwitch(row) {
-        this.$post(this.updatePath, row,() =>{
+        this.$post(this.updatePath, row, () => {
           this.$message({
             type: 'success',
             message: this.$t('commons.modify_success')
@@ -262,14 +247,6 @@
       },
       buildPagePath(path) {
         return path + "/" + this.currentPage + "/" + this.pageSize;
-      },
-      handleSizeChange(size) {
-        this.pageSize = size;
-        this.initTableData();
-      },
-      handleCurrentChange(current) {
-        this.currentPage = current;
-        this.initTableData();
       },
       handleSelectionChange(val) {
         this.multipleSelection = val;

@@ -15,6 +15,7 @@ import io.metersphere.engine.kubernetes.crds.jmeter.Jmeter;
 import io.metersphere.engine.kubernetes.crds.jmeter.JmeterSpec;
 import io.metersphere.engine.kubernetes.provider.ClientCredential;
 import io.metersphere.engine.kubernetes.provider.KubernetesProvider;
+import io.metersphere.i18n.Translator;
 import org.apache.commons.collections.MapUtils;
 
 import java.util.HashMap;
@@ -43,7 +44,7 @@ public class KubernetesTestEngine extends AbstractEngine {
             Integer maxConcurrency = clientCredential.getMaxConcurrency();
             // 当前测试需要的并发数大于剩余的并发数报错
             if (threadNum > maxConcurrency - sumThreadNum) {
-                MSException.throwException("Insufficient resources");
+                MSException.throwException(Translator.get("max_thread_insufficient"));
             }
             try {
                 EngineContext context = EngineFactory.createContext(loadTest, threadNum, this.getStartTime(), this.getReportId());

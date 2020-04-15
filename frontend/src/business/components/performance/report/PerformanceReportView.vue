@@ -147,7 +147,9 @@
             if(data){
               this.startTime = data.startTime;
               this.endTime = data.endTime;
-              this.duration = data.duration;
+              let duration = data.duration;
+              this.minutes = Math.floor(duration / 60);
+              this.seconds = duration % 60;
             }
           })
           window.location.reload();

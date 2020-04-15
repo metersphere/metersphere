@@ -12,6 +12,7 @@ import io.metersphere.engine.EngineContext;
 import io.metersphere.engine.EngineFactory;
 import io.metersphere.engine.docker.request.BaseRequest;
 import io.metersphere.engine.docker.request.TestRequest;
+import io.metersphere.i18n.Translator;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -41,7 +42,7 @@ public class DockerTestEngine extends AbstractEngine {
                 .reduce(Integer::sum)
                 .orElse(0);
         if (threadNum > totalThreadNum - runningSumThreadNum) {
-            MSException.throwException("Insufficient resources");
+            MSException.throwException(Translator.get("max_thread_insufficient"));
         }
         List<Integer> resourceRatio = resourceList.stream()
                 .filter(r -> ResourceStatusEnum.VALID.name().equals(r.getStatus()))

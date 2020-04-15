@@ -59,10 +59,10 @@
 
     <el-row>
       <el-col :span="12">
-        <chart ref="chart1" :options="loadOption" :autoresize="true"></chart>
+        <chart ref="chart1" :options="loadOption" class="chart-config" :autoresize="true"></chart>
       </el-col>
       <el-col :span="12">
-        <chart ref="chart2" :options="resOption" :autoresize="true"></chart>
+        <chart ref="chart2" :options="resOption" class="chart-config" :autoresize="true"></chart>
       </el-col>
     </el-row>
   </div>
@@ -96,6 +96,10 @@
         })
         this.$get("/performance/report/content/load_chart/" + this.id, res => {
           let data = res.data;
+          let userList = data.filter(m => m.groupName === "users").map(m => m.yAxis);
+          let hitsList = data.filter(m => m.groupName === "hits").map(m => m.yAxis);
+          let userMax = this._getChartMax(userList);
+          let hitsMax = this._getChartMax(hitsList);
           let loadOption = {
             title: {
               text: 'Load',
@@ -105,30 +109,57 @@
                 color: '#65A2FF'
               },
             },
+            tooltip: {
+              show: true,
+              trigger: 'axis'
+            },
             legend: {},
             xAxis: {},
             yAxis: [{
               name: 'User',
               type: 'value',
               min: 0,
+              max: userMax,
               splitNumber: 5,
-              // interval: 10 / 5
+              interval: userMax / 5
             },
               {
                 name: 'Hits/s',
                 type: 'value',
                 splitNumber: 5,
                 min: 0,
-                // max: 5,
-                // interval: 5 / 5
+                max: hitsMax,
+                interval: hitsMax / 5
               }
             ],
             series: []
+          };
+          let setting = {
+            series: [
+              {
+                name: 'users',
+                color: '#0CA74A',
+              },
+              {
+                name: 'hits',
+                yAxisIndex: '1',
+                color: '#65A2FF',
+              },
+              {
+                name: 'errors',
+                yAxisIndex: '1',
+                color: '#E6113C',
+              }
+            ]
           }
-          this.loadOption = this.generateOption(loadOption, data);
+          this.loadOption = this.generateOption(loadOption, data, setting);
         })
         this.$get("/performance/report/content/res_chart/" + this.id, res => {
           let data = res.data;
+          let userList = data.filter(m => m.groupName === "users").map(m => m.yAxis);
+          let responseTimeList = data.filter(m => m.groupName === "responseTime").map(m => m.yAxis);
+          let userMax = this._getChartMax(userList);
+          let resMax = this._getChartMax(responseTimeList);
           let resOption = {
             title: {
               text: 'Response Time',
@@ -138,28 +169,55 @@
                 color: '#99743C'
               },
             },
+            tooltip: {
+              show: true,
+              trigger: 'axis'
+            },
             legend: {},
             xAxis: {},
             yAxis: [{
               name: 'User',
               type: 'value',
-              splitNumber: 5,
-              min: 0
+              min: 0,
+              max: userMax,
+              interval: userMax / 5
             },
               {
                 name: 'Response Time',
                 type: 'value',
-                splitNumber: 5,
-                min: 0
+                min: 0,
+                max: resMax,
+                interval: resMax / 5
               }
             ],
             series: []
           }
-          this.resOption = this.generateOption(resOption, data);
+          let setting = {
+            series: [
+              {
+                name: 'users',
+                color: '#0CA74A',
+              },
+              {
+                name: "responseTime",
+                yAxisIndex: '1',
+                color: '#99743C',
+              }
+            ]
+          }
+          this.resOption = this.generateOption(resOption, data, setting);
         })
       },
-      generateOption(option, data) {
+      generateOption(option, data, setting) {
         let chartData = data;
+        let seriesArray = [];
+        for (let set in setting) {
+          if (set === "series") {
+            seriesArray = setting[set];
+            continue;
+          }
+          this.$set(option, set, setting[set]);
+        }
         let legend = [], series = {}, xAxis = [], seriesData = [];
         chartData.forEach(item => {
           if (!xAxis.includes(item.xAxis)) {
@@ -183,11 +241,24 @@
             type: 'line',
             data: data
           };
+          let seriesArrayNames = seriesArray.map(m => m.name);
+          if (seriesArrayNames.includes(name)) {
+            for (let j = 0; j < seriesArray.length; j++) {
+              let seriesObj = seriesArray[j];
+              if (seriesObj['name'] === name) {
+                Object.assign(items, seriesObj);
+              }
+            }
+          }
           seriesData.push(items);
         }
         this.$set(option, "series", seriesData);
         return option;
       },
+      _getChartMax(arr) {
+        const max = Math.max(...arr);
+        return Math.ceil(max / 4.5) * 5;
+      }
     },
     watch: {
       status() {
@@ -274,6 +345,10 @@
   .ms-card-index-6 {
     border-left-color: #3C9899;
     border-left-width: 3px;
+  }
+
+  .chart-config {
+    width: 100%;
   }
 
 </style>

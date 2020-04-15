@@ -53,6 +53,9 @@
               <el-tag size="mini" type="success" v-else-if="row.status === 'Running'">
                 {{ row.status }}
               </el-tag>
+              <el-tag size="mini" type="info" v-else-if="row.status === 'Completed'">
+                {{ row.status }}
+              </el-tag>
               <el-tooltip placement="top" v-else-if="row.status === 'Error'" effect="light">
                 <template v-slot:content>
                   <div>{{row.description}}</div>
@@ -61,9 +64,9 @@
                   {{ row.status }}
                 </el-tag>
               </el-tooltip>
-              <el-tag size="mini" type="info" v-else>
+              <span v-else>
                 {{ row.status }}
-              </el-tag>
+              </span>
             </template>
           </el-table-column>
           <el-table-column
@@ -75,23 +78,8 @@
             </template>
           </el-table-column>
         </el-table>
-        <div>
-          <el-row>
-            <el-col :span="22" :offset="1">
-              <div class="table-page">
-                <el-pagination
-                  @size-change="handleSizeChange"
-                  @current-change="handleCurrentChange"
-                  :current-page.sync="currentPage"
-                  :page-sizes="[5, 10, 20, 50, 100]"
-                  :page-size="pageSize"
-                  layout="total, sizes, prev, pager, next, jumper"
-                  :total="total">
-                </el-pagination>
-              </div>
-            </el-col>
-          </el-row>
-        </div>
+        <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                             :total="total"/>
       </el-card>
     </div>
 
@@ -99,8 +87,11 @@
 </template>
 
 <script>
+  import MsTablePagination from "../../common/pagination/TablePagination";
+
   export default {
     name: "PerformanceTestReport",
+    components: {MsTablePagination},
     created: function () {
       this.initTableData();
     },
@@ -136,14 +127,6 @@
       },
       buildPagePath(path) {
         return path + "/" + this.currentPage + "/" + this.pageSize;
-      },
-      handleSizeChange(size) {
-        this.pageSize = size;
-        this.initTableData();
-      },
-      handleCurrentChange(current) {
-        this.currentPage = current;
-        this.initTableData();
       },
       handleSelectionChange(val) {
         this.multipleSelection = val;
