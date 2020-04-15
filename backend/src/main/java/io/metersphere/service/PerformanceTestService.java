@@ -200,35 +200,30 @@ public class PerformanceTestService {
         testReport.setTestId(loadTest.getId());
         testReport.setName(loadTest.getName());
         // 启动测试
-        testReport.setContent(HEADERS);
-        testReport.setStatus(TestStatus.Starting.name());
-        loadTestReportMapper.insertSelective(testReport);
-
-        LoadTestReportDetail reportDetail = new LoadTestReportDetail();
-        reportDetail.setContent(HEADERS);
-        reportDetail.setReportId(testReport.getId());
-        loadTestReportDetailMapper.insertSelective(reportDetail);
 
         try {
-            // 标记running状态
+            engine.start();
+            // 启动正常修改状态 starting
             loadTest.setStatus(TestStatus.Starting.name());
             loadTestMapper.updateByPrimaryKeySelective(loadTest);
+            // 启动正常插入 report
+            testReport.setContent(HEADERS);
+            testReport.setStatus(TestStatus.Starting.name());
+            loadTestReportMapper.insertSelective(testReport);
+
+            LoadTestReportDetail reportDetail = new LoadTestReportDetail();
+            reportDetail.setContent(HEADERS);
+            reportDetail.setReportId(testReport.getId());
+            loadTestReportDetailMapper.insertSelective(reportDetail);
             // append \n
             extLoadTestReportMapper.appendLine(testReport.getId(), "\n");
             // append \n
             extLoadTestReportDetailMapper.appendLine(testReport.getId(), "\n");
-            //
-            engine.start();
         } catch (MSException e) {
             LogUtil.error(e);
-
             loadTest.setStatus(TestStatus.Error.name());
             loadTest.setDescription(e.getMessage());
             loadTestMapper.updateByPrimaryKeySelective(loadTest);
-            //
-            testReport.setStatus(TestStatus.Error.name());
-            testReport.setDescription(e.getMessage());
-            loadTestReportMapper.updateByPrimaryKeySelective(testReport);
             throw e;
         }
     }
