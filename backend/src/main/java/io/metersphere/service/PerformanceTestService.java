@@ -164,7 +164,8 @@ public class PerformanceTestService {
             loadTest.setLoadConfiguration(request.getLoadConfiguration());
             loadTest.setAdvancedConfiguration(request.getAdvancedConfiguration());
             loadTest.setTestResourcePoolId(request.getTestResourcePoolId());
-            loadTest.setStatus(PerformanceTestStatus.Saved.name());
+            // todo 修改 load_test 的时候排除状态，这里存在修改了 Running 的测试状态的风险
+//            loadTest.setStatus(PerformanceTestStatus.Saved.name());
             loadTestMapper.updateByPrimaryKeySelective(loadTest);
         }
 
