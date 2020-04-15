@@ -6,7 +6,7 @@ import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.alibaba.excel.util.StringUtils;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.excel.util.ExcelValidateHelper;
+import io.metersphere.excel.utils.ExcelValidateHelper;
 import io.metersphere.excel.domain.ExcelErrData;
 
 import java.lang.reflect.Field;

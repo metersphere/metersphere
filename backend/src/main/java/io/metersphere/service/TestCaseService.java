@@ -1,7 +1,9 @@
 package io.metersphere.service;
 
 
+import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.EasyExcelFactory;
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
@@ -13,6 +15,7 @@ import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.excel.domain.TestCaseExcelData;
 import io.metersphere.excel.listener.EasyExcelListener;
 import io.metersphere.excel.listener.TestCaseDataListener;
+import io.metersphere.excel.utils.EasyExcelUtil;
 import io.metersphere.user.SessionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -23,11 +26,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.net.URLEncoder;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -215,5 +217,43 @@ public class TestCaseService {
             });
         }
         sqlSession.flushStatements();
+    }
+
+    public void testCaseTemplateExport(HttpServletResponse response) {
+       EasyExcelUtil.export(response, TestCaseExcelData.class, generateExportTemplate(), "测试用例模版", "模版");
+    }
+
+    private List<TestCaseExcelData> generateExportTemplate() {
+        List<TestCaseExcelData> list = new ArrayList<TestCaseExcelData>();
+        StringBuilder path = new StringBuilder("");
+        List<String> types = Arrays.asList("functional", "performance", "api");
+        List<String> methods = Arrays.asList("manual", "auto");
+        for (int i = 1; i <= 5; i++) {
+            TestCaseExcelData data = new TestCaseExcelData();
+            data.setName("测试用例" + i);
+            path.append("/" + "模块" + i);
+            data.setNodePath(path.toString());
+            data.setPriority("P" + i%4);
+            data.setType(types.get(i%3));
+            data.setMethod(methods.get(i%2));
+            data.setPrerequisite("前置条件选填");
+            data.setStepDesc("1. 每个步骤以换行分隔\n2. 步骤前可标序号\n3. 测试步骤和结果选填");
+            data.setStepResult("1. 每条结果以换行分隔\n2. 结果前可标序号\n3. 测试步骤和结果选填");
+            data.setMaintainer("admin");
+            data.setRemark("备注选填");
+            list.add(data);
+        }
+
+        list.add(new TestCaseExcelData());
+        TestCaseExcelData explain = new TestCaseExcelData();
+        explain.setName("同一项目下测试用例名称不能重复！");
+        explain.setNodePath("模块名称请按照'/模块1/模块2'的格式书写; 错误格式示例:('/', '/tes//test'); 若无该模块，则自动创建模块");
+        explain.setType("用例类型必须为：functional、performance、api");
+        explain.setMethod("测试方式必须为：manual、auto");
+        explain.setPriority("优先级必须为：P0、P1、P2、P3");
+        explain.setMaintainer("维护人必须为该工作空间相关人员");
+
+        list.add(explain);
+        return list;
     }
 }

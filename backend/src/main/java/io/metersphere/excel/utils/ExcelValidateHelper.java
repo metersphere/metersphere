@@ -1,4 +1,4 @@
-package io.metersphere.excel.util;
+package io.metersphere.excel.utils;
 
 import com.alibaba.excel.annotation.ExcelProperty;
 

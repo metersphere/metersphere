@@ -9,7 +9,7 @@ import io.metersphere.base.mapper.TestPlanTestCaseMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.dto.TestCaseNodeDTO;
-import io.metersphere.exception.ExcelImportException;
+import io.metersphere.exception.ExcelException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -213,7 +213,7 @@ public class TestCaseNodeService {
         nodePaths.forEach(path -> {
 
             if (path == null) {
-                throw new ExcelImportException("所属模块不能为空！");
+                throw new ExcelException("所属模块不能为空！");
             }
             List<String> nodeNameList = new ArrayList<>(Arrays.asList(path.split("/")));
             Iterator<String> pathIterator = nodeNameList.iterator();
@@ -222,7 +222,7 @@ public class TestCaseNodeService {
             String rootNodeName = null;
 
             if (nodeNameList.size() <= 1) {
-                throw new ExcelImportException("创建模块失败：" + path);
+                throw new ExcelException("创建模块失败：" + path);
             } else {
                 pathIterator.next();
                 pathIterator.remove();

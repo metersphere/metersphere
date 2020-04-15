@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RequestMapping("/test/case")
@@ -74,6 +75,11 @@ public class TestCaseController {
     @PostMapping("/import/{projectId}")
     public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String projectId){
         return testCaseService.testCaseImport(file, projectId);
+    }
+
+    @GetMapping("/export/template")
+    public void testCaseTemplateExport(HttpServletResponse response){
+        testCaseService.testCaseTemplateExport(response);
     }
 
 

@@ -1,23 +1,28 @@
 package io.metersphere.excel.domain;
 
 import com.alibaba.excel.annotation.ExcelProperty;
+import com.alibaba.excel.annotation.write.style.ColumnWidth;
+import com.alibaba.excel.annotation.write.style.ContentRowHeight;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
+@ColumnWidth(15)
 public class TestCaseExcelData {
-
-    @NotBlank
-    @Length(max=1000)
-    @ExcelProperty("所属模块")
-    @Pattern(regexp = "^(?!.*//).*$", message = "格式不正确")
-    private String nodePath;
 
     @NotBlank
     @Length(max=50)
     @ExcelProperty("用例名称")
     private String name;
+
+    @NotBlank
+    @Length(max=1000)
+    @ExcelProperty("所属模块")
+    @ColumnWidth(30)
+    @Pattern(regexp = "^(?!.*//).*$", message = "格式不正确")
+    private String nodePath;
+
 
     @NotBlank
     @ExcelProperty("用例类型")
@@ -38,18 +43,22 @@ public class TestCaseExcelData {
     @Pattern(regexp = "(^manual$)|(^auto$)", message = "必须为manual、auto")
     private String method;
 
+    @ColumnWidth(50)
     @ExcelProperty("前置条件")
     @Length(min=0, max=1000)
     private String prerequisite;
 
+    @ColumnWidth(50)
     @ExcelProperty("备注")
     @Length(max=1000)
     private String remark;
 
+    @ColumnWidth(50)
     @ExcelProperty("步骤描述")
     @Length(max=1000)
     private String stepDesc;
 
+    @ColumnWidth(50)
     @ExcelProperty("预期结果")
     @Length(max=1000)
     private String stepResult;

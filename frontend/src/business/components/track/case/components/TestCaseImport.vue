@@ -10,7 +10,8 @@
                @close="init">
 
       <el-row>
-        <el-link type="primary" class="download-template">下载模版</el-link>
+        <el-link type="primary" class="download-template"
+                 href="/test/case/export/template">下载模版</el-link>
       </el-row>
 
       <el-row>
