@@ -6,8 +6,11 @@ import io.metersphere.base.mapper.TestCaseMapper;
 import io.metersphere.base.mapper.TestCaseNodeMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.TestPlanTestCaseMapper;
+import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.dto.TestCaseNodeDTO;
+import io.metersphere.exception.ExcelImportException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,8 +33,8 @@ public class TestCaseNodeService {
 
     public int addNode(TestCaseNode node) {
 
-        if(node.getLevel() > 5){
-            throw new RuntimeException("模块树最大深度为5层！");
+        if(node.getLevel() > TestCaseConstants.MAX_NODE_DEPTH){
+            throw new RuntimeException("模块树最大深度为" + TestCaseConstants.MAX_NODE_DEPTH + "层！");
         }
         node.setCreateTime(System.currentTimeMillis());
         node.setUpdateTime(System.currentTimeMillis());
@@ -195,5 +198,125 @@ public class TestCaseNodeService {
     public List<TestCaseNodeDTO> getAllNodeByPlanId(String planId) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
         return getNodeTreeByProjectId(testPlan.getProjectId());
+    }
+
+    public Map<String, Integer> createNodeByTestCases(List<TestCaseWithBLOBs> testCases, String projectId) {
+
+        List<TestCaseNodeDTO> nodeTrees = getNodeTreeByProjectId(projectId);
+
+        Map<String, Integer> pathMap = new HashMap<>();
+
+        List<String> nodePaths = testCases.stream()
+                .map(TestCase::getNodePath)
+                .collect(Collectors.toList());
+
+        nodePaths.forEach(path -> {
+
+            if (path == null) {
+                throw new ExcelImportException("所属模块不能为空！");
+            }
+            List<String> nodeNameList = new ArrayList<>(Arrays.asList(path.split("/")));
+            Iterator<String> pathIterator = nodeNameList.iterator();
+
+            Boolean hasNode = false;
+            String rootNodeName = null;
+
+            if (nodeNameList.size() <= 1) {
+                throw new ExcelImportException("创建模块失败：" + path);
+            } else {
+                pathIterator.next();
+                pathIterator.remove();
+
+                rootNodeName = pathIterator.next().trim();
+                for (TestCaseNodeDTO nodeTree : nodeTrees) {
+                    if (StringUtils.equals(rootNodeName, nodeTree.getName())) {
+                        hasNode = true;
+                        createNodeByPathIterator(pathIterator, "/" + rootNodeName, nodeTree,
+                                pathMap, projectId, 2);
+                    };
+                }
+            }
+
+            if (!hasNode) {
+                createNodeByPath(pathIterator, rootNodeName, null, projectId, 1, "", pathMap);
+            }
+        });
+
+        return pathMap;
+
+    }
+
+    /**
+     * 根据目标节点路径，创建相关节点
+     * @param pathIterator 遍历子路径
+     * @param path 当前路径
+     * @param treeNode 当前节点
+     * @param pathMap 记录节点路径对应的nodeId
+     */
+    private void createNodeByPathIterator(Iterator<String> pathIterator, String path, TestCaseNodeDTO treeNode,
+                                  Map<String, Integer> pathMap, String projectId, Integer level) {
+
+        List<TestCaseNodeDTO> children = treeNode.getChildren();
+
+        if (children == null || children.isEmpty() || !pathIterator.hasNext()) {
+            pathMap.put(path , treeNode.getId());
+            if (pathIterator.hasNext()) {
+                createNodeByPath(pathIterator, pathIterator.next().trim(), treeNode, projectId, level, path, pathMap);
+            }
+            return;
+        }
+
+        String nodeName = pathIterator.next().trim();
+
+        Boolean hasNode = false;
+
+        for (TestCaseNodeDTO child : children) {
+            if (StringUtils.equals(nodeName, child.getName())) {
+                hasNode = true;
+                createNodeByPathIterator(pathIterator, path + "/" + child.getName(),
+                        child, pathMap, projectId, level + 1);
+            };
+        }
+
+        //若子节点中不包含该目标节点，则在该节点下创建
+        if (!hasNode) {
+            createNodeByPath(pathIterator, nodeName, treeNode, projectId, level, path, pathMap);
+        }
+
+    }
+
+    /**
+     *
+     * @param pathIterator 迭代器，遍历子节点
+     * @param nodeName 当前节点
+     * @param pNode 父节点
+     */
+    private void createNodeByPath(Iterator<String> pathIterator, String nodeName,
+                                  TestCaseNodeDTO pNode, String projectId, Integer level,
+                                  String rootPath, Map<String, Integer> pathMap) {
+
+        StringBuilder path = new StringBuilder(rootPath);
+
+        Integer pid = insertTestCaseNode(nodeName, pNode == null ? null : pNode.getId(), projectId, level);
+        path.append("/" + nodeName);
+        pathMap.put(path.toString(), pid);
+        while (pathIterator.hasNext()) {
+            String nextNodeName = pathIterator.next();
+            path.append("/" + nextNodeName);
+            pid = insertTestCaseNode(nextNodeName, pid, projectId, ++level);
+            pathMap.put(path.toString(), pid);
+        }
+    }
+
+    private Integer insertTestCaseNode(String nodName, Integer pId, String projectId, Integer level) {
+        TestCaseNode testCaseNode = new TestCaseNode();
+        testCaseNode.setName(nodName.trim());
+        testCaseNode.setpId(pId);
+        testCaseNode.setProjectId(projectId);
+        testCaseNode.setCreateTime(System.currentTimeMillis());
+        testCaseNode.setUpdateTime(System.currentTimeMillis());
+        testCaseNode.setLevel(level);
+        testCaseNodeMapper.insert(testCaseNode);
+        return testCaseNode.getId();
     }
 }

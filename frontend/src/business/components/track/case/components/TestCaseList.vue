@@ -4,10 +4,19 @@
     <el-card v-loading="result.loading">
       <template v-slot:header>
         <div>
-          <el-row type="flex" justify="space-between" align="middle">
+          <el-row type="flex" justify="start" align="middle">
             <el-col :span="5">
               <span class="title">{{$t('test_track.test_case')}}</span>
               <ms-create-box :tips="$t('test_track.create')" :exec="testCaseCreate"/>
+            </el-col>
+
+            <el-col :span="1" :offset="12">
+             <test-case-import :projectId="currentProject == null? null : currentProject.id"
+                               @refresh="refresh"/>
+            </el-col>
+
+            <el-col :span="1">
+              <test-case-export/>
             </el-col>
 
             <el-col :span="5">
@@ -105,10 +114,12 @@
 <script>
 
   import MsCreateBox from '../../../settings/CreateBox';
+  import TestCaseImport from '../components/TestCaseImport';
+  import TestCaseExport from '../components/TestCaseExport';
 
   export default {
     name: "TestCaseList",
-    components: {MsCreateBox},
+    components: {MsCreateBox, TestCaseImport, TestCaseExport},
     data() {
       return {
         result: {},
@@ -195,6 +206,9 @@
               type: 'success'
             });
           });
+        },
+        refresh() {
+          this.$emit('refresh');
         }
       }
     }
