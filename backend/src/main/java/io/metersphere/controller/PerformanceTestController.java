@@ -4,7 +4,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.commons.constants.RoleConstants;
-import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.testplan.*;
@@ -86,10 +85,7 @@ public class PerformanceTestController {
 
     @PostMapping("/run")
     public void run(@RequestBody RunTestPlanRequest request) {
-        boolean started = performanceTestService.run(request);
-        if (!started) {
-            MSException.throwException("Start engine error, please check log.");
-        }
+        performanceTestService.run(request);
     }
 
     @GetMapping("/file/metadata/{testId}")

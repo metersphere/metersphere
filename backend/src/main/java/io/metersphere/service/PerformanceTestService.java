@@ -169,7 +169,8 @@ public class PerformanceTestService {
         return request.getId();
     }
 
-    public boolean run(RunTestPlanRequest request) {
+    @Transactional(noRollbackFor = MSException.class)//  保存失败的信息
+    public void run(RunTestPlanRequest request) {
         final LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(request.getId());
         if (loadTest == null) {
             MSException.throwException(Translator.get("run_load_test_not_found") + request.getId());
@@ -186,12 +187,12 @@ public class PerformanceTestService {
             MSException.throwException(String.format("Test cannot be run，test ID：%s", request.getId()));
         }
 
-        return startEngine(loadTest, engine);
+        startEngine(loadTest, engine);
 
         // todo：通过调用stop方法能够停止正在运行的engine，但是如果部署了多个backend实例，页面发送的停止请求如何定位到具体的engine
     }
 
-    private boolean startEngine(LoadTestWithBLOBs loadTest, Engine engine) {
+    private void startEngine(LoadTestWithBLOBs loadTest, Engine engine) {
         LoadTestReportWithBLOBs testReport = new LoadTestReportWithBLOBs();
         testReport.setId(engine.getReportId());
         testReport.setCreateTime(engine.getStartTime());
@@ -208,7 +209,6 @@ public class PerformanceTestService {
         reportDetail.setReportId(testReport.getId());
         loadTestReportDetailMapper.insertSelective(reportDetail);
 
-        boolean started = true;
         try {
             // 标记running状态
             loadTest.setStatus(TestStatus.Starting.name());
@@ -219,18 +219,18 @@ public class PerformanceTestService {
             extLoadTestReportDetailMapper.appendLine(testReport.getId(), "\n");
             //
             engine.start();
-        } catch (Exception e) {
+        } catch (MSException e) {
             LogUtil.error(e);
-            started = false;
 
             loadTest.setStatus(TestStatus.Error.name());
+            loadTest.setDescription(e.getMessage());
             loadTestMapper.updateByPrimaryKeySelective(loadTest);
             //
             testReport.setStatus(TestStatus.Error.name());
             testReport.setDescription(e.getMessage());
             loadTestReportMapper.updateByPrimaryKeySelective(testReport);
+            throw e;
         }
-        return started;
     }
 
     public List<LoadTestDTO> recentTestPlans(QueryTestPlanRequest request) {
