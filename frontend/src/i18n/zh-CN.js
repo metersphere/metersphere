@@ -168,7 +168,27 @@ export default {
     'resource_pool_is_null': '资源池为空',
   },
   api_test: {
-    'select_resource_pool': '请选择资源池'
+    scenario: {
+      name: "场景名称",
+      base_url: "基础URL",
+      base_url_describe: "基础URL作为所有请求的URL前缀",
+      variables: "变量",
+      headers: "请求头"
+    },
+    request: {
+      name: "请求名称",
+      method: "请求方法",
+      url: "请求URL",
+      url_describe: "例如: https://fit2cloud.com",
+      parameters: "请求参数",
+      parameters_desc: "参数追加到URL，例如https://fit2cloud.com/entries?key1=Value1&Key2=Value2",
+      headers: "请求头",
+      body: "请求内容",
+      body_kv: "键值对",
+      body_text: "文本",
+      assertions: "断言",
+      extract: "提取"
+    }
   },
   test_track: {
     'test_track': '测试跟踪',
