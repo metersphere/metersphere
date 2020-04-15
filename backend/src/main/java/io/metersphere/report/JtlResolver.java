@@ -104,7 +104,7 @@ public class JtlResolver {
             String average = decimalFormat.format((float) oneLineElapsedTime / jtlSamplesSize);
             requestStatistics.setAverage(average);
 
-            /**
+            /*
              * TP90的计算
              * 1，把一段时间内全部的请求的响应时间，从小到大排序，获得序列A
              * 2，总的请求数量，乘以90%，获得90%对应的请求个数C
@@ -123,7 +123,7 @@ public class JtlResolver {
             requestStatistics.setMax(elapsedList.get(jtlSamplesSize - 1) + "");
             requestStatistics.setErrors(decimalFormat.format(failSize * 100.0 / jtlSamplesSize) + "%");
             requestStatistics.setKo(failSize);
-            /**
+            /*
              * 所有的相同请求的bytes总和 / 1024 / 请求持续运行的时间=sum(bytes)/1024/total time
              * total time = 最大时间戳 - 最小时间戳 + 最后请求的响应时间
              */
@@ -268,19 +268,33 @@ public class JtlResolver {
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
         List<Metric> totalLineList = JtlResolver.resolver(jtlString);
+        // todo
+        List<Metric> totalLineList2 = JtlResolver.resolver(jtlString);
+        // 时间戳转时间
+        for (Metric metric : totalLineList2) {
+            metric.setTimestamp(stampToDate(DATE_TIME_PATTERN, metric.getTimestamp()));
+        }
+
+        Map<String, List<Metric>> collect2 = Objects.requireNonNull(totalLineList2).stream().collect(Collectors.groupingBy(Metric::getTimestamp));
+        List<Map.Entry<String, List<Metric>>> entries = new ArrayList<>(collect2.entrySet());
+        int maxUsers = 0;
+        for (Map.Entry<String, List<Metric>> entry : entries) {
+            List<Metric> metrics = entry.getValue();
+            Map<String, List<Metric>> metricsMap = metrics.stream().collect(Collectors.groupingBy(Metric::getThreadName));
+            if (metricsMap.size() > maxUsers) {
+                maxUsers = metricsMap.size();
+            }
+        }
+
         Map<String, List<Metric>> collect = totalLineList.stream().collect(Collectors.groupingBy(Metric::getTimestamp));
         Iterator<Map.Entry<String, List<Metric>>> iterator = collect.entrySet().iterator();
 
-        int maxUsers = 0, totalElapsed = 0;
+        int totalElapsed = 0;
         float totalBytes = 0f;
 
         while (iterator.hasNext()) {
             Map.Entry<String, List<Metric>> entry = iterator.next();
             List<Metric> metricList = entry.getValue();
-
-            if (metricList.size() > maxUsers) {
-                maxUsers = metricList.size();
-            }
 
             for (Metric metric : metricList) {
                 String elapsed = metric.getElapsed();
@@ -420,22 +434,22 @@ public class JtlResolver {
         totalLineList.sort(Comparator.comparing(t0 -> Long.valueOf(t0.getTimestamp())));
 
         String startTimeStamp = totalLineList.get(0).getTimestamp();
-        String endTimeStamp = totalLineList.get(totalLineList.size() - 1).getTimestamp();
+        String endTimeStamp = totalLineList.get(totalLineList.size()-1).getTimestamp();
 
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(DATE_TIME_PATTERN);
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         String startTime = dtf.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(startTimeStamp)), ZoneId.systemDefault()));
         String endTime = dtf.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(endTimeStamp)), ZoneId.systemDefault()));
         reportTimeInfo.setStartTime(startTime);
         reportTimeInfo.setEndTime(endTime);
 
+        Date startDate = new Date(Long.parseLong(startTimeStamp));
+        Date endDate = new Date(Long.parseLong(endTimeStamp));
+        long timestamp = endDate.getTime() - startDate.getTime();
+        reportTimeInfo.setDuration(String.valueOf(timestamp*1.0 / 1000 / 60));
+
+        // todo 时间问题
         long seconds = Duration.between(Instant.ofEpochMilli(Long.parseLong(startTimeStamp)), Instant.ofEpochMilli(Long.parseLong(endTimeStamp))).getSeconds();
-        String duration;
-        if (seconds / 60 == 0) {
-            duration = String.valueOf(1);
-        } else {
-            duration = String.valueOf(seconds / 60);
-        }
-        reportTimeInfo.setDuration(duration);
+        reportTimeInfo.setDuration(String.valueOf(seconds));
 
         return reportTimeInfo;
     }

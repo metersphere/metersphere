@@ -41,7 +41,7 @@
 </template>
 
 <script>
-  import {TokenKey} from '../common/js/constants';
+  import {saveLocalStorage} from '../common/js/utils';
 
 
   export default {
@@ -105,12 +105,7 @@
         this.$refs[form].validate((valid) => {
           if (valid) {
             this.$post("signin", this.form, (response) => {
-              // 登录信息保存 cookie
-              localStorage.setItem(TokenKey, JSON.stringify(response.data));
-              let rolesArray = response.data.roles;
-              let roles = rolesArray.map(r => r.id);
-              // 保存角色
-              localStorage.setItem("roles", roles);
+              saveLocalStorage(response);
               window.location.href = "/"
             });
           } else {

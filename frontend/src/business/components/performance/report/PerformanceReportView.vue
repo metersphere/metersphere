@@ -20,7 +20,7 @@
           </el-col>
           <el-col :span="8">
             <span class="ms-report-time-desc">
-              持续时间：  {{minutes}} 分钟
+              持续时间：  {{minutes}} 分钟 {{seconds}} 秒
             </span>
             <span class="ms-report-time-desc">
               开始时间：  {{startTime}}
@@ -79,6 +79,7 @@
         startTime: '0',
         endTime: '0',
         minutes: '0',
+        seconds: '0'
       }
     },
     methods: {
@@ -101,7 +102,9 @@
             if(data){
               this.startTime = data.startTime;
               this.endTime = data.endTime;
-              this.minutes = data.duration;
+              let duration = data.duration;
+              this.minutes = Math.floor(duration / 60);
+              this.seconds = duration % 60;
             }
           })
         }
@@ -144,7 +147,9 @@
             if(data){
               this.startTime = data.startTime;
               this.endTime = data.endTime;
-              this.minutes = data.duration;
+              let duration = data.duration;
+              this.minutes = Math.floor(duration / 60);
+              this.seconds = duration % 60;
             }
           })
           window.location.reload();

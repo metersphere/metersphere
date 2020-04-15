@@ -26,6 +26,7 @@
             :current-project="currentProject"
             @openTestCaseEditDialog="openTestCaseEditDialog"
             @testCaseEdit="openTestCaseEditDialog"
+            @refresh="refresh"
             ref="testCaseList">
           </test-case-list>
         </el-main>
