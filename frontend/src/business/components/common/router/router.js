@@ -18,7 +18,7 @@ import PerformanceTestReport from "../../performance/report/PerformanceTestRepor
 import ApiTestReport from "../../api/report/ApiTestReport";
 import ApiTest from "../../api/ApiTest";
 import PerformanceTest from "../../performance/PerformanceTest";
-import EditApiTest from "../../api/test/EditApiTest";
+import ApiScenarioConfig from "../../api/test/ApiScenarioConfig";
 import PerformanceTestHome from "../../performance/home/PerformanceTestHome";
 import ApiTestList from "../../api/test/ApiTestList";
 import ApiTestHome from "../../api/home/ApiTestHome";
@@ -96,13 +96,13 @@ const router = new VueRouter({
         },
         {
           path: 'test/create',
-          name: "createFucTest",
-          component: EditApiTest,
+          name: "createAPITest",
+          component: ApiScenarioConfig,
         },
         {
           path: "test/edit/:testId",
-          name: "editFucTest",
-          component: EditApiTest,
+          name: "editAPITest",
+          component: ApiScenarioConfig,
           props: {
             content: (route) => {
               return {
