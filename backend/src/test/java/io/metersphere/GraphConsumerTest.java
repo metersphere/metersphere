@@ -12,8 +12,6 @@ import org.apache.jmeter.report.processor.ResultData;
 import org.apache.jmeter.report.processor.SampleContext;
 import org.apache.jmeter.report.processor.graph.AbstractOverTimeGraphConsumer;
 import org.apache.jmeter.report.processor.graph.impl.ActiveThreadsGraphConsumer;
-import org.apache.jmeter.report.processor.graph.impl.LatencyOverTimeGraphConsumer;
-import org.apache.jmeter.report.processor.graph.impl.ResponseTimeOverTimeGraphConsumer;
 import org.apache.jmeter.util.JMeterUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,10 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
-import java.io.File;
-import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 import java.util.StringTokenizer;
 
 @RunWith(SpringRunner.class)
@@ -65,6 +60,7 @@ public class GraphConsumerTest {
 
     @Test
     public void test2() {
+        int row = 0;
         SampleContext sampleContext = new SampleContext();
 //        sampleContext.setWorkingDirectory(new File("/tmp/test_report/"));
         timeGraphConsumer.setSampleContext(sampleContext);
@@ -79,7 +75,7 @@ public class GraphConsumerTest {
         while (tokenizer.hasMoreTokens()) {
             String line = tokenizer.nextToken();
             String[] data = line.split(",", -1);
-            Sample sample = new Sample(0, sampleMetaData, data);
+            Sample sample = new Sample(row++, sampleMetaData, data);
             timeGraphConsumer.consume(sample, 0);
         }
         timeGraphConsumer.stopConsuming();
