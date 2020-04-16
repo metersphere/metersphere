@@ -6,16 +6,14 @@ import io.metersphere.base.domain.*;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.testcase.QueryTestCaseRequest;
-import io.metersphere.controller.request.testplan.QueryTestPlanRequest;
-import io.metersphere.dto.LoadTestDTO;
-import io.metersphere.dto.TestCaseNodeDTO;
-import io.metersphere.dto.TestPlanCaseDTO;
-import io.metersphere.service.TestCaseNodeService;
+import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.service.TestCaseService;
 import io.metersphere.user.SessionUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RequestMapping("/test/case")
@@ -72,6 +70,16 @@ public class TestCaseController {
     @PostMapping("/delete/{testCaseId}")
     public int deleteTestCase(@PathVariable String testCaseId){
         return testCaseService.deleteTestCase(testCaseId);
+    }
+
+    @PostMapping("/import/{projectId}")
+    public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String projectId){
+        return testCaseService.testCaseImport(file, projectId);
+    }
+
+    @GetMapping("/export/template")
+    public void testCaseTemplateExport(HttpServletResponse response){
+        testCaseService.testCaseTemplateExport(response);
     }
 
 

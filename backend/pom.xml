@@ -36,10 +36,6 @@
                     <artifactId>spring-boot-starter-tomcat</artifactId>
                     <groupId>org.springframework.boot</groupId>
                 </exclusion>
-                <exclusion>
-                    <artifactId>hibernate-validator</artifactId>
-                    <groupId>org.hibernate.validator</groupId>
-                </exclusion>
             </exclusions>
         </dependency>
 
@@ -138,6 +134,14 @@
             <artifactId>ApacheJMeter_core</artifactId>
             <version>${jmeter.version}</version>
         </dependency>
+
+        <!-- easyexcel -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>easyexcel</artifactId>
+            <version>2.1.7</version>
+        </dependency>
+
     </dependencies>
 
     <build>
