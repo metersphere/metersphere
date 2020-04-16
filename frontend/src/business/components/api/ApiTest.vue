@@ -4,7 +4,7 @@
     <div>
       <transition>
         <keep-alive>
-          <router-view :beaseUrl="beaseUrl"/>
+          <router-view :baseUrl="baseUrl"/>
         </keep-alive>
       </transition>
     </div>
@@ -19,7 +19,7 @@
     components: {MsApiHeaderMenus},
     data() {
       return {
-        beaseUrl: "api"
+        baseUrl: "api"
       }
     }
   }
