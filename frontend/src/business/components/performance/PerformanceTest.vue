@@ -4,7 +4,7 @@
     <div>
       <transition>
         <keep-alive>
-          <router-view :beaseUrl="beaseUrl"/>
+          <router-view :baseUrl="baseUrl"/>
         </keep-alive>
       </transition>
     </div>
@@ -20,7 +20,7 @@
     components: {PerformanceHeaderMenus},
     data() {
       return {
-        beaseUrl: "performance"
+        baseUrl: "performance"
       }
     }
   }

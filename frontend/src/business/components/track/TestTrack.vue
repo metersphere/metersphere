@@ -4,7 +4,7 @@
     <div>
       <transition>
         <keep-alive>
-          <router-view :beaseUrl="beaseUrl"/>
+          <router-view :baseUrl="baseUrl"/>
         </keep-alive>
       </transition>
     </div>
@@ -15,12 +15,12 @@
 
   import TrackHeaderMenus from "./head/TrackHeaderMenus";
 
-    export default {
+  export default {
       name: "TrackHome",
       components: {TrackHeaderMenus},
       data() {
         return {
-          beaseUrl: "track"
+          baseUrl: "track"
         }
       }
     }
