@@ -228,6 +228,7 @@ public class TestCaseNodeService {
                 pathIterator.remove();
 
                 rootNodeName = pathIterator.next().trim();
+                //原来没有，新建的树nodeTrees也不包含
                 for (TestCaseNodeDTO nodeTree : nodeTrees) {
                     if (StringUtils.equals(rootNodeName, nodeTree.getName())) {
                         hasNode = true;
@@ -236,6 +237,7 @@ public class TestCaseNodeService {
                     };
                 }
             }
+
 
             if (!hasNode) {
                 createNodeByPath(pathIterator, rootNodeName, null, projectId, 1, "", pathMap);
@@ -297,20 +299,34 @@ public class TestCaseNodeService {
 
         StringBuilder path = new StringBuilder(rootPath);
 
-        Integer pid = insertTestCaseNode(nodeName, pNode == null ? null : pNode.getId(), projectId, level);
         path.append("/" + nodeName);
-        pathMap.put(path.toString(), pid);
+
+        Integer pid = null;
+        //创建过不创建
+        if (pathMap.get(path.toString()) != null) {
+            pid = pathMap.get(path.toString());
+            level++;
+        } else {
+            pid = insertTestCaseNode(nodeName, pNode == null ? null : pNode.getId(), projectId, level);
+            pathMap.put(path.toString(), pid);
+        }
+
         while (pathIterator.hasNext()) {
             String nextNodeName = pathIterator.next();
             path.append("/" + nextNodeName);
-            pid = insertTestCaseNode(nextNodeName, pid, projectId, ++level);
-            pathMap.put(path.toString(), pid);
+            if (pathMap.get(path.toString()) != null) {
+                pid = pathMap.get(path.toString());
+                level++;
+            } else {
+                pid = insertTestCaseNode(nextNodeName, pid, projectId, level);
+                pathMap.put(path.toString(), pid);
+            }
         }
     }
 
-    private Integer insertTestCaseNode(String nodName, Integer pId, String projectId, Integer level) {
+    private Integer insertTestCaseNode(String nodeName, Integer pId, String projectId, Integer level) {
         TestCaseNode testCaseNode = new TestCaseNode();
-        testCaseNode.setName(nodName.trim());
+        testCaseNode.setName(nodeName.trim());
         testCaseNode.setpId(pId);
         testCaseNode.setProjectId(projectId);
         testCaseNode.setCreateTime(System.currentTimeMillis());

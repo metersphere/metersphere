@@ -41,6 +41,9 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
         if ( nodePath.split("/").length > TestCaseConstants.MAX_NODE_DEPTH + 1) {
             stringBuilder.append("节点最多为" + TestCaseConstants.MAX_NODE_DEPTH + "层;");
         }
+        if ( nodePath.trim().contains(" ")) {
+            stringBuilder.append("所属模块不能包含空格");
+        }
         if (!userNames.contains(data.getMaintainer())) {
             stringBuilder.append("该工作空间下无该用户：" + data.getMaintainer() + ";");
         }

@@ -23,7 +23,6 @@ public class TestCaseExcelData {
     @Pattern(regexp = "^(?!.*//).*$", message = "格式不正确")
     private String nodePath;
 
-
     @NotBlank
     @ExcelProperty("用例类型")
     @Pattern(regexp = "(^functional$)|(^performance$)|(^api$)", message = "必须为functional、performance、api")
