@@ -132,7 +132,12 @@
             <artifactId>opencsv</artifactId>
             <version>5.1</version>
         </dependency>
-
+        <!-- jmeter -->
+        <dependency>
+            <groupId>org.apache.jmeter</groupId>
+            <artifactId>ApacheJMeter_core</artifactId>
+            <version>${jmeter.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
