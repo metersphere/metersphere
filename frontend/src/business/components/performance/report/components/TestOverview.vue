@@ -229,17 +229,18 @@
             legend.push(name)
             series[name] = []
           }
-          series[name].splice(xAxis.indexOf(item.xAxis), 0, item.yAxis.toFixed(2));
+          series[name].splice(xAxis.indexOf(item.xAxis), 0, [item.xAxis, Math.round(item.yAxis.toFixed(2))]);
         })
         this.$set(option.legend, "data", legend);
         this.$set(option.legend, "bottom", 10);
         this.$set(option.xAxis, "data", xAxis);
         for (let name in series) {
-          let data = series[name];
+          let d = series[name];
+          d.sort((a, b) => a[0].localeCompare(b[0]));
           let items = {
             name: name,
             type: 'line',
-            data: data
+            data: d
           };
           let seriesArrayNames = seriesArray.map(m => m.name);
           if (seriesArrayNames.includes(name)) {
@@ -258,6 +259,9 @@
       _getChartMax(arr) {
         const max = Math.max(...arr);
         return Math.ceil(max / 4.5) * 5;
+      },
+      _arraySort(a, b) {
+        return a[0] > b[0];
       }
     },
     watch: {
