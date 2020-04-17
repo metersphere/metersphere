@@ -9,24 +9,24 @@ import zh_CN from "./zh-CN";
 Vue.use(VueI18n);
 
 const messages = {
-  'en-US': {
+  'en_US': {
     ...enLocale
   },
-  'zh-CN': {
+  'zh_CN': {
     ...zh_CN,
     ...zh_CNLocale
   },
-  'zh-TW': {
+  'zh_TW': {
     ...zh_TWLocale
   }
 };
 
 const i18n = new VueI18n({
-  locale: 'zh-CN',
+  locale: 'zh_CN',
   messages,
 });
 
-const loadedLanguages = ['zh-CN'];
+const loadedLanguages = ['zh_CN'];
 
 function setI18nLanguage(lang) {
   i18n.locale = lang;
