@@ -16,7 +16,7 @@
                       <el-input type="text" size="small" :placeholder="$t('load_test.search_by_name')"
                                 prefix-icon="el-icon-search"
                                 maxlength="60"
-                                v-model="condition" @change="search" clearable/>
+                                v-model="condition" @change="initTableData" clearable/>
                     </span>
               </el-col>
             </el-row>
@@ -88,23 +88,25 @@
           </el-table-column>
         </el-table>
 
-        <div>
-          <el-row>
-            <el-col :span="22" :offset="1">
-              <div class="table-page">
-                <el-pagination
-                  @size-change="handleSizeChange"
-                  @current-change="handleCurrentChange"
-                  :current-page.sync="currentPage"
-                  :page-sizes="[5, 10, 20, 50, 100]"
-                  :page-size="pageSize"
-                  layout="total, sizes, prev, pager, next, jumper"
-                  :total="total">
-                </el-pagination>
-              </div>
-            </el-col>
-          </el-row>
-        </div>
+        <!--<div>-->
+          <!--<el-row>-->
+            <!--<el-col :span="22" :offset="1">-->
+              <!--<div class="table-page">-->
+                <!--<el-pagination-->
+                  <!--@size-change="handleSizeChange"-->
+                  <!--@current-change="handleCurrentChange"-->
+                  <!--:current-page.sync="currentPage"-->
+                  <!--:page-sizes="[5, 10, 20, 50, 100]"-->
+                  <!--:page-size="pageSize"-->
+                  <!--layout="total, sizes, prev, pager, next, jumper"-->
+                  <!--:total="total">-->
+                <!--</el-pagination>-->
+              <!--</div>-->
+            <!--</el-col>-->
+          <!--</el-row>-->
+        <!--</div>-->
+        <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                             :total="total"/>
 
       </el-card>
     </el-main>
@@ -113,22 +115,21 @@
 
 <script>
   import MsCreateBox from '../../../settings/CreateBox';
+  import MsTablePagination from '../../../../components/common/pagination/TablePagination';
 
   export default {
       name: "TestPlanList",
-      components: {MsCreateBox},
+      components: {MsCreateBox, MsTablePagination},
       data() {
         return {
           result: {},
           queryPath: "/test/plan/list",
           deletePath: "/test/plan/delete",
           condition: "",
-          tableData: [],
-          multipleSelection: [],
           currentPage: 1,
           pageSize: 5,
           total: 0,
-          testId: null,
+          tableData: [],
         }
       },
       created() {
@@ -146,25 +147,11 @@
             this.tableData = data.listObject;
           });
         },
-        search() {
-          this.initTableData();
-        },
         buildPagePath(path) {
           return path + "/" + this.currentPage + "/" + this.pageSize;
         },
         testPlanCreate() {
           this.$emit('openTestPlanEditDialog');
-        },
-        handleSizeChange(size) {
-          this.pageSize = size;
-          this.initTableData();
-        },
-        handleCurrentChange(current) {
-          this.currentPage = current;
-          this.initTableData();
-        },
-        handleSelectionChange(val) {
-          this.multipleSelection = val;
         },
         handleEdit(testPlan) {
           this.$emit('testPlanEdit', testPlan);

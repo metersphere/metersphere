@@ -5,9 +5,13 @@ import io.metersphere.base.mapper.LoadTestReportMapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.jmeter.report.core.Sample;
 import org.apache.jmeter.report.core.SampleMetadata;
+import org.apache.jmeter.report.dashboard.JsonizerVisitor;
+import org.apache.jmeter.report.processor.ListResultData;
+import org.apache.jmeter.report.processor.MapResultData;
+import org.apache.jmeter.report.processor.ResultData;
 import org.apache.jmeter.report.processor.SampleContext;
 import org.apache.jmeter.report.processor.graph.AbstractOverTimeGraphConsumer;
-import org.apache.jmeter.report.processor.graph.impl.LatencyOverTimeGraphConsumer;
+import org.apache.jmeter.report.processor.graph.impl.ActiveThreadsGraphConsumer;
 import org.apache.jmeter.util.JMeterUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
-import java.io.File;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 @RunWith(SpringRunner.class)
@@ -32,8 +36,8 @@ public class GraphConsumerTest {
 
     @Before
     public void init() {
-        timeGraphConsumer = new LatencyOverTimeGraphConsumer();
-        timeGraphConsumer.setTitle("graph title");
+        timeGraphConsumer = new ActiveThreadsGraphConsumer();
+//        timeGraphConsumer.setTitle("graph title");
         timeGraphConsumer.setGranularity(60000);
 
         JMeterUtils.loadJMeterProperties("jmeter.properties"); // 这个路径不存在
@@ -56,8 +60,9 @@ public class GraphConsumerTest {
 
     @Test
     public void test2() {
+        int row = 0;
         SampleContext sampleContext = new SampleContext();
-        sampleContext.setWorkingDirectory(new File("/tmp/test_report/"));
+//        sampleContext.setWorkingDirectory(new File("/tmp/test_report/"));
         timeGraphConsumer.setSampleContext(sampleContext);
 
         timeGraphConsumer.initialize();
@@ -70,11 +75,33 @@ public class GraphConsumerTest {
         while (tokenizer.hasMoreTokens()) {
             String line = tokenizer.nextToken();
             String[] data = line.split(",", -1);
-            Sample sample = new Sample(0, sampleMetaData, data);
+            Sample sample = new Sample(row++, sampleMetaData, data);
             timeGraphConsumer.consume(sample, 0);
         }
         timeGraphConsumer.stopConsuming();
-        System.out.println(sampleContext.getData());
+        Map<String, Object> map = sampleContext.getData();
+        for (String key : map.keySet()) {
+            MapResultData mapResultData = (MapResultData) map.get(key);
+            ResultData maxY = mapResultData.getResult("maxY");
+            ListResultData series = (ListResultData) mapResultData.getResult("series");
+            if (series.getSize() > 0) {
+                MapResultData resultData = (MapResultData) series.get(0);
+                ListResultData data = (ListResultData) resultData.getResult("data");
+                if (data.getSize() > 0) {
+                    for (int i = 0; i < data.getSize(); i++) {
+                        ListResultData resultData1 = (ListResultData) data.get(i);
+                        String accept = resultData1.accept(new JsonizerVisitor());
+                        String[] split = accept.split(",");
+                        System.out.println(resultData1);
+                        System.out.println(accept);
+                    }
+                }
+
+            }
+
+        }
+
+        System.out.println("+++++++++" + sampleContext.getData());
     }
 
 

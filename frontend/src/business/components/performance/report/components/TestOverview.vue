@@ -157,7 +157,8 @@
         this.$get("/performance/report/content/res_chart/" + this.id, res => {
           let data = res.data;
           let userList = data.filter(m => m.groupName === "users").map(m => m.yAxis);
-          let responseTimeList = data.filter(m => m.groupName === "responseTime").map(m => m.yAxis);
+          let responseTimeList = data.filter(m => m.groupName != "users").map(m => m.yAxis);
+          let responseGroupNameList = data.filter(m => m.groupName != "users").map(m => m.groupName);
           let userMax = this._getChartMax(userList);
           let resMax = this._getChartMax(responseTimeList);
           let resOption = {
@@ -171,7 +172,24 @@
             },
             tooltip: {
               show: true,
-              trigger: 'axis'
+              trigger: 'axis',
+              extraCssText: 'z-index: 999;',
+              formatter: function (params, ticket, callback) {
+                let result = "";
+                let name = params[0].name;
+                result += name + "<br/>";
+                for (let i = 0; i < params.length; i++) {
+                  let seriesName = params[i].seriesName;
+                  if (seriesName.length > 100) {
+                    seriesName = seriesName.substring(0, 100);
+                  }
+                  let value = params[i].value;
+                  let marker = params[i].marker;
+                  result += marker + seriesName + ": " + value[1] + "<br/>";
+                }
+
+                return result;
+              }
             },
             legend: {},
             xAxis: {},
@@ -197,14 +215,12 @@
               {
                 name: 'users',
                 color: '#0CA74A',
-              },
-              {
-                name: "responseTime",
-                yAxisIndex: '1',
-                color: '#99743C',
               }
             ]
           }
+          responseGroupNameList.forEach(item => {
+            setting["series"].splice(0, 0, {name: item, yAxisIndex: '1'})
+          })
           this.resOption = this.generateOption(resOption, data, setting);
         })
       },
@@ -229,17 +245,19 @@
             legend.push(name)
             series[name] = []
           }
-          series[name].splice(xAxis.indexOf(item.xAxis), 0, item.yAxis.toFixed(2));
+          series[name].splice(xAxis.indexOf(item.xAxis), 0, [item.xAxis, item.yAxis.toFixed(2)]);
         })
         this.$set(option.legend, "data", legend);
-        this.$set(option.legend, "bottom", 10);
+        this.$set(option.legend, "type", "scroll");
+        this.$set(option.legend, "bottom", "10px");
         this.$set(option.xAxis, "data", xAxis);
         for (let name in series) {
-          let data = series[name];
+          let d = series[name];
+          d.sort((a, b) => a[0].localeCompare(b[0]));
           let items = {
             name: name,
             type: 'line',
-            data: data
+            data: d
           };
           let seriesArrayNames = seriesArray.map(m => m.name);
           if (seriesArrayNames.includes(name)) {

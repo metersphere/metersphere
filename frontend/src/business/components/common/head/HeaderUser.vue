@@ -1,6 +1,6 @@
 <template>
   <el-row type="flex" justify="end">
-    <el-col :span="15" :offset="3">
+    <el-col :span="21">
       <el-menu :unique-opened="true" mode="horizontal" router
                class="header-user-menu align-right"
                background-color="#2c2a48"

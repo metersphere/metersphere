@@ -37,5 +37,8 @@
         <if test="request.name != null">
           and t2.name like CONCAT('%', #{request.name},'%')
         </if>
+        <if test="request.executor != null">
+          and t1.executor = #{request.executor}
+        </if>
     </select>
 </mapper>

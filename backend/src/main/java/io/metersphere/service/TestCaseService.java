@@ -224,7 +224,7 @@ public class TestCaseService {
     }
 
     private List<TestCaseExcelData> generateExportTemplate() {
-        List<TestCaseExcelData> list = new ArrayList<TestCaseExcelData>();
+        List<TestCaseExcelData> list = new ArrayList<>();
         StringBuilder path = new StringBuilder("");
         List<String> types = Arrays.asList("functional", "performance", "api");
         List<String> methods = Arrays.asList("manual", "auto");
