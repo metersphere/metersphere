@@ -44,7 +44,7 @@
                     <el-input type="text" size="small" :placeholder="$t('load_test.search_by_name')"
                               prefix-icon="el-icon-search"
                               maxlength="60"
-                              v-model="condition.name" @change="search" clearable/>
+                              v-model="condition.name" @change="initTableData" clearable/>
                   </span>
             </el-col>
           </el-row>
@@ -137,23 +137,8 @@
         </el-table-column>
       </el-table>
 
-      <div>
-        <el-row>
-          <el-col :span="22" :offset="1">
-            <div class="table-page">
-              <el-pagination
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :current-page.sync="currentPage"
-                :page-sizes="[5, 10, 20, 50, 100]"
-                :page-size="pageSize"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="total">
-              </el-pagination>
-            </div>
-          </el-col>
-        </el-row>
-      </div>
+      <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                           :total="total"/>
 
     </el-card>
   </el-main>
@@ -164,11 +149,12 @@
   import ExecutorEdit from './ExecutorEdit';
   import StatusEdit from './StatusEdit';
   import MsTipButton from '../../../../components/common/components/MsTipButton';
+  import MsTablePagination from '../../../../components/common/pagination/TablePagination';
   import {TokenKey} from '../../../../../common/js/constants';
 
   export default {
       name: "TestPlanTestCaseList",
-      components: {PlanNodeTree, StatusEdit, ExecutorEdit, MsTipButton},
+      components: {PlanNodeTree, StatusEdit, ExecutorEdit, MsTipButton, MsTablePagination},
       data() {
         return {
           result: {},
@@ -176,13 +162,10 @@
           condition: {},
           showMyTestCase: false,
           tableData: [],
-          multipleSelection: [],
           currentPage: 1,
           pageSize: 5,
           total: 0,
           selectIds: new Set(),
-          loadingRequire: {project: true, testCase: true},
-          testId: null
         }
       },
       props:{
@@ -206,26 +189,14 @@
             param.nodeIds = nodeIds;
             param.planId = this.planId;
             this.result = this.$post(this.buildPagePath('/test/plan/case/list'), param, response => {
-              this.loadingRequire.testCase = false;
               let data = response.data;
               this.total = data.itemCount;
               this.tableData = data.listObject;
             });
           }
         },
-        search() {
-          this.initTableData();
-        },
         buildPagePath(path) {
           return path + "/" + this.currentPage + "/" + this.pageSize;
-        },
-        handleSizeChange(size) {
-          this.pageSize = size;
-          this.initTableData();
-        },
-        handleCurrentChange(current) {
-          this.currentPage = current;
-          this.initTableData();
         },
         handleEdit(testCase) {
           this.$emit('editTestPlanTestCase', testCase);
@@ -266,9 +237,6 @@
           } else {
             this.selectIds.add(row.id);
           }
-        },
-        clearSelected() {
-          this.selectIds.clear();
         },
         handleBatch(type){
           if (this.selectIds.size < 1) {
