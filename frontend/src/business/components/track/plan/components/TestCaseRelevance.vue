@@ -143,7 +143,6 @@
           }
         },
         close() {
-          console.log("clear");
           this.selectIds.clear();
         }
       }

@@ -26,13 +26,14 @@
                   </ms-api-collapse-item>
                 </ms-api-collapse>
               </div>
-              <el-button class="scenario-create" type="primary" size="mini" icon="el-icon-plus" plain @click="create"/>
+              <el-button class="scenario-create" type="primary" size="mini" icon="el-icon-plus" plain
+                         @click="createScenario"/>
             </el-aside>
 
             <el-main class="scenario-main">
               <div class="scenario-form">
-                <ms-api-scenario-form :scenario="selected"></ms-api-scenario-form>
-                <ms-api-request-form :request="selected"></ms-api-request-form>
+                <ms-api-scenario-form :scenario="selected" v-if="isScenario"></ms-api-scenario-form>
+                <ms-api-request-form :request="selected" v-if="isRequest"></ms-api-request-form>
               </div>
             </el-main>
           </el-container>
@@ -49,6 +50,7 @@
   import MsApiRequest from "./components/ApiRequest";
   import MsApiRequestForm from "./components/ApiRequestForm";
   import MsApiScenarioForm from "./components/ApiScenarioForm";
+  import {Scenario, Request} from "./model/APIModel";
 
   export default {
     name: "MsApiScenarioConfig",
@@ -64,6 +66,17 @@
     },
 
     methods: {
+      createScenario: function () {
+        let scenario = new Scenario({name: "Scenario"});
+        this.scenarios.push(scenario);
+      },
+      deleteScenario: function (index) {
+        this.scenarios.splice(index, 1);
+        if (this.scenarios.length === 0) {
+          this.createScenario();
+          this.select(this.scenarios[0]);
+        }
+      },
       handleChange: function (index) {
         this.select(this.scenarios[index]);
       },
@@ -74,35 +87,23 @@
             break;
         }
       },
-      createScenario: function () {
-        return {
-          type: "Scenario",
-          name: "Scenario",
-          address: "",
-          file: "",
-          variables: [],
-          headers: [],
-          requests: []
-        }
-      },
-      deleteScenario: function (index) {
-        this.scenarios.splice(index, 1);
-        if (this.scenarios.length === 0) {
-          this.create();
-        }
-      },
-      create: function () {
-        let scenario = this.createScenario();
-        this.scenarios.push(scenario);
-      },
       select: function (obj) {
         this.selected = obj;
       }
     },
 
+    computed: {
+      isScenario() {
+        return this.selected instanceof Scenario;
+      },
+      isRequest() {
+        return this.selected instanceof Request;
+      }
+    },
+
     created() {
       if (this.scenarios.length === 0) {
-        this.create();
+        this.createScenario();
         this.select(this.scenarios[0]);
       }
     }
@@ -137,6 +138,9 @@
   }
 
   .scenario-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-size: 14px;
     width: 100%;
   }

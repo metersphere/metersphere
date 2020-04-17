@@ -12,7 +12,8 @@
           <el-input v-model="item.value" placeholder="Value" size="small" maxlength="100" @change="check"/>
         </el-col>
         <el-col :span="1">
-          <el-button size="mini" class="el-icon-delete-solid" circle @click="remove(index)"/>
+          <el-button size="mini" class="el-icon-delete-solid" circle @click="remove(index)"
+                     :disabled="isDisable(index)"/>
         </el-col>
       </el-row>
     </div>
@@ -20,6 +21,8 @@
 </template>
 
 <script>
+  import {KeyValue} from "../model/APIModel";
+
   export default {
     name: "MsApiKeyValue",
 
@@ -29,23 +32,20 @@
     },
 
     methods: {
-      create: function () {
-        return {
-          key: "",
-          value: ""
-        }
+      add: function () {
+        this.items.push(new KeyValue());
       },
       remove: function (index) {
         this.items.splice(index, 1);
         if (this.items.length === 0) {
-          this.items.push(this.create());
+          this.add();
         }
       },
       check: function () {
         let isNeedCreate = true;
         let removeIndex = -1;
         this.items.forEach((item, index) => {
-          if (item.key === "" && item.value === "") {
+          if (!item.key && !item.value) {
             // 多余的空行
             if (index !== this.items.length - 1) {
               removeIndex = index;
@@ -55,18 +55,21 @@
           }
         });
         if (isNeedCreate) {
-          this.items.push(this.create());
+          this.add();
         }
         if (removeIndex !== -1) {
           this.remove(removeIndex);
         }
         // TODO 检查key重复
+      },
+      isDisable: function (index) {
+        return this.items.length - 1 === index;
       }
     },
 
     created() {
       if (this.items.length === 0) {
-        this.items.push(this.create());
+        this.add();
       }
     }
   }

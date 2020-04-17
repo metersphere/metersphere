@@ -4,22 +4,47 @@
     <el-card v-loading="result.loading">
       <template v-slot:header>
         <div>
-          <el-row type="flex" justify="space-between" align="middle">
-            <el-col :span="5">
-              <span class="title">{{$t('test_track.test_case')}}</span>
+          <el-row type="flex" justify="end">
+            <el-col>
+              <span class="title">{{$t('test_track.test_case')}} </span>
+                <ms-tip-button v-if="!showMyTestCase"
+                  :tip="'我的用例'"
+                  icon="el-icon-s-custom" @click="searchMyTestCase"/>
+                <ms-tip-button v-if="showMyTestCase"
+                  :tip="'全部用例'"
+                  icon="el-icon-files" @click="searchMyTestCase"/>
             </el-col>
 
-            <el-col :span="2" :offset="8">
+            <el-col :offset="8">
               <el-button icon="el-icon-connection" size="small" round
                          @click="$emit('openTestCaseRelevanceDialog')" >{{$t('test_track.relevance_test_case')}}</el-button>
             </el-col>
 
-            <el-col :span="5">
+            <el-col>
+              <el-button icon="el-icon-edit-outline" size="small" round
+                         @click="handleBatch('status')" >更改执行结果</el-button>
+            </el-col>
+
+            <el-col>
+              <el-button icon="el-icon-user" size="small" round
+                         @click="handleBatch('executor')" >更改执行人</el-button>
+            </el-col>
+
+            <executor-edit
+              ref="executorEdit"
+              :select-ids="selectIds"
+              @refresh="initTableData"/>
+            <status-edit
+              ref="statusEdit"
+              :select-ids="selectIds"
+              @refresh="initTableData"/>
+
+            <el-col>
                   <span class="search">
                     <el-input type="text" size="small" :placeholder="$t('load_test.search_by_name')"
                               prefix-icon="el-icon-search"
                               maxlength="60"
-                              v-model="condition" @change="search" clearable/>
+                              v-model="condition.name" @change="search" clearable/>
                   </span>
             </el-col>
           </el-row>
@@ -27,7 +52,13 @@
       </template>
 
       <el-table
+        @select-all="handleSelectAll"
+        @select="handleSelectionChange"
+        row-key="id"
         :data="tableData">
+
+        <el-table-column
+          type="selection"></el-table-column>
 
         <el-table-column
           prop="name"
@@ -106,23 +137,8 @@
         </el-table-column>
       </el-table>
 
-      <div>
-        <el-row>
-          <el-col :span="22" :offset="1">
-            <div class="table-page">
-              <el-pagination
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :current-page.sync="currentPage"
-                :page-sizes="[5, 10, 20, 50, 100]"
-                :page-size="pageSize"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="total">
-              </el-pagination>
-            </div>
-          </el-col>
-        </el-row>
-      </div>
+      <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                           :total="total"/>
 
     </el-card>
   </el-main>
@@ -130,22 +146,26 @@
 
 <script>
   import PlanNodeTree from './PlanNodeTree';
+  import ExecutorEdit from './ExecutorEdit';
+  import StatusEdit from './StatusEdit';
+  import MsTipButton from '../../../../components/common/components/MsTipButton';
+  import MsTablePagination from '../../../../components/common/pagination/TablePagination';
+  import {TokenKey} from '../../../../../common/js/constants';
 
   export default {
       name: "TestPlanTestCaseList",
-      components: {PlanNodeTree},
+      components: {PlanNodeTree, StatusEdit, ExecutorEdit, MsTipButton, MsTablePagination},
       data() {
         return {
           result: {},
           deletePath: "/test/case/delete",
-          condition: "",
+          condition: {},
+          showMyTestCase: false,
           tableData: [],
-          multipleSelection: [],
           currentPage: 1,
           pageSize: 5,
           total: 0,
-          loadingRequire: {project: true, testCase: true},
-          testId: null
+          selectIds: new Set(),
         }
       },
       props:{
@@ -164,13 +184,11 @@
       methods: {
         initTableData(nodeIds) {
           if (this.planId) {
-            let param = {
-              name: this.condition,
-            };
+            let param = {};
+            Object.assign(param, this.condition);
             param.nodeIds = nodeIds;
             param.planId = this.planId;
             this.result = this.$post(this.buildPagePath('/test/plan/case/list'), param, response => {
-              this.loadingRequire.testCase = false;
               let data = response.data;
               this.total = data.itemCount;
               this.tableData = data.listObject;
@@ -182,17 +200,6 @@
         },
         buildPagePath(path) {
           return path + "/" + this.currentPage + "/" + this.pageSize;
-        },
-        handleSizeChange(size) {
-          this.pageSize = size;
-          this.initTableData();
-        },
-        handleCurrentChange(current) {
-          this.currentPage = current;
-          this.initTableData();
-        },
-        handleSelectionChange(val) {
-          this.multipleSelection = val;
         },
         handleEdit(testCase) {
           this.$emit('editTestPlanTestCase', testCase);
@@ -217,6 +224,43 @@
               type: 'success'
             });
           });
+        },
+        handleSelectAll(selection) {
+          if(selection.length > 0) {
+            this.tableData.forEach(item => {
+              this.selectIds.add(item.id);
+            });
+          } else {
+            this.selectIds.clear();
+          }
+        },
+        handleSelectionChange(selection, row) {
+          if(this.selectIds.has(row.id)){
+            this.selectIds.delete(row.id);
+          } else {
+            this.selectIds.add(row.id);
+          }
+        },
+        handleBatch(type){
+          if (this.selectIds.size < 1) {
+            this.$message.warning('请选择需要操作的数据');
+            return;
+          }
+          if (type === 'executor'){
+            this.$refs.executorEdit.openExecutorEdit();
+          } else if (type === 'status'){
+            this.$refs.statusEdit.openStatusEdit();
+          }
+        },
+        searchMyTestCase() {
+          this.showMyTestCase = !this.showMyTestCase;
+          if (this.showMyTestCase) {
+            let user =  JSON.parse(localStorage.getItem(TokenKey));
+            this.condition.executor = user.id;
+          } else {
+            this.condition.executor = null;
+          }
+          this.initTableData();
         }
       }
     }
@@ -230,11 +274,5 @@
     float: right;
   }
 
-
-  /*.main-content {*/
-    /*margin: 0 auto;*/
-    /*width: 100%;*/
-    /*max-width: 1200px;*/
-  /*}*/
 
 </style>

@@ -2,28 +2,30 @@
   <div class="request-container">
     <div class="request-item" v-for="(request, index) in requests" :key="index" @click="select(request)"
          :class="{'selected': isSelected(request)}">
-      <span class="request-method">
-        {{request.method}}
-      </span>
-      <span class="request-name">
-        {{request.name}}
-      </span>
-      <span class="request-btn">
-        <el-dropdown trigger="click" @command="handleCommand">
-          <span class="el-dropdown-link el-icon-more"></span>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item :command="{type: 'copy', index: index}">复制请求</el-dropdown-item>
-            <el-dropdown-item :command="{type: 'delete', index: index}">删除请求</el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
-      </span>
+      <el-row type="flex">
+        <div class="request-method">
+          {{request.method}}
+        </div>
+        <div class="request-name">
+          {{request.name}}
+        </div>
+        <div class="request-btn">
+          <el-dropdown trigger="click" @command="handleCommand">
+            <span class="el-dropdown-link el-icon-more"></span>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item :command="{type: 'copy', index: index}">复制请求</el-dropdown-item>
+              <el-dropdown-item :command="{type: 'delete', index: index}">删除请求</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </div>
+      </el-row>
     </div>
-    <el-button class="request-create" type="primary" size="mini" icon="el-icon-plus" plain @click="create"/>
+    <el-button class="request-create" type="primary" size="mini" icon="el-icon-plus" plain @click="createRequest"/>
   </div>
 </template>
 
 <script>
-  import {generateId} from 'element-ui/src/utils/util';
+  import {Request} from "../model/APIModel";
 
   export default {
     name: "MsApiRequest",
@@ -34,7 +36,7 @@
 
     data() {
       return {
-        selected: 0
+        selected: 0,
       }
     },
 
@@ -47,9 +49,19 @@
     },
 
     methods: {
-      create: function () {
-        let request = this.createRequest();
+      createRequest: function () {
+        let request = new Request({method: "GET"});
         this.requests.push(request);
+      },
+      copyRequest: function (index) {
+        let request = this.requests[index];
+        this.requests.push(JSON.parse(JSON.stringify(request)));
+      },
+      deleteRequest: function (index) {
+        this.requests.splice(index, 1);
+        if (this.requests.length === 0) {
+          this.createRequest();
+        }
       },
       handleCommand: function (command) {
         switch (command.type) {
@@ -61,33 +73,6 @@
             break;
         }
       },
-      copyRequest: function (index) {
-        let request = this.requests[index];
-        this.requests.push(JSON.parse(JSON.stringify(request)));
-      },
-      deleteRequest: function (index) {
-        this.requests.splice(index, 1);
-        if (this.requests.length === 0) {
-          this.create();
-        }
-      },
-      createRequest: function () {
-        return {
-          randomId: generateId(),
-          type: "Request",
-          method: "GET",
-          name: "",
-          parameters: [],
-          headers: [],
-          body: {
-            type: "kv",
-            kvs: [],
-            text: ""
-          },
-          assertions: [],
-          extract: []
-        }
-      },
       select: function (request) {
         this.selected = request;
         this.open(request);
@@ -96,7 +81,7 @@
 
     created() {
       if (this.requests.length === 0) {
-        this.create();
+        this.createRequest();
         this.select(this.requests[0]);
       }
     }
@@ -126,11 +111,13 @@
 
   .request-method {
     padding: 0 5px;
-    width: 60px;
     color: #1E90FF;
   }
 
   .request-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-size: 14px;
     width: 100%;
   }

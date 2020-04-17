@@ -89,23 +89,8 @@
         </el-table-column>
       </el-table>
 
-      <div>
-        <el-row>
-          <el-col :span="22" :offset="1">
-            <div class="table-page">
-              <el-pagination
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :current-page.sync="currentPage"
-                :page-sizes="[5, 10, 20, 50, 100]"
-                :page-size="pageSize"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="total">
-              </el-pagination>
-            </div>
-          </el-col>
-        </el-row>
-      </div>
+      <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                           :total="total"/>
 
     </el-card>
   </el-main>
@@ -116,22 +101,21 @@
   import MsCreateBox from '../../../settings/CreateBox';
   import TestCaseImport from '../components/TestCaseImport';
   import TestCaseExport from '../components/TestCaseExport';
+  import MsTablePagination from '../../../../components/common/pagination/TablePagination';
+
 
   export default {
     name: "TestCaseList",
-    components: {MsCreateBox, TestCaseImport, TestCaseExport},
+    components: {MsCreateBox, TestCaseImport, TestCaseExport, MsTablePagination},
     data() {
       return {
         result: {},
         deletePath: "/test/case/delete",
         condition: "",
         tableData: [],
-        multipleSelection: [],
         currentPage: 1,
         pageSize: 5,
         total: 0,
-        loadingRequire: {project: true, testCase: true},
-        testId: null
       }
       },
       props: {
@@ -157,7 +141,6 @@
           if (this.currentProject) {
             param.projectId = this.currentProject.id;
             this.result = this.$post(this.buildPagePath('/test/case/list'), param, response => {
-              this.loadingRequire.testCase = false;
               let data = response.data;
               this.total = data.itemCount;
               this.tableData = data.listObject;
@@ -172,17 +155,6 @@
         },
         testCaseCreate() {
           this.$emit('openTestCaseEditDialog');
-        },
-        handleSizeChange(size) {
-          this.pageSize = size;
-          this.initTableData();
-        },
-        handleCurrentChange(current) {
-          this.currentPage = current;
-          this.initTableData();
-        },
-        handleSelectionChange(val) {
-          this.multipleSelection = val;
         },
         handleEdit(testCase) {
           this.$emit('testCaseEdit', testCase);

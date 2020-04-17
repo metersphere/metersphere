@@ -82,7 +82,7 @@
           </el-col>
         </el-row>
 
-        <el-row >
+        <el-row>
           <el-col :span="15" :offset="1">
             <div style="margin-bottom: 5px;">
               <span class="cast_label">{{$t('commons.remark')}}：</span>
@@ -98,28 +98,9 @@
           </el-col>
         </el-row>
 
-        <el-row>
-          <el-col :offset="1" :span="2">
-            <el-button type="success" round
-                       :icon="testCase.status == 'Pass' ? 'el-icon-check' : ''"
-                       @click="setTestCaseStatus('Pass')"> {{$t('test_track.pass')}}</el-button>
-          </el-col>
-          <el-col :span="2">
-            <el-button type="danger" round
-                       :icon="testCase.status == 'Failure' ? 'el-icon-check' : ''"
-                       @click="setTestCaseStatus('Failure')"> {{$t('test_track.failure')}}</el-button>
-          </el-col>
-          <el-col :span="2">
-            <el-button type="warning" round
-                       :icon="testCase.status == 'Blocking' ? 'el-icon-check' : ''"
-                       @click="setTestCaseStatus('Blocking')"> {{$t('test_track.blocking')}}</el-button>
-          </el-col>
-          <el-col :span="2">
-            <el-button type="info" round
-                       :icon="testCase.status == 'Skip' ? 'el-icon-check' : ''"
-                       @click="setTestCaseStatus('Skip')"> {{$t('test_track.skip')}}</el-button>
-          </el-col>
-        </el-row>
+      <test-plan-test-case-status-button class="status-button"
+        @statusChange="statusChange"
+        :status="testCase.status"/>
 
         <el-row type="flex" justify="end">
           <el-col :span="5">
@@ -136,12 +117,15 @@
 </template>
 
 <script>
-    export default {
+  import TestPlanTestCaseStatusButton from '../common/TestPlanTestCaseStatusButton';
+
+  export default {
       name: "TestPlanTestCaseEdit",
-      data() {
+    components: {TestPlanTestCaseStatusButton},
+    data() {
         return {
           dialog: false,
-          testCase: {}
+          testCase: {TestPlanTestCaseStatusButton}
         };
       },
       methods: {
@@ -151,7 +135,7 @@
         cancel() {
           this.dialog = false;
         },
-        setTestCaseStatus(status) {
+        statusChange(status) {
           this.testCase.status = status;
         },
         saveCase() {
@@ -195,6 +179,10 @@
 
   .cast_label {
     color: dimgray;
+  }
+
+  .status-button {
+    padding-left: 4%;
   }
 
 </style>

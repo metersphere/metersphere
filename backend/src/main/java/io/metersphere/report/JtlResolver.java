@@ -11,10 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.report.core.Sample;
 import org.apache.jmeter.report.core.SampleMetadata;
 import org.apache.jmeter.report.dashboard.JsonizerVisitor;
-import org.apache.jmeter.report.processor.ListResultData;
-import org.apache.jmeter.report.processor.MapResultData;
-import org.apache.jmeter.report.processor.ResultData;
-import org.apache.jmeter.report.processor.SampleContext;
+import org.apache.jmeter.report.processor.*;
 import org.apache.jmeter.report.processor.graph.AbstractOverTimeGraphConsumer;
 import org.apache.jmeter.report.processor.graph.impl.ActiveThreadsGraphConsumer;
 import org.apache.jmeter.report.processor.graph.impl.HitsPerSecondGraphConsumer;
@@ -345,61 +342,6 @@ public class JtlResolver {
         return testOverview;
     }
 
-
-//    public static List<ChartsData> getLoadChartData(String jtlString) {
-//        List<ChartsData> chartsDataList = new ArrayList<>();
-//        List<Metric> totalMetricList = JtlResolver.resolver(jtlString);
-//
-//        if (totalMetricList != null) {
-//            for (Metric metric : totalMetricList) {
-//                metric.setTimestamp(stampToDate(DATE_TIME_PATTERN, metric.getTimestamp()));
-//            }
-//        }
-//        Map<String, List<Metric>> collect = Objects.requireNonNull(totalMetricList).stream().collect(Collectors.groupingBy(Metric::getTimestamp));
-//        List<Map.Entry<String, List<Metric>>> entries = new ArrayList<>(collect.entrySet());
-//
-//        for (Map.Entry<String, List<Metric>> entry : entries) {
-//            int failSize = 0;
-//            List<Metric> metrics = entry.getValue();
-//            Map<String, List<Metric>> metricsMap = metrics.stream().collect(Collectors.groupingBy(Metric::getThreadName));
-//            int maxUsers = metricsMap.size();
-//            for (Metric metric : metrics) {
-//                String isSuccess = metric.getSuccess();
-//                if (!"true".equals(isSuccess)) {
-//                    failSize++;
-//                }
-//            }
-//
-//            String timeStamp = "";
-//            try {
-//                timeStamp = formatDate(entry.getKey());
-//            } catch (ParseException e) {
-//                e.printStackTrace();
-//            }
-//
-//            ChartsData chartsData = new ChartsData();
-//            chartsData.setxAxis(timeStamp);
-//            chartsData.setGroupName("hits");
-//            chartsData.setyAxis(new BigDecimal(metrics.size() * 1.0 / maxUsers));
-//            chartsDataList.add(chartsData);
-//
-//            chartsData = new ChartsData();
-//            chartsData.setxAxis(timeStamp);
-//            chartsData.setGroupName("users");
-//            chartsData.setyAxis(new BigDecimal(maxUsers));
-//            chartsDataList.add(chartsData);
-//
-//            chartsData = new ChartsData();
-//            chartsData.setxAxis(timeStamp);
-//            chartsData.setGroupName("errors");
-//            chartsData.setyAxis(new BigDecimal(failSize));
-//            chartsDataList.add(chartsData);
-//
-//        }
-//
-//        return chartsDataList;
-//    }
-
     public static List<ChartsData> getLoadChartData(String jtlString) {
         Map<String, Object> activeThreadMap = getResultDataMap(jtlString, new ActiveThreadsGraphConsumer());
         Map<String, Object> hitsMap = getResultDataMap(jtlString, new HitsPerSecondGraphConsumer());
@@ -411,45 +353,6 @@ public class JtlResolver {
         return activeThreadList;
     }
 
-    //    public static List<ChartsData> getResponseTimeChartData(String jtlString) {
-//        List<ChartsData> chartsDataList = new ArrayList<>();
-//        List<Metric> totalMetricList = JtlResolver.resolver(jtlString);
-//
-//        totalMetricList.forEach(metric -> {
-//            metric.setTimestamp(stampToDate(DATE_TIME_PATTERN, metric.getTimestamp()));
-//        });
-//
-//        Map<String, List<Metric>> metricMap = totalMetricList.stream().collect(Collectors.groupingBy(Metric::getTimestamp));
-//        List<Map.Entry<String, List<Metric>>> entries = new ArrayList<>(metricMap.entrySet());
-//
-//        for (Map.Entry<String, List<Metric>> entry : entries) {
-//            List<Metric> metricList = entry.getValue();
-//            Map<String, List<Metric>> metricsMap = metricList.stream().collect(Collectors.groupingBy(Metric::getThreadName));
-//            int maxUsers = metricsMap.size();
-//            int sumElapsedTime = metricList.stream().mapToInt(metric -> Integer.parseInt(metric.getElapsed())).sum();
-//            String timeStamp = "";
-//            try {
-//                timeStamp = formatDate(entry.getKey());
-//            } catch (ParseException e) {
-//                e.printStackTrace();
-//            }
-//
-//            ChartsData chartsData = new ChartsData();
-//            chartsData.setxAxis(timeStamp);
-//            chartsData.setGroupName("users");
-//            chartsData.setyAxis(new BigDecimal(maxUsers));
-//            chartsDataList.add(chartsData);
-//
-//            ChartsData chartsData2 = new ChartsData();
-//            chartsData2.setxAxis(timeStamp);
-//            chartsData2.setGroupName("responseTime");
-//            chartsData2.setyAxis(new BigDecimal(sumElapsedTime * 1.0 / metricList.size()));
-//            chartsDataList.add(chartsData2);
-//
-//        }
-//
-//        return chartsDataList;
-//    }
     public static List<ChartsData> getResponseTimeChartData(String jtlString) {
         Map<String, Object> activeThreadMap = getResultDataMap(jtlString, new ActiveThreadsGraphConsumer());
         Map<String, Object> responseTimeMap = getResultDataMap(jtlString, new ResponseTimeOverTimeGraphConsumer());
@@ -463,40 +366,52 @@ public class JtlResolver {
     }
 
     public static void mapResolver(Map<String, Object> map, List list, String seriesName) {
+        // ThreadGroup-1
         for (String key : map.keySet()) {
             MapResultData mapResultData = (MapResultData) map.get(key);
             ResultData maxY = mapResultData.getResult("maxY");
             ListResultData series = (ListResultData) mapResultData.getResult("series");
             if (series.getSize() > 0) {
-                MapResultData resultData = (MapResultData) series.get(0);
-                ListResultData data = (ListResultData) resultData.getResult("data");
-                if (data.getSize() > 0) {
-                    for (int i = 0; i < data.getSize(); i++) {
-                        ListResultData listResultData = (ListResultData) data.get(i);
-                        String result = listResultData.accept(new JsonizerVisitor());
-                        result = result.substring(1, result.length() - 1);
-                        String[] split = result.split(",");
-                        ChartsData chartsData = new ChartsData();
-                        BigDecimal bigDecimal = new BigDecimal(split[0]);
-                        String timeStamp = bigDecimal.toPlainString();
-                        String time = null;
-                        try {
-                            time = formatDate(stampToDate(DATE_TIME_PATTERN, timeStamp));
-                        } catch (ParseException e) {
-                            e.printStackTrace();
+                for (int j = 0; j < series.getSize(); j++) {
+                    MapResultData resultData = (MapResultData) series.get(j);
+                    // data, isOverall, label, isController
+                    ListResultData data = (ListResultData) resultData.getResult("data");
+                    ValueResultData label = (ValueResultData) resultData.getResult("label");
+
+                    if (data.getSize() > 0) {
+                        for (int i = 0; i < data.getSize(); i++) {
+                            ListResultData listResultData = (ListResultData) data.get(i);
+                            String result = listResultData.accept(new JsonizerVisitor());
+                            result = result.substring(1, result.length() - 1);
+                            String[] split = result.split(",");
+                            ChartsData chartsData = new ChartsData();
+                            BigDecimal bigDecimal = new BigDecimal(split[0]);
+                            String timeStamp = bigDecimal.toPlainString();
+                            String time = null;
+                            try {
+                                time = formatDate(stampToDate(DATE_TIME_PATTERN, timeStamp));
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            chartsData.setxAxis(time);
+                            chartsData.setyAxis(new BigDecimal(split[1].trim()));
+                            if (series.getSize() == 1) {
+                                chartsData.setGroupName(seriesName);
+                            } else {
+                                chartsData.setGroupName((String) label.getValue());
+                            }
+                            list.add(chartsData);
                         }
-                        chartsData.setxAxis(time);
-                        chartsData.setyAxis(new BigDecimal(split[1].trim()));
-                        chartsData.setGroupName(seriesName);
-                        list.add(chartsData);
                     }
                 }
+
 
             }
         }
     }
 
     public static Map<String, Object> getResultDataMap(String jtlString, AbstractOverTimeGraphConsumer timeGraphConsumer) {
+        int row = 0;
         AbstractOverTimeGraphConsumer abstractOverTimeGraphConsumer = timeGraphConsumer;
         abstractOverTimeGraphConsumer.setGranularity(60000);
         // 使用反射获取properties
@@ -512,7 +427,7 @@ public class JtlResolver {
         while (tokenizer.hasMoreTokens()) {
             String line = tokenizer.nextToken();
             String[] data = line.split(",", -1);
-            Sample sample = new Sample(0, sampleMetaData, data);
+            Sample sample = new Sample(row++, sampleMetaData, data);
             abstractOverTimeGraphConsumer.consume(sample, 0);
         }
         abstractOverTimeGraphConsumer.stopConsuming();
