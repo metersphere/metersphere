@@ -44,7 +44,7 @@
                     <el-input type="text" size="small" :placeholder="$t('load_test.search_by_name')"
                               prefix-icon="el-icon-search"
                               maxlength="60"
-                              v-model="condition.name" @change="initTableData" clearable/>
+                              v-model="condition.name" @change="search" clearable/>
                   </span>
             </el-col>
           </el-row>
@@ -137,7 +137,7 @@
         </el-table-column>
       </el-table>
 
-      <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
+      <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
 
     </el-card>
@@ -194,6 +194,9 @@
               this.tableData = data.listObject;
             });
           }
+        },
+        search() {
+          this.initTableData();
         },
         buildPagePath(path) {
           return path + "/" + this.currentPage + "/" + this.pageSize;
