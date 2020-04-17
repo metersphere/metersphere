@@ -45,7 +45,8 @@ export default {
     'refresh': '刷新',
     'remark': '备注',
     'delete': '删除',
-    'not_filled': '未填写'
+    'not_filled': '未填写',
+    'please_select': '请选择',
   },
   workspace: {
     'create': '创建工作空间',
@@ -169,25 +170,43 @@ export default {
   },
   api_test: {
     scenario: {
+      input_name: "请输入场景名称",
       name: "场景名称",
       base_url: "基础URL",
-      base_url_describe: "基础URL作为所有请求的URL前缀",
+      base_url_description: "基础URL作为所有请求的URL前缀",
       variables: "变量",
       headers: "请求头"
     },
     request: {
+      input_name: "请输入请求名称",
       name: "请求名称",
       method: "请求方法",
       url: "请求URL",
-      url_describe: "例如: https://fit2cloud.com",
+      url_description: "例如: https://fit2cloud.com",
       parameters: "请求参数",
       parameters_desc: "参数追加到URL，例如https://fit2cloud.com/entries?key1=Value1&Key2=Value2",
       headers: "请求头",
       body: "请求内容",
       body_kv: "键值对",
       body_text: "文本",
-      assertions: "断言",
-      extract: "提取"
+      assertions: {
+        label: "断言",
+        text: "文本",
+        regex: "正则",
+        response_time: "响应时间",
+        select_type: "请选择类型",
+        select_subject: "请选择对象",
+        select_contains: "请选择条件",
+        contains: "包含",
+        not_contains: "不包含",
+        equals: "等于",
+        start_with: "以...开始",
+        end_with: "以...结束",
+        value: "值",
+        expression: "正则表达式",
+        response_in_time: "响应时间在...毫秒以内",
+      },
+      extract: "提取",
     }
   },
   test_track: {
