@@ -3,7 +3,7 @@ package io.metersphere.report;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
-import io.metersphere.base.domain.LoadTestReportWithBLOBs;
+import io.metersphere.commons.utils.MsJMeterUtils;
 import io.metersphere.report.base.*;
 import io.metersphere.report.dto.ErrorsTop5DTO;
 import io.metersphere.report.dto.RequestStatisticsDTO;
@@ -19,7 +19,6 @@ import org.apache.jmeter.report.processor.graph.AbstractOverTimeGraphConsumer;
 import org.apache.jmeter.report.processor.graph.impl.ActiveThreadsGraphConsumer;
 import org.apache.jmeter.report.processor.graph.impl.HitsPerSecondGraphConsumer;
 import org.apache.jmeter.report.processor.graph.impl.ResponseTimeOverTimeGraphConsumer;
-import org.apache.jmeter.util.JMeterUtils;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -500,8 +499,8 @@ public class JtlResolver {
     public static Map<String, Object> getResultDataMap(String jtlString, AbstractOverTimeGraphConsumer timeGraphConsumer) {
         AbstractOverTimeGraphConsumer abstractOverTimeGraphConsumer = timeGraphConsumer;
         abstractOverTimeGraphConsumer.setGranularity(60000);
-        // 这个路径不存在
-        JMeterUtils.loadJMeterProperties("jmeter.properties");
+        // 使用反射获取properties
+        MsJMeterUtils.loadJMeterProperties("jmeter.properties");  // 这个路径不存在
         SampleMetadata sampleMetaData = createTestMetaData();
         SampleContext sampleContext = new SampleContext();
         abstractOverTimeGraphConsumer.setSampleContext(sampleContext);
