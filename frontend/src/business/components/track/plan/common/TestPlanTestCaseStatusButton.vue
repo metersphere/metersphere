@@ -1,5 +1,5 @@
 <template>
-  <el-row type="flex" justify="start">
+  <el-row type="flex" justify="start" :gutter="20">
     <el-col>
       <el-button type="success" round
                  :icon="status == 'Pass' ? 'el-icon-check' : ''"

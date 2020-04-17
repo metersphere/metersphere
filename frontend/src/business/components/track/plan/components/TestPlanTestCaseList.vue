@@ -6,7 +6,13 @@
         <div>
           <el-row type="flex" justify="end">
             <el-col>
-              <span class="title">{{$t('test_track.test_case')}}</span>
+              <span class="title">{{$t('test_track.test_case')}} </span>
+                <ms-tip-button v-if="!showMyTestCase"
+                  :tip="'我的用例'"
+                  icon="el-icon-s-custom" @click="searchMyTestCase"/>
+                <ms-tip-button v-if="showMyTestCase"
+                  :tip="'全部用例'"
+                  icon="el-icon-files" @click="searchMyTestCase"/>
             </el-col>
 
             <el-col :offset="8">
@@ -38,7 +44,7 @@
                     <el-input type="text" size="small" :placeholder="$t('load_test.search_by_name')"
                               prefix-icon="el-icon-search"
                               maxlength="60"
-                              v-model="condition" @change="search" clearable/>
+                              v-model="condition.name" @change="search" clearable/>
                   </span>
             </el-col>
           </el-row>
@@ -157,15 +163,18 @@
   import PlanNodeTree from './PlanNodeTree';
   import ExecutorEdit from './ExecutorEdit';
   import StatusEdit from './StatusEdit';
+  import MsTipButton from '../../../../components/common/components/MsTipButton';
+  import {TokenKey} from '../../../../../common/js/constants';
 
   export default {
       name: "TestPlanTestCaseList",
-      components: {PlanNodeTree, StatusEdit, ExecutorEdit},
+      components: {PlanNodeTree, StatusEdit, ExecutorEdit, MsTipButton},
       data() {
         return {
           result: {},
           deletePath: "/test/case/delete",
-          condition: "",
+          condition: {},
+          showMyTestCase: false,
           tableData: [],
           multipleSelection: [],
           currentPage: 1,
@@ -192,9 +201,8 @@
       methods: {
         initTableData(nodeIds) {
           if (this.planId) {
-            let param = {
-              name: this.condition,
-            };
+            let param = {};
+            Object.assign(param, this.condition);
             param.nodeIds = nodeIds;
             param.planId = this.planId;
             this.result = this.$post(this.buildPagePath('/test/plan/case/list'), param, response => {
@@ -272,6 +280,16 @@
           } else if (type === 'status'){
             this.$refs.statusEdit.openStatusEdit();
           }
+        },
+        searchMyTestCase() {
+          this.showMyTestCase = !this.showMyTestCase;
+          if (this.showMyTestCase) {
+            let user =  JSON.parse(localStorage.getItem(TokenKey));
+            this.condition.executor = user.id;
+          } else {
+            this.condition.executor = null;
+          }
+          this.initTableData();
         }
       }
     }
@@ -285,11 +303,5 @@
     float: right;
   }
 
-
-  /*.main-content {*/
-    /*margin: 0 auto;*/
-    /*width: 100%;*/
-    /*max-width: 1200px;*/
-  /*}*/
 
 </style>

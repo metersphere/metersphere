@@ -7,6 +7,7 @@ import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.controller.request.testcase.QueryTestCaseRequest;
 import io.metersphere.controller.request.testcase.TestCaseBatchRequest;
+import io.metersphere.controller.request.testplancase.QueryTestPlanCaseRequest;
 import io.metersphere.dto.TestPlanCaseDTO;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
@@ -25,10 +26,9 @@ public class TestPlanTestCaseService {
     @Resource
     ExtTestCaseMapper extTestCaseMapper;
 
-    public List<TestPlanCaseDTO> getTestPlanCases(QueryTestCaseRequest request) {
+    public List<TestPlanCaseDTO> getTestPlanCases(QueryTestPlanCaseRequest request) {
         return extTestCaseMapper.getTestPlanTestCases(request);
     }
-
 
     public void editTestCase(TestPlanTestCase testPlanTestCase) {
         testPlanTestCase.setUpdateTime(System.currentTimeMillis());
