@@ -4,17 +4,36 @@
     <el-card v-loading="result.loading">
       <template v-slot:header>
         <div>
-          <el-row type="flex" justify="space-between" align="middle">
-            <el-col :span="5">
+          <el-row type="flex" justify="end">
+            <el-col>
               <span class="title">{{$t('test_track.test_case')}}</span>
             </el-col>
 
-            <el-col :span="2" :offset="8">
+            <el-col :offset="8">
               <el-button icon="el-icon-connection" size="small" round
                          @click="$emit('openTestCaseRelevanceDialog')" >{{$t('test_track.relevance_test_case')}}</el-button>
             </el-col>
 
-            <el-col :span="5">
+            <el-col>
+              <el-button icon="el-icon-edit-outline" size="small" round
+                         @click="handleBatch('status')" >更改执行结果</el-button>
+            </el-col>
+
+            <el-col>
+              <el-button icon="el-icon-user" size="small" round
+                         @click="handleBatch('executor')" >更改执行人</el-button>
+            </el-col>
+
+            <executor-edit
+              ref="executorEdit"
+              :select-ids="selectIds"
+              @refresh="initTableData"/>
+            <status-edit
+              ref="statusEdit"
+              :select-ids="selectIds"
+              @refresh="initTableData"/>
+
+            <el-col>
                   <span class="search">
                     <el-input type="text" size="small" :placeholder="$t('load_test.search_by_name')"
                               prefix-icon="el-icon-search"
@@ -27,7 +46,13 @@
       </template>
 
       <el-table
+        @select-all="handleSelectAll"
+        @select="handleSelectionChange"
+        row-key="id"
         :data="tableData">
+
+        <el-table-column
+          type="selection"></el-table-column>
 
         <el-table-column
           prop="name"
@@ -130,10 +155,12 @@
 
 <script>
   import PlanNodeTree from './PlanNodeTree';
+  import ExecutorEdit from './ExecutorEdit';
+  import StatusEdit from './StatusEdit';
 
   export default {
       name: "TestPlanTestCaseList",
-      components: {PlanNodeTree},
+      components: {PlanNodeTree, StatusEdit, ExecutorEdit},
       data() {
         return {
           result: {},
@@ -144,6 +171,7 @@
           currentPage: 1,
           pageSize: 5,
           total: 0,
+          selectIds: new Set(),
           loadingRequire: {project: true, testCase: true},
           testId: null
         }
@@ -191,9 +219,6 @@
           this.currentPage = current;
           this.initTableData();
         },
-        handleSelectionChange(val) {
-          this.multipleSelection = val;
-        },
         handleEdit(testCase) {
           this.$emit('editTestPlanTestCase', testCase);
         },
@@ -217,6 +242,36 @@
               type: 'success'
             });
           });
+        },
+        handleSelectAll(selection) {
+          if(selection.length > 0) {
+            this.tableData.forEach(item => {
+              this.selectIds.add(item.id);
+            });
+          } else {
+            this.selectIds.clear();
+          }
+        },
+        handleSelectionChange(selection, row) {
+          if(this.selectIds.has(row.id)){
+            this.selectIds.delete(row.id);
+          } else {
+            this.selectIds.add(row.id);
+          }
+        },
+        clearSelected() {
+          this.selectIds.clear();
+        },
+        handleBatch(type){
+          if (this.selectIds.size < 1) {
+            this.$message.warning('请选择需要操作的数据');
+            return;
+          }
+          if (type === 'executor'){
+            this.$refs.executorEdit.openExecutorEdit();
+          } else if (type === 'status'){
+            this.$refs.statusEdit.openStatusEdit();
+          }
         }
       }
     }

@@ -7,6 +7,7 @@ import io.metersphere.base.domain.TestPlanTestCase;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.testcase.QueryTestCaseRequest;
+import io.metersphere.controller.request.testcase.TestCaseBatchRequest;
 import io.metersphere.dto.TestPlanCaseDTO;
 import io.metersphere.service.TestPlanTestCaseService;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +31,11 @@ public class TestPlanTestCaseController {
     @PostMapping("/edit")
     public void editTestCase(@RequestBody TestPlanTestCase testPlanTestCase){
         testPlanTestCaseService.editTestCase(testPlanTestCase);
+    }
+
+    @PostMapping("/batch/edit")
+    public void editTestCaseBath(@RequestBody TestCaseBatchRequest request){
+        testPlanTestCaseService.editTestCaseBath(request);
     }
 
     @PostMapping("/delete/{id}")
