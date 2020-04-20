@@ -1,11 +1,11 @@
 <template>
-  <el-form :model="request" :rules="rules" ref="request" label-width="100px" label-position="left" v-if="isRequest">
+  <el-form :model="request" :rules="rules" ref="request" label-width="100px">
     <el-form-item :label="$t('api_test.request.name')" prop="name">
-      <el-input v-model="request.name"></el-input>
+      <el-input v-model="request.name" maxlength="100"></el-input>
     </el-form-item>
 
     <el-form-item :label="$t('api_test.request.url')" prop="url">
-      <el-input v-model="request.url" :placeholder="$t('api_test.request.url_describe')">
+      <el-input v-model="request.url" maxlength="100" :placeholder="$t('api_test.request.url_description')">
         <el-select v-model="request.method" slot="prepend" class="request-method-select">
           <el-option label="GET" value="GET"></el-option>
           <el-option label="POST" value="POST"></el-option>
@@ -29,8 +29,8 @@
       <el-tab-pane :label="$t('api_test.request.body')" name="body" v-if="isNotGet">
         <ms-api-body :body="request.body"/>
       </el-tab-pane>
-      <el-tab-pane :label="$t('api_test.request.assertions')" name="assertions" v-if="false">
-        TODO
+      <el-tab-pane :label="$t('api_test.request.assertions.label')" name="assertions">
+        <ms-api-assertions :assertions="request.assertions"></ms-api-assertions>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.extract')" name="extract" v-if="false">
         TODO
@@ -42,10 +42,11 @@
 <script>
   import MsApiKeyValue from "./ApiKeyValue";
   import MsApiBody from "./ApiBody";
+  import MsApiAssertions from "./ApiAssertions";
 
   export default {
     name: "MsApiRequestForm",
-    components: {MsApiBody, MsApiKeyValue},
+    components: {MsApiAssertions, MsApiBody, MsApiKeyValue},
     props: {
       request: Object
     },
@@ -53,14 +54,19 @@
     data() {
       return {
         activeName: "parameters",
-        rules: {}
+        rules: {
+          name: [
+            {required: true, message: this.$t('api_test.scenario.input_name'), trigger: 'blur'},
+            {max: 100, message: this.$t('commons.input_limit', [0, 100]), trigger: 'blur'}
+          ],
+          url: [
+            {max: 100, message: this.$t('commons.input_limit', [0, 100]), trigger: 'blur'}
+          ]
+        }
       }
     },
 
     computed: {
-      isRequest() {
-        return this.request.type === "Request";
-      },
       isNotGet() {
         return this.request.method !== "GET";
       }

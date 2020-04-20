@@ -1,11 +1,11 @@
 <template>
-  <el-form :model="scenario" :rules="rules" ref="scenario" label-width="100px" label-position="left" v-if="isScenario">
+  <el-form :model="scenario" :rules="rules" ref="scenario" label-width="100px">
     <el-form-item :label="$t('api_test.scenario.name')" prop="name">
-      <el-input v-model="scenario.name"></el-input>
+      <el-input v-model="scenario.name" maxlength="100"></el-input>
     </el-form-item>
 
     <el-form-item :label="$t('api_test.scenario.base_url')" prop="url">
-      <el-input :placeholder="$t('api_test.scenario.base_url_describe')" v-model="scenario.url"></el-input>
+      <el-input :placeholder="$t('api_test.scenario.base_url_description')" v-model="scenario.url" maxlength="100"/>
     </el-form-item>
 
     <el-tabs v-model="activeName">
@@ -32,15 +32,17 @@
     data() {
       return {
         activeName: "variables",
-        rules: {}
+        rules: {
+          name: [
+            {required: true, message: this.$t('api_test.scenario.input_name'), trigger: 'blur'},
+            {max: 100, message: this.$t('commons.input_limit', [0, 100]), trigger: 'blur'}
+          ],
+          url: [
+            {max: 100, message: this.$t('commons.input_limit', [0, 100]), trigger: 'blur'}
+          ]
+        }
       }
-    },
-
-    computed: {
-      isScenario() {
-        return this.scenario.type === "Scenario";
-      }
-    },
+    }
   }
 </script>
 
