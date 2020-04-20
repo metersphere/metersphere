@@ -169,6 +169,8 @@ export default {
     'resource_pool_is_null': '资源池为空',
   },
   api_test: {
+    input_name: "请输入测试名称",
+    select_project: "请选择项目",
     scenario: {
       input_name: "请输入场景名称",
       name: "场景名称",

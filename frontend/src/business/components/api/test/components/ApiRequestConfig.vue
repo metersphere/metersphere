@@ -25,10 +25,10 @@
 </template>
 
 <script>
-  import {Request} from "../model/APIModel";
+  import {Request} from "../model/ScenarioModel";
 
   export default {
-    name: "MsApiRequest",
+    name: "MsApiRequestConfig",
     props: {
       requests: Array,
       open: Function

@@ -1,11 +1,11 @@
 <template>
   <div>
-    <el-row :gutter="10" align="middle">
-      <el-col :span="23">
+    <el-row :gutter="10" type="flex" justify="space-between" align="middle">
+      <el-col>
         <el-input v-model="time" step="100" size="small" type="number"
                   :placeholder="$t('api_test.request.assertions.response_in_time')"/>
       </el-col>
-      <el-col :span="1" class="assertion-btn">
+      <el-col class="assertion-btn">
         <el-button type="danger" size="mini" icon="el-icon-delete" circle @click="remove" v-if="edit"/>
         <el-button type="primary" size="small" icon="el-icon-plus" plain @click="add" v-else/>
       </el-col>
@@ -14,7 +14,7 @@
 </template>
 
 <script>
-  import {ResponseTime} from "../model/APIModel";
+  import {ResponseTime} from "../model/ScenarioModel";
 
   export default {
     name: "MsApiAssertionResponseTime",
@@ -47,5 +47,6 @@
 <style scoped>
   .assertion-btn {
     text-align: center;
+    width: 60px;
   }
 </style>

@@ -22,7 +22,7 @@
 <script>
   import MsApiAssertionRegex from "./ApiAssertionRegex";
   import MsApiAssertionResponseTime from "./ApiAssertionResponseTime";
-  import {Assertions} from "../model/APIModel";
+  import {Assertions} from "../model/ScenarioModel";
 
   export default {
     name: "MsApiAssertionsEdit",

@@ -18,7 +18,7 @@
 
 <script>
   import MsApiKeyValue from "./ApiKeyValue";
-  import {Body, BODY_TYPE} from "../model/APIModel";
+  import {Body, BODY_TYPE} from "../model/ScenarioModel";
 
   export default {
     name: "MsApiBody",

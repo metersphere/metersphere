@@ -5,13 +5,13 @@
     </span>
     <div class="kv-row" v-for="(item, index) in items" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
-        <el-col :span="11">
+        <el-col>
           <el-input v-model="item.key" placeholder="Key" size="small" maxlength="100" @change="check"/>
         </el-col>
-        <el-col :span="11">
+        <el-col>
           <el-input v-model="item.value" placeholder="Value" size="small" maxlength="100" @change="check"/>
         </el-col>
-        <el-col :span="1">
+        <el-col class="kv-delete">
           <el-button size="mini" class="el-icon-delete-solid" circle @click="remove(index)"
                      :disabled="isDisable(index)"/>
         </el-col>
@@ -21,7 +21,7 @@
 </template>
 
 <script>
-  import {KeyValue} from "../model/APIModel";
+  import {KeyValue} from "../model/ScenarioModel";
 
   export default {
     name: "MsApiKeyValue",
@@ -82,5 +82,9 @@
 
   .kv-row {
     margin-top: 10px;
+  }
+
+  .kv-delete {
+    width: 60px;
   }
 </style>
