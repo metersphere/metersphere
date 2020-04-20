@@ -1,6 +1,6 @@
 <template>
 
-  <el-main class="main-content">
+  <el-main>
     <el-card v-loading="result.loading">
       <template v-slot:header>
         <div>
@@ -67,6 +67,24 @@
         <el-table-column
           prop="priority"
           :label="$t('test_track.priority')">
+          <template v-slot:default="scope">
+            <el-tag v-if="scope.row.priority == 'P0'"
+                    type="danger"
+                    effect="dark"
+                    size="mini">{{scope.row.priority}}</el-tag>
+            <el-tag v-if="scope.row.priority == 'P1'"
+                    type="danger"
+                    effect="light"
+                    size="mini">{{scope.row.priority}}</el-tag>
+            <el-tag v-if="scope.row.priority == 'P2'"
+                    type="warning"
+                    effect="dark"
+                    size="mini">{{scope.row.priority}}</el-tag>
+            <el-tag v-if="scope.row.priority == 'P3'"
+                    type="warning"
+                    effect="light"
+                    size="mini">{{scope.row.priority}}</el-tag>
+          </template>
         </el-table-column>
 
         <el-table-column
@@ -101,7 +119,8 @@
           :label="$t('test_track.execute_result')">
           <template v-slot:default="scope">
             <el-tag v-if="scope.row.status == 'Prepare'"
-                    e ffect="info"
+                    type="info"
+                    effect="dark"
                     size="mini">{{$t('test_track.plan_status_prepare')}}</el-tag>
             <el-tag v-if="scope.row.status == 'Pass'"
                     type="success"
