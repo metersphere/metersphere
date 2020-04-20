@@ -4,29 +4,21 @@
     <el-card v-loading="result.loading">
       <template v-slot:header>
         <div>
-          <el-row type="flex" justify="start" align="middle">
-            <el-col :span="5">
-              <span class="title">{{$t('test_track.test_case')}}</span>
-              <ms-create-box :tips="$t('test_track.create')" :exec="testCaseCreate"/>
-            </el-col>
+          <el-row type="flex" justify="space-between" align="middle">
+            <span class="title">{{$t('test_track.test_case')}}
+              <ms-create-box :tips="$t('test_track.create')" :exec="testCaseCreate"/></span>
 
-            <el-col :span="1" :offset="12">
-             <test-case-import :projectId="currentProject == null? null : currentProject.id"
-                               @refresh="refresh"/>
-            </el-col>
-
-            <el-col :span="1">
+            <span class="operate-button">
+              <test-case-import :projectId="currentProject == null? null : currentProject.id"
+                                @refresh="refresh"/>
               <test-case-export/>
-            </el-col>
-
-            <el-col :span="5">
-                  <span class="search">
-                    <el-input type="text" size="small" :placeholder="$t('load_test.search_by_name')"
-                              prefix-icon="el-icon-search"
-                              maxlength="60"
-                              v-model="condition" @change="search" clearable/>
-                  </span>
-            </el-col>
+              <el-input type="text" size="small"
+                        class="search"
+                        :placeholder="$t('load_test.search_by_name')"
+                        prefix-icon="el-icon-search"
+                        maxlength="60"
+                        v-model="condition"
+                        @change="search" clearable/></span>
           </el-row>
         </div>
       </template>
@@ -192,6 +184,20 @@
     padding-top: 20px;
     margin-right: -9px;
     float: right;
+  }
+
+  .operate-button {
+    float: right;
+  }
+
+  .operate-button > div {
+    display: inline-block;
+    margin-left: 10px;
+  }
+
+  .search {
+    margin-left: 10px;
+    width: 240px;
   }
 
 </style>

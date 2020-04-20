@@ -1,41 +1,37 @@
 <template>
-  <div class="container">
-    <div class="main-content">
-      <el-card>
-        <el-container class="view-container">
-          <el-aside class="tree-aside">
-            <select-menu
-              :data="testPlans"
-              :current-data="currentPlan"
-              :title="$t('test_track.plan')"
-              @dataChange="changePlan">
-            </select-menu>
+  <div class="main-content">
+    <el-container class="view-container">
+      <el-aside class="tree-aside">
+        <select-menu
+          :data="testPlans"
+          :current-data="currentPlan"
+          :title="$t('test_track.plan')"
+          @dataChange="changePlan">
+        </select-menu>
 
-            <plan-node-tree
-              class="node-tree"
-              :plan-id="planId"
-              @nodeSelectEvent="getPlanCases"
-              ref="tree">
-            </plan-node-tree>
+        <plan-node-tree
+          class="node-tree"
+          :plan-id="planId"
+          @nodeSelectEvent="getPlanCases"
+          ref="tree">
+        </plan-node-tree>
 
-          </el-aside>
+      </el-aside>
 
-          <el-main class="view-main">
-            <test-plan-test-case-list
-              @openTestCaseRelevanceDialog="openTestCaseRelevanceDialog"
-              @refresh="refresh"
-              :plan-id="planId"
-              ref="testCasePlanList"></test-plan-test-case-list>
-          </el-main>
-        </el-container>
-
-        <test-case-relevance
+      <el-main class="view-main">
+        <test-plan-test-case-list
+          @openTestCaseRelevanceDialog="openTestCaseRelevanceDialog"
           @refresh="refresh"
           :plan-id="planId"
-          ref="testCaseRelevance">
-        </test-case-relevance>
-      </el-card>
-    </div>
+          ref="testCasePlanList"></test-plan-test-case-list>
+      </el-main>
+    </el-container>
+
+    <test-case-relevance
+      @refresh="refresh"
+      :plan-id="planId"
+      ref="testCaseRelevance">
+    </test-case-relevance>
   </div>
 
 </template>
@@ -112,13 +108,16 @@
 
   .tree-aside {
     position: relative;
-    border-radius: 4px;
     border: 1px solid #EBEEF5;
     box-sizing: border-box;
   }
 
   .view-main {
     padding-top: 0;
+  }
+
+  .main-content {
+    background: white;
   }
 
 </style>

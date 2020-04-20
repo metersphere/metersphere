@@ -1,7 +1,5 @@
 <template>
-  <div class="container">
     <div class="main-content">
-      <el-card>
 
         <el-container class="case-container">
           <el-aside class="tree-aside">
@@ -19,7 +17,7 @@
             </node-tree>
           </el-aside>
 
-          <el-main class="case-main">
+          <el-main>
             <test-case-list
               :current-project="currentProject"
               @openTestCaseEditDialog="openTestCaseEditDialog"
@@ -35,9 +33,7 @@
           ref="testCaseEditDialog">
         </test-case-edit>
 
-      </el-card>
-    </div>
-  </div>
+      </div>
 </template>
 
 <script>
@@ -207,21 +203,22 @@
     margin: 3%;
   }
 
-
   .tree-aside {
     position: relative;
-    border-radius: 4px;
     border: 1px solid #EBEEF5;
     box-sizing: border-box;
+    background: white;
   }
 
   .case-container {
     height: calc(100vh - 150px);
     min-height: 600px;
+    margin-top: 0;
+    margin-left: 0;
   }
 
-  .case-main {
-    padding-top: 0;
+  .main-content {
+    background: white;
   }
 
 </style>

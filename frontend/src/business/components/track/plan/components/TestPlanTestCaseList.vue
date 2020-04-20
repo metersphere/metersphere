@@ -4,50 +4,43 @@
     <el-card v-loading="result.loading">
       <template v-slot:header>
         <div>
-          <el-row type="flex" justify="end">
-            <el-col>
-              <span class="title">{{$t('test_track.test_case')}} </span>
-                <ms-tip-button v-if="!showMyTestCase"
-                  :tip="'我的用例'"
-                  icon="el-icon-s-custom" @click="searchMyTestCase"/>
-                <ms-tip-button v-if="showMyTestCase"
-                  :tip="'全部用例'"
-                  icon="el-icon-files" @click="searchMyTestCase"/>
-            </el-col>
+          <el-row type="flex" justify="space-between" align="middle">
+            <span class="title">{{$t('test_track.test_case')}}
+              <ms-tip-button v-if="!showMyTestCase"
+                            :tip="'我的用例'"
+                            icon="el-icon-s-custom" @click="searchMyTestCase"/>
+              <ms-tip-button v-if="showMyTestCase"
+                           :tip="'全部用例'"
+                           icon="el-icon-files" @click="searchMyTestCase"/></span>
 
-            <el-col :offset="8">
+            <span class="operate-button">
               <el-button icon="el-icon-connection" size="small" round
                          @click="$emit('openTestCaseRelevanceDialog')" >{{$t('test_track.relevance_test_case')}}</el-button>
-            </el-col>
 
-            <el-col>
               <el-button icon="el-icon-edit-outline" size="small" round
                          @click="handleBatch('status')" >更改执行结果</el-button>
-            </el-col>
 
-            <el-col>
               <el-button icon="el-icon-user" size="small" round
                          @click="handleBatch('executor')" >更改执行人</el-button>
-            </el-col>
 
-            <executor-edit
-              ref="executorEdit"
-              :select-ids="selectIds"
-              @refresh="initTableData"/>
-            <status-edit
-              ref="statusEdit"
-              :select-ids="selectIds"
-              @refresh="initTableData"/>
-
-            <el-col>
-                  <span class="search">
-                    <el-input type="text" size="small" :placeholder="$t('load_test.search_by_name')"
-                              prefix-icon="el-icon-search"
-                              maxlength="60"
-                              v-model="condition.name" @change="search" clearable/>
-                  </span>
-            </el-col>
+              <el-input type="text" size="small"
+                        class="search"
+                        :placeholder="$t('load_test.search_by_name')"
+                        prefix-icon="el-icon-search"
+                        maxlength="60"
+                        v-model="condition.name" @change="search" clearable/>
+            </span>
           </el-row>
+
+          <executor-edit
+            ref="executorEdit"
+            :select-ids="selectIds"
+            @refresh="initTableData"/>
+          <status-edit
+            ref="statusEdit"
+            :select-ids="selectIds"
+            @refresh="initTableData"/>
+
         </div>
       </template>
 
@@ -297,9 +290,12 @@
 
 <style scoped>
 
-  .table-page {
-    padding-top: 20px;
-    margin-right: -9px;
+  .search {
+    margin-left: 10px;
+    width: 240px;
+  }
+
+  .operate-button {
     float: right;
   }
 

@@ -3,16 +3,14 @@
   <div>
     <el-tooltip class="item" effect="dark" content="导入用例" placement="right">
       <el-button type="info" icon="el-icon-upload2" size="mini" circle
-        @click="dialogVisible = true"></el-button>
-    </el-tooltip>
+        @click="dialogVisible = true"></el-button></el-tooltip>
 
     <el-dialog width="30%" title="导入测试用例" :visible.sync="dialogVisible"
                @close="init">
 
       <el-row>
         <el-link type="primary" class="download-template"
-                 href="/test/case/export/template">下载模版</el-link>
-      </el-row>
+                 href="/test/case/export/template">下载模版</el-link></el-row>
 
       <el-row>
         <el-upload
@@ -32,17 +30,14 @@
           <template v-slot:tip>
             <div class="el-upload__tip">只能上传xls/xlsx文件，且不超过20M</div>
           </template>
-        </el-upload>
-
-      </el-row>
+        </el-upload></el-row>
 
       <el-row>
         <ul>
           <li v-for="errFile in errList" :key="errFile.rowNum">
             {{errFile.errMsg}}
           </li>
-        </ul>
-      </el-row>
+        </ul></el-row>
 
     </el-dialog>
 
