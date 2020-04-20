@@ -34,7 +34,6 @@
         activeName: "variables",
         rules: {
           name: [
-            {required: true, message: this.$t('api_test.scenario.input_name'), trigger: 'blur'},
             {max: 100, message: this.$t('commons.input_limit', [0, 100]), trigger: 'blur'}
           ],
           url: [

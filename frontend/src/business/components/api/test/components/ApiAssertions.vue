@@ -24,7 +24,7 @@
   import MsApiAssertionText from "./ApiAssertionText";
   import MsApiAssertionRegex from "./ApiAssertionRegex";
   import MsApiAssertionResponseTime from "./ApiAssertionResponseTime";
-  import {ASSERTION_TYPE, Assertions, Regex} from "../model/APIModel";
+  import {ASSERTION_TYPE, Assertions, Regex} from "../model/ScenarioModel";
   import MsApiAssertionsEdit from "./ApiAssertionsEdit";
 
   export default {
