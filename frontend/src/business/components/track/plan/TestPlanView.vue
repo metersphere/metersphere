@@ -22,7 +22,6 @@
         <el-main>
           <test-plan-test-case-list
             @openTestCaseRelevanceDialog="openTestCaseRelevanceDialog"
-            @editTestPlanTestCase="editTestPlanTestCase"
             @refresh="refresh"
             :plan-id="planId"
             ref="testCasePlanList"></test-plan-test-case-list>
@@ -34,11 +33,6 @@
         :plan-id="planId"
         ref="testCaseRelevance"></test-case-relevance>
 
-      <test-plan-test-case-edit
-        ref="testPlanTestCaseEdit"
-        @refresh="refresh">
-      </test-plan-test-case-edit>
-
     </div>
   </div>
 
@@ -49,12 +43,11 @@
     import PlanNodeTree from "./components/PlanNodeTree";
     import TestPlanTestCaseList from "./components/TestPlanTestCaseList";
     import TestCaseRelevance from "./components/TestCaseRelevance";
-    import TestPlanTestCaseEdit from "./components/TestPlanTestCaseEdit";
     import SelectMenu from "../common/SelectMenu";
 
     export default {
       name: "TestPlanView",
-      components: {PlanNodeTree, TestPlanTestCaseList, TestCaseRelevance, TestPlanTestCaseEdit, SelectMenu},
+      components: {PlanNodeTree, TestPlanTestCaseList, TestCaseRelevance, SelectMenu},
       data() {
         return {
           testPlans: [],
@@ -84,22 +77,6 @@
         },
         openTestCaseRelevanceDialog() {
           this.$refs.testCaseRelevance.openTestCaseRelevanceDialog();
-        },
-        editTestPlanTestCase(testCase) {
-          let item = {};
-          Object.assign(item, testCase);
-          item.results = JSON.parse(item.results);
-          item.steps = JSON.parse(item.steps);
-          item.steptResults = [];
-          for (let i = 0; i < item.steps.length; i++){
-            if(item.results[i]){
-              item.steps[i].actualResult = item.results[i].actualResult;
-              item.steps[i].executeResult = item.results[i].executeResult;
-            }
-            item.steptResults.push(item.steps[i]);
-          }
-          this.$refs.testPlanTestCaseEdit.testCase = item;
-          this.$refs.testPlanTestCaseEdit.dialog = true;
         },
         getTestPlans() {
           this.result = this.$post('/test/plan/list/all', {}, response => {

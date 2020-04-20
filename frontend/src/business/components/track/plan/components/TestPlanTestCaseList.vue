@@ -131,7 +131,7 @@
         <el-table-column
           :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <el-button @click="handleEdit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
+            <el-button @click="handleEdit(scope.row, scope.$index)" type="primary" icon="el-icon-edit" size="mini" circle/>
             <el-button @click="handleDelete(scope.row)" type="danger" icon="el-icon-unlock" size="mini" circle/>
           </template>
         </el-table-column>
@@ -139,6 +139,11 @@
 
       <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
+
+      <test-plan-test-case-edit
+        ref="testPlanTestCaseEdit"
+        :table-data="tableData"
+        @refresh="initTableData"/>
 
     </el-card>
   </el-main>
@@ -148,13 +153,14 @@
   import PlanNodeTree from './PlanNodeTree';
   import ExecutorEdit from './ExecutorEdit';
   import StatusEdit from './StatusEdit';
+  import TestPlanTestCaseEdit from "../components/TestPlanTestCaseEdit";
   import MsTipButton from '../../../../components/common/components/MsTipButton';
   import MsTablePagination from '../../../../components/common/pagination/TablePagination';
   import {TokenKey} from '../../../../../common/js/constants';
 
   export default {
       name: "TestPlanTestCaseList",
-      components: {PlanNodeTree, StatusEdit, ExecutorEdit, MsTipButton, MsTablePagination},
+      components: {PlanNodeTree, StatusEdit, ExecutorEdit, MsTipButton, MsTablePagination, TestPlanTestCaseEdit},
       data() {
         return {
           result: {},
@@ -165,6 +171,7 @@
           currentPage: 1,
           pageSize: 5,
           total: 0,
+          currentDataIndex: 0,
           selectIds: new Set(),
         }
       },
@@ -201,8 +208,11 @@
         buildPagePath(path) {
           return path + "/" + this.currentPage + "/" + this.pageSize;
         },
-        handleEdit(testCase) {
-          this.$emit('editTestPlanTestCase', testCase);
+        handleEdit(testCase, index) {
+          this.currentDataIndex = index;
+          this.$refs.testPlanTestCaseEdit.index = index;
+          this.$refs.testPlanTestCaseEdit.getTestCase(index);
+          this.$refs.testPlanTestCaseEdit.showDialog = true;
         },
         handleDelete(testCase) {
           this.$alert(this.$t('test_track.confirm_cancel_relevance') + ' ' + testCase.name + " ？", '', {
