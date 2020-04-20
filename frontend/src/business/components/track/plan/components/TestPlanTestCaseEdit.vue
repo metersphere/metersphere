@@ -1,14 +1,55 @@
 <template>
 
   <el-drawer
-    :title="testCase.name"
     :before-close="handleClose"
-    :visible.sync="dialog"
-    direction="ttb"
+    :visible.sync="showDialog"
+    :with-header="false"
     size="100%"
     ref="drawer">
 
-    <div class="case_container">
+    <template v-slot:default="scope">
+
+      <el-header>
+
+        <el-row type="flex" class="head-bar">
+
+          <el-col :span="12">
+            <el-button plain size="mini"
+                       icon="el-icon-back"
+                       @click="cancel">返回</el-button>
+          </el-col>
+
+          <el-col :span="12" class="head-right">
+            <span class="head-right-tip" v-if="index + 1 == tableData.length">
+              上一条用例 : {{tableData ? tableData[index - 1].name : ''}}
+            </span>
+            <span class="head-right-tip" v-if="index + 1 < tableData.length">
+              下一条用例 : {{tableData ? tableData[index + 1].name : ''}}
+            </span>
+
+            <el-button plain size="mini" icon="el-icon-arrow-up"
+                       :disabled="index + 1 <= 1"
+                       @click="handlePre()"/>
+            <span>  {{index + 1}}/{{tableData.length}} </span>
+            <el-button plain size="mini" icon="el-icon-arrow-down"
+                       :disabled="index + 1 >= tableData.length"
+                       @click="handleNext()"/>
+            <el-divider direction="vertical"></el-divider>
+
+            <el-button type="primary" size="mini" @click="saveCase">{{$t('test_track.save')}}</el-button>
+          </el-col>
+
+        </el-row>
+
+        <el-row style="margin-top: 0px;">
+          <el-col>
+            <el-divider content-position="left">{{testCase.name}}</el-divider>
+          </el-col>
+        </el-row>
+
+      </el-header>
+
+      <div class="case_container">
         <el-row >
           <el-col :span="4" :offset="1">
             <span class="cast_label">{{$t('test_track.priority')}}：</span>
@@ -19,6 +60,11 @@
             <span class="cast_item" v-if="testCase.type == 'functional'">{{$t('test_track.functional_test')}}</span>
             <span class="cast_item" v-if="testCase.type == 'performance'">{{$t('commons.performance')}}</span>
             <span class="cast_item" v-if="testCase.type == 'api'">{{$t('commons.api')}}</span>
+          </el-col>
+          <el-col :span="13">
+            <test-plan-test-case-status-button class="status-button"
+                                               @statusChange="statusChange"
+                                               :status="testCase.status"/>
           </el-col>
         </el-row>
 
@@ -36,11 +82,15 @@
 
         <el-row>
           <el-col :span="20" :offset="1">
+            <div>
+              <span class="cast_label">测试步骤：</span>
+            </div>
             <el-table
               :data="testCase.steptResults"
               class="tb-edit"
               size="mini"
-              height="200px"
+              height="250px"
+              :border="true"
               :default-sort = "{prop: 'num', order: 'ascending'}"
               highlight-current-row>
               <el-table-column :label="$t('test_track.number')" prop="num" min-width="5%"></el-table-column>
@@ -71,10 +121,10 @@
                   <el-select
                     v-model="scope.row.executeResult"
                     size="mini">
-                    <el-option :label="$t('test_track.pass')" value="Pass"></el-option>
-                    <el-option :label="$t('test_track.failure')" value="Failure"></el-option>
-                    <el-option :label="$t('test_track.blocking')" value="Blocking"></el-option>
-                    <el-option :label="$t('test_track.skip')" value="Skip"></el-option>
+                    <el-option :label="$t('test_track.pass')" value="Pass" style="color: #7ebf50;"></el-option>
+                    <el-option :label="$t('test_track.failure')" value="Failure" style="color: #e57471;"></el-option>
+                    <el-option :label="$t('test_track.blocking')" value="Blocking" style="color: #dda451;"></el-option>
+                    <el-option :label="$t('test_track.skip')" value="Skip" style="color: #919399;"></el-option>
                   </el-select>
                 </template>
               </el-table-column>
@@ -84,7 +134,7 @@
 
         <el-row>
           <el-col :span="15" :offset="1">
-            <div style="margin-bottom: 5px;">
+            <div>
               <span class="cast_label">{{$t('commons.remark')}}：</span>
               <span v-if="testCase.remark == null || testCase.remark == ''" style="color: darkgrey">{{$t('commons.not_filled')}}</span>
             </div>
@@ -98,20 +148,9 @@
           </el-col>
         </el-row>
 
-      <test-plan-test-case-status-button class="status-button"
-        @statusChange="statusChange"
-        :status="testCase.status"/>
 
-        <el-row type="flex" justify="end">
-          <el-col :span="5">
-            <div>
-              <el-button @click="cancel">{{$t('test_track.cancel')}}</el-button>
-              <el-button type="primary" @click="saveCase">{{$t('test_track.save')}}</el-button>
-            </div>
-          </el-col>
-        </el-row>
-
-    </div>
+      </div>
+    </template>
   </el-drawer>
 
 </template>
@@ -120,44 +159,77 @@
   import TestPlanTestCaseStatusButton from '../common/TestPlanTestCaseStatusButton';
 
   export default {
-      name: "TestPlanTestCaseEdit",
+    name: "TestPlanTestCaseEdit",
     components: {TestPlanTestCaseStatusButton},
     data() {
-        return {
-          dialog: false,
-          testCase: {TestPlanTestCaseStatusButton}
-        };
+      return {
+        showDialog: false,
+        testCase: {},
+        index: 0
+      };
+    },
+    props: {
+      tableData: {
+        type: Array
       },
-      methods: {
-        handleClose(done) {
-          this.dialog = false;
-        },
-        cancel() {
-          this.dialog = false;
-        },
-        statusChange(status) {
-          this.testCase.status = status;
-        },
-        saveCase() {
-          let param = {};
-          param.id = this.testCase.id;
-          param.status = this.testCase.status;
-          param.results = [];
-          this.testCase.steptResults.forEach(item => {
-            let result = {};
-            result.actualResult = item.actualResult;
-            result.executeResult = item.executeResult;
-            param.results.push(result);
-          });
-          param.results = JSON.stringify(param.results);
-          this.$post('/test/plan/case/edit', param, () => {
-            this.$refs.drawer.closeDrawer();
-            this.$message.success("保存成功！");
-            this.$emit('refresh');
-          });
+      total: {
+        type: Number
+      }
+    },
+    methods: {
+      handleClose(done) {
+        this.showDialog = false;
+      },
+      cancel() {
+        this.showDialog = false;
+      },
+      statusChange(status) {
+        this.testCase.status = status;
+      },
+      saveCase() {
+        let param = {};
+        param.id = this.testCase.id;
+        param.status = this.testCase.status;
+        param.results = [];
+        this.testCase.steptResults.forEach(item => {
+          let result = {};
+          result.actualResult = item.actualResult;
+          result.executeResult = item.executeResult;
+          param.results.push(result);
+        });
+        param.results = JSON.stringify(param.results);
+        this.$post('/test/plan/case/edit', param, () => {
+          this.$refs.drawer.closeDrawer();
+          this.$message.success("保存成功！");
+          this.$emit('refresh');
+        });
+      },
+      handleNext() {
+        this.index++;
+        this.getTestCase(this.index);
+      },
+      handlePre() {
+        this.index--;
+        this.getTestCase(this.index);
+      },
+      getTestCase(index) {
+        let testCase = this.tableData[index];
+        let item = {};
+        Object.assign(item, testCase);
+        item.results = JSON.parse(item.results);
+        item.steps = JSON.parse(item.steps);
+        item.steptResults = [];
+        for (let i = 0; i < item.steps.length; i++){
+          if(item.results[i]){
+            item.steps[i].actualResult = item.results[i].actualResult;
+            item.steps[i].executeResult = item.results[i].executeResult;
+          }
+          item.steptResults.push(item.steps[i]);
         }
+        this.testCase = item;
       }
     }
+  }
 </script>
 
 <style scoped>
@@ -173,16 +245,32 @@
     display: none;
   }
 
-  .el-row {
-    margin-bottom: 2%;
-  }
-
   .cast_label {
     color: dimgray;
   }
 
   .status-button {
     padding-left: 4%;
+  }
+
+  .head-right {
+    text-align: right;
+  }
+
+  .el-col {
+    line-height: 50px;
+  }
+
+  .status-button {
+    float: right;
+  }
+
+  .head-bar {
+    margin-top: 1%;
+  }
+
+  .head-right-tip {
+    color: darkgrey;
   }
 
 </style>

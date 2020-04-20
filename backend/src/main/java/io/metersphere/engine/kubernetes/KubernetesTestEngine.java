@@ -19,6 +19,7 @@ import io.metersphere.i18n.Translator;
 import org.apache.commons.collections.MapUtils;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class KubernetesTestEngine extends AbstractEngine {
 
@@ -121,5 +122,24 @@ public class KubernetesTestEngine extends AbstractEngine {
 
         });
 
+    }
+
+    @Override
+    public Map<String, String> log() {
+        Map<String, String> logs = new HashMap<>();
+        resourceList.forEach(r -> {
+            try {
+                String configuration = r.getConfiguration();
+                ClientCredential clientCredential = JSON.parseObject(configuration, ClientCredential.class);
+                KubernetesProvider provider = new KubernetesProvider(JSON.toJSONString(clientCredential));
+                provider.confirmNamespace(loadTest.getProjectId());
+                String joblog = provider.getKubernetesClient().batch().jobs().inNamespace(loadTest.getProjectId()).withName("job-" + loadTest.getId()).getLog();
+                logs.put(clientCredential.getMasterUrl(), joblog);
+            } catch (Exception e) {
+                MSException.throwException(e);
+            }
+
+        });
+        return logs;
     }
 }

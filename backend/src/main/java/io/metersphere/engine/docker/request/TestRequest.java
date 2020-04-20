@@ -7,7 +7,6 @@ public class TestRequest extends BaseRequest {
 
     private int size;
     private String fileString;
-    private String testId;
     private String image;
     private Map<String, String> testData = new HashMap<>();
 
@@ -25,14 +24,6 @@ public class TestRequest extends BaseRequest {
 
     public void setFileString(String fileString) {
         this.fileString = fileString;
-    }
-
-    public String getTestId() {
-        return testId;
-    }
-
-    public void setTestId(String testId) {
-        this.testId = testId;
     }
 
     public String getImage() {
