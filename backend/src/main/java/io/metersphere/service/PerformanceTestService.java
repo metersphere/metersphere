@@ -93,8 +93,6 @@ public class PerformanceTestService {
         loadTest.setProjectId(request.getProjectId());
         loadTest.setCreateTime(System.currentTimeMillis());
         loadTest.setUpdateTime(System.currentTimeMillis());
-        loadTest.setScenarioDefinition("todo");
-        loadTest.setDescription("todo");
         loadTest.setTestResourcePoolId(request.getTestResourcePoolId());
         loadTest.setLoadConfiguration(request.getLoadConfiguration());
         loadTest.setAdvancedConfiguration(request.getAdvancedConfiguration());
@@ -133,6 +131,14 @@ public class PerformanceTestService {
     }
 
     public String edit(EditTestPlanRequest request, List<MultipartFile> files) {
+        //
+        LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(request.getId());
+        if (loadTest == null) {
+            MSException.throwException(Translator.get("edit_load_test_not_found") + request.getId());
+        }
+        if (StringUtils.containsAny(loadTest.getStatus(), PerformanceTestStatus.Running.name(), PerformanceTestStatus.Starting.name())) {
+            MSException.throwException(Translator.get("cannot_edit_load_test_running"));
+        }
         // 新选择了一个文件，删除原来的文件
         List<FileMetadata> updatedFiles = request.getUpdatedFileList();
         List<FileMetadata> originFiles = fileService.getFileMetadataByTestId(request.getId());
@@ -152,22 +158,14 @@ public class PerformanceTestService {
             });
         }
 
-        final LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(request.getId());
-        if (loadTest == null) {
-            MSException.throwException(Translator.get("edit_load_test_not_found") + request.getId());
-        } else {
-            loadTest.setName(request.getName());
-            loadTest.setProjectId(request.getProjectId());
-            loadTest.setUpdateTime(System.currentTimeMillis());
-            loadTest.setScenarioDefinition("todo");
-            loadTest.setDescription("todo");
-            loadTest.setLoadConfiguration(request.getLoadConfiguration());
-            loadTest.setAdvancedConfiguration(request.getAdvancedConfiguration());
-            loadTest.setTestResourcePoolId(request.getTestResourcePoolId());
-            // todo 修改 load_test 的时候排除状态，这里存在修改了 Running 的测试状态的风险
-//            loadTest.setStatus(PerformanceTestStatus.Saved.name());
-            loadTestMapper.updateByPrimaryKeySelective(loadTest);
-        }
+        loadTest.setName(request.getName());
+        loadTest.setProjectId(request.getProjectId());
+        loadTest.setUpdateTime(System.currentTimeMillis());
+        loadTest.setLoadConfiguration(request.getLoadConfiguration());
+        loadTest.setAdvancedConfiguration(request.getAdvancedConfiguration());
+        loadTest.setTestResourcePoolId(request.getTestResourcePoolId());
+        loadTest.setStatus(PerformanceTestStatus.Saved.name());
+        loadTestMapper.updateByPrimaryKeySelective(loadTest);
 
         return request.getId();
     }
