@@ -1,43 +1,41 @@
 <template>
   <div class="container">
     <div class="main-content">
-      <el-container>
-        <el-aside width="250px">
+      <el-card>
 
-          <select-menu
-            :data="projects"
-            :current-data="currentProject"
-            :title="$t('test_track.project')"
-            @dataChange="changeProject">
-          </select-menu>
+        <el-container class="case-container">
+          <el-aside class="tree-aside">
+            <select-menu
+              :data="projects"
+              :current-data="currentProject"
+              :title="$t('test_track.project')"
+              @dataChange="changeProject">
+            </select-menu>
+            <node-tree class="node-tree"
+                       :current-project="currentProject"
+                       @nodeSelectEvent="refreshTable"
+                       @refresh="refreshTable"
+                       ref="nodeTree">
+            </node-tree>
+          </el-aside>
 
-          <node-tree class="node-tree"
-                     :current-project="currentProject"
-                     @nodeSelectEvent="refreshTable"
-                     @refresh="refreshTable"
-                     ref="nodeTree">
-          </node-tree>
+          <el-main class="case-main">
+            <test-case-list
+              :current-project="currentProject"
+              @openTestCaseEditDialog="openTestCaseEditDialog"
+              @testCaseEdit="openTestCaseEditDialog"
+              @refresh="refresh"
+              ref="testCaseList">
+            </test-case-list>
+          </el-main>
+        </el-container>
 
-        </el-aside>
+        <test-case-edit
+          @refresh="refreshTable"
+          ref="testCaseEditDialog">
+        </test-case-edit>
 
-        <el-main class="main-content">
-
-          <test-case-list
-            :current-project="currentProject"
-            @openTestCaseEditDialog="openTestCaseEditDialog"
-            @testCaseEdit="openTestCaseEditDialog"
-            @refresh="refresh"
-            ref="testCaseList">
-          </test-case-list>
-        </el-main>
-
-      </el-container>
-
-      <test-case-edit
-        @refresh="refreshTable"
-        ref="testCaseEditDialog">
-      </test-case-edit>
-
+      </el-card>
     </div>
   </div>
 </template>
@@ -174,7 +172,6 @@
       openRecentTestCaseEditDialog() {
         let caseId = this.$route.params.caseId;
         this.getProjectByCaseId(caseId);
-        // this.refresh();
         this.$get('/test/case/get/' + caseId, response => {
           if (response.data) {
             this.openTestCaseEditDialog(response.data);
@@ -206,20 +203,25 @@
 
 <style scoped>
 
-  .main-content {
-    width: 100%;
-    height: 100%;
-    background: white;
-    height: 1000px;
+  .node-tree {
+    margin: 3%;
+  }
+
+
+  .tree-aside {
+    position: relative;
+    border-radius: 4px;
+    border: 1px solid #EBEEF5;
     box-sizing: border-box;
   }
 
-  .node-tree {
-    margin: 5%;
+  .case-container {
+    height: calc(100vh - 150px);
+    min-height: 600px;
   }
 
-  .container {
-    padding: 0px;
+  .case-main {
+    padding-top: 0;
   }
 
 </style>

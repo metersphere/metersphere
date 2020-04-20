@@ -11,7 +11,7 @@
 
       <el-header>
 
-        <el-row type="flex" style="margin-top: 1%" justify="end">
+        <el-row type="flex" class="head-bar">
 
           <el-col :span="12">
             <el-button plain size="mini"
@@ -20,11 +20,11 @@
           </el-col>
 
           <el-col :span="12" class="head-right">
-            <span v-if="index + 1 == tableData.length">
-              上一条用例 : {{tableData[index - 1].name}}
+            <span class="head-right-tip" v-if="index + 1 == tableData.length">
+              上一条用例 : {{tableData ? tableData[index - 1].name : ''}}
             </span>
-            <span v-if="index + 1 < tableData.length">
-              下一条用例 : {{tableData[index + 1].name}}
+            <span class="head-right-tip" v-if="index + 1 < tableData.length">
+              下一条用例 : {{tableData ? tableData[index + 1].name : ''}}
             </span>
 
             <el-button plain size="mini" icon="el-icon-arrow-up"
@@ -90,7 +90,7 @@
               class="tb-edit"
               size="mini"
               height="250px"
-              border="true"
+              :border="true"
               :default-sort = "{prop: 'num', order: 'ascending'}"
               highlight-current-row>
               <el-table-column :label="$t('test_track.number')" prop="num" min-width="5%"></el-table-column>
@@ -121,10 +121,10 @@
                   <el-select
                     v-model="scope.row.executeResult"
                     size="mini">
-                    <el-option :label="$t('test_track.pass')" value="Pass"></el-option>
-                    <el-option :label="$t('test_track.failure')" value="Failure"></el-option>
-                    <el-option :label="$t('test_track.blocking')" value="Blocking"></el-option>
-                    <el-option :label="$t('test_track.skip')" value="Skip"></el-option>
+                    <el-option :label="$t('test_track.pass')" value="Pass" style="color: #7ebf50;"></el-option>
+                    <el-option :label="$t('test_track.failure')" value="Failure" style="color: #e57471;"></el-option>
+                    <el-option :label="$t('test_track.blocking')" value="Blocking" style="color: #dda451;"></el-option>
+                    <el-option :label="$t('test_track.skip')" value="Skip" style="color: #919399;"></el-option>
                   </el-select>
                 </template>
               </el-table-column>
@@ -263,7 +263,14 @@
 
   .status-button {
     float: right;
-    margin-right: 1px;
+  }
+
+  .head-bar {
+    margin-top: 1%;
+  }
+
+  .head-right-tip {
+    color: darkgrey;
   }
 
 </style>
