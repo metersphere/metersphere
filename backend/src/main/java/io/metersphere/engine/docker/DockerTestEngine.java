@@ -15,7 +15,9 @@ import io.metersphere.engine.docker.request.TestRequest;
 import io.metersphere.i18n.Translator;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class DockerTestEngine extends AbstractEngine {
@@ -98,7 +100,22 @@ public class DockerTestEngine extends AbstractEngine {
             String uri = String.format(BASE_URL + "/jmeter/container/stop/" + testId, ip, port);
             restTemplate.postForObject(uri, request, String.class);
         });
+    }
 
+    @Override
+    public Map<String, String> log() {
+        String testId = loadTest.getId();
+        Map<String, String> logs = new HashMap<>();
+        BaseRequest request = new BaseRequest();
+        this.resourceList.forEach(r -> {
+            NodeDTO node = JSON.parseObject(r.getConfiguration(), NodeDTO.class);
+            String ip = node.getIp();
+            Integer port = node.getPort();
 
+            String uri = String.format(BASE_URL + "/jmeter/container/log/" + testId, ip, port);
+            String log = restTemplate.postForObject(uri, request, String.class);
+            logs.put(node.getIp(), log);
+        });
+        return logs;
     }
 }
