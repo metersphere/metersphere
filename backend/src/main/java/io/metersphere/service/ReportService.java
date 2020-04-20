@@ -1,14 +1,16 @@
 package io.metersphere.service;
 
-import io.metersphere.base.domain.LoadTestReport;
-import io.metersphere.base.domain.LoadTestReportExample;
-import io.metersphere.base.domain.LoadTestReportWithBLOBs;
+import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.controller.request.ReportRequest;
 import io.metersphere.dto.ReportDTO;
+import io.metersphere.engine.Engine;
+import io.metersphere.engine.EngineFactory;
 import io.metersphere.report.JtlResolver;
 import io.metersphere.report.base.ChartsData;
 import io.metersphere.report.base.Errors;
@@ -31,6 +33,8 @@ public class ReportService {
     private LoadTestReportMapper loadTestReportMapper;
     @Resource
     private ExtLoadTestReportMapper extLoadTestReportMapper;
+    @Resource
+    private LoadTestMapper loadTestMapper;
 
     public List<LoadTestReport> getRecentReportList(ReportRequest request) {
         LoadTestReportExample example = new LoadTestReportExample();
@@ -46,7 +50,36 @@ public class ReportService {
     }
 
     public void deleteReport(String reportId) {
+        if (StringUtils.isBlank(reportId)) {
+            MSException.throwException("report id cannot be null");
+        }
+
+        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
+        LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(loadTestReport.getTestId());
+
+        LogUtil.info("Delete report started, report ID: %s" + reportId);
+
+        final Engine engine = EngineFactory.createEngine(loadTest);
+        if (engine == null) {
+            MSException.throwException(String.format("Delete report fail. create engine fail，report ID：%s", reportId));
+        }
+
+        String reportStatus = loadTestReport.getStatus();
+        boolean isRunning = StringUtils.equals(reportStatus, PerformanceTestStatus.Running.name());
+        boolean isStarting = StringUtils.equals(reportStatus, PerformanceTestStatus.Starting.name());
+        boolean isError = StringUtils.equals(reportStatus, PerformanceTestStatus.Error.name());
+        if (isRunning || isStarting || isError) {
+            LogUtil.info("Start stop engine, report status: %s" + reportStatus);
+            stopEngine(loadTest, engine);
+        }
+
         loadTestReportMapper.deleteByPrimaryKey(reportId);
+    }
+
+    private void stopEngine(LoadTestWithBLOBs loadTest, Engine engine) {
+        engine.stop();
+        loadTest.setStatus(PerformanceTestStatus.Saved.name());
+        loadTestMapper.updateByPrimaryKeySelective(loadTest);
     }
 
     public ReportDTO getReportTestAndProInfo(String reportId) {
