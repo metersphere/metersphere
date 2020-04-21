@@ -3,23 +3,16 @@ package io.metersphere.report;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
-import io.metersphere.commons.utils.MsJMeterUtils;
 import io.metersphere.report.base.*;
 import io.metersphere.report.dto.ErrorsTop5DTO;
 import io.metersphere.report.dto.RequestStatisticsDTO;
+import io.metersphere.report.parse.ResultDataParse;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jmeter.report.core.Sample;
-import org.apache.jmeter.report.core.SampleMetadata;
-import org.apache.jmeter.report.dashboard.JsonizerVisitor;
-import org.apache.jmeter.report.processor.*;
-import org.apache.jmeter.report.processor.graph.AbstractOverTimeGraphConsumer;
 import org.apache.jmeter.report.processor.graph.impl.ActiveThreadsGraphConsumer;
 import org.apache.jmeter.report.processor.graph.impl.HitsPerSecondGraphConsumer;
 import org.apache.jmeter.report.processor.graph.impl.ResponseTimeOverTimeGraphConsumer;
-
 import java.io.Reader;
 import java.io.StringReader;
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,7 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class JtlResolver {
+public class GenerateReport {
 
     private static final Integer ERRORS_TOP_SIZE = 5;
     private static final String DATE_TIME_PATTERN = "yyyy/MM/dd HH:mm:ss";
@@ -193,7 +186,7 @@ public class JtlResolver {
             }
         }
 
-        Map<String, List<Metric>> jtlMap = falseList.stream().collect(Collectors.groupingBy(JtlResolver::getResponseCodeAndFailureMessage));
+        Map<String, List<Metric>> jtlMap = falseList.stream().collect(Collectors.groupingBy(GenerateReport::getResponseCodeAndFailureMessage));
 
         for (Map.Entry<String, List<Metric>> next : jtlMap.entrySet()) {
             String key = next.getKey();
@@ -226,7 +219,7 @@ public class JtlResolver {
                 .collect(Collectors.toList());
 
         Map<String, List<Metric>> collect = falseList.stream()
-                .collect(Collectors.groupingBy(JtlResolver::getResponseCodeAndFailureMessage));
+                .collect(Collectors.groupingBy(GenerateReport::getResponseCodeAndFailureMessage));
 
         for (Map.Entry<String, List<Metric>> next : collect.entrySet()) {
             String key = next.getKey();
@@ -277,9 +270,9 @@ public class JtlResolver {
         TestOverview testOverview = new TestOverview();
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
-        List<Metric> totalLineList = JtlResolver.resolver(jtlString);
-        // todo
-        List<Metric> totalLineList2 = JtlResolver.resolver(jtlString);
+        List<Metric> totalLineList = GenerateReport.resolver(jtlString);
+        // todo 修改测试概览的数值
+        List<Metric> totalLineList2 = GenerateReport.resolver(jtlString);
         // 时间戳转时间
         for (Metric metric : totalLineList2) {
             metric.setTimestamp(stampToDate(DATE_TIME_PATTERN, metric.getTimestamp()));
@@ -343,120 +336,26 @@ public class JtlResolver {
     }
 
     public static List<ChartsData> getLoadChartData(String jtlString) {
-        Map<String, Object> activeThreadMap = getResultDataMap(jtlString, new ActiveThreadsGraphConsumer());
-        Map<String, Object> hitsMap = getResultDataMap(jtlString, new HitsPerSecondGraphConsumer());
-        List<ChartsData> activeThreadList = new ArrayList<>();
-        List<ChartsData> hitsList = new ArrayList<>();
-        mapResolver(activeThreadMap, activeThreadList, "users");
-        mapResolver(hitsMap, hitsList, "hits");
-        activeThreadList.addAll(hitsList);
-        return activeThreadList;
+        Map<String, Object> activeThreadMap = ResultDataParse.getGraphDataMap(jtlString, new ActiveThreadsGraphConsumer());
+        Map<String, Object> hitsMap = ResultDataParse.getGraphDataMap(jtlString, new HitsPerSecondGraphConsumer());
+        List<ChartsData> resultList = ResultDataParse.graphMapParsing(activeThreadMap, "users");
+        List<ChartsData> hitsList = ResultDataParse.graphMapParsing(hitsMap, "hits");
+        resultList.addAll(hitsList);
+        return resultList;
     }
 
     public static List<ChartsData> getResponseTimeChartData(String jtlString) {
-        Map<String, Object> activeThreadMap = getResultDataMap(jtlString, new ActiveThreadsGraphConsumer());
-        Map<String, Object> responseTimeMap = getResultDataMap(jtlString, new ResponseTimeOverTimeGraphConsumer());
-        List<ChartsData> activeThreadList = new ArrayList<>();
-        List<ChartsData> responseTimeList = new ArrayList<>();
-        mapResolver(activeThreadMap, activeThreadList, "users");
-        mapResolver(responseTimeMap, responseTimeList, "responseTime");
-        activeThreadList.addAll(responseTimeList);
-        return activeThreadList;
-
-    }
-
-    public static void mapResolver(Map<String, Object> map, List list, String seriesName) {
-        // ThreadGroup-1
-        for (String key : map.keySet()) {
-            MapResultData mapResultData = (MapResultData) map.get(key);
-            ResultData maxY = mapResultData.getResult("maxY");
-            ListResultData series = (ListResultData) mapResultData.getResult("series");
-            if (series.getSize() > 0) {
-                for (int j = 0; j < series.getSize(); j++) {
-                    MapResultData resultData = (MapResultData) series.get(j);
-                    // data, isOverall, label, isController
-                    ListResultData data = (ListResultData) resultData.getResult("data");
-                    ValueResultData label = (ValueResultData) resultData.getResult("label");
-
-                    if (data.getSize() > 0) {
-                        for (int i = 0; i < data.getSize(); i++) {
-                            ListResultData listResultData = (ListResultData) data.get(i);
-                            String result = listResultData.accept(new JsonizerVisitor());
-                            result = result.substring(1, result.length() - 1);
-                            String[] split = result.split(",");
-                            ChartsData chartsData = new ChartsData();
-                            BigDecimal bigDecimal = new BigDecimal(split[0]);
-                            String timeStamp = bigDecimal.toPlainString();
-                            String time = null;
-                            try {
-                                time = formatDate(stampToDate(DATE_TIME_PATTERN, timeStamp));
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
-                            chartsData.setxAxis(time);
-                            chartsData.setyAxis(new BigDecimal(split[1].trim()));
-                            if (series.getSize() == 1) {
-                                chartsData.setGroupName(seriesName);
-                            } else {
-                                chartsData.setGroupName((String) label.getValue());
-                            }
-                            list.add(chartsData);
-                        }
-                    }
-                }
-
-
-            }
-        }
-    }
-
-    public static Map<String, Object> getResultDataMap(String jtlString, AbstractOverTimeGraphConsumer timeGraphConsumer) {
-        int row = 0;
-        AbstractOverTimeGraphConsumer abstractOverTimeGraphConsumer = timeGraphConsumer;
-        abstractOverTimeGraphConsumer.setGranularity(60000);
-        // 使用反射获取properties
-        MsJMeterUtils.loadJMeterProperties("jmeter.properties");  // 这个路径不存在
-        SampleMetadata sampleMetaData = createTestMetaData();
-        SampleContext sampleContext = new SampleContext();
-        abstractOverTimeGraphConsumer.setSampleContext(sampleContext);
-        abstractOverTimeGraphConsumer.initialize();
-        abstractOverTimeGraphConsumer.startConsuming();
-        StringTokenizer tokenizer = new StringTokenizer(jtlString, "\n");
-        // 去掉第一行
-        tokenizer.nextToken();
-        while (tokenizer.hasMoreTokens()) {
-            String line = tokenizer.nextToken();
-            String[] data = line.split(",", -1);
-            Sample sample = new Sample(row++, sampleMetaData, data);
-            abstractOverTimeGraphConsumer.consume(sample, 0);
-        }
-        abstractOverTimeGraphConsumer.stopConsuming();
-        return sampleContext.getData();
-    }
-
-    // Create a static SampleMetadataObject
-    private static SampleMetadata createTestMetaData() {
-        String columnsString = "timeStamp,elapsed,label,responseCode,responseMessage,threadName,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect";
-        columnsString = "timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect";
-
-        String[] columns = new String[17];
-        int lastComa = 0;
-        int columnIndex = 0;
-        for (int i = 0; i < columnsString.length(); i++) {
-            if (columnsString.charAt(i) == ',') {
-                columns[columnIndex] = columnsString.substring(lastComa, i);
-                lastComa = i + 1;
-                columnIndex++;
-            } else if (i + 1 == columnsString.length()) {
-                columns[columnIndex] = columnsString.substring(lastComa, i + 1);
-            }
-        }
-        return new SampleMetadata(',', columns);
+        Map<String, Object> activeThreadMap = ResultDataParse.getGraphDataMap(jtlString, new ActiveThreadsGraphConsumer());
+        Map<String, Object> responseTimeMap = ResultDataParse.getGraphDataMap(jtlString, new ResponseTimeOverTimeGraphConsumer());
+        List<ChartsData> resultList = ResultDataParse.graphMapParsing(activeThreadMap, "users");
+        List<ChartsData> responseTimeList = ResultDataParse.graphMapParsing(responseTimeMap,  "responseTime");
+        resultList.addAll(responseTimeList);
+        return resultList;
     }
 
     public static ReportTimeInfo getReportTimeInfo(String jtlString) {
         ReportTimeInfo reportTimeInfo = new ReportTimeInfo();
-        List<Metric> totalLineList = JtlResolver.resolver(jtlString);
+        List<Metric> totalLineList = GenerateReport.resolver(jtlString);
 
         totalLineList.sort(Comparator.comparing(t0 -> Long.valueOf(t0.getTimestamp())));
 

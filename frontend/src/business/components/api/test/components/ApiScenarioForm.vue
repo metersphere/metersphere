@@ -1,7 +1,7 @@
 <template>
   <el-form :model="scenario" :rules="rules" ref="scenario" label-width="100px">
     <el-form-item :label="$t('api_test.scenario.name')" prop="name">
-      <el-input v-model="scenario.name" maxlength="100"></el-input>
+      <el-input v-model="scenario.name" maxlength="100"/>
     </el-form-item>
 
     <el-form-item :label="$t('api_test.scenario.base_url')" prop="url">

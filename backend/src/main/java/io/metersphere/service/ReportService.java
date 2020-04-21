@@ -11,7 +11,7 @@ import io.metersphere.controller.request.ReportRequest;
 import io.metersphere.dto.ReportDTO;
 import io.metersphere.engine.Engine;
 import io.metersphere.engine.EngineFactory;
-import io.metersphere.report.JtlResolver;
+import io.metersphere.report.GenerateReport;
 import io.metersphere.report.base.ChartsData;
 import io.metersphere.report.base.Errors;
 import io.metersphere.report.base.ReportTimeInfo;
@@ -90,7 +90,7 @@ public class ReportService {
         checkReportStatus(id);
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
-        RequestStatisticsDTO requestStatistics = JtlResolver.getRequestStatistics(content);
+        RequestStatisticsDTO requestStatistics = GenerateReport.getRequestStatistics(content);
         return requestStatistics;
     }
 
@@ -98,7 +98,7 @@ public class ReportService {
         checkReportStatus(id);
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
-        List<Errors> errors = JtlResolver.getErrorsList(content);
+        List<Errors> errors = GenerateReport.getErrorsList(content);
         return errors;
     }
 
@@ -106,7 +106,7 @@ public class ReportService {
         checkReportStatus(id);
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
-        ErrorsTop5DTO errors = JtlResolver.getErrorsTop5DTO(content);
+        ErrorsTop5DTO errors = GenerateReport.getErrorsTop5DTO(content);
         return errors;
     }
 
@@ -114,7 +114,7 @@ public class ReportService {
         checkReportStatus(id);
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
-        TestOverview testOverview = JtlResolver.getTestOverview(content);
+        TestOverview testOverview = GenerateReport.getTestOverview(content);
         return testOverview;
     }
 
@@ -122,7 +122,7 @@ public class ReportService {
         checkReportStatus(id);
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
-        ReportTimeInfo reportTimeInfo = JtlResolver.getReportTimeInfo(content);
+        ReportTimeInfo reportTimeInfo = GenerateReport.getReportTimeInfo(content);
         return reportTimeInfo;
     }
 
@@ -130,7 +130,7 @@ public class ReportService {
         checkReportStatus(id);
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
-        List<ChartsData> chartsDataList = JtlResolver.getLoadChartData(content);
+        List<ChartsData> chartsDataList = GenerateReport.getLoadChartData(content);
         return chartsDataList;
     }
 
@@ -138,7 +138,7 @@ public class ReportService {
         checkReportStatus(id);
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
-        List<ChartsData> chartsDataList = JtlResolver.getResponseTimeChartData(content);
+        List<ChartsData> chartsDataList = GenerateReport.getResponseTimeChartData(content);
         return chartsDataList;
     }
 
