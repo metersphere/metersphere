@@ -18,14 +18,13 @@
           </ms-api-collapse-item>
         </ms-api-collapse>
       </div>
-      <el-button class="scenario-create" type="primary" size="mini" icon="el-icon-plus" plain
-                 @click="createScenario"/>
+      <el-button class="scenario-create" type="primary" size="mini" icon="el-icon-plus" plain @click="createScenario"/>
     </el-aside>
 
     <el-main class="scenario-main">
       <div class="scenario-form">
-        <ms-api-scenario-form :scenario="selected" v-if="isScenario"></ms-api-scenario-form>
-        <ms-api-request-form :request="selected" v-if="isRequest"></ms-api-request-form>
+        <ms-api-scenario-form :scenario="selected" v-if="isScenario"/>
+        <ms-api-request-form :request="selected" v-if="isRequest"/>
       </div>
     </el-main>
   </el-container>

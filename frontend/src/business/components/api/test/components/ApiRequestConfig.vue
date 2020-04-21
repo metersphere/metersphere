@@ -11,7 +11,7 @@
         </div>
         <div class="request-btn">
           <el-dropdown trigger="click" @command="handleCommand">
-            <span class="el-dropdown-link el-icon-more"></span>
+            <span class="el-dropdown-link el-icon-more"/>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item :command="{type: 'copy', index: index}">复制请求</el-dropdown-item>
               <el-dropdown-item :command="{type: 'delete', index: index}">删除请求</el-dropdown-item>
