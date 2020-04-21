@@ -10,7 +10,7 @@
             </select-menu>
             <node-tree class="node-tree"
                        :current-project="currentProject"
-                       @nodeSelectEvent="refreshTable"
+                       @nodeSelectEvent="nodeChange"
                        @refresh="refreshTable"
                        ref="nodeTree">
             </node-tree>
@@ -121,6 +121,10 @@
       },
       changeProject(project) {
         this.setCurrentProject(project);
+      },
+      nodeChange(nodeIds, nodeNames) {
+        this.$refs.testCaseList.selectNodeNames = nodeNames;
+        this.$refs.testCaseList.initTableData(nodeIds);
       },
       refreshTable(data) {
         this.$refs.testCaseList.initTableData(data);

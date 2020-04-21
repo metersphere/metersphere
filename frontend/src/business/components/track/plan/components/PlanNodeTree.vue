@@ -105,8 +105,10 @@
         },
         selectNode(node) {
           let nodeIds = [];
+          let nodeNames = [];
           this.getChildNodeId(node, nodeIds);
-          this.$emit("nodeSelectEvent", nodeIds);
+          this.getParentNodeName(node, nodeNames);
+          this.$emit("nodeSelectEvent", nodeIds, nodeNames);
         },
         getChildNodeId(rootNode, nodeIds) {
           //递归获取所有子节点ID
@@ -114,7 +116,12 @@
           for (let i = 0; i < rootNode.childNodes.length; i++){
             this.getChildNodeId(rootNode.childNodes[i], nodeIds);
           }
-          return nodeIds;
+        },
+        getParentNodeName(rootNode, nodeNames) {
+          if (rootNode.parent && rootNode.parent.id != 0) {
+            this.getParentNodeName(rootNode.parent, nodeNames)
+          }
+          nodeNames.push(rootNode.data.name);
         },
         filterNode(value, data) {
           if (!value) return true;

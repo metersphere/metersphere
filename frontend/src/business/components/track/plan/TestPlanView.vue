@@ -24,6 +24,7 @@
           @refresh="refresh"
           :plan-id="planId"
           :select-node-ids="selectNodeIds"
+          :select-node-names="selectNodeNames"
           ref="testCasePlanList"></test-plan-test-case-list>
       </el-main>
     </el-container>
@@ -51,7 +52,8 @@
         return {
           testPlans: [],
           currentPlan: {},
-          selectNodeIds: []
+          selectNodeIds: [],
+          selectNodeNames: []
         }
       },
       computed: {
@@ -70,9 +72,11 @@
       methods: {
         refresh() {
           this.selectNodeIds = [];
+          this.selectNodeNames = [];
           this.$refs.tree.initTree();
         },
-        selectNodeIdsChange(nodeIds) {
+        selectNodeIdsChange(nodeIds, nodeNames) {
+          this.selectNodeNames = nodeNames;
           this.selectNodeIds = nodeIds;
         },
         openTestCaseRelevanceDialog() {
