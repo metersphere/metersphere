@@ -219,6 +219,7 @@ export default {
     project: "项目",
     save: "保 存",
     return: "返 回",
+    length_less_than: "长度必须小于",
     recent_plan: "最近的计划",
     recent_case: "最近的用例",
     case: {

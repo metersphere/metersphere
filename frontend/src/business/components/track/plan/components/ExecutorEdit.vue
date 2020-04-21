@@ -5,7 +5,7 @@
              width="20%">
     <el-select v-model="executor" :placeholder="$t('test_track.plan_view.select_executor')">
       <el-option v-for="item in executorOptions" :key="item.id"
-                 :label="item.name" :value="item.name"></el-option>
+                 :label="item.id" :value="item.id"></el-option>
     </el-select>
 
     <template v-slot:footer>

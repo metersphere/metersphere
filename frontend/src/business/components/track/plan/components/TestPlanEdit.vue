@@ -114,7 +114,10 @@
             description: ''
           },
           rules:{
-            name :[{required: true, message: this.$t('test_track.plan.input_plan_name'), trigger: 'blur'}],
+            name :[
+              {required: true, message: this.$t('test_track.plan.input_plan_name'), trigger: 'blur'},
+              { max: 30, message: this.$t('test_track.length_less_than') + '30', trigger: 'blur' }
+            ],
             projectId :[{required: true, message: this.$t('test_track.plan.input_plan_project'), trigger: 'change'}],
             principal :[{required: true, message: this.$t('test_track.plan.input_plan_principal'), trigger: 'change'}],
             stage :[{required: true, message: this.$t('test_track.plan.input_plan_stage'), trigger: 'change'}]

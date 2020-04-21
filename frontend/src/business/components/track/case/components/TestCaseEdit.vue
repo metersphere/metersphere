@@ -41,7 +41,7 @@
                 <el-option
                   v-for="item in maintainerOptions"
                   :key="item.id"
-                  :label="item.name"
+                  :label="item.id"
                   :value="item.id">
                 </el-option>
               </el-select>
@@ -213,7 +213,10 @@
           moduleOptions: [],
           maintainerOptions: [],
           rules:{
-            name :[{required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'}],
+            name :[
+              {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
+              { max: 30, message: this.$t('test_track.length_less_than') + '30', trigger: 'blur' }
+            ],
             module :[{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
             maintainer :[{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
             priority :[{required: true, message: this.$t('test_track.case.input_priority'), trigger: 'change'}],

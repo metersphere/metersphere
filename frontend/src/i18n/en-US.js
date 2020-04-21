@@ -178,6 +178,7 @@ export default {
     project: "Project",
     save: "Save",
     return: "Return",
+    length_less_than: "The length less than",
     recent_plan: "Recent plan",
     recent_case: "Recent case",
     case: {
