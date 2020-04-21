@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-tooltip class="item" effect="dark" content="导出用例" placement="right">
+    <el-tooltip class="item" effect="dark" :content="$t('test_track.case.export.export')" placement="right">
       <el-button type="info" icon="el-icon-download" size="mini" circle></el-button>
     </el-tooltip>
   </div>

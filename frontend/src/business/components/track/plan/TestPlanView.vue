@@ -5,7 +5,7 @@
         <select-menu
           :data="testPlans"
           :current-data="currentPlan"
-          :title="$t('test_track.plan')"
+          :title="$t('test_track.plan_view.plan')"
           @dataChange="changePlan">
         </select-menu>
 

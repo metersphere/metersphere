@@ -1,7 +1,7 @@
 <template>
 
   <div v-loading="result.loading">
-    <el-input :placeholder="$t('test_track.search_module')" v-model="filterText"
+    <el-input :placeholder="$t('test_track.module.search')" v-model="filterText"
               size="small">
       <template v-slot:append>
         <el-button icon="el-icon-folder-add" @click="openEditNodeDialog('add')"></el-button>
@@ -28,10 +28,10 @@
               </span>
             <el-dropdown-menu v-slot:default>
               <el-dropdown-item>
-                <div @click="openEditNodeDialog('edit', data)">{{$t('test_track.rename')}}</div>
+                <div @click="openEditNodeDialog('edit', data)">{{$t('test_track.module.rename')}}</div>
               </el-dropdown-item>
               <el-dropdown-item>
-                <div @click="openEditNodeDialog('add', data)">{{$t('test_track.add_submodule')}}</div>
+                <div @click="openEditNodeDialog('add', data)">{{$t('test_track.module.add_submodule')}}</div>
               </el-dropdown-item>
               <el-dropdown-item>
                 <div @click="remove(node, data)">{{$t('commons.delete')}}</div>
@@ -42,12 +42,12 @@
       </template>
     </el-tree>
 
-    <el-dialog :title="$t('test_track.add_module')" :visible.sync="dialogFormVisible" width="500px">
+    <el-dialog :title="$t('test_track.module.add_module')" :visible.sync="dialogFormVisible" width="500px">
 
       <el-row type="flex" justify="center">
         <el-col :span="18">
           <el-form :model="form">
-            <el-form-item :label="$t('test_track.module_name')" :label-width="formLabelWidth">
+            <el-form-item :label="$t('test_track.module.name')" :label-width="formLabelWidth">
               <el-input v-model="form.name" autocomplete="off"></el-input>
             </el-form-item>
           </el-form>
@@ -127,8 +127,8 @@
         this.$post('/case/node/edit', param);
       },
       remove(node, data) {
-        this.$alert(this.$t('test_track.delete_module_confirm') + data.label + "，" +
-          this.$t('test_track.delete_module_resource') + "？", '', {
+        this.$alert(this.$t('test_track.module.delete_confirm') + data.label + "，" +
+          this.$t('test_track.module.delete_all_resource') + "？", '', {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
@@ -139,6 +139,7 @@
                 const children = parent.data.children || parent.data;
                 const index = children.findIndex(d => d.id === data.id);
                 children.splice(index, 1);
+                this.$message.success(this.$t('commons.delete_success'));
                 this.$emit("refresh");
               });
             }
@@ -215,6 +216,7 @@
               this.treeNodes.push(param);
             }
           }
+          this.$message.success(this.$t('commons.save_success'));
         });
         this.form.name = '';
       },

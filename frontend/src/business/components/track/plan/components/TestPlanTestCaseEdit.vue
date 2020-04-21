@@ -16,15 +16,15 @@
           <el-col :span="12">
             <el-button plain size="mini"
                        icon="el-icon-back"
-                       @click="cancel">返回</el-button>
+                       @click="cancel">{{$t('test_track.return')}}</el-button>
           </el-col>
 
           <el-col :span="12" class="head-right">
             <span class="head-right-tip" v-if="index + 1 == tableData.length">
-              上一条用例 : {{tableData ? tableData[index - 1].name : ''}}
+              {{$t('test_track.plan_view.pre_case')}} : {{tableData ? tableData[index - 1].name : ''}}
             </span>
             <span class="head-right-tip" v-if="index + 1 < tableData.length">
-              下一条用例 : {{tableData ? tableData[index + 1].name : ''}}
+              {{$t('test_track.plan_view.next_case')}} : {{tableData ? tableData[index + 1].name : ''}}
             </span>
 
             <el-button plain size="mini" icon="el-icon-arrow-up"
@@ -52,12 +52,12 @@
       <div class="case_container">
         <el-row >
           <el-col :span="4" :offset="1">
-            <span class="cast_label">{{$t('test_track.priority')}}：</span>
+            <span class="cast_label">{{$t('test_track.case.priority')}}：</span>
             <span class="cast_item">{{testCase.priority}}</span>
           </el-col>
           <el-col :span="5">
-            <span class="cast_label">{{$t('test_track.case_type')}}：</span>
-            <span class="cast_item" v-if="testCase.type == 'functional'">{{$t('test_track.functional_test')}}</span>
+            <span class="cast_label">{{$t('test_track.case.case_type')}}：</span>
+            <span class="cast_item" v-if="testCase.type == 'functional'">{{$t('commons.functional')}}</span>
             <span class="cast_item" v-if="testCase.type == 'performance'">{{$t('commons.performance')}}</span>
             <span class="cast_item" v-if="testCase.type == 'api'">{{$t('commons.api')}}</span>
           </el-col>
@@ -70,12 +70,12 @@
 
         <el-row>
           <el-col :span="4" :offset="1">
-            <span class="cast_label">{{$t('test_track.method')}}：</span>
-            <span v-if="testCase.method == 'manual'">{{$t('test_track.manual')}}</span>
-            <span v-if="testCase.method == 'auto'">{{$t('test_track.auto')}}</span>
+            <span class="cast_label">{{$t('test_track.case.method')}}：</span>
+            <span v-if="testCase.method == 'manual'">{{$t('test_track.case.manual')}}</span>
+            <span v-if="testCase.method == 'auto'">{{$t('test_track.case.auto')}}</span>
           </el-col>
           <el-col :span="5">
-            <span class="cast_label">{{$t('test_track.module')}}：</span>
+            <span class="cast_label">{{$t('test_track.case.module')}}：</span>
             <span class="cast_item">{{testCase.nodePath}}</span>
           </el-col>
         </el-row>
@@ -83,7 +83,7 @@
         <el-row>
           <el-col :span="20" :offset="1">
             <div>
-              <span class="cast_label">测试步骤：</span>
+              <span class="cast_label">{{$t('test_track.case.steps')}}：</span>
             </div>
             <el-table
               :data="testCase.steptResults"
@@ -93,18 +93,18 @@
               :border="true"
               :default-sort = "{prop: 'num', order: 'ascending'}"
               highlight-current-row>
-              <el-table-column :label="$t('test_track.number')" prop="num" min-width="5%"></el-table-column>
-              <el-table-column :label="$t('test_track.step_desc')" prop="desc" min-width="29%">
+              <el-table-column :label="$t('test_track.case.number')" prop="num" min-width="5%"></el-table-column>
+              <el-table-column :label="$t('test_track.case.step_desc')" prop="desc" min-width="29%">
                 <template v-slot:default="scope">
                   <span>{{scope.row.desc}}</span>
                 </template>
               </el-table-column>
-              <el-table-column :label="$t('test_track.expected_results')" prop="result" min-width="28%">
+              <el-table-column :label="$t('test_track.case.expected_results')" prop="result" min-width="28%">
                 <template v-slot:default="scope">
                   <span>{{scope.row.result}}</span>
                 </template>
               </el-table-column>
-              <el-table-column :label="$t('test_track.actual_result')" min-width="29%">
+              <el-table-column :label="$t('test_track.plan_view.actual_result')" min-width="29%">
                 <template v-slot:default="scope">
                   <el-input
                     size="mini"
@@ -116,15 +116,15 @@
                   <span>{{scope.row.actualResult}}</span>
                 </template>
               </el-table-column>
-              <el-table-column :label="$t('test_track.step_result')" min-width="9%">
+              <el-table-column :label="$t('test_track.plan_view.step_result')" min-width="9%">
                 <template v-slot:default="scope">
                   <el-select
                     v-model="scope.row.executeResult"
                     size="mini">
-                    <el-option :label="$t('test_track.pass')" value="Pass" style="color: #7ebf50;"></el-option>
-                    <el-option :label="$t('test_track.failure')" value="Failure" style="color: #e57471;"></el-option>
-                    <el-option :label="$t('test_track.blocking')" value="Blocking" style="color: #dda451;"></el-option>
-                    <el-option :label="$t('test_track.skip')" value="Skip" style="color: #919399;"></el-option>
+                    <el-option :label="$t('test_track.plan_view.pass')" value="Pass" style="color: #7ebf50;"></el-option>
+                    <el-option :label="$t('test_track.plan_view.failure')" value="Failure" style="color: #e57471;"></el-option>
+                    <el-option :label="$t('test_track.plan_view.blocking')" value="Blocking" style="color: #dda451;"></el-option>
+                    <el-option :label="$t('test_track.plan_view.skip')" value="Skip" style="color: #919399;"></el-option>
                   </el-select>
                 </template>
               </el-table-column>
@@ -200,7 +200,7 @@
         param.results = JSON.stringify(param.results);
         this.$post('/test/plan/case/edit', param, () => {
           this.$refs.drawer.closeDrawer();
-          this.$message.success("保存成功！");
+          this.$message.success(this.$t('commons.save_success'));
           this.$emit('refresh');
         });
       },

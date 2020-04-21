@@ -20,7 +20,7 @@
 
           <el-submenu v-if="isCurrentWorkspaceUser"
                       index="6" popper-class="submenu" v-permission="['test_manager', 'test_user']">
-            <template v-slot:title>{{$t('test_track.test_case')}}</template>
+            <template v-slot:title>{{$t('test_track.case.test_case')}}</template>
             <ms-recent-list :options="caseRecent"/>
             <el-divider/>
             <ms-show-all :index="'/track/case/all'"/>
@@ -29,12 +29,12 @@
 
           <el-submenu v-if="isCurrentWorkspaceUser"
                       index="7" popper-class="submenu" v-permission="['test_manager', 'test_user', 'test_viewer']">
-            <template v-slot:title>{{$t('test_track.test_plan')}}</template>
+            <template v-slot:title>{{$t('test_track.plan.test_plan')}}</template>
             <ms-recent-list :options="planRecent"/>
             <el-divider/>
             <ms-show-all :index="'/track/plan/all'"/>
             <el-menu-item :index="testPlanViewPath" class="blank_item"></el-menu-item>
-            <ms-create-button :index="'/track/plan/create'" :title="$t('test_track.create_plan')"/>
+            <ms-create-button :index="'/track/plan/create'" :title="$t('test_track.plan.create_plan')"/>
           </el-submenu>
         </el-menu>
       </el-col>

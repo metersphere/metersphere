@@ -1,9 +1,9 @@
 <template>
 
-  <el-dialog title="更改执行人"
+  <el-dialog :title="$t('test_track.plan_view.change_executor')"
              :visible.sync="executorEditVisible"
              width="20%">
-    <el-select v-model="executor" placeholder="请选择活动区域">
+    <el-select v-model="executor" :placeholder="$t('test_track.plan_view.select_executor')">
       <el-option v-for="item in executorOptions" :key="item.id"
                  :label="item.name" :value="item.name"></el-option>
     </el-select>
@@ -49,14 +49,14 @@
           let param = {};
           param.executor = this.executor;
           if (this.executor === '') {
-            this.$message('请选择执行人！');
+            this.$message.warning(this.$t('test_track.plan_view.select_executor'));
             return;
           }
           param.ids = [...this.selectIds];
           this.$post('/test/plan/case/batch/edit' , param, () => {
             this.executor = '';
             this.selectIds.clear();
-            this.$message.success("保存成功");
+            this.$message.success(this.$t('commons.save_success'));
             this.executorEditVisible = false;
             this.$emit('refresh');
           });

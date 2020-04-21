@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <el-input :placeholder="$t('test_track.search_module')" v-model="filterText" size="small"></el-input>
+    <el-input :placeholder="$t('test_track.module.search')" v-model="filterText" size="small"></el-input>
 
     <el-tree
       v-loading="result.loading"

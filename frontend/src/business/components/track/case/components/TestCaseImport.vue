@@ -1,16 +1,16 @@
 <template>
 
   <div>
-    <el-tooltip class="item" effect="dark" content="导入用例" placement="right">
+    <el-tooltip class="item" effect="dark" :content="$t('test_track.case.import.import')" placement="right">
       <el-button type="info" icon="el-icon-upload2" size="mini" circle
         @click="dialogVisible = true"></el-button></el-tooltip>
 
-    <el-dialog width="30%" title="导入测试用例" :visible.sync="dialogVisible"
+    <el-dialog width="30%" :title="$t('test_track.case.import.case_import')" :visible.sync="dialogVisible"
                @close="init">
 
       <el-row>
         <el-link type="primary" class="download-template"
-                 href="/test/case/export/template">下载模版</el-link></el-row>
+                 href="/test/case/export/template">{{$t('test_track.case.import.download_template')}}</el-link></el-row>
 
       <el-row>
         <el-upload
@@ -25,10 +25,10 @@
           :on-error="handleError"
           :file-list="fileList">
           <template v-slot:trigger>
-            <el-button size="mini" type="success" plain>点击上传</el-button>
+            <el-button size="mini" type="success" plain>{{$t('test_track.case.import.click_upload')}}</el-button>
           </template>
           <template v-slot:tip>
-            <div class="el-upload__tip">只能上传xls/xlsx文件，且不超过20M</div>
+            <div class="el-upload__tip">{{$t('test_track.case.import.upload_limit')}}</div>
           </template>
         </el-upload></el-row>
 
@@ -68,13 +68,13 @@
           this.init();
         },
         handleExceed(files, fileList) {
-          this.$message.warning(`当前限制选择 1 个文件，本次选择了 ${files.length} 个文件`);
+          this.$message.warning(this.$t('test_track.case.import.upload_limit_count'));
         },
         UploadValidate(file) {
           var suffix =file.name.substring(file.name.lastIndexOf('.') + 1);
           if (suffix != 'xls' && suffix != 'xlsx') {
             this.$message({
-              message: '上传文件只能是 xls、xlsx格式!',
+              message: this.$t('test_track.case.import.upload_limit_format'),
               type: 'warning'
             });
             return false;
@@ -82,7 +82,7 @@
 
           if (file.size / 1024 / 1024 > 20) {
             this.$message({
-              message: '上传文件大小不能超过 20MB!',
+              message: this.$t('test_track.case.import.upload_limit_size'),
               type: 'warning'
             });
             return false;
@@ -92,7 +92,7 @@
         handleSuccess(response) {
           let res = response.data;
           if (res.success) {
-            this.$message.success("导入成功！");
+            this.$message.success(this.$t('test_track.case.import.success'));
             this.dialogVisible = false;
             this.$emit("refresh");
           } else {

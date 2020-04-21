@@ -111,7 +111,7 @@
       },
       checkProject() {
         if(this.currentProject === null) {
-          this.$alert(this.$t('test_track.no_project'), {
+          this.$alert(this.$t('test_track.case.no_project'), {
             confirmButtonText: this.$t('project.create'),
             callback: action => {
               this.$router.push("/track/project/create");

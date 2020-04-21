@@ -2,7 +2,7 @@
 
   <div>
 
-    <el-dialog :title="$t('test_track.create_plan')"
+    <el-dialog :title="$t('test_track.plan.create_plan')"
                :visible.sync="dialogFormVisible"
                width="65%">
 
@@ -11,8 +11,8 @@
         <el-row>
           <el-col :span="8" :offset="1">
             <el-form-item
-              :placeholder="$t('test_track.input_name')"
-              :label="$t('test_track.plan_name')"
+              :placeholder="$t('test_track.plan.input_name')"
+              :label="$t('test_track.plan.plan_name')"
               :label-width="formLabelWidth"
               prop="name">
               <el-input v-model="form.name"></el-input>
@@ -20,10 +20,10 @@
           </el-col>
 
           <el-col :span="11" :offset="2">
-            <el-form-item :label="$t('test_track.plan_project')" :label-width="formLabelWidth" prop="projectId">
+            <el-form-item :label="$t('test_track.plan.plan_project')" :label-width="formLabelWidth" prop="projectId">
               <el-select
                 v-model="form.projectId"
-                :placeholder="$t('test_track.input_plan_project')"
+                :placeholder="$t('test_track.plan.input_plan_project')"
                 filterable>
                 <el-option
                   v-for="item in projects"
@@ -38,8 +38,8 @@
 
         <el-row>
           <el-col :span="10" :offset="1">
-            <el-form-item :label="$t('test_track.plan_principal')" :label-width="formLabelWidth" prop="principal">
-              <el-select v-model="form.principal" :placeholder="$t('test_track.input_plan_principal')" filterable>
+            <el-form-item :label="$t('test_track.plan.plan_principal')" :label-width="formLabelWidth" prop="principal">
+              <el-select v-model="form.principal" :placeholder="$t('test_track.plan.input_plan_principal')" filterable>
                 <el-option
                   v-for="item in principalOptions"
                   :key="item.id"
@@ -51,13 +51,13 @@
           </el-col>
 
           <el-col :span="12">
-            <el-form-item :label="$t('test_track.plan_stage')" :label-width="formLabelWidth" prop="stage">
-              <el-select v-model="form.stage" clearable :placeholder="$t('test_track.input_plan_stage')">
-                <el-option :label="$t('test_track.smoke_test')" value="smoke"></el-option>
-                <el-option :label="$t('test_track.functional_test')" value="functional"></el-option>
-                <el-option :label="$t('test_track.integration_testing')" value="integration"></el-option>
-                <el-option :label="$t('test_track.system_test')" value="system"></el-option>
-                <el-option :label="$t('test_track.version_validation')" value="version"></el-option>
+            <el-form-item :label="$t('test_track.plan.plan_stage')" :label-width="formLabelWidth" prop="stage">
+              <el-select v-model="form.stage" clearable :placeholder="$t('test_track.plan.input_plan_stage')">
+                <el-option :label="$t('test_track.plan.smoke_test')" value="smoke"></el-option>
+                <el-option :label="$t('test_track.plan.functional_test')" value="functional"></el-option>
+                <el-option :label="$t('test_track.plan.integration_testing')" value="integration"></el-option>
+                <el-option :label="$t('test_track.plan.system_test')" value="system"></el-option>
+                <el-option :label="$t('test_track.plan.version_validation')" value="version"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
@@ -114,10 +114,10 @@
             description: ''
           },
           rules:{
-            name :[{required: true, message: this.$t('test_track.input_name'), trigger: 'blur'}],
-            projectId :[{required: true, message: this.$t('test_track.input_plan_project'), trigger: 'change'}],
-            principal :[{required: true, message: this.$t('test_track.input_plan_principal'), trigger: 'change'}],
-            stage :[{required: true, message: this.$t('test_track.input_plan_stage'), trigger: 'change'}]
+            name :[{required: true, message: this.$t('test_track.plan.input_plan_name'), trigger: 'blur'}],
+            projectId :[{required: true, message: this.$t('test_track.plan.input_plan_project'), trigger: 'change'}],
+            principal :[{required: true, message: this.$t('test_track.plan.input_plan_principal'), trigger: 'change'}],
+            stage :[{required: true, message: this.$t('test_track.plan.input_plan_stage'), trigger: 'change'}]
           },
           formLabelWidth: "120px",
           operationType: '',

@@ -7,8 +7,8 @@
           <div>
             <el-row type="flex" justify="space-between" align="middle">
               <el-col :span="5">
-                <span class="title">{{$t('test_track.test_plan')}}</span>
-                <ms-create-box :tips="$t('test_track.create_plan')" :exec="testPlanCreate"/>
+                <span class="title">{{$t('test_track.plan.test_plan')}}</span>
+                <ms-create-box :tips="$t('test_track.plan.create_plan')" :exec="testPlanCreate"/>
               </el-col>
 
               <el-col :span="5">
@@ -33,34 +33,34 @@
           </el-table-column>
           <el-table-column
             prop="principal"
-            :label="$t('test_track.plan_principal')"
+            :label="$t('test_track.plan.plan_principal')"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
             prop="status"
-            :label="$t('test_track.plan_status')"
+            :label="$t('test_track.plan.plan_status')"
             show-overflow-tooltip>
             <template v-slot:default="scope">
-              <span v-if="scope.row.status == 'Prepare'">{{$t('test_track.plan_status_prepare')}}</span>
-              <span v-if="scope.row.status == 'Running'">{{$t('test_track.plan_status_running')}}</span>
-              <span v-if="scope.row.status == 'Completed'">{{$t('test_track.plan_status_completed')}}</span>
+              <span v-if="scope.row.status == 'Prepare'">{{$t('test_track.plan.plan_status_prepare')}}</span>
+              <span v-if="scope.row.status == 'Running'">{{$t('test_track.plan.plan_status_running')}}</span>
+              <span v-if="scope.row.status == 'Completed'">{{$t('test_track.plan.plan_status_completed')}}</span>
             </template>
           </el-table-column>
           <el-table-column
             prop="stage"
-            :label="$t('test_track.plan_stage')"
+            :label="$t('test_track.plan.plan_stage')"
             show-overflow-tooltip>
             <template v-slot:default="scope">
-              <span v-if="scope.row.stage == 'smoke'">{{$t('test_track.smoke_test')}}</span>
-              <span v-if="scope.row.stage == 'functional'">{{$t('test_track.functional_test')}}</span>
-              <span v-if="scope.row.stage == 'integration'">{{$t('test_track.integration_testing')}}</span>
-              <span v-if="scope.row.stage == 'system'">{{$t('test_track.system_test')}}</span>
-              <span v-if="scope.row.stage == 'version'">{{$t('test_track.version_validation')}}</span>
+              <span v-if="scope.row.stage == 'smoke'">{{$t('test_track.plan.smoke_test')}}</span>
+              <span v-if="scope.row.stage == 'functional'">{{$t('test_track.plan.functional_test')}}</span>
+              <span v-if="scope.row.stage == 'integration'">{{$t('test_track.plan.integration_testing')}}</span>
+              <span v-if="scope.row.stage == 'system'">{{$t('test_track.plan.system_test')}}</span>
+              <span v-if="scope.row.stage == 'version'">{{$t('test_track.plan.version_validation')}}</span>
             </template>
           </el-table-column>
           <el-table-column
             prop="projectName"
-            :label="$t('test_track.plan_project')"
+            :label="$t('test_track.plan.plan_project')"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
@@ -88,23 +88,6 @@
           </el-table-column>
         </el-table>
 
-        <!--<div>-->
-          <!--<el-row>-->
-            <!--<el-col :span="22" :offset="1">-->
-              <!--<div class="table-page">-->
-                <!--<el-pagination-->
-                  <!--@size-change="handleSizeChange"-->
-                  <!--@current-change="handleCurrentChange"-->
-                  <!--:current-page.sync="currentPage"-->
-                  <!--:page-sizes="[5, 10, 20, 50, 100]"-->
-                  <!--:page-size="pageSize"-->
-                  <!--layout="total, sizes, prev, pager, next, jumper"-->
-                  <!--:total="total">-->
-                <!--</el-pagination>-->
-              <!--</div>-->
-            <!--</el-col>-->
-          <!--</el-row>-->
-        <!--</div>-->
         <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                              :total="total"/>
 
@@ -157,7 +140,7 @@
           this.$emit('testPlanEdit', testPlan);
         },
         handleDelete(testPlan) {
-          this.$alert(this.$t('test_track.plan_delete_confirm') + testPlan.name + "？", '', {
+          this.$alert(this.$t('test_track.plan.plan_delete_confirm') + testPlan.name + "？", '', {
             confirmButtonText: this.$t('commons.confirm'),
             callback: (action) => {
               if (action === 'confirm') {

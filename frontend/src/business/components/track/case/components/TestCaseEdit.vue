@@ -2,15 +2,15 @@
 
   <div>
 
-    <el-dialog :title="$t('test_track.create')" :visible.sync="dialogFormVisible" width="65%">
+    <el-dialog :title="$t('test_track.case.create')" :visible.sync="dialogFormVisible" width="65%">
 
       <el-form :model="form" :rules="rules" ref="caseFrom">
 
         <el-row>
           <el-col :span="8" :offset="1">
             <el-form-item
-              :placeholder="$t('test_track.input_name')"
-              :label="$t('test_track.name')"
+              :placeholder="$t('test_track.case.input_name')"
+              :label="$t('test_track.case.name')"
               :label-width="formLabelWidth"
               prop="name">
               <el-input v-model="form.name"></el-input>
@@ -18,10 +18,10 @@
           </el-col>
 
           <el-col :span="11" :offset="2">
-            <el-form-item :label="$t('test_track.module')" :label-width="formLabelWidth" prop="module">
+            <el-form-item :label="$t('test_track.case.module')" :label-width="formLabelWidth" prop="module">
               <el-select
                 v-model="form.module"
-                :placeholder="$t('test_track.input_module')"
+                :placeholder="$t('test_track.case.input_module')"
                 filterable>
                 <el-option
                   v-for="item in moduleOptions"
@@ -36,8 +36,8 @@
 
         <el-row>
           <el-col :span="10" :offset="1">
-            <el-form-item :label="$t('test_track.maintainer')" :label-width="formLabelWidth" prop="maintainer">
-              <el-select v-model="form.maintainer" :placeholder="$t('test_track.input_maintainer')" filterable>
+            <el-form-item :label="$t('test_track.case.maintainer')" :label-width="formLabelWidth" prop="maintainer">
+              <el-select v-model="form.maintainer" :placeholder="$t('test_track.case.input_maintainer')" filterable>
                 <el-option
                   v-for="item in maintainerOptions"
                   :key="item.id"
@@ -48,8 +48,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item :label="$t('test_track.priority')" :label-width="formLabelWidth" prop="priority">
-              <el-select v-model="form.priority" clearable :placeholder="$t('test_track.input_priority')">
+            <el-form-item :label="$t('test_track.case.priority')" :label-width="formLabelWidth" prop="priority">
+              <el-select v-model="form.priority" clearable :placeholder="$t('test_track.case.input_priority')">
                 <el-option label="P0" value="P0"></el-option>
                 <el-option label="P1" value="P1"></el-option>
                 <el-option label="P2" value="P2"></el-option>
@@ -61,26 +61,26 @@
 
         <el-row>
           <el-col :span="10" :offset="1">
-            <el-form-item :label="$t('test_track.type')" :label-width="formLabelWidth" prop="type">
-              <el-select v-model="form.type" :placeholder="$t('test_track.input_type')">
-                <el-option :label="$t('test_track.functional_test')" value="functional"></el-option>
+            <el-form-item :label="$t('test_track.case.type')" :label-width="formLabelWidth" prop="type">
+              <el-select v-model="form.type" :placeholder="$t('test_track.case.input_type')">
+                <el-option :label="$t('commons.functional')" value="functional"></el-option>
                 <el-option :label="$t('commons.performance')" value="performance"></el-option>
                 <el-option :label="$t('commons.api')" value="api"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item :label="$t('test_track.method')" :label-width="formLabelWidth" prop="method">
-              <el-select v-model="form.method" :placeholder="$t('test_track.input_method')">
-                <el-option :label="$t('test_track.manual')" value="manual"></el-option>
-                <el-option :label="$t('test_track.auto')" value="auto"></el-option>
+            <el-form-item :label="$t('test_track.case.method')" :label-width="formLabelWidth" prop="method">
+              <el-select v-model="form.method" :placeholder="$t('test_track.case.input_method')">
+                <el-option :label="$t('test_track.case.manual')" value="manual"></el-option>
+                <el-option :label="$t('test_track.case.auto')" value="auto"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
         </el-row>
 
         <el-row style="margin-top: 15px;">
-          <el-col :offset="2">{{$t('test_track.prerequisite')}}:</el-col>
+          <el-col :offset="2">{{$t('test_track.case.prerequisite')}}:</el-col>
         </el-row>
         <el-row type="flex" justify="center" style="margin-top: 10px;">
           <el-col :span="20">
@@ -89,13 +89,13 @@
                         type="textarea"
                         :autosize="{ minRows: 2, maxRows: 4}"
                         :rows="2"
-                        :placeholder="$t('test_track.input_prerequisite')"></el-input>
+                        :placeholder="$t('test_track.case.input_prerequisite')"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
 
         <el-row style="margin-bottom: 10px">
-          <el-col :offset="2">{{$t('test_track.steps')}}:</el-col>
+          <el-col :offset="2">{{$t('test_track.case.steps')}}:</el-col>
         </el-row>
         <el-row type="flex" justify="center">
           <el-col :span="20">
@@ -106,8 +106,8 @@
               size="mini"
               :default-sort = "{prop: 'num', order: 'ascending'}"
               highlight-current-row>
-              <el-table-column :label="$t('test_track.number')" prop="num" min-width="15%"></el-table-column>
-              <el-table-column :label="$t('test_track.step_desc')" prop="desc" min-width="35%">
+              <el-table-column :label="$t('test_track.case.number')" prop="num" min-width="15%"></el-table-column>
+              <el-table-column :label="$t('test_track.case.step_desc')" prop="desc" min-width="35%">
                 <template v-slot:default="scope">
                   <el-input
                     size="mini"
@@ -119,7 +119,7 @@
                   <span>{{scope.row.desc}}</span>
                 </template>
               </el-table-column>
-              <el-table-column :label="$t('test_track.expected_results')" prop="result" min-width="35%">
+              <el-table-column :label="$t('test_track.case.expected_results')" prop="result" min-width="35%">
                 <template v-slot:default="scope">
                   <el-input
                     size="mini"
@@ -213,12 +213,12 @@
           moduleOptions: [],
           maintainerOptions: [],
           rules:{
-            name :[{required: true, message: this.$t('test_track.input_name'), trigger: 'blur'}],
-            module :[{required: true, message: this.$t('test_track.input_module'), trigger: 'change'}],
-            maintainer :[{required: true, message: this.$t('test_track.input_maintainer'), trigger: 'change'}],
-            priority :[{required: true, message: this.$t('test_track.input_priority'), trigger: 'change'}],
-            type :[{required: true, message: this.$t('test_track.input_type'), trigger: 'change'}],
-            method :[{required: true, message: this.$t('test_track.input_method'), trigger: 'change'}]
+            name :[{required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'}],
+            module :[{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
+            maintainer :[{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
+            priority :[{required: true, message: this.$t('test_track.case.input_priority'), trigger: 'change'}],
+            type :[{required: true, message: this.$t('test_track.case.input_type'), trigger: 'change'}],
+            method :[{required: true, message: this.$t('test_track.case.input_method'), trigger: 'change'}]
           },
           formLabelWidth: "120px",
           operationType: ''

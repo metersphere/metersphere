@@ -2,7 +2,7 @@
 
   <div>
 
-    <el-dialog :title="$t('test_track.relevance_test_case')"
+    <el-dialog :title="$t('test_track.plan_view.relevance_test_case')"
                :visible.sync="dialogFormVisible"
                @close="close"
                width="50%">
@@ -32,7 +32,7 @@
 
                   <el-table-column
                     prop="name"
-                    :label="$t('test_track.name')"
+                    :label="$t('test_track.case.name')"
                     style="width: 100%">
                     <template v-slot:default="scope">
                       {{scope.row.name}}
@@ -165,11 +165,7 @@
   }
 
   .node-tree{
-    /*border-radius: 1px;*/
-    /*padding-top: 5px ;*/
-    /*height: 100%;*/
     margin-right: 10px;
-    /*box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);*/
   }
 
   .el-header {
@@ -178,10 +174,6 @@
     line-height: 60px;
   }
 
-  .el-aside {
-    /*color: #333;*/
-    /*background-color: rgb(238, 241, 246)*/
-  }
   .case-content {
     height: 100%;
   }
