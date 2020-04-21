@@ -1,6 +1,5 @@
 <template>
     <div class="main-content">
-
         <el-container class="case-container">
           <el-aside class="tree-aside">
             <select-menu
@@ -17,7 +16,7 @@
             </node-tree>
           </el-aside>
 
-          <el-main>
+          <el-main class="test-case-list">
             <test-case-list
               :current-project="currentProject"
               @openTestCaseEditDialog="openTestCaseEditDialog"
@@ -218,7 +217,12 @@
   }
 
   .main-content {
-    background: white;
+    /*background: white;*/
   }
+
+  .test-case-list {
+    padding: 15px;
+  }
+
 
 </style>

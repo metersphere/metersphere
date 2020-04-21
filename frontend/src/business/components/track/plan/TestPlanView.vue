@@ -18,7 +18,7 @@
 
       </el-aside>
 
-      <el-main class="view-main">
+      <el-main>
         <test-plan-test-case-list
           @openTestCaseRelevanceDialog="openTestCaseRelevanceDialog"
           @refresh="refresh"
@@ -110,14 +110,15 @@
     position: relative;
     border: 1px solid #EBEEF5;
     box-sizing: border-box;
+    background: white;
   }
 
-  .view-main {
-    padding-top: 0;
+  .el-main {
+    padding: 15px;
   }
 
   .main-content {
-    background: white;
+    /*background: white;*/
   }
 
 </style>

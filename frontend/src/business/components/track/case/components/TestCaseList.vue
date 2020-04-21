@@ -1,6 +1,6 @@
 <template>
 
-  <el-main>
+  <div>
     <el-card v-loading="result.loading">
       <template v-slot:header>
         <div>
@@ -85,7 +85,7 @@
                            :total="total"/>
 
     </el-card>
-  </el-main>
+  </div>
 </template>
 
 <script>

@@ -1,6 +1,6 @@
 <template>
 
-  <el-main>
+  <div>
     <el-card v-loading="result.loading">
       <template v-slot:header>
         <div>
@@ -158,7 +158,7 @@
         @refresh="initTableData"/>
 
     </el-card>
-  </el-main>
+  </div>
 </template>
 
 <script>
