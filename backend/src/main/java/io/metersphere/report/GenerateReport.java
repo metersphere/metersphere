@@ -5,9 +5,9 @@ import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
 import io.metersphere.report.base.*;
 import io.metersphere.report.dto.ErrorsTop5DTO;
-import io.metersphere.report.dto.RequestStatisticsDTO;
 import io.metersphere.report.parse.ResultDataParse;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jmeter.report.processor.StatisticsSummaryConsumer;
 import org.apache.jmeter.report.processor.graph.impl.ActiveThreadsGraphConsumer;
 import org.apache.jmeter.report.processor.graph.impl.HitsPerSecondGraphConsumer;
 import org.apache.jmeter.report.processor.graph.impl.ResponseTimeOverTimeGraphConsumer;
@@ -47,132 +47,6 @@ public class GenerateReport {
         return null;
     }
 
-    public static RequestStatisticsDTO getRequestStatistics(String jtlString) {
-        List<Integer> allElapseTimeList = new ArrayList<>();
-        List<RequestStatistics> requestStatisticsList = new ArrayList<>();
-        DecimalFormat decimalFormat = new DecimalFormat("0.00");
-
-        List<Metric> totalMetricList = resolver(jtlString);
-        Map<String, List<Metric>> jtlLabelMap = totalMetricList.stream().collect(Collectors.groupingBy(Metric::getLabel));
-        Iterator<Map.Entry<String, List<Metric>>> iterator = jtlLabelMap.entrySet().iterator();
-
-        int totalElapsedTime = 0;
-        float totalBytes = 0f;
-
-        while (iterator.hasNext()) {
-            Map.Entry<String, List<Metric>> entry = iterator.next();
-            String label = entry.getKey();
-            List<Metric> metricList = entry.getValue();
-            List<Integer> elapsedList = new ArrayList<>();
-
-            int jtlSamplesSize = 0, oneLineElapsedTime = 0, failSize = 0;
-            float oneLineBytes = 0f;
-
-            for (int i = 0; i < metricList.size(); i++) {
-                try {
-                    Metric row = metricList.get(i);
-                    String elapsed = row.getElapsed();
-                    oneLineElapsedTime += Integer.parseInt(elapsed);
-                    totalElapsedTime += Integer.parseInt(elapsed);
-                    elapsedList.add(Integer.valueOf(elapsed));
-                    allElapseTimeList.add(Integer.valueOf(elapsed));
-
-                    String isSuccess = row.getSuccess();
-                    if (!"true".equals(isSuccess)) {
-                        failSize++;
-                    }
-                    String bytes = row.getBytes();
-                    oneLineBytes += Float.parseFloat(bytes);
-                    totalBytes += Float.parseFloat(bytes);
-                    jtlSamplesSize++;
-                } catch (Exception e) {
-                    System.out.println("exception i:" + i);
-                }
-            }
-
-            Collections.sort(elapsedList);
-
-            int tp90 = elapsedList.size() * 90 / 100;
-            int tp95 = elapsedList.size() * 95 / 100;
-            int tp99 = elapsedList.size() * 99 / 100;
-
-            metricList.sort(Comparator.comparing(t0 -> Long.valueOf(t0.getTimestamp())));
-            long time = Long.parseLong(metricList.get(metricList.size() - 1).getTimestamp()) - Long.parseLong(metricList.get(0).getTimestamp())
-                    + Long.parseLong(metricList.get(metricList.size() - 1).getElapsed());
-
-            RequestStatistics requestStatistics = new RequestStatistics();
-            requestStatistics.setRequestLabel(label);
-            requestStatistics.setSamples(jtlSamplesSize);
-
-            String average = decimalFormat.format((float) oneLineElapsedTime / jtlSamplesSize);
-            requestStatistics.setAverage(average);
-
-            /*
-             * TP90的计算
-             * 1，把一段时间内全部的请求的响应时间，从小到大排序，获得序列A
-             * 2，总的请求数量，乘以90%，获得90%对应的请求个数C
-             * 3，从序列A中找到第C个请求，它的响应时间，即为TP90的值
-             * 其余相似的指标还有TP95, TP99
-             */
-            // todo tp90
-            requestStatistics.setTp90(elapsedList.get(tp90) + "");
-            requestStatistics.setTp95(elapsedList.get(tp95) + "");
-            requestStatistics.setTp99(elapsedList.get(tp99) + "");
-
-            double avgHits = (double) metricList.size() / (time * 1.0 / 1000);
-            requestStatistics.setAvgHits(decimalFormat.format(avgHits));
-
-            requestStatistics.setMin(elapsedList.get(0) + "");
-            requestStatistics.setMax(elapsedList.get(jtlSamplesSize - 1) + "");
-            requestStatistics.setErrors(decimalFormat.format(failSize * 100.0 / jtlSamplesSize) + "%");
-            requestStatistics.setKo(failSize);
-            /*
-             * 所有的相同请求的bytes总和 / 1024 / 请求持续运行的时间=sum(bytes)/1024/total time
-             * total time = 最大时间戳 - 最小时间戳 + 最后请求的响应时间
-             */
-            requestStatistics.setKbPerSec(decimalFormat.format(oneLineBytes * 1.0 / 1024 / (time * 1.0 / 1000)));
-            requestStatisticsList.add(requestStatistics);
-        }
-
-        Collections.sort(allElapseTimeList);
-        int totalTP90 = allElapseTimeList.size() * 90 / 100;
-        int totalTP95 = allElapseTimeList.size() * 95 / 100;
-        int totalTP99 = allElapseTimeList.size() * 99 / 100;
-
-        Integer min = allElapseTimeList.get(0);
-        Integer max = allElapseTimeList.get(allElapseTimeList.size() - 1);
-
-        int allSamples = requestStatisticsList.stream().mapToInt(RequestStatistics::getSamples).sum();
-        int failSize = requestStatisticsList.stream().mapToInt(RequestStatistics::getKo).sum();
-
-        double errors = (double) failSize / allSamples * 100;
-        String totalErrors = decimalFormat.format(errors);
-        double average = (double) totalElapsedTime / allSamples;
-        String totalAverage = decimalFormat.format(average);
-
-        RequestStatisticsDTO statisticsDTO = new RequestStatisticsDTO();
-        statisticsDTO.setRequestStatisticsList(requestStatisticsList);
-        statisticsDTO.setTotalLabel("Total");
-        statisticsDTO.setTotalSamples(String.valueOf(allSamples));
-        statisticsDTO.setTotalErrors(totalErrors + "%");
-        statisticsDTO.setTotalAverage(totalAverage);
-        statisticsDTO.setTotalMin(String.valueOf(min));
-        statisticsDTO.setTotalMax(String.valueOf(max));
-        statisticsDTO.setTotalTP90(String.valueOf(allElapseTimeList.get(totalTP90)));
-        statisticsDTO.setTotalTP95(String.valueOf(allElapseTimeList.get(totalTP95)));
-        statisticsDTO.setTotalTP99(String.valueOf(allElapseTimeList.get(totalTP99)));
-
-        totalMetricList.sort(Comparator.comparing(t0 -> Long.valueOf(t0.getTimestamp())));
-
-        long ms = Long.parseLong(totalMetricList.get(totalMetricList.size() - 1).getTimestamp()) - Long.parseLong(totalMetricList.get(0).getTimestamp())
-                + Long.parseLong(totalMetricList.get(totalMetricList.size() - 1).getElapsed());
-        double avgThroughput = (double) totalMetricList.size() / (ms * 1.0 / 1000);
-
-        statisticsDTO.setTotalAvgHits(decimalFormat.format(avgThroughput));
-        statisticsDTO.setTotalAvgBandwidth(decimalFormat.format(totalBytes * 1.0 / 1024 / (ms * 1.0 / 1000)));
-
-        return statisticsDTO;
-    }
 
     public static List<Errors> getErrorsList(String jtlString) {
         List<Metric> totalMetricList = resolver(jtlString);
@@ -203,6 +77,11 @@ public class GenerateReport {
         }
 
         return errorsList;
+    }
+
+    public static List<Statistics> getRequestStatistics(String jtlString) {
+        Map<String, Object> statisticsDataMap = ResultDataParse.getSummryDataMap(jtlString, new StatisticsSummaryConsumer());
+        return ResultDataParse.summaryMapParsing(statisticsDataMap);
     }
 
     private static String getResponseCodeAndFailureMessage(Metric metric) {

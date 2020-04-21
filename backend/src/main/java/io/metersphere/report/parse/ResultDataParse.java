@@ -1,12 +1,17 @@
 package io.metersphere.report.parse;
 
+import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.MsJMeterUtils;
 import io.metersphere.report.base.ChartsData;
+import io.metersphere.report.base.Statistics;
+import io.metersphere.report.base.SummaryData;
 import org.apache.jmeter.report.core.Sample;
 import org.apache.jmeter.report.core.SampleMetadata;
 import org.apache.jmeter.report.dashboard.JsonizerVisitor;
 import org.apache.jmeter.report.processor.*;
 import org.apache.jmeter.report.processor.graph.AbstractOverTimeGraphConsumer;
+
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,15 +19,42 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class ResultDataParse {
 
     private static final String DATE_TIME_PATTERN = "yyyy/MM/dd HH:mm:ss";
     private static final String TIME_PATTERN = "HH:mm:ss";
+
+    public static List<Statistics> summaryMapParsing(Map<String, Object> map) {
+        List<Statistics> statisticsList = new ArrayList<>();
+        for (String key : map.keySet()) {
+            MapResultData mapResultData = (MapResultData) map.get(key);
+            ListResultData items = (ListResultData) mapResultData.getResult("items");
+            if (items.getSize() > 0) {
+                for (int i = 0; i < items.getSize(); i++) {
+                    MapResultData resultData = (MapResultData) items.get(i);
+                    ListResultData data = (ListResultData) resultData.getResult("data");
+                    int size = data.getSize();
+                    String[] strArray = new String[size];
+                    for (int j = 0; j < size; j++) {
+                        ValueResultData valueResultData = (ValueResultData) data.get(j);
+                        String accept = valueResultData.accept(new JsonizerVisitor());
+                        strArray[j] = accept.replace("\\", "");
+                    }
+                    Statistics statistics = null;
+                    try {
+                        statistics = setParam(Statistics.class, strArray);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    statisticsList.add(statistics);
+                }
+
+            }
+        }
+        return statisticsList;
+    }
 
     public static List<ChartsData> graphMapParsing(Map<String, Object> map, String seriesName) {
         List<ChartsData> list = new ArrayList<>();
@@ -135,5 +167,22 @@ public class ResultDataParse {
         SimpleDateFormat before = new SimpleDateFormat(DATE_TIME_PATTERN);
         SimpleDateFormat after = new SimpleDateFormat(TIME_PATTERN);
         return after.format(before.parse(dateString));
+    }
+
+    private static <T> T setParam(Class<T> clazz, Object[] args)
+            throws Exception {
+        if (clazz == null || args == null) {
+            throw new IllegalArgumentException();
+        }
+        T t = clazz.newInstance();
+        Field[] fields = clazz.getDeclaredFields();
+        if (fields == null || fields.length > args.length) {
+            throw new IndexOutOfBoundsException();
+        }
+        for (int i = 0; i < fields.length; i++) {
+            fields[i].setAccessible(true);
+            fields[i].set(t, args[i]);
+        }
+        return t;
     }
 }

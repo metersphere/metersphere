@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -229,6 +230,23 @@ public class PerformanceTestService {
         }
     }
 
+    public Map<String, String> log(String testId) {
+        final LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(testId);
+        if (loadTest == null) {
+            MSException.throwException(Translator.get("test_not_found") + testId);
+        }
+
+        if (!StringUtils.equals(loadTest.getStatus(), PerformanceTestStatus.Running.name())) {
+            MSException.throwException(Translator.get("test_not_running"));
+        }
+
+        Engine engine = EngineFactory.createEngine(loadTest);
+        if (engine == null) {
+            MSException.throwException(String.format("Engine is null，test ID：%s", testId));
+        }
+        return engine.log();
+    }
+
     public List<LoadTestDTO> recentTestPlans(QueryTestPlanRequest request) {
         // 查询最近的测试计划
         request.setRecent(true);
@@ -260,4 +278,5 @@ public class PerformanceTestService {
         example.createCriteria().andTestResourcePoolIdEqualTo(resourcePoolId);
         return loadTestMapper.selectByExampleWithBLOBs(example);
     }
+
 }

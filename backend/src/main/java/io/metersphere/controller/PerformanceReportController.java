@@ -8,12 +8,8 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.ReportRequest;
 import io.metersphere.dto.ReportDTO;
-import io.metersphere.report.base.ChartsData;
-import io.metersphere.report.base.Errors;
-import io.metersphere.report.base.ReportTimeInfo;
-import io.metersphere.report.base.TestOverview;
+import io.metersphere.report.base.*;
 import io.metersphere.report.dto.ErrorsTop5DTO;
-import io.metersphere.report.dto.RequestStatisticsDTO;
 import io.metersphere.service.ReportService;
 import io.metersphere.user.SessionUtils;
 import org.apache.shiro.authz.annotation.Logical;
@@ -59,7 +55,7 @@ public class PerformanceReportController {
     }
 
     @GetMapping("/content/{reportId}")
-    public RequestStatisticsDTO getReportContent(@PathVariable String reportId) {
+    public List<Statistics> getReportContent(@PathVariable String reportId) {
         return reportService.getReport(reportId);
     }
 
