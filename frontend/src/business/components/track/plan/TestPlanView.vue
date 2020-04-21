@@ -12,7 +12,7 @@
         <plan-node-tree
           class="node-tree"
           :plan-id="planId"
-          @nodeSelectEvent="getPlanCases"
+          @nodeSelectEvent="selectNodeIdsChange"
           ref="tree">
         </plan-node-tree>
 
@@ -23,6 +23,7 @@
           @openTestCaseRelevanceDialog="openTestCaseRelevanceDialog"
           @refresh="refresh"
           :plan-id="planId"
+          :select-node-ids="selectNodeIds"
           ref="testCasePlanList"></test-plan-test-case-list>
       </el-main>
     </el-container>
@@ -49,7 +50,8 @@
       data() {
         return {
           testPlans: [],
-          currentPlan: {}
+          currentPlan: {},
+          selectNodeIds: []
         }
       },
       computed: {
@@ -67,11 +69,11 @@
       },
       methods: {
         refresh() {
-          this.getPlanCases();
+          this.selectNodeIds = [];
           this.$refs.tree.initTree();
         },
-        getPlanCases(nodeIds) {
-          this.$refs.testCasePlanList.initTableData(nodeIds);
+        selectNodeIdsChange(nodeIds) {
+          this.selectNodeIds = nodeIds;
         },
         openTestCaseRelevanceDialog() {
           this.$refs.testCaseRelevance.openTestCaseRelevanceDialog();
@@ -115,10 +117,6 @@
 
   .el-main {
     padding: 15px;
-  }
-
-  .main-content {
-    /*background: white;*/
   }
 
 </style>

@@ -24,7 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class JtlResolver {
+public class GenerateReport {
 
     private static final Integer ERRORS_TOP_SIZE = 5;
     private static final String DATE_TIME_PATTERN = "yyyy/MM/dd HH:mm:ss";
@@ -186,7 +186,7 @@ public class JtlResolver {
             }
         }
 
-        Map<String, List<Metric>> jtlMap = falseList.stream().collect(Collectors.groupingBy(JtlResolver::getResponseCodeAndFailureMessage));
+        Map<String, List<Metric>> jtlMap = falseList.stream().collect(Collectors.groupingBy(GenerateReport::getResponseCodeAndFailureMessage));
 
         for (Map.Entry<String, List<Metric>> next : jtlMap.entrySet()) {
             String key = next.getKey();
@@ -219,7 +219,7 @@ public class JtlResolver {
                 .collect(Collectors.toList());
 
         Map<String, List<Metric>> collect = falseList.stream()
-                .collect(Collectors.groupingBy(JtlResolver::getResponseCodeAndFailureMessage));
+                .collect(Collectors.groupingBy(GenerateReport::getResponseCodeAndFailureMessage));
 
         for (Map.Entry<String, List<Metric>> next : collect.entrySet()) {
             String key = next.getKey();
@@ -270,9 +270,9 @@ public class JtlResolver {
         TestOverview testOverview = new TestOverview();
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
-        List<Metric> totalLineList = JtlResolver.resolver(jtlString);
+        List<Metric> totalLineList = GenerateReport.resolver(jtlString);
         // todo 修改测试概览的数值
-        List<Metric> totalLineList2 = JtlResolver.resolver(jtlString);
+        List<Metric> totalLineList2 = GenerateReport.resolver(jtlString);
         // 时间戳转时间
         for (Metric metric : totalLineList2) {
             metric.setTimestamp(stampToDate(DATE_TIME_PATTERN, metric.getTimestamp()));
@@ -355,7 +355,7 @@ public class JtlResolver {
 
     public static ReportTimeInfo getReportTimeInfo(String jtlString) {
         ReportTimeInfo reportTimeInfo = new ReportTimeInfo();
-        List<Metric> totalLineList = JtlResolver.resolver(jtlString);
+        List<Metric> totalLineList = GenerateReport.resolver(jtlString);
 
         totalLineList.sort(Comparator.comparing(t0 -> Long.valueOf(t0.getTimestamp())));
 

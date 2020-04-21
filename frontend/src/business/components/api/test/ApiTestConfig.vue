@@ -8,13 +8,13 @@
               <el-input class="test-name" v-model="test.name" maxlength="64" :placeholder="$t('api_test.input_name')">
                 <el-select class="test-project" v-model="test.projectId" slot="prepend"
                            :placeholder="$t('api_test.select_project')">
-                  <el-option v-for="item in projects" :key="item.id" :label="item.name" :value="item.id"/>
+                  <el-option v-for="project in projects" :key="project.id" :label="project.name" :value="project.id"/>
                 </el-select>
               </el-input>
               <el-button type="primary" plain :disabled="isDisabled" @click="saveTest">保存</el-button>
             </el-row>
           </el-header>
-          <ms-api-scenario-config :scenarios="test.scenario_definition"/>
+          <ms-api-scenario-config :scenarios="test.scenarioDefinition"/>
         </el-container>
       </el-card>
     </div>
@@ -35,9 +35,10 @@
         projects: [],
         change: false,
         test: {
+          id: null,
           projectId: null,
           name: null,
-          scenario_definition: []
+          scenarioDefinition: []
         }
       }
     },
@@ -53,11 +54,21 @@
 
     methods: {
       saveTest: function () {
-
         this.change = false;
-        this.$message({
-          message: this.$t('commons.save_success'),
-          type: 'success'
+
+        let param = {
+          id: this.test.id,
+          projectId: this.test.projectId,
+          name: this.test.name,
+          scenarioDefinition: JSON.stringify(this.test.scenarioDefinition)
+        }
+
+        this.result = this.$post("/api/save", param, response => {
+          this.test.id = response.data;
+          this.$message({
+            message: this.$t('commons.save_success'),
+            type: 'success'
+          });
         });
       }
     },

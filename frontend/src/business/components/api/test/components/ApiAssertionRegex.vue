@@ -4,9 +4,9 @@
       <el-col class="assertion-select">
         <el-select class="assertion-item" v-model="regex.subject" size="small"
                    :placeholder="$t('api_test.request.assertions.select_subject')">
-          <el-option label="Http-Code" value="HTTP-CODE"></el-option>
-          <el-option label="Header" value="HEADER"></el-option>
-          <el-option label="Body" value="BODY"></el-option>
+          <el-option label="HttpCode" value="HTTP_CODE"/>
+          <el-option label="Header" value="HEADER"/>
+          <el-option label="Body" value="BODY"/>
         </el-select>
       </el-col>
       <el-col>

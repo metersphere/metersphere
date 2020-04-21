@@ -4,19 +4,19 @@
       <el-col class="assertion-select">
         <el-select class="assertion-item" v-model="subject" size="small"
                    :placeholder="$t('api_test.request.assertions.select_subject')">
-          <el-option label="Http-Code" value="HTTP-CODE"></el-option>
-          <el-option label="Header" value="HEADER"></el-option>
-          <el-option label="Body" value="BODY"></el-option>
+          <el-option label="HttpCode" value="HTTP_CODE"/>
+          <el-option label="Header" value="HEADER"/>
+          <el-option label="Body" value="BODY"/>
         </el-select>
       </el-col>
       <el-col class="assertion-select">
         <el-select class="assertion-item" v-model="condition" size="small"
                    :placeholder="$t('api_test.request.assertions.select_contains')">
-          <el-option :label="$t('api_test.request.assertions.contains')" value="CONTAINS"></el-option>
-          <el-option :label="$t('api_test.request.assertions.not_contains')" value="NOT_CONTAINS"></el-option>
-          <el-option :label="$t('api_test.request.assertions.equals')" value="EQUALS"></el-option>
-          <el-option :label="$t('api_test.request.assertions.start_with')" value="START_WITH"></el-option>
-          <el-option :label="$t('api_test.request.assertions.end_with')" value="END_WITH"></el-option>
+          <el-option :label="$t('api_test.request.assertions.contains')" value="CONTAINS"/>
+          <el-option :label="$t('api_test.request.assertions.not_contains')" value="NOT_CONTAINS"/>
+          <el-option :label="$t('api_test.request.assertions.equals')" value="EQUALS"/>
+          <el-option :label="$t('api_test.request.assertions.start_with')" value="START_WITH"/>
+          <el-option :label="$t('api_test.request.assertions.end_with')" value="END_WITH"/>
         </el-select>
       </el-col>
       <el-col>
