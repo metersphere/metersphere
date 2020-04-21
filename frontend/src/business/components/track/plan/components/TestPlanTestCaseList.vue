@@ -35,11 +35,11 @@
           <executor-edit
             ref="executorEdit"
             :select-ids="selectIds"
-            @refresh="initTableData"/>
+            @refresh="refresh"/>
           <status-edit
             ref="statusEdit"
             :select-ids="selectIds"
-            @refresh="initTableData"/>
+            @refresh="refresh"/>
 
         </div>
       </template>
@@ -154,8 +154,8 @@
 
       <test-plan-test-case-edit
         ref="testPlanTestCaseEdit"
-        :table-data="tableData"
-        @refresh="initTableData"/>
+        :search-param="condition"
+        @refresh="refresh"/>
 
     </el-card>
   </div>
@@ -183,36 +183,43 @@
           currentPage: 1,
           pageSize: 5,
           total: 0,
-          currentDataIndex: 0,
-          selectIds: new Set(),
+          selectIds: new Set()
         }
       },
       props:{
         planId: {
           type: String
+        },
+        selectNodeIds: {
+          type: Array
         }
       },
       watch: {
         planId() {
           this.initTableData();
+        },
+        selectNodeIds() {
+          this.refresh();
         }
       },
       created: function () {
         this.initTableData();
       },
       methods: {
-        initTableData(nodeIds) {
+        initTableData() {
           if (this.planId) {
-            let param = {};
-            Object.assign(param, this.condition);
-            param.nodeIds = nodeIds;
-            param.planId = this.planId;
-            this.result = this.$post(this.buildPagePath('/test/plan/case/list'), param, response => {
+            this.condition.planId = this.planId;
+            this.condition.nodeIds = this.selectNodeIds;
+            this.result = this.$post(this.buildPagePath('/test/plan/case/list'), this.condition, response => {
               let data = response.data;
               this.total = data.itemCount;
               this.tableData = data.listObject;
             });
           }
+        },
+        refresh() {
+          this.condition = {};
+          this.initTableData();
         },
         search() {
           this.initTableData();
@@ -221,10 +228,7 @@
           return path + "/" + this.currentPage + "/" + this.pageSize;
         },
         handleEdit(testCase, index) {
-          this.currentDataIndex = index;
-          this.$refs.testPlanTestCaseEdit.index = index;
-          this.$refs.testPlanTestCaseEdit.getTestCase(index);
-          this.$refs.testPlanTestCaseEdit.showDialog = true;
+          this.$refs.testPlanTestCaseEdit.openTestCaseEdit(testCase);
         },
         handleDelete(testCase) {
           this.$alert(this.$t('test_track.plan_view.confirm_cancel_relevance') + ' ' + testCase.name + " ？", '', {
@@ -239,7 +243,6 @@
         _handleDelete(testCase) {
           let testCaseId = testCase.id;
           this.$post('/test/plan/case/delete/' + testCaseId, {}, () => {
-            this.initTableData();
             this.$emit("refresh");
             this.$message({
               message: this.$t('commons.delete_success'),
