@@ -121,7 +121,9 @@
           if (rootNode.parent && rootNode.parent.id != 0) {
             this.getParentNodeName(rootNode.parent, nodeNames)
           }
-          nodeNames.push(rootNode.data.name);
+          if (rootNode.data.name && rootNode.data.name != '') {
+            nodeNames.push(rootNode.data.name);
+          }
         },
         filterNode(value, data) {
           if (!value) return true;
