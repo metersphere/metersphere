@@ -1,16 +1,12 @@
 package io.metersphere.report.parse;
 
-import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.MsJMeterUtils;
 import io.metersphere.report.base.ChartsData;
-import io.metersphere.report.base.Statistics;
-import io.metersphere.report.base.SummaryData;
 import org.apache.jmeter.report.core.Sample;
 import org.apache.jmeter.report.core.SampleMetadata;
 import org.apache.jmeter.report.dashboard.JsonizerVisitor;
 import org.apache.jmeter.report.processor.*;
 import org.apache.jmeter.report.processor.graph.AbstractOverTimeGraphConsumer;
-
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -26,8 +22,8 @@ public class ResultDataParse {
     private static final String DATE_TIME_PATTERN = "yyyy/MM/dd HH:mm:ss";
     private static final String TIME_PATTERN = "HH:mm:ss";
 
-    public static List<Statistics> summaryMapParsing(Map<String, Object> map) {
-        List<Statistics> statisticsList = new ArrayList<>();
+    public static <T> List<T> summaryMapParsing(Map<String, Object> map, Class<T> clazz) {
+        List<T> list = new ArrayList<>();
         for (String key : map.keySet()) {
             MapResultData mapResultData = (MapResultData) map.get(key);
             ListResultData items = (ListResultData) mapResultData.getResult("items");
@@ -39,21 +35,24 @@ public class ResultDataParse {
                     String[] strArray = new String[size];
                     for (int j = 0; j < size; j++) {
                         ValueResultData valueResultData = (ValueResultData) data.get(j);
-                        String accept = valueResultData.accept(new JsonizerVisitor());
-                        strArray[j] = accept.replace("\\", "");
+                        if (valueResultData.getValue() == null) {
+                            strArray[j] = "";
+                        } else {
+                            String accept = valueResultData.accept(new JsonizerVisitor());
+                            strArray[j] = accept.replace("\\", "");
+                        }
                     }
-                    Statistics statistics = null;
+                    T t = null;
                     try {
-                        statistics = setParam(Statistics.class, strArray);
+                        t = setParam(clazz, strArray);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    statisticsList.add(statistics);
+                    list.add(t);
                 }
-
             }
         }
-        return statisticsList;
+        return list;
     }
 
     public static List<ChartsData> graphMapParsing(Map<String, Object> map, String seriesName) {

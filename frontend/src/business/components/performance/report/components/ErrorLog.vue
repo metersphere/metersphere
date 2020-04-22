@@ -39,7 +39,6 @@
       stripe
       style="width: 100%"
       show-summary
-      :summary-method="getSummaries"
     >
       <el-table-column
         prop="sample"
@@ -59,62 +58,65 @@
         width="100"
       >
       </el-table-column>
+
       <el-table-column
-        prop="error"
+        prop="error1"
         label="Error"
         width="400"
       >
       </el-table-column>
       <el-table-column
-        prop="errors"
+        prop="error1Size"
         label="#Errors"
         width="100"
       >
       </el-table-column>
       <el-table-column
-        prop="Error"
+        prop="error2"
         label="Error"
         width="400"
       >
       </el-table-column>
       <el-table-column
-        prop="#Errors"
+        prop="error2Size"
         label="#Errors"
         width="100"
       >
       </el-table-column>
       <el-table-column
-        prop="Error"
+        prop="error3"
         label="Error"
         width="400"
       >
       </el-table-column>
       <el-table-column
-        prop="#Errors"
+        prop="error3Size"
         label="#Errors"
         width="100"
       >
       </el-table-column>
       <el-table-column
-        prop="Error"
+        prop="error4"
         label="Error"
         width="400"
       >
       </el-table-column>
       <el-table-column
-        prop="#Errors"
+        prop="error4Size"
         label="#Errors"
         width="100"
       >
       </el-table-column>
+
       <el-table-column
-        prop="Error"
+        prop="error5"
         label="Error"
         width="400"
       >
       </el-table-column>
+
       <el-table-column
-        prop="#Errors"
+        prop="error5Size"
         label="#Errors"
         width="100"
       >
@@ -128,22 +130,7 @@
     name: "ErrorLog",
     data() {
       return {
-        tableData: [{},{},{},{},{}],
-        errorTotal: {
-          label: '',
-          totalSamples: '',
-          totalErrors: '',
-          error1: '',
-          error1Size: '',
-          error2: '',
-          error2Size: '',
-          error3: '',
-          error3Size: '',
-          error4: '',
-          error4Size: '',
-          error5: '',
-          error5Size: ''
-        },
+        tableData: [],
         errorTop5: []
       }
     },
@@ -153,33 +140,14 @@
           this.tableData = res.data;
         })
         this.$get("/performance/report/content/errors_top5/" + this.id, res => {
-          this.errorTotal = res.data
-          this.errorTop5 = res.data.errorsTop5List;
+          this.errorTop5 = res.data;
         })
-      },
-      getSummaries () {
-        const sums = []
-        sums[0] = this.errorTotal.label;
-        sums[1] = this.errorTotal.totalSamples;
-        sums[2] = this.errorTotal.totalErrors;
-        sums[3] = this.errorTotal.error1;
-        sums[4] = this.errorTotal.error1Size;
-        sums[5] = this.errorTotal.error2;
-        sums[6] = this.errorTotal.error2Size;
-        sums[7] = this.errorTotal.error3;
-        sums[8] = this.errorTotal.error3Size;
-        sums[9] = this.errorTotal.error4;
-        sums[10] = this.errorTotal.error4Size;
-        sums[11] = this.errorTotal.error5;
-        sums[12] = this.errorTotal.error5Size;
-        return sums;
       }
     },
     watch: {
       status() {
         if ("Completed" === this.status) {
           this.initTableData()
-          this.getSummaries()
         }
       }
     },
