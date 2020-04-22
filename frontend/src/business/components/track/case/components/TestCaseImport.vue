@@ -37,7 +37,8 @@
           <li v-for="errFile in errList" :key="errFile.rowNum">
             {{errFile.errMsg}}
           </li>
-        </ul></el-row>
+        </ul>
+      </el-row>
 
     </el-dialog>
 

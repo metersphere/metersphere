@@ -104,7 +104,6 @@
         deletePath: "/test/case/delete",
         condition: {},
         tableData: [],
-        selectNodeNames: [],
         currentPage: 1,
         pageSize: 5,
         total: 0,
@@ -113,6 +112,12 @@
       props: {
         currentProject: {
           type: Object
+        },
+        selectNodeIds: {
+          type: Array
+        },
+        selectNodeNames: {
+          type: Array
         }
       },
       created: function () {
@@ -121,12 +126,14 @@
       watch: {
         currentProject() {
           this.initTableData();
+        },
+        selectNodeIds() {
+          this.initTableData();
         }
       },
       methods: {
-        initTableData(nodeIds) {
-
-          this.condition.nodeIds = nodeIds;
+        initTableData() {
+          this.condition.nodeIds = this.selectNodeIds;
           if (this.currentProject) {
             this.condition.projectId = this.currentProject.id;
             this.result = this.$post(this.buildPagePath('/test/case/list'), this.condition, response => {
@@ -169,7 +176,6 @@
           });
         },
         refresh() {
-          this.selectNodeNames = [];
           this.condition = {};
           this.$emit('refresh');
         }

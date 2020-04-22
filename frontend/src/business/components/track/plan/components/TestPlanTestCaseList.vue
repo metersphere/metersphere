@@ -156,7 +156,7 @@
 </template>
 
 <script>
-  import PlanNodeTree from './PlanNodeTree';
+  import PlanNodeTree from '../../common/PlanNodeTree';
   import ExecutorEdit from './ExecutorEdit';
   import StatusEdit from './StatusEdit';
   import TestPlanTestCaseEdit from "../components/TestPlanTestCaseEdit";
@@ -302,7 +302,6 @@
   .operate-button {
     float: right;
   }
-
 
   .el-breadcrumb {
     display: inline-block;

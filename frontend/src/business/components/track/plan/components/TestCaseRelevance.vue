@@ -9,12 +9,11 @@
 
       <el-container class="main-content">
         <el-aside class="node-tree" width="250px">
-          <plan-node-tree
-            :tree-nodes="treeNodes"
-            :plan-id="planId"
-            :showAll=true
-            @nodeSelectEvent="getCaseNameByNodeIds"
-            ref="tree"></plan-node-tree>
+          <node-tree class="node-tree"
+                     @nodeSelectEvent="nodeChange"
+                     @refresh="refresh"
+                     :tree-nodes="treeNodes"
+                     ref="nodeTree"/>
         </el-aside>
 
         <el-container>
@@ -45,32 +44,22 @@
       </el-container>
 
       <template v-slot:footer>
-        <div class="dialog-footer">
-          <el-button
-            @click="dialogFormVisible = false">
-            {{$t('test_track.cancel')}}
-          </el-button>
-          <el-button
-            type="primary"
-            @click="saveCaseRelevance">
-            {{$t('test_track.confirm')}}
-          </el-button>
-        </div>
+        <ms-dialog-footer @cancel="dialogFormVisible = false" @confirm="saveCaseRelevance"/>
       </template>
+
     </el-dialog>
-
   </div>
-
 
 </template>
 
 <script>
 
-  import PlanNodeTree from './PlanNodeTree';
+  import NodeTree from '../../common/NodeTree';
+  import MsDialogFooter from '../../../common/components/MsDialogFooter'
 
-    export default {
+  export default {
       name: "TestCaseRelevance",
-      components: {PlanNodeTree},
+      components: {NodeTree, MsDialogFooter},
       data() {
         return {
           result: {},
@@ -78,7 +67,9 @@
           isCheckAll: false,
           testCases: [],
           selectIds: new Set(),
-          treeNodes: []
+          treeNodes: [],
+          selectNodeIds: [],
+          selectNodeNames: []
         };
       },
       props: {
@@ -88,12 +79,15 @@
       },
       watch: {
         planId() {
+          this.initData();
+        },
+        selectNodeIds() {
           this.getCaseNames();
         }
       },
       methods: {
         openTestCaseRelevanceDialog() {
-          this.getCaseNames();
+          this.initData();
           this.dialogFormVisible = true;
         },
         saveCaseRelevance(){
@@ -107,13 +101,13 @@
             this.$emit('refresh');
           });
         },
-        getCaseNames(nodeIds) {
+        getCaseNames() {
           let param = {};
           if (this.planId) {
             param.planId = this.planId;
           }
-          if (nodeIds && nodeIds.length > 0){
-            param.nodeIds = nodeIds;
+          if (this.selectNodeIds && this.selectNodeIds.length > 0){
+            param.nodeIds = this.selectNodeIds;
           }
           this.result = this.$post('/test/case/name', param, response => {
             this.testCases = response.data;
@@ -121,10 +115,6 @@
               item.checked = false;
             });
           });
-        },
-        getCaseNameByNodeIds(nodeIds) {
-          this.dialogFormVisible = true;
-          this.getCaseNames(nodeIds);
         },
         handleSelectAll(selection) {
           if(selection.length > 0){
@@ -142,8 +132,28 @@
             this.selectIds.add(row.id);
           }
         },
+        nodeChange(nodeIds, nodeNames) {
+          this.selectNodeIds = nodeIds;
+          this.selectNodeNames = nodeNames;
+        },
+        initData() {
+          this.getCaseNames();
+          this.getAllNodeTreeByPlanId();
+        },
+        refresh() {
+          this.close();
+        },
+        getAllNodeTreeByPlanId() {
+          if (this.planId) {
+            this.result = this.$get("/case/node/list/all/plan/" + this.planId, response => {
+              this.treeNodes = response.data;
+            });
+          }
+        },
         close() {
           this.selectIds.clear();
+          this.selectNodeIds = [];
+          this.selectNodeNames = [];
         }
       }
     }
