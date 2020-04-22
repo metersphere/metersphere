@@ -96,12 +96,12 @@ public class ReportService {
         return errors;
     }
 
-    public ErrorsTop5DTO getReportErrorsTOP5(String id) {
+    public List<ErrorsTop5> getReportErrorsTOP5(String id) {
         checkReportStatus(id);
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
-        ErrorsTop5DTO errors = GenerateReport.getErrorsTop5DTO(content);
-        return errors;
+        List<ErrorsTop5> errorsTop5 = GenerateReport.getErrorsTop5List(content);
+        return errorsTop5;
     }
 
     public TestOverview getTestOverview(String id) {

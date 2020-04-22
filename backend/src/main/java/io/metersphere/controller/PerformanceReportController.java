@@ -65,7 +65,7 @@ public class PerformanceReportController {
     }
 
     @GetMapping("/content/errors_top5/{reportId}")
-    public ErrorsTop5DTO getReportErrorsTop5(@PathVariable String reportId) {
+    public List<ErrorsTop5> getReportErrorsTop5(@PathVariable String reportId) {
         return reportService.getReportErrorsTOP5(reportId);
     }
 
