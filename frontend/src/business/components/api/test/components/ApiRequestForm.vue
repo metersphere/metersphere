@@ -43,12 +43,13 @@
   import MsApiKeyValue from "./ApiKeyValue";
   import MsApiBody from "./ApiBody";
   import MsApiAssertions from "./ApiAssertions";
+  import {Request} from "../model/ScenarioModel";
 
   export default {
     name: "MsApiRequestForm",
     components: {MsApiAssertions, MsApiBody, MsApiKeyValue},
     props: {
-      request: Object
+      request: Request
     },
 
     data() {

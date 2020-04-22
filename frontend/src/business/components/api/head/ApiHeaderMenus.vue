@@ -1,6 +1,5 @@
 <template>
-
-  <div id="menu-bar" v-if="isRouterAlive">
+  <div id="menu-bar">
     <el-row type="flex">
       <el-col :span="8">
         <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router :default-active='$route.path'>
@@ -22,10 +21,10 @@
             <template v-slot:title>{{$t('commons.test')}}</template>
             <ms-recent-list :options="testRecent"/>
             <el-divider/>
-            <ms-show-all :index="'/api/test/all'"/>
+            <ms-show-all :index="'/api/test/list/all'"/>
             <ms-create-button :index="'/api/test/create'" :title="$t('load_test.create')"/>
-            <el-menu-item :index="testCaseProjectPath" class="blank_item"></el-menu-item>
-            <el-menu-item :index="testEditPath" class="blank_item"></el-menu-item>
+<!--            <el-menu-item :index="testCaseProjectPath" class="blank_item"></el-menu-item>-->
+<!--            <el-menu-item :index="testEditPath" class="blank_item"></el-menu-item>-->
           </el-submenu>
 
           <el-submenu v-if="isCurrentWorkspaceUser"
@@ -34,7 +33,7 @@
             <ms-recent-list :options="reportRecent"/>
             <el-divider/>
             <ms-show-all :index="'/api/report/all'"/>
-            <el-menu-item :index="reportViewPath" class="blank_item"></el-menu-item>
+<!--            <el-menu-item :index="reportViewPath" class="blank_item"></el-menu-item>-->
           </el-submenu>
         </el-menu>
       </el-col>
@@ -63,10 +62,10 @@
     data() {
       return {
         isCurrentWorkspaceUser: false,
-        testCaseProjectPath: '',
-        testEditPath: '',
-        reportViewPath: '',
-        isRouterAlive: true,
+        // testCaseProjectPath: '',
+        // testEditPath: '',
+        // reportViewPath: '',
+        // isRouterAlive: true,
         projectRecent: {
           title: this.$t('project.recent'),
           url: "/project/recent/5",
@@ -82,6 +81,9 @@
           url: "/api/recent/5",
           index: function (item) {
             return '/api/test/edit/' + item.id;
+          },
+          router: function (item) {
+            return {path: '/api/test/edit', query: {id: item.id}}
           }
         },
         reportRecent: {
@@ -93,35 +95,35 @@
         }
       }
     },
-    watch: {
-      '$route'(to, from) {
-        let path = to.path;
-        //激活菜单栏
-        if (path.indexOf("/api/test/") >= 0) {
-          this.testCaseProjectPath = '/api/test/' + this.$route.params.projectId;
-          this.reload();
-        }
-        if (path.indexOf("/api/test/edit/") >= 0) {
-          this.testEditPath = '/api/test/edit/' + this.$route.params.testId;
-          this.reload();
-        }
-        if (path.indexOf("/api/report/view/") >= 0) {
-          this.reportViewPath = '/api/report/view/' + this.$route.params.reportId;
-          this.reload();
-        }
-      }
-    },
+    // watch: {
+    //   '$route'(to, from) {
+    //     let path = to.path;
+    //     //激活菜单栏
+    //     if (path.indexOf("/api/test/") >= 0) {
+    //       this.testCaseProjectPath = '/api/test/' + this.$route.params.projectId;
+    //       this.reload();
+    //     }
+    //     if (path.indexOf("/api/test/edit/") >= 0) {
+    //       this.testEditPath = '/api/test/edit/' + this.$route.params.testId;
+    //       this.reload();
+    //     }
+    //     if (path.indexOf("/api/report/view/") >= 0) {
+    //       this.reportViewPath = '/api/report/view/' + this.$route.params.reportId;
+    //       this.reload();
+    //     }
+    //   }
+    // },
     mounted() {
       this.isCurrentWorkspaceUser = checkoutCurrentWorkspace();
     },
-    methods: {
-      reload() {
-        this.isRouterAlive = false;
-        this.$nextTick(function () {
-          this.isRouterAlive = true;
-        })
-      }
-    }
+    // methods: {
+    //   reload() {
+    //     this.isRouterAlive = false;
+    //     this.$nextTick(function () {
+    //       this.isRouterAlive = true;
+    //     })
+    //   }
+    // }
   }
 
 </script>

@@ -41,14 +41,7 @@
         options: ASSERTION_TYPE,
         type: "",
       }
-    },
-
-    methods: {
-      createRegex: function () {
-        return new Regex();
-      }
     }
-
   }
 </script>
 
