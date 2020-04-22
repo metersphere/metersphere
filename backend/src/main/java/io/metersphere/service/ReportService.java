@@ -13,7 +13,6 @@ import io.metersphere.engine.Engine;
 import io.metersphere.engine.EngineFactory;
 import io.metersphere.report.GenerateReport;
 import io.metersphere.report.base.*;
-import io.metersphere.report.dto.ErrorsTop5DTO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,12 +95,12 @@ public class ReportService {
         return errors;
     }
 
-    public ErrorsTop5DTO getReportErrorsTOP5(String id) {
+    public List<ErrorsTop5> getReportErrorsTOP5(String id) {
         checkReportStatus(id);
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
-        ErrorsTop5DTO errors = GenerateReport.getErrorsTop5DTO(content);
-        return errors;
+        List<ErrorsTop5> errorsTop5 = GenerateReport.getErrorsTop5List(content);
+        return errorsTop5;
     }
 
     public TestOverview getTestOverview(String id) {
@@ -113,7 +112,6 @@ public class ReportService {
     }
 
     public ReportTimeInfo getReportTimeInfo(String id) {
-        checkReportStatus(id);
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
         ReportTimeInfo reportTimeInfo = GenerateReport.getReportTimeInfo(content);

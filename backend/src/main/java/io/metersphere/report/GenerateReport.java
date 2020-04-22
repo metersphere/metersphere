@@ -4,18 +4,17 @@ import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
 import io.metersphere.report.base.*;
-import io.metersphere.report.dto.ErrorsTop5DTO;
 import io.metersphere.report.parse.ResultDataParse;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jmeter.report.processor.ErrorsSummaryConsumer;
 import org.apache.jmeter.report.processor.StatisticsSummaryConsumer;
+import org.apache.jmeter.report.processor.Top5ErrorsBySamplerConsumer;
 import org.apache.jmeter.report.processor.graph.impl.ActiveThreadsGraphConsumer;
 import org.apache.jmeter.report.processor.graph.impl.HitsPerSecondGraphConsumer;
 import org.apache.jmeter.report.processor.graph.impl.ResponseTimeOverTimeGraphConsumer;
 import java.io.Reader;
 import java.io.StringReader;
 import java.text.DecimalFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -26,9 +25,7 @@ import java.util.stream.Collectors;
 
 public class GenerateReport {
 
-    private static final Integer ERRORS_TOP_SIZE = 5;
     private static final String DATE_TIME_PATTERN = "yyyy/MM/dd HH:mm:ss";
-    private static final String TIME_PATTERN = "HH:mm:ss";
 
     private static List<Metric> resolver(String jtlString) {
         HeaderColumnNameMappingStrategy<Metric> ms = new HeaderColumnNameMappingStrategy<>();
@@ -47,102 +44,19 @@ public class GenerateReport {
         return null;
     }
 
-
     public static List<Errors> getErrorsList(String jtlString) {
-        List<Metric> totalMetricList = resolver(jtlString);
-        List<Errors> errorsList = new ArrayList<>();
-        DecimalFormat decimalFormat = new DecimalFormat("0.00");
+        Map<String, Object> statisticsDataMap = ResultDataParse.getSummryDataMap(jtlString, new ErrorsSummaryConsumer());
+        return ResultDataParse.summaryMapParsing(statisticsDataMap, Errors.class);
+    }
 
-        List<Metric> falseList = new ArrayList<>();
-        for (Metric metric : totalMetricList) {
-            if (StringUtils.equals("false", metric.getSuccess())) {
-                falseList.add(metric);
-            }
-        }
-
-        Map<String, List<Metric>> jtlMap = falseList.stream().collect(Collectors.groupingBy(GenerateReport::getResponseCodeAndFailureMessage));
-
-        for (Map.Entry<String, List<Metric>> next : jtlMap.entrySet()) {
-            String key = next.getKey();
-            List<Metric> metricList = next.getValue();
-            Errors errors = new Errors();
-            errors.setErrorType(key);
-            errors.setErrorNumber(String.valueOf(metricList.size()));
-            int errorSize = metricList.size();
-            int errorAllSize = falseList.size();
-            int allSamples = totalMetricList.size();
-            errors.setPrecentOfErrors(decimalFormat.format((double) errorSize / errorAllSize * 100) + "%");
-            errors.setPrecentOfAllSamples(decimalFormat.format((double) errorSize / allSamples * 100) + "%");
-            errorsList.add(errors);
-        }
-
-        return errorsList;
+    public static List<ErrorsTop5> getErrorsTop5List(String jtlString) {
+        Map<String, Object> statisticsDataMap = ResultDataParse.getSummryDataMap(jtlString, new Top5ErrorsBySamplerConsumer());
+        return ResultDataParse.summaryMapParsing(statisticsDataMap, ErrorsTop5.class);
     }
 
     public static List<Statistics> getRequestStatistics(String jtlString) {
         Map<String, Object> statisticsDataMap = ResultDataParse.getSummryDataMap(jtlString, new StatisticsSummaryConsumer());
-        return ResultDataParse.summaryMapParsing(statisticsDataMap);
-    }
-
-    private static String getResponseCodeAndFailureMessage(Metric metric) {
-        return metric.getResponseCode() + "/" + metric.getResponseMessage();
-    }
-
-    public static ErrorsTop5DTO getErrorsTop5DTO(String jtlString) {
-        List<Metric> totalMetricList = resolver(jtlString);
-        ErrorsTop5DTO top5DTO = new ErrorsTop5DTO();
-        List<ErrorsTop5> errorsTop5s = new ArrayList<>();
-
-        List<Metric> falseList = Objects.requireNonNull(totalMetricList).stream()
-                .filter(metric -> StringUtils.equals("false", metric.getSuccess()))
-                .collect(Collectors.toList());
-
-        Map<String, List<Metric>> collect = falseList.stream()
-                .collect(Collectors.groupingBy(GenerateReport::getResponseCodeAndFailureMessage));
-
-        for (Map.Entry<String, List<Metric>> next : collect.entrySet()) {
-            String key = next.getKey();
-            List<Metric> metricList = next.getValue();
-            List<Metric> list = new ArrayList<>();
-            for (Metric metric : totalMetricList) {
-                if (StringUtils.equals(metric.getLabel(), metricList.get(0).getLabel())) {
-                    list.add(metric);
-                }
-            }
-
-            ErrorsTop5 errorsTop5 = new ErrorsTop5();
-            errorsTop5.setSamples(String.valueOf(list.size()));
-            errorsTop5.setSample(metricList.get(0).getLabel());
-            errorsTop5.setErrors(String.valueOf(metricList.size()));
-            errorsTop5.setErrorsAllSize(metricList.size());
-            errorsTop5.setError(key);
-            errorsTop5s.add(errorsTop5);
-        }
-
-        errorsTop5s.sort((t0, t1) -> t1.getErrorsAllSize().compareTo(t0.getErrorsAllSize()));
-
-        if (errorsTop5s.size() >= ERRORS_TOP_SIZE) {
-            errorsTop5s = errorsTop5s.subList(0, ERRORS_TOP_SIZE);
-        }
-
-        top5DTO.setLabel("Total");
-        top5DTO.setErrorsTop5List(errorsTop5s);
-        top5DTO.setTotalSamples(String.valueOf(totalMetricList.size()));
-        top5DTO.setTotalErrors(String.valueOf(falseList.size()));
-        int size = errorsTop5s.size();
-        // Total行 信息
-        top5DTO.setError1(size > 0 ? errorsTop5s.get(0).getError() : null);
-        top5DTO.setError1Size(size > 0 ? errorsTop5s.get(0).getErrors() : null);
-        top5DTO.setError2(size > 1 ? errorsTop5s.get(1).getError() : null);
-        top5DTO.setError2Size(size > 1 ? errorsTop5s.get(1).getErrors() : null);
-        top5DTO.setError3(size > 2 ? errorsTop5s.get(2).getError() : null);
-        top5DTO.setError3Size(size > 2 ? errorsTop5s.get(2).getErrors() : null);
-        top5DTO.setError4(size > 3 ? errorsTop5s.get(3).getError() : null);
-        top5DTO.setError4Size(size > 3 ? errorsTop5s.get(3).getErrors() : null);
-        top5DTO.setError5(size > 4 ? errorsTop5s.get(4).getError() : null);
-        top5DTO.setError5Size(size > 4 ? errorsTop5s.get(4).getErrors() : null);
-
-        return top5DTO;
+        return ResultDataParse.summaryMapParsing(statisticsDataMap, Statistics.class);
     }
 
     public static TestOverview getTestOverview(String jtlString) {
@@ -233,7 +147,6 @@ public class GenerateReport {
     }
 
     public static ReportTimeInfo getReportTimeInfo(String jtlString) {
-        ReportTimeInfo reportTimeInfo = new ReportTimeInfo();
         List<Metric> totalLineList = GenerateReport.resolver(jtlString);
 
         totalLineList.sort(Comparator.comparing(t0 -> Long.valueOf(t0.getTimestamp())));
@@ -244,16 +157,12 @@ public class GenerateReport {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         String startTime = dtf.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(startTimeStamp)), ZoneId.systemDefault()));
         String endTime = dtf.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(endTimeStamp)), ZoneId.systemDefault()));
-        reportTimeInfo.setStartTime(startTime);
-        reportTimeInfo.setEndTime(endTime);
-
-        Date startDate = new Date(Long.parseLong(startTimeStamp));
-        Date endDate = new Date(Long.parseLong(endTimeStamp));
-        long timestamp = endDate.getTime() - startDate.getTime();
-        reportTimeInfo.setDuration(String.valueOf(timestamp * 1.0 / 1000 / 60));
 
         // todo 时间问题
         long seconds = Duration.between(Instant.ofEpochMilli(Long.parseLong(startTimeStamp)), Instant.ofEpochMilli(Long.parseLong(endTimeStamp))).getSeconds();
+        ReportTimeInfo reportTimeInfo = new ReportTimeInfo();
+        reportTimeInfo.setStartTime(startTime);
+        reportTimeInfo.setEndTime(endTime);
         reportTimeInfo.setDuration(String.valueOf(seconds));
 
         return reportTimeInfo;
@@ -263,16 +172,6 @@ public class GenerateReport {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
         LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(timeStamp)), ZoneId.systemDefault());
         return localDateTime.format(dateTimeFormatter);
-    }
-
-    /**
-     * @param "yyyy-MM-dd HH:mm:ss"
-     * @return "HH:mm:ss"
-     */
-    private static String formatDate(String dateString) throws ParseException {
-        SimpleDateFormat before = new SimpleDateFormat(DATE_TIME_PATTERN);
-        SimpleDateFormat after = new SimpleDateFormat(TIME_PATTERN);
-        return after.format(before.parse(dateString));
     }
 
 }
