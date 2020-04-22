@@ -29,29 +29,29 @@ public class ResultDataParse {
             ListResultData items = (ListResultData) mapResultData.getResult("items");
             if (items.getSize() > 0) {
                 for (int i = 0; i < items.getSize(); i++) {
-                    try {
-                        MapResultData resultData = (MapResultData) items.get(i);
-                        ListResultData data = (ListResultData) resultData.getResult("data");
-                        int size = data.getSize();
-                        String[] strArray = new String[size];
-                        T t = clazz.newInstance();
-                        if (size > 0) {
-                            for (int j = 0; j < size; j++) {
-                                ValueResultData valueResultData = (ValueResultData) data.get(j);
-                                if (valueResultData.getValue() == null) {
-                                    strArray[j] = "";
-                                } else {
-                                    String accept = valueResultData.accept(new JsonizerVisitor());
-                                    strArray[j] = accept.replace("\\", "");
-                                }
+                    MapResultData resultData = (MapResultData) items.get(i);
+                    ListResultData data = (ListResultData) resultData.getResult("data");
+                    int size = data.getSize();
+                    String[] strArray = new String[size];
+                    if (size > 0) {
+                        T t = null;
+                        for (int j = 0; j < size; j++) {
+                            ValueResultData valueResultData = (ValueResultData) data.get(j);
+                            if (valueResultData.getValue() == null) {
+                                strArray[j] = "";
+                            } else {
+                                String accept = valueResultData.accept(new JsonizerVisitor());
+                                strArray[j] = accept.replace("\\", "");
                             }
+                        }
+
+                        try {
                             t = setParam(clazz, strArray);
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                         list.add(t);
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
-
                 }
             }
         }

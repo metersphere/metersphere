@@ -147,7 +147,6 @@ public class GenerateReport {
     }
 
     public static ReportTimeInfo getReportTimeInfo(String jtlString) {
-        ReportTimeInfo reportTimeInfo = new ReportTimeInfo();
         List<Metric> totalLineList = GenerateReport.resolver(jtlString);
 
         totalLineList.sort(Comparator.comparing(t0 -> Long.valueOf(t0.getTimestamp())));
@@ -158,16 +157,12 @@ public class GenerateReport {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         String startTime = dtf.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(startTimeStamp)), ZoneId.systemDefault()));
         String endTime = dtf.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(endTimeStamp)), ZoneId.systemDefault()));
-        reportTimeInfo.setStartTime(startTime);
-        reportTimeInfo.setEndTime(endTime);
-
-        Date startDate = new Date(Long.parseLong(startTimeStamp));
-        Date endDate = new Date(Long.parseLong(endTimeStamp));
-        long timestamp = endDate.getTime() - startDate.getTime();
-        reportTimeInfo.setDuration(String.valueOf(timestamp * 1.0 / 1000 / 60));
 
         // todo 时间问题
         long seconds = Duration.between(Instant.ofEpochMilli(Long.parseLong(startTimeStamp)), Instant.ofEpochMilli(Long.parseLong(endTimeStamp))).getSeconds();
+        ReportTimeInfo reportTimeInfo = new ReportTimeInfo();
+        reportTimeInfo.setStartTime(startTime);
+        reportTimeInfo.setEndTime(endTime);
         reportTimeInfo.setDuration(String.valueOf(seconds));
 
         return reportTimeInfo;
