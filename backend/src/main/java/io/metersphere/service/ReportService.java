@@ -13,7 +13,6 @@ import io.metersphere.engine.Engine;
 import io.metersphere.engine.EngineFactory;
 import io.metersphere.report.GenerateReport;
 import io.metersphere.report.base.*;
-import io.metersphere.report.dto.ErrorsTop5DTO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

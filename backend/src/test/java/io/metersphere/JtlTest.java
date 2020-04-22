@@ -1,10 +1,8 @@
 package io.metersphere;
 
-import com.alibaba.fastjson.JSONObject;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
-import io.metersphere.report.base.RequestStatistics;
 import org.junit.Test;
 import java.io.Reader;
 import java.io.StringReader;
@@ -201,73 +199,6 @@ public class JtlTest {
         List<Metric> metrics = beanBuilderExample(jtlString);
         // 根据label分组，label作为map的key
         Map<String, List<Metric>> map = metrics.stream().collect(Collectors.groupingBy(Metric::getLabel));
-        getOneRpsResult(map);
     }
 
-    private void getOneRpsResult(Map<String, List<Metric>> map){
-        Iterator<Map.Entry<String, List<Metric>>> iterator = map.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, List<Metric>> entry = iterator.next();
-            String label = entry.getKey();
-            List<Metric> list = entry.getValue();
-            List<String> timestampList = list.stream().map(Metric::getTimestamp).collect(Collectors.toList());
-            int index=0;
-            //总的响应时间
-            int sumElapsed=0;
-            Integer failSize = 0;
-            Integer totalBytes = 0;
-            // 响应时间的列表排序之后 用于计算90%line、95%line、99line
-            List<Integer> elapsedList = new ArrayList<>();
-
-            for (int i = 0; i < list.size(); i++) {
-                try {
-                    Metric row = list.get(i);
-                    //响应时间
-                    String elapsed = row.getElapsed();
-                    sumElapsed += Integer.valueOf(elapsed);
-                    elapsedList.add(Integer.valueOf(elapsed));
-                    //成功与否
-                    String success = row.getSuccess();
-                    if (!"true".equals(success)){
-                        failSize++;
-                    }
-                    //字节
-                    String bytes = row.getBytes();
-                    totalBytes += Integer.valueOf(bytes);
-
-                    index++;
-                }catch (Exception e){
-                    System.out.println("exception i:"+i);
-                }
-            }
-
-            Collections.sort(elapsedList, new Comparator<Integer>() {
-                public int compare(Integer o1, Integer o2) {
-                    return o1-o2;
-                }
-            });
-
-            Integer tp90 = elapsedList.size()*9/10;
-            Integer tp95 = elapsedList.size()*95/100;
-            Integer tp99 = elapsedList.size()*99/100;
-
-            Long l = Long.valueOf(timestampList.get(index-1)) - Long.valueOf(timestampList.get(0));
-
-            RequestStatistics sceneResult = new RequestStatistics();
-            sceneResult.setRequestLabel(label);
-            sceneResult.setSamples(index);
-//            sceneResult.setAverage(sumElapsed/index);
-            sceneResult.setTp90(elapsedList.get(tp90)+"");
-            sceneResult.setTp95(elapsedList.get(tp95)+"");
-            sceneResult.setTp99(elapsedList.get(tp99)+"");
-            sceneResult.setMin(elapsedList.get(0)+"");
-            sceneResult.setMax(elapsedList.get(index-1)+"");
-            sceneResult.setErrors(String.format("%.2f",failSize*100.0/index)+"%");
-            sceneResult.setKbPerSec(String.format("%.2f",totalBytes*1.0/1024/(l*1.0/1000)));
-            System.out.println(JSONObject.toJSONString(sceneResult));
-
-            System.out.println();
-        }
-
-    }
 }

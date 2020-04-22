@@ -9,7 +9,6 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.ReportRequest;
 import io.metersphere.dto.ReportDTO;
 import io.metersphere.report.base.*;
-import io.metersphere.report.dto.ErrorsTop5DTO;
 import io.metersphere.service.ReportService;
 import io.metersphere.user.SessionUtils;
 import org.apache.shiro.authz.annotation.Logical;

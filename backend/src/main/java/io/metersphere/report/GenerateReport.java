@@ -4,7 +4,6 @@ import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
 import io.metersphere.report.base.*;
-import io.metersphere.report.dto.ErrorsTop5DTO;
 import io.metersphere.report.parse.ResultDataParse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.report.processor.ErrorsSummaryConsumer;
@@ -16,8 +15,6 @@ import org.apache.jmeter.report.processor.graph.impl.ResponseTimeOverTimeGraphCo
 import java.io.Reader;
 import java.io.StringReader;
 import java.text.DecimalFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -28,9 +25,7 @@ import java.util.stream.Collectors;
 
 public class GenerateReport {
 
-    private static final Integer ERRORS_TOP_SIZE = 5;
     private static final String DATE_TIME_PATTERN = "yyyy/MM/dd HH:mm:ss";
-    private static final String TIME_PATTERN = "HH:mm:ss";
 
     private static List<Metric> resolver(String jtlString) {
         HeaderColumnNameMappingStrategy<Metric> ms = new HeaderColumnNameMappingStrategy<>();
@@ -62,10 +57,6 @@ public class GenerateReport {
     public static List<Statistics> getRequestStatistics(String jtlString) {
         Map<String, Object> statisticsDataMap = ResultDataParse.getSummryDataMap(jtlString, new StatisticsSummaryConsumer());
         return ResultDataParse.summaryMapParsing(statisticsDataMap, Statistics.class);
-    }
-
-    private static String getResponseCodeAndFailureMessage(Metric metric) {
-        return metric.getResponseCode() + "/" + metric.getResponseMessage();
     }
 
     public static TestOverview getTestOverview(String jtlString) {
@@ -186,16 +177,6 @@ public class GenerateReport {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
         LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(timeStamp)), ZoneId.systemDefault());
         return localDateTime.format(dateTimeFormatter);
-    }
-
-    /**
-     * @param "yyyy-MM-dd HH:mm:ss"
-     * @return "HH:mm:ss"
-     */
-    private static String formatDate(String dateString) throws ParseException {
-        SimpleDateFormat before = new SimpleDateFormat(DATE_TIME_PATTERN);
-        SimpleDateFormat after = new SimpleDateFormat(TIME_PATTERN);
-        return after.format(before.parse(dateString));
     }
 
 }
