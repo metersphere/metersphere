@@ -1,42 +1,22 @@
 <template>
-
-  <div>
-    <el-card v-loading="result.loading">
+  <el-card v-loading="result.loading">
       <template v-slot:header>
-        <div>
-          <el-row type="flex" justify="space-between" align="middle">
-            <span class="title">
-              <node-breadcrumb
-                :node-names="selectNodeNames"
-                @refresh="refresh"/>&nbsp;
-
-              <ms-tip-button v-if="!showMyTestCase"
-                            :tip="$t('test_track.plan_view.my_case')"
-                            icon="el-icon-s-custom" @click="searchMyTestCase"/>
-              <ms-tip-button v-if="showMyTestCase"
-                           :tip="$t('test_track.plan_view.all_case')"
-                           icon="el-icon-files" @click="searchMyTestCase"/>
-            </span>
-
-            <span class="operate-button">
-              <el-button icon="el-icon-connection" size="small" round
-                         @click="$emit('openTestCaseRelevanceDialog')" >{{$t('test_track.plan_view.relevance_test_case')}}</el-button>
-
-              <el-button icon="el-icon-edit-outline" size="small" round
-                         @click="handleBatch('status')" >{{$t('test_track.plan_view.change_execution_results')}}</el-button>
-
-              <el-button icon="el-icon-user" size="small" round
-                         @click="handleBatch('executor')" >{{$t('test_track.plan_view.change_executor')}}</el-button>
-
-              <ms-table-search-bar :condition.sync="condition" @change="initTableData"/>
-            </span>
-          </el-row>
-
-          <executor-edit ref="executorEdit" :select-ids="selectIds" @refresh="refresh"/>
-          <status-edit ref="statusEdit" :select-ids="selectIds" @refresh="refresh"/>
-
-        </div>
+        <ms-table-header :condition.sync="condition" @search="initTableData" :show-create="false">
+          <template v-slot:title>
+            <node-breadcrumb :node-names="selectNodeNames" @refresh="refresh"/>
+          </template>
+          <template v-slot:button>
+            <ms-table-button v-if="!showMyTestCase" icon="el-icon-s-custom" :content="$t('test_track.plan_view.my_case')" @click="searchMyTestCase"/>
+            <ms-table-button v-if="showMyTestCase" icon="el-icon-files" :content="$t('test_track.plan_view.all_case')" @click="searchMyTestCase"/>
+            <ms-table-button icon="el-icon-connection" :content="$t('test_track.plan_view.relevance_test_case')" @click="$emit('openTestCaseRelevanceDialog')"/>
+            <ms-table-button icon="el-icon-edit-outline" :content="$t('test_track.plan_view.change_execution_results')" @click="handleBatch('status')"/>
+            <ms-table-button icon="el-icon-user" :content="$t('test_track.plan_view.change_executor')" @click="handleBatch('executor')"/>
+          </template>
+        </ms-table-header>
       </template>
+
+      <executor-edit ref="executorEdit" :select-ids="selectIds" @refresh="initTableData"/>
+      <status-edit ref="statusEdit" :select-ids="selectIds" @refresh="initTableData"/>
 
       <el-table
         @select-all="handleSelectAll"
@@ -152,7 +132,6 @@
         @refresh="refresh"/>
 
     </el-card>
-  </div>
 </template>
 
 <script>
@@ -162,7 +141,8 @@
   import TestPlanTestCaseEdit from "../components/TestPlanTestCaseEdit";
   import MsTipButton from '../../../../components/common/components/MsTipButton';
   import MsTablePagination from '../../../../components/common/pagination/TablePagination';
-  import MsTableSearchBar from '../../../../components/common/components/MsTableSearchBar';
+  import MsTableHeader from '../../../../components/common/components/MsTableHeader';
+  import MsTableButton from '../../../../components/common/components/MsTableButton';
   import NodeBreadcrumb from '../../common/NodeBreadcrumb';
 
   import {TokenKey} from '../../../../../common/js/constants';
@@ -170,7 +150,7 @@
   export default {
       name: "TestPlanTestCaseList",
       components: {PlanNodeTree, StatusEdit, ExecutorEdit, MsTipButton, MsTablePagination,
-        TestPlanTestCaseEdit, MsTableSearchBar, NodeBreadcrumb},
+        TestPlanTestCaseEdit, MsTableHeader, NodeBreadcrumb, MsTableButton},
       data() {
         return {
           result: {},
@@ -299,12 +279,8 @@
     width: 240px;
   }
 
-  .operate-button {
-    float: right;
-  }
-
-  .el-breadcrumb {
-    display: inline-block;
+  .title {
+    height: 50px;
   }
 
 </style>

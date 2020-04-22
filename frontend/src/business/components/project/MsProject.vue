@@ -3,18 +3,8 @@
     <div class="main-content">
       <el-card v-loading="result.loading">
         <template v-slot:header>
-          <el-row type="flex" justify="space-between" align="middle">
-            <span class="title">
-              {{$t('commons.project')}}
-              <ms-create-box :tips="btnTips" :exec="create"/>
-            </span>
-            <span class="search">
-                    <el-input type="text" size="small" :placeholder="$t('project.search_by_name')"
-                              prefix-icon="el-icon-search"
-                              @change="search"
-                              maxlength="60" v-model="condition" clearable/>
-                </span>
-          </el-row>
+          <ms-table-header :condition.sync="condition" @search="search" @create="create"
+                           :create-tip="btnTips" :title="title"/>
         </template>
         <el-table :data="items" style="width: 100%">
           <el-table-column prop="name" :label="$t('commons.name')"/>
@@ -57,17 +47,18 @@
   import {Message} from "element-ui";
   import {TokenKey} from "../../../common/js/constants";
   import MsTablePagination from "../common/pagination/TablePagination";
+  import MsTableHeader from "../common/components/MsTableHeader";
 
   export default {
     name: "MsProject",
-    components: {MsCreateBox, MsTablePagination},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader},
     data() {
       return {
         createVisible: false,
         result: {},
         btnTips: this.$t('project.create'),
         title: this.$t('project.create'),
-        condition: "",
+        condition: {},
         items: [],
         form: {},
         currentPage: 1,
@@ -166,7 +157,7 @@
       },
       list() {
         let url = "/project/list/" + this.currentPage + '/' + this.pageSize;
-        this.result = this.$post(url, {name: this.condition}, (response) => {
+        this.result = this.$post(url, this.condition, (response) => {
           let data = response.data;
           this.items = data.listObject;
           this.total = data.itemCount;
