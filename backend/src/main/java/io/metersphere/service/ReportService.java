@@ -113,7 +113,6 @@ public class ReportService {
     }
 
     public ReportTimeInfo getReportTimeInfo(String id) {
-        checkReportStatus(id);
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
         ReportTimeInfo reportTimeInfo = GenerateReport.getReportTimeInfo(content);

@@ -120,14 +120,14 @@
         }
       },
       getLog(testId) {
-        this.$get('/performance/log/' + testId, response => {
+        this.result = this.$get('/performance/log/' + testId, response => {
           this.testLogging = response.data;
         })
       }
     },
     mounted() {
       this.reportId = this.$route.path.split('/')[4];
-      this.$get("/performance/report/" + this.reportId, res => {
+      this.result = this.$get("/performance/report/" + this.reportId, res => {
         let data = res.data;
         this.status = data.status;
         switch (data.status) {
