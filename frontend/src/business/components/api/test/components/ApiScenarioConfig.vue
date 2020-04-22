@@ -6,7 +6,12 @@
           <ms-api-collapse-item v-for="(scenario, index) in scenarios" :key="index"
                                 :title="scenario.name" :name="index">
             <template slot="title">
-              <div class="scenario-name">{{scenario.name}}</div>
+              <div class="scenario-name">
+                {{scenario.name}}
+                <span id="hint" v-if="!scenario.name">
+                  {{$t('api_test.scenario.config')}}
+                </span>
+              </div>
               <el-dropdown trigger="click" @command="handleCommand">
                 <span class="el-dropdown-link el-icon-more scenario-btn"/>
                 <el-dropdown-menu slot="dropdown">
@@ -57,14 +62,13 @@
     data() {
       return {
         activeName: 0,
-        selected: Object
+        selected: [Scenario, Request]
       }
     },
 
     methods: {
       createScenario: function () {
-        let scenario = new Scenario({name: "Scenario"});
-        this.scenarios.push(scenario);
+        this.scenarios.push(new Scenario());
       },
       deleteScenario: function (index) {
         this.scenarios.splice(index, 1);
@@ -85,6 +89,12 @@
       },
       select: function (obj) {
         this.selected = obj;
+      },
+      reset: function () {
+        this.$nextTick(function () {
+          this.activeName = 0;
+          this.select(this.scenarios[0]);
+        });
       }
     },
 
@@ -98,10 +108,7 @@
     },
 
     created() {
-      if (this.scenarios.length === 0) {
-        this.createScenario();
-        this.select(this.scenarios[0]);
-      }
+      this.select(this.scenarios[0]);
     }
   }
 </script>
@@ -129,6 +136,10 @@
     white-space: nowrap;
     font-size: 14px;
     width: 100%;
+  }
+
+  .scenario-name > #hint {
+    color: #8a8b8d;
   }
 
   .scenario-btn {

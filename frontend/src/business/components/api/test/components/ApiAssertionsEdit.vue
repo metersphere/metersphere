@@ -9,7 +9,7 @@
       </div>
     </div>
 
-    <div class="assertion-item-editing response-time" v-if="assertions.responseTime.isValid()">
+    <div class="assertion-item-editing response-time" v-if="isShow">
       <div>
         {{$t("api_test.request.assertions.response_time")}}
       </div>
@@ -31,6 +31,13 @@
 
     props: {
       assertions: Assertions
+    },
+
+    computed: {
+      isShow() {
+        let rt = this.assertions.responseTime;
+        return rt.responseInTime !== null && rt.responseInTime > 0;
+      }
     }
   }
 </script>

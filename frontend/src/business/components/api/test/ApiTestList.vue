@@ -71,7 +71,6 @@
     data() {
       return {
         result: {},
-        deletePath: "/api/delete",
         condition: "",
         projectId: null,
         tableData: [],
@@ -83,16 +82,18 @@
         testId: null,
       }
     },
-    watch: {
-      '$route'(to) {
-        this.projectId = to.params.projectId;
-        this.search();
-      }
+
+    beforeRouteUpdate(to, from, next) {
+      this.projectId = to.params.projectId;
+      this.search();
+      next();
     },
+
     created: function () {
       this.projectId = this.$route.params.projectId;
       this.search();
     },
+
     methods: {
       search() {
         let param = {
@@ -113,34 +114,27 @@
       handleSelectionChange(val) {
         this.multipleSelection = val;
       },
-      handleEdit(testPlan) {
+      handleEdit(test) {
         this.$router.push({
-          path: '/api/test/edit/' + testPlan.id,
+          path: '/api/test/edit?id=' + test.id,
         })
       },
-      handleDelete(testPlan) {
-        this.$alert(this.$t('load_test.delete_confirm') + testPlan.name + "？", '', {
+      handleDelete(test) {
+        this.$alert(this.$t('load_test.delete_confirm') + test.name + "？", '', {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              this._handleDelete(testPlan);
+              this.result = this.$post("/api/delete", {id: test.id}, () => {
+                this.$message({
+                  message: this.$t('commons.delete_success'),
+                  type: 'success'
+                });
+                this.initTableData();
+              });
             }
           }
         });
-      },
-      _handleDelete(testPlan) {
-        let data = {
-          id: testPlan.id
-        };
-
-        this.result = this.$post(this.deletePath, data, () => {
-          this.$message({
-            message: this.$t('commons.delete_success'),
-            type: 'success'
-          });
-          this.initTableData();
-        });
-      },
+      }
     }
   }
 </script>
@@ -149,6 +143,4 @@
   .test-content {
     width: 100%;
   }
-
-
 </style>

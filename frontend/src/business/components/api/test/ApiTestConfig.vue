@@ -14,7 +14,7 @@
               <el-button type="primary" plain :disabled="isDisabled" @click="saveTest">保存</el-button>
             </el-row>
           </el-header>
-          <ms-api-scenario-config :scenarios="test.scenarioDefinition"/>
+          <ms-api-scenario-config :scenarios="test.scenarioDefinition" ref="config"/>
         </el-container>
       </el-card>
     </div>
@@ -23,24 +23,32 @@
 
 <script>
   import MsApiScenarioConfig from "./components/ApiScenarioConfig";
+  import {Test} from "./model/ScenarioModel"
 
   export default {
     name: "MsApiTestConfig",
 
     components: {MsApiScenarioConfig},
 
+    props: ["id"],
+
     data() {
       return {
         result: {},
         projects: [],
         change: false,
-        test: {
-          id: null,
-          projectId: null,
-          name: null,
-          scenarioDefinition: []
-        }
+        test: new Test()
       }
+    },
+
+    beforeRouteUpdate(to, from, next) {
+      if (to.params.type === "edit") {
+        this.getTest(to.query.id);
+      } else {
+        this.test = new Test();
+        this.$refs.config.reset();
+      }
+      next();
     },
 
     watch: {
@@ -53,6 +61,19 @@
     },
 
     methods: {
+      getTest: function (id) {
+        this.result = this.$get("/api/get/" + id, response => {
+          let item = response.data;
+
+          this.test.reset({
+            id: item.id,
+            projectId: item.projectId,
+            name: item.name,
+            scenarioDefinition: JSON.parse(item.scenarioDefinition),
+          });
+          this.$refs.config.reset();
+        });
+      },
       saveTest: function () {
         this.change = false;
 
@@ -83,6 +104,9 @@
       this.result = this.$get("/project/listAll", response => {
         this.projects = response.data;
       })
+      if (this.id) {
+        this.getTest(this.id);
+      }
     }
   }
 </script>

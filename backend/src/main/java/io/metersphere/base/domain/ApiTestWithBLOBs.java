@@ -3,18 +3,18 @@ package io.metersphere.base.domain;
 import java.io.Serializable;
 
 public class ApiTestWithBLOBs extends ApiTest implements Serializable {
-    private String runtimeConfiguration;
+    private String scenarioDefinition;
 
     private String schedule;
 
     private static final long serialVersionUID = 1L;
 
-    public String getRuntimeConfiguration() {
-        return runtimeConfiguration;
+    public String getScenarioDefinition() {
+        return scenarioDefinition;
     }
 
-    public void setRuntimeConfiguration(String runtimeConfiguration) {
-        this.runtimeConfiguration = runtimeConfiguration == null ? null : runtimeConfiguration.trim();
+    public void setScenarioDefinition(String scenarioDefinition) {
+        this.scenarioDefinition = scenarioDefinition == null ? null : scenarioDefinition.trim();
     }
 
     public String getSchedule() {

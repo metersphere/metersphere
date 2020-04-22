@@ -9,7 +9,7 @@
     name: "MsCreateTest",
     props: {
       show: Boolean,
-      to: String,
+      to: [String, Object],
       title: {
         type: String,
         default: function () {

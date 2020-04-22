@@ -95,25 +95,14 @@ const router = new VueRouter({
           component: ApiTestHome,
         },
         {
-          path: 'test/create',
-          name: "createAPITest",
+          path: "test/:type",
+          name: "ApiTestConfig",
           component: ApiTestConfig,
+          props: (route) => ({id: route.query.id})
         },
         {
-          path: "test/edit/:testId",
-          name: "editAPITest",
-          component: ApiTestConfig,
-          props: {
-            content: (route) => {
-              return {
-                ...route.params
-              }
-            }
-          }
-        },
-        {
-          path: "test/:projectId",
-          name: "fucPlan",
+          path: "test/list/:projectId",
+          name: "ApiTestList",
           component: ApiTestList
         },
         {

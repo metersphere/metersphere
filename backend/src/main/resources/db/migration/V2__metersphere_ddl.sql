@@ -194,19 +194,17 @@ CREATE TABLE IF NOT EXISTS `workspace` (
 -- api start
 
 CREATE TABLE IF NOT EXISTS `api_test` (
-    `id`                     varchar(50) NOT NULL COMMENT 'Test ID',
-    `project_id`             varchar(50) NOT NULL COMMENT 'Project ID this test belongs to',
-    `name`                   varchar(64) NOT NULL COMMENT 'Test name',
-    `description`            varchar(255) DEFAULT NULL COMMENT 'Test description',
-    `runtime_configuration`     longtext COMMENT 'Load configuration (JSON format)',
-    `schedule`               longtext COMMENT 'Test schedule (cron list)',
-    `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
-    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
+    `id` varchar(50) COLLATE utf8mb4_bin NOT NULL COMMENT 'Test ID',
+    `project_id` varchar(50) COLLATE utf8mb4_bin NOT NULL COMMENT 'Project ID this test belongs to',
+    `name` varchar(64) COLLATE utf8mb4_bin NOT NULL COMMENT 'Test name',
+    `description` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'Test description',
+    `scenario_definition` longtext COLLATE utf8mb4_bin COMMENT 'Scenario definition (JSON format)',
+    `schedule` longtext COLLATE utf8mb4_bin COMMENT 'Test schedule (cron list)',
+    `status` varchar(64) COLLATE utf8mb4_bin DEFAULT NULL,
+    `create_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
+    `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
     PRIMARY KEY (`id`)
-)
-    ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 CREATE TABLE IF NOT EXISTS `api_test_file` (
     `test_id` varchar(64) DEFAULT NULL,

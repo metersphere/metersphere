@@ -173,6 +173,7 @@ export default {
     input_name: "请输入测试名称",
     select_project: "请选择项目",
     scenario: {
+      config: "场景配置",
       input_name: "请输入场景名称",
       name: "场景名称",
       base_url: "基础URL",

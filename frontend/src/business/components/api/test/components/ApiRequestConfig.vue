@@ -80,10 +80,7 @@
     },
 
     created() {
-      if (this.requests.length === 0) {
-        this.createRequest();
-        this.select(this.requests[0]);
-      }
+      this.select(this.requests[0]);
     }
   }
 </script>

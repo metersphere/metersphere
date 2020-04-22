@@ -11,6 +11,8 @@ public class ApiTest implements Serializable {
 
     private String description;
 
+    private String status;
+
     private Long createTime;
 
     private Long updateTime;
@@ -47,6 +49,14 @@ public class ApiTest implements Serializable {
 
     public void setDescription(String description) {
         this.description = description == null ? null : description.trim();
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status == null ? null : status.trim();
     }
 
     public Long getCreateTime() {

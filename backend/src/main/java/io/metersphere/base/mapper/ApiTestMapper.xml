@@ -6,11 +6,12 @@
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiTestWithBLOBs">
-    <result column="runtime_configuration" jdbcType="LONGVARCHAR" property="runtimeConfiguration" />
+    <result column="scenario_definition" jdbcType="LONGVARCHAR" property="scenarioDefinition" />
     <result column="schedule" jdbcType="LONGVARCHAR" property="schedule" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -72,10 +73,10 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, name, description, create_time, update_time
+    id, project_id, name, description, status, create_time, update_time
   </sql>
   <sql id="Blob_Column_List">
-    runtime_configuration, schedule
+    scenario_definition, schedule
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.ApiTestExample" resultMap="ResultMapWithBLOBs">
     select
@@ -127,11 +128,13 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.ApiTestWithBLOBs">
     insert into api_test (id, project_id, name, 
-      description, create_time, update_time, 
-      runtime_configuration, schedule)
+      description, status, create_time, 
+      update_time, scenario_definition, schedule
+      )
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{runtimeConfiguration,jdbcType=LONGVARCHAR}, #{schedule,jdbcType=LONGVARCHAR})
+      #{description,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{updateTime,jdbcType=BIGINT}, #{scenarioDefinition,jdbcType=LONGVARCHAR}, #{schedule,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiTestWithBLOBs">
     insert into api_test
@@ -148,14 +151,17 @@
       <if test="description != null">
         description,
       </if>
+      <if test="status != null">
+        status,
+      </if>
       <if test="createTime != null">
         create_time,
       </if>
       <if test="updateTime != null">
         update_time,
       </if>
-      <if test="runtimeConfiguration != null">
-        runtime_configuration,
+      <if test="scenarioDefinition != null">
+        scenario_definition,
       </if>
       <if test="schedule != null">
         schedule,
@@ -174,14 +180,17 @@
       <if test="description != null">
         #{description,jdbcType=VARCHAR},
       </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="runtimeConfiguration != null">
-        #{runtimeConfiguration,jdbcType=LONGVARCHAR},
+      <if test="scenarioDefinition != null">
+        #{scenarioDefinition,jdbcType=LONGVARCHAR},
       </if>
       <if test="schedule != null">
         #{schedule,jdbcType=LONGVARCHAR},
@@ -209,14 +218,17 @@
       <if test="record.description != null">
         description = #{record.description,jdbcType=VARCHAR},
       </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=VARCHAR},
+      </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
-      <if test="record.runtimeConfiguration != null">
-        runtime_configuration = #{record.runtimeConfiguration,jdbcType=LONGVARCHAR},
+      <if test="record.scenarioDefinition != null">
+        scenario_definition = #{record.scenarioDefinition,jdbcType=LONGVARCHAR},
       </if>
       <if test="record.schedule != null">
         schedule = #{record.schedule,jdbcType=LONGVARCHAR},
@@ -232,9 +244,10 @@
       project_id = #{record.projectId,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      runtime_configuration = #{record.runtimeConfiguration,jdbcType=LONGVARCHAR},
+      scenario_definition = #{record.scenarioDefinition,jdbcType=LONGVARCHAR},
       schedule = #{record.schedule,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -246,6 +259,7 @@
       project_id = #{record.projectId,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT}
     <if test="_parameter != null">
@@ -264,14 +278,17 @@
       <if test="description != null">
         description = #{description,jdbcType=VARCHAR},
       </if>
+      <if test="status != null">
+        status = #{status,jdbcType=VARCHAR},
+      </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="runtimeConfiguration != null">
-        runtime_configuration = #{runtimeConfiguration,jdbcType=LONGVARCHAR},
+      <if test="scenarioDefinition != null">
+        scenario_definition = #{scenarioDefinition,jdbcType=LONGVARCHAR},
       </if>
       <if test="schedule != null">
         schedule = #{schedule,jdbcType=LONGVARCHAR},
@@ -284,9 +301,10 @@
     set project_id = #{projectId,jdbcType=VARCHAR},
       name = #{name,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      runtime_configuration = #{runtimeConfiguration,jdbcType=LONGVARCHAR},
+      scenario_definition = #{scenarioDefinition,jdbcType=LONGVARCHAR},
       schedule = #{schedule,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -295,6 +313,7 @@
     set project_id = #{projectId,jdbcType=VARCHAR},
       name = #{name,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}

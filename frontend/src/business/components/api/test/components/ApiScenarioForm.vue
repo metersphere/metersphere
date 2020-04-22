@@ -21,12 +21,13 @@
 
 <script>
   import MsApiKeyValue from "./ApiKeyValue";
+  import {Scenario} from "../model/ScenarioModel";
 
   export default {
     name: "MsApiScenarioForm",
     components: {MsApiKeyValue},
     props: {
-      scenario: Object
+      scenario: Scenario
     },
 
     data() {
