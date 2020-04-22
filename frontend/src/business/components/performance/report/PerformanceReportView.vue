@@ -197,5 +197,7 @@
 
   .logging-content {
     white-space: pre-line;
+    height: calc(100vh - 450px);
+    overflow: auto;
   }
 </style>
