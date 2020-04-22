@@ -3,7 +3,7 @@
   <div v-loading="result.loading">
     <el-input :placeholder="$t('test_track.module.search')" v-model="filterText"
               size="small">
-      <template v-slot:append>
+      <template v-if="type == 'edit'" v-slot:append>
         <el-button icon="el-icon-folder-add" @click="openEditNodeDialog('add')"></el-button>
       </template>
     </el-input>
@@ -20,47 +20,37 @@
       ref="tree">
 
       <template v-slot:default="{node,data}">
+
         <span class="custom-tree-node father" @click="selectNode(node)">
+
           <span>{{node.label}}</span>
-          <el-dropdown class="node-dropdown child">
+
+          <el-dropdown  v-if="type == 'edit'" class="node-dropdown child">
               <span class="el-dropdown-link">
                 <i class="el-icon-folder-add"></i>
               </span>
-            <el-dropdown-menu v-slot:default>
-              <el-dropdown-item>
-                <div @click="openEditNodeDialog('edit', data)">{{$t('test_track.module.rename')}}</div>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <div @click="openEditNodeDialog('add', data)">{{$t('test_track.module.add_submodule')}}</div>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <div @click="remove(node, data)">{{$t('commons.delete')}}</div>
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
+              <el-dropdown-menu v-slot:default>
+                <el-dropdown-item>
+                  <div @click="openEditNodeDialog('edit', data)">{{$t('test_track.module.rename')}}</div>
+                </el-dropdown-item>
+                <el-dropdown-item>
+                  <div @click="openEditNodeDialog('add', data)">{{$t('test_track.module.add_submodule')}}</div>
+                </el-dropdown-item>
+                <el-dropdown-item>
+                  <div @click="remove(node, data)">{{$t('commons.delete')}}</div>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+
         </span>
+
+          <!--<span v-if="type == 'view'" class="custom-tree-node" @click="selectNode(node)">-->
+            <!--{{node.label}}$$-->
+          <!--</span>-->
       </template>
     </el-tree>
 
-    <el-dialog :title="$t('test_track.module.add_module')" :visible.sync="dialogFormVisible" width="500px">
-
-      <el-row type="flex" justify="center">
-        <el-col :span="18">
-          <el-form :model="form">
-            <el-form-item :label="$t('test_track.module.name')" :label-width="formLabelWidth">
-              <el-input v-model="form.name" autocomplete="off"></el-input>
-            </el-form-item>
-          </el-form>
-        </el-col>
-      </el-row>
-
-      <template v-slot:footer>
-        <div class="dialog-footer">
-          <el-button @click="dialogFormVisible = false">{{$t('test_track.cancel')}}</el-button>
-          <el-button type="primary" @click="editNode">{{$t('test_track.confirm')}}</el-button>
-        </div>
-      </template>
-    </el-dialog>
+    <node-edit ref="nodeEdit" @refresh="refreshNode"/>
 
   </div>
 
@@ -68,10 +58,11 @@
 
 <script>
 
-  import {CURRENT_PROJECT} from '../../../../../common/js/constants';
+  import NodeEdit from './NodeEdit';
 
   export default {
     name: "NodeTree",
+    components: {NodeEdit},
     data() {
       return {
         result: {},
@@ -80,33 +71,22 @@
           children: 'children',
           label: 'label'
         },
-        form: {
-          name: '',
-        },
-        formLabelWidth: '80px',
-        dialogTableVisible: false,
-        dialogFormVisible: false,
-        editType: '',
-        editData: {},
-        treeNodes: [],
-        defaultKeys: []
+        // treeNodes: [],
       };
     },
     props: {
-      currentProject: {
-        type: Object
+      type: {
+        type: String,
+        default: 'view'
+      },
+      treeNodes: {
+        type: Array
       }
     },
     watch: {
       filterText(val) {
         this.$refs.tree.filter(val);
-      },
-      currentProject() {
-        this.getNodeTree();
       }
-    },
-    created() {
-      this.getNodeTree();
     },
     methods: {
       handleDragEnd(draggingNode, dropNode, dropType, ev) {
@@ -148,8 +128,10 @@
       },
       selectNode(node) {
         let nodeIds = [];
+        let nodeNames = [];
         this.getChildNodeId(node, nodeIds);
-        this.$emit("nodeSelectEvent", nodeIds);
+        this.getParentNodeName(node, nodeNames);
+        this.$emit("nodeSelectEvent", nodeIds, nodeNames);
       },
       getChildNodeId(rootNode, nodeIds) {
         //递归获取所有子节点ID
@@ -157,69 +139,25 @@
         for (let i = 0; i < rootNode.childNodes.length; i++) {
           this.getChildNodeId(rootNode.childNodes[i], nodeIds);
         }
-        return nodeIds;
+      },
+      getParentNodeName(rootNode, nodeNames) {
+        if (rootNode.parent && rootNode.parent.id != 0) {
+          this.getParentNodeName(rootNode.parent, nodeNames)
+        }
+        if (rootNode.data.name && rootNode.data.name != '') {
+          nodeNames.push(rootNode.data.name);
+        }
       },
       filterNode(value, data) {
         if (!value) return true;
         return data.label.indexOf(value) !== -1;
       },
-      editNode() {
-        this.saveNode(this.editType, this.editData);
-        this.dialogFormVisible = false;
-      },
       openEditNodeDialog(type, data) {
-        this.editType = type;
-        this.editData = data;
-        this.dialogFormVisible = true;
+        this.$refs.nodeEdit.open(type, data);
       },
-      getNodeTree() {
-        if (this.currentProject) {
-          let projectId = this.currentProject.id;
-          this.result = this.$get("/case/node/list/" + projectId, response => {
-            this.treeNodes = response.data;
-          });
-        }
-      },
-      saveNode(type, pNode) {
-        let param = {};
-        let url = '';
-
-        if (type === 'add') {
-          url = '/case/node/add';
-          param.level = 1;
-          if (pNode) {
-            //非根节点
-            param.pId = pNode.id;
-            param.level = pNode.level + 1;
-          }
-        } else if (type === 'edit') {
-          url = '/case/node/edit';
-          param.id = this.editData.id
-        }
-
-        param.name = this.form.name;
-        param.label = this.form.name;
-
-        if (localStorage.getItem(CURRENT_PROJECT)) {
-          param.projectId = JSON.parse(localStorage.getItem(CURRENT_PROJECT)).id;
-        }
-
-        this.$post(url, param, response => {
-          if (type === 'edit') {
-            this.editData.label = param.label;
-          }
-          if (type === 'add') {
-            param.id = response.data;
-            if (pNode) {
-              this.$refs.tree.append(param, pNode);
-            } else {
-              this.treeNodes.push(param);
-            }
-          }
-          this.$message.success(this.$t('commons.save_success'));
-        });
-        this.form.name = '';
-      },
+      refreshNode() {
+        this.$emit('refresh');
+      }
     }
   }
 </script>

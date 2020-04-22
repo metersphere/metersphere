@@ -5,20 +5,18 @@
       <template v-slot:header>
         <div>
           <el-row type="flex" justify="space-between" align="middle">
-            <span class="title">{{$t('test_track.case.test_case')}}
-              <ms-create-box :tips="$t('test_track.case.create')" :exec="testCaseCreate"/></span>
+
+            <node-breadcrumb
+              :node-names="selectNodeNames"
+              @refresh="refresh"/>
 
             <span class="operate-button">
+              <ms-create-box :tips="$t('test_track.case.create')" :exec="testCaseCreate"/>
               <test-case-import :projectId="currentProject == null? null : currentProject.id"
                                 @refresh="refresh"/>
               <test-case-export/>
-              <el-input type="text" size="small"
-                        class="search"
-                        :placeholder="$t('load_test.search_by_name')"
-                        prefix-icon="el-icon-search"
-                        maxlength="60"
-                        v-model="condition"
-                        @change="search" clearable/></span>
+              <ms-table-search-bar :condition.sync="condition" @change="initTableData"/>
+            </span>
           </el-row>
         </div>
       </template>
@@ -94,16 +92,17 @@
   import TestCaseImport from '../components/TestCaseImport';
   import TestCaseExport from '../components/TestCaseExport';
   import MsTablePagination from '../../../../components/common/pagination/TablePagination';
-
+  import MsTableSearchBar from '../../../../components/common/components/MsTableSearchBar';
+  import NodeBreadcrumb from '../../common/NodeBreadcrumb';
 
   export default {
     name: "TestCaseList",
-    components: {MsCreateBox, TestCaseImport, TestCaseExport, MsTablePagination},
+    components: {MsCreateBox, TestCaseImport, TestCaseExport, MsTablePagination, NodeBreadcrumb, MsTableSearchBar},
     data() {
       return {
         result: {},
         deletePath: "/test/case/delete",
-        condition: "",
+        condition: {},
         tableData: [],
         currentPage: 1,
         pageSize: 5,
@@ -113,6 +112,12 @@
       props: {
         currentProject: {
           type: Object
+        },
+        selectNodeIds: {
+          type: Array
+        },
+        selectNodeNames: {
+          type: Array
         }
       },
       created: function () {
@@ -121,18 +126,17 @@
       watch: {
         currentProject() {
           this.initTableData();
+        },
+        selectNodeIds() {
+          this.initTableData();
         }
       },
       methods: {
-        initTableData(nodeIds) {
-          let param = {
-            name: this.condition,
-          };
-          param.nodeIds = nodeIds;
-
+        initTableData() {
+          this.condition.nodeIds = this.selectNodeIds;
           if (this.currentProject) {
-            param.projectId = this.currentProject.id;
-            this.result = this.$post(this.buildPagePath('/test/case/list'), param, response => {
+            this.condition.projectId = this.currentProject.id;
+            this.result = this.$post(this.buildPagePath('/test/case/list'), this.condition, response => {
               let data = response.data;
               this.total = data.itemCount;
               this.tableData = data.listObject;
@@ -172,6 +176,7 @@
           });
         },
         refresh() {
+          this.condition = {};
           this.$emit('refresh');
         }
       }

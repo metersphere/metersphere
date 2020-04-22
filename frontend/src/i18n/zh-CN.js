@@ -48,6 +48,7 @@ export default {
     'delete': '删除',
     'not_filled': '未填写',
     'please_select': '请选择',
+    'search_by_name': '根据名称搜索',
   },
   workspace: {
     'create': '创建工作空间',

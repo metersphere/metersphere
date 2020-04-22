@@ -46,7 +46,8 @@ export default {
     'refresh': 'Refresh',
     'remark': 'Remark',
     'delete': 'Delete',
-    'not_filled': 'Not filled'
+    'not_filled': 'Not filled',
+    'search_by_name': 'Search by name',
   },
   workspace: {
     'create': 'Create Workspace',

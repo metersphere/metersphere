@@ -5,13 +5,18 @@
       <template v-slot:header>
         <div>
           <el-row type="flex" justify="space-between" align="middle">
-            <span class="title">{{$t('test_track.case.test_case')}}
+            <span class="title">
+              <node-breadcrumb
+                :node-names="selectNodeNames"
+                @refresh="refresh"/>&nbsp;
+
               <ms-tip-button v-if="!showMyTestCase"
                             :tip="$t('test_track.plan_view.my_case')"
                             icon="el-icon-s-custom" @click="searchMyTestCase"/>
               <ms-tip-button v-if="showMyTestCase"
                            :tip="$t('test_track.plan_view.all_case')"
-                           icon="el-icon-files" @click="searchMyTestCase"/></span>
+                           icon="el-icon-files" @click="searchMyTestCase"/>
+            </span>
 
             <span class="operate-button">
               <el-button icon="el-icon-connection" size="small" round
@@ -23,23 +28,12 @@
               <el-button icon="el-icon-user" size="small" round
                          @click="handleBatch('executor')" >{{$t('test_track.plan_view.change_executor')}}</el-button>
 
-              <el-input type="text" size="small"
-                        class="search"
-                        :placeholder="$t('load_test.search_by_name')"
-                        prefix-icon="el-icon-search"
-                        maxlength="60"
-                        v-model="condition.name" @change="search" clearable/>
+              <ms-table-search-bar :condition.sync="condition" @change="initTableData"/>
             </span>
           </el-row>
 
-          <executor-edit
-            ref="executorEdit"
-            :select-ids="selectIds"
-            @refresh="initTableData"/>
-          <status-edit
-            ref="statusEdit"
-            :select-ids="selectIds"
-            @refresh="initTableData"/>
+          <executor-edit ref="executorEdit" :select-ids="selectIds" @refresh="refresh"/>
+          <status-edit ref="statusEdit" :select-ids="selectIds" @refresh="refresh"/>
 
         </div>
       </template>
@@ -154,25 +148,29 @@
 
       <test-plan-test-case-edit
         ref="testPlanTestCaseEdit"
-        :table-data="tableData"
-        @refresh="initTableData"/>
+        :search-param="condition"
+        @refresh="refresh"/>
 
     </el-card>
   </div>
 </template>
 
 <script>
-  import PlanNodeTree from './PlanNodeTree';
+  import PlanNodeTree from '../../common/PlanNodeTree';
   import ExecutorEdit from './ExecutorEdit';
   import StatusEdit from './StatusEdit';
   import TestPlanTestCaseEdit from "../components/TestPlanTestCaseEdit";
   import MsTipButton from '../../../../components/common/components/MsTipButton';
   import MsTablePagination from '../../../../components/common/pagination/TablePagination';
+  import MsTableSearchBar from '../../../../components/common/components/MsTableSearchBar';
+  import NodeBreadcrumb from '../../common/NodeBreadcrumb';
+
   import {TokenKey} from '../../../../../common/js/constants';
 
   export default {
       name: "TestPlanTestCaseList",
-      components: {PlanNodeTree, StatusEdit, ExecutorEdit, MsTipButton, MsTablePagination, TestPlanTestCaseEdit},
+      components: {PlanNodeTree, StatusEdit, ExecutorEdit, MsTipButton, MsTablePagination,
+        TestPlanTestCaseEdit, MsTableSearchBar, NodeBreadcrumb},
       data() {
         return {
           result: {},
@@ -183,36 +181,46 @@
           currentPage: 1,
           pageSize: 5,
           total: 0,
-          currentDataIndex: 0,
-          selectIds: new Set(),
+          selectIds: new Set()
         }
       },
       props:{
         planId: {
           type: String
+        },
+        selectNodeIds: {
+          type: Array
+        },
+        selectNodeNames: {
+          type: Array
         }
       },
       watch: {
         planId() {
           this.initTableData();
+        },
+        selectNodeIds() {
+          this.search();
         }
       },
       created: function () {
         this.initTableData();
       },
       methods: {
-        initTableData(nodeIds) {
+        initTableData() {
           if (this.planId) {
-            let param = {};
-            Object.assign(param, this.condition);
-            param.nodeIds = nodeIds;
-            param.planId = this.planId;
-            this.result = this.$post(this.buildPagePath('/test/plan/case/list'), param, response => {
+            this.condition.planId = this.planId;
+            this.condition.nodeIds = this.selectNodeIds;
+            this.result = this.$post(this.buildPagePath('/test/plan/case/list'), this.condition, response => {
               let data = response.data;
               this.total = data.itemCount;
               this.tableData = data.listObject;
             });
           }
+        },
+        refresh() {
+          this.condition = {};
+          this.$emit('refresh');
         },
         search() {
           this.initTableData();
@@ -221,10 +229,7 @@
           return path + "/" + this.currentPage + "/" + this.pageSize;
         },
         handleEdit(testCase, index) {
-          this.currentDataIndex = index;
-          this.$refs.testPlanTestCaseEdit.index = index;
-          this.$refs.testPlanTestCaseEdit.getTestCase(index);
-          this.$refs.testPlanTestCaseEdit.showDialog = true;
+          this.$refs.testPlanTestCaseEdit.openTestCaseEdit(testCase);
         },
         handleDelete(testCase) {
           this.$alert(this.$t('test_track.plan_view.confirm_cancel_relevance') + ' ' + testCase.name + " ？", '', {
@@ -239,7 +244,6 @@
         _handleDelete(testCase) {
           let testCaseId = testCase.id;
           this.$post('/test/plan/case/delete/' + testCaseId, {}, () => {
-            this.initTableData();
             this.$emit("refresh");
             this.$message({
               message: this.$t('commons.delete_success'),
@@ -299,5 +303,8 @@
     float: right;
   }
 
+  .el-breadcrumb {
+    display: inline-block;
+  }
 
 </style>

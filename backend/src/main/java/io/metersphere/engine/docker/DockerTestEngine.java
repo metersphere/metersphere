@@ -10,7 +10,6 @@ import io.metersphere.dto.NodeDTO;
 import io.metersphere.engine.AbstractEngine;
 import io.metersphere.engine.EngineContext;
 import io.metersphere.engine.EngineFactory;
-import io.metersphere.engine.docker.request.BaseRequest;
 import io.metersphere.engine.docker.request.TestRequest;
 import io.metersphere.i18n.Translator;
 import org.springframework.web.client.RestTemplate;
@@ -91,14 +90,13 @@ public class DockerTestEngine extends AbstractEngine {
     public void stop() {
         // TODO 停止运行测试
         String testId = loadTest.getId();
-        BaseRequest request = new BaseRequest();
         this.resourceList.forEach(r -> {
             NodeDTO node = JSON.parseObject(r.getConfiguration(), NodeDTO.class);
             String ip = node.getIp();
             Integer port = node.getPort();
 
             String uri = String.format(BASE_URL + "/jmeter/container/stop/" + testId, ip, port);
-            restTemplate.postForObject(uri, request, String.class);
+            restTemplate.getForObject(uri, String.class);
         });
     }
 
@@ -106,14 +104,13 @@ public class DockerTestEngine extends AbstractEngine {
     public Map<String, String> log() {
         String testId = loadTest.getId();
         Map<String, String> logs = new HashMap<>();
-        BaseRequest request = new BaseRequest();
         this.resourceList.forEach(r -> {
             NodeDTO node = JSON.parseObject(r.getConfiguration(), NodeDTO.class);
             String ip = node.getIp();
             Integer port = node.getPort();
 
             String uri = String.format(BASE_URL + "/jmeter/container/log/" + testId, ip, port);
-            String log = restTemplate.postForObject(uri, request, String.class);
+            String log = restTemplate.getForObject(uri, String.class);
             logs.put(node.getIp(), log);
         });
         return logs;

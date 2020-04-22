@@ -1,11 +1,9 @@
 <template>
 
-
   <el-tooltip :disabled="disabled"
               :content="tip"
               placement="bottom"
               :effect="effect">
-
     <el-button @click="exec()"
                circle
                :type="type"

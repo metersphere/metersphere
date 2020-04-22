@@ -12,16 +12,10 @@ import io.metersphere.dto.ReportDTO;
 import io.metersphere.engine.Engine;
 import io.metersphere.engine.EngineFactory;
 import io.metersphere.report.GenerateReport;
-import io.metersphere.report.base.ChartsData;
-import io.metersphere.report.base.Errors;
-import io.metersphere.report.base.ReportTimeInfo;
-import io.metersphere.report.base.TestOverview;
-import io.metersphere.report.dto.ErrorsTop5DTO;
-import io.metersphere.report.dto.RequestStatisticsDTO;
+import io.metersphere.report.base.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import javax.annotation.Resource;
 import java.util.List;
 
@@ -86,12 +80,11 @@ public class ReportService {
         return extLoadTestReportMapper.getReportTestAndProInfo(reportId);
     }
 
-    public RequestStatisticsDTO getReport(String id) {
+    public List<Statistics> getReport(String id) {
         checkReportStatus(id);
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
-        RequestStatisticsDTO requestStatistics = GenerateReport.getRequestStatistics(content);
-        return requestStatistics;
+        return GenerateReport.getRequestStatistics(content);
     }
 
     public List<Errors> getReportErrors(String id) {
@@ -102,12 +95,12 @@ public class ReportService {
         return errors;
     }
 
-    public ErrorsTop5DTO getReportErrorsTOP5(String id) {
+    public List<ErrorsTop5> getReportErrorsTOP5(String id) {
         checkReportStatus(id);
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
-        ErrorsTop5DTO errors = GenerateReport.getErrorsTop5DTO(content);
-        return errors;
+        List<ErrorsTop5> errorsTop5 = GenerateReport.getErrorsTop5List(content);
+        return errorsTop5;
     }
 
     public TestOverview getTestOverview(String id) {
@@ -119,7 +112,6 @@ public class ReportService {
     }
 
     public ReportTimeInfo getReportTimeInfo(String id) {
-        checkReportStatus(id);
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
         String content = loadTestReport.getContent();
         ReportTimeInfo reportTimeInfo = GenerateReport.getReportTimeInfo(content);

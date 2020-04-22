@@ -6,16 +6,14 @@
           :data="testPlans"
           :current-data="currentPlan"
           :title="$t('test_track.plan_view.plan')"
-          @dataChange="changePlan">
-        </select-menu>
+          @dataChange="changePlan"/>
 
-        <plan-node-tree
-          class="node-tree"
-          :plan-id="planId"
-          @nodeSelectEvent="getPlanCases"
-          ref="tree">
-        </plan-node-tree>
-
+        <node-tree class="node-tree"
+                   v-loading="result.loading"
+                   @nodeSelectEvent="nodeChange"
+                   @refresh="refresh"
+                   :tree-nodes="treeNodes"
+                   ref="nodeTree"/>
       </el-aside>
 
       <el-main>
@@ -23,33 +21,38 @@
           @openTestCaseRelevanceDialog="openTestCaseRelevanceDialog"
           @refresh="refresh"
           :plan-id="planId"
-          ref="testCasePlanList"></test-plan-test-case-list>
+          :select-node-ids="selectNodeIds"
+          :select-node-names="selectNodeNames"
+          ref="testCasePlanList"/>
       </el-main>
     </el-container>
 
     <test-case-relevance
       @refresh="refresh"
       :plan-id="planId"
-      ref="testCaseRelevance">
-    </test-case-relevance>
+      ref="testCaseRelevance"/>
   </div>
 
 </template>
 
 <script>
 
-    import PlanNodeTree from "./components/PlanNodeTree";
+    import NodeTree from "../common/NodeTree";
     import TestPlanTestCaseList from "./components/TestPlanTestCaseList";
     import TestCaseRelevance from "./components/TestCaseRelevance";
     import SelectMenu from "../common/SelectMenu";
 
     export default {
       name: "TestPlanView",
-      components: {PlanNodeTree, TestPlanTestCaseList, TestCaseRelevance, SelectMenu},
+      components: {NodeTree, TestPlanTestCaseList, TestCaseRelevance, SelectMenu},
       data() {
         return {
+          result: {},
           testPlans: [],
-          currentPlan: {}
+          currentPlan: {},
+          selectNodeIds: [],
+          selectNodeNames: [],
+          treeNodes: []
         }
       },
       computed: {
@@ -57,21 +60,23 @@
           return this.$route.params.planId;
         }
       },
-      created() {
-        this.getTestPlans();
+      mounted() {
+        this.initData();
       },
       watch: {
         planId() {
-          this.getTestPlans();
+          this.initData();
         }
       },
       methods: {
         refresh() {
-          this.getPlanCases();
-          this.$refs.tree.initTree();
+          this.selectNodeIds = [];
+          this.selectNodeNames = [];
+          this.getNodeTreeByPlanId();
         },
-        getPlanCases(nodeIds) {
-          this.$refs.testCasePlanList.initTableData(nodeIds);
+        initData() {
+          this.getTestPlans();
+          this.getNodeTreeByPlanId();
         },
         openTestCaseRelevanceDialog() {
           this.$refs.testCaseRelevance.openTestCaseRelevanceDialog();
@@ -86,9 +91,20 @@
             });
           });
         },
+        nodeChange(nodeIds, nodeNames) {
+          this.selectNodeIds = nodeIds;
+          this.selectNodeNames = nodeNames;
+        },
         changePlan(plan) {
           this.currentPlan = plan;
           this.$router.push('/track/plan/view/' + plan.id);
+        },
+        getNodeTreeByPlanId() {
+          if(this.planId){
+            this.result = this.$get("/case/node/list/plan/" + this.planId, response => {
+              this.treeNodes = response.data;
+            });
+          }
         }
       }
     }
@@ -115,10 +131,6 @@
 
   .el-main {
     padding: 15px;
-  }
-
-  .main-content {
-    /*background: white;*/
   }
 
 </style>

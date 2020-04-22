@@ -9,16 +9,19 @@
               @dataChange="changeProject">
             </select-menu>
             <node-tree class="node-tree"
-                       :current-project="currentProject"
-                       @nodeSelectEvent="refreshTable"
-                       @refresh="refreshTable"
-                       ref="nodeTree">
-            </node-tree>
+                       v-loading="result.loading"
+                       @nodeSelectEvent="nodeChange"
+                       @refresh="refresh"
+                       :tree-nodes="treeNodes"
+                       :type="'edit'"
+                       ref="nodeTree"/>
           </el-aside>
 
           <el-main class="test-case-list">
             <test-case-list
               :current-project="currentProject"
+              :selectNodeIds="selectNodeIds"
+              :selectNodeNames="selectNodeNames"
               @openTestCaseEditDialog="openTestCaseEditDialog"
               @testCaseEdit="openTestCaseEditDialog"
               @refresh="refresh"
@@ -29,17 +32,17 @@
 
         <test-case-edit
           @refresh="refreshTable"
+          :tree-nodes="treeNodes"
           ref="testCaseEditDialog">
         </test-case-edit>
-
-      </div>
+    </div>
 </template>
 
 <script>
 
-  import NodeTree from './components/NodeTree';
+  import NodeTree from '../common/NodeTree';
   import TestCaseEdit from './components/TestCaseEdit';
-  import {CURRENT_PROJECT, WORKSPACE_ID} from '../../../../common/js/constants';
+  import {CURRENT_PROJECT} from '../../../../common/js/constants';
   import TestCaseList from "./components/TestCaseList";
   import SelectMenu from "../common/SelectMenu";
 
@@ -50,20 +53,19 @@
     data() {
       return {
         result: {},
-        tableData: [],
-        multipleSelection: [],
         currentPage: 1,
         pageSize: 5,
         total: 0,
         projects: [],
         currentProject: null,
-        treeNodes: []
+        treeNodes: [],
+        selectNodeIds: [],
+        selectNodeNames: []
       }
     },
-    created() {
-      this.getProjects();
-    },
     mounted() {
+      this.getProjects();
+      this.refresh();
       if (this.$route.params.projectId){
         this.getProjectById(this.$route.params.projectId)
       }
@@ -77,11 +79,16 @@
         let path = to.path;
         if (to.params.projectId){
           this.getProjectById(to.params.projectId)
+          this.getProjects();
         }
         if (path.indexOf("/track/case/edit") >= 0){
           this.openRecentTestCaseEditDialog();
           this.$router.push('/track/case/all');
+          this.getProjects();
         }
+      },
+      currentProject() {
+        this.refresh();
       }
     },
     methods: {
@@ -90,7 +97,7 @@
             this.projects = response.data;
             let lastProject = JSON.parse(localStorage.getItem(CURRENT_PROJECT));
             if (lastProject) {
-              let hasCurrentProject   = false;
+              let hasCurrentProject = false;
               for (let i = 0; i < this.projects.length; i++) {
                 if (this.projects[i].id == lastProject.id) {
                   this.currentProject = lastProject;
@@ -122,37 +129,15 @@
       changeProject(project) {
         this.setCurrentProject(project);
       },
-      refreshTable(data) {
-        this.$refs.testCaseList.initTableData(data);
+      nodeChange(nodeIds, nodeNames) {
+        this.selectNodeIds = nodeIds;
+        this.selectNodeNames = nodeNames;
       },
-      openTestCaseEditDialog(data) {
-        this.setNodePathOption(this.$refs.nodeTree.treeNodes);
-        this.setMaintainerOptions();
-        this.$refs.testCaseEditDialog.openTestCaseEditDialog(data);
+      refreshTable() {
+        this.$refs.testCaseList.initTableData();
       },
-      setNodePathOption(nodes) {
-        let moduleOptions = [];
-        nodes.forEach(node => {
-          this.buildNodePath(node, {path: ''}, moduleOptions);
-        });
-        this.$refs.testCaseEditDialog.moduleOptions = moduleOptions;
-      },
-      buildNodePath(node, option, moduleOptions) {
-        //递归构建节点路径
-        option.id = node.id;
-        option.path = option.path + '/' + node.name;
-        moduleOptions.push(option);
-        if (node.children) {
-          for (let i = 0; i < node.children.length; i++){
-            this.buildNodePath(node.children[i], { path: option.path }, moduleOptions);
-          }
-        }
-      },
-      setMaintainerOptions() {
-        let workspaceId = localStorage.getItem(WORKSPACE_ID);
-        this.$post('/user/ws/member/list/all', {workspaceId:workspaceId}, response => {
-          this.$refs.testCaseEditDialog.maintainerOptions = response.data;
-        });
+      openTestCaseEditDialog(testCase) {
+        this.$refs.testCaseEditDialog.open(testCase);
       },
       getProjectByCaseId(caseId) {
         return this.$get('/test/case/project/' + caseId, async response => {
@@ -160,9 +145,10 @@
         });
       },
       refresh() {
+        this.selectNodeIds = [];
+        this.selectNodeNames = [];
         this.$refs.testCaseList.initTableData();
-        this.$refs.nodeTree.getNodeTree();
-        this.getProjects();
+        this.getNodeTree();
       },
       openRecentTestCaseEditDialog() {
         let caseId = this.$route.params.caseId;
@@ -190,8 +176,14 @@
           localStorage.setItem(CURRENT_PROJECT, JSON.stringify(project));
         }
         this.refresh();
+      },
+      getNodeTree() {
+        if (this.currentProject) {
+          this.result = this.$get("/case/node/list/" + this.currentProject.id, response => {
+            this.treeNodes = response.data;
+          });
+        }
       }
-
     }
   }
 </script>
@@ -216,13 +208,8 @@
     margin-left: 0;
   }
 
-  .main-content {
-    /*background: white;*/
-  }
-
   .test-case-list {
     padding: 15px;
   }
-
 
 </style>

@@ -29,6 +29,11 @@ public class TestPlanTestCaseController {
         return PageUtils.setPageInfo(page, testPlanTestCaseService.getTestPlanCases(request));
     }
 
+    @PostMapping("/list/all")
+    public List<TestPlanCaseDTO> getTestPlanCases(@RequestBody QueryTestPlanCaseRequest request){
+        return testPlanTestCaseService.getTestPlanCases(request);
+    }
+
     @PostMapping("/edit")
     public void editTestCase(@RequestBody TestPlanTestCase testPlanTestCase){
         testPlanTestCaseService.editTestCase(testPlanTestCase);

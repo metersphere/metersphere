@@ -167,18 +167,11 @@
       </el-form>
 
       <template v-slot:footer>
-        <div class="dialog-footer">
-          <el-button
-            @click="dialogFormVisible = false">
-            {{$t('test_track.cancel')}}
-          </el-button>
-          <el-button
-            type="primary"
-            @click="saveCase">
-            {{$t('test_track.confirm')}}
-          </el-button>
-        </div>
+        <ms-dialog-footer
+          @cancel="dialogFormVisible = false"
+          @confirm="saveCase"/>
       </template>
+
     </el-dialog>
 
   </div>
@@ -188,126 +181,163 @@
 
 <script>
 
-  import {CURRENT_PROJECT} from '../../../../../common/js/constants';
+  import {CURRENT_PROJECT, WORKSPACE_ID} from '../../../../../common/js/constants';
+  import MsDialogFooter from '../../../common/components/MsDialogFooter'
+
 
   export default {
-      name: "TestCaseEdit",
-      data() {
-        return {
-          dialogFormVisible: false,
-          form: {
-            name: '',
-            module: '',
-            maintainer: '',
-            priority: '',
-            type: '',
-            method: '',
-            prerequisite: '',
-            steps: [{
-              num: 1 ,
-              desc: '',
-              result: ''
-            }],
-            remark: '',
-          },
-          moduleOptions: [],
-          maintainerOptions: [],
-          rules:{
-            name :[
-              {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
-              { max: 30, message: this.$t('test_track.length_less_than') + '30', trigger: 'blur' }
-            ],
-            module :[{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
-            maintainer :[{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
-            priority :[{required: true, message: this.$t('test_track.case.input_priority'), trigger: 'change'}],
-            type :[{required: true, message: this.$t('test_track.case.input_type'), trigger: 'change'}],
-            method :[{required: true, message: this.$t('test_track.case.input_method'), trigger: 'change'}]
-          },
-          formLabelWidth: "120px",
-          operationType: ''
-        };
-      },
-      methods: {
-        openTestCaseEditDialog(testCase) {
-          this.resetForm();
-          this.operationType = 'add';
-          if(testCase){
-            //修改
-            this.operationType = 'edit';
-            let tmp = {};
-            Object.assign(tmp, testCase);
-            tmp.steps = JSON.parse(testCase.steps);
-            Object.assign(this.form, tmp);
-            this.form.module = testCase.nodeId;
-          }
-          this.dialogFormVisible = true;
-        },
-        handleAddStep(index, data) {
-          let step = {};
-          step.num = data.num + 1;
-          step.desc = null;
-          step.result = null;
-          this.form.steps.forEach(step => {
-            if(step.num > data.num){
-              step.num ++;
-            }
-          });
-          this.form.steps.push(step);
-        },
-        handleDeleteStep(index, data) {
-          this.form.steps.splice(index, 1);
-          this.form.steps.forEach(step => {
-            if(step.num > data.num){
-              step.num --;
-            }
-          });
-        },
-        saveCase(){
-          this.$refs['caseFrom'].validate((valid) => {
-            if (valid) {
-              let param = {};
-              Object.assign(param, this.form);
-              param.steps = JSON.stringify(this.form.steps);
-              param.nodeId = this.form.module;
-              this.moduleOptions.forEach(item => {
-                if(this.form.module === item.id){
-                  param.nodePath = item.path;
-                }
-              });
-              if(localStorage.getItem(CURRENT_PROJECT)) {
-                param.projectId = JSON.parse(localStorage.getItem(CURRENT_PROJECT)).id;
-              }
-              this.$post('/test/case/' + this.operationType, param, () => {
-                this.$message.success(this.$t('commons.save_success'));
-                this.dialogFormVisible = false;
-                this.$emit("refresh");
-              });
-            } else {
-              return false;
-            }
-          });
-        }
-        ,
-        resetForm() {
-          if (this.$refs['caseFrom']) {
-            this.$refs['caseFrom'].resetFields();
-          }
-          this.form.name = '';
-          this.form.module = '';
-          this.form.type = '';
-          this.form.method = '';
-          this.form.maintainer = '';
-          this.form.priority = '';
-          this.form.prerequisite = '';
-          this.form.remark = '';
-          this.form.steps = [{
+    name: "TestCaseEdit",
+    components: {MsDialogFooter},
+    data() {
+      return {
+        dialogFormVisible: false,
+        form: {
+          name: '',
+          module: '',
+          maintainer: '',
+          priority: '',
+          type: '',
+          method: '',
+          prerequisite: '',
+          steps: [{
             num: 1 ,
             desc: '',
             result: ''
-          }];
+          }],
+          remark: '',
+        },
+        moduleOptions: [],
+        maintainerOptions: [],
+        workspaceId: '',
+        rules:{
+          name :[
+            {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
+            { max: 30, message: this.$t('test_track.length_less_than') + '30', trigger: 'blur' }
+          ],
+          module :[{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
+          maintainer :[{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
+          priority :[{required: true, message: this.$t('test_track.case.input_priority'), trigger: 'change'}],
+          type :[{required: true, message: this.$t('test_track.case.input_type'), trigger: 'change'}],
+          method :[{required: true, message: this.$t('test_track.case.input_method'), trigger: 'change'}]
+        },
+        formLabelWidth: "120px",
+        operationType: ''
+      };
+    },
+    props: {
+      treeNodes: {
+        type: Array
+      }
+    },
+    methods: {
+      open(testCase) {
+        this.resetForm();
+        this.getSelectOptions();
+        this.operationType = 'add';
+        if(testCase){
+          //修改
+          this.operationType = 'edit';
+          let tmp = {};
+          Object.assign(tmp, testCase);
+          tmp.steps = JSON.parse(testCase.steps);
+          Object.assign(this.form, tmp);
+          this.form.module = testCase.nodeId;
         }
+        this.dialogFormVisible = true;
+      },
+      handleAddStep(index, data) {
+        let step = {};
+        step.num = data.num + 1;
+        step.desc = null;
+        step.result = null;
+        this.form.steps.forEach(step => {
+          if(step.num > data.num){
+            step.num ++;
+          }
+        });
+        this.form.steps.push(step);
+      },
+      handleDeleteStep(index, data) {
+        this.form.steps.splice(index, 1);
+        this.form.steps.forEach(step => {
+          if(step.num > data.num){
+            step.num --;
+          }
+        });
+      },
+      saveCase(){
+        this.$refs['caseFrom'].validate((valid) => {
+          if (valid) {
+            let param = {};
+            Object.assign(param, this.form);
+            param.steps = JSON.stringify(this.form.steps);
+            param.nodeId = this.form.module;
+            this.moduleOptions.forEach(item => {
+              if(this.form.module === item.id){
+                param.nodePath = item.path;
+              }
+            });
+            if(localStorage.getItem(CURRENT_PROJECT)) {
+              param.projectId = JSON.parse(localStorage.getItem(CURRENT_PROJECT)).id;
+            }
+            this.$post('/test/case/' + this.operationType, param, () => {
+              this.$message.success(this.$t('commons.save_success'));
+              this.dialogFormVisible = false;
+              this.$emit("refresh");
+            });
+          } else {
+            return false;
+          }
+        });
+      },
+      getModuleOptions() {
+        let moduleOptions = [];
+        this.treeNodes.forEach(node => {
+          this.buildNodePath(node, {path: ''}, moduleOptions);
+        });
+        this.moduleOptions = moduleOptions;
+      },
+      getMaintainerOptions() {
+        let workspaceId = localStorage.getItem(WORKSPACE_ID);
+        this.$post('/user/ws/member/list/all', {workspaceId:workspaceId}, response => {
+          this.maintainerOptions = response.data;
+        });
+      },
+      getSelectOptions() {
+        this.getModuleOptions();
+        this.getMaintainerOptions();
+      },
+      buildNodePath(node, option, moduleOptions) {
+        //递归构建节点路径
+        option.id = node.id;
+        option.path = option.path + '/' + node.name;
+        moduleOptions.push(option);
+        if (node.children) {
+          for (let i = 0; i < node.children.length; i++){
+            this.buildNodePath(node.children[i], { path: option.path }, moduleOptions);
+          }
+        }
+      },
+      resetForm() {
+        if (this.$refs['caseFrom']) {
+          this.$refs['caseFrom'].resetFields();
+        }
+        this.form.name = '';
+        this.form.module = '';
+        this.form.type = '';
+        this.form.method = '';
+        this.form.maintainer = '';
+        this.form.priority = '';
+        this.form.prerequisite = '';
+        this.form.remark = '';
+        this.form.steps = [{
+          num: 1 ,
+          desc: '',
+          result: ''
+        }];
       }
     }
+  }
 </script>
 
 <style scoped>
