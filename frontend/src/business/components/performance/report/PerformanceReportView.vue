@@ -49,6 +49,13 @@
         </el-tabs>
 
       </el-card>
+      <el-dialog :title="title" :visible.sync="showTestLogging">
+        <el-tabs type="border-card" :stretch="true">
+          <el-tab-pane v-for="(item, key) in testLogging" :key="key" :label="key" class="logging-content">
+            {{item}}
+          </el-tab-pane>
+        </el-tabs>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -79,15 +86,18 @@
         startTime: '0',
         endTime: '0',
         minutes: '0',
-        seconds: '0'
+        seconds: '0',
+        title: 'Logging',
+        testLogging: null,
+        showTestLogging: false,
       }
     },
     methods: {
       initBreadcrumb() {
-        if(this.reportId){
+        if (this.reportId) {
           this.result = this.$get("/performance/report/test/pro/info/" + this.reportId, res => {
             let data = res.data;
-            if(data){
+            if (data) {
               this.reportName = data.name;
               this.testName = data.testName;
               this.projectName = data.projectName;
@@ -96,10 +106,10 @@
         }
       },
       initReportTimeInfo() {
-        if(this.reportId){
+        if (this.reportId) {
           this.result = this.$get("/performance/report/content/report_time/" + this.reportId, res => {
             let data = res.data;
-            if(data){
+            if (data) {
               this.startTime = data.startTime;
               this.endTime = data.endTime;
               let duration = data.duration;
@@ -108,6 +118,11 @@
             }
           })
         }
+      },
+      getLog(testId) {
+        this.$get('/performance/log/' + testId, response => {
+          this.testLogging = response.data;
+        })
       }
     },
     mounted() {
@@ -115,16 +130,25 @@
       this.$get("/performance/report/" + this.reportId, res => {
         let data = res.data;
         this.status = data.status;
-        if (data.status === "Error") {
-          this.$message({
-            type: 'warning',
-            message: "报告生成错误,无法查看！"
-          });
-        } else if (data.status === "Starting") {
-          this.$message({
-            type: 'info',
-            message: "报告生成中...."
-          });
+        switch (data.status) {
+          case 'Error':
+            this.$message({
+              type: 'warning',
+              message: "报告生成错误,无法查看！"
+            });
+            break;
+          case 'Starting':
+            this.$message({
+              type: 'info',
+              message: "报告生成中...."
+            });
+            break;
+          case 'Running':
+            this.showTestLogging = true;
+            this.getLog(data.testId);
+            break;
+          default:
+            break;
         }
       })
       this.initBreadcrumb();
@@ -133,10 +157,10 @@
     watch: {
       '$route'(to) {
         let reportId = to.path.split('/')[4];
-        if(reportId){
+        if (reportId) {
           this.$get("/performance/report/test/pro/info/" + reportId, response => {
             let data = response.data;
-            if(data){
+            if (data) {
               this.reportName = data.name;
               this.testName = data.testName;
               this.projectName = data.projectName;
@@ -144,7 +168,7 @@
           });
           this.result = this.$get("/performance/report/content/report_time/" + this.reportId, res => {
             let data = res.data;
-            if(data){
+            if (data) {
               this.startTime = data.startTime;
               this.endTime = data.endTime;
               let duration = data.duration;
@@ -169,5 +193,9 @@
     text-align: left;
     display: block;
     color: #5C7878;
+  }
+
+  .logging-content {
+    white-space: pre-line;
   }
 </style>
