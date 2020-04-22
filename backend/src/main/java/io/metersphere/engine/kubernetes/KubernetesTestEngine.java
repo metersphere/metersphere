@@ -133,8 +133,10 @@ public class KubernetesTestEngine extends AbstractEngine {
                 ClientCredential clientCredential = JSON.parseObject(configuration, ClientCredential.class);
                 KubernetesProvider provider = new KubernetesProvider(JSON.toJSONString(clientCredential));
                 provider.confirmNamespace(loadTest.getProjectId());
-                String joblog = provider.getKubernetesClient().batch().jobs().inNamespace(loadTest.getProjectId()).withName("job-" + loadTest.getId()).getLog();
-                logs.put(clientCredential.getMasterUrl(), joblog);
+                try (KubernetesClient client = provider.getKubernetesClient()) {
+                    String joblog = client.batch().jobs().inNamespace(loadTest.getProjectId()).withName("job-" + loadTest.getId()).getLog();
+                    logs.put(clientCredential.getMasterUrl(), joblog);
+                }
             } catch (Exception e) {
                 MSException.throwException(e);
             }
