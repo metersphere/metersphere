@@ -37,10 +37,10 @@
 
 <script>
 
-    import NodeTree from "../common/NodeTree";
-    import TestPlanTestCaseList from "./components/TestPlanTestCaseList";
-    import TestCaseRelevance from "./components/TestCaseRelevance";
-    import SelectMenu from "../common/SelectMenu";
+    import NodeTree from "../../common/NodeTree";
+    import TestPlanTestCaseList from "./comonents/TestPlanTestCaseList";
+    import TestCaseRelevance from "./comonents/TestCaseRelevance";
+    import SelectMenu from "../../common/SelectMenu";
 
     export default {
       name: "TestPlanView",

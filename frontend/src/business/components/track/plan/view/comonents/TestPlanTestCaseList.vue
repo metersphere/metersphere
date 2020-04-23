@@ -89,8 +89,7 @@
         <el-table-column
           :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <el-button @click="handleEdit(scope.row, scope.$index)" type="primary" icon="el-icon-edit" size="mini" circle/>
-            <el-button @click="handleDelete(scope.row)" type="danger" icon="el-icon-unlock" size="mini" circle/>
+            <ms-table-operator @editClick="handleEdit(scope.row, scope.$index)" @deleteClick="handleDelete(scope.row)"/>
           </template>
         </el-table-column>
       </el-table>
@@ -109,23 +108,25 @@
 <script>
   import ExecutorEdit from './ExecutorEdit';
   import StatusEdit from './StatusEdit';
-  import TestPlanTestCaseEdit from "../components/TestPlanTestCaseEdit";
-  import MsTipButton from '../../../../components/common/components/MsTipButton';
-  import MsTablePagination from '../../../../components/common/pagination/TablePagination';
-  import MsTableHeader from '../../../../components/common/components/MsTableHeader';
-  import MsTableButton from '../../../../components/common/components/MsTableButton';
-  import NodeBreadcrumb from '../../common/NodeBreadcrumb';
+  import TestPlanTestCaseEdit from "./TestPlanTestCaseEdit";
+  import MsTipButton from '../../../../common/components/MsTipButton';
+  import MsTablePagination from '../../../../common/pagination/TablePagination';
+  import MsTableHeader from '../../../../common/components/MsTableHeader';
+  import MsTableButton from '../../../../common/components/MsTableButton';
+  import NodeBreadcrumb from '../../../common/NodeBreadcrumb';
 
-  import {TokenKey} from '../../../../../common/js/constants';
-  import {tableFilter} from '../../../../../common/js/utils';
-  import PriorityTableItem from "../../common/TableItems/PriorityTableItem";
-  import StatusTableItem from "../../common/TableItems/StatusTableItem";
-  import TypeTableItem from "../../common/TableItems/TypeTableItem";
-  import MethodTableItem from "../../common/TableItems/MethodTableItem";
+  import {TokenKey} from '../../../../../../common/js/constants';
+  import {tableFilter} from '../../../../../../common/js/utils';
+  import PriorityTableItem from "../../../common/TableItems/PriorityTableItem";
+  import StatusTableItem from "../../../common/TableItems/StatusTableItem";
+  import TypeTableItem from "../../../common/TableItems/TypeTableItem";
+  import MethodTableItem from "../../../common/TableItems/MethodTableItem";
+  import MsTableOperator from "../../../../common/components/MsTableOperator";
 
   export default {
       name: "TestPlanTestCaseList",
       components: {
+        MsTableOperator,
         MethodTableItem,
         TypeTableItem,
         StatusTableItem,
