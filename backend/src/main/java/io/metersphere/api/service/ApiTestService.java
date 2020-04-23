@@ -66,6 +66,10 @@ public class ApiTestService {
         apiTestMapper.deleteByPrimaryKey(request.getId());
     }
 
+    public void run(SaveAPITestRequest request) {
+        save(request);
+    }
+
     private ApiTestWithBLOBs updateTest(SaveAPITestRequest request) {
         final ApiTestWithBLOBs test = new ApiTestWithBLOBs();
         test.setId(request.getId());

@@ -60,9 +60,9 @@ public class APITestController {
     public void delete(@RequestBody DeleteAPITestRequest request) {
         apiTestService.delete(request);
     }
-//
-//    @PostMapping("/run")
-//    public void run(@RequestBody RunTestPlanRequest request) {
-//        apiTestService.run(request);
-//    }
+
+    @PostMapping("/run")
+    public void run(@RequestBody SaveAPITestRequest request) {
+        apiTestService.run(request);
+    }
 }

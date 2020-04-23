@@ -4,7 +4,7 @@
       <el-card>
         <template v-slot:header>
           <ms-table-header :condition.sync="condition" @search="search" :title="$t('commons.test')"
-                           @create="create"/>
+                           @create="create" :createTip="$t('load_test.create')"/>
         </template>
         <el-table :data="tableData" class="test-content">
           <el-table-column
@@ -78,7 +78,7 @@
     watch: {
       '$route'(to) {
         this.projectId = to.params.projectId;
-        this.initTableData();
+        this.search();
       }
     },
 
