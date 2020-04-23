@@ -138,6 +138,7 @@
             });
             break;
           case 'Starting':
+          case 'Reporting':
             this.$message({
               type: 'info',
               message: "报告生成中...."

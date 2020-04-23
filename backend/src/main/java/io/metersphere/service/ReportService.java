@@ -1,21 +1,24 @@
 package io.metersphere.service;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.LoadTestReportMapper;
+import io.metersphere.base.mapper.LoadTestReportResultMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.commons.constants.PerformanceTestStatus;
+import io.metersphere.commons.constants.ReportKeys;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.controller.request.ReportRequest;
 import io.metersphere.dto.ReportDTO;
 import io.metersphere.engine.Engine;
 import io.metersphere.engine.EngineFactory;
-import io.metersphere.report.GenerateReport;
 import io.metersphere.report.base.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.annotation.Resource;
 import java.util.List;
 
@@ -29,6 +32,8 @@ public class ReportService {
     private ExtLoadTestReportMapper extLoadTestReportMapper;
     @Resource
     private LoadTestMapper loadTestMapper;
+    @Resource
+    private LoadTestReportResultMapper loadTestReportResultMapper;
 
     public List<LoadTestReport> getRecentReportList(ReportRequest request) {
         LoadTestReportExample example = new LoadTestReportExample();
@@ -80,64 +85,60 @@ public class ReportService {
         return extLoadTestReportMapper.getReportTestAndProInfo(reportId);
     }
 
+    private String getContent(String id, ReportKeys reportKey) {
+        LoadTestReportResultExample example = new LoadTestReportResultExample();
+        example.createCriteria().andReportIdEqualTo(id).andReportKeyEqualTo(reportKey.name());
+        return loadTestReportResultMapper.selectByExampleWithBLOBs(example).get(0).getReportValue();
+    }
+
     public List<Statistics> getReport(String id) {
         checkReportStatus(id);
-        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
-        String content = loadTestReport.getContent();
-        return GenerateReport.getRequestStatistics(content);
+        String reportValue = getContent(id, ReportKeys.RequestStatistics);
+        return JSON.parseArray(reportValue, Statistics.class);
     }
 
     public List<Errors> getReportErrors(String id) {
         checkReportStatus(id);
-        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
-        String content = loadTestReport.getContent();
-        List<Errors> errors = GenerateReport.getErrorsList(content);
-        return errors;
+        String content = getContent(id, ReportKeys.Errors);
+        return JSON.parseArray(content, Errors.class);
     }
 
     public List<ErrorsTop5> getReportErrorsTOP5(String id) {
         checkReportStatus(id);
-        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
-        String content = loadTestReport.getContent();
-        List<ErrorsTop5> errorsTop5 = GenerateReport.getErrorsTop5List(content);
-        return errorsTop5;
+        String content = getContent(id, ReportKeys.ErrorsTop5);
+        return JSON.parseArray(content, ErrorsTop5.class);
     }
 
     public TestOverview getTestOverview(String id) {
         checkReportStatus(id);
-        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
-        String content = loadTestReport.getContent();
-        TestOverview testOverview = GenerateReport.getTestOverview(content);
-        return testOverview;
+        String content = getContent(id, ReportKeys.Overview);
+        return JSON.parseObject(content, TestOverview.class);
     }
 
     public ReportTimeInfo getReportTimeInfo(String id) {
-        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
-        String content = loadTestReport.getContent();
-        ReportTimeInfo reportTimeInfo = GenerateReport.getReportTimeInfo(content);
-        return reportTimeInfo;
+        checkReportStatus(id);
+        String content = getContent(id, ReportKeys.TimeInfo);
+        return JSON.parseObject(content, ReportTimeInfo.class);
     }
 
     public List<ChartsData> getLoadChartData(String id) {
         checkReportStatus(id);
-        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
-        String content = loadTestReport.getContent();
-        List<ChartsData> chartsDataList = GenerateReport.getLoadChartData(content);
-        return chartsDataList;
+        String content = getContent(id, ReportKeys.LoadChart);
+        return JSON.parseArray(content, ChartsData.class);
     }
 
     public List<ChartsData> getResponseTimeChartData(String id) {
         checkReportStatus(id);
-        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
-        String content = loadTestReport.getContent();
-        List<ChartsData> chartsDataList = GenerateReport.getResponseTimeChartData(content);
-        return chartsDataList;
+        String content = getContent(id, ReportKeys.ResponseTimeChart);
+        return JSON.parseArray(content, ChartsData.class);
     }
 
     public void checkReportStatus(String reportId) {
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
         String reportStatus = loadTestReport.getStatus();
         if (StringUtils.equals(PerformanceTestStatus.Running.name(), reportStatus)) {
+            MSException.throwException("Reporting in progress...");
+        } else if (StringUtils.equals(PerformanceTestStatus.Reporting.name(), reportStatus)) {
             MSException.throwException("Reporting in progress...");
         } else if (StringUtils.equals(PerformanceTestStatus.Error.name(), reportStatus)) {
             MSException.throwException("Report generation error!");
