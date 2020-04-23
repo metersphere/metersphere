@@ -3,17 +3,8 @@
     <div class="main-content">
       <el-card>
         <template v-slot:header>
-          <div>
-            <el-row type="flex" justify="space-between" align="middle">
-              <span class="title">{{$t('commons.test')}}</span>
-              <span class="search">
-                <el-input type="text" size="small" :placeholder="$t('load_test.search_by_name')"
-                          prefix-icon="el-icon-search"
-                          maxlength="60"
-                          v-model="condition" @change="search" clearable/>
-              </span>
-            </el-row>
-          </div>
+          <ms-table-header :condition.sync="condition" @search="search" :title="$t('commons.test')"
+                           @create="create" :createTip="$t('load_test.create')"/>
         </template>
         <el-table :data="tableData" class="test-content">
           <el-table-column
@@ -65,13 +56,14 @@
 
 <script>
   import MsTablePagination from "../../common/pagination/TablePagination";
+  import MsTableHeader from "../../common/components/MsTableHeader";
 
   export default {
-    components: {MsTablePagination},
+    components: {MsTableHeader, MsTablePagination},
     data() {
       return {
         result: {},
-        condition: "",
+        condition: {name: ""},
         projectId: null,
         tableData: [],
         multipleSelection: [],
@@ -83,10 +75,11 @@
       }
     },
 
-    beforeRouteUpdate(to, from, next) {
-      this.projectId = to.params.projectId;
-      this.search();
-      next();
+    watch: {
+      '$route'(to) {
+        this.projectId = to.params.projectId;
+        this.search();
+      }
     },
 
     created: function () {
@@ -95,9 +88,12 @@
     },
 
     methods: {
+      create() {
+        this.$router.push('/api/test/create');
+      },
       search() {
         let param = {
-          name: this.condition,
+          name: this.condition.name,
         };
 
         if (this.projectId !== 'all') {
@@ -129,7 +125,7 @@
                   message: this.$t('commons.delete_success'),
                   type: 'success'
                 });
-                this.initTableData();
+                this.search();
               });
             }
           }

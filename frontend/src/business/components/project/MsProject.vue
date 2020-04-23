@@ -12,8 +12,7 @@
           <el-table-column prop="workspaceName" label="所属工作空间"/>
           <el-table-column>
             <template v-slot:default="scope">
-              <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
-              <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
+              <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
             </template>
           </el-table-column>
         </el-table>
@@ -48,10 +47,11 @@
   import {TokenKey} from "../../../common/js/constants";
   import MsTablePagination from "../common/pagination/TablePagination";
   import MsTableHeader from "../common/components/MsTableHeader";
+  import MsTableOperator from "../common/components/MsTableOperator";
 
   export default {
     name: "MsProject",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader},
+    components: {MsTableOperator, MsCreateBox, MsTablePagination, MsTableHeader},
     data() {
       return {
         createVisible: false,

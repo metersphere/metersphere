@@ -11,7 +11,15 @@
                   <el-option v-for="project in projects" :key="project.id" :label="project.name" :value="project.id"/>
                 </el-select>
               </el-input>
-              <el-button type="primary" plain :disabled="isDisabled" @click="saveTest">保存</el-button>
+
+              <el-button type="primary" plain :disabled="isDisabled" @click="saveTest">
+                {{$t('commons.save')}}
+              </el-button>
+
+              <el-button type="primary" plain :disabled="isDisabled" @click="runTest">
+                {{$t('load_test.save_and_run')}}
+              </el-button>
+              <el-button type="warning" plain @click="clear">{{$t('commons.cancel')}}</el-button>
             </el-row>
           </el-header>
           <ms-api-scenario-config :scenarios="test.scenarioDefinition" ref="config"/>
@@ -41,17 +49,15 @@
       }
     },
 
-    beforeRouteUpdate(to, from, next) {
-      if (to.params.type === "edit") {
-        this.getTest(to.query.id);
-      } else {
-        this.test = new Test();
-        this.$refs.config.reset();
-      }
-      next();
-    },
-
     watch: {
+      '$route'(to) {
+        if (to.query.id) {
+          this.getTest(to.query.id);
+        } else {
+          this.test = new Test();
+          this.$refs.config.reset();
+        }
+      },
       test: {
         handler: function () {
           this.change = true;
@@ -65,7 +71,7 @@
         this.result = this.$get("/api/get/" + id, response => {
           let item = response.data;
 
-          this.test.reset({
+          this.test = new Test({
             id: item.id,
             projectId: item.projectId,
             name: item.name,
@@ -77,20 +83,35 @@
       saveTest: function () {
         this.change = false;
 
-        let param = {
-          id: this.test.id,
-          projectId: this.test.projectId,
-          name: this.test.name,
-          scenarioDefinition: JSON.stringify(this.test.scenarioDefinition)
-        }
-
-        this.result = this.$post("/api/save", param, response => {
+        this.result = this.$post("/api/save", this.getParam(), response => {
           this.test.id = response.data;
           this.$message({
             message: this.$t('commons.save_success'),
             type: 'success'
           });
         });
+      },
+      runTest: function () {
+        this.change = false;
+
+        this.result = this.$post("/api/run", this.getParam(), response => {
+          this.test.id = response.data;
+          this.$message({
+            message: this.$t('commons.save_success'),
+            type: 'success'
+          });
+        });
+      },
+      clear: function () {
+        this.test = new Test();
+      },
+      getParam: function () {
+        return {
+          id: this.test.id,
+          projectId: this.test.projectId,
+          name: this.test.name,
+          scenarioDefinition: JSON.stringify(this.test.scenarioDefinition)
+        }
       }
     },
 

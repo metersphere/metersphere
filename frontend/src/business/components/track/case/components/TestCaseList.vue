@@ -1,4 +1,4 @@
-<template>
+<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
 
   <div>
     <el-card v-loading="result.loading">
@@ -27,26 +27,32 @@
         </el-table-column>
         <el-table-column
           prop="priority"
+          :filters="priorityFilters"
+          :filter-method="filter"
           :label="$t('test_track.case.priority')"
           show-overflow-tooltip>
+          <template v-slot:default="scope">
+            <priority-table-item :value="scope.row.priority"/>
+          </template>
         </el-table-column>
         <el-table-column
           prop="type"
+          :filters="typeFilters"
+          :filter-method="filter"
           :label="$t('test_track.case.type')"
           show-overflow-tooltip>
           <template v-slot:default="scope">
-            <span v-if="scope.row.type == 'functional'">{{$t('test_track.case.functional_test')}}</span>
-            <span v-if="scope.row.type == 'performance'">{{$t('commons.performance')}}</span>
-            <span v-if="scope.row.type == 'api'">{{$t('commons.api')}}</span>
+            <type-table-item :value="scope.row.type"/>
           </template>
         </el-table-column>
         <el-table-column
           prop="method"
+          :filters="methodFilters"
+          :filter-method="filter"
           :label="$t('test_track.case.method')"
           show-overflow-tooltip>
           <template v-slot:default="scope">
-            <span v-if="scope.row.method == 'manual'">{{$t('test_track.case.manual')}}</span>
-            <span v-if="scope.row.method == 'auto'">{{$t('test_track.case.auto')}}</span>
+            <method-table-item :value="scope.row.method"/>
           </template>
         </el-table-column>
         <el-table-column
@@ -55,12 +61,16 @@
           show-overflow-tooltip>
         </el-table-column>
         <el-table-column
+          prop="createTime"
+          sortable
           :label="$t('commons.create_time')">
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
         <el-table-column
+          prop="updateTime"
+          sortable
           :label="$t('commons.update_time')">
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
@@ -69,8 +79,7 @@
         <el-table-column
           :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <el-button @click="handleEdit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
-            <el-button @click="handleDelete(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
+            <ms-table-operator @editClick="handleEdit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
           </template>
         </el-table-column>
       </el-table>
@@ -90,20 +99,43 @@
   import MsTablePagination from '../../../../components/common/pagination/TablePagination';
   import NodeBreadcrumb from '../../common/NodeBreadcrumb';
   import MsTableHeader from '../../../../components/common/components/MsTableHeader';
+  import PriorityTableItem from "../../common/TableItems/PriorityTableItem";
+  import TypeTableItem from "../../common/TableItems/TypeTableItem";
+  import MethodTableItem from "../../common/TableItems/MethodTableItem";
+  import MsTableOperator from "../../../common/components/MsTableOperator";
 
   export default {
     name: "TestCaseList",
-    components: {MsCreateBox, TestCaseImport, TestCaseExport, MsTablePagination, NodeBreadcrumb, MsTableHeader},
-    data() {
-      return {
-        result: {},
-        deletePath: "/test/case/delete",
-        condition: {},
-        tableData: [],
-        currentPage: 1,
-        pageSize: 5,
-        total: 0,
-      }
+    components: {
+      MsTableOperator,
+      MethodTableItem,
+      TypeTableItem,
+      PriorityTableItem,
+      MsCreateBox, TestCaseImport, TestCaseExport, MsTablePagination, NodeBreadcrumb, MsTableHeader},
+      data() {
+        return {
+          result: {},
+          deletePath: "/test/case/delete",
+          condition: {},
+          tableData: [],
+          currentPage: 1,
+          pageSize: 5,
+          total: 0,
+          priorityFilters: [
+            {text: 'P0', value: 'P0'},
+            {text: 'P1', value: 'P1'},
+            {text: 'P2', value: 'P2'}
+          ],
+          methodFilters: [
+            {text: this.$t('test_track.case.manual'), value: 'manual'},
+            {text: this.$t('test_track.case.auto'), value: 'auto'}
+          ],
+          typeFilters: [
+            {text: this.$t('commons.functional'), value: 'functional'},
+            {text: this.$t('commons.performance'), value: 'performance'},
+            {text: this.$t('commons.api'), value: 'api'}
+          ]
+        }
       },
       props: {
         currentProject: {
@@ -174,6 +206,10 @@
         refresh() {
           this.condition = {};
           this.$emit('refresh');
+        },
+        filter(value, row, column) {
+          const property = column['property'];
+          return row[property] === value;
         }
       }
     }

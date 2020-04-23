@@ -87,19 +87,10 @@
 
     <!-- dialog of workspace member -->
     <el-dialog :visible.sync="memberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc">
-      <el-row type="flex" justify="space-between" align="middle">
-        <span class="member-title">{{$t('commons.member')}}
-          <ms-create-box :tips="addTips" :exec="addMember"/>
-        </span>
-        <span class="search">
-          <el-input type="text" size="small"
-                    :placeholder="$t('organization.search_by_name')"
-                    prefix-icon="el-icon-search"
-                    maxlength="60" v-model="condition.name" clearable/>
-        </span>
-      </el-row>
+      <ms-table-header :condition.sync="dialogCondition" @create="addMember"
+                       :create-tip="dialogBtnTips" :title="$t('commons.member')"/>
       <!-- organization member table -->
-      <el-table :data="memberLineData" style="width: 100%">
+      <el-table :data="memberLineData" style="width: 100%;margin-top: 5px;">
         <el-table-column prop="name" :label="$t('commons.username')"/>
         <el-table-column prop="email" :label="$t('commons.email')"/>
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
@@ -437,9 +428,11 @@
         memberVisible: false,
         addMemberVisible: false,
         updateMemberVisible: false,
-        btnTips: this.$t('workspace.add'),
+        btnTips: this.$t('workspace.create'),
+        dialogBtnTips: this.$t('member.create'),
         addTips: this.$t('member.create'),
         condition: {},
+        dialogCondition: {},
         items: [],
         currentPage: 1,
         pageSize: 5,
