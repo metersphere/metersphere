@@ -3,18 +3,8 @@
 
     <el-card>
       <template v-slot:header>
-        <div>
-          <el-row type="flex" justify="space-between" align="middle">
-          <span class="title">{{$t('commons.member')}}
-            <ms-create-box :tips="btnTips" :exec="create"/>
-          </span>
-            <span class="search">
-            <el-input type="text" size="small" :placeholder="$t('member.search_by_name')"
-                      prefix-icon="el-icon-search" maxlength="60" @change="search"
-                      v-model="condition" clearable/>
-          </span>
-          </el-row>
-        </div>
+        <ms-table-header :condition.sync="condition" @search="search" @create="create"
+                         :create-tip="btnTips" :title="$t('commons.member')"/>
       </template>
       <el-table :data="tableData" style="width: 100%">
         <el-table-column type="selection" width="55"/>
@@ -105,8 +95,11 @@
 <script>
   import MsCreateBox from "../CreateBox";
   import MsTablePagination from "../../common/pagination/TablePagination";
+  import MsTableHeader from "../../common/components/MsTableHeader";
 
   export default {
+    name: "MsUser",
+    components: {MsCreateBox, MsTablePagination, MsTableHeader},
     data() {
       return {
         queryPath: '/user/special/list',
@@ -159,8 +152,6 @@
         }
       }
     },
-    name: "MsUser",
-    components: {MsCreateBox, MsTablePagination},
     created() {
       this.search();
     },

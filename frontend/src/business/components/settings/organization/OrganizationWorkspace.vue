@@ -2,18 +2,8 @@
   <div>
     <el-card v-loading="result.loading">
       <template v-slot:header>
-        <div>
-          <el-row type="flex" justify="space-between" align="middle">
-          <span class="title">{{$t('commons.workspace')}}
-            <ms-create-box :tips="btnTips" :exec="create"/>
-          </span>
-            <span class="search">
-            <el-input type="text" size="small" :placeholder="$t('workspace.search_by_name')"
-                      prefix-icon="el-icon-search" @change="search"
-                      maxlength="60" v-model="condition" clearable/>
-          </span>
-          </el-row>
-        </div>
+        <ms-table-header :condition.sync="condition" @search="search" @create="create"
+                         :create-tip="btnTips" :title="$t('commons.workspace')"/>
       </template>
       <el-table :data="items" style="width: 100%">
         <el-table-column prop="name" :label="$t('commons.name')"/>
@@ -174,10 +164,11 @@
   import {Message} from "element-ui";
   import {TokenKey} from "../../../../common/js/constants";
   import MsTablePagination from "../../common/pagination/TablePagination";
+  import MsTableHeader from "../../common/components/MsTableHeader";
 
   export default {
     name: "MsOrganizationWorkspace",
-    components: {MsCreateBox, MsTablePagination},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader},
     mounted() {
       this.list();
     },

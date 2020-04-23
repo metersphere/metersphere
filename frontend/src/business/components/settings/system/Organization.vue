@@ -3,18 +3,8 @@
 
     <el-card>
       <template v-slot:header>
-        <div>
-          <el-row type="flex" justify="space-between" align="middle">
-          <span class="title">{{$t('commons.organization')}}
-            <ms-create-box :tips="btnTips" :exec="create"/>
-          </span>
-            <span class="search">
-            <el-input type="text" size="small" :placeholder="$t('organization.search_by_name')"
-                      prefix-icon="el-icon-search" @change="search"
-                      maxlength="60" v-model="condition" clearable/>
-          </span>
-          </el-row>
-        </div>
+        <ms-table-header :condition.sync="condition" @search="search" @create="create"
+                         :create-tip="btnTips" :title="$t('commons.organization')"/>
       </template>
       <!-- system menu organization table-->
       <el-table :data="tableData" style="width: 100%">
@@ -199,10 +189,11 @@
 <script>
   import MsCreateBox from "../CreateBox";
   import MsTablePagination from "../../common/pagination/TablePagination";
+  import MsTableHeader from "../../common/components/MsTableHeader";
 
   export default {
     name: "MsOrganization",
-    components: {MsCreateBox, MsTablePagination},
+    components: {MsCreateBox, MsTablePagination,MsTableHeader},
     data() {
       return {
         queryPath: '/organization/list',
