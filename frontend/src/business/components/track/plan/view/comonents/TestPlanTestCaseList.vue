@@ -89,8 +89,7 @@
         <el-table-column
           :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <el-button @click="handleEdit(scope.row, scope.$index)" type="primary" icon="el-icon-edit" size="mini" circle/>
-            <el-button @click="handleDelete(scope.row)" type="danger" icon="el-icon-unlock" size="mini" circle/>
+            <ms-table-operator @editClick="handleEdit(scope.row, scope.$index)" @deleteClick="handleDelete(scope.row)"/>
           </template>
         </el-table-column>
       </el-table>
@@ -122,10 +121,12 @@
   import StatusTableItem from "../../../common/TableItems/StatusTableItem";
   import TypeTableItem from "../../../common/TableItems/TypeTableItem";
   import MethodTableItem from "../../../common/TableItems/MethodTableItem";
+  import MsTableOperator from "../../../../common/components/MsTableOperator";
 
   export default {
       name: "TestPlanTestCaseList",
       components: {
+        MsTableOperator,
         MethodTableItem,
         TypeTableItem,
         StatusTableItem,
