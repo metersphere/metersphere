@@ -2,20 +2,8 @@
   <div>
     <el-card v-loading="result.loading">
       <template v-slot:header>
-        <div>
-          <el-row type="flex" justify="space-between" align="middle">
-          <span class="title">
-            {{$t('commons.workspace')}}
-            <ms-create-box :tips="btnTips" :exec="create"/>
-          </span>
-            <span class="search">
-            <el-input type="text" size="small"
-                      :placeholder="$t('workspace.search_by_name')"
-                      prefix-icon="el-icon-search" @change="search"
-                      maxlength="60" v-model="condition" clearable/>
-          </span>
-          </el-row>
-        </div>
+        <ms-table-header :condition.sync="condition" @search="search" @create="create"
+                         :create-tip="btnTips" :title="$t('commons.workspace')"/>
       </template>
       <!-- workspace table -->
       <el-table :data="items" style="width: 100%">
@@ -107,7 +95,7 @@
           <el-input type="text" size="small"
                     :placeholder="$t('organization.search_by_name')"
                     prefix-icon="el-icon-search"
-                    maxlength="60" v-model="condition" clearable/>
+                    maxlength="60" v-model="condition.name" clearable/>
         </span>
       </el-row>
       <!-- organization member table -->
@@ -131,7 +119,8 @@
           </template>
         </el-table-column>
       </el-table>
-      <ms-table-pagination :change="wsMemberList" :current-page.sync="currentMemberPage" :page-size.sync="pageMemberSize"
+      <ms-table-pagination :change="wsMemberList" :current-page.sync="currentMemberPage"
+                           :page-size.sync="pageMemberSize"
                            :total="memberTotal"/>
     </el-dialog>
 
@@ -216,10 +205,11 @@
   import MsCreateBox from "../CreateBox";
   import {Message} from "element-ui";
   import MsTablePagination from "../../common/pagination/TablePagination";
+  import MsTableHeader from "../../common/components/MsTableHeader";
 
   export default {
     name: "MsSystemWorkspace",
-    components: {MsCreateBox, MsTablePagination},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader},
     mounted() {
       this.list();
     },
@@ -353,7 +343,7 @@
       },
       list() {
         let url = '/workspace/list/all/' + this.currentPage + '/' + this.pageSize;
-        this.result = this.$post(url, {name: this.condition}, response => {
+        this.result = this.$post(url, this.condition, response => {
           let data = response.data;
           this.items = data.listObject;
           for (let i = 0; i < this.items.length; i++) {
@@ -449,7 +439,7 @@
         updateMemberVisible: false,
         btnTips: this.$t('workspace.add'),
         addTips: this.$t('member.create'),
-        condition: "",
+        condition: {},
         items: [],
         currentPage: 1,
         pageSize: 5,

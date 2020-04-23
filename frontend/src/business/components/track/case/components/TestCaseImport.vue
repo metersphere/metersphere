@@ -1,9 +1,8 @@
 <template>
 
   <div>
-    <el-tooltip class="item" effect="dark" :content="$t('test_track.case.import.import')" placement="right">
-      <el-button type="info" icon="el-icon-upload2" size="mini" circle
-        @click="dialogVisible = true"></el-button></el-tooltip>
+
+    <ms-table-button icon="el-icon-upload2" :content="$t('test_track.case.import.import')" @click="dialogVisible = true"/>
 
     <el-dialog width="30%" :title="$t('test_track.case.import.case_import')" :visible.sync="dialogVisible"
                @close="init">
@@ -48,9 +47,12 @@
 
 <script>
     import ElUploadList from "element-ui/packages/upload/src/upload-list";
+    import MsTableButton from '../../../../components/common/components/MsTableButton';
+
+
     export default {
       name: "TestCaseImport",
-      components: {ElUploadList},
+      components: {ElUploadList, MsTableButton},
       data() {
         return {
           dialogVisible: false,

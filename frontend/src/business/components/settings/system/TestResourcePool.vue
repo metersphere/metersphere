@@ -3,18 +3,8 @@
 
     <el-card>
       <template v-slot:header>
-        <div>
-          <el-row type="flex" justify="space-between" align="middle">
-          <span class="title">{{$t('commons.test_resource_pool')}}
-            <ms-create-box :tips="btnTips" :exec="create"/>
-          </span>
-            <span class="search">
-            <el-input type="text" size="small" :placeholder="$t('test_resource_pool.search_by_name')"
-                      prefix-icon="el-icon-search"
-                      maxlength="60" v-model="condition" @change="search" clearable/>
-          </span>
-          </el-row>
-        </div>
+        <ms-table-header :condition.sync="condition" @search="search" @create="create"
+                         :create-tip="btnTips" :title="$t('commons.test_resource_pool')"/>
       </template>
       <el-table :data="items" style="width: 100%">
         <el-table-column prop="name" :label="$t('commons.name')"/>
@@ -225,10 +215,11 @@
 <script>
   import MsCreateBox from "../CreateBox";
   import MsTablePagination from "../../common/pagination/TablePagination";
+  import MsTableHeader from "../../common/components/MsTableHeader";
 
   export default {
     name: "MsTestResourcePool",
-    components: {MsCreateBox, MsTablePagination},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader},
     data() {
       return {
         result: {},
@@ -239,7 +230,7 @@
         btnTipsAdd: this.$t("commons.add"),
         btnTipsDel: this.$t("commons.delete"),
         queryPath: "testresourcepool/list",
-        condition: "",
+        condition: {},
         items: [],
         currentPage: 1,
         pageSize: 5,
@@ -270,11 +261,8 @@
     },
     methods: {
       initTableData() {
-        let param = {
-          name: this.condition
-        };
 
-        this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
+        this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
           let data = response.data;
           this.items = data.listObject;
           this.total = data.itemCount;

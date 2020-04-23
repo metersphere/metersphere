@@ -5,7 +5,6 @@
       stripe
       border
       style="width: 100%"
-      show-summary
       :default-sort = "{prop: 'samples', order: 'descending'}"
     >
       <el-table-column label="Requests" fixed width="450" align="center">
@@ -95,7 +94,7 @@
     name: "RequestStatistics",
     data() {
       return {
-        tableData: [{},{},{},{},{}]
+        tableData: []
       }
     },
     methods: {

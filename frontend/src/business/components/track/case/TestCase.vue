@@ -31,7 +31,7 @@
         </el-container>
 
         <test-case-edit
-          @refresh="refreshTable"
+          @refresh="refresh"
           :tree-nodes="treeNodes"
           ref="testCaseEditDialog">
         </test-case-edit>

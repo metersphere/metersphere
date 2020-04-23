@@ -6,7 +6,7 @@
         select w.id, w.name, w.organization_id as organizationId, w.description, o.name as organizationName
           from workspace w join organization o on w.organization_id = o.id
           <where>
-              <if test="request.name != ''">
+              <if test="request.name != null and request.name != ''">
                   AND w.name LIKE #{request.name,jdbcType=VARCHAR}
               </if>
           </where>

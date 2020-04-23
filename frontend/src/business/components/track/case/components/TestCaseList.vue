@@ -1,24 +1,20 @@
-<template>
+<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
 
   <div>
     <el-card v-loading="result.loading">
       <template v-slot:header>
-        <div>
-          <el-row type="flex" justify="space-between" align="middle">
 
-            <node-breadcrumb
-              :node-names="selectNodeNames"
-              @refresh="refresh"/>
+        <ms-table-header :condition.sync="condition" @search="initTableData"
+                         :create-tip="$t('test_track.case.create')" @create="testCaseCreate">
+          <template v-slot:title>
+            <node-breadcrumb class="table-title" :node-names="selectNodeNames" @refresh="refresh"/>
+          </template>
+          <template v-slot:button>
+            <test-case-import :projectId="currentProject == null? null : currentProject.id" @refresh="refresh"/>
+            <!--<test-case-export/>-->
+          </template>
+        </ms-table-header>
 
-            <span class="operate-button">
-              <ms-create-box :tips="$t('test_track.case.create')" :exec="testCaseCreate"/>
-              <test-case-import :projectId="currentProject == null? null : currentProject.id"
-                                @refresh="refresh"/>
-              <test-case-export/>
-              <ms-table-search-bar :condition.sync="condition" @change="initTableData"/>
-            </span>
-          </el-row>
-        </div>
       </template>
 
       <el-table
@@ -31,26 +27,32 @@
         </el-table-column>
         <el-table-column
           prop="priority"
+          :filters="priorityFilters"
+          :filter-method="filter"
           :label="$t('test_track.case.priority')"
           show-overflow-tooltip>
+          <template v-slot:default="scope">
+            <priority-table-item :value="scope.row.priority"/>
+          </template>
         </el-table-column>
         <el-table-column
           prop="type"
+          :filters="typeFilters"
+          :filter-method="filter"
           :label="$t('test_track.case.type')"
           show-overflow-tooltip>
           <template v-slot:default="scope">
-            <span v-if="scope.row.type == 'functional'">{{$t('test_track.case.functional_test')}}</span>
-            <span v-if="scope.row.type == 'performance'">{{$t('commons.performance')}}</span>
-            <span v-if="scope.row.type == 'api'">{{$t('commons.api')}}</span>
+            <type-table-item :value="scope.row.type"/>
           </template>
         </el-table-column>
         <el-table-column
           prop="method"
+          :filters="methodFilters"
+          :filter-method="filter"
           :label="$t('test_track.case.method')"
           show-overflow-tooltip>
           <template v-slot:default="scope">
-            <span v-if="scope.row.method == 'manual'">{{$t('test_track.case.manual')}}</span>
-            <span v-if="scope.row.method == 'auto'">{{$t('test_track.case.auto')}}</span>
+            <method-table-item :value="scope.row.method"/>
           </template>
         </el-table-column>
         <el-table-column
@@ -59,12 +61,16 @@
           show-overflow-tooltip>
         </el-table-column>
         <el-table-column
+          prop="createTime"
+          sortable
           :label="$t('commons.create_time')">
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
         <el-table-column
+          prop="updateTime"
+          sortable
           :label="$t('commons.update_time')">
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
@@ -92,22 +98,43 @@
   import TestCaseImport from '../components/TestCaseImport';
   import TestCaseExport from '../components/TestCaseExport';
   import MsTablePagination from '../../../../components/common/pagination/TablePagination';
-  import MsTableSearchBar from '../../../../components/common/components/MsTableSearchBar';
   import NodeBreadcrumb from '../../common/NodeBreadcrumb';
+  import MsTableHeader from '../../../../components/common/components/MsTableHeader';
+  import PriorityTableItem from "../../common/TableItems/PriorityTableItem";
+  import TypeTableItem from "../../common/TableItems/TypeTableItem";
+  import MethodTableItem from "../../common/TableItems/MethodTableItem";
 
   export default {
     name: "TestCaseList",
-    components: {MsCreateBox, TestCaseImport, TestCaseExport, MsTablePagination, NodeBreadcrumb, MsTableSearchBar},
-    data() {
-      return {
-        result: {},
-        deletePath: "/test/case/delete",
-        condition: {},
-        tableData: [],
-        currentPage: 1,
-        pageSize: 5,
-        total: 0,
-      }
+    components: {
+      MethodTableItem,
+      TypeTableItem,
+      PriorityTableItem,
+      MsCreateBox, TestCaseImport, TestCaseExport, MsTablePagination, NodeBreadcrumb, MsTableHeader},
+      data() {
+        return {
+          result: {},
+          deletePath: "/test/case/delete",
+          condition: {},
+          tableData: [],
+          currentPage: 1,
+          pageSize: 5,
+          total: 0,
+          priorityFilters: [
+            {text: 'P0', value: 'P0'},
+            {text: 'P1', value: 'P1'},
+            {text: 'P2', value: 'P2'}
+          ],
+          methodFilters: [
+            {text: this.$t('test_track.case.manual'), value: 'manual'},
+            {text: this.$t('test_track.case.auto'), value: 'auto'}
+          ],
+          typeFilters: [
+            {text: this.$t('commons.functional'), value: 'functional'},
+            {text: this.$t('commons.performance'), value: 'performance'},
+            {text: this.$t('commons.api'), value: 'api'}
+          ]
+        }
       },
       props: {
         currentProject: {
@@ -178,6 +205,10 @@
         refresh() {
           this.condition = {};
           this.$emit('refresh');
+        },
+        filter(value, row, column) {
+          const property = column['property'];
+          return row[property] === value;
         }
       }
     }

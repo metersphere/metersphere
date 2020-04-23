@@ -3,18 +3,8 @@
 
     <el-card>
       <template v-slot:header>
-        <div>
-          <el-row type="flex" justify="space-between" align="middle">
-          <span class="title">{{$t('commons.organization')}}
-            <ms-create-box :tips="btnTips" :exec="create"/>
-          </span>
-            <span class="search">
-            <el-input type="text" size="small" :placeholder="$t('organization.search_by_name')"
-                      prefix-icon="el-icon-search" @change="search"
-                      maxlength="60" v-model="condition" clearable/>
-          </span>
-          </el-row>
-        </div>
+        <ms-table-header :condition.sync="condition" @search="search" @create="create"
+                         :create-tip="btnTips" :title="$t('commons.organization')"/>
       </template>
       <!-- system menu organization table-->
       <el-table :data="tableData" style="width: 100%">
@@ -49,7 +39,7 @@
           <el-input type="text" size="small"
                     :placeholder="$t('organization.search_by_name')"
                     prefix-icon="el-icon-search"
-                    maxlength="60" v-model="condition" clearable/>
+                    maxlength="60" v-model="condition.name" clearable/>
         </span>
       </el-row>
       <!-- organization member table -->
@@ -199,10 +189,11 @@
 <script>
   import MsCreateBox from "../CreateBox";
   import MsTablePagination from "../../common/pagination/TablePagination";
+  import MsTableHeader from "../../common/components/MsTableHeader";
 
   export default {
     name: "MsOrganization",
-    components: {MsCreateBox, MsTablePagination},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader},
     data() {
       return {
         queryPath: '/organization/list',
@@ -224,7 +215,7 @@
         memberTotal: 0,
         currentRow: {},
         btnTips: this.$t('member.create'),
-        condition: "",
+        condition: {},
         tableData: [],
         memberLineData: [],
         form: {},
@@ -404,10 +395,7 @@
         this.initTableData();
       },
       initTableData() {
-        let param = {
-          name: this.condition
-        };
-        this.result = this.$post(this.queryPath + "/" + this.currentPage + "/" + this.pageSize, param, response => {
+        this.result = this.$post(this.queryPath + "/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
           let data = response.data;
           this.tableData = data.listObject;
           for (let i = 0; i < this.tableData.length; i++) {

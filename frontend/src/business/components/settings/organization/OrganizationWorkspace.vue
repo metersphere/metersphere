@@ -2,18 +2,8 @@
   <div>
     <el-card v-loading="result.loading">
       <template v-slot:header>
-        <div>
-          <el-row type="flex" justify="space-between" align="middle">
-          <span class="title">{{$t('commons.workspace')}}
-            <ms-create-box :tips="btnTips" :exec="create"/>
-          </span>
-            <span class="search">
-            <el-input type="text" size="small" :placeholder="$t('workspace.search_by_name')"
-                      prefix-icon="el-icon-search" @change="search"
-                      maxlength="60" v-model="condition" clearable/>
-          </span>
-          </el-row>
-        </div>
+        <ms-table-header :condition.sync="condition" @search="search" @create="create"
+                         :create-tip="btnTips" :title="$t('commons.workspace')"/>
       </template>
       <el-table :data="items" style="width: 100%">
         <el-table-column prop="name" :label="$t('commons.name')"/>
@@ -64,7 +54,7 @@
           <el-input type="text" size="small"
                     :placeholder="$t('organization.search_by_name')"
                     prefix-icon="el-icon-search"
-                    maxlength="60" v-model="condition" clearable/>
+                    maxlength="60" v-model="condition.name" clearable/>
         </span>
       </el-row>
       <!-- organization member table -->
@@ -174,10 +164,11 @@
   import {Message} from "element-ui";
   import {TokenKey} from "../../../../common/js/constants";
   import MsTablePagination from "../../common/pagination/TablePagination";
+  import MsTableHeader from "../../common/components/MsTableHeader";
 
   export default {
     name: "MsOrganizationWorkspace",
-    components: {MsCreateBox, MsTablePagination},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader},
     mounted() {
       this.list();
     },
@@ -244,7 +235,7 @@
         let userRole = this.currentUser.userRoles.filter(r => r.sourceId === lastOrganizationId);
         if (userRole.length > 0) {
           if (userRole[0].roleId === "org_admin") {
-            this.result = this.$post(url, {name: this.condition}, response => {
+            this.result = this.$post(url, this.condition, response => {
               let data = response.data;
               this.items = data.listObject;
               for (let i = 0; i < this.items.length; i++) {
@@ -405,7 +396,7 @@
         createVisible: false,
         btnTips: this.$t('workspace.add'),
         addTips: this.$t('member.create'),
-        condition: "",
+        condition: {},
         items: [],
         currentPage: 1,
         pageSize: 5,
