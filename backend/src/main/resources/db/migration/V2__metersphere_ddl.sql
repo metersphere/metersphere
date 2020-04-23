@@ -71,6 +71,19 @@ CREATE TABLE IF NOT EXISTS `load_test_report_detail` (
     DEFAULT CHARSET=utf8mb4
     COLLATE=utf8mb4_bin;
 
+CREATE TABLE IF NOT EXISTS `load_test_report_result` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `report_id` varchar(50) NOT NULL,
+  `report_key` varchar(64) DEFAULT NULL,
+  `report_value` text,
+  PRIMARY KEY (`id`),
+  KEY `load_test_report_result_report_id_report_key_index` (`report_id`,`report_key`)
+)
+    ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_bin;
+
+
 CREATE TABLE IF NOT EXISTS `organization` (
     `id`          varchar(50) NOT NULL COMMENT 'Organization ID',
     `name`        varchar(64) NOT NULL COMMENT 'Organization name',
