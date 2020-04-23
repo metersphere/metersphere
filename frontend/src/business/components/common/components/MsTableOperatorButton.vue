@@ -1,7 +1,7 @@
 <template>
-  <el-button @click="click"
+  <el-button @click="exec"
              @click.stop="clickStop" :type="type"
-             :icon="icon" size="mini" circle/>
+             :icon="icon" size="mini" circle></el-button>
 </template>
 
 <script>
@@ -17,12 +17,12 @@
       type: {
         type: String,
         default: 'primary'
+      },
+      exec: {
+        type: Function
       }
     },
     methods: {
-      click() {
-        this.$emit('click');
-      },
       clickStop() {
         this.$emit('clickStop');
       }

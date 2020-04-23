@@ -319,22 +319,27 @@
         }
       },
       resetForm() {
+
+        //防止点击修改后，点击新建触发校验
         if (this.$refs['caseFrom']) {
-          this.$refs['caseFrom'].resetFields();
+          this.$refs['caseFrom'].validate((valid) => {
+            this.$refs['caseFrom'].resetFields();
+            this.form.name = '';
+            this.form.module = '';
+            this.form.type = '';
+            this.form.method = '';
+            this.form.maintainer = '';
+            this.form.priority = '';
+            this.form.prerequisite = '';
+            this.form.remark = '';
+            this.form.steps = [{
+              num: 1 ,
+              desc: '',
+              result: ''
+            }];
+            return true;
+          });
         }
-        this.form.name = '';
-        this.form.module = '';
-        this.form.type = '';
-        this.form.method = '';
-        this.form.maintainer = '';
-        this.form.priority = '';
-        this.form.prerequisite = '';
-        this.form.remark = '';
-        this.form.steps = [{
-          num: 1 ,
-          desc: '',
-          result: ''
-        }];
       }
     }
   }
