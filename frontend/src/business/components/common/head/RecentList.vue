@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <div v-loading="result.loading">
     <div class="recent-text">
       <i class="el-icon-time"/>
       <span>{{options.title}}</span>
+      <i class="el-icon-refresh" @click="recent"/>
     </div>
-    <el-menu-item :key="i.id" v-for="i in items"
-                  :index="getIndex(i)" :route="getRouter(i)">
+    <el-menu-item :key="i.id" v-for="i in items" :index="getIndex(i)" :route="getRouter(i)">
       <span class="title">{{ i.name }}</span>
     </el-menu-item>
   </div>
@@ -21,14 +21,11 @@
       options: Object
     },
     mounted() {
-      if (hasRoles(ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
-        this.$get(this.options.url, (response) => {
-          this.items = response.data;
-        });
-      }
+      this.recent();
     },
     data() {
       return {
+        result: {},
         items: []
       }
     },
@@ -43,6 +40,16 @@
           if (this.options.router) {
             return this.options.router(item);
           }
+        }
+      }
+    },
+
+    methods: {
+      recent: function () {
+        if (hasRoles(ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
+          this.result = this.$get(this.options.url, (response) => {
+            this.items = response.data;
+          });
         }
       }
     }
@@ -60,6 +67,17 @@
 
   .recent-text span {
     padding-left: 6px;
+    line-height: 36px;
+  }
+
+  .recent-text .el-icon-refresh {
+    cursor: pointer;
+    float: right;
+    line-height: 36px;
+  }
+
+  .recent-text .el-icon-refresh:hover {
+    color: #BBBBBB;
   }
 
   .title {

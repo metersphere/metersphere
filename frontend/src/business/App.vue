@@ -13,7 +13,6 @@
     </el-row>
 
     <ms-view/>
-    <ms-web-socket/>
   </el-col>
 </template>
 
@@ -21,7 +20,6 @@
   import MsTopMenus from "./components/common/head/HeaderTopMenus";
   import MsView from "./components/common/router/View";
   import MsUser from "./components/common/head/HeaderUser";
-  import MsWebSocket from "./components/common/websocket/WebSocket";
 
   export default {
     name: 'app',
@@ -33,7 +31,6 @@
     beforeCreate() {
       this.$get("/isLogin").then(response => {
         if (response.data.success) {
-          window.console.log(response.data);
           this.$setLang(response.data.data);
           this.auth = true;
         } else {
@@ -43,7 +40,7 @@
         window.location.href = "/login"
       });
     },
-    components: {MsWebSocket, MsUser, MsView, MsTopMenus},
+    components: {MsUser, MsView, MsTopMenus},
     methods: {}
   }
 </script>
