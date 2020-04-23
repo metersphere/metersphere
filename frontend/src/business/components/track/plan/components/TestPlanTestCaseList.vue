@@ -33,48 +33,35 @@
         </el-table-column>
         <el-table-column
           prop="priority"
+          :filters="priorityFilters"
+          :filter-method="filter"
           :label="$t('test_track.case.priority')">
           <template v-slot:default="scope">
-            <el-tag v-if="scope.row.priority == 'P0'"
-                    type="danger"
-                    effect="dark"
-                    size="mini">{{scope.row.priority}}</el-tag>
-            <el-tag v-if="scope.row.priority == 'P1'"
-                    type="danger"
-                    effect="light"
-                    size="mini">{{scope.row.priority}}</el-tag>
-            <el-tag v-if="scope.row.priority == 'P2'"
-                    type="warning"
-                    effect="dark"
-                    size="mini">{{scope.row.priority}}</el-tag>
-            <el-tag v-if="scope.row.priority == 'P3'"
-                    type="warning"
-                    effect="light"
-                    size="mini">{{scope.row.priority}}</el-tag>
+            <priority-table-item :value="scope.row.priority" ref="priority"/>
           </template>
         </el-table-column>
 
         <el-table-column
           prop="type"
+          :filters="typeFilters"
+          :filter-method="filter"
           :label="$t('test_track.case.type')"
           show-overflow-tooltip>
           <template v-slot:default="scope">
-            <span v-if="scope.row.type == 'functional'">{{$t('commons.functional')}}</span>
-            <span v-if="scope.row.type == 'performance'">{{$t('commons.performance')}}</span>
-            <span v-if="scope.row.type == 'api'">{{$t('commons.api')}}</span>
+            <type-table-item :value="scope.row.type"/>
           </template>
         </el-table-column>
 
         <el-table-column
           prop="method"
+          :filters="methodFilters"
+          :filter-method="filter"
           :label="$t('test_track.case.method')"
           show-overflow-tooltip>
           <template v-slot:default="scope">
-            <span v-if="scope.row.method == 'manual'">{{$t('test_track.case.manual')}}</span>
-            <span v-if="scope.row.method == 'auto'">{{$t('test_track.case.auto')}}</span>
+            <method-table-item :value="scope.row.method"/>
           </template>
         </el-table-column>
-
 
         <el-table-column
           prop="executor"
@@ -83,32 +70,17 @@
 
         <el-table-column
           prop="status"
+          :filters="statusFilters"
+          :filter-method="filter"
           :label="$t('test_track.plan_view.execute_result')">
           <template v-slot:default="scope">
-            <el-tag v-if="scope.row.status == 'Prepare'"
-                    type="info"
-                    effect="dark"
-                    size="mini">{{$t('test_track.plan.plan_status_prepare')}}</el-tag>
-            <el-tag v-if="scope.row.status == 'Pass'"
-                    type="success"
-                    effect="dark"
-                    size="mini">{{$t('test_track.plan_view.pass')}}</el-tag>
-            <el-tag v-if="scope.row.status == 'Failure'"
-                    type="danger"
-                    effect="dark"
-                    size="mini">{{$t('test_track.plan_view.failure')}}</el-tag>
-            <el-tag v-if="scope.row.status == 'Blocking'"
-                    type="warning"
-                    effect="dark"
-                    size="mini">{{$t('test_track.plan_view.blocking')}}</el-tag>
-            <el-tag v-if="scope.row.status == 'Skip'"
-                    type="info"
-                    effect="dark"
-                    size="mini">{{$t('test_track.plan_view.skip')}}</el-tag>
+            <status-table-item :value="scope.row.status"/>
           </template>
         </el-table-column>
 
         <el-table-column
+          sortable
+          prop="updateTime"
           :label="$t('commons.update_time')">
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
@@ -135,7 +107,6 @@
 </template>
 
 <script>
-  import PlanNodeTree from '../../common/PlanNodeTree';
   import ExecutorEdit from './ExecutorEdit';
   import StatusEdit from './StatusEdit';
   import TestPlanTestCaseEdit from "../components/TestPlanTestCaseEdit";
@@ -146,10 +117,19 @@
   import NodeBreadcrumb from '../../common/NodeBreadcrumb';
 
   import {TokenKey} from '../../../../../common/js/constants';
+  import {tableFilter} from '../../../../../common/js/utils';
+  import PriorityTableItem from "../../common/TableItems/PriorityTableItem";
+  import StatusTableItem from "../../common/TableItems/StatusTableItem";
+  import TypeTableItem from "../../common/TableItems/TypeTableItem";
+  import MethodTableItem from "../../common/TableItems/MethodTableItem";
 
   export default {
       name: "TestPlanTestCaseList",
-      components: {PlanNodeTree, StatusEdit, ExecutorEdit, MsTipButton, MsTablePagination,
+      components: {
+        MethodTableItem,
+        TypeTableItem,
+        StatusTableItem,
+        PriorityTableItem, StatusEdit, ExecutorEdit, MsTipButton, MsTablePagination,
         TestPlanTestCaseEdit, MsTableHeader, NodeBreadcrumb, MsTableButton},
       data() {
         return {
@@ -161,7 +141,28 @@
           currentPage: 1,
           pageSize: 5,
           total: 0,
-          selectIds: new Set()
+          selectIds: new Set(),
+          priorityFilters: [
+            {text: 'P0', value: 'P0'},
+            {text: 'P1', value: 'P1'},
+            {text: 'P2', value: 'P2'}
+          ],
+          methodFilters: [
+            {text: this.$t('test_track.case.manual'), value: 'manual'},
+            {text: this.$t('test_track.case.auto'), value: 'auto'}
+          ],
+          typeFilters: [
+            {text: this.$t('commons.functional'), value: 'functional'},
+            {text: this.$t('commons.performance'), value: 'performance'},
+            {text: this.$t('commons.api'), value: 'api'}
+          ],
+          statusFilters: [
+            {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
+            {text: this.$t('test_track.plan_view.pass'), value: 'Pass'},
+            {text: this.$t('test_track.plan_view.failure'), value: 'Failure'},
+            {text: this.$t('test_track.plan_view.blocking'), value: 'Blocking'},
+            {text: this.$t('test_track.plan_view.skip'), value: 'Skip'},
+          ]
         }
       },
       props:{
@@ -267,6 +268,10 @@
             this.condition.executor = null;
           }
           this.initTableData();
+        },
+        filter(value, row, column) {
+          const property = column['property'];
+          return row[property] === value;
         }
       }
     }
