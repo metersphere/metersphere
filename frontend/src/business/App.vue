@@ -1,12 +1,12 @@
 <template>
   <el-col v-if="auth">
     <el-row id="header-top" type="flex" justify="space-between" align="middle">
-      <el-col :span="2">
+
+      <el-col :span="12">
         <a class="logo"/>
-      </el-col>
-      <el-col :span="10">
         <ms-top-menus/>
       </el-col>
+
       <el-col :span="12">
         <ms-user/>
       </el-col>
@@ -59,6 +59,7 @@
     width: 156px;
     margin-right: 20px;
     display: inline-block;
+    line-height: 40px;
     background-size: 156px 30px;
     height: 40px;
     background-repeat: no-repeat;
@@ -73,6 +74,11 @@
     white-space: pre;
     cursor: pointer;
     line-height: 40px;
+  }
+
+  .header-top-menus {
+    display: inline-block;
+    border: 0;
   }
 
   .menus > a {
