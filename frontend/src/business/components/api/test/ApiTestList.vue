@@ -78,7 +78,7 @@
     watch: {
       '$route'(to) {
         this.projectId = to.params.projectId;
-        this.initTableData();
+        this.search();
       }
     },
 
