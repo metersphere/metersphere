@@ -20,8 +20,8 @@
 </template>
 
 <script>
-    import {WORKSPACE_ID} from '../../../../../common/js/constants'
-    import MsDialogFooter from '../../../common/components/MsDialogFooter'
+    import {WORKSPACE_ID} from '../../../../../../common/js/constants'
+    import MsDialogFooter from '../../../../common/components/MsDialogFooter'
 
     export default {
       name: "executorEdit",

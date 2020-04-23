@@ -54,8 +54,8 @@
 
 <script>
 
-  import NodeTree from '../../common/NodeTree';
-  import MsDialogFooter from '../../../common/components/MsDialogFooter'
+  import NodeTree from '../../../common/NodeTree';
+  import MsDialogFooter from '../../../../common/components/MsDialogFooter'
 
   export default {
       name: "TestCaseRelevance",
