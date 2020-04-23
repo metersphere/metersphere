@@ -120,7 +120,7 @@
         updateVisible: false,
         form: {},
         queryPath: "/user/org/member/list",
-        condition: "",
+        condition: {},
         tableData: [],
         rules: {
           userIds: [
@@ -143,7 +143,7 @@
       },
       initTableData() {
         let param = {
-          name: this.condition,
+          name: this.condition.name,
           organizationId: this.currentUser().lastOrganizationId
         };
         this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {

@@ -39,7 +39,7 @@
           <el-input type="text" size="small"
                     :placeholder="$t('organization.search_by_name')"
                     prefix-icon="el-icon-search"
-                    maxlength="60" v-model="condition" clearable/>
+                    maxlength="60" v-model="condition.name" clearable/>
         </span>
       </el-row>
       <!-- organization member table -->
@@ -193,7 +193,7 @@
 
   export default {
     name: "MsOrganization",
-    components: {MsCreateBox, MsTablePagination,MsTableHeader},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader},
     data() {
       return {
         queryPath: '/organization/list',
@@ -215,7 +215,7 @@
         memberTotal: 0,
         currentRow: {},
         btnTips: this.$t('member.create'),
-        condition: "",
+        condition: {},
         tableData: [],
         memberLineData: [],
         form: {},
@@ -395,10 +395,7 @@
         this.initTableData();
       },
       initTableData() {
-        let param = {
-          name: this.condition
-        };
-        this.result = this.$post(this.queryPath + "/" + this.currentPage + "/" + this.pageSize, param, response => {
+        this.result = this.$post(this.queryPath + "/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
           let data = response.data;
           this.tableData = data.listObject;
           for (let i = 0; i < this.tableData.length; i++) {

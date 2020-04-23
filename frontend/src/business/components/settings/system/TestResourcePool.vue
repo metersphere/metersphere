@@ -230,7 +230,7 @@
         btnTipsAdd: this.$t("commons.add"),
         btnTipsDel: this.$t("commons.delete"),
         queryPath: "testresourcepool/list",
-        condition: "",
+        condition: {},
         items: [],
         currentPage: 1,
         pageSize: 5,
@@ -261,11 +261,8 @@
     },
     methods: {
       initTableData() {
-        let param = {
-          name: this.condition
-        };
 
-        this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
+        this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
           let data = response.data;
           this.items = data.listObject;
           this.total = data.itemCount;

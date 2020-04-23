@@ -54,7 +54,7 @@
           <el-input type="text" size="small"
                     :placeholder="$t('organization.search_by_name')"
                     prefix-icon="el-icon-search"
-                    maxlength="60" v-model="condition" clearable/>
+                    maxlength="60" v-model="condition.name" clearable/>
         </span>
       </el-row>
       <!-- organization member table -->
@@ -235,7 +235,7 @@
         let userRole = this.currentUser.userRoles.filter(r => r.sourceId === lastOrganizationId);
         if (userRole.length > 0) {
           if (userRole[0].roleId === "org_admin") {
-            this.result = this.$post(url, {name: this.condition}, response => {
+            this.result = this.$post(url, this.condition, response => {
               let data = response.data;
               this.items = data.listObject;
               for (let i = 0; i < this.items.length; i++) {
@@ -396,7 +396,7 @@
         createVisible: false,
         btnTips: this.$t('workspace.add'),
         addTips: this.$t('member.create'),
-        condition: "",
+        condition: {},
         items: [],
         currentPage: 1,
         pageSize: 5,

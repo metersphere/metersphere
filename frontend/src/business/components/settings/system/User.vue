@@ -114,7 +114,7 @@
         pageSize: 5,
         total: 0,
         btnTips: this.$t('user.create'),
-        condition: "",
+        condition: {},
         tableData: [],
         form: {},
         rule: {
@@ -216,10 +216,7 @@
         })
       },
       search() {
-        let param = {
-          name: this.condition
-        };
-        this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
+        this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;

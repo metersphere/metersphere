@@ -95,7 +95,7 @@
           <el-input type="text" size="small"
                     :placeholder="$t('organization.search_by_name')"
                     prefix-icon="el-icon-search"
-                    maxlength="60" v-model="condition" clearable/>
+                    maxlength="60" v-model="condition.name" clearable/>
         </span>
       </el-row>
       <!-- organization member table -->
@@ -119,7 +119,8 @@
           </template>
         </el-table-column>
       </el-table>
-      <ms-table-pagination :change="wsMemberList" :current-page.sync="currentMemberPage" :page-size.sync="pageMemberSize"
+      <ms-table-pagination :change="wsMemberList" :current-page.sync="currentMemberPage"
+                           :page-size.sync="pageMemberSize"
                            :total="memberTotal"/>
     </el-dialog>
 
@@ -342,7 +343,7 @@
       },
       list() {
         let url = '/workspace/list/all/' + this.currentPage + '/' + this.pageSize;
-        this.result = this.$post(url, {name: this.condition}, response => {
+        this.result = this.$post(url, this.condition, response => {
           let data = response.data;
           this.items = data.listObject;
           for (let i = 0; i < this.items.length; i++) {
@@ -438,7 +439,7 @@
         updateMemberVisible: false,
         btnTips: this.$t('workspace.add'),
         addTips: this.$t('member.create'),
-        condition: "",
+        condition: {},
         items: [],
         currentPage: 1,
         pageSize: 5,

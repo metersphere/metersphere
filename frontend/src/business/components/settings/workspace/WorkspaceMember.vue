@@ -18,8 +18,10 @@
         </el-table-column>
         <el-table-column>
           <template v-slot:default="scope">
-            <el-button @click="edit(scope.row)" onkeydown="return false;" type="primary" icon="el-icon-edit" size="mini" circle v-permission="['test_manager']"/>
-            <el-button @click="del(scope.row)" onkeydown="return false;" type="danger" icon="el-icon-delete" size="mini" circle v-permission="['test_manager']"/>
+            <el-button @click="edit(scope.row)" onkeydown="return false;" type="primary" icon="el-icon-edit" size="mini"
+                       circle v-permission="['test_manager']"/>
+            <el-button @click="del(scope.row)" onkeydown="return false;" type="danger" icon="el-icon-delete" size="mini"
+                       circle v-permission="['test_manager']"/>
           </template>
         </el-table-column>
       </el-table>
@@ -30,7 +32,8 @@
     <el-dialog title="添加成员" :visible.sync="createVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
       <el-form :model="form" ref="form" :rules="rules" label-position="right" label-width="100px" size="small">
         <el-form-item label="成员" prop="userIds">
-          <el-select v-model="form.userIds" multiple :placeholder="$t('member.please_choose_member')" class="select-width">
+          <el-select v-model="form.userIds" multiple :placeholder="$t('member.please_choose_member')"
+                     class="select-width">
             <el-option
               v-for="item in form.userList"
               :key="item.id"
@@ -113,7 +116,7 @@
         createVisible: false,
         updateVisible: false,
         queryPath: "/user/ws/member/list",
-        condition: "",
+        condition: {},
         tableData: [],
         rules: {
           userIds: [
@@ -143,7 +146,7 @@
         }
         this.loading = true;
         let param = {
-          name: this.condition,
+          name: this.condition.name,
           workspaceId: this.currentUser().lastWorkspaceId
         };
 
@@ -213,7 +216,7 @@
           roleIds: this.form.roleIds,
           workspaceId: this.currentUser().lastWorkspaceId
         }
-        this.result = this.$post("/workspace/member/update", param,() => {
+        this.result = this.$post("/workspace/member/update", param, () => {
           this.$message({
             type: 'success',
             message: this.$t('commons.modify_success')
@@ -225,18 +228,18 @@
       create() {
         this.form = {};
         let param = {
-          name: this.condition,
+          name: this.condition.name,
           organizationId: this.currentUser().lastOrganizationId
         };
         let wsId = this.currentUser().lastWorkspaceId;
         if (typeof wsId == "undefined" || wsId == null || wsId == "") {
           this.$message({
-            message:'请先选择工作空间！',
+            message: '请先选择工作空间！',
             type: 'warning'
           });
           return false;
         }
-        this.$post('/user/org/member/list/all', param,response => {
+        this.$post('/user/org/member/list/all', param, response => {
           this.createVisible = true;
           this.$set(this.form, "userList", response.data);
         })
