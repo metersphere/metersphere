@@ -4,23 +4,8 @@
     <el-main class="main-content">
       <el-card v-loading="result.loading">
         <template v-slot:header>
-          <div>
-            <el-row type="flex" justify="space-between" align="middle">
-              <el-col :span="5">
-                <span class="title">{{$t('test_track.plan.test_plan')}}</span>
-                <ms-create-box :tips="$t('test_track.plan.create_plan')" :exec="testPlanCreate"/>
-              </el-col>
-
-              <el-col :span="5">
-                    <span class="search">
-                      <el-input type="text" size="small" :placeholder="$t('load_test.search_by_name')"
-                                prefix-icon="el-icon-search"
-                                maxlength="60"
-                                v-model="condition" @change="initTableData" clearable/>
-                    </span>
-              </el-col>
-            </el-row>
-          </div>
+          <ms-table-header :condition.sync="condition" @search="initTableData" @create="testPlanCreate"
+                           :create-tip="$t('test_track.plan.create_plan')" :title="$t('test_track.plan.test_plan')"/>
         </template>
 
         <el-table
@@ -99,16 +84,17 @@
 <script>
   import MsCreateBox from '../../../settings/CreateBox';
   import MsTablePagination from '../../../../components/common/pagination/TablePagination';
+  import MsTableHeader from "../../../common/components/MsTableHeader";
 
   export default {
       name: "TestPlanList",
-      components: {MsCreateBox, MsTablePagination},
+      components: {MsTableHeader, MsCreateBox, MsTablePagination},
       data() {
         return {
           result: {},
           queryPath: "/test/plan/list",
           deletePath: "/test/plan/delete",
-          condition: "",
+          condition: {},
           currentPage: 1,
           pageSize: 5,
           total: 0,
@@ -121,10 +107,7 @@
       },
       methods: {
         initTableData() {
-          let param = {
-            name: this.condition,
-          };
-          this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
+          this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
             let data = response.data;
             this.total = data.itemCount;
             this.tableData = data.listObject;
