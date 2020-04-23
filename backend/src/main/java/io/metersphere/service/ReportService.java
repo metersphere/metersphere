@@ -116,6 +116,7 @@ public class ReportService {
     }
 
     public ReportTimeInfo getReportTimeInfo(String id) {
+        checkReportStatus(id);
         String content = getContent(id, ReportKeys.TimeInfo);
         return JSON.parseObject(content, ReportTimeInfo.class);
     }
