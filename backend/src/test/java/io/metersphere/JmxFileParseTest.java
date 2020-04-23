@@ -1,6 +1,7 @@
 package io.metersphere;
 
 import io.metersphere.config.KafkaProperties;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +23,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -47,7 +49,7 @@ public class JmxFileParseTest {
     @Test
     public void parse() throws Exception {
         File file = new File("/Users/liuruibin/Downloads/blaze_meter_dev2.jmx");
-        file = new File("/Users/liuruibin/Desktop/test-jmeter.jmx");
+        file = new File("/Users/liuruibin/Desktop/041301.jmx");
 
         final FileInputStream inputStream = new FileInputStream(file);
         final InputSource inputSource = new InputSource(inputStream);
@@ -78,7 +80,8 @@ public class JmxFileParseTest {
         TransformerFactory tf = TransformerFactory.newInstance();
         Transformer transformer = tf.newTransformer();
         transformer.transform(domSource, result);
-        System.out.println("XML IN String format is: \n" + writer.toString());
+//        System.out.println("XML IN String format is: \n" + writer.toString());
+        FileUtils.writeStringToFile(new File("/tmp/test-jmeter.jmx"), writer.toString(), StandardCharsets.UTF_8);
     }
 
     private void parseHashTree(Element hashTree) {
@@ -112,13 +115,13 @@ public class JmxFileParseTest {
                     } else if (nodeNameEquals(ele, VARIABLE_THROUGHPUT_TIMER)) {
 
                     } else if (nodeNameEquals(ele, BACKEND_LISTENER)) {
-                        processBackendListener(ele);
+//                        processBackendListener(ele);
                     } else if (nodeNameEquals(ele, CONFIG_TEST_ELEMENT)) {
-                        processConfigTestElement(ele);
+//                        processConfigTestElement(ele);
                     } else if (nodeNameEquals(ele, DNS_CACHE_MANAGER)) {
-                        processDnsCacheManager(ele);
+//                        processDnsCacheManager(ele);
                     } else if (nodeNameEquals(ele, ARGUMENTS)) {
-                        processArguments(ele);
+//                        processArguments(ele);
                     }
                 }
             }

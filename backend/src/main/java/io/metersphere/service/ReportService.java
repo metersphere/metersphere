@@ -1,6 +1,9 @@
 package io.metersphere.service;
 
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.LoadTestReport;
+import io.metersphere.base.domain.LoadTestReportExample;
+import io.metersphere.base.domain.LoadTestReportWithBLOBs;
+import io.metersphere.base.domain.LoadTestWithBLOBs;
 import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
@@ -16,6 +19,7 @@ import io.metersphere.report.base.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.annotation.Resource;
 import java.util.List;
 
@@ -138,6 +142,8 @@ public class ReportService {
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
         String reportStatus = loadTestReport.getStatus();
         if (StringUtils.equals(PerformanceTestStatus.Running.name(), reportStatus)) {
+            MSException.throwException("Reporting in progress...");
+        } else if (StringUtils.equals(PerformanceTestStatus.Reporting.name(), reportStatus)) {
             MSException.throwException("Reporting in progress...");
         } else if (StringUtils.equals(PerformanceTestStatus.Error.name(), reportStatus)) {
             MSException.throwException("Report generation error!");
