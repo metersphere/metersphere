@@ -3,22 +3,18 @@
   <div>
     <el-card v-loading="result.loading">
       <template v-slot:header>
-        <div>
-          <el-row type="flex" justify="space-between" align="middle">
 
-            <node-breadcrumb
-              :node-names="selectNodeNames"
-              @refresh="refresh"/>
+        <ms-table-header :condition.sync="condition" @search="initTableData"
+                         :create-tip="$t('test_track.case.create')" @create="testCaseCreate">
+          <template v-slot:title>
+            <node-breadcrumb class="table-title" :node-names="selectNodeNames" @refresh="refresh"/>
+          </template>
+          <template v-slot:button>
+            <test-case-import :projectId="currentProject == null? null : currentProject.id" @refresh="refresh"/>
+            <!--<test-case-export/>-->
+          </template>
+        </ms-table-header>
 
-            <span class="operate-button">
-              <ms-create-box :tips="$t('test_track.case.create')" :exec="testCaseCreate"/>
-              <test-case-import :projectId="currentProject == null? null : currentProject.id"
-                                @refresh="refresh"/>
-              <test-case-export/>
-              <ms-table-search-bar :condition.sync="condition" @change="initTableData"/>
-            </span>
-          </el-row>
-        </div>
       </template>
 
       <el-table
@@ -92,12 +88,12 @@
   import TestCaseImport from '../components/TestCaseImport';
   import TestCaseExport from '../components/TestCaseExport';
   import MsTablePagination from '../../../../components/common/pagination/TablePagination';
-  import MsTableSearchBar from '../../../../components/common/components/MsTableSearchBar';
   import NodeBreadcrumb from '../../common/NodeBreadcrumb';
+  import MsTableHeader from '../../../../components/common/components/MsTableHeader';
 
   export default {
     name: "TestCaseList",
-    components: {MsCreateBox, TestCaseImport, TestCaseExport, MsTablePagination, NodeBreadcrumb, MsTableSearchBar},
+    components: {MsCreateBox, TestCaseImport, TestCaseExport, MsTablePagination, NodeBreadcrumb, MsTableHeader},
     data() {
       return {
         result: {},
