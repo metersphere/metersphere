@@ -73,6 +73,8 @@ public class GenerateReport {
         Map<String, Object> errorDataMap = ResultDataParse.getSummryDataMap(jtlString, new StatisticsSummaryConsumer());
         List<Statistics> statisticsList = ResultDataParse.summaryMapParsing(errorDataMap, Statistics.class);
         Optional<Double> error = statisticsList.stream().map(item -> Double.parseDouble(item.getError())).reduce(Double::sum);
+        double avgTp90 = statisticsList.stream().map(item -> Double.parseDouble(item.getTp90())).mapToDouble(Double::doubleValue).average().orElse(0);
+        double avgBandwidth = statisticsList.stream().map(item -> Double.parseDouble(item.getReceived())).mapToDouble(Double::doubleValue).average().orElse(0);
 
         Map<String, Object> responseDataMap = ResultDataParse.getGraphDataMap(jtlString, new ResponseTimeOverTimeGraphConsumer());
         List<ChartsData> responseDataList = ResultDataParse.graphMapParsing(responseDataMap, "response");
@@ -85,10 +87,8 @@ public class GenerateReport {
         testOverview.setAvgThroughput(decimalFormat.format(hits));
         testOverview.setErrors(decimalFormat.format(error.get()));
         testOverview.setAvgResponseTime(decimalFormat.format(responseTime / 1000));
-
-        // todo
-        testOverview.setResponseTime90("0");
-        testOverview.setAvgBandwidth("0");
+        testOverview.setResponseTime90(decimalFormat.format(avgTp90 / 1000));
+        testOverview.setAvgBandwidth(decimalFormat.format(avgBandwidth));
         return testOverview;
     }
 
