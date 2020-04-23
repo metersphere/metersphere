@@ -1,7 +1,7 @@
 <template>
-  <el-breadcrumb separator-class="el-icon-arrow-right">
-    <el-breadcrumb-item>
-      <a @click="showAll">
+  <el-breadcrumb separator-class="el-icon-arrow-right" class="node-breadcrumb">
+    <el-breadcrumb-item class="node-breadcrumb">
+      <a @click="showAll" >
         <i class="el-icon-s-home"></i>&nbsp;
         {{$t('test_track.plan_view.all_case')}}
       </a>
@@ -46,5 +46,9 @@
 </script>
 
 <style scoped>
+
+  .el-breadcrumb__item {
+    margin: 0 auto;
+  }
 
 </style>

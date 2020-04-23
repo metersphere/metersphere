@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <el-row class="title" type="flex" justify="space-between" align="middle">
+    <el-row class="table-title" type="flex" justify="space-between" align="middle">
       <slot name="title">
          {{title}}
       </slot>
@@ -59,11 +59,20 @@
     }
 </script>
 
-<style scoped>
+<style>
 
-  .title {
+  .table-title {
     height: 40px;
     font-weight: bold;
+    font-size: 18px;
+  }
+
+</style>
+
+<style scoped>
+
+  .operate-button {
+    margin-bottom: -5px;
   }
 
 </style>
