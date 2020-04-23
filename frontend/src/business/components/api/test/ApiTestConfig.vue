@@ -11,7 +11,7 @@
                   <el-option v-for="project in projects" :key="project.id" :label="project.name" :value="project.id"/>
                 </el-select>
               </el-input>
-              <el-button type="primary" plain :disabled="isDisabled" @click="saveTest">保存</el-button>
+              <el-button type="primary" plain :disabled="isDisabled" @click="saveTest">{{$t('commons.save')}}</el-button>
             </el-row>
           </el-header>
           <ms-api-scenario-config :scenarios="test.scenarioDefinition" ref="config"/>
@@ -41,17 +41,15 @@
       }
     },
 
-    beforeRouteUpdate(to, from, next) {
-      if (to.params.type === "edit") {
-        this.getTest(to.query.id);
-      } else {
-        this.test = new Test();
-        this.$refs.config.reset();
-      }
-      next();
-    },
-
     watch: {
+      '$route'(to) {
+        if (to.params.type === "edit") {
+          this.getTest(to.query.id);
+        } else {
+          this.test = new Test();
+          this.$refs.config.reset();
+        }
+      },
       test: {
         handler: function () {
           this.change = true;
@@ -65,7 +63,7 @@
         this.result = this.$get("/api/get/" + id, response => {
           let item = response.data;
 
-          this.test.reset({
+          this.test = new Test({
             id: item.id,
             projectId: item.projectId,
             name: item.name,

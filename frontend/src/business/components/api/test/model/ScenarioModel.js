@@ -1,27 +1,5 @@
 import {generateId} from "element-ui/src/utils/util";
 
-const assign = function (obj, options) {
-  if (options) {
-    for (let name in options) {
-      if (options.hasOwnProperty(name)) {
-        if (!(obj[name] instanceof Array)) {
-          obj[name] = options[name];
-        }
-      }
-    }
-  }
-}
-
-const assigns = function (target, source, type) {
-  if (target instanceof Array && source instanceof Array) {
-    if (source && source.length > 0) {
-      source.forEach((options) => {
-        target.push(new type(options));
-      })
-    }
-  }
-}
-
 export const BODY_TYPE = {
   KV: "KV",
   TEXT: "TEXT"
@@ -33,54 +11,80 @@ export const ASSERTION_TYPE = {
   RESPONSE_TIME: "RESPONSE_TIME"
 }
 
-export class Test {
-  constructor(options) {
-    this.reset(options);
+class BaseConfig {
+
+  set(options) {
+    options = this.initOptions(options)
+
+    for (let name in options) {
+      if (options.hasOwnProperty(name)) {
+        if (!(this[name] instanceof Array)) {
+          this[name] = options[name];
+        }
+      }
+    }
   }
 
-  reset(options) {
-    options = this.getDefaultOptions(options);
+  sets(types, options) {
+    options = this.initOptions(options)
+    if (types) {
+      for (let name in types) {
+        if (types.hasOwnProperty(name) && options.hasOwnProperty(name)) {
+          options[name].forEach((o) => {
+            this[name].push(new types[name](o));
+          })
+        }
+      }
+    }
+  }
+
+  initOptions(options) {
+    return options || {};
+  }
+}
+
+export class Test extends BaseConfig {
+  constructor(options) {
+    super();
     this.id = null;
     this.name = null;
     this.projectId = null;
     this.scenarioDefinition = [];
 
-    assign(this, options);
-    assigns(this.scenarioDefinition, options.scenarioDefinition, Scenario);
+    this.set(options);
+    this.sets({scenarioDefinition: Scenario}, options);
   }
 
-  getDefaultOptions(options) {
+  initOptions(options) {
     options = options || {};
     options.scenarioDefinition = options.scenarioDefinition || [new Scenario()];
     return options;
   }
 }
 
-export class Scenario {
+export class Scenario extends BaseConfig {
   constructor(options) {
-    options = this.getDefaultOptions(options);
+    super();
     this.name = null;
     this.url = null;
     this.variables = [];
     this.headers = [];
     this.requests = [];
 
-    assign(this, options);
-    assigns(this.variables, options.variables, KeyValue);
-    assigns(this.headers, options.headers, KeyValue);
-    assigns(this.requests, options.requests, Request);
+    this.set(options);
+    this.sets({variables: KeyValue, headers: KeyValue, requests: Request}, options);
   }
 
-  getDefaultOptions(options) {
+  initOptions(options) {
     options = options || {};
     options.requests = options.requests || [new Request()];
     return options;
   }
 }
 
-export class Request {
+export class Request extends BaseConfig {
   constructor(options) {
-    options = this.getDefaultOptions(options);
+    super();
     this.randomId = generateId();
     this.name = null;
     this.url = null;
@@ -91,13 +95,12 @@ export class Request {
     this.assertions = null;
     this.extract = [];
 
-    assign(this, options);
-    assigns(this.parameters, options.parameters, KeyValue);
-    assigns(this.headers, options.headers, KeyValue);
+    this.set(options);
+    this.sets({parameters: KeyValue, headers: KeyValue}, options);
     // TODO assigns extract
   }
 
-  getDefaultOptions(options) {
+  initOptions(options) {
     options = options || {};
     options.method = "GET";
     options.body = new Body(options.body);
@@ -106,15 +109,15 @@ export class Request {
   }
 }
 
-export class Body {
+export class Body extends BaseConfig {
   constructor(options) {
-    options = options || {};
+    super();
     this.type = null;
     this.text = null;
     this.kvs = [];
 
-    assign(this, options);
-    assigns(this.kvs, options.kvs, KeyValue);
+    this.set(options);
+    this.sets({kvs: KeyValue}, options);
   }
 
   isKV() {
@@ -122,72 +125,69 @@ export class Body {
   }
 }
 
-export class KeyValue {
+export class KeyValue extends BaseConfig {
   constructor(options) {
-    options = options || {};
+    super();
     this.key = null;
     this.value = null;
 
-    assign(this, options);
+    this.set(options);
   }
 }
 
-export class Assertions {
+export class Assertions extends BaseConfig {
   constructor(options) {
-    options = this.getDefaultOptions(options);
+    super();
     this.text = [];
     this.regex = [];
     this.responseTime = null;
 
-    assign(this, options);
-    assigns(this.text, options.text, KeyValue);
-    assigns(this.regex, options.regex, KeyValue);
+    this.set(options);
+    this.sets({text: KeyValue, regex: KeyValue}, options);
   }
 
-  getDefaultOptions(options) {
+  initOptions(options) {
     options = options || {};
     options.responseTime = new ResponseTime(options.responseTime);
     return options;
   }
 }
 
-class AssertionType {
+class AssertionType extends BaseConfig {
   constructor(type) {
+    super();
     this.type = type;
   }
 }
 
 export class Text extends AssertionType {
   constructor(options) {
-    options = options || {};
     super(ASSERTION_TYPE.TEXT);
     this.subject = null;
     this.condition = null;
     this.value = null;
 
-    assign(this, options);
+    this.set(options);
   }
 }
 
 export class Regex extends AssertionType {
   constructor(options) {
-    options = options || {};
     super(ASSERTION_TYPE.REGEX);
     this.subject = null;
     this.expression = null;
     this.description = null;
 
-    assign(this, options);
+    this.set(options);
   }
 }
 
 export class ResponseTime extends AssertionType {
   constructor(options) {
-    options = options || {};
     super(ASSERTION_TYPE.RESPONSE_TIME);
     this.responseInTime = null;
 
-    assign(this, options);
+    this.set(options);
   }
 }
 
