@@ -27,7 +27,7 @@ public class PerformanceReportController {
 
     @GetMapping("/recent/{count}")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
-    public List<LoadTestReport> recentProjects(@PathVariable int count) {
+    public List<ReportDTO> recentProjects(@PathVariable int count) {
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
         ReportRequest request = new ReportRequest();
         request.setWorkspaceId(currentWorkspaceId);
@@ -38,6 +38,8 @@ public class PerformanceReportController {
 
     @PostMapping("/list/all/{goPage}/{pageSize}")
     public Pager<List<ReportDTO>> getReportList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ReportRequest request) {
+        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
+        request.setWorkspaceId(currentWorkspaceId);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, reportService.getReportList(request));
     }

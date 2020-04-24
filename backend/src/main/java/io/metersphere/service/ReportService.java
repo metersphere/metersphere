@@ -35,13 +35,8 @@ public class ReportService {
     @Resource
     private LoadTestReportResultMapper loadTestReportResultMapper;
 
-    public List<LoadTestReport> getRecentReportList(ReportRequest request) {
-        LoadTestReportExample example = new LoadTestReportExample();
-        LoadTestReportExample.Criteria criteria = example.createCriteria();
-        //
-
-        example.setOrderByClause("update_time desc");
-        return loadTestReportMapper.selectByExample(example);
+    public List<ReportDTO> getRecentReportList(ReportRequest request) {
+        return extLoadTestReportMapper.getReportList(request);
     }
 
     public List<ReportDTO> getReportList(ReportRequest request) {
