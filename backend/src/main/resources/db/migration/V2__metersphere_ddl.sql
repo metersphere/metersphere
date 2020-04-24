@@ -25,7 +25,6 @@ CREATE TABLE IF NOT EXISTS `load_test` (
     `project_id`             varchar(50) NOT NULL COMMENT 'Project ID this test belongs to',
     `name`                   varchar(64) NOT NULL COMMENT 'Test name',
     `description`            varchar(255) DEFAULT NULL COMMENT 'Test description',
-    `scenario_definition`    varchar(255) DEFAULT NULL COMMENT 'Scenario definition (JSON format)',
     `load_configuration`     longtext COMMENT 'Load configuration (JSON format)',
     `advanced_configuration` longtext COMMENT 'Load configuration (JSON format)',
     `schedule`               longtext COMMENT 'Test schedule (cron list)',
