@@ -107,7 +107,7 @@
         }
 
         if (this.tableData.filter(f => f.name === file.name).length > 0) {
-          this.$message.error(this.$t('load_test.delete_file'));
+          this.$error(this.$t('load_test.delete_file'));
           return false;
         }
 
@@ -175,7 +175,7 @@
         }
       },
       handleExceed() {
-        this.$message.error(this.$t('load_test.delete_file'));
+        this.$error(this.$t('load_test.delete_file'));
       },
       fileValidator(file) {
         /// todo: 是否需要对文件内容和大小做限制
