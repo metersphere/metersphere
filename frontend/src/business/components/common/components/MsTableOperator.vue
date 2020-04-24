@@ -1,9 +1,9 @@
 <template>
   <span>
     <ms-table-operator-button icon="el-icon-edit"
-                              @click="editClick" @click.stop="editClickStop"/>
+                              :exec="editClick" @click.stop="editClickStop"/>
     <ms-table-operator-button icon="el-icon-delete" type="danger"
-                              @click="deletClick" @click.stop="deleteClickStop"/>
+                              :exec="deleteClick" @click.stop="deleteClickStop"/>
   </span>
 
 </template>
@@ -20,7 +20,7 @@
         editClickStop() {
           this.$emit('editClickStop');
         },
-        deletClick() {
+        deleteClick() {
           this.$emit('deleteClick');
         },
         deleteClickStop() {
