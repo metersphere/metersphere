@@ -6,7 +6,6 @@
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="description" jdbcType="VARCHAR" property="description" />
-    <result column="scenario_definition" jdbcType="VARCHAR" property="scenarioDefinition" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="status" jdbcType="VARCHAR" property="status" />
@@ -76,8 +75,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, name, description, scenario_definition, create_time, update_time, 
-    status, test_resource_pool_id
+    id, project_id, name, description, create_time, update_time, status, test_resource_pool_id
   </sql>
   <sql id="Blob_Column_List">
     load_configuration, advanced_configuration, schedule
@@ -132,15 +130,15 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.LoadTestWithBLOBs">
     insert into load_test (id, project_id, name, 
-      description, scenario_definition, create_time, 
-      update_time, status, test_resource_pool_id, 
-      load_configuration, advanced_configuration, 
-      schedule)
+      description, create_time, update_time, 
+      status, test_resource_pool_id, load_configuration, 
+      advanced_configuration, schedule
+      )
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{description,jdbcType=VARCHAR}, #{scenarioDefinition,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, #{testResourcePoolId,jdbcType=VARCHAR}, 
-      #{loadConfiguration,jdbcType=LONGVARCHAR}, #{advancedConfiguration,jdbcType=LONGVARCHAR}, 
-      #{schedule,jdbcType=LONGVARCHAR})
+      #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
+      #{status,jdbcType=VARCHAR}, #{testResourcePoolId,jdbcType=VARCHAR}, #{loadConfiguration,jdbcType=LONGVARCHAR}, 
+      #{advancedConfiguration,jdbcType=LONGVARCHAR}, #{schedule,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.LoadTestWithBLOBs">
     insert into load_test
@@ -156,9 +154,6 @@
       </if>
       <if test="description != null">
         description,
-      </if>
-      <if test="scenarioDefinition != null">
-        scenario_definition,
       </if>
       <if test="createTime != null">
         create_time,
@@ -194,9 +189,6 @@
       </if>
       <if test="description != null">
         #{description,jdbcType=VARCHAR},
-      </if>
-      <if test="scenarioDefinition != null">
-        #{scenarioDefinition,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -242,9 +234,6 @@
       <if test="record.description != null">
         description = #{record.description,jdbcType=VARCHAR},
       </if>
-      <if test="record.scenarioDefinition != null">
-        scenario_definition = #{record.scenarioDefinition,jdbcType=VARCHAR},
-      </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
@@ -277,7 +266,6 @@
       project_id = #{record.projectId,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
-      scenario_definition = #{record.scenarioDefinition,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       status = #{record.status,jdbcType=VARCHAR},
@@ -295,7 +283,6 @@
       project_id = #{record.projectId,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
-      scenario_definition = #{record.scenarioDefinition,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       status = #{record.status,jdbcType=VARCHAR},
@@ -315,9 +302,6 @@
       </if>
       <if test="description != null">
         description = #{description,jdbcType=VARCHAR},
-      </if>
-      <if test="scenarioDefinition != null">
-        scenario_definition = #{scenarioDefinition,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -348,7 +332,6 @@
     set project_id = #{projectId,jdbcType=VARCHAR},
       name = #{name,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
-      scenario_definition = #{scenarioDefinition,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       status = #{status,jdbcType=VARCHAR},
@@ -363,7 +346,6 @@
     set project_id = #{projectId,jdbcType=VARCHAR},
       name = #{name,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
-      scenario_definition = #{scenarioDefinition,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       status = #{status,jdbcType=VARCHAR},

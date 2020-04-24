@@ -19,9 +19,15 @@
         select ltr.id, ltr.name, ltr.test_id as testId, ltr.description,
                ltr.create_time as createTime, ltr.update_time as updateTime, ltr.status as status, lt.name as testName
           from load_test_report ltr join load_test lt on ltr.test_id = lt.id
+        <if test="reportRequest.workspaceId != null">
+            JOIN project on project.id = lt.project_id
+        </if>
         <where>
             <if test="reportRequest.name != null">
                 AND ltr.name like CONCAT('%', #{reportRequest.name},'%')
+            </if>
+            <if test="reportRequest.workspaceId != null">
+                AND workspace_id = #{reportRequest.workspaceId,jdbcType=VARCHAR}
             </if>
         </where>
         ORDER BY ltr.update_time DESC
