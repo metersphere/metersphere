@@ -189,10 +189,7 @@
           organizationId: this.currentUser().lastOrganizationId
         }
         this.result = this.$post("/organization/member/update", param, () => {
-          this.$message({
-            type: 'success',
-            message: this.$t('commons.modify_success')
-          });
+          this.$success(this.$t('commons.modify_success'));
           this.updateVisible = false;
           this.initTableData();
         });
@@ -204,26 +201,17 @@
           type: 'warning'
         }).then(() => {
           this.result = this.$get('/user/org/member/delete/' + this.currentUser().lastOrganizationId + '/' + row.id, () => {
-            this.$message({
-              type: 'success',
-              message: this.$t('commons.delete_success')
-            });
+            this.$success(this.$t('commons.delete_success'));
             this.initTableData();
           });
         }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: this.$t('commons.delete_cancel')
-          });
+          this.$info(this.$t('commons.delete_cancel'))
         });
       },
       create() {
         let orgId = this.currentUser().lastOrganizationId;
         if (!orgId) {
-          this.$message({
-            type: 'warning',
-            message: this.$t('organization.select_organization')
-          })
+          this.$warning(this.$t('organization.select_organization'));
           return false;
         }
         this.form = {};

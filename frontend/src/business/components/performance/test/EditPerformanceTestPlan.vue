@@ -125,10 +125,7 @@
         let options = this.getSaveOption();
 
         this.result = this.$request(options, () => {
-          this.$message({
-            message: this.$t('commons.save_success'),
-            type: 'success'
-          });
+          this.$success(this.$t('commons.save_success'));
           this.$refs.advancedConfig.cancelAllEdit();
           this.$router.push({path: '/performance/test/all'})
         });
@@ -142,16 +139,9 @@
 
         this.result = this.$request(options, (response) => {
           this.testPlan.id = response.data;
-          this.$message({
-            message: this.$t('commons.save_success'),
-            type: 'success'
-          });
-
+          this.$success(this.$t('commons.save_success'));
           this.result = this.$post(this.runPath, {id: this.testPlan.id}, () => {
-            this.$message({
-              message: this.$t('load_test.is_running'),
-              type: 'success'
-            });
+            this.$success(this.$t('load_test.is_running'))
             this.$router.push({path: '/performance/report/all'})
           })
         });
@@ -196,20 +186,12 @@
       },
       validTestPlan() {
         if (!this.testPlan.name) {
-          this.$message({
-            message: this.$t('load_test.test_name_is_null'),
-            type: 'error'
-          });
-
+          this.$error(this.$t('load_test.test_name_is_null'));
           return false;
         }
 
         if (!this.testPlan.projectId) {
-          this.$message({
-            message: this.$t('load_test.project_is_null'),
-            type: 'error'
-          });
-
+          this.$error(this.$t('load_test.project_is_null'));
           return false;
         }
 
