@@ -185,16 +185,10 @@
             this.initTableData();
             this.loading = false;
           });
-          this.$message({
-            type: 'success',
-            message: this.$t('commons.delete_success')
-          });
+          this.$success(this.$t('commons.delete_success'));
         }).catch(() => {
           this.loading = false;
-          this.$message({
-            type: 'info',
-            message: this.$t('commons.delete_cancel')
-          });
+          this.$info(this.$t('commons.delete_cancel'));
         });
       },
       edit(row) {
@@ -217,10 +211,7 @@
           workspaceId: this.currentUser().lastWorkspaceId
         }
         this.result = this.$post("/workspace/member/update", param, () => {
-          this.$message({
-            type: 'success',
-            message: this.$t('commons.modify_success')
-          });
+          this.$success(this.$t('commons.modify_success'));
           this.updateVisible = false;
           this.initTableData();
         });
@@ -233,10 +224,7 @@
         };
         let wsId = this.currentUser().lastWorkspaceId;
         if (typeof wsId == "undefined" || wsId == null || wsId == "") {
-          this.$message({
-            message: '请先选择工作空间！',
-            type: 'warning'
-          });
+          this.$warning("请先选择工作空间!");
           return false;
         }
         this.$post('/user/org/member/list/all', param, response => {

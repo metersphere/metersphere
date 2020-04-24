@@ -280,10 +280,7 @@
         if (this.infoList.length > 1) {
           this.infoList.splice(index, 1)
         } else {
-          this.$message({
-            type: 'warning',
-            message: this.$t('test_resource_pool.cannot_remove_all_node')
-          });
+          this.$warning(this.$t('test_resource_pool.cannot_remove_all_node'))
         }
       },
       validateResourceInfo() {
@@ -341,15 +338,9 @@
           this.result = this.$get(`/testresourcepool/delete/${row.id}`).then(() => {
             this.initTableData();
           });
-          this.$message({
-            type: 'success',
-            message: this.$t('commons.delete_success')
-          });
+          this.$success(this.$t('commons.delete_success'));
         }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: this.$t('commons.delete_cancel')
-          });
+          this.$info(this.$t('commons.delete_cancel'));
         });
       },
       createTestResourcePool(createTestResourcePoolForm) {
@@ -370,10 +361,7 @@
                   this.initTableData());
               });
             } else {
-              this.$message({
-                type: 'warning',
-                message: vri.msg
-              });
+              this.$warning(vri.msg);
               return false;
             }
 
@@ -413,10 +401,7 @@
                   self.loading = false);
               });
             } else {
-              this.$message({
-                type: 'warning',
-                message: vri.msg
-              });
+              this.$warning(vri.msg);
               return false;
             }
           } else {
@@ -429,10 +414,7 @@
       },
       changeSwitch(row) {
         this.result = this.$post('/testresourcepool/update', row).then(() => {
-          this.$message({
-            type: 'success',
-            message: this.$t('test_resource_pool.status_change_success')
-          });
+          this.$success(this.$t('test_resource_pool.status_change_success'));
         })
       }
     }

@@ -193,10 +193,7 @@
           oldJmxNum = this.fileList.filter(f => f.name.toLowerCase().endsWith(".jmx")).length;
         }
         if (newJmxNum + oldJmxNum !== 1) {
-          this.$message({
-            message: this.$t('load_test.jmx_is_null'),
-            type: 'error'
-          });
+          this.$error(this.$t('load_test.jmx_is_null'));
           return false;
         }
         return true;
