@@ -4,11 +4,13 @@ import io.metersphere.base.domain.TestPlanTestCase;
 import io.metersphere.base.domain.TestPlanTestCaseExample;
 import io.metersphere.base.mapper.TestPlanTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
+import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.controller.request.testcase.QueryTestCaseRequest;
 import io.metersphere.controller.request.testcase.TestCaseBatchRequest;
 import io.metersphere.controller.request.testplancase.QueryTestPlanCaseRequest;
 import io.metersphere.dto.TestPlanCaseDTO;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +33,9 @@ public class TestPlanTestCaseService {
     }
 
     public void editTestCase(TestPlanTestCase testPlanTestCase) {
+        if (StringUtils.equals(TestPlanTestCaseStatus.Prepare.name(), testPlanTestCase.getStatus())) {
+            testPlanTestCase.setStatus(TestPlanTestCaseStatus.Underway.name());
+        }
         testPlanTestCase.setUpdateTime(System.currentTimeMillis());
         testPlanTestCaseMapper.updateByPrimaryKeySelective(testPlanTestCase);
     }

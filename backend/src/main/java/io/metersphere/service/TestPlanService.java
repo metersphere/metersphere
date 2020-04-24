@@ -98,13 +98,19 @@ public class TestPlanService {
                 testPlanTestCase.setCreateTime(System.currentTimeMillis());
                 testPlanTestCase.setUpdateTime(System.currentTimeMillis());
                 testPlanTestCase.setPlanId(request.getPlanId());
-                testPlanTestCase.setStatus(TestPlanTestCaseStatus.Prepare.name());
+                testPlanTestCase.setStatus(TestPlanStatus.Prepare.name());
                 testPlanTestCase.setResults(testCase.getSteps());
                 batchMapper.insert(testPlanTestCase);
             });
         }
 
         sqlSession.flushStatements();
+
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
+        if (StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Prepare.name())) {
+            testPlan.setStatus(TestPlanStatus.Underway.name());
+            testPlanMapper.updateByPrimaryKey(testPlan);
+        }
     }
 
     public List<TestPlan> recentTestPlans(String currentWorkspaceId) {

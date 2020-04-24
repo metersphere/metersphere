@@ -41,7 +41,7 @@
                              @click="handleNext()"/>
                   <el-divider direction="vertical"></el-divider>
 
-                  <el-button type="primary" size="mini" @click="saveCase">{{$t('test_track.save')}}</el-button>
+                  <el-button type="primary" size="mini" @click="saveCase(false)">{{$t('test_track.save')}}</el-button>
                 </el-col>
 
               </el-row>
@@ -193,6 +193,7 @@
       },
       cancel() {
         this.showDialog = false;
+        this.$emit('refreshTable');
       },
       statusChange(status) {
         this.testCase.status = status;

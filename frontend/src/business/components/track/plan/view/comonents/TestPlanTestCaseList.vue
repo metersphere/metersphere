@@ -100,7 +100,8 @@
       <test-plan-test-case-edit
         ref="testPlanTestCaseEdit"
         :search-param="condition"
-        @refresh="refresh"/>
+        @refresh="refresh"
+        @refreshTable="search"/>
 
     </el-card>
 </template>
@@ -117,10 +118,10 @@
 
   import {TokenKey} from '../../../../../../common/js/constants';
   import {tableFilter} from '../../../../../../common/js/utils';
-  import PriorityTableItem from "../../../common/TableItems/PriorityTableItem";
-  import StatusTableItem from "../../../common/TableItems/StatusTableItem";
-  import TypeTableItem from "../../../common/TableItems/TypeTableItem";
-  import MethodTableItem from "../../../common/TableItems/MethodTableItem";
+  import PriorityTableItem from "../../../common/tableItems/planview/PriorityTableItem";
+  import StatusTableItem from "../../../common/tableItems/planview/StatusTableItem";
+  import TypeTableItem from "../../../common/tableItems/planview/TypeTableItem";
+  import MethodTableItem from "../../../common/tableItems/planview/MethodTableItem";
   import MsTableOperator from "../../../../common/components/MsTableOperator";
 
   export default {
