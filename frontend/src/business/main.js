@@ -5,6 +5,7 @@ import icon from "../common/js/icon";
 import filters from "../common/js/filter";
 import ajax from "../common/js/ajax";
 import App from './App.vue';
+import message from "../common/js/message";
 import router from "./components/common/router/router";
 import './permission' // permission control
 import i18n from "../i18n/i18n";
@@ -22,6 +23,7 @@ Vue.use(ElementUI, {
 Vue.use(filters);
 Vue.use(ajax);
 Vue.use(chart);
+Vue.use(message)
 
 // v-permission
 Vue.directive('permission', permission);

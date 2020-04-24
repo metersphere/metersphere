@@ -75,16 +75,11 @@
       }
     },
 
-    watch: {
-      '$route'(to) {
-        this.projectId = to.params.projectId;
-        this.search();
-      }
-    },
-
-    created: function () {
-      this.projectId = this.$route.params.projectId;
-      this.search();
+    beforeRouteEnter(to, from, next) {
+      next(self => {
+        self.projectId = to.params.projectId;
+        self.search();
+      });
     },
 
     methods: {
@@ -121,10 +116,7 @@
           callback: (action) => {
             if (action === 'confirm') {
               this.result = this.$post("/api/delete", {id: test.id}, () => {
-                this.$message({
-                  message: this.$t('commons.delete_success'),
-                  type: 'success'
-                });
+                this.$success(this.$t('commons.delete_success'));
                 this.search();
               });
             }

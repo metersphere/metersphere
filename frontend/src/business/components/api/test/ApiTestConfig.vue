@@ -19,7 +19,7 @@
               <el-button type="primary" plain :disabled="isDisabled" @click="runTest">
                 {{$t('load_test.save_and_run')}}
               </el-button>
-              <el-button type="warning" plain @click="clear">{{$t('commons.clear')}}</el-button>
+              <el-button type="warning" plain @click="cancel">{{$t('commons.cancel')}}</el-button>
             </el-row>
           </el-header>
           <ms-api-scenario-config :scenarios="test.scenarioDefinition" ref="config"/>
@@ -50,14 +50,7 @@
     },
 
     watch: {
-      '$route'(to) {
-        if (to.query.id) {
-          this.getTest(to.query.id);
-        } else {
-          this.test = new Test();
-          this.$refs.config.reset();
-        }
-      },
+      '$route': 'init',
       test: {
         handler: function () {
           this.change = true;
@@ -67,6 +60,19 @@
     },
 
     methods: {
+      init: function () {
+        this.result = this.$get("/project/listAll", response => {
+          this.projects = response.data;
+        })
+        if (this.id) {
+          this.getTest(this.id);
+        } else {
+          this.test = new Test();
+          if (this.$refs.config) {
+            this.$refs.config.reset();
+          }
+        }
+      },
       getTest: function (id) {
         this.result = this.$get("/api/get/" + id, response => {
           let item = response.data;
@@ -85,10 +91,7 @@
 
         this.result = this.$post("/api/save", this.getParam(), response => {
           this.test.id = response.data;
-          this.$message({
-            message: this.$t('commons.save_success'),
-            type: 'success'
-          });
+          this.$success(this.$t('commons.save_success'));
         });
       },
       runTest: function () {
@@ -96,14 +99,11 @@
 
         this.result = this.$post("/api/run", this.getParam(), response => {
           this.test.id = response.data;
-          this.$message({
-            message: this.$t('commons.save_success'),
-            type: 'success'
-          });
+          this.$success(this.$t('commons.save_success'));
         });
       },
-      clear: function () {
-        this.test = new Test();
+      cancel: function () {
+        this.$router.push('/api/test/list/all');
       },
       getParam: function () {
         return {
@@ -122,12 +122,7 @@
     },
 
     created() {
-      this.result = this.$get("/project/listAll", response => {
-        this.projects = response.data;
-      })
-      if (this.id) {
-        this.getTest(this.id);
-      }
+      this.init();
     }
   }
 </script>
