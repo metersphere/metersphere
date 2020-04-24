@@ -19,7 +19,7 @@
               <el-button type="primary" plain :disabled="isDisabled" @click="runTest">
                 {{$t('load_test.save_and_run')}}
               </el-button>
-              <el-button type="warning" plain @click="clear">{{$t('commons.cancel')}}</el-button>
+              <el-button type="warning" plain @click="clear">{{$t('commons.clear')}}</el-button>
             </el-row>
           </el-header>
           <ms-api-scenario-config :scenarios="test.scenarioDefinition" ref="config"/>
