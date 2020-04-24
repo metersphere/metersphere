@@ -5,6 +5,7 @@ export default {
     'project': '项目',
     'name': '名称',
     'description': '描述',
+    'clear': '清空',
     'save': '保存',
     'save_success': '保存成功',
     'delete_success': '删除成功',
@@ -172,6 +173,7 @@ export default {
   },
   api_test: {
     save_and_run: "保存并执行",
+    reset: "重置",
     input_name: "请输入测试名称",
     select_project: "请选择项目",
     scenario: {
