@@ -98,9 +98,9 @@
   import MsTablePagination from '../../../../components/common/pagination/TablePagination';
   import NodeBreadcrumb from '../../common/NodeBreadcrumb';
   import MsTableHeader from '../../../../components/common/components/MsTableHeader';
-  import PriorityTableItem from "../../common/TableItems/PriorityTableItem";
-  import TypeTableItem from "../../common/TableItems/TypeTableItem";
-  import MethodTableItem from "../../common/TableItems/MethodTableItem";
+  import PriorityTableItem from "../../common/tableItems/planview/PriorityTableItem";
+  import TypeTableItem from "../../common/tableItems/planview/TypeTableItem";
+  import MethodTableItem from "../../common/tableItems/planview/MethodTableItem";
   import MsTableOperator from "../../../common/components/MsTableOperator";
   import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
 

@@ -26,9 +26,7 @@
             :label="$t('test_track.plan.plan_status')"
             show-overflow-tooltip>
             <template v-slot:default="scope">
-              <span v-if="scope.row.status == 'Prepare'">{{$t('test_track.plan.plan_status_prepare')}}</span>
-              <span v-if="scope.row.status == 'Running'">{{$t('test_track.plan.plan_status_running')}}</span>
-              <span v-if="scope.row.status == 'Completed'">{{$t('test_track.plan.plan_status_completed')}}</span>
+              <plan-status-table-item :value="scope.row.status"/>
             </template>
           </el-table-column>
           <el-table-column
@@ -70,7 +68,6 @@
 
         <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                              :total="total"/>
-
       </el-card>
     </el-main>
   </div>
@@ -83,10 +80,13 @@
   import MsDialogFooter from "../../../common/components/MsDialogFooter";
   import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
   import MsTableOperator from "../../../common/components/MsTableOperator";
+  import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
 
   export default {
       name: "TestPlanList",
-      components: {MsTableOperator, MsTableOperatorButton, MsDialogFooter, MsTableHeader, MsCreateBox, MsTablePagination},
+      components: {
+        PlanStatusTableItem,
+        MsTableOperator, MsTableOperatorButton, MsDialogFooter, MsTableHeader, MsCreateBox, MsTablePagination},
       data() {
         return {
           result: {},

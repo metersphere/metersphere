@@ -41,7 +41,7 @@
                              @click="handleNext()"/>
                   <el-divider direction="vertical"></el-divider>
 
-                  <el-button type="primary" size="mini" @click="saveCase">{{$t('test_track.save')}}</el-button>
+                  <el-button type="primary" size="mini" @click="saveCase(false)">{{$t('test_track.save')}}</el-button>
                 </el-col>
 
               </el-row>
@@ -193,11 +193,12 @@
       },
       cancel() {
         this.showDialog = false;
+        this.$emit('refreshTable');
       },
       statusChange(status) {
         this.testCase.status = status;
       },
-      saveCase() {
+      saveCase(isContinuous) {
         let param = {};
         param.id = this.testCase.id;
         param.status = this.testCase.status;
@@ -210,16 +211,22 @@
         });
         param.results = JSON.stringify(param.results);
         this.$post('/test/plan/case/edit', param, () => {
+          if (isContinuous) {
+            this.updateTestCases(param);
+            return;
+          }
           this.$refs.drawer.closeDrawer();
           this.$message.success(this.$t('commons.save_success'));
           this.$emit('refresh');
         });
       },
       handleNext() {
+        this.saveCase(true);
         this.index++;
         this.getTestCase(this.index);
       },
       handlePre() {
+        this.saveCase(true);
         this.index--;
         this.getTestCase(this.index);
       },
@@ -242,7 +249,13 @@
       openTestCaseEdit(testCase) {
         this.showDialog = true;
         this.initData(testCase);
-
+      },
+      updateTestCases(testCase) {
+        this.testCases.forEach(item => {
+           if (testCase.id === item.id) {
+             Object.assign(item, testCase);
+           }
+        });
       },
       initData(testCase) {
         this.result = this.$post('/test/plan/case/list/all', this.searchParam, response => {
