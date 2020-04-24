@@ -13,7 +13,7 @@
               :label="$t('test_track.case.name')"
               :label-width="formLabelWidth"
               prop="name">
-              <el-input v-model="form.name"></el-input>
+              <el-input :disabled="readOnly" v-model="form.name"></el-input>
             </el-form-item>
           </el-col>
 
@@ -21,6 +21,7 @@
             <el-form-item :label="$t('test_track.case.module')" :label-width="formLabelWidth" prop="module">
               <el-select
                 v-model="form.module"
+                :disabled="readOnly"
                 :placeholder="$t('test_track.case.input_module')"
                 filterable>
                 <el-option
@@ -37,7 +38,7 @@
         <el-row>
           <el-col :span="10" :offset="1">
             <el-form-item :label="$t('test_track.case.maintainer')" :label-width="formLabelWidth" prop="maintainer">
-              <el-select v-model="form.maintainer" :placeholder="$t('test_track.case.input_maintainer')" filterable>
+              <el-select :disabled="readOnly" v-model="form.maintainer" :placeholder="$t('test_track.case.input_maintainer')" filterable>
                 <el-option
                   v-for="item in maintainerOptions"
                   :key="item.id"
@@ -49,7 +50,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('test_track.case.priority')" :label-width="formLabelWidth" prop="priority">
-              <el-select v-model="form.priority" clearable :placeholder="$t('test_track.case.input_priority')">
+              <el-select :disabled="readOnly" v-model="form.priority" clearable :placeholder="$t('test_track.case.input_priority')">
                 <el-option label="P0" value="P0"></el-option>
                 <el-option label="P1" value="P1"></el-option>
                 <el-option label="P2" value="P2"></el-option>
@@ -62,7 +63,7 @@
         <el-row>
           <el-col :span="10" :offset="1">
             <el-form-item :label="$t('test_track.case.type')" :label-width="formLabelWidth" prop="type">
-              <el-select v-model="form.type" :placeholder="$t('test_track.case.input_type')">
+              <el-select :disabled="readOnly" v-model="form.type" :placeholder="$t('test_track.case.input_type')">
                 <el-option :label="$t('commons.functional')" value="functional"></el-option>
                 <el-option :label="$t('commons.performance')" value="performance"></el-option>
                 <el-option :label="$t('commons.api')" value="api"></el-option>
@@ -71,7 +72,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('test_track.case.method')" :label-width="formLabelWidth" prop="method">
-              <el-select v-model="form.method" :placeholder="$t('test_track.case.input_method')">
+              <el-select :disabled="readOnly" v-model="form.method" :placeholder="$t('test_track.case.input_method')">
                 <el-option :label="$t('test_track.case.manual')" value="manual"></el-option>
                 <el-option :label="$t('test_track.case.auto')" value="auto"></el-option>
               </el-select>
@@ -85,7 +86,7 @@
         <el-row type="flex" justify="center" style="margin-top: 10px;">
           <el-col :span="20">
             <el-form-item>
-              <el-input v-model="form.prerequisite"
+              <el-input :disabled="readOnly" v-model="form.prerequisite"
                         type="textarea"
                         :autosize="{ minRows: 2, maxRows: 4}"
                         :rows="2"
@@ -111,6 +112,7 @@
                 <template v-slot:default="scope">
                   <el-input
                     size="mini"
+                    v-if="!readOnly"
                     type="textarea"
                     :rows="2"
                     v-model="scope.row.desc"
@@ -123,6 +125,7 @@
                 <template v-slot:default="scope">
                   <el-input
                     size="mini"
+                    v-if="!readOnly"
                     type="textarea"
                     :rows="2"
                     v-model="scope.row.result"
@@ -135,6 +138,7 @@
                 <template v-slot:default="scope">
                   <el-button
                     type="primary"
+                    :disabled="readOnly"
                     icon="el-icon-plus"
                     circle size="mini"
                     @click="handleAddStep(scope.$index, scope.row)"></el-button>
@@ -143,7 +147,7 @@
                     icon="el-icon-delete"
                     circle size="mini"
                     @click="handleDeleteStep(scope.$index, scope.row)"
-                    :disabled="scope.$index == 0 ? true : false"></el-button>
+                    :disabled="readOnly || scope.$index == 0 ? true : false"></el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -159,6 +163,7 @@
               <el-input v-model="form.remark"
                         :autosize="{ minRows: 2, maxRows: 4}"
                         type="textarea"
+                        :disabled="readOnly"
                         :rows="2"
                         :placeholder="$t('commons.input_content')"></el-input>
             </el-form-item>
@@ -167,7 +172,7 @@
       </el-form>
 
       <template v-slot:footer>
-        <ms-dialog-footer
+        <ms-dialog-footer v-if="!readOnly"
           @cancel="dialogFormVisible = false"
           @confirm="saveCase"/>
       </template>
@@ -227,6 +232,10 @@
     props: {
       treeNodes: {
         type: Array
+      },
+      readOnly: {
+        type: Boolean,
+        default: true
       }
     },
     methods: {

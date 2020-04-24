@@ -19,6 +19,7 @@
 
       <el-table
         :data="tableData"
+        @row-click="showDetail"
         class="test-content">
         <el-table-column
           prop="name"
@@ -60,14 +61,7 @@
           :label="$t('test_track.case.module')"
           show-overflow-tooltip>
         </el-table-column>
-        <el-table-column
-          prop="createTime"
-          sortable
-          :label="$t('commons.create_time')">
-          <template v-slot:default="scope">
-            <span>{{ scope.row.createTime | timestampFormatDate }}</span>
-          </template>
-        </el-table-column>
+
         <el-table-column
           prop="updateTime"
           sortable
@@ -178,7 +172,7 @@
           return path + "/" + this.currentPage + "/" + this.pageSize;
         },
         testCaseCreate() {
-          this.$emit('openTestCaseEditDialog');
+          this.$emit('testCaseEdit');
         },
         handleEdit(testCase) {
           this.$emit('testCaseEdit', testCase);
@@ -210,6 +204,9 @@
         filter(value, row, column) {
           const property = column['property'];
           return row[property] === value;
+        },
+        showDetail(row, event, column) {
+          this.$emit('testCaseDetail', row);
         }
       }
     }
@@ -235,6 +232,10 @@
   .search {
     margin-left: 10px;
     width: 240px;
+  }
+
+  .el-table {
+    cursor:pointer;
   }
 
 </style>
