@@ -38,6 +38,7 @@
               <span v-if="scope.row.stage == 'functional'">{{$t('test_track.plan.functional_test')}}</span>
               <span v-if="scope.row.stage == 'integration'">{{$t('test_track.plan.integration_testing')}}</span>
               <span v-if="scope.row.stage == 'system'">{{$t('test_track.plan.system_test')}}</span>
+              <span v-if="scope.row.stage == 'regression'">{{$t('test_track.plan.regression_test')}}</span>
               <span v-if="scope.row.stage == 'version'">{{$t('test_track.plan.version_validation')}}</span>
             </template>
           </el-table-column>
@@ -97,6 +98,13 @@
           pageSize: 5,
           total: 0,
           tableData: [],
+        }
+      },
+      watch: {
+        '$route'(to, from) {
+          if (to.path.indexOf("/track/plan/all") >= 0){
+            this.initTableData();
+          }
         }
       },
       created() {

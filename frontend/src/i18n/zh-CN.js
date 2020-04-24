@@ -282,6 +282,7 @@ export default {
       plan_status: "当前状态",
       smoke_test: "冒烟测试",
       functional_test: "功能测试",
+      regression_test: "回归测试",
       integration_testing: "集成测试",
       system_test: "系统测试",
       version_validation: "版本验证",
