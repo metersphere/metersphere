@@ -1,4 +1,4 @@
-<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
+<template>
 
   <div>
     <el-card v-loading="result.loading">
@@ -19,6 +19,7 @@
 
       <el-table
         :data="tableData"
+        @row-click="showDetail"
         class="test-content">
         <el-table-column
           prop="name"
@@ -60,14 +61,7 @@
           :label="$t('test_track.case.module')"
           show-overflow-tooltip>
         </el-table-column>
-        <el-table-column
-          prop="createTime"
-          sortable
-          :label="$t('commons.create_time')">
-          <template v-slot:default="scope">
-            <span>{{ scope.row.createTime | timestampFormatDate }}</span>
-          </template>
-        </el-table-column>
+
         <el-table-column
           prop="updateTime"
           sortable
@@ -79,8 +73,12 @@
         <el-table-column
           :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <el-button @click="handleEdit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
-            <el-button @click="handleDelete(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
+            <ms-table-operator @editClick="handleEdit(scope.row)" @deleteClick="handleDelete(scope.row)">
+              <template v-slot:middle>
+                <ms-table-operator-button :tip="$t('commons.copy')" icon="el-icon-document-copy"
+                                          type="success" @exec="handleCopy(scope.row)"/>
+              </template>
+            </ms-table-operator>
           </template>
         </el-table-column>
       </el-table>
@@ -103,10 +101,14 @@
   import PriorityTableItem from "../../common/TableItems/PriorityTableItem";
   import TypeTableItem from "../../common/TableItems/TypeTableItem";
   import MethodTableItem from "../../common/TableItems/MethodTableItem";
+  import MsTableOperator from "../../../common/components/MsTableOperator";
+  import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
 
   export default {
     name: "TestCaseList",
     components: {
+      MsTableOperatorButton,
+      MsTableOperator,
       MethodTableItem,
       TypeTableItem,
       PriorityTableItem,
@@ -177,10 +179,13 @@
           return path + "/" + this.currentPage + "/" + this.pageSize;
         },
         testCaseCreate() {
-          this.$emit('openTestCaseEditDialog');
+          this.$emit('testCaseEdit');
         },
         handleEdit(testCase) {
           this.$emit('testCaseEdit', testCase);
+        },
+        handleCopy(testCase) {
+          this.$emit('testCaseCopy', testCase);
         },
         handleDelete(testCase) {
           this.$alert(this.$t('test_track.case.delete_confirm') + testCase.name + "？", '', {
@@ -209,6 +214,9 @@
         filter(value, row, column) {
           const property = column['property'];
           return row[property] === value;
+        },
+        showDetail(row, event, column) {
+          this.$emit('testCaseDetail', row);
         }
       }
     }
@@ -234,6 +242,10 @@
   .search {
     margin-left: 10px;
     width: 240px;
+  }
+
+  .el-table {
+    cursor:pointer;
   }
 
 </style>

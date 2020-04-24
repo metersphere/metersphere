@@ -25,7 +25,6 @@ CREATE TABLE IF NOT EXISTS `load_test` (
     `project_id`             varchar(50) NOT NULL COMMENT 'Project ID this test belongs to',
     `name`                   varchar(64) NOT NULL COMMENT 'Test name',
     `description`            varchar(255) DEFAULT NULL COMMENT 'Test description',
-    `scenario_definition`    varchar(255) DEFAULT NULL COMMENT 'Scenario definition (JSON format)',
     `load_configuration`     longtext COMMENT 'Load configuration (JSON format)',
     `advanced_configuration` longtext COMMENT 'Load configuration (JSON format)',
     `schedule`               longtext COMMENT 'Test schedule (cron list)',
@@ -70,6 +69,19 @@ CREATE TABLE IF NOT EXISTS `load_test_report_detail` (
     ENGINE=InnoDB
     DEFAULT CHARSET=utf8mb4
     COLLATE=utf8mb4_bin;
+
+CREATE TABLE IF NOT EXISTS `load_test_report_result` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `report_id` varchar(50) NOT NULL,
+  `report_key` varchar(64) DEFAULT NULL,
+  `report_value` text,
+  PRIMARY KEY (`id`),
+  KEY `load_test_report_result_report_id_report_key_index` (`report_id`,`report_key`)
+)
+    ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_bin;
+
 
 CREATE TABLE IF NOT EXISTS `organization` (
     `id`          varchar(50) NOT NULL COMMENT 'Organization ID',

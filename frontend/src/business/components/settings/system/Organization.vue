@@ -31,19 +31,10 @@
     </el-card>
     <!-- dialog of organization member -->
     <el-dialog :visible.sync="memberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc">
-      <el-row type="flex" justify="space-between" align="middle">
-        <span class="member-title">{{$t('commons.member')}}
-          <ms-create-box :tips="btnTips" :exec="addMember"/>
-        </span>
-        <span class="search">
-          <el-input type="text" size="small"
-                    :placeholder="$t('organization.search_by_name')"
-                    prefix-icon="el-icon-search"
-                    maxlength="60" v-model="condition.name" clearable/>
-        </span>
-      </el-row>
+      <ms-table-header :condition.sync="dialogCondition" @create="addMember"
+                       :create-tip="dialogBtnTips" :title="$t('commons.member')"/>
       <!-- organization member table -->
-      <el-table :data="memberLineData" style="width: 100%">
+      <el-table :data="memberLineData" style="width: 100%;margin-top:5px;">
         <el-table-column prop="name" :label="$t('commons.username')"/>
         <el-table-column prop="email" :label="$t('commons.email')"/>
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
@@ -214,8 +205,10 @@
         pageMemberSize: 5,
         memberTotal: 0,
         currentRow: {},
-        btnTips: this.$t('member.create'),
+        btnTips: this.$t('organization.create'),
+        dialogBtnTips: this.$t('member.create'),
         condition: {},
+        dialogCondition: {},
         tableData: [],
         memberLineData: [],
         form: {},

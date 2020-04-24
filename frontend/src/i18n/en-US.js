@@ -43,6 +43,8 @@ export default {
     'functional': 'Functional test',
     'input_content': 'Please enter content',
     'create': 'Create',
+    'edit': 'Edit',
+    'copy': 'Copy',
     'refresh': 'Refresh',
     'remark': 'Remark',
     'delete': 'Delete',
@@ -186,6 +188,7 @@ export default {
       test_case: "Test Case",
       case_list: "Test Case List",
       create_case: "Create Case",
+      eitd_case: "Eidt Case",
       no_project: "There is no project in this workspace, please create the project first",
       priority: "Priority",
       type: "Type",
@@ -222,10 +225,11 @@ export default {
         upload_limit_size: "Upload file size cannot exceed 20MB!",
         success: "Import success！",
       },
+
       export: {
         export: "Export cases"
       }
-    },},
+    },
     plan: {
       test_plan: "Test Plan",
       create_plan: "Create test plan",
@@ -247,7 +251,6 @@ export default {
       plan_status_running: "Starting",
       plan_status_completed: "Completed",
       plan_delete_confirm: "Confirm delete test plan: ",
-
     },
     module: {
       search: "Search module",
@@ -279,7 +282,7 @@ export default {
       select_execute_result: "Select execute result",
       confirm_cancel_relevance: "Confirm cancel relevance",
       select_manipulate: "Select the data you want to manipulate",
-
+    }
   },
   test_resource_pool: {
     'type': 'type',

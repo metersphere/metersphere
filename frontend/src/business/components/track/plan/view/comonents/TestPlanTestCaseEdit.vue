@@ -165,7 +165,7 @@
 </template>
 
 <script>
-  import TestPlanTestCaseStatusButton from '../common/TestPlanTestCaseStatusButton';
+  import TestPlanTestCaseStatusButton from '../../common/TestPlanTestCaseStatusButton';
 
   export default {
     name: "TestPlanTestCaseEdit",

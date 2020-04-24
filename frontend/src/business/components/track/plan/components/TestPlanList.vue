@@ -63,12 +63,7 @@
           <el-table-column
             :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <el-button @click="handleEdit(scope.row)"
-                         @click.stop="deleteVisible = true" type="primary"
-                         icon="el-icon-edit" size="mini" circle/>
-              <el-button @click="handleDelete(scope.row)"
-                         @click.stop="deleteVisible = true" type="danger"
-                         icon="el-icon-delete" size="mini" circle/>
+              <ms-table-operator @editClick="handleEdit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
             </template>
           </el-table-column>
         </el-table>
@@ -85,10 +80,13 @@
   import MsCreateBox from '../../../settings/CreateBox';
   import MsTablePagination from '../../../../components/common/pagination/TablePagination';
   import MsTableHeader from "../../../common/components/MsTableHeader";
+  import MsDialogFooter from "../../../common/components/MsDialogFooter";
+  import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
+  import MsTableOperator from "../../../common/components/MsTableOperator";
 
   export default {
       name: "TestPlanList",
-      components: {MsTableHeader, MsCreateBox, MsTablePagination},
+      components: {MsTableOperator, MsTableOperatorButton, MsDialogFooter, MsTableHeader, MsCreateBox, MsTablePagination},
       data() {
         return {
           result: {},

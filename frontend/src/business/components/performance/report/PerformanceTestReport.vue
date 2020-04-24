@@ -53,6 +53,9 @@
               <el-tag size="mini" type="success" v-else-if="row.status === 'Running'">
                 {{ row.status }}
               </el-tag>
+              <el-tag size="mini" type="warning" v-else-if="row.status === 'Reporting'">
+                {{ row.status }}
+              </el-tag>
               <el-tag size="mini" type="info" v-else-if="row.status === 'Completed'">
                 {{ row.status }}
               </el-tag>

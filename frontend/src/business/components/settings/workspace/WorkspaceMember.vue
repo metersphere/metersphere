@@ -112,7 +112,7 @@
       return {
         result: {},
         form: {},
-        btnTips: "添加工作空间成员",
+        btnTips: this.$t('member.create'),
         createVisible: false,
         updateVisible: false,
         queryPath: "/user/ws/member/list",

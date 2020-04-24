@@ -22,8 +22,9 @@
               :current-project="currentProject"
               :selectNodeIds="selectNodeIds"
               :selectNodeNames="selectNodeNames"
-              @openTestCaseEditDialog="openTestCaseEditDialog"
-              @testCaseEdit="openTestCaseEditDialog"
+              @testCaseEdit="editTestCase"
+              @testCaseCopy="copyTestCase"
+              @testCaseDetail="showTestCaseDetail"
               @refresh="refresh"
               ref="testCaseList">
             </test-case-list>
@@ -32,6 +33,7 @@
 
         <test-case-edit
           @refresh="refresh"
+          :read-only="testCaseReadOnly"
           :tree-nodes="treeNodes"
           ref="testCaseEditDialog">
         </test-case-edit>
@@ -60,7 +62,8 @@
         currentProject: null,
         treeNodes: [],
         selectNodeIds: [],
-        selectNodeNames: []
+        selectNodeNames: [],
+        testCaseReadOnly: true
       }
     },
     mounted() {
@@ -136,7 +139,19 @@
       refreshTable() {
         this.$refs.testCaseList.initTableData();
       },
-      openTestCaseEditDialog(testCase) {
+      editTestCase(testCase) {
+        this.testCaseReadOnly = false;
+        this.$refs.testCaseEditDialog.open(testCase);
+      },
+      copyTestCase(testCase) {
+        this.testCaseReadOnly = false;
+        let item = {};
+        Object.assign(item, testCase);
+        item.name = '';
+        this.$refs.testCaseEditDialog.open(item);
+      },
+      showTestCaseDetail(testCase) {
+        this.testCaseReadOnly = true;
         this.$refs.testCaseEditDialog.open(testCase);
       },
       getProjectByCaseId(caseId) {

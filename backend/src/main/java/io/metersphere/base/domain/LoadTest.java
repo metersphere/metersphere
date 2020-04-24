@@ -11,8 +11,6 @@ public class LoadTest implements Serializable {
 
     private String description;
 
-    private String scenarioDefinition;
-
     private Long createTime;
 
     private Long updateTime;
@@ -53,14 +51,6 @@ public class LoadTest implements Serializable {
 
     public void setDescription(String description) {
         this.description = description == null ? null : description.trim();
-    }
-
-    public String getScenarioDefinition() {
-        return scenarioDefinition;
-    }
-
-    public void setScenarioDefinition(String scenarioDefinition) {
-        this.scenarioDefinition = scenarioDefinition == null ? null : scenarioDefinition.trim();
     }
 
     public Long getCreateTime() {

@@ -19,8 +19,8 @@
 </template>
 
 <script>
-  import TestPlanTestCaseStatusButton from '../common/TestPlanTestCaseStatusButton';
-  import MsDialogFooter from '../../../common/components/MsDialogFooter'
+  import TestPlanTestCaseStatusButton from '../../common/TestPlanTestCaseStatusButton';
+  import MsDialogFooter from '../../../../common/components/MsDialogFooter'
 
     export default {
       name: "statusEdit",

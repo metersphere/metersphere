@@ -23,15 +23,15 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
 
     Set<String> testCaseNames;
 
-    Set<String> userNames;
+    Set<String> userIds;
 
     public TestCaseDataListener(TestCaseService testCaseService, String projectId,
-                                Set<String> testCaseNames, Set<String> userNames, Class<TestCaseExcelData> clazz) {
+                                Set<String> testCaseNames, Set<String> userIds, Class<TestCaseExcelData> clazz) {
         super(clazz);
         this.testCaseService = testCaseService;
         this.projectId = projectId;
         this.testCaseNames = testCaseNames;
-        this.userNames = userNames;
+        this.userIds = userIds;
     }
 
     @Override
@@ -44,7 +44,7 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
         if ( nodePath.trim().contains(" ")) {
             stringBuilder.append("所属模块不能包含空格");
         }
-        if (!userNames.contains(data.getMaintainer())) {
+        if (!userIds.contains(data.getMaintainer())) {
             stringBuilder.append("该工作空间下无该用户：" + data.getMaintainer() + ";");
         }
         if (testCaseNames.contains(data.getName())) {

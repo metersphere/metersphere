@@ -26,7 +26,7 @@ import PerformanceReportView from "../../performance/report/PerformanceReportVie
 import ApiReportView from "../../api/report/ApiReportView";
 import TrackHome from "../../track/home/TrackHome";
 import TestPlan from "../../track/plan/TestPlan";
-import TestPlanView from "../../track/plan/TestPlanView";
+import TestPlanView from "../../track/plan/view/TestPlanView";
 import TestCase from "../../track/case/TestCase";
 import TestTrack from "../../track/TestTrack";
 
