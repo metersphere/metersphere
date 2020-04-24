@@ -1,4 +1,4 @@
-<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
+<template>
 
   <div>
     <el-card v-loading="result.loading">
@@ -73,7 +73,12 @@
         <el-table-column
           :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator @editClick="handleEdit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
+            <ms-table-operator @editClick="handleEdit(scope.row)" @deleteClick="handleDelete(scope.row)">
+              <template v-slot:middle>
+                <ms-table-operator-button :tip="$t('commons.copy')" icon="el-icon-document-copy"
+                                          type="success" @exec="handleCopy(scope.row)"/>
+              </template>
+            </ms-table-operator>
           </template>
         </el-table-column>
       </el-table>
@@ -97,10 +102,12 @@
   import TypeTableItem from "../../common/TableItems/TypeTableItem";
   import MethodTableItem from "../../common/TableItems/MethodTableItem";
   import MsTableOperator from "../../../common/components/MsTableOperator";
+  import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
 
   export default {
     name: "TestCaseList",
     components: {
+      MsTableOperatorButton,
       MsTableOperator,
       MethodTableItem,
       TypeTableItem,
@@ -176,6 +183,9 @@
         },
         handleEdit(testCase) {
           this.$emit('testCaseEdit', testCase);
+        },
+        handleCopy(testCase) {
+          this.$emit('testCaseCopy', testCase);
         },
         handleDelete(testCase) {
           this.$alert(this.$t('test_track.case.delete_confirm') + testCase.name + "？", '', {

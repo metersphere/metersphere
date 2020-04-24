@@ -23,6 +23,7 @@
               :selectNodeIds="selectNodeIds"
               :selectNodeNames="selectNodeNames"
               @testCaseEdit="editTestCase"
+              @testCaseCopy="copyTestCase"
               @testCaseDetail="showTestCaseDetail"
               @refresh="refresh"
               ref="testCaseList">
@@ -141,6 +142,13 @@
       editTestCase(testCase) {
         this.testCaseReadOnly = false;
         this.$refs.testCaseEditDialog.open(testCase);
+      },
+      copyTestCase(testCase) {
+        this.testCaseReadOnly = false;
+        let item = {};
+        Object.assign(item, testCase);
+        item.name = '';
+        this.$refs.testCaseEditDialog.open(item);
       },
       showTestCaseDetail(testCase) {
         this.testCaseReadOnly = true;

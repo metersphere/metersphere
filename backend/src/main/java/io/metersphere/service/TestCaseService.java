@@ -8,6 +8,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.controller.request.testcase.QueryTestCaseRequest;
 import io.metersphere.excel.domain.ExcelErrData;
@@ -16,6 +17,7 @@ import io.metersphere.excel.domain.TestCaseExcelData;
 import io.metersphere.excel.listener.EasyExcelListener;
 import io.metersphere.excel.listener.TestCaseDataListener;
 import io.metersphere.excel.utils.EasyExcelUtil;
+import io.metersphere.i18n.Translator;
 import io.metersphere.user.SessionUser;
 import io.metersphere.user.SessionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -62,6 +64,15 @@ public class TestCaseService {
     UserMapper userMapper;
 
     public void addTestCase(TestCaseWithBLOBs testCase) {
+        testCase.setName(testCase.getName());
+        TestCaseExample testCaseExample = new TestCaseExample();
+        testCaseExample.createCriteria()
+                .andProjectIdEqualTo(testCase.getProjectId())
+                .andNameEqualTo(testCase.getName());
+        List<TestCase> testCases = testCaseMapper.selectByExample(testCaseExample);
+        if (testCases.size() > 0) {
+            MSException.throwException(Translator.get("test_case_exist") + testCase.getName());
+        }
         testCase.setId(UUID.randomUUID().toString());
         testCase.setCreateTime(System.currentTimeMillis());
         testCase.setUpdateTime(System.currentTimeMillis());

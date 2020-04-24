@@ -5,6 +5,7 @@
               placement="bottom"
               :effect="effect">
     <el-button @click="exec()"
+               @click.stop="clickStop"
                circle
                :type="type"
                :icon="icon"
@@ -42,6 +43,9 @@
       methods: {
         exec() {
           this.$emit('click');
+        },
+        clickStop() {
+          this.$emit('clickStop');
         }
       }
     }

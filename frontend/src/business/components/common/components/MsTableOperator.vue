@@ -1,9 +1,10 @@
 <template>
   <span>
-    <ms-table-operator-button icon="el-icon-edit"
-                              :exec="editClick" @click.stop="editClickStop"/>
-    <ms-table-operator-button icon="el-icon-delete" type="danger"
-                              :exec="deleteClick" @click.stop="deleteClickStop"/>
+    <slot name="front"></slot>
+    <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="editClick" @click.stop="editClickStop"/>
+    <slot name="middle"></slot>
+    <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" type="danger" @exec="deleteClick" @click.stop="deleteClickStop"/>
+    <slot name="behind"></slot>
   </span>
 
 </template>

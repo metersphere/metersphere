@@ -2,7 +2,7 @@
 
   <div>
 
-    <el-dialog :title="$t('test_track.case.create')" :visible.sync="dialogFormVisible" width="65%">
+    <el-dialog :title="operationType == 'edit' ? $t('test_track.case.edit_case') : $t('test_track.case.create')" :visible.sync="dialogFormVisible" width="65%">
 
       <el-form :model="form" :rules="rules" ref="caseFrom">
 
@@ -246,6 +246,10 @@
         if(testCase){
           //修改
           this.operationType = 'edit';
+          //复制
+          if (testCase.name === '') {
+            this.operationType = 'add';
+          }
           let tmp = {};
           Object.assign(tmp, testCase);
           tmp.steps = JSON.parse(testCase.steps);
@@ -328,7 +332,6 @@
         }
       },
       resetForm() {
-
         //防止点击修改后，点击新建触发校验
         if (this.$refs['caseFrom']) {
           this.$refs['caseFrom'].validate((valid) => {
