@@ -209,13 +209,6 @@
     margin: 3%;
   }
 
-  .tree-aside {
-    position: relative;
-    border: 1px solid #EBEEF5;
-    box-sizing: border-box;
-    background: white;
-  }
-
   .case-container {
     height: calc(100vh - 150px);
     min-height: 600px;

@@ -122,13 +122,6 @@
     min-height: 600px;
   }
 
-  .tree-aside {
-    position: relative;
-    border: 1px solid #EBEEF5;
-    box-sizing: border-box;
-    background: white;
-  }
-
   .el-main {
     padding: 15px;
   }

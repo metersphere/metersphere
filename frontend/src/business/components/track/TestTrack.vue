@@ -26,6 +26,18 @@
     }
 </script>
 
+
+<style>
+
+  .tree-aside {
+    position: relative;
+    border: 1px solid #EBEEF5;
+    box-sizing: border-box;
+    background: white;
+  }
+</style>
+
 <style scoped>
+
 
 </style>
