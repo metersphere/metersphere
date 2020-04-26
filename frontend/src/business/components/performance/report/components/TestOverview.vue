@@ -305,9 +305,9 @@
         const max = Math.max(...arr);
         return Math.ceil(max / 4.5) * 5;
       },
-      _unique(arr){
-    return Array.from(new Set(arr));
-  }
+      _unique(arr) {
+        return Array.from(new Set(arr));
+      }
     },
     watch: {
       status() {
