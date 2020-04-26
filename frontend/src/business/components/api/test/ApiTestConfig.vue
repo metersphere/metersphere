@@ -75,15 +75,17 @@
       },
       getTest: function (id) {
         this.result = this.$get("/api/get/" + id, response => {
-          let item = response.data;
+          if (response.data) {
+            let item = response.data;
 
-          this.test = new Test({
-            id: item.id,
-            projectId: item.projectId,
-            name: item.name,
-            scenarioDefinition: JSON.parse(item.scenarioDefinition),
-          });
-          this.$refs.config.reset();
+            this.test = new Test({
+              id: item.id,
+              projectId: item.projectId,
+              name: item.name,
+              scenarioDefinition: JSON.parse(item.scenarioDefinition),
+            });
+            this.$refs.config.reset();
+          }
         });
       },
       saveTest: function () {
