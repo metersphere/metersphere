@@ -141,7 +141,7 @@
           showMyTestCase: false,
           tableData: [],
           currentPage: 1,
-          pageSize: 5,
+          pageSize: 10,
           total: 0,
           selectIds: new Set(),
           priorityFilters: [
@@ -198,11 +198,13 @@
               let data = response.data;
               this.total = data.itemCount;
               this.tableData = data.listObject;
+              this.selectIds.clear();
             });
           }
         },
         refresh() {
           this.condition = {};
+          this.selectIds.clear();
           this.$emit('refresh');
         },
         search() {

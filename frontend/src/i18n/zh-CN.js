@@ -276,6 +276,7 @@ export default {
     plan: {
       test_plan: "测试计划",
       create_plan: "创建测试计划",
+      edit_plan: "编辑测试计划",
       plan_name: "计划名称",
       plan_project: "所属项目",
       plan_stage: "测试阶段",

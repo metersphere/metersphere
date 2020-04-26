@@ -91,14 +91,18 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
 
         JSONArray jsonArray = new JSONArray();
 
-        String[] stepDesc = new String[0];
-        String[] stepRes = new String[0];
+        String[] stepDesc = new String[1];
+        String[] stepRes = new String[1];
 
         if (data.getStepDesc() != null) {
             stepDesc = data.getStepDesc().split("\n");
+        } else {
+            stepDesc[0] = "";
         }
         if (data.getStepResult() != null) {
             stepRes = data.getStepResult().split("\n");
+        } else {
+            stepRes[0] = "";
         }
 
         String pattern = "(^\\d+)(\\.)?";

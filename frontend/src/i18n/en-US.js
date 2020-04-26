@@ -233,6 +233,7 @@ export default {
     plan: {
       test_plan: "Test Plan",
       create_plan: "Create test plan",
+      edit_plan: "Edit test plan",
       plan_name: "Test plan name",
       plan_project: "Related project",
       plan_stage: "Testing phase",

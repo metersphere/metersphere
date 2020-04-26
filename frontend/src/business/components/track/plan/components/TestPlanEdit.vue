@@ -2,7 +2,7 @@
 
   <div>
 
-    <el-dialog :title="$t('test_track.plan.create_plan')"
+    <el-dialog :title="operationType == 'edit' ? $t('test_track.plan.edit_plan') : $t('test_track.plan.create_plan')"
                :visible.sync="dialogFormVisible"
                width="65%">
 
@@ -15,7 +15,7 @@
               :label="$t('test_track.plan.plan_name')"
               :label-width="formLabelWidth"
               prop="name">
-              <el-input v-model="form.name"></el-input>
+              <el-input v-model.trim="form.name"></el-input>
             </el-form-item>
           </el-col>
 

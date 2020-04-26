@@ -2,8 +2,6 @@
 
   <div>
 
-    <ms-table-button icon="el-icon-upload2" :content="$t('test_track.case.import.import')" @click="dialogVisible = true"/>
-
     <el-dialog width="30%" :title="$t('test_track.case.import.case_import')" :visible.sync="dialogVisible"
                @close="init">
 
@@ -41,7 +39,6 @@
 
     </el-dialog>
 
-
   </div>
 </template>
 
@@ -67,7 +64,6 @@
       },
       methods: {
         handlePreview(file) {
-          console.log("init");
           this.init();
         },
         handleExceed(files, fileList) {
@@ -109,6 +105,9 @@
         init() {
           this.fileList = [];
           this.errList = [];
+        },
+        open() {
+          this.dialogVisible = true;
         }
       }
     }

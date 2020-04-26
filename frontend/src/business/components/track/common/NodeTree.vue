@@ -44,9 +44,6 @@
 
         </span>
 
-          <!--<span v-if="type == 'view'" class="custom-tree-node" @click="selectNode(node)">-->
-            <!--{{node.label}}$$-->
-          <!--</span>-->
       </template>
     </el-tree>
 
