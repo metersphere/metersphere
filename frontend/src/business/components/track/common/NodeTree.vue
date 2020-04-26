@@ -21,7 +21,7 @@
 
       <template v-slot:default="{node,data}">
 
-        <span class="custom-tree-node father" @click="selectNode(node)">
+        <span class="custom-tree-node father" @click="handleNodeSelect(node)">
 
           <span>{{node.label}}</span>
 
@@ -70,8 +70,7 @@
         defaultProps: {
           children: 'children',
           label: 'label'
-        },
-        // treeNodes: [],
+        }
       };
     },
     props: {
@@ -81,6 +80,9 @@
       },
       treeNodes: {
         type: Array
+      },
+      selectNode: {
+        type: Object
       }
     },
     watch: {
@@ -126,12 +128,13 @@
           }
         });
       },
-      selectNode(node) {
+      handleNodeSelect(node) {
         let nodeIds = [];
         let nodeNames = [];
         this.getChildNodeId(node, nodeIds);
         this.getParentNodeName(node, nodeNames);
         this.$emit("nodeSelectEvent", nodeIds, nodeNames);
+        this.$emit("update:selectNode", node);
       },
       getChildNodeId(rootNode, nodeIds) {
         //递归获取所有子节点ID

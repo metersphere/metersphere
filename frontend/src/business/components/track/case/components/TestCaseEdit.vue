@@ -19,6 +19,7 @@
 
           <el-col :span="11" :offset="2">
             <el-form-item :label="$t('test_track.case.module')" :label-width="formLabelWidth" prop="module">
+
               <el-select
                 v-model="form.module"
                 :disabled="readOnly"
@@ -186,7 +187,7 @@
 
 <script>
 
-  import {CURRENT_PROJECT, WORKSPACE_ID} from '../../../../../common/js/constants';
+  import {CURRENT_PROJECT, WORKSPACE_ID, TokenKey} from '../../../../../common/js/constants';
   import MsDialogFooter from '../../../common/components/MsDialogFooter'
 
 
@@ -236,6 +237,9 @@
       readOnly: {
         type: Boolean,
         default: true
+      },
+      selectNode: {
+        type: Object
       }
     },
     methods: {
@@ -255,6 +259,17 @@
           tmp.steps = JSON.parse(testCase.steps);
           Object.assign(this.form, tmp);
           this.form.module = testCase.nodeId;
+        } else {
+          if (this.selectNode.data) {
+            this.form.module = this.selectNode.data.id;
+          } else {
+            this.form.module = this.moduleOptions[0].id;
+          }
+          let user = JSON.parse(localStorage.getItem(TokenKey));
+          this.form.priority = 'P3';
+          this.form.type = 'functional';
+          this.form.method = 'manual';
+          this.form.maintainer = user.id;
         }
         this.dialogFormVisible = true;
       },

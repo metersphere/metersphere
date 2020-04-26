@@ -14,6 +14,7 @@
                        @refresh="refresh"
                        :tree-nodes="treeNodes"
                        :type="'edit'"
+                       :select-node.sync="selectNode"
                        ref="nodeTree"/>
           </el-aside>
 
@@ -35,6 +36,7 @@
           @refresh="refresh"
           :read-only="testCaseReadOnly"
           :tree-nodes="treeNodes"
+          :select-node="selectNode"
           ref="testCaseEditDialog">
         </test-case-edit>
     </div>
@@ -63,7 +65,8 @@
         treeNodes: [],
         selectNodeIds: [],
         selectNodeNames: [],
-        testCaseReadOnly: true
+        testCaseReadOnly: true,
+        selectNode: {},
       }
     },
     mounted() {
@@ -141,6 +144,7 @@
       },
       editTestCase(testCase) {
         this.testCaseReadOnly = false;
+        console.log(this.selectNode);
         this.$refs.testCaseEditDialog.open(testCase);
       },
       copyTestCase(testCase) {
@@ -162,6 +166,7 @@
       refresh() {
         this.selectNodeIds = [];
         this.selectNodeNames = [];
+        this.selectNode = {};
         this.$refs.testCaseList.initTableData();
         this.getNodeTree();
       },
