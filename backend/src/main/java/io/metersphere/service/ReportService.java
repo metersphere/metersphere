@@ -84,7 +84,7 @@ public class ReportService {
         LoadTestReportResultExample example = new LoadTestReportResultExample();
         example.createCriteria().andReportIdEqualTo(id).andReportKeyEqualTo(reportKey.name());
         List<LoadTestReportResult> loadTestReportResults = loadTestReportResultMapper.selectByExampleWithBLOBs(example);
-        if (loadTestReportResults.size() != 1) {
+        if (loadTestReportResults.size() == 0) {
             MSException.throwException("get report result error.");
         }
         return loadTestReportResults.get(0).getReportValue();
