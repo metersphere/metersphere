@@ -296,10 +296,7 @@
         this.$refs[updateForm].validate(valide => {
           if (valide) {
             this.result = this.$post("/workspace/special/update", this.form, () => {
-              this.$message({
-                type: 'success',
-                message: this.$t('commons.modify_success')
-              });
+              this.$success(this.$t('commons.modify_success'));
               this.updateVisible = false;
               this.list();
             });
@@ -388,17 +385,11 @@
           type: 'warning'
         }).then(() => {
           this.result = this.$get('/user/special/ws/member/delete/' + this.currentWorkspaceRow.id + '/' + row.id, () => {
-            this.$message({
-              type: 'success',
-              message: this.$t('commons.delete_success')
-            });
+            this.$success(this.$t('commons.delete_success'));
             this.cellClick(this.currentWorkspaceRow);
           });
         }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: this.$t('commons.delete_cancel')
-          });
+          this.$info(this.$t('commons.delete_cancel'));
         });
       },
       updateOrgMember() {
@@ -411,10 +402,7 @@
           workspaceId: this.currentWorkspaceRow.id
         }
         this.result = this.$post("/workspace/member/update", param, () => {
-          this.$message({
-            type: 'success',
-            message: this.$t('commons.modify_success')
-          });
+          this.$success(this.$t('commons.modify_success'));
           this.updateMemberVisible = false;
           this.cellClick(this.currentWorkspaceRow);
         });

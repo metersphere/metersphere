@@ -281,10 +281,7 @@
       },
       validConfig() {
         if (!this.resourcePool) {
-          this.$message({
-            message: this.$t('load_test.resource_pool_is_null'),
-            type: 'warning'
-          });
+          this.$warning(this.$t('load_test.resource_pool_is_null'));
           return false;
         }
 

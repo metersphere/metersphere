@@ -319,17 +319,11 @@
           type: 'warning'
         }).then(() => {
           this.result = this.$get(this.deletePath + row.id, () => {
-            this.$message({
-              type: 'success',
-              message: this.$t('commons.delete_success')
-            });
+            this.$success(this.$t('commons.delete_success'));
             this.initTableData()
           });
         }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: this.$t('commons.delete_cancel')
-          });
+          this.$info(this.$t('commons.delete_cancel'));
         });
       },
       delMember(row) {
@@ -339,27 +333,18 @@
           type: 'warning'
         }).then(() => {
           this.result = this.$get('/user/special/org/member/delete/' + this.currentRow.id + '/' + row.id, () => {
-            this.$message({
-              type: 'success',
-              message: this.$t('commons.delete_success')
-            });
+            this.$success(this.$t('commons.delete_success'))
             this.cellClick(this.currentRow);
           });
         }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: this.$t('commons.delete_cancel')
-          });
+          this.$info(this.$t('commons.delete_cancel'));
         });
       },
       createOrganization(createOrganizationForm) {
         this.$refs[createOrganizationForm].validate(valide => {
           if (valide) {
             this.result = this.$post(this.createPath, this.form, () => {
-              this.$message({
-                type: 'success',
-                message: this.$t('commons.save_success')
-              });
+              this.$success(this.$t('commons.save_success'));
               this.initTableData();
               this.createVisible = false;
             });
@@ -372,10 +357,7 @@
         this.$refs[udpateOrganizationForm].validate(valide => {
           if (valide) {
             this.result = this.$post(this.updatePath, this.form, () => {
-              this.$message({
-                type: 'success',
-                message: this.$t('commons.modify_success')
-              });
+              this.$success(this.$t('commons.modify_success'))
               this.updateVisible = false;
               this.initTableData();
             });
@@ -442,10 +424,7 @@
           organizationId: this.currentRow.id
         }
         this.result = this.$post("/organization/member/update", param, () => {
-          this.$message({
-            type: 'success',
-            message: this.$t('commons.modify_success')
-          });
+          this.$success(this.$t('commons.modify_success'))
           this.updateMemberVisible = false;
           this.cellClick(this.currentRow);
         });

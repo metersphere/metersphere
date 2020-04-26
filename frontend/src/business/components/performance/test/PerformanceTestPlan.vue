@@ -167,10 +167,7 @@
         };
 
         this.result = this.$post(this.deletePath, data, () => {
-          this.$message({
-            message: this.$t('commons.delete_success'),
-            type: 'success'
-          });
+          this.$success(this.$t('commons.delete_success'));
           this.initTableData();
         });
       },

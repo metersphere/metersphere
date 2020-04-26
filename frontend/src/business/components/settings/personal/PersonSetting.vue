@@ -113,10 +113,7 @@
         this.$refs[updateUserForm].validate(valide => {
           if (valide) {
             this.result = this.$post(this.updatePath, this.form,response => {
-              this.$message({
-                type: 'success',
-                message: this.$t('commons.modify_success')
-              });
+              this.$success(this.$t('commons.modify_success'));
               localStorage.setItem(TokenKey, JSON.stringify(response.data));
               this.updateVisible = false;
               this.initTableData();

@@ -107,10 +107,7 @@
       create() {
         let workspaceId = this.currentUser.lastWorkspaceId;
         if (!workspaceId) {
-          this.$message({
-            type: 'warning',
-            message: this.$t('project.please_choose_workspace')
-          })
+          this.$warning(this.$t('project.please_choose_workspace'));
           return false;
         }
         this.title = this.$t('project.create');

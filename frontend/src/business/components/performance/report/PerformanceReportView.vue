@@ -132,17 +132,11 @@
         this.status = data.status;
         switch (data.status) {
           case 'Error':
-            this.$message({
-              type: 'warning',
-              message: "报告生成错误,无法查看！"
-            });
+            this.$warning("报告生成错误,无法查看！");
             break;
           case 'Starting':
           case 'Reporting':
-            this.$message({
-              type: 'info',
-              message: "报告生成中...."
-            });
+            this.$info("报告生成中....");
             break;
           case 'Running':
             this.showTestLogging = true;

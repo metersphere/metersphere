@@ -306,23 +306,23 @@
         let counts = this.groupBy(this.domains, 'domain');
         for (let c in counts) {
           if (counts[c] > 1) {
-            this.$message.error(this.$t('load_test.domain_is_duplicate'));
+            this.$error(this.$t('load_test.domain_is_duplicate'));
             return false;
           }
         }
         counts = this.groupBy(this.params, 'name');
         for (let c in counts) {
           if (counts[c] > 1) {
-            this.$message.error(this.$t('load_test.param_is_duplicate'));
+            this.$error(this.$t('load_test.param_is_duplicate'));
             return false;
           }
         }
         if (this.domains.filter(d => !d.domain || !d.ip).length > 0) {
-          this.$message.error(this.$t('load_test.domain_ip_is_empty'));
+          this.$error(this.$t('load_test.domain_ip_is_empty'));
           return false;
         }
         if (this.params.filter(d => !d.name || !d.value).length > 0) {
-          this.$message.error(this.$t('load_test.param_name_value_is_empty'));
+          this.$error(this.$t('load_test.param_name_value_is_empty'));
           return false;
         }
         return true;
