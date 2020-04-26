@@ -96,10 +96,16 @@
         })
         this.$get("/performance/report/content/load_chart/" + this.id, res => {
           let data = res.data;
-          let userList = data.filter(m => m.groupName === "users").map(m => m.yAxis);
-          let hitsList = data.filter(m => m.groupName === "hits").map(m => m.yAxis);
-          let userMax = this._getChartMax(userList);
-          let hitsMax = this._getChartMax(hitsList);
+          let yAxisList = data.filter(m => m.yAxis2 === -1).map(m => m.yAxis);
+          let yAxis2List = data.filter(m => m.yAxis === -1).map(m => m.yAxis2);
+          let yAxisListMax = this._getChartMax(yAxisList);
+          let yAxis2ListMax = this._getChartMax(yAxis2List);
+
+          let yAxisIndex0List = data.filter(m => m.yAxis2 === -1).map(m => m.groupName);
+          yAxisIndex0List = this._unique(yAxisIndex0List);
+          let yAxisIndex1List = data.filter(m => m.yAxis === -1).map(m => m.groupName);
+          yAxisIndex1List = this._unique(yAxisIndex1List);
+
           let loadOption = {
             title: {
               text: 'Load',
@@ -119,17 +125,17 @@
               name: 'User',
               type: 'value',
               min: 0,
-              max: userMax,
+              max: yAxisListMax,
               splitNumber: 5,
-              interval: userMax / 5
+              interval: yAxisListMax / 5
             },
               {
                 name: 'Hits/s',
                 type: 'value',
                 splitNumber: 5,
                 min: 0,
-                max: hitsMax,
-                interval: hitsMax / 5
+                max: yAxis2ListMax,
+                interval: yAxis2ListMax / 5
               }
             ],
             series: []
@@ -152,15 +158,27 @@
               }
             ]
           }
+          yAxisIndex0List.forEach(item => {
+            setting["series"].splice(0, 0, {name: item, yAxisIndex: '0'})
+          })
+
+          yAxisIndex1List.forEach(item => {
+            setting["series"].splice(0, 0, {name: item, yAxisIndex: '1'})
+          })
           this.loadOption = this.generateOption(loadOption, data, setting);
         })
         this.$get("/performance/report/content/res_chart/" + this.id, res => {
           let data = res.data;
-          let userList = data.filter(m => m.groupName === "users").map(m => m.yAxis);
-          let responseTimeList = data.filter(m => m.groupName != "users").map(m => m.yAxis);
-          let responseGroupNameList = data.filter(m => m.groupName != "users").map(m => m.groupName);
-          let userMax = this._getChartMax(userList);
-          let resMax = this._getChartMax(responseTimeList);
+          let yAxisList = data.filter(m => m.yAxis2 === -1).map(m => m.yAxis);
+          let yAxis2List = data.filter(m => m.yAxis === -1).map(m => m.yAxis2);
+          let yAxisListMax = this._getChartMax(yAxisList);
+          let yAxis2ListMax = this._getChartMax(yAxis2List);
+
+          let yAxisIndex0List = data.filter(m => m.yAxis2 === -1).map(m => m.groupName);
+          yAxisIndex0List = this._unique(yAxisIndex0List);
+          let yAxisIndex1List = data.filter(m => m.yAxis === -1).map(m => m.groupName);
+          yAxisIndex1List = this._unique(yAxisIndex1List);
+
           let resOption = {
             title: {
               text: 'Response Time',
@@ -197,15 +215,15 @@
               name: 'User',
               type: 'value',
               min: 0,
-              max: userMax,
-              interval: userMax / 5
+              max: yAxisListMax,
+              interval: yAxisListMax / 5
             },
               {
                 name: 'Response Time',
                 type: 'value',
                 min: 0,
-                max: resMax,
-                interval: resMax / 5
+                max: yAxis2ListMax,
+                interval: yAxis2ListMax / 5
               }
             ],
             series: []
@@ -218,9 +236,15 @@
               }
             ]
           }
-          responseGroupNameList.forEach(item => {
+
+          yAxisIndex0List.forEach(item => {
+            setting["series"].splice(0, 0, {name: item, yAxisIndex: '0'})
+          })
+
+          yAxisIndex1List.forEach(item => {
             setting["series"].splice(0, 0, {name: item, yAxisIndex: '1'})
           })
+
           this.resOption = this.generateOption(resOption, data, setting);
         })
       },
@@ -245,7 +269,11 @@
             legend.push(name)
             series[name] = []
           }
-          series[name].splice(xAxis.indexOf(item.xAxis), 0, [item.xAxis, item.yAxis.toFixed(2)]);
+          if (item.yAxis === -1) {
+            series[name].splice(xAxis.indexOf(item.xAxis), 0, [item.xAxis, item.yAxis2.toFixed(2)]);
+          } else {
+            series[name].splice(xAxis.indexOf(item.xAxis), 0, [item.xAxis, item.yAxis.toFixed(2)]);
+          }
         })
         this.$set(option.legend, "data", legend);
         this.$set(option.legend, "type", "scroll");
@@ -276,7 +304,10 @@
       _getChartMax(arr) {
         const max = Math.max(...arr);
         return Math.ceil(max / 4.5) * 5;
-      }
+      },
+      _unique(arr){
+    return Array.from(new Set(arr));
+  }
     },
     watch: {
       status() {
