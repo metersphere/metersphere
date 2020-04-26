@@ -231,6 +231,7 @@ export default {
     recent_case: "最近的用例",
     case: {
       test_case: "测试用例",
+      move: "移动用例",
       case_list: "用例列表",
       create_case: "创建用例",
       edit_case: "编辑用例",

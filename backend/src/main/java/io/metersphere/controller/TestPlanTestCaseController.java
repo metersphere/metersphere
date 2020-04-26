@@ -2,12 +2,10 @@ package io.metersphere.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.base.domain.TestPlanTestCase;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
-import io.metersphere.controller.request.testcase.QueryTestCaseRequest;
-import io.metersphere.controller.request.testcase.TestCaseBatchRequest;
+import io.metersphere.controller.request.testcase.TestPlanCaseBatchRequest;
 import io.metersphere.controller.request.testplancase.QueryTestPlanCaseRequest;
 import io.metersphere.dto.TestPlanCaseDTO;
 import io.metersphere.service.TestPlanTestCaseService;
@@ -40,7 +38,7 @@ public class TestPlanTestCaseController {
     }
 
     @PostMapping("/batch/edit")
-    public void editTestCaseBath(@RequestBody TestCaseBatchRequest request){
+    public void editTestCaseBath(@RequestBody TestPlanCaseBatchRequest request){
         testPlanTestCaseService.editTestCaseBath(request);
     }
 

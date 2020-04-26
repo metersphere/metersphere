@@ -151,7 +151,7 @@
               Object.assign(param, this.form);
               param.workspaceId = localStorage.getItem(WORKSPACE_ID);
               this.$post('/test/plan/' + this.operationType, param, () => {
-                this.$message.success(this.$t('commons.save_success'));
+                this.$success(this.$t('commons.save_success'));
                 this.dialogFormVisible = false;
                 this.$emit("refresh");
               });
@@ -165,10 +165,7 @@
             if (response.success) {
               this.projects = response.data;
             } else {
-              this.$message()({
-                type: 'warning',
-                message: response.message
-              });
+              this.$warning()(response.message);
             }
           });
         },

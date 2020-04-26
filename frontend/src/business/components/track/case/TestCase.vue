@@ -27,6 +27,7 @@
               @testCaseCopy="copyTestCase"
               @testCaseDetail="showTestCaseDetail"
               @refresh="refresh"
+              @moveToNode="moveToNode"
               ref="testCaseList">
             </test-case-list>
           </el-main>
@@ -39,6 +40,9 @@
           :select-node="selectNode"
           ref="testCaseEditDialog">
         </test-case-edit>
+
+      <test-case-move @refresh="refresh" ref="testCaseMove"/>
+
     </div>
 </template>
 
@@ -49,10 +53,11 @@
   import {CURRENT_PROJECT} from '../../../../common/js/constants';
   import TestCaseList from "./components/TestCaseList";
   import SelectMenu from "../common/SelectMenu";
+  import TestCaseMove from "./components/TestCaseMove";
 
   export default {
     name: "TestCase",
-    components: {TestCaseList, NodeTree, TestCaseEdit, SelectMenu},
+    components: {TestCaseMove, TestCaseList, NodeTree, TestCaseEdit, SelectMenu},
     comments: {},
     data() {
       return {
@@ -144,7 +149,6 @@
       },
       editTestCase(testCase) {
         this.testCaseReadOnly = false;
-        console.log(this.selectNode);
         this.$refs.testCaseEditDialog.open(testCase);
       },
       copyTestCase(testCase) {
@@ -203,6 +207,14 @@
             this.treeNodes = response.data;
           });
         }
+      },
+      moveToNode(selectIds) {
+        if (selectIds.size < 1) {
+          this.$warning(this.$t('test_track.plan_view.select_manipulate'));
+          return;
+        }
+        this.$refs.testCaseEditDialog.getModuleOptions();
+        this.$refs.testCaseMove.open(this.$refs.testCaseEditDialog.moduleOptions, selectIds);
       }
     }
   }

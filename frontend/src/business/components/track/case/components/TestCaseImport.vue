@@ -67,23 +67,17 @@
           this.init();
         },
         handleExceed(files, fileList) {
-          this.$message.warning(this.$t('test_track.case.import.upload_limit_count'));
+          this.$warning(this.$t('test_track.case.import.upload_limit_count'));
         },
         UploadValidate(file) {
           var suffix =file.name.substring(file.name.lastIndexOf('.') + 1);
           if (suffix != 'xls' && suffix != 'xlsx') {
-            this.$message({
-              message: this.$t('test_track.case.import.upload_limit_format'),
-              type: 'warning'
-            });
+            this.$warning(this.$t('test_track.case.import.upload_limit_format'));
             return false;
           }
 
           if (file.size / 1024 / 1024 > 20) {
-            this.$message({
-              message: this.$t('test_track.case.import.upload_limit_size'),
-              type: 'warning'
-            });
+            this.$warning(this.$t('test_track.case.import.upload_limit_size'));
             return false;
           }
           return true;
@@ -91,7 +85,7 @@
         handleSuccess(response) {
           let res = response.data;
           if (res.success) {
-            this.$message.success(this.$t('test_track.case.import.success'));
+            this.$success(this.$t('test_track.case.import.success'));
             this.dialogVisible = false;
             this.$emit("refresh");
           } else {
@@ -100,7 +94,7 @@
           this.fileList = [];
         },
         handleError(err, file, fileList) {
-          this.$message.error(err.message);
+          this.$error(err.message);
         },
         init() {
           this.fileList = [];

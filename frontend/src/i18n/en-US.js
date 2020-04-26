@@ -185,10 +185,11 @@ export default {
     recent_plan: "Recent plan",
     recent_case: "Recent case",
     case: {
-      test_case: "Test Case",
+      test_case: "Test case",
+      move: "Move case",
       case_list: "Test Case List",
       create_case: "Create Case",
-      eitd_case: "Eidt Case",
+      edit_case: "Edit Case",
       no_project: "There is no project in this workspace, please create the project first",
       priority: "Priority",
       type: "Type",

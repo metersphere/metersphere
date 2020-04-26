@@ -65,7 +65,7 @@
               let param = {};
               let url = this.buildParam(param);
               this.$post(url, param, () => {
-                this.$message.success(this.$t('commons.save_success'));
+                this.$success(this.$t('commons.save_success'));
                 this.$emit('refresh');
                 this.close();
               });

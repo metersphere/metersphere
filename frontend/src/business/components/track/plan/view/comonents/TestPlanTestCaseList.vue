@@ -29,7 +29,8 @@
 
         <el-table-column
           prop="name"
-          :label="$t('commons.name')">
+          :label="$t('commons.name')"
+          show-overflow-tooltip>
         </el-table-column>
         <el-table-column
           prop="priority"
@@ -81,7 +82,8 @@
         <el-table-column
           sortable
           prop="updateTime"
-          :label="$t('commons.update_time')">
+          :label="$t('commons.update_time')"
+          show-overflow-tooltip>
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
@@ -230,10 +232,7 @@
           let testCaseId = testCase.id;
           this.$post('/test/plan/case/delete/' + testCaseId, {}, () => {
             this.$emit("refresh");
-            this.$message({
-              message: this.$t('commons.delete_success'),
-              type: 'success'
-            });
+            this.$success(this.$t('commons.delete_success'));
           });
         },
         handleSelectAll(selection) {
@@ -254,7 +253,7 @@
         },
         handleBatch(type){
           if (this.selectIds.size < 1) {
-            this.$message.warning(this.$t('test_track.plan_view.select_manipulate'));
+            this.$warning(this.$t('test_track.plan_view.select_manipulate'));
             return;
           }
           if (type === 'executor'){

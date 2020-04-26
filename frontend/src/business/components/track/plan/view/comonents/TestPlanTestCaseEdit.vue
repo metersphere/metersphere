@@ -216,7 +216,7 @@
             return;
           }
           this.$refs.drawer.closeDrawer();
-          this.$message.success(this.$t('commons.save_success'));
+          this.$success(this.$t('commons.save_success'));
           this.$emit('refresh');
         });
       },

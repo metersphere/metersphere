@@ -48,13 +48,15 @@
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
-            :label="$t('commons.create_time')">
+            :label="$t('commons.create_time')"
+            show-overflow-tooltip>
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
           <el-table-column
-            :label="$t('commons.update_time')">
+            :label="$t('commons.update_time')"
+            show-overflow-tooltip>
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
@@ -142,10 +144,7 @@
           let testPlanId = testPlan.id;
           this.$post('/test/plan/delete/' + testPlanId, {}, () => {
             this.initTableData();
-            this.$message({
-              message: this.$t('commons.delete_success'),
-              type: 'success'
-            });
+            this.$success(this.$t('commons.delete_success'));
           });
         },
         intoPlan(row, event, column) {

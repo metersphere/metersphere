@@ -43,7 +43,7 @@
         saveStatus() {
           let param = {};
           if (this.status === '') {
-            this.$message.warning(this.$t('test_track.plan_view.select_execute_result'));
+            this.$warning(this.$t('test_track.plan_view.select_execute_result'));
             return;
           }
           param.status = this.status;
@@ -51,7 +51,7 @@
           this.$post('/test/plan/case/batch/edit' , param, () => {
             this.selectIds.clear();
             this.status = '';
-            this.$message.success(this.$t('commons.save_success'));
+            this.$success(this.$t('commons.save_success'));
             this.statusEditVisible = false;
             this.$emit('refresh');
           });

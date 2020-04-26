@@ -11,7 +11,7 @@
           </template>
           <template v-slot:button>
             <ms-table-button icon="el-icon-upload2" :content="$t('test_track.case.import.import')" @click="importTestCase"/>
-            <!--<ms-table-button icon="el-icon-right" :content="$t('test_track.case.import.import')" @click="dialogVisible = true"/>-->
+            <ms-table-button icon="el-icon-right" :content="$t('test_track.case.move')" @click="moveToNode"/>
             <!--<test-case-export/>-->
           </template>
         </ms-table-header>
@@ -73,7 +73,8 @@
         <el-table-column
           prop="updateTime"
           sortable
-          :label="$t('commons.update_time')">
+          :label="$t('commons.update_time')"
+          show-overflow-tooltip>
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
@@ -213,10 +214,7 @@
           let testCaseId = testCase.id;
           this.$post('/test/case/delete/' + testCaseId, {}, () => {
             this.initTableData();
-            this.$message({
-              message: this.$t('commons.delete_success'),
-              type: 'success'
-            });
+            this.$success(this.$t('commons.delete_success'));
           });
         },
         refresh() {
@@ -249,6 +247,9 @@
         },
         importTestCase() {
           this.$refs.testCaseImport.open();
+        },
+        moveToNode() {
+          this.$emit('moveToNode', this.selectIds);
         }
       }
     }

@@ -242,6 +242,9 @@
         type: Object
       }
     },
+    mounted() {
+      this.getSelectOptions();
+    },
     methods: {
       open(testCase) {
         this.resetForm();
@@ -309,7 +312,7 @@
               param.projectId = JSON.parse(localStorage.getItem(CURRENT_PROJECT)).id;
             }
             this.$post('/test/case/' + this.operationType, param, () => {
-              this.$message.success(this.$t('commons.save_success'));
+              this.$success(this.$t('commons.save_success'));
               this.dialogFormVisible = false;
               this.$emit("refresh");
             });

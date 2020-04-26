@@ -1,16 +1,17 @@
 package io.metersphere.service;
 
 
-import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.EasyExcelFactory;
-import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.controller.request.testcase.QueryTestCaseRequest;
+import io.metersphere.controller.request.testcase.TestCaseBatchRequest;
+import io.metersphere.controller.request.testcase.TestPlanCaseBatchRequest;
 import io.metersphere.excel.domain.ExcelErrData;
 import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.excel.domain.TestCaseExcelData;
@@ -31,7 +32,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -268,5 +268,17 @@ public class TestCaseService {
 
         list.add(explain);
         return list;
+    }
+
+    public void editTestCaseBath(TestCaseBatchRequest request) {
+        TestCaseExample testCaseExample = new TestCaseExample();
+        testCaseExample.createCriteria().andIdIn(request.getIds());
+
+        TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
+        BeanUtils.copyBean(testCase, request);
+        testCaseMapper.updateByExampleSelective(
+                testCase,
+                testCaseExample);
+
     }
 }

@@ -118,7 +118,7 @@
                 const children = parent.data.children || parent.data;
                 const index = children.findIndex(d => d.id === data.id);
                 children.splice(index, 1);
-                this.$message.success(this.$t('commons.delete_success'));
+                this.$success(this.$t('commons.delete_success'));
                 this.$emit("refresh");
               });
             }

@@ -96,7 +96,7 @@
           param.testCaseIds = [...this.selectIds];
           this.$post('/test/plan/relevance' , param, () => {
             this.selectIds.clear();
-            this.$message.success("保存成功");
+            this.$success("保存成功");
             this.dialogFormVisible = false;
             this.$emit('refresh');
           });

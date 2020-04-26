@@ -56,7 +56,7 @@
           this.$post('/test/plan/case/batch/edit' , param, () => {
             this.executor = '';
             this.selectIds.clear();
-            this.$message.success(this.$t('commons.save_success'));
+            this.$success(this.$t('commons.save_success'));
             this.executorEditVisible = false;
             this.$emit('refresh');
           });
