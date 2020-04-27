@@ -32,6 +32,8 @@
 <script>
   import MsApiScenarioConfig from "./components/ApiScenarioConfig";
   import {Test} from "./model/ScenarioModel"
+  import Jmx from "./model/JMX";
+  import {get, post, scenario} from "./model/test"
 
   export default {
     name: "MsApiTestConfig",
@@ -75,21 +77,23 @@
       },
       getTest: function (id) {
         this.result = this.$get("/api/get/" + id, response => {
-          let item = response.data;
+          if (response.data) {
+            let item = response.data;
 
-          this.test = new Test({
-            id: item.id,
-            projectId: item.projectId,
-            name: item.name,
-            scenarioDefinition: JSON.parse(item.scenarioDefinition),
-          });
-          this.$refs.config.reset();
+            this.test = new Test({
+              id: item.id,
+              projectId: item.projectId,
+              name: item.name,
+              scenarioDefinition: JSON.parse(item.scenarioDefinition),
+            });
+            this.$refs.config.reset();
+          }
         });
       },
       saveTest: function () {
         this.change = false;
 
-        this.result = this.$post("/api/save", this.getParam(), response => {
+        this.result = this.$request(this.getOptions("/api/save"), response => {
           this.test.id = response.data;
           this.$success(this.$t('commons.save_success'));
         });
@@ -97,7 +101,7 @@
       runTest: function () {
         this.change = false;
 
-        this.result = this.$post("/api/run", this.getParam(), response => {
+        this.result = this.$request(this.getOptions("/api/run"), response => {
           this.test.id = response.data;
           this.$success(this.$t('commons.save_success'));
         });
@@ -105,13 +109,32 @@
       cancel: function () {
         this.$router.push('/api/test/list/all');
       },
-      getParam: function () {
-        return {
+      getOptions: function (url) {
+        let formData = new FormData();
+        let request = {
           id: this.test.id,
           projectId: this.test.projectId,
           name: this.test.name,
           scenarioDefinition: JSON.stringify(this.test.scenarioDefinition)
         }
+        let requestJson = JSON.stringify(request);
+
+        formData.append('request', new Blob([requestJson], {
+          type: "application/json"
+        }));
+
+        let jmx = new Jmx(get, "baidu", ["www.baidu.com"]).generate();
+        let blob = new Blob([jmx], {type: "application/octet-stream"});
+        formData.append("files", new File([blob], "baidu.jmx"));
+
+        return {
+          method: 'POST',
+          url: url,
+          data: formData,
+          headers: {
+            'Content-Type': undefined
+          }
+        };
       }
     },
 

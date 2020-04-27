@@ -22,6 +22,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -38,10 +39,6 @@ public class PerformanceTestService {
     private LoadTestMapper loadTestMapper;
     @Resource
     private ExtLoadTestMapper extLoadTestMapper;
-    @Resource
-    private FileMetadataMapper fileMetadataMapper;
-    @Resource
-    private FileContentMapper fileContentMapper;
     @Resource
     private LoadTestFileMapper loadTestFileMapper;
     @Resource
@@ -62,7 +59,19 @@ public class PerformanceTestService {
     public void delete(DeleteTestPlanRequest request) {
         loadTestMapper.deleteByPrimaryKey(request.getId());
 
-        fileService.deleteFileByTestId(request.getId());
+        deleteFileByTestId(request.getId());
+    }
+
+    public void deleteFileByTestId(String testId) {
+        LoadTestFileExample loadTestFileExample = new LoadTestFileExample();
+        loadTestFileExample.createCriteria().andTestIdEqualTo(testId);
+        final List<LoadTestFile> loadTestFiles = loadTestFileMapper.selectByExample(loadTestFileExample);
+        loadTestFileMapper.deleteByExample(loadTestFileExample);
+
+        if (!CollectionUtils.isEmpty(loadTestFiles)) {
+            final List<String> fileIds = loadTestFiles.stream().map(LoadTestFile::getFileId).collect(Collectors.toList());
+            fileService.deleteFileByIds(fileIds);
+        }
     }
 
     public String save(SaveTestPlanRequest request, List<MultipartFile> files) {
@@ -71,7 +80,7 @@ public class PerformanceTestService {
         }
         final LoadTestWithBLOBs loadTest = saveLoadTest(request);
         files.forEach(file -> {
-            final FileMetadata fileMetadata = saveFile(file);
+            final FileMetadata fileMetadata = fileService.saveFile(file);
             LoadTestFile loadTestFile = new LoadTestFile();
             loadTestFile.setTestId(loadTest.getId());
             loadTestFile.setFileId(fileMetadata.getId());
@@ -102,35 +111,6 @@ public class PerformanceTestService {
         return loadTest;
     }
 
-    private FileMetadata saveFile(MultipartFile file) {
-        final FileMetadata fileMetadata = new FileMetadata();
-        fileMetadata.setId(UUID.randomUUID().toString());
-        fileMetadata.setName(file.getOriginalFilename());
-        fileMetadata.setSize(file.getSize());
-        fileMetadata.setCreateTime(System.currentTimeMillis());
-        fileMetadata.setUpdateTime(System.currentTimeMillis());
-        FileType fileType = getFileType(fileMetadata.getName());
-        fileMetadata.setType(fileType.name());
-        fileMetadataMapper.insert(fileMetadata);
-
-        FileContent fileContent = new FileContent();
-        fileContent.setFileId(fileMetadata.getId());
-        try {
-            fileContent.setFile(file.getBytes());
-        } catch (IOException e) {
-            MSException.throwException(e);
-        }
-        fileContentMapper.insert(fileContent);
-
-        return fileMetadata;
-    }
-
-    private FileType getFileType(String filename) {
-        int s = filename.lastIndexOf(".") + 1;
-        String type = filename.substring(s);
-        return FileType.valueOf(type.toUpperCase());
-    }
-
     public String edit(EditTestPlanRequest request, List<MultipartFile> files) {
         //
         LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(request.getId());
@@ -151,7 +131,7 @@ public class PerformanceTestService {
 
         if (files != null) {
             files.forEach(file -> {
-                final FileMetadata fileMetadata = saveFile(file);
+                final FileMetadata fileMetadata = fileService.saveFile(file);
                 LoadTestFile loadTestFile = new LoadTestFile();
                 loadTestFile.setTestId(request.getId());
                 loadTestFile.setFileId(fileMetadata.getId());

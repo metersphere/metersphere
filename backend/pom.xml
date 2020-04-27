@@ -134,6 +134,25 @@
             <version>5.1</version>
         </dependency>
 
+        <!-- jmeter -->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.jmeter</groupId>-->
+<!--            <artifactId>ApacheJMeter_core</artifactId>-->
+<!--            <version>${jmeter.version}</version>-->
+<!--        </dependency>-->
+
+        <dependency>
+            <groupId>org.apache.jmeter</groupId>
+            <artifactId>ApacheJMeter_http</artifactId>
+            <version>${jmeter.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <!-- easyexcel -->
         <dependency>
             <groupId>com.alibaba</groupId>

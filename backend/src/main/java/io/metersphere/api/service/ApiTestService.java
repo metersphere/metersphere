@@ -5,7 +5,8 @@ import io.metersphere.api.dto.DeleteAPITestRequest;
 import io.metersphere.api.dto.QueryAPITestRequest;
 import io.metersphere.api.dto.SaveAPITestRequest;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.ApiTestFileMapper;
+import io.metersphere.base.mapper.ApiTestMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.exception.MSException;
@@ -14,9 +15,12 @@ import io.metersphere.service.FileService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -28,12 +32,6 @@ public class ApiTestService {
     private ApiTestMapper apiTestMapper;
     @Resource
     private ExtApiTestMapper extApiTestMapper;
-    @Resource
-    private ProjectMapper projectMapper;
-    @Resource
-    private FileMetadataMapper fileMetadataMapper;
-    @Resource
-    private FileContentMapper fileContentMapper;
     @Resource
     private ApiTestFileMapper apiTestFileMapper;
     @Resource
@@ -48,13 +46,27 @@ public class ApiTestService {
         return extApiTestMapper.list(request);
     }
 
-    public String save(SaveAPITestRequest request) {
+    public String save(SaveAPITestRequest request, List<MultipartFile> files) {
+        if (files == null) {
+            throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
+        }
+
         final ApiTestWithBLOBs test;
         if (StringUtils.isNotBlank(request.getId())) {
+            // 删除原来的文件
+            deleteFileByTestId(request.getId());
             test = updateTest(request);
         } else {
             test = createTest(request);
         }
+        // 保存新文件
+        files.forEach(file -> {
+            final FileMetadata fileMetadata = fileService.saveFile(file);
+            ApiTestFile apiTestFile = new ApiTestFile();
+            apiTestFile.setTestId(test.getId());
+            apiTestFile.setFileId(fileMetadata.getId());
+            apiTestFileMapper.insert(apiTestFile);
+        });
         return test.getId();
     }
 
@@ -66,8 +78,8 @@ public class ApiTestService {
         apiTestMapper.deleteByPrimaryKey(request.getId());
     }
 
-    public void run(SaveAPITestRequest request) {
-        save(request);
+    public String run(SaveAPITestRequest request, List<MultipartFile> files) {
+        return save(request, files);
     }
 
     private ApiTestWithBLOBs updateTest(SaveAPITestRequest request) {
@@ -99,6 +111,19 @@ public class ApiTestService {
         test.setStatus(APITestStatus.Saved.name());
         apiTestMapper.insert(test);
         return test;
+    }
+
+    public void deleteFileByTestId(String testId) {
+        ApiTestFileExample ApiTestFileExample = new ApiTestFileExample();
+        ApiTestFileExample.createCriteria().andTestIdEqualTo(testId);
+        final List<ApiTestFile> ApiTestFiles = apiTestFileMapper.selectByExample(ApiTestFileExample);
+        apiTestFileMapper.deleteByExample(ApiTestFileExample);
+
+        if (!CollectionUtils.isEmpty(ApiTestFiles)) {
+            final List<String> fileIds = ApiTestFiles.stream().map(ApiTestFile::getFileId).collect(Collectors.toList());
+
+            fileService.deleteFileByIds(fileIds);
+        }
     }
 
 }
