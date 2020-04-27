@@ -87,7 +87,7 @@
 
     <!-- dialog of workspace member -->
     <el-dialog :visible.sync="memberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc">
-      <ms-table-header :condition.sync="dialogCondition" @create="addMember"
+      <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="wsMemberList"
                        :create-tip="dialogBtnTips" :title="$t('commons.member')"/>
       <!-- organization member table -->
       <el-table :data="memberLineData" style="width: 100%;margin-top: 5px;">
@@ -265,10 +265,8 @@
       wsMemberList() {
         let row = this.currentWorkspaceRow;
         this.memberVisible = true;
-        let param = {
-          name: '',
-          workspaceId: row.id
-        };
+        let param = this.dialogCondition;
+        this.$set(param, 'workspaceId', row.id);
         let path = "/user/special/ws/member/list";
         this.result = this.$post(this.buildPagePath(path), param, res => {
           let data = res.data;

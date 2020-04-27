@@ -31,7 +31,7 @@
     </el-card>
     <!-- dialog of organization member -->
     <el-dialog :visible.sync="memberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc">
-      <ms-table-header :condition.sync="dialogCondition" @create="addMember"
+      <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="orgMemberList"
                        :create-tip="dialogBtnTips" :title="$t('commons.member')"/>
       <!-- organization member table -->
       <el-table :data="memberLineData" style="width: 100%;margin-top:5px;">
@@ -294,10 +294,9 @@
       orgMemberList() {
         let row = this.currentRow;
         this.memberVisible = true;
-        let param = {
-          name: '',
-          organizationId: row.id
-        };
+        let param = this.dialogCondition;
+        this.$set(param, 'organizationId', row.id);
+        window.console.log(this.dialogCondition)
         let path = "/user/special/org/member/list";
         this.result = this.$post(path + "/" + this.currentMemberPage + "/" + this.pageMemberSize, param, res => {
           let data = res.data;
