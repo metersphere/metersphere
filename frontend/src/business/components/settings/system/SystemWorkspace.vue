@@ -28,7 +28,7 @@
     </el-card>
 
     <!-- add workspace dialog -->
-    <el-dialog :title="$t('workspace.create')" :visible.sync="createVisible" width="30%">
+    <el-dialog :title="$t('workspace.create')" :visible.sync="dialogWsAddVisible" width="30%">
       <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="100px" size="small">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
@@ -56,7 +56,7 @@
     </el-dialog>
 
     <!-- update workspace dialog -->
-    <el-dialog :title="$t('workspace.update')" :visible.sync="updateVisible" width="30%">
+    <el-dialog :title="$t('workspace.update')" :visible.sync="dialogWsUpdateVisible" width="30%">
       <el-form :model="form" :rules="rules" ref="updateForm" label-position="right" label-width="100px" size="small">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
@@ -86,7 +86,7 @@
     </el-dialog>
 
     <!-- dialog of workspace member -->
-    <el-dialog :visible.sync="memberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc">
+    <el-dialog :visible.sync="dialogWsMemberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc">
       <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="wsMemberList"
                        :create-tip="dialogBtnTips" :title="$t('commons.member')"/>
       <!-- organization member table -->
@@ -110,13 +110,13 @@
           </template>
         </el-table-column>
       </el-table>
-      <ms-table-pagination :change="wsMemberList" :current-page.sync="currentMemberPage"
-                           :page-size.sync="pageMemberSize"
-                           :total="memberTotal"/>
+      <ms-table-pagination :change="wsMemberList" :current-page.sync="dialogCurrentPage"
+                           :page-size.sync="dialogPageSize"
+                           :total="dialogTotal"/>
     </el-dialog>
 
     <!-- add workspace member dialog -->
-    <el-dialog :title="$t('member.create')" :visible.sync="addMemberVisible" width="30%" :destroy-on-close="true"
+    <el-dialog :title="$t('member.create')" :visible.sync="dialogWsMemberAddVisible" width="30%" :destroy-on-close="true"
                @close="closeFunc">
       <el-form :model="memberForm" ref="form" :rules="wsMemberRule" label-position="right" label-width="100px"
                size="small">
@@ -153,7 +153,7 @@
     </el-dialog>
 
     <!-- update workspace member dialog -->
-    <el-dialog :title="$t('member.modify')" :visible.sync="updateMemberVisible" width="30%" :destroy-on-close="true"
+    <el-dialog :title="$t('member.modify')" :visible.sync="dialogWsMemberUpdateVisible" width="30%" :destroy-on-close="true"
                @close="closeFunc">
       <el-form :model="memberForm" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
@@ -206,7 +206,7 @@
     },
     methods: {
       create() {
-        this.createVisible = true;
+        this.dialogWsAddVisible = true;
         this.form = {};
         this.$get("/organization/list", response => {
           this.$set(this.form, "orgList", response.data);
@@ -220,7 +220,7 @@
               saveType = 'update'
             }
             this.result = this.$post("/workspace/" + saveType, this.form, () => {
-              this.createVisible = false;
+              this.dialogWsAddVisible = false;
               this.list();
               Message.success(this.$t('commons.save_success'));
             });
@@ -230,7 +230,7 @@
         });
       },
       addMember() {
-        this.addMemberVisible = true;
+        this.dialogWsMemberAddVisible = true;
         this.memberForm = {};
         this.result = this.$get('/user/list/', response => {
           this.$set(this.memberForm, "userList", response.data);
@@ -242,13 +242,13 @@
       cellClick(row) {
         // 保存当前点击的组织信息到currentRow
         this.currentWorkspaceRow = row;
-        this.memberVisible = true;
+        this.dialogWsMemberVisible = true;
         let param = {
           name: '',
           workspaceId: row.id
         };
         let path = "/user/special/ws/member/list";
-        this.result = this.$post(this.buildPagePath(path), param, res => {
+        this.result = this.$post(path + "/" + this.dialogCurrentPage + "/" + this.dialogPageSize, param, res => {
           let data = res.data;
           this.memberLineData = data.listObject;
           let url = "/userrole/list/ws/" + row.id;
@@ -259,16 +259,16 @@
               this.$set(this.memberLineData[i], "roles", roles);
             })
           }
-          this.memberTotal = data.itemCount;
+          this.dialogTotal = data.itemCount;
         });
       },
       wsMemberList() {
         let row = this.currentWorkspaceRow;
-        this.memberVisible = true;
+        this.dialogWsMemberVisible = true;
         let param = this.dialogCondition;
         this.$set(param, 'workspaceId', row.id);
         let path = "/user/special/ws/member/list";
-        this.result = this.$post(this.buildPagePath(path), param, res => {
+        this.result = this.$post(path + "/" + this.dialogCurrentPage + "/" + this.dialogPageSize, param, res => {
           let data = res.data;
           this.memberLineData = data.listObject;
           let url = "/userrole/list/ws/" + row.id;
@@ -279,11 +279,11 @@
               this.$set(this.memberLineData[i], "roles", roles);
             })
           }
-          this.memberTotal = data.itemCount;
+          this.dialogTotal = data.itemCount;
         });
       },
       edit(row) {
-        this.updateVisible = true;
+        this.dialogWsUpdateVisible = true;
         // copy user
         this.form = Object.assign({}, row);
         this.$get("/organization/list", response => {
@@ -295,7 +295,7 @@
           if (valide) {
             this.result = this.$post("/workspace/special/update", this.form, () => {
               this.$success(this.$t('commons.modify_success'));
-              this.updateVisible = false;
+              this.dialogWsUpdateVisible = false;
               this.list();
             });
           } else {
@@ -346,9 +346,6 @@
           this.total = data.itemCount;
         });
       },
-      buildPagePath(path) {
-        return path + "/" + this.currentMemberPage + "/" + this.pageMemberSize;
-      },
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
@@ -359,7 +356,7 @@
             };
             this.result = this.$post("user/special/ws/member/add", param, () => {
               this.cellClick(this.currentWorkspaceRow);
-              this.addMemberVisible = false;
+              this.dialogWsMemberAddVisible = false;
             })
           } else {
             return false;
@@ -367,7 +364,7 @@
         });
       },
       editMember(row) {
-        this.updateMemberVisible = true;
+        this.dialogWsMemberUpdateVisible = true;
         this.memberForm = row;
         let roleIds = this.memberForm.roles.map(r => r.id);
         this.result = this.$get('/role/list/test', response => {
@@ -401,7 +398,7 @@
         }
         this.result = this.$post("/workspace/member/update", param, () => {
           this.$success(this.$t('commons.modify_success'));
-          this.updateMemberVisible = false;
+          this.dialogWsMemberUpdateVisible = false;
           this.cellClick(this.currentWorkspaceRow);
         });
       },
@@ -409,11 +406,11 @@
     data() {
       return {
         result: {},
-        createVisible: false,
-        updateVisible: false,
-        memberVisible: false,
-        addMemberVisible: false,
-        updateMemberVisible: false,
+        dialogWsAddVisible: false,
+        dialogWsUpdateVisible: false,
+        dialogWsMemberVisible: false,
+        dialogWsMemberAddVisible: false,
+        dialogWsMemberUpdateVisible: false,
         btnTips: this.$t('workspace.create'),
         dialogBtnTips: this.$t('member.create'),
         addTips: this.$t('member.create'),
@@ -423,9 +420,9 @@
         currentPage: 1,
         pageSize: 5,
         total: 0,
-        currentMemberPage: 1,
-        pageMemberSize: 5,
-        memberTotal: 0,
+        dialogCurrentPage: 1,
+        dialogPageSize: 5,
+        dialogTotal: 0,
         memberLineData: [],
         memberForm: {},
         form: {

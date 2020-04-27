@@ -3,7 +3,7 @@
 
     <el-card>
       <template v-slot:header>
-        <ms-table-header :condition.sync="condition" @search="search" @create="create"
+        <ms-table-header :condition.sync="condition" @search="initTableData" @create="create"
                          :create-tip="btnTips" :title="$t('commons.organization')"/>
       </template>
       <!-- system menu organization table-->
@@ -29,8 +29,9 @@
       <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
     </el-card>
+
     <!-- dialog of organization member -->
-    <el-dialog :visible.sync="memberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc">
+    <el-dialog :visible.sync="dialogOrgMemberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc">
       <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="orgMemberList"
                        :create-tip="dialogBtnTips" :title="$t('commons.member')"/>
       <!-- organization member table -->
@@ -54,13 +55,13 @@
           </template>
         </el-table-column>
       </el-table>
-      <ms-table-pagination :change="orgMemberList" :current-page.sync="currentMemberPage"
-                           :page-size.sync="pageMemberSize"
-                           :total="memberTotal"/>
+      <ms-table-pagination :change="orgMemberList" :current-page.sync="dialogCurrentPage"
+                           :page-size.sync="dialogPageSize"
+                           :total="dialogTotal"/>
     </el-dialog>
 
     <!-- add organization form -->
-    <el-dialog :title="$t('organization.create')" :visible.sync="createVisible" width="30%" @closed="closeFunc"
+    <el-dialog :title="$t('organization.create')" :visible.sync="dialogOrgAddVisible" width="30%" @closed="closeFunc"
                :destroy-on-close="true">
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
                ref="createOrganization">
@@ -80,7 +81,8 @@
     </el-dialog>
 
     <!-- update organization form -->
-    <el-dialog :title="$t('organization.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true"
+    <el-dialog :title="$t('organization.modify')" :visible.sync="dialogOrgUpdateVisible" width="30%"
+               :destroy-on-close="true"
                @close="closeFunc">
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
                ref="updateOrganizationForm">
@@ -101,7 +103,8 @@
     </el-dialog>
 
     <!-- add organization member form -->
-    <el-dialog :title="$t('member.create')" :visible.sync="addMemberVisible" width="30%" :destroy-on-close="true"
+    <el-dialog :title="$t('member.create')" :visible.sync="dialogOrgMemberAddVisible" width="30%"
+               :destroy-on-close="true"
                @close="closeFunc">
       <el-form :model="memberForm" ref="form" :rules="orgMemberRule" label-position="right" label-width="100px"
                size="small">
@@ -139,7 +142,8 @@
     </el-dialog>
 
     <!-- update organization member form -->
-    <el-dialog :title="$t('member.modify')" :visible.sync="updateMemberVisible" width="30%" :destroy-on-close="true"
+    <el-dialog :title="$t('member.modify')" :visible.sync="dialogOrgMemberUpdateVisible" width="30%"
+               :destroy-on-close="true"
                @close="closeFunc">
       <el-form :model="memberForm" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
@@ -192,18 +196,18 @@
         createPath: '/organization/add',
         updatePath: '/organization/update',
         result: {},
-        createVisible: false,
-        updateVisible: false,
-        memberVisible: false,
-        addMemberVisible: false,
-        updateMemberVisible: false,
+        dialogOrgAddVisible: false,
+        dialogOrgUpdateVisible: false,
+        dialogOrgMemberVisible: false,
+        dialogOrgMemberAddVisible: false,
+        dialogOrgMemberUpdateVisible: false,
         multipleSelection: [],
         currentPage: 1,
         pageSize: 5,
         total: 0,
-        currentMemberPage: 1,
-        pageMemberSize: 5,
-        memberTotal: 0,
+        dialogCurrentPage: 1,
+        dialogPageSize: 5,
+        dialogTotal: 0,
         currentRow: {},
         btnTips: this.$t('organization.create'),
         dialogBtnTips: this.$t('member.create'),
@@ -243,10 +247,10 @@
     },
     methods: {
       create() {
-        this.createVisible = true;
+        this.dialogOrgAddVisible = true;
       },
       addMember() {
-        this.addMemberVisible = true;
+        this.dialogOrgMemberAddVisible = true;
         this.memberForm = {};
         this.result = this.$get('/user/list/', response => {
           this.$set(this.memberForm, "userList", response.data);
@@ -256,11 +260,11 @@
         })
       },
       edit(row) {
-        this.updateVisible = true;
+        this.dialogOrgUpdateVisible = true;
         this.form = row;
       },
       editMember(row) {
-        this.updateMemberVisible = true;
+        this.dialogOrgMemberUpdateVisible = true;
         this.memberForm = row;
         let roleIds = this.memberForm.roles.map(r => r.id);
         this.result = this.$get('/role/list/org', response => {
@@ -272,13 +276,13 @@
       cellClick(row) {
         // 保存当前点击的组织信息到currentRow
         this.currentRow = row;
-        this.memberVisible = true;
+        this.dialogOrgMemberVisible = true;
         let param = {
           name: '',
           organizationId: row.id
         };
         let path = "/user/special/org/member/list";
-        this.result = this.$post(path + "/" + this.currentMemberPage + "/" + this.pageMemberSize, param, res => {
+        this.result = this.$post(path + "/" + this.dialogCurrentPage + "/" + this.dialogPageSize, param, res => {
           let data = res.data;
           this.memberLineData = data.listObject;
           let url = "/userrole/list/org/" + row.id;
@@ -288,17 +292,16 @@
               this.$set(this.memberLineData[i], "roles", roles);
             })
           }
-          this.memberTotal = data.itemCount;
+          this.dialogTotal = data.itemCount;
         });
       },
       orgMemberList() {
         let row = this.currentRow;
-        this.memberVisible = true;
+        this.dialogOrgMemberVisible = true;
         let param = this.dialogCondition;
         this.$set(param, 'organizationId', row.id);
-        window.console.log(this.dialogCondition)
         let path = "/user/special/org/member/list";
-        this.result = this.$post(path + "/" + this.currentMemberPage + "/" + this.pageMemberSize, param, res => {
+        this.result = this.$post(path + "/" + this.dialogCurrentPage + "/" + this.dialogPageSize, param, res => {
           let data = res.data;
           this.memberLineData = data.listObject;
           let url = "/userrole/list/org/" + row.id;
@@ -308,7 +311,7 @@
               this.$set(this.memberLineData[i], "roles", roles);
             })
           }
-          this.memberTotal = data.itemCount;
+          this.dialogTotal = data.itemCount;
         });
       },
       del(row) {
@@ -345,7 +348,7 @@
             this.result = this.$post(this.createPath, this.form, () => {
               this.$success(this.$t('commons.save_success'));
               this.initTableData();
-              this.createVisible = false;
+              this.dialogOrgAddVisible = false;
             });
           } else {
             return false;
@@ -357,16 +360,13 @@
           if (valide) {
             this.result = this.$post(this.updatePath, this.form, () => {
               this.$success(this.$t('commons.modify_success'))
-              this.updateVisible = false;
+              this.dialogOrgUpdateVisible = false;
               this.initTableData();
             });
           } else {
             return false;
           }
         })
-      },
-      search() {
-        this.initTableData();
       },
       initTableData() {
         this.result = this.$post(this.queryPath + "/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
@@ -406,7 +406,7 @@
             };
             this.result = this.$post("user/special/org/member/add", param, () => {
               this.cellClick(this.currentRow);
-              this.addMemberVisible = false;
+              this.dialogOrgMemberAddVisible = false;
             })
           } else {
             return false;
@@ -424,7 +424,7 @@
         }
         this.result = this.$post("/organization/member/update", param, () => {
           this.$success(this.$t('commons.modify_success'))
-          this.updateMemberVisible = false;
+          this.dialogOrgMemberUpdateVisible = false;
           this.cellClick(this.currentRow);
         });
       },
