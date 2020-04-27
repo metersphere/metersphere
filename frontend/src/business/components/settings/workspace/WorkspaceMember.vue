@@ -175,7 +175,7 @@
         this.initTableData();
       },
       del(row) {
-        this.$confirm('移除该成员, 是否继续?', '提示', {
+        this.$confirm(this.$t('member.delete_confirm'), '', {
           confirmButtonText: this.$t('commons.confirm'),
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
@@ -224,7 +224,7 @@
         };
         let wsId = this.currentUser().lastWorkspaceId;
         if (typeof wsId == "undefined" || wsId == null || wsId == "") {
-          this.$warning("请先选择工作空间!");
+          this.$warning(this.$t('workspace.please_select_a_workspace_first'));
           return false;
         }
         this.$post('/user/org/member/list/all', param, response => {

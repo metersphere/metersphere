@@ -170,27 +170,18 @@
           type: 'warning'
         }).then(() => {
           this.result = this.$get(this.deletePath + row.id, () => {
-            this.$message({
-              type: 'success',
-              message: this.$t('commons.delete_success')
-            });
+            this.$success(this.$t('commons.delete_success'));
             this.search();
           });
         }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: this.$t('commons.delete_cancel')
-          });
+          this.$info(this.$t('commons.delete_cancel'));
         });
       },
       createUser(createUserForm) {
         this.$refs[createUserForm].validate(valide => {
           if (valide) {
             this.result = this.$post(this.createPath, this.form, () => {
-              this.$message({
-                type: 'success',
-                message: this.$t('commons.save_success')
-              });
+              this.$success(this.$t('commons.save_success'));
               this.search();
               this.createVisible = false;
             });
@@ -203,10 +194,7 @@
         this.$refs[updateUserForm].validate(valide => {
           if (valide) {
             this.result = this.$post(this.updatePath, this.form, () => {
-              this.$message({
-                type: 'success',
-                message: this.$t('commons.modify_success')
-              });
+              this.$success(this.$t('commons.modify_success'));
               this.updateVisible = false;
               this.search();
             });
@@ -227,10 +215,7 @@
       },
       changeSwitch(row) {
         this.$post(this.updatePath, row, () => {
-          this.$message({
-            type: 'success',
-            message: this.$t('commons.modify_success')
-          });
+          this.$success(this.$t('commons.modify_success'));
         })
       },
       buildPagePath(path) {

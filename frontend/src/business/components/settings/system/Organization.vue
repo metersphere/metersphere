@@ -32,7 +32,7 @@
 
     <!-- dialog of organization member -->
     <el-dialog :visible.sync="dialogOrgMemberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc">
-      <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="orgMemberList"
+      <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="dialogSearch"
                        :create-tip="dialogBtnTips" :title="$t('commons.member')"/>
       <!-- organization member table -->
       <el-table :data="memberLineData" style="width: 100%;margin-top:5px;">
@@ -55,7 +55,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <ms-table-pagination :change="orgMemberList" :current-page.sync="dialogCurrentPage"
+      <ms-table-pagination :change="dialogSearch" :current-page.sync="dialogCurrentPage"
                            :page-size.sync="dialogPageSize"
                            :total="dialogTotal"/>
     </el-dialog>
@@ -295,7 +295,7 @@
           this.dialogTotal = data.itemCount;
         });
       },
-      orgMemberList() {
+      dialogSearch() {
         let row = this.currentRow;
         this.dialogOrgMemberVisible = true;
         let param = this.dialogCondition;

@@ -60,6 +60,7 @@ export default {
     'search_by_name': 'Search by name',
     'organization_name': 'Organization Name',
     'please_choose_organization': 'Please Choose Organization',
+    'please_select_a_workspace_first': 'Please select a workspace first!',
   },
   organization: {
     'create': 'Create',
