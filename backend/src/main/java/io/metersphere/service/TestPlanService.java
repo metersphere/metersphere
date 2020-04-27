@@ -8,10 +8,12 @@ import io.metersphere.base.mapper.TestPlanTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.controller.request.testcase.QueryTestCaseRequest;
 import io.metersphere.controller.request.testcase.QueryTestPlanRequest;
 import io.metersphere.dto.TestPlanDTO;
+import io.metersphere.i18n.Translator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -62,8 +64,14 @@ public class TestPlanService {
         return testPlanMapper.updateByPrimaryKeySelective(testPlan);
     }
 
-    public int deleteTestPlan(String testPalnId) {
-        return testPlanMapper.deleteByPrimaryKey(testPalnId);
+    public int deleteTestPlan(String testPlanId) {
+        TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
+        testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(testPlanId);
+        List<TestPlanTestCase> testPlanTestCases = testPlanTestCaseMapper.selectByExample(testPlanTestCaseExample);
+        if (testPlanTestCases.size() > 0) {
+            MSException.throwException(Translator.get("before_delete_plan"));
+        }
+        return testPlanMapper.deleteByPrimaryKey(testPlanId);
     }
 
     public List<TestPlanDTO> listTestPlan(QueryTestPlanRequest request) {

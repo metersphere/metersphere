@@ -235,6 +235,7 @@ export default {
       case_list: "用例列表",
       create_case: "创建用例",
       edit_case: "编辑用例",
+      view_case: "查看用例",
       no_project: "该工作空间下无项目，请先创建项目",
       priority: "优先级",
       type: "类型",
@@ -326,6 +327,7 @@ export default {
       change_executor: "更改执行人",
       select_executor: "请选择执行人",
       select_execute_result: "选择执行结果",
+      cancel_relevance: "取消关联",
       confirm_cancel_relevance: "确认取消关联",
       select_manipulate: "请选择需要操作的数据",
     }

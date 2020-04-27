@@ -2,7 +2,7 @@
 
   <div>
 
-    <el-dialog :title="operationType == 'edit' ? $t('test_track.case.edit_case') : $t('test_track.case.create')" :visible.sync="dialogFormVisible" width="65%">
+    <el-dialog :title="operationType == 'edit' ? ( readOnly ? $t('test_track.case.view_case') : $t('test_track.case.edit_case')) : $t('test_track.case.create')" :visible.sync="dialogFormVisible" width="65%">
 
       <el-form :model="form" :rules="rules" ref="caseFrom">
 

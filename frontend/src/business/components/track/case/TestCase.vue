@@ -179,7 +179,8 @@
         this.getProjectByCaseId(caseId);
         this.$get('/test/case/get/' + caseId, response => {
           if (response.data) {
-            this.openTestCaseEditDialog(response.data);
+            this.testCaseReadOnly = false;
+            this.$refs.testCaseEditDialog.open(response.data);
           }
         });
       },

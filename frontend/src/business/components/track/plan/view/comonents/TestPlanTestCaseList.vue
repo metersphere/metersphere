@@ -91,7 +91,9 @@
         <el-table-column
           :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator @editClick="handleEdit(scope.row, scope.$index)" @deleteClick="handleDelete(scope.row)"/>
+            <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="handleEdit(scope.row)" />
+            <ms-table-operator-button :tip="$t('test_track.plan_view.cancel_relevance')" icon="el-icon-unlock" type="danger" @exec="handleDelete(scope.row)"/>
+            <!--<ms-table-operator @editClick="handleEdit(scope.row, scope.$index)" @deleteClick="handleDelete(scope.row)"/>-->
           </template>
         </el-table-column>
       </el-table>
@@ -125,10 +127,12 @@
   import TypeTableItem from "../../../common/tableItems/planview/TypeTableItem";
   import MethodTableItem from "../../../common/tableItems/planview/MethodTableItem";
   import MsTableOperator from "../../../../common/components/MsTableOperator";
+  import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
 
   export default {
       name: "TestPlanTestCaseList",
       components: {
+        MsTableOperatorButton,
         MsTableOperator,
         MethodTableItem,
         TypeTableItem,

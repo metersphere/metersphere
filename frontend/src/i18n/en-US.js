@@ -187,9 +187,10 @@ export default {
     case: {
       test_case: "Test case",
       move: "Move case",
-      case_list: "Test Case List",
-      create_case: "Create Case",
-      edit_case: "Edit Case",
+      case_list: "Test case list",
+      create_case: "Create case",
+      edit_case: "Edit case",
+      view_case: "Test case",
       no_project: "There is no project in this workspace, please create the project first",
       priority: "Priority",
       type: "Type",
@@ -283,6 +284,7 @@ export default {
       change_executor: "Change executor",
       select_executor: "Select executor",
       select_execute_result: "Select execute result",
+      cancel_relevance: "Cancel relevance",
       confirm_cancel_relevance: "Confirm cancel relevance",
       select_manipulate: "Select the data you want to manipulate",
     }
