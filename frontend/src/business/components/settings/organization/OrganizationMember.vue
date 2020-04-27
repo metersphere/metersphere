@@ -246,11 +246,6 @@
 </script>
 
 <style scoped>
-  .table-page {
-    padding-top: 20px;
-    margin-right: -9px;
-    float: right;
-  }
 
   .org-member-name {
     float: left;

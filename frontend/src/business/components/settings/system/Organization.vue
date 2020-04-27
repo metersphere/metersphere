@@ -435,15 +435,6 @@
 </script>
 
 <style scoped>
-  .search {
-    width: 240px;
-  }
-
-  .table-page {
-    padding-top: 20px;
-    margin-right: -9px;
-    float: right;
-  }
 
   .member-size {
     text-decoration: underline;
@@ -464,7 +455,4 @@
     width: 100%;
   }
 
-  .member-title {
-    margin-bottom: 30px;
-  }
 </style>

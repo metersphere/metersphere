@@ -458,22 +458,9 @@
 </script>
 
 <style scoped>
-  .search {
-    width: 240px;
-  }
-
-  .edit {
-    opacity: 0;
-  }
 
   .el-table__row:hover .edit {
     opacity: 1;
-  }
-
-  .table-page {
-    padding-top: 20px;
-    margin-right: -9px;
-    float: right;
   }
 
   .member-size {
@@ -493,10 +480,6 @@
 
   .select-width {
     width: 100%;
-  }
-
-  .member-title {
-    margin-bottom: 30px;
   }
 
 </style>
