@@ -12,18 +12,20 @@
                   {{$t('api_test.scenario.config')}}
                 </span>
               </div>
-              <el-dropdown trigger="click" @command="handleCommand">
-                <span class="el-dropdown-link el-icon-more scenario-btn"/>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item :command="{type:'delete', index:index}">删除场景</el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
+<!--              暂时去掉，将来再-->
+<!--              <el-dropdown trigger="click" @command="handleCommand">-->
+<!--                <span class="el-dropdown-link el-icon-more scenario-btn"/>-->
+<!--                <el-dropdown-menu slot="dropdown">-->
+<!--                  <el-dropdown-item :command="{type:'delete', index:index}">删除场景</el-dropdown-item>-->
+<!--                </el-dropdown-menu>-->
+<!--              </el-dropdown>-->
             </template>
             <ms-api-request-config :requests="scenario.requests" :open="select"/>
           </ms-api-collapse-item>
         </ms-api-collapse>
       </div>
-      <el-button class="scenario-create" type="primary" size="mini" icon="el-icon-plus" plain @click="createScenario"/>
+<!--      暂时去掉，将来再-->
+<!--      <el-button class="scenario-create" type="primary" size="mini" icon="el-icon-plus" plain @click="createScenario"/>-->
     </el-aside>
 
     <el-main class="scenario-main">
