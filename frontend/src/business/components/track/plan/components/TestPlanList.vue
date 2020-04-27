@@ -38,6 +38,7 @@
               <span v-if="scope.row.stage == 'functional'">{{$t('test_track.plan.functional_test')}}</span>
               <span v-if="scope.row.stage == 'integration'">{{$t('test_track.plan.integration_testing')}}</span>
               <span v-if="scope.row.stage == 'system'">{{$t('test_track.plan.system_test')}}</span>
+              <span v-if="scope.row.stage == 'regression'">{{$t('test_track.plan.regression_test')}}</span>
               <span v-if="scope.row.stage == 'version'">{{$t('test_track.plan.version_validation')}}</span>
             </template>
           </el-table-column>
@@ -47,13 +48,15 @@
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
-            :label="$t('commons.create_time')">
+            :label="$t('commons.create_time')"
+            show-overflow-tooltip>
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
           <el-table-column
-            :label="$t('commons.update_time')">
+            :label="$t('commons.update_time')"
+            show-overflow-tooltip>
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
@@ -99,6 +102,13 @@
           tableData: [],
         }
       },
+      watch: {
+        '$route'(to, from) {
+          if (to.path.indexOf("/track/plan/all") >= 0){
+            this.initTableData();
+          }
+        }
+      },
       created() {
         this.projectId = this.$route.params.projectId;
         this.initTableData();
@@ -134,10 +144,7 @@
           let testPlanId = testPlan.id;
           this.$post('/test/plan/delete/' + testPlanId, {}, () => {
             this.initTableData();
-            this.$message({
-              message: this.$t('commons.delete_success'),
-              type: 'success'
-            });
+            this.$success(this.$t('commons.delete_success'));
           });
         },
         intoPlan(row, event, column) {

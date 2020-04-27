@@ -2,7 +2,7 @@
 
   <div>
 
-    <el-dialog :title="operationType == 'edit' ? $t('test_track.case.edit_case') : $t('test_track.case.create')" :visible.sync="dialogFormVisible" width="65%">
+    <el-dialog :title="operationType == 'edit' ? ( readOnly ? $t('test_track.case.view_case') : $t('test_track.case.edit_case')) : $t('test_track.case.create')" :visible.sync="dialogFormVisible" width="65%">
 
       <el-form :model="form" :rules="rules" ref="caseFrom">
 
@@ -13,12 +13,13 @@
               :label="$t('test_track.case.name')"
               :label-width="formLabelWidth"
               prop="name">
-              <el-input :disabled="readOnly" v-model="form.name"></el-input>
+              <el-input :disabled="readOnly" v-model.trim="form.name"></el-input>
             </el-form-item>
           </el-col>
 
           <el-col :span="11" :offset="2">
             <el-form-item :label="$t('test_track.case.module')" :label-width="formLabelWidth" prop="module">
+
               <el-select
                 v-model="form.module"
                 :disabled="readOnly"
@@ -186,7 +187,7 @@
 
 <script>
 
-  import {CURRENT_PROJECT, WORKSPACE_ID} from '../../../../../common/js/constants';
+  import {CURRENT_PROJECT, WORKSPACE_ID, TokenKey} from '../../../../../common/js/constants';
   import MsDialogFooter from '../../../common/components/MsDialogFooter'
 
 
@@ -236,7 +237,13 @@
       readOnly: {
         type: Boolean,
         default: true
+      },
+      selectNode: {
+        type: Object
       }
+    },
+    mounted() {
+      this.getSelectOptions();
     },
     methods: {
       open(testCase) {
@@ -255,6 +262,17 @@
           tmp.steps = JSON.parse(testCase.steps);
           Object.assign(this.form, tmp);
           this.form.module = testCase.nodeId;
+        } else {
+          if (this.selectNode.data) {
+            this.form.module = this.selectNode.data.id;
+          } else {
+            this.form.module = this.moduleOptions[0].id;
+          }
+          let user = JSON.parse(localStorage.getItem(TokenKey));
+          this.form.priority = 'P3';
+          this.form.type = 'functional';
+          this.form.method = 'manual';
+          this.form.maintainer = user.id;
         }
         this.dialogFormVisible = true;
       },
@@ -294,7 +312,7 @@
               param.projectId = JSON.parse(localStorage.getItem(CURRENT_PROJECT)).id;
             }
             this.$post('/test/case/' + this.operationType, param, () => {
-              this.$message.success(this.$t('commons.save_success'));
+              this.$success(this.$t('commons.save_success'));
               this.dialogFormVisible = false;
               this.$emit("refresh");
             });

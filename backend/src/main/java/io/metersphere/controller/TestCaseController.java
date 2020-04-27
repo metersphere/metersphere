@@ -6,6 +6,8 @@ import io.metersphere.base.domain.*;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.testcase.QueryTestCaseRequest;
+import io.metersphere.controller.request.testcase.TestCaseBatchRequest;
+import io.metersphere.controller.request.testcase.TestPlanCaseBatchRequest;
 import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.service.TestCaseService;
 import io.metersphere.user.SessionUtils;
@@ -82,5 +84,9 @@ public class TestCaseController {
         testCaseService.testCaseTemplateExport(response);
     }
 
+    @PostMapping("/batch/edit")
+    public void editTestCaseBath(@RequestBody TestCaseBatchRequest request){
+        testCaseService.editTestCaseBath(request);
+    }
 
 }

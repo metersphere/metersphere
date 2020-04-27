@@ -244,13 +244,5 @@
 </script>
 
 <style scoped>
-  .search {
-    width: 240px;
-  }
 
-  .table-page {
-    padding-top: 20px;
-    margin-right: -9px;
-    float: right;
-  }
 </style>

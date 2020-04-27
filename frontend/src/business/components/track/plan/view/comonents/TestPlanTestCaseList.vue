@@ -29,7 +29,8 @@
 
         <el-table-column
           prop="name"
-          :label="$t('commons.name')">
+          :label="$t('commons.name')"
+          show-overflow-tooltip>
         </el-table-column>
         <el-table-column
           prop="priority"
@@ -81,7 +82,8 @@
         <el-table-column
           sortable
           prop="updateTime"
-          :label="$t('commons.update_time')">
+          :label="$t('commons.update_time')"
+          show-overflow-tooltip>
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
@@ -89,7 +91,9 @@
         <el-table-column
           :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator @editClick="handleEdit(scope.row, scope.$index)" @deleteClick="handleDelete(scope.row)"/>
+            <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="handleEdit(scope.row)" />
+            <ms-table-operator-button :tip="$t('test_track.plan_view.cancel_relevance')" icon="el-icon-unlock" type="danger" @exec="handleDelete(scope.row)"/>
+            <!--<ms-table-operator @editClick="handleEdit(scope.row, scope.$index)" @deleteClick="handleDelete(scope.row)"/>-->
           </template>
         </el-table-column>
       </el-table>
@@ -123,10 +127,12 @@
   import TypeTableItem from "../../../common/tableItems/planview/TypeTableItem";
   import MethodTableItem from "../../../common/tableItems/planview/MethodTableItem";
   import MsTableOperator from "../../../../common/components/MsTableOperator";
+  import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
 
   export default {
       name: "TestPlanTestCaseList",
       components: {
+        MsTableOperatorButton,
         MsTableOperator,
         MethodTableItem,
         TypeTableItem,
@@ -141,7 +147,7 @@
           showMyTestCase: false,
           tableData: [],
           currentPage: 1,
-          pageSize: 5,
+          pageSize: 10,
           total: 0,
           selectIds: new Set(),
           priorityFilters: [
@@ -198,11 +204,13 @@
               let data = response.data;
               this.total = data.itemCount;
               this.tableData = data.listObject;
+              this.selectIds.clear();
             });
           }
         },
         refresh() {
           this.condition = {};
+          this.selectIds.clear();
           this.$emit('refresh');
         },
         search() {
@@ -228,10 +236,7 @@
           let testCaseId = testCase.id;
           this.$post('/test/plan/case/delete/' + testCaseId, {}, () => {
             this.$emit("refresh");
-            this.$message({
-              message: this.$t('commons.delete_success'),
-              type: 'success'
-            });
+            this.$success(this.$t('commons.delete_success'));
           });
         },
         handleSelectAll(selection) {
@@ -252,7 +257,7 @@
         },
         handleBatch(type){
           if (this.selectIds.size < 1) {
-            this.$message.warning(this.$t('test_track.plan_view.select_manipulate'));
+            this.$warning(this.$t('test_track.plan_view.select_manipulate'));
             return;
           }
           if (type === 'executor'){

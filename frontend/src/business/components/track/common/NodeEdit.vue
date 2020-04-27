@@ -1,17 +1,18 @@
 <template>
 
-  <el-dialog :title="$t('test_track.module.add_module')"
+  <el-dialog :title="type == 'edit' ? $t('test_track.module.rename') : $t('test_track.module.add_module')"
              :visible.sync="dialogFormVisible"
+             :before-close="close"
              width="30%">
 
     <el-row type="flex" justify="center">
       <el-col :span="18">
-        <el-form :model="form" :rules="rules">
+        <el-form :model="form" :rules="rules" ref="nodeForm">
           <el-form-item
             :label="$t('test_track.module.name')"
             :label-width="formLabelWidth"
             prop="name">
-            <el-input v-model="form.name" autocomplete="off"></el-input>
+            <el-input v-model.trim="form.name" autocomplete="off"></el-input>
           </el-form-item>
         </el-form>
       </el-col>
@@ -19,7 +20,7 @@
 
     <template v-slot:footer>
       <ms-dialog-footer
-        @cancel="dialogFormVisible = false"
+        @cancel="close"
         @confirm="saveNode"/>
     </template>
 
@@ -59,12 +60,18 @@
           this.dialogFormVisible = true;
         },
         saveNode() {
-          let param = {};
-          let url = this.buildParam(param);
-          this.$post(url, param, () => {
-            this.$message.success(this.$t('commons.save_success'));
-            this.$emit('refresh');
-            this.close();
+          this.$refs['nodeForm'].validate((valid) => {
+            if (valid) {
+              let param = {};
+              let url = this.buildParam(param);
+              this.$post(url, param, () => {
+                this.$success(this.$t('commons.save_success'));
+                this.$emit('refresh');
+                this.close();
+              });
+            } else {
+              return false;
+            }
           });
         },
         buildParam(param, ) {

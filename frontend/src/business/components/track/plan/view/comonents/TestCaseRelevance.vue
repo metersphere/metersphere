@@ -8,7 +8,7 @@
                width="50%">
 
       <el-container class="main-content">
-        <el-aside class="node-tree" width="250px">
+        <el-aside class="tree-aside" width="250px">
           <node-tree class="node-tree"
                      @nodeSelectEvent="nodeChange"
                      @refresh="refresh"
@@ -18,7 +18,7 @@
 
         <el-container>
           <el-main class="case-content" v-loading="result.loading">
-            <el-scrollbar style="height:100%">
+            <el-scrollbar>
                 <el-table
                   :data="testCases"
                   row-key="id"
@@ -96,7 +96,7 @@
           param.testCaseIds = [...this.selectIds];
           this.$post('/test/plan/relevance' , param, () => {
             this.selectIds.clear();
-            this.$message.success("保存成功");
+            this.$success("保存成功");
             this.dialogFormVisible = false;
             this.$emit('refresh');
           });
@@ -185,11 +185,17 @@
   }
 
   .case-content {
-    height: 100%;
+    height: 500px;
+    /*border: 1px solid #EBEEF5;*/
   }
 
   .main-content {
     min-height: 300px;
+    /*border: 1px solid #EBEEF5;*/
+  }
+
+  .el-scrollbar {
+    height: 100%;
   }
 
 </style>

@@ -14,6 +14,7 @@
                        @refresh="refresh"
                        :tree-nodes="treeNodes"
                        :type="'edit'"
+                       :select-node.sync="selectNode"
                        ref="nodeTree"/>
           </el-aside>
 
@@ -26,6 +27,7 @@
               @testCaseCopy="copyTestCase"
               @testCaseDetail="showTestCaseDetail"
               @refresh="refresh"
+              @moveToNode="moveToNode"
               ref="testCaseList">
             </test-case-list>
           </el-main>
@@ -35,8 +37,12 @@
           @refresh="refresh"
           :read-only="testCaseReadOnly"
           :tree-nodes="treeNodes"
+          :select-node="selectNode"
           ref="testCaseEditDialog">
         </test-case-edit>
+
+      <test-case-move @refresh="refresh" ref="testCaseMove"/>
+
     </div>
 </template>
 
@@ -47,10 +53,11 @@
   import {CURRENT_PROJECT} from '../../../../common/js/constants';
   import TestCaseList from "./components/TestCaseList";
   import SelectMenu from "../common/SelectMenu";
+  import TestCaseMove from "./components/TestCaseMove";
 
   export default {
     name: "TestCase",
-    components: {TestCaseList, NodeTree, TestCaseEdit, SelectMenu},
+    components: {TestCaseMove, TestCaseList, NodeTree, TestCaseEdit, SelectMenu},
     comments: {},
     data() {
       return {
@@ -63,7 +70,8 @@
         treeNodes: [],
         selectNodeIds: [],
         selectNodeNames: [],
-        testCaseReadOnly: true
+        testCaseReadOnly: true,
+        selectNode: {},
       }
     },
     mounted() {
@@ -162,6 +170,7 @@
       refresh() {
         this.selectNodeIds = [];
         this.selectNodeNames = [];
+        this.selectNode = {};
         this.$refs.testCaseList.initTableData();
         this.getNodeTree();
       },
@@ -170,7 +179,8 @@
         this.getProjectByCaseId(caseId);
         this.$get('/test/case/get/' + caseId, response => {
           if (response.data) {
-            this.openTestCaseEditDialog(response.data);
+            this.testCaseReadOnly = false;
+            this.$refs.testCaseEditDialog.open(response.data);
           }
         });
       },
@@ -198,6 +208,14 @@
             this.treeNodes = response.data;
           });
         }
+      },
+      moveToNode(selectIds) {
+        if (selectIds.size < 1) {
+          this.$warning(this.$t('test_track.plan_view.select_manipulate'));
+          return;
+        }
+        this.$refs.testCaseEditDialog.getModuleOptions();
+        this.$refs.testCaseMove.open(this.$refs.testCaseEditDialog.moduleOptions, selectIds);
       }
     }
   }
@@ -207,13 +225,6 @@
 
   .node-tree {
     margin: 3%;
-  }
-
-  .tree-aside {
-    position: relative;
-    border: 1px solid #EBEEF5;
-    box-sizing: border-box;
-    background: white;
   }
 
   .case-container {

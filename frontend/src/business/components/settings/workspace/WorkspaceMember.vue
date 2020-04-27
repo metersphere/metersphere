@@ -255,18 +255,9 @@
 </script>
 
 <style scoped>
-  .search {
-    width: 240px;
-  }
 
   .el-table__row:hover .edit {
     opacity: 1;
-  }
-
-  .table-page {
-    padding-top: 20px;
-    margin-right: -9px;
-    float: right;
   }
 
   .select-width {

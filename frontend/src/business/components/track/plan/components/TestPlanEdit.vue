@@ -2,7 +2,7 @@
 
   <div>
 
-    <el-dialog :title="$t('test_track.plan.create_plan')"
+    <el-dialog :title="operationType == 'edit' ? $t('test_track.plan.edit_plan') : $t('test_track.plan.create_plan')"
                :visible.sync="dialogFormVisible"
                width="65%">
 
@@ -15,7 +15,7 @@
               :label="$t('test_track.plan.plan_name')"
               :label-width="formLabelWidth"
               prop="name">
-              <el-input v-model="form.name"></el-input>
+              <el-input v-model.trim="form.name"></el-input>
             </el-form-item>
           </el-col>
 
@@ -54,10 +54,11 @@
             <el-form-item :label="$t('test_track.plan.plan_stage')" :label-width="formLabelWidth" prop="stage">
               <el-select v-model="form.stage" clearable :placeholder="$t('test_track.plan.input_plan_stage')">
                 <el-option :label="$t('test_track.plan.smoke_test')" value="smoke"></el-option>
-                <el-option :label="$t('test_track.plan.functional_test')" value="functional"></el-option>
-                <el-option :label="$t('test_track.plan.integration_testing')" value="integration"></el-option>
+                <!--<el-option :label="$t('test_track.plan.functional_test')" value="functional"></el-option>-->
+                <!--<el-option :label="$t('test_track.plan.integration_testing')" value="integration"></el-option>-->
                 <el-option :label="$t('test_track.plan.system_test')" value="system"></el-option>
-                <el-option :label="$t('test_track.plan.version_validation')" value="version"></el-option>
+                <el-option :label="$t('test_track.plan.regression_test')" value="regression"></el-option>
+                <!--<el-option :label="$t('test_track.plan.version_validation')" value="version"></el-option>-->
               </el-select>
             </el-form-item>
           </el-col>
@@ -150,7 +151,7 @@
               Object.assign(param, this.form);
               param.workspaceId = localStorage.getItem(WORKSPACE_ID);
               this.$post('/test/plan/' + this.operationType, param, () => {
-                this.$message.success(this.$t('commons.save_success'));
+                this.$success(this.$t('commons.save_success'));
                 this.dialogFormVisible = false;
                 this.$emit("refresh");
               });
@@ -164,10 +165,7 @@
             if (response.success) {
               this.projects = response.data;
             } else {
-              this.$message()({
-                type: 'warning',
-                message: response.message
-              });
+              this.$warning()(response.message);
             }
           });
         },

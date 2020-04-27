@@ -422,19 +422,6 @@
 </script>
 
 <style scoped>
-  .search {
-    width: 240px;
-  }
-
-  .form-input {
-    height: 32px !important;
-  }
-
-  .table-page {
-    padding-top: 20px;
-    margin-right: -9px;
-    float: right;
-  }
 
   .op {
     float: left;

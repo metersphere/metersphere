@@ -10,17 +10,25 @@
             <node-breadcrumb class="table-title" :node-names="selectNodeNames" @refresh="refresh"/>
           </template>
           <template v-slot:button>
-            <test-case-import :projectId="currentProject == null? null : currentProject.id" @refresh="refresh"/>
+            <ms-table-button icon="el-icon-upload2" :content="$t('test_track.case.import.import')" @click="importTestCase"/>
+            <ms-table-button icon="el-icon-right" :content="$t('test_track.case.move')" @click="moveToNode"/>
             <!--<test-case-export/>-->
           </template>
         </ms-table-header>
 
       </template>
 
+      <test-case-import :projectId="currentProject == null? null : currentProject.id" @refresh="refresh" ref="testCaseImport"/>
+
       <el-table
         :data="tableData"
+        @select-all="handleSelectAll"
+        @select="handleSelectionChange"
         @row-click="showDetail"
+        row-key="id"
         class="test-content">
+        <el-table-column
+          type="selection"/>
         <el-table-column
           prop="name"
           :label="$t('commons.name')"
@@ -65,7 +73,8 @@
         <el-table-column
           prop="updateTime"
           sortable
-          :label="$t('commons.update_time')">
+          :label="$t('commons.update_time')"
+          show-overflow-tooltip>
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
@@ -103,10 +112,12 @@
   import MethodTableItem from "../../common/tableItems/planview/MethodTableItem";
   import MsTableOperator from "../../../common/components/MsTableOperator";
   import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
+  import MsTableButton from "../../../common/components/MsTableButton";
 
   export default {
     name: "TestCaseList",
     components: {
+      MsTableButton,
       MsTableOperatorButton,
       MsTableOperator,
       MethodTableItem,
@@ -120,8 +131,9 @@
           condition: {},
           tableData: [],
           currentPage: 1,
-          pageSize: 5,
+          pageSize: 10,
           total: 0,
+          selectIds: new Set(),
           priorityFilters: [
             {text: 'P0', value: 'P0'},
             {text: 'P1', value: 'P1'},
@@ -169,6 +181,7 @@
               let data = response.data;
               this.total = data.itemCount;
               this.tableData = data.listObject;
+              this.selectIds.clear();
             });
           }
         },
@@ -201,14 +214,12 @@
           let testCaseId = testCase.id;
           this.$post('/test/case/delete/' + testCaseId, {}, () => {
             this.initTableData();
-            this.$message({
-              message: this.$t('commons.delete_success'),
-              type: 'success'
-            });
+            this.$success(this.$t('commons.delete_success'));
           });
         },
         refresh() {
           this.condition = {};
+          this.selectIds.clear();
           this.$emit('refresh');
         },
         filter(value, row, column) {
@@ -217,6 +228,28 @@
         },
         showDetail(row, event, column) {
           this.$emit('testCaseDetail', row);
+        },
+        handleSelectAll(selection) {
+          if(selection.length > 0) {
+            this.tableData.forEach(item => {
+              this.selectIds.add(item.id);
+            });
+          } else {
+            this.selectIds.clear();
+          }
+        },
+        handleSelectionChange(selection, row) {
+          if(this.selectIds.has(row.id)){
+            this.selectIds.delete(row.id);
+          } else {
+            this.selectIds.add(row.id);
+          }
+        },
+        importTestCase() {
+          this.$refs.testCaseImport.open();
+        },
+        moveToNode() {
+          this.$emit('moveToNode', this.selectIds);
         }
       }
     }

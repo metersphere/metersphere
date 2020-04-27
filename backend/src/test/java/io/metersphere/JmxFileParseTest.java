@@ -1,7 +1,6 @@
 package io.metersphere;
 
 import io.metersphere.config.KafkaProperties;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +22,6 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -80,8 +78,8 @@ public class JmxFileParseTest {
         TransformerFactory tf = TransformerFactory.newInstance();
         Transformer transformer = tf.newTransformer();
         transformer.transform(domSource, result);
-//        System.out.println("XML IN String format is: \n" + writer.toString());
-        FileUtils.writeStringToFile(new File("/tmp/test-jmeter.jmx"), writer.toString(), StandardCharsets.UTF_8);
+        System.out.println("XML IN String format is: \n" + writer.toString());
+//        FileUtils.writeStringToFile(new File("/tmp/test-jmeter.jmx"), writer.toString(), StandardCharsets.UTF_8);
     }
 
     private void parseHashTree(Element hashTree) {

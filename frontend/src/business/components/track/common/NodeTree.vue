@@ -21,7 +21,7 @@
 
       <template v-slot:default="{node,data}">
 
-        <span class="custom-tree-node father" @click="selectNode(node)">
+        <span class="custom-tree-node father" @click="handleNodeSelect(node)">
 
           <span>{{node.label}}</span>
 
@@ -44,9 +44,6 @@
 
         </span>
 
-          <!--<span v-if="type == 'view'" class="custom-tree-node" @click="selectNode(node)">-->
-            <!--{{node.label}}$$-->
-          <!--</span>-->
       </template>
     </el-tree>
 
@@ -70,8 +67,7 @@
         defaultProps: {
           children: 'children',
           label: 'label'
-        },
-        // treeNodes: [],
+        }
       };
     },
     props: {
@@ -81,6 +77,9 @@
       },
       treeNodes: {
         type: Array
+      },
+      selectNode: {
+        type: Object
       }
     },
     watch: {
@@ -119,19 +118,20 @@
                 const children = parent.data.children || parent.data;
                 const index = children.findIndex(d => d.id === data.id);
                 children.splice(index, 1);
-                this.$message.success(this.$t('commons.delete_success'));
+                this.$success(this.$t('commons.delete_success'));
                 this.$emit("refresh");
               });
             }
           }
         });
       },
-      selectNode(node) {
+      handleNodeSelect(node) {
         let nodeIds = [];
         let nodeNames = [];
         this.getChildNodeId(node, nodeIds);
         this.getParentNodeName(node, nodeNames);
         this.$emit("nodeSelectEvent", nodeIds, nodeNames);
+        this.$emit("update:selectNode", node);
       },
       getChildNodeId(rootNode, nodeIds) {
         //递归获取所有子节点ID
