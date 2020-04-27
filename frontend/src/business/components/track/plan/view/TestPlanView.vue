@@ -1,6 +1,6 @@
 <template>
   <div class="main-content">
-    <el-container class="view-container">
+    <el-container class="case-container">
       <el-aside class="tree-aside">
         <select-menu
           :data="testPlans"
@@ -111,16 +111,6 @@
 </script>
 
 <style scoped>
-
-
-  .node-tree {
-    margin: 3%;
-  }
-
-  .view-container {
-    height: calc(100vh - 150px);
-    min-height: 600px;
-  }
 
   .el-main {
     padding: 15px;
