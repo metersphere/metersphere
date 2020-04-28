@@ -67,9 +67,15 @@
                     :list="previews"
                     group="people"
                     @change="log">
-                    <el-button class="template-component" v-for="item in previews" :key="item.id">
-                      {{ item.name }}
-                    </el-button>
+                    <el-card class="template-component" v-for="item in previews" :key="item.id">
+
+                      <template v-slot:header>
+                        {{item.name}}
+                      </template>
+
+                      <ckeditor :editor="editor" v-model="editorData" :config="editorConfig"></ckeditor>
+
+                    </el-card>
                   </draggable>
 
 
@@ -92,6 +98,7 @@
 <script>
 
   import draggable from 'vuedraggable';
+  import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
   let idGlobal = 8;
     export default {
@@ -116,7 +123,13 @@
             { name: "cat 5", id: 5 },
             { name: "cat 6", id: 6 },
             { name: "cat 7", id: 7 }
-          ]
+          ],
+
+          editor: ClassicEditor,
+          editorData: '<p>Content of the editor.</p>',
+          editorConfig: {
+            // The configuration of the editor.
+          }
 
         }
       },
@@ -212,11 +225,9 @@
     margin-bottom: 5px;
   }
 
-  .preview-group > .el-button {
-    display: block;
-    margin: 10px auto;
-    height: 300px;
-    width: 80%;
+  .el-card {
+    margin: 5px auto;
+    min-height: 300px;
   }
 
   .description > span {
