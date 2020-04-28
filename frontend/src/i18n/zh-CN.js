@@ -62,6 +62,7 @@ export default {
     'search_by_name': '根据名称搜索',
     'organization_name': '所属组织',
     'please_choose_organization': '请选择组织',
+    'please_select_a_workspace_first': '请先选择工作空间！',
   },
   organization: {
     'create': '创建组织',
