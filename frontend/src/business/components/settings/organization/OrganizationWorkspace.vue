@@ -2,7 +2,7 @@
   <div>
     <el-card v-loading="result.loading">
       <template v-slot:header>
-        <ms-table-header :condition.sync="condition" @search="search" @create="create"
+        <ms-table-header :condition.sync="condition" @search="list" @create="create"
                          :create-tip="btnTips" :title="$t('commons.workspace')"/>
       </template>
       <el-table :data="items" style="width: 100%">
@@ -202,15 +202,12 @@
           type: 'warning'
         }).then(() => {
           this.$get('/workspace/delete/' + row.id, () => {
-            Message.success(this.$t('commons.delete_success'));
+            this.$success(this.$t('commons.delete_success'));
             this.list();
           });
         }).catch(() => {
 
         });
-      },
-      search() {
-        this.list();
       },
       list() {
         let url = '/workspace/list/' + this.currentPage + '/' + this.pageSize;

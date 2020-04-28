@@ -220,7 +220,7 @@
         rule: {
           name: [
             {required: true, message: this.$t('organization.input_name'), trigger: 'blur'},
-            {min: 2, max: 10, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'},
+            {min: 2, max: 50, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'},
             {
               required: true,
               pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/,
@@ -322,7 +322,7 @@
         }).then(() => {
           this.result = this.$get(this.deletePath + row.id, () => {
             this.$success(this.$t('commons.delete_success'));
-            this.initTableData()
+            this.initTableData();
           });
         }).catch(() => {
           this.$info(this.$t('commons.delete_cancel'));
@@ -343,8 +343,8 @@
         });
       },
       createOrganization(createOrganizationForm) {
-        this.$refs[createOrganizationForm].validate(valide => {
-          if (valide) {
+        this.$refs[createOrganizationForm].validate(valid => {
+          if (valid) {
             this.result = this.$post(this.createPath, this.form, () => {
               this.$success(this.$t('commons.save_success'));
               this.initTableData();
@@ -355,11 +355,11 @@
           }
         })
       },
-      updateOrganization(udpateOrganizationForm) {
-        this.$refs[udpateOrganizationForm].validate(valide => {
-          if (valide) {
+      updateOrganization(updateOrganizationForm) {
+        this.$refs[updateOrganizationForm].validate(valid => {
+          if (valid) {
             this.result = this.$post(this.updatePath, this.form, () => {
-              this.$success(this.$t('commons.modify_success'))
+              this.$success(this.$t('commons.modify_success'));
               this.dialogOrgUpdateVisible = false;
               this.initTableData();
             });
@@ -423,7 +423,7 @@
           organizationId: this.currentRow.id
         }
         this.result = this.$post("/organization/member/update", param, () => {
-          this.$success(this.$t('commons.modify_success'))
+          this.$success(this.$t('commons.modify_success'));
           this.dialogOrgMemberUpdateVisible = false;
           this.cellClick(this.currentRow);
         });

@@ -2,7 +2,7 @@
   <div>
     <el-card v-loading="result.loading">
       <template v-slot:header>
-        <ms-table-header :condition.sync="condition" @search="search" @create="create"
+        <ms-table-header :condition.sync="condition" @search="list" @create="create"
                          :create-tip="btnTips" :title="$t('commons.workspace')"/>
       </template>
       <!-- workspace table -->
@@ -322,9 +322,6 @@
       },
       closeMemberFunc() {
         this.memberLineData = [];
-        this.list();
-      },
-      search() {
         this.list();
       },
       list() {

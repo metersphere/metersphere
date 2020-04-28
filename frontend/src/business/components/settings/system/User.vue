@@ -178,8 +178,8 @@
         });
       },
       createUser(createUserForm) {
-        this.$refs[createUserForm].validate(valide => {
-          if (valide) {
+        this.$refs[createUserForm].validate(valid => {
+          if (valid) {
             this.result = this.$post(this.createPath, this.form, () => {
               this.$success(this.$t('commons.save_success'));
               this.search();
@@ -191,8 +191,8 @@
         })
       },
       updateUser(updateUserForm) {
-        this.$refs[updateUserForm].validate(valide => {
-          if (valide) {
+        this.$refs[updateUserForm].validate(valid => {
+          if (valid) {
             this.result = this.$post(this.updatePath, this.form, () => {
               this.$success(this.$t('commons.modify_success'));
               this.updateVisible = false;
