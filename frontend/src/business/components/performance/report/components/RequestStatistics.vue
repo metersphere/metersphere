@@ -5,7 +5,8 @@
       stripe
       border
       style="width: 100%"
-      :default-sort = "{prop: 'samples', order: 'descending'}"
+      show-summary
+      :summary-method="getSummaries"
     >
       <el-table-column label="Requests" fixed width="450" align="center">
         <el-table-column
@@ -103,6 +104,54 @@
           this.tableData = res.data;
         })
       },
+      getSummaries(param) {
+        const {data} = param;
+        const sums = []
+        let allSamples = data.reduce(function (total, currentValue) {
+          return total + parseFloat(currentValue.samples);
+        }, 0);
+        let failSize = data.reduce(function (total, currentValue) {
+          return total + parseFloat(currentValue.ko);
+        }, 0);
+        let averageTimeTotal = data.reduce(function (total, currentValue) {
+          return total + parseFloat(currentValue.average) * parseFloat(currentValue.samples);
+        }, 0);
+        let tp90Total = data.reduce(function (total, currentValue) {
+          return total + parseFloat(currentValue.tp90) * parseFloat(currentValue.samples);
+        }, 0);
+        let tp95Total = data.reduce(function (total, currentValue) {
+          return total + parseFloat(currentValue.tp95) * parseFloat(currentValue.samples);
+        }, 0);
+        let tp99Total = data.reduce(function (total, currentValue) {
+          return total + parseFloat(currentValue.tp99) * parseFloat(currentValue.samples);
+        }, 0);
+        let transactions = data.reduce(function (total, currentValue) {
+          return total + parseFloat(currentValue.transactions);
+        }, 0);
+        let received = data.reduce(function (total, currentValue) {
+          return total + parseFloat(currentValue.received);
+        }, 0);
+        let sent = data.reduce(function (total, currentValue) {
+          return total + parseFloat(currentValue.sent);
+        }, 0);
+
+        let error = (Math.round(failSize / allSamples * 10000) / 100) + '%';
+        let averageTime = (averageTimeTotal / allSamples).toFixed(2);
+        let tp90 = (tp90Total / allSamples).toFixed(2);
+        let tp95 = (tp95Total / allSamples).toFixed(2);
+        let tp99 = (tp99Total / allSamples).toFixed(2);
+        let min = Math.min.apply(Math, data.map(function (o) {
+          return parseFloat(o.min)
+        }));
+        let max = Math.max.apply(Math, data.map(function (o) {
+          return parseFloat(o.max)
+        }));
+
+        sums.push('Total', allSamples, failSize, error, averageTime, min, max, tp90, tp95, tp99, transactions, received, sent);
+
+        return sums;
+
+      }
     },
     watch: {
       status() {
@@ -111,7 +160,7 @@
         }
       }
     },
-    props: ['id','status']
+    props: ['id', 'status']
   }
 </script>
 
