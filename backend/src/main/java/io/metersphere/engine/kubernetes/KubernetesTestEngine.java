@@ -90,6 +90,7 @@ public class KubernetesTestEngine extends AbstractEngine {
             jmeter.setSpec(new JmeterSpec() {{
                 setReplicas(1);
                 setImage(JMETER_IMAGE);
+                setEnv(context.getEnv());
             }});
             LogUtil.info("Load test started. " + context.getTestId());
             kubernetesProvider.applyCustomResource(jmeter);
