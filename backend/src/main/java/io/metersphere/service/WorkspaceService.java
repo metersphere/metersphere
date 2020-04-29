@@ -150,7 +150,7 @@ public class WorkspaceService {
         WorkspaceExample example = new WorkspaceExample();
         example.createCriteria().andIdEqualTo(workspaceId);
         if (workspaceMapper.countByExample(example) == 0) {
-            MSException.throwException("workspace_not_exist");
+            MSException.throwException(Translator.get("workspace_not_exists"));
         }
     }
 

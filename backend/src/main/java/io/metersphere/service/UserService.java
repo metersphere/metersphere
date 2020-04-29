@@ -15,6 +15,7 @@ import io.metersphere.dto.OrganizationMemberDTO;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserRoleDTO;
 import io.metersphere.dto.UserRoleHelpDTO;
+import io.metersphere.i18n.Translator;
 import io.metersphere.user.SessionUser;
 import io.metersphere.user.SessionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -54,11 +55,11 @@ public class UserService {
 
     private void checkUserParam(User user) {
         if (StringUtils.isBlank(user.getName())) {
-            MSException.throwException("user_name_empty");
+            MSException.throwException(Translator.get("user_name_is_null"));
         }
 
         if (StringUtils.isBlank(user.getEmail())) {
-            MSException.throwException("user_email_empty");
+            MSException.throwException(Translator.get("user_email_is_null"));
         }
         // password
     }
@@ -76,7 +77,7 @@ public class UserService {
         criteria.andEmailEqualTo(user.getEmail());
         List<User> userList = userMapper.selectByExample(userExample);
         if (!CollectionUtils.isEmpty(userList)) {
-            MSException.throwException("user_email_is_exist");
+            MSException.throwException(Translator.get("user_email_already_exists"));
         }
         userMapper.insertSelective(user);
     }
@@ -325,10 +326,10 @@ public class UserService {
 
     public boolean checkUserPassword(String userId, String password) {
         if (StringUtils.isBlank(userId)) {
-            MSException.throwException("Username cannot be null");
+            MSException.throwException(Translator.get("user_name_is_null"));
         }
         if (StringUtils.isBlank(password)) {
-            MSException.throwException("Password cannot be null");
+            MSException.throwException(Translator.get("password_is_null"));
         }
         UserExample example = new UserExample();
         example.createCriteria().andIdEqualTo(userId).andPasswordEqualTo(CodingUtil.md5(password));
