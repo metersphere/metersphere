@@ -20,7 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,9 +58,9 @@ public class WorkspaceService {
             if (workspaceMapper.countByExample(example) > 0) {
                 MSException.throwException(Translator.get("workspace_name_already_exists"));
             }
-            workspace.setId(UUID.randomUUID().toString()); // 设置ID
+            workspace.setId(UUID.randomUUID().toString());
             workspace.setCreateTime(currentTime);
-            workspace.setUpdateTime(currentTime); // 首次 update time
+            workspace.setUpdateTime(currentTime);
             workspaceMapper.insertSelective(workspace);
         } else {
             workspace.setUpdateTime(currentTime);
@@ -112,19 +111,6 @@ public class WorkspaceService {
         }
     }
 
-    public void checkWorkspaceOwnerByTestManager(String workspaceId) {
-        checkWorkspaceIsExist(workspaceId);
-        SessionUser user = SessionUtils.getUser();
-        List<String> wsIds = user.getUserRoles().stream()
-                .filter(ur -> RoleConstants.TEST_MANAGER.equals(ur.getRoleId()))
-                .map(UserRole::getSourceId)
-                .collect(Collectors.toList());
-        boolean contains = wsIds.contains(workspaceId);
-        if (!contains) {
-            MSException.throwException(Translator.get("workspace_does_not_belong_to_user"));
-        }
-    }
-
     public void checkWorkspaceOwner(String workspaceId) {
         checkWorkspaceIsExist(workspaceId);
         WorkspaceExample example = new WorkspaceExample();
@@ -150,7 +136,7 @@ public class WorkspaceService {
         WorkspaceExample example = new WorkspaceExample();
         example.createCriteria().andIdEqualTo(workspaceId);
         if (workspaceMapper.countByExample(example) == 0) {
-            MSException.throwException("workspace_not_exist");
+            MSException.throwException(Translator.get("workspace_not_exists"));
         }
     }
 

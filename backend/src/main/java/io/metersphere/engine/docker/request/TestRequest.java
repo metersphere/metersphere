@@ -9,6 +9,7 @@ public class TestRequest extends BaseRequest {
     private String fileString;
     private String image;
     private Map<String, String> testData = new HashMap<>();
+    private Map<String, String> env = new HashMap<>();
 
     public int getSize() {
         return size;
@@ -40,5 +41,13 @@ public class TestRequest extends BaseRequest {
 
     public void setTestData(Map<String, String> testData) {
         this.testData = testData;
+    }
+
+    public Map<String, String> getEnv() {
+        return env;
+    }
+
+    public void setEnv(Map<String, String> env) {
+        this.env = env;
     }
 }
