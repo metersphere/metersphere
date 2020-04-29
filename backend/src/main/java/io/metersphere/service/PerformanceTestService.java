@@ -203,6 +203,7 @@ public class PerformanceTestService {
             // 保存 load_test_report_log
             LoadTestReportLog record = new LoadTestReportLog();
             record.setReportId(testReport.getId());
+            record.setContent(StringUtils.EMPTY);
             loadTestReportLogMapper.insert(record);
         } catch (MSException e) {
             LogUtil.error(e);
