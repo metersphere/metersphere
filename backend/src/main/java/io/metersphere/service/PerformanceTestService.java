@@ -5,7 +5,6 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportDetailMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
-import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
@@ -22,8 +21,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -51,6 +48,8 @@ public class PerformanceTestService {
     private LoadTestReportDetailMapper loadTestReportDetailMapper;
     @Resource
     private ExtLoadTestReportDetailMapper extLoadTestReportDetailMapper;
+    @Resource
+    private LoadTestReportLogMapper loadTestReportLogMapper;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         return extLoadTestMapper.list(request);
@@ -201,6 +200,10 @@ public class PerformanceTestService {
             extLoadTestReportMapper.appendLine(testReport.getId(), "\n");
             // append \n
             extLoadTestReportDetailMapper.appendLine(testReport.getId(), "\n");
+            // 保存 load_test_report_log
+            LoadTestReportLog record = new LoadTestReportLog();
+            record.setReportId(testReport.getId());
+            loadTestReportLogMapper.insert(record);
         } catch (MSException e) {
             LogUtil.error(e);
             loadTest.setStatus(PerformanceTestStatus.Error.name());
