@@ -3,7 +3,7 @@
   <div v-loading="result.loading">
     <el-card>
       <template v-slot:header>
-        <ms-table-header :condition.sync="condition" @search="initTableData"
+        <ms-table-header :condition.sync="condition" @search="initData"
                          :title="'测试报告模版'"
                          :create-tip="'新建模版'" @create="templateEdit">
 
@@ -11,7 +11,8 @@
       </template>
 
       <el-main>
-        <testcase-template-item v-for="fit in fits" :key="fit" :name="fit"/>
+        <testcase-template-item v-for="item in templates" :key="item.id"
+                                :template="item" @templateEdit="templateEdit"/>
       </el-main>
 
       <test-case-report-template-edit ref="templateEdit"/>
@@ -27,33 +28,40 @@
     import MsTableHeader from "../../common/components/MsTableHeader";
     import TestCaseReportTemplateEdit from "./components/TestCaseReportTemplateEdit";
     import TestcaseTemplateItem from "./components/TestcaseTemplateItem";
+    import {WORKSPACE_ID} from '../../../../common/js/constants';
+
     export default {
       name: "TestCaseReportTemplate",
       components: {TestcaseTemplateItem, TestCaseReportTemplateEdit, MsTableHeader},
       data() {
         return {
           result: {},
-          fits: ['默认模版', 'congewtain', 'cogewver', 'nongwee', 'scale-downddddddddddd',
-            'faill', 'cdontain', 'codver', 'nodne', 'scalde-downddddddddddd',
-            'fill', 'cowntain', 'corwver',
-            'nonewbe',
-            'scalev-downddddddddddd',
-            'filelv', 'sontwain', 'cosgewver', 'nodegne', 'scale-dfownddddddddddd',
-          ],
           condition: {},
+          templates: []
+        }
+      },
+      mounted() {
+        this.initData();
+      },
+      watch: {
+        '$route'(to) {
+          if (to.path.indexOf("setting/testcase/report/template") >= 0) {
+            this.initData();
+          }
         }
       },
       methods: {
         initData() {
-
-          // this.$get()
-
+          this.condition.workspaceId = localStorage.getItem(WORKSPACE_ID);
+          this.result = this.$post('/case/report/template/list', this.condition, response => {
+            this.templates = response.data;
+          });
         },
         templateCreate() {
 
         },
-        templateEdit() {
-          this.$refs.templateEdit.open();
+        templateEdit(template) {
+          this.$refs.templateEdit.open(template);
         }
       }
     }

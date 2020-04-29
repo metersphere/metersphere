@@ -82,6 +82,7 @@ const router = new VueRouter({
         },
         {
           path: 'testcase/report/template',
+          name: 'testCaseReportTemplate',
           component: TestCaseReportTemplate
         }
       ]

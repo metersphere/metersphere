@@ -31,9 +31,6 @@
 
       <div class="container">
 
-        <el-scrollbar>
-
-          <div class="template-content">
 
             <el-aside>
 
@@ -48,20 +45,12 @@
                   :group="{ name: 'people', pull: 'clone', put: false }"
                   :clone="cloneDog"
                   @change="log">
-                  <el-button class="template-component" v-for="item in components" :key="item.id">
-                    <i class="el-icon-s-unfold"/>
-                    <span>{{ item.name }}</span>
-                    <el-tag v-if="item.type == 'system'" size="mini" type="success">系统</el-tag>
-                    <el-tag v-if="item.type == 'custom'" size="mini">自定义</el-tag>
-                  </el-button>
+                  <template-component-bar  v-for="item in components" :key="item.id" :component="item"/>
                 </draggable>
 
               </el-aside>
 
             <el-main>
-              <el-row>
-                <el-col>
-
                   <draggable
                     class="preview-group"
                     :list="previews"
@@ -83,16 +72,10 @@
                     </el-card>
                   </draggable>
 
-
-                </el-col>
-              </el-row>
             </el-main>
 
           </div>
 
-        </el-scrollbar>
-
-      </div>
 
     </template>
 
@@ -107,11 +90,13 @@
   import BaseInfoComponent from "./TemplateComponent/BaseInfoComponent";
   import TestResultComponent from "./TemplateComponent/TestResultComponent";
   import TestResultChartComponent from "./TemplateComponent/TestResultChartComponent";
+  import TemplateComponentBar from "./TemplateComponentBar";
 
   let idGlobal = 8;
     export default {
       name: "TestCaseReportTemplateEdit",
       components: {
+        TemplateComponentBar,
         TestResultChartComponent,
         TestResultComponent,
         BaseInfoComponent,
@@ -205,40 +190,18 @@
   }
 
   .el-main {
-    height: 1000px;
+    height: calc(100vh - 70px);
+    width: calc(100vw - 320px);
     margin-left: 300px;
     margin-top: 0;
     margin-bottom: 0;
-  }
-
-  .template-component i {
-    float: left;
-    height: 20px;
-    line-height: 20px;
-  }
-
-  .template-component .el-tag {
-    float: right;
-    height: 20px;
-    line-height: 20px;
-  }
-
-  .template-component span {
-    display: inline-block;
-    height: 20px;
-    line-height: 20px;
-  }
-
-  .template-component {
-    display: block;
-    margin-left: 10px;
-    width: 90%;
-    margin-bottom: 5px;
+    position: absolute;
   }
 
   .el-card {
     margin: 5px auto;
     min-height: 300px;
+    width: 80%;
   }
 
   .description > span {
@@ -253,18 +216,6 @@
   .container {
     height: 100vh;
     background: #F5F5F5;
-  }
-
-  .template-content {
-
-  }
-
-  .el-scrollbar {
-    height: 100%;
-  }
-
-  .template-component {
-    font-size: 16px;
   }
 
 </style>

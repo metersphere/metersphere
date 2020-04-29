@@ -1,9 +1,9 @@
 <template>
-  <div class="testcase-template">
-    <div class="template-img">
-      <i class="el-icon-error"/>
+  <div class="testcase-template" @click="templateEdit">
+    <div class="template-img" @click="templateDelete">
+      <i class="el-icon-error" v-if="template.workspaceId"/>
     </div>
-    <span class="demonstration">{{ name }}</span>
+    <span class="demonstration">{{ template.name }}</span>
   </div>
 </template>
 
@@ -11,9 +11,21 @@
     export default {
       name: "TestcaseTemplateItem",
       props: {
-        name: {
-          type: String,
-          default: 'Template name'
+        template: {
+          type: Object,
+          default() {
+            return {}
+          }
+        }
+      },
+      methods: {
+        templateEdit() {
+          this.$emit('templateEdit', this.template);
+        },
+        templateDelete() {
+          this.post('/case/report/template/delete/' + this.template.id, () => {
+            this.$success('删除成功');
+          });
         }
       }
     }

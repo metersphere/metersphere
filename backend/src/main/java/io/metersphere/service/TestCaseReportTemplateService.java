@@ -26,6 +26,7 @@ public class TestCaseReportTemplateService {
         if ( StringUtils.isNotBlank(request.getWorkspaceId()) ) {
             example.createCriteria().andWorkspaceIdEqualTo(request.getWorkspaceId());
         }
+        example.or(example.createCriteria().andWorkspaceIdIsNull());
         return testCaseReportTemplateMapper.selectByExample(example);
     }
 
