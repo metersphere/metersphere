@@ -14,7 +14,7 @@
 
 <script>
     import CommonComponent from "./CommonComponent";
-    import MsPieChart from "../../../common/components/MsPieChart";
+    import MsPieChart from "../../../../common/components/MsPieChart";
 
     export default {
       name: "TestResultChartComponent",

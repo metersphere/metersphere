@@ -104,9 +104,9 @@
 
   import draggable from 'vuedraggable';
   import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-  import BaseInfoComponent from "./BaseInfoComponent";
-  import TestResultComponent from "./TestResultComponent";
-  import TestResultChartComponent from "./TestResultChartComponent";
+  import BaseInfoComponent from "./TemplateComponent/BaseInfoComponent";
+  import TestResultComponent from "./TemplateComponent/TestResultComponent";
+  import TestResultChartComponent from "./TemplateComponent/TestResultChartComponent";
 
   let idGlobal = 8;
     export default {
