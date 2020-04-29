@@ -83,9 +83,12 @@ CREATE TABLE IF NOT EXISTS `load_test_report_result` (
     COLLATE=utf8mb4_bin;
 
 CREATE TABLE IF NOT EXISTS `load_test_report_log` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `report_id` varchar(50) NOT NULL,
+  `resource_id` varchar(50) DEFAULT NULL,
   `content` longtext,
-  PRIMARY KEY (`report_id`)
+  PRIMARY KEY (`id`),
+  KEY `load_test_report_log_report_id_resource_name_index` (`report_id`,`resource_id`)
 )
     ENGINE=InnoDB
     DEFAULT CHARSET=utf8mb4
