@@ -2,7 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.base.mapper.LoadTestReportLogMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.LoadTestReportLog">
-    <id column="report_id" jdbcType="VARCHAR" property="reportId" />
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="report_id" jdbcType="VARCHAR" property="reportId" />
+    <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.LoadTestReportLog">
     <result column="content" jdbcType="LONGVARCHAR" property="content" />
@@ -66,7 +68,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    report_id
+    id, report_id, resource_id
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -101,17 +103,17 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
     select 
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
     from load_test_report_log
-    where report_id = #{reportId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from load_test_report_log
-    where report_id = #{reportId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.base.domain.LoadTestReportLogExample">
     delete from load_test_report_log
@@ -120,22 +122,36 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.LoadTestReportLog">
-    insert into load_test_report_log (report_id, content)
-    values (#{reportId,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR})
+    insert into load_test_report_log (id, report_id, resource_id, 
+      content)
+    values (#{id,jdbcType=BIGINT}, #{reportId,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, 
+      #{content,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.LoadTestReportLog">
     insert into load_test_report_log
     <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
       <if test="reportId != null">
         report_id,
+      </if>
+      <if test="resourceId != null">
+        resource_id,
       </if>
       <if test="content != null">
         content,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
       <if test="reportId != null">
         #{reportId,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceId != null">
+        #{resourceId,jdbcType=VARCHAR},
       </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARCHAR},
@@ -151,8 +167,14 @@
   <update id="updateByExampleSelective" parameterType="map">
     update load_test_report_log
     <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
       <if test="record.reportId != null">
         report_id = #{record.reportId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.resourceId != null">
+        resource_id = #{record.resourceId,jdbcType=VARCHAR},
       </if>
       <if test="record.content != null">
         content = #{record.content,jdbcType=LONGVARCHAR},
@@ -164,7 +186,9 @@
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update load_test_report_log
-    set report_id = #{record.reportId,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=BIGINT},
+      report_id = #{record.reportId,jdbcType=VARCHAR},
+      resource_id = #{record.resourceId,jdbcType=VARCHAR},
       content = #{record.content,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -172,7 +196,9 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update load_test_report_log
-    set report_id = #{record.reportId,jdbcType=VARCHAR}
+    set id = #{record.id,jdbcType=BIGINT},
+      report_id = #{record.reportId,jdbcType=VARCHAR},
+      resource_id = #{record.resourceId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -180,15 +206,29 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.LoadTestReportLog">
     update load_test_report_log
     <set>
+      <if test="reportId != null">
+        report_id = #{reportId,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceId != null">
+        resource_id = #{resourceId,jdbcType=VARCHAR},
+      </if>
       <if test="content != null">
         content = #{content,jdbcType=LONGVARCHAR},
       </if>
     </set>
-    where report_id = #{reportId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.LoadTestReportLog">
     update load_test_report_log
-    set content = #{content,jdbcType=LONGVARCHAR}
-    where report_id = #{reportId,jdbcType=VARCHAR}
+    set report_id = #{reportId,jdbcType=VARCHAR},
+      resource_id = #{resourceId,jdbcType=VARCHAR},
+      content = #{content,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.LoadTestReportLog">
+    update load_test_report_log
+    set report_id = #{reportId,jdbcType=VARCHAR},
+      resource_id = #{resourceId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

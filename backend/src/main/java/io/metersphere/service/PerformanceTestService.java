@@ -22,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -50,6 +49,8 @@ public class PerformanceTestService {
     private ExtLoadTestReportDetailMapper extLoadTestReportDetailMapper;
     @Resource
     private LoadTestReportLogMapper loadTestReportLogMapper;
+    @Resource
+    private TestResourceService testResourceService;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         return extLoadTestMapper.list(request);
@@ -201,10 +202,15 @@ public class PerformanceTestService {
             // append \n
             extLoadTestReportDetailMapper.appendLine(testReport.getId(), "\n");
             // 保存 load_test_report_log
-            LoadTestReportLog record = new LoadTestReportLog();
-            record.setReportId(testReport.getId());
-            record.setContent(StringUtils.EMPTY);
-            loadTestReportLogMapper.insert(record);
+            String resourcePoolId = loadTest.getTestResourcePoolId();
+            List<TestResource> testResourceList = testResourceService.getResourcesByPoolId(resourcePoolId);
+            testResourceList.forEach(r -> {
+                LoadTestReportLog record = new LoadTestReportLog();
+                record.setReportId(testReport.getId());
+                record.setResourceId(r.getId());
+                record.setContent(StringUtils.EMPTY);
+                loadTestReportLogMapper.insert(record);
+            });
         } catch (MSException e) {
             LogUtil.error(e);
             loadTest.setStatus(PerformanceTestStatus.Error.name());
@@ -212,23 +218,6 @@ public class PerformanceTestService {
             loadTestMapper.updateByPrimaryKeySelective(loadTest);
             throw e;
         }
-    }
-
-    public Map<String, String> log(String testId) {
-        final LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(testId);
-        if (loadTest == null) {
-            MSException.throwException(Translator.get("test_not_found") + testId);
-        }
-
-        if (!StringUtils.equals(loadTest.getStatus(), PerformanceTestStatus.Running.name())) {
-            MSException.throwException(Translator.get("test_not_running"));
-        }
-
-        Engine engine = EngineFactory.createEngine(loadTest);
-        if (engine == null) {
-            MSException.throwException(String.format("Engine is null，test ID：%s", testId));
-        }
-        return engine.log();
     }
 
     public List<LoadTestDTO> recentTestPlans(QueryTestPlanRequest request) {

@@ -21,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping(value = "performance")
@@ -87,11 +86,6 @@ public class PerformanceTestController {
     @PostMapping("/run")
     public void run(@RequestBody RunTestPlanRequest request) {
         performanceTestService.run(request);
-    }
-
-    @GetMapping("/log/{testId}")
-    public Map<String, String> stop(@PathVariable String testId) {
-        return performanceTestService.log(testId);
     }
 
     @GetMapping("/file/metadata/{testId}")

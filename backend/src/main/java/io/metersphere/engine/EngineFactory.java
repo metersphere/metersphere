@@ -56,7 +56,7 @@ public class EngineFactory {
         return null;
     }
 
-    public static EngineContext createContext(LoadTestWithBLOBs loadTest, long threadNum, long startTime, String reportId) throws Exception {
+    public static EngineContext createContext(LoadTestWithBLOBs loadTest, String resourceId, long threadNum, long startTime, String reportId) throws Exception {
         final List<FileMetadata> fileMetadataList = fileService.getFileMetadataByTestId(loadTest.getId());
         if (org.springframework.util.CollectionUtils.isEmpty(fileMetadataList)) {
             MSException.throwException(Translator.get("run_load_test_file_not_found") + loadTest.getId());
@@ -84,6 +84,7 @@ public class EngineFactory {
             put("BOOTSTRAP_SERVERS", kafkaProperties.getBootstrapServers());
             put("LOG_TOPIC", kafkaProperties.getLog().getTopic());
             put("REPORT_ID", reportId);
+            put("RESOURCE_ID", resourceId);
         }};
         engineContext.setEnv(env);
 

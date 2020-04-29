@@ -48,7 +48,7 @@ public class KubernetesTestEngine extends AbstractEngine {
                 MSException.throwException(Translator.get("max_thread_insufficient"));
             }
             try {
-                EngineContext context = EngineFactory.createContext(loadTest, threadNum, this.getStartTime(), this.getReportId());
+                EngineContext context = EngineFactory.createContext(loadTest, r.getId(), threadNum, this.getStartTime(), this.getReportId());
                 runTest(context, clientCredential);
             } catch (Exception e) {
                 MSException.throwException(e);

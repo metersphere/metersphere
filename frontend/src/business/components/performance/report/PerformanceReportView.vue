@@ -49,13 +49,6 @@
         </el-tabs>
 
       </el-card>
-      <el-dialog :title="title" :visible.sync="showTestLogging">
-        <el-tabs type="border-card" :stretch="true">
-          <el-tab-pane v-for="(item, key) in testLogging" :key="key" :label="key" class="logging-content">
-            {{item}}
-          </el-tab-pane>
-        </el-tabs>
-      </el-dialog>
     </div>
   </div>
 </template>
@@ -88,8 +81,6 @@
         minutes: '0',
         seconds: '0',
         title: 'Logging',
-        testLogging: null,
-        showTestLogging: false,
       }
     },
     methods: {
@@ -119,11 +110,6 @@
           })
         }
       },
-      getLog(testId) {
-        this.result = this.$get('/performance/log/' + testId, response => {
-          this.testLogging = response.data;
-        })
-      }
     },
     mounted() {
       this.reportId = this.$route.path.split('/')[4];
@@ -139,8 +125,6 @@
             this.$info("报告生成中....");
             break;
           case 'Running':
-            this.showTestLogging = true;
-            this.getLog(data.testId);
             break;
           default:
             break;
@@ -190,9 +174,4 @@
     color: #5C7878;
   }
 
-  .logging-content {
-    white-space: pre-line;
-    height: calc(100vh - 450px);
-    overflow: auto;
-  }
 </style>
