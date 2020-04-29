@@ -23,7 +23,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -127,107 +126,6 @@ public class UserService {
     public void updateUser(User user) {
         user.setUpdateTime(System.currentTimeMillis());
         userMapper.updateByPrimaryKeySelective(user);
-    }
-
-    /*public List<Role> getUserRolesList(String userId) {
-        UserRoleExample userRoleExample = new UserRoleExample();
-        userRoleExample.createCriteria().andUserIdEqualTo(userId);
-        List<UserRole> userRolesList = userRoleMapper.selectByExample(userRoleExample);
-        List<String> roleIds = userRolesList.stream().map(UserRole::getRoleId).collect(Collectors.toList());
-        RoleExample roleExample = new RoleExample();
-        roleExample.createCriteria().andIdIn(roleIds);
-        return roleMapper.selectByExample(roleExample);
-    }
-
-    public List<UserRoleDTO> getUserRoleList(String userId) {
-        if (StringUtils.isEmpty(userId)) {
-            return new ArrayList<>();
-        }
-        return convertUserRoleDTO(extUserRoleMapper.getUserRoleHelpList(userId));
-    }*/
-
-    private List<UserRoleDTO> convertUserRoleDTO(List<UserRoleHelpDTO> helpDTOList) {
-        StringBuilder buffer = new StringBuilder();
-
-        Map<String, UserRoleDTO> roleMap = new HashMap<>();
-
-        List<UserRoleDTO> resultList = new ArrayList<>();
-
-        List<UserRoleDTO> otherList = new ArrayList<>();
-
-        Set<String> orgSet = new HashSet<>();
-
-        Set<String> workspaceSet = new HashSet<>();
-
-        for (UserRoleHelpDTO helpDTO : helpDTOList) {
-            UserRoleDTO userRoleDTO = roleMap.get(helpDTO.getSourceId());
-
-            if (userRoleDTO == null) {
-                userRoleDTO = new UserRoleDTO();
-
-                if (!StringUtils.isEmpty(helpDTO.getParentId())) {
-                    workspaceSet.add(helpDTO.getParentId());
-                    userRoleDTO.setType("workspace");
-                } else {
-                    orgSet.add(helpDTO.getSourceId());
-                    userRoleDTO.setType("organization");
-                }
-
-                userRoleDTO.setId(helpDTO.getSourceId());
-                userRoleDTO.setRoleId(helpDTO.getRoleId());
-                userRoleDTO.setName(helpDTO.getSourceName());
-                userRoleDTO.setParentId(helpDTO.getParentId());
-                userRoleDTO.setDesc(helpDTO.getRoleName());
-
-            } else {
-                userRoleDTO.setDesc(userRoleDTO.getDesc() + "," + helpDTO.getRoleName());
-            }
-            roleMap.put(helpDTO.getSourceId(), userRoleDTO);
-        }
-
-        if (!StringUtils.isEmpty(buffer.toString())) {
-            UserRoleDTO dto = new UserRoleDTO();
-            dto.setId("admin");
-            dto.setType("admin");
-            dto.setDesc(buffer.toString());
-            resultList.add(dto);
-        }
-
-        for (String org : orgSet) {
-            workspaceSet.remove(org);
-        }
-
-        List<UserRoleDTO> orgWorkSpace = new ArrayList<>(roleMap.values());
-
-        if (!CollectionUtils.isEmpty(workspaceSet)) {
-            for (String orgId : workspaceSet) {
-                Organization organization = organizationMapper.selectByPrimaryKey(orgId);
-                if (organization != null) {
-                    UserRoleDTO dto = new UserRoleDTO();
-                    dto.setId(orgId);
-                    dto.setName(organization.getName());
-                    dto.setSwitchable(false);
-                    dto.setType("organization");
-                    orgWorkSpace.add(dto);
-                }
-            }
-        }
-
-        orgWorkSpace.sort((o1, o2) -> {
-            if (o1.getParentId() == null) {
-                return -1;
-            }
-
-            if (o2.getParentId() == null) {
-                return 1;
-            }
-
-            return o1.getParentId().compareTo(o2.getParentId());
-        });
-        resultList.addAll(orgWorkSpace);
-        resultList.addAll(otherList);
-
-        return resultList;
     }
 
     public void switchUserRole(UserDTO user, String sign, String sourceId) {
@@ -334,10 +232,6 @@ public class UserService {
         UserExample example = new UserExample();
         example.createCriteria().andIdEqualTo(userId).andPasswordEqualTo(CodingUtil.md5(password));
         return userMapper.countByExample(example) > 0;
-    }
-
-    public List<OrganizationMemberDTO> getOrganizationMemberDTO(QueryOrgMemberRequest request) {
-        return extUserRoleMapper.getOrganizationMemberDTO(request);
     }
 
     /**
