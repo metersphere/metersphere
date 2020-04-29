@@ -341,7 +341,7 @@ CREATE TABLE IF NOT EXISTS `test_case_report_template` (
 CREATE TABLE IF NOT EXISTS `test_case_report` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(64) NOT NULL COMMENT 'Test case report name',
-  `plan_id` bigint(50) DEFAULT NULL COMMENT 'Plan ID relation to',
+  `plan_id` varchar(50) NOT NULL COMMENT 'Plan ID relation to',
   `content` longtext COMMENT 'Report content (JSON format)',
   PRIMARY KEY (`id`)
 )
