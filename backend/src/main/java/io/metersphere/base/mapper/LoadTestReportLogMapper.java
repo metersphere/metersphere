@@ -11,7 +11,7 @@ public interface LoadTestReportLogMapper {
 
     int deleteByExample(LoadTestReportLogExample example);
 
-    int deleteByPrimaryKey(String reportId);
+    int deleteByPrimaryKey(Long id);
 
     int insert(LoadTestReportLog record);
 
@@ -21,7 +21,7 @@ public interface LoadTestReportLogMapper {
 
     List<LoadTestReportLog> selectByExample(LoadTestReportLogExample example);
 
-    LoadTestReportLog selectByPrimaryKey(String reportId);
+    LoadTestReportLog selectByPrimaryKey(Long id);
 
     int updateByExampleSelective(@Param("record") LoadTestReportLog record, @Param("example") LoadTestReportLogExample example);
 
@@ -32,4 +32,6 @@ public interface LoadTestReportLogMapper {
     int updateByPrimaryKeySelective(LoadTestReportLog record);
 
     int updateByPrimaryKeyWithBLOBs(LoadTestReportLog record);
+
+    int updateByPrimaryKey(LoadTestReportLog record);
 }

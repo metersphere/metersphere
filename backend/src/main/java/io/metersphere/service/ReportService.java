@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -146,5 +147,10 @@ public class ReportService {
 
     public LoadTestReport getLoadTestReport(String id) {
         return extLoadTestReportMapper.selectByPrimaryKey(id);
+    }
+
+    public Map<String, String> log(String reportId) {
+        // todo 查询日志
+        return null;
     }
 }
