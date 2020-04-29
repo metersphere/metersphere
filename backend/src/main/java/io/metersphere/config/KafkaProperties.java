@@ -20,6 +20,7 @@ public class KafkaProperties {
     private String clientId;
     private String connectionsMaxIdleMs;
     private KafkaProperties.Ssl ssl = new KafkaProperties.Ssl();
+    private KafkaProperties.Log log = new KafkaProperties.Log();
 
     public String getAcks() {
         return acks;
@@ -238,5 +239,25 @@ public class KafkaProperties {
 
     public void setSsl(Ssl ssl) {
         this.ssl = ssl;
+    }
+
+    public static class Log {
+        private String topic;
+
+        public String getTopic() {
+            return topic;
+        }
+
+        public void setTopic(String topic) {
+            this.topic = topic;
+        }
+    }
+
+    public Log getLog() {
+        return log;
+    }
+
+    public void setLog(Log log) {
+        this.log = log;
     }
 }
