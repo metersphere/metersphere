@@ -67,6 +67,11 @@
                     :list="previews"
                     group="people"
                     @change="log">
+
+                    <base-info-component/>
+                    <test-result-component/>
+                    <test-result-chart-component/>
+
                     <el-card class="template-component" v-for="item in previews" :key="item.id">
 
                       <template v-slot:header>
@@ -99,11 +104,17 @@
 
   import draggable from 'vuedraggable';
   import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+  import BaseInfoComponent from "./BaseInfoComponent";
+  import TestResultComponent from "./TestResultComponent";
+  import TestResultChartComponent from "./TestResultChartComponent";
 
   let idGlobal = 8;
     export default {
       name: "TestCaseReportTemplateEdit",
       components: {
+        TestResultChartComponent,
+        TestResultComponent,
+        BaseInfoComponent,
         draggable
       },
       data() {
@@ -114,10 +125,10 @@
           name: '',
           type: 'edit',
           components: [
-            { name: "dog 1", id: 1 , type: 'system'},
-            { name: "dog 2", id: 2 , type: 'custom'},
-            { name: "dog 3", id: 3 ,type: 'system'},
-            { name: "dog 4", id: 4 ,type: 'system'}
+            { name: "基础信息", id: 1 , type: 'system'},
+            { name: "测试结果", id: 2 , type: 'system'},
+            { name: "测试结果分布", id: 3 ,type: 'system'},
+            { name: "自定义模块", id: 4 ,type: 'custom'}
           ],
           previews: [
             { name: "cat 5", id: 5 },
@@ -252,5 +263,8 @@
     height: 100%;
   }
 
+  .template-component {
+    font-size: 16px;
+  }
 
 </style>
