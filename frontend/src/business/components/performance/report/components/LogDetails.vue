@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading="result.loading">
     <el-tabs type="border-card" :stretch="true">
       <el-tab-pane v-for="(item, key) in logContent" :key="key" :label="key" class="logging-content">
         {{item}}
@@ -14,12 +14,13 @@
     props: ['id', 'status'],
     data() {
       return {
-        logContent: null
+        logContent: null,
+        result: {},
       }
     },
     methods: {
       initTableData() {
-        this.$get("/performance/report/log/" + this.id, res => {
+        this.result = this.$get("/performance/report/log/" + this.id, res => {
           this.logContent = res.data;
         })
       }
