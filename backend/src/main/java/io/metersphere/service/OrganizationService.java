@@ -4,12 +4,14 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.OrganizationMapper;
 import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.base.mapper.UserRoleMapper;
+import io.metersphere.base.mapper.WorkspaceMapper;
 import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.request.OrganizationRequest;
 import io.metersphere.dto.OrganizationMemberDTO;
+import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserRoleHelpDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.user.SessionUser;
@@ -39,6 +41,12 @@ public class OrganizationService {
     private UserMapper userMapper;
     @Resource
     private ExtOrganizationMapper extOrganizationMapper;
+    @Resource
+    private WorkspaceMapper workspaceMapper;
+    @Resource
+    private WorkspaceService workspaceService;
+    @Resource
+    private UserService userService;
 
     public Organization addOrganization(Organization organization) {
         long currentTimeMillis = System.currentTimeMillis();
@@ -123,7 +131,8 @@ public class OrganizationService {
     }
 
     public void checkOrgOwner(String organizationId) {
-        SessionUser user = SessionUtils.getUser();
+        SessionUser sessionUser = SessionUtils.getUser();
+        UserDTO user = userService.getUserDTO(sessionUser.getId());
         List<String> collect = user.getUserRoles().stream()
                 .filter(ur -> RoleConstants.ORG_ADMIN.equals(ur.getRoleId()))
                 .map(UserRole::getSourceId)

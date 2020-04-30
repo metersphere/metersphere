@@ -54,10 +54,10 @@ public class LoginController {
                     List<UserRole> org = userRoles.stream().filter(ur -> ur.getRoleId().startsWith("org")).collect(Collectors.toList());
                     if (test.size() > 0) {
                         String wsId = test.get(0).getSourceId();
-                        userService.switchUserRole(user, "workspace", wsId);
+                        userService.switchUserRole("workspace", wsId);
                     } else if (org.size() > 0) {
                         String orgId = org.get(0).getSourceId();
-                        userService.switchUserRole(user, "organization", orgId);
+                        userService.switchUserRole("organization", orgId);
                     }
                 }
                 // 返回 userDTO

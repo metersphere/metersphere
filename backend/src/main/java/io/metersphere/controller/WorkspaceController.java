@@ -27,6 +27,7 @@ public class WorkspaceController {
     @PostMapping("add")
     @RequiresRoles(RoleConstants.ORG_ADMIN)
     public Workspace addWorkspace(@RequestBody Workspace workspace) {
+        workspaceService.checkWorkspaceOwnerByOrgAdmin(workspace.getId());
         return workspaceService.saveWorkspace(workspace);
     }
 
