@@ -184,8 +184,9 @@ export default {
       name: "场景名称",
       base_url: "基础URL",
       base_url_description: "基础URL作为所有请求的URL前缀",
-      variables: "变量",
-      headers: "请求头"
+      parameters: "请求变量",
+      headers: "请求头",
+      kv_description: "将用于未设置该项的请求",
     },
     request: {
       input_name: "请输入请求名称",

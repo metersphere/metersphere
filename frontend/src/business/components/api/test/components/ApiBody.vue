@@ -4,14 +4,14 @@
       <el-radio-button :label="type.KV">
         {{$t('api_test.request.body_kv')}}
       </el-radio-button>
-      <el-radio-button :label="type.TEXT">
+      <el-radio-button :label="type.RAW">
         {{$t('api_test.request.body_text')}}
       </el-radio-button>
     </el-radio-group>
 
     <ms-api-key-value :items="body.kvs" v-if="body.isKV()"/>
 
-    <el-input class="textarea" type="textarea" v-model="body.text" :autosize="{ minRows: 10, maxRows: 25}" resize="none"
+    <el-input class="textarea" type="textarea" v-model="body.raw" :autosize="{ minRows: 10, maxRows: 25}" resize="none"
               v-else/>
   </div>
 </template>

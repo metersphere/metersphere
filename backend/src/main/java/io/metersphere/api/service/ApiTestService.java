@@ -75,6 +75,7 @@ public class ApiTestService {
     }
 
     public void delete(DeleteAPITestRequest request) {
+        deleteFileByTestId(request.getId());
         apiTestMapper.deleteByPrimaryKey(request.getId());
     }
 

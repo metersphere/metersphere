@@ -12,7 +12,7 @@
       <el-col :span="20">
         <ms-api-assertion-text :list="assertions.regex" v-if="type === options.TEXT"/>
         <ms-api-assertion-regex :list="assertions.regex" v-if="type === options.REGEX"/>
-        <ms-api-assertion-response-time :response-time="assertions.responseTime" v-if="type === options.RESPONSE_TIME"/>
+        <ms-api-assertion-response-time :duration="assertions.duration" v-if="type === options.RESPONSE_TIME"/>
       </el-col>
     </el-row>
 

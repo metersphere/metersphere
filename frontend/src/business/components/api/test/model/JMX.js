@@ -1,619 +1,371 @@
-let Xml4js = function (options = {}) {
-  this.depth = 0;
-  this.encoding = options.encoding || 'UTF-8';
-  this.xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
-};
+const INDENT = '  ';
 
-Xml4js.prototype = {
-  toString: function () {
-    return this.xml;
-  },
-  write: function () {
-    let context = this,
-      elem,
-      attr = null,
-      value = null,
-      callback = false,
-      fn = null,
-      hasValue = null,
-      empty = null;
+export class Element {
+  constructor(name, attributes, value) {
+    this.indent = '';
+    this.name = name;
+    this.attributes = attributes || {};
+    this.value = undefined;
+    this.elements = [];
 
-    elem = arguments[0];
-
-    if (elem === '<hashTree/>') {
-      this.xml += '<hashTree/>\n'
-      return;
-    }
-
-    if (typeof arguments[1] == 'object') {
-      attr = arguments[1];
-    } else if (typeof arguments[1] == 'function') {
-      callback = true;
-      fn = arguments[1];
+    if (value instanceof Element) {
+      this.elements.push(value);
     } else {
-      value = arguments[1];
-    }
-
-    if (typeof arguments[2] == 'function') {
-      if (!callback) {
-        callback = true;
-        fn = arguments[2];
-      }
-    } else {
-      if (value === null) {
-        value = arguments[2];
-      }
-    }
-
-    hasValue = value !== null;
-    empty = !hasValue && !callback;
-
-    function indent(depth) {
-      if (depth == null)
-        return '';
-
-      let space = '';
-      for (let i = 0; i < depth; i++)
-        if (context.tabs)
-          space += "\t";
-        else
-          space += '  ';
-
-      return space;
-    }
-
-    if (elem === 'cdata') {
-      this.xml += indent(this.depth) + '<![CDATA[' + value + ']]>\n';
-    } else {
-      this.xml += indent(this.depth) + '<' + elem;
-      if (attr) {
-        for (let key in attr) {
-          if (attr.hasOwnProperty(key)) {
-            this.xml += ' ';
-            this.xml += key + '="' + attr[key] + '"';
-          }
-        }
-      }
-
-      if (value !== null)
-        this.xml += '>' + value + '</' + elem + '>\n';
-
-      if (callback) {
-        this.xml += '>\n'
-        this.depth++;
-        if (fn instanceof Function) {
-          fn();
-        }
-        this.depth--;
-        this.xml += indent(this.depth) + '</' + elem + '>\n'
-      }
-
-      if (empty)
-        this.xml += '/>\n';
+      this.value = value;
     }
   }
-};
 
-/**
- *
- *JMX 构造对象
- */
-let Jmx = function (data, name, ds) {
-  this.data = data;
-  this.name = name;
-  let domains = {};
-  ds.forEach(function (d) {
-    domains[d] = d;
-  });
-  this.domains = domains;
-
-  this.xml = new Xml4js();
-};
-
-Jmx.prototype = {
-  generate: function () {
-    generateXml(this.xml, this.preprocessing());
-    return this.xml.toString();
-  },
-  preprocessing: function () {
-    let domainAlias = {};
-    let index = 1;
-    Object.getOwnPropertyNames(this.domains).forEach(function (key) {
-      domainAlias[key] = "BASE_URL_" + index;
-      index = index + 1;
-    });
-    let UserAgent = null;
-    let hsps = [];
-    let domains = this.domains;
-
-    this.data.forEach(function (item) {
-      let url = new URL(item.url);
-      if (domains[url.hostname]) {
-        let hsp = new HTTPSamplerProxy(item.label.replace(/&/gi, "&amp;"));
-        hsp.stringProp("HTTPSampler.domain", "${" + domainAlias[url.hostname] + "}");
-        hsp.stringProp("HTTPSampler.protocol", url.protocol.split(":")[0]);
-        hsp.stringProp("HTTPSampler.path", url.pathname);
-        hsp.stringProp("HTTPSampler.method", item.method);
-        if (url.port === "") {
-          hsp.intProp("HTTPSampler.port", 0);
-        } else {
-          hsp.intProp("HTTPSampler.port", url.port);
-        }
-
-        hsp.addArguments(item.url, item.body);
-        hsps.push(hsp);
-
-        if (item.headers.length === 0) {
-          hsps.push("<hashTree/>");
-        } else {
-          let cphmh = new CollectionPropHeaderManagerHeaders();
-
-          item.headers.forEach(function (h) {
-            if (h.name === 'User-Agent') {
-              UserAgent = h.value;
-            } else {
-              cphmh.addValue(new elementPropHeaderManager(h.name, h.value));
-            }
-          });
-
-          // Add Header
-          let ephm = new HeaderManager();
-          ephm.addValue(cphmh);
-          let ht = new HashTree();
-          ht.addValue(ephm);
-          ht.addValue("<hashTree/>");
-          hsps.push(ht);
-        }
-      }
-    });
-
-
-    let jmeterTestPlan = new JmeterTestPlan();
-    let hashTree = new HashTree();
-    jmeterTestPlan.addValue(hashTree);
-
-    let testPlan = new TestPlan(this.name);
-    testPlan.boolProp("TestPlan.functional_mode", false);
-    testPlan.boolProp("TestPlan.serialize_threadgroups", false);
-    testPlan.boolProp("TestPlan.tearDown_on_shutdown", true);
-    testPlan.stringProp("TestPlan.comments", "");
-    testPlan.stringProp("TestPlan.user_define_classpath", "");
-    testPlan.addArguments();
-    hashTree.addValue(testPlan);
-
-    let hashTree1 = new HashTree();
-    hashTree.addValue(hashTree1);
-
-    //HeaderManager
-    let hm = new HeaderManager();
-    hm.userAgent(UserAgent);
-    hashTree1.addValue(hm);
-    hashTree1.addValue("<hashTree/>");
-
-    //Arguments
-    let arg = new Arguments();
-    arg.addArguments(domainAlias);
-    hashTree1.addValue(arg);
-    hashTree1.addValue("<hashTree/>");
-
-    //DNSCacheManager
-    let dns = new DNSCacheManager();
-    dns.init();
-    hashTree1.addValue(dns);
-    hashTree1.addValue("<hashTree/>");
-
-    //AuthManager
-    let auth = new AuthManager();
-    auth.init();
-    hashTree1.addValue(auth);
-    hashTree1.addValue("<hashTree/>");
-
-    //CookieManager
-    let cookie = new CookieManager();
-    cookie.init();
-    hashTree1.addValue(cookie);
-    hashTree1.addValue("<hashTree/>");
-
-    //CacheManager
-    let cache = new CacheManager();
-    cache.boolProp("clearEachIteration", true);
-    cache.boolProp("useExpires", false);
-    cache.boolProp("CacheManager.controlledByThread", false);
-    hashTree1.addValue(cache);
-    hashTree1.addValue("<hashTree/>");
-
-    let threadGroup = new ThreadGroup();
-    hashTree1.addValue(threadGroup);
-    threadGroup.intProp("ThreadGroup.num_threads", 1);
-    threadGroup.intProp("ThreadGroup.ramp_time", 1);
-    threadGroup.longProp("ThreadGroup.delay", 0);
-    threadGroup.longProp("ThreadGroup.duration", 0);
-    threadGroup.stringProp("ThreadGroup.on_sample_error", "continue");
-    threadGroup.boolProp("ThreadGroup.scheduler", false);
-
-    let lc = new LoopController();
-    threadGroup.addValue(lc);
-    lc.boolProp("LoopController.continue_forever", false);
-    lc.stringProp("LoopController.loops", 1);
-
-    let ht = new HashTree();
-
-    hashTree1.addValue(ht);
-
-    hsps.forEach(function (hsp) {
-      ht.addValue(hsp);
-    });
-    return jmeterTestPlan;
+  set(value) {
+    this.elements = [];
+    this.value = value;
   }
-};
 
+  add(element) {
+    if (element instanceof Element) {
+      this.value = undefined;
+      this.elements.push(element);
+      return element;
+    }
+  }
 
-function generateXml(xml, hashTree) {
-  if (hashTree instanceof HashTree) {
-    if (hashTree.values.length > 0 && !(hashTree.values[0] instanceof HashTree)) {
-      xml.write(hashTree.element, hashTree.attributes, hashTree.values[0]);
+  commonValue(tag, name, value) {
+    return this.add(new Element(tag, {name: name}, value));
+  }
+
+  boolProp(name, value) {
+    return this.commonValue('boolProp', name, value);
+  }
+
+  intProp(name, value) {
+    return this.commonValue('intProp', name, value);
+  }
+
+  longProp(name, value) {
+    return this.commonValue('longProp', name, value);
+  }
+
+  stringProp(name, value) {
+    return this.commonValue('stringProp', name, value);
+  }
+
+  collectionProp(name) {
+    return this.commonValue('collectionProp', name);
+  }
+
+  elementProp(name, elementType) {
+    return this.add(new Element('elementProp', {name: name, elementType: elementType}));
+  }
+
+  isEmptyValue() {
+    return this.value === undefined || this.value === '';
+  }
+
+  isEmptyElement() {
+    return this.elements.length === 0;
+  }
+
+  isEmpty() {
+    return this.isEmptyValue() && this.isEmptyElement();
+  }
+
+  toXML(indent) {
+    if (indent) {
+      this.indent = indent;
+    }
+
+    let str = this.start();
+    str += this.content();
+    str += this.end();
+    return str;
+  }
+
+  start() {
+    let str = this.indent + '<' + this.name;
+    for (let key in this.attributes) {
+      if (this.attributes.hasOwnProperty(key)) {
+        str += ' ' + key + '="' + this.attributes[key] + '"';
+      }
+    }
+    if (this.isEmpty()) {
+      str += '/>';
     } else {
-      xml.write(hashTree.element, hashTree.attributes, function () {
-        if (hashTree.values.length > 0) {
-          hashTree.values.forEach(function (v) {
-            generateXml(xml, v);
-          })
-        }
+      str += '>';
+    }
+    return str;
+  }
+
+  content() {
+    if (!this.isEmptyValue()) {
+      return this.value;
+    }
+
+    let str = '';
+    let parent = this;
+    if (this.elements.length > 0) {
+      str += '\n';
+      this.elements.forEach(e => {
+        e.indent += parent.indent + INDENT;
+        str += e.toXML();
       });
     }
-  } else {
-    xml.write(hashTree);
+    return str;
   }
 
-
-}
-
-
-/**
- * HashTree 初始对象
- */
-let HashTree = function (element, attributes, value) {
-  this.element = element || "hashTree";
-  this.attributes = attributes || {};
-  this.values = [];
-  if (value !== undefined) {
-    this.values.push(value);
-  }
-};
-
-HashTree.prototype.addValue = function (hashTree) {
-  this.values.push(hashTree)
-};
-
-HashTree.prototype.commonValue = function (element, name, value) {
-  this.values.push(new HashTree(element, {name: name}, value))
-};
-
-HashTree.prototype.intProp = function (name, value) {
-  this.commonValue("intProp", name, value);
-};
-
-HashTree.prototype.longProp = function (name, value) {
-  this.commonValue("longProp", name, value);
-};
-
-HashTree.prototype.stringProp = function (name, value) {
-  this.commonValue("stringProp", name, value);
-};
-
-HashTree.prototype.boolProp = function (name, value) {
-  this.commonValue("boolProp", name, value);
-};
-
-
-/**
- * HashTree 的帮助对象
- */
-
-let CHashTree = function (element, guiclass, testclass, testname, enabled) {
-  HashTree.call(this, element, {
-    guiclass: guiclass,
-    testclass: testclass,
-    testname: testname || "TEST",
-    enabled: enabled || "true"
-  });
-};
-CHashTree.prototype = new HashTree();
-
-
-/**
- * JmeterTestPlan
- *
- */
-let JmeterTestPlan = function (options = {}) {
-  HashTree.call(this, "jmeterTestPlan",
-    {
-      version: options.version || "1.2",
-      properties: options.properties || "5.0",
-      jmeter: options.jmeter || "5.2.1"
-    });
-};
-JmeterTestPlan.prototype = new HashTree();
-
-
-/**
- * TestPlan
- *
- */
-let TestPlan = function (name) {
-  CHashTree.call(this, "TestPlan", "TestPlanGui", "TestPlan", name);
-};
-TestPlan.prototype = new CHashTree();
-
-TestPlan.prototype.addArguments = function () {
-  let ht = new HashTree("elementProp", {
-    name: "TestPlan.user_defined_variables",
-    elementType: "Arguments"
-  });
-  ht.addValue(new HashTree("collectionProp", {name: "Arguments.arguments"}));
-  this.values.push(ht);
-};
-
-
-/**
- * HeaderManager
- *
- */
-let HeaderManager = function () {
-  CHashTree.call(this, "HeaderManager", "HeaderPanel", "HeaderManager", "HTTP Header manager");
-};
-HeaderManager.prototype = new CHashTree();
-
-HeaderManager.prototype.userAgent = function (userAgent) {
-  let cp = new HashTree("collectionProp", {
-    name: "HeaderManager.headers",
-  });
-
-  let ep = new HashTree("elementProp", {
-    name: "User-Agent",
-    elementType: "Header"
-  });
-
-  ep.stringProp("Header.name", "User-Agent");
-  ep.stringProp("Header.value", userAgent);
-
-  cp.addValue(ep);
-
-  this.values.push(cp);
-};
-
-/**
- * Arguments
- *
- */
-
-let Arguments = function () {
-  CHashTree.call(this, "Arguments", "ArgumentsPanel", "Arguments", "User Defined Variables");
-};
-Arguments.prototype = new CHashTree();
-
-Arguments.prototype.addArguments = function (domianAlias) {
-  let cp = new HashTree("collectionProp", {name: "Arguments.arguments"});
-
-  if (domianAlias) {
-    Object.getOwnPropertyNames(domianAlias).forEach(function (key) {
-      cp.addValue(addArgumentsCommon(domianAlias[key], key, true, true));
-    });
-  }
-
-  this.values.push(cp);
-};
-
-
-/**
- * DNSCacheManager
- *
- */
-
-let DNSCacheManager = function () {
-  CHashTree.call(this, "DNSCacheManager", "DNSCachePanel", "DNSCacheManager", "DNS Cache Manager");
-};
-DNSCacheManager.prototype = new CHashTree();
-
-DNSCacheManager.prototype.init = function () {
-  let cp = new HashTree("collectionProp", {name: "DNSCacheManager.servers"});
-  this.values.push(cp);
-  this.boolProp("DNSCacheManager.clearEachIteration", true);
-  this.boolProp("DNSCacheManager.isCustomResolver", false);
-};
-
-
-/**
- * AuthManager
- *
- */
-
-let AuthManager = function () {
-  CHashTree.call(this, "AuthManager", "AuthPanel", "AuthManager", "HTTP Authorization Manager");
-};
-AuthManager.prototype = new CHashTree();
-AuthManager.prototype.init = function () {
-  let cp = new HashTree("collectionProp", {name: "AuthManager.auth_list"});
-  this.values.push(cp);
-  this.boolProp("AuthManager.controlledByThreadGroup", false);
-};
-
-/**
- * CookieManager
- *
- */
-
-let CookieManager = function () {
-  CHashTree.call(this, "CookieManager", "CookiePanel", "CookieManager", "HTTP Cookie Manager");
-};
-CookieManager.prototype = new CHashTree();
-CookieManager.prototype.init = function () {
-  let cp = new HashTree("collectionProp", {name: "CookieManager.cookies"});
-  this.values.push(cp);
-  this.boolProp("CookieManager.clearEachIteration", true);
-  this.boolProp("CookieManager.controlledByThreadGroup", false);
-};
-
-/**
- * CacheManager
- *
- */
-
-
-let CacheManager = function () {
-  CHashTree.call(this, "CacheManager", "CacheManagerGui", "CacheManager", "HTTP Cache Manager");
-};
-CacheManager.prototype = new CHashTree();
-
-
-/**
- * ThreadGroup
- *
- */
-let ThreadGroup = function () {
-  CHashTree.call(this, "ThreadGroup", "ThreadGroupGui", "ThreadGroup", "Group1");
-};
-ThreadGroup.prototype = new CHashTree();
-
-
-let LoopController = function () {
-  HashTree.call(this, "elementProp", {
-    name: "ThreadGroup.main_controller",
-    elementType: "LoopController",
-    guiclass: "LoopControlPanel",
-    testclass: "LoopController",
-    testname: "Loop Controller",
-    enabled: "true"
-  });
-};
-LoopController.prototype = new HashTree();
-
-
-/**
- * HTTPSamplerProxy
- *
- */
-let HTTPSamplerProxy = function (name) {
-  HashTree.call(this, "HTTPSamplerProxy", {
-    guiclass: "HttpTestSampleGui",
-    testclass: "HTTPSamplerProxy",
-    testname: name,
-    enabled: "true"
-  });
-};
-
-HTTPSamplerProxy.prototype = new HashTree();
-
-HTTPSamplerProxy.prototype.addArguments = function (url, body) {
-  let ht = new HashTree("elementProp", {
-    name: "HTTPSampler.Arguments",
-    elementType: "Arguments",
-    guiclass: "HTTPArgumentsPanel",
-    testclass: "Arguments",
-    enabled: "true"
-  });
-  let cp = new HashTree("collectionProp", {name: "Arguments.arguments"});
-  ht.addValue(cp);
-
-  let params = getUrlParams(url);
-  params.forEach(function (item) {
-    cp.addValue(addArgumentsCommon(item.name, item.value, false));
-  });
-
-  if (body) {
-    this.boolProp("HTTPSampler.postBodyRaw", true);
-    if (body instanceof Array) {
-      cp.addValue(addArgumentsBody(body[0], true));
-    } else {
-      cp.addValue(addArgumentsBody(body, true));
+  end() {
+    if (this.isEmpty()) {
+      return '\n';
     }
-
+    let str = '</' + this.name + '>\n';
+    if (!this.isEmptyValue()) {
+      return str;
+    }
+    if (!this.isEmptyElement()) {
+      return this.indent + str;
+    }
   }
-
-
-  this.values.push(ht);
-};
-
-
-function addArgumentsCommon(name, value, alwaysEncode, metadata) {
-  let ht = new HashTree("elementProp", {
-    name: name,
-    elementType: "HTTPArgument"
-  });
-  ht.boolProp("HTTPArgument.always_encode", alwaysEncode);
-  if (typeof (name) == 'string') {
-    ht.stringProp("Argument.name", name);
-  }
-  ht.stringProp("Argument.value", value);
-  if (!metadata) {
-    ht.stringProp("Argument.metadata", "=");
-  }
-  return ht;
 }
 
-function addArgumentsBody(value, alwaysEncode, metadata) {
-  let ht = new HashTree("elementProp", {
-    name: name,
-    elementType: "HTTPArgument"
-  });
-  ht.boolProp("HTTPArgument.always_encode", alwaysEncode);
-  ht.stringProp("Argument.value", value);
-  if (!metadata) {
-    ht.stringProp("Argument.metadata", "=");
+export class HashTree extends Element {
+  constructor() {
+    super('hashTree');
   }
-  return ht;
+
+  add(te) {
+    if (te instanceof TestElement) {
+      super.add(te);
+    }
+  }
 }
 
-function getUrlParams(url) {
-  let params = [];
-  if (url.indexOf('?') === -1) {
-    return params;
+export class TestElement extends Element {
+  constructor(name, attributes, value) {
+    // Element, 只能添加Element
+    super(name, attributes, value);
+    // HashTree, 只能添加TestElement
+    this.hashTree = new HashTree();
   }
-  let queryString = url.split('?')[1];
-  queryString = queryString.split('#')[0];
 
-  let arr = queryString.split('&');
+  put(te) {
+    this.hashTree.add(te);
+  }
 
-  arr.forEach(function (item) {
-    let a = item.split('=');
-    params.push({
-      name: a[0],
-      value: a[1]
+  toXML() {
+    let str = super.toXML();
+    str += this.hashTree.toXML(this.indent);
+    return str;
+  }
+}
+
+export class DefaultTestElement extends TestElement {
+  constructor(tag, guiclass, testclass, testname, enabled) {
+    super(tag, {
+      guiclass: guiclass,
+      testclass: testclass,
+      testname: testname || tag + ' Name',
+      enabled: enabled || true
     });
-  });
-
-  return params;
+  }
 }
 
+export class TestPlan extends DefaultTestElement {
+  constructor(testName) {
+    super('TestPlan', 'TestPlanGui', 'TestPlan', testName || 'TestPlan');
 
-let ElementPropHeaderManager = function () {
-  HashTree.call(this, "elementProp", {
-    name: "HTTPSampler.header_manager",
-    elementType: "HeaderManager"
-  });
-};
-ElementPropHeaderManager.prototype = new HashTree();
+    this.boolProp("TestPlan.functional_mode", false);
+    this.boolProp("TestPlan.serialize_threadgroups", false);
+    this.boolProp("TestPlan.tearDown_on_shutdown", true);
+    this.stringProp("TestPlan.comments", "");
+    this.stringProp("TestPlan.user_define_classpath", "");
+  }
+}
 
-let CollectionPropHeaderManagerHeaders = function () {
-  HashTree.call(this, "collectionProp", {
-    name: "HeaderManager.headers"
-  });
-};
-CollectionPropHeaderManagerHeaders.prototype = new HashTree();
+export class ThreadGroup extends DefaultTestElement {
+  constructor(testName) {
+    super('ThreadGroup', 'ThreadGroupGui', 'ThreadGroup', testName);
 
+    this.intProp("ThreadGroup.num_threads", 1);
+    this.intProp("ThreadGroup.ramp_time", 1);
+    this.longProp("ThreadGroup.delay", 0);
+    this.longProp("ThreadGroup.duration", 0);
+    this.stringProp("ThreadGroup.on_sample_error", "continue");
+    this.boolProp("ThreadGroup.scheduler", false);
 
-let elementPropHeaderManager = function (name, value) {
-  let ht = new HashTree("elementProp", {
-    name: name,
-    elementType: "Header"
-  });
-  ht.stringProp("Header.name", name);
-  ht.stringProp("Header.value", value);
-  return ht;
-};
+    let loopAttrs = {
+      name: "ThreadGroup.main_controller",
+      elementType: "LoopController",
+      guiclass: "LoopControlPanel",
+      testclass: "LoopController",
+      testname: "Loop Controller",
+      enabled: "true"
+    };
+    let loopController = this.add(new Element('elementProp', loopAttrs));
+    loopController.boolProp('LoopController.continue_forever', false);
+    loopController.stringProp('LoopController.loops', 1);
+  }
+}
 
-export default Jmx;
+export class HTTPSamplerProxy extends DefaultTestElement {
+  constructor(testName, request) {
+    super('HTTPSamplerProxy', 'HttpTestSampleGui', 'HTTPSamplerProxy', testName || 'HTTP Request');
+    this.request = request || {};
 
+    this.stringProp("HTTPSampler.domain", this.request.hostname);
+    this.stringProp("HTTPSampler.protocol", this.request.protocol.split(":")[0]);
+    this.stringProp("HTTPSampler.path", this.request.pathname);
+    this.stringProp("HTTPSampler.method", this.request.method);
+    if (this.request.port) {
+      this.stringProp("HTTPSampler.port", "");
+    } else {
+      this.stringProp("HTTPSampler.port", this.request.port);
+    }
+  }
 
+  addRequestArguments(arg) {
+    if (arg instanceof HTTPSamplerArguments) {
+      this.add(arg);
+    }
+  }
 
+  addRequestBody(body) {
+    if (body instanceof HTTPSamplerArguments) {
+      this.boolProp('HTTPSampler.postBodyRaw', true);
+      this.add(body);
+    }
+  }
+
+  putRequestHeader(header) {
+    if (header instanceof HeaderManager) {
+      this.put(header);
+    }
+  }
+
+  putResponseAssertion(assertion) {
+    if (assertion instanceof ResponseAssertion) {
+      this.put(assertion);
+    }
+  }
+
+  putDurationAssertion(assertion) {
+    if (assertion instanceof DurationAssertion) {
+      this.put(assertion);
+    }
+  }
+}
+
+// 这是一个Element
+export class HTTPSamplerArguments extends Element {
+  constructor(args) {
+    super('elementProp', {
+      name: "HTTPsampler.Arguments", // s必须小写
+      elementType: "Arguments",
+      guiclass: "HTTPArgumentsPanel",
+      testclass: "Arguments",
+      enabled: "true"
+    });
+
+    this.args = args || [];
+
+    let collectionProp = this.collectionProp('Arguments.arguments');
+    this.args.forEach(arg => {
+      let elementProp = collectionProp.elementProp(arg.name, 'HTTPArgument');
+      elementProp.boolProp('HTTPArgument.always_encode', false);
+      elementProp.boolProp('HTTPArgument.use_equals', true);
+      if (arg.name) {
+        elementProp.stringProp('Argument.name', arg.name);
+      }
+      elementProp.stringProp('Argument.value', arg.value);
+      elementProp.stringProp('Argument.metadata', "=");
+    });
+  }
+}
+
+export class DurationAssertion extends DefaultTestElement {
+  constructor(testName, duration) {
+    super('DurationAssertion', 'DurationAssertionGui', 'DurationAssertion', testName || 'Duration Assertion');
+    this.duration = duration || 0;
+    this.stringProp('DurationAssertion.duration', this.duration);
+  }
+}
+
+export class ResponseAssertion extends DefaultTestElement {
+  constructor(testName, assertion) {
+    super('ResponseAssertion', 'AssertionGui', 'ResponseAssertion', testName || 'Response Assertion');
+    this.assertion = assertion || {};
+
+    this.stringProp('Assertion.test_field', this.assertion.field);
+    this.boolProp('Assertion.assume_success', false);
+    this.intProp('Assertion.test_type', this.assertion.type);
+    this.stringProp('Assertion.custom_message', this.assertion.message);
+
+    let collectionProp = this.collectionProp('Asserion.test_strings');
+    let random = Math.floor(Math.random() * 10000);
+    collectionProp.stringProp(random, this.assertion.value);
+  }
+}
+
+export class ResponseCodeAssertion extends ResponseAssertion {
+  constructor(testName, type, value, message) {
+    let assertion = {
+      field: 'Assertion.response_code',
+      type: type,
+      value: value,
+      message: message,
+    }
+    super(testName, assertion)
+  }
+}
+
+export class ResponseDataAssertion extends ResponseAssertion {
+  constructor(testName, type, value, message) {
+    let assertion = {
+      field: 'Assertion.response_data',
+      type: type,
+      value: value,
+      message: message,
+    }
+    super(testName, assertion)
+  }
+}
+
+export class ResponseHeadersAssertion extends ResponseAssertion {
+  constructor(testName, type, value, message) {
+    let assertion = {
+      field: 'Assertion.response_headers',
+      type: type,
+      value: value,
+      message: message,
+    }
+    super(testName, assertion)
+  }
+}
+
+export class HeaderManager extends DefaultTestElement {
+  constructor(testName, headers) {
+    super('HeaderManager', 'HeaderPanel', 'HeaderManager', testName || 'HTTP Header manager');
+    this.headers = headers || [];
+
+    let collectionProp = this.collectionProp('HeaderManager.headers');
+    this.headers.forEach(header => {
+      let elementProp = collectionProp.elementProp('', 'Header');
+      elementProp.stringProp('Header.name', header.name);
+      elementProp.stringProp('Header.value', header.value);
+    });
+  }
+}
+
+export class Arguments extends DefaultTestElement {
+  constructor(testName, args) {
+    super('Arguments', 'ArgumentsPanel', 'Arguments', testName || 'User Defined Variables');
+    this.args = args || [];
+
+    let collectionProp = this.collectionProp('Arguments.arguments');
+    this.args.forEach(arg => {
+      let elementProp = collectionProp.elementProp(arg.name, 'HTTPArgument');
+      elementProp.boolProp('HTTPArgument.always_encode', true);
+      elementProp.stringProp('Argument.name', arg.name);
+      elementProp.stringProp('Argument.value', arg.value);
+      elementProp.stringProp('Argument.metadata', "=");
+    });
+  }
+}
 
