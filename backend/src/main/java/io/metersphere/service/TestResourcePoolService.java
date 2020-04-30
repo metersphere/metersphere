@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static io.metersphere.commons.constants.ResourceStatusEnum.INVALID;
 import static io.metersphere.commons.constants.ResourceStatusEnum.VALID;
 
 /**
@@ -98,6 +99,7 @@ public class TestResourcePoolService {
         if (nodeIps.size() < testResourcePool.getResources().size()) {
             MSException.throwException(Translator.get("duplicate_node_ip"));
         }
+        testResourcePool.setStatus(VALID.name());
         for (TestResource resource : testResourcePool.getResources()) {
             NodeDTO nodeDTO = JSON.parseObject(resource.getConfiguration(), NodeDTO.class);
             boolean isValidate = validateNode(nodeDTO);
@@ -134,6 +136,7 @@ public class TestResourcePoolService {
             KubernetesProvider provider = new KubernetesProvider(testResource.getConfiguration());
             provider.validateCredential();
             testResource.setStatus(VALID.name());
+            testResourcePool.setStatus(VALID.name());
         } catch (Exception e) {
             testResource.setStatus(ResourceStatusEnum.INVALID.name());
             testResourcePool.setStatus(ResourceStatusEnum.INVALID.name());
@@ -161,6 +164,18 @@ public class TestResourcePoolService {
     }
 
     public List<TestResourcePool> listValidResourcePools() {
+        QueryResourcePoolRequest request = new QueryResourcePoolRequest();
+        List<TestResourcePoolDTO> testResourcePools = listResourcePools(request);
+        // 重新校验 pool
+        for (TestResourcePoolDTO pool : testResourcePools) {
+            try {
+                updateTestResourcePool(pool);
+            } catch (MSException e) {
+                pool.setStatus(INVALID.name());
+                pool.setUpdateTime(System.currentTimeMillis());
+                testResourcePoolMapper.updateByPrimaryKeySelective(pool);
+            }
+        }
         TestResourcePoolExample example = new TestResourcePoolExample();
         example.createCriteria().andStatusEqualTo(ResourceStatusEnum.VALID.name());
         return testResourcePoolMapper.selectByExample(example);
