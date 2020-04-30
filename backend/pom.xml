@@ -128,12 +128,6 @@
             <artifactId>slf4j-simple</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-            <version>5.1</version>
-        </dependency>
-
         <!-- jmeter -->
 <!--        <dependency>-->
 <!--            <groupId>org.apache.jmeter</groupId>-->
