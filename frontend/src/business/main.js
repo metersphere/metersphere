@@ -14,6 +14,7 @@ import {permission} from './permission'
 import chart from "../common/js/chart";
 import '../common/css/menu-header.css';
 import '../common/css/main.css';
+import CKEditor from '@ckeditor/ckeditor5-vue';
 
 Vue.config.productionTip = false;
 Vue.use(icon);
@@ -23,7 +24,8 @@ Vue.use(ElementUI, {
 Vue.use(filters);
 Vue.use(ajax);
 Vue.use(chart);
-Vue.use(message)
+Vue.use(message);
+Vue.use(CKEditor);
 
 // v-permission
 Vue.directive('permission', permission);

@@ -62,7 +62,7 @@ public class DockerTestEngine extends AbstractEngine {
         // todo 运行测试
         EngineContext context = null;
         try {
-            context = EngineFactory.createContext(loadTest, realThreadNum, this.getStartTime(), this.getReportId());
+            context = EngineFactory.createContext(loadTest, resource.getId(), realThreadNum, this.getStartTime(), this.getReportId());
         } catch (Exception e) {
             MSException.throwException(e);
         }
@@ -82,6 +82,7 @@ public class DockerTestEngine extends AbstractEngine {
         testRequest.setFileString(content);
         testRequest.setImage(JMETER_IMAGE);
         testRequest.setTestData(context.getTestData());
+        testRequest.setEnv(context.getEnv());
 
         restTemplate.postForObject(uri, testRequest, String.class);
     }

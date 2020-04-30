@@ -5,7 +5,6 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportDetailMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
-import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
@@ -22,10 +21,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-
-import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -51,6 +47,10 @@ public class PerformanceTestService {
     private LoadTestReportDetailMapper loadTestReportDetailMapper;
     @Resource
     private ExtLoadTestReportDetailMapper extLoadTestReportDetailMapper;
+    @Resource
+    private LoadTestReportLogMapper loadTestReportLogMapper;
+    @Resource
+    private TestResourceService testResourceService;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         return extLoadTestMapper.list(request);
@@ -201,6 +201,16 @@ public class PerformanceTestService {
             extLoadTestReportMapper.appendLine(testReport.getId(), "\n");
             // append \n
             extLoadTestReportDetailMapper.appendLine(testReport.getId(), "\n");
+            // 保存 load_test_report_log
+            String resourcePoolId = loadTest.getTestResourcePoolId();
+            List<TestResource> testResourceList = testResourceService.getResourcesByPoolId(resourcePoolId);
+            testResourceList.forEach(r -> {
+                LoadTestReportLog record = new LoadTestReportLog();
+                record.setReportId(testReport.getId());
+                record.setResourceId(r.getId());
+                record.setContent(StringUtils.EMPTY);
+                loadTestReportLogMapper.insert(record);
+            });
         } catch (MSException e) {
             LogUtil.error(e);
             loadTest.setStatus(PerformanceTestStatus.Error.name());
@@ -208,23 +218,6 @@ public class PerformanceTestService {
             loadTestMapper.updateByPrimaryKeySelective(loadTest);
             throw e;
         }
-    }
-
-    public Map<String, String> log(String testId) {
-        final LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(testId);
-        if (loadTest == null) {
-            MSException.throwException(Translator.get("test_not_found") + testId);
-        }
-
-        if (!StringUtils.equals(loadTest.getStatus(), PerformanceTestStatus.Running.name())) {
-            MSException.throwException(Translator.get("test_not_running"));
-        }
-
-        Engine engine = EngineFactory.createEngine(loadTest);
-        if (engine == null) {
-            MSException.throwException(String.format("Engine is null，test ID：%s", testId));
-        }
-        return engine.log();
     }
 
     public List<LoadTestDTO> recentTestPlans(QueryTestPlanRequest request) {

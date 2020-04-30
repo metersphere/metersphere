@@ -2,7 +2,7 @@
   <div v-loading="result.loading">
     <el-card>
       <template v-slot:header>
-        <ms-table-header :condition.sync="condition" @search="search" @create="create"
+        <ms-table-header :condition.sync="condition" @search="initTableData" @create="create"
                          :create-tip="btnTips" :title="$t('commons.member')"/>
       </template>
       <el-table :data="tableData" style="width: 100%">
@@ -161,9 +161,6 @@
       },
       buildPagePath(path) {
         return path + "/" + this.currentPage + "/" + this.pageSize;
-      },
-      search() {
-        this.initTableData();
       },
       closeFunc() {
         this.form = {};

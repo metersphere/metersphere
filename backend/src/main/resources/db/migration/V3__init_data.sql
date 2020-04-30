@@ -10,3 +10,4 @@ INSERT INTO role (id, name, description, type, create_time, update_time) VALUES 
 INSERT INTO role (id, name, description, type, create_time, update_time) VALUES ('test_user', '测试人员', null, null, 1581576575948, 1581576575948);
 INSERT INTO role (id, name, description, type, create_time, update_time) VALUES ('test_viewer', 'Viewer', null, null, 1581576575948, 1581576575948);
 
+INSERT INTO test_case_report_template (name,content) VALUES ("默认模版","{\"components\":[1,2,3,4,5],\"contentMap\":{\"richTextComponentTitleSet\":{},\"richTextComponentContentSet\":{}}}");

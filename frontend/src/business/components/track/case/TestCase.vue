@@ -223,17 +223,6 @@
 
 <style scoped>
 
-  .node-tree {
-    margin: 3%;
-  }
-
-  .case-container {
-    height: calc(100vh - 150px);
-    min-height: 600px;
-    margin-top: 0;
-    margin-left: 0;
-  }
-
   .test-case-list {
     padding: 15px;
   }

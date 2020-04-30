@@ -2,7 +2,7 @@
   <div v-loading="result.loading">
     <el-card>
       <template v-slot:header>
-        <ms-table-header :condition.sync="condition" @search="search" @create="create"
+        <ms-table-header :condition.sync="condition" @search="initTableData" @create="create"
                          :create-tip="btnTips" :title="$t('commons.member')"/>
       </template>
       <el-table :data="tableData" style="width: 100%">
@@ -167,15 +167,12 @@
       buildPagePath(path) {
         return path + "/" + this.currentPage + "/" + this.pageSize;
       },
-      search() {
-        this.initTableData();
-      },
       closeFunc() {
         this.form = {};
         this.initTableData();
       },
       del(row) {
-        this.$confirm('移除该成员, 是否继续?', '提示', {
+        this.$confirm(this.$t('member.delete_confirm'), '', {
           confirmButtonText: this.$t('commons.confirm'),
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
@@ -224,7 +221,7 @@
         };
         let wsId = this.currentUser().lastWorkspaceId;
         if (typeof wsId == "undefined" || wsId == null || wsId == "") {
-          this.$warning("请先选择工作空间!");
+          this.$warning(this.$t('workspace.please_select_a_workspace_first'));
           return false;
         }
         this.$post('/user/org/member/list/all', param, response => {

@@ -1,5 +1,5 @@
 <template>
-  <div class="pressure-config-container">
+  <div v-loading="result.loading" class="pressure-config-container">
     <el-row>
       <el-col :span="10">
         <el-form :inline="true">
@@ -110,6 +110,7 @@
     props: ['testPlan'],
     data() {
       return {
+        result: {},
         threadNumber: 10,
         duration: 10,
         rampUpTime: 10,
@@ -148,8 +149,12 @@
     },
     methods: {
       getResourcePools() {
-        this.$get('/testresourcepool/list/all/valid', response => {
+        this.result = this.$get('/testresourcepool/list/all/valid', response => {
           this.resourcePools = response.data;
+          // 如果当前的资源池无效 设置 null
+          if (response.data.filter(p => p.id === this.resourcePool).length === 0) {
+            this.resourcePool = null;
+          }
         })
       },
       getLoadConfig(testId) {

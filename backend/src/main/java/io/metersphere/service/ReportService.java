@@ -1,8 +1,10 @@
 package io.metersphere.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.LoadTestMapper;
+import io.metersphere.base.mapper.LoadTestReportLogMapper;
 import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.LoadTestReportResultMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
@@ -20,7 +22,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -34,6 +39,10 @@ public class ReportService {
     private LoadTestMapper loadTestMapper;
     @Resource
     private LoadTestReportResultMapper loadTestReportResultMapper;
+    @Resource
+    private LoadTestReportLogMapper loadTestReportLogMapper;
+    @Resource
+    private TestResourceService testResourceService;
 
     public List<ReportDTO> getRecentReportList(ReportRequest request) {
         return extLoadTestReportMapper.getReportList(request);
@@ -146,5 +155,37 @@ public class ReportService {
 
     public LoadTestReport getLoadTestReport(String id) {
         return extLoadTestReportMapper.selectByPrimaryKey(id);
+    }
+
+    public Map<String, String> log(String reportId) {
+        Map<String, String> logMap = new HashMap<>();
+        LoadTestReportLogExample example = new LoadTestReportLogExample();
+        example.createCriteria().andReportIdEqualTo(reportId);
+        List<LoadTestReportLog> loadTestReportLogs = loadTestReportLogMapper.selectByExampleWithBLOBs(example);
+        loadTestReportLogs.stream().map(log -> {
+            Map<String, String> result = new HashMap<>();
+            TestResource testResource = testResourceService.getTestResource(log.getResourceId());
+            if (testResource == null) {
+                result.put(log.getResourceId(), log.getContent());
+                return result;
+            }
+            String configuration = testResource.getConfiguration();
+            JSONObject object = JSON.parseObject(configuration);
+            if (StringUtils.isNotBlank(object.getString("masterUrl"))) {
+                result.put(object.getString("masterUrl"), log.getContent());
+                return result;
+            }
+            if (StringUtils.isNotBlank(object.getString("ip"))) {
+                result.put(object.getString("ip"), log.getContent());
+                return result;
+
+            }
+            result.put(log.getResourceId(), log.getContent());
+            return result;
+        }).forEach(log -> logMap.putAll(log.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
+        );
+
+        return logMap;
     }
 }

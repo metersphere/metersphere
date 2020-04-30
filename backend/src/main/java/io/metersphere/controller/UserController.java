@@ -129,16 +129,14 @@ public class UserController {
     @PostMapping("/switch/source/org/{sourceId}")
     @RequiresRoles(RoleConstants.ORG_ADMIN)
     public UserDTO switchOrganization(@PathVariable(value = "sourceId") String sourceId) {
-        UserDTO user = SessionUtils.getUser();
-        userService.switchUserRole(user,"organization",sourceId);
+        userService.switchUserRole("organization",sourceId);
         return SessionUtils.getUser();
     }
 
     @PostMapping("/switch/source/ws/{sourceId}")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER,RoleConstants.TEST_VIEWER,RoleConstants.TEST_USER}, logical = Logical.OR)
     public UserDTO switchWorkspace(@PathVariable(value = "sourceId") String sourceId) {
-        UserDTO user = SessionUtils.getUser();
-        userService.switchUserRole(user, "workspace", sourceId);
+        userService.switchUserRole("workspace", sourceId);
         return SessionUtils.getUser();
     }
 

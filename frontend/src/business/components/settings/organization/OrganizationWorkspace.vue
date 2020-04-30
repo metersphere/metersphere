@@ -2,7 +2,7 @@
   <div>
     <el-card v-loading="result.loading">
       <template v-slot:header>
-        <ms-table-header :condition.sync="condition" @search="search" @create="create"
+        <ms-table-header :condition.sync="condition" @search="list" @create="create"
                          :create-tip="btnTips" :title="$t('commons.workspace')"/>
       </template>
       <el-table :data="items" style="width: 100%">
@@ -46,7 +46,7 @@
 
     <!-- dialog of workspace member -->
     <el-dialog :visible.sync="dialogWsMemberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc">
-      <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="wsMemberList"
+      <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="dialogSearch"
                        :create-tip="dialogBtnTips" :title="$t('commons.member')"/>
       <!-- organization member table -->
       <el-table :data="memberLineData" style="width: 100%;margin-top: 5px;">
@@ -69,7 +69,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <ms-table-pagination :change="wsMemberList" :current-page.sync="dialogCurrentPage" :page-size.sync="dialogPageSize"
+      <ms-table-pagination :change="dialogSearch" :current-page.sync="dialogCurrentPage" :page-size.sync="dialogPageSize"
                            :total="dialogTotal"/>
     </el-dialog>
 
@@ -202,15 +202,12 @@
           type: 'warning'
         }).then(() => {
           this.$get('/workspace/delete/' + row.id, () => {
-            Message.success(this.$t('commons.delete_success'));
+            this.$success(this.$t('commons.delete_success'));
             this.list();
           });
         }).catch(() => {
 
         });
-      },
-      search() {
-        this.list();
       },
       list() {
         let url = '/workspace/list/' + this.currentPage + '/' + this.pageSize;
@@ -274,7 +271,7 @@
           this.dialogTotal = data.itemCount;
         });
       },
-      wsMemberList() {
+      dialogSearch() {
         let row = this.currentWorkspaceRow;
         this.dialogWsMemberVisible = true;
         let param = this.dialogCondition;

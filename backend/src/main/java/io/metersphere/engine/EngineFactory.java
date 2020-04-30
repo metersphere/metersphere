@@ -9,6 +9,7 @@ import io.metersphere.base.domain.TestResourcePool;
 import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.config.KafkaProperties;
 import io.metersphere.engine.docker.DockerTestEngine;
 import io.metersphere.engine.kubernetes.KubernetesTestEngine;
 import io.metersphere.i18n.Translator;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
 public class EngineFactory {
     private static FileService fileService;
     private static TestResourcePoolService testResourcePoolService;
+    private static KafkaProperties kafkaProperties;
 
     public static Engine createEngine(LoadTestWithBLOBs loadTest) {
         String resourcePoolId = loadTest.getTestResourcePoolId();
@@ -54,7 +56,7 @@ public class EngineFactory {
         return null;
     }
 
-    public static EngineContext createContext(LoadTestWithBLOBs loadTest, long threadNum, long startTime, String reportId) throws Exception {
+    public static EngineContext createContext(LoadTestWithBLOBs loadTest, String resourceId, long threadNum, long startTime, String reportId) throws Exception {
         final List<FileMetadata> fileMetadataList = fileService.getFileMetadataByTestId(loadTest.getId());
         if (org.springframework.util.CollectionUtils.isEmpty(fileMetadataList)) {
             MSException.throwException(Translator.get("run_load_test_file_not_found") + loadTest.getId());
@@ -78,6 +80,13 @@ public class EngineFactory {
         engineContext.setResourcePoolId(loadTest.getTestResourcePoolId());
         engineContext.setStartTime(startTime);
         engineContext.setReportId(reportId);
+        HashMap<String, String> env = new HashMap<String, String>() {{
+            put("BOOTSTRAP_SERVERS", kafkaProperties.getBootstrapServers());
+            put("LOG_TOPIC", kafkaProperties.getLog().getTopic());
+            put("REPORT_ID", reportId);
+            put("RESOURCE_ID", resourceId);
+        }};
+        engineContext.setEnv(env);
 
         if (StringUtils.isNotEmpty(loadTest.getLoadConfiguration())) {
             final JSONArray jsonArray = JSONObject.parseArray(loadTest.getLoadConfiguration());
@@ -129,5 +138,10 @@ public class EngineFactory {
     @Resource
     public void setTestResourcePoolService(TestResourcePoolService testResourcePoolService) {
         EngineFactory.testResourcePoolService = testResourcePoolService;
+    }
+
+    @Resource
+    public void setKafkaProperties(KafkaProperties kafkaProperties) {
+        EngineFactory.kafkaProperties = kafkaProperties;
     }
 }

@@ -8,6 +8,7 @@ import PerformanceTestPlan from "../../performance/test/PerformanceTestPlan";
 import Organization from "../../settings/system/Organization";
 import OrganizationMember from "../../settings/organization/OrganizationMember";
 import Member from "../../settings/workspace/WorkspaceMember";
+import TestCaseReportTemplate from "../../settings/workspace/TestCaseReportTemplate";
 import TestResourcePool from "../../settings/system/TestResourcePool";
 import MsProject from "../../project/MsProject";
 import OrganizationWorkspace from "../../settings/organization/OrganizationWorkspace";
@@ -78,6 +79,11 @@ const router = new VueRouter({
         {
           path: 'testresourcepool',
           component: TestResourcePool
+        },
+        {
+          path: 'testcase/report/template',
+          name: 'testCaseReportTemplate',
+          component: TestCaseReportTemplate
         }
       ]
     },

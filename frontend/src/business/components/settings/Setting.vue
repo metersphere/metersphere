@@ -7,7 +7,9 @@
       <ms-setting-menu/>
     </div>
     <div class="container">
-      <router-view class="main-content"/>
+      <keep-alive>
+        <router-view class="main-content"/>
+      </keep-alive>
     </div>
   </el-row>
 </template>

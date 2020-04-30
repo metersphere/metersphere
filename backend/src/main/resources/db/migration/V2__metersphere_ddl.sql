@@ -82,6 +82,17 @@ CREATE TABLE IF NOT EXISTS `load_test_report_result` (
     DEFAULT CHARSET=utf8mb4
     COLLATE=utf8mb4_bin;
 
+CREATE TABLE IF NOT EXISTS `load_test_report_log` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `report_id` varchar(50) NOT NULL,
+  `resource_id` varchar(50) DEFAULT NULL,
+  `content` longtext,
+  PRIMARY KEY (`id`),
+  KEY `load_test_report_log_report_id_resource_name_index` (`report_id`,`resource_id`)
+)
+    ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_bin;
 
 CREATE TABLE IF NOT EXISTS `organization` (
     `id`          varchar(50) NOT NULL COMMENT 'Organization ID',
@@ -319,4 +330,29 @@ CREATE TABLE IF NOT EXISTS `test_plan_test_case` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
 
+CREATE TABLE IF NOT EXISTS `test_case_report_template` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(64) NOT NULL COMMENT 'Test case report template name',
+  `workspace_id` varchar(50) DEFAULT NULL COMMENT 'Workspace ID this project belongs to',
+  `content` longtext COMMENT 'Template content (JSON format)',
+  PRIMARY KEY (`id`)
+)
+    ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_bin;
+
+CREATE TABLE IF NOT EXISTS `test_case_report` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(64) NOT NULL COMMENT 'Test case report name',
+  `plan_id` varchar(50) NOT NULL COMMENT 'Plan ID relation to',
+  `content` longtext COMMENT 'Report content (JSON format)',
+  PRIMARY KEY (`id`)
+)
+    ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_bin;
+
 -- track end
+
+
+
