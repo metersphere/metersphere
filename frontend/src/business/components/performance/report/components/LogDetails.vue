@@ -1,6 +1,10 @@
 <template>
   <div>
-    {{logContent}}
+    <el-tabs type="border-card" :stretch="true">
+      <el-tab-pane v-for="(item, key) in logContent" :key="key" :label="key" class="logging-content">
+        {{item}}
+      </el-tab-pane>
+    </el-tabs>
   </div>
 </template>
 
@@ -34,6 +38,7 @@
   .logging-content {
     white-space: pre-line;
     overflow: auto;
+    height: calc(100vh - 400px);
   }
 
 </style>
