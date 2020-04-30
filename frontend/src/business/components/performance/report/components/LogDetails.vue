@@ -39,7 +39,7 @@
   .logging-content {
     white-space: pre-line;
     overflow: auto;
-    height: calc(100vh - 400px);
+    height: calc(100vh - 420px);
   }
 
 </style>
