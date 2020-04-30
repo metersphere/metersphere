@@ -8,7 +8,7 @@ public class JmeterProperties {
 
     public static final String JMETER_PREFIX = "jmeter";
 
-    private String image = "registry.fit2cloud.com/metersphere/jmeter-master:0.0.3";
+    private String image;
 
     public String getImage() {
         return image;
