@@ -128,7 +128,11 @@ public class UserService {
         userMapper.updateByPrimaryKeySelective(user);
     }
 
-    public void switchUserRole(UserDTO user, String sign, String sourceId) {
+    public void switchUserRole(String sign, String sourceId) {
+        SessionUser sessionUser = SessionUtils.getUser();
+        // 获取最新UserDTO
+        UserDTO user = getUserDTO(sessionUser.getId());
+
         User newUser = new User();
         if (StringUtils.equals("organization", sign)) {
             user.setLastOrganizationId(sourceId);
