@@ -9,7 +9,7 @@ import {
   HTTPSamplerArguments,
   ResponseCodeAssertion,
   ResponseDataAssertion,
-  ResponseHeadersAssertion
+  ResponseHeadersAssertion, DefaultTestElement
 } from "./JMX";
 
 export const generateId = function () {
@@ -73,6 +73,7 @@ export class BaseConfig {
 export class Test extends BaseConfig {
   constructor(options) {
     super();
+    this.version = '1.0.0';
     this.id = null;
     this.name = null;
     this.projectId = null;
@@ -300,6 +301,13 @@ class JMeterTestPlan extends Element {
   }
 }
 
+class APIBackendListener extends DefaultTestElement {
+  constructor() {
+    super('BackendListener', 'BackendListenerGui', 'BackendListener', 'API Backend Listener');
+    this.stringProp('classname', 'io.metersphere.api.jmeter.APIBackendListenerClient');
+  }
+}
+
 class JMXGenerator {
   constructor(test) {
     if (!test || !(test instanceof Test)) return;
@@ -307,6 +315,7 @@ class JMXGenerator {
     let testPlan = new TestPlan(test.name);
     test.scenarioDefinition.forEach(scenario => {
       let threadGroup = new ThreadGroup(scenario.name);
+
       scenario.requests.forEach(request => {
         let httpSamplerProxy = new HTTPSamplerProxy(request.name, new JMXRequest(request));
 
@@ -323,6 +332,7 @@ class JMXGenerator {
         threadGroup.put(httpSamplerProxy);
       })
 
+      threadGroup.put(new APIBackendListener());
       testPlan.put(threadGroup);
     })
 
@@ -333,12 +343,16 @@ class JMXGenerator {
   addRequestHeader(httpSamplerProxy, request) {
     let name = request.name + " Headers";
     let headers = request.headers.filter(this.filter);
-    httpSamplerProxy.putRequestHeader(new HeaderManager(name, headers));
+    if (headers.length > 0) {
+      httpSamplerProxy.putRequestHeader(new HeaderManager(name, headers));
+    }
   }
 
   addRequestArguments(httpSamplerProxy, request) {
     let args = request.parameters.filter(this.filter)
-    httpSamplerProxy.addRequestArguments(new HTTPSamplerArguments(args));
+    if (args.length > 0) {
+      httpSamplerProxy.addRequestArguments(new HTTPSamplerArguments(args));
+    }
   }
 
   addRequestBody(httpSamplerProxy, request) {

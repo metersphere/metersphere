@@ -1,4 +1,4 @@
-const INDENT = '  ';
+const INDENT = '  '; // 缩进2空格
 
 export class Element {
   constructor(name, attributes, value) {

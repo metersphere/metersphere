@@ -105,8 +105,7 @@
         });
       },
       cancel: function () {
-        // this.$router.push('/api/test/list/all');
-        console.log(this.test.toJMX().xml);
+        this.$router.push('/api/test/list/all');
       },
       getOptions: function (url) {
         let formData = new FormData();
@@ -122,7 +121,6 @@
           type: "application/json"
         }));
         let jmx = this.test.toJMX();
-        console.log(jmx.xml);
         let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
         formData.append("files", new File([blob], jmx.name));
 

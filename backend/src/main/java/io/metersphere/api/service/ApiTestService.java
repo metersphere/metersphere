@@ -4,6 +4,7 @@ import io.metersphere.api.dto.APITestResult;
 import io.metersphere.api.dto.DeleteAPITestRequest;
 import io.metersphere.api.dto.QueryAPITestRequest;
 import io.metersphere.api.dto.SaveAPITestRequest;
+import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiTestFileMapper;
 import io.metersphere.base.mapper.ApiTestMapper;
@@ -13,11 +14,18 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.FileService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jmeter.save.SaveService;
+import org.apache.jmeter.services.FileServer;
+import org.apache.jorphan.collections.HashTree;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -36,6 +44,8 @@ public class ApiTestService {
     private ApiTestFileMapper apiTestFileMapper;
     @Resource
     private FileService fileService;
+    @Resource
+    private JMeterService jMeterService;
 
     public List<APITestResult> list(QueryAPITestRequest request) {
         return extApiTestMapper.list(request);
@@ -47,7 +57,7 @@ public class ApiTestService {
     }
 
     public String save(SaveAPITestRequest request, List<MultipartFile> files) {
-        if (files == null) {
+        if (files == null || files.isEmpty()) {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
         }
 
@@ -79,8 +89,21 @@ public class ApiTestService {
         apiTestMapper.deleteByPrimaryKey(request.getId());
     }
 
-    public String run(SaveAPITestRequest request, List<MultipartFile> files) {
-        return save(request, files);
+    public void run(SaveAPITestRequest request, List<MultipartFile> files) {
+        save(request, files);
+        try {
+            changeStatus(request.getId(), APITestStatus.Running);
+            jMeterService.run(files.get(0).getInputStream());
+        } catch (IOException e) {
+            MSException.throwException(Translator.get("api_load_script_error"));
+        }
+    }
+
+    public void changeStatus(String id, APITestStatus status) {
+        ApiTestWithBLOBs apiTest = new ApiTestWithBLOBs();
+        apiTest.setId(id);
+        apiTest.setStatus(status.name());
+        apiTestMapper.updateByPrimaryKeySelective(apiTest);
     }
 
     private ApiTestWithBLOBs updateTest(SaveAPITestRequest request) {
@@ -114,7 +137,7 @@ public class ApiTestService {
         return test;
     }
 
-    public void deleteFileByTestId(String testId) {
+    private void deleteFileByTestId(String testId) {
         ApiTestFileExample ApiTestFileExample = new ApiTestFileExample();
         ApiTestFileExample.createCriteria().andTestIdEqualTo(testId);
         final List<ApiTestFile> ApiTestFiles = apiTestFileMapper.selectByExample(ApiTestFileExample);
