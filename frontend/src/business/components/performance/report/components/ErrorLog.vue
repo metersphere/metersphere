@@ -19,12 +19,12 @@
         sortable>
       </el-table-column>
       <el-table-column
-        prop="precentOfErrors"
+        prop="percentOfErrors"
         label="% in errors"
         sortable>
       </el-table-column>
       <el-table-column
-        prop="precentOfAllSamples"
+        prop="percentOfAllSamples"
         label="% in all samples"
         sortable>
       </el-table-column>
