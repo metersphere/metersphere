@@ -7,15 +7,16 @@ import io.metersphere.base.domain.TestResourcePool;
 import io.metersphere.base.domain.TestResourcePoolExample;
 import io.metersphere.base.mapper.TestResourceMapper;
 import io.metersphere.base.mapper.TestResourcePoolMapper;
-import io.metersphere.base.mapper.ext.ExtTestReourcePoolMapper;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.controller.request.resourcepool.QueryResourcePoolRequest;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.dto.TestResourcePoolDTO;
 import io.metersphere.engine.kubernetes.provider.KubernetesProvider;
 import io.metersphere.i18n.Translator;
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -45,8 +48,6 @@ public class TestResourcePoolService {
     private TestResourcePoolMapper testResourcePoolMapper;
     @Resource
     private TestResourceMapper testResourceMapper;
-    @Resource
-    private ExtTestReourcePoolMapper extTestReourcePoolMapper;
     @Resource
     private RestTemplate restTemplate;
 
@@ -72,7 +73,27 @@ public class TestResourcePoolService {
     }
 
     public List<TestResourcePoolDTO> listResourcePools(QueryResourcePoolRequest request) {
-        return extTestReourcePoolMapper.listResourcePools(request);
+        TestResourcePoolExample example = new TestResourcePoolExample();
+        TestResourcePoolExample.Criteria criteria = example.createCriteria();
+        if (StringUtils.isNotBlank(request.getName())) {
+            criteria.andNameLike(StringUtils.wrapIfMissing(request.getName(), "%"));
+        }
+        List<TestResourcePool> testResourcePools = testResourcePoolMapper.selectByExample(example);
+        List<TestResourcePoolDTO> testResourcePoolDTOS = new ArrayList<>();
+        testResourcePools.forEach(pool -> {
+            TestResourceExample example2 = new TestResourceExample();
+            example2.createCriteria().andTestResourcePoolIdEqualTo(pool.getId());
+            List<TestResource> testResources = testResourceMapper.selectByExampleWithBLOBs(example2);
+            TestResourcePoolDTO testResourcePoolDTO = new TestResourcePoolDTO();
+            try {
+                BeanUtils.copyProperties(testResourcePoolDTO, pool);
+                testResourcePoolDTO.setResources(testResources);
+                testResourcePoolDTOS.add(testResourcePoolDTO);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                LogUtil.error(e);
+            }
+        });
+        return testResourcePoolDTOS;
     }
 
     private void validateTestResourcePool(TestResourcePoolDTO testResourcePool) {

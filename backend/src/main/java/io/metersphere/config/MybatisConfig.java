@@ -1,6 +1,9 @@
 package io.metersphere.config;
 
 import com.github.pagehelper.PageInterceptor;
+import io.metersphere.base.domain.FileContent;
+import io.metersphere.base.domain.TestResource;
+import io.metersphere.commons.utils.CompressUtils;
 import io.metersphere.commons.utils.MybatisInterceptorConfig;
 import io.metersphere.interceptor.MybatisInterceptor;
 import org.mybatis.spring.annotation.MapperScan;
@@ -37,7 +40,8 @@ public class MybatisConfig {
     public MybatisInterceptor dbInterceptor() {
         MybatisInterceptor interceptor = new MybatisInterceptor();
         List<MybatisInterceptorConfig> configList = new ArrayList<>();
-        configList.add(new MybatisInterceptorConfig("io.metersphere.base.domain.FileContent", "file", "io.metersphere.commons.utils.CompressUtils", "zip", "unzip"));
+        configList.add(new MybatisInterceptorConfig(FileContent.class, "file", CompressUtils.class, "zip", "unzip"));
+        configList.add(new MybatisInterceptorConfig(TestResource.class, "configuration"));
         interceptor.setInterceptorConfigList(configList);
         return interceptor;
     }
