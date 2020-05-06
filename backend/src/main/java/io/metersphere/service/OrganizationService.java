@@ -67,6 +67,23 @@ public class OrganizationService {
     }
 
     public void deleteOrganization(String organizationId) {
+        WorkspaceExample example = new WorkspaceExample();
+        WorkspaceExample.Criteria criteria = example.createCriteria();
+        criteria.andOrganizationIdEqualTo(organizationId);
+
+        // delete workspace
+        List<Workspace> workspaces = workspaceMapper.selectByExample(example);
+        List<String> workspaceIdList = workspaces.stream().map(Workspace::getId).collect(Collectors.toList());
+        for (String workspaceId : workspaceIdList) {
+            workspaceService.deleteWorkspace(workspaceId);
+        }
+
+        // delete organization member
+        UserRoleExample userRoleExample = new UserRoleExample();
+        userRoleExample.createCriteria().andSourceIdEqualTo(organizationId);
+        userRoleMapper.deleteByExample(userRoleExample);
+
+        // delete org
         organizationMapper.deleteByPrimaryKey(organizationId);
     }
 
