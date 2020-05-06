@@ -9,7 +9,8 @@ import {
   HTTPSamplerArguments,
   ResponseCodeAssertion,
   ResponseDataAssertion,
-  ResponseHeadersAssertion, DefaultTestElement
+  ResponseHeadersAssertion,
+  BackendListener
 } from "./JMX";
 
 export const generateId = function () {
@@ -259,7 +260,7 @@ export class ResponseTime extends AssertionType {
   }
 }
 
-/** ------------------------------------ **/
+/** ------------------------------------------------------------------------ **/
 const JMX_ASSERTION_CONDITION = {
   MATCH: 1,
   CONTAINS: 1 << 1,
@@ -301,16 +302,9 @@ class JMeterTestPlan extends Element {
   }
 }
 
-class APIBackendListener extends DefaultTestElement {
-  constructor() {
-    super('BackendListener', 'BackendListenerGui', 'BackendListener', 'API Backend Listener');
-    this.stringProp('classname', 'io.metersphere.api.jmeter.APIBackendListenerClient');
-  }
-}
-
 class JMXGenerator {
   constructor(test) {
-    if (!test || !(test instanceof Test)) return;
+    if (!test || !test.id || !(test instanceof Test)) return;
 
     let testPlan = new TestPlan(test.name);
     test.scenarioDefinition.forEach(scenario => {
@@ -332,7 +326,7 @@ class JMXGenerator {
         threadGroup.put(httpSamplerProxy);
       })
 
-      threadGroup.put(new APIBackendListener());
+      this.addBackendListener(threadGroup, test.id);
       testPlan.put(threadGroup);
     })
 
@@ -391,6 +385,13 @@ class JMXGenerator {
       case ASSERTION_REGEX_SUBJECT.RESPONSE_HEADERS:
         return new ResponseHeadersAssertion(name, type, value);
     }
+  }
+
+  addBackendListener(threadGroup, testId) {
+    let testName = 'API Backend Listener';
+    let className = 'io.metersphere.api.jmeter.APIBackendListenerClient';
+    let args = [{name: 'id', value: testId}];
+    threadGroup.put(new BackendListener(testName, className, args));
   }
 
   filter(config) {

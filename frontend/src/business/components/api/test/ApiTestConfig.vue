@@ -123,6 +123,7 @@
         let jmx = this.test.toJMX();
         let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
         formData.append("files", new File([blob], jmx.name));
+        console.log(jmx.xml)
 
         return {
           method: 'POST',

@@ -369,3 +369,31 @@ export class Arguments extends DefaultTestElement {
   }
 }
 
+export class BackendListener extends DefaultTestElement {
+  constructor(testName, className, args) {
+    super('BackendListener', 'BackendListenerGui', 'BackendListener', testName || 'Backend Listener');
+    this.stringProp('classname', className);
+    this.add(new ElementArguments(args));
+  }
+}
+
+export class ElementArguments extends Element {
+  constructor(args) {
+    super('elementProp', {
+      name: "arguments",
+      elementType: "Arguments",
+      guiclass: "ArgumentsPanel",
+      testclass: "Arguments",
+      enabled: "true"
+    });
+
+    let collectionProp = this.collectionProp('Arguments.arguments');
+    args.forEach(arg => {
+      let elementProp = collectionProp.elementProp(arg.name, 'Argument');
+      elementProp.stringProp('Argument.name', arg.name);
+      elementProp.stringProp('Argument.value', arg.value);
+      elementProp.stringProp('Argument.metadata', "=");
+    });
+  }
+}
+

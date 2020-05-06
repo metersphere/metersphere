@@ -14,17 +14,11 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.FileService;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jmeter.save.SaveService;
-import org.apache.jmeter.services.FileServer;
-import org.apache.jorphan.collections.HashTree;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -89,14 +83,15 @@ public class ApiTestService {
         apiTestMapper.deleteByPrimaryKey(request.getId());
     }
 
-    public void run(SaveAPITestRequest request, List<MultipartFile> files) {
-        save(request, files);
+    public String run(SaveAPITestRequest request, List<MultipartFile> files) {
+        String id = save(request, files);
         try {
             changeStatus(request.getId(), APITestStatus.Running);
             jMeterService.run(files.get(0).getInputStream());
         } catch (IOException e) {
             MSException.throwException(Translator.get("api_load_script_error"));
         }
+        return id;
     }
 
     public void changeStatus(String id, APITestStatus status) {
@@ -145,8 +140,19 @@ public class ApiTestService {
 
         if (!CollectionUtils.isEmpty(ApiTestFiles)) {
             final List<String> fileIds = ApiTestFiles.stream().map(ApiTestFile::getFileId).collect(Collectors.toList());
-
             fileService.deleteFileByIds(fileIds);
+        }
+    }
+
+    private ApiTestFile getFileByTestId(String testId) {
+        ApiTestFileExample ApiTestFileExample = new ApiTestFileExample();
+        ApiTestFileExample.createCriteria().andTestIdEqualTo(testId);
+        final List<ApiTestFile> ApiTestFiles = apiTestFileMapper.selectByExample(ApiTestFileExample);
+        apiTestFileMapper.selectByExample(ApiTestFileExample);
+        if (!CollectionUtils.isEmpty(ApiTestFiles)) {
+            return ApiTestFiles.get(0);
+        } else {
+            return null;
         }
     }
 
