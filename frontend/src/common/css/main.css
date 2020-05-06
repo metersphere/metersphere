@@ -25,3 +25,10 @@ body {
   word-wrap: break-word;
   white-space: nowrap;
 }
+
+/*解决高度塌陷和边距重叠*/
+.clearfix:before,.clearfix:after{
+  content: "";
+  display: table;
+  clear: both;
+}

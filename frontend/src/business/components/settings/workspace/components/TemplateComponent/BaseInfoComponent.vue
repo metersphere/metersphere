@@ -3,34 +3,38 @@
 
   <common-component :title="'基础信息'">
 
-    <el-row type="flex" justify="space-between">
-      <el-col :span="12">
-        <span>所属项目：</span>
-        <span class="item-value">{{reportInfo.project}}</span>
-      </el-col>
-      <el-col :span="12">
-        <span>测试负责人：</span>
-        <span class="item-value">{{reportInfo.principal}}</span>
-      </el-col>
-    </el-row>
+    <template>
 
-    <el-row type="flex" justify="space-between">
-      <el-col :span="12">
-        <span>开始时间：</span>
-        <span class="item-value">{{reportInfo.startTime}}</span>
-      </el-col>
-      <el-col :span="12">
-        <span>结束时间：</span>
-        <span class="item-value">{{reportInfo.endTime}}</span>
-      </el-col>
-    </el-row>
+      <el-row type="flex" justify="space-between">
+        <el-col :span="12">
+          <span>所属项目：</span>
+          <span class="item-value">{{reportInfo.project}}</span>
+        </el-col>
+        <el-col :span="12">
+          <span>测试负责人：</span>
+          <span class="item-value">{{reportInfo.principal}}</span>
+        </el-col>
+      </el-row>
 
-    <el-row type="flex" justify="space-between">
-      <el-col :span="12">
-        <span>测试执行人：</span>
-        <span v-for="item in reportInfo.executors" :key="item">{{item}}</span>
-      </el-col>
-    </el-row>
+      <el-row type="flex" justify="space-between">
+        <el-col :span="12">
+          <span>开始时间：</span>
+          <span class="item-value">{{reportInfo.startTime}}</span>
+        </el-col>
+        <el-col :span="12">
+          <span>结束时间：</span>
+          <span class="item-value">{{reportInfo.endTime}}</span>
+        </el-col>
+      </el-row>
+
+      <el-row type="flex" justify="space-between">
+        <el-col :span="12">
+          <span>测试执行人：</span>
+          <span v-for="item in reportInfo.executors" :key="item">{{item}}</span>
+        </el-col>
+      </el-row>
+
+    </template>
 
   </common-component>
 

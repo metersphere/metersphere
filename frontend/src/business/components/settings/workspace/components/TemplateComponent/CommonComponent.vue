@@ -1,17 +1,18 @@
 <template>
   <el-card class="template-component">
 
-    <template v-slot:header>
+    <template v-slot:header >
+
       <slot name="header">
         <span class="title">{{title}}</span>
       </slot>
     </template>
 
-    <el-main>
-
-      <slot></slot>
-
-    </el-main>
+    <template>
+      <el-main>
+        <slot></slot>
+      </el-main>
+    </template>
 
   </el-card>
 
@@ -30,6 +31,9 @@
           type: String,
           default: '标题'
         }
+      },
+      methods: {
+
       }
     }
 </script>

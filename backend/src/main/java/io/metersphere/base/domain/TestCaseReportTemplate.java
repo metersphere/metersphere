@@ -9,6 +9,10 @@ public class TestCaseReportTemplate implements Serializable {
 
     private String workspaceId;
 
+    private Long startTime;
+
+    private Long endTime;
+
     private String content;
 
     private static final long serialVersionUID = 1L;
@@ -35,6 +39,22 @@ public class TestCaseReportTemplate implements Serializable {
 
     public void setWorkspaceId(String workspaceId) {
         this.workspaceId = workspaceId == null ? null : workspaceId.trim();
+    }
+
+    public Long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Long startTime) {
+        this.startTime = startTime;
+    }
+
+    public Long getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Long endTime) {
+        this.endTime = endTime;
     }
 
     public String getContent() {

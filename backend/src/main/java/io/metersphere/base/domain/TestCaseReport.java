@@ -9,6 +9,10 @@ public class TestCaseReport implements Serializable {
 
     private String planId;
 
+    private Long startTime;
+
+    private Long endTime;
+
     private String content;
 
     private static final long serialVersionUID = 1L;
@@ -35,6 +39,22 @@ public class TestCaseReport implements Serializable {
 
     public void setPlanId(String planId) {
         this.planId = planId == null ? null : planId.trim();
+    }
+
+    public Long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Long startTime) {
+        this.startTime = startTime;
+    }
+
+    public Long getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Long endTime) {
+        this.endTime = endTime;
     }
 
     public String getContent() {

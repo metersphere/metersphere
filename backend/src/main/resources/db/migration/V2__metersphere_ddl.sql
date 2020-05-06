@@ -335,6 +335,8 @@ CREATE TABLE IF NOT EXISTS `test_case_report_template` (
   `name` varchar(64) NOT NULL COMMENT 'Test case report template name',
   `workspace_id` varchar(50) DEFAULT NULL COMMENT 'Workspace ID this project belongs to',
   `content` longtext COMMENT 'Template content (JSON format)',
+  `start_time`            bigint(13) COMMENT 'Test start time',
+  `end_time`            bigint(13) COMMENT 'Test end time',
   PRIMARY KEY (`id`)
 )
     ENGINE=InnoDB
@@ -346,6 +348,8 @@ CREATE TABLE IF NOT EXISTS `test_case_report` (
   `name` varchar(64) NOT NULL COMMENT 'Test case report name',
   `plan_id` varchar(50) NOT NULL COMMENT 'Plan ID relation to',
   `content` longtext COMMENT 'Report content (JSON format)',
+  `start_time`            bigint(13)  COMMENT 'Test start time',
+  `end_time`            bigint(13) COMMENT 'Test end time',
   PRIMARY KEY (`id`)
 )
     ENGINE=InnoDB
