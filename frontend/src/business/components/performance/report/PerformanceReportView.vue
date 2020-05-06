@@ -14,21 +14,21 @@
               </el-breadcrumb>
             </el-row>
             <el-row class="ms-report-view-btns">
-              <el-button type="primary" plain size="mini">立即停止</el-button>
-              <el-button type="success" plain size="mini">再次执行</el-button>
-              <el-button type="info" plain size="mini">导出</el-button>
-              <el-button type="warning" plain size="mini">比较</el-button>
+              <el-button type="primary" plain size="mini">{{$t('report.test_stop_now')}}</el-button>
+              <el-button type="success" plain size="mini">{{$t('report.test_execute_again')}}</el-button>
+              <el-button type="info" plain size="mini">{{$t('report.export')}}</el-button>
+              <el-button type="warning" plain size="mini">{{$t('report.compare')}}</el-button>
             </el-row>
           </el-col>
           <el-col :span="8">
             <span class="ms-report-time-desc">
-              持续时间：  {{minutes}} 分钟 {{seconds}} 秒
+              {{$t('report.test_duration', [this.minutes, this.seconds])}}
             </span>
             <span class="ms-report-time-desc">
-              开始时间：  {{startTime}}
+              {{$t('report.test_start_time')}}：{{startTime}}
             </span>
             <span class="ms-report-time-desc">
-              结束时间：  {{endTime}}
+              {{$t('report.test_end_time')}}：{{endTime}}
             </span>
           </el-col>
         </el-row>
@@ -124,11 +124,11 @@
         this.status = data.status;
         switch (data.status) {
           case 'Error':
-            this.$warning("报告生成错误,无法查看！");
+            this.$warning(this.$t('report.generation_error'));
             break;
           case 'Starting':
           case 'Reporting':
-            this.$info("报告生成中....");
+            this.$info(this.$t('report.being_generated'));
             break;
           case 'Running':
             break;
