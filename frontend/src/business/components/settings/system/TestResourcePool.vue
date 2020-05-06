@@ -11,7 +11,7 @@
         <el-table-column prop="description" :label="$t('commons.description')"/>
         <el-table-column prop="type" :label="$t('test_resource_pool.type')">
           <template v-slot:default="scope">
-            <span v-if="scope.row.type === 'NODE'">Single Docker</span>
+            <span v-if="scope.row.type === 'NODE'">Node</span>
             <span v-if="scope.row.type === 'K8S'">Kubernetes</span>
           </template>
         </el-table-column>
@@ -64,7 +64,7 @@
           <el-select v-model="form.type" :placeholder="$t('test_resource_pool.select_pool_type')"
                      @change="changeResourceType()">
             <el-option key="K8S" value="K8S" label="Kubernetes">Kubernetes</el-option>
-            <el-option key="NODE" value="NODE" label="Node">Single Docker</el-option>
+            <el-option key="NODE" value="NODE" label="Node">Node</el-option>
           </el-select>
         </el-form-item>
         <div v-for="(item,index) in infoList " :key="index">
@@ -146,7 +146,7 @@
           <el-select v-model="form.type" :placeholder="$t('test_resource_pool.select_pool_type')"
                      @change="changeResourceType()">
             <el-option key="K8S" value="K8S" label="Kubernetes">Kubernetes</el-option>
-            <el-option key="NODE" value="NODE" label="Node">Single Docker</el-option>
+            <el-option key="NODE" value="NODE" label="Node">Node</el-option>
           </el-select>
         </el-form-item>
         <div v-for="(item,index) in infoList " :key="index">
