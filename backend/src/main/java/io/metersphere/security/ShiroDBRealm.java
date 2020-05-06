@@ -67,7 +67,7 @@ public class ShiroDBRealm extends AuthorizingRealm {
         UserDTO user = userService.getUserDTO(userId);
         String msg;
         if (user == null) {
-            msg = "not exist user is trying to login, user:" + userId;
+            msg = "The user does not exist: " + userId;
             logger.warn(msg);
             throw new UnknownAccountException(msg);
         }

@@ -1,6 +1,10 @@
 <template>
-  <div>
-    {{logContent}}
+  <div v-loading="result.loading">
+    <el-tabs type="border-card" :stretch="true">
+      <el-tab-pane v-for="(item, key) in logContent" :key="key" :label="key" class="logging-content">
+        {{item}}
+      </el-tab-pane>
+    </el-tabs>
   </div>
 </template>
 
@@ -10,12 +14,13 @@
     props: ['id', 'status'],
     data() {
       return {
-        logContent: null
+        logContent: null,
+        result: {},
       }
     },
     methods: {
       initTableData() {
-        this.$get("/performance/report/log/" + this.id, res => {
+        this.result = this.$get("/performance/report/log/" + this.id, res => {
           this.logContent = res.data;
         })
       }
@@ -34,6 +39,7 @@
   .logging-content {
     white-space: pre-line;
     overflow: auto;
+    height: calc(100vh - 420px);
   }
 
 </style>

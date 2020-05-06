@@ -56,7 +56,7 @@ export default {
   workspace: {
     'create': '创建工作空间',
     'update': '修改工作空间',
-    'delete_confirm': '删除工作空间会级联删除该工作空间下的资源，确定要删除吗?',
+    'delete_confirm': '删除工作空间会关联删除该工作空间下的资源，确定要删除吗?',
     'add': '添加工作空间',
     'input_name': '请输入工作空间名称',
     'search_by_name': '根据名称搜索',
@@ -67,7 +67,7 @@ export default {
   organization: {
     'create': '创建组织',
     'modify': '修改组织',
-    'delete_confirm': '这个组织确定要删除吗?',
+    'delete_confirm': '删除组织会关联删除该组织下的资源，确定要删除吗?',
     'input_name': '请输入组织名称',
     'select_organization': '请选择组织',
     'search_by_name': '根据名称搜索',
@@ -185,8 +185,9 @@ export default {
       name: "场景名称",
       base_url: "基础URL",
       base_url_description: "基础URL作为所有请求的URL前缀",
-      variables: "变量",
-      headers: "请求头"
+      parameters: "请求变量",
+      headers: "请求头",
+      kv_description: "将用于未设置该项的请求",
     },
     request: {
       input_name: "请输入请求名称",

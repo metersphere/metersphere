@@ -43,7 +43,7 @@
     computed: {
       isSelected() {
         return function (request) {
-          return this.selected.randomId === request.randomId;
+          return this.selected.id === request.id;
         }
       }
     },

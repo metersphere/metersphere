@@ -12,7 +12,7 @@
                   {{$t('api_test.scenario.config')}}
                 </span>
               </div>
-<!--              暂时去掉，将来再-->
+<!--              暂时去掉，将来再加-->
 <!--              <el-dropdown trigger="click" @command="handleCommand">-->
 <!--                <span class="el-dropdown-link el-icon-more scenario-btn"/>-->
 <!--                <el-dropdown-menu slot="dropdown">-->
@@ -24,7 +24,7 @@
           </ms-api-collapse-item>
         </ms-api-collapse>
       </div>
-<!--      暂时去掉，将来再-->
+<!--      暂时去掉，将来再加-->
 <!--      <el-button class="scenario-create" type="primary" size="mini" icon="el-icon-plus" plain @click="createScenario"/>-->
     </el-aside>
 

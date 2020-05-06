@@ -1,5 +1,10 @@
 package io.metersphere.commons.utils;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class MybatisInterceptorConfig {
     private String modelName;
     private String attrName;
@@ -9,7 +14,6 @@ public class MybatisInterceptorConfig {
     private String undoClass;
     private String undoMethod;
 
-
     public MybatisInterceptorConfig() {
     }
 
@@ -17,100 +21,25 @@ public class MybatisInterceptorConfig {
      * 用时需谨慎！！！！！
      * 主要配置多个的时候，参数少一点
      *
-     * @param modelName
+     * @param modelClass
      * @param attrName
      */
-    public MybatisInterceptorConfig(String modelName, String attrName) {
-        this.modelName = modelName;
+    public MybatisInterceptorConfig(Class<?> modelClass, String attrName) {
+        this.modelName = modelClass.getName();
         this.attrName = attrName;
-        this.interceptorClass = "io.metersphere.commons.utils.EncryptUtils";
+        this.interceptorClass = EncryptUtils.class.getName();
         this.interceptorMethod = "aesEncrypt";
-        this.undoClass = "io.metersphere.commons.utils.EncryptUtils";
+        this.undoClass = EncryptUtils.class.getName();
         this.undoMethod = "aesDecrypt";
     }
 
-    public MybatisInterceptorConfig(String modelName, String attrName, String attrNameForList) {
-        this.modelName = modelName;
+    public MybatisInterceptorConfig(Class<?> modelClass, String attrName, Class<?> interceptorClass, String interceptorMethod, String undoMethod) {
+        this.modelName = modelClass.getName();
         this.attrName = attrName;
-        this.attrNameForList = attrNameForList;
-        this.interceptorClass = "io.metersphere.commons.utils.EncryptUtils";
-        this.interceptorMethod = "aesEncrypt";
-        this.undoClass = "io.metersphere.commons.utils.EncryptUtils";
-        this.undoMethod = "aesDecrypt";
-    }
-
-    public MybatisInterceptorConfig(String modelName, String attrName, String interceptorClass, String interceptorMethod, String undoMethod) {
-        this.modelName = modelName;
-        this.attrName = attrName;
-        this.interceptorClass = interceptorClass;
+        this.interceptorClass = interceptorClass.getName();
         this.interceptorMethod = interceptorMethod;
-        this.undoClass = interceptorClass;
+        this.undoClass = interceptorClass.getName();
         this.undoMethod = undoMethod;
     }
 
-    public MybatisInterceptorConfig(String modelName, String attrName, String attrNameForList, String interceptorClass, String interceptorMethod, String undoMethod) {
-        this.modelName = modelName;
-        this.attrName = attrName;
-        this.attrNameForList = attrNameForList;
-        this.interceptorClass = interceptorClass;
-        this.interceptorMethod = interceptorMethod;
-        this.undoClass = interceptorClass;
-        this.undoMethod = undoMethod;
-    }
-
-    public String getModelName() {
-        return modelName;
-    }
-
-    public void setModelName(String modelName) {
-        this.modelName = modelName;
-    }
-
-    public String getAttrName() {
-        return attrName;
-    }
-
-    public void setAttrName(String attrName) {
-        this.attrName = attrName;
-    }
-
-    public String getAttrNameForList() {
-        return attrNameForList;
-    }
-
-    public void setAttrNameForList(String attrNameForList) {
-        this.attrNameForList = attrNameForList;
-    }
-
-    public String getInterceptorMethod() {
-        return interceptorMethod;
-    }
-
-    public void setInterceptorMethod(String interceptorMethod) {
-        this.interceptorMethod = interceptorMethod;
-    }
-
-    public String getUndoMethod() {
-        return undoMethod;
-    }
-
-    public void setUndoMethod(String undoMethod) {
-        this.undoMethod = undoMethod;
-    }
-
-    public String getInterceptorClass() {
-        return interceptorClass;
-    }
-
-    public void setInterceptorClass(String interceptorClass) {
-        this.interceptorClass = interceptorClass;
-    }
-
-    public String getUndoClass() {
-        return undoClass;
-    }
-
-    public void setUndoClass(String undoClass) {
-        this.undoClass = undoClass;
-    }
 }

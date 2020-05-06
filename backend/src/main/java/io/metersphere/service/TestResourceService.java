@@ -47,4 +47,8 @@ public class TestResourceService {
         example.createCriteria().andTestResourcePoolIdEqualTo(resourcePoolId);
         return testResourceMapper.selectByExampleWithBLOBs(example);
     }
+
+    public TestResource getTestResource(String resourceId) {
+        return testResourceMapper.selectByPrimaryKey(resourceId);
+    }
 }

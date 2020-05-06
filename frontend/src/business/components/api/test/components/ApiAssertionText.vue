@@ -4,9 +4,9 @@
       <el-col class="assertion-select">
         <el-select class="assertion-item" v-model="subject" size="small"
                    :placeholder="$t('api_test.request.assertions.select_subject')">
-          <el-option label="HttpCode" value="HTTP_CODE"/>
-          <el-option label="Header" value="HEADER"/>
-          <el-option label="Body" value="BODY"/>
+          <el-option label="Response Code" :value="subjects.RESPONSE_CODE"/>
+          <el-option label="Response Headers" :value="subjects.RESPONSE_HEADERS"/>
+          <el-option label="Response Data" :value="subjects.RESPONSE_DATA"/>
         </el-select>
       </el-col>
       <el-col class="assertion-select">
@@ -31,7 +31,7 @@
 </template>
 
 <script>
-  import {Regex} from "../model/ScenarioModel";
+  import {Regex, ASSERTION_REGEX_SUBJECT} from "../model/ScenarioModel";
 
   export default {
     name: "MsApiAssertionText",
@@ -42,6 +42,7 @@
 
     data() {
       return {
+        subjects: ASSERTION_REGEX_SUBJECT,
         subject: "",
         condition: "",
         value: ""
@@ -54,27 +55,27 @@
       },
       toRegex: function () {
         let expression = "";
-        let description = "";
+        let description = this.subject;
         switch (this.condition) {
           case "CONTAINS":
             expression = ".*" + this.value + ".*";
-            description = "contains: " + this.value;
+            description += " contains: " + this.value;
             break;
           case "NOT_CONTAINS":
             expression = "^((?!" + this.value + ").)*$";
-            description = "not contains: " + this.value;
+            description += " not contains: " + this.value;
             break;
           case "EQUALS":
             expression = "^" + this.value + "$";
-            description = "equals: " + this.value;
+            description += " equals: " + this.value;
             break;
           case "START_WITH":
             expression = "^" + this.value;
-            description = "start with: " + this.value;
+            description += " start with: " + this.value;
             break;
           case "END_WITH":
             expression = this.value + "$";
-            description = "end with: " + this.value;
+            description += " end with: " + this.value;
             break;
         }
         return new Regex({

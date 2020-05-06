@@ -21,12 +21,12 @@
 
     props: {
       edit: Boolean,
-      responseTime: ResponseTime
+      duration: ResponseTime
     },
 
     data() {
       return {
-        time: this.responseTime.responseInTime
+        time: this.duration.value
       }
     },
 
@@ -34,11 +34,11 @@
       add: function () {
         this.remove();
         setTimeout(() => {
-          this.responseTime.responseInTime = this.time;
+          this.duration.value = this.time;
         })
       },
       remove: function () {
-        this.responseTime.responseInTime = null;
+        this.duration.value = null;
       }
     }
   }

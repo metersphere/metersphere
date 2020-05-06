@@ -1,6 +1,7 @@
 package io.metersphere.service;
 
 import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.base.mapper.UserRoleMapper;
 import io.metersphere.base.mapper.WorkspaceMapper;
@@ -10,6 +11,7 @@ import io.metersphere.base.mapper.ext.ExtWorkspaceMapper;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.request.WorkspaceRequest;
+import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserRoleHelpDTO;
 import io.metersphere.dto.WorkspaceDTO;
 import io.metersphere.dto.WorkspaceMemberDTO;
@@ -41,6 +43,12 @@ public class WorkspaceService {
     private UserMapper userMapper;
     @Resource
     private ExtOrganizationMapper extOrganizationMapper;
+    @Resource
+    private ProjectService projectService;
+    @Resource
+    private ProjectMapper projectMapper;
+    @Resource
+    private UserService userService;
 
     public Workspace saveWorkspace(Workspace workspace) {
         if (StringUtils.isBlank(workspace.getName())) {
@@ -89,6 +97,21 @@ public class WorkspaceService {
     }
 
     public void deleteWorkspace(String workspaceId) {
+        // delete project
+        ProjectExample projectExample = new ProjectExample();
+        projectExample.createCriteria().andWorkspaceIdEqualTo(workspaceId);
+        List<Project> projectList = projectMapper.selectByExample(projectExample);
+        List<String> projectIdList = projectList.stream().map(Project::getId).collect(Collectors.toList());
+        projectIdList.forEach(projectId -> {
+            projectService.deleteProject(projectId);
+        });
+
+        // delete workspace member
+        UserRoleExample userRoleExample = new UserRoleExample();
+        userRoleExample.createCriteria().andSourceIdEqualTo(workspaceId);
+        userRoleMapper.deleteByExample(userRoleExample);
+
+        // delete workspace
         workspaceMapper.deleteByPrimaryKey(workspaceId);
     }
 
@@ -98,7 +121,8 @@ public class WorkspaceService {
     public void checkWorkspaceOwnerByOrgAdmin(String workspaceId) {
         checkWorkspaceIsExist(workspaceId);
         WorkspaceExample example = new WorkspaceExample();
-        SessionUser user = SessionUtils.getUser();
+        SessionUser sessionUser = SessionUtils.getUser();
+        UserDTO user = userService.getUserDTO(sessionUser.getId());
         List<String> orgIds = user.getUserRoles().stream()
                 .filter(ur -> RoleConstants.ORG_ADMIN.equals(ur.getRoleId()))
                 .map(UserRole::getSourceId)
@@ -114,7 +138,8 @@ public class WorkspaceService {
     public void checkWorkspaceOwner(String workspaceId) {
         checkWorkspaceIsExist(workspaceId);
         WorkspaceExample example = new WorkspaceExample();
-        SessionUser user = SessionUtils.getUser();
+        SessionUser sessionUser = SessionUtils.getUser();
+        UserDTO user = userService.getUserDTO(sessionUser.getId());
         List<String> orgIds = user.getUserRoles().stream()
                 .filter(ur -> RoleConstants.ORG_ADMIN.equals(ur.getRoleId()))
                 .map(UserRole::getSourceId)

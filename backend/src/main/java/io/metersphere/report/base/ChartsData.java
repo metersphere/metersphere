@@ -1,7 +1,10 @@
 package io.metersphere.report.base;
 
+import lombok.Data;
+
 import java.math.BigDecimal;
 
+@Data
 public class ChartsData {
 
     /**
@@ -51,21 +54,5 @@ public class ChartsData {
 
     public void setyAxis2(BigDecimal yAxis2) {
         this.yAxis2 = yAxis2;
-    }
-
-    public String getGroupName() {
-        return groupName;
-    }
-
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 }

@@ -32,8 +32,6 @@
 <script>
   import MsApiScenarioConfig from "./components/ApiScenarioConfig";
   import {Test} from "./model/ScenarioModel"
-  import Jmx from "./model/JMX";
-  import {get, post, scenario} from "./model/test"
 
   export default {
     name: "MsApiTestConfig",
@@ -122,10 +120,10 @@
         formData.append('request', new Blob([requestJson], {
           type: "application/json"
         }));
-
-        let jmx = new Jmx(get, "baidu", ["www.baidu.com"]).generate();
-        let blob = new Blob([jmx], {type: "application/octet-stream"});
-        formData.append("files", new File([blob], "baidu.jmx"));
+        let jmx = this.test.toJMX();
+        let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
+        formData.append("files", new File([blob], jmx.name));
+        console.log(jmx.xml)
 
         return {
           method: 'POST',

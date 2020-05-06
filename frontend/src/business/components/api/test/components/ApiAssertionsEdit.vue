@@ -35,8 +35,8 @@
 
     computed: {
       isShow() {
-        let rt = this.assertions.responseTime;
-        return rt.responseInTime !== null && rt.responseInTime > 0;
+        let rt = this.assertions.duration;
+        return rt.value !== null && rt.value > 0;
       }
     }
   }

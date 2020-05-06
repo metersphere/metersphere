@@ -4,9 +4,9 @@
       <el-col class="assertion-select">
         <el-select class="assertion-item" v-model="regex.subject" size="small"
                    :placeholder="$t('api_test.request.assertions.select_subject')">
-          <el-option label="HttpCode" value="HTTP_CODE"/>
-          <el-option label="Header" value="HEADER"/>
-          <el-option label="Body" value="BODY"/>
+          <el-option label="Response Code" :value="subjects.RESPONSE_CODE"/>
+          <el-option label="Response Headers" :value="subjects.RESPONSE_HEADERS"/>
+          <el-option label="Response Data" :value="subjects.RESPONSE_DATA"/>
         </el-select>
       </el-col>
       <el-col>
@@ -22,7 +22,7 @@
 </template>
 
 <script>
-  import {Regex} from "../model/ScenarioModel";
+  import {ASSERTION_REGEX_SUBJECT, Regex} from "../model/ScenarioModel";
 
   export default {
     name: "MsApiAssertionRegex",
@@ -40,6 +40,12 @@
       },
       index: Number,
       list: Array
+    },
+
+    data() {
+      return {
+        subjects: ASSERTION_REGEX_SUBJECT,
+      }
     },
 
     methods: {
