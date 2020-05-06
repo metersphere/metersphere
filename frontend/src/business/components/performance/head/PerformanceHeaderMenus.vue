@@ -1,6 +1,5 @@
 <template>
-
-  <div id="menu-bar" v-if="isRouterAlive">
+  <div id="menu-bar">
     <el-row type="flex">
       <el-col :span="8">
         <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router :default-active='$route.path'>
@@ -24,8 +23,8 @@
             <el-divider/>
             <ms-show-all :index="'/performance/test/all'"/>
             <ms-create-button :index="'/performance/test/create'" :title="$t('load_test.create')"/>
-            <el-menu-item :index="testCaseProjectPath" class="blank_item"></el-menu-item>
-            <el-menu-item :index="testEditPath" class="blank_item"></el-menu-item>
+<!--            <el-menu-item :index="testCaseProjectPath" class="blank_item"></el-menu-item>-->
+<!--            <el-menu-item :index="testEditPath" class="blank_item"></el-menu-item>-->
           </el-submenu>
 
           <el-submenu v-if="isCurrentWorkspaceUser"
@@ -45,7 +44,6 @@
       <el-col :span="8"/>
     </el-row>
   </div>
-
 </template>
 
 <script>
@@ -67,10 +65,10 @@
     data() {
       return {
         isCurrentWorkspaceUser: false,
-        testCaseProjectPath: '',
-        testEditPath: '',
-        reportViewPath: '',
-        isRouterAlive: true,
+        // testCaseProjectPath: '',
+        // testEditPath: '',
+        // reportViewPath: '',
+        // isRouterAlive: true,
         projectRecent: {
           title: this.$t('project.recent'),
           url: "/project/recent/5",
@@ -104,32 +102,32 @@
     mounted() {
       this.isCurrentWorkspaceUser = checkoutCurrentWorkspace();
     },
-    watch: {
-      '$route'(to, from) {
-        let path = to.path;
-        //激活菜单栏
-        if (path.indexOf("/performance/test/") >= 0) {
-          this.testCaseProjectPath = '/performance/test/' + this.$route.params.projectId;
-          this.reload();
-        }
-        if (path.indexOf("/performance/test/edit/") >= 0) {
-          this.testEditPath = '/performance/test/edit/' + this.$route.params.testId;
-          this.reload();
-        }
-        if (path.indexOf("/performance/report/view/") >= 0) {
-          this.reportViewPath = '/performance/report/view/' + this.$route.params.reportId;
-          this.reload();
-        }
-      }
-    },
-    methods: {
-      reload() {
-        this.isRouterAlive = false;
-        this.$nextTick(function () {
-          this.isRouterAlive = true;
-        })
-      }
-    }
+    // watch: {
+    //   '$route'(to, from) {
+    //     let path = to.path;
+    //     //激活菜单栏
+    //     if (path.indexOf("/performance/test/") >= 0) {
+    //       this.testCaseProjectPath = '/performance/test/' + this.$route.params.projectId;
+    //       this.reload();
+    //     }
+    //     if (path.indexOf("/performance/test/edit/") >= 0) {
+    //       this.testEditPath = '/performance/test/edit/' + this.$route.params.testId;
+    //       this.reload();
+    //     }
+    //     if (path.indexOf("/performance/report/view/") >= 0) {
+    //       this.reportViewPath = '/performance/report/view/' + this.$route.params.reportId;
+    //       this.reload();
+    //     }
+    //   }
+    // },
+    // methods: {
+    //   reload() {
+    //     this.isRouterAlive = false;
+    //     this.$nextTick(function () {
+    //       this.isRouterAlive = true;
+    //     })
+    //   }
+    // }
   }
 
 </script>
