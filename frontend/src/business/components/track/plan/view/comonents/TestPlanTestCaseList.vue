@@ -11,6 +11,7 @@
             <ms-table-button icon="el-icon-connection" :content="$t('test_track.plan_view.relevance_test_case')" @click="$emit('openTestCaseRelevanceDialog')"/>
             <ms-table-button icon="el-icon-edit-outline" :content="$t('test_track.plan_view.change_execution_results')" @click="handleBatch('status')"/>
             <ms-table-button icon="el-icon-user" :content="$t('test_track.plan_view.change_executor')" @click="handleBatch('executor')"/>
+            <ms-table-button icon="el-icon-document" :content="$t('测试报告')" @click="openTestReport"/>
           </template>
         </ms-table-header>
       </template>
@@ -93,7 +94,6 @@
           <template v-slot:default="scope">
             <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="handleEdit(scope.row)" />
             <ms-table-operator-button :tip="$t('test_track.plan_view.cancel_relevance')" icon="el-icon-unlock" type="danger" @exec="handleDelete(scope.row)"/>
-            <!--<ms-table-operator @editClick="handleEdit(scope.row, scope.$index)" @deleteClick="handleDelete(scope.row)"/>-->
           </template>
         </el-table-column>
       </el-table>
@@ -279,6 +279,9 @@
         filter(value, row, column) {
           const property = column['property'];
           return row[property] === value;
+        },
+        openTestReport() {
+
         }
       }
     }

@@ -5,8 +5,6 @@
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="workspace_id" jdbcType="VARCHAR" property="workspaceId" />
-    <result column="start_time" jdbcType="BIGINT" property="startTime" />
-    <result column="end_time" jdbcType="BIGINT" property="endTime" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestCaseReportTemplate">
     <result column="content" jdbcType="LONGVARCHAR" property="content" />
@@ -70,7 +68,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, name, workspace_id, start_time, end_time
+    id, name, workspace_id
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -127,10 +125,10 @@
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into test_case_report_template (name, workspace_id, start_time, 
-      end_time, content)
-    values (#{name,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, #{startTime,jdbcType=BIGINT}, 
-      #{endTime,jdbcType=BIGINT}, #{content,jdbcType=LONGVARCHAR})
+    insert into test_case_report_template (name, workspace_id, content
+      )
+    values (#{name,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseReportTemplate">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
@@ -144,12 +142,6 @@
       <if test="workspaceId != null">
         workspace_id,
       </if>
-      <if test="startTime != null">
-        start_time,
-      </if>
-      <if test="endTime != null">
-        end_time,
-      </if>
       <if test="content != null">
         content,
       </if>
@@ -160,12 +152,6 @@
       </if>
       <if test="workspaceId != null">
         #{workspaceId,jdbcType=VARCHAR},
-      </if>
-      <if test="startTime != null">
-        #{startTime,jdbcType=BIGINT},
-      </if>
-      <if test="endTime != null">
-        #{endTime,jdbcType=BIGINT},
       </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARCHAR},
@@ -190,12 +176,6 @@
       <if test="record.workspaceId != null">
         workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
       </if>
-      <if test="record.startTime != null">
-        start_time = #{record.startTime,jdbcType=BIGINT},
-      </if>
-      <if test="record.endTime != null">
-        end_time = #{record.endTime,jdbcType=BIGINT},
-      </if>
       <if test="record.content != null">
         content = #{record.content,jdbcType=LONGVARCHAR},
       </if>
@@ -209,8 +189,6 @@
     set id = #{record.id,jdbcType=BIGINT},
       name = #{record.name,jdbcType=VARCHAR},
       workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
-      start_time = #{record.startTime,jdbcType=BIGINT},
-      end_time = #{record.endTime,jdbcType=BIGINT},
       content = #{record.content,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -220,9 +198,7 @@
     update test_case_report_template
     set id = #{record.id,jdbcType=BIGINT},
       name = #{record.name,jdbcType=VARCHAR},
-      workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
-      start_time = #{record.startTime,jdbcType=BIGINT},
-      end_time = #{record.endTime,jdbcType=BIGINT}
+      workspace_id = #{record.workspaceId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -236,12 +212,6 @@
       <if test="workspaceId != null">
         workspace_id = #{workspaceId,jdbcType=VARCHAR},
       </if>
-      <if test="startTime != null">
-        start_time = #{startTime,jdbcType=BIGINT},
-      </if>
-      <if test="endTime != null">
-        end_time = #{endTime,jdbcType=BIGINT},
-      </if>
       <if test="content != null">
         content = #{content,jdbcType=LONGVARCHAR},
       </if>
@@ -252,17 +222,13 @@
     update test_case_report_template
     set name = #{name,jdbcType=VARCHAR},
       workspace_id = #{workspaceId,jdbcType=VARCHAR},
-      start_time = #{startTime,jdbcType=BIGINT},
-      end_time = #{endTime,jdbcType=BIGINT},
       content = #{content,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestCaseReportTemplate">
     update test_case_report_template
     set name = #{name,jdbcType=VARCHAR},
-      workspace_id = #{workspaceId,jdbcType=VARCHAR},
-      start_time = #{startTime,jdbcType=BIGINT},
-      end_time = #{endTime,jdbcType=BIGINT}
+      workspace_id = #{workspaceId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

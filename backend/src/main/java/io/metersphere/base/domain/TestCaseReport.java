@@ -9,8 +9,6 @@ public class TestCaseReport implements Serializable {
 
     private String name;
 
-    private String planId;
-
     private Long startTime;
 
     private Long endTime;

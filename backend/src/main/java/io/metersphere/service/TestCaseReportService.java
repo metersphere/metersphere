@@ -22,9 +22,6 @@ public class TestCaseReportService {
         if ( StringUtils.isNotBlank(request.getName()) ) {
             example.createCriteria().andNameEqualTo(request.getName());
         }
-        if ( StringUtils.isNotBlank(request.getPlanId()) ) {
-            example.createCriteria().andPlanIdEqualTo(request.getPlanId());
-        }
         return testCaseReportMapper.selectByExample(example);
     }
 

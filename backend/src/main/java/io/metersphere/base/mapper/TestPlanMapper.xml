@@ -5,6 +5,7 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="workspace_id" jdbcType="VARCHAR" property="workspaceId" />
+    <result column="report_id" jdbcType="BIGINT" property="reportId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="status" jdbcType="VARCHAR" property="status" />
@@ -77,8 +78,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, workspace_id, name, description, status, stage, principal, test_case_match_rule, 
-    executor_match_rule, create_time, update_time
+    id, project_id, workspace_id, report_id, name, description, status, stage, principal, 
+    test_case_match_rule, executor_match_rule, create_time, update_time
   </sql>
   <sql id="Blob_Column_List">
     tags
@@ -133,15 +134,15 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestPlan">
     insert into test_plan (id, project_id, workspace_id, 
-      name, description, status, 
-      stage, principal, test_case_match_rule, 
-      executor_match_rule, create_time, update_time, 
-      tags)
+      report_id, name, description, 
+      status, stage, principal, 
+      test_case_match_rule, executor_match_rule, create_time, 
+      update_time, tags)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, 
-      #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
-      #{stage,jdbcType=VARCHAR}, #{principal,jdbcType=VARCHAR}, #{testCaseMatchRule,jdbcType=VARCHAR}, 
-      #{executorMatchRule,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{tags,jdbcType=LONGVARCHAR})
+      #{reportId,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
+      #{status,jdbcType=VARCHAR}, #{stage,jdbcType=VARCHAR}, #{principal,jdbcType=VARCHAR}, 
+      #{testCaseMatchRule,jdbcType=VARCHAR}, #{executorMatchRule,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{updateTime,jdbcType=BIGINT}, #{tags,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlan">
     insert into test_plan
@@ -154,6 +155,9 @@
       </if>
       <if test="workspaceId != null">
         workspace_id,
+      </if>
+      <if test="reportId != null">
+        report_id,
       </if>
       <if test="name != null">
         name,
@@ -195,6 +199,9 @@
       </if>
       <if test="workspaceId != null">
         #{workspaceId,jdbcType=VARCHAR},
+      </if>
+      <if test="reportId != null">
+        #{reportId,jdbcType=BIGINT},
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
@@ -246,6 +253,9 @@
       <if test="record.workspaceId != null">
         workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
       </if>
+      <if test="record.reportId != null">
+        report_id = #{record.reportId,jdbcType=BIGINT},
+      </if>
       <if test="record.name != null">
         name = #{record.name,jdbcType=VARCHAR},
       </if>
@@ -286,6 +296,7 @@
     set id = #{record.id,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
+      report_id = #{record.reportId,jdbcType=BIGINT},
       name = #{record.name,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
       status = #{record.status,jdbcType=VARCHAR},
@@ -305,6 +316,7 @@
     set id = #{record.id,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
+      report_id = #{record.reportId,jdbcType=BIGINT},
       name = #{record.name,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
       status = #{record.status,jdbcType=VARCHAR},
@@ -326,6 +338,9 @@
       </if>
       <if test="workspaceId != null">
         workspace_id = #{workspaceId,jdbcType=VARCHAR},
+      </if>
+      <if test="reportId != null">
+        report_id = #{reportId,jdbcType=BIGINT},
       </if>
       <if test="name != null">
         name = #{name,jdbcType=VARCHAR},
@@ -364,6 +379,7 @@
     update test_plan
     set project_id = #{projectId,jdbcType=VARCHAR},
       workspace_id = #{workspaceId,jdbcType=VARCHAR},
+      report_id = #{reportId,jdbcType=BIGINT},
       name = #{name,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
       status = #{status,jdbcType=VARCHAR},
@@ -380,6 +396,7 @@
     update test_plan
     set project_id = #{projectId,jdbcType=VARCHAR},
       workspace_id = #{workspaceId,jdbcType=VARCHAR},
+      report_id = #{reportId,jdbcType=BIGINT},
       name = #{name,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
       status = #{status,jdbcType=VARCHAR},

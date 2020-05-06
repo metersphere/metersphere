@@ -260,6 +260,7 @@ CREATE TABLE IF NOT EXISTS `test_plan` (
     `id`                     varchar(50) NOT NULL COMMENT 'Test Plan ID',
     `project_id`             varchar(50) NOT NULL COMMENT 'Project ID this plan belongs to',
     `workspace_id`           varchar(50) NOT NULL COMMENT 'Workspace ID this plan belongs to',
+    `report_id`              bigint(20) COMMENT 'Test plan report',
     `name`                   varchar(64) NOT NULL COMMENT 'Plan name',
     `description`            varchar(255) DEFAULT NULL COMMENT 'Plan description',
     `status`                 varchar(20) NOT NULL COMMENT 'Plan status',
@@ -335,8 +336,6 @@ CREATE TABLE IF NOT EXISTS `test_case_report_template` (
   `name` varchar(64) NOT NULL COMMENT 'Test case report template name',
   `workspace_id` varchar(50) DEFAULT NULL COMMENT 'Workspace ID this project belongs to',
   `content` longtext COMMENT 'Template content (JSON format)',
-  `start_time`            bigint(13) COMMENT 'Test start time',
-  `end_time`            bigint(13) COMMENT 'Test end time',
   PRIMARY KEY (`id`)
 )
     ENGINE=InnoDB
@@ -346,7 +345,6 @@ CREATE TABLE IF NOT EXISTS `test_case_report_template` (
 CREATE TABLE IF NOT EXISTS `test_case_report` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(64) NOT NULL COMMENT 'Test case report name',
-  `plan_id` varchar(50) NOT NULL COMMENT 'Plan ID relation to',
   `content` longtext COMMENT 'Report content (JSON format)',
   `start_time`            bigint(13)  COMMENT 'Test start time',
   `end_time`            bigint(13) COMMENT 'Test end time',

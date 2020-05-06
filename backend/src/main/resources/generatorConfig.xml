@@ -59,11 +59,13 @@
 
         <!--要生成的数据库表 -->
 
-        <table tableName="test_case_report_template">
+        <table tableName="test_plan"/>
+
+        <table tableName="test_case_report">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
 
-        <table tableName="test_case_report">
+        <table tableName="test_case_report_template">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
 
