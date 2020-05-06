@@ -57,9 +57,6 @@
             this.templates = response.data;
           });
         },
-        templateCreate() {
-
-        },
         templateEdit(id) {
           this.$refs.templateEdit.open(id);
         }
@@ -69,5 +66,8 @@
 
 <style scoped>
 
+  .el-card {
+    min-height: 300px;
+  }
 
 </style>

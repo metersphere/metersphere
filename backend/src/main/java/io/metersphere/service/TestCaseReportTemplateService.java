@@ -4,6 +4,7 @@ import io.metersphere.base.domain.TestCaseReportTemplate;
 import io.metersphere.base.domain.TestCaseReportTemplateExample;
 import io.metersphere.base.mapper.TestCaseReportMapper;
 import io.metersphere.base.mapper.TestCaseReportTemplateMapper;
+import io.metersphere.controller.request.testCaseReport.QueryTemplateRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,15 +19,21 @@ public class TestCaseReportTemplateService {
     @Resource
     TestCaseReportTemplateMapper testCaseReportTemplateMapper;
 
-    public List<TestCaseReportTemplate> listTestCaseReportTemplate(TestCaseReportTemplate request) {
+    public List<TestCaseReportTemplate> listTestCaseReportTemplate(QueryTemplateRequest request) {
         TestCaseReportTemplateExample example = new TestCaseReportTemplateExample();
+        TestCaseReportTemplateExample.Criteria criteria1 = example.createCriteria();
+        TestCaseReportTemplateExample.Criteria criteria2 = example.createCriteria();
         if ( StringUtils.isNotBlank(request.getName()) ) {
-            example.createCriteria().andNameEqualTo(request.getName());
+            criteria1.andNameLike("%" + request.getName() + "%");
+            criteria2.andNameLike("%" + request.getName() + "%");
         }
         if ( StringUtils.isNotBlank(request.getWorkspaceId()) ) {
-            example.createCriteria().andWorkspaceIdEqualTo(request.getWorkspaceId());
+            criteria1.andWorkspaceIdEqualTo(request.getWorkspaceId());
         }
-        example.or(example.createCriteria().andWorkspaceIdIsNull());
+        if (request.getQueryDefault() != null) {
+            criteria2.andWorkspaceIdIsNull();
+            example.or(criteria2);
+        }
         return testCaseReportTemplateMapper.selectByExample(example);
     }
 

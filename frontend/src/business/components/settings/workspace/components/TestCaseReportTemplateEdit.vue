@@ -89,16 +89,15 @@
           ),
           components: [4],
           previews: [],
-          template: {}
+          template: {},
+          isReport: false
         }
       },
-      props: {
-
-      },
-      watch: {
-      },
       methods: {
-        open(id) {
+        open(id, isReport) {
+          if (isReport) {
+            this.isReport = isReport;
+          }
           this.template = {
             name: '',
               content: {
@@ -190,7 +189,11 @@
           }
         },
         getTemplateById(id) {
-          this.$get('/case/report/template/get/' + id, (response) =>{
+          let url = '/case/report/template/get/';
+          if (this.isReport) {
+            url = '/case/report/get/';
+          }
+          this.$get(url + id, (response) =>{
             this.template = response.data;
             this.template.content = JSON.parse(response.data.content);
             if (this.template.content.customComponent) {
@@ -206,7 +209,11 @@
           }
           let param = {};
           this.buildParam(param);
-          this.$post('/case/report/template/' + this.type, param, () =>{
+          let url = '/case/report/template/';
+          if (this.isReport) {
+            url = '/case/report/';
+          }
+          this.$post(url + this.type, param, () =>{
             this.$success('保存成功');
             this.showDialog = false;
             this.$emit('refresh');
@@ -229,6 +236,8 @@
           param.content = JSON.stringify(content);
           if (this.type == 'edit') {
             param.id = this.template.id;
+          } else {
+            param.workspaceId = localStorage.getItem(WORKSPACE_ID);
           }
           if (this.template.workspaceId) {
             param.workspaceId = localStorage.getItem(WORKSPACE_ID);

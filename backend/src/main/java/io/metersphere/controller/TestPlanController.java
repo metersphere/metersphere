@@ -49,7 +49,7 @@ public class TestPlanController {
     }
 
     @PostMapping("/get/{testPlanId}")
-    public List<TestPlan> getTestPlan(@PathVariable String testPlanId){
+    public TestPlan getTestPlan(@PathVariable String testPlanId){
         return testPlanService.getTestPlan(testPlanId);
     }
 

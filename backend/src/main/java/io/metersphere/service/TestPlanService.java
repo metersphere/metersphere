@@ -53,10 +53,8 @@ public class TestPlanService {
     }
 
 
-    public List<TestPlan> getTestPlan(String testPlanId) {
-        TestPlanExample testPlanExample = new TestPlanExample();
-        testPlanExample.createCriteria().andIdEqualTo(testPlanId);
-        return testPlanMapper.selectByExampleWithBLOBs(testPlanExample);
+    public TestPlan getTestPlan(String testPlanId) {
+        return testPlanMapper.selectByPrimaryKey(testPlanId);
     }
 
     public int editTestPlan(TestPlan testPlan) {

@@ -1,6 +1,7 @@
 package io.metersphere.controller;
 
 import io.metersphere.base.domain.TestCaseReportTemplate;
+import io.metersphere.controller.request.testCaseReport.QueryTemplateRequest;
 import io.metersphere.service.TestCaseReportTemplateService;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +16,7 @@ public class TestCaseReportTemplateController {
     TestCaseReportTemplateService testCaseReportTemplateService;
 
     @PostMapping("/list")
-    public List<TestCaseReportTemplate> list(@RequestBody TestCaseReportTemplate request) {
+    public List<TestCaseReportTemplate> list(@RequestBody QueryTemplateRequest request) {
         return testCaseReportTemplateService.listTestCaseReportTemplate(request);
     }
 
