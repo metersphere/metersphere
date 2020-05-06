@@ -97,6 +97,21 @@ public class WorkspaceService {
     }
 
     public void deleteWorkspace(String workspaceId) {
+        // delete project
+        ProjectExample projectExample = new ProjectExample();
+        projectExample.createCriteria().andWorkspaceIdEqualTo(workspaceId);
+        List<Project> projectList = projectMapper.selectByExample(projectExample);
+        List<String> projectIdList = projectList.stream().map(Project::getId).collect(Collectors.toList());
+        projectIdList.forEach(projectId -> {
+            projectService.deleteProject(projectId);
+        });
+
+        // delete workspace member
+        UserRoleExample userRoleExample = new UserRoleExample();
+        userRoleExample.createCriteria().andSourceIdEqualTo(workspaceId);
+        userRoleMapper.deleteByExample(userRoleExample);
+
+        // delete workspace
         workspaceMapper.deleteByPrimaryKey(workspaceId);
     }
 

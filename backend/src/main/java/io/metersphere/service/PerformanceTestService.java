@@ -50,13 +50,35 @@ public class PerformanceTestService {
     @Resource
     private LoadTestReportLogMapper loadTestReportLogMapper;
     @Resource
+    private LoadTestReportResultMapper loadTestReportResultMapper;
+    @Resource
     private TestResourceService testResourceService;
+    @Resource
+    private ReportService reportService;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         return extLoadTestMapper.list(request);
     }
 
     public void delete(DeleteTestPlanRequest request) {
+        String testId = request.getId();
+        LoadTestReportExample loadTestReportExample = new LoadTestReportExample();
+        loadTestReportExample.createCriteria().andTestIdEqualTo(testId);
+        List<LoadTestReport> loadTestReports = loadTestReportMapper.selectByExample(loadTestReportExample);
+        List<String> reportIdList = loadTestReports.stream().map(LoadTestReport::getId).collect(Collectors.toList());
+
+        // delete load_test_report_result
+        LoadTestReportResultExample loadTestReportResultExample = new LoadTestReportResultExample();
+        loadTestReportResultExample.createCriteria().andReportIdIn(reportIdList);
+        loadTestReportResultMapper.deleteByExample(loadTestReportResultExample);
+
+        // delete load_test_report, delete load_test_report_detail
+        reportIdList.forEach(reportId -> {
+            loadTestReportDetailMapper.deleteByPrimaryKey(reportId);
+            reportService.deleteReport(reportId);
+        });
+
+        // delete load_test
         loadTestMapper.deleteByPrimaryKey(request.getId());
 
         deleteFileByTestId(request.getId());
