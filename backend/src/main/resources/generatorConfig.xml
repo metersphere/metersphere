@@ -10,7 +10,20 @@
     <context id="mysql" targetRuntime="MyBatis3">
         <plugin type="org.mybatis.generator.plugins.SerializablePlugin"/>
         <plugin type="org.mybatis.generator.plugins.UnmergeableXmlMappersPlugin" />
-
+        <!-- Lombok插件 -->
+        <plugin type="com.itfsw.mybatis.generator.plugins.LombokPlugin">
+            <!-- @Data 默认开启,同时插件会对子类自动附加@EqualsAndHashCode(callSuper = true)，@ToString(callSuper = true) -->
+            <property name="@Data" value="true"/>
+            <!-- @Builder 必须在 Lombok 版本 >= 1.18.2 的情况下开启，对存在继承关系的类自动替换成@SuperBuilder -->
+            <property name="@Builder" value="false"/>
+            <!-- @NoArgsConstructor 和 @AllArgsConstructor 使用规则和Lombok一致 -->
+            <property name="@AllArgsConstructor" value="false"/>
+            <property name="@NoArgsConstructor" value="false"/>
+            <!-- @Getter、@Setter、@Accessors 等使用规则参见官方文档 -->
+            <property name="@Accessors(chain = true)" value="false"/>
+            <!-- 临时解决IDEA工具对@SuperBuilder的不支持问题，开启后(默认未开启)插件在遇到@SuperBuilder注解时会调用ModelBuilderPlugin来生成相应的builder代码 -->
+            <property name="supportSuperBuilderForIdea" value="false"/>
+        </plugin>
         <!-- 用来除去时间信息的，这在配合类似subversion的代码管理工具时使用很有效，因为可以减少没有必要的注释迁入 -->
         <commentGenerator>
             <property name="suppressDate" value="true"/>
@@ -49,6 +62,29 @@
         <table tableName="api_test"/>
         <table tableName="api_test_file"/>
         <table tableName="api_test_report"/>
+        <table tableName="file_content"/>
+        <table tableName="file_metadata"/>
+        <table tableName="load_test"/>
+        <table tableName="load_test_file"/>
+        <table tableName="load_test_report"/>
+        <table tableName="load_test_report_detail"/>
+        <table tableName="load_test_report_log"/>
+        <table tableName="load_test_report_result"/>
+        <table tableName="organization"/>
+        <table tableName="project"/>
+        <table tableName="role"/>
+        <table tableName="system_parameter"/>
+        <table tableName="test_case"/>
+        <table tableName="test_case_node"/>
+        <table tableName="test_case_report"/>
+        <table tableName="test_case_report_template"/>
+        <table tableName="test_plan"/>
+        <table tableName="test_plan_test_case"/>
+        <table tableName="test_resource"/>
+        <table tableName="test_resource_pool"/>
+        <table tableName="user"/>
+        <table tableName="user_role"/>
+        <table tableName="workspace"/>
         <!--<table tableName="test_case_node">-->
             <!--<generatedKey column="id" sqlStatement="MySql" identity="true"/>-->
         <!--</table>-->

@@ -1,27 +1,18 @@
 package io.metersphere.base.domain;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
 import java.io.Serializable;
 
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class TestCaseWithBLOBs extends TestCase implements Serializable {
     private String remark;
 
     private String steps;
 
     private static final long serialVersionUID = 1L;
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark == null ? null : remark.trim();
-    }
-
-    public String getSteps() {
-        return steps;
-    }
-
-    public void setSteps(String steps) {
-        this.steps = steps == null ? null : steps.trim();
-    }
 }
