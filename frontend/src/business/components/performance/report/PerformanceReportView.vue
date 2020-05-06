@@ -6,8 +6,10 @@
           <el-col :span="16">
             <el-row>
               <el-breadcrumb separator-class="el-icon-arrow-right">
-                <el-breadcrumb-item :to="{ path: '/' }">{{projectName}}</el-breadcrumb-item>
-                <el-breadcrumb-item>{{testName}}</el-breadcrumb-item>
+                <el-breadcrumb-item :to="{ path: '/performance/test/' + this.projectId }">{{projectName}}
+                </el-breadcrumb-item>
+                <el-breadcrumb-item :to="{ path: '/performance/test/edit/' + this.testId }">{{testName}}
+                </el-breadcrumb-item>
                 <el-breadcrumb-item>{{reportName}}</el-breadcrumb-item>
               </el-breadcrumb>
             </el-row>
@@ -74,7 +76,9 @@
         reportId: '',
         status: '',
         reportName: '',
+        testId: '',
         testName: '',
+        projectId: '',
         projectName: '',
         startTime: '0',
         endTime: '0',
@@ -90,7 +94,9 @@
             let data = res.data;
             if (data) {
               this.reportName = data.name;
+              this.testId = data.testId;
               this.testName = data.testName;
+              this.projectId = data.projectId;
               this.projectName = data.projectName;
             }
           })
