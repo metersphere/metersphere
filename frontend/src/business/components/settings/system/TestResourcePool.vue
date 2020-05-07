@@ -413,9 +413,13 @@
         this.form = {};
       },
       changeSwitch(row) {
-        this.result = this.$post('/testresourcepool/update', row).then(() => {
-          this.$success(this.$t('test_resource_pool.status_change_success'));
-        })
+        this.result = this.$get('/testresourcepool/update/' + row.id + '/' + row.status)
+          .then(() => {
+            this.$success(this.$t('test_resource_pool.status_change_success'));
+          }).catch(() => {
+            this.$error(this.$t('test_resource_pool.status_change_failed'));
+            row.status = 'INVALID';
+          })
       }
     }
   }

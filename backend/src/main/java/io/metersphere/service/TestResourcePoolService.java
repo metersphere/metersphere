@@ -72,6 +72,36 @@ public class TestResourcePoolService {
         testResourcePoolMapper.updateByPrimaryKeySelective(testResourcePool);
     }
 
+
+    public void updateTestResourcePoolStatus(String poolId, String status) {
+        TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(poolId);
+        if (testResourcePool == null) {
+            MSException.throwException("Resource Pool not found.");
+        }
+        testResourcePool.setUpdateTime(System.currentTimeMillis());
+        testResourcePool.setStatus(status);
+        // 禁用资源池
+        if (INVALID.name().equals(status)) {
+            testResourcePoolMapper.updateByPrimaryKeySelective(testResourcePool);
+            return;
+        }
+        TestResourcePoolDTO testResourcePoolDTO = new TestResourcePoolDTO();
+        try {
+            BeanUtils.copyProperties(testResourcePoolDTO, testResourcePool);
+            TestResourceExample example2 = new TestResourceExample();
+            example2.createCriteria().andTestResourcePoolIdEqualTo(poolId);
+            List<TestResource> testResources = testResourceMapper.selectByExampleWithBLOBs(example2);
+            testResourcePoolDTO.setResources(testResources);
+            if (validateTestResourcePool(testResourcePoolDTO)) {
+                testResourcePoolMapper.updateByPrimaryKeySelective(testResourcePool);
+            } else {
+                MSException.throwException("Resource Pool is invalid.");
+            }
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            LogUtil.error(e);
+        }
+    }
+
     public List<TestResourcePoolDTO> listResourcePools(QueryResourcePoolRequest request) {
         TestResourcePoolExample example = new TestResourcePoolExample();
         TestResourcePoolExample.Criteria criteria = example.createCriteria();
@@ -96,15 +126,14 @@ public class TestResourcePoolService {
         return testResourcePoolDTOS;
     }
 
-    private void validateTestResourcePool(TestResourcePoolDTO testResourcePool) {
+    private boolean validateTestResourcePool(TestResourcePoolDTO testResourcePool) {
         if (StringUtils.equalsIgnoreCase(testResourcePool.getType(), ResourcePoolTypeEnum.K8S.name())) {
-            validateK8s(testResourcePool);
-            return;
+            return validateK8s(testResourcePool);
         }
-        validateNodes(testResourcePool);
+        return validateNodes(testResourcePool);
     }
 
-    private void validateNodes(TestResourcePoolDTO testResourcePool) {
+    private boolean validateNodes(TestResourcePoolDTO testResourcePool) {
         if (CollectionUtils.isEmpty(testResourcePool.getResources())) {
             MSException.throwException(Translator.get("no_nodes_message"));
         }
@@ -121,19 +150,21 @@ public class TestResourcePoolService {
             MSException.throwException(Translator.get("duplicate_node_ip"));
         }
         testResourcePool.setStatus(VALID.name());
+        boolean isValid = true;
         for (TestResource resource : testResourcePool.getResources()) {
             NodeDTO nodeDTO = JSON.parseObject(resource.getConfiguration(), NodeDTO.class);
             boolean isValidate = validateNode(nodeDTO);
             if (!isValidate) {
                 testResourcePool.setStatus(ResourceStatusEnum.INVALID.name());
                 resource.setStatus(ResourceStatusEnum.INVALID.name());
+                isValid = false;
             } else {
                 resource.setStatus(VALID.name());
             }
             resource.setTestResourcePoolId(testResourcePool.getId());
             updateTestResource(resource);
-
         }
+        return isValid;
     }
 
     private boolean validateNode(NodeDTO node) {
@@ -145,7 +176,7 @@ public class TestResourcePoolService {
         }
     }
 
-    private void validateK8s(TestResourcePoolDTO testResourcePool) {
+    private boolean validateK8s(TestResourcePoolDTO testResourcePool) {
 
         if (CollectionUtils.isEmpty(testResourcePool.getResources()) || testResourcePool.getResources().size() != 1) {
             throw new RuntimeException(Translator.get("only_one_k8s"));
@@ -153,18 +184,21 @@ public class TestResourcePoolService {
 
         TestResource testResource = testResourcePool.getResources().get(0);
         testResource.setTestResourcePoolId(testResourcePool.getId());
+        boolean isValid;
         try {
             KubernetesProvider provider = new KubernetesProvider(testResource.getConfiguration());
             provider.validateCredential();
             testResource.setStatus(VALID.name());
             testResourcePool.setStatus(VALID.name());
+            isValid = true;
         } catch (Exception e) {
             testResource.setStatus(ResourceStatusEnum.INVALID.name());
             testResourcePool.setStatus(ResourceStatusEnum.INVALID.name());
+            isValid = false;
         }
         deleteTestResource(testResourcePool.getId());
         updateTestResource(testResource);
-
+        return isValid;
     }
 
     private void updateTestResource(TestResource testResource) {
@@ -191,7 +225,7 @@ public class TestResourcePoolService {
         for (TestResourcePoolDTO pool : testResourcePools) {
             // 手动设置成无效的, 排除
             if (INVALID.name().equals(pool.getStatus())) {
-               continue;
+                continue;
             }
             try {
                 updateTestResourcePool(pool);
@@ -205,4 +239,5 @@ public class TestResourcePoolService {
         example.createCriteria().andStatusEqualTo(ResourceStatusEnum.VALID.name());
         return testResourcePoolMapper.selectByExample(example);
     }
+
 }
