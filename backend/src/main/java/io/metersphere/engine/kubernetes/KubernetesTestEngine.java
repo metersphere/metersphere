@@ -63,7 +63,7 @@ public class KubernetesTestEngine extends AbstractEngine {
         kubernetesProvider.confirmNamespace(context.getNamespace());
         // create cm
         try (KubernetesClient client = kubernetesProvider.getKubernetesClient()) {
-            String configMapName = context.getTestId() + "-files";
+            String configMapName = "jmeter-" + context.getTestId() + "-files";
             ConfigMap configMap = client.configMaps().inNamespace(context.getNamespace()).withName(configMapName).get();
             if (configMap == null) {
                 ConfigMap item = new ConfigMap();
