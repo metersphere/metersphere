@@ -189,6 +189,10 @@ public class TestResourcePoolService {
         List<TestResourcePoolDTO> testResourcePools = listResourcePools(request);
         // 重新校验 pool
         for (TestResourcePoolDTO pool : testResourcePools) {
+            // 手动设置成无效的, 排除
+            if (INVALID.name().equals(pool.getStatus())) {
+               continue;
+            }
             try {
                 updateTestResourcePool(pool);
             } catch (MSException e) {
