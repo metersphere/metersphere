@@ -1,12 +1,12 @@
 <template>
 
-  <el-dialog :title="$t('test_track.plan_view.change_executor')"
+  <el-dialog :title="$t('test_track.case.move')"
              :visible.sync="dialogVisible"
              :before-close="close"
              width="20%">
 
     <el-select v-model.trim="module"
-               :placeholder="$t('test_track.plan_view.select_executor')"
+               :placeholder="$t('test_track.case.move')"
                filterable>
       <el-option v-for="item in moduleOptions" :key="item.id"
                  :label="item.path" :value="item.id"></el-option>
