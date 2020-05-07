@@ -19,10 +19,7 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <el-button @click="edit(scope.row)" @keydown.enter.native.prevent type="primary" icon="el-icon-edit"
-                       size="mini" circle/>
-            <el-button @click="del(scope.row)" @keydown.enter.native.prevent type="danger" icon="el-icon-delete"
-                       size="mini" circle/>
+            <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
           </template>
         </el-table-column>
       </el-table>
@@ -46,10 +43,7 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <el-button @click="editMember(scope.row)" @keydown.enter.native.prevent type="primary" icon="el-icon-edit"
-                       size="mini" circle/>
-            <el-button @click="delMember(scope.row)" @keydown.enter.native.prevent type="danger" icon="el-icon-delete"
-                       size="mini" circle/>
+            <ms-table-operator @editClick="editMember(scope.row)" @deleteClick="delMember(scope.row)"/>
           </template>
         </el-table-column>
       </el-table>
@@ -187,10 +181,11 @@
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableHeader from "../../common/components/MsTableHeader";
   import MsRolesTag from "../../common/components/MsRolesTag";
+  import MsTableOperator from "../../common/components/MsTableOperator";
 
   export default {
     name: "MsOrganization",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator},
     data() {
       return {
         queryPath: '/organization/list',

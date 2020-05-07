@@ -6,6 +6,7 @@
               :effect="effect">
     <el-button @click="exec()"
                @click.stop="clickStop"
+               @keydown.enter.native.prevent
                circle
                :type="type"
                :icon="icon"

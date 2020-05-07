@@ -30,8 +30,7 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
-            <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
+            <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
           </template>
         </el-table-column>
       </el-table>
@@ -97,10 +96,11 @@
   import MsCreateBox from "../CreateBox";
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableHeader from "../../common/components/MsTableHeader";
+  import MsTableOperator from "../../common/components/MsTableOperator";
 
   export default {
     name: "MsUser",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsTableOperator},
     data() {
       return {
         queryPath: '/user/special/list',

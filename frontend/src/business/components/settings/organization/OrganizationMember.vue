@@ -16,10 +16,7 @@
         </el-table-column>
         <el-table-column>
           <template v-slot:default="scope">
-            <el-button @click="edit(scope.row)" @keydown.enter.native.prevent type="primary" icon="el-icon-edit"
-                       size="mini" circle/>
-            <el-button @click="del(scope.row)" @keydown.enter.native.prevent type="danger" icon="el-icon-delete"
-                       size="mini" circle/>
+            <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
           </template>
         </el-table-column>
       </el-table>
@@ -106,10 +103,11 @@
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableHeader from "../../common/components/MsTableHeader";
   import MsRolesTag from "../../common/components/MsRolesTag";
+  import MsTableOperator from "../../common/components/MsTableOperator";
 
   export default {
     name: "MsOrganizationMember",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator},
     created() {
       this.initTableData();
     },
