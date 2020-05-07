@@ -16,10 +16,10 @@
         </el-table-column>
         <el-table-column>
           <template v-slot:default="scope">
-            <el-button @click="edit(scope.row)" onkeydown="return false;" type="primary" icon="el-icon-edit" size="mini"
-                       circle/>
-            <el-button @click="del(scope.row)" onkeydown="return false;" type="danger" icon="el-icon-delete" size="mini"
-                       circle/>
+            <el-button @click="edit(scope.row)" @keydown.enter.native.prevent type="primary" icon="el-icon-edit"
+                       size="mini" circle/>
+            <el-button @click="del(scope.row)" @keydown.enter.native.prevent type="danger" icon="el-icon-delete"
+                       size="mini" circle/>
           </template>
         </el-table-column>
       </el-table>
@@ -56,8 +56,9 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" onkeydown="return false;"
-                     @click="submitForm('form')" size="medium">{{$t('commons.save')}}</el-button>
+          <el-button @click="submitForm('form')" @keydown.enter.native.prevent type="primary"
+                     size="medium">{{$t('commons.save')}}
+          </el-button>
         </span>
       </template>
     </el-dialog>
@@ -90,8 +91,9 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" onkeydown="return false;"
-                     @click="updateOrgMember('updateUserForm')" size="medium">{{$t('commons.save')}}</el-button>
+          <el-button @click="updateOrgMember('updateUserForm')" @keydown.enter.native.prevent type="primary"
+                     size="medium">{{$t('commons.save')}}
+          </el-button>
         </span>
       </template>
     </el-dialog>

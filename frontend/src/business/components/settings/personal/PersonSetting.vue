@@ -27,8 +27,10 @@
         </el-table-column>
       </el-table>
 
-      <el-dialog :title="$t('member.modify_personal_info')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
-        <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule" ref="updateUserForm">
+      <el-dialog :title="$t('member.modify_personal_info')" :visible.sync="updateVisible" width="30%"
+                 :destroy-on-close="true" @close="closeFunc">
+        <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
+                 ref="updateUserForm">
           <el-form-item label="ID" prop="id">
             <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
           </el-form-item>
@@ -44,8 +46,9 @@
         </el-form>
         <template v-slot:footer>
           <span class="dialog-footer">
-            <el-button type="primary" onkeydown="return false;"
-                       @click="updateUser('updateUserForm')" size="medium">{{$t('commons.save')}}</el-button>
+            <el-button @click="updateUser('updateUserForm')" @keydown.enter.native.prevent type="primary"
+                       size="medium">{{$t('commons.save')}}
+            </el-button>
           </span>
         </template>
       </el-dialog>
@@ -68,7 +71,7 @@
         rule: {
           name: [
             {required: true, message: this.$t('member.input_name'), trigger: 'blur'},
-            { min: 2, max: 10, message: this.$t('commons.input_limit', [2, 10]), trigger: 'blur' },
+            {min: 2, max: 10, message: this.$t('commons.input_limit', [2, 10]), trigger: 'blur'},
             {
               required: true,
               pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/,
@@ -85,7 +88,7 @@
             }
           ],
           email: [
-            { required: true, message: this.$t('member.input_email'), trigger: 'blur' },
+            {required: true, message: this.$t('member.input_email'), trigger: 'blur'},
             {
               required: true,
               pattern: /^([A-Za-z0-9_\-.])+@([A-Za-z0-9]+\.)+[A-Za-z]{2,6}$/,
@@ -112,7 +115,7 @@
       updateUser(updateUserForm) {
         this.$refs[updateUserForm].validate(valide => {
           if (valide) {
-            this.result = this.$post(this.updatePath, this.form,response => {
+            this.result = this.$post(this.updatePath, this.form, response => {
               this.$success(this.$t('commons.modify_success'));
               localStorage.setItem(TokenKey, JSON.stringify(response.data));
               this.updateVisible = false;

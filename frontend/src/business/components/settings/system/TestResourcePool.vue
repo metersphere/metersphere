@@ -122,9 +122,10 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" onkeydown="return false;"
-                     @click="createTestResourcePool('createTestResourcePoolForm')"
-                     size="medium">{{$t('commons.create')}}</el-button>
+          <el-button @click="createTestResourcePool('createTestResourcePoolForm')" @keydown.enter.native.prevent
+                     type="primary"
+                     size="medium">{{$t('commons.create')}}
+          </el-button>
         </span>
       </template>
     </el-dialog>
@@ -202,9 +203,10 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" onkeydown="return false;"
-                     @click="updateTestResourcePool('updateTestResourcePoolForm')"
-                     size="medium">{{$t('commons.save')}}</el-button>
+          <el-button @click="updateTestResourcePool('updateTestResourcePoolForm')" @keydown.enter.native.prevent
+                     type="primary"
+                     size="medium">{{$t('commons.save')}}
+          </el-button>
         </span>
       </template>
     </el-dialog>
