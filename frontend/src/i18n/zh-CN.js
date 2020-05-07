@@ -176,6 +176,7 @@ export default {
   },
   api_test: {
     save_and_run: "保存并执行",
+    running: "正在执行",
     reset: "重置",
     input_name: "请输入测试名称",
     select_project: "请选择项目",

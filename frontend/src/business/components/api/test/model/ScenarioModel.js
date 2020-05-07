@@ -5,6 +5,8 @@ import {
   TestElement,
   TestPlan,
   ThreadGroup,
+  PostThreadGroup,
+  DebugSampler,
   HeaderManager,
   HTTPSamplerArguments,
   ResponseCodeAssertion,
@@ -13,9 +15,21 @@ import {
   BackendListener
 } from "./JMX";
 
-export const generateId = function () {
-  return Math.floor(Math.random() * 10000);
-};
+export const uuid = function () {
+  let d = new Date().getTime()
+  let d2 = (performance && performance.now && (performance.now() * 1000)) || 0;
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    let r = Math.random() * 16;
+    if (d > 0) {
+      r = (d + r) % 16 | 0;
+      d = Math.floor(d / 16);
+    } else {
+      r = (d2 + r) % 16 | 0;
+      d2 = Math.floor(d2 / 16);
+    }
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
 
 export const BODY_TYPE = {
   KV: "KeyValue",
@@ -75,7 +89,7 @@ export class Test extends BaseConfig {
   constructor(options) {
     super();
     this.version = '1.0.0';
-    this.id = null;
+    this.id = uuid();
     this.name = null;
     this.projectId = null;
     this.scenarioDefinition = [];
@@ -101,7 +115,7 @@ export class Test extends BaseConfig {
 export class Scenario extends BaseConfig {
   constructor(options) {
     super();
-    this.id = generateId();
+    this.id = uuid();
     this.name = null;
     this.url = null;
     this.parameters = [];
@@ -122,7 +136,7 @@ export class Scenario extends BaseConfig {
 export class Request extends BaseConfig {
   constructor(options) {
     super();
-    this.id = generateId();
+    this.id = uuid();
     this.name = null;
     this.url = null;
     this.method = null;
@@ -143,6 +157,10 @@ export class Request extends BaseConfig {
     options.body = new Body(options.body);
     options.assertions = new Assertions(options.assertions);
     return options;
+  }
+
+  isValid() {
+    return !!this.url && !!this.method
   }
 }
 
@@ -304,14 +322,23 @@ class JMeterTestPlan extends Element {
 
 class JMXGenerator {
   constructor(test) {
-    if (!test || !test.id || !(test instanceof Test)) return;
+    if (!test || !(test instanceof Test)) return null;
+
+    if (!test.id) {
+      test.id = "#NULL_TEST_ID#";
+    }
+    const SPLIT = "@@:";
 
     let testPlan = new TestPlan(test.name);
     test.scenarioDefinition.forEach(scenario => {
-      let threadGroup = new ThreadGroup(scenario.name);
+      let threadGroup = new ThreadGroup(scenario.name + SPLIT + scenario.id);
 
       scenario.requests.forEach(request => {
-        let httpSamplerProxy = new HTTPSamplerProxy(request.name, new JMXRequest(request));
+        if (!request.isValid()) return;
+
+        // test.id用于处理结果时区分属于哪个测试
+        let name = request.name + SPLIT + test.id;
+        let httpSamplerProxy = new HTTPSamplerProxy(name, new JMXRequest(request));
 
         this.addRequestHeader(httpSamplerProxy, request);
 
@@ -326,8 +353,15 @@ class JMXGenerator {
         threadGroup.put(httpSamplerProxy);
       })
 
-      this.addBackendListener(threadGroup, test.id);
+      this.addBackendListener(threadGroup);
       testPlan.put(threadGroup);
+
+      // 暂时不加
+      // let tearDownThreadGroup = new PostThreadGroup();
+      // tearDownThreadGroup.put(new DebugSampler(test.id));
+      // this.addBackendListener(tearDownThreadGroup);
+      //
+      // testPlan.put(tearDownThreadGroup);
     })
 
     this.jmeterTestPlan = new JMeterTestPlan();
@@ -338,14 +372,14 @@ class JMXGenerator {
     let name = request.name + " Headers";
     let headers = request.headers.filter(this.filter);
     if (headers.length > 0) {
-      httpSamplerProxy.putRequestHeader(new HeaderManager(name, headers));
+      httpSamplerProxy.put(new HeaderManager(name, headers));
     }
   }
 
   addRequestArguments(httpSamplerProxy, request) {
     let args = request.parameters.filter(this.filter)
     if (args.length > 0) {
-      httpSamplerProxy.addRequestArguments(new HTTPSamplerArguments(args));
+      httpSamplerProxy.add(new HTTPSamplerArguments(args));
     }
   }
 
@@ -357,19 +391,20 @@ class JMXGenerator {
       body.push({name: '', value: request.body.raw});
     }
 
-    httpSamplerProxy.addRequestBody(new HTTPSamplerArguments(body));
+    httpSamplerProxy.boolProp('HTTPSampler.postBodyRaw', true);
+    httpSamplerProxy.add(new HTTPSamplerArguments(body));
   }
 
   addRequestAssertion(httpSamplerProxy, request) {
     let assertions = request.assertions;
     if (assertions.regex.length > 0) {
       assertions.regex.filter(this.filter).forEach(regex => {
-        httpSamplerProxy.putResponseAssertion(this.getAssertion(regex));
+        httpSamplerProxy.put(this.getAssertion(regex));
       })
     }
 
     if (assertions.duration.isValid()) {
-      httpSamplerProxy.putDurationAssertion(assertions.duration.type, assertions.duration.value);
+      httpSamplerProxy.put(assertions.duration.type, assertions.duration.value);
     }
   }
 
@@ -387,11 +422,10 @@ class JMXGenerator {
     }
   }
 
-  addBackendListener(threadGroup, testId) {
+  addBackendListener(threadGroup) {
     let testName = 'API Backend Listener';
     let className = 'io.metersphere.api.jmeter.APIBackendListenerClient';
-    let args = [{name: 'id', value: testId}];
-    threadGroup.put(new BackendListener(testName, className, args));
+    threadGroup.put(new BackendListener(testName, className));
   }
 
   filter(config) {

@@ -1,6 +1,7 @@
 package io.metersphere.base.mapper.ext;
 
-import io.metersphere.controller.request.ReportRequest;
+import io.metersphere.api.dto.APIReportResult;
+import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.dto.ApiReportDTO;
 import org.apache.ibatis.annotations.Param;
 
@@ -8,7 +9,8 @@ import java.util.List;
 
 public interface ExtApiTestReportMapper {
 
-    List<ApiReportDTO> getReportList(@Param("reportRequest") ReportRequest request);
+    List<APIReportResult> list(@Param("request") QueryAPIReportRequest request);
 
-    ApiReportDTO getReportTestAndProInfo(@Param("id") String id);
+    List<APIReportResult> listByTestId(@Param("testId") String testId);
+
 }

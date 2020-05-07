@@ -1,45 +1,149 @@
 package io.metersphere.api.jmeter;
 
+import io.metersphere.api.service.APIReportService;
+import io.metersphere.api.service.APITestService;
+import io.metersphere.commons.constants.APITestStatus;
+import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.LogUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.AssertionResult;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
 import org.apache.jmeter.visualizers.backend.BackendListenerContext;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * JMeter BackendListener扩展, jmx脚本中使用
+ */
 public class APIBackendListenerClient extends AbstractBackendListenerClient implements Serializable {
 
-    private final AtomicInteger count = new AtomicInteger();
+    // 与前端JMXGenerator的SPLIT对应，用于获取 测试名称 和 测试ID
+    private final static String SPLIT = "@@:";
+    // 测试ID作为key
+    private final Map<String, List<SampleResult>> queue = new ConcurrentHashMap<>();
 
     @Override
     public void handleSampleResults(List<SampleResult> sampleResults, BackendListenerContext context) {
-        System.out.println(context.getParameter("id"));
         sampleResults.forEach(result -> {
-            for (AssertionResult assertionResult : result.getAssertionResults()) {
-                System.out.println(assertionResult.getName() + ": " + assertionResult.isError());
-                System.out.println(assertionResult.getName() + ": " + assertionResult.isFailure());
-                System.out.println(assertionResult.getName() + ": " + assertionResult.getFailureMessage());
+            // 将不同的测试脚本按测试ID分开
+            String label = result.getSampleLabel();
+            if (!label.contains(SPLIT)) {
+                LogUtil.error("request name format is invalid, name: " + label);
+                return;
             }
-
-            println("getSampleLabel", result.getSampleLabel());
-            println("getErrorCount", result.getErrorCount());
-            println("getRequestHeaders", result.getRequestHeaders());
-            println("getResponseHeaders", result.getResponseHeaders());
-            println("getSampleLabel", result.getSampleLabel());
-            println("getSampleLabel", result.getSampleLabel());
-            println("getResponseCode", result.getResponseCode());
-            println("getResponseCode size", result.getResponseData().length);
-            println("getLatency", result.getLatency());
-            println("end - start", result.getEndTime() - result.getStartTime());
-            println("getTimeStamp", result.getTimeStamp());
-            println("getTime", result.getTime());
+            String name = label.split(SPLIT)[0];
+            String testId = label.split(SPLIT)[1];
+            if (!queue.containsKey(testId)) {
+                List<SampleResult> testResults = new ArrayList<>();
+                queue.put(testId, testResults);
+            }
+            result.setSampleLabel(name);
+            queue.get(testId).add(result);
         });
-        System.err.println(count.addAndGet(sampleResults.size()));
     }
 
-    private void println(String name, Object value) {
-        System.out.println(name + ": " + value);
+    @Override
+    public void teardownTest(BackendListenerContext context) throws Exception {
+        APITestService apiTestService = CommonBeanFactory.getBean(APITestService.class);
+        if (apiTestService == null) {
+            LogUtil.error("apiTestService is required");
+            return;
+        }
+
+        APIReportService apiReportService = CommonBeanFactory.getBean(APIReportService.class);
+        if (apiReportService == null) {
+            LogUtil.error("apiReportService is required");
+            return;
+        }
+
+        queue.forEach((id, sampleResults) -> {
+            TestResult testResult = new TestResult();
+            testResult.setId(id);
+            testResult.setTotal(sampleResults.size());
+
+            // key: 场景Id
+            final Map<String, ScenarioResult> scenarios = new LinkedHashMap<>();
+
+            sampleResults.forEach(result -> {
+                String thread = StringUtils.substringBeforeLast(result.getThreadName(), " ");
+                String scenarioName = StringUtils.substringBefore(thread, SPLIT);
+                String scenarioId = StringUtils.substringAfter(thread, SPLIT);
+                ScenarioResult scenarioResult;
+                if (!scenarios.containsKey(scenarioId)) {
+                    scenarioResult = new ScenarioResult();
+                    scenarioResult.setId(scenarioId);
+                    scenarioResult.setName(scenarioName);
+                    scenarios.put(scenarioId, scenarioResult);
+                } else {
+                    scenarioResult = scenarios.get(scenarioId);
+                }
+
+                if (result.isSuccessful()) {
+                    scenarioResult.addSuccess();
+                    testResult.addSuccess();
+                } else {
+                    scenarioResult.addError();
+                    testResult.addError();
+                }
+
+                RequestResult requestResult = getRequestResult(result);
+                scenarioResult.getRequestResult().add(requestResult);
+
+                testResult.addPassAssertions(requestResult.getPassAssertions());
+                testResult.addTotalAssertions(requestResult.getTotalAssertions());
+
+                scenarioResult.addPassAssertions(requestResult.getPassAssertions());
+                scenarioResult.addTotalAssertions(requestResult.getTotalAssertions());
+            });
+            testResult.getScenarios().addAll(scenarios.values());
+            apiTestService.changeStatus(id, APITestStatus.Completed);
+            apiReportService.save(testResult);
+        });
+        queue.clear();
+        super.teardownTest(context);
     }
+
+    private RequestResult getRequestResult(SampleResult result) {
+        RequestResult requestResult = new RequestResult();
+        requestResult.setName(result.getSampleLabel());
+        requestResult.setUrl(result.getUrlAsString());
+        requestResult.setSuccess(result.isSuccessful());
+        requestResult.setBody(result.getSamplerData());
+        requestResult.setHeaders(result.getRequestHeaders());
+        requestResult.setRequestSize(result.getSentBytes());
+        requestResult.setTotalAssertions(result.getAssertionResults().length);
+
+        ResponseResult responseResult = requestResult.getResponseResult();
+        responseResult.setBody(result.getResponseDataAsString());
+        responseResult.setHeaders(result.getResponseHeaders());
+        responseResult.setLatency(result.getLatency());
+        responseResult.setResponseCode(result.getResponseCode());
+        responseResult.setResponseSize(result.getResponseData().length);
+        responseResult.setResponseTime(result.getTime());
+        responseResult.setResponseMessage(result.getResponseMessage());
+
+        for (AssertionResult assertionResult : result.getAssertionResults()) {
+            ResponseAssertionResult responseAssertionResult = getResponseAssertionResult(assertionResult);
+            if (responseAssertionResult.isPass()) {
+                requestResult.addPassAssertions();
+            }
+            responseResult.getAssertions().add(responseAssertionResult);
+        }
+        return requestResult;
+    }
+
+    private ResponseAssertionResult getResponseAssertionResult(AssertionResult assertionResult) {
+        ResponseAssertionResult responseAssertionResult = new ResponseAssertionResult();
+        responseAssertionResult.setMessage(assertionResult.getFailureMessage());
+        responseAssertionResult.setName(assertionResult.getName());
+        responseAssertionResult.setPass(!assertionResult.isFailure());
+        return responseAssertionResult;
+    }
+
 }

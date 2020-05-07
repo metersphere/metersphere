@@ -16,7 +16,6 @@ import PersonSetting from "../../settings/personal/PersonSetting";
 import SystemWorkspace from "../../settings/system/SystemWorkspace";
 import PerformanceChart from "../../performance/report/components/PerformanceChart";
 import PerformanceTestReport from "../../performance/report/PerformanceTestReport";
-import ApiTestReport from "../../api/report/ApiTestReport";
 import ApiTest from "../../api/ApiTest";
 import PerformanceTest from "../../performance/PerformanceTest";
 import ApiTestConfig from "../../api/test/ApiTestConfig";
@@ -30,6 +29,7 @@ import TestPlan from "../../track/plan/TestPlan";
 import TestPlanView from "../../track/plan/view/TestPlanView";
 import TestCase from "../../track/case/TestCase";
 import TestTrack from "../../track/TestTrack";
+import ApiReportList from "../../api/report/ApiReportList";
 
 Vue.use(VueRouter);
 
@@ -117,13 +117,13 @@ const router = new VueRouter({
           component: MsProject
         },
         {
-          path: "report/:type",
-          name: "fucReport",
-          component: ApiTestReport
+          path: "report/list/:testId",
+          name: "ApiReportList",
+          component: ApiReportList
         },
         {
           path: "report/view/:reportId",
-          name: "fucReportView",
+          name: "ApiReportView",
           component: ApiReportView
         }
       ]
