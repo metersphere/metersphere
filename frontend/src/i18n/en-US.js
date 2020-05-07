@@ -2,6 +2,7 @@ export default {
   commons: {
     'workspace': 'Workspace',
     'organization': 'Organization',
+    'setting': 'Setting',
     'project': 'Project',
     'name': 'Name',
     'description': 'Description',

@@ -9,7 +9,7 @@
         <el-table-column prop="name" :label="$t('commons.username')"/>
         <el-table-column prop="email" :label="$t('commons.email')"/>
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
-        <el-table-column prop="roles" label="角色" width="120">
+        <el-table-column prop="roles" :label="$t('commons.role')" width="120">
           <template v-slot:default="scope">
             <el-tag v-for="(role, index) in scope.row.roles" :key="index" size="mini" effect="dark" type="success">
               {{ role.name }}
@@ -29,9 +29,9 @@
                            :total="total"/>
     </el-card>
 
-    <el-dialog title="添加成员" :visible.sync="createVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
+    <el-dialog :title="$t('member.create')" :visible.sync="createVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
       <el-form :model="form" ref="form" :rules="rules" label-position="right" label-width="100px" size="small">
-        <el-form-item label="成员" prop="userIds">
+        <el-form-item :label="$t('commons.member')" prop="userIds">
           <el-select v-model="form.userIds" multiple :placeholder="$t('member.please_choose_member')"
                      class="select-width">
             <el-option
@@ -44,7 +44,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="角色" prop="roleIds">
+        <el-form-item :label="$t('commons.role')" prop="roleIds">
           <el-select v-model="form.roleIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
             <el-option
               v-for="item in form.roles"
@@ -63,7 +63,7 @@
       </template>
     </el-dialog>
 
-    <el-dialog title="修改成员" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
+    <el-dialog :title="$t('member.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
       <el-form :model="form" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
@@ -77,7 +77,7 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off"/>
         </el-form-item>
-        <el-form-item label="角色" prop="roleIds">
+        <el-form-item :label="$t('commons.role')" prop="roleIds">
           <el-select v-model="form.roleIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
             <el-option
               v-for="item in form.allroles"
@@ -104,10 +104,11 @@
   import {TokenKey} from "../../../../common/js/constants";
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableHeader from "../../common/components/MsTableHeader";
+  import MsTag from "../../common/components/MsTag";
 
   export default {
     name: "MsMember",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsTag},
     data() {
       return {
         result: {},

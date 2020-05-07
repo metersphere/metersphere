@@ -136,10 +136,10 @@
       },
       handleEdit(report) {
         if (report.status === "Error") {
-          this.$warning("报告生成错误,无法查看！");
+          this.$warning(this.$t('report.generation_error'));
           return false
         } else if (report.status === "Starting") {
-          this.$info("报告生成中...")
+          this.$info(this.$t('being_generated'))
           return false
         }
         this.$router.push({
@@ -170,12 +170,6 @@
 
   .test-content {
     width: 100%;
-  }
-
-  .table-page {
-    padding-top: 20px;
-    margin-right: -9px;
-    float: right;
   }
 
 </style>

@@ -3,7 +3,7 @@
     <div class="menus">
       <ms-current-user/>
       <el-divider/>
-      <h1>设置</h1>
+      <h1>{{$t('commons.setting')}}</h1>
       <ms-setting-menu/>
     </div>
     <div class="container">

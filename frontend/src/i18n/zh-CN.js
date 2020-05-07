@@ -2,6 +2,7 @@ export default {
   commons: {
     'workspace': '工作空间',
     'organization': '组织',
+    'setting': '设置',
     'project': '项目',
     'name': '名称',
     'description': '描述',
