@@ -11,7 +11,7 @@
         <el-table-column prop="description" :label="$t('commons.description')"/>
         <el-table-column prop="type" :label="$t('test_resource_pool.type')">
           <template v-slot:default="scope">
-            <span v-if="scope.row.type === 'NODE'">Single Docker</span>
+            <span v-if="scope.row.type === 'NODE'">Node</span>
             <span v-if="scope.row.type === 'K8S'">Kubernetes</span>
           </template>
         </el-table-column>
@@ -38,8 +38,7 @@
         </el-table-column>
         <el-table-column>
           <template v-slot:default="scope">
-            <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
-            <el-button @click="del(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
+            <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
           </template>
         </el-table-column>
       </el-table>
@@ -64,7 +63,7 @@
           <el-select v-model="form.type" :placeholder="$t('test_resource_pool.select_pool_type')"
                      @change="changeResourceType()">
             <el-option key="K8S" value="K8S" label="Kubernetes">Kubernetes</el-option>
-            <el-option key="NODE" value="NODE" label="Node">Single Docker</el-option>
+            <el-option key="NODE" value="NODE" label="Node">Node</el-option>
           </el-select>
         </el-form-item>
         <div v-for="(item,index) in infoList " :key="index">
@@ -122,9 +121,10 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" onkeydown="return false;"
-                     @click="createTestResourcePool('createTestResourcePoolForm')"
-                     size="medium">{{$t('commons.create')}}</el-button>
+          <el-button @click="createTestResourcePool('createTestResourcePoolForm')" @keydown.enter.native.prevent
+                     type="primary"
+                     size="medium">{{$t('commons.create')}}
+          </el-button>
         </span>
       </template>
     </el-dialog>
@@ -146,7 +146,7 @@
           <el-select v-model="form.type" :placeholder="$t('test_resource_pool.select_pool_type')"
                      @change="changeResourceType()">
             <el-option key="K8S" value="K8S" label="Kubernetes">Kubernetes</el-option>
-            <el-option key="NODE" value="NODE" label="Node">Single Docker</el-option>
+            <el-option key="NODE" value="NODE" label="Node">Node</el-option>
           </el-select>
         </el-form-item>
         <div v-for="(item,index) in infoList " :key="index">
@@ -202,9 +202,10 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" onkeydown="return false;"
-                     @click="updateTestResourcePool('updateTestResourcePoolForm')"
-                     size="medium">{{$t('commons.save')}}</el-button>
+          <el-button @click="updateTestResourcePool('updateTestResourcePoolForm')" @keydown.enter.native.prevent
+                     type="primary"
+                     size="medium">{{$t('commons.save')}}
+          </el-button>
         </span>
       </template>
     </el-dialog>
@@ -216,10 +217,11 @@
   import MsCreateBox from "../CreateBox";
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableHeader from "../../common/components/MsTableHeader";
+  import MsTableOperator from "../../common/components/MsTableOperator";
 
   export default {
     name: "MsTestResourcePool",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsTableOperator},
     data() {
       return {
         result: {},
@@ -413,9 +415,13 @@
         this.form = {};
       },
       changeSwitch(row) {
-        this.result = this.$post('/testresourcepool/update', row).then(() => {
-          this.$success(this.$t('test_resource_pool.status_change_success'));
-        })
+        this.result = this.$get('/testresourcepool/update/' + row.id + '/' + row.status)
+          .then(() => {
+            this.$success(this.$t('test_resource_pool.status_change_success'));
+          }).catch(() => {
+            this.$error(this.$t('test_resource_pool.status_change_failed'));
+            row.status = 'INVALID';
+          })
       }
     }
   }

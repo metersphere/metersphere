@@ -1,7 +1,7 @@
 <template>
   <div class="testcase-template" @click="templateEdit">
-    <div class="template-img" @click="templateDelete">
-      <i class="el-icon-error" v-if="template.workspaceId"/>
+    <div class="template-img">
+      <i class="el-icon-error" @click.stop="templateDelete"/>
     </div>
     <span class="demonstration">{{ template.name }}</span>
   </div>
@@ -20,11 +20,26 @@
       },
       methods: {
         templateEdit() {
-          this.$emit('templateEdit', this.template);
+          this.$emit('templateEdit', this.template.id);
         },
         templateDelete() {
-          this.post('/case/report/template/delete/' + this.template.id, () => {
+          if (!this.template.workspaceId) {
+            this.$warning('不能删除默认模版');
+            return;
+          }
+          this.$alert(this.$t('load_test.delete_file_confirm') + this.template.name + "？", '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                this.handleDelete();
+              }
+            }
+          });
+        },
+        handleDelete() {
+          this.$post('/case/report/template/delete/' + this.template.id, {}, () => {
             this.$success('删除成功');
+            this.$emit('refresh');
           });
         }
       }
@@ -67,7 +82,7 @@
     cursor: pointer;
   }
 
-  .template-img > i {
+  .template-img > i{
     display:none;
     float: right;
     color: gray;

@@ -37,3 +37,21 @@ export function saveLocalStorage(response) {
   // 保存角色
   localStorage.setItem("roles", roles);
 }
+
+
+export function jsonToMap(jsonStr) {
+  let obj = JSON.parse(jsonStr);
+  let strMap = new Map();
+  for (let k of Object.keys(obj)) {
+    strMap.set(k,obj[k]);
+  }
+  return strMap;
+}
+
+export function mapToJson(strMap){
+  let obj= Object.create(null);
+  for (let[k,v] of strMap) {
+    obj[k] = v;
+  }
+  return JSON.stringify(obj);
+}

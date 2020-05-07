@@ -1,6 +1,7 @@
 package io.metersphere.controller;
 
 import io.metersphere.base.domain.TestCaseReport;
+import io.metersphere.controller.request.testCaseReport.CreateReportRequest;
 import io.metersphere.service.TestCaseReportService;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,8 +26,8 @@ public class TestCaseReportController {
     }
 
     @PostMapping("/add")
-    public void add(@RequestBody TestCaseReport TestCaseReport){
-        testCaseReportService.addTestCaseReport(TestCaseReport);
+    public Long addByTemplateId(@RequestBody CreateReportRequest request){
+        return testCaseReportService.addTestCaseReportByTemplateId(request);
     }
 
     @PostMapping("/edit")

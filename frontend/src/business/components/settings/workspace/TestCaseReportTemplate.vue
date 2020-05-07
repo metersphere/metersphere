@@ -12,10 +12,10 @@
 
       <el-main>
         <testcase-template-item v-for="item in templates" :key="item.id"
-                                :template="item" @templateEdit="templateEdit"/>
+                                :template="item" @templateEdit="templateEdit" @refresh="initData"/>
       </el-main>
 
-      <test-case-report-template-edit ref="templateEdit"/>
+      <test-case-report-template-edit ref="templateEdit" @refresh="initData"/>
 
     </el-card>
 
@@ -57,11 +57,8 @@
             this.templates = response.data;
           });
         },
-        templateCreate() {
-
-        },
-        templateEdit(template) {
-          this.$refs.templateEdit.open(template);
+        templateEdit(id) {
+          this.$refs.templateEdit.open(id);
         }
       }
     }
@@ -69,6 +66,8 @@
 
 <style scoped>
 
-
+  .el-card {
+    min-height: 300px;
+  }
 
 </style>

@@ -92,7 +92,7 @@ public class TestCaseNodeService {
         List<TestCaseNodeDTO> childrens = Optional.ofNullable(nodeTree.getChildren()).orElse(new ArrayList<>());
 
         lowerNodes.forEach(node -> {
-            if (node.getpId().equals(rootNode.getId())){
+            if (node.getPId().equals(rootNode.getId())){
                 childrens.add(buildNodeTree(nodeLevelMap, node));
                 nodeTree.setChildren(childrens);
             }
@@ -327,7 +327,7 @@ public class TestCaseNodeService {
     private Integer insertTestCaseNode(String nodeName, Integer pId, String projectId, Integer level) {
         TestCaseNode testCaseNode = new TestCaseNode();
         testCaseNode.setName(nodeName.trim());
-        testCaseNode.setpId(pId);
+        testCaseNode.setPId(pId);
         testCaseNode.setProjectId(projectId);
         testCaseNode.setCreateTime(System.currentTimeMillis());
         testCaseNode.setUpdateTime(System.currentTimeMillis());

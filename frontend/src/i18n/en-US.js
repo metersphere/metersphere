@@ -2,6 +2,7 @@ export default {
   commons: {
     'workspace': 'Workspace',
     'organization': 'Organization',
+    'setting': 'Setting',
     'project': 'Project',
     'name': 'Name',
     'description': 'Description',
@@ -117,6 +118,15 @@ export default {
     'test_error_log': 'Test Error Log',
     'test_log_details': 'Test Log Details',
     'test_details': 'Test Details',
+    'test_duration': 'Test Duration：{0} minutes {1} seconds',
+    'test_start_time': 'Test Start Time',
+    'test_end_time': 'Test End Time',
+    'test_stop_now': 'Test Stop Now',
+    'test_execute_again': 'Test Execute Again',
+    'export': 'Export',
+    'compare': 'Compare',
+    'generation_error': 'Report generation error, cannot be viewed!',
+    'being_generated': 'Report is being generated...',
   },
   load_test: {
     'recent': 'Recent Tests',
@@ -305,6 +315,7 @@ export default {
     'fill_the_data': 'Please complete the data',
     'delete_prompt': 'This operation will permanently delete the resource pool, continue?',
     'status_change_success': 'Successfully changed the status!',
+    'status_change_failed': 'Failed to change the status!',
   },
   i18n: {
     'home': 'Home'

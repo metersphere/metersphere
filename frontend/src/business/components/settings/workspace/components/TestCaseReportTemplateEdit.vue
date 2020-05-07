@@ -7,95 +7,66 @@
     size="100%"
     ref="drawer"
     v-loading="result.loading">
-
     <template v-slot:default="scope">
 
-      <el-row type="flex" class="head-bar">
-
-        <el-col :span="12">
-
-          <div class="name-edit">
-            <el-input :placeholder="'请填写模版名称'" v-model="name"/>
-            <span v-if="name != ''">{{name}}</span>
-            <span v-if="name == ''">请填写模版名称</span>
-          </div>
-
-        </el-col>
-
-        <el-col :span="12" class="head-right">
-          <el-button plain size="mini" @click="handleClose">{{$t('test_track.return')}}</el-button>
-          <el-button type="primary" size="mini" @click="handleClose">{{$t('test_track.save')}}</el-button>
-        </el-col>
-
-      </el-row>
+      <template-component-edit-header :template="template" @cancel="handleClose" @save="handleSave"/>
 
       <div class="container">
-
-
-            <el-aside>
-
-                <div class="description">
-                  <span class="title">组件库</span>
-                  <span>从组件库把需要使用的组件拖到右侧，预览测试报告的效果。系统组件只能添加一次。自定义组件，可以设定默认的标题和内容。</span>
-                </div>
-
-                <draggable
-                  class="component-group"
-                  :list="components"
-                  :group="{ name: 'people', pull: 'clone', put: false }"
-                  :clone="cloneDog"
-                  @change="log">
-                  <template-component-bar  v-for="item in components" :key="item.id" :component="item"/>
-                </draggable>
-
-              </el-aside>
-
-            <el-main>
-                  <draggable
-                    class="preview-group"
-                    :list="previews"
-                    group="people"
-                    @change="log">
-
-                    <base-info-component/>
-                    <test-result-component/>
-                    <test-result-chart-component/>
-
-                    <el-card class="template-component" v-for="item in previews" :key="item.id">
-
-                      <template v-slot:header>
-                        {{item.name}}
-                      </template>
-
-                      <ckeditor :editor="editor" v-model="editorData" :config="editorConfig"></ckeditor>
-
-                    </el-card>
-                  </draggable>
-
-            </el-main>
-
+        <el-aside>
+          <div class="description">
+            <span class="title">组件库</span>
+            <span>从组件库把需要使用的组件拖到右侧，预览测试报告的效果。系统组件只能添加一次。自定义组件，可以设定默认的标题和内容。</span>
           </div>
+          <draggable
+            class="dragArea list-group"
+            :list="components"
+            :group="{ name: 'component', pull: 'clone', put: false }"
+            :clone="clonePreview">
+            <transition-group>
+              <template-component-bar  v-for="item in components" :key="item" :component="componentMap.get(item)"/>
+            </transition-group>
+          </draggable>
+        </el-aside>
 
-
+        <el-main>
+          <draggable
+                class="dragArea list-group"
+                :list="previews"
+                @change="change"
+                group="component">
+            <transition-group>
+              <div class="preview" v-for="item in previews" :key="item.id">
+                <base-info-component v-if="item.id == 1"/>
+                <test-result-component v-if="item.id == 2"/>
+                <test-result-chart-component v-if="item.id == 3"/>
+                <rich-text-component :preview="item" v-if="item.type != 'system'"/>
+                <i class="el-icon-error" @click="handleDelete(item)"/>
+              </div>
+            </transition-group>
+          </draggable>
+        </el-main>
+      </div>
     </template>
-
   </el-drawer>
-
 </template>
 
 <script>
 
   import draggable from 'vuedraggable';
-  import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
   import BaseInfoComponent from "./TemplateComponent/BaseInfoComponent";
   import TestResultComponent from "./TemplateComponent/TestResultComponent";
   import TestResultChartComponent from "./TemplateComponent/TestResultChartComponent";
   import TemplateComponentBar from "./TemplateComponentBar";
+  import RichTextComponent from "./TemplateComponent/RichTextComponent";
+  import TemplateComponentEditHeader from "./TemplateComponentEditHeader";
+  import {WORKSPACE_ID} from '../../../../../common/js/constants';
+  import {jsonToMap, mapToJson} from "../../../../../common/js/utils";
 
-  let idGlobal = 8;
     export default {
       name: "TestCaseReportTemplateEdit",
       components: {
+        TemplateComponentEditHeader,
+        RichTextComponent,
         TemplateComponentBar,
         TestResultChartComponent,
         TestResultComponent,
@@ -105,77 +76,178 @@
       data() {
         return {
           showDialog: false,
-          template: {},
           result: {},
           name: '',
           type: 'edit',
-          components: [
-            { name: "基础信息", id: 1 , type: 'system'},
-            { name: "测试结果", id: 2 , type: 'system'},
-            { name: "测试结果分布", id: 3 ,type: 'system'},
-            { name: "自定义模块", id: 4 ,type: 'custom'}
-          ],
-          previews: [
-            { name: "cat 5", id: 5 },
-            { name: "cat 6", id: 6 },
-            { name: "cat 7", id: 7 }
-          ],
-
-          editor: ClassicEditor,
-          editorData: '<p>Content of the editor.</p>',
-          editorConfig: {
-            // The configuration of the editor.
-          }
-
+          componentMap: new Map(
+            [
+              [1, { name: "基础信息", id: 1 , type: 'system'}],
+              [2, { name: "测试结果", id: 2 , type: 'system'}],
+              [3, { name: "测试结果分布", id: 3 ,type: 'system'}],
+              [4, { name: "自定义模块", id: 4 ,type: 'custom'}]
+            ]
+          ),
+          components: [4],
+          previews: [],
+          template: {},
+          isReport: false
         }
       },
       methods: {
-        open() {
+        open(id, isReport) {
+          if (isReport) {
+            this.isReport = isReport;
+          }
+          this.template = {
+            name: '',
+              content: {
+              components: [1,2,3,4],
+                customComponent: new Map()
+            }
+          };
+          this.previews = [];
+          this.components = [4];
+          if (id) {
+            this.type = 'edit';
+            this.getTemplateById(id);
+          } else {
+            this.type = 'add';
+            this.initComponents();
+          }
           this.showDialog = true;
+        },
+        initComponents() {
+          this.componentMap.forEach((value, key) =>{
+            if (this.template.content.components.indexOf(key) < 0 && this.components.indexOf(key) < 0) {
+              this.components.push(key);
+            }
+          });
+          this.template.content.components.forEach(item => {
+            let preview = this.componentMap.get(item);
+            if (preview && preview.type != 'custom') {
+              this.previews.push(preview);
+            } else {
+              if (this.template.content.customComponent) {
+                let customComponent = this.template.content.customComponent.get(item.toString());
+                if (customComponent) {
+                  this.previews.push({id: item, title: customComponent.title, content: customComponent.content});
+                }
+              }
+            }
+          });
         },
         handleClose() {
           this.showDialog = false;
         },
-        log: function(evt) {
-          window.console.log(evt);
+        change(evt) {
+          if (evt.added) {
+            let preview = evt.added.element;
+            if ( preview.type == 'system') {
+              for (let i = 0; i < this.components.length; i++) {
+                this.deleteComponentById(preview.id);
+              }
+            }
+          }
         },
-        cloneDog({ id }) {
+        clonePreview(componentId) {
+          let component = this.componentMap.get(componentId);
+          let id = componentId;
+          if (component.type != 'system') {
+            id = this.generateComponentId();
+          }
           return {
-            id: idGlobal++,
-            name: `cat ${id}`
+            id: id,
+            name: component.name,
+            type: component.type,
           };
+        },
+        handleDelete(preview) {
+          if (this.previews.length == 1) {
+            this.$warning('请至少保留一个组件');
+            return;
+          }
+          for (let i = 0; i < this.previews.length; i++) {
+            if (this.previews[i].id == preview.id) {
+              this.previews.splice(i,1);
+
+              if (preview.type == 'system') {
+                this.components.push(preview.id);
+              }
+              break;
+            }
+          }
+        },
+        generateComponentId() {
+          return Date.parse(new Date()) + Math.ceil(Math.random()*100000);
+        },
+        deleteComponentById(id) {
+          for (let i = 0; i < this.components.length; i++) {
+            if (this.components[i] == id) {
+              this.components.splice(i,1);
+              break;
+            }
+          }
+        },
+        getTemplateById(id) {
+          let url = '/case/report/template/get/';
+          if (this.isReport) {
+            url = '/case/report/get/';
+          }
+          this.$get(url + id, (response) =>{
+            this.template = response.data;
+            this.template.content = JSON.parse(response.data.content);
+            if (this.template.content.customComponent) {
+              this.template.content.customComponent = jsonToMap(this.template.content.customComponent);
+            }
+            this.initComponents();
+          });
+        },
+        handleSave() {
+          if (this.template.name == '') {
+            this.$warning('请填写模版名称');
+            return;
+          }
+          let param = {};
+          this.buildParam(param);
+          let url = '/case/report/template/';
+          if (this.isReport) {
+            url = '/case/report/';
+          }
+          this.$post(url + this.type, param, () =>{
+            this.$success('保存成功');
+            this.showDialog = false;
+            this.$emit('refresh');
+          });
+        },
+        buildParam(param) {
+          let content = {};
+          content.components = [];
+          this.previews.forEach(item => {
+            content.components.push(item.id);
+            if (!this.componentMap.get(item.id)) {
+              content.customComponent = new Map();
+              content.customComponent.set(item.id, {title: item.title, content: item.content})
+            }
+          });
+          param.name = this.template.name;
+          if (content.customComponent) {
+            content.customComponent = mapToJson(content.customComponent);
+          }
+          param.content = JSON.stringify(content);
+          if (this.type == 'edit') {
+            param.id = this.template.id;
+          } else {
+            param.workspaceId = localStorage.getItem(WORKSPACE_ID);
+          }
+          if (this.template.workspaceId) {
+            param.workspaceId = localStorage.getItem(WORKSPACE_ID);
+          }
         }
       }
     }
 </script>
 
 <style scoped>
-
-  .head-right {
-    text-align: right;
-  }
-
-  .head-bar {
-    background: white;
-    height: 45px;
-    line-height: 45px;
-    padding: 0 10px;
-    border: 1px solid #EBEEF5;
-    box-shadow: 0 0 2px 0 rgba(31,31,31,0.15), 0 1px 2px 0 rgba(31,31,31,0.15);
-  }
-
-  .name-edit:hover span {
-    display: none;
-  }
-
-  .name-edit .el-input {
-    display: none;
-    width: 200px;
-  }
-
-  .name-edit:hover .el-input{
-    display: inline-block;
-  }
 
   .el-aside {
     border: 1px solid #EBEEF5;
@@ -204,6 +276,10 @@
     width: 80%;
   }
 
+  .el-card:hover {
+    box-shadow: 0 0 2px 2px #409EFF;
+  }
+
   .description > span {
     display: block;
     padding-bottom: 5px;
@@ -216,6 +292,28 @@
   .container {
     height: 100vh;
     background: #F5F5F5;
+  }
+
+  .preview {
+    position: relative;
+  }
+
+  .el-icon-error {
+    position: absolute;
+    right: 11%;
+    top: 13px;
+    color: gray;
+    display:none;
+    font-size: 20px;
+  }
+
+  .el-icon-error:hover {
+    display: inline;
+    color: red;
+  }
+
+  .template-component:hover+i {
+    display: inline;
   }
 
 </style>

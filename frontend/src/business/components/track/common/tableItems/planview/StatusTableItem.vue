@@ -5,7 +5,7 @@
       <ms-tag v-if="value == 'Pass'" type="success" :content="$t('test_track.plan_view.pass')"/>
       <ms-tag v-if="value == 'Failure'" type="danger" :content="$t('test_track.plan_view.failure')"/>
       <ms-tag v-if="value == 'Blocking'" type="warning" :content="$t('test_track.plan_view.blocking')"/>
-      <ms-tag v-if="value == 'Skip'" type="info" :content="$t('test_track.plan.plan_view.skip')"/>
+      <ms-tag v-if="value == 'Skip'" type="info" :content="$t('test_track.plan_view.skip')"/>
     </div>
 </template>
 

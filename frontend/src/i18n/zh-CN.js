@@ -2,6 +2,7 @@ export default {
   commons: {
     'workspace': '工作空间',
     'organization': '组织',
+    'setting': '设置',
     'project': '项目',
     'name': '名称',
     'description': '描述',
@@ -119,6 +120,15 @@ export default {
     'test_error_log': '错误记录',
     'test_log_details': '日志详情',
     'test_details': '测试详情',
+    'test_duration': '持续时间：{0} 分钟 {1} 秒',
+    'test_start_time': '开始时间',
+    'test_end_time': '结束时间',
+    'test_stop_now': '立即停止',
+    'test_execute_again': '再次执行',
+    'export': '导出',
+    'compare': '比较',
+    'generation_error': '报告生成错误,无法查看!',
+    'being_generated': '报告正在生成中...',
   },
   load_test: {
     'recent': '最近的测试',
@@ -173,6 +183,7 @@ export default {
     'create': '创建测试',
     'select_resource_pool': '请选择资源池',
     'resource_pool_is_null': '资源池为空',
+
   },
   api_test: {
     save_and_run: "保存并执行",
@@ -350,6 +361,7 @@ export default {
     'fill_the_data': '请完善数据',
     'delete_prompt': '此操作将永久删除该资源池, 是否继续?',
     'status_change_success': '状态修改成功!',
+    'status_change_failed': '状态修改失败!',
   },
   i18n: {
     'home': '首页'

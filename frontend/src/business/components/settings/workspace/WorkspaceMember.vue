@@ -9,19 +9,14 @@
         <el-table-column prop="name" :label="$t('commons.username')"/>
         <el-table-column prop="email" :label="$t('commons.email')"/>
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
-        <el-table-column prop="roles" label="角色" width="120">
+        <el-table-column prop="roles" :label="$t('commons.role')" width="120">
           <template v-slot:default="scope">
-            <el-tag v-for="(role, index) in scope.row.roles" :key="index" size="mini" effect="dark" type="success">
-              {{ role.name }}
-            </el-tag>
+            <ms-roles-tag :roles="scope.row.roles" type="success"/>
           </template>
         </el-table-column>
         <el-table-column>
           <template v-slot:default="scope">
-            <el-button @click="edit(scope.row)" onkeydown="return false;" type="primary" icon="el-icon-edit" size="mini"
-                       circle v-permission="['test_manager']"/>
-            <el-button @click="del(scope.row)" onkeydown="return false;" type="danger" icon="el-icon-delete" size="mini"
-                       circle v-permission="['test_manager']"/>
+            <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)" v-permission="['test_manager']"/>
           </template>
         </el-table-column>
       </el-table>
@@ -29,9 +24,10 @@
                            :total="total"/>
     </el-card>
 
-    <el-dialog title="添加成员" :visible.sync="createVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
+    <el-dialog :title="$t('member.create')" :visible.sync="createVisible" width="30%" :destroy-on-close="true"
+               @close="closeFunc">
       <el-form :model="form" ref="form" :rules="rules" label-position="right" label-width="100px" size="small">
-        <el-form-item label="成员" prop="userIds">
+        <el-form-item :label="$t('commons.member')" prop="userIds">
           <el-select v-model="form.userIds" multiple :placeholder="$t('member.please_choose_member')"
                      class="select-width">
             <el-option
@@ -44,7 +40,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="角色" prop="roleIds">
+        <el-form-item :label="$t('commons.role')" prop="roleIds">
           <el-select v-model="form.roleIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
             <el-option
               v-for="item in form.roles"
@@ -57,13 +53,15 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" onkeydown="return false;"
-                     @click="submitForm('form')" size="medium">{{$t('commons.save')}}</el-button>
+          <el-button @click="submitForm('form')" @keydown.enter.native.prevent type="primary"
+                     size="medium">{{$t('commons.save')}}
+          </el-button>
         </span>
       </template>
     </el-dialog>
 
-    <el-dialog title="修改成员" :visible.sync="updateVisible" width="30%" :destroy-on-close="true" @close="closeFunc">
+    <el-dialog :title="$t('member.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true"
+               @close="closeFunc">
       <el-form :model="form" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
@@ -77,7 +75,7 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off"/>
         </el-form-item>
-        <el-form-item label="角色" prop="roleIds">
+        <el-form-item :label="$t('commons.role')" prop="roleIds">
           <el-select v-model="form.roleIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
             <el-option
               v-for="item in form.allroles"
@@ -90,8 +88,9 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" onkeydown="return false;"
-                     @click="updateWorkspaceMember('updateUserForm')" size="medium">{{$t('commons.save')}}</el-button>
+          <el-button @click="updateWorkspaceMember('updateUserForm')" @keydown.enter.native.prevent type="primary"
+                     size="medium">{{$t('commons.save')}}
+          </el-button>
         </span>
       </template>
     </el-dialog>
@@ -104,10 +103,12 @@
   import {TokenKey} from "../../../../common/js/constants";
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableHeader from "../../common/components/MsTableHeader";
+  import MsRolesTag from "../../common/components/MsRolesTag";
+  import MsTableOperator from "../../common/components/MsTableOperator";
 
   export default {
     name: "MsMember",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator},
     data() {
       return {
         result: {},
