@@ -16,10 +16,10 @@
         </el-table-column>
         <el-table-column>
           <template v-slot:default="scope">
-            <el-button @click="edit(scope.row)" onkeydown="return false;" type="primary" icon="el-icon-edit" size="mini"
-                       circle/>
-            <el-button @click="del(scope.row)" onkeydown="return false;" type="danger" icon="el-icon-delete" size="mini"
-                       circle/>
+            <el-button @click="edit(scope.row)" @keydown.enter.native.prevent type="primary" icon="el-icon-edit"
+                       size="mini" circle/>
+            <el-button @click="del(scope.row)" @keydown.enter.native.prevent type="danger" icon="el-icon-delete"
+                       size="mini" circle/>
           </template>
         </el-table-column>
       </el-table>
@@ -38,8 +38,9 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" onkeydown="return false;"
-                     @click="submit('form')" size="medium">{{$t('commons.save')}}</el-button>
+          <el-button @click="submit('form')" @keydown.enter.native.prevent type="primary"
+                     size="medium">{{$t('commons.save')}}
+          </el-button>
         </span>
       </template>
     </el-dialog>
@@ -55,26 +56,26 @@
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
         <el-table-column :label="$t('commons.role')" width="120">
           <template v-slot:default="scope">
-            <el-tag v-for="(role, index) in scope.row.roles" :key="index" size="mini" effect="dark" type="success">
-              {{ role.name }}
-            </el-tag>
+            <ms-roles-tag :roles="scope.row.roles" type="success"/>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <el-button @click="editMember(scope.row)" onkeydown="return false;" type="primary" icon="el-icon-edit"
+            <el-button @click="editMember(scope.row)" @keydown.enter.native.prevent type="primary" icon="el-icon-edit"
                        size="mini" circle/>
-            <el-button @click="delMember(scope.row)" onkeydown="return false;" type="danger" icon="el-icon-delete"
+            <el-button @click="delMember(scope.row)" @keydown.enter.native.prevent type="danger" icon="el-icon-delete"
                        size="mini" circle/>
           </template>
         </el-table-column>
       </el-table>
-      <ms-table-pagination :change="dialogSearch" :current-page.sync="dialogCurrentPage" :page-size.sync="dialogPageSize"
+      <ms-table-pagination :change="dialogSearch" :current-page.sync="dialogCurrentPage"
+                           :page-size.sync="dialogPageSize"
                            :total="dialogTotal"/>
     </el-dialog>
 
     <!-- add workspace member dialog -->
-    <el-dialog :title="$t('member.create')" :visible.sync="dialogWsMemberAddVisible" width="30%" :destroy-on-close="true"
+    <el-dialog :title="$t('member.create')" :visible.sync="dialogWsMemberAddVisible" width="30%"
+               :destroy-on-close="true"
                @close="closeFunc">
       <el-form :model="memberForm" ref="form" :rules="wsMemberRule" label-position="right" label-width="100px"
                size="small">
@@ -105,14 +106,16 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" onkeydown="return false;"
-                     @click="submitForm('form')" size="medium">{{$t('commons.save')}}</el-button>
+          <el-button @click="submitForm('form')" @keydown.enter.native.prevent type="primary"
+                     size="medium">{{$t('commons.save')}}
+          </el-button>
         </span>
       </template>
     </el-dialog>
 
     <!-- update workspace member dialog -->
-    <el-dialog :title="$t('member.modify')" :visible.sync="dialogWsMemberUpdateVisible" width="30%" :destroy-on-close="true"
+    <el-dialog :title="$t('member.modify')" :visible.sync="dialogWsMemberUpdateVisible" width="30%"
+               :destroy-on-close="true"
                @close="closeFunc">
       <el-form :model="memberForm" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
@@ -141,8 +144,9 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" onkeydown="return false;"
-                     @click="updateOrgMember('updateUserForm')" size="medium">{{$t('commons.save')}}</el-button>
+          <el-button @click="updateOrgMember('updateUserForm')" @keydown.enter.native.prevent type="primary"
+                     size="medium">{{$t('commons.save')}}
+          </el-button>
         </span>
       </template>
     </el-dialog>
@@ -156,10 +160,11 @@
   import {TokenKey} from "../../../../common/js/constants";
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableHeader from "../../common/components/MsTableHeader";
+  import MsRolesTag from "../../common/components/MsRolesTag";
 
   export default {
     name: "MsOrganizationWorkspace",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag},
     mounted() {
       this.list();
     },

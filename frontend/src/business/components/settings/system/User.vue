@@ -59,8 +59,8 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" onkeydown="return false;"
-                     @click="createUser('createUserForm')" size="medium">创建</el-button>
+          <el-button @click="createUser('createUserForm')" @keydown.enter.native.prevent type="primary"
+                     size="medium">{{$t('commons.save')}}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -83,8 +83,9 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" onkeydown="return false;"
-                     @click="updateUser('updateUserForm')" size="medium">{{$t('commons.save')}}</el-button>
+          <el-button @click="updateUser('updateUserForm')" @keydown.enter.native.prevent type="primary"
+                     size="medium">{{$t('commons.save')}}
+          </el-button>
         </span>
       </template>
     </el-dialog>

@@ -50,7 +50,7 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" onkeydown="return false;" @click="submit('form')" size="medium">{{$t('commons.save')}}</el-button>
+          <el-button type="primary" @keydown.enter.native.prevent @click="submit('form')" size="medium">{{$t('commons.save')}}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -78,7 +78,7 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="updateWorkspace('updateForm')" onkeydown="return false;"
+          <el-button type="primary" @click="updateWorkspace('updateForm')" @keydown.enter.native.prevent
                      size="medium">{{$t('commons.save')}}</el-button>
         </span>
       </template>
@@ -96,16 +96,14 @@
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
         <el-table-column :label="$t('commons.role')" width="120">
           <template v-slot:default="scope">
-            <el-tag v-for="(role, index) in scope.row.roles" :key="index" size="mini" effect="dark" type="success">
-              {{ role.name }}
-            </el-tag>
+            <ms-roles-tag :roles="scope.row.roles" type="success"/>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <el-button @click="editMember(scope.row)" onkeydown="return false;" type="primary" icon="el-icon-edit"
+            <el-button @click="editMember(scope.row)" @keydown.enter.native.prevent type="primary" icon="el-icon-edit"
                        size="mini" circle/>
-            <el-button @click="delMember(scope.row)" onkeydown="return false;" type="danger" icon="el-icon-delete"
+            <el-button @click="delMember(scope.row)" @keydown.enter.native.prevent type="danger" icon="el-icon-delete"
                        size="mini" circle/>
           </template>
         </el-table-column>
@@ -116,7 +114,8 @@
     </el-dialog>
 
     <!-- add workspace member dialog -->
-    <el-dialog :title="$t('member.create')" :visible.sync="dialogWsMemberAddVisible" width="30%" :destroy-on-close="true"
+    <el-dialog :title="$t('member.create')" :visible.sync="dialogWsMemberAddVisible" width="30%"
+               :destroy-on-close="true"
                @close="closeFunc">
       <el-form :model="memberForm" ref="form" :rules="wsMemberRule" label-position="right" label-width="100px"
                size="small">
@@ -147,13 +146,16 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" onkeydown="return false;" @click="submitForm('form')" size="medium">{{$t('commons.save')}}</el-button>
+          <el-button type="primary" @keydown.enter.native.prevent @click="submitForm('form')" size="medium">
+            {{$t('commons.save')}}
+          </el-button>
         </span>
       </template>
     </el-dialog>
 
     <!-- update workspace member dialog -->
-    <el-dialog :title="$t('member.modify')" :visible.sync="dialogWsMemberUpdateVisible" width="30%" :destroy-on-close="true"
+    <el-dialog :title="$t('member.modify')" :visible.sync="dialogWsMemberUpdateVisible" width="30%"
+               :destroy-on-close="true"
                @close="closeFunc">
       <el-form :model="memberForm" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
@@ -182,8 +184,9 @@
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="updateOrgMember('updateUserForm')" onkeydown="return false;"
-                     size="medium">{{$t('commons.save')}}</el-button>
+          <el-button type="primary" @click="updateOrgMember('updateUserForm')" @keydown.enter.native.prevent
+                     size="medium">{{$t('commons.save')}}
+          </el-button>
         </span>
       </template>
 
@@ -197,10 +200,11 @@
   import {Message} from "element-ui";
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableHeader from "../../common/components/MsTableHeader";
+  import MsRolesTag from "../../common/components/MsRolesTag";
 
   export default {
     name: "MsSystemWorkspace",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag},
     mounted() {
       this.list();
     },
