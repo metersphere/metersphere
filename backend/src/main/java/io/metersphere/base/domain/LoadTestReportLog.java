@@ -6,7 +6,7 @@ import java.io.Serializable;
 
 @Data
 public class LoadTestReportLog implements Serializable {
-    private Long id;
+    private String id;
 
     private String reportId;
 

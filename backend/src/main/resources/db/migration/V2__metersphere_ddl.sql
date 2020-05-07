@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS `file_content` (
-    `file_id` varchar(64) COLLATE utf8mb4_bin NOT NULL COMMENT 'File ID',
+    `file_id` varchar(64)  NOT NULL COMMENT 'File ID',
     `file`    longblob COMMENT 'File content',
     PRIMARY KEY (`file_id`)
 )
@@ -70,29 +70,24 @@ CREATE TABLE IF NOT EXISTS `load_test_report_detail` (
     DEFAULT CHARSET=utf8mb4
     COLLATE=utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `load_test_report_result` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `report_id` varchar(50) NOT NULL,
-  `report_key` varchar(64) DEFAULT NULL,
-  `report_value` text,
-  PRIMARY KEY (`id`),
-  KEY `load_test_report_result_report_id_report_key_index` (`report_id`,`report_key`)
-)
-    ENGINE=InnoDB
-    DEFAULT CHARSET=utf8mb4
-    COLLATE=utf8mb4_bin;
-
 CREATE TABLE IF NOT EXISTS `load_test_report_log` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `report_id` varchar(50) NOT NULL,
-  `resource_id` varchar(50) DEFAULT NULL,
-  `content` longtext,
+  `id` varchar(50) NOT NULL,
+  `report_id` varchar(50)  NOT NULL,
+  `resource_id` varchar(50)  DEFAULT NULL,
+  `content` longtext ,
   PRIMARY KEY (`id`),
   KEY `load_test_report_log_report_id_resource_name_index` (`report_id`,`resource_id`)
-)
-    ENGINE=InnoDB
-    DEFAULT CHARSET=utf8mb4
-    COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+CREATE TABLE IF NOT EXISTS `load_test_report_result` (
+  `id` varchar(50)  NOT NULL,
+  `report_id` varchar(50)  NOT NULL,
+  `report_key` varchar(64)  DEFAULT NULL,
+  `report_value` text ,
+  PRIMARY KEY (`id`),
+  KEY `load_test_report_result_report_id_report_key_index` (`report_id`,`report_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
 
 CREATE TABLE IF NOT EXISTS `organization` (
     `id`          varchar(50) NOT NULL COMMENT 'Organization ID',
@@ -145,7 +140,7 @@ CREATE TABLE IF NOT EXISTS `system_parameter` (
 
 CREATE TABLE IF NOT EXISTS `test_resource` (
     `id`                    varchar(50) NOT NULL COMMENT 'Test resource ID',
-    `test_resource_pool_id` varchar(50) COLLATE utf8mb4_bin NOT NULL COMMENT 'Test resource pool ID this test resource belongs to',
+    `test_resource_pool_id` varchar(50)  NOT NULL COMMENT 'Test resource pool ID this test resource belongs to',
     `configuration`         longtext COMMENT 'Test resource configuration',
     `status`                varchar(64) NOT NULL COMMENT 'Test resource status',
     `create_time`           bigint(13)  NOT NULL COMMENT 'Create timestamp',
@@ -217,13 +212,13 @@ CREATE TABLE IF NOT EXISTS `workspace` (
 -- api start
 
 CREATE TABLE IF NOT EXISTS `api_test` (
-    `id` varchar(50) COLLATE utf8mb4_bin NOT NULL COMMENT 'Test ID',
-    `project_id` varchar(50) COLLATE utf8mb4_bin NOT NULL COMMENT 'Project ID this test belongs to',
-    `name` varchar(64) COLLATE utf8mb4_bin NOT NULL COMMENT 'Test name',
-    `description` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'Test description',
-    `scenario_definition` longtext COLLATE utf8mb4_bin COMMENT 'Scenario definition (JSON format)',
-    `schedule` longtext COLLATE utf8mb4_bin COMMENT 'Test schedule (cron list)',
-    `status` varchar(64) COLLATE utf8mb4_bin DEFAULT NULL,
+    `id` varchar(50)  NOT NULL COMMENT 'Test ID',
+    `project_id` varchar(50)  NOT NULL COMMENT 'Project ID this test belongs to',
+    `name` varchar(64)  NOT NULL COMMENT 'Test name',
+    `description` varchar(255)  DEFAULT NULL COMMENT 'Test description',
+    `scenario_definition` longtext  COMMENT 'Scenario definition (JSON format)',
+    `schedule` longtext  COMMENT 'Test schedule (cron list)',
+    `status` varchar(64)  DEFAULT NULL,
     `create_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
     `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
     PRIMARY KEY (`id`)
