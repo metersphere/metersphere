@@ -55,9 +55,7 @@
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
         <el-table-column :label="$t('commons.role')" width="120">
           <template v-slot:default="scope">
-            <el-tag v-for="(role, index) in scope.row.roles" :key="index" size="mini" effect="dark" type="success">
-              {{ role.name }}
-            </el-tag>
+            <ms-roles-tag :roles="scope.row.roles" type="success"/>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
@@ -69,12 +67,14 @@
           </template>
         </el-table-column>
       </el-table>
-      <ms-table-pagination :change="dialogSearch" :current-page.sync="dialogCurrentPage" :page-size.sync="dialogPageSize"
+      <ms-table-pagination :change="dialogSearch" :current-page.sync="dialogCurrentPage"
+                           :page-size.sync="dialogPageSize"
                            :total="dialogTotal"/>
     </el-dialog>
 
     <!-- add workspace member dialog -->
-    <el-dialog :title="$t('member.create')" :visible.sync="dialogWsMemberAddVisible" width="30%" :destroy-on-close="true"
+    <el-dialog :title="$t('member.create')" :visible.sync="dialogWsMemberAddVisible" width="30%"
+               :destroy-on-close="true"
                @close="closeFunc">
       <el-form :model="memberForm" ref="form" :rules="wsMemberRule" label-position="right" label-width="100px"
                size="small">
@@ -112,7 +112,8 @@
     </el-dialog>
 
     <!-- update workspace member dialog -->
-    <el-dialog :title="$t('member.modify')" :visible.sync="dialogWsMemberUpdateVisible" width="30%" :destroy-on-close="true"
+    <el-dialog :title="$t('member.modify')" :visible.sync="dialogWsMemberUpdateVisible" width="30%"
+               :destroy-on-close="true"
                @close="closeFunc">
       <el-form :model="memberForm" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
@@ -156,10 +157,11 @@
   import {TokenKey} from "../../../../common/js/constants";
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableHeader from "../../common/components/MsTableHeader";
+  import MsRolesTag from "../../common/components/MsRolesTag";
 
   export default {
     name: "MsOrganizationWorkspace",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag},
     mounted() {
       this.list();
     },

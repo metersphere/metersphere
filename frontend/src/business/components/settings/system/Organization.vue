@@ -41,9 +41,7 @@
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
         <el-table-column :label="$t('commons.role')" width="140">
           <template v-slot:default="scope">
-            <el-tag v-for="(role, index) in scope.row.roles" :key="index" size="mini" effect="dark">
-              {{ role.name }}
-            </el-tag>
+            <ms-roles-tag :roles="scope.row.roles"/>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
@@ -185,10 +183,11 @@
   import MsCreateBox from "../CreateBox";
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableHeader from "../../common/components/MsTableHeader";
+  import MsRolesTag from "../../common/components/MsRolesTag";
 
   export default {
     name: "MsOrganization",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag},
     data() {
       return {
         queryPath: '/organization/list',
