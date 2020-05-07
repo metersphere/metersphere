@@ -204,6 +204,39 @@ export class ThreadGroup extends DefaultTestElement {
   }
 }
 
+export class PostThreadGroup extends DefaultTestElement {
+  constructor(testName) {
+    super('PostThreadGroup', 'PostThreadGroupGui', 'PostThreadGroup', testName || 'tearDown Thread Group');
+
+    this.intProp("ThreadGroup.num_threads", 1);
+    this.intProp("ThreadGroup.ramp_time", 1);
+    this.boolProp("ThreadGroup.scheduler", false);
+    this.stringProp("ThreadGroup.on_sample_error", "continue");
+
+    let loopAttrs = {
+      name: "ThreadGroup.main_controller",
+      elementType: "LoopController",
+      guiclass: "LoopControlPanel",
+      testclass: "LoopController",
+      testname: "Loop Controller",
+      enabled: "true"
+    };
+    let loopController = this.add(new Element('elementProp', loopAttrs));
+    loopController.boolProp('LoopController.continue_forever', false);
+    loopController.stringProp('LoopController.loops', 1);
+  }
+}
+
+export class DebugSampler extends DefaultTestElement {
+  constructor(testName) {
+    super('DebugSampler', 'TestBeanGUI', 'DebugSampler', testName || 'Debug Sampler');
+
+    this.boolProp("displayJMeterProperties", false);
+    this.boolProp("displayJMeterVariables", true);
+    this.boolProp("displaySystemProperties", false);
+  }
+}
+
 export class HTTPSamplerProxy extends DefaultTestElement {
   constructor(testName, request) {
     super('HTTPSamplerProxy', 'HttpTestSampleGui', 'HTTPSamplerProxy', testName || 'HTTP Request');
@@ -217,37 +250,6 @@ export class HTTPSamplerProxy extends DefaultTestElement {
       this.stringProp("HTTPSampler.port", "");
     } else {
       this.stringProp("HTTPSampler.port", this.request.port);
-    }
-  }
-
-  addRequestArguments(arg) {
-    if (arg instanceof HTTPSamplerArguments) {
-      this.add(arg);
-    }
-  }
-
-  addRequestBody(body) {
-    if (body instanceof HTTPSamplerArguments) {
-      this.boolProp('HTTPSampler.postBodyRaw', true);
-      this.add(body);
-    }
-  }
-
-  putRequestHeader(header) {
-    if (header instanceof HeaderManager) {
-      this.put(header);
-    }
-  }
-
-  putResponseAssertion(assertion) {
-    if (assertion instanceof ResponseAssertion) {
-      this.put(assertion);
-    }
-  }
-
-  putDurationAssertion(assertion) {
-    if (assertion instanceof DurationAssertion) {
-      this.put(assertion);
     }
   }
 }
@@ -373,7 +375,9 @@ export class BackendListener extends DefaultTestElement {
   constructor(testName, className, args) {
     super('BackendListener', 'BackendListenerGui', 'BackendListener', testName || 'Backend Listener');
     this.stringProp('classname', className);
-    this.add(new ElementArguments(args));
+    if (args && args.length > 0) {
+      this.add(new ElementArguments(args));
+    }
   }
 }
 
@@ -397,3 +401,6 @@ export class ElementArguments extends Element {
   }
 }
 
+export class Class {
+
+}

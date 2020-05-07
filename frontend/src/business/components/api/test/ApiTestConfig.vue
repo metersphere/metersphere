@@ -16,7 +16,7 @@
                 {{$t('commons.save')}}
               </el-button>
 
-              <el-button type="primary" plain :disabled="isDisabled" @click="runTest">
+              <el-button type="primary" plain @click="runTest">
                 {{$t('load_test.save_and_run')}}
               </el-button>
               <el-button type="warning" plain @click="cancel">{{$t('commons.cancel')}}</el-button>
@@ -42,6 +42,7 @@
 
     data() {
       return {
+        create: false,
         result: {},
         projects: [],
         change: false,
@@ -65,8 +66,10 @@
           this.projects = response.data;
         })
         if (this.id) {
+          this.create = false;
           this.getTest(this.id);
         } else {
+          this.create = true;
           this.test = new Test();
           if (this.$refs.config) {
             this.$refs.config.reset();
@@ -89,20 +92,28 @@
         });
       },
       saveTest: function () {
-        this.change = false;
-
-        this.result = this.$request(this.getOptions("/api/save"), response => {
-          this.test.id = response.data;
+        this.save(() => {
           this.$success(this.$t('commons.save_success'));
+        })
+      },
+      save: function (callback) {
+        this.change = false;
+        let url = this.create ? "/api/create" : "/api/update";
+        this.result = this.$request(this.getOptions(url), response => {
+          this.create = false;
+          if (callback) callback();
         });
       },
       runTest: function () {
         this.change = false;
 
-        this.result = this.$request(this.getOptions("/api/run"), response => {
-          this.test.id = response.data;
+        this.save(() => {
           this.$success(this.$t('commons.save_success'));
-        });
+          this.result = this.$post("/api/run", {id: this.test.id}, response => {
+            this.$success(this.$t('api_test.running'));
+          });
+        })
+
       },
       cancel: function () {
         this.$router.push('/api/test/list/all');
@@ -123,7 +134,6 @@
         let jmx = this.test.toJMX();
         let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
         formData.append("files", new File([blob], jmx.name));
-        console.log(jmx.xml)
 
         return {
           method: 'POST',

@@ -11,7 +11,7 @@ public interface LoadTestReportResultMapper {
 
     int deleteByExample(LoadTestReportResultExample example);
 
-    int deleteByPrimaryKey(Long id);
+    int deleteByPrimaryKey(String id);
 
     int insert(LoadTestReportResult record);
 
@@ -21,7 +21,7 @@ public interface LoadTestReportResultMapper {
 
     List<LoadTestReportResult> selectByExample(LoadTestReportResultExample example);
 
-    LoadTestReportResult selectByPrimaryKey(Long id);
+    LoadTestReportResult selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") LoadTestReportResult record, @Param("example") LoadTestReportResultExample example);
 

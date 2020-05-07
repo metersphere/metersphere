@@ -228,6 +228,7 @@ public class PerformanceTestService {
             List<TestResource> testResourceList = testResourceService.getResourcesByPoolId(resourcePoolId);
             testResourceList.forEach(r -> {
                 LoadTestReportLog record = new LoadTestReportLog();
+                record.setId(UUID.randomUUID().toString());
                 record.setReportId(testReport.getId());
                 record.setResourceId(r.getId());
                 record.setContent(StringUtils.EMPTY);

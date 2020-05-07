@@ -6,13 +6,11 @@ import io.metersphere.api.dto.APITestResult;
 import io.metersphere.api.dto.DeleteAPITestRequest;
 import io.metersphere.api.dto.QueryAPITestRequest;
 import io.metersphere.api.dto.SaveAPITestRequest;
-import io.metersphere.api.service.ApiTestService;
+import io.metersphere.api.service.APITestService;
 import io.metersphere.base.domain.ApiTestWithBLOBs;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
-import io.metersphere.controller.request.testplan.SaveTestPlanRequest;
-import io.metersphere.service.FileService;
 import io.metersphere.user.SessionUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -28,9 +26,7 @@ import javax.annotation.Resource;
 @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
 public class APITestController {
     @Resource
-    private ApiTestService apiTestService;
-    @Resource
-    private FileService fileService;
+    private APITestService apiTestService;
 
     @GetMapping("recent/{count}")
     public List<APITestResult> recentTest(@PathVariable int count) {
@@ -48,9 +44,14 @@ public class APITestController {
         return PageUtils.setPageInfo(page, apiTestService.list(request));
     }
 
-    @PostMapping(value = "/save", consumes = {"multipart/form-data"})
-    public String save(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "files") List<MultipartFile> files) {
-        return apiTestService.save(request, files);
+    @PostMapping(value = "/create", consumes = {"multipart/form-data"})
+    public void create(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "files") List<MultipartFile> files) {
+        apiTestService.create(request, files);
+    }
+
+    @PostMapping(value = "/update", consumes = {"multipart/form-data"})
+    public void update(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "files") List<MultipartFile> files) {
+        apiTestService.update(request, files);
     }
 
     @GetMapping("/get/{testId}")
@@ -63,8 +64,8 @@ public class APITestController {
         apiTestService.delete(request);
     }
 
-    @PostMapping(value = "/run", consumes = {"multipart/form-data"})
-    public String run(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "files") List<MultipartFile> files) {
-        return apiTestService.run(request, files);
+    @PostMapping(value = "/run")
+    public void run(@RequestBody SaveAPITestRequest request) {
+        apiTestService.run(request);
     }
 }

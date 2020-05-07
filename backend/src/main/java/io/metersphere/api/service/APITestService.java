@@ -13,22 +13,21 @@ import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.FileService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class ApiTestService {
+public class APITestService {
 
     @Resource
     private ApiTestMapper apiTestMapper;
@@ -50,28 +49,21 @@ public class ApiTestService {
         return extApiTestMapper.list(request);
     }
 
-    public String save(SaveAPITestRequest request, List<MultipartFile> files) {
+    public void create(SaveAPITestRequest request, List<MultipartFile> files) {
         if (files == null || files.isEmpty()) {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
         }
+        ApiTestWithBLOBs test = createTest(request);
+        saveFile(test.getId(), files);
+    }
 
-        final ApiTestWithBLOBs test;
-        if (StringUtils.isNotBlank(request.getId())) {
-            // 删除原来的文件
-            deleteFileByTestId(request.getId());
-            test = updateTest(request);
-        } else {
-            test = createTest(request);
+    public void update(SaveAPITestRequest request, List<MultipartFile> files) {
+        if (files == null || files.isEmpty()) {
+            throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
         }
-        // 保存新文件
-        files.forEach(file -> {
-            final FileMetadata fileMetadata = fileService.saveFile(file);
-            ApiTestFile apiTestFile = new ApiTestFile();
-            apiTestFile.setTestId(test.getId());
-            apiTestFile.setFileId(fileMetadata.getId());
-            apiTestFileMapper.insert(apiTestFile);
-        });
-        return test.getId();
+        deleteFileByTestId(request.getId());
+        ApiTestWithBLOBs test = updateTest(request);
+        saveFile(test.getId(), files);
     }
 
     public ApiTestWithBLOBs get(String id) {
@@ -83,15 +75,15 @@ public class ApiTestService {
         apiTestMapper.deleteByPrimaryKey(request.getId());
     }
 
-    public String run(SaveAPITestRequest request, List<MultipartFile> files) {
-        String id = save(request, files);
-        try {
-            changeStatus(request.getId(), APITestStatus.Running);
-            jMeterService.run(files.get(0).getInputStream());
-        } catch (IOException e) {
-            MSException.throwException(Translator.get("api_load_script_error"));
+    public void run(SaveAPITestRequest request) {
+        ApiTestFile file = getFileByTestId(request.getId());
+        if (file == null) {
+            MSException.throwException(Translator.get("file_cannot_be_null"));
         }
-        return id;
+        byte[] bytes = fileService.loadFileAsBytes(file.getFileId());
+        InputStream is = new ByteArrayInputStream(bytes);
+        changeStatus(request.getId(), APITestStatus.Running);
+        jMeterService.run(is);
     }
 
     public void changeStatus(String id, APITestStatus status) {
@@ -121,7 +113,7 @@ public class ApiTestService {
         }
 
         final ApiTestWithBLOBs test = new ApiTestWithBLOBs();
-        test.setId(UUID.randomUUID().toString());
+        test.setId(request.getId());
         test.setName(request.getName());
         test.setProjectId(request.getProjectId());
         test.setScenarioDefinition(request.getScenarioDefinition());
@@ -130,6 +122,16 @@ public class ApiTestService {
         test.setStatus(APITestStatus.Saved.name());
         apiTestMapper.insert(test);
         return test;
+    }
+
+    private void saveFile(String testId, List<MultipartFile> files) {
+        files.forEach(file -> {
+            final FileMetadata fileMetadata = fileService.saveFile(file);
+            ApiTestFile apiTestFile = new ApiTestFile();
+            apiTestFile.setTestId(testId);
+            apiTestFile.setFileId(fileMetadata.getId());
+            apiTestFileMapper.insert(apiTestFile);
+        });
     }
 
     private void deleteFileByTestId(String testId) {

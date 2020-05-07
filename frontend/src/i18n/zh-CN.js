@@ -2,6 +2,7 @@ export default {
   commons: {
     'workspace': '工作空间',
     'organization': '组织',
+    'setting': '设置',
     'project': '项目',
     'name': '名称',
     'description': '描述',
@@ -186,6 +187,7 @@ export default {
   },
   api_test: {
     save_and_run: "保存并执行",
+    running: "正在执行",
     reset: "重置",
     input_name: "请输入测试名称",
     select_project: "请选择项目",
@@ -359,6 +361,7 @@ export default {
     'fill_the_data': '请完善数据',
     'delete_prompt': '此操作将永久删除该资源池, 是否继续?',
     'status_change_success': '状态修改成功!',
+    'status_change_failed': '状态修改失败!',
   },
   i18n: {
     'home': '首页'
