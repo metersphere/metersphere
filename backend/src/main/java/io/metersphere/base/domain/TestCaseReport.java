@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class TestCaseReport implements Serializable {
-    private Long id;
+    private String id;
 
     private String name;
 

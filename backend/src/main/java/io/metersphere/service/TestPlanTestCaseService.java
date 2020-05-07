@@ -38,7 +38,7 @@ public class TestPlanTestCaseService {
         testPlanTestCaseMapper.updateByPrimaryKeySelective(testPlanTestCase);
     }
 
-    public int deleteTestCase(Integer id) {
+    public int deleteTestCase(String id) {
         return testPlanTestCaseMapper.deleteByPrimaryKey(id);
     }
 

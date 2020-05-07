@@ -260,7 +260,7 @@ CREATE TABLE IF NOT EXISTS `test_plan` (
     `id`                     varchar(50) NOT NULL COMMENT 'Test Plan ID',
     `project_id`             varchar(50) NOT NULL COMMENT 'Project ID this plan belongs to',
     `workspace_id`           varchar(50) NOT NULL COMMENT 'Workspace ID this plan belongs to',
-    `report_id`              bigint(20) COMMENT 'Test plan report',
+    `report_id`              varchar(50) COMMENT 'Test plan report',
     `name`                   varchar(64) NOT NULL COMMENT 'Plan name',
     `description`            varchar(255) DEFAULT NULL COMMENT 'Plan description',
     `status`                 varchar(20) NOT NULL COMMENT 'Plan status',
@@ -279,15 +279,15 @@ CREATE TABLE IF NOT EXISTS `test_plan` (
 
 
 CREATE TABLE IF NOT EXISTS `test_case_node` (
-    `id`                     int(13) PRIMARY KEY AUTO_INCREMENT COMMENT 'Test case node ID',
+    `id`                     varchar(50) NOT NULL COMMENT 'Test case node ID',
     `project_id`             varchar(50) NOT NULL COMMENT 'Project ID this node belongs to',
     `name`                   varchar(64) NOT NULL COMMENT 'Node name',
-    `p_id`                   int(13) DEFAULT NULL COMMENT 'Parent node ID',
+    `parent_id`              varchar(50) DEFAULT NULL COMMENT 'Parent node ID',
     `level`                  int(10)  DEFAULT 1 COMMENT 'Node level',
     `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
-    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp'
+    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
+    PRIMARY KEY (`id`)
 )
-    AUTO_INCREMENT = 1
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
@@ -295,7 +295,7 @@ CREATE TABLE IF NOT EXISTS `test_case_node` (
 
 CREATE TABLE IF NOT EXISTS `test_case` (
     `id`                     varchar(50) NOT NULL COMMENT 'Test case ID',
-    `node_id`                int(13) NOT NULL COMMENT 'Node ID this case belongs to',
+    `node_id`                varchar(50) NOT NULL COMMENT 'Node ID this case belongs to',
     `node_path`              varchar(50) NOT NULL COMMENT 'Node path this case belongs to',
     `project_id`             varchar(50) NOT NULL COMMENT 'Project ID this test belongs to',
     `name`                   varchar(64) NOT NULL COMMENT 'Case name',
@@ -316,7 +316,7 @@ CREATE TABLE IF NOT EXISTS `test_case` (
 
 
 CREATE TABLE IF NOT EXISTS `test_plan_test_case` (
-    `id`                     int(13) PRIMARY KEY AUTO_INCREMENT COMMENT 'ID',
+    `id`                     varchar(50) NOT NULL COMMENT 'ID',
     `plan_id`                varchar(50) NOT NULL COMMENT 'Plan ID relation to',
     `case_id`                varchar(50) NOT NULL COMMENT 'Case ID relation to',
     `executor`               varchar(64) NOT NULL COMMENT 'Test case executor',
@@ -324,18 +324,18 @@ CREATE TABLE IF NOT EXISTS `test_plan_test_case` (
     `results`                longtext COMMENT 'Test case result',
     `remark`                 varchar(255) DEFAULT NULL COMMENT 'Test case remark',
     `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
-    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp'
+    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
+    PRIMARY KEY (`id`)
 )
-    AUTO_INCREMENT = 1
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
 
 CREATE TABLE IF NOT EXISTS `test_case_report_template` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `name` varchar(64) NOT NULL COMMENT 'Test case report template name',
+  `id`           varchar(50) NOT NULL,
+  `name`         varchar(64) NOT NULL COMMENT 'Test case report template name',
   `workspace_id` varchar(50) DEFAULT NULL COMMENT 'Workspace ID this project belongs to',
-  `content` longtext COMMENT 'Template content (JSON format)',
+  `content`      longtext COMMENT 'Template content (JSON format)',
   PRIMARY KEY (`id`)
 )
     ENGINE=InnoDB
@@ -343,11 +343,11 @@ CREATE TABLE IF NOT EXISTS `test_case_report_template` (
     COLLATE=utf8mb4_bin;
 
 CREATE TABLE IF NOT EXISTS `test_case_report` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `name` varchar(64) NOT NULL COMMENT 'Test case report name',
-  `content` longtext COMMENT 'Report content (JSON format)',
-  `start_time`            bigint(13)  COMMENT 'Test start time',
-  `end_time`            bigint(13) COMMENT 'Test end time',
+  `id`             varchar(50) NOT NULL,
+  `name`           varchar(64) NOT NULL COMMENT 'Test case report name',
+  `content`        longtext COMMENT 'Report content (JSON format)',
+  `start_time`     bigint(13)  COMMENT 'Test start time',
+  `end_time`       bigint(13) COMMENT 'Test end time',
   PRIMARY KEY (`id`)
 )
     ENGINE=InnoDB

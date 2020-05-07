@@ -43,7 +43,7 @@ public class TestPlanTestCaseController {
     }
 
     @PostMapping("/delete/{id}")
-    public int deleteTestCase(@PathVariable Integer id){
+    public int deleteTestCase(@PathVariable String id){
         return testPlanTestCaseService.deleteTestCase(id);
     }
 

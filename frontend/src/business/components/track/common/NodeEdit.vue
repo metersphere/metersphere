@@ -53,6 +53,11 @@
           dialogFormVisible: false,
         }
       },
+      props: {
+        treeNodes: {
+          type: Array
+        }
+      },
       methods: {
         open(type, data) {
           this.type = type;
@@ -64,6 +69,7 @@
             if (valid) {
               let param = {};
               let url = this.buildParam(param);
+
               this.$post(url, param, () => {
                 this.$success(this.$t('commons.save_success'));
                 this.$emit('refresh');
@@ -74,19 +80,20 @@
             }
           });
         },
-        buildParam(param, ) {
+        buildParam(param) {
           let url = '';
           if (this.type === 'add') {
             url = '/case/node/add';
             param.level = 1;
             if (this.node) {
               //非根节点
-              param.pId = this.node.id;
+              param.parentId = this.node.id;
               param.level = this.node.level + 1;
             }
           } else if (this.type === 'edit') {
             url = '/case/node/edit';
-            param.id = this.node.id
+            param.id = this.node.id;
+            param.level = this.node.level;
           }
           param.name = this.form.name;
           param.label = this.form.name;

@@ -10,7 +10,7 @@ public interface TestPlanTestCaseMapper {
 
     int deleteByExample(TestPlanTestCaseExample example);
 
-    int deleteByPrimaryKey(Integer id);
+    int deleteByPrimaryKey(String id);
 
     int insert(TestPlanTestCase record);
 
@@ -20,7 +20,7 @@ public interface TestPlanTestCaseMapper {
 
     List<TestPlanTestCase> selectByExample(TestPlanTestCaseExample example);
 
-    TestPlanTestCase selectByPrimaryKey(Integer id);
+    TestPlanTestCase selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") TestPlanTestCase record, @Param("example") TestPlanTestCaseExample example);
 

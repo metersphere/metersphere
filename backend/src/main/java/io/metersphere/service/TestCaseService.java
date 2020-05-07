@@ -79,7 +79,7 @@ public class TestCaseService {
         testCaseMapper.insert(testCase);
     }
 
-    public List<TestCase> getTestCaseByNodeId(List<Integer> nodeIds) {
+    public List<TestCase> getTestCaseByNodeId(List<String> nodeIds) {
         TestCaseExample testCaseExample = new TestCaseExample();
         testCaseExample.createCriteria().andNodeIdIn(nodeIds);
         return testCaseMapper.selectByExample(testCaseExample);
@@ -95,6 +95,9 @@ public class TestCaseService {
     }
 
     public int deleteTestCase(String testCaseId) {
+        TestPlanTestCaseExample example = new TestPlanTestCaseExample();
+        example.createCriteria().andCaseIdEqualTo(testCaseId);
+        testPlanTestCaseMapper.deleteByExample(example);
         return testCaseMapper.deleteByPrimaryKey(testCaseId);
     }
 
@@ -219,7 +222,7 @@ public class TestCaseService {
 
     public void saveImportData(List<TestCaseWithBLOBs> testCases, String projectId) {
 
-        Map<String, Integer> nodePathMap = testCaseNodeService.createNodeByTestCases(testCases, projectId);
+        Map<String, String> nodePathMap = testCaseNodeService.createNodeByTestCases(testCases, projectId);
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
         if (!testCases.isEmpty()) {

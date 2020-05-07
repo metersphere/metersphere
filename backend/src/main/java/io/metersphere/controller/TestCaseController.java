@@ -40,7 +40,7 @@ public class TestCaseController {
     }
 
     @PostMapping("/list")
-    public List<TestCase> getTestCaseByNodeId(@RequestBody List<Integer> nodeIds){
+    public List<TestCase> getTestCaseByNodeId(@RequestBody List<String> nodeIds){
         return testCaseService.getTestCaseByNodeId(nodeIds);
     }
 

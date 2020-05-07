@@ -47,7 +47,7 @@
       </template>
     </el-tree>
 
-    <node-edit ref="nodeEdit" @refresh="refreshNode"/>
+    <node-edit ref="nodeEdit" :tree-nodes="treeNodes" @refresh="refreshNode"/>
 
   </div>
 
@@ -92,14 +92,14 @@
         let param = {};
         param.id = draggingNode.data.id;
         if (dropType === 'inner') {
-          param.pId = dropNode.data.id;
+          param.parentId = dropNode.data.id;
           param.level = dropNode.data.level + 1;
         } else {
           if (dropNode.parent.id === 0) {
-            param.pId = 0;
+            param.parentId = 0;
             param.level = 1;
           } else {
-            param.pId = dropNode.parent.data.id;
+            param.parentId = dropNode.parent.data.id;
             param.level = dropNode.parent.data.level + 1;
           }
         }

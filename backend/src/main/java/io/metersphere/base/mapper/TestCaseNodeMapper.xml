@@ -2,10 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.base.mapper.TestCaseNodeMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.TestCaseNode">
-    <id column="id" jdbcType="INTEGER" property="id" />
+    <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="p_id" jdbcType="INTEGER" property="pId" />
+    <result column="parent_id" jdbcType="VARCHAR" property="parentId" />
     <result column="level" jdbcType="INTEGER" property="level" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
@@ -69,7 +69,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, name, p_id, level, create_time, update_time
+    id, project_id, name, parent_id, level, create_time, update_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.TestCaseNodeExample" resultMap="BaseResultMap">
     select
@@ -85,15 +85,15 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from test_case_node
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=VARCHAR}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from test_case_node
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.base.domain.TestCaseNodeExample">
     delete from test_case_node
@@ -103,10 +103,10 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseNode">
     insert into test_case_node (id, project_id, name, 
-      p_id, level, create_time, 
+      parent_id, level, create_time, 
       update_time)
-    values (#{id,jdbcType=INTEGER}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{pId,jdbcType=INTEGER}, #{level,jdbcType=INTEGER}, #{createTime,jdbcType=BIGINT}, 
+    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{parentId,jdbcType=VARCHAR}, #{level,jdbcType=INTEGER}, #{createTime,jdbcType=BIGINT}, 
       #{updateTime,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseNode">
@@ -121,8 +121,8 @@
       <if test="name != null">
         name,
       </if>
-      <if test="pId != null">
-        p_id,
+      <if test="parentId != null">
+        parent_id,
       </if>
       <if test="level != null">
         level,
@@ -136,7 +136,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
-        #{id,jdbcType=INTEGER},
+        #{id,jdbcType=VARCHAR},
       </if>
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
@@ -144,8 +144,8 @@
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
       </if>
-      <if test="pId != null">
-        #{pId,jdbcType=INTEGER},
+      <if test="parentId != null">
+        #{parentId,jdbcType=VARCHAR},
       </if>
       <if test="level != null">
         #{level,jdbcType=INTEGER},
@@ -168,7 +168,7 @@
     update test_case_node
     <set>
       <if test="record.id != null">
-        id = #{record.id,jdbcType=INTEGER},
+        id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
@@ -176,8 +176,8 @@
       <if test="record.name != null">
         name = #{record.name,jdbcType=VARCHAR},
       </if>
-      <if test="record.pId != null">
-        p_id = #{record.pId,jdbcType=INTEGER},
+      <if test="record.parentId != null">
+        parent_id = #{record.parentId,jdbcType=VARCHAR},
       </if>
       <if test="record.level != null">
         level = #{record.level,jdbcType=INTEGER},
@@ -195,10 +195,10 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update test_case_node
-    set id = #{record.id,jdbcType=INTEGER},
+    set id = #{record.id,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
-      p_id = #{record.pId,jdbcType=INTEGER},
+      parent_id = #{record.parentId,jdbcType=VARCHAR},
       level = #{record.level,jdbcType=INTEGER},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT}
@@ -215,8 +215,8 @@
       <if test="name != null">
         name = #{name,jdbcType=VARCHAR},
       </if>
-      <if test="pId != null">
-        p_id = #{pId,jdbcType=INTEGER},
+      <if test="parentId != null">
+        parent_id = #{parentId,jdbcType=VARCHAR},
       </if>
       <if test="level != null">
         level = #{level,jdbcType=INTEGER},
@@ -228,16 +228,16 @@
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestCaseNode">
     update test_case_node
     set project_id = #{projectId,jdbcType=VARCHAR},
       name = #{name,jdbcType=VARCHAR},
-      p_id = #{pId,jdbcType=INTEGER},
+      parent_id = #{parentId,jdbcType=VARCHAR},
       level = #{level,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT}
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

@@ -52,7 +52,6 @@ public class TestPlanService {
         testPlanMapper.insert(testPlan);
     }
 
-
     public TestPlan getTestPlan(String testPlanId) {
         return testPlanMapper.selectByPrimaryKey(testPlanId);
     }
@@ -99,6 +98,7 @@ public class TestPlanService {
             testCaseIds.forEach(caseId -> {
                 TestCaseWithBLOBs testCase = testCaseMap.get(caseId);
                 TestPlanTestCase testPlanTestCase = new TestPlanTestCase();
+                testPlanTestCase.setId(UUID.randomUUID().toString());
                 testPlanTestCase.setExecutor(testCase.getMaintainer());
                 testPlanTestCase.setCaseId(caseId);
                 testPlanTestCase.setCreateTime(System.currentTimeMillis());

@@ -10,7 +10,7 @@ public interface TestCaseReportTemplateMapper {
 
     int deleteByExample(TestCaseReportTemplateExample example);
 
-    int deleteByPrimaryKey(Long id);
+    int deleteByPrimaryKey(String id);
 
     int insert(TestCaseReportTemplate record);
 
@@ -20,7 +20,7 @@ public interface TestCaseReportTemplateMapper {
 
     List<TestCaseReportTemplate> selectByExample(TestCaseReportTemplateExample example);
 
-    TestCaseReportTemplate selectByPrimaryKey(Long id);
+    TestCaseReportTemplate selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") TestCaseReportTemplate record, @Param("example") TestCaseReportTemplateExample example);
 

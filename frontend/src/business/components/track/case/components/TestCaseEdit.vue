@@ -266,7 +266,9 @@
           if (this.selectNode.data) {
             this.form.module = this.selectNode.data.id;
           } else {
-            this.form.module = this.moduleOptions[0].id;
+            if (this.moduleOptions.length > 0) {
+              this.form.module = this.moduleOptions[0].id;
+            }
           }
           let user = JSON.parse(localStorage.getItem(TokenKey));
           this.form.priority = 'P3';
