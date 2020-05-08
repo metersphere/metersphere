@@ -28,7 +28,7 @@
       </el-table>
 
       <el-dialog :title="$t('member.modify_personal_info')" :visible.sync="updateVisible" width="30%"
-                 :destroy-on-close="true" @close="closeFunc">
+                 :destroy-on-close="true" @close="handleClose">
         <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
                  ref="updateUserForm">
           <el-form-item label="ID" prop="id">
@@ -135,7 +135,7 @@
           this.tableData = dataList;
         })
       },
-      closeFunc() {
+      handleClose() {
         this.form = {};
       }
     }

@@ -40,7 +40,7 @@
 
     </el-card>
 
-    <el-dialog :title="$t('user.create')" :visible.sync="createVisible" width="30%" @closed="closeFunc"
+    <el-dialog :title="$t('user.create')" :visible.sync="createVisible" width="30%" @closed="handleClose"
                :destroy-on-close="true">
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule" ref="createUserForm">
         <el-form-item label="ID" prop="id">
@@ -65,7 +65,7 @@
     </el-dialog>
 
     <el-dialog :title="$t('user.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true"
-               @close="closeFunc">
+               @close="handleClose">
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
@@ -211,7 +211,7 @@
           this.tableData = data.listObject;
         })
       },
-      closeFunc() {
+      handleClose() {
         this.form = {};
       },
       changeSwitch(row) {
