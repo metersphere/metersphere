@@ -68,64 +68,64 @@
         </el-form-item>
         <div v-for="(item,index) in infoList " :key="index">
           <div class="node-line" v-if="form.type === 'K8S'">
-            <div class="k8s-master">
-              <el-col :span="11">
-
+            <el-row>
+              <el-col :span="9">
+                <el-form-item prop="masterUrl" label="Master URL">
+                  <el-input v-model="item.masterUrl" autocomplete="off"/>
+                </el-form-item>
               </el-col>
-              <el-form-item prop="masterUrl" label="Master URL">
-                <el-input v-model="item.masterUrl" autocomplete="off"/>
-              </el-form-item>
-            </div>
-            <div class="k8s-token">
-              <el-form-item prop="token" label="Token">
-                <el-input v-model="item.token" show-password autocomplete="off"/>
-              </el-form-item>
-            </div>
-            <div style="width: 30%;float: left">
-              <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')">
-                <el-input-number v-model="item.maxConcurrency" :min="1" :max="9999"></el-input-number>
-              </el-form-item>
-            </div>
+              <el-col :span="9">
+                <el-form-item prop="password" label="Token" style="padding-left: 20px">
+                  <el-input v-model="item.token" show-password autocomplete="off"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="6">
+                <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"
+                              style="padding-left: 20px">
+                  <el-input-number v-model="item.maxConcurrency" :min="1" :max="9999"></el-input-number>
+                </el-form-item>
+              </el-col>
+            </el-row>
           </div>
           <div class="node-line" v-if="form.type === 'NODE'">
-            <div style="width: 30%;float: left">
-              <el-form-item prop="ip" label="IP">
-                <el-input v-model="item.ip" autocomplete="off"/>
-              </el-form-item>
-            </div>
-            <div style="width: 30%;float: left">
-              <el-form-item prop="port" label="Port">
-                <el-input-number v-model="item.port" :min="1" :max="9999"></el-input-number>
-              </el-form-item>
-            </div>
-            <div style="width: 30%;float: left">
-              <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')">
-                <el-input-number v-model="item.maxConcurrency" :min="1" :max="9999"></el-input-number>
-              </el-form-item>
-            </div>
-            <div class="op">
+            <el-row>
+              <el-col :span="8">
+                <el-form-item prop="ip" label="IP">
+                  <el-input v-model="item.ip" autocomplete="off"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="6">
+                <el-form-item prop="port" label="Port" style="padding-left: 20px">
+                  <el-input-number v-model="item.port" :min="1" :max="9999"></el-input-number>
+                </el-form-item>
+              </el-col>
+              <el-col :span="6">
+                <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"
+                              style="padding-left: 20px">
+                  <el-input-number v-model="item.maxConcurrency" :min="1" :max="9999"></el-input-number>
+                </el-form-item>
+              </el-col>
+              <el-col :span="4">
                 <span class="box">
                     <el-button @click="addResourceInfo()" type="primary" size="mini" circle>
                         <font-awesome-icon :icon="['fas', 'plus']"/>
                     </el-button>
                 </span>
-              <span class="box">
+                <span class="box">
                     <el-button @click="removeResourceInfo(index)" type="primary" size="mini" circle>
                         <font-awesome-icon :icon="['fas', 'minus']"/>
                     </el-button>
                 </span>
-            </div>
+              </el-col>
+            </el-row>
           </div>
         </div>
 
       </el-form>
       <template v-slot:footer>
-        <span class="dialog-footer">
-          <el-button @click="createTestResourcePool('createTestResourcePoolForm')" @keydown.enter.native.prevent
-                     type="primary"
-                     size="medium">{{$t('commons.create')}}
-          </el-button>
-        </span>
+        <ms-dialog-footer
+          @cancel="createVisible = false"
+          @confirm="createTestResourcePool('createTestResourcePoolForm')"/>
       </template>
     </el-dialog>
 
@@ -151,62 +151,63 @@
         </el-form-item>
         <div v-for="(item,index) in infoList " :key="index">
           <div class="node-line" v-if="form.type === 'K8S'">
-            <div class="k8s-master">
-              <el-form-item prop="masterUrl" label="Master URL">
-                <el-input v-model="item.masterUrl" autocomplete="off"/>
-              </el-form-item>
-            </div>
-            <div class="k8s-token">
-              <el-form-item prop="password" label="Token" style="padding-left: 20px">
-                <el-input v-model="item.token" show-password autocomplete="off"/>
-              </el-form-item>
-            </div>
-            <div style="width: 30%;float: left">
-              <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"
-                            style="padding-left: 20px">
-                <el-input-number v-model="item.maxConcurrency" :min="1" :max="9999"></el-input-number>
-              </el-form-item>
-            </div>
+            <el-row>
+              <el-col :span="9">
+                <el-form-item prop="masterUrl" label="Master URL">
+                  <el-input v-model="item.masterUrl" autocomplete="off"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="9">
+                <el-form-item prop="password" label="Token" style="padding-left: 20px">
+                  <el-input v-model="item.token" show-password autocomplete="off"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="6">
+                <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"
+                              style="padding-left: 20px">
+                  <el-input-number v-model="item.maxConcurrency" :min="1" :max="9999"></el-input-number>
+                </el-form-item>
+              </el-col>
+            </el-row>
           </div>
           <div class="node-line" v-if="form.type === 'NODE'">
-            <div style="width: 30%;float: left">
-              <el-form-item prop="ip" label="IP">
-                <el-input v-model="item.ip" autocomplete="off"/>
-              </el-form-item>
-            </div>
-            <div style="width: 30%;float: left">
-              <el-form-item prop="port" label="Port" style="padding-left: 20px">
-                <el-input-number v-model="item.port" :min="1" :max="9999"></el-input-number>
-              </el-form-item>
-            </div>
-            <div style="width: 30%;float: left">
-              <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"
-                            style="padding-left: 20px">
-                <el-input-number v-model="item.maxConcurrency" :min="1" :max="9999"></el-input-number>
-              </el-form-item>
-            </div>
-            <div class="op">
+            <el-row>
+              <el-col :span="8">
+                <el-form-item prop="ip" label="IP">
+                  <el-input v-model="item.ip" autocomplete="off"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="6">
+                <el-form-item prop="port" label="Port" style="padding-left: 20px">
+                  <el-input-number v-model="item.port" :min="1" :max="9999"></el-input-number>
+                </el-form-item>
+              </el-col>
+              <el-col :span="6">
+                <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"
+                              style="padding-left: 20px">
+                  <el-input-number v-model="item.maxConcurrency" :min="1" :max="9999"></el-input-number>
+                </el-form-item>
+              </el-col>
+              <el-col :span="4">
                 <span class="box">
                     <el-button @click="addResourceInfo()" type="primary" size="mini" circle>
                         <font-awesome-icon :icon="['fas', 'plus']"/>
                     </el-button>
                 </span>
-              <span class="box">
+                <span class="box">
                     <el-button @click="removeResourceInfo(index)" type="primary" size="mini" circle>
                         <font-awesome-icon :icon="['fas', 'minus']"/>
                     </el-button>
                 </span>
-            </div>
+              </el-col>
+            </el-row>
           </div>
         </div>
       </el-form>
       <template v-slot:footer>
-        <span class="dialog-footer">
-          <el-button @click="updateTestResourcePool('updateTestResourcePoolForm')" @keydown.enter.native.prevent
-                     type="primary"
-                     size="medium">{{$t('commons.save')}}
-          </el-button>
-        </span>
+        <ms-dialog-footer
+          @cancel="updateVisible = false"
+          @confirm="updateTestResourcePool('updateTestResourcePoolForm')"/>
       </template>
     </el-dialog>
 
@@ -218,10 +219,11 @@
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableHeader from "../../common/components/MsTableHeader";
   import MsTableOperator from "../../common/components/MsTableOperator";
+  import MsDialogFooter from "../../common/components/MsDialogFooter";
 
   export default {
     name: "MsTestResourcePool",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsTableOperator},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsTableOperator, MsDialogFooter},
     data() {
       return {
         result: {},
@@ -429,30 +431,8 @@
 
 <style scoped>
 
-  .op {
-    float: left;
-    width: 10%;
-  }
-
   .box {
     padding-left: 5px;
   }
 
-  .k8s-master {
-    width: 34%;
-    float: left
-  }
-
-  .k8s-token {
-    width: 36%;
-    float: left
-  }
-
-  .k8s-token .el-form-item__label {
-    padding-left: 20px;
-  }
-
-  .node-line {
-    clear: both;
-  }
 </style>

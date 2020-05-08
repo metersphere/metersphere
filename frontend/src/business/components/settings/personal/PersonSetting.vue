@@ -45,11 +45,9 @@
           </el-form-item>
         </el-form>
         <template v-slot:footer>
-          <span class="dialog-footer">
-            <el-button @click="updateUser('updateUserForm')" @keydown.enter.native.prevent type="primary"
-                       size="medium">{{$t('commons.save')}}
-            </el-button>
-          </span>
+          <ms-dialog-footer
+            @cancel="updateVisible = false"
+            @confirm="updateUser('updateUserForm')"/>
         </template>
       </el-dialog>
 
@@ -59,6 +57,7 @@
 
 <script>
   import {TokenKey} from "../../../../common/js/constants";
+  import MsDialogFooter from "../../common/components/MsDialogFooter";
 
   export default {
     data() {
@@ -100,6 +99,7 @@
       }
     },
     name: "MsPersonSetting",
+    components: {MsDialogFooter},
     created() {
       this.initTableData();
     },

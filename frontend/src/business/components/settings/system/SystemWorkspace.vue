@@ -49,9 +49,9 @@
         </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <span class="dialog-footer">
-          <el-button type="primary" @keydown.enter.native.prevent @click="submit('form')" size="medium">{{$t('commons.save')}}</el-button>
-        </span>
+        <ms-dialog-footer
+          @cancel="dialogWsAddVisible = false"
+          @confirm="submit('form')"/>
       </template>
     </el-dialog>
 
@@ -77,10 +77,9 @@
         </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <span class="dialog-footer">
-          <el-button type="primary" @click="updateWorkspace('updateForm')" @keydown.enter.native.prevent
-                     size="medium">{{$t('commons.save')}}</el-button>
-        </span>
+        <ms-dialog-footer
+          @cancel="dialogWsUpdateVisible = false"
+          @confirm="updateWorkspace('updateForm')"/>
       </template>
 
     </el-dialog>
@@ -142,11 +141,9 @@
         </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <span class="dialog-footer">
-          <el-button type="primary" @keydown.enter.native.prevent @click="submitForm('form')" size="medium">
-            {{$t('commons.save')}}
-          </el-button>
-        </span>
+        <ms-dialog-footer
+          @cancel="dialogWsMemberAddVisible = false"
+          @confirm="submitForm('form')"/>
       </template>
     </el-dialog>
 
@@ -180,11 +177,9 @@
         </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <span class="dialog-footer">
-          <el-button type="primary" @click="updateWorkspaceMember('updateUserForm')" @keydown.enter.native.prevent
-                     size="medium">{{$t('commons.save')}}
-          </el-button>
-        </span>
+        <ms-dialog-footer
+          @cancel="dialogWsMemberUpdateVisible = false"
+          @confirm="updateWorkspaceMember('updateUserForm')"/>
       </template>
 
     </el-dialog>
@@ -199,10 +194,11 @@
   import MsTableHeader from "../../common/components/MsTableHeader";
   import MsRolesTag from "../../common/components/MsRolesTag";
   import MsTableOperator from "../../common/components/MsTableOperator";
+  import MsDialogFooter from "../../common/components/MsDialogFooter";
 
   export default {
     name: "MsSystemWorkspace",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator, MsDialogFooter},
     mounted() {
       this.list();
     },
