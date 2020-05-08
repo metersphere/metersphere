@@ -26,17 +26,14 @@
         <div class="container">
           <el-main>
             <div class="preview" v-for="item in previews" :key="item.id">
-              <base-info-component :report-info="metric" v-if="item.id == 1"/>
-              <test-result-component :test-results="metric.moduleExecuteResult" v-if="item.id == 2"/>
-              <test-result-chart-component :execute-result="metric.executeResult" v-if="item.id == 3"/>
-              <rich-text-component :preview="item" v-if="item.type != 'system'"/>
+              <template-component :metric="metric" :preview="item"/>
             </div>
           </el-main>
         </div>
       </template>
     </el-drawer>
 
-    <test-case-report-template-edit ref="templateEdit" @refresh="getReport"/>
+    <test-case-report-template-edit :metric="metric" ref="templateEdit" @refresh="getReport"/>
 
   </div>
 </template>
@@ -48,10 +45,12 @@
     import TestResultComponent from "../../../../settings/workspace/components/TemplateComponent/TestResultComponent";
     import RichTextComponent from "../../../../settings/workspace/components/TemplateComponent/RichTextComponent";
     import TestCaseReportTemplateEdit from "../../../../settings/workspace/components/TestCaseReportTemplateEdit";
+    import TemplateComponent from "../../../../settings/workspace/components/TemplateComponent/TemplateComponent";
 
     export default {
       name: "TestCaseReportView",
       components: {
+        TemplateComponent,
         TestCaseReportTemplateEdit,
         RichTextComponent, TestResultComponent, TestResultChartComponent, BaseInfoComponent},
       data() {

@@ -36,10 +36,7 @@
                 group="component">
             <transition-group>
               <div class="preview" v-for="item in previews" :key="item.id">
-                <base-info-component v-if="item.id == 1"/>
-                <test-result-component v-if="item.id == 2"/>
-                <test-result-chart-component v-if="item.id == 3"/>
-                <rich-text-component :preview="item" v-if="item.type != 'system'"/>
+                <template-component :metric="metric" :preview="item"/>
                 <i class="el-icon-error" @click="handleDelete(item)"/>
               </div>
             </transition-group>
@@ -53,24 +50,18 @@
 <script>
 
   import draggable from 'vuedraggable';
-  import BaseInfoComponent from "./TemplateComponent/BaseInfoComponent";
-  import TestResultComponent from "./TemplateComponent/TestResultComponent";
-  import TestResultChartComponent from "./TemplateComponent/TestResultChartComponent";
   import TemplateComponentBar from "./TemplateComponentBar";
-  import RichTextComponent from "./TemplateComponent/RichTextComponent";
   import TemplateComponentEditHeader from "./TemplateComponentEditHeader";
   import {WORKSPACE_ID} from '../../../../../common/js/constants';
   import {jsonToMap, mapToJson} from "../../../../../common/js/utils";
+  import TemplateComponent from "./TemplateComponent/TemplateComponent";
 
     export default {
       name: "TestCaseReportTemplateEdit",
       components: {
+        TemplateComponent,
         TemplateComponentEditHeader,
-        RichTextComponent,
         TemplateComponentBar,
-        TestResultChartComponent,
-        TestResultComponent,
-        BaseInfoComponent,
         draggable
       },
       data() {
@@ -91,6 +82,11 @@
           previews: [],
           template: {},
           isReport: false
+        }
+      },
+      props: {
+        metric: {
+          type: Object
         }
       },
       methods: {
@@ -270,16 +266,6 @@
     position: absolute;
   }
 
-  .el-card {
-    margin: 5px auto;
-    min-height: 300px;
-    width: 80%;
-  }
-
-  .el-card:hover {
-    box-shadow: 0 0 2px 2px #409EFF;
-  }
-
   .description > span {
     display: block;
     padding-bottom: 5px;
@@ -312,8 +298,13 @@
     color: red;
   }
 
-  .template-component:hover+i {
+  .preview:hover+i {
     display: inline;
   }
+
+  .preview:hover i{
+    display: inline;
+  }
+
 
 </style>

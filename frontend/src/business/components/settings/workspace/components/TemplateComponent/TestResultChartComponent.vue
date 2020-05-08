@@ -4,6 +4,7 @@
 
     <template>
 
+      {{executeResult}}/{{charData}}
       <ms-pie-chart v-if="isShow" :text="'测试结果统计图'" :name="'测试结果'" :data="charData"/>
 
     </template>
