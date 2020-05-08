@@ -9,6 +9,7 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.WorkspaceRequest;
 import io.metersphere.dto.WorkspaceDTO;
 import io.metersphere.dto.WorkspaceMemberDTO;
+import io.metersphere.service.OrganizationService;
 import io.metersphere.service.WorkspaceService;
 import io.metersphere.user.SessionUtils;
 import org.apache.shiro.authz.annotation.Logical;
@@ -23,11 +24,14 @@ import java.util.List;
 public class WorkspaceController {
     @Resource
     private WorkspaceService workspaceService;
+    @Resource
+    private OrganizationService organizationService;
 
     @PostMapping("add")
     @RequiresRoles(RoleConstants.ORG_ADMIN)
     public Workspace addWorkspace(@RequestBody Workspace workspace) {
-        workspaceService.checkWorkspaceOwnerByOrgAdmin(workspace.getId());
+        String currentOrganizationId = SessionUtils.getCurrentOrganizationId();
+        organizationService.checkOrgOwner(currentOrganizationId);
         return workspaceService.saveWorkspace(workspace);
     }
 
