@@ -5,6 +5,7 @@
     :visible.sync="showDialog"
     :with-header="false"
     size="100%"
+    :modal-append-to-body="false"
     ref="drawer"
     v-loading="result.loading">
     <template v-slot:default="scope">
