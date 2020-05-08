@@ -57,10 +57,9 @@
         </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <span class="dialog-footer">
-          <el-button @click="createUser('createUserForm')" @keydown.enter.native.prevent type="primary"
-                     size="medium">{{$t('commons.save')}}</el-button>
-        </span>
+        <ms-dialog-footer
+          @cancel="createVisible = false"
+          @confirm="createUser('createUserForm')"/>
       </template>
     </el-dialog>
 
@@ -81,11 +80,9 @@
         </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <span class="dialog-footer">
-          <el-button @click="updateUser('updateUserForm')" @keydown.enter.native.prevent type="primary"
-                     size="medium">{{$t('commons.save')}}
-          </el-button>
-        </span>
+        <ms-dialog-footer
+          @cancel="updateVisible = false"
+          @confirm="updateUser('updateUserForm')"/>
       </template>
     </el-dialog>
 
@@ -97,10 +94,11 @@
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableHeader from "../../common/components/MsTableHeader";
   import MsTableOperator from "../../common/components/MsTableOperator";
+  import MsDialogFooter from "../../common/components/MsDialogFooter";
 
   export default {
     name: "MsUser",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsTableOperator},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsTableOperator, MsDialogFooter},
     data() {
       return {
         queryPath: '/user/special/list',

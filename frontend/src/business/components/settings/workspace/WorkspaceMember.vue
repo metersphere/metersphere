@@ -53,11 +53,9 @@
         </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <span class="dialog-footer">
-          <el-button @click="submitForm('form')" @keydown.enter.native.prevent type="primary"
-                     size="medium">{{$t('commons.save')}}
-          </el-button>
-        </span>
+        <ms-dialog-footer
+          @cancel="createVisible = false"
+          @confirm="submitForm('form')"/>
       </template>
     </el-dialog>
 
@@ -88,11 +86,9 @@
         </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <span class="dialog-footer">
-          <el-button @click="updateWorkspaceMember('updateUserForm')" @keydown.enter.native.prevent type="primary"
-                     size="medium">{{$t('commons.save')}}
-          </el-button>
-        </span>
+        <ms-dialog-footer
+          @cancel="updateVisible = false"
+          @confirm="updateWorkspaceMember('updateUserForm')"/>
       </template>
     </el-dialog>
 
@@ -106,10 +102,11 @@
   import MsTableHeader from "../../common/components/MsTableHeader";
   import MsRolesTag from "../../common/components/MsRolesTag";
   import MsTableOperator from "../../common/components/MsTableOperator";
+  import MsDialogFooter from "../../common/components/MsDialogFooter";
 
   export default {
     name: "MsMember",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator, MsDialogFooter},
     data() {
       return {
         result: {},
