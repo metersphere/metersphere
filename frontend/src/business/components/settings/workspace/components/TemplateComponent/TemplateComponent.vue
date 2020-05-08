@@ -32,6 +32,10 @@
         },
         metric: {
           type: Object
+        },
+        isReport: {
+          type: Boolean,
+          default: true
         }
       }
     }

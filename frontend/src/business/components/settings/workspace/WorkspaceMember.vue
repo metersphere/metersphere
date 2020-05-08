@@ -16,7 +16,8 @@
         </el-table-column>
         <el-table-column>
           <template v-slot:default="scope">
-            <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)" v-permission="['test_manager']"/>
+            <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)"
+                               v-permission="['test_manager']"/>
           </template>
         </el-table-column>
       </el-table>
@@ -25,7 +26,7 @@
     </el-card>
 
     <el-dialog :title="$t('member.create')" :visible.sync="createVisible" width="30%" :destroy-on-close="true"
-               @close="closeFunc">
+               @close="handleClose">
       <el-form :model="form" ref="form" :rules="rules" label-position="right" label-width="100px" size="small">
         <el-form-item :label="$t('commons.member')" prop="userIds">
           <el-select v-model="form.userIds" multiple :placeholder="$t('member.please_choose_member')"
@@ -52,16 +53,14 @@
         </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <span class="dialog-footer">
-          <el-button @click="submitForm('form')" @keydown.enter.native.prevent type="primary"
-                     size="medium">{{$t('commons.save')}}
-          </el-button>
-        </span>
+        <ms-dialog-footer
+          @cancel="createVisible = false"
+          @confirm="submitForm('form')"/>
       </template>
     </el-dialog>
 
     <el-dialog :title="$t('member.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true"
-               @close="closeFunc">
+               @close="handleClose">
       <el-form :model="form" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
@@ -87,11 +86,9 @@
         </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <span class="dialog-footer">
-          <el-button @click="updateWorkspaceMember('updateUserForm')" @keydown.enter.native.prevent type="primary"
-                     size="medium">{{$t('commons.save')}}
-          </el-button>
-        </span>
+        <ms-dialog-footer
+          @cancel="updateVisible = false"
+          @confirm="updateWorkspaceMember('updateUserForm')"/>
       </template>
     </el-dialog>
 
@@ -105,10 +102,11 @@
   import MsTableHeader from "../../common/components/MsTableHeader";
   import MsRolesTag from "../../common/components/MsRolesTag";
   import MsTableOperator from "../../common/components/MsTableOperator";
+  import MsDialogFooter from "../../common/components/MsDialogFooter";
 
   export default {
     name: "MsMember",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator, MsDialogFooter},
     data() {
       return {
         result: {},
@@ -168,9 +166,8 @@
       buildPagePath(path) {
         return path + "/" + this.currentPage + "/" + this.pageSize;
       },
-      closeFunc() {
+      handleClose() {
         this.form = {};
-        this.initTableData();
       },
       del(row) {
         this.$confirm(this.$t('member.delete_confirm'), '', {

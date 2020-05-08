@@ -1,6 +1,5 @@
 <template>
 
-
   <common-component :title="'基础信息'">
 
     <template>
@@ -16,14 +15,14 @@
         </el-col>
       </el-row>
 
-      <el-row type="flex" justify="space-between">
+      <el-row type="flex" justify="space-between" class="select-time">
         <el-col :span="12">
           <span>开始时间：</span>
-          <span class="item-value">{{reportInfo.startTime}}</span>
+          <el-date-picker size="mini" type="date" placeholder="选择日期" v-model="reportInfo.startTime"/>
         </el-col>
         <el-col :span="12">
           <span>结束时间：</span>
-          <span class="item-value">{{reportInfo.endTime}}</span>
+          <el-date-picker size="mini" type="date" placeholder="选择日期" v-model="reportInfo.endTime"/>
         </el-col>
       </el-row>
 
@@ -80,6 +79,14 @@
 
   .el-row {
     height: 60px;
+  }
+
+  .select-time span {
+    display: inline-block;
+  }
+
+  .el-date-editor {
+    width: 150px;
   }
 
 </style>

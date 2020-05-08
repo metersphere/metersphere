@@ -129,6 +129,8 @@ export default {
     'being_generated': 'Report is being generated...',
   },
   load_test: {
+    'operating':'Operating',
+    'pressure_prediction_chart':'Pressure Prediction Chart',
     'recent': 'Recent Tests',
     'search_by_name': 'Search by name',
     'project_name': 'Project',
@@ -181,6 +183,7 @@ export default {
     'create': 'Create Test',
     'select_resource_pool': 'Please Select Resource Pool',
     'resource_pool_is_null': 'Resource Pool is empty',
+    'download_log_file': 'Download',
   },
   api_test: {
     'select_resource_pool': 'Please select resource pool'

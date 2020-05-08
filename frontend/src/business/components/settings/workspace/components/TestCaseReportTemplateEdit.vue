@@ -36,7 +36,7 @@
                 group="component">
             <transition-group>
               <div class="preview" v-for="item in previews" :key="item.id">
-                <template-component :metric="metric" :preview="item"/>
+                <template-component :is-report="isReport" :metric="metric" :preview="item"/>
                 <i class="el-icon-error" @click="handleDelete(item)"/>
               </div>
             </transition-group>
@@ -194,6 +194,12 @@
             this.template.content = JSON.parse(response.data.content);
             if (this.template.content.customComponent) {
               this.template.content.customComponent = jsonToMap(this.template.content.customComponent);
+              if (this.template.startTime) {
+                this.metric.startTime = new Date(this.template.startTime);
+              }
+              if (this.template.endTime) {
+                this.metric.endTime = new Date(this.template.endTime);
+              }
             }
             this.initComponents();
           });
@@ -237,6 +243,12 @@
           }
           if (this.template.workspaceId) {
             param.workspaceId = localStorage.getItem(WORKSPACE_ID);
+          }
+          if (this.metric.startTime) {
+            param.startTime = this.metric.startTime.getTime();
+          }
+          if (this.metric.endTime) {
+            param.endTime = this.metric.endTime.getTime();
           }
         }
       }

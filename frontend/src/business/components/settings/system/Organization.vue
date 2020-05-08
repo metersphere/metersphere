@@ -65,11 +65,9 @@
         </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <span class="dialog-footer">
-          <el-button @click="createOrganization('createOrganization')" @keydown.enter.native.prevent type="primary"
-                     size="medium">{{$t('commons.save')}}
-          </el-button>
-        </span>
+        <ms-dialog-footer
+          @cancel="dialogOrgAddVisible = false"
+          @confirm="createOrganization('createOrganization')"/>
       </template>
     </el-dialog>
 
@@ -87,11 +85,9 @@
         </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <span class="dialog-footer">
-          <el-button @click="updateOrganization('updateOrganizationForm')" @keydown.enter.native.prevent type="primary"
-                     size="medium">{{$t('organization.modify')}}
-          </el-button>
-        </span>
+        <ms-dialog-footer
+          @cancel="dialogOrgUpdateVisible = false"
+          @confirm="updateOrganization('updateOrganizationForm')"/>
       </template>
     </el-dialog>
 
@@ -127,11 +123,9 @@
         </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <span class="dialog-footer">
-          <el-button @click="submitForm('form')" @keydown.enter.native.prevent type="primary"
-                     size="medium">{{$t('commons.save')}}
-          </el-button>
-        </span>
+        <ms-dialog-footer
+          @cancel="dialogOrgMemberAddVisible = false"
+          @confirm="submitForm('form')"/>
       </template>
     </el-dialog>
 
@@ -165,11 +159,9 @@
         </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <span class="dialog-footer">
-          <el-button @click="updateOrgMember('updateUserForm')" @keydown.enter.native.prevent type="primary"
-                     size="medium">{{$t('commons.save')}}
-          </el-button>
-        </span>
+        <ms-dialog-footer
+          @cancel="dialogOrgMemberUpdateVisible = false"
+          @confirm="updateOrgMember('updateUserForm')"/>
       </template>
     </el-dialog>
 
@@ -182,10 +174,11 @@
   import MsTableHeader from "../../common/components/MsTableHeader";
   import MsRolesTag from "../../common/components/MsRolesTag";
   import MsTableOperator from "../../common/components/MsTableOperator";
+  import MsDialogFooter from "../../common/components/MsDialogFooter";
 
   export default {
     name: "MsOrganization",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator, MsDialogFooter},
     data() {
       return {
         queryPath: '/organization/list',
