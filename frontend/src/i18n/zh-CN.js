@@ -131,6 +131,7 @@ export default {
     'being_generated': '报告正在生成中...',
   },
   load_test: {
+    'operating':'操作',
     'recent': '最近的测试',
     'search_by_name': '根据名称搜索',
     'project_name': '所属项目',
@@ -184,6 +185,8 @@ export default {
     'select_resource_pool': '请选择资源池',
     'resource_pool_is_null': '资源池为空',
     'download_log_file': '下载完整日志文件',
+    'pressure_prediction_chart':'压力预估图',
+
   },
   api_test: {
     save_and_run: "保存并执行",

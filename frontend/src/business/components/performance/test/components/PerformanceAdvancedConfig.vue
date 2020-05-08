@@ -1,28 +1,35 @@
 <template>
   <div>
-
     <el-row type="flex" justify="start">
       <el-col :span="8">
         <h3>{{$t('load_test.domain_bind')}}</h3>
-      </el-col>
-      <el-col :span="8">
-        <el-button type="primary" plain size="mini" @click="add('domains')">{{$t('commons.add')}}</el-button>
+        <el-button type="el-icon-circle-plus-outline" plain size="mini" @click="add('domains')">{{$t('commons.add')}}</el-button>
       </el-col>
     </el-row>
     <!-- -->
     <el-row>
-      <el-table :data="domains">
+      <el-col :span="20">
+      <el-table :data="domains" size="mini"  class="tb-edit" align="center" border highlight-current-row>
         <el-table-column
+          align="center"
           :label="$t('load_test.domain')"
           show-overflow-tooltip>
           <template v-slot:default="{row}">
-            <template v-if="row.edit">
-              <el-input v-model="row.domain" class="edit-input" size="mini"/>
-            </template>
-            <span v-else>{{ row.domain }}</span>
+            <el-input
+              size="mini"
+              v-if="readOnly"
+              type="textarea"
+              :rows="1"
+              class="edit-input"
+              v-model="row.domain"
+              :placeholder="$t('load_test.domain')"
+              clearable>
+            </el-input>
+            <span >{{row.domain}}</span>
           </template>
         </el-table-column>
         <el-table-column
+          align="center"
           :label="$t('load_test.enable')"
           show-overflow-tooltip>
           <template v-slot:default="{row}">
@@ -31,46 +38,36 @@
               size="mini"
               v-model="row.enable"
               active-color="#13ce66"
-              inactive-color="#ff4949">
+              inactive-color="#ff4949"
+              @click="confirmEdit(row)"
+            >
             </el-switch>
           </template>
         </el-table-column>
         <el-table-column
+          align="center"
           :label="$t('load_test.ip')"
           show-overflow-tooltip>
           <template v-slot:default="{row}">
-            <template v-if="row.edit">
-              <el-input v-model="row.ip" class="edit-input" size="mini"/>
-            </template>
-            <span v-else>{{ row.ip }}</span>
+            <el-input
+              size="mini"
+              v-if="readOnly"
+              type="textarea"
+              class="edit-input"
+              :rows="1"
+              v-model="row.ip"
+              :placeholder="$t('load_test.ip')"
+              clearable></el-input>
+            <span>{{row.ip}}</span>
           </template>
         </el-table-column>
-        <el-table-column align="center">
+        <el-table-column align="center" :label="$t('load_test.operating')">
           <template v-slot:default="{row, $index}">
-            <template v-if="row.edit">
-              <el-button
-                class="cancel-btn"
-                size="mini"
-                icon="el-icon-refresh"
-                type="warning"
-                circle
-                @click="cancelEdit(row)">
-              </el-button>
-              <el-button
-                type="success"
-                size="mini"
-                icon="el-icon-circle-check"
-                circle
-                @click="confirmEdit(row)">
-              </el-button>
-            </template>
             <el-button
-              v-else
               type="primary"
-              size="mini"
-              icon="el-icon-edit"
-              circle
-              @click="edit(row)">
+              icon="el-icon-plus"
+              circle size="mini"
+              @click="add('domains')">
             </el-button>
             <el-button
               type="danger"
@@ -82,31 +79,39 @@
           </template>
         </el-table-column>
       </el-table>
-
+      </el-col>
     </el-row>
 
     <el-row>
       <el-col :span="8">
         <h3>{{$t('load_test.params')}}</h3>
-      </el-col>
-      <el-col :span="8">
-        <el-button type="primary" plain size="mini" @click="add('params')">{{$t('commons.add')}}</el-button>
+        <el-button type="el-icon-circle-plus-outline" plain size="mini" @click="add('params')">{{$t('commons.add')}}</el-button>
       </el-col>
     </el-row>
     <!-- -->
     <el-row>
-      <el-table :data="params">
+      <el-col :span="20">
+      <el-table :data="params" size="mini"  class="tb-edit" align="center" border highlight-current-row>
         <el-table-column
+          align="center"
           :label="$t('load_test.param_name')"
           show-overflow-tooltip>
           <template v-slot:default="{row}">
-            <template v-if="row.edit">
-              <el-input v-model="row.name" class="edit-input" size="mini"/>
-            </template>
-            <span v-else>{{ row.name }}</span>
+            <el-input
+              size="mini"
+              v-if="readOnly"
+              type="textarea"
+              :rows="1"
+              class="edit-input"
+              v-model="row.name"
+              :placeholder="$t('load_test.param_name')"
+              clearable>
+            </el-input>
+            <span >{{row.name}}</span>
           </template>
         </el-table-column>
         <el-table-column
+          align="center"
           :label="$t('load_test.enable')"
           show-overflow-tooltip>
           <template v-slot:default="{row}">
@@ -121,40 +126,32 @@
         </el-table-column>
         <el-table-column
           :label="$t('load_test.param_value')"
-          show-overflow-tooltip>
+          show-overflow-tooltip align="center">
           <template v-slot:default="{row}">
-            <template v-if="row.edit">
+           <!-- <template v-if="row.edit">
               <el-input v-model="row.value" class="edit-input" size="mini"/>
             </template>
-            <span v-else>{{ row.value }}</span>
+            <span v-else>{{ row.value }}</span>-->
+            <el-input
+              size="mini"
+              v-if="readOnly"
+              type="textarea"
+              class="edit-input"
+              :rows="1"
+              v-model="row.value"
+              :placeholder="$t('load_test.param_value')"
+              clearable></el-input>
+            <span>{{row.value}}</span>
           </template>
         </el-table-column>
-        <el-table-column align="center">
+        <el-table-column align="center" :label="$t('load_test.operating')">
           <template v-slot:default="{row, $index}">
-            <template v-if="row.edit">
-              <el-button
-                class="cancel-btn"
-                size="mini"
-                icon="el-icon-refresh"
-                type="warning"
-                circle
-                @click="cancelEdit(row)">
-              </el-button>
-              <el-button
-                type="success"
-                size="mini"
-                icon="el-icon-circle-check"
-                circle
-                @click="confirmEdit(row)">
-              </el-button>
-            </template>
             <el-button
-              v-else
               type="primary"
               size="mini"
-              icon="el-icon-edit"
+              icon="el-icon-plus"
               circle
-              @click="edit(row)">
+              @click="add(row)">
             </el-button>
             <el-button
               type="danger"
@@ -166,6 +163,7 @@
           </template>
         </el-table-column>
       </el-table>
+      </el-col>
     </el-row>
 
     <el-row>
@@ -211,6 +209,12 @@
         statusCodeStr: '',
       }
     },
+    props: {
+      readOnly: {
+        type: Boolean,
+        default: true
+      },
+    },
     mounted() {
       let testId = this.$route.path.split('/')[4];
       if (testId) {
@@ -253,6 +257,7 @@
             this.statusCodeStr = this.statusCode.join(',');
             this.domains = data.domains || [];
             this.params = data.params || [];
+            this.add('domains');
             this.domains.forEach(d => d.edit = false);
             this.params.forEach(d => d.edit = false);
           }
@@ -262,7 +267,7 @@
         if (dataName === 'domains') {
           this[dataName].push({
             domain: 'fit2cloud.com',
-            enable: true,
+            enable: false,
             ip: '127.0.0.1',
             edit: true,
           });
@@ -290,6 +295,7 @@
       },
       confirmEdit(row) {
         row.edit = false;
+        row.enable=true,
         this.saveOriginObject(row);
       },
       groupBy(data, key) {
@@ -360,7 +366,22 @@
   }
 
   .edit-input {
-    padding-right: 100px;
+    padding-right: 0px;
+  }
+  .tb-edit .el-textarea {
+    display: none;
+  }
+  .tb-edit .current-row .el-textarea {
+    display: block;
+  }
+  .tb-edit .current-row .el-textarea+span {
+    display: none;
+  }
+  .el-col{
+    text-align: left;
+  }
+  .el-col .el-table{
+    align:center;
   }
 
 </style>

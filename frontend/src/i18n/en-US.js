@@ -129,6 +129,8 @@ export default {
     'being_generated': 'Report is being generated...',
   },
   load_test: {
+    'operating':'Operating',
+    'pressure_prediction_chart':'Pressure Prediction Chart',
     'recent': 'Recent Tests',
     'search_by_name': 'Search by name',
     'project_name': 'Project',
