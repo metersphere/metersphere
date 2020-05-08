@@ -4,8 +4,10 @@ import lombok.Data;
 
 @Data
 public class TestCaseReportModuleResultDTO {
-    private String module;
+    private String moduleId;
+    private String moduleName;
     private Integer caseCount;
-    private Integer passRate;
+    private Integer passCount;
+    private Double passRate;
     private Integer flawCount;
 }

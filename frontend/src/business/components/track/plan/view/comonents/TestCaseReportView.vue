@@ -26,9 +26,9 @@
         <div class="container">
           <el-main>
             <div class="preview" v-for="item in previews" :key="item.id">
-              <base-info-component v-if="item.id == 1"/>
-              <test-result-component v-if="item.id == 2"/>
-              <test-result-chart-component v-if="item.id == 3"/>
+              <base-info-component :report-info="metric" v-if="item.id == 1"/>
+              <test-result-component :test-results="metric.moduleExecuteResult" v-if="item.id == 2"/>
+              <test-result-chart-component :execute-result="metric.executeResult" v-if="item.id == 3"/>
               <rich-text-component :preview="item" v-if="item.type != 'system'"/>
             </div>
           </el-main>
@@ -61,6 +61,7 @@
           previews: [],
           report: {},
           reportId: '',
+          metric: {},
           componentMap: new Map(
             [
               [1, { name: "基础信息", id: 1 , type: 'system'}],
@@ -69,6 +70,11 @@
               [4, { name: "自定义模块", id: 4 ,type: 'custom'}]
             ]
           )
+        }
+      },
+      props: {
+        planId: {
+          type: String
         }
       },
       methods: {
@@ -86,6 +92,7 @@
             if (this.report.content.customComponent) {
               this.report.content.customComponent = jsonToMap(this.report.content.customComponent);
             }
+            this.getMetric();
             this.initPreviews();
           });
         },
@@ -110,6 +117,13 @@
         },
         handleEdit() {
           this.$refs.templateEdit.open(this.reportId, true);
+        },
+        getMetric() {
+          this.result = this.$get('/case/report/get/metric/' + this.planId, response => {
+            this.metric = response.data;
+            this.metric.startTime = this.report.startTime;
+            this.metric.endTime = this.report.endTime;
+          });
         }
       }
     }

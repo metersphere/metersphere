@@ -8,7 +8,7 @@
       <el-row type="flex" justify="space-between">
         <el-col :span="12">
           <span>所属项目：</span>
-          <span class="item-value">{{reportInfo.project}}</span>
+          <span class="item-value">{{reportInfo.projectName}}</span>
         </el-col>
         <el-col :span="12">
           <span>测试负责人：</span>
@@ -54,7 +54,7 @@
           type: Object,
           default() {
             return {
-              project: '项目名称',
+              projectName: '项目名称',
               principal: '由丽媛',
               executors: ['由丽媛','王振','陈建星'],
               startTime: '2020-6-18',

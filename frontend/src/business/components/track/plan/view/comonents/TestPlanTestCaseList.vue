@@ -109,7 +109,7 @@
       @refreshTable="search"/>
 
     <test-report-template-list @openReport="openReport" :plan-id="planId" ref="testReporTtemplateList"/>
-    <test-case-report-view ref="testCaseReportView"/>
+    <test-case-report-view :plan-id="planId" ref="testCaseReportView"/>
 
     </el-card>
 </template>

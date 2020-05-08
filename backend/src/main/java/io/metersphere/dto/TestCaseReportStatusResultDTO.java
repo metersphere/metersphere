@@ -1,9 +1,9 @@
 package io.metersphere.dto;
 
 import lombok.Data;
-
 @Data
-public class TestCaseReportResultDTO {
+public class TestCaseReportStatusResultDTO {
     private String status;
-    private String count;
+    private Integer count;
 }
+
