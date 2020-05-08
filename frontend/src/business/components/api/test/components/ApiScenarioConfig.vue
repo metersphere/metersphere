@@ -12,20 +12,20 @@
                   {{$t('api_test.scenario.config')}}
                 </span>
               </div>
-<!--              暂时去掉，将来再加-->
-<!--              <el-dropdown trigger="click" @command="handleCommand">-->
-<!--                <span class="el-dropdown-link el-icon-more scenario-btn"/>-->
-<!--                <el-dropdown-menu slot="dropdown">-->
-<!--                  <el-dropdown-item :command="{type:'delete', index:index}">删除场景</el-dropdown-item>-->
-<!--                </el-dropdown-menu>-->
-<!--              </el-dropdown>-->
+              <!--              暂时去掉，将来再加-->
+              <!--              <el-dropdown trigger="click" @command="handleCommand">-->
+              <!--                <span class="el-dropdown-link el-icon-more scenario-btn"/>-->
+              <!--                <el-dropdown-menu slot="dropdown">-->
+              <!--                  <el-dropdown-item :command="{type:'delete', index:index}">删除场景</el-dropdown-item>-->
+              <!--                </el-dropdown-menu>-->
+              <!--              </el-dropdown>-->
             </template>
             <ms-api-request-config :requests="scenario.requests" :open="select"/>
           </ms-api-collapse-item>
         </ms-api-collapse>
       </div>
-<!--      暂时去掉，将来再加-->
-<!--      <el-button class="scenario-create" type="primary" size="mini" icon="el-icon-plus" plain @click="createScenario"/>-->
+      <!--      暂时去掉，将来再加-->
+      <!--      <el-button class="scenario-create" type="primary" size="mini" icon="el-icon-plus" plain @click="createScenario"/>-->
     </el-aside>
 
     <el-main class="scenario-main">
@@ -90,9 +90,13 @@
         }
       },
       select: function (obj) {
-        this.selected = obj;
+        this.selected = null;
+        this.$nextTick(function () {
+          this.selected = obj;
+        });
       },
       reset: function () {
+        this.selected = null;
         this.$nextTick(function () {
           this.activeName = 0;
           this.select(this.scenarios[0]);

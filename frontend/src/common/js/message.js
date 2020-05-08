@@ -12,7 +12,7 @@ export default {
         message: message,
         type: "success",
         showClose: true,
-        duration: 1000
+        duration: 1500
       })
     };
 
@@ -30,7 +30,7 @@ export default {
         message: message,
         type: "warning",
         showClose: true,
-        duration: 2000
+        duration: 5000
       })
     };
 
