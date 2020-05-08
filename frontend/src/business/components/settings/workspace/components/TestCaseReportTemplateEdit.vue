@@ -244,10 +244,10 @@
           if (this.template.workspaceId) {
             param.workspaceId = localStorage.getItem(WORKSPACE_ID);
           }
-          if (this.metric.startTime) {
+          if (this.metric && this.metric.startTime) {
             param.startTime = this.metric.startTime.getTime();
           }
-          if (this.metric.endTime) {
+          if (this.metric && this.metric.endTime) {
             param.endTime = this.metric.endTime.getTime();
           }
         }

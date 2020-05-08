@@ -18,11 +18,13 @@
       <el-row type="flex" justify="space-between" class="select-time">
         <el-col :span="12">
           <span>开始时间：</span>
-          <el-date-picker size="mini" type="date" placeholder="选择日期" v-model="reportInfo.startTime"/>
+          <span v-if="!isReport">{{reportInfo.startTime}}</span>
+          <el-date-picker v-if="isReport" size="mini" type="date" placeholder="选择日期" v-model="reportInfo.startTime"/>
         </el-col>
         <el-col :span="12">
           <span>结束时间：</span>
-          <el-date-picker size="mini" type="date" placeholder="选择日期" v-model="reportInfo.endTime"/>
+          <span v-if="!isReport">{{reportInfo.endTime}}</span>
+          <el-date-picker v-if="isReport" size="mini" type="date" placeholder="选择日期" v-model="reportInfo.endTime"/>
         </el-col>
       </el-row>
 
@@ -44,10 +46,6 @@
     export default {
       name: "BaseInfoComponent",
       components: {CommonComponent},
-      data() {
-        return {
-        }
-      },
       props: {
         reportInfo: {
           type: Object,
@@ -60,6 +58,10 @@
               endTime: '2020-6-18'
             }
           }
+        },
+        isReport: {
+          type: Boolean,
+          default: true
         }
       }
     }

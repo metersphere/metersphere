@@ -1,13 +1,15 @@
 <template>
   <div>
 
+    <!--模版-->
     <div v-if="!metric">
-      <base-info-component v-if="preview.id == 1"/>
+      <base-info-component :is-report="false" v-if="preview.id == 1"/>
       <test-result-component v-if="preview.id == 2"/>
       <test-result-chart-component v-if="preview.id == 3"/>
       <rich-text-component :preview="preview" v-if="preview.type != 'system'"/>
     </div>
 
+    <!--报告-->
     <div v-if="metric">
       <base-info-component :report-info="metric" v-if="preview.id == 1"/>
       <test-result-component :test-results="metric.moduleExecuteResult" v-if="preview.id == 2"/>
