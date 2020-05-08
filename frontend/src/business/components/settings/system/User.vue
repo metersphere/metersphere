@@ -162,7 +162,7 @@
       },
       edit(row) {
         this.updateVisible = true;
-        this.form = row;
+        this.form = Object.assign({}, row);
       },
       del(row) {
         this.$confirm(this.$t('user.delete_confirm'), '', {

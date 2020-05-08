@@ -110,7 +110,7 @@
       },
       edit(row) {
         this.updateVisible = true;
-        this.form = row;
+        this.form = Object.assign({}, row);
       },
       updateUser(updateUserForm) {
         this.$refs[updateUserForm].validate(valide => {

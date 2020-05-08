@@ -113,7 +113,7 @@
     <!-- add workspace member dialog -->
     <el-dialog :title="$t('member.create')" :visible.sync="dialogWsMemberAddVisible" width="30%"
                :destroy-on-close="true"
-               @close="closeWsMemberAddDialog">
+               @close="handleClose">
       <el-form :model="memberForm" ref="form" :rules="wsMemberRule" label-position="right" label-width="100px"
                size="small">
         <el-form-item :label="$t('commons.member')" prop="userIds">
@@ -153,7 +153,7 @@
     <!-- update workspace member dialog -->
     <el-dialog :title="$t('member.modify')" :visible.sync="dialogWsMemberUpdateVisible" width="30%"
                :destroy-on-close="true"
-               @close="closeWsMemberUpdateDialog">
+               @close="handleClose">
       <el-form :model="memberForm" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="memberForm.id" autocomplete="off" :disabled="true"/>
@@ -318,15 +318,12 @@
 
         });
       },
-      closeWsMemberAddDialog() {
+      handleClose() {
         this.memberForm = {};
       },
       closeWsMemberDialog() {
         this.memberLineData = [];
         this.list();
-      },
-      closeWsMemberUpdateDialog() {
-        this.dialogSearch();
       },
       list() {
         let url = '/workspace/list/all/' + this.currentPage + '/' + this.pageSize;
@@ -366,7 +363,7 @@
       },
       editMember(row) {
         this.dialogWsMemberUpdateVisible = true;
-        this.memberForm = row;
+        this.memberForm = Object.assign({}, row);
         let roleIds = this.memberForm.roles.map(r => r.id);
         this.result = this.$get('/role/list/test', response => {
           this.$set(this.memberForm, "allroles", response.data);

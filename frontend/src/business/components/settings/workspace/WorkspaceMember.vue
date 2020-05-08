@@ -191,7 +191,7 @@
       },
       edit(row) {
         this.updateVisible = true;
-        this.form = row;
+        this.form = Object.assign({}, row);
         let roleIds = this.form.roles.map(r => r.id);
         this.result = this.$get('/role/list/test', response => {
           this.$set(this.form, "allroles", response.data);
