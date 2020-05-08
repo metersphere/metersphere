@@ -21,7 +21,7 @@ public class TestCaseReportTemplateController {
     }
 
     @GetMapping("/get/{id}")
-    public TestCaseReportTemplate get(@PathVariable Long id){
+    public TestCaseReportTemplate get(@PathVariable String id){
         return testCaseReportTemplateService.getTestCaseReportTemplate(id);
     }
 
@@ -36,7 +36,7 @@ public class TestCaseReportTemplateController {
     }
 
     @PostMapping("/delete/{id}")
-    public int delete(@PathVariable Long id){
+    public int delete(@PathVariable String id){
         return testCaseReportTemplateService.deleteTestCaseReportTemplate(id);
     }
 

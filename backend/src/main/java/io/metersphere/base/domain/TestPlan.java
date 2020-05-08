@@ -11,7 +11,7 @@ public class TestPlan implements Serializable {
 
     private String workspaceId;
 
-    private Long reportId;
+    private String reportId;
 
     private String name;
 

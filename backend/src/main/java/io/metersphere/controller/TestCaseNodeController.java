@@ -31,7 +31,7 @@ public class TestCaseNodeController {
     }
 
     @PostMapping("/add")
-    public int addNode(@RequestBody TestCaseNode node){
+    public String addNode(@RequestBody TestCaseNode node){
         return testCaseNodeService.addNode(node);
     }
 
@@ -41,7 +41,7 @@ public class TestCaseNodeController {
     }
 
     @PostMapping("/delete")
-    public int deleteNode(@RequestBody List<Integer> nodeIds){
+    public int deleteNode(@RequestBody List<String> nodeIds){
         //nodeIds 包含删除节点ID及其所有子节点ID
         return testCaseNodeService.deleteNode(nodeIds);
     }

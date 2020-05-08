@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper">
+
+    <select id="getReportMetric" parameterType="java.lang.String" resultType="io.metersphere.dto.TestCaseReportResultDTO">
+        select count(t1.id) as `count`, t1.status
+        from test_plan_test_case t1
+        inner join test_case t2
+        where t1.case_id = t2.id
+        and plan_id = #{planId}
+        group by t1.status;
+    </select>
+
+    <select id="getExecutors" resultType="java.lang.String" parameterType="java.lang.String">
+        select distinct t1.executor
+        from test_plan_test_case t1
+        inner join test_case t2
+        where t1.case_id = t2.id
+        and plan_id = #{planId};
+    </select>
+
+
+</mapper>

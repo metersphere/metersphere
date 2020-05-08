@@ -302,6 +302,7 @@
           }
         },
         openReport(id) {
+          this.getTestPlanById();
           if (!id) {
             id = this.testPlan.reportId;
           }

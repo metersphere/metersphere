@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -37,11 +38,12 @@ public class TestCaseReportTemplateService {
         return testCaseReportTemplateMapper.selectByExample(example);
     }
 
-    public TestCaseReportTemplate getTestCaseReportTemplate(Long id) {
+    public TestCaseReportTemplate getTestCaseReportTemplate(String id) {
         return testCaseReportTemplateMapper.selectByPrimaryKey(id);
     }
 
     public void addTestCaseReportTemplate(TestCaseReportTemplate testCaseReportTemplate) {
+        testCaseReportTemplate.setId(UUID.randomUUID().toString());
         testCaseReportTemplateMapper.insert(testCaseReportTemplate);
     }
 
@@ -49,7 +51,7 @@ public class TestCaseReportTemplateService {
         testCaseReportTemplateMapper.updateByPrimaryKeyWithBLOBs(testCaseReportTemplate);
     }
 
-    public int deleteTestCaseReportTemplate(Long id) {
+    public int deleteTestCaseReportTemplate(String id) {
         return testCaseReportTemplateMapper.deleteByPrimaryKey(id);
     }
 

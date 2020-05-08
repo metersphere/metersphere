@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.base.mapper.TestCaseReportTemplateMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.TestCaseReportTemplate">
-    <id column="id" jdbcType="BIGINT" property="id" />
+    <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="workspace_id" jdbcType="VARCHAR" property="workspaceId" />
   </resultMap>
@@ -103,17 +103,17 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
     select 
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
     from test_case_report_template
-    where id = #{id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from test_case_report_template
-    where id = #{id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.base.domain.TestCaseReportTemplateExample">
     delete from test_case_report_template
@@ -122,20 +122,17 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseReportTemplate">
-    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
-      SELECT LAST_INSERT_ID()
-    </selectKey>
-    insert into test_case_report_template (name, workspace_id, content
-      )
-    values (#{name,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR}
-      )
+    insert into test_case_report_template (id, name, workspace_id, 
+      content)
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, 
+      #{content,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseReportTemplate">
-    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
-      SELECT LAST_INSERT_ID()
-    </selectKey>
     insert into test_case_report_template
     <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
       <if test="name != null">
         name,
       </if>
@@ -147,6 +144,9 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
       </if>
@@ -168,7 +168,7 @@
     update test_case_report_template
     <set>
       <if test="record.id != null">
-        id = #{record.id,jdbcType=BIGINT},
+        id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.name != null">
         name = #{record.name,jdbcType=VARCHAR},
@@ -186,7 +186,7 @@
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update test_case_report_template
-    set id = #{record.id,jdbcType=BIGINT},
+    set id = #{record.id,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
       workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
       content = #{record.content,jdbcType=LONGVARCHAR}
@@ -196,7 +196,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update test_case_report_template
-    set id = #{record.id,jdbcType=BIGINT},
+    set id = #{record.id,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
       workspace_id = #{record.workspaceId,jdbcType=VARCHAR}
     <if test="_parameter != null">
@@ -216,19 +216,19 @@
         content = #{content,jdbcType=LONGVARCHAR},
       </if>
     </set>
-    where id = #{id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.TestCaseReportTemplate">
     update test_case_report_template
     set name = #{name,jdbcType=VARCHAR},
       workspace_id = #{workspaceId,jdbcType=VARCHAR},
       content = #{content,jdbcType=LONGVARCHAR}
-    where id = #{id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestCaseReportTemplate">
     update test_case_report_template
     set name = #{name,jdbcType=VARCHAR},
       workspace_id = #{workspaceId,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

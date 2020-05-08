@@ -31,13 +31,14 @@ public class TestCaseNodeService {
     @Resource
     TestPlanTestCaseMapper testPlanTestCaseMapper;
 
-    public int addNode(TestCaseNode node) {
+    public String addNode(TestCaseNode node) {
 
         if(node.getLevel() > TestCaseConstants.MAX_NODE_DEPTH){
             throw new RuntimeException("模块树最大深度为" + TestCaseConstants.MAX_NODE_DEPTH + "层！");
         }
         node.setCreateTime(System.currentTimeMillis());
         node.setUpdateTime(System.currentTimeMillis());
+        node.setId(UUID.randomUUID().toString());
         testCaseNodeMapper.insertSelective(node);
         return node.getId();
     }
@@ -45,6 +46,7 @@ public class TestCaseNodeService {
     public List<TestCaseNodeDTO> getNodeTreeByProjectId(String projectId) {
         TestCaseNodeExample testCaseNodeExample = new TestCaseNodeExample();
         testCaseNodeExample.createCriteria().andProjectIdEqualTo(projectId);
+        testCaseNodeExample.setOrderByClause("create_time asc");
         List<TestCaseNode> nodes = testCaseNodeMapper.selectByExample(testCaseNodeExample);
         return getNodeTrees(nodes);
     }
@@ -92,7 +94,7 @@ public class TestCaseNodeService {
         List<TestCaseNodeDTO> childrens = Optional.ofNullable(nodeTree.getChildren()).orElse(new ArrayList<>());
 
         lowerNodes.forEach(node -> {
-            if (node.getPId().equals(rootNode.getId())){
+            if (node.getParentId() != null && node.getParentId().equals(rootNode.getId())){
                 childrens.add(buildNodeTree(nodeLevelMap, node));
                 nodeTree.setChildren(childrens);
             }
@@ -106,7 +108,7 @@ public class TestCaseNodeService {
         return testCaseNodeMapper.updateByPrimaryKeySelective(node);
     }
 
-    public int deleteNode(List<Integer> nodeIds) {
+    public int deleteNode(List<String> nodeIds) {
         TestCaseExample testCaseExample = new TestCaseExample();
         testCaseExample.createCriteria().andNodeIdIn(nodeIds);
         testCaseMapper.deleteByExample(testCaseExample);
@@ -144,7 +146,7 @@ public class TestCaseNodeService {
 
         TestCaseExample testCaseExample = new TestCaseExample();
         testCaseExample.createCriteria().andIdIn(caseIds);
-        List<Integer> dataNodeIds = testCaseMapper.selectByExample(testCaseExample).stream()
+        List<String> dataNodeIds = testCaseMapper.selectByExample(testCaseExample).stream()
                 .map(TestCase::getNodeId)
                 .collect(Collectors.toList());
 
@@ -167,7 +169,7 @@ public class TestCaseNodeService {
      * @param nodeIds
      * @return 是否剪枝
      * */
-    public boolean pruningTree(TestCaseNodeDTO rootNode, List<Integer> nodeIds) {
+    public boolean pruningTree(TestCaseNodeDTO rootNode, List<String> nodeIds) {
 
         List<TestCaseNodeDTO> children = rootNode.getChildren();
 
@@ -200,11 +202,11 @@ public class TestCaseNodeService {
         return getNodeTreeByProjectId(testPlan.getProjectId());
     }
 
-    public Map<String, Integer> createNodeByTestCases(List<TestCaseWithBLOBs> testCases, String projectId) {
+    public Map<String, String> createNodeByTestCases(List<TestCaseWithBLOBs> testCases, String projectId) {
 
         List<TestCaseNodeDTO> nodeTrees = getNodeTreeByProjectId(projectId);
 
-        Map<String, Integer> pathMap = new HashMap<>();
+        Map<String, String> pathMap = new HashMap<>();
 
         List<String> nodePaths = testCases.stream()
                 .map(TestCase::getNodePath)
@@ -256,7 +258,7 @@ public class TestCaseNodeService {
      * @param pathMap 记录节点路径对应的nodeId
      */
     private void createNodeByPathIterator(Iterator<String> pathIterator, String path, TestCaseNodeDTO treeNode,
-                                  Map<String, Integer> pathMap, String projectId, Integer level) {
+                                  Map<String, String> pathMap, String projectId, Integer level) {
 
         List<TestCaseNodeDTO> children = treeNode.getChildren();
 
@@ -295,13 +297,13 @@ public class TestCaseNodeService {
      */
     private void createNodeByPath(Iterator<String> pathIterator, String nodeName,
                                   TestCaseNodeDTO pNode, String projectId, Integer level,
-                                  String rootPath, Map<String, Integer> pathMap) {
+                                  String rootPath, Map<String, String> pathMap) {
 
         StringBuilder path = new StringBuilder(rootPath);
 
         path.append("/" + nodeName);
 
-        Integer pid = null;
+        String pid = null;
         //创建过不创建
         if (pathMap.get(path.toString()) != null) {
             pid = pathMap.get(path.toString());
@@ -324,14 +326,15 @@ public class TestCaseNodeService {
         }
     }
 
-    private Integer insertTestCaseNode(String nodeName, Integer pId, String projectId, Integer level) {
+    private String insertTestCaseNode(String nodeName, String pId, String projectId, Integer level) {
         TestCaseNode testCaseNode = new TestCaseNode();
         testCaseNode.setName(nodeName.trim());
-        testCaseNode.setPId(pId);
+        testCaseNode.setParentId(pId);
         testCaseNode.setProjectId(projectId);
         testCaseNode.setCreateTime(System.currentTimeMillis());
         testCaseNode.setUpdateTime(System.currentTimeMillis());
         testCaseNode.setLevel(level);
+        testCaseNode.setId(UUID.randomUUID().toString());
         testCaseNodeMapper.insert(testCaseNode);
         return testCaseNode.getId();
     }

@@ -1,18 +1,17 @@
 package io.metersphere.base.domain;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class TestCaseNode implements Serializable {
-    private Integer id;
+    private String id;
 
     private String projectId;
 
     private String name;
 
-    private Integer pId;
+    private String parentId;
 
     private Integer level;
 
