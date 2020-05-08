@@ -16,8 +16,12 @@
                 {{$t('commons.save')}}
               </el-button>
 
-              <el-button type="primary" plain @click="runTest">
+              <el-button type="primary" plain v-if="!isDisabled" @click="saveRunTest">
                 {{$t('load_test.save_and_run')}}
+              </el-button>
+
+              <el-button type="primary" plain v-if="isDisabled" @click="runTest">
+                {{$t('api_test.run')}}
               </el-button>
               <el-button type="warning" plain @click="cancel">{{$t('commons.cancel')}}</el-button>
             </el-row>
@@ -91,29 +95,31 @@
           }
         });
       },
+      save: function (callback) {
+        this.change = false;
+        let url = this.create ? "/api/create" : "/api/update";
+        this.result = this.$request(this.getOptions(url), () => {
+          this.create = false;
+          if (callback) callback();
+        });
+      },
       saveTest: function () {
         this.save(() => {
           this.$success(this.$t('commons.save_success'));
         })
       },
-      save: function (callback) {
-        this.change = false;
-        let url = this.create ? "/api/create" : "/api/update";
-        this.result = this.$request(this.getOptions(url), response => {
-          this.create = false;
-          if (callback) callback();
+      runTest: function () {
+        this.result = this.$post("/api/run", {id: this.test.id}, () => {
+          this.$success(this.$t('api_test.running'));
         });
       },
-      runTest: function () {
+      saveRunTest: function () {
         this.change = false;
 
         this.save(() => {
           this.$success(this.$t('commons.save_success'));
-          this.result = this.$post("/api/run", {id: this.test.id}, response => {
-            this.$success(this.$t('api_test.running'));
-          });
+          this.runTest();
         })
-
       },
       cancel: function () {
         this.$router.push('/api/test/list/all');

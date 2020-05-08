@@ -258,11 +258,11 @@
       },
       edit(row) {
         this.dialogOrgUpdateVisible = true;
-        this.form = row;
+        this.form = Object.assign({}, row);
       },
       editMember(row) {
         this.dialogOrgMemberUpdateVisible = true;
-        this.memberForm = row;
+        this.memberForm = Object.assign({}, row);
         let roleIds = this.memberForm.roles.map(r => r.id);
         this.result = this.$get('/role/list/org', response => {
           this.$set(this.memberForm, "allroles", response.data);

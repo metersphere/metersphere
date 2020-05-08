@@ -193,7 +193,7 @@
       },
       edit(row) {
         this.dialogWsAddVisible = true;
-        this.form = row;
+        this.form = Object.assign({}, row);
       },
       del(row) {
         this.$confirm(this.$t('workspace.delete_confirm'), '', {
@@ -317,7 +317,7 @@
       },
       editMember(row) {
         this.dialogWsMemberUpdateVisible = true;
-        this.memberForm = row;
+        this.memberForm = Object.assign({}, row);
         let roleIds = this.memberForm.roles.map(r => r.id);
         this.result = this.$get('/role/list/test', response => {
           this.$set(this.memberForm, "allroles", response.data);
