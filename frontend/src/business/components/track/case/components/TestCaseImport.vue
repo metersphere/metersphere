@@ -8,18 +8,20 @@
       <el-row>
         <el-link type="primary" class="download-template"
                  href="/test/case/export/template">{{$t('test_track.case.import.download_template')}}</el-link></el-row>
-
       <el-row>
         <el-upload
+          v-loading="isLoading"
+          element-loading-text="导入中"
+          element-loading-spinner="el-icon-loading"
           class="upload-demo"
           :action="'/test/case/import/' + projectId"
-          :on-preview="handlePreview"
           multiple
           :limit="1"
           :on-exceed="handleExceed"
           :beforeUpload="UploadValidate"
           :on-success="handleSuccess"
           :on-error="handleError"
+          :show-file-list="false"
           :file-list="fileList">
           <template v-slot:trigger>
             <el-button size="mini" type="success" plain>{{$t('test_track.case.import.click_upload')}}</el-button>
@@ -27,7 +29,8 @@
           <template v-slot:tip>
             <div class="el-upload__tip">{{$t('test_track.case.import.upload_limit')}}</div>
           </template>
-        </el-upload></el-row>
+        </el-upload>
+      </el-row>
 
       <el-row>
         <ul>
@@ -46,7 +49,6 @@
     import ElUploadList from "element-ui/packages/upload/src/upload-list";
     import MsTableButton from '../../../../components/common/components/MsTableButton';
 
-
     export default {
       name: "TestCaseImport",
       components: {ElUploadList, MsTableButton},
@@ -54,7 +56,8 @@
         return {
           dialogVisible: false,
           fileList: [],
-          errList: []
+          errList: [],
+          isLoading: false
         }
       },
       props: {
@@ -63,9 +66,6 @@
         }
       },
       methods: {
-        handlePreview(file) {
-          this.init();
-        },
         handleExceed(files, fileList) {
           this.$warning(this.$t('test_track.case.import.upload_limit_count'));
         },
@@ -80,9 +80,12 @@
             this.$warning(this.$t('test_track.case.import.upload_limit_size'));
             return false;
           }
+          this.isLoading = true;
+          this.errList = [];
           return true;
         },
         handleSuccess(response) {
+          this.isLoading = false;
           let res = response.data;
           if (res.success) {
             this.$success(this.$t('test_track.case.import.success'));
@@ -94,6 +97,7 @@
           this.fileList = [];
         },
         handleError(err, file, fileList) {
+          this.isLoading = false;
           this.$error(err.message);
         },
         init() {
@@ -102,7 +106,7 @@
         },
         open() {
           this.dialogVisible = true;
-        }
+        },
       }
     }
 </script>
