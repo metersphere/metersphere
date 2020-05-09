@@ -1,7 +1,6 @@
 <template>
   <div v-loading="result.loading">
     <el-card>
-
       <template v-slot:header>
         <div>
           <el-row type="flex" justify="space-between" align="middle">
@@ -22,7 +21,12 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
+            <el-tooltip class="item" effect="dark" :content="$t('member.edit_information')" placement="bottom" >
+              <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
+            </el-tooltip>
+            <el-tooltip class="item" effect="dark" :content="$t('member.edit_password')" placement="bottom" >
+              <el-button @click="editPassword(scope.row)" type="primary" icon="el-icon-s-tools" size="mini" circle/>
+            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
@@ -43,15 +47,31 @@
           <el-form-item :label="$t('commons.phone')" prop="phone">
             <el-input v-model="form.phone" autocomplete="off"/>
           </el-form-item>
-          <el-form-item :label="$t('commons.password')" prop="password">
-            <el-input v-model="form.password" autocomplete="off" show-password/>
-          </el-form-item>
         </el-form>
         <template v-slot:footer>
           <ms-dialog-footer
             @cancel="updateVisible = false"
             @confirm="updateUser('updateUserForm')"/>
         </template>
+      </el-dialog>
+
+      <el-dialog
+        :title="$t('member.edit_password')"
+        :visible.sync="centerDialogVisible"
+        width="30%"
+        left>
+        <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+          <el-form-item :label="$t('member.old_password')" prop="password">
+            <el-input v-model="ruleForm.password" autocomplete="off" show-password/>
+          </el-form-item>
+          <el-form-item :label="$t('member.new_password')" prop="newpassword">
+            <el-input v-model="ruleForm.newpassword" autocomplete="off" show-password/>
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+         <el-button @click="centerDialogVisible = false">取 消</el-button>
+         <el-button type="primary" @click="centerDialogVisible = false">确 定</el-button>
+        </span>
       </el-dialog>
 
     </el-card>
@@ -64,12 +84,23 @@
 
   export default {
     data() {
+      var validatePass2 = (rule, value, callback) => {
+        if (value === '') {
+          callback(new Error('请再次输入密码'));
+        } else if (value == this.ruleForm.newpassword) {
+          callback(new Error('两次密码一致,请重新输入!'));
+        } else {
+          callback();
+        }
+      };
       return {
         result: {},
         updateVisible: false,
+        centerDialogVisible:false,
         tableData: [],
         updatePath: '/user/update/current',
         form: {},
+        ruleForm:{},
         rule: {
           name: [
             {required: true, message: this.$t('member.input_name'), trigger: 'blur'},
@@ -98,6 +129,8 @@
               trigger: 'blur'
             }
           ],
+        },
+        rules:{
           password: [
             {required: true, message: this.$t('user.input_password'), trigger: 'blur'},
             {
@@ -106,6 +139,16 @@
               message: this.$t('member.password_format_is_incorrect'),
               trigger: 'blur'
             }
+          ],
+          newpassword: [
+            {required: true, message: this.$t('user.input_password'), trigger: 'blur'},
+            {
+              required:true,
+              pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,16}$/,
+              message: this.$t('member.password_format_is_incorrect'),
+              trigger: 'blur'
+            },
+            { validator: validatePass2, trigger: 'blur' }
           ]
         }
       }
@@ -123,6 +166,9 @@
       edit(row) {
         this.updateVisible = true;
         this.form = Object.assign({}, row);
+      },
+      editPassword(row){
+        this.centerDialogVisible = true;
       },
       updateUser(updateUserForm) {
         this.$refs[updateUserForm].validate(valide => {

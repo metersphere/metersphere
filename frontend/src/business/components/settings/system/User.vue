@@ -92,6 +92,21 @@
           @confirm="updateUser('updateUserForm')"/>
       </template>
     </el-dialog>
+    <!--<el-dialog
+      :title="$t('member.edit_password')"
+      :visible.sync="centerDialogVisible"
+      width="30%"
+      left>
+      <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+        <el-form-item label="新密码" prop="newPass">
+          <el-input type="password" v-model="ruleForm.checkPass" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+         <el-button @click="centerDialogVisible = false">取 消</el-button>
+         <el-button type="primary" @click="centerDialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>-->
 
   </div>
 </template>
