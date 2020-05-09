@@ -175,14 +175,11 @@
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
-          this.loading = true;
-          this.$get('/user/ws/member/delete/' + this.currentUser().lastWorkspaceId + '/' + row.id).then(() => {
+          this.result = this.$get('/user/ws/member/delete/' + this.currentUser().lastWorkspaceId + '/' + row.id,() => {
+            this.$success(this.$t('commons.delete_success'));
             this.initTableData();
-            this.loading = false;
           });
-          this.$success(this.$t('commons.delete_success'));
         }).catch(() => {
-          this.loading = false;
           this.$info(this.$t('commons.delete_cancel'));
         });
       },

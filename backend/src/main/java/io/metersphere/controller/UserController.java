@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.User;
 import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.UserRequest;
@@ -17,6 +18,7 @@ import io.metersphere.service.UserService;
 import io.metersphere.service.WorkspaceService;
 import io.metersphere.user.SessionUser;
 import io.metersphere.user.SessionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.BeanUtils;
@@ -120,6 +122,9 @@ public class UserController {
 
     @PostMapping("/update/current")
     public UserDTO updateCurrentUser(@RequestBody User user) {
+        UserDTO userDTO = userService.getUserDTO(user.getId());
+        BeanUtils.copyProperties(user, userDTO);
+        SessionUtils.putUser(SessionUser.fromUser(userDTO));
         userService.updateUser(user);
         return SessionUtils.getUser();
     }
@@ -182,6 +187,10 @@ public class UserController {
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER,RoleConstants.ORG_ADMIN}, logical = Logical.OR)
     public void deleteMember(@PathVariable String workspaceId, @PathVariable String userId) {
         workspaceService.checkWorkspaceOwner(workspaceId);
+        String currentUserId = SessionUtils.getUser().getId();
+        if (StringUtils.equals(userId, currentUserId)) {
+            MSException.throwException("Insufficient permissions!");
+        }
         userService.deleteMember(workspaceId, userId);
     }
 
@@ -202,6 +211,10 @@ public class UserController {
     @RequiresRoles(RoleConstants.ORG_ADMIN)
     public void delOrganizationMember(@PathVariable String organizationId, @PathVariable String userId) {
         organizationService.checkOrgOwner(organizationId);
+        String currentUserId = SessionUtils.getUser().getId();
+        if (StringUtils.equals(userId, currentUserId)) {
+            MSException.throwException("Insufficient permissions!");
+        }
         userService.delOrganizationMember(organizationId, userId);
     }
 
