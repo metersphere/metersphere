@@ -94,6 +94,7 @@ export default {
     'special_characters_are_not_supported': 'Special characters are not supported',
     'mobile_number_format_is_incorrect': 'Mobile number format is incorrect',
     'email_format_is_incorrect': 'Email format is incorrect',
+    'password_format_is_incorrect':'Password format is incorrect (At least 8-16 characters, at least 1 uppercase letter, 1 lowercase letter and 1 number)',
   },
   user: {
     'create': 'Create',
@@ -101,6 +102,7 @@ export default {
     'input_name': 'Please enter a user name',
     'input_id': 'Please enter a ID',
     'input_email': 'Please enter a email',
+    'input_password':'Please enter a password',
     'special_characters_are_not_supported': 'Special characters are not supported',
     'mobile_number_format_is_incorrect': 'Mobile number format is incorrect',
     'email_format_is_incorrect': 'Email format is incorrect',

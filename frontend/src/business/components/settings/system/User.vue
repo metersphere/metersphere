@@ -55,6 +55,9 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off"/>
         </el-form-item>
+        <el-form-item :label="$t('commons.password')" prop="password">
+          <el-input v-model="form.password" autocomplete="off" show-password/>
+        </el-form-item>
       </el-form>
       <template v-slot:footer>
         <ms-dialog-footer
@@ -78,6 +81,10 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off"/>
         </el-form-item>
+        <el-form-item :label="$t('commons.password')" prop="password">
+          <el-input v-model="form.password"   autocomplete="off" show-password/>
+        </el-form-item>
+        <!--<el-input placeholder="请输入密码" v-model="input" show-password></el-input>-->
       </el-form>
       <template v-slot:footer>
         <ms-dialog-footer
@@ -101,6 +108,7 @@
     components: {MsCreateBox, MsTablePagination, MsTableHeader, MsTableOperator, MsDialogFooter},
     data() {
       return {
+        /*input:'',*/
         queryPath: '/user/special/list',
         deletePath: '/user/special/delete/',
         createPath: '/user/special/add',
@@ -145,6 +153,15 @@
               required: true,
               pattern: /^([A-Za-z0-9_\-.])+@([A-Za-z0-9]+\.)+[A-Za-z]{2,6}$/,
               message: this.$t('user.email_format_is_incorrect'),
+              trigger: 'blur'
+            }
+          ],
+          password: [
+            {required: true, message: this.$t('user.input_password'), trigger: 'blur'},
+            {
+              required:true,
+              pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,16}$/,
+              message: this.$t('member.password_format_is_incorrect'),
               trigger: 'blur'
             }
           ]
