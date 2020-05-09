@@ -118,10 +118,8 @@ public class UserController {
         return userService.getUserList();
     }
 
-    @PostMapping("/update/currentuser")
+    @PostMapping("/update/current")
     public UserDTO updateCurrentUser(@RequestBody User user) {
-        SessionUser sessionUser = SessionUtils.getUser();
-        BeanUtils.copyProperties(user, sessionUser);
         userService.updateUser(user);
         return SessionUtils.getUser();
     }

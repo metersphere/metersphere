@@ -124,6 +124,9 @@ public class UserService {
     }
 
     public void updateUser(User user) {
+        UserDTO userDTO = getUserDTO(user.getId());
+        BeanUtils.copyProperties(user, userDTO);
+        SessionUtils.putUser(SessionUser.fromUser(userDTO));
         user.setUpdateTime(System.currentTimeMillis());
         userMapper.updateByPrimaryKeySelective(user);
     }
