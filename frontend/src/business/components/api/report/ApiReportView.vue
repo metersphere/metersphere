@@ -1,117 +1,113 @@
 <template>
-  <div v-loading="result.loading" class="report-view-container">
+  <div class="container" v-loading="result.loading">
     <div class="main-content">
       <el-card>
-        <el-row>
-          <el-col :span="16">
-            <el-row>
-              <el-breadcrumb separator-class="el-icon-arrow-right">
-                <el-breadcrumb-item :to="{ path: '/' }">{{report.projectName}}</el-breadcrumb-item>
-                <el-breadcrumb-item>{{report.testName}}</el-breadcrumb-item>
-                <el-breadcrumb-item>{{report.name}}</el-breadcrumb-item>
-              </el-breadcrumb>
-            </el-row>
-            <el-row class="ms-report-view-btns">
-              <el-button type="primary" plain size="mini">立即停止</el-button>
-              <el-button type="success" plain size="mini">再次执行</el-button>
-              <el-button type="info" plain size="mini">导出</el-button>
-              <el-button type="warning" plain size="mini">比较</el-button>
-            </el-row>
-          </el-col>
-          <el-col :span="8">
-            <span class="ms-report-time-desc">
-              持续时间：  30 分钟
-            </span>
-            <span class="ms-report-time-desc">
-              开始时间：  2020-3-10 12:00:00
-            </span>
-            <span class="ms-report-time-desc">
-              结束时间：  2020-3-10 12:30:00
-            </span>
-          </el-col>
-        </el-row>
-
-        <el-divider></el-divider>
-
-        <el-tabs v-model="active" type="border-card" :stretch="true">
-          <el-tab-pane :label="$t('report.test_details')">
-            <result-details />
-          </el-tab-pane>
-          <el-tab-pane :label="$t('report.test_log_details')">
-            <ms-report-log-details />
-          </el-tab-pane>
-        </el-tabs>
-
+        <section class="report-container">
+          <header class="report-header" v-if="this.report.testId">
+            <span>{{report.projectName}} / </span>
+            <router-link :to="path">{{report.testName}}</router-link>
+          </header>
+          <main>
+            <div class="scenario-chart">
+              <ms-metric-chart :content="content"></ms-metric-chart>
+            </div>
+            <el-card>
+              <div class="scenario-header">
+                <el-row :gutter="10">
+                  <el-col :span="16">
+                    {{$t('api_report.scenario_name')}}
+                  </el-col>
+                  <el-col :span="2">
+                    {{$t('api_report.response_time')}}
+                  </el-col>
+                  <el-col :span="2">
+                    {{$t('api_report.error')}}
+                  </el-col>
+                  <el-col :span="2">
+                    {{$t('api_report.assertions')}}
+                  </el-col>
+                  <el-col :span="2">
+                    {{$t('api_report.result')}}
+                  </el-col>
+                </el-row>
+              </div>
+              <ms-scenario-result v-for="(scenario, index) in content.scenarios" :key="index" :scenario="scenario"/>
+            </el-card>
+          </main>
+        </section>
       </el-card>
     </div>
   </div>
 </template>
 
 <script>
-  import MsReportLogDetails from './components/LogDetails';
-  import ResultDetails from './components/ResultDetails';
+
+  import MsRequestResult from "./components/RequestResult";
+  import MsScenarioResult from "./components/ScenarioResult";
+  import MsMetricChart from "./components/MetricChart";
 
   export default {
-    name: "ApiReportView",
-    components: {
-      MsReportLogDetails,
-      ResultDetails
-    },
+    name: "MsApiReportView",
+    components: {MsMetricChart, MsScenarioResult, MsRequestResult},
     data() {
       return {
+        content: {},
+        report: {},
         result: {},
-        active: '0',
-        videoPath: '',
-        report: {}
       }
     },
+
     methods: {
-      initBreadcrumb() {
-        if(this.reportId){
-          this.result = this.$get("/api/report/test/pro/info/" + this.reportId, res => {
-            let data = res.data;
-            if(data){
-              this.report = data;
-              this.report.content = JSON.parse(this.report.content);
-            }
+      getReport() {
+        if (this.reportId) {
+          let url = "/api/report/get/" + this.reportId;
+          this.result = this.$get(url, response => {
+            this.report = response.data || {};
+            this.content = JSON.parse(this.report.content);
           });
         }
       }
     },
-    mounted() {
-      this.initBreadcrumb();
+
+    watch: {
+      '$route': 'getReport',
     },
+
+    created() {
+      this.getReport();
+    },
+
     computed: {
       reportId: function () {
         return this.$route.params.reportId;
+      },
+      path() {
+        return "/api/test/edit?id=" + this.report.testId;
       }
     }
   }
 </script>
 
 <style scoped>
-  .report-view-container {
-    float: none;
-    text-align: center;
-    padding: 15px;
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
+  .report-container {
+    height: calc(100vh - 150px);
+    min-height: 600px;
+    overflow-y: auto;
   }
 
-  .report-view-container .main-content {
-    margin: 0 auto;
-    width: 100%;
-    max-width: 1200px;
+  .report-header {
+    font-size: 15px;
   }
 
-  .ms-report-view-btns {
-    margin-top: 15px;
+  .report-header a {
+    text-decoration: none;
   }
 
-  .ms-report-time-desc {
-    text-align: left;
-    display: block;
-    color: #5C7878;
+  .scenario-header {
+    border: 1px solid #EBEEF5;
+    background-color: #F9FCFF;
+    border-left: 0;
+    border-right: 0;
+    padding: 5px 0;
   }
 </style>

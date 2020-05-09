@@ -13,4 +13,6 @@ public interface ExtApiTestReportMapper {
 
     List<APIReportResult> listByTestId(@Param("testId") String testId);
 
+    APIReportResult get(@Param("id") String id);
+
 }

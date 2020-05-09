@@ -23,8 +23,8 @@
             <el-divider/>
             <ms-show-all :index="'/api/test/list/all'"/>
             <ms-create-button :index="'/api/test/create'" :title="$t('load_test.create')"/>
-<!--            <el-menu-item :index="testCaseProjectPath" class="blank_item"></el-menu-item>-->
-<!--            <el-menu-item :index="testEditPath" class="blank_item"></el-menu-item>-->
+            <!--            <el-menu-item :index="testCaseProjectPath" class="blank_item"></el-menu-item>-->
+            <!--            <el-menu-item :index="testEditPath" class="blank_item"></el-menu-item>-->
           </el-submenu>
 
           <el-submenu v-if="isCurrentWorkspaceUser"
@@ -33,7 +33,7 @@
             <ms-recent-list :options="reportRecent"/>
             <el-divider/>
             <ms-show-all :index="'/api/report/list/all'"/>
-<!--            <el-menu-item :index="reportViewPath" class="blank_item"></el-menu-item>-->
+            <!--            <el-menu-item :index="reportViewPath" class="blank_item"></el-menu-item>-->
           </el-submenu>
         </el-menu>
       </el-col>
@@ -90,7 +90,7 @@
           title: this.$t('report.recent'),
           url: "/api/report/recent/5",
           index: function (item) {
-            return '/api/report/view?id=' + item.id;
+            return '/api/report/view/' + item.id;
           }
         }
       }
