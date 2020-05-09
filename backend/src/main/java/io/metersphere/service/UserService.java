@@ -11,10 +11,7 @@ import io.metersphere.controller.request.member.AddMemberRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
-import io.metersphere.dto.OrganizationMemberDTO;
 import io.metersphere.dto.UserDTO;
-import io.metersphere.dto.UserRoleDTO;
-import io.metersphere.dto.UserRoleHelpDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.user.SessionUser;
 import io.metersphere.user.SessionUtils;
@@ -23,8 +20,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,7 +69,8 @@ public class UserService {
         user.setUpdateTime(System.currentTimeMillis());
         // 默认1:启用状态
         user.setStatus("1");
-
+        // 密码使用 MD5
+        user.setPassword(CodingUtil.md5(user.getPassword()));
         UserExample userExample = new UserExample();
         UserExample.Criteria criteria = userExample.createCriteria();
         criteria.andEmailEqualTo(user.getEmail());
@@ -124,9 +124,8 @@ public class UserService {
     }
 
     public void updateUser(User user) {
-        UserDTO userDTO = getUserDTO(user.getId());
-        BeanUtils.copyProperties(user, userDTO);
-        SessionUtils.putUser(SessionUser.fromUser(userDTO));
+        // MD5
+        user.setPassword(CodingUtil.md5(user.getPassword()));
         user.setUpdateTime(System.currentTimeMillis());
         userMapper.updateByPrimaryKeySelective(user);
     }

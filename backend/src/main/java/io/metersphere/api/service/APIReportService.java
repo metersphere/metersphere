@@ -38,8 +38,8 @@ public class APIReportService {
         return extApiTestReportMapper.list(request);
     }
 
-    public ApiTestReport get(String id) {
-        return apiTestReportMapper.selectByPrimaryKey(id);
+    public APIReportResult get(String reportId) {
+        return extApiTestReportMapper.get(reportId);
     }
 
     public List<APIReportResult> listByTestId(String testId) {

@@ -9,6 +9,8 @@ public class RequestResult {
 
     private String url;
 
+    private String method;
+
     private long requestSize;
 
     private boolean success;

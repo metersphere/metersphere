@@ -43,6 +43,9 @@
           <el-form-item :label="$t('commons.phone')" prop="phone">
             <el-input v-model="form.phone" autocomplete="off"/>
           </el-form-item>
+          <el-form-item :label="$t('commons.password')" prop="password">
+            <el-input v-model="form.password" autocomplete="off" show-password/>
+          </el-form-item>
         </el-form>
         <template v-slot:footer>
           <ms-dialog-footer
@@ -92,6 +95,15 @@
               required: true,
               pattern: /^([A-Za-z0-9_\-.])+@([A-Za-z0-9]+\.)+[A-Za-z]{2,6}$/,
               message: this.$t('member.email_format_is_incorrect'),
+              trigger: 'blur'
+            }
+          ],
+          password: [
+            {required: true, message: this.$t('user.input_password'), trigger: 'blur'},
+            {
+              required:true,
+              pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,16}$/,
+              message: this.$t('member.password_format_is_incorrect'),
               trigger: 'blur'
             }
           ]
