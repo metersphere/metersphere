@@ -3,9 +3,9 @@
   <div>
 
     <el-dialog :title="operationType == 'edit' ? ( readOnly ? $t('test_track.case.view_case') : $t('test_track.case.edit_case')) : $t('test_track.case.create')"
-               :visible.sync="dialogFormVisible" width="65%" v-loading="result.loading">
+               :visible.sync="dialogFormVisible" width="65%">
 
-      <el-form :model="form" :rules="rules" ref="caseFrom">
+      <el-form :model="form" :rules="rules" ref="caseFrom" v-loading="result.loading">
 
         <el-row>
           <el-col :span="8" :offset="1">
