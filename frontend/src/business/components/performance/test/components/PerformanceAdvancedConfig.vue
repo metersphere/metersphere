@@ -64,13 +64,8 @@
           </el-table-column>
           <el-table-column align="center" :label="$t('load_test.operating')">
             <template v-slot:default="{row, $index}">
-              <el-button
-                type="danger"
-                size="mini"
-                icon="el-icon-delete"
-                circle
-                @click="del(row, 'domains', $index)">
-              </el-button>
+              <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" type="danger"
+                                        @exec="del(row, 'domains', $index)"/>
             </template>
           </el-table-column>
         </el-table>
@@ -142,13 +137,8 @@
           </el-table-column>
           <el-table-column align="center" :label="$t('load_test.operating')">
             <template v-slot:default="{row, $index}">
-              <el-button
-                type="danger"
-                size="mini"
-                icon="el-icon-delete"
-                circle
-                @click="del(row, 'params', $index)">
-              </el-button>
+              <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" type="danger"
+                                        @exec="del(row, 'params', $index)"/>
             </template>
           </el-table-column>
         </el-table>
@@ -187,8 +177,11 @@
 </template>
 
 <script>
+  import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
+
   export default {
     name: "PerformanceAdvancedConfig",
+    components: {MsTableOperatorButton},
     data() {
       return {
         timeout: 100,
