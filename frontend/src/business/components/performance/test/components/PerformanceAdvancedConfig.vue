@@ -3,166 +3,155 @@
     <el-row type="flex" justify="start">
       <el-col :span="8">
         <h3>{{$t('load_test.domain_bind')}}</h3>
-        <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="add('domains')">{{$t('commons.add')}}</el-button>
+        <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="add('domains')">{{$t('commons.add')}}
+        </el-button>
       </el-col>
     </el-row>
     <!-- -->
     <el-row>
-      <el-col :span="20">
-      <el-table :data="domains" size="mini"  class="tb-edit" align="center" border highlight-current-row>
-        <el-table-column
-          align="center"
-          :label="$t('load_test.domain')"
-          show-overflow-tooltip>
-          <template v-slot:default="{row}">
-            <el-input
-              size="mini"
-              v-if="readOnly"
-              type="textarea"
-              :rows="1"
-              class="edit-input"
-              v-model="row.domain"
-              :placeholder="$t('load_test.domain')"
-              clearable>
-            </el-input>
-            <span >{{row.domain}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          align="center"
-          :label="$t('load_test.enable')"
-          show-overflow-tooltip>
-          <template v-slot:default="{row}">
-            <el-switch
-              :disabled="!row.edit"
-              size="mini"
-              v-model="row.enable"
-              active-color="#13ce66"
-              inactive-color="#ff4949"
-              @click="confirmEdit(row)"
-            >
-            </el-switch>
-          </template>
-        </el-table-column>
-        <el-table-column
-          align="center"
-          :label="$t('load_test.ip')"
-          show-overflow-tooltip>
-          <template v-slot:default="{row}">
-            <el-input
-              size="mini"
-              v-if="readOnly"
-              type="textarea"
-              class="edit-input"
-              :rows="1"
-              v-model="row.ip"
-              :placeholder="$t('load_test.ip')"
-              clearable></el-input>
-            <span>{{row.ip}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" :label="$t('load_test.operating')">
-          <template v-slot:default="{row, $index}">
-            <el-button
-              type="primary"
-              icon="el-icon-plus"
-              circle size="mini"
-              @click="add('domains')">
-            </el-button>
-            <el-button
-              type="danger"
-              size="mini"
-              icon="el-icon-delete"
-              circle
-              @click="del(row, 'domains', $index)">
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <el-col :span="24">
+        <el-table :data="domains" size="mini" class="tb-edit" align="center" border highlight-current-row>
+          <el-table-column
+            align="center"
+            :label="$t('load_test.domain')"
+            show-overflow-tooltip>
+            <template v-slot:default="{row}">
+              <el-input
+                size="mini"
+                v-if="readOnly"
+                type="textarea"
+                :rows="1"
+                class="edit-input"
+                v-model="row.domain"
+                :placeholder="$t('load_test.domain')"
+                clearable>
+              </el-input>
+              <span>{{row.domain}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            align="center"
+            :label="$t('load_test.enable')"
+            show-overflow-tooltip>
+            <template v-slot:default="{row}">
+              <el-switch
+                :disabled="!row.edit"
+                size="mini"
+                v-model="row.enable"
+                active-color="#13ce66"
+                inactive-color="#ff4949"
+                @click="confirmEdit(row)"
+              >
+              </el-switch>
+            </template>
+          </el-table-column>
+          <el-table-column
+            align="center"
+            :label="$t('load_test.ip')"
+            show-overflow-tooltip>
+            <template v-slot:default="{row}">
+              <el-input
+                size="mini"
+                v-if="readOnly"
+                type="textarea"
+                class="edit-input"
+                :rows="1"
+                v-model="row.ip"
+                :placeholder="$t('load_test.ip')"
+                clearable></el-input>
+              <span>{{row.ip}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column align="center" :label="$t('load_test.operating')">
+            <template v-slot:default="{row, $index}">
+              <el-button
+                type="danger"
+                size="mini"
+                icon="el-icon-delete"
+                circle
+                @click="del(row, 'domains', $index)">
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
       </el-col>
     </el-row>
 
     <el-row>
       <el-col :span="8">
         <h3>{{$t('load_test.params')}}</h3>
-        <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="add('params')">{{$t('commons.add')}}</el-button>
+        <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="add('params')">{{$t('commons.add')}}
+        </el-button>
       </el-col>
     </el-row>
     <!-- -->
     <el-row>
-      <el-col :span="20">
-      <el-table :data="params" size="mini"  class="tb-edit" align="center" border highlight-current-row>
-        <el-table-column
-          align="center"
-          :label="$t('load_test.param_name')"
-          show-overflow-tooltip>
-          <template v-slot:default="{row}">
-            <el-input
-              size="mini"
-              v-if="readOnly"
-              type="textarea"
-              :rows="1"
-              class="edit-input"
-              v-model="row.name"
-              :placeholder="$t('load_test.param_name')"
-              clearable>
-            </el-input>
-            <span >{{row.name}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          align="center"
-          :label="$t('load_test.enable')"
-          show-overflow-tooltip>
-          <template v-slot:default="{row}">
-            <el-switch
-              :disabled="!row.edit"
-              size="mini"
-              v-model="row.enable"
-              active-color="#13ce66"
-              inactive-color="#ff4949">
-            </el-switch>
-          </template>
-        </el-table-column>
-        <el-table-column
-          :label="$t('load_test.param_value')"
-          show-overflow-tooltip align="center">
-          <template v-slot:default="{row}">
-           <!-- <template v-if="row.edit">
-              <el-input v-model="row.value" class="edit-input" size="mini"/>
+      <el-col :span="24">
+        <el-table :data="params" size="mini" class="tb-edit" align="center" border highlight-current-row>
+          <el-table-column
+            align="center"
+            :label="$t('load_test.param_name')"
+            show-overflow-tooltip>
+            <template v-slot:default="{row}">
+              <el-input
+                size="mini"
+                v-if="readOnly"
+                type="textarea"
+                :rows="1"
+                class="edit-input"
+                v-model="row.name"
+                :placeholder="$t('load_test.param_name')"
+                clearable>
+              </el-input>
+              <span>{{row.name}}</span>
             </template>
-            <span v-else>{{ row.value }}</span>-->
-            <el-input
-              size="mini"
-              v-if="readOnly"
-              type="textarea"
-              class="edit-input"
-              :rows="1"
-              v-model="row.value"
-              :placeholder="$t('load_test.param_value')"
-              clearable></el-input>
-            <span>{{row.value}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" :label="$t('load_test.operating')">
-          <template v-slot:default="{row, $index}">
-            <el-button
-              type="primary"
-              size="mini"
-              icon="el-icon-plus"
-              circle
-              @click="add(row)">
-            </el-button>
-            <el-button
-              type="danger"
-              size="mini"
-              icon="el-icon-delete"
-              circle
-              @click="del(row, 'params', $index)">
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+          </el-table-column>
+          <el-table-column
+            align="center"
+            :label="$t('load_test.enable')"
+            show-overflow-tooltip>
+            <template v-slot:default="{row}">
+              <el-switch
+                :disabled="!row.edit"
+                size="mini"
+                v-model="row.enable"
+                active-color="#13ce66"
+                inactive-color="#ff4949">
+              </el-switch>
+            </template>
+          </el-table-column>
+          <el-table-column
+            :label="$t('load_test.param_value')"
+            show-overflow-tooltip align="center">
+            <template v-slot:default="{row}">
+              <!-- <template v-if="row.edit">
+                 <el-input v-model="row.value" class="edit-input" size="mini"/>
+               </template>
+               <span v-else>{{ row.value }}</span>-->
+              <el-input
+                size="mini"
+                v-if="readOnly"
+                type="textarea"
+                class="edit-input"
+                :rows="1"
+                v-model="row.value"
+                :placeholder="$t('load_test.param_value')"
+                clearable></el-input>
+              <span>{{row.value}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column align="center" :label="$t('load_test.operating')">
+            <template v-slot:default="{row, $index}">
+              <el-button
+                type="danger"
+                size="mini"
+                icon="el-icon-delete"
+                circle
+                @click="del(row, 'params', $index)">
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
       </el-col>
     </el-row>
 
@@ -233,21 +222,6 @@
       }
     },
     methods: {
-      revertObject(row) {
-        Object.keys(row).forEach(function (key) {
-          row[key] = row[key + 'Origin'];
-        });
-      },
-      saveOriginObject(row) {
-        Object.keys(row).forEach(function (key) {
-          row[key + 'Origin'] = row[key];
-        });
-      },
-      delOriginObject(row) {
-        Object.keys(row).forEach(function (key) {
-          delete row[key + 'Origin'];
-        });
-      },
       getAdvancedConfig(testId) {
         this.$get('/performance/get-advanced-config/' + testId, (response) => {
           if (response.data) {
@@ -257,7 +231,6 @@
             this.statusCodeStr = this.statusCode.join(',');
             this.domains = data.domains || [];
             this.params = data.params || [];
-            this.add('domains');
             /*this.domains.forEach(d => d.edit = false);
             this.params.forEach(d => d.edit = false);*/
           }
@@ -267,7 +240,7 @@
         if (dataName === 'domains') {
           this[dataName].push({
             domain: 'fit2cloud.com',
-            enable: false,
+            enable: true,
             ip: '127.0.0.1',
             edit: true,
           });
@@ -282,21 +255,14 @@
         }
       },
       edit(row) {
-        this.saveOriginObject(row);
         row.edit = !row.edit
       },
       del(row, dataName, index) {
         this[dataName].splice(index, 1);
       },
-      cancelEdit(row) {
-        row.edit = false;
-        // rollback changes
-        this.revertObject(row);
-      },
       confirmEdit(row) {
         row.edit = false;
-        row.enable=true,
-        this.saveOriginObject(row);
+        row.enable = true;
       },
       groupBy(data, key) {
         return data.reduce((p, c) => {
@@ -343,8 +309,6 @@
         this.params.forEach(d => d.edit = false);
       },
       configurations() {
-        this.domains.forEach(d => this.delOriginObject(d));
-        this.params.forEach(d => this.delOriginObject(d));
         let statusCode = [];
         if (this.statusCodeStr) {
           statusCode = this.statusCodeStr.split(',');
@@ -368,20 +332,25 @@
   .edit-input {
     padding-right: 0px;
   }
+
   .tb-edit .el-textarea {
     display: none;
   }
+
   .tb-edit .current-row .el-textarea {
     display: block;
   }
-  .tb-edit .current-row .el-textarea+span {
+
+  .tb-edit .current-row .el-textarea + span {
     display: none;
   }
-  .el-col{
+
+  .el-col {
     text-align: left;
   }
-  .el-col .el-table{
-    align:center;
+
+  .el-col .el-table {
+    align: center;
   }
 
 </style>
