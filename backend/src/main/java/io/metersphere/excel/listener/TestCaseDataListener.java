@@ -7,7 +7,9 @@ import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.service.TestCaseService;
+import org.apache.commons.lang3.StringUtils;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -38,12 +40,19 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
     public String validate(TestCaseExcelData data, String errMsg) {
         String nodePath = data.getNodePath();
         StringBuilder stringBuilder = new StringBuilder(errMsg);
-        if ( nodePath.split("/").length > TestCaseConstants.MAX_NODE_DEPTH + 1) {
+        String[] nodes = nodePath.split("/");
+
+        if ( nodes.length > TestCaseConstants.MAX_NODE_DEPTH + 1) {
             stringBuilder.append("节点最多为" + TestCaseConstants.MAX_NODE_DEPTH + "层;");
         }
-        if ( nodePath.trim().contains(" ")) {
-            stringBuilder.append("所属模块不能包含空格");
+
+        for (int i = 0; i < nodes.length; i++) {
+            if (i != 0 && StringUtils.equals(nodes[i].trim(), "")) {
+                stringBuilder.append("所属模块不能为空格");
+                break;
+            }
         }
+
         if (!userIds.contains(data.getMaintainer())) {
             stringBuilder.append("该工作空间下无该用户：" + data.getMaintainer() + ";");
         }

@@ -12,7 +12,7 @@
             :label="$t('test_track.module.name')"
             :label-width="formLabelWidth"
             prop="name">
-            <el-input v-model.trim="form.name" autocomplete="off"></el-input>
+            <el-input v-model="form.name" autocomplete="off"></el-input>
           </el-form-item>
         </el-form>
       </el-col>
@@ -69,7 +69,10 @@
             if (valid) {
               let param = {};
               let url = this.buildParam(param);
-
+              if (param.name.trim() == '') {
+                this.$warning(this.$t('test_track.case.input_name'));
+                return;
+              }
               this.$post(url, param, () => {
                 this.$success(this.$t('commons.save_success'));
                 this.$emit('refresh');
@@ -95,7 +98,7 @@
             param.id = this.node.id;
             param.level = this.node.level;
           }
-          param.name = this.form.name;
+          param.name = this.form.name.trim();
           param.label = this.form.name;
           if (localStorage.getItem(CURRENT_PROJECT)) {
             param.projectId = JSON.parse(localStorage.getItem(CURRENT_PROJECT)).id;

@@ -3,7 +3,7 @@
     <el-row type="flex" justify="start">
       <el-col :span="8">
         <h3>{{$t('load_test.domain_bind')}}</h3>
-        <el-button type="el-icon-circle-plus-outline" plain size="mini" @click="add('domains')">{{$t('commons.add')}}</el-button>
+        <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="add('domains')">{{$t('commons.add')}}</el-button>
       </el-col>
     </el-row>
     <!-- -->
@@ -85,7 +85,7 @@
     <el-row>
       <el-col :span="8">
         <h3>{{$t('load_test.params')}}</h3>
-        <el-button type="el-icon-circle-plus-outline" plain size="mini" @click="add('params')">{{$t('commons.add')}}</el-button>
+        <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="add('params')">{{$t('commons.add')}}</el-button>
       </el-col>
     </el-row>
     <!-- -->
@@ -258,8 +258,8 @@
             this.domains = data.domains || [];
             this.params = data.params || [];
             this.add('domains');
-            this.domains.forEach(d => d.edit = false);
-            this.params.forEach(d => d.edit = false);
+            /*this.domains.forEach(d => d.edit = false);
+            this.params.forEach(d => d.edit = false);*/
           }
         });
       },
