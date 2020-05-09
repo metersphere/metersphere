@@ -13,7 +13,7 @@
               :label="$t('test_track.case.name')"
               :label-width="formLabelWidth"
               prop="name">
-              <el-input :disabled="readOnly" v-model.trim="form.name"></el-input>
+              <el-input :disabled="readOnly" v-model="form.name"></el-input>
             </el-form-item>
           </el-col>
 
@@ -312,6 +312,11 @@
             });
             if(localStorage.getItem(CURRENT_PROJECT)) {
               param.projectId = JSON.parse(localStorage.getItem(CURRENT_PROJECT)).id;
+            }
+            param.name = param.name.trim();
+            if (param.name == '') {
+              this.$warning(this.$t('test_track.case.input_name'));
+              return;
             }
             this.$post('/test/case/' + this.operationType, param, () => {
               this.$success(this.$t('commons.save_success'));

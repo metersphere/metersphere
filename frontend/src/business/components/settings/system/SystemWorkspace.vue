@@ -12,7 +12,8 @@
         <el-table-column prop="organizationName" :label="$t('workspace.organization_name')"/>
         <el-table-column :label="$t('commons.member')">
           <template v-slot:default="scope">
-            <el-button type="text" class="member-size" @click="cellClick(scope.row)">{{scope.row.memberSize}}
+            <el-button type="text" class="member-size" @click="cellClick(scope.row)">
+              {{scope.row.memberSize}}
             </el-button>
           </template>
         </el-table-column>
@@ -48,9 +49,9 @@
         </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <span class="dialog-footer">
-          <el-button type="primary" @keydown.enter.native.prevent @click="submit('form')" size="medium">{{$t('commons.save')}}</el-button>
-        </span>
+        <ms-dialog-footer
+          @cancel="dialogWsAddVisible = false"
+          @confirm="submit('form')"/>
       </template>
     </el-dialog>
 
@@ -76,16 +77,15 @@
         </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <span class="dialog-footer">
-          <el-button type="primary" @click="updateWorkspace('updateForm')" @keydown.enter.native.prevent
-                     size="medium">{{$t('commons.save')}}</el-button>
-        </span>
+        <ms-dialog-footer
+          @cancel="dialogWsUpdateVisible = false"
+          @confirm="updateWorkspace('updateForm')"/>
       </template>
 
     </el-dialog>
 
     <!-- dialog of workspace member -->
-    <el-dialog :visible.sync="dialogWsMemberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc">
+    <el-dialog :visible.sync="dialogWsMemberVisible" width="70%" :destroy-on-close="true" @close="closeWsMemberDialog">
       <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="dialogSearch"
                        :create-tip="dialogBtnTips" :title="$t('commons.member')"/>
       <!-- organization member table -->
@@ -112,7 +112,7 @@
     <!-- add workspace member dialog -->
     <el-dialog :title="$t('member.create')" :visible.sync="dialogWsMemberAddVisible" width="30%"
                :destroy-on-close="true"
-               @close="closeFunc">
+               @close="handleClose">
       <el-form :model="memberForm" ref="form" :rules="wsMemberRule" label-position="right" label-width="100px"
                size="small">
         <el-form-item :label="$t('commons.member')" prop="userIds">
@@ -141,18 +141,16 @@
         </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <span class="dialog-footer">
-          <el-button type="primary" @keydown.enter.native.prevent @click="submitForm('form')" size="medium">
-            {{$t('commons.save')}}
-          </el-button>
-        </span>
+        <ms-dialog-footer
+          @cancel="dialogWsMemberAddVisible = false"
+          @confirm="submitForm('form')"/>
       </template>
     </el-dialog>
 
     <!-- update workspace member dialog -->
     <el-dialog :title="$t('member.modify')" :visible.sync="dialogWsMemberUpdateVisible" width="30%"
                :destroy-on-close="true"
-               @close="closeFunc">
+               @close="handleClose">
       <el-form :model="memberForm" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="memberForm.id" autocomplete="off" :disabled="true"/>
@@ -179,11 +177,9 @@
         </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <span class="dialog-footer">
-          <el-button type="primary" @click="updateOrgMember('updateUserForm')" @keydown.enter.native.prevent
-                     size="medium">{{$t('commons.save')}}
-          </el-button>
-        </span>
+        <ms-dialog-footer
+          @cancel="dialogWsMemberUpdateVisible = false"
+          @confirm="updateWorkspaceMember('updateUserForm')"/>
       </template>
 
     </el-dialog>
@@ -198,10 +194,11 @@
   import MsTableHeader from "../../common/components/MsTableHeader";
   import MsRolesTag from "../../common/components/MsRolesTag";
   import MsTableOperator from "../../common/components/MsTableOperator";
+  import MsDialogFooter from "../../common/components/MsDialogFooter";
 
   export default {
     name: "MsSystemWorkspace",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator, MsDialogFooter},
     mounted() {
       this.list();
     },
@@ -232,7 +229,6 @@
       },
       addMember() {
         this.dialogWsMemberAddVisible = true;
-        this.memberForm = {};
         this.result = this.$get('/user/list/', response => {
           this.$set(this.memberForm, "userList", response.data);
         });
@@ -318,10 +314,10 @@
 
         });
       },
-      closeFunc() {
-        this.form = {};
+      handleClose() {
+        this.memberForm = {};
       },
-      closeMemberFunc() {
+      closeWsMemberDialog() {
         this.memberLineData = [];
         this.list();
       },
@@ -363,7 +359,7 @@
       },
       editMember(row) {
         this.dialogWsMemberUpdateVisible = true;
-        this.memberForm = row;
+        this.memberForm = Object.assign({}, row);
         let roleIds = this.memberForm.roles.map(r => r.id);
         this.result = this.$get('/role/list/test', response => {
           this.$set(this.memberForm, "allroles", response.data);
@@ -385,7 +381,7 @@
           this.$info(this.$t('commons.delete_cancel'));
         });
       },
-      updateOrgMember() {
+      updateWorkspaceMember() {
         let param = {
           id: this.memberForm.id,
           name: this.memberForm.name,

@@ -5,6 +5,7 @@
       :before-close="handleClose"
       :visible.sync="showDialog"
       :with-header="false"
+      :modal-append-to-body="false"
       size="100%"
       ref="drawer"
       v-loading="result.loading">
@@ -19,6 +20,7 @@
             </div>
           </el-col>
           <el-col :span="12" class="head-right">
+            <el-button plain size="mini" @click="handleSave">保存</el-button>
             <el-button plain size="mini" @click="handleEdit">编辑组件</el-button>
           </el-col>
         </el-row>
@@ -26,32 +28,31 @@
         <div class="container">
           <el-main>
             <div class="preview" v-for="item in previews" :key="item.id">
-              <base-info-component v-if="item.id == 1"/>
-              <test-result-component v-if="item.id == 2"/>
-              <test-result-chart-component v-if="item.id == 3"/>
-              <rich-text-component :preview="item" v-if="item.type != 'system'"/>
+              <template-component :metric="metric" :preview="item"/>
             </div>
           </el-main>
         </div>
       </template>
     </el-drawer>
 
-    <test-case-report-template-edit ref="templateEdit" @refresh="getReport"/>
+    <test-case-report-template-edit :metric="metric" ref="templateEdit" @refresh="getReport"/>
 
   </div>
 </template>
 
 <script>
-    import {jsonToMap} from "../../../../../../common/js/utils";
+  import {jsonToMap, mapToJson} from "../../../../../../common/js/utils";
     import BaseInfoComponent from "../../../../settings/workspace/components/TemplateComponent/BaseInfoComponent";
     import TestResultChartComponent from "../../../../settings/workspace/components/TemplateComponent/TestResultChartComponent";
     import TestResultComponent from "../../../../settings/workspace/components/TemplateComponent/TestResultComponent";
     import RichTextComponent from "../../../../settings/workspace/components/TemplateComponent/RichTextComponent";
     import TestCaseReportTemplateEdit from "../../../../settings/workspace/components/TestCaseReportTemplateEdit";
+    import TemplateComponent from "../../../../settings/workspace/components/TemplateComponent/TemplateComponent";
 
     export default {
       name: "TestCaseReportView",
       components: {
+        TemplateComponent,
         TestCaseReportTemplateEdit,
         RichTextComponent, TestResultComponent, TestResultChartComponent, BaseInfoComponent},
       data() {
@@ -61,6 +62,7 @@
           previews: [],
           report: {},
           reportId: '',
+          metric: {},
           componentMap: new Map(
             [
               [1, { name: "基础信息", id: 1 , type: 'system'}],
@@ -69,6 +71,11 @@
               [4, { name: "自定义模块", id: 4 ,type: 'custom'}]
             ]
           )
+        }
+      },
+      props: {
+        planId: {
+          type: String
         }
       },
       methods: {
@@ -86,6 +93,7 @@
             if (this.report.content.customComponent) {
               this.report.content.customComponent = jsonToMap(this.report.content.customComponent);
             }
+            this.getMetric();
             this.initPreviews();
           });
         },
@@ -110,6 +118,47 @@
         },
         handleEdit() {
           this.$refs.templateEdit.open(this.reportId, true);
+        },
+        handleSave() {
+          let param = {};
+          this.buildParam(param);
+          this.result = this.$post('/case/report/edit', param, () =>{
+            this.$success('保存成功');
+          });
+        },
+        buildParam(param) {
+          let content = {};
+          content.components = [];
+          this.previews.forEach(item => {
+            content.components.push(item.id);
+            if (!this.componentMap.get(item.id)) {
+              content.customComponent = new Map();
+              content.customComponent.set(item.id, {title: item.title, content: item.content})
+            }
+          });
+          param.name = this.report.name;
+          if (content.customComponent) {
+            content.customComponent = mapToJson(content.customComponent);
+          }
+          param.content = JSON.stringify(content);
+          param.id = this.report.id;
+          if (this.metric.startTime) {
+            param.startTime = this.metric.startTime.getTime();
+          }
+          if (this.metric.endTime) {
+            param.endTime = this.metric.endTime.getTime();
+          }
+        },
+        getMetric() {
+          this.result = this.$get('/case/report/get/metric/' + this.planId, response => {
+            this.metric = response.data;
+            if (this.report.startTime) {
+              this.metric.startTime = new Date(this.report.startTime);
+            }
+            if (this.report.endTime) {
+              this.metric.endTime = new Date(this.report.endTime);
+            }
+          });
         }
       }
     }

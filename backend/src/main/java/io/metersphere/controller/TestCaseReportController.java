@@ -2,6 +2,7 @@ package io.metersphere.controller;
 
 import io.metersphere.base.domain.TestCaseReport;
 import io.metersphere.controller.request.testCaseReport.CreateReportRequest;
+import io.metersphere.dto.TestCaseReportMetricDTO;
 import io.metersphere.service.TestCaseReportService;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,7 +42,7 @@ public class TestCaseReportController {
     }
 
     @GetMapping("/get/metric/{planId}")
-    public TestCaseReport getMetric(@PathVariable String planId){
+    public TestCaseReportMetricDTO getMetric(@PathVariable String planId){
         return testCaseReportService.getMetric(planId);
     }
 }

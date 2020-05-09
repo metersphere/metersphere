@@ -51,7 +51,7 @@ public class TestCaseNodeService {
         return getNodeTrees(nodes);
     }
 
-    private List<TestCaseNodeDTO> getNodeTrees(List<TestCaseNode> nodes) {
+    public List<TestCaseNodeDTO> getNodeTrees(List<TestCaseNode> nodes) {
 
         List<TestCaseNodeDTO> nodeTreeList = new ArrayList<>();
 
@@ -91,12 +91,12 @@ public class TestCaseNodeService {
             return nodeTree;
         }
 
-        List<TestCaseNodeDTO> childrens = Optional.ofNullable(nodeTree.getChildren()).orElse(new ArrayList<>());
+        List<TestCaseNodeDTO> children = Optional.ofNullable(nodeTree.getChildren()).orElse(new ArrayList<>());
 
         lowerNodes.forEach(node -> {
             if (node.getParentId() != null && node.getParentId().equals(rootNode.getId())){
-                childrens.add(buildNodeTree(nodeLevelMap, node));
-                nodeTree.setChildren(childrens);
+                children.add(buildNodeTree(nodeLevelMap, node));
+                nodeTree.setChildren(children);
             }
         });
 

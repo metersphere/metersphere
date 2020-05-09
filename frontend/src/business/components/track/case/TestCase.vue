@@ -117,7 +117,7 @@
                 }
               }
               if (!hasCurrentProject) {
-                this.currentProject = null;
+                this.setCurrentProject(this.projects[0]);
               }
             } else {
               if(this.projects.length > 0){
@@ -189,6 +189,7 @@
           this.$get('/project/get/' + id, response => {
             let project = response.data;
             this.setCurrentProject(project);
+            this.$router.push('/track/case/all');
           });
         }
         if (id === 'all') {

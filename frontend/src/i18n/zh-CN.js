@@ -96,6 +96,7 @@ export default {
     'special_characters_are_not_supported': '不支持特殊字符',
     'mobile_number_format_is_incorrect': '手机号码格式不正确',
     'email_format_is_incorrect': '邮箱格式不正确',
+    'password_format_is_incorrect':'密码格式不正确(至少8-16个字符，至少1个大写字母，1个小写字母和1个数字)',
   },
   user: {
     'create': '创建用户',
@@ -103,6 +104,7 @@ export default {
     'input_name': '请输入用户名',
     'input_id': '请输入ID',
     'input_email': '请输入邮箱',
+    'input_password':'请输入密码',
     'special_characters_are_not_supported': '不支持特殊字符',
     'mobile_number_format_is_incorrect': '手机号码格式不正确',
     'email_format_is_incorrect': '邮箱格式不正确',
@@ -131,6 +133,7 @@ export default {
     'being_generated': '报告正在生成中...',
   },
   load_test: {
+    'operating':'操作',
     'recent': '最近的测试',
     'search_by_name': '根据名称搜索',
     'project_name': '所属项目',
@@ -183,6 +186,8 @@ export default {
     'create': '创建测试',
     'select_resource_pool': '请选择资源池',
     'resource_pool_is_null': '资源池为空',
+    'download_log_file': '下载完整日志文件',
+    'pressure_prediction_chart':'压力预估图',
 
   },
   api_test: {

@@ -90,6 +90,7 @@
         </el-form>
       </el-col>
       <el-col :span="14">
+        <div class="title">{{$t('load_test.pressure_prediction_chart')}}</div>
         <chart class="chart-container" ref="chart1" :options="orgOptions" :autoresize="true"></chart>
       </el-col>
     </el-row>
@@ -306,9 +307,11 @@
   }
 </script>
 
+
 <style scoped>
   .pressure-config-container .el-input {
     width: 130px;
+
   }
 
   .pressure-config-container .config-form-label {
@@ -322,5 +325,16 @@
 
   .chart-container {
     width: 100%;
+  }
+  .el-col .el-form{
+    margin-top: 15px;
+    text-align: left;
+  }
+  .el-col {
+    margin-top: 15px;
+    text-align: left;
+  }
+  .title {
+    margin-left: 60px;
   }
 </style>

@@ -40,7 +40,7 @@
 
     </el-card>
 
-    <el-dialog :title="$t('user.create')" :visible.sync="createVisible" width="30%" @closed="closeFunc"
+    <el-dialog :title="$t('user.create')" :visible.sync="createVisible" width="30%" @closed="handleClose"
                :destroy-on-close="true">
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule" ref="createUserForm">
         <el-form-item label="ID" prop="id">
@@ -55,17 +55,19 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off"/>
         </el-form-item>
+        <el-form-item :label="$t('commons.password')" prop="password">
+          <el-input v-model="form.password" autocomplete="off" show-password/>
+        </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <span class="dialog-footer">
-          <el-button @click="createUser('createUserForm')" @keydown.enter.native.prevent type="primary"
-                     size="medium">{{$t('commons.save')}}</el-button>
-        </span>
+        <ms-dialog-footer
+          @cancel="createVisible = false"
+          @confirm="createUser('createUserForm')"/>
       </template>
     </el-dialog>
 
     <el-dialog :title="$t('user.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true"
-               @close="closeFunc">
+               @close="handleClose">
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
@@ -79,13 +81,15 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off"/>
         </el-form-item>
+        <el-form-item :label="$t('commons.password')" prop="password">
+          <el-input v-model="form.password"   autocomplete="off" show-password/>
+        </el-form-item>
+        <!--<el-input placeholder="请输入密码" v-model="input" show-password></el-input>-->
       </el-form>
       <template v-slot:footer>
-        <span class="dialog-footer">
-          <el-button @click="updateUser('updateUserForm')" @keydown.enter.native.prevent type="primary"
-                     size="medium">{{$t('commons.save')}}
-          </el-button>
-        </span>
+        <ms-dialog-footer
+          @cancel="updateVisible = false"
+          @confirm="updateUser('updateUserForm')"/>
       </template>
     </el-dialog>
 
@@ -97,12 +101,14 @@
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableHeader from "../../common/components/MsTableHeader";
   import MsTableOperator from "../../common/components/MsTableOperator";
+  import MsDialogFooter from "../../common/components/MsDialogFooter";
 
   export default {
     name: "MsUser",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsTableOperator},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsTableOperator, MsDialogFooter},
     data() {
       return {
+        /*input:'',*/
         queryPath: '/user/special/list',
         deletePath: '/user/special/delete/',
         createPath: '/user/special/add',
@@ -149,6 +155,15 @@
               message: this.$t('user.email_format_is_incorrect'),
               trigger: 'blur'
             }
+          ],
+          password: [
+            {required: true, message: this.$t('user.input_password'), trigger: 'blur'},
+            {
+              required:true,
+              pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,16}$/,
+              message: this.$t('member.password_format_is_incorrect'),
+              trigger: 'blur'
+            }
           ]
         }
       }
@@ -162,7 +177,7 @@
       },
       edit(row) {
         this.updateVisible = true;
-        this.form = row;
+        this.form = Object.assign({}, row);
       },
       del(row) {
         this.$confirm(this.$t('user.delete_confirm'), '', {
@@ -211,7 +226,7 @@
           this.tableData = data.listObject;
         })
       },
-      closeFunc() {
+      handleClose() {
         this.form = {};
       },
       changeSwitch(row) {

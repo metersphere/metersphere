@@ -31,9 +31,9 @@
         </el-form>
         <template v-slot:footer>
           <div class="dialog-footer">
-            <el-button type="primary" @keydown.enter.native.prevent @click="submit('form')" size="medium">
-              {{$t('commons.save')}}
-            </el-button>
+            <ms-dialog-footer
+              @cancel="createVisible = false"
+              @confirm="submit('form')"/>
           </div>
         </template>
       </el-dialog>
@@ -48,10 +48,11 @@
   import MsTablePagination from "../common/pagination/TablePagination";
   import MsTableHeader from "../common/components/MsTableHeader";
   import MsTableOperator from "../common/components/MsTableOperator";
+  import MsDialogFooter from "../common/components/MsDialogFooter";
 
   export default {
     name: "MsProject",
-    components: {MsTableOperator, MsCreateBox, MsTablePagination, MsTableHeader},
+    components: {MsTableOperator, MsCreateBox, MsTablePagination, MsTableHeader, MsDialogFooter},
     data() {
       return {
         createVisible: false,

@@ -15,7 +15,7 @@
               :label="$t('test_track.plan.plan_name')"
               :label-width="formLabelWidth"
               prop="name">
-              <el-input v-model.trim="form.name"></el-input>
+              <el-input v-model="form.name"></el-input>
             </el-form-item>
           </el-col>
 
@@ -149,6 +149,11 @@
             if (valid) {
               let param = {};
               Object.assign(param, this.form);
+              param.name = param.name.trim();
+              if (param.name == '') {
+                this.$warning(this.$t('test_track.plan.input_plan_name'));
+                return;
+              }
               param.workspaceId = localStorage.getItem(WORKSPACE_ID);
               this.$post('/test/plan/' + this.operationType, param, () => {
                 this.$success(this.$t('commons.save_success'));

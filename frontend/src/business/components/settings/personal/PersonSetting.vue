@@ -28,7 +28,7 @@
       </el-table>
 
       <el-dialog :title="$t('member.modify_personal_info')" :visible.sync="updateVisible" width="30%"
-                 :destroy-on-close="true" @close="closeFunc">
+                 :destroy-on-close="true" @close="handleClose">
         <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
                  ref="updateUserForm">
           <el-form-item label="ID" prop="id">
@@ -43,13 +43,14 @@
           <el-form-item :label="$t('commons.phone')" prop="phone">
             <el-input v-model="form.phone" autocomplete="off"/>
           </el-form-item>
+          <el-form-item :label="$t('commons.password')" prop="password">
+            <el-input v-model="form.password" autocomplete="off" show-password/>
+          </el-form-item>
         </el-form>
         <template v-slot:footer>
-          <span class="dialog-footer">
-            <el-button @click="updateUser('updateUserForm')" @keydown.enter.native.prevent type="primary"
-                       size="medium">{{$t('commons.save')}}
-            </el-button>
-          </span>
+          <ms-dialog-footer
+            @cancel="updateVisible = false"
+            @confirm="updateUser('updateUserForm')"/>
         </template>
       </el-dialog>
 
@@ -59,6 +60,7 @@
 
 <script>
   import {TokenKey} from "../../../../common/js/constants";
+  import MsDialogFooter from "../../common/components/MsDialogFooter";
 
   export default {
     data() {
@@ -66,7 +68,7 @@
         result: {},
         updateVisible: false,
         tableData: [],
-        updatePath: '/user/update/currentuser',
+        updatePath: '/user/update/current',
         form: {},
         rule: {
           name: [
@@ -95,11 +97,21 @@
               message: this.$t('member.email_format_is_incorrect'),
               trigger: 'blur'
             }
+          ],
+          password: [
+            {required: true, message: this.$t('user.input_password'), trigger: 'blur'},
+            {
+              required:true,
+              pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,16}$/,
+              message: this.$t('member.password_format_is_incorrect'),
+              trigger: 'blur'
+            }
           ]
         }
       }
     },
     name: "MsPersonSetting",
+    components: {MsDialogFooter},
     created() {
       this.initTableData();
     },
@@ -110,7 +122,7 @@
       },
       edit(row) {
         this.updateVisible = true;
-        this.form = row;
+        this.form = Object.assign({}, row);
       },
       updateUser(updateUserForm) {
         this.$refs[updateUserForm].validate(valide => {
@@ -135,7 +147,7 @@
           this.tableData = dataList;
         })
       },
-      closeFunc() {
+      handleClose() {
         this.form = {};
       }
     }
