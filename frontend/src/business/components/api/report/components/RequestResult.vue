@@ -84,12 +84,12 @@
     width: 100%;
     min-height: 40px;
     padding: 2px 0;
-    cursor: pointer;
   }
 
   .request-result .info {
     background-color: #F9F9F9;
     margin-left: 20px;
+    cursor: pointer;
   }
 
   .request-result .method {

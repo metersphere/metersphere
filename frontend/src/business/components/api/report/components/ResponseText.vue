@@ -52,12 +52,16 @@
     padding: 5px;
   }
 
-  .text-container .icon.is-active {
-    transform: rotate(90deg);
+  .text-container .collapse {
+    cursor: pointer;
   }
 
   .text-container .collapse:hover {
     opacity: 0.8;
+  }
+
+  .text-container .icon.is-active {
+    transform: rotate(90deg);
   }
 
   .text-container .pane {
