@@ -7,16 +7,22 @@ import io.metersphere.i18n.Translator;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jorphan.collections.HashTree;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
 
+import javax.annotation.Resource;
+
 @Service
 public class JMeterService {
 
+    @Resource
+    private JmeterProperties jmeterProperties;
+
     public void run(InputStream is) {
-        String JMETER_HOME = CommonBeanFactory.getBean(JmeterProperties.class).getHome();
+        String JMETER_HOME = jmeterProperties.getHome();
         String JMETER_PROPERTIES = JMETER_HOME + "/bin/jmeter.properties";
         JMeterUtils.loadJMeterProperties(JMETER_PROPERTIES);
         JMeterUtils.setJMeterHome(JMETER_HOME);
