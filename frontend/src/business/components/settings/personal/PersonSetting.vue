@@ -68,7 +68,7 @@
         result: {},
         updateVisible: false,
         tableData: [],
-        updatePath: '/user/update/currentuser',
+        updatePath: '/user/update/current',
         form: {},
         rule: {
           name: [

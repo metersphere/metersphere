@@ -5,7 +5,7 @@
              :before-close="close"
              width="20%">
 
-    <el-select v-model.trim="module"
+    <el-select v-model="module"
                :placeholder="$t('test_track.case.move')"
                filterable>
       <el-option v-for="item in moduleOptions" :key="item.id"
@@ -40,7 +40,7 @@
     methods: {
       save() {
         if (this.module === '') {
-          this.$warning(this.$t('test_track.plan_view.select_execute_result'));
+          this.$warning(this.$t('test_track.case.input_module'));
           return;
         }
         let param = {};
@@ -50,11 +50,6 @@
             param.nodePath = item.path;
           }
         });
-
-        if (this.module === '') {
-          this.$warning(this.$t('test_track.plan_view.select_executor'));
-          return;
-        }
         param.ids = [...this.selectIds];
         this.$post('/test/case/batch/edit' , param, () => {
           this.$success(this.$t('commons.save_success'));
