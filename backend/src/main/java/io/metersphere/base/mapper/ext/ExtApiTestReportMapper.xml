@@ -4,12 +4,13 @@
 
     <resultMap id="BaseResultMap" type="io.metersphere.api.dto.APIReportResult"
                extends="io.metersphere.base.mapper.ApiTestReportMapper.BaseResultMap">
+        <result column="test_name" property="testName"/>
         <result column="project_name" property="projectName"/>
     </resultMap>
 
     <select id="list" resultMap="BaseResultMap">
-        SELECT t.name, t.description,
-        r.id, r.test_id, r.create_time, r.update_time, r.status,
+        SELECT t.name AS test_name,
+        r.name, r.description, r.id, r.test_id, r.create_time, r.update_time, r.status,
         project.name AS project_name
         FROM api_test_report r JOIN api_test t ON r.test_id = t.id
         JOIN project ON project.id = t.project_id
@@ -30,13 +31,23 @@
     </select>
 
     <select id="listByTestId" resultMap="BaseResultMap">
-        SELECT t.name, t.description,
-        r.id, r.test_id, r.create_time, r.update_time, r.status,
+        SELECT c,
+        r.name, r.description, r.id, r.test_id, r.create_time, r.update_time, r.status,
         project.name AS project_name
         FROM api_test_report r JOIN api_test t ON r.test_id = t.id
         JOIN project ON project.id = t.project_id
         <where>
             r.test_id = #{testId}
+        </where>
+        ORDER BY r.update_time DESC
+    </select>
+
+    <select id="get" resultMap="BaseResultMap">
+        SELECT r.*, t.name AS test_name, project.name AS project_name
+        FROM api_test_report r JOIN api_test t ON r.test_id = t.id
+        JOIN project ON project.id = t.project_id
+        <where>
+            r.id = #{id}
         </where>
         ORDER BY r.update_time DESC
     </select>

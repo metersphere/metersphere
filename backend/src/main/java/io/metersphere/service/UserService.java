@@ -124,11 +124,8 @@ public class UserService {
     }
 
     public void updateUser(User user) {
-        UserDTO userDTO = getUserDTO(user.getId());
-        BeanUtils.copyProperties(user, userDTO);
         // MD5
         user.setPassword(CodingUtil.md5(user.getPassword()));
-        SessionUtils.putUser(SessionUser.fromUser(userDTO));
         user.setUpdateTime(System.currentTimeMillis());
         userMapper.updateByPrimaryKeySelective(user);
     }

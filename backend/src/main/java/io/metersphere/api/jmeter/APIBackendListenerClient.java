@@ -93,7 +93,8 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                 }
 
                 RequestResult requestResult = getRequestResult(result);
-                scenarioResult.getRequestResult().add(requestResult);
+                scenarioResult.getRequestResults().add(requestResult);
+                scenarioResult.addResponseTime(result.getTime());
 
                 testResult.addPassAssertions(requestResult.getPassAssertions());
                 testResult.addTotalAssertions(requestResult.getTotalAssertions());
@@ -110,14 +111,18 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
     }
 
     private RequestResult getRequestResult(SampleResult result) {
+        String body = result.getSamplerData();
+        String method = StringUtils.substringBefore(body, " ");
+
         RequestResult requestResult = new RequestResult();
         requestResult.setName(result.getSampleLabel());
         requestResult.setUrl(result.getUrlAsString());
-        requestResult.setSuccess(result.isSuccessful());
-        requestResult.setBody(result.getSamplerData());
+        requestResult.setMethod(method);
+        requestResult.setBody(body);
         requestResult.setHeaders(result.getRequestHeaders());
         requestResult.setRequestSize(result.getSentBytes());
         requestResult.setTotalAssertions(result.getAssertionResults().length);
+        requestResult.setSuccess(result.isSuccessful());
 
         ResponseResult responseResult = requestResult.getResponseResult();
         responseResult.setBody(result.getResponseDataAsString());

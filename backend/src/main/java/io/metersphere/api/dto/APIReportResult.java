@@ -9,5 +9,7 @@ import lombok.Setter;
 @Getter
 public class APIReportResult extends ApiTestReport {
 
+    private String testName;
+
     private String projectName;
 }

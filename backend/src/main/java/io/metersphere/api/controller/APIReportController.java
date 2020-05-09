@@ -43,9 +43,9 @@ public class APIReportController {
         return PageUtils.setPageInfo(page, apiReportService.list(request));
     }
 
-    @GetMapping("/get/{testId}")
-    public ApiTestReport get(@PathVariable String testId) {
-        return apiReportService.get(testId);
+    @GetMapping("/get/{reportId}")
+    public APIReportResult get(@PathVariable String reportId) {
+        return apiReportService.get(reportId);
     }
 
     @PostMapping("/delete")
