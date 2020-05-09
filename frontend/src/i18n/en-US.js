@@ -183,6 +183,7 @@ export default {
     'create': 'Create Test',
     'select_resource_pool': 'Please Select Resource Pool',
     'resource_pool_is_null': 'Resource Pool is empty',
+    'download_log_file': 'Download',
   },
   api_test: {
     'select_resource_pool': 'Please select resource pool'

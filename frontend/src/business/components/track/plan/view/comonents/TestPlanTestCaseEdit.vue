@@ -4,6 +4,7 @@
     :before-close="handleClose"
     :visible.sync="showDialog"
     :with-header="false"
+    :modal-append-to-body="false"
     size="100%"
     ref="drawer"
     v-loading="result.loading">

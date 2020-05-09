@@ -2,7 +2,8 @@
   <div v-loading="result.loading">
     <el-tabs type="border-card" :stretch="true">
       <el-tab-pane v-for="(item, key) in logContent" :key="key" :label="key" class="logging-content">
-        {{item}}
+        {{item.substring(0, 2048) }}...
+        <el-link type="primary" @click="downloadLogFile(item)">{{$t('load_test.download_log_file')}}</el-link>
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -23,6 +24,22 @@
         this.result = this.$get("/performance/report/log/" + this.id, res => {
           this.logContent = res.data;
         })
+      },
+      downloadLogFile(content) {
+        const filename = 'jmeter.log'
+        const blob = new Blob([content]);
+        if ("download" in document.createElement("a")) {
+          // 非IE下载
+          //  chrome/firefox
+          let aTag = document.createElement('a');
+          aTag.download = filename;
+          aTag.href = URL.createObjectURL(blob);
+          aTag.click();
+          URL.revokeObjectURL(aTag.href)
+        } else {
+          // IE10+下载
+          navigator.msSaveBlob(blob, filename);
+        }
       }
     },
     watch: {

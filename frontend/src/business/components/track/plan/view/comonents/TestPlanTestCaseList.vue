@@ -195,16 +195,14 @@
       },
       watch: {
         planId() {
-          this.getTestPlanById();
-          this.initTableData();
+          this.refreshTableAndPlan();
         },
         selectNodeIds() {
           this.search();
         }
       },
       mounted() {
-        this.getTestPlanById();
-        this.initTableData();
+        this.refreshTableAndPlan();
       },
       methods: {
         initTableData() {
@@ -223,6 +221,16 @@
           this.condition = {};
           this.selectIds.clear();
           this.$emit('refresh');
+        },
+        refreshTableAndPlan() {
+          this.getTestPlanById();
+          this.initTableData();
+        },
+        refreshTestPlanRecent() {
+          let param = {};
+          param.id = this.planId;
+          param.updateTime = Date.now();
+          this.$post('/test/plan/edit', param);
         },
         search() {
           this.initTableData();
@@ -298,6 +306,7 @@
           if (this.planId) {
             this.$post('/test/plan/get/' + this.planId, {}, response => {
               this.testPlan = response.data;
+              this.refreshTestPlanRecent();
             });
           }
         },
