@@ -4,6 +4,7 @@ import io.metersphere.base.domain.TestPlanTestCase;
 import io.metersphere.base.domain.TestPlanTestCaseExample;
 import io.metersphere.base.mapper.TestPlanTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
+import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.controller.request.testcase.TestPlanCaseBatchRequest;
@@ -24,10 +25,10 @@ public class TestPlanTestCaseService {
     TestPlanTestCaseMapper testPlanTestCaseMapper;
 
     @Resource
-    ExtTestCaseMapper extTestCaseMapper;
+    ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
 
     public List<TestPlanCaseDTO> getTestPlanCases(QueryTestPlanCaseRequest request) {
-        return extTestCaseMapper.getTestPlanTestCases(request);
+        return extTestPlanTestCaseMapper.list(request);
     }
 
     public void editTestCase(TestPlanTestCase testPlanTestCase) {

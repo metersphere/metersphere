@@ -22,6 +22,8 @@
 
     <el-table
       @select-all="handleSelectAll"
+      @filter-change="filter"
+      @sort-change="sort"
       @select="handleSelectionChange"
       row-key="id"
       :data="tableData">
@@ -37,7 +39,7 @@
       <el-table-column
         prop="priority"
         :filters="priorityFilters"
-        :filter-method="filter"
+        column-key="priority"
         :label="$t('test_track.case.priority')">
         <template v-slot:default="scope">
           <priority-table-item :value="scope.row.priority" ref="priority"/>
@@ -47,7 +49,7 @@
       <el-table-column
         prop="type"
         :filters="typeFilters"
-        :filter-method="filter"
+        column-key="type"
         :label="$t('test_track.case.type')"
         show-overflow-tooltip>
         <template v-slot:default="scope">
@@ -58,7 +60,7 @@
       <el-table-column
         prop="method"
         :filters="methodFilters"
-        :filter-method="filter"
+        column-key="method"
         :label="$t('test_track.case.method')"
         show-overflow-tooltip>
         <template v-slot:default="scope">
@@ -74,7 +76,7 @@
       <el-table-column
         prop="status"
         :filters="statusFilters"
-        :filter-method="filter"
+        column-key="status"
         :label="$t('test_track.plan_view.execute_result')">
         <template v-slot:default="scope">
           <status-table-item :value="scope.row.status"/>
@@ -125,7 +127,7 @@
   import NodeBreadcrumb from '../../../common/NodeBreadcrumb';
 
   import {TokenKey} from '../../../../../../common/js/constants';
-  import {tableFilter} from '../../../../../../common/js/utils';
+  import {humpToLine, tableFilter} from '../../../../../../common/js/utils';
   import PriorityTableItem from "../../../common/tableItems/planview/PriorityTableItem";
   import StatusTableItem from "../../../common/tableItems/planview/StatusTableItem";
   import TypeTableItem from "../../../common/tableItems/planview/TypeTableItem";
@@ -295,10 +297,10 @@
           }
           this.initTableData();
         },
-        filter(value, row, column) {
-          const property = column['property'];
-          return row[property] === value;
-        },
+        // filter(value, row, column) {
+        //   const property = column['property'];
+        //   return row[property] === value;
+        // },
         openTestReport() {
           this.$refs.testReporTtemplateList.open();
         },
@@ -316,6 +318,42 @@
             id = this.testPlan.reportId;
           }
           this.$refs.testCaseReportView.open(id);
+        },
+        filter(filters) {
+          if (!this.condition.filters) {
+            this.condition.filters = {};
+          }
+          for(let filter in filters) {
+            if (filters[filter] && filters[filter].length > 0) {
+              this.condition.filters[filter] = filters[filter];
+            } else {
+              this.condition.filters[filter] = null;
+            }
+          }
+          this.initTableData();
+        },
+        sort(column) {
+          column.prop = humpToLine(column.prop);
+          if (column.order == 'descending') {
+            column.order = 'desc';
+          } else {
+            column.order = 'asc';
+          }
+          if (!this.condition.orders) {
+            this.condition.orders = [];
+          }
+          let hasProp = false;
+          this.condition.orders.forEach(order => {
+            if (order.name == column.prop) {
+              order.type = column.order;
+              hasProp = true;
+              return;
+            }
+          });
+          if (!hasProp) {
+            this.condition.orders.push({name: column.prop, type: column.order});
+          }
+          this.initTableData();
         }
       }
     }

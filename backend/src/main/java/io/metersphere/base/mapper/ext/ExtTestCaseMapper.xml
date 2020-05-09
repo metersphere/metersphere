@@ -20,33 +20,8 @@
         ORDER BY test_case.update_time DESC
     </select>
 
-    <select id="getTestPlanTestCases" resultType="io.metersphere.dto.TestPlanCaseDTO">
-        select t1.id as id, t1.plan_id as planId, t1.executor as executor, t1.status as status, t1.results as results, t1.create_time as createTime, t1.update_time updateTime,
-        t2.id as caseId, t2.node_id as nodeId, t2.node_path as nodePath, t2.project_id as projectId, t2.name as name, t2.remark remark, t2.steps steps,
-        t2.type as type, t2.maintainer as maintainer, t2.priority as priority, t2.method as method, t2.prerequisite as prerequisite
-        from test_plan_test_case as t1
-        inner join test_case as t2 on
-        t1.plan_id = #{request.planId}
-        <if test="request.nodeIds != null and request.nodeIds.size() > 0">
-            and t2.node_id in
-            <foreach collection="request.nodeIds" open="(" close=")" separator="," item="nodeId">
-                #{nodeId}
-            </foreach>
-        </if>
-          and t1.case_id = t2.id
-        <if test="request.name != null">
-          and t2.name like CONCAT('%', #{request.name},'%')
-        </if>
-        <if test="request.executor != null">
-          and t1.executor = #{request.executor}
-        </if>
-    </select>
-
-
     <select id="list" resultType="io.metersphere.dto.TestCaseDTO">
-        select test_case.*, user.name as maintainerName
-        from test_case
-        left join user on test_case.maintainer = user.id
+        select test_case.* from test_case
         <where>
             <if test="request.name != null">
                 and test_case.name like CONCAT('%', #{request.name},'%')

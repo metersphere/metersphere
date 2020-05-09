@@ -15,7 +15,5 @@ public interface ExtTestCaseMapper {
 
     List<TestCase> getTestCaseNames(@Param("request") QueryTestCaseRequest request);
 
-    List<TestPlanCaseDTO> getTestPlanTestCases(@Param("request") QueryTestPlanCaseRequest request);
-
     List<TestCaseDTO> list(@Param("request") QueryTestCaseRequest request);
 }
