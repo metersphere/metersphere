@@ -57,6 +57,9 @@
                     #{nodeId}
                 </foreach>
             </if>
+            <if test="request.projectId != null">
+                and test_case.project_id = #{request.projectId}
+            </if>
             <if test="request.filters != null and request.filters.size() > 0">
                 <foreach collection="request.filters.entrySet()" index="key" item="values">
                     <if test="values != null and values.size() > 0">

@@ -43,7 +43,7 @@
                 <el-option
                   v-for="item in maintainerOptions"
                   :key="item.id"
-                  :label="item.id"
+                  :label="item.name"
                   :value="item.id">
                 </el-option>
               </el-select>

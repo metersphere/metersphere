@@ -1,7 +1,6 @@
 package io.metersphere.controller.request.testcase;
 
 import io.metersphere.base.domain.TestCase;
-import io.metersphere.controller.request.FilterRequest;
 import io.metersphere.controller.request.OrderRequest;
 import lombok.Data;
 
