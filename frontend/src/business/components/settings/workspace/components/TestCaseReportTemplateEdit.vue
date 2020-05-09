@@ -225,10 +225,10 @@
         buildParam(param) {
           let content = {};
           content.components = [];
+          content.customComponent = new Map();
           this.previews.forEach(item => {
             content.components.push(item.id);
             if (!this.componentMap.get(item.id)) {
-              content.customComponent = new Map();
               content.customComponent.set(item.id, {title: item.title, content: item.content})
             }
           });
