@@ -74,8 +74,7 @@
             width="150"
             :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <el-button @click="handleEdit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
-              <el-button @click="handleDelete(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
+              <ms-table-operator @editClick="handleEdit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
             </template>
           </el-table-column>
         </el-table>
@@ -89,9 +88,10 @@
 <script>
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableHeader from "../../common/components/MsTableHeader";
+  import MsTableOperator from "../../common/components/MsTableOperator";
 
   export default {
-    components: {MsTableHeader, MsTablePagination},
+    components: {MsTableHeader, MsTablePagination, MsTableOperator},
     data() {
       return {
         result: {},
