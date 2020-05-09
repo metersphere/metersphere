@@ -6,6 +6,10 @@ RUN mkdir -p /opt/apps
 
 ADD backend/target/backend-1.0.jar /opt/apps
 
+ADD backend/class/jmeter/apache-jmeter-5.2.1.zip /opt/jmeter
+
+RUN rm -rf /opt/jmeter && unzip -o apache-jmeter-5.2.1.zip && rm -rf /opt/jmeter/apache-jmeter-5.2.1.zip
+
 ENV JAVA_APP_JAR=/opt/apps/backend-1.0.jar
 
 ENV AB_OFF=true

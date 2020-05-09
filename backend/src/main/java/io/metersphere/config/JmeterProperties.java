@@ -10,11 +10,21 @@ public class JmeterProperties {
 
     private String image;
 
+    private String home;
+
     public String getImage() {
         return image;
     }
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public String getHome() {
+        return home;
+    }
+
+    public void setHome(String home) {
+        this.home = home;
     }
 }

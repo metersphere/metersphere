@@ -1,6 +1,8 @@
 package io.metersphere.api.jmeter;
 
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.config.JmeterProperties;
 import io.metersphere.i18n.Translator;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.util.JMeterUtils;
@@ -14,8 +16,10 @@ import java.lang.reflect.Field;
 public class JMeterService {
 
     public void run(InputStream is) {
-        JMeterUtils.loadJMeterProperties("/Users/q4speed/Downloads/apache-jmeter-5.2.1/bin/jmeter.properties");
-        JMeterUtils.setJMeterHome("/Users/q4speed/Downloads/apache-jmeter-5.2.1");
+        String JMETER_HOME = CommonBeanFactory.getBean(JmeterProperties.class).getHome();
+        String JMETER_PROPERTIES = JMETER_HOME + "/bin/jmeter.properties";
+        JMeterUtils.loadJMeterProperties(JMETER_PROPERTIES);
+        JMeterUtils.setJMeterHome(JMETER_HOME);
         try {
             Object scriptWrapper = SaveService.loadElement(is);
             HashTree testPlan = getHashTree(scriptWrapper);
