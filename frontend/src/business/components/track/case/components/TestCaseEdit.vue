@@ -2,7 +2,8 @@
 
   <div>
 
-    <el-dialog :title="operationType == 'edit' ? ( readOnly ? $t('test_track.case.view_case') : $t('test_track.case.edit_case')) : $t('test_track.case.create')" :visible.sync="dialogFormVisible" width="65%">
+    <el-dialog :title="operationType == 'edit' ? ( readOnly ? $t('test_track.case.view_case') : $t('test_track.case.edit_case')) : $t('test_track.case.create')"
+               :visible.sync="dialogFormVisible" width="65%" v-loading="result.loading">
 
       <el-form :model="form" :rules="rules" ref="caseFrom">
 
@@ -13,13 +14,12 @@
               :label="$t('test_track.case.name')"
               :label-width="formLabelWidth"
               prop="name">
-              <el-input :disabled="readOnly" v-model="form.name"></el-input>
+              <el-input class="case-name" :disabled="readOnly" v-model="form.name"></el-input>
             </el-form-item>
           </el-col>
 
           <el-col :span="11" :offset="2">
             <el-form-item :label="$t('test_track.case.module')" :label-width="formLabelWidth" prop="module">
-
               <el-select
                 v-model="form.module"
                 :disabled="readOnly"
@@ -173,6 +173,10 @@
       </el-form>
 
       <template v-slot:footer>
+        <el-switch
+          v-model="isCreateContinue"
+          active-text="保存并继续创建">
+        </el-switch>
         <ms-dialog-footer v-if="!readOnly"
           @cancel="dialogFormVisible = false"
           @confirm="saveCase"/>
@@ -196,6 +200,7 @@
     components: {MsDialogFooter},
     data() {
       return {
+        result: {},
         dialogFormVisible: false,
         form: {
           name: '',
@@ -227,7 +232,8 @@
           method :[{required: true, message: this.$t('test_track.case.input_method'), trigger: 'change'}]
         },
         formLabelWidth: "120px",
-        operationType: ''
+        operationType: '',
+        isCreateContinue: false
       };
     },
     props: {
@@ -318,8 +324,12 @@
               this.$warning(this.$t('test_track.case.input_name'));
               return;
             }
-            this.$post('/test/case/' + this.operationType, param, () => {
+            this.result = this.$post('/test/case/' + this.operationType, param, () => {
               this.$success(this.$t('commons.save_success'));
+              if (this.operationType == 'add' && this.isCreateContinue) {
+                this.form.name = '';
+                return;
+              }
               this.dialogFormVisible = false;
               this.$emit("refresh");
             });
@@ -392,6 +402,14 @@
   }
   .tb-edit .current-row .el-textarea+span {
     display: none;
+  }
+
+  .el-switch {
+    margin-bottom: 10px;
+  }
+
+  .case-name {
+    width: 194px;
   }
 
 </style>
