@@ -69,7 +69,7 @@
       </el-table-column>
 
       <el-table-column
-        prop="executor"
+        prop="executorName"
         :label="$t('test_track.plan_view.executor')">
       </el-table-column>
 
@@ -297,10 +297,6 @@
           }
           this.initTableData();
         },
-        // filter(value, row, column) {
-        //   const property = column['property'];
-        //   return row[property] === value;
-        // },
         openTestReport() {
           this.$refs.testReporTtemplateList.open();
         },
