@@ -226,7 +226,7 @@ export default {
         response_time: "响应时间",
         select_type: "请选择类型",
         select_subject: "请选择对象",
-        select_contains: "请选择条件",
+        select_condition: "请选择条件",
         contains: "包含",
         not_contains: "不包含",
         equals: "等于",
