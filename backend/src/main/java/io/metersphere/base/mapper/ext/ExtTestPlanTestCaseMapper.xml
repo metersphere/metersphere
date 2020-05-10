@@ -19,5 +19,41 @@
         and plan_id = #{planId};
     </select>
 
+    <select id="list" resultType="io.metersphere.dto.TestPlanCaseDTO">
+        select test_plan_test_case.*, test_case.*
+        from test_plan_test_case
+        inner join test_case on test_plan_test_case.case_id = test_case.id
+        <where>
+            <if test="request.name != null">
+                and test_plan_test_case.name like CONCAT('%', #{request.name},'%')
+            </if>
+            <if test="request.nodeIds != null and request.nodeIds.size() > 0">
+                and test_plan_test_case.node_id in
+                <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
+                    #{nodeId}
+                </foreach>
+            </if>
+            <if test="request.planId != null">
+                and test_plan_test_case.plan_id = #{request.planId}
+            </if>
+            <if test="request.filters != null and request.filters.size() > 0">
+                <foreach collection="request.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        and ${key} in
+                        <foreach collection="values" item="value" separator="," open="(" close=")">
+                            #{value}
+                        </foreach>
+                    </if>
+                </foreach>
+            </if>
+        </where>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                test_plan_test_case.${order.name} ${order.type}
+            </foreach>
+        </if>
+    </select>
+
 
 </mapper>

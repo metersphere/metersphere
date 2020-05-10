@@ -55,3 +55,8 @@ export function mapToJson(strMap){
   }
   return JSON.stringify(obj);
 }
+
+// 驼峰转换下划线
+export function humpToLine(name) {
+  return name.replace(/([A-Z])/g,"_$1").toLowerCase();
+}

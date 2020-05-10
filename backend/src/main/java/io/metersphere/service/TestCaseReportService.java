@@ -112,7 +112,7 @@ public class TestCaseReportService {
 
         QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
         request.setPlanId(planId);
-        List<TestPlanCaseDTO> testPlanTestCases = extTestCaseMapper.getTestPlanTestCases(request);
+        List<TestPlanCaseDTO> testPlanTestCases = extTestPlanTestCaseMapper.list(request);
 
         Map<String, TestCaseReportModuleResultDTO> moduleResultMap = new HashMap<>();
 

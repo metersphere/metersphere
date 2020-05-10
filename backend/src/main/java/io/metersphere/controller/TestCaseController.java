@@ -8,6 +8,7 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.testcase.QueryTestCaseRequest;
 import io.metersphere.controller.request.testcase.TestCaseBatchRequest;
 import io.metersphere.controller.request.testcase.TestPlanCaseBatchRequest;
+import io.metersphere.dto.TestCaseDTO;
 import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.service.TestCaseService;
 import io.metersphere.user.SessionUtils;
@@ -16,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.List;
 
 @RequestMapping("/test/case")
@@ -26,7 +28,7 @@ public class TestCaseController {
     TestCaseService testCaseService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
-    public Pager<List<TestCaseWithBLOBs>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
+    public Pager<List<TestCaseDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testCaseService.listTestCase(request));
     }
