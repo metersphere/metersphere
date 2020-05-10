@@ -311,6 +311,7 @@ public class TestCaseNodeService {
         } else {
             pid = insertTestCaseNode(nodeName, pNode == null ? null : pNode.getId(), projectId, level);
             pathMap.put(path.toString(), pid);
+            level++;
         }
 
         while (pathIterator.hasNext()) {
@@ -322,6 +323,7 @@ public class TestCaseNodeService {
             } else {
                 pid = insertTestCaseNode(nextNodeName, pid, projectId, level);
                 pathMap.put(path.toString(), pid);
+                level++;
             }
         }
     }

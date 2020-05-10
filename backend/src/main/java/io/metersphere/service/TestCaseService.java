@@ -12,6 +12,7 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.controller.request.testcase.QueryTestCaseRequest;
 import io.metersphere.controller.request.testcase.TestCaseBatchRequest;
 import io.metersphere.controller.request.testcase.TestPlanCaseBatchRequest;
+import io.metersphere.dto.TestCaseDTO;
 import io.metersphere.excel.domain.ExcelErrData;
 import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.excel.domain.TestCaseExcelData;
@@ -101,19 +102,8 @@ public class TestCaseService {
         return testCaseMapper.deleteByPrimaryKey(testCaseId);
     }
 
-    public List<TestCaseWithBLOBs> listTestCase(QueryTestCaseRequest request) {
-        TestCaseExample testCaseExample = new TestCaseExample();
-        TestCaseExample.Criteria criteria = testCaseExample.createCriteria();
-        if ( StringUtils.isNotBlank(request.getName()) ) {
-            criteria.andNameLike("%" + request.getName() + "%");
-        }
-        if ( StringUtils.isNotBlank(request.getProjectId()) ) {
-            criteria.andProjectIdEqualTo(request.getProjectId());
-        }
-        if ( request.getNodeIds() != null && request.getNodeIds().size() > 0) {
-            criteria.andNodeIdIn(request.getNodeIds());
-        }
-        return testCaseMapper.selectByExampleWithBLOBs(testCaseExample);
+    public List<TestCaseDTO> listTestCase(QueryTestCaseRequest request) {
+        return extTestCaseMapper.list(request);
     }
 
     /**

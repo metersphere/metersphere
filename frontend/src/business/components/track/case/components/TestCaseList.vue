@@ -22,6 +22,8 @@
 
       <el-table
         :data="tableData"
+        @sort-change="sort"
+        @filter-change="filter"
         @select-all="handleSelectAll"
         @select="handleSelectionChange"
         @row-click="showDetail"
@@ -37,7 +39,7 @@
         <el-table-column
           prop="priority"
           :filters="priorityFilters"
-          :filter-method="filter"
+          column-key="priority"
           :label="$t('test_track.case.priority')"
           show-overflow-tooltip>
           <template v-slot:default="scope">
@@ -47,7 +49,7 @@
         <el-table-column
           prop="type"
           :filters="typeFilters"
-          :filter-method="filter"
+          column-key="type"
           :label="$t('test_track.case.type')"
           show-overflow-tooltip>
           <template v-slot:default="scope">
@@ -56,8 +58,8 @@
         </el-table-column>
         <el-table-column
           prop="method"
+          column-key="method"
           :filters="methodFilters"
-          :filter-method="filter"
           :label="$t('test_track.case.method')"
           show-overflow-tooltip>
           <template v-slot:default="scope">
@@ -72,7 +74,7 @@
 
         <el-table-column
           prop="updateTime"
-          sortable
+          sortable="custom"
           :label="$t('commons.update_time')"
           show-overflow-tooltip>
           <template v-slot:default="scope">
@@ -113,6 +115,7 @@
   import MsTableOperator from "../../../common/components/MsTableOperator";
   import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
   import MsTableButton from "../../../common/components/MsTableButton";
+  import {humpToLine} from "../../../../../common/js/utils";
 
   export default {
     name: "TestCaseList",
@@ -222,9 +225,18 @@
           this.selectIds.clear();
           this.$emit('refresh');
         },
-        filter(value, row, column) {
-          const property = column['property'];
-          return row[property] === value;
+        filter(filters) {
+          if (!this.condition.filters) {
+            this.condition.filters = {};
+          }
+          for(let filter in filters) {
+            if (filters[filter] && filters[filter].length > 0) {
+              this.condition.filters[filter] = filters[filter];
+            } else {
+              this.condition.filters[filter] = null;
+            }
+          }
+          this.initTableData();
         },
         showDetail(row, event, column) {
           this.$emit('testCaseDetail', row);
@@ -250,6 +262,29 @@
         },
         moveToNode() {
           this.$emit('moveToNode', this.selectIds);
+        },
+        sort(column) {
+          column.prop = humpToLine(column.prop);
+          if (column.order == 'descending') {
+            column.order = 'desc';
+          } else {
+            column.order = 'asc';
+          }
+          if (!this.condition.orders) {
+            this.condition.orders = [];
+          }
+          let hasProp = false;
+          this.condition.orders.forEach(order => {
+            if (order.name == column.prop) {
+              order.type = column.order;
+              hasProp = true;
+              return;
+            }
+          });
+          if (!hasProp) {
+            this.condition.orders.push({name: column.prop, type: column.order});
+          }
+          this.initTableData();
         }
       }
     }
