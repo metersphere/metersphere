@@ -51,6 +51,8 @@ export default {
     'delete': 'Delete',
     'not_filled': 'Not filled',
     'search_by_name': 'Search by name',
+    'personal_information': 'Personal Information',
+    'exit_system': 'Exit System',
   },
   workspace: {
     'create': 'Create Workspace',
@@ -62,6 +64,8 @@ export default {
     'organization_name': 'Organization Name',
     'please_choose_organization': 'Please Choose Organization',
     'please_select_a_workspace_first': 'Please select a workspace first!',
+    'none': 'None Workspace',
+    'select': 'Select Workspace',
   },
   organization: {
     'create': 'Create',
@@ -71,6 +75,8 @@ export default {
     'select_organization': 'Please select organization',
     'search_by_name': 'Search by name',
     'special_characters_are_not_supported': 'Special characters are not supported',
+    'none': 'None Organization',
+    'select': 'Select Organization',
   },
   project: {
     'recent': 'Recent Projects',
