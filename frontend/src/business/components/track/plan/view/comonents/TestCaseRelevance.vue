@@ -5,7 +5,8 @@
     <el-dialog :title="$t('test_track.plan_view.relevance_test_case')"
                :visible.sync="dialogFormVisible"
                @close="close"
-               width="50%">
+               width="60%"
+               top="50px">
 
       <el-container class="main-content">
         <el-aside class="tree-aside" width="250px">
@@ -18,12 +19,13 @@
 
         <el-container>
           <el-main class="case-content" v-loading="result.loading">
-            <el-scrollbar>
+            <!-- <el-scrollbar> -->
                 <el-table
                   :data="testCases"
                   row-key="id"
                   @select-all="handleSelectAll"
                   @select="handleSelectionChange"
+                  height="70vh"
                   ref="table">
 
                   <el-table-column
@@ -38,7 +40,7 @@
                     </template>
                   </el-table-column>
                 </el-table>
-            </el-scrollbar>
+            <!-- </el-scrollbar> -->
           </el-main>
         </el-container>
       </el-container>
@@ -185,17 +187,18 @@
   }
 
   .case-content {
-    height: 500px;
+    padding: 0px 20px;
+    height: 100%;
     /*border: 1px solid #EBEEF5;*/
   }
-
+  .tree-aside {
+    min-height: 300px;
+    max-height: 100%;
+  }
   .main-content {
     min-height: 300px;
-    /*border: 1px solid #EBEEF5;*/
-  }
-
-  .el-scrollbar {
     height: 100%;
+    /*border: 1px solid #EBEEF5;*/
   }
 
 </style>
