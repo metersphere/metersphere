@@ -2,9 +2,11 @@ FROM registry.fit2cloud.com/metersphere/fabric8-java-alpine-openjdk8-jre
 
 MAINTAINER FIT2CLOUD <support@fit2cloud.com>
 
-RUN mkdir -p /opt/apps
+RUN mkdir -p /opt/apps && mkdir -p /opt/jmeter
 
 ADD backend/target/backend-1.0.jar /opt/apps
+
+ADD backend/target/classes/jmeter/ /opt/jmeter/
 
 ENV JAVA_APP_JAR=/opt/apps/backend-1.0.jar
 

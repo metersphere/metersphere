@@ -1,9 +1,11 @@
 package io.metersphere.dto;
 
 import io.metersphere.base.domain.TestCaseWithBLOBs;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class TestPlanCaseDTO extends TestCaseWithBLOBs {
 
     private String executor;

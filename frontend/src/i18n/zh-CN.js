@@ -241,6 +241,7 @@ export default {
         response_in_time: "响应时间在...毫秒以内",
       },
       extract: "提取",
+      extract_desc: "从响应中提取数据并将其存储在变量中。在后续请求中使用变量",
     }
   },
   api_report: {
