@@ -112,13 +112,13 @@
           <el-input v-model="memberForm.id" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.username')" prop="name">
-          <el-input v-model="memberForm.name" autocomplete="off"/>
+          <el-input v-model="memberForm.name" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.email')" prop="email">
-          <el-input v-model="memberForm.email" autocomplete="off"/>
+          <el-input v-model="memberForm.email" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.phone')" prop="phone">
-          <el-input v-model="memberForm.phone" autocomplete="off"/>
+          <el-input v-model="memberForm.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.role')" prop="roleIds">
           <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
