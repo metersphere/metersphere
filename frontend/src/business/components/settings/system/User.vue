@@ -1,11 +1,12 @@
 <template>
   <div v-loading="result.loading">
 
-    <el-card>
+     <el-card>
       <template v-slot:header>
         <ms-table-header :condition.sync="condition" @search="search" @create="create"
                          :create-tip="btnTips" :title="$t('commons.member')"/>
       </template>
+
       <el-table :data="tableData" style="width: 100%">
         <el-table-column type="selection" width="55"/>
         <el-table-column prop="id" label="ID"/>
@@ -31,15 +32,18 @@
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
             <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
+            <el-tooltip class="editpassword" effect="dark" :content="$t('member.edit_password')" placement="bottom" >
+              <el-button @click="editPassword(scope.row)" type="primary" icon="el-icon-s-tools" size="mini" circle/>
+            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
 
       <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
-
     </el-card>
 
+    <!--Create user-->
     <el-dialog :title="$t('user.create')" :visible.sync="createVisible" width="30%" @closed="handleClose"
                :destroy-on-close="true">
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule" ref="createUserForm">
@@ -66,6 +70,7 @@
       </template>
     </el-dialog>
 
+    <!--Modify user information in system settings-->
     <el-dialog :title="$t('user.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true"
                @close="handleClose">
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule" ref="updateUserForm">
@@ -81,10 +86,6 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off"/>
         </el-form-item>
-        <el-form-item :label="$t('commons.password')" prop="password">
-          <el-input v-model="form.password"   autocomplete="off" show-password/>
-        </el-form-item>
-        <!--<el-input placeholder="请输入密码" v-model="input" show-password></el-input>-->
       </el-form>
       <template v-slot:footer>
         <ms-dialog-footer
@@ -92,21 +93,24 @@
           @confirm="updateUser('updateUserForm')"/>
       </template>
     </el-dialog>
-    <!--<el-dialog
-      :title="$t('member.edit_password')"
-      :visible.sync="centerDialogVisible"
-      width="30%"
-      left>
-      <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
-        <el-form-item label="新密码" prop="newPass">
-          <el-input type="password" v-model="ruleForm.checkPass" autocomplete="off"></el-input>
+    Changing user password in system settings
+
+   <!--Changing user password in system settings-->
+    <el-dialog :title="$t('member.edit_password')" :visible.sync="editPasswordVisible" width="30%" left>
+      <el-form :model="ruleForm"  label-position="right" label-width="100px" size="small" :rules="rule" ref="editPasswordForm" class="demo-ruleForm">
+        <el-form-item :label="$t('member.new_password')" prop="newpassword">
+          <el-input type="password" v-model="ruleForm.newpassword" autocomplete="off" show-password></el-input>
+        </el-form-item>
+        <el-form-item >
+          <el-input v-model="ruleForm.id" autocomplete="off" :disabled="true" style="display:none"/>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-         <el-button @click="centerDialogVisible = false">取 消</el-button>
-         <el-button type="primary" @click="centerDialogVisible = false">确 定</el-button>
+        <ms-dialog-footer
+          @cancel="editPasswordVisible = false"
+          @confirm="editUserPassword('editPasswordForm')"/>
       </span>
-    </el-dialog>-->
+    </el-dialog>
 
   </div>
 </template>
@@ -123,14 +127,15 @@
     components: {MsCreateBox, MsTablePagination, MsTableHeader, MsTableOperator, MsDialogFooter},
     data() {
       return {
-        /*input:'',*/
         queryPath: '/user/special/list',
         deletePath: '/user/special/delete/',
         createPath: '/user/special/add',
         updatePath: '/user/special/update',
+        editPasswordPath:'/user/special/password',
         result: {},
         createVisible: false,
         updateVisible: false,
+        editPasswordVisible:false,
         multipleSelection: [],
         currentPage: 1,
         pageSize: 5,
@@ -139,6 +144,7 @@
         condition: {},
         tableData: [],
         form: {},
+        ruleForm: {},
         rule: {
           id: [
             {required: true, message: this.$t('user.input_id'), trigger: 'blur'},
@@ -179,6 +185,15 @@
               message: this.$t('member.password_format_is_incorrect'),
               trigger: 'blur'
             }
+          ],
+          newpassword: [
+           {required: true, message: this.$t('user.input_password'), trigger: 'blur'},
+           {
+             required:true,
+             pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,16}$/,
+             message: this.$t('member.password_format_is_incorrect'),
+             trigger: 'blur'
+           }
           ]
         }
       }
@@ -193,6 +208,10 @@
       edit(row) {
         this.updateVisible = true;
         this.form = Object.assign({}, row);
+      },
+      editPassword(row){
+        this.editPasswordVisible=true;
+        this.ruleForm = Object.assign({}, row);
       },
       del(row) {
         this.$confirm(this.$t('user.delete_confirm'), '', {
@@ -234,6 +253,20 @@
           }
         })
       },
+      editUserPassword(editPasswordForm){
+        this.$refs[editPasswordForm].validate(valide=>{
+          if(valide){
+            this.result = this.$post(this.editPasswordPath, this.ruleForm, response => {
+              this.$success(this.$t('commons.modify_success'));
+              this.editPasswordVisible = false;
+              this.search() ;
+              window.location.reload();
+            });
+          }else {
+            return false;
+          }
+        })
+      },
       search() {
         this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
           let data = response.data;
@@ -260,5 +293,7 @@
 </script>
 
 <style scoped>
-
+  .editpassword{
+    margin-left: 10px;
+  }
 </style>

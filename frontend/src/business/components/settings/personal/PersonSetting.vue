@@ -3,12 +3,13 @@
     <el-card>
       <template v-slot:header>
         <div>
-          <el-row type="flex" justify="space-between" align="middle">
+          <el-row type="flex" just ify="space-between" align="middle">
             <span class="title">{{$t('commons.personal_info')}}</span>
           </el-row>
         </div>
       </template>
 
+      <!--Personal information menu-->
       <el-table :data="tableData" style="width: 100%">
         <el-table-column prop="id" label="ID"/>
         <el-table-column prop="name" :label="$t('commons.username')" width="120"/>
@@ -30,7 +31,9 @@
           </template>
         </el-table-column>
       </el-table>
+    </el-card>
 
+      <!--Modify personal details-->
       <el-dialog :title="$t('member.modify_personal_info')" :visible.sync="updateVisible" width="30%"
                  :destroy-on-close="true" @close="handleClose">
         <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
@@ -55,12 +58,9 @@
         </template>
       </el-dialog>
 
-      <el-dialog
-        :title="$t('member.edit_password')"
-        :visible.sync="centerDialogVisible"
-        width="30%"
-        left>
-        <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+      <!--Change personal password-->
+      <el-dialog :title="$t('member.edit_password')" :visible.sync="editPasswordVisible" width="30%" left>
+        <el-form :model="ruleForm"  :rules="rules" ref="editPasswordForm" label-width="100px" class="demo-ruleForm">
           <el-form-item :label="$t('member.old_password')" prop="password">
             <el-input v-model="ruleForm.password" autocomplete="off" show-password/>
           </el-form-item>
@@ -69,12 +69,13 @@
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
-         <el-button @click="centerDialogVisible = false">取 消</el-button>
-         <el-button type="primary" @click="centerDialogVisible = false">确 定</el-button>
+           <ms-dialog-footer
+             @cancel="editPasswordVisible = false"
+             @confirm="updatePassword('editPasswordForm')"/>
         </span>
       </el-dialog>
 
-    </el-card>
+
   </div>
 </template>
 
@@ -84,21 +85,13 @@
 
   export default {
     data() {
-      var validatePass2 = (rule, value, callback) => {
-        if (value === '') {
-          callback(new Error('请再次输入密码'));
-        } else if (value == this.ruleForm.newpassword) {
-          callback(new Error('两次密码一致,请重新输入!'));
-        } else {
-          callback();
-        }
-      };
       return {
         result: {},
         updateVisible: false,
-        centerDialogVisible:false,
+        editPasswordVisible:false,
         tableData: [],
         updatePath: '/user/update/current',
+        updatePasswordPath:'/user/update/password',
         form: {},
         ruleForm:{},
         rule: {
@@ -131,7 +124,7 @@
           ],
         },
         rules:{
-          password: [
+          /*password: [
             {required: true, message: this.$t('user.input_password'), trigger: 'blur'},
             {
               required:true,
@@ -139,7 +132,7 @@
               message: this.$t('member.password_format_is_incorrect'),
               trigger: 'blur'
             }
-          ],
+          ],*/
           newpassword: [
             {required: true, message: this.$t('user.input_password'), trigger: 'blur'},
             {
@@ -148,7 +141,6 @@
               message: this.$t('member.password_format_is_incorrect'),
               trigger: 'blur'
             },
-            { validator: validatePass2, trigger: 'blur' }
           ]
         }
       }
@@ -168,7 +160,7 @@
         this.form = Object.assign({}, row);
       },
       editPassword(row){
-        this.centerDialogVisible = true;
+        this.editPasswordVisible = true;
       },
       updateUser(updateUserForm) {
         this.$refs[updateUserForm].validate(valide => {
@@ -185,6 +177,20 @@
           }
         })
       },
+      updatePassword(editPasswordForm){
+       this.$refs[editPasswordForm].validate(valide=>{
+           if(valide){
+             this.result = this.$post(this.updatePasswordPath, this.ruleForm, response => {
+               this.$success(this.$t('commons.modify_success'));
+               this.editPasswordVisible = false;
+               this.initTableData();
+               window.location.reload();
+             });
+           }else {
+             return false;
+           }
+       })
+      },
       initTableData() {
         this.result = this.$get("/user/info/" + this.currentUser().id, response => {
           let data = response.data;
@@ -195,6 +201,7 @@
       },
       handleClose() {
         this.form = {};
+        this.ruleForm = {};
       }
     }
   }

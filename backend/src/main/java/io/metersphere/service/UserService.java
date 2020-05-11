@@ -12,6 +12,7 @@ import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.dto.UserDTO;
+import io.metersphere.dto.UserPassDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.user.SessionUser;
 import io.metersphere.user.SessionUtils;
@@ -256,4 +257,42 @@ public class UserService {
             SessionUtils.getUser().setLanguage(lang);
         }
     }
+
+    /*修改当前用户用户密码*/
+    private User getUserPassDTO(UserPassDTO UserPassDTO) {
+        if (SessionUtils.getUser() != null) {
+            User user = userMapper.selectByPrimaryKey(SessionUtils.getUser().getId());
+            String pwd = user.getPassword();
+            String prepwd = CodingUtil.md5(UserPassDTO.getPassword(),"utf-8");
+            String newped = UserPassDTO.getNewpassword();
+            if (StringUtils.isNotBlank(prepwd)) {
+                if (prepwd.trim().equals(pwd.trim())) {
+                    user.setPassword(CodingUtil.md5(newped));
+                    user.setUpdateTime(System.currentTimeMillis());
+                    return user;
+                }
+            }
+            MSException.throwException("密码修改失败");
+        }
+        return null;
+    }
+
+    public int updatePassword(UserPassDTO UserPassDTO) {
+        User user = getUserPassDTO(UserPassDTO);
+        return userMapper.updatePassword(user);
+    }
+    /*管理员修改用户密码*/
+    private User getUserDTO(UserPassDTO UserPassDTO){
+        User user= userMapper.selectByPrimaryKey(UserPassDTO.getId());
+        String newped = UserPassDTO.getNewpassword();
+        user.setPassword(CodingUtil.md5(newped));
+        user.setUpdateTime(System.currentTimeMillis());
+        return user;
+    }
+    public int updateUserPassword(UserPassDTO UserPassDTO){
+        User user=getUserDTO(UserPassDTO);
+        int i=userMapper.updatePassword(user);
+        return i;
+    }
+
 }

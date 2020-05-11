@@ -97,7 +97,6 @@ export default {
     'mobile_number_format_is_incorrect': 'Mobile number format is incorrect',
     'email_format_is_incorrect': 'Email format is incorrect',
     'password_format_is_incorrect': 'Password format is incorrect (At least 8-16 characters, at least 1 uppercase letter, 1 lowercase letter and 1 number)',
-    'password_format_is_incorrect':'Password format is incorrect (At least 8-16 characters, at least 1 uppercase letter, 1 lowercase letter and 1 number)',
     'old_password':'Old Password',
     'new_password':'New Password',
   },
