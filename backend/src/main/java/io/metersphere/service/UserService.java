@@ -53,7 +53,7 @@ public class UserService {
         User user1 = userMapper.selectByPrimaryKey(id);
         if (user1 != null) {
             MSException.throwException(Translator.get("user_id_already_exists"));
-        }else{
+        } else {
             createUser(user);
         }
         return getUserDTO(user.getId());
