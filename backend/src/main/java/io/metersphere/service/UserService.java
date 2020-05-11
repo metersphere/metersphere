@@ -52,9 +52,10 @@ public class UserService {
         String id = user.getId();
         User user1 = userMapper.selectByPrimaryKey(id);
         if (user1 != null) {
-            MSException.throwException("user_id_already_exists");
+            MSException.throwException(Translator.get("user_id_already_exists"));
+        }else{
+            createUser(user);
         }
-        createUser(user);
         return getUserDTO(user.getId());
     }
 
@@ -299,7 +300,7 @@ public class UserService {
                     return user;
                 }
             }
-            MSException.throwException("password_modification_failed");
+            MSException.throwException(Translator.get("password_modification_failed"));
         }
         return null;
     }
