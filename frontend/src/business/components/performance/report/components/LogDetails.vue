@@ -1,8 +1,8 @@
 <template>
   <div v-loading="result.loading">
     <el-tabs type="border-card" :stretch="true">
-      <el-tab-pane v-for="(item, key) in logContent" :key="key" :label="key" class="logging-content">
-        {{item.substring(0, 2048) }}...
+      <el-tab-pane v-for="item in logContent" :key="item.id" :label="item.resourceName" class="logging-content">
+        {{item.content}}...
         <el-link type="primary" @click="downloadLogFile(item)">{{$t('load_test.download_log_file')}}</el-link>
       </el-tab-pane>
     </el-tabs>
@@ -25,21 +25,28 @@
           this.logContent = res.data;
         })
       },
-      downloadLogFile(content) {
-        const filename = 'jmeter.log'
-        const blob = new Blob([content]);
-        if ("download" in document.createElement("a")) {
-          // 非IE下载
-          //  chrome/firefox
-          let aTag = document.createElement('a');
-          aTag.download = filename;
-          aTag.href = URL.createObjectURL(blob);
-          aTag.click();
-          URL.revokeObjectURL(aTag.href)
-        } else {
-          // IE10+下载
-          navigator.msSaveBlob(blob, filename);
-        }
+      downloadLogFile(item) {
+        let config = {
+          url: '/performance/report/log/download/' + item.id,
+          method: 'get',
+          responseType: 'blob'
+        };
+        this.result = this.$request(config).then(response => {
+          const filename = 'jmeter.log'
+          const blob = new Blob([response.data]);
+          if ("download" in document.createElement("a")) {
+            // 非IE下载
+            //  chrome/firefox
+            let aTag = document.createElement('a');
+            aTag.download = filename;
+            aTag.href = URL.createObjectURL(blob);
+            aTag.click();
+            URL.revokeObjectURL(aTag.href)
+          } else {
+            // IE10+下载
+            navigator.msSaveBlob(blob, filename);
+          }
+        });
       }
     },
     watch: {
