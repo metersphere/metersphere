@@ -1,7 +1,7 @@
 <template>
   <div class="container" v-loading="result.loading">
     <div class="main-content">
-      <el-card>
+      <el-card class="table-card">
         <template v-slot:header>
           <ms-table-header :condition.sync="condition" @search="search" :title="$t('commons.test')"
                            @create="create" :createTip="$t('load_test.create')"/>
