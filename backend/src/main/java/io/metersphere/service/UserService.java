@@ -277,12 +277,13 @@ public class UserService {
         userMapper.updateByPrimaryKeySelective(newUser);
     }
 
+
     /*修改当前用户用户密码*/
     private User updateCurrentUserPwd(EditPassWordRequest request) {
         if (SessionUtils.getUser() != null) {
             User user = userMapper.selectByPrimaryKey(SessionUtils.getUser().getId());
             String pwd = user.getPassword();
-            String prepwd = CodingUtil.md5(request.getPassword(),"utf-8");
+            String prepwd = CodingUtil.md5(request.getPassword(), "utf-8");
             String newped = request.getNewpassword();
             if (StringUtils.isNotBlank(prepwd)) {
                 if (prepwd.trim().equals(pwd.trim())) {
@@ -300,16 +301,18 @@ public class UserService {
         User user = updateCurrentUserPwd(request);
         return extUserMapper.updatePassword(user);
     }
+
     /*管理员修改用户密码*/
-    private User updateUserPwd(EditPassWordRequest request){
-        User user= userMapper.selectByPrimaryKey(request.getId());
+    private User updateUserPwd(EditPassWordRequest request) {
+        User user = userMapper.selectByPrimaryKey(request.getId());
         String newped = request.getNewpassword();
         user.setPassword(CodingUtil.md5(newped));
         user.setUpdateTime(System.currentTimeMillis());
         return user;
     }
-    public int updateUserPassword(EditPassWordRequest request){
-        User user=updateUserPwd(request);
+
+    public int updateUserPassword(EditPassWordRequest request) {
+        User user = updateUserPwd(request);
         return extUserMapper.updatePassword(user);
     }
 
