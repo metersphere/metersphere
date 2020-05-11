@@ -2,8 +2,8 @@
   <div class="container" v-loading="result.loading">
     <div class="main-content">
       <el-card>
-        <section class="report-container">
-          <header class="report-header" v-if="this.report.testId">
+        <section class="report-container" v-if="this.report.testId">
+          <header class="report-header">
             <span>{{report.projectName}} / </span>
             <router-link :to="path">{{report.testName}}</router-link>
           </header>
