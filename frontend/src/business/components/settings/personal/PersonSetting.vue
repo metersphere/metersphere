@@ -82,6 +82,7 @@
 <script>
   import {TokenKey} from "../../../../common/js/constants";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
+  import {getCurrentUser} from "../../../../common/js/utils";
 
   export default {
     data() {
@@ -152,8 +153,7 @@
     },
     methods: {
       currentUser: () => {
-        let user = localStorage.getItem(TokenKey);
-        return JSON.parse(user);
+        return getCurrentUser();
       },
       edit(row) {
         this.updateVisible = true;

@@ -6,7 +6,7 @@
 </template>
 
 <script>
-  import {TokenKey} from "../../../common/js/constants";
+  import {getCurrentUser} from "../../../common/js/utils";
 
   export default {
     name: "MsCurrentUser",
@@ -30,8 +30,7 @@
     },
     computed: {
       currentUser: () => {
-        let user = localStorage.getItem(TokenKey);
-        return JSON.parse(user);
+        return getCurrentUser();
       }
     }
   }

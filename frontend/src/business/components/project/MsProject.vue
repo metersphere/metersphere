@@ -44,11 +44,11 @@
 <script>
   import MsCreateBox from "../settings/CreateBox";
   import {Message} from "element-ui";
-  import {TokenKey} from "../../../common/js/constants";
   import MsTablePagination from "../common/pagination/TablePagination";
   import MsTableHeader from "../common/components/MsTableHeader";
   import MsTableOperator from "../common/components/MsTableOperator";
   import MsDialogFooter from "../common/components/MsDialogFooter";
+  import {getCurrentUser} from "../../../common/js/utils";
 
   export default {
     name: "MsProject",
@@ -97,8 +97,7 @@
     },
     computed: {
       currentUser: () => {
-        let user = localStorage.getItem(TokenKey);
-        return JSON.parse(user);
+        return getCurrentUser();
       }
     },
     destroyed() {
