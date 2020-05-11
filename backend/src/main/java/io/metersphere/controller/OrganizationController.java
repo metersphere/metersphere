@@ -9,6 +9,7 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.OrganizationRequest;
 import io.metersphere.dto.OrganizationMemberDTO;
 import io.metersphere.service.OrganizationService;
+import io.metersphere.service.UserService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,8 @@ public class OrganizationController {
 
     @Resource
     private OrganizationService organizationService;
+    @Resource
+    private UserService userService;
 
     @PostMapping("/add")
     @RequiresRoles(RoleConstants.ADMIN)
@@ -45,6 +48,7 @@ public class OrganizationController {
     @GetMapping("/delete/{organizationId}")
     @RequiresRoles(RoleConstants.ADMIN)
     public void deleteOrganization(@PathVariable(value = "organizationId") String organizationId) {
+        userService.refreshSessionUser("organization", organizationId);
         organizationService.deleteOrganization(organizationId);
     }
 

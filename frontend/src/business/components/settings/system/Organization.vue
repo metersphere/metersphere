@@ -175,6 +175,8 @@
   import MsRolesTag from "../../common/components/MsRolesTag";
   import MsTableOperator from "../../common/components/MsTableOperator";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
+  import {getCurrentOrganizationId, getCurrentUser, refreshSessionAndCookies} from "../../../../common/js/utils";
+  import {DEFAULT, ORGANIZATION} from "../../../../common/js/constants";
 
   export default {
     name: "MsOrganization",
@@ -311,6 +313,12 @@
           type: 'warning'
         }).then(() => {
           this.result = this.$get(this.deletePath + row.id, () => {
+            let lastOrganizationId = getCurrentOrganizationId();
+            let sourceId = row.id;
+            if (lastOrganizationId === sourceId) {
+              let sign = DEFAULT;
+              refreshSessionAndCookies(sign, sourceId);
+            }
             this.$success(this.$t('commons.delete_success'));
             this.initTableData();
           });
@@ -325,6 +333,13 @@
           type: 'warning'
         }).then(() => {
           this.result = this.$get('/user/special/org/member/delete/' + this.currentRow.id + '/' + row.id, () => {
+            let sourceId = this.currentRow.id;
+            let currentUser = getCurrentUser();
+            let userId = row.id;
+            if (currentUser.id === userId) {
+              let sign = ORGANIZATION;
+              refreshSessionAndCookies(sign, sourceId);
+            }
             this.$success(this.$t('commons.delete_success'))
             this.cellClick(this.currentRow);
           });
@@ -395,6 +410,9 @@
               organizationId: this.currentRow.id
             };
             this.result = this.$post("user/special/org/member/add", param, () => {
+              let sign = "other";
+              let sourceId = this.currentRow.id;
+              refreshSessionAndCookies(sign, sourceId);
               this.cellClick(this.currentRow);
               this.dialogOrgMemberAddVisible = false;
             })

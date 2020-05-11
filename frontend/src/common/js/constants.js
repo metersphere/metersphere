@@ -8,3 +8,8 @@ export const ROLE_TEST_VIEWER = 'test_viewer';
 
 export const WORKSPACE_ID = 'workspace_id';
 export const CURRENT_PROJECT = 'current_project';
+
+export const REFRESH_SESSION_USER_URL = 'user/refresh';
+export const WORKSPACE = 'workspace';
+export const ORGANIZATION = 'organization';
+export const DEFAULT = 'default';

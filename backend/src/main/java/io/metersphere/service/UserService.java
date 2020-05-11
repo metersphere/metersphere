@@ -256,4 +256,23 @@ public class UserService {
             SessionUtils.getUser().setLanguage(lang);
         }
     }
+
+    public void refreshSessionUser(String sign, String sourceId) {
+        SessionUser sessionUser = SessionUtils.getUser();
+        // 获取最新UserDTO
+        UserDTO user = getUserDTO(sessionUser.getId());
+        User newUser = new User();
+        if (StringUtils.equals("organization", sign) && StringUtils.equals(sourceId, user.getLastOrganizationId())) {
+            user.setLastOrganizationId("");
+            user.setLastWorkspaceId("");
+        }
+        if (StringUtils.equals("workspace", sign) && StringUtils.equals(sourceId, user.getLastWorkspaceId())) {
+            user.setLastWorkspaceId("");
+        }
+
+        BeanUtils.copyProperties(user, newUser);
+
+        SessionUtils.putUser(SessionUser.fromUser(user));
+        userMapper.updateByPrimaryKeySelective(newUser);
+    }
 }
