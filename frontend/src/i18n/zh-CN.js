@@ -67,7 +67,7 @@ export default {
     'please_choose_organization': '请选择组织',
     'please_select_a_workspace_first': '请先选择工作空间！',
     'none': '无工作空间',
-    'select': '选择工作区间',
+    'select': '选择工作空间',
   },
   organization: {
     'create': '创建组织',
