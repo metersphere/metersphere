@@ -109,12 +109,8 @@ public class OrganizationService {
     }
 
     public void updateOrgMember(OrganizationMemberDTO memberDTO) {
-        User user = new User();
-        BeanUtils.copyProperties(memberDTO, user);
-        userMapper.updateByPrimaryKeySelective(user);
-        //
         String orgId = memberDTO.getOrganizationId();
-        String userId = user.getId();
+        String userId = memberDTO.getId();
         // 已有角色
         List<Role> memberRoles = extUserRoleMapper.getOrganizationMemberRoles(orgId, userId);
         // 修改后的角色

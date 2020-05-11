@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
@@ -200,12 +201,8 @@ public class WorkspaceService {
     }
 
     public void updateWorkspaceMember(WorkspaceMemberDTO memberDTO) {
-        User user = new User();
-        BeanUtils.copyProperties(memberDTO, user);
-        userMapper.updateByPrimaryKeySelective(user);
-        //
         String workspaceId = memberDTO.getWorkspaceId();
-        String userId = user.getId();
+        String userId = memberDTO.getId();
         // 已有角色
         List<Role> memberRoles = extUserRoleMapper.getWorkspaceMemberRoles(workspaceId, userId);
         // 修改后的角色
@@ -234,11 +231,11 @@ public class WorkspaceService {
         }
     }
 
-    public Integer checkSourceRole(String orgId, String userId, String roleId) {
-        return extOrganizationMapper.checkSourceRole(orgId, userId, roleId);
+    public Integer checkSourceRole(String workspaceId, String userId, String roleId) {
+        return extOrganizationMapper.checkSourceRole(workspaceId, userId, roleId);
     }
 
-    public void updateWorkspacebyAdmin(Workspace workspace) {
+    public void updateWorkspaceByAdmin(Workspace workspace) {
         workspace.setCreateTime(null);
         workspace.setUpdateTime(System.currentTimeMillis());
         workspaceMapper.updateByPrimaryKeySelective(workspace);

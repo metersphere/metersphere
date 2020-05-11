@@ -53,7 +53,7 @@ public class WorkspaceController {
     @PostMapping("special/update")
     @RequiresRoles(RoleConstants.ADMIN)
     public void updateWorkspaceByAdmin(@RequestBody Workspace workspace) {
-        workspaceService.updateWorkspacebyAdmin(workspace);
+        workspaceService.updateWorkspaceByAdmin(workspace);
     }
 
     @GetMapping("special/delete/{workspaceId}")
