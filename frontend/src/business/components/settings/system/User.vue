@@ -93,8 +93,6 @@
           @confirm="updateUser('updateUserForm')"/>
       </template>
     </el-dialog>
-    Changing user password in system settings
-
    <!--Changing user password in system settings-->
     <el-dialog :title="$t('member.edit_password')" :visible.sync="editPasswordVisible" width="30%" left>
       <el-form :model="ruleForm"  label-position="right" label-width="100px" size="small" :rules="rule" ref="editPasswordForm" class="demo-ruleForm">

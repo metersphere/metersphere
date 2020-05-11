@@ -48,11 +48,18 @@ public class UserService {
 
     public UserDTO insert(User user) {
         checkUserParam(user);
+        //
+        String id = user.getId();
+        User user1 = userMapper.selectByPrimaryKey(id);
+        if (user1 != null) {
+            MSException.throwException("user_id_already_exists");
+        }
         createUser(user);
         return getUserDTO(user.getId());
     }
 
     private void checkUserParam(User user) {
+
         if (StringUtils.isBlank(user.getName())) {
             MSException.throwException(Translator.get("user_name_is_null"));
         }
@@ -292,7 +299,7 @@ public class UserService {
                     return user;
                 }
             }
-            MSException.throwException("密码修改失败");
+            MSException.throwException("password_modification_failed");
         }
         return null;
     }
