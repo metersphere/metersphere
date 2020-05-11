@@ -8,11 +8,11 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CodingUtil;
 import io.metersphere.controller.request.UserRequest;
 import io.metersphere.controller.request.member.AddMemberRequest;
+import io.metersphere.controller.request.member.EditPassWordRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.dto.UserDTO;
-import io.metersphere.dto.UserPassDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.user.SessionUser;
 import io.metersphere.user.SessionUtils;
@@ -259,12 +259,12 @@ public class UserService {
     }
 
     /*修改当前用户用户密码*/
-    private User getUserPassDTO(UserPassDTO UserPassDTO) {
+    private User updateCurrentUserPwd(EditPassWordRequest request) {
         if (SessionUtils.getUser() != null) {
             User user = userMapper.selectByPrimaryKey(SessionUtils.getUser().getId());
             String pwd = user.getPassword();
-            String prepwd = CodingUtil.md5(UserPassDTO.getPassword(),"utf-8");
-            String newped = UserPassDTO.getNewpassword();
+            String prepwd = CodingUtil.md5(request.getPassword(),"utf-8");
+            String newped = request.getNewpassword();
             if (StringUtils.isNotBlank(prepwd)) {
                 if (prepwd.trim().equals(pwd.trim())) {
                     user.setPassword(CodingUtil.md5(newped));
@@ -277,22 +277,21 @@ public class UserService {
         return null;
     }
 
-    public int updatePassword(UserPassDTO UserPassDTO) {
-        User user = getUserPassDTO(UserPassDTO);
-        return userMapper.updatePassword(user);
+    public int updateCurrentUserPassword(EditPassWordRequest request) {
+        User user = updateCurrentUserPwd(request);
+        return extUserMapper.updatePassword(user);
     }
     /*管理员修改用户密码*/
-    private User getUserDTO(UserPassDTO UserPassDTO){
-        User user= userMapper.selectByPrimaryKey(UserPassDTO.getId());
-        String newped = UserPassDTO.getNewpassword();
+    private User updateUserPwd(EditPassWordRequest request){
+        User user= userMapper.selectByPrimaryKey(request.getId());
+        String newped = request.getNewpassword();
         user.setPassword(CodingUtil.md5(newped));
         user.setUpdateTime(System.currentTimeMillis());
         return user;
     }
-    public int updateUserPassword(UserPassDTO UserPassDTO){
-        User user=getUserDTO(UserPassDTO);
-        int i=userMapper.updatePassword(user);
-        return i;
+    public int updateUserPassword(EditPassWordRequest request){
+        User user=updateUserPwd(request);
+        return extUserMapper.updatePassword(user);
     }
 
 }

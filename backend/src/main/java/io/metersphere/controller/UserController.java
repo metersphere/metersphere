@@ -10,10 +10,10 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.UserRequest;
 import io.metersphere.controller.request.member.AddMemberRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
+import io.metersphere.controller.request.member.EditPassWordRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.dto.UserDTO;
-import io.metersphere.dto.UserPassDTO;
 import io.metersphere.service.OrganizationService;
 import io.metersphere.service.UserService;
 import io.metersphere.service.WorkspaceService;
@@ -246,13 +246,13 @@ public class UserController {
     * 修改当前用户密码
     * */
     @PostMapping("/update/password")
-    public int updateCurrentUserPassword(@RequestBody UserPassDTO UserPassDTO) {
-        return userService.updatePassword(UserPassDTO);
+    public int updateCurrentUserPassword(@RequestBody EditPassWordRequest request) {
+        return userService.updateCurrentUserPassword(request);
     }
     /*管理员修改用户密码*/
     @PostMapping("/special/password")
-    public int updateUserPassword(@RequestBody UserPassDTO UserPassDTO) {
-        return userService.updateUserPassword(UserPassDTO);
+    public int updateUserPassword(@RequestBody EditPassWordRequest request) {
+        return userService.updateUserPassword(request);
     }
 
 }
