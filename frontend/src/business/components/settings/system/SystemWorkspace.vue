@@ -195,6 +195,8 @@
   import MsRolesTag from "../../common/components/MsRolesTag";
   import MsTableOperator from "../../common/components/MsTableOperator";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
+  import {getCurrentUser, getCurrentWorkspaceId, refreshSessionAndCookies} from "../../../../common/js/utils";
+  import {DEFAULT, WORKSPACE} from "../../../../common/js/constants";
 
   export default {
     name: "MsSystemWorkspace",
@@ -307,6 +309,12 @@
           type: 'warning'
         }).then(() => {
           this.$get('/workspace/special/delete/' + row.id, () => {
+            let lastWorkspaceId = getCurrentWorkspaceId();
+            let sourceId = row.id;
+            if (lastWorkspaceId === sourceId) {
+              let sign = DEFAULT;
+              refreshSessionAndCookies(sign, sourceId);
+            }
             Message.success(this.$t('commons.delete_success'));
             this.list();
           });
@@ -374,6 +382,13 @@
           type: 'warning'
         }).then(() => {
           this.result = this.$get('/user/special/ws/member/delete/' + this.currentWorkspaceRow.id + '/' + row.id, () => {
+            let sourceId = this.currentWorkspaceRow.id;
+            let userId = row.id;
+            let user = getCurrentUser();
+            if (user.id === userId) {
+              let sign = WORKSPACE;
+              refreshSessionAndCookies(sign, sourceId);
+            }
             this.$success(this.$t('commons.delete_success'));
             this.cellClick(this.currentWorkspaceRow);
           });

@@ -10,12 +10,12 @@ import io.metersphere.controller.request.WorkspaceRequest;
 import io.metersphere.dto.WorkspaceDTO;
 import io.metersphere.dto.WorkspaceMemberDTO;
 import io.metersphere.service.OrganizationService;
+import io.metersphere.service.UserService;
 import io.metersphere.service.WorkspaceService;
 import io.metersphere.user.SessionUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
-
 import javax.annotation.Resource;
 import java.util.List;
 
@@ -26,6 +26,8 @@ public class WorkspaceController {
     private WorkspaceService workspaceService;
     @Resource
     private OrganizationService organizationService;
+    @Resource
+    private UserService userService;
 
     @PostMapping("add")
     @RequiresRoles(RoleConstants.ORG_ADMIN)
@@ -57,6 +59,7 @@ public class WorkspaceController {
     @GetMapping("special/delete/{workspaceId}")
     @RequiresRoles(RoleConstants.ADMIN)
     public void deleteWorkspaceByAdmin(@PathVariable String workspaceId) {
+        userService.refreshSessionUser("workspace", workspaceId);
         workspaceService.deleteWorkspace(workspaceId);
     }
 
@@ -64,6 +67,7 @@ public class WorkspaceController {
     @RequiresRoles(RoleConstants.ORG_ADMIN)
     public void deleteWorkspace(@PathVariable String workspaceId) {
         workspaceService.checkWorkspaceOwnerByOrgAdmin(workspaceId);
+        userService.refreshSessionUser("workspace", workspaceId);
         workspaceService.deleteWorkspace(workspaceId);
     }
 

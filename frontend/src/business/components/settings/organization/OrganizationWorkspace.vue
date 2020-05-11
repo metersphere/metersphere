@@ -145,12 +145,13 @@
 <script>
   import MsCreateBox from "../CreateBox";
   import {Message} from "element-ui";
-  import {TokenKey} from "../../../../common/js/constants";
+  import {DEFAULT, TokenKey} from "../../../../common/js/constants";
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableHeader from "../../common/components/MsTableHeader";
   import MsRolesTag from "../../common/components/MsRolesTag";
   import MsTableOperator from "../../common/components/MsTableOperator";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
+  import {getCurrentWorkspaceId, refreshSessionAndCookies} from "../../../../common/js/utils";
 
   export default {
     name: "MsOrganizationWorkspace",
@@ -197,6 +198,12 @@
           type: 'warning'
         }).then(() => {
           this.$get('/workspace/delete/' + row.id, () => {
+            let lastWorkspaceId = getCurrentWorkspaceId();
+            let sourceId = row.id;
+            if (lastWorkspaceId === sourceId) {
+              let sign = DEFAULT;
+              refreshSessionAndCookies(sign, sourceId);
+            }
             this.$success(this.$t('commons.delete_success'));
             this.list();
           });
