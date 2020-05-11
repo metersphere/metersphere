@@ -13,8 +13,8 @@ const messages = {
     ...enLocale
   },
   'zh_CN': {
-    ...zh_CN,
-    ...zh_CNLocale
+    ...zh_CNLocale,
+    ...zh_CN
   },
   'zh_TW': {
     ...zh_TWLocale
@@ -38,7 +38,8 @@ function setI18nLanguage(lang) {
 Vue.prototype.$setLang = function (lang) {
   if (i18n.locale !== lang) {
     if (!loadedLanguages.includes(lang)) {
-      return import(`./${lang}`).then(response => {
+      let file = lang.replace("_", "-");
+      return import(`./${file}`).then(response => {
         i18n.mergeLocaleMessage(lang, response.default);
         loadedLanguages.push(lang);
         return setI18nLanguage(lang)

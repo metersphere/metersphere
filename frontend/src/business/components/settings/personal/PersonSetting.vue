@@ -1,15 +1,15 @@
 <template>
   <div v-loading="result.loading">
     <el-card>
-
       <template v-slot:header>
         <div>
-          <el-row type="flex" justify="space-between" align="middle">
+          <el-row type="flex" just ify="space-between" align="middle">
             <span class="title">{{$t('commons.personal_info')}}</span>
           </el-row>
         </div>
       </template>
 
+      <!--Personal information menu-->
       <el-table :data="tableData" style="width: 100%">
         <el-table-column prop="id" label="ID"/>
         <el-table-column prop="name" :label="$t('commons.username')" width="120"/>
@@ -22,11 +22,18 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
+            <el-tooltip class="item" effect="dark" :content="$t('member.edit_information')" placement="bottom" >
+              <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
+            </el-tooltip>
+            <el-tooltip class="item" effect="dark" :content="$t('member.edit_password')" placement="bottom" >
+              <el-button @click="editPassword(scope.row)" type="primary" icon="el-icon-s-tools" size="mini" circle/>
+            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
+    </el-card>
 
+      <!--Modify personal details-->
       <el-dialog :title="$t('member.modify_personal_info')" :visible.sync="updateVisible" width="30%"
                  :destroy-on-close="true" @close="handleClose">
         <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
@@ -43,9 +50,6 @@
           <el-form-item :label="$t('commons.phone')" prop="phone">
             <el-input v-model="form.phone" autocomplete="off"/>
           </el-form-item>
-          <el-form-item :label="$t('commons.password')" prop="password">
-            <el-input v-model="form.password" autocomplete="off" show-password/>
-          </el-form-item>
         </el-form>
         <template v-slot:footer>
           <ms-dialog-footer
@@ -54,7 +58,24 @@
         </template>
       </el-dialog>
 
-    </el-card>
+      <!--Change personal password-->
+      <el-dialog :title="$t('member.edit_password')" :visible.sync="editPasswordVisible" width="30%" left>
+        <el-form :model="ruleForm"  :rules="rules" ref="editPasswordForm" label-width="100px" class="demo-ruleForm">
+          <el-form-item :label="$t('member.old_password')" prop="password">
+            <el-input v-model="ruleForm.password" autocomplete="off" show-password/>
+          </el-form-item>
+          <el-form-item :label="$t('member.new_password')" prop="newpassword">
+            <el-input v-model="ruleForm.newpassword" autocomplete="off" show-password/>
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+           <ms-dialog-footer
+             @cancel="editPasswordVisible = false"
+             @confirm="updatePassword('editPasswordForm')"/>
+        </span>
+      </el-dialog>
+
+
   </div>
 </template>
 
@@ -67,9 +88,12 @@
       return {
         result: {},
         updateVisible: false,
+        editPasswordVisible:false,
         tableData: [],
         updatePath: '/user/update/current',
+        updatePasswordPath:'/user/update/password',
         form: {},
+        ruleForm:{},
         rule: {
           name: [
             {required: true, message: this.$t('member.input_name'), trigger: 'blur'},
@@ -98,7 +122,9 @@
               trigger: 'blur'
             }
           ],
-          password: [
+        },
+        rules:{
+          /*password: [
             {required: true, message: this.$t('user.input_password'), trigger: 'blur'},
             {
               required:true,
@@ -106,6 +132,15 @@
               message: this.$t('member.password_format_is_incorrect'),
               trigger: 'blur'
             }
+          ],*/
+          newpassword: [
+            {required: true, message: this.$t('user.input_password'), trigger: 'blur'},
+            {
+              required:true,
+              pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,16}$/,
+              message: this.$t('member.password_format_is_incorrect'),
+              trigger: 'blur'
+            },
           ]
         }
       }
@@ -124,6 +159,9 @@
         this.updateVisible = true;
         this.form = Object.assign({}, row);
       },
+      editPassword(row){
+        this.editPasswordVisible = true;
+      },
       updateUser(updateUserForm) {
         this.$refs[updateUserForm].validate(valide => {
           if (valide) {
@@ -139,6 +177,20 @@
           }
         })
       },
+      updatePassword(editPasswordForm){
+       this.$refs[editPasswordForm].validate(valide=>{
+           if(valide){
+             this.result = this.$post(this.updatePasswordPath, this.ruleForm, response => {
+               this.$success(this.$t('commons.modify_success'));
+               this.editPasswordVisible = false;
+               this.initTableData();
+               window.location.reload();
+             });
+           }else {
+             return false;
+           }
+       })
+      },
       initTableData() {
         this.result = this.$get("/user/info/" + this.currentUser().id, response => {
           let data = response.data;
@@ -149,6 +201,7 @@
       },
       handleClose() {
         this.form = {};
+        this.ruleForm = {};
       }
     }
   }

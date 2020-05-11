@@ -13,6 +13,7 @@ import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.dto.UserDTO;
+import io.metersphere.dto.UserPassDTO;
 import io.metersphere.service.OrganizationService;
 import io.metersphere.service.UserService;
 import io.metersphere.service.WorkspaceService;
@@ -248,6 +249,18 @@ public class UserController {
     @GetMapping("/besideorg/list/{orgId}")
     public List<User> getBesideOrgMemberList(@PathVariable String orgId) {
         return userService.getBesideOrgMemberList(orgId);
+    }
+    /*
+    * 修改当前用户密码
+    * */
+    @PostMapping("/update/password")
+    public int updateCurrentUserPassword(@RequestBody UserPassDTO UserPassDTO) {
+        return userService.updatePassword(UserPassDTO);
+    }
+    /*管理员修改用户密码*/
+    @PostMapping("/special/password")
+    public int updateUserPassword(@RequestBody UserPassDTO UserPassDTO) {
+        return userService.updateUserPassword(UserPassDTO);
     }
 
 }

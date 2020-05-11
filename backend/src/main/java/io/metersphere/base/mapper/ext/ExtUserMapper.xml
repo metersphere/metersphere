@@ -32,5 +32,13 @@
             </if>
         </where>
     </select>
+    <!--修改密码-->
+    <update id="updatePassword" parameterType="io.metersphere.base.domain.User">
+    update user
+    set
+       password=#{password,jdbcType=VARCHAR},
+       update_time = #{updateTime,jdbcType=BIGINT}
+    where  id=#{id,jdbcType=VARCHAR}
+   </update>
 
 </mapper>
