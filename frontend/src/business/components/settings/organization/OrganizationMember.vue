@@ -95,12 +95,12 @@
 
 <script>
   import MsCreateBox from "../CreateBox";
-  import {TokenKey} from "../../../../common/js/constants";
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableHeader from "../../common/components/MsTableHeader";
   import MsRolesTag from "../../common/components/MsRolesTag";
   import MsTableOperator from "../../common/components/MsTableOperator";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
+  import {getCurrentUser} from "../../../../common/js/utils";
 
   export default {
     name: "MsOrganizationMember",
@@ -134,8 +134,7 @@
     },
     methods: {
       currentUser: () => {
-        let user = localStorage.getItem(TokenKey);
-        return JSON.parse(user);
+        return getCurrentUser();
       },
       initTableData() {
         let param = {

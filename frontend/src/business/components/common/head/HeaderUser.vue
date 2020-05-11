@@ -51,7 +51,7 @@
     TokenKey,
     WORKSPACE_ID
   } from '../../../../common/js/constants';
-  import {hasRoles, saveLocalStorage} from "../../../../common/js/utils";
+  import {getCurrentUser, hasRoles, saveLocalStorage} from "../../../../common/js/utils";
 
   export default {
     name: "MsUser",
@@ -68,7 +68,7 @@
           {index: '2-1', name: '无工作空间'},
         ],
         currentUserInfo: {},
-        currentUserId: JSON.parse(localStorage.getItem(TokenKey)).id,
+        currentUserId: getCurrentUser().id,
         workspaceIds: [],
         currentOrganizationName: '选择组织',
         currentWorkspaceName: '选择工作空间'
@@ -76,9 +76,7 @@
     },
     computed: {
       currentUser: () => {
-        let user = localStorage.getItem(TokenKey);
-        // window.console.log(user);
-        return JSON.parse(user);
+        return getCurrentUser();
       }
     },
     methods: {

@@ -9,13 +9,13 @@ import {
 import axios from "axios";
 
 export function hasRole(role) {
-  let user = JSON.parse(localStorage.getItem(TokenKey));
+  let user = getCurrentUser();
   let roles = user.roles.map(r => r.id);
   return roles.indexOf(role) > -1;
 }
 
 export function hasRoles(...roles) {
-  let user = JSON.parse(localStorage.getItem(TokenKey));
+  let user = getCurrentUser();
   let rs = user.roles.map(r => r.id);
   for (let item of roles) {
     if (rs.indexOf(item) > -1) {
@@ -26,24 +26,24 @@ export function hasRoles(...roles) {
 }
 
 export function checkoutCurrentOrganization() {
-  let user = JSON.parse(localStorage.getItem(TokenKey));
+  let user = getCurrentUser();
   // 查看当前用户是否是 lastOrganizationId 的组织管理员
   return user.userRoles.filter(ur => hasRole(ROLE_ORG_ADMIN) && user.lastOrganizationId === ur.sourceId).length > 0;
 }
 
 export function checkoutCurrentWorkspace() {
-  let user = JSON.parse(localStorage.getItem(TokenKey));
+  let user = getCurrentUser();
   // 查看当前用户是否是 lastWorkspaceId 的工作空间用户
   return user.userRoles.filter(ur => hasRoles(ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER) && user.lastWorkspaceId === ur.sourceId).length > 0;
 }
 
 export function getCurrentOrganizationId() {
-  let user = JSON.parse(localStorage.getItem(TokenKey));
+  let user = getCurrentUser();
   return user.lastOrganizationId;
 }
 
 export function getCurrentWorkspaceId() {
-  let user = JSON.parse(localStorage.getItem(TokenKey));
+  let user = getCurrentUser();
   return user.lastWorkspaceId;
 }
 

@@ -145,13 +145,13 @@
 <script>
   import MsCreateBox from "../CreateBox";
   import {Message} from "element-ui";
-  import {DEFAULT, TokenKey} from "../../../../common/js/constants";
+  import {DEFAULT} from "../../../../common/js/constants";
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableHeader from "../../common/components/MsTableHeader";
   import MsRolesTag from "../../common/components/MsRolesTag";
   import MsTableOperator from "../../common/components/MsTableOperator";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
-  import {getCurrentWorkspaceId, refreshSessionAndCookies} from "../../../../common/js/utils";
+  import {getCurrentUser, getCurrentWorkspaceId, refreshSessionAndCookies} from "../../../../common/js/utils";
 
   export default {
     name: "MsOrganizationWorkspace",
@@ -161,8 +161,7 @@
     },
     computed: {
       currentUser: () => {
-        let user = localStorage.getItem(TokenKey);
-        return JSON.parse(user);
+        return getCurrentUser();
       }
     },
     methods: {
