@@ -1,8 +1,10 @@
 package io.metersphere.dto;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class TestCaseReportModuleResultDTO {
     private String moduleId;
     private String moduleName;
