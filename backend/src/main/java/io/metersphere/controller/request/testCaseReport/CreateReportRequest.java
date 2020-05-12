@@ -1,8 +1,10 @@
 package io.metersphere.controller.request.testCaseReport;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class CreateReportRequest {
     String planId;
     String templateId;
