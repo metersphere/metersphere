@@ -294,7 +294,4 @@
 </script>
 
 <style scoped>
-  .editpassword{
-    margin-left: 10px;
-  }
 </style>
