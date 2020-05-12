@@ -255,8 +255,8 @@
         })
       },
       editUserPassword(editPasswordForm){
-        this.$refs[editPasswordForm].validate(valide=>{
-          if(valide){
+        this.$refs[editPasswordForm].validate(valid=>{
+          if(valid){
             this.result = this.$post(this.editPasswordPath, this.ruleForm, response => {
               this.$success(this.$t('commons.modify_success'));
               this.editPasswordVisible = false;
