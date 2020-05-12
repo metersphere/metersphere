@@ -83,7 +83,8 @@
       handleCommand(command) {
         switch (command) {
           case "personal":
-            this.$setLang("en_US");
+            // TODO 优化路由跳转，避免重复添加路由
+            this.$router.push('/setting/personsetting').catch(error => error);
             break;
           case "logout":
             this.$get("/signout", function () {
