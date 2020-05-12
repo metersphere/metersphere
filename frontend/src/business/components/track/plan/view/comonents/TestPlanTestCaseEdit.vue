@@ -113,6 +113,7 @@
                         <el-input
                           size="mini"
                           type="textarea"
+                          :autosize="{ minRows: 2, maxRows: 4}"
                           :rows="2"
                           v-model="scope.row.actualResult"
                           :placeholder="$t('commons.input_content')"
