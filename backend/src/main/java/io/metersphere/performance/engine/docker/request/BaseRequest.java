@@ -1,13 +1,10 @@
 package io.metersphere.performance.engine.docker.request;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class BaseRequest {
     private String testId;
-
-    public String getTestId() {
-        return testId;
-    }
-
-    public void setTestId(String testId) {
-        this.testId = testId;
-    }
 }
