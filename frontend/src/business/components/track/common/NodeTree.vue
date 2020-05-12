@@ -29,7 +29,7 @@
             <el-tooltip
               class="item"
               effect="dark"
-              open-delay="200"
+              :open-delay="200"
               :content="$t('test_track.module.rename')"
               placement="top"
             >
@@ -38,14 +38,14 @@
             <el-tooltip
               class="item"
               effect="dark"
-              open-delay="200"
+              :open-delay="200"
               :content="$t('test_track.module.add_submodule')"
               placement="top"
             >
               <i @click="openEditNodeDialog('add', data)" class="el-icon-circle-plus-outline"></i>
             </el-tooltip>
             <el-tooltip class="item" effect="dark"
-              open-delay="200" :content="$t('commons.delete')" placement="top">
+              :open-delay="200" :content="$t('commons.delete')" placement="top">
               <i @click="remove(node, data)" class="el-icon-delete"></i>
             </el-tooltip>
           </span>
