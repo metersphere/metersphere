@@ -1,9 +1,11 @@
 package io.metersphere.controller.request.testCaseReport;
 
 import io.metersphere.base.domain.TestCaseReportTemplate;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class QueryTemplateRequest extends TestCaseReportTemplate {
     Boolean queryDefault;
 }

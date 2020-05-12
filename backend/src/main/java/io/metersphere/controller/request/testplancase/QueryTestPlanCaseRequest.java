@@ -2,12 +2,14 @@ package io.metersphere.controller.request.testplancase;
 
 import io.metersphere.base.domain.TestPlanTestCase;
 import io.metersphere.controller.request.OrderRequest;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.Map;
 
-@Data
+@Getter
+@Setter
 public class QueryTestPlanCaseRequest extends TestPlanTestCase {
 
     private List<String> nodeIds;

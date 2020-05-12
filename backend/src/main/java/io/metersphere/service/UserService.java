@@ -131,6 +131,10 @@ public class UserService {
     }
 
     public void deleteUser(String userId) {
+        SessionUser user = SessionUtils.getUser();
+        if (StringUtils.equals(user.getId(), userId)) {
+            MSException.throwException(Translator.get("cannot_delete_current_user"));
+        }
         userMapper.deleteByPrimaryKey(userId);
     }
 
