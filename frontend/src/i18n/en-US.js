@@ -53,6 +53,8 @@ export default {
     'search_by_name': 'Search by name',
     'personal_information': 'Personal Information',
     'exit_system': 'Exit System',
+    'verification': 'Verification',
+    'set_admin': 'Set Admin',
   },
   workspace: {
     'create': 'Create Workspace',

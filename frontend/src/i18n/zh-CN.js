@@ -55,6 +55,8 @@ export default {
     'search_by_name': '根据名称搜索',
     'personal_information': '个人信息',
     'exit_system': '退出系统',
+    'verification': '验证',
+    'set_admin': '设置为管理员',
   },
   workspace: {
     'create': '创建工作空间',
