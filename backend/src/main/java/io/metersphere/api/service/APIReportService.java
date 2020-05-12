@@ -34,7 +34,6 @@ public class APIReportService {
     }
 
     public List<APIReportResult> recentTest(QueryAPIReportRequest request) {
-        request.setRecent(true);
         return extApiTestReportMapper.list(request);
     }
 

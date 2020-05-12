@@ -25,9 +25,7 @@
                 AND project.workspace_id = #{request.workspaceId,jdbcType=VARCHAR}
             </if>
         </where>
-        <if test="request.recent">
-            ORDER BY r.update_time DESC
-        </if>
+        ORDER BY r.update_time DESC
     </select>
 
     <select id="listByTestId" resultMap="BaseResultMap">
