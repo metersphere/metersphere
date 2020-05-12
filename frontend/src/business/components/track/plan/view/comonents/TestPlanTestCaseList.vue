@@ -127,7 +127,7 @@
   import NodeBreadcrumb from '../../../common/NodeBreadcrumb';
 
   import {TokenKey} from '../../../../../../common/js/constants';
-  import {humpToLine, tableFilter} from '../../../../../../common/js/utils';
+  import {_filter, _sort, humpToLine, tableFilter} from '../../../../../../common/js/utils';
   import PriorityTableItem from "../../../common/tableItems/planview/PriorityTableItem";
   import StatusTableItem from "../../../common/tableItems/planview/StatusTableItem";
   import TypeTableItem from "../../../common/tableItems/planview/TypeTableItem";
@@ -316,39 +316,11 @@
           this.$refs.testCaseReportView.open(id);
         },
         filter(filters) {
-          if (!this.condition.filters) {
-            this.condition.filters = {};
-          }
-          for(let filter in filters) {
-            if (filters[filter] && filters[filter].length > 0) {
-              this.condition.filters[filter] = filters[filter];
-            } else {
-              this.condition.filters[filter] = null;
-            }
-          }
+          _filter(filters, this.condition);
           this.initTableData();
         },
         sort(column) {
-          column.prop = humpToLine(column.prop);
-          if (column.order == 'descending') {
-            column.order = 'desc';
-          } else {
-            column.order = 'asc';
-          }
-          if (!this.condition.orders) {
-            this.condition.orders = [];
-          }
-          let hasProp = false;
-          this.condition.orders.forEach(order => {
-            if (order.name == column.prop) {
-              order.type = column.order;
-              hasProp = true;
-              return;
-            }
-          });
-          if (!hasProp) {
-            this.condition.orders.push({name: column.prop, type: column.order});
-          }
+          _sort(column, this.condition);
           this.initTableData();
         }
       }

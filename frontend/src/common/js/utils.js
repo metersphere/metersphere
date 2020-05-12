@@ -89,3 +89,41 @@ export function mapToJson(strMap) {
 export function humpToLine(name) {
   return name.replace(/([A-Z])/g, "_$1").toLowerCase();
 }
+
+//表格数据过滤
+export function _filter(filters, condition) {
+  if (!condition.filters) {
+    condition.filters = {};
+  }
+  for(let filter in filters) {
+    if (filters[filter] && filters[filter].length > 0) {
+      condition.filters[filter] = filters[filter];
+    } else {
+      condition.filters[filter] = null;
+    }
+  }
+}
+
+//表格数据排序
+export function _sort(column, condition) {
+  column.prop = humpToLine(column.prop);
+  if (column.order == 'descending') {
+    column.order = 'desc';
+  } else {
+    column.order = 'asc';
+  }
+  if (!condition.orders) {
+    condition.orders = [];
+  }
+  let hasProp = false;
+  condition.orders.forEach(order => {
+    if (order.name == column.prop) {
+      order.type = column.order;
+      hasProp = true;
+      return;
+    }
+  });
+  if (!hasProp) {
+    condition.orders.push({name: column.prop, type: column.order});
+  }
+}

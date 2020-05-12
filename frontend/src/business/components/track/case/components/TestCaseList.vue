@@ -115,7 +115,7 @@
   import MsTableOperator from "../../../common/components/MsTableOperator";
   import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
   import MsTableButton from "../../../common/components/MsTableButton";
-  import {humpToLine} from "../../../../../common/js/utils";
+  import {_filter, _sort, humpToLine} from "../../../../../common/js/utils";
 
   export default {
     name: "TestCaseList",
@@ -225,19 +225,6 @@
           this.selectIds.clear();
           this.$emit('refresh');
         },
-        filter(filters) {
-          if (!this.condition.filters) {
-            this.condition.filters = {};
-          }
-          for(let filter in filters) {
-            if (filters[filter] && filters[filter].length > 0) {
-              this.condition.filters[filter] = filters[filter];
-            } else {
-              this.condition.filters[filter] = null;
-            }
-          }
-          this.initTableData();
-        },
         showDetail(row, event, column) {
           this.$emit('testCaseDetail', row);
         },
@@ -263,27 +250,12 @@
         moveToNode() {
           this.$emit('moveToNode', this.selectIds);
         },
+        filter(filters) {
+          _filter(filters, this.condition);
+          this.initTableData();
+        },
         sort(column) {
-          column.prop = humpToLine(column.prop);
-          if (column.order == 'descending') {
-            column.order = 'desc';
-          } else {
-            column.order = 'asc';
-          }
-          if (!this.condition.orders) {
-            this.condition.orders = [];
-          }
-          let hasProp = false;
-          this.condition.orders.forEach(order => {
-            if (order.name == column.prop) {
-              order.type = column.order;
-              hasProp = true;
-              return;
-            }
-          });
-          if (!hasProp) {
-            this.condition.orders.push({name: column.prop, type: column.order});
-          }
+          _sort(column, this.condition);
           this.initTableData();
         }
       }
