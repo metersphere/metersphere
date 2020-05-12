@@ -16,11 +16,11 @@
                 {{$t('commons.save')}}
               </el-button>
 
-              <el-button type="primary" plain v-if="!isDisabled" @click="saveRunTest">
+              <el-button type="primary" plain v-if="!isShowRun" :disabled="isDisabled" @click="saveRunTest">
                 {{$t('load_test.save_and_run')}}
               </el-button>
 
-              <el-button type="primary" plain v-if="isDisabled" @click="runTest">
+              <el-button type="primary" plain v-if="isShowRun" @click="runTest">
                 {{$t('api_test.run')}}
               </el-button>
               <el-button type="warning" plain @click="cancel">{{$t('commons.cancel')}}</el-button>
@@ -153,6 +153,9 @@
     },
 
     computed: {
+      isShowRun() {
+        return this.test.projectId && this.test.name && !this.change;
+      },
       isDisabled() {
         return !(this.test.projectId && this.test.name && this.change)
       }
