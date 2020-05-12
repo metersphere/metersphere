@@ -55,6 +55,8 @@ export default {
     'search_by_name': 'Search by name',
     'personal_information': 'Personal Information',
     'exit_system': 'Exit System',
+    'verification': 'Verification',
+    'set_admin': 'Set Admin',
   },
   workspace: {
     'create': 'Create Workspace',
@@ -255,6 +257,7 @@ export default {
         regex_expression: "Regular expression",
         json_path_expression: "JSONPath expression",
         xpath_expression: "XPath expression",
+        copied: "Copied"
       }
     }
   },

@@ -35,6 +35,8 @@
               <template v-slot:behind>
                 <ms-table-operator-button :tip="$t('member.edit_password')" icon="el-icon-s-tools"
                                           type="success" @exec="editPassword(scope.row)"/>
+                <ms-table-operator-button :tip="$t('commons.set_admin')" icon="el-icon-user-solid"
+                                          type="danger" @exec="openCheckDialog(scope.row)"/>
               </template>
             </ms-table-operator>
           </template>
@@ -44,6 +46,21 @@
       <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
     </el-card>
+
+    <el-dialog :title="$t('commons.verification')" :visible.sync="checkPasswordVisible" width="30%"
+               @close="closeCheckPassword" :destroy-on-close="true">
+      <el-form :model="checkPasswordForm" label-position="right" label-width="100px" size="small" :rules="rule"
+               ref="checkPasswordForm">
+        <el-form-item :label="$t('commons.password')" prop="password">
+          <el-input type="password" v-model="checkPasswordForm.password" autocomplete="off" show-password></el-input>
+        </el-form-item>
+      </el-form>
+      <template v-slot:footer>
+        <ms-dialog-footer
+          @cancel="checkPasswordVisible = false"
+          @confirm="setAdmin('checkPasswordForm')"/>
+      </template>
+    </el-dialog>
 
     <!--Create user-->
     <el-dialog :title="$t('user.create')" :visible.sync="createVisible" width="30%" @closed="handleClose"
@@ -97,7 +114,8 @@
     </el-dialog>
    <!--Changing user password in system settings-->
     <el-dialog :title="$t('member.edit_password')" :visible.sync="editPasswordVisible" width="30%" left>
-      <el-form :model="ruleForm"  label-position="right" label-width="100px" size="small" :rules="rule" ref="editPasswordForm" class="demo-ruleForm">
+      <el-form :model="ruleForm" label-position="right" label-width="100px" size="small" :rules="rule"
+               ref="editPasswordForm" class="demo-ruleForm">
         <el-form-item :label="$t('member.new_password')" prop="newpassword">
           <el-input type="password" v-model="ruleForm.newpassword" autocomplete="off" show-password></el-input>
         </el-form-item>
@@ -122,6 +140,7 @@
   import MsTableOperator from "../../common/components/MsTableOperator";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
   import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
+  import {getCurrentUser} from "../../../../common/js/utils";
 
   export default {
     name: "MsUser",
@@ -136,7 +155,8 @@
         result: {},
         createVisible: false,
         updateVisible: false,
-        editPasswordVisible:false,
+        editPasswordVisible: false,
+        checkPasswordVisible: false,
         multipleSelection: [],
         currentPage: 1,
         pageSize: 5,
@@ -145,7 +165,9 @@
         condition: {},
         tableData: [],
         form: {},
+        checkPasswordForm: {},
         ruleForm: {},
+        setAdminParam: {},
         rule: {
           id: [
             {required: true, message: this.$t('user.input_id'), trigger: 'blur'},
@@ -181,20 +203,20 @@
           password: [
             {required: true, message: this.$t('user.input_password'), trigger: 'blur'},
             {
-              required:true,
+              required: true,
               pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,16}$/,
               message: this.$t('member.password_format_is_incorrect'),
               trigger: 'blur'
             }
           ],
           newpassword: [
-           {required: true, message: this.$t('user.input_password'), trigger: 'blur'},
-           {
-             required:true,
-             pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,16}$/,
-             message: this.$t('member.password_format_is_incorrect'),
-             trigger: 'blur'
-           }
+            {required: true, message: this.$t('user.input_password'), trigger: 'blur'},
+            {
+              required: true,
+              pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,16}$/,
+              message: this.$t('member.password_format_is_incorrect'),
+              trigger: 'blur'
+            }
           ]
         }
       }
@@ -210,8 +232,8 @@
         this.updateVisible = true;
         this.form = Object.assign({}, row);
       },
-      editPassword(row){
-        this.editPasswordVisible=true;
+      editPassword(row) {
+        this.editPasswordVisible = true;
         this.ruleForm = Object.assign({}, row);
       },
       del(row) {
@@ -260,10 +282,10 @@
             this.result = this.$post(this.editPasswordPath, this.ruleForm, response => {
               this.$success(this.$t('commons.modify_success'));
               this.editPasswordVisible = false;
-              this.search() ;
+              this.search();
               window.location.reload();
             });
-          }else {
+          } else {
             return false;
           }
         })
@@ -288,6 +310,28 @@
       },
       handleSelectionChange(val) {
         this.multipleSelection = val;
+      },
+      closeCheckPassword() {
+        this.checkPasswordForm = {};
+      },
+      openCheckDialog(row) {
+        this.$set(this.setAdminParam, 'id', row.id);
+        this.checkPasswordVisible = true;
+      },
+      setAdmin(checkPasswordForm) {
+        let user = getCurrentUser();
+        this.$set(this.setAdminParam, 'adminId', user.id);
+        this.$set(this.setAdminParam, 'password', this.checkPasswordForm.password);
+        this.$refs[checkPasswordForm].validate(valid => {
+          if (valid) {
+            this.$post("/user/set/admin", this.setAdminParam, () => {
+              this.$success(this.$t('commons.modify_success'));
+              this.checkPasswordVisible = false;
+            })
+          } else {
+            return false;
+          }
+        })
       }
     }
   }

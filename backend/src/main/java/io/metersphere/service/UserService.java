@@ -4,12 +4,14 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtUserMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
+import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CodingUtil;
 import io.metersphere.controller.request.UserRequest;
 import io.metersphere.controller.request.member.AddMemberRequest;
 import io.metersphere.controller.request.member.EditPassWordRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
+import io.metersphere.controller.request.member.SetAdminRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.dto.UserDTO;
@@ -129,6 +131,10 @@ public class UserService {
     }
 
     public void deleteUser(String userId) {
+        SessionUser user = SessionUtils.getUser();
+        if (StringUtils.equals(user.getId(), userId)) {
+            MSException.throwException(Translator.get("cannot_delete_current_user"));
+        }
         userMapper.deleteByPrimaryKey(userId);
     }
 
@@ -322,4 +328,20 @@ public class UserService {
         return extUserMapper.updatePassword(user);
     }
 
+    public void setAdmin(SetAdminRequest request) {
+        String adminId = request.getAdminId();
+        String password = request.getPassword();
+        if (!checkUserPassword(adminId, password)) {
+            MSException.throwException("verification failed！");
+        }
+        UserRole userRole = new UserRole();
+        userRole.setId(UUID.randomUUID().toString());
+        userRole.setUserId(request.getId());
+        // TODO 修改admin sourceId
+        userRole.setSourceId("adminSourceId");
+        userRole.setRoleId(RoleConstants.ADMIN);
+        userRole.setCreateTime(System.currentTimeMillis());
+        userRole.setUpdateTime(System.currentTimeMillis());
+        userRoleMapper.insertSelective(userRole);
+    }
 }
