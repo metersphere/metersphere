@@ -31,10 +31,12 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
-            <el-tooltip class="editpassword" effect="dark" :content="$t('member.edit_password')" placement="bottom" >
-              <el-button @click="editPassword(scope.row)" type="primary" icon="el-icon-s-tools" size="mini" circle/>
-            </el-tooltip>
+            <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)">
+              <template v-slot:behind>
+                <ms-table-operator-button :tip="$t('member.edit_password')" icon="el-icon-s-tools"
+                                          type="success" @exec="editPassword(scope.row)"/>
+              </template>
+            </ms-table-operator>
           </template>
         </el-table-column>
       </el-table>
@@ -119,17 +121,18 @@
   import MsTableHeader from "../../common/components/MsTableHeader";
   import MsTableOperator from "../../common/components/MsTableOperator";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
+  import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
 
   export default {
     name: "MsUser",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsTableOperator, MsDialogFooter},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsTableOperator, MsDialogFooter, MsTableOperatorButton},
     data() {
       return {
         queryPath: '/user/special/list',
         deletePath: '/user/special/delete/',
         createPath: '/user/special/add',
         updatePath: '/user/special/update',
-        editPasswordPath:'/user/special/password',
+        editPasswordPath: '/user/special/password',
         result: {},
         createVisible: false,
         updateVisible: false,
