@@ -96,7 +96,6 @@
         });
       },
       reset: function () {
-        this.selected = null;
         this.$nextTick(function () {
           this.activeName = 0;
           this.select(this.scenarios[0]);

@@ -34,8 +34,8 @@
       <el-tab-pane :label="$t('api_test.request.assertions.label')" name="assertions">
         <ms-api-assertions :assertions="request.assertions"/>
       </el-tab-pane>
-      <el-tab-pane :label="$t('api_test.request.extract')" name="extract" v-if="false">
-        TODO
+      <el-tab-pane :label="$t('api_test.request.extract.label')" name="extract">
+        <ms-api-extract :extract="request.extract"/>
       </el-tab-pane>
     </el-tabs>
   </el-form>
@@ -44,12 +44,13 @@
 <script>
   import MsApiKeyValue from "./ApiKeyValue";
   import MsApiBody from "./ApiBody";
-  import MsApiAssertions from "./ApiAssertions";
+  import MsApiAssertions from "./assertion/ApiAssertions";
   import {KeyValue, Request} from "../model/ScenarioModel";
+  import MsApiExtract from "./extract/ApiExtract";
 
   export default {
     name: "MsApiRequestForm",
-    components: {MsApiAssertions, MsApiBody, MsApiKeyValue},
+    components: {MsApiExtract, MsApiAssertions, MsApiBody, MsApiKeyValue},
     props: {
       request: Request
     },

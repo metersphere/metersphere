@@ -14,7 +14,7 @@
 </template>
 
 <script>
-  import {ResponseTime} from "../model/ScenarioModel";
+  import {ResponseTime} from "../../model/ScenarioModel";
 
   export default {
     name: "MsApiAssertionResponseTime",
