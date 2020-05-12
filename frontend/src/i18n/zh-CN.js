@@ -53,6 +53,8 @@ export default {
     'not_filled': '未填写',
     'please_select': '请选择',
     'search_by_name': '根据名称搜索',
+    'personal_information': '个人信息',
+    'exit_system': '退出系统',
   },
   workspace: {
     'create': '创建工作空间',
@@ -64,6 +66,8 @@ export default {
     'organization_name': '所属组织',
     'please_choose_organization': '请选择组织',
     'please_select_a_workspace_first': '请先选择工作空间！',
+    'none': '无工作空间',
+    'select': '选择工作空间',
   },
   organization: {
     'create': '创建组织',
@@ -73,6 +77,8 @@ export default {
     'select_organization': '请选择组织',
     'search_by_name': '根据名称搜索',
     'special_characters_are_not_supported': '不支持特殊字符',
+    'none': '无组织',
+    'select': '选择组织',
   },
   project: {
     'recent': '最近的项目',

@@ -33,8 +33,8 @@
         </span>
         <template v-slot:dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item command="personal">个人信息</el-dropdown-item>
-            <el-dropdown-item command="logout">退出系统</el-dropdown-item>
+            <el-dropdown-item command="personal">{{$t('commons.personal_information')}}</el-dropdown-item>
+            <el-dropdown-item command="logout">{{$t('commons.exit_system')}}</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
@@ -62,16 +62,16 @@
     data() {
       return {
         organizationList: [
-          {index: '7-1', name: '无组织'},
+          {index: '7-1', name: this.$t('organization.none')},
         ],
         workspaceList: [
-          {index: '2-1', name: '无工作空间'},
+          {index: '2-1', name: this.$t('workspace.none')},
         ],
         currentUserInfo: {},
         currentUserId: getCurrentUser().id,
         workspaceIds: [],
-        currentOrganizationName: '选择组织',
-        currentWorkspaceName: '选择工作空间'
+        currentOrganizationName: this.$t('organization.select'),
+        currentWorkspaceName: this.$t('workspace.select')
       }
     },
     computed: {
@@ -113,7 +113,7 @@
           this.$get("/workspace/list/orgworkspace/", response => {
             let data = response.data;
             if (data.length === 0) {
-              this.workspaceList = [{index: '1-1', name: '无工作区间'}]
+              this.workspaceList = [{index: '1-1', name: this.$t('workspace.none')}]
             } else {
               this.workspaceList = data;
               let workspace = data.filter(r => r.id === this.currentUser.lastWorkspaceId);
@@ -122,7 +122,6 @@
                 localStorage.setItem(WORKSPACE_ID, workspace[0].id);
               }
             }
-            // this.workspaceIds = response.data.map(r = r.id);
           })
         }
       },

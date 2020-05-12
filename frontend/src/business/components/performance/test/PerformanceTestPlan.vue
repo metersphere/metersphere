@@ -1,7 +1,7 @@
 <template>
   <div class="container" v-loading="result.loading">
     <div class="main-content">
-      <el-card>
+      <el-card class="table-card">
         <template v-slot:header>
           <div>
             <el-row type="flex" justify="space-between" align="middle">

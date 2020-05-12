@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="main-content">
-      <el-card v-loading="result.loading">
+      <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
           <ms-table-header :condition.sync="condition" @search="search" @create="create"
                            :create-tip="btnTips" :title="title"/>

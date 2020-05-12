@@ -1,6 +1,6 @@
 <template>
   <div v-loading="result.loading">
-    <el-card>
+    <el-card class="table-card">
       <template v-slot:header>
         <ms-table-header :condition.sync="condition" @search="initTableData" @create="create"
                          :create-tip="btnTips" :title="$t('commons.member')"/>
