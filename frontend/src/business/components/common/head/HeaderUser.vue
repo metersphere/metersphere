@@ -62,10 +62,10 @@
     data() {
       return {
         organizationList: [
-          {index: '7-1', name: this.$t('organization.none')},
+          {name: this.$t('organization.none')},
         ],
         workspaceList: [
-          {index: '2-1', name: this.$t('workspace.none')},
+          {name: this.$t('workspace.none')},
         ],
         currentUserInfo: {},
         currentUserId: getCurrentUser().id,
@@ -113,7 +113,7 @@
           this.$get("/workspace/list/orgworkspace/", response => {
             let data = response.data;
             if (data.length === 0) {
-              this.workspaceList = [{index: '1-1', name: this.$t('workspace.none')}]
+              this.workspaceList = [{name: this.$t('workspace.none')}]
             } else {
               this.workspaceList = data;
               let workspace = data.filter(r => r.id === this.currentUser.lastWorkspaceId);
@@ -132,11 +132,14 @@
       },
       changeOrg(data) {
         let orgId = data.id;
+        if (!orgId) {
+          return false;
+        }
         this.$post("/user/switch/source/org/" + orgId, {}, response => {
           saveLocalStorage(response);
           this.$router.push('/');
           window.location.reload();
-        })
+        });
       },
       changeWs(data) {
         let workspaceId = data.id;
