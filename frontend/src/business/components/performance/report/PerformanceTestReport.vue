@@ -147,7 +147,7 @@
         })
       },
       handleDelete(report) {
-        this.$alert(this.$t('load_test.delete_confirm') + report.name + "？", '', {
+        this.$alert(this.$t('report.delete_confirm') + report.name + "？", '', {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {

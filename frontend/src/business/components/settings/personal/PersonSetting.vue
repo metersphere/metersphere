@@ -163,8 +163,8 @@
         this.editPasswordVisible = true;
       },
       updateUser(updateUserForm) {
-        this.$refs[updateUserForm].validate(valide => {
-          if (valide) {
+        this.$refs[updateUserForm].validate(valid => {
+          if (valid) {
             this.result = this.$post(this.updatePath, this.form, response => {
               this.$success(this.$t('commons.modify_success'));
               localStorage.setItem(TokenKey, JSON.stringify(response.data));
@@ -178,8 +178,8 @@
         })
       },
       updatePassword(editPasswordForm) {
-        this.$refs[editPasswordForm].validate(valide => {
-          if (valide) {
+        this.$refs[editPasswordForm].validate(valid => {
+          if (valid) {
             this.result = this.$post(this.updatePasswordPath, this.ruleForm, response => {
               this.$success(this.$t('commons.modify_success'));
               this.editPasswordVisible = false;

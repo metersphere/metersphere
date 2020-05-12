@@ -1,7 +1,7 @@
 <template>
   <div v-loading="result.loading">
 
-    <el-card class="table-card">
+     <el-card class="table-card">
       <template v-slot:header>
         <ms-table-header :condition.sync="condition" @search="search" @create="create"
                          :create-tip="btnTips" :title="$t('commons.member')"/>
@@ -42,6 +42,7 @@
           </template>
         </el-table-column>
       </el-table>
+
       <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
     </el-card>
@@ -111,14 +112,14 @@
           @confirm="updateUser('updateUserForm')"/>
       </template>
     </el-dialog>
-    <!--Changing user password in system settings-->
+   <!--Changing user password in system settings-->
     <el-dialog :title="$t('member.edit_password')" :visible.sync="editPasswordVisible" width="30%" left>
       <el-form :model="ruleForm" label-position="right" label-width="100px" size="small" :rules="rule"
                ref="editPasswordForm" class="demo-ruleForm">
         <el-form-item :label="$t('member.new_password')" prop="newpassword">
           <el-input type="password" v-model="ruleForm.newpassword" autocomplete="off" show-password></el-input>
         </el-form-item>
-        <el-form-item>
+        <el-form-item >
           <el-input v-model="ruleForm.id" autocomplete="off" :disabled="true" style="display:none"/>
         </el-form-item>
       </el-form>
@@ -275,9 +276,9 @@
           }
         })
       },
-      editUserPassword(editPasswordForm) {
-        this.$refs[editPasswordForm].validate(valide => {
-          if (valide) {
+      editUserPassword(editPasswordForm){
+        this.$refs[editPasswordForm].validate(valid=>{
+          if(valid){
             this.result = this.$post(this.editPasswordPath, this.ruleForm, response => {
               this.$success(this.$t('commons.modify_success'));
               this.editPasswordVisible = false;

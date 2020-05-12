@@ -49,6 +49,12 @@ export const ASSERTION_REGEX_SUBJECT = {
   RESPONSE_DATA: "Response Data"
 }
 
+export const EXTRACT_TYPE = {
+  REGEX: "Regex",
+  JSON_PATH: "JSONPath",
+  XPATH: "XPath"
+}
+
 export class BaseConfig {
 
   set(options) {
@@ -144,11 +150,10 @@ export class Request extends BaseConfig {
     this.headers = [];
     this.body = null;
     this.assertions = null;
-    this.extract = [];
+    this.extract = null;
 
     this.set(options);
     this.sets({parameters: KeyValue, headers: KeyValue}, options);
-    // TODO assigns extract
   }
 
   initOptions(options) {
@@ -156,6 +161,7 @@ export class Request extends BaseConfig {
     options.method = "GET";
     options.body = new Body(options.body);
     options.assertions = new Assertions(options.assertions);
+    options.extract = new Extract(options.extract);
     return options;
   }
 
@@ -275,6 +281,64 @@ export class ResponseTime extends AssertionType {
 
   isValid() {
     return !!this.value;
+  }
+}
+
+export class Extract extends BaseConfig {
+  constructor(options) {
+    super();
+    this.regex = [];
+    this.json = [];
+    this.xpath = [];
+
+    this.set(options);
+    let types = {
+      json: ExtractJSONPath,
+      xpath: ExtractXPath,
+      regex: ExtractRegex
+    }
+    this.sets(types, options);
+  }
+}
+
+export class ExtractType extends BaseConfig {
+  constructor(type) {
+    super();
+    this.type = type;
+  }
+}
+
+export class ExtractCommon extends ExtractType {
+  constructor(type, options) {
+    super(type);
+    this.variable = null;
+    this.value = ""; // ${variable}
+    this.expression = null;
+    this.description = null;
+
+    this.set(options);
+  }
+
+  isValid() {
+    return !!this.variable && !!this.expression;
+  }
+}
+
+export class ExtractRegex extends ExtractCommon {
+  constructor(options) {
+    super(EXTRACT_TYPE.REGEX, options);
+  }
+}
+
+export class ExtractJSONPath extends ExtractCommon {
+  constructor(options) {
+    super(EXTRACT_TYPE.JSON_PATH, options);
+  }
+}
+
+export class ExtractXPath extends ExtractCommon {
+  constructor(options) {
+    super(EXTRACT_TYPE.XPATH, options);
   }
 }
 

@@ -11,7 +11,7 @@
       </el-col>
       <el-col class="assertion-select">
         <el-select class="assertion-item" v-model="condition" size="small"
-                   :placeholder="$t('api_test.request.assertions.select_contains')">
+                   :placeholder="$t('api_test.request.assertions.select_condition')">
           <el-option :label="$t('api_test.request.assertions.contains')" value="CONTAINS"/>
           <el-option :label="$t('api_test.request.assertions.not_contains')" value="NOT_CONTAINS"/>
           <el-option :label="$t('api_test.request.assertions.equals')" value="EQUALS"/>
@@ -31,7 +31,7 @@
 </template>
 
 <script>
-  import {Regex, ASSERTION_REGEX_SUBJECT} from "../model/ScenarioModel";
+  import {Regex, ASSERTION_REGEX_SUBJECT} from "../../model/ScenarioModel";
 
   export default {
     name: "MsApiAssertionText",

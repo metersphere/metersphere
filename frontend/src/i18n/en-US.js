@@ -6,6 +6,7 @@ export default {
     'project': 'Project',
     'name': 'Name',
     'description': 'Description',
+    'clear': 'Clear',
     'save': 'Save',
     'save_success': 'Saved successfully',
     'delete_success': 'Deleted successfully',
@@ -50,6 +51,7 @@ export default {
     'remark': 'Remark',
     'delete': 'Delete',
     'not_filled': 'Not filled',
+    'please_select': 'Please select',
     'search_by_name': 'Search by name',
     'personal_information': 'Personal Information',
     'exit_system': 'Exit System',
@@ -97,16 +99,16 @@ export default {
     'please_choose_member': 'Please Choose Member',
     'search_by_name': 'Search by name',
     'modify_personal_info': 'Modify Personal Information',
-    'edit_password':'Edit_Password',
-    'edit_information':'Edit_Information',
+    'edit_password': 'Edit_Password',
+    'edit_information': 'Edit_Information',
     'input_name': 'Please enter a user name',
     'input_email': 'Please enter a email',
     'special_characters_are_not_supported': 'Special characters are not supported',
     'mobile_number_format_is_incorrect': 'Mobile number format is incorrect',
     'email_format_is_incorrect': 'Email format is incorrect',
     'password_format_is_incorrect': 'Password format is incorrect (At least 8-16 characters, at least 1 uppercase letter, 1 lowercase letter and 1 number)',
-    'old_password':'Old Password',
-    'new_password':'New Password',
+    'old_password': 'Old Password',
+    'new_password': 'New Password',
   },
   user: {
     'create': 'Create',
@@ -141,6 +143,7 @@ export default {
     'compare': 'Compare',
     'generation_error': 'Report generation error, cannot be viewed!',
     'being_generated': 'Report is being generated...',
+    'delete_confirm': 'Confirm delete: ',
   },
   load_test: {
     'operating': 'Operating',
@@ -233,9 +236,9 @@ export default {
         text: "Text",
         regex: "Regex",
         response_time: "Response Time",
-        select_type: "Please select a request type",
-        select_subject: "Please select a request subject",
-        select_condition: "Please select a condition",
+        select_type: "Choose type",
+        select_subject: "Subject",
+        select_condition: "Condition",
         contains: "Contains",
         not_contains: "Not contains",
         equals: "Equals",
@@ -243,10 +246,18 @@ export default {
         end_with: "End With",
         value: "Value",
         expression: "Expression",
-        response_in_time: "Response in time",
+        response_in_time: "Response Time",
       },
-      extract: "Extract from response",
-      extract_desc: "Extract data from the response and store it in variables. Use the variables in subsequent requests.",
+      extract: {
+        label: "Extract from response",
+        select_type: "Choose type",
+        description: "Extract data from the response and store it in variables. Use the variables in subsequent requests.",
+        regex: "Regex",
+        variable_name: "Variable name",
+        regex_expression: "Regular expression",
+        json_path_expression: "JSONPath expression",
+        xpath_expression: "XPath expression",
+      }
     }
   },
   api_report: {
@@ -314,7 +325,6 @@ export default {
       input_method: "Please select method",
       input_prerequisite: "Please select prerequisite",
       delete_confirm: "Confirm delete test case: ",
-
       import: {
         import: "Import test case",
         case_import: "Import test case",
@@ -326,7 +336,6 @@ export default {
         upload_limit_size: "Upload file size cannot exceed 20MB!",
         success: "Import success！",
       },
-
       export: {
         export: "Export cases"
       }
@@ -403,7 +412,7 @@ export default {
     'fill_the_data': 'Please complete the data',
     'delete_prompt': 'This operation will permanently delete the resource pool, continue?',
     'status_change_success': 'Successfully changed the status!',
-    'status_change_failed': 'Failed to change the status!',
+    'status_change_failed': 'Failed to change the status, resource pool is invalid!',
   },
   i18n: {
     'home': 'Home'

@@ -22,7 +22,7 @@
 </template>
 
 <script>
-  import {ASSERTION_REGEX_SUBJECT, Regex} from "../model/ScenarioModel";
+  import {ASSERTION_REGEX_SUBJECT, Regex} from "../../model/ScenarioModel";
 
   export default {
     name: "MsApiAssertionRegex",

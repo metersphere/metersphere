@@ -45,7 +45,6 @@ public class APITestService {
     }
 
     public List<APITestResult> recentTest(QueryAPITestRequest request) {
-        request.setRecent(true);
         return extApiTestMapper.list(request);
     }
 

@@ -1,7 +1,6 @@
 <template>
-  <div v-loading="result.loading">
-
-    <el-card class="table-card">
+  <div>
+    <el-card class="table-card" v-loading="result.loading">
       <template v-slot:header>
         <ms-table-header :condition.sync="condition" @search="search" @create="create"
                          :create-tip="btnTips" :title="$t('commons.test_resource_pool')"/>
@@ -46,11 +45,11 @@
                            :total="total"/>
     </el-card>
 
-    <el-dialog v-loading="result.loading"
-               :title="$t('test_resource_pool.create_resource_pool')"
-               :visible.sync="createVisible" width="70%"
-               @closed="closeFunc"
-               :destroy-on-close="true">
+    <el-dialog
+      :title="$t('test_resource_pool.create_resource_pool')"
+      :visible.sync="createVisible" width="70%"
+      @closed="closeFunc"
+      :destroy-on-close="true">
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
                ref="createTestResourcePoolForm">
         <el-form-item :label="$t('commons.name')" prop="name">
@@ -351,8 +350,8 @@
         if (this.result.loading) {
           return;
         }
-        this.$refs[createTestResourcePoolForm].validate(valide => {
-          if (valide) {
+        this.$refs[createTestResourcePoolForm].validate(valid => {
+          if (valid) {
             let vri = this.validateResourceInfo();
             if (vri.validate) {
               this.convertSubmitResources();
@@ -390,8 +389,8 @@
         if (this.result.loading) {
           return;
         }
-        this.$refs[updateTestResourcePoolForm].validate(valide => {
-          if (valide) {
+        this.$refs[updateTestResourcePoolForm].validate(valid => {
+          if (valid) {
             let vri = this.validateResourceInfo();
             if (vri.validate) {
               this.convertSubmitResources();

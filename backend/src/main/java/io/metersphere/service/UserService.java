@@ -135,8 +135,6 @@ public class UserService {
     }
 
     public void updateUser(User user) {
-        // MD5
-        user.setPassword(CodingUtil.md5(user.getPassword()));
         user.setUpdateTime(System.currentTimeMillis());
         userMapper.updateByPrimaryKeySelective(user);
     }

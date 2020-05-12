@@ -1,5 +1,5 @@
 <template>
-  <el-table :data="assertions" style="width: 100%">
+  <el-table :data="assertions" :row-style="getRowStyle" :header-cell-style="getRowStyle">
     <el-table-column prop="name" :label="$t('api_report.assertions_name')" width="300">
     </el-table-column>
     <el-table-column prop="message" :label="$t('api_report.assertions_message')">
@@ -23,6 +23,12 @@
 
     props: {
       assertions: Array
+    },
+
+    methods: {
+      getRowStyle() {
+        return {backgroundColor: "#F5F5F5"};
+      }
     }
   }
 </script>

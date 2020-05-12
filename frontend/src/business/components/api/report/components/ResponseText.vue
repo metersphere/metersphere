@@ -12,7 +12,7 @@
         <el-tab-pane label="Headers" name="headers" class="pane">
           <pre>{{response.headers}}</pre>
         </el-tab-pane>
-        <el-tab-pane :label="$t('api_report.assertions')" name="assertions" class="pane">
+        <el-tab-pane :label="$t('api_report.assertions')" name="assertions" class="pane assertions">
           <ms-assertion-results :assertions="response.assertions"/>
         </el-tab-pane>
       </el-tabs>
@@ -69,6 +69,10 @@
     padding: 0 10px;
     height: 250px;
     overflow-y: auto;
+  }
+
+  .text-container .pane.assertions {
+    padding: 0;
   }
 
   pre {
