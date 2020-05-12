@@ -290,8 +290,8 @@
         })
       },
       updateWorkspace(updateForm) {
-        this.$refs[updateForm].validate(valide => {
-          if (valide) {
+        this.$refs[updateForm].validate(valid => {
+          if (valid) {
             this.result = this.$post("/workspace/special/update", this.form, () => {
               this.$success(this.$t('commons.modify_success'));
               this.dialogWsUpdateVisible = false;

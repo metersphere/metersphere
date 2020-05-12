@@ -55,6 +55,8 @@ export default {
     'search_by_name': '根据名称搜索',
     'personal_information': '个人信息',
     'exit_system': '退出系统',
+    'verification': '验证',
+    'set_admin': '设置为管理员',
   },
   workspace: {
     'create': '创建工作空间',
@@ -141,6 +143,7 @@ export default {
     'compare': '比较',
     'generation_error': '报告生成错误,无法查看!',
     'being_generated': '报告正在生成中...',
+    'delete_confirm': '确认删除报告: ',
   },
   load_test: {
     'operating': '操作',
@@ -198,7 +201,6 @@ export default {
     'resource_pool_is_null': '资源池为空',
     'download_log_file': '下载完整日志文件',
     'pressure_prediction_chart': '压力预估图',
-
   },
   api_test: {
     save_and_run: "保存并执行",

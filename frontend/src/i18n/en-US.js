@@ -6,6 +6,7 @@ export default {
     'project': 'Project',
     'name': 'Name',
     'description': 'Description',
+    'clear': 'Clear',
     'save': 'Save',
     'save_success': 'Saved successfully',
     'delete_success': 'Deleted successfully',
@@ -50,9 +51,12 @@ export default {
     'remark': 'Remark',
     'delete': 'Delete',
     'not_filled': 'Not filled',
+    'please_select': 'Please select',
     'search_by_name': 'Search by name',
     'personal_information': 'Personal Information',
     'exit_system': 'Exit System',
+    'verification': 'Verification',
+    'set_admin': 'Set Admin',
   },
   workspace: {
     'create': 'Create Workspace',
@@ -139,6 +143,7 @@ export default {
     'compare': 'Compare',
     'generation_error': 'Report generation error, cannot be viewed!',
     'being_generated': 'Report is being generated...',
+    'delete_confirm': 'Confirm delete: ',
   },
   load_test: {
     'operating': 'Operating',
@@ -321,7 +326,6 @@ export default {
       input_method: "Please select method",
       input_prerequisite: "Please select prerequisite",
       delete_confirm: "Confirm delete test case: ",
-
       import: {
         import: "Import test case",
         case_import: "Import test case",
@@ -333,7 +337,6 @@ export default {
         upload_limit_size: "Upload file size cannot exceed 20MB!",
         success: "Import success！",
       },
-
       export: {
         export: "Export cases"
       }

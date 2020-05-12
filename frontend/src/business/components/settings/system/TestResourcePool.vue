@@ -350,8 +350,8 @@
         if (this.result.loading) {
           return;
         }
-        this.$refs[createTestResourcePoolForm].validate(valide => {
-          if (valide) {
+        this.$refs[createTestResourcePoolForm].validate(valid => {
+          if (valid) {
             let vri = this.validateResourceInfo();
             if (vri.validate) {
               this.convertSubmitResources();
@@ -389,8 +389,8 @@
         if (this.result.loading) {
           return;
         }
-        this.$refs[updateTestResourcePoolForm].validate(valide => {
-          if (valide) {
+        this.$refs[updateTestResourcePoolForm].validate(valid => {
+          if (valid) {
             let vri = this.validateResourceInfo();
             if (vri.validate) {
               this.convertSubmitResources();
