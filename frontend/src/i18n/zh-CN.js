@@ -243,18 +243,19 @@ export default {
         start_with: "以...开始",
         end_with: "以...结束",
         value: "值",
-        expression: "表达式",
+        expression: "Perl型正则表达式",
         response_in_time: "响应时间在...毫秒以内",
       },
       extract: {
         label: "提取",
         select_type: "请选择类型",
-        description: "从响应中提取数据并将其存储在变量中，在后续请求中使用变量。",
+        description: "从响应结果中提取数据并将其存储在变量中，在后续请求中使用变量。",
         regex: "正则",
         variable_name: "变量名",
-        regex_expression: "正则表达式",
+        regex_expression: "Perl型正则表达式",
         json_path_expression: "JSONPath表达式",
         xpath_expression: "XPath表达式",
+        copied: "已拷贝"
       }
     }
   },

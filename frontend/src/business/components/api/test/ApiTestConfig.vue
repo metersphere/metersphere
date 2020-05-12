@@ -122,7 +122,8 @@
         })
       },
       cancel: function () {
-        this.$router.push('/api/test/list/all');
+        console.log(this.test.toJMX().xml)
+        // this.$router.push('/api/test/list/all');
       },
       getOptions: function (url) {
         let formData = new FormData();

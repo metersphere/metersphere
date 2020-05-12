@@ -168,7 +168,7 @@ export class DefaultTestElement extends TestElement {
 }
 
 export class TestPlan extends DefaultTestElement {
-  constructor(testName) {
+  constructor(testName, args) {
     super('TestPlan', 'TestPlanGui', 'TestPlan', testName || 'TestPlan');
 
     this.boolProp("TestPlan.functional_mode", false);
@@ -176,6 +176,7 @@ export class TestPlan extends DefaultTestElement {
     this.boolProp("TestPlan.tearDown_on_shutdown", true);
     this.stringProp("TestPlan.comments", "");
     this.stringProp("TestPlan.user_define_classpath", "");
+    this.add(new ElementArguments(args, "TestPlan.user_defined_variables", "User Defined Variables"));
   }
 }
 
@@ -382,25 +383,59 @@ export class BackendListener extends DefaultTestElement {
 }
 
 export class ElementArguments extends Element {
-  constructor(args) {
+  constructor(args, name, testName) {
     super('elementProp', {
-      name: "arguments",
+      name: name || "arguments",
       elementType: "Arguments",
       guiclass: "ArgumentsPanel",
       testclass: "Arguments",
+      testname: testName || "",
       enabled: "true"
     });
 
     let collectionProp = this.collectionProp('Arguments.arguments');
-    args.forEach(arg => {
-      let elementProp = collectionProp.elementProp(arg.name, 'Argument');
-      elementProp.stringProp('Argument.name', arg.name);
-      elementProp.stringProp('Argument.value', arg.value);
-      elementProp.stringProp('Argument.metadata', "=");
-    });
+    if (args) {
+      args.forEach(arg => {
+        let elementProp = collectionProp.elementProp(arg.name, 'Argument');
+        elementProp.stringProp('Argument.name', arg.name);
+        elementProp.stringProp('Argument.value', arg.value);
+        elementProp.stringProp('Argument.metadata', "=");
+      });
+    }
   }
 }
 
-export class Class {
+export class RegexExtractor extends DefaultTestElement {
+  constructor(testName, props) {
+    super('RegexExtractor', 'RegexExtractorGui', 'RegexExtractor', testName || 'Regular Expression Extractor');
+    this.props = props || {}
+    this.stringProp('RegexExtractor.useHeaders', props.headers);
+    this.stringProp('RegexExtractor.refname', props.name);
+    this.stringProp('RegexExtractor.regex', props.expression);
+    this.stringProp('RegexExtractor.template', props.template);
+    this.stringProp('RegexExtractor.default', props.default);
+    this.stringProp('RegexExtractor.match_number', props.match);
+  }
+}
 
+export class JSONPostProcessor extends DefaultTestElement {
+  constructor(testName, props) {
+    super('JSONPostProcessor', 'JSONPostProcessorGui', 'JSONPostProcessor', testName || 'JSON Extractor');
+    this.props = props || {}
+    this.stringProp('JSONPostProcessor.referenceNames', props.name);
+    this.stringProp('JSONPostProcessor.jsonPathExprs', props.expression);
+    this.stringProp('JSONPostProcessor.match_numbers', props.match);
+  }
+}
+
+export class XPath2Extractor extends DefaultTestElement {
+  constructor(testName, props) {
+    super('XPath2Extractor', 'XPath2ExtractorGui', 'XPath2Extractor', testName || 'XPath2 Extractor');
+    this.props = props || {}
+    this.stringProp('XPathExtractor2.default', props.default);
+    this.stringProp('XPathExtractor2.refname', props.name);
+    this.stringProp('XPathExtractor2.xpathQuery', props.expression);
+    this.stringProp('XPathExtractor2.namespaces', props.namespaces);
+    this.stringProp('XPathExtractor2.matchNumber', props.match);
+  }
 }

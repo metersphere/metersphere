@@ -95,16 +95,16 @@ export default {
     'please_choose_member': 'Please Choose Member',
     'search_by_name': 'Search by name',
     'modify_personal_info': 'Modify Personal Information',
-    'edit_password':'Edit_Password',
-    'edit_information':'Edit_Information',
+    'edit_password': 'Edit_Password',
+    'edit_information': 'Edit_Information',
     'input_name': 'Please enter a user name',
     'input_email': 'Please enter a email',
     'special_characters_are_not_supported': 'Special characters are not supported',
     'mobile_number_format_is_incorrect': 'Mobile number format is incorrect',
     'email_format_is_incorrect': 'Email format is incorrect',
     'password_format_is_incorrect': 'Password format is incorrect (At least 8-16 characters, at least 1 uppercase letter, 1 lowercase letter and 1 number)',
-    'old_password':'Old Password',
-    'new_password':'New Password',
+    'old_password': 'Old Password',
+    'new_password': 'New Password',
   },
   user: {
     'create': 'Create',
@@ -252,6 +252,7 @@ export default {
         regex_expression: "Regular expression",
         json_path_expression: "JSONPath expression",
         xpath_expression: "XPath expression",
+        copied: "Copied"
       }
     }
   },

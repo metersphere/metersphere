@@ -12,7 +12,7 @@ import {
   ResponseCodeAssertion,
   ResponseDataAssertion,
   ResponseHeadersAssertion,
-  BackendListener
+  BackendListener, RegexExtractor, JSONPostProcessor, XPath2Extractor
 } from "./JMX";
 
 export const uuid = function () {
@@ -414,6 +414,8 @@ class JMXGenerator {
 
         this.addRequestAssertion(httpSamplerProxy, request);
 
+        this.addRequestExtractor(httpSamplerProxy, request);
+
         threadGroup.put(httpSamplerProxy);
       })
 
@@ -483,6 +485,48 @@ class JMXGenerator {
         return new ResponseDataAssertion(name, type, value);
       case ASSERTION_REGEX_SUBJECT.RESPONSE_HEADERS:
         return new ResponseHeadersAssertion(name, type, value);
+    }
+  }
+
+  addRequestExtractor(httpSamplerProxy, request) {
+    let extract = request.extract;
+    if (extract.regex.length > 0) {
+      extract.regex.filter(this.filter).forEach(regex => {
+        httpSamplerProxy.put(this.getExtractor(regex));
+      })
+    }
+
+    if (extract.json.length > 0) {
+      extract.json.filter(this.filter).forEach(json => {
+        httpSamplerProxy.put(this.getExtractor(json));
+      })
+    }
+
+    if (extract.xpath.length > 0) {
+      extract.xpath.filter(this.filter).forEach(xpath => {
+        httpSamplerProxy.put(this.getExtractor(xpath));
+      })
+    }
+  }
+
+  getExtractor(extractCommon) {
+    let props = {
+      name: extractCommon.variable,
+      expression: extractCommon.expression,
+    }
+    let testName = props.name
+    switch (extractCommon.type) {
+      case EXTRACT_TYPE.REGEX:
+        testName += " RegexExtractor";
+        props.headers = "false"; // 对应jMeter body
+        props.template = "$1$";
+        return new RegexExtractor(testName, props);
+      case EXTRACT_TYPE.JSON_PATH:
+        testName += " JSONExtractor";
+        return new JSONPostProcessor(testName, props);
+      case EXTRACT_TYPE.XPATH:
+        testName += " XPath2Evaluator";
+        return new XPath2Extractor(testName, props);
     }
   }
 

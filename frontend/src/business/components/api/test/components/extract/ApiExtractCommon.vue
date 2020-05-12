@@ -2,8 +2,17 @@
   <div>
     <el-row :gutter="10" type="flex" justify="space-between" align="middle">
       <el-col :span="10">
-        <el-input v-model="common.variable" maxlength="60" size="small" @input="change"
-                  :placeholder="$t('api_test.request.extract.variable_name')"/>
+        <div class="variable">
+          <el-input v-model="common.variable" maxlength="60" size="small" @input="change"
+                    :placeholder="$t('api_test.request.extract.variable_name')"/>
+          <div class="variable-combine" v-if="common.variable && edit">
+            <div class="value">{{common.value}}</div>
+            <el-tooltip :content="$t('api_test.request.extract.copied')" manual v-model="visible" placement="top"
+                        :visible-arrow="false">
+              <i class="el-icon-copy-document copy" @click="copy"></i>
+            </el-tooltip>
+          </div>
+        </div>
       </el-col>
       <el-col>
         <el-input v-model="common.expression" maxlength="255" size="small" :placeholder="expression"/>
@@ -43,6 +52,12 @@
       list: Array
     },
 
+    data() {
+      return {
+        visible: false
+      }
+    },
+
     methods: {
       add() {
         this.list.push(new ExtractCommon(this.extractType, this.common));
@@ -58,6 +73,21 @@
         this.common.variable = null;
         this.common.expression = null;
         this.common.value = null;
+      },
+      copy() {
+        let input = document.createElement("input");
+        document.body.appendChild(input);
+        input.value = this.common.value;
+        input.select();
+        if (input.setSelectionRange) {
+          input.setSelectionRange(0, input.value.length);
+        }
+        document.execCommand("copy");
+        document.body.removeChild(input);
+        this.visible = true;
+        setTimeout(() => {
+          this.visible = false;
+        }, 1000);
       }
     },
 
@@ -79,6 +109,37 @@
 </script>
 
 <style scoped>
+  .variable {
+    position: relative;
+  }
+
+  .variable-combine {
+    color: #7F7F7F;
+    max-width: 80px;
+    line-height: 32px;
+    position: absolute;
+    top: 0;
+    right: 25px;
+    margin-right: -20px;
+    display: flex;
+    align-items: center;
+  }
+
+  .variable-combine .value {
+    display: inline-block;
+    max-width: 60px;
+    margin-right: 10px;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .variable-combine .copy {
+    font-size: 14px;
+    cursor: pointer;
+    color: #1E90FF;
+  }
+
   .extract-btn {
     width: 60px;
   }
