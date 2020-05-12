@@ -51,6 +51,8 @@ export default {
     'delete': 'Delete',
     'not_filled': 'Not filled',
     'search_by_name': 'Search by name',
+    'personal_information': 'Personal Information',
+    'exit_system': 'Exit System',
   },
   workspace: {
     'create': 'Create Workspace',
@@ -62,6 +64,8 @@ export default {
     'organization_name': 'Organization Name',
     'please_choose_organization': 'Please Choose Organization',
     'please_select_a_workspace_first': 'Please select a workspace first!',
+    'none': 'None Workspace',
+    'select': 'Select Workspace',
   },
   organization: {
     'create': 'Create',
@@ -71,6 +75,8 @@ export default {
     'select_organization': 'Please select organization',
     'search_by_name': 'Search by name',
     'special_characters_are_not_supported': 'Special characters are not supported',
+    'none': 'None Organization',
+    'select': 'Select Organization',
   },
   project: {
     'recent': 'Recent Projects',
@@ -89,12 +95,16 @@ export default {
     'please_choose_member': 'Please Choose Member',
     'search_by_name': 'Search by name',
     'modify_personal_info': 'Modify Personal Information',
+    'edit_password':'Edit_Password',
+    'edit_information':'Edit_Information',
     'input_name': 'Please enter a user name',
     'input_email': 'Please enter a email',
     'special_characters_are_not_supported': 'Special characters are not supported',
     'mobile_number_format_is_incorrect': 'Mobile number format is incorrect',
     'email_format_is_incorrect': 'Email format is incorrect',
     'password_format_is_incorrect': 'Password format is incorrect (At least 8-16 characters, at least 1 uppercase letter, 1 lowercase letter and 1 number)',
+    'old_password':'Old Password',
+    'new_password':'New Password',
   },
   user: {
     'create': 'Create',
@@ -399,7 +409,7 @@ export default {
     'fill_the_data': 'Please complete the data',
     'delete_prompt': 'This operation will permanently delete the resource pool, continue?',
     'status_change_success': 'Successfully changed the status!',
-    'status_change_failed': 'Failed to change the status!',
+    'status_change_failed': 'Failed to change the status, resource pool is invalid!',
   },
   i18n: {
     'home': 'Home'

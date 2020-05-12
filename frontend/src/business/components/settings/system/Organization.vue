@@ -1,7 +1,7 @@
 <template>
   <div v-loading="result.loading">
 
-    <el-card>
+    <el-card class="table-card">
       <template v-slot:header>
         <ms-table-header :condition.sync="condition" @search="initTableData" @create="create"
                          :create-tip="btnTips" :title="$t('commons.organization')"/>
@@ -138,13 +138,13 @@
           <el-input v-model="memberForm.id" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.username')" prop="name">
-          <el-input v-model="memberForm.name" autocomplete="off"/>
+          <el-input v-model="memberForm.name" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.email')" prop="email">
-          <el-input v-model="memberForm.email" autocomplete="off"/>
+          <el-input v-model="memberForm.email" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.phone')" prop="phone">
-          <el-input v-model="memberForm.phone" autocomplete="off"/>
+          <el-input v-model="memberForm.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.role')" prop="roleIds">
           <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
@@ -175,6 +175,8 @@
   import MsRolesTag from "../../common/components/MsRolesTag";
   import MsTableOperator from "../../common/components/MsTableOperator";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
+  import {getCurrentOrganizationId, getCurrentUser, refreshSessionAndCookies} from "../../../../common/js/utils";
+  import {DEFAULT, ORGANIZATION} from "../../../../common/js/constants";
 
   export default {
     name: "MsOrganization",
@@ -311,6 +313,12 @@
           type: 'warning'
         }).then(() => {
           this.result = this.$get(this.deletePath + row.id, () => {
+            let lastOrganizationId = getCurrentOrganizationId();
+            let sourceId = row.id;
+            if (lastOrganizationId === sourceId) {
+              let sign = DEFAULT;
+              refreshSessionAndCookies(sign, sourceId);
+            }
             this.$success(this.$t('commons.delete_success'));
             this.initTableData();
           });
@@ -325,6 +333,13 @@
           type: 'warning'
         }).then(() => {
           this.result = this.$get('/user/special/org/member/delete/' + this.currentRow.id + '/' + row.id, () => {
+            let sourceId = this.currentRow.id;
+            let currentUser = getCurrentUser();
+            let userId = row.id;
+            if (currentUser.id === userId) {
+              let sign = ORGANIZATION;
+              refreshSessionAndCookies(sign, sourceId);
+            }
             this.$success(this.$t('commons.delete_success'))
             this.cellClick(this.currentRow);
           });
@@ -395,6 +410,9 @@
               organizationId: this.currentRow.id
             };
             this.result = this.$post("user/special/org/member/add", param, () => {
+              let sign = "other";
+              let sourceId = this.currentRow.id;
+              refreshSessionAndCookies(sign, sourceId);
               this.cellClick(this.currentRow);
               this.dialogOrgMemberAddVisible = false;
             })

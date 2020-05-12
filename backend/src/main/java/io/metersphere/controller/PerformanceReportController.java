@@ -7,17 +7,20 @@ import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.ReportRequest;
+import io.metersphere.dto.LogDetailDTO;
 import io.metersphere.dto.ReportDTO;
 import io.metersphere.report.base.*;
 import io.metersphere.service.ReportService;
 import io.metersphere.user.SessionUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping(value = "performance/report")
@@ -97,7 +100,16 @@ public class PerformanceReportController {
     }
 
     @GetMapping("log/{reportId}")
-    public Map<String, String> stop(@PathVariable String reportId) {
-        return reportService.log(reportId);
+    public List<LogDetailDTO> logs(@PathVariable String reportId) {
+        return reportService.logs(reportId);
+    }
+
+    @GetMapping("log/download/{logId}")
+    public ResponseEntity<byte[]> downloadLog(@PathVariable String logId) {
+        byte[] bytes = reportService.downloadLog(logId);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"jmeter.log\"")
+                .body(bytes);
     }
 }

@@ -8,4 +8,5 @@ import java.util.List;
 public interface ExtUserMapper {
 
     List<User> getUserList(@Param("userRequest") UserRequest request);
+    int updatePassword(User record);
 }

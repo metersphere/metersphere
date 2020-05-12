@@ -53,6 +53,8 @@ export default {
     'not_filled': '未填写',
     'please_select': '请选择',
     'search_by_name': '根据名称搜索',
+    'personal_information': '个人信息',
+    'exit_system': '退出系统',
   },
   workspace: {
     'create': '创建工作空间',
@@ -64,6 +66,8 @@ export default {
     'organization_name': '所属组织',
     'please_choose_organization': '请选择组织',
     'please_select_a_workspace_first': '请先选择工作空间！',
+    'none': '无工作空间',
+    'select': '选择工作空间',
   },
   organization: {
     'create': '创建组织',
@@ -73,6 +77,8 @@ export default {
     'select_organization': '请选择组织',
     'search_by_name': '根据名称搜索',
     'special_characters_are_not_supported': '不支持特殊字符',
+    'none': '无组织',
+    'select': '选择组织',
   },
   project: {
     'recent': '最近的项目',
@@ -91,12 +97,16 @@ export default {
     'please_choose_member': '请选择成员',
     'search_by_name': '根据名称搜索',
     'modify_personal_info': '修改个人信息',
+    'edit_password': '修改密码',
+    'edit_information': '编辑信息',
     'input_name': '请输入名称',
     'input_email': '请输入邮箱',
     'special_characters_are_not_supported': '不支持特殊字符',
     'mobile_number_format_is_incorrect': '手机号码格式不正确',
     'email_format_is_incorrect': '邮箱格式不正确',
     'password_format_is_incorrect': '密码格式不正确(至少8-16个字符，至少1个大写字母，1个小写字母和1个数字)',
+    'old_password': '旧密码',
+    'new_password': '新密码',
   },
   user: {
     'create': '创建用户',
@@ -400,7 +410,7 @@ export default {
     'fill_the_data': '请完善数据',
     'delete_prompt': '此操作将永久删除该资源池, 是否继续?',
     'status_change_success': '状态修改成功!',
-    'status_change_failed': '状态修改失败!',
+    'status_change_failed': '状态修改失败, 校验不通过!',
   },
   i18n: {
     'home': '首页'

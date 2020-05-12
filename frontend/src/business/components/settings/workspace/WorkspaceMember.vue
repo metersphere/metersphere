@@ -1,6 +1,6 @@
 <template>
   <div v-loading="result.loading">
-    <el-card>
+    <el-card class="table-card">
       <template v-slot:header>
         <ms-table-header :condition.sync="condition" @search="initTableData" @create="create"
                          :create-tip="btnTips" :title="$t('commons.member')"/>
@@ -66,13 +66,13 @@
           <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.username')" prop="name">
-          <el-input v-model="form.name" autocomplete="off"/>
+          <el-input v-model="form.name" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.email')" prop="email">
-          <el-input v-model="form.email" autocomplete="off"/>
+          <el-input v-model="form.email" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.phone')" prop="phone">
-          <el-input v-model="form.phone" autocomplete="off"/>
+          <el-input v-model="form.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.role')" prop="roleIds">
           <el-select v-model="form.roleIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
@@ -97,12 +97,12 @@
 
 <script>
   import MsCreateBox from "../CreateBox";
-  import {TokenKey} from "../../../../common/js/constants";
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableHeader from "../../common/components/MsTableHeader";
   import MsRolesTag from "../../common/components/MsRolesTag";
   import MsTableOperator from "../../common/components/MsTableOperator";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
+  import {getCurrentUser} from "../../../../common/js/utils";
 
   export default {
     name: "MsMember",
@@ -136,8 +136,7 @@
     },
     methods: {
       currentUser: () => {
-        let user = localStorage.getItem(TokenKey);
-        return JSON.parse(user);
+        return getCurrentUser();
       },
       initTableData() {
         if (this.currentUser().lastWorkspaceId === null) {

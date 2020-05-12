@@ -9,6 +9,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.UserRequest;
 import io.metersphere.controller.request.member.AddMemberRequest;
+import io.metersphere.controller.request.member.EditPassWordRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
@@ -23,6 +24,7 @@ import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
+
 import javax.annotation.Resource;
 import java.util.List;
 
@@ -115,7 +117,7 @@ public class UserController {
     // admin api
 
     @GetMapping("/list")
-    @RequiresRoles(value = {RoleConstants.ADMIN,RoleConstants.ORG_ADMIN}, logical = Logical.OR)
+    @RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.ORG_ADMIN}, logical = Logical.OR)
     public List<User> getUserList() {
         return userService.getUserList();
     }
@@ -132,14 +134,21 @@ public class UserController {
     @PostMapping("/switch/source/org/{sourceId}")
     @RequiresRoles(RoleConstants.ORG_ADMIN)
     public UserDTO switchOrganization(@PathVariable(value = "sourceId") String sourceId) {
-        userService.switchUserRole("organization",sourceId);
+        userService.switchUserRole("organization", sourceId);
         return SessionUtils.getUser();
     }
 
     @PostMapping("/switch/source/ws/{sourceId}")
-    @RequiresRoles(value = {RoleConstants.TEST_MANAGER,RoleConstants.TEST_VIEWER,RoleConstants.TEST_USER}, logical = Logical.OR)
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_VIEWER, RoleConstants.TEST_USER}, logical = Logical.OR)
     public UserDTO switchWorkspace(@PathVariable(value = "sourceId") String sourceId) {
         userService.switchUserRole("workspace", sourceId);
+        return SessionUtils.getUser();
+    }
+
+    @PostMapping("/refresh/{sign}/{sourceId}")
+    @RequiresRoles(RoleConstants.ADMIN)
+    public UserDTO refreshSessionUser(@PathVariable String sign, @PathVariable String sourceId) {
+        userService.refreshSessionUser(sign, sourceId);
         return SessionUtils.getUser();
     }
 
@@ -152,8 +161,8 @@ public class UserController {
      * 获取工作空间成员用户
      */
     @PostMapping("/ws/member/list/{goPage}/{pageSize}")
-    @RequiresRoles(value = {RoleConstants.ORG_ADMIN,RoleConstants.TEST_MANAGER,
-            RoleConstants.TEST_USER,RoleConstants.TEST_VIEWER}, logical = Logical.OR)
+    @RequiresRoles(value = {RoleConstants.ORG_ADMIN, RoleConstants.TEST_MANAGER,
+            RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
     public Pager<List<User>> getMemberList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryMemberRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getMemberList(request));
@@ -163,8 +172,8 @@ public class UserController {
      * 获取工作空间成员用户 不分页
      */
     @PostMapping("/ws/member/list/all")
-    @RequiresRoles(value = {RoleConstants.ORG_ADMIN,RoleConstants.TEST_MANAGER,
-            RoleConstants.TEST_USER,RoleConstants.TEST_VIEWER}, logical = Logical.OR)
+    @RequiresRoles(value = {RoleConstants.ORG_ADMIN, RoleConstants.TEST_MANAGER,
+            RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
     public List<User> getMemberList(@RequestBody QueryMemberRequest request) {
         return userService.getMemberList(request);
     }
@@ -173,7 +182,7 @@ public class UserController {
      * 添加工作空间成员
      */
     @PostMapping("/ws/member/add")
-    @RequiresRoles(value = {RoleConstants.TEST_MANAGER,RoleConstants.ORG_ADMIN}, logical = Logical.OR)
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.ORG_ADMIN}, logical = Logical.OR)
     public void addMember(@RequestBody AddMemberRequest request) {
         String wsId = request.getWorkspaceId();
         workspaceService.checkWorkspaceOwner(wsId);
@@ -184,7 +193,7 @@ public class UserController {
      * 删除工作空间成员
      */
     @GetMapping("/ws/member/delete/{workspaceId}/{userId}")
-    @RequiresRoles(value = {RoleConstants.TEST_MANAGER,RoleConstants.ORG_ADMIN}, logical = Logical.OR)
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.ORG_ADMIN}, logical = Logical.OR)
     public void deleteMember(@PathVariable String workspaceId, @PathVariable String userId) {
         workspaceService.checkWorkspaceOwner(workspaceId);
         String currentUserId = SessionUtils.getUser().getId();
@@ -222,7 +231,7 @@ public class UserController {
      * 查询组织成员列表
      */
     @PostMapping("/org/member/list/{goPage}/{pageSize}")
-    @RequiresRoles(value = {RoleConstants.ORG_ADMIN,RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @RequiresRoles(value = {RoleConstants.ORG_ADMIN, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public Pager<List<User>> getOrgMemberList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryOrgMemberRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getOrgMemberList(request));
@@ -232,7 +241,7 @@ public class UserController {
      * 组织成员列表不分页
      */
     @PostMapping("/org/member/list/all")
-    @RequiresRoles(value = {RoleConstants.ORG_ADMIN,RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @RequiresRoles(value = {RoleConstants.ORG_ADMIN, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public List<User> getOrgMemberList(@RequestBody QueryOrgMemberRequest request) {
         return userService.getOrgMemberList(request);
     }
@@ -240,6 +249,20 @@ public class UserController {
     @GetMapping("/besideorg/list/{orgId}")
     public List<User> getBesideOrgMemberList(@PathVariable String orgId) {
         return userService.getBesideOrgMemberList(orgId);
+    }
+
+    /*
+     * 修改当前用户密码
+     * */
+    @PostMapping("/update/password")
+    public int updateCurrentUserPassword(@RequestBody EditPassWordRequest request) {
+        return userService.updateCurrentUserPassword(request);
+    }
+
+    /*管理员修改用户密码*/
+    @PostMapping("/special/password")
+    public int updateUserPassword(@RequestBody EditPassWordRequest request) {
+        return userService.updateUserPassword(request);
     }
 
 }

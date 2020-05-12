@@ -13,6 +13,7 @@ import io.metersphere.commons.constants.ReportKeys;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.controller.request.ReportRequest;
+import io.metersphere.dto.LogDetailDTO;
 import io.metersphere.dto.ReportDTO;
 import io.metersphere.engine.Engine;
 import io.metersphere.engine.EngineFactory;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -157,35 +159,45 @@ public class ReportService {
         return extLoadTestReportMapper.selectByPrimaryKey(id);
     }
 
-    public Map<String, String> log(String reportId) {
-        Map<String, String> logMap = new HashMap<>();
+    public List<LogDetailDTO> logs(String reportId) {
         LoadTestReportLogExample example = new LoadTestReportLogExample();
         example.createCriteria().andReportIdEqualTo(reportId);
         List<LoadTestReportLog> loadTestReportLogs = loadTestReportLogMapper.selectByExampleWithBLOBs(example);
-        loadTestReportLogs.stream().map(log -> {
-            Map<String, String> result = new HashMap<>();
+        return loadTestReportLogs.stream().map(log -> {
+            LogDetailDTO detailDTO = new LogDetailDTO();
+            detailDTO.setId(log.getId());
             TestResource testResource = testResourceService.getTestResource(log.getResourceId());
+            String content = log.getContent();
+            // 显示前 2048
+            content = StringUtils.substring(content, 0, 2048);
+            detailDTO.setContent(content);
             if (testResource == null) {
-                result.put(log.getResourceId(), log.getContent());
-                return result;
+                detailDTO.setResourceName(log.getResourceId());
+                return detailDTO;
             }
             String configuration = testResource.getConfiguration();
+            if (StringUtils.isBlank(configuration)) {
+                detailDTO.setResourceName(log.getResourceId());
+                return detailDTO;
+            }
             JSONObject object = JSON.parseObject(configuration);
             if (StringUtils.isNotBlank(object.getString("masterUrl"))) {
-                result.put(object.getString("masterUrl"), log.getContent());
-                return result;
+                detailDTO.setResourceName(object.getString("masterUrl"));
+                return detailDTO;
             }
             if (StringUtils.isNotBlank(object.getString("ip"))) {
-                result.put(object.getString("ip"), log.getContent());
-                return result;
-
+                detailDTO.setResourceName(object.getString("ip"));
+                return detailDTO;
             }
-            result.put(log.getResourceId(), log.getContent());
-            return result;
-        }).forEach(log -> logMap.putAll(log.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
-        );
+            return detailDTO;
+        }).collect(Collectors.toList());
+    }
 
-        return logMap;
+    public byte[] downloadLog(String logId) {
+        LoadTestReportLog loadTestReportLog = loadTestReportLogMapper.selectByPrimaryKey(logId);
+        if (loadTestReportLog != null) {
+            return loadTestReportLog.getContent().getBytes();
+        }
+        return new byte[0];
     }
 }

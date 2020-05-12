@@ -8,6 +8,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CodingUtil;
 import io.metersphere.controller.request.UserRequest;
 import io.metersphere.controller.request.member.AddMemberRequest;
+import io.metersphere.controller.request.member.EditPassWordRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
@@ -47,11 +48,19 @@ public class UserService {
 
     public UserDTO insert(User user) {
         checkUserParam(user);
-        createUser(user);
+        //
+        String id = user.getId();
+        User user1 = userMapper.selectByPrimaryKey(id);
+        if (user1 != null) {
+            MSException.throwException(Translator.get("user_id_already_exists"));
+        } else {
+            createUser(user);
+        }
         return getUserDTO(user.getId());
     }
 
     private void checkUserParam(User user) {
+
         if (StringUtils.isBlank(user.getName())) {
             MSException.throwException(Translator.get("user_name_is_null"));
         }
@@ -256,4 +265,63 @@ public class UserService {
             SessionUtils.getUser().setLanguage(lang);
         }
     }
+
+    public void refreshSessionUser(String sign, String sourceId) {
+        SessionUser sessionUser = SessionUtils.getUser();
+        // 获取最新UserDTO
+        UserDTO user = getUserDTO(sessionUser.getId());
+        User newUser = new User();
+        if (StringUtils.equals("organization", sign) && StringUtils.equals(sourceId, user.getLastOrganizationId())) {
+            user.setLastOrganizationId("");
+            user.setLastWorkspaceId("");
+        }
+        if (StringUtils.equals("workspace", sign) && StringUtils.equals(sourceId, user.getLastWorkspaceId())) {
+            user.setLastWorkspaceId("");
+        }
+
+        BeanUtils.copyProperties(user, newUser);
+
+        SessionUtils.putUser(SessionUser.fromUser(user));
+        userMapper.updateByPrimaryKeySelective(newUser);
+    }
+
+
+    /*修改当前用户用户密码*/
+    private User updateCurrentUserPwd(EditPassWordRequest request) {
+        if (SessionUtils.getUser() != null) {
+            User user = userMapper.selectByPrimaryKey(SessionUtils.getUser().getId());
+            String pwd = user.getPassword();
+            String prepwd = CodingUtil.md5(request.getPassword(), "utf-8");
+            String newped = request.getNewpassword();
+            if (StringUtils.isNotBlank(prepwd)) {
+                if (prepwd.trim().equals(pwd.trim())) {
+                    user.setPassword(CodingUtil.md5(newped));
+                    user.setUpdateTime(System.currentTimeMillis());
+                    return user;
+                }
+            }
+            MSException.throwException(Translator.get("password_modification_failed"));
+        }
+        return null;
+    }
+
+    public int updateCurrentUserPassword(EditPassWordRequest request) {
+        User user = updateCurrentUserPwd(request);
+        return extUserMapper.updatePassword(user);
+    }
+
+    /*管理员修改用户密码*/
+    private User updateUserPwd(EditPassWordRequest request) {
+        User user = userMapper.selectByPrimaryKey(request.getId());
+        String newped = request.getNewpassword();
+        user.setPassword(CodingUtil.md5(newped));
+        user.setUpdateTime(System.currentTimeMillis());
+        return user;
+    }
+
+    public int updateUserPassword(EditPassWordRequest request) {
+        User user = updateUserPwd(request);
+        return extUserMapper.updatePassword(user);
+    }
+
 }

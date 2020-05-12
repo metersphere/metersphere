@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-card v-loading="result.loading">
+    <el-card class="table-card" v-loading="result.loading">
       <template v-slot:header>
         <ms-table-header :condition.sync="condition" @search="list" @create="create"
                          :create-tip="btnTips" :title="$t('commons.workspace')"/>
@@ -112,13 +112,13 @@
           <el-input v-model="memberForm.id" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.username')" prop="name">
-          <el-input v-model="memberForm.name" autocomplete="off"/>
+          <el-input v-model="memberForm.name" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.email')" prop="email">
-          <el-input v-model="memberForm.email" autocomplete="off"/>
+          <el-input v-model="memberForm.email" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.phone')" prop="phone">
-          <el-input v-model="memberForm.phone" autocomplete="off"/>
+          <el-input v-model="memberForm.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.role')" prop="roleIds">
           <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
@@ -145,12 +145,13 @@
 <script>
   import MsCreateBox from "../CreateBox";
   import {Message} from "element-ui";
-  import {TokenKey} from "../../../../common/js/constants";
+  import {DEFAULT} from "../../../../common/js/constants";
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableHeader from "../../common/components/MsTableHeader";
   import MsRolesTag from "../../common/components/MsRolesTag";
   import MsTableOperator from "../../common/components/MsTableOperator";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
+  import {getCurrentUser, getCurrentWorkspaceId, refreshSessionAndCookies} from "../../../../common/js/utils";
 
   export default {
     name: "MsOrganizationWorkspace",
@@ -160,8 +161,7 @@
     },
     computed: {
       currentUser: () => {
-        let user = localStorage.getItem(TokenKey);
-        return JSON.parse(user);
+        return getCurrentUser();
       }
     },
     methods: {
@@ -197,6 +197,12 @@
           type: 'warning'
         }).then(() => {
           this.$get('/workspace/delete/' + row.id, () => {
+            let lastWorkspaceId = getCurrentWorkspaceId();
+            let sourceId = row.id;
+            if (lastWorkspaceId === sourceId) {
+              let sign = DEFAULT;
+              refreshSessionAndCookies(sign, sourceId);
+            }
             this.$success(this.$t('commons.delete_success'));
             this.list();
           });

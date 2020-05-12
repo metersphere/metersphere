@@ -1,15 +1,15 @@
 <template>
   <div v-loading="result.loading">
-    <el-card>
-
+    <el-card class="table-card">
       <template v-slot:header>
         <div>
-          <el-row type="flex" justify="space-between" align="middle">
+          <el-row type="flex" just ify="space-between" align="middle">
             <span class="title">{{$t('commons.personal_info')}}</span>
           </el-row>
         </div>
       </template>
 
+      <!--Personal information menu-->
       <el-table :data="tableData" style="width: 100%">
         <el-table-column prop="id" label="ID"/>
         <el-table-column prop="name" :label="$t('commons.username')" width="120"/>
@@ -22,54 +22,80 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <el-button @click="edit(scope.row)" type="primary" icon="el-icon-edit" size="mini" circle/>
+            <ms-table-operator-button :tip="$t('member.edit_information')" icon="el-icon-edit"
+                                      type="primary" @exec="edit(scope.row)"/>
+            <ms-table-operator-button :tip="$t('member.edit_password')" icon="el-icon-s-tools"
+                                      type="success" @exec="editPassword(scope.row)"/>
           </template>
         </el-table-column>
       </el-table>
-
-      <el-dialog :title="$t('member.modify_personal_info')" :visible.sync="updateVisible" width="30%"
-                 :destroy-on-close="true" @close="handleClose">
-        <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
-                 ref="updateUserForm">
-          <el-form-item label="ID" prop="id">
-            <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
-          </el-form-item>
-          <el-form-item :label="$t('commons.username')" prop="name">
-            <el-input v-model="form.name" autocomplete="off"/>
-          </el-form-item>
-          <el-form-item :label="$t('commons.email')" prop="email">
-            <el-input v-model="form.email" autocomplete="off"/>
-          </el-form-item>
-          <el-form-item :label="$t('commons.phone')" prop="phone">
-            <el-input v-model="form.phone" autocomplete="off"/>
-          </el-form-item>
-          <el-form-item :label="$t('commons.password')" prop="password">
-            <el-input v-model="form.password" autocomplete="off" show-password/>
-          </el-form-item>
-        </el-form>
-        <template v-slot:footer>
-          <ms-dialog-footer
-            @cancel="updateVisible = false"
-            @confirm="updateUser('updateUserForm')"/>
-        </template>
-      </el-dialog>
-
     </el-card>
+
+    <!--Modify personal details-->
+    <el-dialog :title="$t('member.modify_personal_info')" :visible.sync="updateVisible" width="30%"
+               :destroy-on-close="true" @close="handleClose">
+      <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
+               ref="updateUserForm">
+        <el-form-item label="ID" prop="id">
+          <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
+        </el-form-item>
+        <el-form-item :label="$t('commons.username')" prop="name">
+          <el-input v-model="form.name" autocomplete="off"/>
+        </el-form-item>
+        <el-form-item :label="$t('commons.email')" prop="email">
+          <el-input v-model="form.email" autocomplete="off"/>
+        </el-form-item>
+        <el-form-item :label="$t('commons.phone')" prop="phone">
+          <el-input v-model="form.phone" autocomplete="off"/>
+        </el-form-item>
+      </el-form>
+      <template v-slot:footer>
+        <ms-dialog-footer
+          @cancel="updateVisible = false"
+          @confirm="updateUser('updateUserForm')"/>
+      </template>
+    </el-dialog>
+
+    <!--Change personal password-->
+    <el-dialog :title="$t('member.edit_password')" :visible.sync="editPasswordVisible" width="30%" left>
+      <el-form :model="ruleForm" :rules="rules" ref="editPasswordForm" label-width="100px" class="demo-ruleForm">
+        <el-form-item :label="$t('member.old_password')" prop="password">
+          <el-input v-model="ruleForm.password" autocomplete="off" show-password/>
+        </el-form-item>
+        <el-form-item :label="$t('member.new_password')" prop="newpassword">
+          <el-input v-model="ruleForm.newpassword" autocomplete="off" show-password/>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+           <ms-dialog-footer
+             @cancel="editPasswordVisible = false"
+             @confirm="updatePassword('editPasswordForm')"/>
+        </span>
+    </el-dialog>
+
+
   </div>
 </template>
 
 <script>
   import {TokenKey} from "../../../../common/js/constants";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
+  import {getCurrentUser} from "../../../../common/js/utils";
+  import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
 
   export default {
+    name: "MsPersonSetting",
+    components: {MsDialogFooter, MsTableOperatorButton},
     data() {
       return {
         result: {},
         updateVisible: false,
+        editPasswordVisible: false,
         tableData: [],
         updatePath: '/user/update/current',
+        updatePasswordPath: '/user/update/password',
         form: {},
+        ruleForm: {},
         rule: {
           name: [
             {required: true, message: this.$t('member.input_name'), trigger: 'blur'},
@@ -98,31 +124,43 @@
               trigger: 'blur'
             }
           ],
+        },
+        rules:{
           password: [
             {required: true, message: this.$t('user.input_password'), trigger: 'blur'},
             {
-              required:true,
+              required: true,
               pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,16}$/,
               message: this.$t('member.password_format_is_incorrect'),
               trigger: 'blur'
             }
+          ],
+          newpassword: [
+            {required: true, message: this.$t('user.input_password'), trigger: 'blur'},
+            {
+              required: true,
+              pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,16}$/,
+              message: this.$t('member.password_format_is_incorrect'),
+              trigger: 'blur'
+            },
           ]
         }
       }
     },
-    name: "MsPersonSetting",
-    components: {MsDialogFooter},
+
     created() {
       this.initTableData();
     },
     methods: {
       currentUser: () => {
-        let user = localStorage.getItem(TokenKey);
-        return JSON.parse(user);
+        return getCurrentUser();
       },
       edit(row) {
         this.updateVisible = true;
         this.form = Object.assign({}, row);
+      },
+      editPassword(row) {
+        this.editPasswordVisible = true;
       },
       updateUser(updateUserForm) {
         this.$refs[updateUserForm].validate(valide => {
@@ -131,6 +169,20 @@
               this.$success(this.$t('commons.modify_success'));
               localStorage.setItem(TokenKey, JSON.stringify(response.data));
               this.updateVisible = false;
+              this.initTableData();
+              window.location.reload();
+            });
+          } else {
+            return false;
+          }
+        })
+      },
+      updatePassword(editPasswordForm) {
+        this.$refs[editPasswordForm].validate(valide => {
+          if (valide) {
+            this.result = this.$post(this.updatePasswordPath, this.ruleForm, response => {
+              this.$success(this.$t('commons.modify_success'));
+              this.editPasswordVisible = false;
               this.initTableData();
               window.location.reload();
             });
@@ -149,6 +201,7 @@
       },
       handleClose() {
         this.form = {};
+        this.ruleForm = {};
       }
     }
   }

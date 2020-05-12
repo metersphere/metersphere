@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-card v-loading="result.loading">
+    <el-card class="table-card" v-loading="result.loading">
       <template v-slot:header>
         <ms-table-header :condition.sync="condition" @search="list" @create="create"
                          :create-tip="btnTips" :title="$t('commons.workspace')"/>
@@ -156,13 +156,13 @@
           <el-input v-model="memberForm.id" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.username')" prop="name">
-          <el-input v-model="memberForm.name" autocomplete="off"/>
+          <el-input v-model="memberForm.name" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.email')" prop="email">
-          <el-input v-model="memberForm.email" autocomplete="off"/>
+          <el-input v-model="memberForm.email" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.phone')" prop="phone">
-          <el-input v-model="memberForm.phone" autocomplete="off"/>
+          <el-input v-model="memberForm.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.role')" prop="roleIds">
           <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
@@ -195,6 +195,8 @@
   import MsRolesTag from "../../common/components/MsRolesTag";
   import MsTableOperator from "../../common/components/MsTableOperator";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
+  import {getCurrentUser, getCurrentWorkspaceId, refreshSessionAndCookies} from "../../../../common/js/utils";
+  import {DEFAULT, WORKSPACE} from "../../../../common/js/constants";
 
   export default {
     name: "MsSystemWorkspace",
@@ -307,6 +309,12 @@
           type: 'warning'
         }).then(() => {
           this.$get('/workspace/special/delete/' + row.id, () => {
+            let lastWorkspaceId = getCurrentWorkspaceId();
+            let sourceId = row.id;
+            if (lastWorkspaceId === sourceId) {
+              let sign = DEFAULT;
+              refreshSessionAndCookies(sign, sourceId);
+            }
             Message.success(this.$t('commons.delete_success'));
             this.list();
           });
@@ -374,6 +382,13 @@
           type: 'warning'
         }).then(() => {
           this.result = this.$get('/user/special/ws/member/delete/' + this.currentWorkspaceRow.id + '/' + row.id, () => {
+            let sourceId = this.currentWorkspaceRow.id;
+            let userId = row.id;
+            let user = getCurrentUser();
+            if (user.id === userId) {
+              let sign = WORKSPACE;
+              refreshSessionAndCookies(sign, sourceId);
+            }
             this.$success(this.$t('commons.delete_success'));
             this.cellClick(this.currentWorkspaceRow);
           });
