@@ -401,7 +401,7 @@ export default {
     'fill_the_data': 'Please complete the data',
     'delete_prompt': 'This operation will permanently delete the resource pool, continue?',
     'status_change_success': 'Successfully changed the status!',
-    'status_change_failed': 'Failed to change the status!',
+    'status_change_failed': 'Failed to change the status, resource pool is invalid!',
   },
   i18n: {
     'home': 'Home'
