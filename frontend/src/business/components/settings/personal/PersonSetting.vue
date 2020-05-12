@@ -125,16 +125,16 @@
             }
           ],
         },
-        rules: {
-          /*password: [
+        rules:{
+          password: [
             {required: true, message: this.$t('user.input_password'), trigger: 'blur'},
             {
-              required:true,
+              required: true,
               pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,16}$/,
               message: this.$t('member.password_format_is_incorrect'),
               trigger: 'blur'
             }
-          ],*/
+          ],
           newpassword: [
             {required: true, message: this.$t('user.input_password'), trigger: 'blur'},
             {
