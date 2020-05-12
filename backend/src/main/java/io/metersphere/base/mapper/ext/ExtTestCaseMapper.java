@@ -1,8 +1,8 @@
 package io.metersphere.base.mapper.ext;
 
 import io.metersphere.base.domain.TestCase;
-import io.metersphere.controller.request.testcase.QueryTestCaseRequest;
-import io.metersphere.dto.TestCaseDTO;
+import io.metersphere.track.request.testcase.QueryTestCaseRequest;
+import io.metersphere.track.dto.TestCaseDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

@@ -20,7 +20,7 @@
         ORDER BY test_case.update_time DESC
     </select>
 
-    <select id="list" resultType="io.metersphere.dto.TestCaseDTO">
+    <select id="list" resultType="io.metersphere.track.dto.TestCaseDTO">
         select test_case.* from test_case
         <where>
             <if test="request.name != null">

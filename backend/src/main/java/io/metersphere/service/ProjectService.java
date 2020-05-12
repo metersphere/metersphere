@@ -9,7 +9,7 @@ import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.request.ProjectRequest;
-import io.metersphere.controller.request.testplan.DeleteTestPlanRequest;
+import io.metersphere.track.request.testplan.DeleteTestPlanRequest;
 import io.metersphere.dto.ProjectDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.performance.service.PerformanceTestService;

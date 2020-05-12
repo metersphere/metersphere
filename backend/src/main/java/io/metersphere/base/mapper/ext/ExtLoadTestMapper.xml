@@ -7,7 +7,7 @@
         <result column="project_name" property="projectName"/>
     </resultMap>
 
-    <select id="list" resultMap="BaseResultMap" parameterType="io.metersphere.controller.request.testplan.QueryTestPlanRequest">
+    <select id="list" resultMap="BaseResultMap" parameterType="io.metersphere.track.request.testplan.QueryTestPlanRequest">
         select load_test.*, project.name as project_name
         from load_test
         left join project on load_test.project_id = project.id

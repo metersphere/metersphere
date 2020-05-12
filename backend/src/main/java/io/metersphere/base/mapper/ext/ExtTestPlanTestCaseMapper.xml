@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper">
 
-    <select id="getReportMetric" parameterType="java.lang.String" resultType="io.metersphere.dto.TestCaseReportStatusResultDTO">
+    <select id="getReportMetric" parameterType="java.lang.String" resultType="io.metersphere.track.dto.TestCaseReportStatusResultDTO">
         select count(t1.id) as `count`, t1.status
         from test_plan_test_case t1
         inner join test_case t2
@@ -19,7 +19,7 @@
         and plan_id = #{planId};
     </select>
 
-    <select id="list" resultType="io.metersphere.dto.TestPlanCaseDTO">
+    <select id="list" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
         select test_plan_test_case.*, test_case.*
         from test_plan_test_case
         inner join test_case on test_plan_test_case.case_id = test_case.id

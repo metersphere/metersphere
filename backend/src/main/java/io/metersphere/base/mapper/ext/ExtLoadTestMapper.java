@@ -1,6 +1,6 @@
 package io.metersphere.base.mapper.ext;
 
-import io.metersphere.controller.request.testplan.QueryTestPlanRequest;
+import io.metersphere.track.request.testplan.QueryTestPlanRequest;
 import io.metersphere.dto.LoadTestDTO;
 import org.apache.ibatis.annotations.Param;
 
