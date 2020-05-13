@@ -1,6 +1,5 @@
 package io.metersphere.websocket;
 
-import io.metersphere.user.SessionUtils;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;

@@ -1,4 +1,4 @@
-package io.metersphere.user;
+package io.metersphere.commons.user;
 
 import io.metersphere.dto.UserDTO;
 import org.springframework.beans.BeanUtils;

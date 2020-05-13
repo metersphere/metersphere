@@ -9,15 +9,14 @@ import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.user.SessionUser;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.OrganizationRequest;
 import io.metersphere.dto.OrganizationMemberDTO;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserRoleHelpDTO;
 import io.metersphere.i18n.Translator;
-import io.metersphere.user.SessionUser;
-import io.metersphere.user.SessionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

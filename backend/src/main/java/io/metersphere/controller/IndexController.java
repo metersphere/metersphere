@@ -1,6 +1,6 @@
 package io.metersphere.controller;
 
-import io.metersphere.user.SessionUtils;
+import io.metersphere.commons.utils.SessionUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

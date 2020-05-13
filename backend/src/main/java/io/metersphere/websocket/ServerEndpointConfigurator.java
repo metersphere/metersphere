@@ -1,6 +1,6 @@
 package io.metersphere.websocket;
 
-import io.metersphere.user.SessionUtils;
+import io.metersphere.commons.utils.SessionUtils;
 
 import javax.websocket.HandshakeResponse;
 import javax.websocket.server.HandshakeRequest;

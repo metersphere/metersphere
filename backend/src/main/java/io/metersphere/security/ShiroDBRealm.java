@@ -2,10 +2,10 @@ package io.metersphere.security;
 
 
 import io.metersphere.base.domain.Role;
+import io.metersphere.commons.user.SessionUser;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.service.UserService;
-import io.metersphere.user.SessionUser;
-import io.metersphere.user.SessionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
