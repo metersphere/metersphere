@@ -7,16 +7,11 @@
         <ms-top-menus/>
       </el-col>
 
-      <el-col :span="8">
-        <ms-header-org-ws/>
-      </el-col>
-
-      <el-col :span="2">
-        <ms-language-switch/>
-      </el-col>
-
-      <el-col :span="2">
-        <ms-user/>
+      <el-col :span="12">
+        <!-- float right -->
+        <ms-user class="align-right"/>
+        <ms-language-switch class="align-right"/>
+        <ms-header-org-ws class="align-right"/>
       </el-col>
     </el-row>
 
@@ -94,6 +89,10 @@
   .menus > a {
     padding-right: 15px;
     text-decoration: none;
+  }
+
+  .align-right {
+    float: right;
   }
 </style>
 
