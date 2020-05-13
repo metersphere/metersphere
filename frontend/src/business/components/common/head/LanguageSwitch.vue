@@ -67,7 +67,6 @@
           language: language
         };
         this.result = this.$post("/user/update/current", user, response => {
-          this.$success(this.$t('commons.modify_success'));
           localStorage.setItem(TokenKey, JSON.stringify(response.data));
           window.location.reload();
         });
