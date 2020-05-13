@@ -3,7 +3,7 @@
     <el-card class="table-card">
       <template v-slot:header>
         <ms-table-header :condition.sync="condition" @search="initTableData" @create="create"
-                         :create-tip="btnTips" :title="$t('commons.member')"/>
+                         :create-tip="$t('member.create')" :title="$t('commons.member')"/>
       </template>
       <el-table :data="tableData" style="width: 100%">
         <el-table-column prop="name" :label="$t('commons.username')"/>
@@ -111,7 +111,6 @@
     data() {
       return {
         result: {},
-        btnTips: this.$t('member.create'),
         createVisible: false,
         updateVisible: false,
         form: {},

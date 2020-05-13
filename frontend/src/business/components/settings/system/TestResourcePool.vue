@@ -3,7 +3,7 @@
     <el-card class="table-card" v-loading="result.loading">
       <template v-slot:header>
         <ms-table-header :condition.sync="condition" @search="search" @create="create"
-                         :create-tip="btnTips" :title="$t('commons.test_resource_pool')"/>
+                         :create-tip="$t('test_resource_pool.create_resource_pool')" :title="$t('commons.test_resource_pool')"/>
       </template>
       <el-table :data="items" style="width: 100%">
         <el-table-column prop="name" :label="$t('commons.name')"/>
@@ -229,9 +229,6 @@
         createVisible: false,
         infoList: [],
         updateVisible: false,
-        btnTips: this.$t('test_resource_pool.create_resource_pool'),
-        btnTipsAdd: this.$t("commons.add"),
-        btnTipsDel: this.$t("commons.delete"),
         queryPath: "testresourcepool/list",
         condition: {},
         items: [],

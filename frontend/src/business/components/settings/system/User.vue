@@ -4,7 +4,7 @@
      <el-card class="table-card">
       <template v-slot:header>
         <ms-table-header :condition.sync="condition" @search="search" @create="create"
-                         :create-tip="btnTips" :title="$t('commons.member')"/>
+                         :create-tip="$t('user.create')" :title="$t('commons.member')"/>
       </template>
 
       <el-table :data="tableData" style="width: 100%">
@@ -161,7 +161,6 @@
         currentPage: 1,
         pageSize: 5,
         total: 0,
-        btnTips: this.$t('user.create'),
         condition: {},
         tableData: [],
         form: {},

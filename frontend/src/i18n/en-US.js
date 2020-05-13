@@ -72,7 +72,7 @@ export default {
     'select': 'Select Workspace',
   },
   organization: {
-    'create': 'Create',
+    'create': 'Create Organization',
     'modify': 'Modify',
     'delete_confirm': 'Are you sure you want to delete this workspace?',
     'input_name': 'Please enter a organization name',

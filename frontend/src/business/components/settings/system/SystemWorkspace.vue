@@ -3,7 +3,7 @@
     <el-card class="table-card" v-loading="result.loading">
       <template v-slot:header>
         <ms-table-header :condition.sync="condition" @search="list" @create="create"
-                         :create-tip="btnTips" :title="$t('commons.workspace')"/>
+                         :create-tip="$t('workspace.create')" :title="$t('commons.workspace')"/>
       </template>
       <!-- workspace table -->
       <el-table :data="items" style="width: 100%">
@@ -87,7 +87,7 @@
     <!-- dialog of workspace member -->
     <el-dialog :visible.sync="dialogWsMemberVisible" width="70%" :destroy-on-close="true" @close="closeWsMemberDialog">
       <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="dialogSearch"
-                       :create-tip="dialogBtnTips" :title="$t('commons.member')"/>
+                       :create-tip="$t('member.create')" :title="$t('commons.member')"/>
       <!-- organization member table -->
       <el-table :data="memberLineData" style="width: 100%;margin-top: 5px;">
         <el-table-column prop="name" :label="$t('commons.username')"/>
@@ -420,9 +420,6 @@
         dialogWsMemberVisible: false,
         dialogWsMemberAddVisible: false,
         dialogWsMemberUpdateVisible: false,
-        btnTips: this.$t('workspace.create'),
-        dialogBtnTips: this.$t('member.create'),
-        addTips: this.$t('member.create'),
         condition: {},
         dialogCondition: {},
         items: [],
