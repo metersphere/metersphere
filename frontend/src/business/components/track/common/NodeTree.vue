@@ -14,7 +14,7 @@
       :filter-node-method="filterNode"
       :expand-on-click-node="false"
       highlight-current
-      draggable
+      :draggable="draggable"
       ref="tree"
     >
       <template v-slot:default="{node,data}">
@@ -102,6 +102,10 @@ export default {
     },
     selectNode: {
       type: Object
+    },
+    draggable: {
+      type: Boolean,
+      default: true
     }
   },
   watch: {

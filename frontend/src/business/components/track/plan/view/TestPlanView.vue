@@ -13,6 +13,7 @@
                    @nodeSelectEvent="nodeChange"
                    @refresh="refresh"
                    :tree-nodes="treeNodes"
+                   :draggable="false"
                    ref="nodeTree"/>
       </el-aside>
 
