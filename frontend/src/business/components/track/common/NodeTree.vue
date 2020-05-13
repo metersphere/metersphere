@@ -14,7 +14,7 @@
       :filter-node-method="filterNode"
       :expand-on-click-node="false"
       highlight-current
-      draggable
+      :draggable="draggable"
       ref="tree"
     >
       <template v-slot:default="{node,data}">
@@ -33,7 +33,7 @@
               :content="$t('test_track.module.rename')"
               placement="top"
             >
-              <i @click="openEditNodeDialog('edit', data)" class="el-icon-edit"></i>
+              <i @click.stop="openEditNodeDialog('edit', data)" class="el-icon-edit"></i>
             </el-tooltip>
             <el-tooltip
               class="item"
@@ -42,32 +42,13 @@
               :content="$t('test_track.module.add_submodule')"
               placement="top"
             >
-              <i @click="openEditNodeDialog('add', data)" class="el-icon-circle-plus-outline"></i>
+              <i @click.stop="openEditNodeDialog('add', data)" class="el-icon-circle-plus-outline"></i>
             </el-tooltip>
             <el-tooltip class="item" effect="dark"
               :open-delay="200" :content="$t('commons.delete')" placement="top">
-              <i @click="remove(node, data)" class="el-icon-delete"></i>
+              <i @click.stop="remove(node, data)" class="el-icon-delete"></i>
             </el-tooltip>
           </span>
-
-          <!-- <el-dropdown v-if="type == 'edit'" class="node-dropdown child">
-            <span class="el-dropdown-link">
-              <i class="el-icon-folder-add"></i>
-            </span>
-            <el-dropdown-menu v-slot:default>
-              <el-dropdown-item>
-                <div @click="openEditNodeDialog('edit', data)">{{$t('test_track.module.rename')}}</div>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <div
-                  @click="openEditNodeDialog('add', data)"
-                >{{$t('test_track.module.add_submodule')}}</div>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <div @click="remove(node, data)">{{$t('commons.delete')}}</div>
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>-->
         </span>
       </template>
     </el-tree>
@@ -102,6 +83,10 @@ export default {
     },
     selectNode: {
       type: Object
+    },
+    draggable: {
+      type: Boolean,
+      default: true
     }
   },
   watch: {
