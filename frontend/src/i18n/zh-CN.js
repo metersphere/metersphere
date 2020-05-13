@@ -124,6 +124,11 @@ export default {
   },
   role: {
     'please_choose_role': '请选择角色',
+    'admin': '系统管理员',
+    'org_admin': '组织管理员',
+    'test_manager': '测试经理',
+    'test_user': '测试人员',
+    'test_viewer': 'Viewer'
   },
   report: {
     'recent': '最近的报告',

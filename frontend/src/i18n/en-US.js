@@ -124,6 +124,11 @@ export default {
   },
   role: {
     'please_choose_role': 'Please Choose Role',
+    'admin': 'Admin',
+    'org_admin': 'Org_Admin',
+    'test_manager': 'Test_Manager',
+    'test_user': 'Test_User',
+    'test_viewer': 'Test_Viewer',
   },
   report: {
     'recent': 'Recent Report',

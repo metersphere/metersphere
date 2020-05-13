@@ -4,7 +4,7 @@
             :key="index"
             :effect="effect"
             :type="type"
-            :content="role.name"/>
+            :content="$t('role.' + role.id)"/>
   </div>
 </template>
 
