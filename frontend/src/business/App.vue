@@ -7,11 +7,11 @@
         <ms-top-menus/>
       </el-col>
 
-      <el-col :span="12">
+      <el-col :span="12" class="align-right">
         <!-- float right -->
-        <ms-user class="align-right"/>
-        <ms-language-switch class="align-right"/>
-        <ms-header-org-ws class="align-right"/>
+        <ms-user/>
+        <ms-language-switch/>
+        <ms-header-org-ws/>
       </el-col>
     </el-row>
 
