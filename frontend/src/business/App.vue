@@ -7,7 +7,15 @@
         <ms-top-menus/>
       </el-col>
 
-      <el-col :span="12">
+      <el-col :span="8">
+        <ms-header-org-ws/>
+      </el-col>
+
+      <el-col :span="2">
+        <ms-language-switch/>
+      </el-col>
+
+      <el-col :span="2">
         <ms-user/>
       </el-col>
     </el-row>
@@ -20,6 +28,8 @@
   import MsTopMenus from "./components/common/head/HeaderTopMenus";
   import MsView from "./components/common/router/View";
   import MsUser from "./components/common/head/HeaderUser";
+  import MsHeaderOrgWs from "./components/common/head/HeaderOrgWs";
+  import MsLanguageSwitch from "./components/common/head/LanguageSwitch";
 
   export default {
     name: 'app',
@@ -40,7 +50,7 @@
         window.location.href = "/login"
       });
     },
-    components: {MsUser, MsView, MsTopMenus},
+    components: {MsLanguageSwitch, MsUser, MsView, MsTopMenus, MsHeaderOrgWs},
     methods: {}
   }
 </script>
