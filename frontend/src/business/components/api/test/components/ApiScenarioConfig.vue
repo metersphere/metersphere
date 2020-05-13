@@ -39,8 +39,8 @@
 
 <script>
 
-  import MsApiCollapseItem from "./ApiCollapseItem";
-  import MsApiCollapse from "./ApiCollapse";
+  import MsApiCollapseItem from "./collapse/ApiCollapseItem";
+  import MsApiCollapse from "./collapse/ApiCollapse";
   import MsApiRequestConfig from "./ApiRequestConfig";
   import MsApiRequestForm from "./ApiRequestForm";
   import MsApiScenarioForm from "./ApiScenarioForm";

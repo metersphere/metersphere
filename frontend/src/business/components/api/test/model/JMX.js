@@ -371,10 +371,10 @@ export class Arguments extends DefaultTestElement {
 
     let collectionProp = this.collectionProp('Arguments.arguments');
     this.args.forEach(arg => {
-      let elementProp = collectionProp.elementProp(arg.name, 'HTTPArgument');
-      elementProp.boolProp('HTTPArgument.always_encode', arg.encode || true);
+      let elementProp = collectionProp.elementProp(arg.name, 'Argument');
       elementProp.stringProp('Argument.name', arg.name);
       elementProp.stringProp('Argument.value', arg.value);
+      elementProp.stringProp('Argument.desc', arg.desc);
       elementProp.stringProp('Argument.metadata', arg.metadata || "=");
     });
   }

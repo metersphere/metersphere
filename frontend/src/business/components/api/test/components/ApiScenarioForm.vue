@@ -8,24 +8,25 @@
 <!--      <el-input :placeholder="$t('api_test.scenario.base_url_description')" v-model="scenario.url" maxlength="100"/>-->
 <!--    </el-form-item>-->
 
-<!--    <el-tabs v-model="activeName">-->
-<!--      <el-tab-pane :label="$t('api_test.scenario.parameters')" name="parameters">-->
-<!--        <ms-api-key-value :items="scenario.parameters" :description="$t('api_test.scenario.kv_description')"/>-->
-<!--      </el-tab-pane>-->
-<!--      <el-tab-pane :label="$t('api_test.scenario.headers')" name="headers">-->
-<!--        <ms-api-key-value :items="scenario.headers" :description="$t('api_test.scenario.kv_description')"/>-->
-<!--      </el-tab-pane>-->
-<!--    </el-tabs>-->
+    <el-tabs v-model="activeName">
+      <el-tab-pane :label="$t('api_test.scenario.variables')" name="parameters">
+        <ms-api-scenario-variables :items="scenario.variables" :description="$t('api_test.scenario.kv_description')"/>
+      </el-tab-pane>
+      <el-tab-pane :label="$t('api_test.scenario.headers')" name="headers">
+        <ms-api-key-value :items="scenario.headers" :description="$t('api_test.scenario.kv_description')"/>
+      </el-tab-pane>
+    </el-tabs>
   </el-form>
 </template>
 
 <script>
   import MsApiKeyValue from "./ApiKeyValue";
   import {Scenario} from "../model/ScenarioModel";
+  import MsApiScenarioVariables from "./ApiScenarioVariables";
 
   export default {
     name: "MsApiScenarioForm",
-    components: {MsApiKeyValue},
+    components: {MsApiScenarioVariables, MsApiKeyValue},
     props: {
       scenario: Scenario
     },
