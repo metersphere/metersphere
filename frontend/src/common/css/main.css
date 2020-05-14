@@ -8,6 +8,7 @@
 .main-content {
   margin: 0 auto;
   width: 100%;
+  position: absolute;
 }
 
 body {
@@ -31,6 +32,15 @@ body {
   content: "";
   display: table;
   clear: both;
+}
+
+.card-container {
+  position: relative;
+}
+
+.card-content {
+  width: 100%;
+  position: absolute;
 }
 
 .table-card > .el-card__body {

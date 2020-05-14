@@ -20,7 +20,7 @@
                        ref="nodeTree"/>
           </el-aside>
 
-          <el-main class="test-case-list">
+          <el-main>
             <test-case-list
               :current-project="currentProject"
               :select-node-ids="selectNodeIds"
@@ -226,7 +226,7 @@
 
 <style scoped>
 
-  .test-case-list {
+  .el-main {
     padding: 15px;
   }
 
