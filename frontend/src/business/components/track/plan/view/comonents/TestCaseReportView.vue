@@ -28,7 +28,7 @@
         <div class="container">
           <el-main>
             <div class="preview" v-for="item in previews" :key="item.id">
-              <template-component :metric="metric" :preview="item"/>
+              <template-component :isReportView="true" :metric="metric" :preview="item"/>
             </div>
           </el-main>
         </div>

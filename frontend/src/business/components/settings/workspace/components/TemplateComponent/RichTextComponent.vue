@@ -3,11 +3,13 @@
   <common-component>
 
     <template v-slot:header>
-      <el-input v-model="preview.title"></el-input>
+      <el-input v-if="!isReportView" v-model="preview.title"></el-input>
+      <span v-if="isReportView" class="title">{{preview.title}}</span>
     </template>
 
     <template>
-      <ckeditor :editor="editor" v-model="preview.content" :config="editorConfig"></ckeditor>
+      <ckeditor v-if="!isReportView" :editor="editor" v-model="preview.content" :config="editorConfig"></ckeditor>
+      <div v-if="isReportView" v-html="preview.content"></div>
     </template>
 
   </common-component>
@@ -31,12 +33,19 @@
         }
       },
       props: {
-        preview: Object,
-        default() {
-          return {
-            title: '',
-            content: '<p>Content of the editor.</p>'
+        preview: {
+          type: Object,
+          default() {
+            return {
+              title: '',
+              content: '<p>Content of the editor.</p>'
+            }
           }
+        },
+        isReportView:
+        {
+          type: Boolean,
+          default: false
         }
       }
     }
