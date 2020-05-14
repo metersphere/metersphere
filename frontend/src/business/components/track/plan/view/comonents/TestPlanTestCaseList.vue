@@ -69,6 +69,12 @@
       </el-table-column>
 
       <el-table-column
+        prop="nodePath"
+        :label="$t('test_track.case.module')"
+        show-overflow-tooltip>
+      </el-table-column>
+
+      <el-table-column
         prop="executorName"
         :label="$t('test_track.plan_view.executor')">
       </el-table-column>
