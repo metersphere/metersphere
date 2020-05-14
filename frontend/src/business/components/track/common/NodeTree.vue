@@ -110,7 +110,7 @@ export default {
         }
       }
       let nodeIds = [];
-      this.getChildNodeId(draggingNode, nodeIds);
+      this.getChildNodeId(draggingNode.data, nodeIds);
       if (dropNode.level == 1 && dropType != "inner") {
         param.nodeTree = draggingNode.data;
       } else {
@@ -123,8 +123,11 @@ export default {
       }
       param.nodeIds = nodeIds;
       this.$post("/case/node/drag", param, () => {
-        this.$emit('refreshTable');
+        this.refreshTable();
       });
+    },
+    refreshTable() {
+      this.$emit('refreshTable');
     },
     findTreeByNodeId(rootNode, nodeId) {
       if (rootNode.id == nodeId) {
@@ -151,7 +154,7 @@ export default {
           callback: action => {
             if (action === "confirm") {
               let nodeIds = [];
-              this.getChildNodeId(node, nodeIds);
+              this.getChildNodeId(node.data, nodeIds);
               this.$post("/case/node/delete", nodeIds, () => {
                 const parent = node.parent;
                 const children = parent.data.children || parent.data;
@@ -168,16 +171,18 @@ export default {
     handleNodeSelect(node) {
       let nodeIds = [];
       let pNodes = [];
-      this.getChildNodeId(node, nodeIds);
+      this.getChildNodeId(node.data, nodeIds);
       this.getParentNodes(node, pNodes);
       this.$emit("nodeSelectEvent", nodeIds, pNodes);
       this.$emit("update:selectNode", node);
     },
     getChildNodeId(rootNode, nodeIds) {
       //递归获取所有子节点ID
-      nodeIds.push(rootNode.data.id);
-      for (let i = 0; i < rootNode.childNodes.length; i++) {
-        this.getChildNodeId(rootNode.childNodes[i], nodeIds);
+      nodeIds.push(rootNode.id);
+      if (rootNode.children) {
+        for (let i = 0; i < rootNode.children.length; i++) {
+          this.getChildNodeId(rootNode.children[i], nodeIds);
+        }
       }
     },
     getParentNodes(rootNode, pNodes) {
@@ -193,7 +198,11 @@ export default {
       return data.label.indexOf(value) !== -1;
     },
     openEditNodeDialog(type, data) {
-      this.$refs.nodeEdit.open(type, data);
+      let nodeIds = [];
+      if (type == 'edit') {
+        this.getChildNodeId(data, nodeIds);
+      }
+      this.$refs.nodeEdit.open(type, data, nodeIds);
     },
     refreshNode() {
       this.$emit("refresh");

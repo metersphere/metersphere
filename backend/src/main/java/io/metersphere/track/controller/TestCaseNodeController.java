@@ -37,7 +37,7 @@ public class TestCaseNodeController {
     }
 
     @PostMapping("/edit")
-    public int editNode(@RequestBody TestCaseNode node){
+    public int editNode(@RequestBody DragNodeRequest node){
         return testCaseNodeService.editNode(node);
     }
 

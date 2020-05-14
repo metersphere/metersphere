@@ -49,6 +49,7 @@
           },
           type: '',
           node: {},
+          nodeIds: [],
           formLabelWidth: '80px',
           dialogFormVisible: false,
         }
@@ -59,9 +60,10 @@
         }
       },
       methods: {
-        open(type, data) {
+        open(type, data, nodeIds) {
           this.type = type;
           this.node = data;
+          this.nodeIds = nodeIds;
           this.dialogFormVisible = true;
         },
         saveNode() {
@@ -97,6 +99,7 @@
             url = '/case/node/edit';
             param.id = this.node.id;
             param.level = this.node.level;
+            param.nodeIds = this.nodeIds;
           }
           param.name = this.form.name.trim();
           param.label = this.form.name;

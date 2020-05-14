@@ -115,9 +115,25 @@ public class TestCaseNodeService {
         return nodeTree;
     }
 
-    public int editNode(TestCaseNode node) {
-        node.setUpdateTime(System.currentTimeMillis());
-        return testCaseNodeMapper.updateByPrimaryKeySelective(node);
+    public int editNode(DragNodeRequest request) {
+        request.setUpdateTime(System.currentTimeMillis());
+
+        List<TestCaseDTO> testCases = QueryTestCaseByNodeIds(request.getNodeIds());
+
+        testCases.forEach(testCase -> {
+            StringBuilder path = new StringBuilder(testCase.getNodePath());
+            List<String> list = Arrays.asList(path.toString().split("/"));
+            list.set(request.getLevel(), request.getName());
+            path.delete( 0, path.length());
+            for (int i = 1; i < list.size(); i++) {
+                path = path.append("/").append(list.get(i));
+            }
+            testCase.setNodePath(path.toString());
+        });
+
+        batchUpdateTestCase(testCases);
+
+        return testCaseNodeMapper.updateByPrimaryKeySelective(request);
     }
 
     public int deleteNode(List<String> nodeIds) {
@@ -357,22 +373,28 @@ public class TestCaseNodeService {
 
         editNode(request);
 
-        QueryTestCaseRequest testCaseRequest = new QueryTestCaseRequest();
-        testCaseRequest.setNodeIds(request.getNodeIds());
-
-        List<TestCaseDTO> testCases = extTestCaseMapper.list(testCaseRequest);
+        List<TestCaseDTO> testCases = QueryTestCaseByNodeIds(request.getNodeIds());
 
         TestCaseNodeDTO nodeTree = request.getNodeTree();
 
-        request.getId();
         buildUpdateTestCase(nodeTree, testCases, "/");
 
+        batchUpdateTestCase(testCases);
+    }
+
+    private void batchUpdateTestCase(List<TestCaseDTO> testCases) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestCaseMapper testCaseMapper = sqlSession.getMapper(TestCaseMapper.class);
         testCases.forEach((value) -> {
             testCaseMapper.updateByPrimaryKey(value);
         });
         sqlSession.flushStatements();
+    }
+
+    private List<TestCaseDTO> QueryTestCaseByNodeIds(List<String> nodeIds) {
+        QueryTestCaseRequest testCaseRequest = new QueryTestCaseRequest();
+        testCaseRequest.setNodeIds(nodeIds);
+        return extTestCaseMapper.list(testCaseRequest);
     }
 
     private void buildUpdateTestCase(TestCaseNodeDTO rootNode, List<TestCaseDTO> testCases, String rootPath) {
