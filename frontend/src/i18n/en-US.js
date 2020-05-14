@@ -40,7 +40,7 @@ export default {
     'personal_setting': 'Personal Setting',
     'test_resource_pool': 'Resource Pool',
     'system_setting': 'Settings',
-    'api': 'Api',
+    'api': 'API',
     'performance': 'Performance',
     'functional': 'Functional test',
     'input_content': 'Please enter content',
