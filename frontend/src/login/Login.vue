@@ -113,9 +113,11 @@
                 this.$get("language", response => {
                   language = response.data;
                   localStorage.setItem(DEFAULT_LANGUAGE, language)
+                  window.location.href = "/"
                 })
+              } else {
+                window.location.href = "/"
               }
-              window.location.href = "/"
             });
           } else {
             return false;
