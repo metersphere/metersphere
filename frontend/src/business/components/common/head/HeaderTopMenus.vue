@@ -33,7 +33,8 @@
       }
     },
     watch: {
-      '$route'() {
+      '$route'(to) {
+        this.activeIndex = to.matched[0].path;
         this.handleSelect(this.activeIndex);
       }
     },
