@@ -5,19 +5,23 @@ import enLocale from "element-ui/lib/locale/lang/en";
 import zh_CNLocale from "element-ui/lib/locale/lang/zh-CN";
 import zh_TWLocale from "element-ui/lib/locale/lang/zh-TW";
 import zh_CN from "./zh-CN";
+import en_US from "./en-US";
+import zh_TW from "./zh-TW";
 
 Vue.use(VueI18n);
 
 const messages = {
   'en_US': {
-    ...enLocale
+    ...enLocale,
+    ...en_US
   },
   'zh_CN': {
     ...zh_CNLocale,
     ...zh_CN
   },
   'zh_TW': {
-    ...zh_TWLocale
+    ...zh_TWLocale,
+    ...zh_TW
   }
 };
 
@@ -26,7 +30,7 @@ const i18n = new VueI18n({
   messages,
 });
 
-const loadedLanguages = ['zh_CN'];
+const loadedLanguages = ['en_US', 'zh_CN', 'zh_TW'];
 
 function setI18nLanguage(lang) {
   i18n.locale = lang;
