@@ -87,4 +87,10 @@ public class LoginController {
         return ResultHolder.success("");
     }
 
+    /*Get default language*/
+    @PostMapping(value = "/language")
+    public String getDefaultlanguage() {
+        return userService.getDefaultlanguage();
+    }
+
 }
