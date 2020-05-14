@@ -10,21 +10,15 @@
         <font-awesome-icon class="icon global" :icon="['fas', 'globe']"/>
         <span>{{language}}</span>
       </template>
-      <el-menu-item @click="changeLanguage('zh_CN')">
-        简体中文<i class="el-icon-check" v-if="currentUserInfo.language==='zh_CN' || !currentUserInfo.language"/>
-      </el-menu-item>
-      <el-menu-item @click="changeLanguage('zh_TW')">
-        繁體中文<i class="el-icon-check" v-if="currentUserInfo.language==='zh_TW'"/>
-      </el-menu-item>
-      <el-menu-item @click="changeLanguage('en_US')">
-        English<i class="el-icon-check" v-if="currentUserInfo.language==='en_US'"/>
+      <el-menu-item v-for="(value, key) in languageMap" :key="key" @click="changeLanguage(key)">
+        {{value}} <i class="el-icon-check" v-if="language === value"/>
       </el-menu-item>
     </el-submenu>
   </el-menu>
 </template>
 
 <script>
-  import {TokenKey, ZH_CN, ZH_TW, EN_US} from '../../../../common/js/constants';
+  import {EN_US, TokenKey, ZH_CN, ZH_TW} from '../../../../common/js/constants';
   import {getCurrentUser} from "../../../../common/js/utils";
 
   export default {
@@ -32,7 +26,12 @@
     data() {
       return {
         currentUserInfo: {},
-        language: ''
+        language: '',
+        languageMap: {
+          [ZH_CN]: '简体中文',
+          [EN_US]: 'English',
+          [ZH_TW]: '繁體中文',
+        }
       };
     },
     created() {
@@ -41,23 +40,26 @@
       if (!lang) {
         lang = 'zh_CN';
       }
-      this.$setLang(lang);
-      switch (lang) {
-        case ZH_CN:
-          this.language = '简体中文';
-          break;
-        case ZH_TW:
-          this.language = '繁體中文';
-          break;
-        case EN_US:
-          this.language = 'English';
-          break;
-        default:
-          this.language = '简体中文';
-          break;
-      }
+      this.checkLanguage(lang)
     },
     methods: {
+      checkLanguage(lang) {
+        this.$setLang(lang);
+        switch (lang) {
+          case ZH_CN:
+            this.language = this.languageMap[ZH_CN];
+            break;
+          case ZH_TW:
+            this.language = this.languageMap[ZH_TW];
+            break;
+          case EN_US:
+            this.language = this.languageMap[EN_US];
+            break;
+          default:
+            this.language = this.languageMap[ZH_CN];
+            break;
+        }
+      },
       currentUser: () => {
         return getCurrentUser();
       },
@@ -66,9 +68,9 @@
           id: this.currentUser().id,
           language: language
         };
+        this.checkLanguage(language);
         this.result = this.$post("/user/update/current", user, response => {
           localStorage.setItem(TokenKey, JSON.stringify(response.data));
-          window.location.reload();
         });
       }
     }

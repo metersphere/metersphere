@@ -158,7 +158,7 @@ export class Request extends BaseConfig {
 
   initOptions(options) {
     options = options || {};
-    options.method = "GET";
+    options.method = options.method || "GET";
     options.body = new Body(options.body);
     options.assertions = new Assertions(options.assertions);
     options.extract = new Extract(options.extract);
@@ -474,10 +474,10 @@ class JMXGenerator {
     if (request.body.isKV()) {
       body = request.body.kvs.filter(this.filter);
     } else {
+      httpSamplerProxy.boolProp('HTTPSampler.postBodyRaw', true);
       body.push({name: '', value: request.body.raw});
     }
 
-    httpSamplerProxy.boolProp('HTTPSampler.postBodyRaw', true);
     httpSamplerProxy.add(new HTTPSamplerArguments(body));
   }
 
