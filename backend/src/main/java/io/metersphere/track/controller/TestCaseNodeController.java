@@ -2,6 +2,7 @@ package io.metersphere.track.controller;
 
 import io.metersphere.base.domain.TestCaseNode;
 import io.metersphere.track.dto.TestCaseNodeDTO;
+import io.metersphere.track.request.testcase.DragNodeRequest;
 import io.metersphere.track.service.TestCaseNodeService;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,5 +45,10 @@ public class TestCaseNodeController {
     public int deleteNode(@RequestBody List<String> nodeIds){
         //nodeIds 包含删除节点ID及其所有子节点ID
         return testCaseNodeService.deleteNode(nodeIds);
+    }
+
+    @PostMapping("/drag")
+    public void dragNode(@RequestBody DragNodeRequest node){
+        testCaseNodeService.dragNode(node);
     }
 }

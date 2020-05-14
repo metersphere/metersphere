@@ -6,13 +6,21 @@ import io.metersphere.base.mapper.TestCaseMapper;
 import io.metersphere.base.mapper.TestCaseNodeMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.TestPlanTestCaseMapper;
+import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.dto.TestCaseNodeDTO;
 import io.metersphere.exception.ExcelException;
+import io.metersphere.track.request.testcase.DragNodeRequest;
+import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.yaml.snakeyaml.nodes.NodeId;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -30,6 +38,10 @@ public class TestCaseNodeService {
     TestPlanMapper testPlanMapper;
     @Resource
     TestPlanTestCaseMapper testPlanTestCaseMapper;
+    @Resource
+    ExtTestCaseMapper extTestCaseMapper;
+    @Resource
+    SqlSessionFactory sqlSessionFactory;
 
     public String addNode(TestCaseNode node) {
 
@@ -340,4 +352,45 @@ public class TestCaseNodeService {
         testCaseNodeMapper.insert(testCaseNode);
         return testCaseNode.getId();
     }
+
+    public void dragNode(DragNodeRequest request) {
+
+        editNode(request);
+
+        QueryTestCaseRequest testCaseRequest = new QueryTestCaseRequest();
+        testCaseRequest.setNodeIds(request.getNodeIds());
+
+        List<TestCaseDTO> testCases = extTestCaseMapper.list(testCaseRequest);
+
+        TestCaseNodeDTO nodeTree = request.getNodeTree();
+
+        request.getId();
+        buildUpdateTestCase(nodeTree, testCases, "/");
+
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestCaseMapper testCaseMapper = sqlSession.getMapper(TestCaseMapper.class);
+        testCases.forEach((value) -> {
+            testCaseMapper.updateByPrimaryKey(value);
+        });
+        sqlSession.flushStatements();
+    }
+
+    private void buildUpdateTestCase(TestCaseNodeDTO rootNode, List<TestCaseDTO> testCases, String rootPath) {
+
+        rootPath = rootPath + rootNode.getName();
+
+        for (TestCaseDTO item : testCases) {
+            if (StringUtils.equals(item.getNodeId(), rootNode.getId())) {
+                item.setNodePath(rootPath);
+            }
+        }
+
+        List<TestCaseNodeDTO> children = rootNode.getChildren();
+        if (children != null && children.size() > 0){
+            for (int i = 0; i < children.size(); i++) {
+                buildUpdateTestCase(children.get(i), testCases, rootPath + '/');
+            }
+        }
+    }
+
 }

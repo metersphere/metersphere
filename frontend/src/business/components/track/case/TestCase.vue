@@ -16,6 +16,7 @@
                        :type="'edit'"
                        :draggable="true"
                        :select-node.sync="selectNode"
+                       @refreshTable="refreshTable"
                        ref="nodeTree"/>
           </el-aside>
 

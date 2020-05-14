@@ -110,7 +110,34 @@ export default {
           param.level = dropNode.parent.data.level + 1;
         }
       }
-      this.$post("/case/node/edit", param);
+      let nodeIds = [];
+      this.getChildNodeId(draggingNode, nodeIds);
+      if (dropNode.level == 1 && dropType != "inner") {
+        param.nodeTree = draggingNode.data;
+      } else {
+        for (let i = 0; i < this.treeNodes.length; i++) {
+          param.nodeTree = this.findTreeByNodeId(this.treeNodes[i], dropNode.data.id);
+          if (param.nodeTree) {
+            break;
+          }
+        }
+      }
+      param.nodeIds = nodeIds;
+      this.$post("/case/node/drag", param, () => {
+        this.$emit('refreshTable');
+      });
+    },
+    findTreeByNodeId(rootNode, nodeId) {
+      if (rootNode.id == nodeId) {
+        return rootNode;
+      }
+      if (rootNode.children) {
+        for (let i = 0; i < rootNode.children.length; i++) {
+          if (this.findTreeByNodeId(rootNode.children[i], nodeId)) {
+            return rootNode;
+          }
+        }
+      }
     },
     remove(node, data) {
       this.$alert(
