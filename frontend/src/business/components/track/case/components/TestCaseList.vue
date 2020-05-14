@@ -1,7 +1,7 @@
 <template>
 
-  <div>
-    <el-card class="table-card" v-loading="result.loading">
+  <div class="card-container">
+    <el-card class="card-content" v-loading="result.loading">
       <template v-slot:header>
 
         <ms-table-header :condition.sync="condition" @search="initTableData"

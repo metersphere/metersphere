@@ -104,14 +104,14 @@
                   <el-input-number v-model="item.maxConcurrency" :min="1" :max="9999"></el-input-number>
                 </el-form-item>
               </el-col>
-              <el-col :span="4">
+              <el-col :offset="2" :span="2">
                 <span class="box">
-                    <el-button @click="addResourceInfo()" type="primary" size="mini" circle>
+                    <el-button @click="addResourceInfo()" type="success" size="mini" circle>
                         <font-awesome-icon :icon="['fas', 'plus']"/>
                     </el-button>
                 </span>
                 <span class="box">
-                    <el-button @click="removeResourceInfo(index)" type="primary" size="mini" circle>
+                    <el-button @click="removeResourceInfo(index)" type="danger" size="mini" circle>
                         <font-awesome-icon :icon="['fas', 'minus']"/>
                     </el-button>
                 </span>
@@ -187,14 +187,14 @@
                   <el-input-number v-model="item.maxConcurrency" :min="1" :max="9999"></el-input-number>
                 </el-form-item>
               </el-col>
-              <el-col :span="4">
+              <el-col :offset="2" :span="2">
                 <span class="box">
-                    <el-button @click="addResourceInfo()" type="primary" size="mini" circle>
+                    <el-button @click="addResourceInfo()" type="success" size="mini" circle>
                         <font-awesome-icon :icon="['fas', 'plus']"/>
                     </el-button>
                 </span>
                 <span class="box">
-                    <el-button @click="removeResourceInfo(index)" type="primary" size="mini" circle>
+                    <el-button @click="removeResourceInfo(index)" type="danger" size="mini" circle>
                         <font-awesome-icon :icon="['fas', 'minus']"/>
                     </el-button>
                 </span>
