@@ -47,16 +47,16 @@
         this.$setLang(lang);
         switch (lang) {
           case ZH_CN:
-            this.language = '简体中文';
+            this.language = this.languageMap[ZH_CN];
             break;
           case ZH_TW:
-            this.language = '繁體中文';
+            this.language = this.languageMap[ZH_TW];
             break;
           case EN_US:
-            this.language = 'English';
+            this.language = this.languageMap[EN_US];
             break;
           default:
-            this.language = '简体中文';
+            this.language = this.languageMap[ZH_CN];
             break;
         }
       },
