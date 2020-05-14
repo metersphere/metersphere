@@ -109,10 +109,9 @@
               saveLocalStorage(response);
               let language = response.data.language;
 
-              if (language == "") {
+              if (!language) {
                 this.$get("language", response => {
                   language = response.data
-                  this.$setLang(language);
                   this.changeLanguage();
                 })
               }
