@@ -303,16 +303,5 @@
       phone = #{phone,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <!--修改密码-->
-  <update id="updatePassword" parameterType="io.metersphere.base.domain.User">
-    update user
-    set
-       password=#{password,jdbcType=VARCHAR},
-       update_time = #{updateTime,jdbcType=BIGINT}
-    where  id=#{id,jdbcType=VARCHAR}
-   </update>
-  <select id="getDefaultlanguage" parameterType="java.lang.String" resultType="java.lang.String">
-    select param_value from system_parameter
-    where param_key=#{paramKey,jdbcType=VARCHAR}
-   </select>
+
 </mapper>

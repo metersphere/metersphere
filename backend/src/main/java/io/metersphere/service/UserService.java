@@ -345,8 +345,8 @@ public class UserService {
         userRoleMapper.insertSelective(userRole);
     }
 
-    public String getDefaultlanguage() {
+    public String getDefaultLanguage() {
         final String key = "registry.defaultlanguage";
-        return extUserMapper.getDefaultlanguage(key);
+        return extUserMapper.getDefaultLanguage(key);
     }
 }

@@ -107,9 +107,13 @@
             this.$post("signin", this.form, response => {
               saveLocalStorage(response);
               let language = response.data.language;
-              this.$post("language",response=>{
-                this.$setLang(language);
-              })
+              if (!language) {
+                this.$post("language", response => {
+                  language = response.data.language
+                  this.$setLang(language);
+                })
+              }
+
 
               window.location.href = "/"
             });

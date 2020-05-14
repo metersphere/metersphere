@@ -41,7 +41,7 @@
        update_time = #{updateTime,jdbcType=BIGINT}
     where  id=#{id,jdbcType=VARCHAR}
    </update>
-    <select id="getDefaultlanguage" parameterType="java.lang.String" resultType="java.lang.String">
+    <select id="getDefaultLanguage" parameterType="java.lang.String" resultType="java.lang.String">
     select param_value from system_parameter
     where param_key=#{paramKey,jdbcType=VARCHAR}
    </select>
