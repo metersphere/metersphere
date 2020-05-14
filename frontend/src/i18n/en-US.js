@@ -72,7 +72,7 @@ export default {
     'select': 'Select Workspace',
   },
   organization: {
-    'create': 'Create',
+    'create': 'Create Organization',
     'modify': 'Modify',
     'delete_confirm': 'Are you sure you want to delete this workspace?',
     'input_name': 'Please enter a organization name',
@@ -124,6 +124,11 @@ export default {
   },
   role: {
     'please_choose_role': 'Please Choose Role',
+    'admin': 'Admin',
+    'org_admin': 'Org_Admin',
+    'test_manager': 'Test_Manager',
+    'test_user': 'Test_User',
+    'test_viewer': 'Test_Viewer',
   },
   report: {
     'recent': 'Recent Report',

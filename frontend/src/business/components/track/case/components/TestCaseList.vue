@@ -7,7 +7,7 @@
         <ms-table-header :condition.sync="condition" @search="initTableData"
                          :create-tip="$t('test_track.case.create')" @create="testCaseCreate">
           <template v-slot:title>
-            <node-breadcrumb class="table-title" :node-names="selectNodeNames" @refresh="refresh"/>
+            <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="refresh"/>
           </template>
           <template v-slot:button>
             <ms-table-button icon="el-icon-upload2" :content="$t('test_track.case.import.import')" @click="importTestCase"/>
@@ -160,7 +160,7 @@
         selectNodeIds: {
           type: Array
         },
-        selectNodeNames: {
+        selectParentNodes: {
           type: Array
         }
       },

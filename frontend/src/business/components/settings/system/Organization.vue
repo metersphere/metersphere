@@ -4,7 +4,7 @@
     <el-card class="table-card">
       <template v-slot:header>
         <ms-table-header :condition.sync="condition" @search="initTableData" @create="create"
-                         :create-tip="btnTips" :title="$t('commons.organization')"/>
+                         :create-tip="$t('organization.create')" :title="$t('commons.organization')"/>
       </template>
       <!-- system menu organization table-->
       <el-table :data="tableData" style="width: 100%">
@@ -30,7 +30,7 @@
     <!-- dialog of organization member -->
     <el-dialog :visible.sync="dialogOrgMemberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc">
       <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="dialogSearch"
-                       :create-tip="dialogBtnTips" :title="$t('commons.member')"/>
+                       :create-tip="$t('member.create')" :title="$t('commons.member')"/>
       <!-- organization member table -->
       <el-table :data="memberLineData" style="width: 100%;margin-top:5px;">
         <el-table-column prop="name" :label="$t('commons.username')"/>
@@ -201,8 +201,6 @@
         dialogPageSize: 5,
         dialogTotal: 0,
         currentRow: {},
-        btnTips: this.$t('organization.create'),
-        dialogBtnTips: this.$t('member.create'),
         condition: {},
         dialogCondition: {},
         tableData: [],

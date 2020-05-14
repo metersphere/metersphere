@@ -3,7 +3,7 @@
     <template v-slot:header>
       <ms-table-header :condition.sync="condition" @search="initTableData" :show-create="false">
         <template v-slot:title>
-          <node-breadcrumb class="table-title" :node-names="selectNodeNames" @refresh="refresh"/>
+          <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="refresh"/>
         </template>
         <template v-slot:button>
           <ms-table-button v-if="!showMyTestCase" icon="el-icon-s-custom" :content="$t('test_track.plan_view.my_case')" @click="searchMyTestCase"/>
@@ -69,6 +69,12 @@
       </el-table-column>
 
       <el-table-column
+        prop="nodePath"
+        :label="$t('test_track.case.module')"
+        show-overflow-tooltip>
+      </el-table-column>
+
+      <el-table-column
         prop="executorName"
         :label="$t('test_track.plan_view.executor')">
       </el-table-column>
@@ -107,7 +113,7 @@
     <test-plan-test-case-edit
       ref="testPlanTestCaseEdit"
       :search-param="condition"
-      @refresh="refresh"
+      @refresh="initTableData"
       @refreshTable="search"/>
 
     <test-report-template-list @openReport="openReport" :plan-id="planId" ref="testReporTtemplateList"/>
@@ -191,7 +197,7 @@
         selectNodeIds: {
           type: Array
         },
-        selectNodeNames: {
+        selectParentNodes: {
           type: Array
         }
       },

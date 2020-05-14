@@ -52,7 +52,6 @@
         </span>
       </template>
     </el-tree>
-
     <node-edit ref="nodeEdit" :tree-nodes="treeNodes" @refresh="refreshNode" />
   </div>
 </template>
@@ -110,7 +109,37 @@ export default {
           param.level = dropNode.parent.data.level + 1;
         }
       }
-      this.$post("/case/node/edit", param);
+      let nodeIds = [];
+      this.getChildNodeId(draggingNode.data, nodeIds);
+      if (dropNode.level == 1 && dropType != "inner") {
+        param.nodeTree = draggingNode.data;
+      } else {
+        for (let i = 0; i < this.treeNodes.length; i++) {
+          param.nodeTree = this.findTreeByNodeId(this.treeNodes[i], dropNode.data.id);
+          if (param.nodeTree) {
+            break;
+          }
+        }
+      }
+      param.nodeIds = nodeIds;
+      this.$post("/case/node/drag", param, () => {
+        this.refreshTable();
+      });
+    },
+    refreshTable() {
+      this.$emit('refreshTable');
+    },
+    findTreeByNodeId(rootNode, nodeId) {
+      if (rootNode.id == nodeId) {
+        return rootNode;
+      }
+      if (rootNode.children) {
+        for (let i = 0; i < rootNode.children.length; i++) {
+          if (this.findTreeByNodeId(rootNode.children[i], nodeId)) {
+            return rootNode;
+          }
+        }
+      }
     },
     remove(node, data) {
       this.$alert(
@@ -125,7 +154,7 @@ export default {
           callback: action => {
             if (action === "confirm") {
               let nodeIds = [];
-              this.getChildNodeId(node, nodeIds);
+              this.getChildNodeId(node.data, nodeIds);
               this.$post("/case/node/delete", nodeIds, () => {
                 const parent = node.parent;
                 const children = parent.data.children || parent.data;
@@ -141,25 +170,27 @@ export default {
     },
     handleNodeSelect(node) {
       let nodeIds = [];
-      let nodeNames = [];
-      this.getChildNodeId(node, nodeIds);
-      this.getParentNodeName(node, nodeNames);
-      this.$emit("nodeSelectEvent", nodeIds, nodeNames);
+      let pNodes = [];
+      this.getChildNodeId(node.data, nodeIds);
+      this.getParentNodes(node, pNodes);
+      this.$emit("nodeSelectEvent", nodeIds, pNodes);
       this.$emit("update:selectNode", node);
     },
     getChildNodeId(rootNode, nodeIds) {
       //递归获取所有子节点ID
-      nodeIds.push(rootNode.data.id);
-      for (let i = 0; i < rootNode.childNodes.length; i++) {
-        this.getChildNodeId(rootNode.childNodes[i], nodeIds);
+      nodeIds.push(rootNode.id);
+      if (rootNode.children) {
+        for (let i = 0; i < rootNode.children.length; i++) {
+          this.getChildNodeId(rootNode.children[i], nodeIds);
+        }
       }
     },
-    getParentNodeName(rootNode, nodeNames) {
+    getParentNodes(rootNode, pNodes) {
       if (rootNode.parent && rootNode.parent.id != 0) {
-        this.getParentNodeName(rootNode.parent, nodeNames);
+        this.getParentNodes(rootNode.parent, pNodes);
       }
       if (rootNode.data.name && rootNode.data.name != "") {
-        nodeNames.push(rootNode.data.name);
+        pNodes.push(rootNode.data);
       }
     },
     filterNode(value, data) {
@@ -167,7 +198,11 @@ export default {
       return data.label.indexOf(value) !== -1;
     },
     openEditNodeDialog(type, data) {
-      this.$refs.nodeEdit.open(type, data);
+      let nodeIds = [];
+      if (type == 'edit') {
+        this.getChildNodeId(data, nodeIds);
+      }
+      this.$refs.nodeEdit.open(type, data, nodeIds);
     },
     refreshNode() {
       this.$emit("refresh");

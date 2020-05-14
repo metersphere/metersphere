@@ -41,8 +41,8 @@
             {
               name: this.name,
               type: 'pie',
-              radius: '55%',
-              roseType: 'angle',
+              radius: ['40%', '70%'],
+              // roseType: 'angle',
               data: this.data
             }
           ]

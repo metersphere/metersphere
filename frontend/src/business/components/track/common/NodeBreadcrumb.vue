@@ -6,7 +6,8 @@
         {{$t('test_track.plan_view.all_case')}}
       </a>
     </el-breadcrumb-item>
-    <el-breadcrumb-item v-for="nodeName in data" :key="nodeName">{{nodeName}}</el-breadcrumb-item>
+
+    <el-breadcrumb-item v-for="node in data" :key="node.id">{{node.name}}</el-breadcrumb-item>
   </el-breadcrumb>
 </template>
 
@@ -19,12 +20,12 @@
         }
       },
       props: {
-        nodeNames: {
+        nodes: {
           type: Array
         }
       },
       watch: {
-        nodeNames() {
+        nodes() {
           this.filterData();
         }
       },
@@ -33,7 +34,7 @@
           this.$emit('refresh');
         },
         filterData() {
-          this.data = this.nodeNames;
+          this.data = this.nodes;
           if (this.data.length > 4) {
             let lastData = this.data[this.data.length - 1];
             this.data.splice(1, this.data.length);

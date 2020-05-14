@@ -6,13 +6,21 @@ import io.metersphere.base.mapper.TestCaseMapper;
 import io.metersphere.base.mapper.TestCaseNodeMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.TestPlanTestCaseMapper;
+import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.dto.TestCaseNodeDTO;
 import io.metersphere.exception.ExcelException;
+import io.metersphere.track.request.testcase.DragNodeRequest;
+import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.yaml.snakeyaml.nodes.NodeId;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -30,6 +38,10 @@ public class TestCaseNodeService {
     TestPlanMapper testPlanMapper;
     @Resource
     TestPlanTestCaseMapper testPlanTestCaseMapper;
+    @Resource
+    ExtTestCaseMapper extTestCaseMapper;
+    @Resource
+    SqlSessionFactory sqlSessionFactory;
 
     public String addNode(TestCaseNode node) {
 
@@ -103,9 +115,25 @@ public class TestCaseNodeService {
         return nodeTree;
     }
 
-    public int editNode(TestCaseNode node) {
-        node.setUpdateTime(System.currentTimeMillis());
-        return testCaseNodeMapper.updateByPrimaryKeySelective(node);
+    public int editNode(DragNodeRequest request) {
+        request.setUpdateTime(System.currentTimeMillis());
+
+        List<TestCaseDTO> testCases = QueryTestCaseByNodeIds(request.getNodeIds());
+
+        testCases.forEach(testCase -> {
+            StringBuilder path = new StringBuilder(testCase.getNodePath());
+            List<String> list = Arrays.asList(path.toString().split("/"));
+            list.set(request.getLevel(), request.getName());
+            path.delete( 0, path.length());
+            for (int i = 1; i < list.size(); i++) {
+                path = path.append("/").append(list.get(i));
+            }
+            testCase.setNodePath(path.toString());
+        });
+
+        batchUpdateTestCase(testCases);
+
+        return testCaseNodeMapper.updateByPrimaryKeySelective(request);
     }
 
     public int deleteNode(List<String> nodeIds) {
@@ -340,4 +368,51 @@ public class TestCaseNodeService {
         testCaseNodeMapper.insert(testCaseNode);
         return testCaseNode.getId();
     }
+
+    public void dragNode(DragNodeRequest request) {
+
+        editNode(request);
+
+        List<TestCaseDTO> testCases = QueryTestCaseByNodeIds(request.getNodeIds());
+
+        TestCaseNodeDTO nodeTree = request.getNodeTree();
+
+        buildUpdateTestCase(nodeTree, testCases, "/");
+
+        batchUpdateTestCase(testCases);
+    }
+
+    private void batchUpdateTestCase(List<TestCaseDTO> testCases) {
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestCaseMapper testCaseMapper = sqlSession.getMapper(TestCaseMapper.class);
+        testCases.forEach((value) -> {
+            testCaseMapper.updateByPrimaryKey(value);
+        });
+        sqlSession.flushStatements();
+    }
+
+    private List<TestCaseDTO> QueryTestCaseByNodeIds(List<String> nodeIds) {
+        QueryTestCaseRequest testCaseRequest = new QueryTestCaseRequest();
+        testCaseRequest.setNodeIds(nodeIds);
+        return extTestCaseMapper.list(testCaseRequest);
+    }
+
+    private void buildUpdateTestCase(TestCaseNodeDTO rootNode, List<TestCaseDTO> testCases, String rootPath) {
+
+        rootPath = rootPath + rootNode.getName();
+
+        for (TestCaseDTO item : testCases) {
+            if (StringUtils.equals(item.getNodeId(), rootNode.getId())) {
+                item.setNodePath(rootPath);
+            }
+        }
+
+        List<TestCaseNodeDTO> children = rootNode.getChildren();
+        if (children != null && children.size() > 0){
+            for (int i = 0; i < children.size(); i++) {
+                buildUpdateTestCase(children.get(i), testCases, rootPath + '/');
+            }
+        }
+    }
+
 }
