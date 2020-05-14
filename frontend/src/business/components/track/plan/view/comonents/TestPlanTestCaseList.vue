@@ -107,7 +107,7 @@
     <test-plan-test-case-edit
       ref="testPlanTestCaseEdit"
       :search-param="condition"
-      @refresh="refresh"
+      @refresh="initTableData"
       @refreshTable="search"/>
 
     <test-report-template-list @openReport="openReport" :plan-id="planId" ref="testReporTtemplateList"/>
