@@ -373,13 +373,32 @@ public class TestCaseNodeService {
 
         editNode(request);
 
-        List<TestCaseDTO> testCases = QueryTestCaseByNodeIds(request.getNodeIds());
+        List<String> nodeIds = request.getNodeIds();
+
+        List<TestCaseDTO> testCases = QueryTestCaseByNodeIds(nodeIds);
 
         TestCaseNodeDTO nodeTree = request.getNodeTree();
 
-        buildUpdateTestCase(nodeTree, testCases, "/");
+        List<TestCaseNode> updateNodes = new ArrayList<>();
+
+        buildUpdateTestCase(nodeTree, testCases, updateNodes, "/", 1);
+
+        updateNodes = updateNodes.stream()
+                .filter(item -> nodeIds.contains(item.getId()))
+                .collect(Collectors.toList());
+
+        batchUpdateTestCaseNode(updateNodes);
 
         batchUpdateTestCase(testCases);
+    }
+
+    private void batchUpdateTestCaseNode(List<TestCaseNode> updateNodes) {
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestCaseNodeMapper testCaseNodeMapper = sqlSession.getMapper(TestCaseNodeMapper.class);
+        updateNodes.forEach((value) -> {
+            testCaseNodeMapper.updateByPrimaryKeySelective(value);
+        });
+        sqlSession.flushStatements();
     }
 
     private void batchUpdateTestCase(List<TestCaseDTO> testCases) {
@@ -397,9 +416,15 @@ public class TestCaseNodeService {
         return extTestCaseMapper.list(testCaseRequest);
     }
 
-    private void buildUpdateTestCase(TestCaseNodeDTO rootNode, List<TestCaseDTO> testCases, String rootPath) {
+    private void buildUpdateTestCase(TestCaseNodeDTO rootNode, List<TestCaseDTO> testCases,
+                                     List<TestCaseNode> updateNodes, String rootPath, int level) {
 
         rootPath = rootPath + rootNode.getName();
+
+        TestCaseNode testCaseNode = new TestCaseNode();
+        testCaseNode.setId(rootNode.getId());
+        testCaseNode.setLevel(level);
+        updateNodes.add(testCaseNode);
 
         for (TestCaseDTO item : testCases) {
             if (StringUtils.equals(item.getNodeId(), rootNode.getId())) {
@@ -410,7 +435,7 @@ public class TestCaseNodeService {
         List<TestCaseNodeDTO> children = rootNode.getChildren();
         if (children != null && children.size() > 0){
             for (int i = 0; i < children.size(); i++) {
-                buildUpdateTestCase(children.get(i), testCases, rootPath + '/');
+                buildUpdateTestCase(children.get(i), testCases, updateNodes, rootPath + '/', level + 1);
             }
         }
     }

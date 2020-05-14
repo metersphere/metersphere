@@ -38,7 +38,7 @@
           if (this.data.length > 4) {
             let lastData = this.data[this.data.length - 1];
             this.data.splice(1, this.data.length);
-            this.data.push('...');
+            this.data.push({id:lastData.id + '1', name:'...'});
             this.data.push(lastData);
           }
         }
