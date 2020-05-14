@@ -2,17 +2,8 @@
   <div>
     <el-row :gutter="10" type="flex" justify="space-between" align="middle">
       <el-col :span="10">
-        <div class="variable">
-          <el-input v-model="common.variable" maxlength="60" size="small" @input="change"
-                    :placeholder="$t('api_test.request.extract.variable_name')"/>
-          <div class="variable-combine" v-if="common.variable && edit">
-            <div class="value">{{common.value}}</div>
-            <el-tooltip :content="$t('api_test.request.extract.copied')" manual v-model="visible" placement="top"
-                        :visible-arrow="false">
-              <i class="el-icon-copy-document copy" @click="copy"></i>
-            </el-tooltip>
-          </div>
-        </div>
+        <ms-api-variable-input v-model="common.variable" size="small" maxlength="60" @change="change"
+                               :placeholder="$t('api_test.variable_name')"/>
       </el-col>
       <el-col>
         <el-input v-model="common.expression" maxlength="255" size="small" :placeholder="expression"/>
@@ -27,10 +18,11 @@
 
 <script>
   import {EXTRACT_TYPE, ExtractCommon} from "../../model/ScenarioModel";
+  import MsApiVariableInput from "../ApiVariableInput";
 
   export default {
     name: "MsApiExtractCommon",
-
+    components: {MsApiVariableInput},
     props: {
       extractType: {
         type: String,

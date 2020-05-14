@@ -12,7 +12,7 @@ import {
   ResponseCodeAssertion,
   ResponseDataAssertion,
   ResponseHeadersAssertion,
-  BackendListener, RegexExtractor, JSONPostProcessor, XPath2Extractor
+  BackendListener, RegexExtractor, JSONPostProcessor, XPath2Extractor, Arguments
 } from "./JMX";
 
 export const uuid = function () {
@@ -124,12 +124,12 @@ export class Scenario extends BaseConfig {
     this.id = uuid();
     this.name = null;
     this.url = null;
-    this.parameters = [];
+    this.variables = [];
     this.headers = [];
     this.requests = [];
 
     this.set(options);
-    this.sets({parameters: KeyValue, headers: KeyValue, requests: Request}, options);
+    this.sets({variables: KeyValue, headers: KeyValue, requests: Request}, options);
   }
 
   initOptions(options) {
@@ -397,6 +397,10 @@ class JMXGenerator {
     test.scenarioDefinition.forEach(scenario => {
       let threadGroup = new ThreadGroup(scenario.name + SPLIT + scenario.id);
 
+      this.addScenarioVariables(threadGroup, scenario);
+
+      this.addScenarioHeaders(threadGroup, scenario);
+
       scenario.requests.forEach(request => {
         if (!request.isValid()) return;
 
@@ -432,6 +436,22 @@ class JMXGenerator {
 
     this.jmeterTestPlan = new JMeterTestPlan();
     this.jmeterTestPlan.put(testPlan);
+  }
+
+  addScenarioVariables(threadGroup, scenario) {
+    let args = scenario.variables.filter(this.filter)
+    if (args.length > 0) {
+      let name = scenario.name + " Variables"
+      threadGroup.put(new Arguments(name, args));
+    }
+  }
+
+  addScenarioHeaders(threadGroup, scenario) {
+    let headers = scenario.headers.filter(this.filter)
+    if (headers.length > 0) {
+      let name = scenario.name + " Headers"
+      threadGroup.put(new HeaderManager(name, headers));
+    }
   }
 
   addRequestHeader(httpSamplerProxy, request) {

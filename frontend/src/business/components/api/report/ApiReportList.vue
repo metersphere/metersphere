@@ -13,11 +13,11 @@
             width="150"
             show-overflow-tooltip>
           </el-table-column>
-          <el-table-column
-            prop="description"
-            :label="$t('commons.description')"
-            show-overflow-tooltip>
-          </el-table-column>
+<!--          <el-table-column-->
+<!--            prop="description"-->
+<!--            :label="$t('commons.description')"-->
+<!--            show-overflow-tooltip>-->
+<!--          </el-table-column>-->
           <el-table-column
             width="250"
             :label="$t('commons.create_time')">

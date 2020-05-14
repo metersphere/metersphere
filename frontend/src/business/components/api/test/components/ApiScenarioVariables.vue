@@ -6,8 +6,8 @@
     <div class="kv-row" v-for="(item, index) in items" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <el-col>
-          <el-input v-model="item.name" size="small" maxlength="100" @change="change"
-                    :placeholder="$t('api_test.key')"/>
+          <ms-api-variable-input v-model="item.name" size="small" maxlength="100" @change="change"
+                                 :placeholder="$t('api_test.variable_name')"/>
         </el-col>
         <el-col>
           <el-input v-model="item.value" size="small" maxlength="100" @change="change"
@@ -24,10 +24,11 @@
 
 <script>
   import {KeyValue} from "../model/ScenarioModel";
+  import MsApiVariableInput from "./ApiVariableInput";
 
   export default {
-    name: "MsApiKeyValue",
-
+    name: "MsApiScenarioVariables",
+    components: {MsApiVariableInput},
     props: {
       description: String,
       items: Array

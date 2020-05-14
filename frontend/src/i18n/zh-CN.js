@@ -124,6 +124,11 @@ export default {
   },
   role: {
     'please_choose_role': '请选择角色',
+    'admin': '系统管理员',
+    'org_admin': '组织管理员',
+    'test_manager': '测试经理',
+    'test_user': '测试人员',
+    'test_viewer': 'Viewer'
   },
   report: {
     'recent': '最近的报告',
@@ -209,15 +214,19 @@ export default {
     reset: "重置",
     input_name: "请输入测试名称",
     select_project: "请选择项目",
+    variable_name: "变量名",
+    copied: "已拷贝",
+    key: "键",
+    value: "值",
     scenario: {
       config: "场景配置",
       input_name: "请输入场景名称",
       name: "场景名称",
       base_url: "基础URL",
       base_url_description: "基础URL作为所有请求的URL前缀",
-      parameters: "请求变量",
+      variables: "自定义变量",
       headers: "请求头",
-      kv_description: "将用于未设置该项的请求",
+      kv_description: "所有请求可以使用自定义变量",
     },
     request: {
       input_name: "请输入请求名称",
@@ -253,11 +262,9 @@ export default {
         select_type: "请选择类型",
         description: "从响应结果中提取数据并将其存储在变量中，在后续请求中使用变量。",
         regex: "正则",
-        variable_name: "变量名",
         regex_expression: "Perl型正则表达式",
         json_path_expression: "JSONPath表达式",
         xpath_expression: "XPath表达式",
-        copied: "已拷贝"
       }
     }
   },

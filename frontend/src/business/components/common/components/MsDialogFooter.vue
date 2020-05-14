@@ -1,8 +1,8 @@
 <template>
 
     <div class="dialog-footer">
-      <el-button @click="cancel">取 消</el-button>
-      <el-button type="primary" @click="confirm" @keydown.enter.native.prevent>确 定</el-button>
+      <el-button @click="cancel">{{$t('commons.cancel')}}</el-button>
+      <el-button type="primary" @click="confirm" @keydown.enter.native.prevent>{{$t('commons.confirm')}}</el-button>
     </div>
 
 </template>

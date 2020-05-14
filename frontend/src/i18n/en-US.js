@@ -72,7 +72,7 @@ export default {
     'select': 'Select Workspace',
   },
   organization: {
-    'create': 'Create',
+    'create': 'Create Organization',
     'modify': 'Modify',
     'delete_confirm': 'Are you sure you want to delete this workspace?',
     'input_name': 'Please enter a organization name',
@@ -124,6 +124,11 @@ export default {
   },
   role: {
     'please_choose_role': 'Please Choose Role',
+    'admin': 'Admin',
+    'org_admin': 'Org_Admin',
+    'test_manager': 'Test_Manager',
+    'test_user': 'Test_User',
+    'test_viewer': 'Test_Viewer',
   },
   report: {
     'recent': 'Recent Report',
@@ -209,15 +214,19 @@ export default {
     reset: "Rest",
     input_name: "Please enter the test name",
     select_project: "Select project",
+    variable_name: "Variable name",
+    copied: "copied",
+    key: "Key",
+    value: "Value",
     scenario: {
       config: "Scenario Config",
       input_name: "Please enter the scenario name",
       name: "Scenario Name",
       base_url: "Base URL",
       base_url_description: "Base URL as URL prefix for all requests",
-      parameters: "Parameters",
+      variables: "Variables",
       headers: "Headers",
-      kv_description: "Will be used for requests where the item is not set",
+      kv_description: "Variables are available for all requests",
     },
     request: {
       input_name: "Please enter the request name",
@@ -225,7 +234,7 @@ export default {
       method: "Method",
       url: "URL",
       url_description: "etc: https://fit2cloud.com",
-      parameters: "Parameters",
+      parameters: "Query parameters",
       parameters_desc: "Parameters will be appended to the URL e.g. https://fit2cloud.com?Name=Value&Name2=Value2",
       headers: "Headers",
       body: "Body",
@@ -246,18 +255,16 @@ export default {
         end_with: "End With",
         value: "Value",
         expression: "Expression",
-        response_in_time: "Response Time",
+        response_in_time: "Response in time",
       },
       extract: {
         label: "Extract from response",
         select_type: "Choose type",
         description: "Extract data from the response and store it in variables. Use the variables in subsequent requests.",
         regex: "Regex",
-        variable_name: "Variable name",
         regex_expression: "Regular expression",
         json_path_expression: "JSONPath expression",
         xpath_expression: "XPath expression",
-        copied: "Copied"
       }
     }
   },

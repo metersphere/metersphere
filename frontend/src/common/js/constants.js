@@ -13,3 +13,7 @@ export const REFRESH_SESSION_USER_URL = 'user/refresh';
 export const WORKSPACE = 'workspace';
 export const ORGANIZATION = 'organization';
 export const DEFAULT = 'default';
+
+export const ZH_CN = 'zh_CN';
+export const ZH_TW = 'zh_TW';
+export const EN_US = 'en_US';

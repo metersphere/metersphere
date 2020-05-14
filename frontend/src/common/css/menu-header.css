@@ -32,3 +32,7 @@
 .header-top-menus.el-menu--horizontal > li.is-active {
   background: #595591 !important;
 }
+
+.el-menu.el-menu--horizontal {
+   border-bottom: none;
+ }

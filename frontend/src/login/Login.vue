@@ -104,8 +104,13 @@
       submit(form) {
         this.$refs[form].validate((valid) => {
           if (valid) {
-            this.$post("signin", this.form, (response) => {
+            this.$post("signin", this.form, response => {
               saveLocalStorage(response);
+              let language = response.data.language;
+              if (!language) {
+                language = 'zh_CN';
+              }
+              this.$setLang(language);
               window.location.href = "/"
             });
           } else {
