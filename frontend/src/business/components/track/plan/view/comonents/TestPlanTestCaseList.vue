@@ -3,7 +3,7 @@
     <template v-slot:header>
       <ms-table-header :condition.sync="condition" @search="initTableData" :show-create="false">
         <template v-slot:title>
-          <node-breadcrumb class="table-title" :node-names="selectNodeNames" @refresh="refresh"/>
+          <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="refresh"/>
         </template>
         <template v-slot:button>
           <ms-table-button v-if="!showMyTestCase" icon="el-icon-s-custom" :content="$t('test_track.plan_view.my_case')" @click="searchMyTestCase"/>
@@ -191,7 +191,7 @@
         selectNodeIds: {
           type: Array
         },
-        selectNodeNames: {
+        selectParentNodes: {
           type: Array
         }
       },

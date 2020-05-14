@@ -52,7 +52,6 @@
         </span>
       </template>
     </el-tree>
-
     <node-edit ref="nodeEdit" :tree-nodes="treeNodes" @refresh="refreshNode" />
   </div>
 </template>
@@ -168,10 +167,10 @@ export default {
     },
     handleNodeSelect(node) {
       let nodeIds = [];
-      let nodeNames = [];
+      let pNodes = [];
       this.getChildNodeId(node, nodeIds);
-      this.getParentNodeName(node, nodeNames);
-      this.$emit("nodeSelectEvent", nodeIds, nodeNames);
+      this.getParentNodes(node, pNodes);
+      this.$emit("nodeSelectEvent", nodeIds, pNodes);
       this.$emit("update:selectNode", node);
     },
     getChildNodeId(rootNode, nodeIds) {
@@ -181,12 +180,12 @@ export default {
         this.getChildNodeId(rootNode.childNodes[i], nodeIds);
       }
     },
-    getParentNodeName(rootNode, nodeNames) {
+    getParentNodes(rootNode, pNodes) {
       if (rootNode.parent && rootNode.parent.id != 0) {
-        this.getParentNodeName(rootNode.parent, nodeNames);
+        this.getParentNodes(rootNode.parent, pNodes);
       }
       if (rootNode.data.name && rootNode.data.name != "") {
-        nodeNames.push(rootNode.data.name);
+        pNodes.push(rootNode.data);
       }
     },
     filterNode(value, data) {

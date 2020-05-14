@@ -23,7 +23,7 @@
           @refresh="refresh"
           :plan-id="planId"
           :select-node-ids="selectNodeIds"
-          :select-node-names="selectNodeNames"
+          :select-parent-nodes="selectParentNodes"
           ref="testCasePlanList"/>
       </el-main>
     </el-container>
@@ -52,7 +52,7 @@
           testPlans: [],
           currentPlan: {},
           selectNodeIds: [],
-          selectNodeNames: [],
+          selectParentNodes: [],
           treeNodes: []
         }
       },
@@ -72,7 +72,7 @@
       methods: {
         refresh() {
           this.selectNodeIds = [];
-          this.selectNodeNames = [];
+          this.selectParentNodes = [];
           this.getNodeTreeByPlanId();
         },
         initData() {
@@ -92,9 +92,9 @@
             });
           });
         },
-        nodeChange(nodeIds, nodeNames) {
+        nodeChange(nodeIds, pNodes) {
           this.selectNodeIds = nodeIds;
-          this.selectNodeNames = nodeNames;
+          this.selectParentNodes = pNodes;
         },
         changePlan(plan) {
           this.currentPlan = plan;

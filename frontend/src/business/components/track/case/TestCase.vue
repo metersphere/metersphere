@@ -23,8 +23,8 @@
           <el-main class="test-case-list">
             <test-case-list
               :current-project="currentProject"
-              :selectNodeIds="selectNodeIds"
-              :selectNodeNames="selectNodeNames"
+              :select-node-ids="selectNodeIds"
+              :select-parent-nodes="selectParentNodes"
               @testCaseEdit="editTestCase"
               @testCaseCopy="copyTestCase"
               @testCaseDetail="showTestCaseDetail"
@@ -71,7 +71,7 @@
         currentProject: null,
         treeNodes: [],
         selectNodeIds: [],
-        selectNodeNames: [],
+        selectParentNodes: [],
         testCaseReadOnly: true,
         selectNode: {},
       }
@@ -142,9 +142,9 @@
       changeProject(project) {
         this.setCurrentProject(project);
       },
-      nodeChange(nodeIds, nodeNames) {
+      nodeChange(nodeIds, pNodes) {
         this.selectNodeIds = nodeIds;
-        this.selectNodeNames = nodeNames;
+        this.selectParentNodes = pNodes;
       },
       refreshTable() {
         this.$refs.testCaseList.initTableData();
@@ -171,7 +171,7 @@
       },
       refresh() {
         this.selectNodeIds = [];
-        this.selectNodeNames = [];
+        this.selectParentNodes = [];
         this.selectNode = {};
         this.$refs.testCaseList.initTableData();
         this.getNodeTree();
