@@ -42,7 +42,7 @@
 
 <script>
   import {saveLocalStorage} from '../common/js/utils';
-  import {TokenKey} from "../common/js/constants";
+  import {DEFAULT_LANGUAGE} from "../common/js/constants";
 
 
   export default {
@@ -111,8 +111,8 @@
 
               if (!language) {
                 this.$get("language", response => {
-                  language = response.data
-                  this.changeLanguage();
+                  language = response.data;
+                  localStorage.setItem(DEFAULT_LANGUAGE, language)
                 })
               }
               window.location.href = "/"
@@ -120,16 +120,6 @@
           } else {
             return false;
           }
-        });
-      },
-      changeLanguage(language) {
-        let user = {
-          id: this.currentUser().id,
-          language: language
-        };
-        this.checkLanguage(language);
-        this.result = this.$post("/user/update/current", user, response => {
-          localStorage.setItem(TokenKey, JSON.stringify(response.data));
         });
       }
     }
