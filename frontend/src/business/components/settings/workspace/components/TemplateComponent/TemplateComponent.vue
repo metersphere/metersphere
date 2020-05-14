@@ -14,7 +14,7 @@
       <base-info-component :report-info="metric" v-if="preview.id == 1"/>
       <test-result-component :test-results="metric.moduleExecuteResult" v-if="preview.id == 2"/>
       <test-result-chart-component :execute-result="metric.executeResult" v-if="preview.id == 3"/>
-      <rich-text-component :preview="preview" v-if="preview.type != 'system'"/>
+      <rich-text-component :is-report-view="isReportView" :preview="preview" v-if="preview.type != 'system'"/>
     </div>
 
   </div>
@@ -38,7 +38,11 @@
         isReport: {
           type: Boolean,
           default: true
-        }
+        },
+        isReportView: {
+          type: Boolean,
+          default: true
+        },
       }
     }
 </script>

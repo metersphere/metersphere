@@ -37,7 +37,7 @@
                 group="component">
             <transition-group>
               <div class="preview" v-for="item in previews" :key="item.id">
-                <template-component :is-report="isReport" :metric="metric" :preview="item"/>
+                <template-component :is-report-view="false" :is-report="isReport" :metric="metric" :preview="item"/>
                 <i class="el-icon-error" @click="handleDelete(item)"/>
               </div>
             </transition-group>
