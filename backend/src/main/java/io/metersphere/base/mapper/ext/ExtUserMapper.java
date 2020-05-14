@@ -13,4 +13,5 @@ public interface ExtUserMapper {
     int updatePassword(User record);
 
     String getDefaultLanguage(String paramKey);
+
 }

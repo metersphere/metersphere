@@ -349,4 +349,5 @@ public class UserService {
         final String key = "registry.defaultlanguage";
         return extUserMapper.getDefaultLanguage(key);
     }
+
 }

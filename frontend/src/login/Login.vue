@@ -42,6 +42,7 @@
 
 <script>
   import {saveLocalStorage} from '../common/js/utils';
+  import {TokenKey} from "../common/js/constants";
 
 
   export default {
@@ -107,19 +108,29 @@
             this.$post("signin", this.form, response => {
               saveLocalStorage(response);
               let language = response.data.language;
-              if (!language) {
-                this.$post("language", response => {
-                  language = response.data.language
+
+              if (language == "") {
+                this.$get("language", response => {
+                  language = response.data
                   this.$setLang(language);
+                  this.changeLanguage();
                 })
               }
-
-
               window.location.href = "/"
             });
           } else {
             return false;
           }
+        });
+      },
+      changeLanguage(language) {
+        let user = {
+          id: this.currentUser().id,
+          language: language
+        };
+        this.checkLanguage(language);
+        this.result = this.$post("/user/update/current", user, response => {
+          localStorage.setItem(TokenKey, JSON.stringify(response.data));
         });
       }
     }
