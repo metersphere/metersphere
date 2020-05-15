@@ -6,8 +6,11 @@ import io.metersphere.base.mapper.TestCaseMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.TestPlanTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
+import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.user.SessionUser;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.track.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.dto.TestPlanDTO;
@@ -32,6 +35,9 @@ public class TestPlanService {
 
     @Resource
     ExtTestPlanMapper extTestPlanMapper;
+
+    @Resource
+    ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
 
     @Resource
     TestCaseMapper testCaseMapper;
@@ -131,5 +137,15 @@ public class TestPlanService {
         TestPlanExample testPlanExample = new TestPlanExample();
         testPlanExample.createCriteria().andWorkspaceIdEqualTo(currentWorkspaceId);
         return testPlanMapper.selectByExample(testPlanExample);
+    }
+
+    public List<TestPlanDTO> listRelateAllPlan() {
+        SessionUser user = SessionUtils.getUser();
+        QueryTestPlanRequest request =  new QueryTestPlanRequest();
+        request.setPrincipal(user.getId());
+        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        request.setPlanIds(extTestPlanTestCaseMapper.findRelateTestPlanId(user.getId()));
+        return extTestPlanMapper.listRelate(request);
     }
 }

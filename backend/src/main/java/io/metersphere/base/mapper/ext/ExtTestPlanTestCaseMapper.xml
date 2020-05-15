@@ -58,5 +58,9 @@
         </if>
     </select>
 
+    <select id="findRelateTestPlanId" resultType="java.lang.String">
+        select distinct plan_id from test_plan_test_case where executor = #{userId};
+    </select>
+
 
 </mapper>

@@ -36,6 +36,10 @@ public class TestPlanController {
         return testPlanService.listTestAllPlan(currentWorkspaceId);
     }
 
+    @PostMapping("/list/all/relate")
+    public List<TestPlanDTO> listRelateAll() {
+        return testPlanService.listRelateAllPlan();
+    }
 
     @GetMapping("recent/{count}")
     public List<TestPlan> recentTestPlans(@PathVariable int count) {

@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface ExtTestPlanMapper {
     List<TestPlanDTO> list(@Param("request") QueryTestPlanRequest params);
+
+    List<TestPlanDTO> listRelate(@Param("request") QueryTestPlanRequest params);
 }
