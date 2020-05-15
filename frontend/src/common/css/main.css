@@ -33,6 +33,15 @@ body {
   clear: both;
 }
 
+.card-container {
+  position: relative;
+}
+
+.card-content {
+  width: 100%;
+  position: absolute;
+}
+
 .table-card > .el-card__body {
   padding-top: 0;
 }

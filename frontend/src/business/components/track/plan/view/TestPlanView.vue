@@ -18,7 +18,7 @@
       </el-aside>
 
       <el-main>
-        <test-plan-test-case-list
+        <test-plan-test-case-list class="table-list"
           @openTestCaseRelevanceDialog="openTestCaseRelevanceDialog"
           @refresh="refresh"
           :plan-id="planId"

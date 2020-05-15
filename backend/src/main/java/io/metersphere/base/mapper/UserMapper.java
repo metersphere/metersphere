@@ -2,8 +2,9 @@ package io.metersphere.base.mapper;
 
 import io.metersphere.base.domain.User;
 import io.metersphere.base.domain.UserExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface UserMapper {
     long countByExample(UserExample example);
@@ -28,5 +29,6 @@ public interface UserMapper {
 
     int updateByPrimaryKey(User record);
 
-    int updatePassword(User record);
+
+
 }

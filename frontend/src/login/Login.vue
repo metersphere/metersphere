@@ -42,6 +42,7 @@
 
 <script>
   import {saveLocalStorage} from '../common/js/utils';
+  import {DEFAULT_LANGUAGE} from "../common/js/constants";
 
 
   export default {
@@ -107,11 +108,16 @@
             this.$post("signin", this.form, response => {
               saveLocalStorage(response);
               let language = response.data.language;
+
               if (!language) {
-                language = 'zh_CN';
+                this.$get("language", response => {
+                  language = response.data;
+                  localStorage.setItem(DEFAULT_LANGUAGE, language)
+                  window.location.href = "/"
+                })
+              } else {
+                window.location.href = "/"
               }
-              this.$setLang(language);
-              window.location.href = "/"
             });
           } else {
             return false;

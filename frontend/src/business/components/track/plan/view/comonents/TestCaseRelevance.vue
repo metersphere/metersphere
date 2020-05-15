@@ -19,28 +19,26 @@
 
         <el-container>
           <el-main class="case-content" v-loading="result.loading">
-            <!-- <el-scrollbar> -->
-                <el-table
-                  :data="testCases"
-                  row-key="id"
-                  @select-all="handleSelectAll"
-                  @select="handleSelectionChange"
-                  height="70vh"
-                  ref="table">
+              <el-table
+                :data="testCases"
+                row-key="id"
+                @select-all="handleSelectAll"
+                @select="handleSelectionChange"
+                height="70vh"
+                ref="table">
 
-                  <el-table-column
-                    type="selection"></el-table-column>
+                <el-table-column
+                  type="selection"></el-table-column>
 
-                  <el-table-column
-                    prop="name"
-                    :label="$t('test_track.case.name')"
-                    style="width: 100%">
-                    <template v-slot:default="scope">
-                      {{scope.row.name}}
-                    </template>
-                  </el-table-column>
-                </el-table>
-            <!-- </el-scrollbar> -->
+                <el-table-column
+                  prop="name"
+                  :label="$t('test_track.case.name')"
+                  style="width: 100%">
+                  <template v-slot:default="scope">
+                    {{scope.row.name}}
+                  </template>
+                </el-table-column>
+              </el-table>
           </el-main>
         </el-container>
       </el-container>

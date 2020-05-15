@@ -344,4 +344,10 @@ public class UserService {
         userRole.setUpdateTime(System.currentTimeMillis());
         userRoleMapper.insertSelective(userRole);
     }
+
+    public String getDefaultLanguage() {
+        final String key = "default.language";
+        return extUserMapper.getDefaultLanguage(key);
+    }
+
 }
