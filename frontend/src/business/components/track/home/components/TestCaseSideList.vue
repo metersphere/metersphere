@@ -39,6 +39,11 @@
         </template>
       </el-table-column>
 
+      <el-table-column
+        prop="planName"
+        :label="$t('test_track.plan.test_plan')">
+      </el-table-column>
+
     </el-table>
 
   </home-base-component>
@@ -60,9 +65,6 @@
       }
     },
     props: {
-      type: {
-        type: String
-      },
       title: {
         type: String
       },
@@ -72,7 +74,7 @@
     },
     methods: {
       initTableData() {
-        this.result = this.$post('/test/plan/case/' + this.type + '/5', {}, response => {
+        this.result = this.$post('/test/plan/case/recent/10', {}, response => {
           this.tableData = response.data;
         });
       },

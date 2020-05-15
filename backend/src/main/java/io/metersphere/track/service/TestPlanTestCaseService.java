@@ -1,9 +1,7 @@
 package io.metersphere.track.service;
 
 import com.github.pagehelper.PageHelper;
-import io.metersphere.base.domain.TestPlanTestCase;
-import io.metersphere.base.domain.TestPlanTestCaseExample;
-import io.metersphere.base.domain.User;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.TestPlanTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
@@ -13,6 +11,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.service.UserService;
 import io.metersphere.track.dto.TestPlanCaseDTO;
+import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.request.testcase.TestPlanCaseBatchRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +33,9 @@ public class TestPlanTestCaseService {
 
     @Resource
     UserService userService;
+
+    @Resource
+    TestPlanService testPlanService;
 
     @Resource
     ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
@@ -78,7 +80,16 @@ public class TestPlanTestCaseService {
         if (request.getPlanIds().isEmpty()) {
             return new ArrayList<>();
         }
-        return extTestPlanTestCaseMapper.getRecentTestedTestCase(request);
+        List<TestPlanCaseDTO> recentTestedTestCase = extTestPlanTestCaseMapper.getRecentTestedTestCase(request);
+        List<String> planIds = recentTestedTestCase.stream().map(TestPlanCaseDTO::getPlanId).collect(Collectors.toList());
+
+        Map<String, String> testPlanMap = testPlanService.getTestPlanByTestIds(planIds).stream()
+                .collect(Collectors.toMap(TestPlan::getId, TestPlan::getName));
+
+        recentTestedTestCase.forEach(testCase -> {
+            testCase.setPlanName(testPlanMap.get(testCase.getPlanId()));
+        });
+        return recentTestedTestCase;
     }
 
     public List<TestPlanCaseDTO> getPendingTestCases(QueryTestPlanCaseRequest request, int count) {

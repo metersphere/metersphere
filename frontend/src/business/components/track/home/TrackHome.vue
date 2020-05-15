@@ -6,14 +6,7 @@
           <related-test-plan-list ref="relatedTestPlanList"/>
         </el-col>
         <el-col :span="9">
-          <el-row>
-            <el-col>
-              <test-case-side-list :title="'最近测试'" :type="'recent'" ref="testCaseRecentList"/>
-            </el-col>
-            <el-col>
-              <test-case-side-list :title="'待完成'" :type="'pending'" ref="testCasePendingList"/>
-            </el-col>
-          </el-row>
+          <test-case-side-list :title="'最近测试'" ref="testCaseRecentList"/>
         </el-col>
       </el-row>
     </div>
@@ -37,7 +30,6 @@
         innitData() {
           this.$refs.relatedTestPlanList.initTableData();
           this.$refs.testCaseRecentList.initTableData();
-          this.$refs.testCasePendingList.initTableData();
         }
       }
     }

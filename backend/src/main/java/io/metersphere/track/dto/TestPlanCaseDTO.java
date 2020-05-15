@@ -12,5 +12,6 @@ public class TestPlanCaseDTO extends TestCaseWithBLOBs {
     private String status;
     private String results;
     private String planId;
+    private String planName;
     private String caseId;
 }

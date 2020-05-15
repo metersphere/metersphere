@@ -321,4 +321,10 @@ public class TestPlanService {
             }
         }
     }
+
+    public List<TestPlan> getTestPlanByTestIds(List<String> planIds) {
+        TestPlanExample example = new TestPlanExample();
+        example.createCriteria().andIdIn(planIds);
+        return testPlanMapper.selectByExample(example);
+    }
 }
