@@ -13,8 +13,6 @@
         @cancel="executorEditVisible = false"
         @confirm="saveExecutor"/>
     </template>
-
-
   </el-dialog>
 
 </template>

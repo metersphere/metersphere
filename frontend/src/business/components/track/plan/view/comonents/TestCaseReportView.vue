@@ -2,7 +2,6 @@
   <div>
 
     <el-drawer
-      :before-close="handleClose"
       :visible.sync="showDialog"
       :with-header="false"
       :modal-append-to-body="false"
