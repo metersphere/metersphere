@@ -24,7 +24,7 @@
           :plan-id="planId"
           :select-node-ids="selectNodeIds"
           :select-parent-nodes="selectParentNodes"
-          ref="testCasePlanList"/>
+          ref="testPlanTestCaseList"/>
       </el-main>
     </el-container>
 
@@ -63,8 +63,12 @@
       },
       mounted() {
         this.initData();
+        this.openTestCaseEdit(this.$route.path);
       },
       watch: {
+        '$route'(to, from) {
+          this.openTestCaseEdit(to.path);
+        },
         planId() {
           this.initData();
         }
@@ -104,6 +108,18 @@
           if(this.planId){
             this.result = this.$get("/case/node/list/plan/" + this.planId, response => {
               this.treeNodes = response.data;
+            });
+          }
+        },
+        openTestCaseEdit(path) {
+          if (path.indexOf("/plan/view/edit") >= 0){
+            let caseId = this.$route.params.caseId;
+            this.$get('/test/plan/case/get/' + caseId, response => {
+              let testCase = response.data;
+              if (testCase) {
+                this.$refs.testPlanTestCaseList.handleEdit(testCase);
+                this.$router.push('/track/plan/view/' + testCase.planId);
+              }
             });
           }
         }

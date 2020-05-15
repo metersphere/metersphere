@@ -97,4 +97,9 @@ public class TestPlanTestCaseService {
         request.setExecutor(user.getId());
     }
 
+    public TestPlanCaseDTO get(String caseId) {
+        QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
+        request.setId(caseId);
+        return extTestPlanTestCaseMapper.list(request).get(0);
+    }
 }

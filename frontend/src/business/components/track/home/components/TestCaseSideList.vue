@@ -1,9 +1,10 @@
 <template>
 
-  <home-base-component :title="'最近测试'">
+  <home-base-component :title="title">
 
     <el-table
       row-key="id"
+      @row-click="editTestCase"
       :data="tableData">
 
       <el-table-column
@@ -44,29 +45,40 @@
 </template>
 
 <script>
-    import HomeBaseComponent from "./HomeBaseComponent";
-    import StatusTableItem from "../../common/tableItems/planview/StatusTableItem";
-    import TypeTableItem from "../../common/tableItems/planview/TypeTableItem";
-    import PriorityTableItem from "../../common/tableItems/planview/PriorityTableItem";
-    export default {
-      name: "RecentTestCaseList",
-      components: {PriorityTableItem, TypeTableItem, StatusTableItem, HomeBaseComponent},
-      data() {
-        return {
-          tableData: []
-        }
+  import HomeBaseComponent from "./HomeBaseComponent";
+  import StatusTableItem from "../../common/tableItems/planview/StatusTableItem";
+  import TypeTableItem from "../../common/tableItems/planview/TypeTableItem";
+  import PriorityTableItem from "../../common/tableItems/planview/PriorityTableItem";
+  export default {
+    name: "TestCaseSideList",
+    components: {PriorityTableItem, TypeTableItem, StatusTableItem, HomeBaseComponent},
+    data() {
+      return {
+        tableData: [],
+      }
+    },
+    props: {
+      type: {
+        type: String
       },
-      mounted() {
-        this.initTableData();
+      title: {
+        type: String
       },
-      methods: {
-        initTableData() {
-          this.result = this.$post('/test/plan/case/recent/5', {}, response => {
-            this.tableData = response.data;
-          });
-        },
+    },
+    mounted() {
+      this.initTableData();
+    },
+    methods: {
+      initTableData() {
+        this.result = this.$post('/test/plan/case/' + this.type + '/5', {}, response => {
+          this.tableData = response.data;
+        });
+      },
+      editTestCase(row, event, column) {
+        this.$router.push('/track/plan/view/edit/' + row.caseId)
       }
     }
+  }
 </script>
 
 <style scoped>

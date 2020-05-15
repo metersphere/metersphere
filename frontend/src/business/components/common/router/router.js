@@ -219,6 +219,11 @@ const router = new VueRouter({
           component: TestPlanView
         },
         {
+          path: "plan/view/edit/:caseId",
+          name: "planViewEdit",
+          component: TestPlanView
+        },
+        {
           path: "project/:type",
           name: "trackProject",
           component: MsProject

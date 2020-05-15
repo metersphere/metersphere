@@ -8,10 +8,10 @@
         <el-col :span="9">
           <el-row>
             <el-col>
-              <recent-test-case-list/>
+              <test-case-side-list :title="'最近测试'" :type="'recent'"/>
             </el-col>
             <el-col>
-              <pending-test-case-list/>
+              <test-case-side-list :title="'待完成'" :type="'pending'"/>
             </el-col>
           </el-row>
         </el-col>
@@ -21,12 +21,11 @@
 </template>
 
 <script>
-    import PendingTestCaseList from "./components/PendingTestCaseList";
-    import RecentTestCaseList from "./components/RecentTestCaseList";
     import RelatedTestPlanList from "./components/RelatedTestPlanList";
+    import TestCaseSideList from "./components/TestCaseSideList";
     export default {
       name: "TrackHome",
-      components: {RelatedTestPlanList, RecentTestCaseList, PendingTestCaseList}
+      components: {TestCaseSideList, RelatedTestPlanList}
     }
 </script>
 

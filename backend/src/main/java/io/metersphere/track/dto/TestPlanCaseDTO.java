@@ -7,9 +7,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TestPlanCaseDTO extends TestCaseWithBLOBs {
-
     private String executor;
     private String executorName;
     private String status;
     private String results;
+    private String planId;
+    private String caseId;
 }

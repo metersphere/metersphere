@@ -27,6 +27,11 @@ public class TestPlanTestCaseController {
         return PageUtils.setPageInfo(page, testPlanTestCaseService.list(request));
     }
 
+    @GetMapping("/get/{caseId}")
+    public TestPlanCaseDTO getTestPlanCases(@PathVariable String caseId){
+        return testPlanTestCaseService.get(caseId);
+    }
+
     @PostMapping("recent/{count}")
     public List<TestPlanCaseDTO> getRecentTestCases(@PathVariable int count, @RequestBody QueryTestPlanCaseRequest request){
         return testPlanTestCaseService.getRecentTestCases(request, count);
