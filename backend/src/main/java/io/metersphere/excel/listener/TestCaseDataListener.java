@@ -39,16 +39,17 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
     public String validate(TestCaseExcelData data, String errMsg) {
         String nodePath = data.getNodePath();
         StringBuilder stringBuilder = new StringBuilder(errMsg);
-        String[] nodes = nodePath.split("/");
 
-        if ( nodes.length > TestCaseConstants.MAX_NODE_DEPTH + 1) {
-            stringBuilder.append("节点最多为" + TestCaseConstants.MAX_NODE_DEPTH + "层;");
-        }
-
-        for (int i = 0; i < nodes.length; i++) {
-            if (i != 0 && StringUtils.equals(nodes[i].trim(), "")) {
-                stringBuilder.append("所属模块不能为空格");
-                break;
+        if (nodePath != null) {
+            String[] nodes = nodePath.split("/");
+            if ( nodes.length > TestCaseConstants.MAX_NODE_DEPTH + 1) {
+                stringBuilder.append("节点最多为" + TestCaseConstants.MAX_NODE_DEPTH + "层;");
+            }
+            for (int i = 0; i < nodes.length; i++) {
+                if (i != 0 && StringUtils.equals(nodes[i].trim(), "")) {
+                    stringBuilder.append("所属模块不能为空格");
+                    break;
+                }
             }
         }
 
