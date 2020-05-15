@@ -496,7 +496,7 @@ class JMXGenerator {
 
   getAssertion(regex) {
     let name = regex.description;
-    let type = JMX_ASSERTION_CONDITION.MATCH; // 固定用Match，自己写正则
+    let type = JMX_ASSERTION_CONDITION.CONTAINS; // 固定用Match，自己写正则
     let value = regex.expression;
     switch (regex.subject) {
       case ASSERTION_REGEX_SUBJECT.RESPONSE_CODE:

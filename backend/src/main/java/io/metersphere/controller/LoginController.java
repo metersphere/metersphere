@@ -1,6 +1,7 @@
 package io.metersphere.controller;
 
 import io.metersphere.base.domain.UserRole;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.LoginRequest;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.service.UserService;
@@ -88,7 +89,7 @@ public class LoginController {
     }
 
     /*Get default language*/
-    @PostMapping(value = "/language")
+    @GetMapping(value = "/language")
     public String getDefaultLanguage() {
         return userService.getDefaultLanguage();
     }
