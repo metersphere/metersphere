@@ -6,6 +6,7 @@ import io.metersphere.base.domain.TestPlan;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.track.dto.TestCaseReportMetricDTO;
 import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
@@ -73,5 +74,8 @@ public class TestPlanController {
         testPlanService.testPlanRelevance(request);
     }
 
-
+    @GetMapping("/get/metric/{planId}")
+    public TestCaseReportMetricDTO getMetric(@PathVariable String planId){
+        return testPlanService.getMetric(planId);
+    }
 }

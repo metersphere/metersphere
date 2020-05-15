@@ -150,7 +150,7 @@
           }
         },
         getMetric() {
-          this.result = this.$get('/case/report/get/metric/' + this.planId, response => {
+          this.result = this.$get('/test/plan/get/metric/' + this.planId, response => {
             this.metric = response.data;
             if (this.report.startTime) {
               this.metric.startTime = new Date(this.report.startTime);

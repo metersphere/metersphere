@@ -41,8 +41,4 @@ public class TestCaseReportController {
         return testCaseReportService.deleteTestCaseReport(id);
     }
 
-    @GetMapping("/get/metric/{planId}")
-    public TestCaseReportMetricDTO getMetric(@PathVariable String planId){
-        return testCaseReportService.getMetric(planId);
-    }
 }
