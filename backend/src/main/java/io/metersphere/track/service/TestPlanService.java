@@ -6,6 +6,7 @@ import io.metersphere.base.mapper.TestCaseMapper;
 import io.metersphere.base.mapper.TestCaseNodeMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.TestPlanTestCaseMapper;
+import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.TestPlanStatus;
@@ -13,6 +14,8 @@ import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.controller.request.ProjectRequest;
+import io.metersphere.dto.ProjectDTO;
 import io.metersphere.track.dto.*;
 import io.metersphere.track.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
@@ -57,6 +60,9 @@ public class TestPlanService {
 
     @Resource
     TestCaseNodeService testCaseNodeService;
+
+    @Resource
+    ExtProjectMapper extProjectMapper;
 
     public void addTestPlan(TestPlan testPlan) {
         testPlan.setId(UUID.randomUUID().toString());
@@ -149,13 +155,70 @@ public class TestPlanService {
         return testPlanMapper.selectByExample(testPlanExample);
     }
 
-    public List<TestPlanDTO> listRelateAllPlan() {
+    public List<TestPlanDTOWithMetric> listRelateAllPlan() {
         SessionUser user = SessionUtils.getUser();
+
         QueryTestPlanRequest request =  new QueryTestPlanRequest();
         request.setPrincipal(user.getId());
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         request.setPlanIds(extTestPlanTestCaseMapper.findRelateTestPlanId(user.getId()));
-        return extTestPlanMapper.listRelate(request);
+
+        List<String> projectIds = extProjectMapper.getProjectIdByWorkspaceId(SessionUtils.getCurrentOrganizationId());
+
+        List<TestPlanDTOWithMetric> testPlans = extTestPlanMapper.listRelate(request);
+
+        Map<String, List<TestPlanCaseDTO>> testCaseMap = new HashMap<>();
+        listTestCaseByProjectIds(projectIds).forEach(testCase -> {
+            List<TestPlanCaseDTO> list = testCaseMap.get(testCase.getPlanId());
+            if (list == null) {
+                list = new ArrayList<>();
+                list.add(testCase);
+                testCaseMap.put(testCase.getPlanId(), list);
+            } else {
+                list.add(testCase);
+            }
+        });
+
+        testPlans.forEach(testPlan -> {
+            List<TestPlanCaseDTO> testCases = testCaseMap.get(testPlan.getId());
+            testPlan.setTested(0);
+            testPlan.setPassed(0);
+            testPlan.setTotal(0);
+            if (testCases != null) {
+                testPlan.setTotal(testCases.size());
+                testCases.forEach(testCase -> {
+                    if (!StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Prepare.name())
+                            && !StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Underway.name())) {
+                        testPlan.setTested(testPlan.getTested() + 1);
+                        if (StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Pass.name())) {
+                            testPlan.setPassed(testPlan.getPassed() + 1);
+                        }
+                    }
+                });
+            }
+            testPlan.setPassRate(getPercentWithTwoDecimals(testPlan.getTested() == 0 ? 0 : testPlan.getPassed()*1.0/testPlan.getTested()));
+            testPlan.setTestRate(getPercentWithTwoDecimals(testPlan.getTotal() == 0 ? 0 : testPlan.getTested()*1.0/testPlan.getTotal()));
+        });
+
+        return testPlans;
+    }
+
+    private double getPercentWithTwoDecimals(double value) {
+        return new BigDecimal(value)
+                .setScale(4, BigDecimal.ROUND_HALF_UP)
+                .doubleValue() * 100;
+    }
+
+    public List<TestPlanCaseDTO> listTestCaseByPlanId(String planId) {
+        QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
+        request.setPlanId(planId);
+        return extTestPlanTestCaseMapper.list(request);
+    }
+
+    public List<TestPlanCaseDTO> listTestCaseByProjectIds(List<String> projectIds) {
+        QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
+        request.setProjectIds(projectIds);
+        return extTestPlanTestCaseMapper.list(request);
     }
 
     public TestCaseReportMetricDTO getMetric(String planId) {
@@ -180,9 +243,7 @@ public class TestPlanService {
             childIdMap.put(item.getId(), childIds);
         });
 
-        QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
-        request.setPlanId(planId);
-        List<TestPlanCaseDTO> testPlanTestCases = extTestPlanTestCaseMapper.list(request);
+        List<TestPlanCaseDTO> testPlanTestCases = listTestCaseByPlanId(planId);
 
         Map<String, TestCaseReportModuleResultDTO> moduleResultMap = new HashMap<>();
 
@@ -192,7 +253,6 @@ public class TestPlanService {
             getModuleResultMap(childIdMap, moduleResultMap, testCase, nodeTrees);
         }
 
-
         nodeTrees.forEach(rootNode -> {
             TestCaseReportModuleResultDTO moduleResult = moduleResultMap.get(rootNode.getId());
             if (moduleResult != null) {
@@ -201,9 +261,7 @@ public class TestPlanService {
         });
 
         for (TestCaseReportModuleResultDTO moduleResult : moduleResultMap.values()) {
-            moduleResult.setPassRate(new BigDecimal(moduleResult.getPassCount()*1.0f/moduleResult.getCaseCount())
-                    .setScale(2, BigDecimal.ROUND_HALF_UP)
-                    .doubleValue() * 100);
+            moduleResult.setPassRate(getPercentWithTwoDecimals(moduleResult.getPassCount()*1.0f/moduleResult.getCaseCount()));
             if (moduleResult.getCaseCount() <= 0) {
                 moduleResultMap.remove(moduleResult.getModuleId());
             }

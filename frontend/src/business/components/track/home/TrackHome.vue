@@ -3,15 +3,15 @@
     <div class="main-content">
       <el-row>
         <el-col :span="15">
-          <related-test-plan-list/>
+          <related-test-plan-list ref="relatedTestPlanList"/>
         </el-col>
         <el-col :span="9">
           <el-row>
             <el-col>
-              <test-case-side-list :title="'最近测试'" :type="'recent'"/>
+              <test-case-side-list :title="'最近测试'" :type="'recent'" ref="testCaseRecentList"/>
             </el-col>
             <el-col>
-              <test-case-side-list :title="'待完成'" :type="'pending'"/>
+              <test-case-side-list :title="'待完成'" :type="'pending'" ref="testCasePendingList"/>
             </el-col>
           </el-row>
         </el-col>
@@ -25,7 +25,21 @@
     import TestCaseSideList from "./components/TestCaseSideList";
     export default {
       name: "TrackHome",
-      components: {TestCaseSideList, RelatedTestPlanList}
+      components: {TestCaseSideList, RelatedTestPlanList},
+      watch: {
+        '$route'(to,from) {
+          if (to.path.indexOf('/track/home') > -1) {
+            this.innitData();
+          }
+        }
+      },
+      methods: {
+        innitData() {
+          this.$refs.relatedTestPlanList.initTableData();
+          this.$refs.testCaseRecentList.initTableData();
+          this.$refs.testCasePendingList.initTableData();
+        }
+      }
     }
 </script>
 

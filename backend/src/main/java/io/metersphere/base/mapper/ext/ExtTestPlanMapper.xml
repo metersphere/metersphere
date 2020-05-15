@@ -30,7 +30,7 @@
         </if>
     </select>
 
-    <select id="listRelate" resultType="io.metersphere.track.dto.TestPlanDTO">
+    <select id="listRelate" resultType="io.metersphere.track.dto.TestPlanDTOWithMetric">
         select test_plan.*, project.name as project_name
         from test_plan
         left join project on test_plan.project_id = project.id

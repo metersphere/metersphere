@@ -1,9 +1,9 @@
 <template>
-  <home-base-component :title="'我的计划'">
-
+  <home-base-component :title="'我的计划'" v-loading>
     <el-table
       :data="tableData"
-      @row-click="intoPlan">
+      @row-click="intoPlan"
+      v-loading="result.loading">
       <el-table-column
         prop="name"
         fixed
@@ -24,22 +24,28 @@
         prop="projectName"
         :label="'通过率'"
         show-overflow-tooltip>
-        20%
+        <template v-slot:default="scope">
+          {{scope.row.passRate}}%
+        </template>
       </el-table-column>
 
       <el-table-column
         prop="projectName"
         :label="'已测用例'"
         show-overflow-tooltip>
-        14/16
+        <template v-slot:default="scope">
+          {{scope.row.tested}}/{{scope.row.total}}
+        </template>
       </el-table-column>
 
       <el-table-column
         prop="projectName"
         :label="'测试进度'"
-        min-width="120"
+        min-width="100"
         show-overflow-tooltip>
-        <el-progress :percentage="50"></el-progress>
+        <template v-slot:default="scope">
+          <el-progress :percentage="scope.row.testRate"></el-progress>
+        </template>
       </el-table-column>
 
       <el-table-column
@@ -56,7 +62,6 @@
         show-overflow-tooltip>
       </el-table-column>
 
-
     </el-table>
 
   </home-base-component>
@@ -72,6 +77,7 @@
       components: {MsTableOperator, PlanStageTableItem, PlanStatusTableItem, HomeBaseComponent},
       data() {
         return {
+          result: {},
           tableData: []
         }
       },

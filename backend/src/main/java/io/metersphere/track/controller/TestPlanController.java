@@ -8,6 +8,7 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.track.dto.TestCaseReportMetricDTO;
 import io.metersphere.track.dto.TestPlanDTO;
+import io.metersphere.track.dto.TestPlanDTOWithMetric;
 import io.metersphere.track.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.service.TestPlanService;
@@ -38,7 +39,7 @@ public class TestPlanController {
     }
 
     @PostMapping("/list/all/relate")
-    public List<TestPlanDTO> listRelateAll() {
+    public List<TestPlanDTOWithMetric> listRelateAll() {
         return testPlanService.listRelateAllPlan();
     }
 

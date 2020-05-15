@@ -20,6 +20,8 @@ public class QueryTestPlanCaseRequest extends TestPlanTestCase {
 
     private List<String> planIds;
 
+    private List<String> projectIds;
+
     private String workspaceId;
 
     private String name;

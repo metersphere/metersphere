@@ -5,7 +5,8 @@
     <el-table
       row-key="id"
       @row-click="editTestCase"
-      :data="tableData">
+      :data="tableData"
+      v-loading="result.loading">
 
       <el-table-column
         prop="name"
@@ -54,6 +55,7 @@
     components: {PriorityTableItem, TypeTableItem, StatusTableItem, HomeBaseComponent},
     data() {
       return {
+        result: {},
         tableData: [],
       }
     },

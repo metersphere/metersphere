@@ -72,7 +72,4 @@ public class TestCaseReportService {
         testPlanMapper.updateByPrimaryKeySelective(testPlan);
         return report.getId();
     }
-
-
-
 }

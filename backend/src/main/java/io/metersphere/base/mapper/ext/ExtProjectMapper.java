@@ -9,4 +9,6 @@ import java.util.List;
 public interface ExtProjectMapper {
 
     List<ProjectDTO> getProjectWithWorkspace(@Param("proRequest") ProjectRequest request);
+
+    List<String> getProjectIdByWorkspaceId(String workspaceId);
 }
