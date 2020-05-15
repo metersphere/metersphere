@@ -1,5 +1,5 @@
 <template>
-  <home-base-component :title="'测试计划'">
+  <home-base-component :title="'我的计划'">
 
     <el-table
       :data="tableData"
@@ -92,9 +92,4 @@
 </script>
 
 <style scoped>
-
-  .el-table {
-    cursor:pointer;
-  }
-
 </style>

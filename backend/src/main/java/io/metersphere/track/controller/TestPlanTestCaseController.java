@@ -24,12 +24,22 @@ public class TestPlanTestCaseController {
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<TestPlanCaseDTO>> getTestPlanCases(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanCaseRequest request){
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, testPlanTestCaseService.getTestPlanCases(request));
+        return PageUtils.setPageInfo(page, testPlanTestCaseService.list(request));
+    }
+
+    @PostMapping("recent/{count}")
+    public List<TestPlanCaseDTO> getRecentTestCases(@PathVariable int count, @RequestBody QueryTestPlanCaseRequest request){
+        return testPlanTestCaseService.getRecentTestCases(request, count);
+    }
+
+    @PostMapping("pending/{count}")
+    public List<TestPlanCaseDTO> getPrepareTestCases(@PathVariable int count, @RequestBody QueryTestPlanCaseRequest request){
+        return testPlanTestCaseService.getPendingTestCases(request, count);
     }
 
     @PostMapping("/list/all")
     public List<TestPlanCaseDTO> getTestPlanCases(@RequestBody QueryTestPlanCaseRequest request){
-        return testPlanTestCaseService.getTestPlanCases(request);
+        return testPlanTestCaseService.list(request);
     }
 
     @PostMapping("/edit")

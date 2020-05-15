@@ -1,11 +1,13 @@
 package io.metersphere.track.service;
 
+import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.TestPlanTestCase;
 import io.metersphere.base.domain.TestPlanTestCaseExample;
 import io.metersphere.base.domain.User;
 import io.metersphere.base.mapper.TestPlanTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
+import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.member.QueryMemberRequest;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,7 +38,7 @@ public class TestPlanTestCaseService {
     @Resource
     ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
 
-    public List<TestPlanCaseDTO> getTestPlanCases(QueryTestPlanCaseRequest request) {
+    public List<TestPlanCaseDTO> list(QueryTestPlanCaseRequest request) {
         List<TestPlanCaseDTO> list = extTestPlanTestCaseMapper.list(request);
         QueryMemberRequest queryMemberRequest = new QueryMemberRequest();
         queryMemberRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
@@ -69,4 +72,29 @@ public class TestPlanTestCaseService {
                 testPlanTestCase,
                 testPlanTestCaseExample);
     }
+
+    public List<TestPlanCaseDTO> getRecentTestCases(QueryTestPlanCaseRequest request, int count) {
+        buildQueryRequest(request, count);
+        if (request.getPlanIds().isEmpty()) {
+            return new ArrayList<>();
+        }
+        return extTestPlanTestCaseMapper.getRecentTestedTestCase(request);
+    }
+
+    public List<TestPlanCaseDTO> getPendingTestCases(QueryTestPlanCaseRequest request, int count) {
+        buildQueryRequest(request, count);
+        if (request.getPlanIds().isEmpty()) {
+            return new ArrayList<>();
+        }
+        return extTestPlanTestCaseMapper.getPendingTestCases(request);
+    }
+
+    public void buildQueryRequest(QueryTestPlanCaseRequest request, int count) {
+        SessionUser user = SessionUtils.getUser();
+        List<String> relateTestPlanIds = extTestPlanTestCaseMapper.findRelateTestPlanId(user.getId());
+        PageHelper.startPage(1, count, true);
+        request.setPlanIds(relateTestPlanIds);
+        request.setExecutor(user.getId());
+    }
+
 }

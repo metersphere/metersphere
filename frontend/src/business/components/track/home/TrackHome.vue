@@ -2,10 +2,10 @@
   <div class="container">
     <div class="main-content">
       <el-row>
-        <el-col :span="12">
+        <el-col :span="15">
           <related-test-plan-list/>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="9">
           <el-row>
             <el-col>
               <recent-test-case-list/>
@@ -31,5 +31,9 @@
 </script>
 
 <style scoped>
+
+  .main-content >>> .el-table {
+    cursor:pointer;
+  }
 
 </style>

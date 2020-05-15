@@ -42,7 +42,8 @@
                 #{planId}
             </foreach>
         </if>
-        );
+        )
+        order by test_plan.update_time desc
     </select>
 
 </mapper>

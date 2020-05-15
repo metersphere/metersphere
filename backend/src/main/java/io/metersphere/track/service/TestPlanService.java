@@ -144,7 +144,6 @@ public class TestPlanService {
         QueryTestPlanRequest request =  new QueryTestPlanRequest();
         request.setPrincipal(user.getId());
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         request.setPlanIds(extTestPlanTestCaseMapper.findRelateTestPlanId(user.getId()));
         return extTestPlanMapper.listRelate(request);
     }
