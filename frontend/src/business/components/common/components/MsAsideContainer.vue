@@ -18,6 +18,7 @@
     border: 1px solid #EBEEF5;
     border-radius: 2px;
     background: white;
+    height: calc(100vh - 80px);
   }
 
 </style>
