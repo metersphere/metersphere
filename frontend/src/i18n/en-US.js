@@ -332,7 +332,7 @@ export default {
       input_type: "Please select type",
       input_method: "Please select method",
       input_prerequisite: "Please select prerequisite",
-      delete_confirm: "Confirm delete test case: ",
+      delete_confirm: "Confirm delete test case",
       import: {
         import: "Import test case",
         case_import: "Import test case",

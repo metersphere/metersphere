@@ -332,7 +332,7 @@ export default {
       input_type: "请选择用例类型",
       input_method: "请选择测试方式",
       input_prerequisite: "请输入前置条件",
-      delete_confirm: "确认删除测试用例: ",
+      delete_confirm: "确认删除测试用例",
       import: {
         import: "导入用例",
         case_import: "导入测试用例",

@@ -91,4 +91,9 @@ public class TestCaseController {
         testCaseService.editTestCaseBath(request);
     }
 
+    @PostMapping("/batch/delete")
+    public void deleteTestCaseBath(@RequestBody TestCaseBatchRequest request){
+        testCaseService.deleteTestCaseBath(request);
+    }
+
 }
