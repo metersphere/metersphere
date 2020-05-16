@@ -113,4 +113,10 @@ public class TestPlanTestCaseService {
         request.setId(caseId);
         return extTestPlanTestCaseMapper.list(request).get(0);
     }
+
+    public void deleteTestCaseBath(TestPlanCaseBatchRequest request) {
+        TestPlanTestCaseExample example = new TestPlanTestCaseExample();
+        example.createCriteria().andIdIn(request.getIds());
+        testPlanTestCaseMapper.deleteByExample(example);
+    }
 }

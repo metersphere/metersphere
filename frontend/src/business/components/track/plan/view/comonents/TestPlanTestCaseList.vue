@@ -10,6 +10,7 @@
             <ms-table-button v-if="!showMyTestCase" icon="el-icon-s-custom" :content="$t('test_track.plan_view.my_case')" @click="searchMyTestCase"/>
             <ms-table-button v-if="showMyTestCase" icon="el-icon-files" :content="$t('test_track.plan_view.all_case')" @click="searchMyTestCase"/>
             <ms-table-button icon="el-icon-connection" :content="$t('test_track.plan_view.relevance_test_case')" @click="$emit('openTestCaseRelevanceDialog')"/>
+            <ms-table-button icon="el-icon-unlock" :content="'取消用例关联'" @click="handleBatch('delete')"/>
             <ms-table-button icon="el-icon-edit-outline" :content="$t('test_track.plan_view.change_execution_results')" @click="handleBatch('status')"/>
             <ms-table-button icon="el-icon-user" :content="$t('test_track.plan_view.change_executor')" @click="handleBatch('executor')"/>
             <ms-table-button v-if="!testPlan.reportId" icon="el-icon-document" :content="$t('创建测试报告')" @click="openTestReport"/>
@@ -261,6 +262,20 @@
             }
           });
         },
+        handleDeleteBatch() {
+          this.$alert(this.$t('test_track.plan_view.confirm_cancel_relevance') + " ？", '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                this.$post('/test/plan/case/batch/delete', {ids: [...this.selectIds]}, () => {
+                  this.selectIds.clear();
+                  this.$emit("refresh");
+                  this.$success(this.$t('commons.delete_success'));
+                });
+              }
+            }
+          });
+        },
         _handleDelete(testCase) {
           let testCaseId = testCase.id;
           this.$post('/test/plan/case/delete/' + testCaseId, {}, () => {
@@ -293,6 +308,8 @@
             this.$refs.executorEdit.openExecutorEdit();
           } else if (type === 'status'){
             this.$refs.statusEdit.openStatusEdit();
+          } else if (type === 'delete') {
+            this.handleDeleteBatch();
           }
         },
         searchMyTestCase() {

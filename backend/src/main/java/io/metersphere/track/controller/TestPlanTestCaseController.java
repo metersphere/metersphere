@@ -58,6 +58,11 @@ public class TestPlanTestCaseController {
         testPlanTestCaseService.editTestCaseBath(request);
     }
 
+    @PostMapping("/batch/delete")
+    public void deleteTestCaseBath(@RequestBody TestPlanCaseBatchRequest request){
+        testPlanTestCaseService.deleteTestCaseBath(request);
+    }
+
     @PostMapping("/delete/{id}")
     public int deleteTestCase(@PathVariable String id){
         return testPlanTestCaseService.deleteTestCase(id);
