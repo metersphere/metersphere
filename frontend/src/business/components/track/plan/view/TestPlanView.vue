@@ -1,38 +1,39 @@
 <template>
-  <div class="main-content">
-    <el-container class="case-container">
-      <el-aside class="tree-aside">
-        <select-menu
-          :data="testPlans"
-          :current-data="currentPlan"
-          :title="$t('test_track.plan_view.plan')"
-          @dataChange="changePlan"/>
 
-        <node-tree class="node-tree"
-                   v-loading="result.loading"
-                   @nodeSelectEvent="nodeChange"
-                   @refresh="refresh"
-                   :tree-nodes="treeNodes"
-                   :draggable="false"
-                   ref="nodeTree"/>
-      </el-aside>
+  <ms-container>
 
-      <el-main>
-        <test-plan-test-case-list class="table-list"
+    <ms-aside-container>
+      <select-menu
+        :data="testPlans"
+        :current-data="currentPlan"
+        :title="$t('test_track.plan_view.plan')"
+        @dataChange="changePlan"/>
+      <node-tree class="node-tree"
+                 v-loading="result.loading"
+                 @nodeSelectEvent="nodeChange"
+                 @refresh="refresh"
+                 :tree-nodes="treeNodes"
+                 :draggable="false"
+                 ref="nodeTree"/>
+    </ms-aside-container>
+
+    <ms-main-container>
+        <test-plan-test-case-list
+          class="table-list"
           @openTestCaseRelevanceDialog="openTestCaseRelevanceDialog"
           @refresh="refresh"
           :plan-id="planId"
           :select-node-ids="selectNodeIds"
           :select-parent-nodes="selectParentNodes"
           ref="testPlanTestCaseList"/>
-      </el-main>
-    </el-container>
+    </ms-main-container>
 
     <test-case-relevance
       @refresh="refresh"
       :plan-id="planId"
       ref="testCaseRelevance"/>
-  </div>
+
+  </ms-container>
 
 </template>
 
@@ -42,10 +43,15 @@
     import TestPlanTestCaseList from "./comonents/TestPlanTestCaseList";
     import TestCaseRelevance from "./comonents/TestCaseRelevance";
     import SelectMenu from "../../common/SelectMenu";
+    import MsContainer from "../../../common/components/MsContainer";
+    import MsAsideContainer from "../../../common/components/MsAsideContainer";
+    import MsMainContainer from "../../../common/components/MsMainContainer";
 
     export default {
       name: "TestPlanView",
-      components: {NodeTree, TestPlanTestCaseList, TestCaseRelevance, SelectMenu},
+      components: {
+        MsMainContainer,
+        MsAsideContainer, MsContainer, NodeTree, TestPlanTestCaseList, TestCaseRelevance, SelectMenu},
       data() {
         return {
           result: {},
@@ -128,9 +134,4 @@
 </script>
 
 <style scoped>
-
-  .el-main {
-    padding: 15px;
-  }
-
 </style>

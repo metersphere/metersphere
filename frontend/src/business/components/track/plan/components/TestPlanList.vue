@@ -1,8 +1,5 @@
 <template>
-
-  <div class="container">
-    <el-main class="main-content">
-      <el-card class="table-card" v-loading="result.loading">
+  <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
           <ms-table-header :condition.sync="condition" @search="initTableData" @create="testPlanCreate"
                            :create-tip="$t('test_track.plan.create_plan')" :title="$t('test_track.plan.test_plan')"/>
@@ -67,8 +64,6 @@
         <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                              :total="total"/>
       </el-card>
-    </el-main>
-  </div>
 </template>
 
 <script>

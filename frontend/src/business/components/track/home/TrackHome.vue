@@ -1,6 +1,6 @@
 <template>
-  <div class="container">
-    <div class="main-content">
+  <ms-container>
+    <ms-main-container>
       <el-row>
         <el-col :span="15">
           <related-test-plan-list ref="relatedTestPlanList"/>
@@ -9,16 +9,18 @@
           <test-case-side-list :title="'最近测试'" ref="testCaseRecentList"/>
         </el-col>
       </el-row>
-    </div>
-  </div>
+    </ms-main-container>
+  </ms-container>
 </template>
 
 <script>
     import RelatedTestPlanList from "./components/RelatedTestPlanList";
     import TestCaseSideList from "./components/TestCaseSideList";
+    import MsContainer from "../../common/components/MsContainer";
+    import MsMainContainer from "../../common/components/MsMainContainer";
     export default {
       name: "TrackHome",
-      components: {TestCaseSideList, RelatedTestPlanList},
+      components: {MsMainContainer, MsContainer, TestCaseSideList, RelatedTestPlanList},
       watch: {
         '$route'(to,from) {
           if (to.path.indexOf('/track/home') > -1) {
@@ -37,7 +39,7 @@
 
 <style scoped>
 
-  .main-content >>> .el-table {
+  .ms-main-container >>> .el-table {
     cursor:pointer;
   }
 
