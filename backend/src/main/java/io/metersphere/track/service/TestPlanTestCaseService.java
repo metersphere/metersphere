@@ -52,7 +52,7 @@ public class TestPlanTestCaseService {
         return list;
     }
 
-    public void editTestCase(TestPlanTestCase testPlanTestCase) {
+    public void editTestCase(TestPlanTestCaseWithBLOBs testPlanTestCase) {
         if (StringUtils.equals(TestPlanTestCaseStatus.Prepare.name(), testPlanTestCase.getStatus())) {
             testPlanTestCase.setStatus(TestPlanTestCaseStatus.Underway.name());
         }
@@ -68,7 +68,7 @@ public class TestPlanTestCaseService {
         TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
         testPlanTestCaseExample.createCriteria().andIdIn(request.getIds());
 
-        TestPlanTestCase testPlanTestCase = new TestPlanTestCase();
+        TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
         BeanUtils.copyBean(testPlanTestCase, request);
         testPlanTestCaseMapper.updateByExampleSelective(
                 testPlanTestCase,

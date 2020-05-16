@@ -117,7 +117,7 @@ public class TestPlanService {
         if (!testCaseIds.isEmpty()) {
             testCaseIds.forEach(caseId -> {
                 TestCaseWithBLOBs testCase = testCaseMap.get(caseId);
-                TestPlanTestCase testPlanTestCase = new TestPlanTestCase();
+                TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
                 testPlanTestCase.setId(UUID.randomUUID().toString());
                 testPlanTestCase.setExecutor(testCase.getMaintainer());
                 testPlanTestCase.setCaseId(caseId);

@@ -138,6 +138,22 @@
               </el-row>
 
               <el-row>
+                <el-col :span="5" :offset="1">
+                  <el-switch
+                    v-model="hasFlaw"
+                    @change="flawChange"
+                    active-text="提缺陷">
+                  </el-switch>
+                </el-col>
+              </el-row>
+
+              <el-row v-if="hasFlaw">
+                <el-col :span="20" :offset="1" class="step-edit">
+                  <ckeditor :editor="editor" v-model="testCase.flaw"/>
+                </el-col>
+              </el-row>
+
+              <el-row>
                 <el-col :span="15" :offset="1">
                   <div>
                     <span class="cast_label">{{$t('commons.remark')}}：</span>
@@ -167,6 +183,7 @@
 
 <script>
   import TestPlanTestCaseStatusButton from '../../common/TestPlanTestCaseStatusButton';
+  import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
   export default {
     name: "TestPlanTestCaseEdit",
@@ -177,7 +194,9 @@
         showDialog: false,
         testCase: {},
         index: 0,
-        testCases: []
+        testCases: [],
+        editor: ClassicEditor,
+        hasFlaw: false
       };
     },
     props: {
@@ -211,6 +230,7 @@
           param.results.push(result);
         });
         param.results = JSON.stringify(param.results);
+        param.flaw = this.testCase.flaw;
         this.$post('/test/plan/case/edit', param, () => {
           if (isContinuous) {
             this.updateTestCases(param);
@@ -249,6 +269,11 @@
       },
       openTestCaseEdit(testCase) {
         this.showDialog = true;
+        if (testCase.flaw) {
+          this.hasFlaw = true;
+        } else {
+          this.hasFlaw = false;
+        }
         this.initData(testCase);
       },
       updateTestCases(testCase) {
@@ -268,6 +293,23 @@
             }
           }
         });
+      },
+      flawChange() {
+        if (this.hasFlaw && !this.testCase.flaw) {
+          let desc = this.addPLabel('[' + '操作步骤' + ']');
+          let result = this.addPLabel('[' + '预期结果' + ']');
+          let executeResult = this.addPLabel('[' + '实际结果' + ']');
+          this.testCase.steps.forEach(step => {
+            let stepPrefix = '步骤' + step.num + ':';
+            desc += this.addPLabel(stepPrefix + (step.desc == undefined ? '' : step.desc));
+            result += this.addPLabel(stepPrefix + (step.result == undefined ? '' : step.result));
+            executeResult += this.addPLabel(stepPrefix + (step.executeResult == undefined ? '' : step.executeResult));
+          });
+          this.testCase.flaw = desc + this.addPLabel('') + result + this.addPLabel('') + executeResult + this.addPLabel('');
+        }
+      },
+      addPLabel(str) {
+        return "<p>" + str + "</p>";
       }
     }
   }
@@ -302,6 +344,10 @@
     line-height: 50px;
   }
 
+  .step-edit >>> p {
+    line-height: 16px;
+  }
+
   .status-button {
     float: right;
   }
@@ -320,6 +366,14 @@
 
   .case_container > .el-row{
     margin-top: 1%;
+  }
+
+  .el-switch >>> .el-switch__label {
+    color: dimgray;
+  }
+
+  .el-switch >>> .el-switch__label.is-active {
+    color: #409EFF;
   }
 
 </style>

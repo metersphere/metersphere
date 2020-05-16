@@ -3,6 +3,7 @@ package io.metersphere.track.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.TestPlanTestCase;
+import io.metersphere.base.domain.TestPlanTestCaseWithBLOBs;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.track.request.testcase.TestPlanCaseBatchRequest;
@@ -48,7 +49,7 @@ public class TestPlanTestCaseController {
     }
 
     @PostMapping("/edit")
-    public void editTestCase(@RequestBody TestPlanTestCase testPlanTestCase){
+    public void editTestCase(@RequestBody TestPlanTestCaseWithBLOBs testPlanTestCase){
         testPlanTestCaseService.editTestCase(testPlanTestCase);
     }
 
