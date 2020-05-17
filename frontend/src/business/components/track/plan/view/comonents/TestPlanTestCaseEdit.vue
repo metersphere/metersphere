@@ -137,19 +137,19 @@
                 </el-col>
               </el-row>
 
-              <el-row>
+              <el-row v-if="testCase.flaw">
                 <el-col :span="5" :offset="1">
                   <el-switch
-                    v-model="hasFlaw"
+                    v-model="testCase.flaw.hasFlaw"
                     @change="flawChange"
                     active-text="提缺陷">
                   </el-switch>
                 </el-col>
               </el-row>
 
-              <el-row v-if="hasFlaw">
+              <el-row v-if="testCase.flaw && testCase.flaw.hasFlaw">
                 <el-col :span="20" :offset="1" class="step-edit">
-                  <ckeditor :editor="editor" v-model="testCase.flaw"/>
+                  <ckeditor :editor="editor" v-model="testCase.flaw.content"/>
                 </el-col>
               </el-row>
 
@@ -196,7 +196,6 @@
         index: 0,
         testCases: [],
         editor: ClassicEditor,
-        hasFlaw: false
       };
     },
     props: {
@@ -230,7 +229,7 @@
           param.results.push(result);
         });
         param.results = JSON.stringify(param.results);
-        param.flaw = this.testCase.flaw;
+        param.flaw = JSON.stringify(this.testCase.flaw);
         this.$post('/test/plan/case/edit', param, () => {
           if (isContinuous) {
             this.updateTestCases(param);
@@ -257,6 +256,12 @@
         Object.assign(item, testCase);
         item.results = JSON.parse(item.results);
         item.steps = JSON.parse(item.steps);
+        if (item.flaw) {
+          item.flaw = JSON.parse(item.flaw);
+        } else {
+          item.flaw = {};
+          item.flaw.hasFlaw = false;
+        }
         item.steptResults = [];
         for (let i = 0; i < item.steps.length; i++){
           if(item.results[i]){
@@ -269,11 +274,6 @@
       },
       openTestCaseEdit(testCase) {
         this.showDialog = true;
-        if (testCase.flaw) {
-          this.hasFlaw = true;
-        } else {
-          this.hasFlaw = false;
-        }
         this.initData(testCase);
       },
       updateTestCases(testCase) {
@@ -295,7 +295,7 @@
         });
       },
       flawChange() {
-        if (this.hasFlaw && !this.testCase.flaw) {
+       if (this.testCase.flaw.hasFlaw) {
           let desc = this.addPLabel('[' + '操作步骤' + ']');
           let result = this.addPLabel('[' + '预期结果' + ']');
           let executeResult = this.addPLabel('[' + '实际结果' + ']');
@@ -305,7 +305,7 @@
             result += this.addPLabel(stepPrefix + (step.result == undefined ? '' : step.result));
             executeResult += this.addPLabel(stepPrefix + (step.executeResult == undefined ? '' : step.executeResult));
           });
-          this.testCase.flaw = desc + this.addPLabel('') + result + this.addPLabel('') + executeResult + this.addPLabel('');
+          this.testCase.flaw.content = desc + this.addPLabel('') + result + this.addPLabel('') + executeResult + this.addPLabel('');
         }
       },
       addPLabel(str) {

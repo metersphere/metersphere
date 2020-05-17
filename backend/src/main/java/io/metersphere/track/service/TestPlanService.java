@@ -1,6 +1,7 @@
 package io.metersphere.track.service;
 
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.TestCaseMapper;
 import io.metersphere.base.mapper.TestCaseNodeMapper;
@@ -296,11 +297,17 @@ public class TestPlanService {
                     moduleResult = new TestCaseReportModuleResultDTO();
                     moduleResult.setCaseCount(0);
                     moduleResult.setPassCount(0);
+                    moduleResult.setFlawCount(0);
                     moduleResult.setModuleId(rootNodeId);
                 }
                 moduleResult.setCaseCount(moduleResult.getCaseCount() + 1);
                 if (StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Pass.name())) {
                     moduleResult.setPassCount(moduleResult.getPassCount() + 1);
+                }
+                if (StringUtils.isNotBlank(testCase.getFlaw())) {
+                    if (JSON.parseObject(testCase.getFlaw()).getBoolean("hasFlaw")) {
+                        moduleResult.setFlawCount(moduleResult.getFlawCount() + 1);
+                    };
                 }
                 moduleResultMap.put(rootNodeId, moduleResult);
                 return;
