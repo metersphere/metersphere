@@ -28,7 +28,7 @@
         <span>{{$t('commons.workspace')}}</span>
       </template>
       <el-menu-item index="/setting/member">{{$t('commons.member')}}</el-menu-item>
-      <el-menu-item index="/setting/testcase/report/template">测试报告模版</el-menu-item>
+      <el-menu-item index="/setting/testcase/report/template">{{$t('test_track.plan_view.report_template')}}</el-menu-item>
     </el-submenu>
 
     <el-submenu index="4">

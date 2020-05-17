@@ -1,21 +1,18 @@
 <template>
+    <el-card  v-loading="result.loading">
+      <template v-slot:header>
+        <ms-table-header :condition.sync="condition" @search="initData"
+                         :title="$t('test_track.plan_view.report_template')"
+                         :create-tip="$t('test_track.plan_view.create_template')" @create="templateEdit">
+        </ms-table-header>
+      </template>
 
-    <ms-main-container v-loading="result.loading">
-      <el-card>
-        <template v-slot:header>
-          <ms-table-header :condition.sync="condition" @search="initData"
-                           :title="$t('test_track.plan_view.report_template')"
-                           :create-tip="$t('test_track.plan_view.create_template')" @create="templateEdit">
-          </ms-table-header>
-        </template>
+      <testcase-template-item v-for="item in templates" :key="item.id"
+                              :template="item" @templateEdit="templateEdit" @refresh="initData"/>
 
-        <testcase-template-item v-for="item in templates" :key="item.id"
-                                :template="item" @templateEdit="templateEdit" @refresh="initData"/>
+      <test-case-report-template-edit ref="templateEdit" @refresh="initData"/>
 
-        <test-case-report-template-edit ref="templateEdit" @refresh="initData"/>
-
-      </el-card>
-  </ms-main-container>
+    </el-card>
 </template>
 
 <script>

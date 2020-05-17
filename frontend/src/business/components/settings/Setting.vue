@@ -1,37 +1,42 @@
 <template>
-  <el-row type="flex">
-    <div class="menus">
+  <ms-container>
+
+    <ms-aside-container>
       <ms-current-user/>
       <el-divider/>
       <h1>{{$t('commons.setting')}}</h1>
       <ms-setting-menu/>
-    </div>
-    <div class="container">
+    </ms-aside-container>
+
+    <ms-main-container>
       <keep-alive>
-        <router-view class="main-content"/>
+        <router-view/>
       </keep-alive>
-    </div>
-  </el-row>
+    </ms-main-container>
+  </ms-container>
 </template>
 
 <script>
   import MsCurrentUser from "./CurrentUser";
   import MsSettingMenu from "./SettingMenu";
+  import MsAsideContainer from "../common/components/MsAsideContainer";
+  import MsContainer from "../common/components/MsContainer";
+  import MsMainContainer from "../common/components/MsMainContainer";
 
   export default {
     name: "MsSetting",
-    components: {MsSettingMenu, MsCurrentUser},
+    components: {MsMainContainer, MsContainer, MsAsideContainer, MsSettingMenu, MsCurrentUser},
   }
 </script>
 
 <style scoped>
-  .menus {
-    width: 280px;
-    height: 100%;
-    border-right: 1px solid #E6E6E6;
+  .ms-aside-container {
+    height: calc(100vh - 40px);
     padding: 20px;
-    box-sizing: border-box;
-    background-color: #FFF;
+  }
+
+  .ms-main-container {
+    height: calc(100vh - 40px);
   }
 
   h1 {
