@@ -76,6 +76,14 @@
           </el-col>
         </el-row>
 
+        <el-row v-if="operationType == 'edit'" type="flex" justify="left" style="margin-top: 10px;">
+          <el-col :span="19" :offset="1">
+            <el-form-item :label="'当前状态'" :label-width="formLabelWidth" prop="status">
+              <test-plan-status-button :status="form.status" @statusChange="statusChange"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
       </el-form>
 
       <template v-slot:footer>
@@ -101,10 +109,12 @@
 <script>
 
   import {WORKSPACE_ID} from '../../../../../common/js/constants';
+  import TestPlanStatusButton from "../common/TestPlanStatusButton";
 
   export default {
       name: "TestPlanEdit",
-      data() {
+    components: {TestPlanStatusButton},
+    data() {
         return {
           dialogFormVisible: false,
           form: {
@@ -180,6 +190,10 @@
             this.principalOptions = response.data;
           });
         },
+        statusChange(status) {
+          this.form.status = status;
+          this.$forceUpdate();
+        },
         resetForm() {
           //防止点击修改后，点击新建触发校验
           if (this.$refs['planFrom']) {
@@ -190,6 +204,7 @@
               this.form.principal = '';
               this.form.stage = '';
               this.form.description = '';
+              this.form.status = null;
               return true;
             });
           }
