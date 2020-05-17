@@ -6,7 +6,7 @@
           <related-test-plan-list ref="relatedTestPlanList"/>
         </el-col>
         <el-col :span="9">
-          <test-case-side-list :title="'最近测试'" ref="testCaseRecentList"/>
+          <test-case-side-list :title="$t('test_track.home.recent_test')" ref="testCaseRecentList"/>
         </el-col>
       </el-row>
     </ms-main-container>

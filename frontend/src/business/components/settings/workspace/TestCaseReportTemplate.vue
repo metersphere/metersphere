@@ -1,38 +1,34 @@
 <template>
 
-  <div v-loading="result.loading">
-    <el-card>
-      <template v-slot:header>
-        <ms-table-header :condition.sync="condition" @search="initData"
-                         :title="'测试报告模版'"
-                         :create-tip="'新建模版'" @create="templateEdit">
+    <ms-main-container v-loading="result.loading">
+      <el-card>
+        <template v-slot:header>
+          <ms-table-header :condition.sync="condition" @search="initData"
+                           :title="$t('test_track.plan_view.report_template')"
+                           :create-tip="$t('test_track.plan_view.create_template')" @create="templateEdit">
+          </ms-table-header>
+        </template>
 
-        </ms-table-header>
-      </template>
-
-      <el-main>
         <testcase-template-item v-for="item in templates" :key="item.id"
                                 :template="item" @templateEdit="templateEdit" @refresh="initData"/>
-      </el-main>
 
-      <test-case-report-template-edit ref="templateEdit" @refresh="initData"/>
+        <test-case-report-template-edit ref="templateEdit" @refresh="initData"/>
 
-    </el-card>
-
-  </div>
-
+      </el-card>
+  </ms-main-container>
 </template>
 
 <script>
 
     import MsTableHeader from "../../common/components/MsTableHeader";
-    import TestCaseReportTemplateEdit from "./components/TestCaseReportTemplateEdit";
-    import TestcaseTemplateItem from "./components/TestcaseTemplateItem";
+    import TestCaseReportTemplateEdit from "../../track/plan/view/comonents/report/TestCaseReportTemplateEdit";
+    import TestcaseTemplateItem from "../../track/plan/view/comonents/report/TestcaseTemplateItem";
     import {WORKSPACE_ID} from '../../../../common/js/constants';
+    import MsMainContainer from "../../common/components/MsMainContainer";
 
     export default {
       name: "TestCaseReportTemplate",
-      components: {TestcaseTemplateItem, TestCaseReportTemplateEdit, MsTableHeader},
+      components: {MsMainContainer, TestcaseTemplateItem, TestCaseReportTemplateEdit, MsTableHeader},
       data() {
         return {
           result: {},

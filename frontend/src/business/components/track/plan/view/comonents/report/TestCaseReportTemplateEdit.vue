@@ -15,8 +15,8 @@
       <div class="container">
         <el-aside>
           <div class="description">
-            <span class="title">组件库</span>
-            <span>从组件库把需要使用的组件拖到右侧，预览测试报告的效果。系统组件只能添加一次。自定义组件，可以设定默认的标题和内容。</span>
+            <span class="title">{{$t('test_track.plan_view.component_library')}}</span>
+            <span>{{$t('test_track.plan_view.component_library_tip')}}</span>
           </div>
           <draggable
             class="dragArea list-group"
@@ -53,8 +53,8 @@
   import draggable from 'vuedraggable';
   import TemplateComponentBar from "./TemplateComponentBar";
   import TemplateComponentEditHeader from "./TemplateComponentEditHeader";
-  import {WORKSPACE_ID} from '../../../../../common/js/constants';
-  import {jsonToMap, mapToJson} from "../../../../../common/js/utils";
+  import {WORKSPACE_ID} from '../../../../../../../common/js/constants';
+  import {jsonToMap, mapToJson} from "../../../../../../../common/js/utils";
   import TemplateComponent from "./TemplateComponent/TemplateComponent";
 
     export default {
@@ -73,10 +73,10 @@
           type: 'edit',
           componentMap: new Map(
             [
-              [1, { name: "基础信息", id: 1 , type: 'system'}],
-              [2, { name: "测试结果", id: 2 , type: 'system'}],
-              [3, { name: "测试结果分布", id: 3 ,type: 'system'}],
-              [4, { name: "自定义模块", id: 4 ,type: 'custom'}]
+              [1, { name: this.$t('test_track.plan_view.base_info'), id: 1 , type: 'system'}],
+              [2, { name: this.$t('test_track.plan_view.test_result'), id: 2 , type: 'system'}],
+              [3, { name: this.$t('test_track.plan_view.result_distribution'), id: 3 ,type: 'system'}],
+              [4, { name: this.$t('test_track.plan_view.custom_component'), id: 4 ,type: 'custom'}]
             ]
           ),
           components: [4],
@@ -160,7 +160,7 @@
         },
         handleDelete(preview) {
           if (this.previews.length == 1) {
-            this.$warning('请至少保留一个组件');
+            this.$warning(this.$t('test_track.plan_view.delete_component_tip'));
             return;
           }
           for (let i = 0; i < this.previews.length; i++) {
@@ -207,7 +207,7 @@
         },
         handleSave() {
           if (this.template.name == '') {
-            this.$warning('请填写模版名称');
+            this.$warning(this.$t('test_track.plan_view.input_template_name'));
             return;
           }
           let param = {};
@@ -217,7 +217,7 @@
             url = '/case/report/';
           }
           this.$post(url + this.type, param, () =>{
-            this.$success('保存成功');
+            this.$success(this.$t('commons.save_success'));
             this.showDialog = false;
             this.$emit('refresh');
           });

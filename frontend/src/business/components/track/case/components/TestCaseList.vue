@@ -12,7 +12,7 @@
           <template v-slot:button>
             <ms-table-button icon="el-icon-upload2" :content="$t('test_track.case.import.import')" @click="importTestCase"/>
             <ms-table-button icon="el-icon-right" :content="$t('test_track.case.move')" @click="handleBatch('move')"/>
-            <ms-table-button icon="el-icon-delete" :content="'删除用例'" @click="handleBatch('delete')"/>
+            <ms-table-button icon="el-icon-delete" :content="$t('test_track.case.delete')" @click="handleBatch('delete')"/>
             <!--<test-case-export/>-->
           </template>
         </ms-table-header>

@@ -57,6 +57,9 @@ export default {
     'exit_system': 'Exit System',
     'verification': 'Verification',
     'set_admin': 'Set Admin',
+    'title': 'Title',
+    'custom': 'Custom',
+    'select_date': 'Select date',
   },
   workspace: {
     'create': 'Create Workspace',
@@ -83,6 +86,7 @@ export default {
     'select': 'Select Organization',
   },
   project: {
+    'name': 'Project name',
     'recent': 'Recent Projects',
     'create': 'Create Project',
     'edit': 'Edit Project',
@@ -302,6 +306,7 @@ export default {
     length_less_than: "The length less than",
     recent_plan: "Recent plan",
     recent_case: "Recent case",
+    pass_rate: "Pass rate",
     case: {
       test_case: "Test case",
       move: "Move case",
@@ -333,6 +338,7 @@ export default {
       input_method: "Please select method",
       input_prerequisite: "Please select prerequisite",
       delete_confirm: "Confirm delete test case",
+      delete: "Delete case",
       import: {
         import: "Import test case",
         case_import: "Import test case",
@@ -343,6 +349,7 @@ export default {
         upload_limit_format: "Upload files can only be XLS, XLSX format!",
         upload_limit_size: "Upload file size cannot exceed 20MB!",
         success: "Import success！",
+        importing: "Importing...",
       },
       export: {
         export: "Export cases"
@@ -380,6 +387,13 @@ export default {
       name: "Module name",
       delete_confirm: "Confirm delete module:",
       delete_all_resource: "and all submodules and test cases under the module",
+      module: "Module",
+    },
+    home: {
+      recent_test: "Recent test",
+      my_plan: "My plan",
+      test_rate: "Test rate",
+      tested_case: "Tested case",
     },
     plan_view: {
       plan: "Plan",
@@ -403,6 +417,27 @@ export default {
       cancel_relevance: "Cancel relevance",
       confirm_cancel_relevance: "Confirm cancel relevance",
       select_manipulate: "Select the data you want to manipulate",
+      select_template: "Select template",
+      step: "Step",
+      submit_flaw: "Commit flaw",
+      operate_step: "Operate step",
+      edit_component: "Edit component",
+      base_info: "Base info",
+      test_result: "Test result",
+      result_distribution: "Result distribution",
+      custom_component: "Custom component",
+      create_report: "Create report",
+      view_report: "View report",
+      component_library: "Component library",
+      component_library_tip: "Drag and drop the component from the component library, add to the right, preview the report effect, only one can be added per system component.",
+      delete_component_tip: "Please reserve at least one component",
+      input_template_name: "Input template name",
+      case_count: "Case count",
+      flaw_count: "Flaw count",
+      result_statistics: "Result statistics",
+      result_statistics_chart: "Result statistics chart",
+      create_template: "Create template",
+      report_template: "Report template",
     }
   },
   test_resource_pool: {

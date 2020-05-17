@@ -1,5 +1,5 @@
 <template>
-  <home-base-component :title="'我的计划'" v-loading>
+  <home-base-component  v-loading>
     <el-table
       :data="tableData"
       @row-click="intoPlan"
@@ -22,7 +22,7 @@
 
       <el-table-column
         prop="projectName"
-        :label="'通过率'"
+        :label="$t('test_track.pass_rate')"
         show-overflow-tooltip>
         <template v-slot:default="scope">
           {{scope.row.passRate}}%
@@ -31,7 +31,7 @@
 
       <el-table-column
         prop="projectName"
-        :label="'已测用例'"
+        :label="$t('test_track.home.tested_case')"
         show-overflow-tooltip>
         <template v-slot:default="scope">
           {{scope.row.tested}}/{{scope.row.total}}
@@ -40,7 +40,7 @@
 
       <el-table-column
         prop="projectName"
-        :label="'测试进度'"
+        :label="$t('test_track.home.test_rate')"
         min-width="100"
         show-overflow-tooltip>
         <template v-slot:default="scope">

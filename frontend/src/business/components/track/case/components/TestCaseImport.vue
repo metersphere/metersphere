@@ -11,7 +11,7 @@
       <el-row>
         <el-upload
           v-loading="isLoading"
-          element-loading-text="导入中"
+          :element-loading-text="$t('test_track.case.import.importing')"
           element-loading-spinner="el-icon-loading"
           class="upload-demo"
           :action="'/test/case/import/' + projectId"

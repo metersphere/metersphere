@@ -10,11 +10,11 @@
             <ms-table-button v-if="!showMyTestCase" icon="el-icon-s-custom" :content="$t('test_track.plan_view.my_case')" @click="searchMyTestCase"/>
             <ms-table-button v-if="showMyTestCase" icon="el-icon-files" :content="$t('test_track.plan_view.all_case')" @click="searchMyTestCase"/>
             <ms-table-button icon="el-icon-connection" :content="$t('test_track.plan_view.relevance_test_case')" @click="$emit('openTestCaseRelevanceDialog')"/>
-            <ms-table-button icon="el-icon-unlock" :content="'取消用例关联'" @click="handleBatch('delete')"/>
+            <ms-table-button icon="el-icon-unlock" :content="$t('test_track.plan_view.cancel_relevance')" @click="handleBatch('delete')"/>
             <ms-table-button icon="el-icon-edit-outline" :content="$t('test_track.plan_view.change_execution_results')" @click="handleBatch('status')"/>
             <ms-table-button icon="el-icon-user" :content="$t('test_track.plan_view.change_executor')" @click="handleBatch('executor')"/>
-            <ms-table-button v-if="!testPlan.reportId" icon="el-icon-document" :content="$t('创建测试报告')" @click="openTestReport"/>
-            <ms-table-button v-if="testPlan.reportId" icon="el-icon-document" :content="$t('查看测试报告')" @click="openReport"/>
+            <ms-table-button v-if="!testPlan.reportId" icon="el-icon-document" :content="$t('test_track.plan_view.create_report')" @click="openTestReport"/>
+            <ms-table-button v-if="testPlan.reportId" icon="el-icon-document" :content="$t('test_track.plan_view.view_report')" @click="openReport"/>
           </template>
         </ms-table-header>
       </template>
@@ -144,7 +144,7 @@
   import MsTableOperator from "../../../../common/components/MsTableOperator";
   import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
   import TestReportTemplateList from "./TestReportTemplateList";
-  import TestCaseReportView from "./TestCaseReportView";
+  import TestCaseReportView from "./report/TestCaseReportView";
 
   export default {
       name: "TestPlanTestCaseList",

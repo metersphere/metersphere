@@ -142,7 +142,7 @@
                   <el-switch
                     v-model="testCase.flaw.hasFlaw"
                     @change="flawChange"
-                    active-text="提缺陷">
+                    :active-text="$t('test_track.plan_view.submit_flaw')">
                   </el-switch>
                 </el-col>
               </el-row>
@@ -296,11 +296,11 @@
       },
       flawChange() {
        if (this.testCase.flaw.hasFlaw) {
-          let desc = this.addPLabel('[' + '操作步骤' + ']');
-          let result = this.addPLabel('[' + '预期结果' + ']');
-          let executeResult = this.addPLabel('[' + '实际结果' + ']');
+          let desc = this.addPLabel('[' + this.$t('test_track.plan_view.operate_step') + ']');
+          let result = this.addPLabel('[' + this.$t('test_track.case.expected_results') + ']');
+          let executeResult = this.addPLabel('[' + this.$t('test_track.plan_view.actual_result') + ']');
           this.testCase.steps.forEach(step => {
-            let stepPrefix = '步骤' + step.num + ':';
+            let stepPrefix = this.$t('test_track.plan_view.step') + step.num + ':';
             desc += this.addPLabel(stepPrefix + (step.desc == undefined ? '' : step.desc));
             result += this.addPLabel(stepPrefix + (step.result == undefined ? '' : step.result));
             executeResult += this.addPLabel(stepPrefix + (step.executeResult == undefined ? '' : step.executeResult));

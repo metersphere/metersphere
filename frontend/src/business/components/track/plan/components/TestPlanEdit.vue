@@ -78,7 +78,7 @@
 
         <el-row v-if="operationType == 'edit'" type="flex" justify="left" style="margin-top: 10px;">
           <el-col :span="19" :offset="1">
-            <el-form-item :label="'当前状态'" :label-width="formLabelWidth" prop="status">
+            <el-form-item :label="$t('test_track.plan.plan_status')" :label-width="formLabelWidth" prop="status">
               <test-plan-status-button :status="form.status" @statusChange="statusChange"/>
             </el-form-item>
           </el-col>

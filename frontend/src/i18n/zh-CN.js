@@ -57,6 +57,9 @@ export default {
     'exit_system': '退出系统',
     'verification': '验证',
     'set_admin': '设置为管理员',
+    'title': '标题',
+    'custom': '自定义',
+    'select_date': '选择日期',
   },
   workspace: {
     'create': '创建工作空间',
@@ -83,6 +86,7 @@ export default {
     'select': '选择组织',
   },
   project: {
+    'name': '项目名称',
     'recent': '最近的项目',
     'create': '创建项目',
     'edit': '编辑项目',
@@ -302,6 +306,7 @@ export default {
     length_less_than: "长度必须小于",
     recent_plan: "最近的计划",
     recent_case: "最近的用例",
+    pass_rate: "通过率",
     case: {
       test_case: "测试用例",
       move: "移动用例",
@@ -333,6 +338,7 @@ export default {
       input_method: "请选择测试方式",
       input_prerequisite: "请输入前置条件",
       delete_confirm: "确认删除测试用例",
+      delete: "删除用例",
       import: {
         import: "导入用例",
         case_import: "导入测试用例",
@@ -343,6 +349,7 @@ export default {
         upload_limit_format: "上传文件只能是 xls、xlsx格式!",
         upload_limit_size: "上传文件大小不能超过 20MB!",
         success: "导入成功！",
+        importing: "导入中...",
       },
       export: {
         export: "导出用例"
@@ -380,6 +387,13 @@ export default {
       name: "模块名称",
       delete_confirm: "确认删除模块: ",
       delete_all_resource: "以及模块下所有子模块和测试用例",
+      module: "模块",
+    },
+    home: {
+      recent_test: "最近测试",
+      my_plan: "我的计划",
+      test_rate: "测试进度",
+      tested_case: "已测用例",
     },
     plan_view: {
       plan: "计划",
@@ -400,9 +414,30 @@ export default {
       change_executor: "更改执行人",
       select_executor: "请选择执行人",
       select_execute_result: "选择执行结果",
-      cancel_relevance: "取消关联",
+      cancel_relevance: "取消用例关联",
       confirm_cancel_relevance: "确认取消关联",
       select_manipulate: "请选择需要操作的数据",
+      select_template: "选择模版",
+      step: "步骤",
+      submit_flaw: "提缺陷",
+      operate_step: "操作步骤",
+      edit_component: "编辑组件",
+      base_info: "基础信息",
+      test_result: "测试结果",
+      result_distribution: "测试结果分布",
+      custom_component: "自定义模块",
+      create_report: "创建测试报告",
+      view_report: "查看测试报告",
+      component_library: "组件库",
+      component_library_tip: "拖拽组件库中组件，添加至右侧，预览报告效果，每个系统组件只能添加一个。",
+      delete_component_tip: "请至少保留一个组件",
+      input_template_name: "输入模版名称",
+      case_count: "用例数",
+      flaw_count: "缺陷数",
+      result_statistics: "测试结果统计",
+      result_statistics_chart: "测试结果统计图",
+      create_template: "新建模版",
+      report_template: "测试报告模版",
     }
   },
   test_resource_pool: {

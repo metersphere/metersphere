@@ -57,6 +57,9 @@ export default {
     'exit_system': '退出系統',
     'verification': '驗證',
     'set_admin': '設置為管理員',
+    'title': '標題',
+    'custom': '自定義',
+    'select_date': '選擇日期',
   },
   workspace: {
     'create': '創建工作空間',
@@ -131,6 +134,7 @@ export default {
     'test_viewer': 'Viewer'
   },
   report: {
+    'name': '項目名稱',
     'recent': '最近的報告',
     'search_by_name': '根據名稱搜索',
     'test_name': '所屬測試',
@@ -302,6 +306,7 @@ export default {
     length_less_than: "長度必須小於",
     recent_plan: "最近的計劃",
     recent_case: "最近的用例",
+    pass_rate: "通過率",
     case: {
       test_case: "測試用例",
       move: "移動用例",
@@ -333,6 +338,7 @@ export default {
       input_method: "請選擇測試方式",
       input_prerequisite: "請輸入前置條件",
       delete_confirm: "確認刪除測試用例: ",
+      delete: "删除用例",
       import: {
         import: "導入用例",
         case_import: "導入測試用例",
@@ -343,6 +349,7 @@ export default {
         upload_limit_format: "上傳文件只能是 xls、xlsx格式!",
         upload_limit_size: "上傳文件大小不能超過 20MB!",
         success: "導入成功！",
+        importing: "導入中...",
       },
       export: {
         export: "導出用例"
@@ -380,6 +387,13 @@ export default {
       name: "模塊名稱",
       delete_confirm: "確認刪除模塊: ",
       delete_all_resource: "以及模塊下所有子模塊和測試用例",
+      module: "模塊",
+    },
+    home: {
+      recent_test: "最近測試",
+      my_plan: "我的計劃",
+      test_rate: "測試進度",
+      tested_case: "已測用例",
     },
     plan_view: {
       plan: "計劃",
@@ -403,6 +417,27 @@ export default {
       cancel_relevance: "取消關聯",
       confirm_cancel_relevance: "確認取消關聯",
       select_manipulate: "請選擇需要操作的數據",
+      select_template: "選擇模版",
+      step: "步驟",
+      submit_flaw: "提缺陷",
+      operate_step: "操作步驟",
+      edit_component: "編輯組件",
+      base_info: "基礎信息",
+      test_result: "測試結果",
+      result_distribution: "測試結果分布",
+      custom_component: "自定義模塊",
+      create_report: "創建測試報告",
+      view_report: "查看測試報告",
+      component_library: "組件庫",
+      component_library_tip: "拖拽組件庫中組件，添加至右側，預覽報告效果，每個系統組件只能添加壹個。",
+      delete_component_tip: "請至少保留壹個組件",
+      input_template_name: "輸入模版名稱",
+      case_count: "用例數",
+      flaw_count: "缺陷數",
+      result_statistics: "測試結果統計",
+      result_statistics_chart: "測試結果統計圖",
+      create_template: "新建模版",
+      report_template: "測試報告模版",
     }
   },
   test_resource_pool: {

@@ -1,10 +1,11 @@
 <template>
 
-  <common-component :title="'测试结果统计'">
+  <common-component :title="$t('test_track.plan_view.result_statistics')">
 
     <template>
 
-      <ms-pie-chart v-if="isShow" :text="'测试结果统计图'" :name="'测试结果'" :data="charData"/>
+      <ms-pie-chart v-if="isShow" :text="$t('test_track.plan_view.result_statistics_chart')"
+                    :name="$t('test_track.plan_view.test_result')" :data="charData"/>
 
     </template>
 
@@ -14,7 +15,7 @@
 
 <script>
     import CommonComponent from "./CommonComponent";
-    import MsPieChart from "../../../../common/components/MsPieChart";
+    import MsPieChart from "../../../../../../common/components/MsPieChart";
 
     export default {
       name: "TestResultChartComponent",
@@ -22,12 +23,12 @@
       data() {
         return {
           dataMap: new Map([
-            ["Pass", {name:'通过', itemStyle: {color: '#67C23A'}}],
-            ["Blocking", {name:'阻塞', itemStyle: {color: '#E6A23C'}}],
-            ["Skip", {name:'跳过', itemStyle: {color: '#909399'}}],
-            ["Prepare", {name:'未开始', itemStyle: {color: '#DEDE10'}}],
-            ["Failure", {name:'失败', itemStyle: {color: '#F56C6C'}}],
-            ["Underway", {name:'进行中', itemStyle: {color: 'lightskyblue'}}]
+            ["Pass", {name: this.$t('test_track.plan_view.pass'), itemStyle: {color: '#67C23A'}}],
+            ["Blocking", {name: this.$t('test_track.plan_view.blocking'), itemStyle: {color: '#E6A23C'}}],
+            ["Skip", {name: this.$t('test_track.plan_view.skip'), itemStyle: {color: '#909399'}}],
+            ["Prepare", {name: this.$t('test_track.plan.plan_status_prepare'), itemStyle: {color: '#DEDE10'}}],
+            ["Failure", {name: this.$t('test_track.plan_view.failure'), itemStyle: {color: '#F56C6C'}}],
+            ["Underway", {name: this.$t('test_track.plan.plan_status_running'), itemStyle: {color: 'lightskyblue'}}]
           ]),
           charData: [],
           isShow: true
