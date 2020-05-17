@@ -224,7 +224,8 @@ public class TestCaseService {
     }
 
     public void testCaseTemplateExport(HttpServletResponse response) {
-       EasyExcelUtil.export(response, TestCaseExcelData.class, generateExportTemplate(), "测试用例模版", "模版");
+       EasyExcelUtil.export(response, TestCaseExcelData.class, generateExportTemplate(),
+               Translator.get("test_case_import_template_name"), Translator.get("test_case_import_template_sheet"));
     }
 
     private List<TestCaseExcelData> generateExportTemplate() {

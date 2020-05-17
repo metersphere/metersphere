@@ -9,6 +9,7 @@ import io.metersphere.base.mapper.TestPlanTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.i18n.Translator;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.dto.TestCaseNodeDTO;
 import io.metersphere.exception.ExcelException;
@@ -46,7 +47,8 @@ public class TestCaseNodeService {
     public String addNode(TestCaseNode node) {
 
         if(node.getLevel() > TestCaseConstants.MAX_NODE_DEPTH){
-            throw new RuntimeException("模块树最大深度为" + TestCaseConstants.MAX_NODE_DEPTH + "层！");
+            throw new RuntimeException(Translator.get("test_case_node_level_tip")
+                    + TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level"));
         }
         node.setCreateTime(System.currentTimeMillis());
         node.setUpdateTime(System.currentTimeMillis());
@@ -243,7 +245,7 @@ public class TestCaseNodeService {
         nodePaths.forEach(path -> {
 
             if (path == null) {
-                throw new ExcelException("所属模块不能为空！");
+                throw new ExcelException(Translator.get("test_case_module_not_null"));
             }
             List<String> nodeNameList = new ArrayList<>(Arrays.asList(path.split("/")));
             Iterator<String> pathIterator = nodeNameList.iterator();
@@ -252,7 +254,7 @@ public class TestCaseNodeService {
             String rootNodeName = null;
 
             if (nodeNameList.size() <= 1) {
-                throw new ExcelException("创建模块失败：" + path);
+                throw new ExcelException(Translator.get("test_case_module_not_null") + ":" + path);
             } else {
                 pathIterator.next();
                 pathIterator.remove();
