@@ -60,10 +60,7 @@
     },
 
     watch: {
-      '$route'(to) {
-        this.testId = to.params.testId;
-        this.search();
-      }
+      '$route': 'init',
     },
 
     methods: {
@@ -103,7 +100,15 @@
             }
           }
         });
+      },
+      init() {
+        this.testId = this.$route.params.testId;
+        this.search();
       }
+    },
+
+    created() {
+      this.init();
     }
   }
 </script>
