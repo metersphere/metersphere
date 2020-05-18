@@ -8,7 +8,6 @@
       </template>
       <!-- system menu organization table-->
       <el-table :data="tableData" style="width: 100%">
-        <el-table-column type="selection" width="55"/>
         <el-table-column prop="name" :label="$t('commons.name')"/>
         <el-table-column prop="description" :label="$t('commons.description')"/>
         <el-table-column :label="$t('commons.member')">

@@ -212,6 +212,7 @@ export default {
     'pressure_prediction_chart': '压力预估图',
   },
   api_test: {
+    title: "测试",
     save_and_run: "保存并执行",
     run: "执行",
     running: "正在执行",
@@ -273,6 +274,7 @@ export default {
     }
   },
   api_report: {
+    title: "报告",
     request: "请求",
     request_body: "请求内容",
     request_headers: "请求头",

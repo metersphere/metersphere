@@ -124,11 +124,17 @@ public class TestCaseNodeService {
 
         testCases.forEach(testCase -> {
             StringBuilder path = new StringBuilder(testCase.getNodePath());
-            List<String> list = Arrays.asList(path.toString().split("/"));
-            list.set(request.getLevel(), request.getName());
+            List<String> pathLists = Arrays.asList(path.toString().split("/"));
+
+            if (request.getLevel() <= pathLists.size()) {
+                pathLists.set(request.getLevel(), request.getName());
+            } else {
+                pathLists.add(request.getName());
+            }
+
             path.delete( 0, path.length());
-            for (int i = 1; i < list.size(); i++) {
-                path = path.append("/").append(list.get(i));
+            for (int i = 1; i < pathLists.size(); i++) {
+                path = path.append("/").append(pathLists.get(i));
             }
             testCase.setNodePath(path.toString());
         });

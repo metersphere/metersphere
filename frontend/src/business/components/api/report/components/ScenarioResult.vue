@@ -75,7 +75,7 @@
   }
 
   .scenario-result + .scenario-result {
-    border-top: 1px solid #EBEEF5;
+    border-top: 1px solid #DCDFE6;
   }
 
   .scenario-result .info {

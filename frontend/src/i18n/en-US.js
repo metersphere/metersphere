@@ -212,6 +212,7 @@ export default {
     'download_log_file': 'Download',
   },
   api_test: {
+    title: "Test",
     save_and_run: "Save and Run",
     run: "Run",
     running: "Running",
@@ -273,6 +274,7 @@ export default {
     }
   },
   api_report: {
+    title: "Report",
     request: "Request",
     request_body: "Body",
     request_headers: "Headers",
