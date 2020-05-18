@@ -64,10 +64,7 @@
     },
 
     watch: {
-      '$route'(to) {
-        this.projectId = to.params.projectId;
-        this.search();
-      }
+      '$route': 'init'
     },
 
     methods: {
@@ -110,7 +107,14 @@
             }
           }
         });
+      },
+      init() {
+        this.projectId = this.$route.params.projectId;
+        this.search();
       }
+    },
+    created() {
+      this.init();
     }
   }
 </script>
