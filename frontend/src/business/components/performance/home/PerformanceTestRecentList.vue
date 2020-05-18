@@ -51,7 +51,7 @@
       },
       link(row) {
         this.$router.push({
-          path: '/performance/test/edit?id=' + row.id,
+          path: '/performance/test/edit/' + row.id,
         })
       }
     },
