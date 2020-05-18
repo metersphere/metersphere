@@ -1,7 +1,7 @@
 <template>
-  <div class="container" v-loading="result.loading">
-    <div class="main-content">
-      <el-card class="table-card">
+  <ms-container>
+    <ms-main-container>
+      <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
           <ms-table-header :condition.sync="condition" @search="search" :title="$t('commons.test')"
                            :show-create="false"/>
@@ -76,16 +76,18 @@
         <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
                              :total="total"/>
       </el-card>
-    </div>
-  </div>
+    </ms-main-container>
+  </ms-container>
 </template>
 
 <script>
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableHeader from "../../common/components/MsTableHeader";
+  import MsContainer from "../../common/components/MsContainer";
+  import MsMainContainer from "../../common/components/MsMainContainer";
 
   export default {
-    components: {MsTableHeader, MsTablePagination},
+    components: {MsMainContainer, MsContainer, MsTableHeader, MsTablePagination},
     data() {
       return {
         result: {},
