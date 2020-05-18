@@ -8,12 +8,11 @@
       </template>
 
       <el-table :data="tableData" style="width: 100%">
-        <el-table-column type="selection" width="55"/>
         <el-table-column prop="id" label="ID"/>
-        <el-table-column prop="name" :label="$t('commons.username')" width="120"/>
+        <el-table-column prop="name" :label="$t('commons.username')"/>
         <el-table-column prop="email" :label="$t('commons.email')"/>
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
-        <el-table-column prop="status" :label="$t('commons.status')" width="100">
+        <el-table-column prop="status" :label="$t('commons.status')">
           <template v-slot:default="scope">
             <el-switch v-model="scope.row.status"
                        active-color="#13ce66"
