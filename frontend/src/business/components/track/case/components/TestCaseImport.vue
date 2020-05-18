@@ -1,7 +1,4 @@
 <template>
-
-  <div>
-
     <el-dialog width="30%" :title="$t('test_track.case.import.case_import')" :visible.sync="dialogVisible"
                @close="init">
 
@@ -41,8 +38,6 @@
       </el-row>
 
     </el-dialog>
-
-  </div>
 </template>
 
 <script>
@@ -112,20 +107,13 @@
 </script>
 
 <style>
+</style>
 
-  .el-dialog__body {
-    padding-top: 10px;
-    padding-bottom: 10px;
-  }
+<style scoped>
 
   .download-template {
     padding-top: 0px;
     padding-bottom: 10px;
   }
-
-</style>
-
-<style scoped>
-
 
 </style>
