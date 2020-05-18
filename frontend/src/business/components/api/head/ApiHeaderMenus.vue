@@ -73,7 +73,7 @@
             return '/api/' + item.id;
           },
           router: function (item) {
-            return {name: 'fucPlan', params: {projectId: item.id, projectName: item.name}}
+            return {name: 'ApiTestList', params: {projectId: item.id, projectName: item.name}}
           }
         },
         testRecent: {

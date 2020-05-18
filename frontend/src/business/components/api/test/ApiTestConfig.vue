@@ -26,7 +26,7 @@
 
               <el-button type="warning" plain @click="cancel">{{$t('commons.cancel')}}</el-button>
 
-              <ms-api-report-dialog/>
+              <ms-api-report-dialog :test-id="id" v-if="id"/>
             </el-row>
           </el-header>
           <ms-api-scenario-config :scenarios="test.scenarioDefinition" ref="config"/>
