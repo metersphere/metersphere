@@ -1,12 +1,18 @@
 <template>
   <div>
-    <el-tag size="mini" type="primary" v-if="row.status === 'Starting'">
+    <el-tag size="mini" type="info" v-if="row.status === 'Saved'">
+      {{ row.status }}
+    </el-tag>
+    <el-tag size="mini" type="primary" v-else-if="row.status === 'Starting'">
       {{ row.status }}
     </el-tag>
     <el-tag size="mini" type="success" v-else-if="row.status === 'Running'">
       {{ row.status }}
     </el-tag>
     <el-tag size="mini" type="warning" v-else-if="row.status === 'Reporting'">
+      {{ row.status }}
+    </el-tag>
+    <el-tag size="mini" type="info" v-else-if="row.status === 'Completed'">
       {{ row.status }}
     </el-tag>
     <el-tooltip placement="top" v-else-if="row.status === 'Error'" effect="light">
@@ -17,9 +23,9 @@
         {{ row.status }}
       </el-tag>
     </el-tooltip>
-    <el-tag v-else>
+    <span v-else>
       {{ row.status }}
-    </el-tag>
+    </span>
   </div>
 </template>
 
