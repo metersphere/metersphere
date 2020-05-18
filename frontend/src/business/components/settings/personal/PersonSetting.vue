@@ -12,10 +12,10 @@
       <!--Personal information menu-->
       <el-table :data="tableData" style="width: 100%">
         <el-table-column prop="id" label="ID"/>
-        <el-table-column prop="name" :label="$t('commons.username')" width="120"/>
+        <el-table-column prop="name" :label="$t('commons.username')"/>
         <el-table-column prop="email" :label="$t('commons.email')"/>
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
-        <el-table-column prop="createTime" :label="$t('commons.create_time')" width="180">
+        <el-table-column prop="createTime" :label="$t('commons.create_time')">
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
