@@ -9,8 +9,10 @@
           <ms-api-report-recent-list/>
         </el-col>
       </el-row>
-      <el-row>
-        <ms-test-heatmap :values="values"></ms-test-heatmap>
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <ms-test-heatmap :values="values"/>
+        </el-col>
       </el-row>
     </ms-main-container>
   </ms-container>
