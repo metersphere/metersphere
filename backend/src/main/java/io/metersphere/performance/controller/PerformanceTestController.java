@@ -7,6 +7,7 @@ import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.FileService;
@@ -100,5 +101,10 @@ public class PerformanceTestController {
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileOperationRequest.getName() + "\"")
                 .body(bytes);
+    }
+
+    @GetMapping("dashboard/tests")
+    public List<DashboardTestDTO> dashboardTests() {
+        return performanceTestService.dashboardTests(SessionUtils.getCurrentWorkspaceId());
     }
 }
