@@ -59,11 +59,11 @@
       }
     },
 
-    beforeRouteEnter(to, from, next) {
-      next(self => {
-        self.testId = to.params.testId;
-        self.search();
-      });
+    watch: {
+      '$route'(to) {
+        this.testId = to.params.testId;
+        this.search();
+      }
     },
 
     methods: {

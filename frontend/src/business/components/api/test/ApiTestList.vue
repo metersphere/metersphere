@@ -63,11 +63,11 @@
       }
     },
 
-    beforeRouteEnter(to, from, next) {
-      next(self => {
-        self.projectId = to.params.projectId;
-        self.search();
-      });
+    watch: {
+      '$route'(to) {
+        this.projectId = to.params.projectId;
+        this.search();
+      }
     },
 
     methods: {
