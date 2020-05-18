@@ -7,8 +7,7 @@
                            :show-create="false"/>
         </template>
         <el-table :data="tableData" class="table-content">
-          <el-table-column prop="name" :label="$t('commons.name')" width="150" show-overflow-tooltip>
-          </el-table-column>
+          <el-table-column prop="name" :label="$t('commons.name')" width="150" show-overflow-tooltip/>
           <el-table-column width="250" :label="$t('commons.create_time')">
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
