@@ -11,7 +11,7 @@ import lombok.ToString;
 public class TestPlanTestCaseWithBLOBs extends TestPlanTestCase implements Serializable {
     private String results;
 
-    private String flaw;
+    private String issues;
 
     private static final long serialVersionUID = 1L;
 }

@@ -137,19 +137,19 @@
                 </el-col>
               </el-row>
 
-              <el-row v-if="testCase.flaw">
+              <el-row v-if="testCase.issues">
                 <el-col :span="5" :offset="1">
                   <el-switch
-                    v-model="testCase.flaw.hasFlaw"
-                    @change="flawChange"
-                    :active-text="$t('test_track.plan_view.submit_flaw')">
+                    v-model="testCase.issues.hasIssues"
+                    @change="issuesChange"
+                    :active-text="$t('test_track.plan_view.submit_issues')">
                   </el-switch>
                 </el-col>
               </el-row>
 
-              <el-row v-if="testCase.flaw && testCase.flaw.hasFlaw">
+              <el-row v-if="testCase.issues && testCase.issues.hasIssues">
                 <el-col :span="20" :offset="1" class="step-edit">
-                  <ckeditor :editor="editor" v-model="testCase.flaw.content"/>
+                  <ckeditor :editor="editor" v-model="testCase.issues.content"/>
                 </el-col>
               </el-row>
 
@@ -229,7 +229,7 @@
           param.results.push(result);
         });
         param.results = JSON.stringify(param.results);
-        param.flaw = JSON.stringify(this.testCase.flaw);
+        param.issues = JSON.stringify(this.testCase.issues);
         this.$post('/test/plan/case/edit', param, () => {
           if (isContinuous) {
             this.updateTestCases(param);
@@ -256,11 +256,11 @@
         Object.assign(item, testCase);
         item.results = JSON.parse(item.results);
         item.steps = JSON.parse(item.steps);
-        if (item.flaw) {
-          item.flaw = JSON.parse(item.flaw);
+        if (item.issues) {
+          item.issues = JSON.parse(item.issues);
         } else {
-          item.flaw = {};
-          item.flaw.hasFlaw = false;
+          item.issues = {};
+          item.issues.hasIssues = false;
         }
         item.steptResults = [];
         for (let i = 0; i < item.steps.length; i++){
@@ -294,8 +294,8 @@
           }
         });
       },
-      flawChange() {
-       if (this.testCase.flaw.hasFlaw) {
+      issuesChange() {
+       if (this.testCase.issues.hasIssues) {
           let desc = this.addPLabel('[' + this.$t('test_track.plan_view.operate_step') + ']');
           let result = this.addPLabel('[' + this.$t('test_track.case.expected_results') + ']');
           let executeResult = this.addPLabel('[' + this.$t('test_track.plan_view.actual_result') + ']');
@@ -305,7 +305,7 @@
             result += this.addPLabel(stepPrefix + (step.result == undefined ? '' : step.result));
             executeResult += this.addPLabel(stepPrefix + (step.executeResult == undefined ? '' : step.executeResult));
           });
-          this.testCase.flaw.content = desc + this.addPLabel('') + result + this.addPLabel('') + executeResult + this.addPLabel('');
+          this.testCase.issues.content = desc + this.addPLabel('') + result + this.addPLabel('') + executeResult + this.addPLabel('');
         }
       },
       addPLabel(str) {

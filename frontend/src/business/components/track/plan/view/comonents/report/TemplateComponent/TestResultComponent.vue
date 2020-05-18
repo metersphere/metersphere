@@ -24,8 +24,8 @@
           </template>
         </el-table-column>
         <el-table-column
-          prop="flawCount"
-          :label="$t('test_track.plan_view.flaw_count')">
+          prop="issuesCount"
+          :label="$t('test_track.plan_view.issues_count')">
         </el-table-column>
       </el-table>
     </template>
@@ -48,19 +48,19 @@
                 moduleName: this.$t('test_track.module.module') + '1',
                 caseCount: '14',
                 passRate: 10.8,
-                flawCount: 3
+                issuesCount: 3
               },
               {
                 moduleName: this.$t('test_track.module.module') + '2',
                 caseCount: '24',
                 passRate: 40,
-                flawCount: 6
+                issuesCount: 6
               },
               {
                 moduleName: this.$t('test_track.module.module') + '3',
                 caseCount: '50',
                 passRate: 76.9,
-                flawCount: 8
+                issuesCount: 8
               }
             ]
           }

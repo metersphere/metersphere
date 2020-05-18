@@ -297,16 +297,16 @@ public class TestPlanService {
                     moduleResult = new TestCaseReportModuleResultDTO();
                     moduleResult.setCaseCount(0);
                     moduleResult.setPassCount(0);
-                    moduleResult.setFlawCount(0);
+                    moduleResult.setIssuesCount(0);
                     moduleResult.setModuleId(rootNodeId);
                 }
                 moduleResult.setCaseCount(moduleResult.getCaseCount() + 1);
                 if (StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Pass.name())) {
                     moduleResult.setPassCount(moduleResult.getPassCount() + 1);
                 }
-                if (StringUtils.isNotBlank(testCase.getFlaw())) {
-                    if (JSON.parseObject(testCase.getFlaw()).getBoolean("hasFlaw")) {
-                        moduleResult.setFlawCount(moduleResult.getFlawCount() + 1);
+                if (StringUtils.isNotBlank(testCase.getIssues())) {
+                    if (JSON.parseObject(testCase.getIssues()).getBoolean("hasIssues")) {
+                        moduleResult.setIssuesCount(moduleResult.getIssuesCount() + 1);
                     };
                 }
                 moduleResultMap.put(rootNodeId, moduleResult);

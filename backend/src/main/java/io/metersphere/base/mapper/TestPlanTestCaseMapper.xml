@@ -13,7 +13,7 @@
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestPlanTestCaseWithBLOBs">
     <result column="results" jdbcType="LONGVARCHAR" property="results" />
-    <result column="flaw" jdbcType="LONGVARCHAR" property="flaw" />
+    <result column="issues" jdbcType="LONGVARCHAR" property="issues" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -77,7 +77,7 @@
     id, plan_id, case_id, executor, status, remark, create_time, update_time
   </sql>
   <sql id="Blob_Column_List">
-    results, flaw
+    results, issues
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.TestPlanTestCaseExample" resultMap="ResultMapWithBLOBs">
     select
@@ -131,11 +131,11 @@
     insert into test_plan_test_case (id, plan_id, case_id, 
       executor, status, remark, 
       create_time, update_time, results, 
-      flaw)
+      issues)
     values (#{id,jdbcType=VARCHAR}, #{planId,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, 
       #{executor,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{results,jdbcType=LONGVARCHAR}, 
-      #{flaw,jdbcType=LONGVARCHAR})
+      #{issues,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlanTestCaseWithBLOBs">
     insert into test_plan_test_case
@@ -167,8 +167,8 @@
       <if test="results != null">
         results,
       </if>
-      <if test="flaw != null">
-        flaw,
+      <if test="issues != null">
+        issues,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -199,8 +199,8 @@
       <if test="results != null">
         #{results,jdbcType=LONGVARCHAR},
       </if>
-      <if test="flaw != null">
-        #{flaw,jdbcType=LONGVARCHAR},
+      <if test="issues != null">
+        #{issues,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -240,8 +240,8 @@
       <if test="record.results != null">
         results = #{record.results,jdbcType=LONGVARCHAR},
       </if>
-      <if test="record.flaw != null">
-        flaw = #{record.flaw,jdbcType=LONGVARCHAR},
+      <if test="record.issues != null">
+        issues = #{record.issues,jdbcType=LONGVARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -259,7 +259,7 @@
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       results = #{record.results,jdbcType=LONGVARCHAR},
-      flaw = #{record.flaw,jdbcType=LONGVARCHAR}
+      issues = #{record.issues,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -305,8 +305,8 @@
       <if test="results != null">
         results = #{results,jdbcType=LONGVARCHAR},
       </if>
-      <if test="flaw != null">
-        flaw = #{flaw,jdbcType=LONGVARCHAR},
+      <if test="issues != null">
+        issues = #{issues,jdbcType=LONGVARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -321,7 +321,7 @@
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       results = #{results,jdbcType=LONGVARCHAR},
-      flaw = #{flaw,jdbcType=LONGVARCHAR}
+      issues = #{issues,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestPlanTestCase">

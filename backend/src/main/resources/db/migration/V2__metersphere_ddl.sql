@@ -317,7 +317,7 @@ CREATE TABLE IF NOT EXISTS `test_plan_test_case` (
     `executor`               varchar(64) NOT NULL COMMENT 'Test case executor',
     `status`                 varchar(15) NULL COMMENT 'Test case status',
     `results`                longtext COMMENT 'Test case result',
-    `flaw`                   longtext COMMENT 'Test case result flaw',
+    `issues`                 longtext COMMENT 'Test case result issues',
     `remark`                 varchar(255) DEFAULT NULL COMMENT 'Test case remark',
     `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
     `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
