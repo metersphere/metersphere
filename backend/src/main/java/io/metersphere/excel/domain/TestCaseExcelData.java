@@ -20,12 +20,12 @@ public class TestCaseExcelData {
     @Length(max=1000)
     @ExcelProperty("所属模块")
     @ColumnWidth(30)
-    @Pattern(regexp = "^(?!.*//).*$", message = "格式不正确")
+    @Pattern(regexp = "^(?!.*//).*$", message = "{incorrect_format}")
     private String nodePath;
 
     @NotBlank
     @ExcelProperty("用例类型")
-    @Pattern(regexp = "(^functional$)|(^performance$)|(^api$)", message = "必须为functional、performance、api")
+    @Pattern(regexp = "(^functional$)|(^performance$)|(^api$)", message = "{test_case_type_validate}")
     private String type;
 
     @NotBlank
@@ -34,12 +34,12 @@ public class TestCaseExcelData {
 
     @NotBlank
     @ExcelProperty("优先级")
-    @Pattern(regexp = "(^P0$)|(^P1$)|(^P2$)|(^P3$)", message = "必须为P0、P1、P2、P3")
+    @Pattern(regexp = "(^P0$)|(^P1$)|(^P2$)|(^P3$)", message = "{test_case_priority_validate}")
     private String priority;
 
     @NotBlank
     @ExcelProperty("测试方式")
-    @Pattern(regexp = "(^manual$)|(^auto$)", message = "必须为manual、auto")
+    @Pattern(regexp = "(^manual$)|(^auto$)", message = "{test_case_method_validate}")
     private String method;
 
     @ColumnWidth(50)

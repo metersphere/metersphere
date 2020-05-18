@@ -6,18 +6,22 @@ import io.metersphere.excel.domain.TestCaseExcelData;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.i18n.Translator;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
+@Component
 public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
 
+    @Resource
     private TestCaseService testCaseService;
 
     private String projectId;
@@ -26,13 +30,13 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
 
     Set<String> userIds;
 
-    public TestCaseDataListener(TestCaseService testCaseService, String projectId,
-                                Set<String> testCaseNames, Set<String> userIds, Class<TestCaseExcelData> clazz) {
-        super(clazz);
-        this.testCaseService = testCaseService;
+    public TestCaseDataListener() {}
+
+    public TestCaseDataListener init(String projectId, Set<String> testCaseNames, Set<String> userIds) {
         this.projectId = projectId;
         this.testCaseNames = testCaseNames;
         this.userIds = userIds;
+        return this;
     }
 
     @Override
@@ -43,21 +47,22 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
         if (nodePath != null) {
             String[] nodes = nodePath.split("/");
             if ( nodes.length > TestCaseConstants.MAX_NODE_DEPTH + 1) {
-                stringBuilder.append("节点最多为" + TestCaseConstants.MAX_NODE_DEPTH + "层;");
+                stringBuilder.append(Translator.get("test_case_node_level_tip") +
+                        TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level"));
             }
             for (int i = 0; i < nodes.length; i++) {
                 if (i != 0 && StringUtils.equals(nodes[i].trim(), "")) {
-                    stringBuilder.append("所属模块不能为空格");
+                    stringBuilder.append(Translator.get("module_not_null"));
                     break;
                 }
             }
         }
 
         if (!userIds.contains(data.getMaintainer())) {
-            stringBuilder.append("该工作空间下无该用户：" + data.getMaintainer() + ";");
+            stringBuilder.append(Translator.get("user_not_exists") + "：" + data.getMaintainer() + "; ");
         }
         if (testCaseNames.contains(data.getName())) {
-            stringBuilder.append("该项目下已存在该测试用例：" + data.getName() + ";");
+            stringBuilder.append(Translator.get("test_case_already_exists") + "：" + data.getName() + "; ");
         }
         return stringBuilder.toString();
     }
