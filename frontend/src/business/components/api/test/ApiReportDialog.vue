@@ -3,7 +3,7 @@
     <el-button type="success" plain @click="search">{{$t('api_report.title')}}</el-button>
 
     <el-dialog :title="$t('api_report.title')" :visible.sync="reportVisible">
-      <el-table :data="tableData">
+      <el-table :data="tableData" v-loading="result.loading">
         <el-table-column :label="$t('commons.name')" width="150" show-overflow-tooltip>
           <template v-slot:default="scope">
             <el-link type="info" @click="link(scope.row)">{{ scope.row.name }}</el-link>
@@ -37,6 +37,8 @@
 
     components: {MsApiReportStatus},
 
+    props: ["testId"],
+
     data() {
       return {
         reportVisible: false,
@@ -50,7 +52,8 @@
       search() {
         this.reportVisible = true;
 
-        this.result = this.$get("/api/report/recent/99", response => {
+        let url = "/api/report/list/" + this.testId;
+        this.result = this.$get(url, response => {
           this.tableData = response.data;
         });
       },

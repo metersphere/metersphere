@@ -10,11 +10,13 @@ import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.dto.DashboardTestDTO;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+
 import java.util.List;
 
 @RestController
@@ -34,6 +36,11 @@ public class APIReportController {
         return apiReportService.recentTest(request);
     }
 
+    @GetMapping("/list/{testId}")
+    public List<APIReportResult> listByTestId(@PathVariable String testId) {
+        return apiReportService.listByTestId(testId);
+    }
+
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<APIReportResult>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryAPIReportRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
@@ -50,5 +57,11 @@ public class APIReportController {
     public void delete(@RequestBody DeleteAPIReportRequest request) {
         apiReportService.delete(request);
     }
+
+    @GetMapping("dashboard/tests")
+    public List<DashboardTestDTO> dashboardTests() {
+        return apiReportService.dashboardTests(SessionUtils.getCurrentWorkspaceId());
+    }
+
 
 }
