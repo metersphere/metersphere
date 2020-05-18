@@ -46,32 +46,7 @@
             prop="status"
             :label="$t('commons.status')">
             <template v-slot:default="{row}">
-              <el-tag size="mini" type="info" v-if="row.status === 'Saved'">
-                {{ row.status }}
-              </el-tag>
-              <el-tag size="mini" type="primary" v-else-if="row.status === 'Starting'">
-                {{ row.status }}
-              </el-tag>
-              <el-tag size="mini" type="success" v-else-if="row.status === 'Running'">
-                {{ row.status }}
-              </el-tag>
-              <el-tag size="mini" type="warning" v-else-if="row.status === 'Reporting'">
-                {{ row.status }}
-              </el-tag>
-              <el-tag size="mini" type="info" v-else-if="row.status === 'Completed'">
-                {{ row.status }}
-              </el-tag>
-              <el-tooltip placement="top" v-else-if="row.status === 'Error'" effect="light">
-                <template v-slot:content>
-                  <div>{{row.description}}</div>
-                </template>
-                <el-tag size="mini" type="danger">
-                  {{ row.status }}
-                </el-tag>
-              </el-tooltip>
-              <span v-else>
-                {{ row.status }}
-              </span>
+              <ms-performance-test-status :row="row"/>
             </template>
           </el-table-column>
           <el-table-column
@@ -94,9 +69,11 @@
   import MsTableOperator from "../../common/components/MsTableOperator";
   import MsContainer from "../../common/components/MsContainer";
   import MsMainContainer from "../../common/components/MsMainContainer";
+  import MsPerformanceTestStatus from "./PerformanceTestStatus";
 
   export default {
     components: {
+      MsPerformanceTestStatus,
       MsTablePagination,
       MsTableOperator,
       MsContainer,

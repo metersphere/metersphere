@@ -21,7 +21,7 @@
       </el-table-column>
       <el-table-column prop="status" :label="$t('commons.status')">
         <template v-slot:default="{row}">
-          {{row.status}}
+          <ms-performance-report-status :row="row"/>
         </template>
       </el-table-column>
     </el-table>
@@ -30,8 +30,11 @@
 
 <script>
 
+  import MsPerformanceReportStatus from "../report/PerformanceReportStatus";
+
   export default {
     name: "MsPerformanceReportRecentList",
+    components: {MsPerformanceReportStatus},
     data() {
       return {
         result: {},

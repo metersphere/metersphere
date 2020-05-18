@@ -46,29 +46,7 @@
             prop="status"
             :label="$t('commons.status')">
             <template v-slot:default="{row}">
-              <el-tag size="mini" type="primary" v-if="row.status === 'Starting'">
-                {{ row.status }}
-              </el-tag>
-              <el-tag size="mini" type="success" v-else-if="row.status === 'Running'">
-                {{ row.status }}
-              </el-tag>
-              <el-tag size="mini" type="warning" v-else-if="row.status === 'Reporting'">
-                {{ row.status }}
-              </el-tag>
-              <el-tag size="mini" type="info" v-else-if="row.status === 'Completed'">
-                {{ row.status }}
-              </el-tag>
-              <el-tooltip placement="top" v-else-if="row.status === 'Error'" effect="light">
-                <template v-slot:content>
-                  <div>{{row.description}}</div>
-                </template>
-                <el-tag size="mini" type="danger">
-                  {{ row.status }}
-                </el-tag>
-              </el-tooltip>
-              <span v-else>
-                {{ row.status }}
-              </span>
+              <ms-performance-report-status :row="row"/>
             </template>
           </el-table-column>
           <el-table-column
@@ -91,10 +69,11 @@
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsContainer from "../../common/components/MsContainer";
   import MsMainContainer from "../../common/components/MsMainContainer";
+  import MsPerformanceReportStatus from "./PerformanceReportStatus";
 
   export default {
     name: "PerformanceTestReport",
-    components: {MsTablePagination, MsContainer, MsMainContainer},
+    components: {MsPerformanceReportStatus, MsTablePagination, MsContainer, MsMainContainer},
     created: function () {
       this.initTableData();
     },
