@@ -61,7 +61,7 @@ public abstract class EasyExcelListener <T> extends AnalysisEventListener<T> {
 
         if (!StringUtils.isEmpty(errMsg)) {
             ExcelErrData excelErrData = new ExcelErrData(t, rowIndex,
-                    Translator.get("number") + rowIndex + Translator.get("row") + Translator.get("erroer")
+                    Translator.get("number") + rowIndex + Translator.get("row") + Translator.get("error")
                             + "：" + errMsg);
             errList.add(excelErrData);
         } else {
