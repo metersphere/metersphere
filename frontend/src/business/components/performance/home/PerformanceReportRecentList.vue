@@ -50,7 +50,7 @@
       },
       link(row) {
         this.$router.push({
-          path: '/api/report/view/' + row.id,
+          path: '/performance/report/view/' + row.id,
         })
       }
     },
