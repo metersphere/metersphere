@@ -17,7 +17,7 @@
         {{ row.status }}
       </el-tag>
     </el-tooltip>
-    <el-tag size="mini" type="info">
+    <el-tag v-else>
       {{ row.status }}
     </el-tag>
   </div>
