@@ -1,6 +1,6 @@
 <template>
   <ms-container>
-    <ms-main-container>
+    <ms-main-container v-loading="result.loading">
       <el-row :gutter="20">
         <el-col :span="12">
           <ms-performance-report-recent-list/>
@@ -36,10 +36,11 @@
     data() {
       return {
         values: [],
+        result: {},
       }
     },
     mounted() {
-      this.$get('/performance/dashboard/tests', response => {
+      this.result = this.$get('/performance/dashboard/tests', response => {
         this.values = response.data;
       });
     },
