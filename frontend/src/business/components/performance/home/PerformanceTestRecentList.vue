@@ -22,8 +22,7 @@
       </el-table-column>
       <el-table-column prop="status" :label="$t('commons.status')">
         <template v-slot:default="{row}">
-          <!--          <ms-api-test-status :row="row"/>-->
-          {{row.status}}
+          <ms-performance-test-status :row="row"/>
         </template>
       </el-table-column>
     </el-table>
@@ -32,8 +31,11 @@
 
 <script>
 
+  import MsPerformanceTestStatus from "../test/PerformanceTestStatus";
+
   export default {
     name: "MsPerformanceTestRecentList",
+    components: {MsPerformanceTestStatus},
     data() {
       return {
         result: {},
