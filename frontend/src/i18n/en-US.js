@@ -60,6 +60,7 @@ export default {
     'title': 'Title',
     'custom': 'Custom',
     'select_date': 'Select date',
+    'calendar_heatmap': 'Calendar Heatmap'
   },
   workspace: {
     'create': 'Create Workspace',

@@ -60,6 +60,7 @@ export default {
     'title': '标题',
     'custom': '自定义',
     'select_date': '选择日期',
+    'calendar_heatmap': '测试日历'
   },
   workspace: {
     'create': '创建工作空间',
