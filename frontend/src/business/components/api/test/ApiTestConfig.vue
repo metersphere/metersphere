@@ -23,7 +23,10 @@
               <el-button type="primary" plain v-if="isShowRun" @click="runTest">
                 {{$t('api_test.run')}}
               </el-button>
+
               <el-button type="warning" plain @click="cancel">{{$t('commons.cancel')}}</el-button>
+
+              <ms-api-report-dialog :test-id="id" v-if="test.status === 'Completed'"/>
             </el-row>
           </el-header>
           <ms-api-scenario-config :scenarios="test.scenarioDefinition" ref="config"/>
@@ -36,16 +39,19 @@
 <script>
   import MsApiScenarioConfig from "./components/ApiScenarioConfig";
   import {Test} from "./model/ScenarioModel"
+  import MsApiReportStatus from "../report/ApiReportStatus";
+  import MsApiReportDialog from "./ApiReportDialog";
 
   export default {
     name: "MsApiTestConfig",
 
-    components: {MsApiScenarioConfig},
+    components: {MsApiReportDialog, MsApiReportStatus, MsApiScenarioConfig},
 
     props: ["id"],
 
     data() {
       return {
+        reportVisible: false,
         create: false,
         result: {},
         projects: [],
@@ -89,6 +95,7 @@
               id: item.id,
               projectId: item.projectId,
               name: item.name,
+              status: item.status,
               scenarioDefinition: JSON.parse(item.scenarioDefinition),
             });
             this.$refs.config.reset();

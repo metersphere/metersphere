@@ -35,7 +35,7 @@
     padding: 20px;
   }
 
-  .ms-main-container {
+  ms-main-container {
     height: calc(100vh - 40px);
   }
 

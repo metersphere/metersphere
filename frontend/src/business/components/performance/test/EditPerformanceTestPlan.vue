@@ -1,7 +1,7 @@
 <template>
-  <div class="container" v-loading="result.loading">
-    <div class="main-content">
-      <el-card>
+  <ms-container>
+    <ms-main-container>
+      <el-card v-loading="result.loading">
         <el-row>
           <el-col :span="10">
             <el-input :placeholder="$t('load_test.input_name')" v-model="testPlan.name" class="input-with-select">
@@ -37,21 +37,25 @@
           </el-tab-pane>
         </el-tabs>
       </el-card>
-    </div>
-  </div>
+    </ms-main-container>
+  </ms-container>
 </template>
 
 <script>
   import PerformanceBasicConfig from "./components/PerformanceBasicConfig";
   import PerformancePressureConfig from "./components/PerformancePressureConfig";
   import PerformanceAdvancedConfig from "./components/PerformanceAdvancedConfig";
+  import MsContainer from "../../common/components/MsContainer";
+  import MsMainContainer from "../../common/components/MsMainContainer";
 
   export default {
     name: "EditPerformanceTestPlan",
     components: {
       PerformancePressureConfig,
       PerformanceBasicConfig,
-      PerformanceAdvancedConfig
+      PerformanceAdvancedConfig,
+      MsContainer,
+      MsMainContainer
     },
     data() {
       return {

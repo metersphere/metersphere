@@ -13,7 +13,6 @@
 </template>
 
 <script>
-  import {TokenKey} from '../../../../common/js/constants';
   import {getCurrentUser} from "../../../../common/js/utils";
 
   export default {
@@ -32,7 +31,7 @@
             break;
           case "logout":
             this.$get("/signout", function () {
-              localStorage.removeItem(TokenKey);
+              localStorage.clear();
               window.location.href = "/login";
             });
             break;

@@ -1,7 +1,7 @@
 <template>
-  <div v-loading="result.loading" class="container">
-    <div class="main-content">
-      <el-card>
+  <ms-container>
+    <ms-main-container>
+      <el-card v-loading="result.loading">
         <el-row>
           <el-col :span="16">
             <el-row>
@@ -51,8 +51,8 @@
         </el-tabs>
 
       </el-card>
-    </div>
-  </div>
+    </ms-main-container>
+  </ms-container>
 </template>
 
 <script>
@@ -60,6 +60,8 @@
   import MsReportLogDetails from './components/LogDetails';
   import MsReportRequestStatistics from './components/RequestStatistics';
   import MsReportTestOverview from './components/TestOverview';
+  import MsContainer from "../../common/components/MsContainer";
+  import MsMainContainer from "../../common/components/MsMainContainer";
 
   export default {
     name: "PerformanceReportView",
@@ -67,7 +69,9 @@
       MsReportErrorLog,
       MsReportLogDetails,
       MsReportRequestStatistics,
-      MsReportTestOverview
+      MsReportTestOverview,
+      MsContainer,
+      MsMainContainer
     },
     data() {
       return {

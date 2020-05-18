@@ -12,6 +12,7 @@ import i18n from "../i18n/i18n";
 import store from "./store";
 import {permission} from './permission'
 import chart from "../common/js/chart";
+import CalendarHeatmap from "../common/js/calendar-heatmap";
 import '../common/css/menu-header.css';
 import '../common/css/main.css';
 import CKEditor from '@ckeditor/ckeditor5-vue';
@@ -24,6 +25,7 @@ Vue.use(ElementUI, {
 Vue.use(filters);
 Vue.use(ajax);
 Vue.use(chart);
+Vue.use(CalendarHeatmap);
 Vue.use(message);
 Vue.use(CKEditor);
 
