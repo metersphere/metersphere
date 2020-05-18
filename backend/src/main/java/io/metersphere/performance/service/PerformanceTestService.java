@@ -8,6 +8,7 @@ import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.performance.engine.Engine;
@@ -23,6 +24,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -274,6 +277,12 @@ public class PerformanceTestService {
         LoadTestExample example = new LoadTestExample();
         example.createCriteria().andTestResourcePoolIdEqualTo(resourcePoolId);
         return loadTestMapper.selectByExampleWithBLOBs(example);
+    }
+
+    public List<DashboardTestDTO> dashboardTests(String workspaceId) {
+        Instant oneYearAgo = Instant.now().plus(-365, ChronoUnit.DAYS);
+        long startTimestamp = oneYearAgo.toEpochMilli();
+        return extLoadTestReportMapper.selectDashboardTests(workspaceId, startTimestamp);
     }
 
 }
