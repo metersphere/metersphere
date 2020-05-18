@@ -1,8 +1,7 @@
 <template>
-  <div class="container" v-loading="result.loading">
-
-    <div class="main-content">
-      <el-card class="table-card">
+  <ms-container>
+    <ms-main-container>
+      <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
           <div>
             <el-row type="flex" justify="space-between" align="middle">
@@ -84,17 +83,18 @@
         <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                              :total="total"/>
       </el-card>
-    </div>
-
-  </div>
+    </ms-main-container>
+  </ms-container>
 </template>
 
 <script>
   import MsTablePagination from "../../common/pagination/TablePagination";
+  import MsContainer from "../../common/components/MsContainer";
+  import MsMainContainer from "../../common/components/MsMainContainer";
 
   export default {
     name: "PerformanceTestReport",
-    components: {MsTablePagination},
+    components: {MsTablePagination, MsContainer, MsMainContainer},
     created: function () {
       this.initTableData();
     },
