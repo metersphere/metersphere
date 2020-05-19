@@ -162,7 +162,7 @@ public class TestPlanService {
         QueryTestPlanRequest request =  new QueryTestPlanRequest();
         request.setPrincipal(user.getId());
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-        request.setPlanIds(extTestPlanTestCaseMapper.findRelateTestPlanId(user.getId()));
+        request.setPlanIds(extTestPlanTestCaseMapper.findRelateTestPlanId(user.getId(), SessionUtils.getCurrentWorkspaceId()));
 
         List<String> projectIds = extProjectMapper.getProjectIdByWorkspaceId(SessionUtils.getCurrentOrganizationId());
 
@@ -329,7 +329,7 @@ public class TestPlanService {
         }
     }
 
-    public List<TestPlan> getTestPlanByTestIds(List<String> planIds) {
+    public List<TestPlan> getTestPlanByIds(List<String> planIds) {
         TestPlanExample example = new TestPlanExample();
         example.createCriteria().andIdIn(planIds);
         return testPlanMapper.selectByExample(example);
