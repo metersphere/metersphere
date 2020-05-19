@@ -7,7 +7,10 @@
                            @create="create" :createTip="$t('load_test.create')"/>
         </template>
         <el-table :data="tableData" class="table-content">
-          <el-table-column prop="name" :label="$t('commons.name')" width="150" show-overflow-tooltip>
+          <el-table-column :label="$t('commons.name')" width="150" show-overflow-tooltip>
+            <template v-slot:default="scope">
+              <el-link type="info" @click="handleEdit(scope.row)">{{ scope.row.name }}</el-link>
+            </template>
           </el-table-column>
           <el-table-column prop="projectName" :label="$t('load_test.project_name')" width="150" show-overflow-tooltip>
           </el-table-column>
