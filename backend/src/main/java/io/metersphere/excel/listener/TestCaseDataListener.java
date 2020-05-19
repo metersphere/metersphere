@@ -2,26 +2,23 @@ package io.metersphere.excel.listener;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.excel.domain.TestCaseExcelData;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.excel.domain.TestCaseExcelData;
 import io.metersphere.i18n.Translator;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-@Component
+
 public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
 
-    @Resource
     private TestCaseService testCaseService;
 
     private String projectId;
@@ -30,13 +27,11 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
 
     Set<String> userIds;
 
-    public TestCaseDataListener() {}
-
-    public TestCaseDataListener init(String projectId, Set<String> testCaseNames, Set<String> userIds) {
+    public TestCaseDataListener(TestCaseService testCaseService, String projectId, Set<String> testCaseNames, Set<String> userIds) {
+        this.testCaseService = testCaseService;
         this.projectId = projectId;
         this.testCaseNames = testCaseNames;
         this.userIds = userIds;
-        return this;
     }
 
     @Override

@@ -77,7 +77,7 @@ public class TestCaseController {
     }
 
     @PostMapping("/import/{projectId}")
-    public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String projectId){
+    public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String projectId) throws NoSuchFieldException {
         return testCaseService.testCaseImport(file, projectId);
     }
 

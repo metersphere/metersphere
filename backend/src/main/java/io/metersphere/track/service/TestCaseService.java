@@ -9,14 +9,13 @@ import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.excel.domain.ExcelErrData;
 import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.excel.domain.TestCaseExcelData;
 import io.metersphere.excel.listener.EasyExcelListener;
 import io.metersphere.excel.listener.TestCaseDataListener;
-import io.metersphere.excel.utils.EasyExcelUtil;
+import io.metersphere.excel.utils.EasyExcelExporter;
 import io.metersphere.i18n.Translator;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
@@ -31,7 +30,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -59,9 +57,6 @@ public class TestCaseService {
 
     @Resource
     TestCaseNodeService testCaseNodeService;
-
-    @Resource
-    TestCaseDataListener testCaseDataListener;
 
     @Resource
     UserMapper userMapper;
@@ -173,42 +168,40 @@ public class TestCaseService {
 
     public ExcelResponse testCaseImport(MultipartFile file, String projectId) {
 
+        ExcelResponse excelResponse = new ExcelResponse();
+
+        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
+        QueryTestCaseRequest queryTestCaseRequest = new QueryTestCaseRequest();
+        queryTestCaseRequest.setProjectId(projectId);
+        List<TestCase> testCases = extTestCaseMapper.getTestCaseNames(queryTestCaseRequest);
+        Set<String> testCaseNames = testCases.stream()
+                .map(TestCase::getName)
+                .collect(Collectors.toSet());
+
+        UserExample userExample =  new UserExample();
+        userExample.createCriteria().andLastWorkspaceIdEqualTo(currentWorkspaceId);
+        List<User> users = userMapper.selectByExample(userExample);
+        Set<String> userIds = users.stream().map(User::getId).collect(Collectors.toSet());
+
+        EasyExcelListener easyExcelListener = null;
+        List<ExcelErrData<TestCaseExcelData>> errList = null;
         try {
-
-            ExcelResponse excelResponse = new ExcelResponse();
-
-            String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
-            QueryTestCaseRequest queryTestCaseRequest = new QueryTestCaseRequest();
-            queryTestCaseRequest.setProjectId(projectId);
-            List<TestCase> testCases = extTestCaseMapper.getTestCaseNames(queryTestCaseRequest);
-            Set<String> testCaseNames = testCases.stream()
-                    .map(TestCase::getName)
-                    .collect(Collectors.toSet());
-
-            UserExample userExample =  new UserExample();
-            userExample.createCriteria().andLastWorkspaceIdEqualTo(currentWorkspaceId);
-            List<User> users = userMapper.selectByExample(userExample);
-            Set<String> userIds = users.stream().map(User::getId).collect(Collectors.toSet());
-
-            EasyExcelFactory.read(file.getInputStream(), TestCaseExcelData.class,
-                    testCaseDataListener.init(projectId, testCaseNames, userIds)).sheet().doRead();
-
-            List<ExcelErrData<TestCaseExcelData>> errList = testCaseDataListener.getAndClearErrList();
-            //如果包含错误信息就导出错误信息
-            if (!errList.isEmpty()) {
-                excelResponse.setSuccess(false);
-                excelResponse.setErrList(errList);
-            } else {
-                excelResponse.setSuccess(true);
-            }
-            return excelResponse;
-
-        } catch (IOException e) {
-            LogUtil.error(e.getMessage(), e);
-            e.printStackTrace();
+            easyExcelListener = new TestCaseDataListener(this, projectId, testCaseNames, userIds);
+            EasyExcelFactory.read(file.getInputStream(), TestCaseExcelData.class, easyExcelListener).sheet().doRead();
+            errList = easyExcelListener.getErrList();
+        } catch (Exception e) {
+            MSException.throwException(e.getMessage());
+        } finally {
+            easyExcelListener.close();
         }
-
-        return null;
+        //如果包含错误信息就导出错误信息
+        if (!errList.isEmpty()) {
+            excelResponse.setSuccess(false);
+            excelResponse.setErrList(errList);
+        } else {
+            excelResponse.setSuccess(true);
+        }
+        return excelResponse;
     }
 
     public void saveImportData(List<TestCaseWithBLOBs> testCases, String projectId) {
@@ -226,8 +219,16 @@ public class TestCaseService {
     }
 
     public void testCaseTemplateExport(HttpServletResponse response) {
-       EasyExcelUtil.export(response, TestCaseExcelData.class, generateExportTemplate(),
-               Translator.get("test_case_import_template_name"), Translator.get("test_case_import_template_sheet"));
+        EasyExcelExporter easyExcelExporter = null;
+        try {
+            easyExcelExporter = new EasyExcelExporter();
+            easyExcelExporter.export(response, TestCaseExcelData.class, generateExportTemplate(),
+                    Translator.get("test_case_import_template_name"), Translator.get("test_case_import_template_sheet"));
+        } catch (Exception e) {
+            MSException.throwException(e);
+        } finally {
+            easyExcelExporter.close();
+        }
     }
 
     private List<TestCaseExcelData> generateExportTemplate() {
@@ -238,28 +239,29 @@ public class TestCaseService {
         SessionUser user = SessionUtils.getUser();
         for (int i = 1; i <= 5; i++) {
             TestCaseExcelData data = new TestCaseExcelData();
-            data.setName("测试用例" + i);
-            path.append("/" + "模块" + i);
+            data.setName(Translator.get("test_case") + i);
+            path.append("/" + Translator.get("module") + i);
             data.setNodePath(path.toString());
             data.setPriority("P" + i%4);
             data.setType(types.get(i%3));
             data.setMethod(methods.get(i%2));
-            data.setPrerequisite("前置条件选填");
-            data.setStepDesc("1. 每个步骤以换行分隔\n2. 步骤前可标序号\n3. 测试步骤和结果选填");
-            data.setStepResult("1. 每条结果以换行分隔\n2. 结果前可标序号\n3. 测试步骤和结果选填");
+            data.setPrerequisite(Translator.get("preconditions_optional"));
+            data.setStepDesc("1. " + Translator.get("step_tip_separate") +
+                    "\n2. " + Translator.get("step_tip_order") + "\n3. " + Translator.get("step_tip_optional"));
+            data.setStepResult("1. " + Translator.get("step_tip_order") + "\n2. " + Translator.get("result_tip_order") + "\n3. " + Translator.get("result_tip_optional"));
             data.setMaintainer(user.getId());
-            data.setRemark("备注选填");
+            data.setRemark(Translator.get("remark_optional"));
             list.add(data);
         }
 
         list.add(new TestCaseExcelData());
         TestCaseExcelData explain = new TestCaseExcelData();
-        explain.setName("同一项目下测试用例名称不能重复！");
-        explain.setNodePath("模块名称请按照'/模块1/模块2'的格式书写; 错误格式示例:('/', '/tes//test'); 若无该模块，则自动创建模块");
-        explain.setType("用例类型必须为：functional、performance、api");
-        explain.setMethod("测试方式必须为：manual、auto");
-        explain.setPriority("优先级必须为：P0、P1、P2、P3");
-        explain.setMaintainer("维护人必须为该工作空间相关人员");
+        explain.setName(Translator.get("do_not_modify_header_order"));
+        explain.setNodePath(Translator.get("module_created_automatically"));
+        explain.setType(Translator.get("options") + "（functional、performance、api）");
+        explain.setMethod(Translator.get("options") + "（manual、auto）");
+        explain.setPriority(Translator.get("options") + "（P0、P1、P2、P3）");
+        explain.setMaintainer(Translator.get("please_input_workspace_member"));
 
         list.add(explain);
         return list;
