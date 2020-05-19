@@ -56,7 +56,6 @@ export default {
     'personal_information': 'Personal Information',
     'exit_system': 'Exit System',
     'verification': 'Verification',
-    'set_admin': 'Set Admin',
     'title': 'Title',
     'custom': 'Custom',
     'select_date': 'Select date',

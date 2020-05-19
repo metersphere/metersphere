@@ -56,7 +56,6 @@ export default {
     'personal_information': '個人信息',
     'exit_system': '退出系統',
     'verification': '驗證',
-    'set_admin': '設置為管理員',
     'title': '標題',
     'custom': '自定義',
     'select_date': '選擇日期',
