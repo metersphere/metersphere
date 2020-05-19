@@ -17,15 +17,14 @@ import io.metersphere.controller.request.member.SetAdminRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.dto.UserDTO;
+import io.metersphere.dto.UserRoleDTO;
 import io.metersphere.service.OrganizationService;
 import io.metersphere.service.UserService;
 import io.metersphere.service.WorkspaceService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
-import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
-
 import javax.annotation.Resource;
 import java.util.List;
 
@@ -52,6 +51,12 @@ public class UserController {
     public Pager<List<User>> getUserList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody UserRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getUserListWithRequest(request));
+    }
+
+    @GetMapping("/special/user/role/{userId}")
+    @RequiresRoles(RoleConstants.ADMIN)
+    public UserRoleDTO getUserRole(@PathVariable("userId") String userId) {
+        return userService.getUserRole(userId);
     }
 
     @GetMapping("/special/delete/{userId}")

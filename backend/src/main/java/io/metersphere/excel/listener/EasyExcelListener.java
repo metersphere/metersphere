@@ -6,23 +6,21 @@ import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.alibaba.excel.util.StringUtils;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.excel.utils.ExcelValidateHelper;
 import io.metersphere.excel.domain.ExcelErrData;
+import io.metersphere.excel.utils.EasyExcelI18nTranslator;
+import io.metersphere.excel.utils.ExcelValidateHelper;
 import io.metersphere.i18n.Translator;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.*;
 
-@Component
 public abstract class EasyExcelListener <T> extends AnalysisEventListener<T> {
 
     protected List<ExcelErrData<T>> errList = new ArrayList<>();
 
     protected List<T> list = new ArrayList<>();
+
+    protected EasyExcelI18nTranslator easyExcelI18nTranslator;
 
     /**
      * 每隔2000条存储数据库，然后清理list ，方便内存回收
@@ -31,16 +29,15 @@ public abstract class EasyExcelListener <T> extends AnalysisEventListener<T> {
 
     protected Class<T> clazz;
 
-    @Resource
-    ExcelValidateHelper excelValidateHelper;
-
     public EasyExcelListener(){
         Type type = getClass().getGenericSuperclass();
         this.clazz = (Class<T>) ((ParameterizedType) type).getActualTypeArguments()[0];
+        this.easyExcelI18nTranslator = new EasyExcelI18nTranslator(this.clazz);
+        this.easyExcelI18nTranslator.translateExcelProperty();
     }
 
     /**
-     * 这个每一条数据解析都会来调用
+     * 每条数据解析都会调用
      *
      * @param t
      * @param analysisContext
@@ -51,7 +48,7 @@ public abstract class EasyExcelListener <T> extends AnalysisEventListener<T> {
         Integer rowIndex = analysisContext.readRowHolder().getRowIndex();
         try {
             //根据excel数据实体中的javax.validation + 正则表达式来校验excel数据
-            errMsg = excelValidateHelper.validateEntity(t);
+            errMsg = ExcelValidateHelper.validateEntity(t);
             //自定义校验规则
             errMsg = validate(t, errMsg);
         } catch (NoSuchFieldException e) {
@@ -104,7 +101,6 @@ public abstract class EasyExcelListener <T> extends AnalysisEventListener<T> {
       */
     @Override
     public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
-        super.invokeHeadMap(headMap, context);
         if (clazz != null){
             try {
                 Set<String> fieldNameSet = getFieldNameSet(clazz);
@@ -118,6 +114,7 @@ public abstract class EasyExcelListener <T> extends AnalysisEventListener<T> {
                 e.printStackTrace();
             }
         }
+        super.invokeHeadMap(headMap, context);
     }
 
     /**
@@ -142,11 +139,11 @@ public abstract class EasyExcelListener <T> extends AnalysisEventListener<T> {
         return result;
     }
 
-
-    public List<ExcelErrData<T>> getAndClearErrList() {
-        List<ExcelErrData<T>> tmp = this.errList;
-        this.errList = new ArrayList<>();
-        return tmp;
+    public List<ExcelErrData<T>> getErrList() {
+        return errList;
     }
 
+    public void close () {
+        this.easyExcelI18nTranslator.resetExcelProperty();
+    }
 }

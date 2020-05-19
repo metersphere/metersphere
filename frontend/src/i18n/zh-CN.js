@@ -56,7 +56,6 @@ export default {
     'personal_information': '个人信息',
     'exit_system': '退出系统',
     'verification': '验证',
-    'set_admin': '设置为管理员',
     'title': '标题',
     'custom': '自定义',
     'select_date': '选择日期',
