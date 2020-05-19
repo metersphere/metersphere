@@ -11,7 +11,6 @@
         <el-table-column prop="id" label="ID"/>
         <el-table-column prop="name" :label="$t('commons.username')"/>
         <el-table-column prop="email" :label="$t('commons.email')"/>
-        <el-table-column prop="phone" :label="$t('commons.phone')"/>
         <el-table-column prop="status" :label="$t('commons.status')">
           <template v-slot:default="scope">
             <el-switch v-model="scope.row.status"
@@ -34,8 +33,6 @@
               <template v-slot:behind>
                 <ms-table-operator-button :tip="$t('member.edit_password')" icon="el-icon-s-tools"
                                           type="success" @exec="editPassword(scope.row)"/>
-                <ms-table-operator-button :tip="$t('commons.set_admin')" icon="el-icon-user-solid"
-                                          type="danger" @exec="openCheckDialog(scope.row)"/>
               </template>
             </ms-table-operator>
           </template>
@@ -113,12 +110,12 @@
     </el-dialog>
    <!--Changing user password in system settings-->
     <el-dialog :title="$t('member.edit_password')" :visible.sync="editPasswordVisible" width="30%" left>
-      <el-form :model="ruleForm" label-position="right" label-width="100px" size="small" :rules="rule"
+      <el-form :model="ruleForm" label-position="right" label-width="120px" size="small" :rules="rule"
                ref="editPasswordForm" class="demo-ruleForm">
         <el-form-item :label="$t('member.new_password')" prop="newpassword">
           <el-input type="password" v-model="ruleForm.newpassword" autocomplete="off" show-password></el-input>
         </el-form-item>
-        <el-form-item >
+        <el-form-item>
           <el-input v-model="ruleForm.id" autocomplete="off" :disabled="true" style="display:none"/>
         </el-form-item>
       </el-form>
@@ -311,10 +308,6 @@
       },
       closeCheckPassword() {
         this.checkPasswordForm = {};
-      },
-      openCheckDialog(row) {
-        this.$set(this.setAdminParam, 'id', row.id);
-        this.checkPasswordVisible = true;
       },
       setAdmin(checkPasswordForm) {
         let user = getCurrentUser();

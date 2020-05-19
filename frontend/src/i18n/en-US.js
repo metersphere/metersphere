@@ -56,7 +56,6 @@ export default {
     'personal_information': 'Personal Information',
     'exit_system': 'Exit System',
     'verification': 'Verification',
-    'set_admin': 'Set Admin',
     'title': 'Title',
     'custom': 'Custom',
     'select_date': 'Select date',
@@ -124,8 +123,8 @@ export default {
     'please_choose_member': 'Please Choose Member',
     'search_by_name': 'Search by name',
     'modify_personal_info': 'Modify Personal Information',
-    'edit_password': 'Edit_Password',
-    'edit_information': 'Edit_Information',
+    'edit_password': 'Edit Password',
+    'edit_information': 'Edit Information',
     'input_name': 'Please enter a user name',
     'input_email': 'Please enter a email',
     'special_characters_are_not_supported': 'Special characters are not supported',
@@ -318,6 +317,7 @@ export default {
     result: "Result",
     success: "Success",
     fail: "Fail",
+    test_name: "Test"
   },
   test_track: {
     test_track: "Test Track",
