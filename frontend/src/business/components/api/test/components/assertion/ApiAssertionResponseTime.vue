@@ -32,13 +32,12 @@
 
     methods: {
       add: function () {
-        this.remove();
         setTimeout(() => {
           this.duration.value = this.time;
         })
       },
       remove: function () {
-        this.duration.value = null;
+        this.duration.value = undefined;
       }
     }
   }
