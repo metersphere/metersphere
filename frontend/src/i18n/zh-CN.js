@@ -252,8 +252,12 @@ export default {
       variables: "自定义变量",
       headers: "请求头",
       kv_description: "所有请求可以使用自定义变量",
+      copy: "复制场景",
+      delete: "删除场景"
     },
     request: {
+      copy: "复制请求",
+      delete: "删除请求",
       input_name: "请输入请求名称",
       name: "请求名称",
       method: "请求方法",
