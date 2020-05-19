@@ -4,6 +4,7 @@ import com.alibaba.excel.annotation.ExcelProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.validation.ConstraintViolation;
 import javax.validation.groups.Default;
@@ -13,14 +14,14 @@ import java.util.Set;
 @Component
 public class ExcelValidateHelper {
 
-    private ExcelValidateHelper(){}
+    private static ExcelValidateHelper excelValidateHelper;
 
     @Resource
     LocalValidatorFactoryBean localValidatorFactoryBean;
 
-    public <T> String validateEntity(T obj) throws NoSuchFieldException {
+    public static  <T> String validateEntity(T obj) throws NoSuchFieldException {
         StringBuilder result = new StringBuilder();
-        Set<ConstraintViolation<T>> set = localValidatorFactoryBean.getValidator().validate(obj, Default.class);
+        Set<ConstraintViolation<T>> set = excelValidateHelper.localValidatorFactoryBean.getValidator().validate(obj, Default.class);
         if (set != null && !set.isEmpty()) {
             for (ConstraintViolation<T> cv : set) {
                 Field declaredField = obj.getClass().getDeclaredField(cv.getPropertyPath().toString());
@@ -30,5 +31,11 @@ public class ExcelValidateHelper {
             }
         }
         return result.toString();
+    }
+
+    @PostConstruct
+    public void initialize() {
+        excelValidateHelper = this;
+        excelValidateHelper.localValidatorFactoryBean = this.localValidatorFactoryBean;
     }
 }

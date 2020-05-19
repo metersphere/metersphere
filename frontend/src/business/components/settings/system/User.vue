@@ -115,7 +115,7 @@
     </el-dialog>
     <!--Changing user password in system settings-->
     <el-dialog :title="$t('member.edit_password')" :visible.sync="editPasswordVisible" width="30%" left>
-      <el-form :model="ruleForm" label-position="right" label-width="100px" size="small" :rules="rule"
+      <el-form :model="ruleForm" label-position="right" label-width="120px" size="small" :rules="rule"
                ref="editPasswordForm" class="demo-ruleForm">
         <el-form-item :label="$t('member.new_password')" prop="newpassword">
           <el-input type="password" v-model="ruleForm.newpassword" autocomplete="off" show-password></el-input>

@@ -14,52 +14,52 @@ public class TestCaseExcelData {
 
     @NotBlank
     @Length(max=50)
-    @ExcelProperty("用例名称")
+    @ExcelProperty("{test_case_name}")
     private String name;
 
     @NotBlank
     @Length(max=1000)
-    @ExcelProperty("所属模块")
+    @ExcelProperty("{test_case_module}")
     @ColumnWidth(30)
     @Pattern(regexp = "^(?!.*//).*$", message = "{incorrect_format}")
     private String nodePath;
 
     @NotBlank
-    @ExcelProperty("用例类型")
+    @ExcelProperty("{test_case_type}")
     @Pattern(regexp = "(^functional$)|(^performance$)|(^api$)", message = "{test_case_type_validate}")
     private String type;
 
     @NotBlank
-    @ExcelProperty("维护人")
+    @ExcelProperty("{test_case_maintainer}")
     private String maintainer;
 
     @NotBlank
-    @ExcelProperty("优先级")
+    @ExcelProperty("{test_case_priority}")
     @Pattern(regexp = "(^P0$)|(^P1$)|(^P2$)|(^P3$)", message = "{test_case_priority_validate}")
     private String priority;
 
     @NotBlank
-    @ExcelProperty("测试方式")
+    @ExcelProperty("{test_case_method}")
     @Pattern(regexp = "(^manual$)|(^auto$)", message = "{test_case_method_validate}")
     private String method;
 
     @ColumnWidth(50)
-    @ExcelProperty("前置条件")
+    @ExcelProperty("{test_case_prerequisite}")
     @Length(min=0, max=1000)
     private String prerequisite;
 
     @ColumnWidth(50)
-    @ExcelProperty("备注")
+    @ExcelProperty("{test_case_remark}")
     @Length(max=1000)
     private String remark;
 
     @ColumnWidth(50)
-    @ExcelProperty("步骤描述")
+    @ExcelProperty("{test_case_step_desc}")
     @Length(max=1000)
     private String stepDesc;
 
     @ColumnWidth(50)
-    @ExcelProperty("预期结果")
+    @ExcelProperty("{test_case_step_result}")
     @Length(max=1000)
     private String stepResult;
 }
