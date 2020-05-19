@@ -48,21 +48,6 @@
                            :total="total"/>
     </el-card>
 
-    <el-dialog :title="$t('commons.verification')" :visible.sync="checkPasswordVisible" width="30%"
-               @close="closeCheckPassword" :destroy-on-close="true">
-      <el-form :model="checkPasswordForm" label-position="right" label-width="100px" size="small" :rules="rule"
-               ref="checkPasswordForm">
-        <el-form-item :label="$t('commons.password')" prop="password">
-          <el-input type="password" v-model="checkPasswordForm.password" autocomplete="off" show-password></el-input>
-        </el-form-item>
-      </el-form>
-      <template v-slot:footer>
-        <ms-dialog-footer
-          @cancel="checkPasswordVisible = false"
-          @confirm="setAdmin('checkPasswordForm')"/>
-      </template>
-    </el-dialog>
-
     <!--Create user-->
     <el-dialog :title="$t('user.create')" :visible.sync="createVisible" width="30%" @closed="handleClose"
                :destroy-on-close="true">
@@ -166,7 +151,6 @@
         createVisible: false,
         updateVisible: false,
         editPasswordVisible: false,
-        checkPasswordVisible: false,
         multipleSelection: [],
         currentPage: 1,
         pageSize: 5,
@@ -328,24 +312,6 @@
       },
       handleSelectionChange(val) {
         this.multipleSelection = val;
-      },
-      closeCheckPassword() {
-        this.checkPasswordForm = {};
-      },
-      setAdmin(checkPasswordForm) {
-        let user = getCurrentUser();
-        this.$set(this.setAdminParam, 'adminId', user.id);
-        this.$set(this.setAdminParam, 'password', this.checkPasswordForm.password);
-        this.$refs[checkPasswordForm].validate(valid => {
-          if (valid) {
-            this.$post("/user/set/admin", this.setAdminParam, () => {
-              this.$success(this.$t('commons.modify_success'));
-              this.checkPasswordVisible = false;
-            })
-          } else {
-            return false;
-          }
-        })
       }
     }
   }
