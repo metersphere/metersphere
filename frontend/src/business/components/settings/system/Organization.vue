@@ -27,7 +27,7 @@
     </el-card>
 
     <!-- dialog of organization member -->
-    <el-dialog :visible.sync="dialogOrgMemberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc">
+    <el-dialog :visible.sync="dialogOrgMemberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc" class="dialog-css">
       <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="dialogSearch"
                        :create-tip="$t('member.create')" :title="$t('commons.member')"/>
       <!-- organization member table -->
@@ -457,6 +457,10 @@
 
   .select-width {
     width: 100%;
+  }
+
+  .dialog-css >>> .el-dialog__header {
+    padding: 0px;
   }
 
 </style>

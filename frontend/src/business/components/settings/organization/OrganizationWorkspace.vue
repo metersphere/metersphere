@@ -41,7 +41,7 @@
     </el-dialog>
 
     <!-- dialog of workspace member -->
-    <el-dialog :visible.sync="dialogWsMemberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc">
+    <el-dialog :visible.sync="dialogWsMemberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc" class="dialog-css">
       <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="dialogSearch"
                        :create-tip="$t('member.create')" :title="$t('commons.member')"/>
       <!-- organization member table -->
@@ -424,6 +424,10 @@
     float: right;
     color: #8492a6;
     font-size: 13px;
+  }
+
+  .dialog-css >>> .el-dialog__header {
+    padding: 0px;
   }
 
 </style>
