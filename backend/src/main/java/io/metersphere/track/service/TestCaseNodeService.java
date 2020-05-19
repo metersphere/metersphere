@@ -260,7 +260,7 @@ public class TestCaseNodeService {
             String rootNodeName = null;
 
             if (nodeNameList.size() <= 1) {
-                throw new ExcelException(Translator.get("test_case_module_not_null") + ":" + path);
+                throw new ExcelException(Translator.get("test_case_create_module_fail") + ":" + path);
             } else {
                 pathIterator.next();
                 pathIterator.remove();

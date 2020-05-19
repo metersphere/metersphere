@@ -61,6 +61,9 @@ public class TestCaseService {
     TestCaseNodeService testCaseNodeService;
 
     @Resource
+    TestCaseDataListener testCaseDataListener;
+
+    @Resource
     UserMapper userMapper;
 
     public void addTestCase(TestCaseWithBLOBs testCase) {
@@ -187,11 +190,10 @@ public class TestCaseService {
             List<User> users = userMapper.selectByExample(userExample);
             Set<String> userIds = users.stream().map(User::getId).collect(Collectors.toSet());
 
-            EasyExcelListener easyExcelListener = new TestCaseDataListener(this, projectId,
-                    testCaseNames, userIds, TestCaseExcelData.class);
-            EasyExcelFactory.read(file.getInputStream(), TestCaseExcelData.class, easyExcelListener).sheet().doRead();
+            EasyExcelFactory.read(file.getInputStream(), TestCaseExcelData.class,
+                    testCaseDataListener.init(projectId, testCaseNames, userIds)).sheet().doRead();
 
-            List<ExcelErrData<TestCaseExcelData>> errList = easyExcelListener.getErrList();
+            List<ExcelErrData<TestCaseExcelData>> errList = testCaseDataListener.getAndClearErrList();
             //如果包含错误信息就导出错误信息
             if (!errList.isEmpty()) {
                 excelResponse.setSuccess(false);
