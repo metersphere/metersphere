@@ -1,7 +1,7 @@
 <template>
   <div v-loading="result.loading">
 
-     <el-card class="table-card">
+    <el-card class="table-card">
       <template v-slot:header>
         <ms-table-header :condition.sync="condition" @search="search" @create="create"
                          :create-tip="$t('user.create')" :title="$t('commons.member')"/>
@@ -9,7 +9,12 @@
 
       <el-table :data="tableData" style="width: 100%">
         <el-table-column prop="id" label="ID"/>
-        <el-table-column prop="name" :label="$t('commons.username')"/>
+        <el-table-column prop="name" :label="$t('commons.username')" width="200"/>
+        <el-table-column :label="$t('commons.role')" width="120">
+          <template v-slot:default="scope">
+            <ms-roles-tag :roles="scope.row.roles"/>
+          </template>
+        </el-table-column>
         <el-table-column prop="email" :label="$t('commons.email')"/>
         <el-table-column prop="status" :label="$t('commons.status')">
           <template v-slot:default="scope">
@@ -22,7 +27,7 @@
             />
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" :label="$t('commons.create_time')" width="180">
+        <el-table-column prop="createTime" :label="$t('commons.create_time')">
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
@@ -108,14 +113,14 @@
           @confirm="updateUser('updateUserForm')"/>
       </template>
     </el-dialog>
-   <!--Changing user password in system settings-->
+    <!--Changing user password in system settings-->
     <el-dialog :title="$t('member.edit_password')" :visible.sync="editPasswordVisible" width="30%" left>
       <el-form :model="ruleForm" label-position="right" label-width="100px" size="small" :rules="rule"
                ref="editPasswordForm" class="demo-ruleForm">
         <el-form-item :label="$t('member.new_password')" prop="newpassword">
           <el-input type="password" v-model="ruleForm.newpassword" autocomplete="off" show-password></el-input>
         </el-form-item>
-        <el-form-item >
+        <el-form-item>
           <el-input v-model="ruleForm.id" autocomplete="off" :disabled="true" style="display:none"/>
         </el-form-item>
       </el-form>
@@ -137,10 +142,19 @@
   import MsDialogFooter from "../../common/components/MsDialogFooter";
   import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
   import {getCurrentUser} from "../../../../common/js/utils";
+  import MsRolesTag from "../../common/components/MsRolesTag";
 
   export default {
     name: "MsUser",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsTableOperator, MsDialogFooter, MsTableOperatorButton},
+    components: {
+      MsCreateBox,
+      MsTablePagination,
+      MsTableHeader,
+      MsTableOperator,
+      MsDialogFooter,
+      MsTableOperatorButton,
+      MsRolesTag
+    },
     data() {
       return {
         queryPath: '/user/special/list',
@@ -271,9 +285,9 @@
           }
         })
       },
-      editUserPassword(editPasswordForm){
-        this.$refs[editPasswordForm].validate(valid=>{
-          if(valid){
+      editUserPassword(editPasswordForm) {
+        this.$refs[editPasswordForm].validate(valid => {
+          if (valid) {
             this.result = this.$post(this.editPasswordPath, this.ruleForm, response => {
               this.$success(this.$t('commons.modify_success'));
               this.editPasswordVisible = false;
@@ -290,6 +304,15 @@
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
+          let url = "/user/special/user/role";
+          for (let i = 0; i < this.tableData.length; i++) {
+            this.$get(url + '/' + this.tableData[i].id, result => {
+              let data = result.data;
+              let roles = data.roles;
+              // let userRoles = result.userRoles;
+              this.$set(this.tableData[i], "roles", roles);
+            })
+          }
         })
       },
       handleClose() {

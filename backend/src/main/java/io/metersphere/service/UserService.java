@@ -17,13 +17,13 @@ import io.metersphere.controller.request.member.SetAdminRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.dto.UserDTO;
+import io.metersphere.dto.UserRoleDTO;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.UUID;
@@ -100,16 +100,24 @@ public class UserService {
         }
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(user, userDTO);
+        UserRoleDTO userRole = getUserRole(userId);
+        userDTO.setUserRoles(userRole.getUserRoles());
+        userDTO.setRoles(userRole.getRoles());
+        return userDTO;
+    }
+
+    public UserRoleDTO getUserRole(String userId) {
+        UserRoleDTO userRoleDTO = new UserRoleDTO();
         //
         UserRoleExample userRoleExample = new UserRoleExample();
         userRoleExample.createCriteria().andUserIdEqualTo(userId);
         List<UserRole> userRoleList = userRoleMapper.selectByExample(userRoleExample);
 
         if (CollectionUtils.isEmpty(userRoleList)) {
-            return userDTO;
+            return userRoleDTO;
         }
         // 设置 user_role
-        userDTO.setUserRoles(userRoleList);
+        userRoleDTO.setUserRoles(userRoleList);
 
         List<String> roleIds = userRoleList.stream().map(UserRole::getRoleId).collect(Collectors.toList());
 
@@ -117,9 +125,9 @@ public class UserService {
         roleExample.createCriteria().andIdIn(roleIds);
 
         List<Role> roleList = roleMapper.selectByExample(roleExample);
-        userDTO.setRoles(roleList);
+        userRoleDTO.setRoles(roleList);
 
-        return userDTO;
+        return userRoleDTO;
     }
 
     public List<User> getUserList() {
