@@ -8,6 +8,7 @@ import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.TestPlanTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.i18n.Translator;
 import io.metersphere.track.dto.TestCaseDTO;
@@ -125,13 +126,7 @@ public class TestCaseNodeService {
         testCases.forEach(testCase -> {
             StringBuilder path = new StringBuilder(testCase.getNodePath());
             List<String> pathLists = Arrays.asList(path.toString().split("/"));
-
-            if (request.getLevel() <= pathLists.size()) {
-                pathLists.set(request.getLevel(), request.getName());
-            } else {
-                pathLists.add(request.getName());
-            }
-
+            pathLists.set(request.getLevel(), request.getName());
             path.delete( 0, path.length());
             for (int i = 1; i < pathLists.size(); i++) {
                 path = path.append("/").append(pathLists.get(i));
@@ -379,7 +374,7 @@ public class TestCaseNodeService {
 
     public void dragNode(DragNodeRequest request) {
 
-        editNode(request);
+//        editNode(request);
 
         List<String> nodeIds = request.getNodeIds();
 
@@ -389,7 +384,7 @@ public class TestCaseNodeService {
 
         List<TestCaseNode> updateNodes = new ArrayList<>();
 
-        buildUpdateTestCase(nodeTree, testCases, updateNodes, "/", 1);
+        buildUpdateTestCase(nodeTree, testCases, updateNodes, "/", null, 1);
 
         updateNodes = updateNodes.stream()
                 .filter(item -> nodeIds.contains(item.getId()))
@@ -425,13 +420,18 @@ public class TestCaseNodeService {
     }
 
     private void buildUpdateTestCase(TestCaseNodeDTO rootNode, List<TestCaseDTO> testCases,
-                                     List<TestCaseNode> updateNodes, String rootPath, int level) {
+                                     List<TestCaseNode> updateNodes, String rootPath, String pId, int level) {
 
         rootPath = rootPath + rootNode.getName();
+
+        if (level > 5) {
+            MSException.throwException(Translator.get("node_deep_limit"));
+        }
 
         TestCaseNode testCaseNode = new TestCaseNode();
         testCaseNode.setId(rootNode.getId());
         testCaseNode.setLevel(level);
+        testCaseNode.setParentId(pId);
         updateNodes.add(testCaseNode);
 
         for (TestCaseDTO item : testCases) {
@@ -443,7 +443,7 @@ public class TestCaseNodeService {
         List<TestCaseNodeDTO> children = rootNode.getChildren();
         if (children != null && children.size() > 0){
             for (int i = 0; i < children.size(); i++) {
-                buildUpdateTestCase(children.get(i), testCases, updateNodes, rootPath + '/', level + 1);
+                buildUpdateTestCase(children.get(i), testCases, updateNodes, rootPath + '/', rootNode.getId(), level + 1);
             }
         }
     }
