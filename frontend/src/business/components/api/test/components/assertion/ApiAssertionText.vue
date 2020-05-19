@@ -62,7 +62,7 @@
             description += " contains: " + this.value;
             break;
           case "NOT_CONTAINS":
-            expression = "^((?!" + this.value + ").)*$";
+            expression = "(?s)^((?!" + this.value + ").)*$";
             description += " not contains: " + this.value;
             break;
           case "EQUALS":
