@@ -227,8 +227,6 @@ public class PerformanceTestService {
             reportDetail.setPart(1L);
             loadTestReportDetailMapper.insertSelective(reportDetail);
             // append \n
-            extLoadTestReportMapper.appendLine(testReport.getId(), "\n");
-            // append \n
             extLoadTestReportDetailMapper.appendLine(testReport.getId(), "\n");
             // 保存 load_test_report_log
             String resourcePoolId = loadTest.getTestResourcePoolId();
