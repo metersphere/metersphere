@@ -68,13 +68,14 @@ CREATE TABLE IF NOT EXISTS `load_test_report_detail` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 CREATE TABLE IF NOT EXISTS `load_test_report_log` (
-  `id` varchar(50) NOT NULL,
+  `id` varchar(50)  NOT NULL,
   `report_id` varchar(50)  NOT NULL,
   `resource_id` varchar(50)  DEFAULT NULL,
   `content` longtext ,
+  `part` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `load_test_report_log_report_id_resource_name_index` (`report_id`,`resource_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ;
 
 CREATE TABLE IF NOT EXISTS `load_test_report_result` (
   `id` varchar(50)  NOT NULL,
