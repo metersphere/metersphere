@@ -9,8 +9,8 @@ import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.controller.request.UserRequest;
 import io.metersphere.controller.request.member.AddMemberRequest;
+import io.metersphere.controller.request.member.UserRequest;
 import io.metersphere.controller.request.member.EditPassWordRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
@@ -38,16 +38,15 @@ public class UserController {
     @Resource
     private WorkspaceService workspaceService;
 
-    // admin api
     @PostMapping("/special/add")
     @RequiresRoles(RoleConstants.ADMIN)
-    public UserDTO insertUser(@RequestBody User user) {
+    public UserDTO insertUser(@RequestBody UserRequest user) {
         return userService.insert(user);
     }
 
     @PostMapping("/special/list/{goPage}/{pageSize}")
     @RequiresRoles(RoleConstants.ADMIN)
-    public Pager<List<User>> getUserList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody UserRequest request) {
+    public Pager<List<User>> getUserList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody io.metersphere.controller.request.UserRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getUserListWithRequest(request));
     }
@@ -66,8 +65,8 @@ public class UserController {
 
     @PostMapping("/special/update")
     @RequiresRoles(RoleConstants.ADMIN)
-    public void updateUser(@RequestBody User user) {
-        userService.updateUser(user);
+    public void updateUser(@RequestBody UserRequest user) {
+        userService.updateUserRole(user);
     }
 
     @PostMapping("/special/ws/member/list/{goPage}/{pageSize}")
@@ -119,7 +118,6 @@ public class UserController {
     public List<User> getOrgMemberListByAdmin(@RequestBody QueryOrgMemberRequest request) {
         return userService.getOrgMemberList(request);
     }
-    // admin api
 
     @GetMapping("/list")
     @RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.ORG_ADMIN}, logical = Logical.OR)
