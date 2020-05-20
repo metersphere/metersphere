@@ -57,7 +57,7 @@ public class ReportService {
             MSException.throwException("report id cannot be null");
         }
 
-        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
+        LoadTestReport loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
         LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(loadTestReport.getTestId());
 
         LogUtil.info("Delete report started, report ID: %s" + reportId);
@@ -142,7 +142,7 @@ public class ReportService {
     }
 
     public void checkReportStatus(String reportId) {
-        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
+        LoadTestReport loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
         String reportStatus = loadTestReport.getStatus();
         if (StringUtils.equals(PerformanceTestStatus.Running.name(), reportStatus)) {
             MSException.throwException("Reporting in progress...");

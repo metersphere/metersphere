@@ -79,7 +79,9 @@ public class PerformanceTestService {
 
         // delete load_test_report, delete load_test_report_detail
         reportIdList.forEach(reportId -> {
-            loadTestReportDetailMapper.deleteByPrimaryKey(reportId);
+            LoadTestReportDetailExample example = new LoadTestReportDetailExample();
+            example.createCriteria().andReportIdEqualTo(reportId);
+            loadTestReportDetailMapper.deleteByExample(example);
             reportService.deleteReport(reportId);
         });
 
@@ -202,7 +204,7 @@ public class PerformanceTestService {
     }
 
     private void startEngine(LoadTestWithBLOBs loadTest, Engine engine) {
-        LoadTestReportWithBLOBs testReport = new LoadTestReportWithBLOBs();
+        LoadTestReport testReport = new LoadTestReport();
         testReport.setId(engine.getReportId());
         testReport.setCreateTime(engine.getStartTime());
         testReport.setUpdateTime(engine.getStartTime());
@@ -216,13 +218,13 @@ public class PerformanceTestService {
             loadTest.setStatus(PerformanceTestStatus.Starting.name());
             loadTestMapper.updateByPrimaryKeySelective(loadTest);
             // 启动正常插入 report
-            testReport.setContent(HEADERS);
             testReport.setStatus(PerformanceTestStatus.Starting.name());
             loadTestReportMapper.insertSelective(testReport);
 
             LoadTestReportDetail reportDetail = new LoadTestReportDetail();
             reportDetail.setContent(HEADERS);
             reportDetail.setReportId(testReport.getId());
+            reportDetail.setPart(1L);
             loadTestReportDetailMapper.insertSelective(reportDetail);
             // append \n
             extLoadTestReportMapper.appendLine(testReport.getId(), "\n");
