@@ -17,10 +17,10 @@
           </div>
         </el-col>
         <el-col :span="2">
-          {{error}}
+          {{request.error}}
         </el-col>
         <el-col :span="2">
-          {{request.passAssertions}} / {{request.totalAssertions}}
+          {{assertion}}
         </el-col>
         <el-col :span="2">
           <el-tag size="mini" type="success" v-if="request.success">
@@ -72,9 +72,9 @@
     },
 
     computed: {
-      error() {
-        return this.request.totalAssertions - this.request.passAssertions;
-      }
+      assertion() {
+        return this.request.passAssertions + " / " + this.request.totalAssertions;
+      },
     }
   }
 </script>
