@@ -56,6 +56,15 @@ export default {
     'personal_information': 'Personal Information',
     'exit_system': 'Exit System',
     'verification': 'Verification',
+    'set_admin': 'Set Admin',
+    'system_parameter_setting': 'System Parameter Setting',
+    'connection_successful': 'Connection successful',
+    'connection_failed': 'Connection failed',
+    'save_failed': 'Saved failed',
+    'host_cannot_be_empty': 'Host cannot be empty',
+    'port_cannot_be_empty': 'Port cannot be empty',
+    'account_cannot_be_empty': 'Account cannot be empty',
+
     'title': 'Title',
     'custom': 'Custom',
     'select_date': 'Select date',
@@ -483,6 +492,14 @@ export default {
     'delete_prompt': 'This operation will permanently delete the resource pool, continue?',
     'status_change_success': 'Successfully changed the status!',
     'status_change_failed': 'Failed to change the status, resource pool is invalid!',
+  },
+  system_parameter_setting: {
+    'mailbox_service_settings': 'Mailbox Service Settings',
+    'test_connection': 'Test connection',
+    'SMTP_host': 'SMTP host',
+    'SMTP_port': 'SMTP port',
+    'SMTP_account': 'SMTP account',
+    'SMTP_password': 'SMTP password',
   },
   i18n: {
     'home': 'Home'

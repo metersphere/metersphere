@@ -12,10 +12,7 @@ import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
 import org.apache.jmeter.visualizers.backend.BackendListenerContext;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -72,6 +69,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
             sampleResults.forEach(result -> {
                 String thread = StringUtils.substringBeforeLast(result.getThreadName(), " ");
+                String order = StringUtils.substringAfterLast(result.getThreadName(), " ");
                 String scenarioName = StringUtils.substringBefore(thread, SPLIT);
                 String scenarioId = StringUtils.substringAfter(thread, SPLIT);
                 ScenarioResult scenarioResult;
@@ -79,6 +77,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                     scenarioResult = new ScenarioResult();
                     scenarioResult.setId(scenarioId);
                     scenarioResult.setName(scenarioName);
+                    scenarioResult.setOrder(StringUtils.substringBefore(order, "-"));
                     scenarios.put(scenarioId, scenarioResult);
                 } else {
                     scenarioResult = scenarios.get(scenarioId);
@@ -103,6 +102,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                 scenarioResult.addTotalAssertions(requestResult.getTotalAssertions());
             });
             testResult.getScenarios().addAll(scenarios.values());
+            testResult.getScenarios().sort(Comparator.comparing(ScenarioResult::getOrder));
             apiTestService.changeStatus(id, APITestStatus.Completed);
             apiReportService.save(testResult);
         });

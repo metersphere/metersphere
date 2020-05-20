@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!--Domain name binding-->
     <el-row type="flex" justify="start">
       <el-col :span="8">
         <h3>{{$t('load_test.domain_bind')}}</h3>
@@ -7,7 +8,7 @@
         </el-button>
       </el-col>
     </el-row>
-    <!-- -->
+    <!--Domain name binding form -->
     <el-row>
       <el-col :span="24">
         <el-table :data="domains" size="mini" class="tb-edit" align="center" border highlight-current-row>
@@ -40,6 +41,7 @@
                 v-model="row.enable"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
+                active-value="readOnly"
                 @click="confirmEdit(row)"
               >
               </el-switch>
