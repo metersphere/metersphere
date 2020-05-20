@@ -252,8 +252,12 @@ export default {
       variables: "Variables",
       headers: "Headers",
       kv_description: "Variables are available for all requests",
+      copy: "Copy scenario",
+      delete: "Delete scenario"
     },
     request: {
+      copy: "Copy request",
+      delete: "Delete request",
       input_name: "Please enter the request name",
       name: "Name",
       method: "Method",
