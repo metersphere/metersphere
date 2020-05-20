@@ -228,17 +228,6 @@ public class PerformanceTestService {
             loadTestReportDetailMapper.insertSelective(reportDetail);
             // append \n
             extLoadTestReportDetailMapper.appendLine(testReport.getId(), "\n");
-            // 保存 load_test_report_log
-            String resourcePoolId = loadTest.getTestResourcePoolId();
-            List<TestResource> testResourceList = testResourceService.getResourcesByPoolId(resourcePoolId);
-            testResourceList.forEach(r -> {
-                LoadTestReportLog record = new LoadTestReportLog();
-                record.setId(UUID.randomUUID().toString());
-                record.setReportId(testReport.getId());
-                record.setResourceId(r.getId());
-                record.setContent(StringUtils.EMPTY);
-                loadTestReportLogMapper.insert(record);
-            });
         } catch (MSException e) {
             LogUtil.error(e);
             loadTest.setStatus(PerformanceTestStatus.Error.name());
