@@ -88,8 +88,8 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                     scenarioResult.addSuccess();
                     testResult.addSuccess();
                 } else {
-                    scenarioResult.addError();
-                    testResult.addError();
+                    scenarioResult.addError(result.getErrorCount());
+                    testResult.addError(result.getErrorCount());
                 }
 
                 RequestResult requestResult = getRequestResult(result);
@@ -123,6 +123,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         requestResult.setRequestSize(result.getSentBytes());
         requestResult.setTotalAssertions(result.getAssertionResults().length);
         requestResult.setSuccess(result.isSuccessful());
+        requestResult.setError(result.getErrorCount());
 
         ResponseResult responseResult = requestResult.getResponseResult();
         responseResult.setBody(result.getResponseDataAsString());
