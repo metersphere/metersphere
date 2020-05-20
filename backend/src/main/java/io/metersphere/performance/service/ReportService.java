@@ -24,7 +24,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -160,42 +162,50 @@ public class ReportService {
     public List<LogDetailDTO> logs(String reportId) {
         LoadTestReportLogExample example = new LoadTestReportLogExample();
         example.createCriteria().andReportIdEqualTo(reportId);
+        example.setOrderByClause("part");
         List<LoadTestReportLog> loadTestReportLogs = loadTestReportLogMapper.selectByExampleWithBLOBs(example);
-        return loadTestReportLogs.stream().map(log -> {
+        Map<String, List<LoadTestReportLog>> reportLogs = loadTestReportLogs.stream().collect(Collectors.groupingBy(LoadTestReportLog::getResourceId));
+        List<LogDetailDTO> result = new ArrayList<>();
+        reportLogs.forEach((resourceId, resourceLogs) -> {
             LogDetailDTO detailDTO = new LogDetailDTO();
-            detailDTO.setId(log.getId());
-            TestResource testResource = testResourceService.getTestResource(log.getResourceId());
-            String content = log.getContent();
+            TestResource testResource = testResourceService.getTestResource(resourceId);
+            String content = resourceLogs.stream().map(LoadTestReportLog::getContent).reduce("", (a, b) -> a + b);
             // 显示前 2048
             content = StringUtils.substring(content, 0, 2048);
+            detailDTO.setResourceId(resourceId);
             detailDTO.setContent(content);
             if (testResource == null) {
-                detailDTO.setResourceName(log.getResourceId());
-                return detailDTO;
+                detailDTO.setResourceName(resourceId);
+                result.add(detailDTO);
+                return;
             }
             String configuration = testResource.getConfiguration();
             if (StringUtils.isBlank(configuration)) {
-                detailDTO.setResourceName(log.getResourceId());
-                return detailDTO;
+                detailDTO.setResourceName(resourceId);
+                result.add(detailDTO);
+                return;
             }
             JSONObject object = JSON.parseObject(configuration);
             if (StringUtils.isNotBlank(object.getString("masterUrl"))) {
                 detailDTO.setResourceName(object.getString("masterUrl"));
-                return detailDTO;
+                result.add(detailDTO);
+                return;
             }
             if (StringUtils.isNotBlank(object.getString("ip"))) {
                 detailDTO.setResourceName(object.getString("ip"));
-                return detailDTO;
+                result.add(detailDTO);
             }
-            return detailDTO;
-        }).collect(Collectors.toList());
+        });
+        return result;
     }
 
-    public byte[] downloadLog(String logId) {
-        LoadTestReportLog loadTestReportLog = loadTestReportLogMapper.selectByPrimaryKey(logId);
-        if (loadTestReportLog != null) {
-            return loadTestReportLog.getContent().getBytes();
-        }
-        return new byte[0];
+
+    public byte[] downloadLog(String reportId, String resourceId) {
+        LoadTestReportLogExample example = new LoadTestReportLogExample();
+        example.createCriteria().andReportIdEqualTo(reportId).andResourceIdEqualTo(resourceId);
+        List<LoadTestReportLog> loadTestReportLogs = loadTestReportLogMapper.selectByExampleWithBLOBs(example);
+
+        String content = loadTestReportLogs.stream().map(LoadTestReportLog::getContent).reduce("", (a, b) -> a + b);
+        return content.getBytes();
     }
 }
