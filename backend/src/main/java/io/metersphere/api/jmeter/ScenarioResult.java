@@ -28,8 +28,8 @@ public class ScenarioResult {
         this.responseTime += time;
     }
 
-    public void addError() {
-        this.error++;
+    public void addError(int count) {
+        this.error += count;
     }
 
     public void addSuccess() {

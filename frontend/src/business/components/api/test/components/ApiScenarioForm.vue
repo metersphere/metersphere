@@ -1,12 +1,12 @@
 <template>
   <el-form :model="scenario" :rules="rules" ref="scenario" label-width="100px">
     <el-form-item :label="$t('api_test.scenario.name')" prop="name">
-      <el-input v-model="scenario.name" maxlength="100"/>
+      <el-input v-model="scenario.name" maxlength="100" @input="valid"/>
     </el-form-item>
 
-<!--    <el-form-item :label="$t('api_test.scenario.base_url')" prop="url">-->
-<!--      <el-input :placeholder="$t('api_test.scenario.base_url_description')" v-model="scenario.url" maxlength="100"/>-->
-<!--    </el-form-item>-->
+    <!--    <el-form-item :label="$t('api_test.scenario.base_url')" prop="url">-->
+    <!--      <el-input :placeholder="$t('api_test.scenario.base_url_description')" v-model="scenario.url" maxlength="100"/>-->
+    <!--    </el-form-item>-->
 
     <el-tabs v-model="activeName">
       <el-tab-pane :label="$t('api_test.scenario.variables')" name="parameters">
@@ -42,6 +42,13 @@
             {max: 100, message: this.$t('commons.input_limit', [0, 100]), trigger: 'blur'}
           ]
         }
+      }
+    },
+
+    methods: {
+      valid(value) {
+        value = value.replace(/[`~!@#$%^&*()\-+=<>?:"{}|,./;'\\[\]·！￥…（）—\-《》？：“”【】、；‘’，。]/g, '').replace(/\s/g, "");
+        this.scenario.name = value;
       }
     }
   }

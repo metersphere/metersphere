@@ -1,16 +1,17 @@
 package io.metersphere.track.service;
 
-import io.metersphere.base.domain.TestPlanTestCase;
-import io.metersphere.base.domain.TestPlanTestCaseExample;
-import io.metersphere.base.domain.User;
+import com.github.pagehelper.PageHelper;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.TestPlanTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
+import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.service.UserService;
 import io.metersphere.track.dto.TestPlanCaseDTO;
+import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.request.testcase.TestPlanCaseBatchRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,9 +35,12 @@ public class TestPlanTestCaseService {
     UserService userService;
 
     @Resource
+    TestPlanService testPlanService;
+
+    @Resource
     ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
 
-    public List<TestPlanCaseDTO> getTestPlanCases(QueryTestPlanCaseRequest request) {
+    public List<TestPlanCaseDTO> list(QueryTestPlanCaseRequest request) {
         List<TestPlanCaseDTO> list = extTestPlanTestCaseMapper.list(request);
         QueryMemberRequest queryMemberRequest = new QueryMemberRequest();
         queryMemberRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
@@ -47,7 +52,7 @@ public class TestPlanTestCaseService {
         return list;
     }
 
-    public void editTestCase(TestPlanTestCase testPlanTestCase) {
+    public void editTestCase(TestPlanTestCaseWithBLOBs testPlanTestCase) {
         if (StringUtils.equals(TestPlanTestCaseStatus.Prepare.name(), testPlanTestCase.getStatus())) {
             testPlanTestCase.setStatus(TestPlanTestCaseStatus.Underway.name());
         }
@@ -63,10 +68,55 @@ public class TestPlanTestCaseService {
         TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
         testPlanTestCaseExample.createCriteria().andIdIn(request.getIds());
 
-        TestPlanTestCase testPlanTestCase = new TestPlanTestCase();
+        TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
         BeanUtils.copyBean(testPlanTestCase, request);
         testPlanTestCaseMapper.updateByExampleSelective(
                 testPlanTestCase,
                 testPlanTestCaseExample);
+    }
+
+    public List<TestPlanCaseDTO> getRecentTestCases(QueryTestPlanCaseRequest request, int count) {
+        buildQueryRequest(request, count);
+        if (request.getPlanIds().isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<TestPlanCaseDTO> recentTestedTestCase = extTestPlanTestCaseMapper.getRecentTestedTestCase(request);
+        List<String> planIds = recentTestedTestCase.stream().map(TestPlanCaseDTO::getPlanId).collect(Collectors.toList());
+
+        Map<String, String> testPlanMap = testPlanService.getTestPlanByTestIds(planIds).stream()
+                .collect(Collectors.toMap(TestPlan::getId, TestPlan::getName));
+
+        recentTestedTestCase.forEach(testCase -> {
+            testCase.setPlanName(testPlanMap.get(testCase.getPlanId()));
+        });
+        return recentTestedTestCase;
+    }
+
+    public List<TestPlanCaseDTO> getPendingTestCases(QueryTestPlanCaseRequest request, int count) {
+        buildQueryRequest(request, count);
+        if (request.getPlanIds().isEmpty()) {
+            return new ArrayList<>();
+        }
+        return extTestPlanTestCaseMapper.getPendingTestCases(request);
+    }
+
+    public void buildQueryRequest(QueryTestPlanCaseRequest request, int count) {
+        SessionUser user = SessionUtils.getUser();
+        List<String> relateTestPlanIds = extTestPlanTestCaseMapper.findRelateTestPlanId(user.getId());
+        PageHelper.startPage(1, count, true);
+        request.setPlanIds(relateTestPlanIds);
+        request.setExecutor(user.getId());
+    }
+
+    public TestPlanCaseDTO get(String caseId) {
+        QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
+        request.setId(caseId);
+        return extTestPlanTestCaseMapper.list(request).get(0);
+    }
+
+    public void deleteTestCaseBath(TestPlanCaseBatchRequest request) {
+        TestPlanTestCaseExample example = new TestPlanTestCaseExample();
+        example.createCriteria().andIdIn(request.getIds());
+        testPlanTestCaseMapper.deleteByExample(example);
     }
 }

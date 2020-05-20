@@ -7,5 +7,4 @@ import lombok.Setter;
 @Setter
 public class QueryTestPlanRequest extends TestPlanRequest {
     private String workspaceId;
-    private boolean recent = false; // 表示查询最近的测试
 }

@@ -21,15 +21,12 @@
 <script>
     export default {
       name: "CommonComponent",
-      data() {
-        return {
-
-        }
-      },
       props: {
         title: {
           type: String,
-          default: '标题'
+          default() {
+            this.$t('commons.title');
+          }
         }
       },
       methods: {

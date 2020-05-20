@@ -27,6 +27,9 @@
             <if test="request.name != null">
                 and test_case.name like CONCAT('%', #{request.name},'%')
             </if>
+            <if test="request.id != null">
+                and test_case.id = #{request.id}
+            </if>
             <if test="request.nodeIds != null and request.nodeIds.size() > 0">
                 and test_case.node_id in
                 <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
@@ -58,5 +61,32 @@
         </if>
     </select>
 
-
+    <select id="findRelateTestPlanId" resultType="java.lang.String">
+        select distinct plan_id from test_plan_test_case where executor = #{userId}
+    </select>
+    <select id="getRecentTestedTestCase" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
+        select test_plan_test_case.*, test_case.*
+        from test_plan_test_case
+        inner join test_case on test_plan_test_case.case_id = test_case.id
+        where status != 'Prepare'
+        and status != 'Underway'
+        and test_plan_test_case.Executor = #{request.executor}
+        and test_plan_test_case.plan_id in
+        <foreach collection="request.planIds" item="planId" separator="," open="(" close=")">
+            #{planId}
+        </foreach>
+        order by test_plan_test_case.update_time desc
+    </select>
+    <select id="getPendingTestCases" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
+        select test_plan_test_case.*, test_case.*
+        from test_plan_test_case
+        inner join test_case on test_plan_test_case.case_id = test_case.id
+        where (status = 'Prepare' or status = 'Underway')
+        and test_plan_test_case.Executor = #{request.executor}
+        and test_plan_test_case.plan_id in
+        <foreach collection="request.planIds" item="planId" separator="," open="(" close=")">
+            #{planId}
+        </foreach>
+        order by test_plan_test_case.update_time asc
+    </select>
 </mapper>

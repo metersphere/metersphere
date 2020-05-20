@@ -21,7 +21,5 @@ public class TestPlanTestCase implements Serializable {
 
     private Long updateTime;
 
-    private String results;
-
     private static final long serialVersionUID = 1L;
 }

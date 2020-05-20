@@ -18,6 +18,10 @@ public class QueryTestPlanCaseRequest extends TestPlanTestCase {
 
     private Map<String, List<String>> filters;
 
+    private List<String> planIds;
+
+    private List<String> projectIds;
+
     private String workspaceId;
 
     private String name;

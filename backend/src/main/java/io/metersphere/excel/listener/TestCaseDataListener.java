@@ -2,10 +2,11 @@ package io.metersphere.excel.listener;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.excel.domain.TestCaseExcelData;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.excel.domain.TestCaseExcelData;
+import io.metersphere.i18n.Translator;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.commons.lang3.StringUtils;
 
@@ -26,9 +27,7 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
 
     Set<String> userIds;
 
-    public TestCaseDataListener(TestCaseService testCaseService, String projectId,
-                                Set<String> testCaseNames, Set<String> userIds, Class<TestCaseExcelData> clazz) {
-        super(clazz);
+    public TestCaseDataListener(TestCaseService testCaseService, String projectId, Set<String> testCaseNames, Set<String> userIds) {
         this.testCaseService = testCaseService;
         this.projectId = projectId;
         this.testCaseNames = testCaseNames;
@@ -39,24 +38,26 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
     public String validate(TestCaseExcelData data, String errMsg) {
         String nodePath = data.getNodePath();
         StringBuilder stringBuilder = new StringBuilder(errMsg);
-        String[] nodes = nodePath.split("/");
 
-        if ( nodes.length > TestCaseConstants.MAX_NODE_DEPTH + 1) {
-            stringBuilder.append("节点最多为" + TestCaseConstants.MAX_NODE_DEPTH + "层;");
-        }
-
-        for (int i = 0; i < nodes.length; i++) {
-            if (i != 0 && StringUtils.equals(nodes[i].trim(), "")) {
-                stringBuilder.append("所属模块不能为空格");
-                break;
+        if (nodePath != null) {
+            String[] nodes = nodePath.split("/");
+            if ( nodes.length > TestCaseConstants.MAX_NODE_DEPTH + 1) {
+                stringBuilder.append(Translator.get("test_case_node_level_tip") +
+                        TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level"));
+            }
+            for (int i = 0; i < nodes.length; i++) {
+                if (i != 0 && StringUtils.equals(nodes[i].trim(), "")) {
+                    stringBuilder.append(Translator.get("module_not_null"));
+                    break;
+                }
             }
         }
 
         if (!userIds.contains(data.getMaintainer())) {
-            stringBuilder.append("该工作空间下无该用户：" + data.getMaintainer() + ";");
+            stringBuilder.append(Translator.get("user_not_exists") + "：" + data.getMaintainer() + "; ");
         }
         if (testCaseNames.contains(data.getName())) {
-            stringBuilder.append("该项目下已存在该测试用例：" + data.getName() + ";");
+            stringBuilder.append(Translator.get("test_case_already_exists") + "：" + data.getName() + "; ");
         }
         return stringBuilder.toString();
     }

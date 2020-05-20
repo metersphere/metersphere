@@ -77,7 +77,7 @@ public class TestCaseController {
     }
 
     @PostMapping("/import/{projectId}")
-    public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String projectId){
+    public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String projectId) throws NoSuchFieldException {
         return testCaseService.testCaseImport(file, projectId);
     }
 
@@ -89,6 +89,11 @@ public class TestCaseController {
     @PostMapping("/batch/edit")
     public void editTestCaseBath(@RequestBody TestCaseBatchRequest request){
         testCaseService.editTestCaseBath(request);
+    }
+
+    @PostMapping("/batch/delete")
+    public void deleteTestCaseBath(@RequestBody TestCaseBatchRequest request){
+        testCaseService.deleteTestCaseBath(request);
     }
 
 }

@@ -1,8 +1,5 @@
 <template>
-
-  <div class="container">
-    <el-main class="main-content">
-      <el-card class="table-card" v-loading="result.loading">
+  <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
           <ms-table-header :condition.sync="condition" @search="initTableData" @create="testPlanCreate"
                            :create-tip="$t('test_track.plan.create_plan')" :title="$t('test_track.plan.test_plan')"/>
@@ -34,12 +31,7 @@
             :label="$t('test_track.plan.plan_stage')"
             show-overflow-tooltip>
             <template v-slot:default="scope">
-              <span v-if="scope.row.stage == 'smoke'">{{$t('test_track.plan.smoke_test')}}</span>
-              <span v-if="scope.row.stage == 'functional'">{{$t('test_track.plan.functional_test')}}</span>
-              <span v-if="scope.row.stage == 'integration'">{{$t('test_track.plan.integration_testing')}}</span>
-              <span v-if="scope.row.stage == 'system'">{{$t('test_track.plan.system_test')}}</span>
-              <span v-if="scope.row.stage == 'regression'">{{$t('test_track.plan.regression_test')}}</span>
-              <span v-if="scope.row.stage == 'version'">{{$t('test_track.plan.version_validation')}}</span>
+              <plan-stage-table-item :stage="scope.row.stage"/>
             </template>
           </el-table-column>
           <el-table-column
@@ -72,8 +64,6 @@
         <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                              :total="total"/>
       </el-card>
-    </el-main>
-  </div>
 </template>
 
 <script>
@@ -84,10 +74,12 @@
   import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
   import MsTableOperator from "../../../common/components/MsTableOperator";
   import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
+  import PlanStageTableItem from "../../common/tableItems/plan/PlanStageTableItem";
 
   export default {
       name: "TestPlanList",
       components: {
+        PlanStageTableItem,
         PlanStatusTableItem,
         MsTableOperator, MsTableOperatorButton, MsDialogFooter, MsTableHeader, MsCreateBox, MsTablePagination},
       data() {

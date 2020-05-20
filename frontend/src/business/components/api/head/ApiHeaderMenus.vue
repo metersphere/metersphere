@@ -73,7 +73,7 @@
             return '/api/' + item.id;
           },
           router: function (item) {
-            return {name: 'fucPlan', params: {projectId: item.id, projectName: item.name}}
+            return {name: 'ApiTestList', params: {projectId: item.id, projectName: item.name}}
           }
         },
         testRecent: {
@@ -88,6 +88,7 @@
         },
         reportRecent: {
           title: this.$t('report.recent'),
+          showTime: true,
           url: "/api/report/recent/5",
           index: function (item) {
             return '/api/report/view/' + item.id;

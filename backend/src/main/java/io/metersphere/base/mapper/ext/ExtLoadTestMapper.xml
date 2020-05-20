@@ -25,9 +25,7 @@
                 AND load_test.id = #{request.id}
             </if>
         </where>
-        <if test="request.recent">
-            order by load_test.update_time desc
-        </if>
+        order by load_test.update_time desc
     </select>
 
 </mapper>

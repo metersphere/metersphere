@@ -10,9 +10,12 @@ import io.metersphere.base.domain.ApiTestWithBLOBs;
 import io.metersphere.base.mapper.ApiTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestReportMapper;
 import io.metersphere.commons.constants.APITestStatus;
+import io.metersphere.dto.DashboardTestDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -61,5 +64,12 @@ public class APIReportService {
         report.setUpdateTime(System.currentTimeMillis());
         report.setStatus(APITestStatus.Completed.name());
         apiTestReportMapper.insert(report);
+    }
+
+
+    public List<DashboardTestDTO> dashboardTests(String workspaceId) {
+        Instant oneYearAgo = Instant.now().plus(-365, ChronoUnit.DAYS);
+        long startTimestamp = oneYearAgo.toEpochMilli();
+        return extApiTestReportMapper.selectDashboardTests(workspaceId, startTimestamp);
     }
 }

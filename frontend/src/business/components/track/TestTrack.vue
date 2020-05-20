@@ -28,24 +28,9 @@
 
 
 <style>
-
-  .tree-aside {
-    position: relative;
-    border: 1px solid #EBEEF5;
-    box-sizing: border-box;
-    height: calc(100vh - 80px);
-    background: white;
-  }
-
   .node-tree {
     margin: 3%;
   }
-
-  .case-container {
-    margin-top: 0;
-    margin-left: 0;
-  }
-
 </style>
 
 <style scoped>

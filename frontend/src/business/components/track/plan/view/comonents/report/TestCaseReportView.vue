@@ -2,7 +2,6 @@
   <div>
 
     <el-drawer
-      :before-close="handleClose"
       :visible.sync="showDialog"
       :with-header="false"
       :modal-append-to-body="false"
@@ -20,8 +19,8 @@
             </div>
           </el-col>
           <el-col :span="12" class="head-right">
-            <el-button plain size="mini" @click="handleSave">保存</el-button>
-            <el-button plain size="mini" @click="handleEdit">编辑组件</el-button>
+            <el-button plain size="mini" @click="handleSave">{{$t('commons.save')}}</el-button>
+            <el-button plain size="mini" @click="handleEdit">{{$t('test_track.plan_view.edit_component')}}</el-button>
           </el-col>
         </el-row>
 
@@ -41,13 +40,13 @@
 </template>
 
 <script>
-  import {jsonToMap, mapToJson} from "../../../../../../common/js/utils";
-    import BaseInfoComponent from "../../../../settings/workspace/components/TemplateComponent/BaseInfoComponent";
-    import TestResultChartComponent from "../../../../settings/workspace/components/TemplateComponent/TestResultChartComponent";
-    import TestResultComponent from "../../../../settings/workspace/components/TemplateComponent/TestResultComponent";
-    import RichTextComponent from "../../../../settings/workspace/components/TemplateComponent/RichTextComponent";
-    import TestCaseReportTemplateEdit from "../../../../settings/workspace/components/TestCaseReportTemplateEdit";
-    import TemplateComponent from "../../../../settings/workspace/components/TemplateComponent/TemplateComponent";
+  import {jsonToMap, mapToJson} from "../../../../../../../common/js/utils";
+    import BaseInfoComponent from "./TemplateComponent/BaseInfoComponent";
+    import TestResultChartComponent from "./TemplateComponent/TestResultChartComponent";
+    import TestResultComponent from "./TemplateComponent/TestResultComponent";
+    import RichTextComponent from "./TemplateComponent/RichTextComponent";
+    import TestCaseReportTemplateEdit from "./TestCaseReportTemplateEdit";
+    import TemplateComponent from "./TemplateComponent/TemplateComponent";
 
     export default {
       name: "TestCaseReportView",
@@ -65,10 +64,10 @@
           metric: {},
           componentMap: new Map(
             [
-              [1, { name: "基础信息", id: 1 , type: 'system'}],
-              [2, { name: "测试结果", id: 2 , type: 'system'}],
-              [3, { name: "测试结果分布", id: 3 ,type: 'system'}],
-              [4, { name: "自定义模块", id: 4 ,type: 'custom'}]
+              [1, { name: this.$t('test_track.plan_view.base_info'), id: 1 , type: 'system'}],
+              [2, { name: this.$t('test_track.plan_view.test_result'), id: 2 , type: 'system'}],
+              [3, { name: this.$t('test_track.plan_view.result_distribution'), id: 3 ,type: 'system'}],
+              [4, { name: this.$t('test_track.plan_view.custom_component'), id: 4 ,type: 'custom'}]
             ]
           )
         }
@@ -123,7 +122,7 @@
           let param = {};
           this.buildParam(param);
           this.result = this.$post('/case/report/edit', param, () =>{
-            this.$success('保存成功');
+            this.$success(this.$t('commons.save_success'));
           });
         },
         buildParam(param) {
@@ -150,7 +149,7 @@
           }
         },
         getMetric() {
-          this.result = this.$get('/case/report/get/metric/' + this.planId, response => {
+          this.result = this.$get('/test/plan/get/metric/' + this.planId, response => {
             this.metric = response.data;
             if (this.report.startTime) {
               this.metric.startTime = new Date(this.report.startTime);

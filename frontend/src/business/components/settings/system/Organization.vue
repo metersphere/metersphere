@@ -8,7 +8,6 @@
       </template>
       <!-- system menu organization table-->
       <el-table :data="tableData" style="width: 100%">
-        <el-table-column type="selection" width="55"/>
         <el-table-column prop="name" :label="$t('commons.name')"/>
         <el-table-column prop="description" :label="$t('commons.description')"/>
         <el-table-column :label="$t('commons.member')">
@@ -28,7 +27,7 @@
     </el-card>
 
     <!-- dialog of organization member -->
-    <el-dialog :visible.sync="dialogOrgMemberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc">
+    <el-dialog :visible.sync="dialogOrgMemberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc" class="dialog-css">
       <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="dialogSearch"
                        :create-tip="$t('member.create')" :title="$t('commons.member')"/>
       <!-- organization member table -->
@@ -458,6 +457,10 @@
 
   .select-width {
     width: 100%;
+  }
+
+  .dialog-css >>> .el-dialog__header {
+    padding: 0px;
   }
 
 </style>

@@ -1,6 +1,6 @@
 <template>
-  <div class="container">
-    <div class="main-content">
+  <ms-container>
+    <ms-main-container>
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
           <ms-table-header :condition.sync="condition" @search="search" @create="create"
@@ -9,7 +9,7 @@
         <el-table :data="items" style="width: 100%">
           <el-table-column prop="name" :label="$t('commons.name')"/>
           <el-table-column prop="description" :label="$t('commons.description')"/>
-          <el-table-column prop="workspaceName" label="所属工作空间"/>
+          <el-table-column prop="workspaceName" :label="$t('project.owning_workspace')"/>
           <el-table-column>
             <template v-slot:default="scope">
               <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
@@ -19,26 +19,27 @@
         <ms-table-pagination :change="list" :current-page.sync="currentPage" :page-size.sync="pageSize"
                              :total="total"/>
       </el-card>
+    </ms-main-container>
 
-      <el-dialog :title="title" :visible.sync="createVisible">
-        <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="100px" size="small">
-          <el-form-item :label="$t('commons.name')">
-            <el-input v-model="form.name" autocomplete="off"></el-input>
-          </el-form-item>
-          <el-form-item :label="$t('commons.description')">
-            <el-input type="textarea" v-model="form.description"></el-input>
-          </el-form-item>
-        </el-form>
-        <template v-slot:footer>
-          <div class="dialog-footer">
-            <ms-dialog-footer
-              @cancel="createVisible = false"
-              @confirm="submit('form')"/>
-          </div>
-        </template>
-      </el-dialog>
-    </div>
-  </div>
+    <el-dialog :title="title" :visible.sync="createVisible">
+      <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="100px" size="small">
+        <el-form-item :label="$t('commons.name')">
+          <el-input v-model="form.name" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item :label="$t('commons.description')">
+          <el-input type="textarea" v-model="form.description"></el-input>
+        </el-form-item>
+      </el-form>
+      <template v-slot:footer>
+        <div class="dialog-footer">
+          <ms-dialog-footer
+            @cancel="createVisible = false"
+            @confirm="submit('form')"/>
+        </div>
+      </template>
+    </el-dialog>
+
+  </ms-container>
 </template>
 
 <script>
@@ -49,10 +50,14 @@
   import MsTableOperator from "../common/components/MsTableOperator";
   import MsDialogFooter from "../common/components/MsDialogFooter";
   import {getCurrentUser} from "../../../common/js/utils";
+  import MsContainer from "../common/components/MsContainer";
+  import MsMainContainer from "../common/components/MsMainContainer";
 
   export default {
     name: "MsProject",
-    components: {MsTableOperator, MsCreateBox, MsTablePagination, MsTableHeader, MsDialogFooter},
+    components: {
+      MsMainContainer,
+      MsContainer, MsTableOperator, MsCreateBox, MsTablePagination, MsTableHeader, MsDialogFooter},
     data() {
       return {
         createVisible: false,

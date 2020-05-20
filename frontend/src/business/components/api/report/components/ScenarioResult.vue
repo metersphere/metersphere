@@ -59,7 +59,7 @@
 
     computed: {
       assertion() {
-        return this.scenario.passAssertions - this.scenario.totalAssertions;
+        return this.scenario.passAssertions + " / " + this.scenario.totalAssertions;
       },
       success() {
         return this.scenario.error === 0;
@@ -75,7 +75,7 @@
   }
 
   .scenario-result + .scenario-result {
-    border-top: 1px solid #EBEEF5;
+    border-top: 1px solid #DCDFE6;
   }
 
   .scenario-result .info {

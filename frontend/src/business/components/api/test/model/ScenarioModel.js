@@ -96,8 +96,8 @@ export class Test extends BaseConfig {
     super();
     this.version = '1.0.0';
     this.id = uuid();
-    this.name = null;
-    this.projectId = null;
+    this.name = undefined;
+    this.projectId = undefined;
     this.scenarioDefinition = [];
 
     this.set(options);
@@ -122,8 +122,8 @@ export class Scenario extends BaseConfig {
   constructor(options) {
     super();
     this.id = uuid();
-    this.name = null;
-    this.url = null;
+    this.name = undefined;
+    this.url = undefined;
     this.variables = [];
     this.headers = [];
     this.requests = [];
@@ -137,20 +137,30 @@ export class Scenario extends BaseConfig {
     options.requests = options.requests || [new Request()];
     return options;
   }
+
+  clone() {
+    let scenario = new Scenario(this);
+    scenario.id = uuid();
+    scenario.requests.forEach(function (request) {
+      request.id = uuid();
+    });
+
+    return scenario;
+  }
 }
 
 export class Request extends BaseConfig {
   constructor(options) {
     super();
     this.id = uuid();
-    this.name = null;
-    this.url = null;
-    this.method = null;
+    this.name = undefined;
+    this.url = undefined;
+    this.method = undefined;
     this.parameters = [];
     this.headers = [];
-    this.body = null;
-    this.assertions = null;
-    this.extract = null;
+    this.body = undefined;
+    this.assertions = undefined;
+    this.extract = undefined;
 
     this.set(options);
     this.sets({parameters: KeyValue, headers: KeyValue}, options);
@@ -168,13 +178,19 @@ export class Request extends BaseConfig {
   isValid() {
     return !!this.url && !!this.method
   }
+
+  clone() {
+    let request = new Request(this);
+    request.id = uuid();
+    return request;
+  }
 }
 
 export class Body extends BaseConfig {
   constructor(options) {
     super();
-    this.type = null;
-    this.raw = null;
+    this.type = undefined;
+    this.raw = undefined;
     this.kvs = [];
 
     this.set(options);
@@ -225,7 +241,7 @@ export class Assertions extends BaseConfig {
     super();
     this.text = [];
     this.regex = [];
-    this.duration = null;
+    this.duration = undefined;
 
     this.set(options);
     this.sets({text: Text, regex: Regex}, options);
@@ -248,9 +264,9 @@ export class AssertionType extends BaseConfig {
 export class Text extends AssertionType {
   constructor(options) {
     super(ASSERTION_TYPE.TEXT);
-    this.subject = null;
-    this.condition = null;
-    this.value = null;
+    this.subject = undefined;
+    this.condition = undefined;
+    this.value = undefined;
 
     this.set(options);
   }
@@ -259,9 +275,9 @@ export class Text extends AssertionType {
 export class Regex extends AssertionType {
   constructor(options) {
     super(ASSERTION_TYPE.REGEX);
-    this.subject = null;
-    this.expression = null;
-    this.description = null;
+    this.subject = undefined;
+    this.expression = undefined;
+    this.description = undefined;
 
     this.set(options);
   }
@@ -274,7 +290,7 @@ export class Regex extends AssertionType {
 export class ResponseTime extends AssertionType {
   constructor(options) {
     super(ASSERTION_TYPE.RESPONSE_TIME);
-    this.value = null;
+    this.value = undefined;
 
     this.set(options);
   }
@@ -311,10 +327,10 @@ export class ExtractType extends BaseConfig {
 export class ExtractCommon extends ExtractType {
   constructor(type, options) {
     super(type);
-    this.variable = null;
+    this.variable = undefined;
     this.value = ""; // ${variable}
-    this.expression = null;
-    this.description = null;
+    this.expression = undefined;
+    this.description = undefined;
 
     this.set(options);
   }
@@ -386,7 +402,7 @@ class JMeterTestPlan extends Element {
 
 class JMXGenerator {
   constructor(test) {
-    if (!test || !(test instanceof Test)) return null;
+    if (!test || !(test instanceof Test)) return undefined;
 
     if (!test.id) {
       test.id = "#NULL_TEST_ID#";
@@ -395,7 +411,8 @@ class JMXGenerator {
 
     let testPlan = new TestPlan(test.name);
     test.scenarioDefinition.forEach(scenario => {
-      let threadGroup = new ThreadGroup(scenario.name + SPLIT + scenario.id);
+      let testName = scenario.name ? scenario.name + SPLIT + scenario.id : SPLIT + scenario.id;
+      let threadGroup = new ThreadGroup(testName);
 
       this.addScenarioVariables(threadGroup, scenario);
 
@@ -405,7 +422,7 @@ class JMXGenerator {
         if (!request.isValid()) return;
 
         // test.id用于处理结果时区分属于哪个测试
-        let name = request.name + SPLIT + test.id;
+        let name = request.name ? request.name + SPLIT + test.id : SPLIT + test.id;
         let httpSamplerProxy = new HTTPSamplerProxy(name, new JMXRequest(request));
 
         this.addRequestHeader(httpSamplerProxy, request);
@@ -496,7 +513,7 @@ class JMXGenerator {
 
   getAssertion(regex) {
     let name = regex.description;
-    let type = JMX_ASSERTION_CONDITION.MATCH; // 固定用Match，自己写正则
+    let type = JMX_ASSERTION_CONDITION.CONTAINS; // 固定用Match，自己写正则
     let value = regex.expression;
     switch (regex.subject) {
       case ASSERTION_REGEX_SUBJECT.RESPONSE_CODE:

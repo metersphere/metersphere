@@ -12,20 +12,23 @@
                   {{$t('api_test.scenario.config')}}
                 </span>
               </div>
-              <!--              暂时去掉，将来再加-->
-              <!--              <el-dropdown trigger="click" @command="handleCommand">-->
-              <!--                <span class="el-dropdown-link el-icon-more scenario-btn"/>-->
-              <!--                <el-dropdown-menu slot="dropdown">-->
-              <!--                  <el-dropdown-item :command="{type:'delete', index:index}">删除场景</el-dropdown-item>-->
-              <!--                </el-dropdown-menu>-->
-              <!--              </el-dropdown>-->
+              <el-dropdown trigger="click" @command="handleCommand">
+                <span class="el-dropdown-link el-icon-more scenario-btn"/>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item :command="{type: 'copy', index: index}">
+                    {{$t('api_test.scenario.copy')}}
+                  </el-dropdown-item>
+                  <el-dropdown-item :command="{type:'delete', index:index}">
+                    {{$t('api_test.scenario.delete')}}
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
             </template>
             <ms-api-request-config :requests="scenario.requests" :open="select"/>
           </ms-api-collapse-item>
         </ms-api-collapse>
       </div>
-      <!--      暂时去掉，将来再加-->
-      <!--      <el-button class="scenario-create" type="primary" size="mini" icon="el-icon-plus" plain @click="createScenario"/>-->
+      <el-button class="scenario-create" type="primary" size="mini" icon="el-icon-plus" plain @click="createScenario"/>
     </el-aside>
 
     <el-main class="scenario-main">
@@ -72,6 +75,10 @@
       createScenario: function () {
         this.scenarios.push(new Scenario());
       },
+      copyScenario: function (index) {
+        let scenario = this.scenarios[index];
+        this.scenarios.push(scenario.clone());
+      },
       deleteScenario: function (index) {
         this.scenarios.splice(index, 1);
         if (this.scenarios.length === 0) {
@@ -84,6 +91,9 @@
       },
       handleCommand: function (command) {
         switch (command.type) {
+          case "copy":
+            this.copyScenario(command.index);
+            break;
           case "delete":
             this.deleteScenario(command.index);
             break;

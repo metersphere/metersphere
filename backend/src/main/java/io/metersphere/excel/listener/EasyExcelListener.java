@@ -6,18 +6,21 @@ import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.alibaba.excel.util.StringUtils;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.excel.utils.ExcelValidateHelper;
 import io.metersphere.excel.domain.ExcelErrData;
+import io.metersphere.excel.utils.EasyExcelI18nTranslator;
+import io.metersphere.excel.utils.ExcelValidateHelper;
+import io.metersphere.i18n.Translator;
 
-import java.lang.reflect.Field;
+import java.lang.reflect.*;
 import java.util.*;
-
 
 public abstract class EasyExcelListener <T> extends AnalysisEventListener<T> {
 
     protected List<ExcelErrData<T>> errList = new ArrayList<>();
 
     protected List<T> list = new ArrayList<>();
+
+    protected EasyExcelI18nTranslator easyExcelI18nTranslator;
 
     /**
      * 每隔2000条存储数据库，然后清理list ，方便内存回收
@@ -26,13 +29,15 @@ public abstract class EasyExcelListener <T> extends AnalysisEventListener<T> {
 
     protected Class<T> clazz;
 
-
-    public EasyExcelListener(Class<T> clazz){
-        this.clazz = clazz;
+    public EasyExcelListener(){
+        Type type = getClass().getGenericSuperclass();
+        this.clazz = (Class<T>) ((ParameterizedType) type).getActualTypeArguments()[0];
+        this.easyExcelI18nTranslator = new EasyExcelI18nTranslator(this.clazz);
+        this.easyExcelI18nTranslator.translateExcelProperty();
     }
 
     /**
-     * 这个每一条数据解析都会来调用
+     * 每条数据解析都会调用
      *
      * @param t
      * @param analysisContext
@@ -47,12 +52,14 @@ public abstract class EasyExcelListener <T> extends AnalysisEventListener<T> {
             //自定义校验规则
             errMsg = validate(t, errMsg);
         } catch (NoSuchFieldException e) {
-            errMsg = "解析数据出错";
+            errMsg = Translator.get("parse_data_error");
             LogUtil.error(e.getMessage(), e);
         }
 
         if (!StringUtils.isEmpty(errMsg)) {
-            ExcelErrData excelErrData = new ExcelErrData(t, rowIndex, "第" + rowIndex + "行出错：" + errMsg);
+            ExcelErrData excelErrData = new ExcelErrData(t, rowIndex,
+                    Translator.get("number") + rowIndex + Translator.get("row") + Translator.get("error")
+                            + "：" + errMsg);
             errList.add(excelErrData);
         } else {
             list.add(t);
@@ -94,20 +101,20 @@ public abstract class EasyExcelListener <T> extends AnalysisEventListener<T> {
       */
     @Override
     public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
-        super.invokeHeadMap(headMap, context);
         if (clazz != null){
             try {
                 Set<String> fieldNameSet = getFieldNameSet(clazz);
                 Collection<String> values = headMap.values();
                 for (String key : fieldNameSet) {
                     if (!values.contains(key)){
-                        throw new ExcelAnalysisException("缺少头部信息：" + key);
+                        throw new ExcelAnalysisException(Translator.get("missing_header_information") + ":" + key);
                     }
                 }
             } catch (NoSuchFieldException e) {
                 e.printStackTrace();
             }
         }
+        super.invokeHeadMap(headMap, context);
     }
 
     /**
@@ -132,9 +139,11 @@ public abstract class EasyExcelListener <T> extends AnalysisEventListener<T> {
         return result;
     }
 
-
     public List<ExcelErrData<T>> getErrList() {
         return errList;
     }
 
+    public void close () {
+        this.easyExcelI18nTranslator.resetExcelProperty();
+    }
 }

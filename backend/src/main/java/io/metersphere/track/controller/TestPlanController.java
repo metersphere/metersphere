@@ -6,7 +6,9 @@ import io.metersphere.base.domain.TestPlan;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.track.dto.TestCaseReportMetricDTO;
 import io.metersphere.track.dto.TestPlanDTO;
+import io.metersphere.track.dto.TestPlanDTOWithMetric;
 import io.metersphere.track.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.service.TestPlanService;
@@ -36,6 +38,10 @@ public class TestPlanController {
         return testPlanService.listTestAllPlan(currentWorkspaceId);
     }
 
+    @PostMapping("/list/all/relate")
+    public List<TestPlanDTOWithMetric> listRelateAll() {
+        return testPlanService.listRelateAllPlan();
+    }
 
     @GetMapping("recent/{count}")
     public List<TestPlan> recentTestPlans(@PathVariable int count) {
@@ -69,5 +75,8 @@ public class TestPlanController {
         testPlanService.testPlanRelevance(request);
     }
 
-
+    @GetMapping("/get/metric/{planId}")
+    public TestCaseReportMetricDTO getMetric(@PathVariable String planId){
+        return testPlanService.getMetric(planId);
+    }
 }

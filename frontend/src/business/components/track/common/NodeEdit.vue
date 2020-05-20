@@ -7,12 +7,12 @@
 
     <el-row type="flex" justify="center">
       <el-col :span="18">
-        <el-form :model="form" :rules="rules" ref="nodeForm">
+        <el-form :model="form" :rules="rules" ref="nodeForm" @submit.native.prevent>
           <el-form-item
             :label="$t('test_track.module.name')"
             :label-width="formLabelWidth"
             prop="name">
-            <el-input v-model="form.name" autocomplete="off"></el-input>
+            <el-input v-model="form.name"></el-input>
           </el-form-item>
         </el-form>
       </el-col>

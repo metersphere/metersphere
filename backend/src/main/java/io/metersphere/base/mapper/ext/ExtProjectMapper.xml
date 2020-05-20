@@ -16,5 +16,10 @@
             </if>
         </where>
     </select>
+    <select id="getProjectIdByWorkspaceId" resultType="java.lang.String">
+        select id
+          from project
+          where workspace_id = #{workspaceId}
+    </select>
 
 </mapper>

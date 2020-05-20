@@ -1,7 +1,7 @@
 <template>
-  <div class="container" v-loading="result.loading">
-    <div class="main-content">
-      <el-card class="table-card">
+  <ms-container>
+    <ms-main-container>
+      <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
           <div>
             <el-row type="flex" justify="space-between" align="middle">
@@ -46,32 +46,7 @@
             prop="status"
             :label="$t('commons.status')">
             <template v-slot:default="{row}">
-              <el-tag size="mini" type="info" v-if="row.status === 'Saved'">
-                {{ row.status }}
-              </el-tag>
-              <el-tag size="mini" type="primary" v-else-if="row.status === 'Starting'">
-                {{ row.status }}
-              </el-tag>
-              <el-tag size="mini" type="success" v-else-if="row.status === 'Running'">
-                {{ row.status }}
-              </el-tag>
-              <el-tag size="mini" type="warning" v-else-if="row.status === 'Reporting'">
-                {{ row.status }}
-              </el-tag>
-              <el-tag size="mini" type="info" v-else-if="row.status === 'Completed'">
-                {{ row.status }}
-              </el-tag>
-              <el-tooltip placement="top" v-else-if="row.status === 'Error'" effect="light">
-                <template v-slot:content>
-                  <div>{{row.description}}</div>
-                </template>
-                <el-tag size="mini" type="danger">
-                  {{ row.status }}
-                </el-tag>
-              </el-tooltip>
-              <span v-else>
-                {{ row.status }}
-              </span>
+              <ms-performance-test-status :row="row"/>
             </template>
           </el-table-column>
           <el-table-column
@@ -85,16 +60,25 @@
         <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                              :total="total"/>
       </el-card>
-    </div>
-  </div>
+    </ms-main-container>
+  </ms-container>
 </template>
 
 <script>
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableOperator from "../../common/components/MsTableOperator";
+  import MsContainer from "../../common/components/MsContainer";
+  import MsMainContainer from "../../common/components/MsMainContainer";
+  import MsPerformanceTestStatus from "./PerformanceTestStatus";
 
   export default {
-    components: {MsTablePagination, MsTableOperator},
+    components: {
+      MsPerformanceTestStatus,
+      MsTablePagination,
+      MsTableOperator,
+      MsContainer,
+      MsMainContainer
+    },
     data() {
       return {
         result: {},

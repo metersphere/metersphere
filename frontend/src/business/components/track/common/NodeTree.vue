@@ -124,6 +124,8 @@ export default {
       param.nodeIds = nodeIds;
       this.$post("/case/node/drag", param, () => {
         this.refreshTable();
+      }, (error) => {
+        this.refreshNode();
       });
     },
     refreshTable() {

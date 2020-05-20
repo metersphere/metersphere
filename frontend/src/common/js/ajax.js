@@ -73,7 +73,7 @@ export default {
       }
     };
 
-    Vue.prototype.$post = function (url, data, success) {
+    Vue.prototype.$post = function (url, data, success, failure) {
       let result = {loading: true};
       if (!success) {
         return axios.post(url, data);
@@ -82,6 +82,9 @@ export default {
           then(success, response, result);
         }).catch(error => {
           exception(error, result);
+          if (failure) {
+            then(failure, error, result);
+          }
         });
         return result;
       }

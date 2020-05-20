@@ -1,51 +1,51 @@
 <template>
-    <div class="main-content">
-        <el-container class="case-container">
-          <el-aside class="tree-aside">
-            <select-menu
-              :data="projects"
-              :current-data="currentProject"
-              :title="$t('test_track.project')"
-              @dataChange="changeProject">
-            </select-menu>
-            <node-tree class="node-tree"
-                       v-loading="result.loading"
-                       @nodeSelectEvent="nodeChange"
-                       @refresh="refresh"
-                       :tree-nodes="treeNodes"
-                       :type="'edit'"
-                       :draggable="true"
-                       :select-node.sync="selectNode"
-                       @refreshTable="refreshTable"
-                       ref="nodeTree"/>
-          </el-aside>
+  <ms-container>
 
-          <el-main>
-            <test-case-list
-              :current-project="currentProject"
-              :select-node-ids="selectNodeIds"
-              :select-parent-nodes="selectParentNodes"
-              @testCaseEdit="editTestCase"
-              @testCaseCopy="copyTestCase"
-              @testCaseDetail="showTestCaseDetail"
-              @refresh="refresh"
-              @moveToNode="moveToNode"
-              ref="testCaseList">
-            </test-case-list>
-          </el-main>
-        </el-container>
+    <ms-aside-container>
+      <select-menu
+        :data="projects"
+        :current-data="currentProject"
+        :title="$t('test_track.project')"
+        @dataChange="changeProject"/>
+      <node-tree
+        class="node-tree"
+        v-loading="result.loading"
+        @nodeSelectEvent="nodeChange"
+        @refresh="refresh"
+        :tree-nodes="treeNodes"
+        :type="'edit'"
+        :draggable="true"
+        :select-node.sync="selectNode"
+        @refreshTable="refreshTable"
+        ref="nodeTree"/>
+    </ms-aside-container>
 
-        <test-case-edit
-          @refresh="refresh"
-          :read-only="testCaseReadOnly"
-          :tree-nodes="treeNodes"
-          :select-node="selectNode"
-          ref="testCaseEditDialog">
-        </test-case-edit>
+    <ms-main-container>
+      <test-case-list
+        :current-project="currentProject"
+        :select-node-ids="selectNodeIds"
+        :select-parent-nodes="selectParentNodes"
+        @testCaseEdit="editTestCase"
+        @testCaseCopy="copyTestCase"
+        @testCaseDetail="showTestCaseDetail"
+        @refresh="refresh"
+        @moveToNode="moveToNode"
+        ref="testCaseList">
+      </test-case-list>
+    </ms-main-container>
 
-      <test-case-move @refresh="refresh" ref="testCaseMove"/>
+    <test-case-edit
+      @refresh="refresh"
+      :read-only="testCaseReadOnly"
+      :tree-nodes="treeNodes"
+      :select-node="selectNode"
+      ref="testCaseEditDialog">
+    </test-case-edit>
 
-    </div>
+    <test-case-move @refresh="refresh" ref="testCaseMove"/>
+
+  </ms-container>
+
 </template>
 
 <script>
@@ -56,10 +56,15 @@
   import TestCaseList from "./components/TestCaseList";
   import SelectMenu from "../common/SelectMenu";
   import TestCaseMove from "./components/TestCaseMove";
+  import MsContainer from "../../common/components/MsContainer";
+  import MsAsideContainer from "../../common/components/MsAsideContainer";
+  import MsMainContainer from "../../common/components/MsMainContainer";
 
   export default {
     name: "TestCase",
-    components: {TestCaseMove, TestCaseList, NodeTree, TestCaseEdit, SelectMenu},
+    components: {
+      MsMainContainer,
+      MsAsideContainer, MsContainer, TestCaseMove, TestCaseList, NodeTree, TestCaseEdit, SelectMenu},
     comments: {},
     data() {
       return {

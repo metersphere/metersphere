@@ -11,5 +11,5 @@ public class TestCaseReportModuleResultDTO {
     private Integer caseCount;
     private Integer passCount;
     private Double passRate;
-    private Integer flawCount;
+    private Integer issuesCount;
 }

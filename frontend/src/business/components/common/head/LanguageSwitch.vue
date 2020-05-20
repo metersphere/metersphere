@@ -18,7 +18,7 @@
 </template>
 
 <script>
-  import {EN_US, TokenKey, ZH_CN, ZH_TW} from '../../../../common/js/constants';
+  import {DEFAULT_LANGUAGE, EN_US, TokenKey, ZH_CN, ZH_TW} from '../../../../common/js/constants';
   import {getCurrentUser} from "../../../../common/js/utils";
 
   export default {
@@ -38,7 +38,7 @@
       let lang = this.currentUser().language;
       this.currentUserInfo = this.currentUser();
       if (!lang) {
-        lang = 'zh_CN';
+        lang = localStorage.getItem(DEFAULT_LANGUAGE);
       }
       this.checkLanguage(lang)
     },

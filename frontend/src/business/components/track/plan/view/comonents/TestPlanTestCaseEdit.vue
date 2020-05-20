@@ -137,6 +137,22 @@
                 </el-col>
               </el-row>
 
+              <el-row v-if="testCase.issues">
+                <el-col :span="5" :offset="1">
+                  <el-switch
+                    v-model="testCase.issues.hasIssues"
+                    @change="issuesChange"
+                    :active-text="$t('test_track.plan_view.submit_issues')">
+                  </el-switch>
+                </el-col>
+              </el-row>
+
+              <el-row v-if="testCase.issues && testCase.issues.hasIssues">
+                <el-col :span="20" :offset="1" class="step-edit">
+                  <ckeditor :editor="editor" v-model="testCase.issues.content"/>
+                </el-col>
+              </el-row>
+
               <el-row>
                 <el-col :span="15" :offset="1">
                   <div>
@@ -167,6 +183,7 @@
 
 <script>
   import TestPlanTestCaseStatusButton from '../../common/TestPlanTestCaseStatusButton';
+  import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
   export default {
     name: "TestPlanTestCaseEdit",
@@ -177,7 +194,8 @@
         showDialog: false,
         testCase: {},
         index: 0,
-        testCases: []
+        testCases: [],
+        editor: ClassicEditor,
       };
     },
     props: {
@@ -211,6 +229,7 @@
           param.results.push(result);
         });
         param.results = JSON.stringify(param.results);
+        param.issues = JSON.stringify(this.testCase.issues);
         this.$post('/test/plan/case/edit', param, () => {
           if (isContinuous) {
             this.updateTestCases(param);
@@ -237,6 +256,12 @@
         Object.assign(item, testCase);
         item.results = JSON.parse(item.results);
         item.steps = JSON.parse(item.steps);
+        if (item.issues) {
+          item.issues = JSON.parse(item.issues);
+        } else {
+          item.issues = {};
+          item.issues.hasIssues = false;
+        }
         item.steptResults = [];
         for (let i = 0; i < item.steps.length; i++){
           if(item.results[i]){
@@ -268,6 +293,23 @@
             }
           }
         });
+      },
+      issuesChange() {
+       if (this.testCase.issues.hasIssues) {
+          let desc = this.addPLabel('[' + this.$t('test_track.plan_view.operate_step') + ']');
+          let result = this.addPLabel('[' + this.$t('test_track.case.expected_results') + ']');
+          let executeResult = this.addPLabel('[' + this.$t('test_track.plan_view.actual_result') + ']');
+          this.testCase.steps.forEach(step => {
+            let stepPrefix = this.$t('test_track.plan_view.step') + step.num + ':';
+            desc += this.addPLabel(stepPrefix + (step.desc == undefined ? '' : step.desc));
+            result += this.addPLabel(stepPrefix + (step.result == undefined ? '' : step.result));
+            executeResult += this.addPLabel(stepPrefix + (step.executeResult == undefined ? '' : step.executeResult));
+          });
+          this.testCase.issues.content = desc + this.addPLabel('') + result + this.addPLabel('') + executeResult + this.addPLabel('');
+        }
+      },
+      addPLabel(str) {
+        return "<p>" + str + "</p>";
       }
     }
   }
@@ -302,6 +344,10 @@
     line-height: 50px;
   }
 
+  .step-edit >>> p {
+    line-height: 16px;
+  }
+
   .status-button {
     float: right;
   }
@@ -320,6 +366,14 @@
 
   .case_container > .el-row{
     margin-top: 1%;
+  }
+
+  .el-switch >>> .el-switch__label {
+    color: dimgray;
+  }
+
+  .el-switch >>> .el-switch__label.is-active {
+    color: #409EFF;
   }
 
 </style>

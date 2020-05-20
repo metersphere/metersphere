@@ -11,7 +11,8 @@
           </template>
           <template v-slot:button>
             <ms-table-button icon="el-icon-upload2" :content="$t('test_track.case.import.import')" @click="importTestCase"/>
-            <ms-table-button icon="el-icon-right" :content="$t('test_track.case.move')" @click="moveToNode"/>
+            <ms-table-button icon="el-icon-right" :content="$t('test_track.case.move')" @click="handleBatch('move')"/>
+            <ms-table-button icon="el-icon-delete" :content="$t('test_track.case.delete')" @click="handleBatch('delete')"/>
             <!--<test-case-export/>-->
           </template>
         </ms-table-header>
@@ -204,11 +205,25 @@
           this.$emit('testCaseCopy', testCase);
         },
         handleDelete(testCase) {
-          this.$alert(this.$t('test_track.case.delete_confirm') + testCase.name + "？", '', {
+          this.$alert(this.$t('test_track.case.delete_confirm') + '\'' + testCase.name + '\'' + "？", '', {
             confirmButtonText: this.$t('commons.confirm'),
             callback: (action) => {
               if (action === 'confirm') {
                 this._handleDelete(testCase);
+              }
+            }
+          });
+        },
+        handleDeleteBatch() {
+          this.$alert(this.$t('test_track.case.delete_confirm') + "？", '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                this.$post('/test/case/batch/delete', {ids: [...this.selectIds]}, () => {
+                  this.selectIds.clear();
+                  this.$emit("refresh");
+                  this.$success(this.$t('commons.delete_success'));
+                });
               }
             }
           });
@@ -247,8 +262,16 @@
         importTestCase() {
           this.$refs.testCaseImport.open();
         },
-        moveToNode() {
-          this.$emit('moveToNode', this.selectIds);
+        handleBatch(type){
+          if (this.selectIds.size < 1) {
+            this.$warning(this.$t('test_track.plan_view.select_manipulate'));
+            return;
+          }
+          if (type === 'move'){
+            this.$emit('moveToNode', this.selectIds);
+          } else if (type === 'delete'){
+            this.handleDeleteBatch();
+          }
         },
         filter(filters) {
           _filter(filters, this.condition);

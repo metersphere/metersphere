@@ -3,9 +3,9 @@
 
     <el-col :span="12">
       <div class="name-edit">
-        <el-input :placeholder="'请填写模版名称'" v-model="template.name" @change="change"/>
-        <span v-if="template.name">{{template.name}}</span>
-        <span class="name-tip" v-if="!template.name">请填写模版名称</span>
+        <el-input :placeholder="$t('test_track.plan_view.input_template_name')" v-model="template.name" @change="change"/>
+        <span v-if="template.name" class="title">{{template.name}}</span>
+        <span class="name-tip" v-if="!template.name">{{$t('test_track.plan_view.input_template_name')}}</span>
       </div>
     </el-col>
     <el-col :span="12" class="head-right">

@@ -1,6 +1,6 @@
 <template>
 
-  <common-component :title="'测试结果'">
+  <common-component :title="$t('test_track.plan_view.test_result')">
     <template>
       <el-table
         :data="testResults"
@@ -8,24 +8,24 @@
         style="width: 100%">
         <el-table-column
           prop="moduleName"
-          :label="'模块'"
+          :label="$t('test_track.module.module')"
           width="180">
         </el-table-column>
         <el-table-column
           prop="caseCount"
-          :label="'用例数'"
+          :label="$t('test_track.plan_view.case_count')"
           width="180">
         </el-table-column>
         <el-table-column
           prop="passRate"
-          :label="'通过率'">
+          :label="$t('test_track.pass_rate')">
           <template v-slot:default="scope">
             {{scope.row.passRate}}%
           </template>
         </el-table-column>
         <el-table-column
-          prop="flawCount"
-          :label="'缺陷数'">
+          prop="issuesCount"
+          :label="$t('test_track.plan_view.issues_count')">
         </el-table-column>
       </el-table>
     </template>
@@ -45,22 +45,22 @@
           default() {
             return [
               {
-                moduleName: '模块1',
+                moduleName: this.$t('test_track.module.module') + '1',
                 caseCount: '14',
                 passRate: 10.8,
-                flawCount: 3
+                issuesCount: 3
               },
               {
-                moduleName: '模块2',
+                moduleName: this.$t('test_track.module.module') + '2',
                 caseCount: '24',
                 passRate: 40,
-                flawCount: 6
+                issuesCount: 6
               },
               {
-                moduleName: '模块3',
+                moduleName: this.$t('test_track.module.module') + '3',
                 caseCount: '50',
                 passRate: 76.9,
-                flawCount: 8
+                issuesCount: 8
               }
             ]
           }

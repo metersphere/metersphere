@@ -1,17 +1,27 @@
 package io.metersphere.track.service;
 
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.TestCaseMapper;
+import io.metersphere.base.mapper.TestCaseNodeMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.TestPlanTestCaseMapper;
+import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
+import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.TestPlanStatus;
+import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.user.SessionUser;
+import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.controller.request.ProjectRequest;
+import io.metersphere.dto.ProjectDTO;
+import io.metersphere.track.dto.*;
 import io.metersphere.track.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
-import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.i18n.Translator;
+import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -20,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -34,6 +45,9 @@ public class TestPlanService {
     ExtTestPlanMapper extTestPlanMapper;
 
     @Resource
+    ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
+
+    @Resource
     TestCaseMapper testCaseMapper;
 
     @Resource
@@ -41,6 +55,15 @@ public class TestPlanService {
 
     @Resource
     SqlSessionFactory sqlSessionFactory;
+
+    @Resource
+    TestCaseNodeMapper testCaseNodeMapper;
+
+    @Resource
+    TestCaseNodeService testCaseNodeService;
+
+    @Resource
+    ExtProjectMapper extProjectMapper;
 
     public void addTestPlan(TestPlan testPlan) {
         testPlan.setId(UUID.randomUUID().toString());
@@ -95,7 +118,7 @@ public class TestPlanService {
         if (!testCaseIds.isEmpty()) {
             testCaseIds.forEach(caseId -> {
                 TestCaseWithBLOBs testCase = testCaseMap.get(caseId);
-                TestPlanTestCase testPlanTestCase = new TestPlanTestCase();
+                TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
                 testPlanTestCase.setId(UUID.randomUUID().toString());
                 testPlanTestCase.setExecutor(testCase.getMaintainer());
                 testPlanTestCase.setCaseId(caseId);
@@ -131,5 +154,184 @@ public class TestPlanService {
         TestPlanExample testPlanExample = new TestPlanExample();
         testPlanExample.createCriteria().andWorkspaceIdEqualTo(currentWorkspaceId);
         return testPlanMapper.selectByExample(testPlanExample);
+    }
+
+    public List<TestPlanDTOWithMetric> listRelateAllPlan() {
+        SessionUser user = SessionUtils.getUser();
+
+        QueryTestPlanRequest request =  new QueryTestPlanRequest();
+        request.setPrincipal(user.getId());
+        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        request.setPlanIds(extTestPlanTestCaseMapper.findRelateTestPlanId(user.getId()));
+
+        List<String> projectIds = extProjectMapper.getProjectIdByWorkspaceId(SessionUtils.getCurrentOrganizationId());
+
+        List<TestPlanDTOWithMetric> testPlans = extTestPlanMapper.listRelate(request);
+
+        Map<String, List<TestPlanCaseDTO>> testCaseMap = new HashMap<>();
+        listTestCaseByProjectIds(projectIds).forEach(testCase -> {
+            List<TestPlanCaseDTO> list = testCaseMap.get(testCase.getPlanId());
+            if (list == null) {
+                list = new ArrayList<>();
+                list.add(testCase);
+                testCaseMap.put(testCase.getPlanId(), list);
+            } else {
+                list.add(testCase);
+            }
+        });
+
+        testPlans.forEach(testPlan -> {
+            List<TestPlanCaseDTO> testCases = testCaseMap.get(testPlan.getId());
+            testPlan.setTested(0);
+            testPlan.setPassed(0);
+            testPlan.setTotal(0);
+            if (testCases != null) {
+                testPlan.setTotal(testCases.size());
+                testCases.forEach(testCase -> {
+                    if (!StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Prepare.name())
+                            && !StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Underway.name())) {
+                        testPlan.setTested(testPlan.getTested() + 1);
+                        if (StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Pass.name())) {
+                            testPlan.setPassed(testPlan.getPassed() + 1);
+                        }
+                    }
+                });
+            }
+            testPlan.setPassRate(getPercentWithTwoDecimals(testPlan.getTested() == 0 ? 0 : testPlan.getPassed()*1.0/testPlan.getTested()));
+            testPlan.setTestRate(getPercentWithTwoDecimals(testPlan.getTotal() == 0 ? 0 : testPlan.getTested()*1.0/testPlan.getTotal()));
+        });
+
+        return testPlans;
+    }
+
+    private double getPercentWithTwoDecimals(double value) {
+        return new BigDecimal(value)
+                .setScale(4, BigDecimal.ROUND_HALF_UP)
+                .doubleValue() * 100;
+    }
+
+    public List<TestPlanCaseDTO> listTestCaseByPlanId(String planId) {
+        QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
+        request.setPlanId(planId);
+        return extTestPlanTestCaseMapper.list(request);
+    }
+
+    public List<TestPlanCaseDTO> listTestCaseByProjectIds(List<String> projectIds) {
+        QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
+        request.setProjectIds(projectIds);
+        return extTestPlanTestCaseMapper.list(request);
+    }
+
+    public TestCaseReportMetricDTO getMetric(String planId) {
+
+        QueryTestPlanRequest queryTestPlanRequest = new QueryTestPlanRequest();
+        queryTestPlanRequest.setId(planId);
+        TestPlanDTO testPlan = extTestPlanMapper.list(queryTestPlanRequest).get(0);
+
+        Set<String> executors = new HashSet<>();
+        Map<String, TestCaseReportStatusResultDTO> reportStatusResultMap = new HashMap<>();
+
+        TestCaseNodeExample testCaseNodeExample = new TestCaseNodeExample();
+        testCaseNodeExample.createCriteria().andProjectIdEqualTo(testPlan.getProjectId());
+        List<TestCaseNode> nodes = testCaseNodeMapper.selectByExample(testCaseNodeExample);
+
+        List<TestCaseNodeDTO> nodeTrees = testCaseNodeService.getNodeTrees(nodes);
+
+        Map<String, Set<String>> childIdMap = new HashMap<>();
+        nodeTrees.forEach(item -> {
+            Set<String> childIds = new HashSet<>();
+            getChildIds(item, childIds);
+            childIdMap.put(item.getId(), childIds);
+        });
+
+        List<TestPlanCaseDTO> testPlanTestCases = listTestCaseByPlanId(planId);
+
+        Map<String, TestCaseReportModuleResultDTO> moduleResultMap = new HashMap<>();
+
+        for (TestPlanCaseDTO testCase: testPlanTestCases) {
+            executors.add(testCase.getExecutor());
+            getStatusResultMap(reportStatusResultMap, testCase);
+            getModuleResultMap(childIdMap, moduleResultMap, testCase, nodeTrees);
+        }
+
+        nodeTrees.forEach(rootNode -> {
+            TestCaseReportModuleResultDTO moduleResult = moduleResultMap.get(rootNode.getId());
+            if (moduleResult != null) {
+                moduleResult.setModuleName(rootNode.getName());
+            }
+        });
+
+        for (TestCaseReportModuleResultDTO moduleResult : moduleResultMap.values()) {
+            moduleResult.setPassRate(getPercentWithTwoDecimals(moduleResult.getPassCount()*1.0f/moduleResult.getCaseCount()));
+            if (moduleResult.getCaseCount() <= 0) {
+                moduleResultMap.remove(moduleResult.getModuleId());
+            }
+        }
+
+        TestCaseReportMetricDTO testCaseReportMetricDTO = new TestCaseReportMetricDTO();
+        testCaseReportMetricDTO.setProjectName(testPlan.getProjectName());
+        testCaseReportMetricDTO.setPrincipal(testPlan.getPrincipal());
+        testCaseReportMetricDTO.setExecutors(new ArrayList<>(executors));
+        testCaseReportMetricDTO.setExecuteResult(new ArrayList<>(reportStatusResultMap.values()));
+        testCaseReportMetricDTO.setModuleExecuteResult(new ArrayList<>(moduleResultMap.values()));
+
+        return testCaseReportMetricDTO;
+    }
+
+    private void getStatusResultMap(Map<String, TestCaseReportStatusResultDTO> reportStatusResultMap, TestPlanCaseDTO testCase) {
+        TestCaseReportStatusResultDTO statusResult = reportStatusResultMap.get(testCase.getStatus());
+        if (statusResult == null) {
+            statusResult = new TestCaseReportStatusResultDTO();
+            statusResult.setStatus(testCase.getStatus());
+            statusResult.setCount(0);
+        }
+        statusResult.setCount(statusResult.getCount() + 1);
+        reportStatusResultMap.put(testCase.getStatus(), statusResult);
+    }
+
+    private void getModuleResultMap(Map<String, Set<String>> childIdMap, Map<String, TestCaseReportModuleResultDTO> moduleResultMap, TestPlanCaseDTO testCase, List<TestCaseNodeDTO> nodeTrees) {
+        childIdMap.forEach((rootNodeId, childIds) -> {
+            if (childIds.contains(testCase.getNodeId())) {
+                TestCaseReportModuleResultDTO moduleResult = moduleResultMap.get(rootNodeId);
+                if (moduleResult == null) {
+                    moduleResult = new TestCaseReportModuleResultDTO();
+                    moduleResult.setCaseCount(0);
+                    moduleResult.setPassCount(0);
+                    moduleResult.setIssuesCount(0);
+                    moduleResult.setModuleId(rootNodeId);
+                }
+                moduleResult.setCaseCount(moduleResult.getCaseCount() + 1);
+                if (StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Pass.name())) {
+                    moduleResult.setPassCount(moduleResult.getPassCount() + 1);
+                }
+                if (StringUtils.isNotBlank(testCase.getIssues())) {
+                    if (JSON.parseObject(testCase.getIssues()).getBoolean("hasIssues")) {
+                        moduleResult.setIssuesCount(moduleResult.getIssuesCount() + 1);
+                    };
+                }
+                moduleResultMap.put(rootNodeId, moduleResult);
+                return;
+            }
+        });
+    }
+
+    private void getChildIds(TestCaseNodeDTO rootNode, Set<String> childIds) {
+
+        childIds.add(rootNode.getId());
+
+        List<TestCaseNodeDTO> children = rootNode.getChildren();
+
+        if(children != null) {
+            Iterator<TestCaseNodeDTO> iterator = children.iterator();
+            while(iterator.hasNext()){
+                getChildIds(iterator.next(), childIds);
+            }
+        }
+    }
+
+    public List<TestPlan> getTestPlanByTestIds(List<String> planIds) {
+        TestPlanExample example = new TestPlanExample();
+        example.createCriteria().andIdIn(planIds);
+        return testPlanMapper.selectByExample(example);
     }
 }

@@ -23,10 +23,6 @@
           this.$emit('templateEdit', this.template.id);
         },
         templateDelete() {
-          if (!this.template.workspaceId) {
-            this.$warning('不能删除默认模版');
-            return;
-          }
           this.$alert(this.$t('load_test.delete_file_confirm') + this.template.name + "？", '', {
             confirmButtonText: this.$t('commons.confirm'),
             callback: (action) => {
@@ -38,7 +34,7 @@
         },
         handleDelete() {
           this.$post('/case/report/template/delete/' + this.template.id, {}, () => {
-            this.$success('删除成功');
+            this.$success(this.$t('commons.delete_success'));
             this.$emit('refresh');
           });
         }
@@ -72,7 +68,7 @@
     border: solid 2px #fff;
     box-sizing: border-box;
     border-radius: 3px;
-    background: url(../../../../../assets/template.png) no-repeat center;
+    background: url(../../../../../../../assets/template.png) no-repeat center;
   }
 
   .template-img:hover {

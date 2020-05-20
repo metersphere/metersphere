@@ -26,10 +26,6 @@
 <script>
     export default {
       name: "TestPlanTestCaseStatusButton",
-      data() {
-        return {
-        }
-      },
       props: {
         status: {
           type: String

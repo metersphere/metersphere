@@ -4,7 +4,6 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtUserMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.CodingUtil;
@@ -13,17 +12,16 @@ import io.metersphere.controller.request.UserRequest;
 import io.metersphere.controller.request.member.AddMemberRequest;
 import io.metersphere.controller.request.member.EditPassWordRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
-import io.metersphere.controller.request.member.SetAdminRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.dto.UserDTO;
+import io.metersphere.dto.UserRoleDTO;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.UUID;
@@ -100,16 +98,24 @@ public class UserService {
         }
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(user, userDTO);
+        UserRoleDTO userRole = getUserRole(userId);
+        userDTO.setUserRoles(userRole.getUserRoles());
+        userDTO.setRoles(userRole.getRoles());
+        return userDTO;
+    }
+
+    public UserRoleDTO getUserRole(String userId) {
+        UserRoleDTO userRoleDTO = new UserRoleDTO();
         //
         UserRoleExample userRoleExample = new UserRoleExample();
         userRoleExample.createCriteria().andUserIdEqualTo(userId);
         List<UserRole> userRoleList = userRoleMapper.selectByExample(userRoleExample);
 
         if (CollectionUtils.isEmpty(userRoleList)) {
-            return userDTO;
+            return userRoleDTO;
         }
         // 设置 user_role
-        userDTO.setUserRoles(userRoleList);
+        userRoleDTO.setUserRoles(userRoleList);
 
         List<String> roleIds = userRoleList.stream().map(UserRole::getRoleId).collect(Collectors.toList());
 
@@ -117,9 +123,9 @@ public class UserService {
         roleExample.createCriteria().andIdIn(roleIds);
 
         List<Role> roleList = roleMapper.selectByExample(roleExample);
-        userDTO.setRoles(roleList);
+        userRoleDTO.setRoles(roleList);
 
-        return userDTO;
+        return userRoleDTO;
     }
 
     public List<User> getUserList() {
@@ -326,23 +332,6 @@ public class UserService {
     public int updateUserPassword(EditPassWordRequest request) {
         User user = updateUserPwd(request);
         return extUserMapper.updatePassword(user);
-    }
-
-    public void setAdmin(SetAdminRequest request) {
-        String adminId = request.getAdminId();
-        String password = request.getPassword();
-        if (!checkUserPassword(adminId, password)) {
-            MSException.throwException("verification failed！");
-        }
-        UserRole userRole = new UserRole();
-        userRole.setId(UUID.randomUUID().toString());
-        userRole.setUserId(request.getId());
-        // TODO 修改admin sourceId
-        userRole.setSourceId("adminSourceId");
-        userRole.setRoleId(RoleConstants.ADMIN);
-        userRole.setCreateTime(System.currentTimeMillis());
-        userRole.setUpdateTime(System.currentTimeMillis());
-        userRoleMapper.insertSelective(userRole);
     }
 
     public String getDefaultLanguage() {

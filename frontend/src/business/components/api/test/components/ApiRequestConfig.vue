@@ -13,8 +13,12 @@
           <el-dropdown trigger="click" @command="handleCommand">
             <span class="el-dropdown-link el-icon-more"/>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item :command="{type: 'copy', index: index}">复制请求</el-dropdown-item>
-              <el-dropdown-item :command="{type: 'delete', index: index}">删除请求</el-dropdown-item>
+              <el-dropdown-item :command="{type: 'copy', index: index}">
+                {{$t('api_test.request.copy')}}
+              </el-dropdown-item>
+              <el-dropdown-item :command="{type: 'delete', index: index}">
+                {{$t('api_test.request.delete')}}
+              </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
@@ -50,12 +54,12 @@
 
     methods: {
       createRequest: function () {
-        let request = new Request({method: "GET"});
+        let request = new Request();
         this.requests.push(request);
       },
       copyRequest: function (index) {
         let request = this.requests[index];
-        this.requests.push(JSON.parse(JSON.stringify(request)));
+        this.requests.push(request.clone());
       },
       deleteRequest: function (index) {
         this.requests.splice(index, 1);

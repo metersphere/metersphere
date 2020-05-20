@@ -20,7 +20,7 @@
         </el-select>
       </el-col>
       <el-col>
-        <el-input v-model="value" maxlength="255" size="small" show-word-limit
+        <el-input v-model="value" maxlength="200" size="small" show-word-limit
                   :placeholder="$t('api_test.request.assertions.value')"/>
       </el-col>
       <el-col class="assertion-btn">
@@ -62,7 +62,7 @@
             description += " contains: " + this.value;
             break;
           case "NOT_CONTAINS":
-            expression = "^((?!" + this.value + ").)*$";
+            expression = "(?s)^((?!" + this.value + ").)*$";
             description += " not contains: " + this.value;
             break;
           case "EQUALS":

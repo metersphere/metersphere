@@ -1,6 +1,6 @@
 <template>
 
-  <el-dialog :title="'选择模版'"
+  <el-dialog :title="$t('test_track.plan_view.select_template')"
              :visible.sync="templateVisible"
              width="50%">
 
@@ -13,7 +13,7 @@
 </template>
 
 <script>
-    import TestcaseTemplateItem from "../../../../settings/workspace/components/TestcaseTemplateItem";
+    import TestcaseTemplateItem from "./report/TestcaseTemplateItem";
     import {WORKSPACE_ID} from "../../../../../../common/js/constants";
     export default {
       name: "TestReportTemplateList",

@@ -2,8 +2,8 @@
   <el-button class="template-component">
     <i class="el-icon-s-unfold"/>
     <span>{{ component.name }}</span>
-    <el-tag v-if="component.type == 'system'" size="mini" type="success">系统</el-tag>
-    <el-tag v-if="component.type == 'custom'" size="mini">自定义</el-tag>
+    <el-tag v-if="component.type == 'system'" size="mini" type="success">{{$t('commons.system')}}</el-tag>
+    <el-tag v-if="component.type == 'custom'" size="mini">{{$t('commons.custom')}}</el-tag>
   </el-button>
 </template>
 

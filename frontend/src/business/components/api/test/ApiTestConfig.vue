@@ -5,7 +5,8 @@
         <el-container class="test-container" v-loading="result.loading">
           <el-header>
             <el-row type="flex" align="middle">
-              <el-input class="test-name" v-model="test.name" maxlength="64" :placeholder="$t('api_test.input_name')">
+              <el-input class="test-name" v-model="test.name" maxlength="60" :placeholder="$t('api_test.input_name')"
+                        show-word-limit>
                 <el-select class="test-project" v-model="test.projectId" slot="prepend"
                            :placeholder="$t('api_test.select_project')">
                   <el-option v-for="project in projects" :key="project.id" :label="project.name" :value="project.id"/>
@@ -23,7 +24,10 @@
               <el-button type="primary" plain v-if="isShowRun" @click="runTest">
                 {{$t('api_test.run')}}
               </el-button>
+
               <el-button type="warning" plain @click="cancel">{{$t('commons.cancel')}}</el-button>
+
+              <ms-api-report-dialog :test-id="id" v-if="test.status === 'Completed'"/>
             </el-row>
           </el-header>
           <ms-api-scenario-config :scenarios="test.scenarioDefinition" ref="config"/>
@@ -36,16 +40,19 @@
 <script>
   import MsApiScenarioConfig from "./components/ApiScenarioConfig";
   import {Test} from "./model/ScenarioModel"
+  import MsApiReportStatus from "../report/ApiReportStatus";
+  import MsApiReportDialog from "./ApiReportDialog";
 
   export default {
     name: "MsApiTestConfig",
 
-    components: {MsApiScenarioConfig},
+    components: {MsApiReportDialog, MsApiReportStatus, MsApiScenarioConfig},
 
     props: ["id"],
 
     data() {
       return {
+        reportVisible: false,
         create: false,
         result: {},
         projects: [],
@@ -89,6 +96,7 @@
               id: item.id,
               projectId: item.projectId,
               name: item.name,
+              status: item.status,
               scenarioDefinition: JSON.parse(item.scenarioDefinition),
             });
             this.$refs.config.reset();
@@ -106,6 +114,9 @@
       saveTest: function () {
         this.save(() => {
           this.$success(this.$t('commons.save_success'));
+          this.$router.push({
+            path: '/api/test/edit?id=' + this.test.id
+          })
         })
       },
       runTest: function () {

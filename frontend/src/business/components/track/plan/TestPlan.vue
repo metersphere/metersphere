@@ -1,25 +1,28 @@
 <template>
-  <div class="container">
-    <div class="main-content">
+  <ms-container>
+
+    <ms-main-container>
       <test-plan-list
         @openTestPlanEditDialog="openTestPlanEditDialog"
         @testPlanEdit="openTestPlanEditDialog"
-        ref="testPlanList"></test-plan-list>
-      <test-plan-edit
-        ref="testPlanEditDialog"
-        @refresh="refreshTestPlanList"></test-plan-edit>
-    </div>
-  </div>
+        ref="testPlanList"/>
+    </ms-main-container>
+
+    <test-plan-edit ref="testPlanEditDialog" @refresh="refreshTestPlanList"/>
+
+  </ms-container>
 </template>
 
 <script>
 
   import TestPlanList from './components/TestPlanList';
   import TestPlanEdit from './components/TestPlanEdit';
+  import MsContainer from "../../common/components/MsContainer";
+  import MsMainContainer from "../../common/components/MsMainContainer";
 
   export default {
     name: "TestPlan",
-    components: {TestPlanList, TestPlanEdit},
+    components: {MsMainContainer, MsContainer, TestPlanList, TestPlanEdit},
     data() {
       return {
       }
