@@ -57,6 +57,13 @@ export default {
     'exit_system': '退出系统',
     'verification': '验证',
     'set_admin': '设置为管理员',
+    'system_parameter_setting': '系统参数设置',
+    'connection_successful': '连接成功',
+    'connection_failed': '连接失败',
+    'save_failed': '保存失败',
+    'host_cannot_be_empty': '主机不能为空',
+    'port_cannot_be_empty': '端口号不能为空',
+    'account_cannot_be_empty': '帐户不能为空',
   },
   workspace: {
     'create': '创建工作空间',
@@ -421,6 +428,14 @@ export default {
     'delete_prompt': '此操作将永久删除该资源池, 是否继续?',
     'status_change_success': '状态修改成功!',
     'status_change_failed': '状态修改失败, 校验不通过!',
+  },
+  system_parameter_setting: {
+    'mailbox_service_settings': '邮件服务设置',
+    'test_connection': '测试连接',
+    'SMTP_host': 'SMTP主机',
+    'SMTP_port': 'SMTP端口',
+    'SMTP_account': 'SMTP账户',
+    'SMTP_password': 'SMTP密码',
   },
   i18n: {
     'home': '首页'

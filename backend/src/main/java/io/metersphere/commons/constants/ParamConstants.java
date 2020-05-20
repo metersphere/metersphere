@@ -28,7 +28,7 @@ public interface ParamConstants {
     }
 
     enum Classify implements ParamConstants {
-
+        MAIL("meter"),
         REGISTRY("registry");
 
         private String value;
@@ -83,6 +83,31 @@ public interface ParamConstants {
 
         public void setValue(String value) {
             this.value = value;
+        }
+    }
+    public static enum MAIL {
+        HOST("meter.host", 1),
+        PORT("meter.port", 2),
+        ACCOUNT("meter.account", 3),
+        PASSWORD("meter.password", 4),
+        SSL("meter.ssl", 5),
+        TLS("meter.tls", 6),
+        ANON("meter.anon", 7);
+
+        private String key;
+        private Integer value;
+
+        private MAIL(String key, Integer value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public String getKey() {
+            return this.key;
+        }
+
+        public Integer getValue() {
+            return this.value;
         }
     }
 }

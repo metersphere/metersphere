@@ -9,6 +9,7 @@
       <el-menu-item index="/setting/organization">{{$t('commons.organization')}}</el-menu-item>
       <el-menu-item index="/setting/systemworkspace">{{$t('commons.workspace')}}</el-menu-item>
       <el-menu-item index="/setting/testresourcepool">{{$t('commons.test_resource_pool')}}</el-menu-item>
+      <el-menu-item index="/setting/systemparametersetting">{{$t('commons.system_parameter_setting')}}</el-menu-item>
     </el-submenu>
 
     <el-submenu index="2" v-permission="['org_admin']" v-if="isCurrentOrganizationAdmin">
