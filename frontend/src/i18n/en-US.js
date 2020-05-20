@@ -316,7 +316,7 @@ export default {
     assertions: "Assertions",
     assertions_pass: "Passed Assertions",
     assertions_name: "Assertion Name",
-    assertions_message: "Assertion Message",
+    assertions_error_message: "Error Message",
     assertions_is_success: "Fail/Success",
     result: "Result",
     success: "Success",

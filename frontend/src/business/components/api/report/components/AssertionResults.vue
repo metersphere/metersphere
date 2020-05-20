@@ -2,7 +2,7 @@
   <el-table :data="assertions" :row-style="getRowStyle" :header-cell-style="getRowStyle">
     <el-table-column prop="name" :label="$t('api_report.assertions_name')" width="300">
     </el-table-column>
-    <el-table-column prop="message" :label="$t('api_report.assertions_message')">
+    <el-table-column prop="message" :label="$t('api_report.assertions_error_message')">
     </el-table-column>
     <el-table-column prop="pass" :label="$t('api_report.assertions_is_success')" width="180">
       <template v-slot:default="{row}">

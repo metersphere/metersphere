@@ -316,7 +316,7 @@ export default {
     assertions: "断言",
     assertions_pass: "成功断言",
     assertions_name: "断言名称",
-    assertions_message: "断言信息",
+    assertions_error_message: "错误信息",
     assertions_is_success: "是否成功",
     result: "结果",
     success: "成功",
