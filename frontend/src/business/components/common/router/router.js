@@ -10,6 +10,7 @@ import OrganizationMember from "../../settings/organization/OrganizationMember";
 import Member from "../../settings/workspace/WorkspaceMember";
 import TestCaseReportTemplate from "../../settings/workspace/TestCaseReportTemplate";
 import TestResourcePool from "../../settings/system/TestResourcePool";
+import SystemParameterSetting from "../../settings/system/SystemParameterSetting";
 import MsProject from "../../project/MsProject";
 import OrganizationWorkspace from "../../settings/organization/OrganizationWorkspace";
 import PersonSetting from "../../settings/personal/PersonSetting";
@@ -81,10 +82,15 @@ const router = new VueRouter({
           component: TestResourcePool
         },
         {
+          path: 'systemparametersetting',
+          component: SystemParameterSetting
+        },
+        {
           path: 'testcase/report/template',
           name: 'testCaseReportTemplate',
           component: TestCaseReportTemplate
-        }
+        },
+
       ]
     },
     {
