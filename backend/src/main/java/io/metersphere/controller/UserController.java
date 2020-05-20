@@ -13,7 +13,6 @@ import io.metersphere.controller.request.UserRequest;
 import io.metersphere.controller.request.member.AddMemberRequest;
 import io.metersphere.controller.request.member.EditPassWordRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
-import io.metersphere.controller.request.member.SetAdminRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.dto.UserDTO;
@@ -268,12 +267,6 @@ public class UserController {
     @PostMapping("/special/password")
     public int updateUserPassword(@RequestBody EditPassWordRequest request) {
         return userService.updateUserPassword(request);
-    }
-
-    @PostMapping("/set/admin")
-    @RequiresRoles(RoleConstants.ADMIN)
-    public void setAdmin(@RequestBody SetAdminRequest request) {
-        userService.setAdmin(request);
     }
 
 }
