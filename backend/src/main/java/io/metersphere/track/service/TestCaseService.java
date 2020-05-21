@@ -221,8 +221,8 @@ public class TestCaseService {
     public void testCaseTemplateExport(HttpServletResponse response) {
         EasyExcelExporter easyExcelExporter = null;
         try {
-            easyExcelExporter = new EasyExcelExporter();
-            easyExcelExporter.export(response, TestCaseExcelData.class, generateExportTemplate(),
+            easyExcelExporter = new EasyExcelExporter(TestCaseExcelData.class);
+            easyExcelExporter.export(response, generateExportTemplate(),
                     Translator.get("test_case_import_template_name"), Translator.get("test_case_import_template_sheet"));
         } catch (Exception e) {
             MSException.throwException(e);
