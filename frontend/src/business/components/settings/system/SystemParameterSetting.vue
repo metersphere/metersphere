@@ -12,7 +12,7 @@
             <el-form-item :label="$t('system_parameter_setting.SMTP_host')" prop="host">
             </el-form-item>
             <el-input v-model="formInline.host" :placeholder="$t('system_parameter_setting.SMTP_host')"
-                      v-on:input="host('host')"></el-input>
+                      v-on:input="change()"></el-input>
           </el-col>
         </el-row>
         <el-row>
@@ -20,7 +20,7 @@
             <el-form-item :label="$t('system_parameter_setting.SMTP_port')" prop="port">
             </el-form-item>
             <el-input v-model="formInline.port" :placeholder="$t('system_parameter_setting.SMTP_port')"
-                      v-on:input="port('port')"></el-input>
+                      v-on:input="change()"></el-input>
           </el-col>
         </el-row>
         <el-row>
@@ -28,7 +28,7 @@
             <el-form-item :label="$t('system_parameter_setting.SMTP_account')" prop="account">
             </el-form-item>
             <el-input v-model="formInline.account" :placeholder="$t('system_parameter_setting.SMTP_account')"
-                      v-on:input="account('account')"></el-input>
+                      v-on:input="change()"></el-input>
           </el-col>
         </el-row>
         <el-row>
@@ -114,30 +114,8 @@
 
 
     methods: {
-      host() {
-        let host = this.formInline.host;
-        if (!host) {
-          this.disabledConnection = true;
-          this.disabledSave = true;
-        } else {
-          this.disabledConnection = false;
-          this.disabledSave = false;
-        }
-      },
-      port() {
-
-        let port = this.formInline.port;
-        if (!port) {
-          this.disabledConnection = true;
-          this.disabledSave = true;
-        } else {
-          this.disabledConnection = false;
-          this.disabledSave = false;
-        }
-      },
-      account() {
-        let account = this.formInline.account;
-        if (!account) {
+      change() {
+        if (!this.formInline.host || !this.formInline.port || !this.formInline.account) {
           this.disabledConnection = true;
           this.disabledSave = true;
         } else {

@@ -9,12 +9,12 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-
 
 
 import javax.annotation.Resource;
@@ -39,7 +39,8 @@ public class SystemParameterService {
         }
         return result;
     }
-    public void editMail(List<SystemParameter> parameters){
+
+    public void editMail(List<SystemParameter> parameters) {
         List<SystemParameter> paramList = this.getParamList(ParamConstants.Classify.MAIL.getValue());
         boolean empty = paramList.size() < 2;
         parameters.forEach(parameter -> {
@@ -54,13 +55,14 @@ public class SystemParameterService {
             }
         });
     }
+
     public List<SystemParameter> getParamList(String type) {
         SystemParameterExample example = new SystemParameterExample();
         example.createCriteria().andParamKeyLike(type + "%");
         return systemParameterMapper.selectByExample(example);
     }
 
-    public void testConnection(HashMap<String, String> hashMap){
+    public void testConnection(HashMap<String, String> hashMap) {
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
         javaMailSender.setDefaultEncoding("UTF-8");
         javaMailSender.setHost(hashMap.get(ParamConstants.MAIL.PORT.getKey()));
