@@ -63,6 +63,9 @@
         open(type, data, nodeIds) {
           this.type = type;
           this.node = data;
+          if (type == 'edit') {
+            this.form.name = this.node.name;
+          }
           this.nodeIds = nodeIds;
           this.dialogFormVisible = true;
         },
