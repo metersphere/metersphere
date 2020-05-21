@@ -456,7 +456,7 @@ class JMXGenerator {
   }
 
   addScenarioVariables(threadGroup, scenario) {
-    let args = scenario.variables.filter(this.filter)
+    let args = this.replaceKV(scenario.variables);
     if (args.length > 0) {
       let name = scenario.name + " Variables"
       threadGroup.put(new Arguments(name, args));
@@ -464,7 +464,7 @@ class JMXGenerator {
   }
 
   addScenarioHeaders(threadGroup, scenario) {
-    let headers = scenario.headers.filter(this.filter)
+    let headers = this.replaceKV(scenario.headers);
     if (headers.length > 0) {
       let name = scenario.name + " Headers"
       threadGroup.put(new HeaderManager(name, headers));
@@ -473,14 +473,14 @@ class JMXGenerator {
 
   addRequestHeader(httpSamplerProxy, request) {
     let name = request.name + " Headers";
-    let headers = request.headers.filter(this.filter);
+    let headers = this.replaceKV(request.headers);
     if (headers.length > 0) {
       httpSamplerProxy.put(new HeaderManager(name, headers));
     }
   }
 
   addRequestArguments(httpSamplerProxy, request) {
-    let args = request.parameters.filter(this.filter)
+    let args = this.replaceKV(request.parameters);
     if (args.length > 0) {
       httpSamplerProxy.add(new HTTPSamplerArguments(args));
     }
@@ -514,7 +514,7 @@ class JMXGenerator {
   getAssertion(regex) {
     let name = regex.description;
     let type = JMX_ASSERTION_CONDITION.CONTAINS; // 固定用Match，自己写正则
-    let value = regex.expression;
+    let value = this.replace(regex.expression);
     switch (regex.subject) {
       case ASSERTION_REGEX_SUBJECT.RESPONSE_CODE:
         return new ResponseCodeAssertion(name, type, value);
@@ -575,6 +575,20 @@ class JMXGenerator {
 
   filter(config) {
     return config.isValid();
+  }
+
+  replace(str) {
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+  }
+
+  replaceKV(kvs) {
+    let results = [];
+    kvs.filter(this.filter).forEach(kv => {
+      let name = this.replace(kv.name);
+      let value = this.replace(kv.value);
+      results.push(new KeyValue(name, value));
+    });
+    return results;
   }
 
   toXML() {

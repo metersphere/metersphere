@@ -85,6 +85,7 @@ public interface ParamConstants {
             this.value = value;
         }
     }
+
     public static enum MAIL {
         HOST("meter.host", 1),
         PORT("meter.port", 2),

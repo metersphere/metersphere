@@ -15,13 +15,15 @@ import java.util.List;
 @RequestMapping(value = "/system")
 public class SystemParameterController {
     @Resource
-    private SystemParameterService   SystemParameterService;
+    private SystemParameterService SystemParameterService;
+
     @PostMapping("/edit/email")
-    public void editMail(@RequestBody List<SystemParameter> SystemParameter){
-        SystemParameterService.editMail(SystemParameter);
+    public void editMail(@RequestBody List<SystemParameter> systemParameter) {
+        SystemParameterService.editMail(systemParameter);
     }
+
     @PostMapping("/testConnection")
-    public void testConnection(@RequestBody HashMap<String, String> hashMap){
+    public void testConnection(@RequestBody HashMap<String, String> hashMap) {
         SystemParameterService.testConnection(hashMap);
     }
 
