@@ -205,9 +205,9 @@ public class TestPlanService {
     }
 
     private double getPercentWithTwoDecimals(double value) {
-        return new BigDecimal(value)
-                .setScale(4, BigDecimal.ROUND_HALF_UP)
-                .doubleValue() * 100;
+        return new BigDecimal(value * 100)
+                .setScale(2, BigDecimal.ROUND_HALF_UP)
+                .doubleValue();
     }
 
     public List<TestPlanCaseDTO> listTestCaseByPlanId(String planId) {
