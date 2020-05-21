@@ -99,6 +99,7 @@
         <el-row style="margin-bottom: 10px">
           <el-col :offset="2">{{$t('test_track.case.steps')}}:</el-col>
         </el-row>
+
         <el-row type="flex" justify="center">
           <el-col :span="20">
             <el-table
@@ -297,7 +298,7 @@
             step.num ++;
           }
         });
-        this.form.steps.push(step);
+        this.form.steps.splice(index + 1, 0, step);
       },
       handleDeleteStep(index, data) {
         this.form.steps.splice(index, 1);
