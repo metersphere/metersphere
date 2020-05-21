@@ -41,7 +41,8 @@
         default: false
       },
       index: Number,
-      list: Array
+      list: Array,
+      callback: Function
     },
 
     data() {
@@ -54,6 +55,7 @@
       add() {
         this.list.push(new ExtractCommon(this.extractType, this.common));
         this.clear();
+        this.callback();
       },
       change(variable) {
         this.common.value = "${" + variable + "}";

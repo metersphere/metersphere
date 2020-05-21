@@ -21,7 +21,8 @@
 
     props: {
       edit: Boolean,
-      duration: ResponseTime
+      duration: ResponseTime,
+      callback: Function
     },
 
     data() {
@@ -34,6 +35,7 @@
       add: function () {
         setTimeout(() => {
           this.duration.value = this.time;
+          this.callback();
         })
       },
       remove: function () {

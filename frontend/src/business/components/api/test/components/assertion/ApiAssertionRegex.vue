@@ -39,7 +39,8 @@
         default: false
       },
       index: Number,
-      list: Array
+      list: Array,
+      callback: Function
     },
 
     data() {
@@ -51,6 +52,7 @@
     methods: {
       add: function () {
         this.list.push(new Regex(this.regex));
+        this.callback();
       },
       remove: function () {
         this.list.splice(this.index, 1);
