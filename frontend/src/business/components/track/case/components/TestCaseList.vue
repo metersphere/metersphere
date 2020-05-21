@@ -141,7 +141,8 @@
           priorityFilters: [
             {text: 'P0', value: 'P0'},
             {text: 'P1', value: 'P1'},
-            {text: 'P2', value: 'P2'}
+            {text: 'P2', value: 'P2'},
+            {text: 'P3', value: 'P3'}
           ],
           methodFilters: [
             {text: this.$t('test_track.case.manual'), value: 'manual'},

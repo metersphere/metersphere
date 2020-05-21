@@ -315,7 +315,8 @@
             Object.assign(param, this.form);
 
             for (let i = 0; i < param.steps.length; i++){
-              if (param.steps[i].desc.length > 300 || param.steps[i].result.length > 300) {
+              if ((param.steps[i].desc && param.steps[i].desc.length > 300) ||
+                (param.steps[i].result && param.steps[i].result.length > 300)) {
                 this.$warning(this.$t('test_track.case.step_desc') + ","
                   + this.$t('test_track.case.expected_results')  + this.$t('test_track.length_less_than') + '300');
                 return;
