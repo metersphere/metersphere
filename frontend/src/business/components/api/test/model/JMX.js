@@ -279,7 +279,7 @@ export class HTTPSamplerArguments extends Element {
     let collectionProp = this.collectionProp('Arguments.arguments');
     this.args.forEach(arg => {
       let elementProp = collectionProp.elementProp(arg.name, 'HTTPArgument');
-      elementProp.boolProp('HTTPArgument.always_encode', arg.encode || false);
+      elementProp.boolProp('HTTPArgument.always_encode', arg.encode || true);
       elementProp.boolProp('HTTPArgument.use_equals', arg.equals || true);
       if (arg.name) {
         elementProp.stringProp('Argument.name', arg.name);
