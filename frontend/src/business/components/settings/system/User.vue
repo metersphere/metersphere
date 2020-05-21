@@ -514,17 +514,23 @@
         })
       },
       addRole() {
-        let roleInfo = {};
-        roleInfo.selects = [];
-        let ids = this.form.roles.map(r => r.id);
-        ids.forEach(id => {
-          roleInfo.selects.push(id);
+        this.$refs['createUserForm'].validate(valid => {
+          if (valid) {
+            let roleInfo = {};
+            roleInfo.selects = [];
+            let ids = this.form.roles.map(r => r.id);
+            ids.forEach(id => {
+              roleInfo.selects.push(id);
+            })
+            let roles = this.form.roles;
+            roles.push(roleInfo);
+            if (this.form.roles.length > this.userRole.length - 1) {
+              this.btnAddRole = true;
+            }
+          } else {
+            return false;
+          }
         })
-        let roles = this.form.roles;
-        roles.push(roleInfo);
-        if (this.form.roles.length > this.userRole.length - 1) {
-          this.btnAddRole = true;
-        }
       },
       removeRole(item) {
         let index = this.form.roles.indexOf(item);
