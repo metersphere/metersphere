@@ -149,7 +149,7 @@
 
         <el-form-item>
           <template>
-            <el-button type="success" style="width: 100%;" @click="addRole()" :disabled="btnAddRole">添加角色</el-button>
+            <el-button type="success" style="width: 100%;" @click="addRole('createUserForm')" :disabled="btnAddRole">添加角色</el-button>
           </template>
         </el-form-item>
       </el-form>
@@ -183,7 +183,7 @@
           >
             <el-select v-model="role.id" placeholder="选择角色类型">
               <el-option
-                v-for="item in userRole"
+                v-for="item in activeRole(role)"
                 :key="item.id"
                 :label="item.name"
                 :value="item.id">
@@ -255,7 +255,7 @@
         </div>
         <el-form-item>
           <template>
-            <el-button type="success" style="width: 100%;" @click="addRole()" :disabled="btnAddRole">添加角色</el-button>
+            <el-button type="success" style="width: 100%;" @click="addRole('updateUserForm')" :disabled="btnAddRole">添加角色</el-button>
           </template>
         </el-form-item>
       </el-form>
@@ -486,6 +486,7 @@
       },
       handleClose() {
         this.form = {roles: [{id: ''}]};
+        this.btnAddRole = false;
       },
       changeSwitch(row) {
         this.$post(this.updatePath, row, () => {
@@ -513,8 +514,8 @@
           this.userRole = response.data;
         })
       },
-      addRole() {
-        this.$refs['createUserForm'].validate(valid => {
+      addRole(validForm) {
+        this.$refs[validForm].validate(valid => {
           if (valid) {
             let roleInfo = {};
             roleInfo.selects = [];
