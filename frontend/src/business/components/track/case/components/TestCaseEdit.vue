@@ -312,6 +312,15 @@
           if (valid) {
             let param = {};
             Object.assign(param, this.form);
+
+            for (let i = 0; i < param.steps.length; i++){
+              if (param.steps[i].desc.length > 300 || param.steps[i].result.length > 300) {
+                this.$warning(this.$t('test_track.case.step_desc') + ","
+                  + this.$t('test_track.case.expected_results')  + this.$t('test_track.length_less_than') + '300');
+                return;
+              }
+            }
+
             param.steps = JSON.stringify(this.form.steps);
             param.nodeId = this.form.module;
             this.moduleOptions.forEach(item => {
