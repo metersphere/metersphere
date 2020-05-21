@@ -15,8 +15,7 @@
       :expand-on-click-node="false"
       highlight-current
       :draggable="draggable"
-      ref="tree"
-    >
+      ref="tree">
       <template v-slot:default="{node,data}">
         <span class="custom-tree-node father" @click="handleNodeSelect(node)">
           <span class="node-icon">
@@ -31,8 +30,7 @@
               effect="dark"
               :open-delay="200"
               :content="$t('test_track.module.rename')"
-              placement="top"
-            >
+              placement="top">
               <i @click.stop="openEditNodeDialog('edit', data)" class="el-icon-edit"></i>
             </el-tooltip>
             <el-tooltip
@@ -40,8 +38,7 @@
               effect="dark"
               :open-delay="200"
               :content="$t('test_track.module.add_submodule')"
-              placement="top"
-            >
+              placement="top">
               <i @click.stop="openEditNodeDialog('add', data)" class="el-icon-circle-plus-outline"></i>
             </el-tooltip>
             <el-tooltip class="item" effect="dark"

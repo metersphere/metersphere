@@ -421,7 +421,7 @@ export default {
       rename: "Rename",
       add_submodule: "Add submodule",
       add_module: "Add module",
-      name: "Module name",
+      name: "Name",
       delete_confirm: "Confirm delete module:",
       delete_all_resource: "and all submodules and test cases under the module",
       module: "Module",
