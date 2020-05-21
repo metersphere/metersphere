@@ -51,7 +51,7 @@
     <!--Create user-->
     <el-dialog :title="$t('user.create')" :visible.sync="createVisible" width="35%" @closed="handleClose"
                :destroy-on-close="true">
-      <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule" ref="createUserForm">
+      <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule" ref="createUserForm" :validate-on-rule-change="true">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off"/>
         </el-form-item>
@@ -71,10 +71,12 @@
           <el-form-item :label="'角色'+index" :required="true">
             <el-select v-model="role.id" placeholder="选择角色类型">
               <el-option
-                v-for="item in userRole"
+                v-for="item in activeRole(role)"
                 :key="item.id"
                 :label="item.name"
-                :value="item.id">
+                :value="item.id"
+              >
+                {{item.name}}
               </el-option>
             </el-select>
             <el-button @click.prevent="removeRole(role)" style="margin-left: 20px;" v-if="form.roles.length > 1">删除
@@ -132,7 +134,7 @@
 
         <el-form-item>
           <template>
-            <el-button type="success" style="width: 100%;" @click="addRole()">添加角色</el-button>
+            <el-button type="success" style="width: 100%;" @click="addRole()" :disabled="btnAddRole">添加角色</el-button>
           </template>
         </el-form-item>
       </el-form>
@@ -223,7 +225,7 @@
         </div>
         <el-form-item>
           <template>
-            <el-button type="success" style="width: 100%;" @click="addRole()">添加角色</el-button>
+            <el-button type="success" style="width: 100%;" @click="addRole()" :disabled="btnAddRole">添加角色</el-button>
           </template>
         </el-form-item>
       </el-form>
@@ -286,6 +288,7 @@
         createVisible: false,
         updateVisible: false,
         editPasswordVisible: false,
+        btnAddRole: false,
         multipleSelection: [],
         userRole: [],
         currentPage: 1,
@@ -298,7 +301,6 @@
         },
         checkPasswordForm: {},
         ruleForm: {},
-        setAdminParam: {},
         rule: {
           id: [
             {required: true, message: this.$t('user.input_id'), trigger: 'blur'},
@@ -480,15 +482,44 @@
         })
       },
       addRole() {
+        let roleInfo = {};
+        roleInfo.selects = [];
+        let ids = this.form.roles.map(r => r.id);
+        ids.forEach(id => {
+          roleInfo.selects.push(id);
+        })
         let roles = this.form.roles;
-        roles.push({});
+        roles.push(roleInfo);
+        if (this.form.roles.length > this.userRole.length - 1) {
+          this.btnAddRole = true;
+        }
       },
       removeRole(item) {
-        let index = this.form.roles.indexOf(item)
+        let index = this.form.roles.indexOf(item);
         if (index !== -1) {
           this.form.roles.splice(index, 1)
         }
+        if (this.form.roles.length < this.userRole.length) {
+          this.btnAddRole = false;
+        }
       },
+      activeRole(roleInfo) {
+        return this.userRole.filter(function (role) {
+          let value = true;
+          if (!roleInfo.selects) {
+            return true;
+          }
+          if (roleInfo.selects.length === 0) {
+            value = true;
+          }
+          for (let i = 0; i < roleInfo.selects.length; i++) {
+            if (role.id === roleInfo.selects[i]) {
+              value = false;
+            }
+          }
+          return value;
+        })
+      }
     }
   }
 </script>

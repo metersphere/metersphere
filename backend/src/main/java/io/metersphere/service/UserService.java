@@ -78,6 +78,9 @@ public class UserService {
                 userRole.setSourceId("adminSourceId");
                 userRoleMapper.insertSelective(userRole);
             } else {
+//                if (!map.keySet().contains("Ids")) {
+//                    MSException.throwException(role + " no source id");
+//                }
                 List<String> list = (List<String>) map.get("Ids");
                 for (int j = 0; j < list.size(); j++) {
                     UserRole userRole1 = new UserRole();
@@ -316,7 +319,7 @@ public class UserService {
 
     public void setLanguage(String lang) {
         if (SessionUtils.getUser() != null) {
-            UserRequest user = new UserRequest();
+            User user = new User();
             user.setId(SessionUtils.getUser().getId());
             user.setLanguage(lang);
             updateUser(user);
