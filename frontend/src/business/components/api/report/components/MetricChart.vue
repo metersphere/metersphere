@@ -96,8 +96,8 @@
                 show: false
               },
               data: [
-                {value: this.content.success, name: this.$t('api_report.success')},
-                {value: this.content.error, name: this.$t('api_report.fail')},
+                {value: this.content.success},
+                {value: this.content.error},
               ]
             }
           ]
