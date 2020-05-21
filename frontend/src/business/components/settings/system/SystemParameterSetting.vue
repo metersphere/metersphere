@@ -94,7 +94,7 @@
           host: [
             {
               required: true,
-              message: this.$t('commons.host_cannot_be_empty')
+              message: ''
             },
           ],
           port: [
