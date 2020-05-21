@@ -12,7 +12,7 @@
             <el-form-item :label="$t('system_parameter_setting.SMTP_host')" prop="host">
             </el-form-item>
             <el-input v-model="formInline.host" :placeholder="$t('system_parameter_setting.SMTP_host')"
-                      v-on:input="host"></el-input>
+                      v-on:input="host('host')"></el-input>
           </el-col>
         </el-row>
         <el-row>
@@ -20,7 +20,7 @@
             <el-form-item :label="$t('system_parameter_setting.SMTP_port')" prop="port">
             </el-form-item>
             <el-input v-model="formInline.port" :placeholder="$t('system_parameter_setting.SMTP_port')"
-                      v-on:input="port"></el-input>
+                      v-on:input="port('port')"></el-input>
           </el-col>
         </el-row>
         <el-row>
@@ -28,7 +28,7 @@
             <el-form-item :label="$t('system_parameter_setting.SMTP_account')" prop="account">
             </el-form-item>
             <el-input v-model="formInline.account" :placeholder="$t('system_parameter_setting.SMTP_account')"
-                      v-on:input="account"></el-input>
+                      v-on:input="account('account')"></el-input>
           </el-col>
         </el-row>
         <el-row>
@@ -42,13 +42,13 @@
 
         <!---->
         <div style="border: 0px;margin-bottom: 20px;margin-top: 20px">
-          <el-checkbox v-model="SSL" label="开启SSL(如果SMTP端口是465，通常需要启用SSL)"></el-checkbox>
+          <el-checkbox v-model="SSL" :label="$t('system_parameter_setting.SSL')"></el-checkbox>
         </div>
         <div style="border: 0px;margin-bottom: 20px">
-          <el-checkbox v-model="TLS" label="开启TLS(如果SMTP端口是587，通常需要启用TLS)"></el-checkbox>
+          <el-checkbox v-model="TLS" :label="$t('system_parameter_setting.TLS')"></el-checkbox>
         </div>
         <div style="border: 0px;margin-bottom: 20px">
-          <el-checkbox v-model="SMTP" label="是否匿名 SMTP"></el-checkbox>
+          <el-checkbox v-model="SMTP" :label="$t('system_parameter_setting.SMTP')"></el-checkbox>
         </div>
         <template v-slot:footer>
         </template>
@@ -111,9 +111,10 @@
         }
       }
     },
+
+
     methods: {
       host() {
-
         let host = this.formInline.host;
         if (!host) {
           this.disabledConnection = true;
