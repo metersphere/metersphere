@@ -10,13 +10,15 @@
 
       <el-table-column
         prop="name"
+        fixed
         :label="$t('commons.name')"
         show-overflow-tooltip>
       </el-table-column>
 
       <el-table-column
         prop="priority"
-        :label="$t('test_track.case.priority')">
+        :label="$t('test_track.case.priority')"
+        show-overflow-tooltip>
         <template v-slot:default="scope">
           <priority-table-item :value="scope.row.priority" ref="priority"/>
         </template>
@@ -33,7 +35,8 @@
 
       <el-table-column
         prop="status"
-        :label="$t('test_track.plan_view.execute_result')">
+        :label="$t('test_track.plan_view.execute_result')"
+        show-overflow-tooltip>
         <template v-slot:default="scope">
           <status-table-item :value="scope.row.status"/>
         </template>
@@ -41,7 +44,8 @@
 
       <el-table-column
         prop="planName"
-        :label="$t('test_track.plan.test_plan')">
+        :label="$t('test_track.plan.test_plan')"
+        show-overflow-tooltip>
       </el-table-column>
 
     </el-table>

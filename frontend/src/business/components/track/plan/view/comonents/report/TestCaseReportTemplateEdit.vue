@@ -206,8 +206,11 @@
           });
         },
         handleSave() {
-          if (this.template.name == '') {
+          if (this.template.name == null || this.template.name == '') {
             this.$warning(this.$t('test_track.plan_view.input_template_name'));
+            return;
+          } else if (this.template.name.length > 64) {
+            this.$warning(this.$t('commons.name') + this.$t('test_track.length_less_than') + '64');
             return;
           }
           let param = {};

@@ -15,7 +15,7 @@
             <div class="name-edit">
               <el-button plain size="mini" icon="el-icon-back" @click="handleClose">{{$t('test_track.return')}}</el-button>
               &nbsp;
-              <span>{{report.name}}</span>
+              <span class="title">{{report.name}}</span>
             </div>
           </el-col>
           <el-col :span="12" class="head-right">
