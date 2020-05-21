@@ -222,12 +222,19 @@
         param.id = this.testCase.id;
         param.status = this.testCase.status;
         param.results = [];
-        this.testCase.steptResults.forEach(item => {
+
+        for (let i = 0; i < this.testCase.steptResults.length; i++){
           let result = {};
-          result.actualResult = item.actualResult;
-          result.executeResult = item.executeResult;
+          result.actualResult = this.testCase.steptResults[i].actualResult;
+          result.executeResult = this.testCase.steptResults[i].executeResult;
+          if (result.actualResult && result.actualResult.length > 300) {
+            this.$warning(this.$t('test_track.plan_view.actual_result')
+              + this.$t('test_track.length_less_than') + '300');
+            return;
+          }
           param.results.push(result);
-        });
+        }
+
         param.results = JSON.stringify(param.results);
         param.issues = JSON.stringify(this.testCase.issues);
         this.$post('/test/plan/case/edit', param, () => {

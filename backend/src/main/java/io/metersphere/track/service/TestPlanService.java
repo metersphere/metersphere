@@ -162,7 +162,7 @@ public class TestPlanService {
         QueryTestPlanRequest request =  new QueryTestPlanRequest();
         request.setPrincipal(user.getId());
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-        request.setPlanIds(extTestPlanTestCaseMapper.findRelateTestPlanId(user.getId()));
+        request.setPlanIds(extTestPlanTestCaseMapper.findRelateTestPlanId(user.getId(), SessionUtils.getCurrentWorkspaceId()));
 
         List<String> projectIds = extProjectMapper.getProjectIdByWorkspaceId(SessionUtils.getCurrentOrganizationId());
 
@@ -205,9 +205,9 @@ public class TestPlanService {
     }
 
     private double getPercentWithTwoDecimals(double value) {
-        return new BigDecimal(value)
-                .setScale(4, BigDecimal.ROUND_HALF_UP)
-                .doubleValue() * 100;
+        return new BigDecimal(value * 100)
+                .setScale(2, BigDecimal.ROUND_HALF_UP)
+                .doubleValue();
     }
 
     public List<TestPlanCaseDTO> listTestCaseByPlanId(String planId) {
@@ -329,7 +329,7 @@ public class TestPlanService {
         }
     }
 
-    public List<TestPlan> getTestPlanByTestIds(List<String> planIds) {
+    public List<TestPlan> getTestPlanByIds(List<String> planIds) {
         TestPlanExample example = new TestPlanExample();
         example.createCriteria().andIdIn(planIds);
         return testPlanMapper.selectByExample(example);

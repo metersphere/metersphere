@@ -372,6 +372,7 @@ export default {
       input_prerequisite: "请输入前置条件",
       delete_confirm: "确认删除测试用例",
       delete: "删除用例",
+      save_create_continue: "保存并继续创建",
       import: {
         import: "导入用例",
         case_import: "导入测试用例",
@@ -497,6 +498,9 @@ export default {
     'SMTP_port': 'SMTP端口',
     'SMTP_account': 'SMTP账户',
     'SMTP_password': 'SMTP密码',
+    'SSL': '开启SSL(如果SMTP端口是465，通常需要启用SSL)',
+    'TLS': '开启TLS(如果SMTP端口是587，通常需要启用TLS)',
+    'SMTP': '是否匿名 SMTP',
   },
   i18n: {
     'home': '首页'

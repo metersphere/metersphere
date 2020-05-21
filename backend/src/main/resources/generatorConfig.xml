@@ -59,7 +59,7 @@
 
         <!--要生成的数据库表 -->
 
-        <table tableName="test_plan_test_case"/>
+        <table tableName="load_test_report"/>
 
     </context>
 </generatorConfiguration>

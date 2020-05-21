@@ -14,8 +14,6 @@ public interface ExtLoadTestReportMapper {
 
     ReportDTO getReportTestAndProInfo(@Param("id") String id);
 
-    int appendLine(@Param("testId") String id, @Param("line") String line);
-
     LoadTestReport selectByPrimaryKey(String id);
 
     List<DashboardTestDTO> selectDashboardTests(@Param("workspaceId") String workspaceId, @Param("startTimestamp") long startTimestamp);

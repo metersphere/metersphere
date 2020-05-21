@@ -1,7 +1,7 @@
 <template>
   <el-card class="table-card" v-loading="result.loading">
     <template v-slot:header>
-      <span class="title">{{$t('api_test.title')}}</span>
+      <span class="title">{{$t('commons.test')}}</span>
     </template>
     <el-table :data="tableData" class="table-content">
       <el-table-column :label="$t('commons.name')" width="150" show-overflow-tooltip>

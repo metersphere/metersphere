@@ -3,6 +3,7 @@
 <mapper namespace="io.metersphere.base.mapper.LoadTestReportDetailMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.LoadTestReportDetail">
     <id column="report_id" jdbcType="VARCHAR" property="reportId" />
+    <id column="part" jdbcType="BIGINT" property="part"/>
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.LoadTestReportDetail">
     <result column="content" jdbcType="LONGVARCHAR" property="content" />
@@ -66,7 +67,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    report_id
+          report_id,
+          part
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -101,18 +103,20 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
-    select 
-    <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
-    from load_test_report_detail
-    where report_id = #{reportId,jdbcType=VARCHAR}
-  </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from load_test_report_detail
-    where report_id = #{reportId,jdbcType=VARCHAR}
-  </delete>
+    <select id="selectByPrimaryKey" parameterType="io.metersphere.base.domain.LoadTestReportDetailKey" resultMap="ResultMapWithBLOBs">
+        SELECT
+        <include refid="Base_Column_List"/>
+        ,
+        <include refid="Blob_Column_List"/>
+        FROM load_test_report_detail
+        WHERE report_id = #{reportId,jdbcType=VARCHAR}
+        AND part = #{part,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="io.metersphere.base.domain.LoadTestReportDetailKey">
+        DELETE FROM load_test_report_detail
+        WHERE report_id = #{reportId,jdbcType=VARCHAR}
+        AND part = #{part,jdbcType=BIGINT}
+    </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.base.domain.LoadTestReportDetailExample">
     delete from load_test_report_detail
     <if test="_parameter != null">
@@ -120,27 +124,35 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.LoadTestReportDetail">
-    insert into load_test_report_detail (report_id, content)
-    values (#{reportId,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR})
+      insert into load_test_report_detail (report_id, part, content
+      )
+      values (#{reportId,jdbcType=VARCHAR}, #{part,jdbcType=BIGINT}, #{content,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.LoadTestReportDetail">
     insert into load_test_report_detail
-    <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="reportId != null">
-        report_id,
-      </if>
-      <if test="content != null">
-        content,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="reportId != null">
-        #{reportId,jdbcType=VARCHAR},
-      </if>
-      <if test="content != null">
-        #{content,jdbcType=LONGVARCHAR},
-      </if>
-    </trim>
+      <trim prefix="(" suffix=")" suffixOverrides=",">
+          <if test="reportId != null">
+              report_id,
+          </if>
+          <if test="part != null">
+              part,
+          </if>
+          <if test="content != null">
+              content,
+          </if>
+      </trim>
+      <trim prefix="values (" suffix=")" suffixOverrides=",">
+          <if test="reportId != null">
+              #{reportId,jdbcType=VARCHAR},
+          </if>
+          <if test="part != null">
+              #{part,jdbcType=BIGINT},
+          </if>
+          <if test="content != null">
+              #{content,jdbcType=LONGVARCHAR},
+          </if>
+      </trim>
   </insert>
   <select id="countByExample" parameterType="io.metersphere.base.domain.LoadTestReportDetailExample" resultType="java.lang.Long">
     select count(*) from load_test_report_detail
@@ -150,30 +162,35 @@
   </select>
   <update id="updateByExampleSelective" parameterType="map">
     update load_test_report_detail
-    <set>
-      <if test="record.reportId != null">
-        report_id = #{record.reportId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.content != null">
-        content = #{record.content,jdbcType=LONGVARCHAR},
-      </if>
-    </set>
+      <set>
+          <if test="record.reportId != null">
+              report_id = #{record.reportId,jdbcType=VARCHAR},
+          </if>
+          <if test="record.part != null">
+              part = #{record.part,jdbcType=BIGINT},
+          </if>
+          <if test="record.content != null">
+              content = #{record.content,jdbcType=LONGVARCHAR},
+          </if>
+      </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
-    update load_test_report_detail
-    set report_id = #{record.reportId,jdbcType=VARCHAR},
+      update load_test_report_detail
+      set report_id = #{record.reportId,jdbcType=VARCHAR},
+      part = #{record.part,jdbcType=BIGINT},
       content = #{record.content,jdbcType=LONGVARCHAR}
-    <if test="_parameter != null">
+      <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update load_test_report_detail
-    set report_id = #{record.reportId,jdbcType=VARCHAR}
-    <if test="_parameter != null">
+      update load_test_report_detail
+      set report_id = #{record.reportId,jdbcType=VARCHAR},
+      part = #{record.part,jdbcType=BIGINT}
+      <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
@@ -184,11 +201,13 @@
         content = #{content,jdbcType=LONGVARCHAR},
       </if>
     </set>
-    where report_id = #{reportId,jdbcType=VARCHAR}
+      where report_id = #{reportId,jdbcType=VARCHAR}
+      and part = #{part,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.LoadTestReportDetail">
-    update load_test_report_detail
-    set content = #{content,jdbcType=LONGVARCHAR}
-    where report_id = #{reportId,jdbcType=VARCHAR}
+      update load_test_report_detail
+      set content = #{content,jdbcType=LONGVARCHAR}
+      where report_id = #{reportId,jdbcType=VARCHAR}
+      and part = #{part,jdbcType=BIGINT}
   </update>
 </mapper>

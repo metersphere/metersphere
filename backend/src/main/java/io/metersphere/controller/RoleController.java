@@ -22,4 +22,9 @@ public class RoleController {
         return roleService.getRoleList(sign);
     }
 
+    @GetMapping("/all")
+    public List<Role> getAllRole() {
+        return roleService.getAllRole();
+    }
+
 }

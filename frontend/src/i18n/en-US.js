@@ -375,6 +375,7 @@ export default {
       input_prerequisite: "Please select prerequisite",
       delete_confirm: "Confirm delete test case",
       delete: "Delete case",
+      save_create_continue: "Save and create continue",
       import: {
         import: "Import test case",
         case_import: "Import test case",
@@ -500,6 +501,10 @@ export default {
     'SMTP_port': 'SMTP port',
     'SMTP_account': 'SMTP account',
     'SMTP_password': 'SMTP password',
+    'SSL': 'Turn on SSL (if the SMTP port is 465, you usually need to enable SSL)',
+    'TLS': 'Turn on TLS (if the SMTP port is 587, you usually need to enable TLS)',
+    'SMTP': 'Anonymous SMTP or not',
+
   },
   i18n: {
     'home': 'Home'
