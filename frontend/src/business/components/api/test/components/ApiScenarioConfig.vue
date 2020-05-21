@@ -3,29 +3,31 @@
     <el-aside class="scenario-aside">
       <div class="scenario-list">
         <ms-api-collapse v-model="activeName" @change="handleChange" accordion>
-          <ms-api-collapse-item v-for="(scenario, index) in scenarios" :key="index"
-                                :title="scenario.name" :name="index">
-            <template slot="title">
-              <div class="scenario-name">
-                {{scenario.name}}
-                <span id="hint" v-if="!scenario.name">
+          <draggable :list="scenarios" group="Scenario" class="scenario-draggable" ghost-class="scenario-ghost">
+            <ms-api-collapse-item v-for="(scenario, index) in scenarios" :key="index"
+                                  :title="scenario.name" :name="index">
+              <template slot="title">
+                <div class="scenario-name">
+                  {{scenario.name}}
+                  <span id="hint" v-if="!scenario.name">
                   {{$t('api_test.scenario.config')}}
                 </span>
-              </div>
-              <el-dropdown trigger="click" @command="handleCommand">
-                <span class="el-dropdown-link el-icon-more scenario-btn"/>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item :command="{type: 'copy', index: index}">
-                    {{$t('api_test.scenario.copy')}}
-                  </el-dropdown-item>
-                  <el-dropdown-item :command="{type:'delete', index:index}">
-                    {{$t('api_test.scenario.delete')}}
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
-            </template>
-            <ms-api-request-config :requests="scenario.requests" :open="select"/>
-          </ms-api-collapse-item>
+                </div>
+                <el-dropdown trigger="click" @command="handleCommand">
+                  <span class="el-dropdown-link el-icon-more scenario-btn"/>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item :command="{type: 'copy', index: index}">
+                      {{$t('api_test.scenario.copy')}}
+                    </el-dropdown-item>
+                    <el-dropdown-item :command="{type:'delete', index:index}">
+                      {{$t('api_test.scenario.delete')}}
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
+              </template>
+              <ms-api-request-config :requests="scenario.requests" :open="select"/>
+            </ms-api-collapse-item>
+          </draggable>
         </ms-api-collapse>
       </div>
       <el-button class="scenario-create" type="primary" size="mini" icon="el-icon-plus" plain @click="createScenario"/>
@@ -48,6 +50,7 @@
   import MsApiRequestForm from "./ApiRequestForm";
   import MsApiScenarioForm from "./ApiScenarioForm";
   import {Scenario, Request} from "../model/ScenarioModel";
+  import draggable from 'vuedraggable';
 
   export default {
     name: "MsApiScenarioConfig",
@@ -57,7 +60,8 @@
       MsApiScenarioForm,
       MsApiRequestForm,
       MsApiCollapse,
-      MsApiCollapseItem
+      MsApiCollapseItem,
+      draggable
     },
 
     props: {
@@ -182,5 +186,13 @@
     left: 0;
     right: 0;
     bottom: 0;
+  }
+
+  .scenario-ghost {
+    opacity: 0.5;
+  }
+
+  .scenario-draggable {
+    background-color: #909399;
   }
 </style>

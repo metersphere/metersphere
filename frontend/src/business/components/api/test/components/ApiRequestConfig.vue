@@ -1,38 +1,44 @@
 <template>
   <div class="request-container">
-    <div class="request-item" v-for="(request, index) in requests" :key="index" @click="select(request)"
-         :class="{'selected': isSelected(request)}">
-      <el-row type="flex">
-        <div class="request-method">
-          {{request.method}}
-        </div>
-        <div class="request-name">
-          {{request.name}}
-        </div>
-        <div class="request-btn">
-          <el-dropdown trigger="click" @command="handleCommand">
-            <span class="el-dropdown-link el-icon-more"/>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item :command="{type: 'copy', index: index}">
-                {{$t('api_test.request.copy')}}
-              </el-dropdown-item>
-              <el-dropdown-item :command="{type: 'delete', index: index}">
-                {{$t('api_test.request.delete')}}
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
-        </div>
-      </el-row>
-    </div>
+    <draggable :list="requests" group="Request" class="request-draggable" ghost-class="request-ghost">
+      <div class="request-item" v-for="(request, index) in requests" :key="index" @click="select(request)"
+           :class="{'selected': isSelected(request)}">
+        <el-row type="flex">
+          <div class="request-method">
+            {{request.method}}
+          </div>
+          <div class="request-name">
+            {{request.name}}
+          </div>
+          <div class="request-btn">
+            <el-dropdown trigger="click" @command="handleCommand">
+              <span class="el-dropdown-link el-icon-more"/>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item :command="{type: 'copy', index: index}">
+                  {{$t('api_test.request.copy')}}
+                </el-dropdown-item>
+                <el-dropdown-item :command="{type: 'delete', index: index}">
+                  {{$t('api_test.request.delete')}}
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </div>
+        </el-row>
+      </div>
+    </draggable>
     <el-button class="request-create" type="primary" size="mini" icon="el-icon-plus" plain @click="createRequest"/>
   </div>
 </template>
 
 <script>
   import {Request} from "../model/ScenarioModel";
+  import draggable from 'vuedraggable';
 
   export default {
     name: "MsApiRequestConfig",
+
+    components: {draggable},
+
     props: {
       requests: Array,
       open: Function
@@ -135,5 +141,10 @@
 
   .request-create {
     width: 100%;
+  }
+
+  .request-ghost {
+    opacity: 0.5;
+    background-color: #909399;
   }
 </style>
