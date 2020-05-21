@@ -32,8 +32,11 @@ public abstract class EasyExcelListener <T> extends AnalysisEventListener<T> {
     public EasyExcelListener(){
         Type type = getClass().getGenericSuperclass();
         this.clazz = (Class<T>) ((ParameterizedType) type).getActualTypeArguments()[0];
-        this.easyExcelI18nTranslator = new EasyExcelI18nTranslator(this.clazz);
-        this.easyExcelI18nTranslator.translateExcelProperty();
+        //防止多线程修改运行时类注解后，saveOriginalExcelProperty保存的是修改后的值
+        synchronized (EasyExcelI18nTranslator.class) {
+            this.easyExcelI18nTranslator = new EasyExcelI18nTranslator(this.clazz);
+            this.easyExcelI18nTranslator.translateExcelProperty();
+        }
     }
 
     /**

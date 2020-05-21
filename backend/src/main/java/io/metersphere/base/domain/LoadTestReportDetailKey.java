@@ -5,16 +5,10 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class LoadTestReportLog implements Serializable {
-    private String id;
-
+public class LoadTestReportDetailKey implements Serializable {
     private String reportId;
 
-    private String resourceId;
-
     private Long part;
-
-    private String content;
 
     private static final long serialVersionUID = 1L;
 }

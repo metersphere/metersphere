@@ -375,6 +375,7 @@ export default {
       input_prerequisite: "Please select prerequisite",
       delete_confirm: "Confirm delete test case",
       delete: "Delete case",
+      save_create_continue: "Save and create continue",
       import: {
         import: "Import test case",
         case_import: "Import test case",

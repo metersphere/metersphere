@@ -366,6 +366,7 @@ export default {
       input_prerequisite: "請輸入前置條件",
       delete_confirm: "確認刪除測試用例: ",
       delete: "删除用例",
+      save_create_continue: "保存並繼續創建",
       import: {
         import: "導入用例",
         case_import: "導入測試用例",

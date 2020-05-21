@@ -99,6 +99,7 @@
         <el-row style="margin-bottom: 10px">
           <el-col :offset="2">{{$t('test_track.case.steps')}}:</el-col>
         </el-row>
+
         <el-row type="flex" justify="center">
           <el-col :span="20">
             <el-table
@@ -162,7 +163,7 @@
         </el-row>
         <el-row type="flex" justify="center">
           <el-col :span="20">
-            <el-form-item>
+            <el-form-item prop="remark">
               <el-input v-model="form.remark"
                         :autosize="{ minRows: 2, maxRows: 4}"
                         type="textarea"
@@ -177,7 +178,7 @@
       <template v-slot:footer>
         <el-switch
           v-model="isCreateContinue"
-          active-text="保存并继续创建">
+          :active-text="$t('test_track.case.save_create_continue')">
         </el-switch>
         <ms-dialog-footer v-if="!readOnly"
           @cancel="dialogFormVisible = false"
@@ -231,7 +232,8 @@
           maintainer :[{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
           priority :[{required: true, message: this.$t('test_track.case.input_priority'), trigger: 'change'}],
           type :[{required: true, message: this.$t('test_track.case.input_type'), trigger: 'change'}],
-          method :[{required: true, message: this.$t('test_track.case.input_method'), trigger: 'change'}]
+          method :[{required: true, message: this.$t('test_track.case.input_method'), trigger: 'change'}],
+          remark :[{ max: 300, message: this.$t('test_track.length_less_than') + '300', trigger: 'blur'}]
         },
         formLabelWidth: "120px",
         operationType: '',
@@ -296,7 +298,7 @@
             step.num ++;
           }
         });
-        this.form.steps.push(step);
+        this.form.steps.splice(index + 1, 0, step);
       },
       handleDeleteStep(index, data) {
         this.form.steps.splice(index, 1);
@@ -311,6 +313,15 @@
           if (valid) {
             let param = {};
             Object.assign(param, this.form);
+
+            for (let i = 0; i < param.steps.length; i++){
+              if (param.steps[i].desc.length > 300 || param.steps[i].result.length > 300) {
+                this.$warning(this.$t('test_track.case.step_desc') + ","
+                  + this.$t('test_track.case.expected_results')  + this.$t('test_track.length_less_than') + '300');
+                return;
+              }
+            }
+
             param.steps = JSON.stringify(this.form.steps);
             param.nodeId = this.form.module;
             this.moduleOptions.forEach(item => {

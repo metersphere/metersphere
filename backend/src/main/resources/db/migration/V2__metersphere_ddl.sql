@@ -51,7 +51,6 @@ CREATE TABLE IF NOT EXISTS `load_test_report` (
     `test_id`     varchar(50) NOT NULL COMMENT 'Test ID this test report belongs to',
     `name`        varchar(64) NOT NULL COMMENT 'Test report name',
     `description` varchar(255) DEFAULT NULL COMMENT 'Test report name',
-    `content`     longtext,
     `create_time` bigint(13)  NOT NULL COMMENT 'Create timestamp',
     `update_time` bigint(13)  NOT NULL COMMENT 'Update timestamp',
     `status`      varchar(64) NOT NULL COMMENT 'Status of this test run',
@@ -64,20 +63,19 @@ CREATE TABLE IF NOT EXISTS `load_test_report` (
 CREATE TABLE IF NOT EXISTS `load_test_report_detail` (
   `report_id` varchar(50) NOT NULL,
   `content` longtext,
-  PRIMARY KEY (`report_id`)
-)
-    ENGINE=InnoDB
-    DEFAULT CHARSET=utf8mb4
-    COLLATE=utf8mb4_bin;
+  `part` bigint(11) NOT NULL,
+  PRIMARY KEY (`report_id`,`part`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 CREATE TABLE IF NOT EXISTS `load_test_report_log` (
-  `id` varchar(50) NOT NULL,
+  `id` varchar(50)  NOT NULL,
   `report_id` varchar(50)  NOT NULL,
   `resource_id` varchar(50)  DEFAULT NULL,
   `content` longtext ,
+  `part` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `load_test_report_log_report_id_resource_name_index` (`report_id`,`resource_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+  KEY `load_test_report_log_report_id_resource_name_index` (`report_id`,`resource_id`,`part`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ;
 
 CREATE TABLE IF NOT EXISTS `load_test_report_result` (
   `id` varchar(50)  NOT NULL,

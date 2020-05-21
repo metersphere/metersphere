@@ -62,7 +62,11 @@
     </select>
 
     <select id="findRelateTestPlanId" resultType="java.lang.String">
-        select distinct plan_id from test_plan_test_case where executor = #{userId}
+        select distinct plan_id from test_plan_test_case
+        inner join test_plan
+        on test_plan_test_case.plan_id = test_plan.id
+        where test_plan_test_case.executor = #{userId}
+        and test_plan.workspace_id = #{workspaceId}
     </select>
     <select id="getRecentTestedTestCase" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
         select test_plan_test_case.*, test_case.*

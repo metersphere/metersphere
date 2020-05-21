@@ -1,7 +1,7 @@
 <template>
   <div v-loading="result.loading">
     <el-tabs type="border-card" :stretch="true">
-      <el-tab-pane v-for="item in logContent" :key="item.id" :label="item.resourceName" class="logging-content">
+      <el-tab-pane v-for="item in logContent" :key="item.resourceId" :label="item.resourceName" class="logging-content">
         {{item.content}}...
         <el-link type="primary" @click="downloadLogFile(item)">{{$t('load_test.download_log_file')}}</el-link>
       </el-tab-pane>
@@ -27,7 +27,7 @@
       },
       downloadLogFile(item) {
         let config = {
-          url: '/performance/report/log/download/' + item.id,
+          url: '/performance/report/log/download/' + this.id + '/' + item.resourceId,
           method: 'get',
           responseType: 'blob'
         };

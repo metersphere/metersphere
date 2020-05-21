@@ -2,6 +2,7 @@ package io.metersphere.base.mapper;
 
 import io.metersphere.base.domain.LoadTestReportDetail;
 import io.metersphere.base.domain.LoadTestReportDetailExample;
+import io.metersphere.base.domain.LoadTestReportDetailKey;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -11,7 +12,7 @@ public interface LoadTestReportDetailMapper {
 
     int deleteByExample(LoadTestReportDetailExample example);
 
-    int deleteByPrimaryKey(String reportId);
+    int deleteByPrimaryKey(LoadTestReportDetailKey key);
 
     int insert(LoadTestReportDetail record);
 
@@ -21,7 +22,7 @@ public interface LoadTestReportDetailMapper {
 
     List<LoadTestReportDetail> selectByExample(LoadTestReportDetailExample example);
 
-    LoadTestReportDetail selectByPrimaryKey(String reportId);
+    LoadTestReportDetail selectByPrimaryKey(LoadTestReportDetailKey key);
 
     int updateByExampleSelective(@Param("record") LoadTestReportDetail record, @Param("example") LoadTestReportDetailExample example);
 

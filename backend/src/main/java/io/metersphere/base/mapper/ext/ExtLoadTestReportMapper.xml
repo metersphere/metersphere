@@ -41,12 +41,6 @@
         where ltr.id = #{id}
     </select>
 
-    <update id="appendLine">
-        UPDATE load_test_report
-        SET content = concat(content, #{line})
-        WHERE id = #{testId}
-    </update>
-
     <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>

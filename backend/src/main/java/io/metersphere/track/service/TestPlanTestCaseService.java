@@ -80,10 +80,15 @@ public class TestPlanTestCaseService {
         if (request.getPlanIds().isEmpty()) {
             return new ArrayList<>();
         }
+
         List<TestPlanCaseDTO> recentTestedTestCase = extTestPlanTestCaseMapper.getRecentTestedTestCase(request);
         List<String> planIds = recentTestedTestCase.stream().map(TestPlanCaseDTO::getPlanId).collect(Collectors.toList());
 
-        Map<String, String> testPlanMap = testPlanService.getTestPlanByTestIds(planIds).stream()
+        if (planIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        Map<String, String> testPlanMap = testPlanService.getTestPlanByIds(planIds).stream()
                 .collect(Collectors.toMap(TestPlan::getId, TestPlan::getName));
 
         recentTestedTestCase.forEach(testCase -> {
@@ -102,7 +107,7 @@ public class TestPlanTestCaseService {
 
     public void buildQueryRequest(QueryTestPlanCaseRequest request, int count) {
         SessionUser user = SessionUtils.getUser();
-        List<String> relateTestPlanIds = extTestPlanTestCaseMapper.findRelateTestPlanId(user.getId());
+        List<String> relateTestPlanIds = extTestPlanTestCaseMapper.findRelateTestPlanId(user.getId(), SessionUtils.getCurrentWorkspaceId());
         PageHelper.startPage(1, count, true);
         request.setPlanIds(relateTestPlanIds);
         request.setExecutor(user.getId());
