@@ -38,6 +38,11 @@ public class WorkspaceController {
         return workspaceService.saveWorkspace(workspace);
     }
 
+    @GetMapping("/list")
+    public List<Workspace> getWorkspaceList() {
+        return workspaceService.getWorkspaceList(new WorkspaceRequest());
+    }
+
     @PostMapping("special/add")
     @RequiresRoles(RoleConstants.ADMIN)
     public void addWorkspaceByAdmin(@RequestBody Workspace workspace) {

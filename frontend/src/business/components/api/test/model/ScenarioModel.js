@@ -137,6 +137,16 @@ export class Scenario extends BaseConfig {
     options.requests = options.requests || [new Request()];
     return options;
   }
+
+  clone() {
+    let scenario = new Scenario(this);
+    scenario.id = uuid();
+    scenario.requests.forEach(function (request) {
+      request.id = uuid();
+    });
+
+    return scenario;
+  }
 }
 
 export class Request extends BaseConfig {
@@ -167,6 +177,12 @@ export class Request extends BaseConfig {
 
   isValid() {
     return !!this.url && !!this.method
+  }
+
+  clone() {
+    let request = new Request(this);
+    request.id = uuid();
+    return request;
   }
 }
 

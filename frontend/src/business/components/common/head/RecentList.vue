@@ -6,7 +6,10 @@
       <i class="el-icon-refresh" @click="recent"/>
     </div>
     <el-menu-item :key="i.id" v-for="i in items" :index="getIndex(i)" :route="getRouter(i)">
-      <span class="title">{{ i.name }}</span>
+      <template slot="title">
+        <div class="title">{{ i.name }}</div>
+        <div class="time" v-if="options.showTime && i.updateTime">{{ i.updateTime | timestampFormatDate}}</div>
+      </template>
     </el-menu-item>
   </div>
 </template>
@@ -81,6 +84,18 @@
   }
 
   .title {
+    display: inline-block;
     padding-left: 20px;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .time {
+    color: #C0C4CC;
+    display: inline-block;
+    padding-left: 20px;
+    float: right;
   }
 </style>

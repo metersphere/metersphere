@@ -16,7 +16,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="email" :label="$t('commons.email')"/>
-        <el-table-column prop="status" :label="$t('commons.status')">
+        <el-table-column prop="status" :label="$t('commons.status')" width="120">
           <template v-slot:default="scope">
             <el-switch v-model="scope.row.status"
                        active-color="#13ce66"
@@ -49,9 +49,9 @@
     </el-card>
 
     <!--Create user-->
-    <el-dialog :title="$t('user.create')" :visible.sync="createVisible" width="30%" @closed="handleClose"
+    <el-dialog :title="$t('user.create')" :visible.sync="createVisible" width="35%" @closed="handleClose"
                :destroy-on-close="true">
-      <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule" ref="createUserForm">
+      <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule" ref="createUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off"/>
         </el-form-item>
@@ -67,6 +67,74 @@
         <el-form-item :label="$t('commons.password')" prop="password">
           <el-input v-model="form.password" autocomplete="off" show-password/>
         </el-form-item>
+        <div v-for="(role, index) in form.roles" :key="index">
+          <el-form-item :label="'角色'+index" :required="true">
+            <el-select v-model="role.id" placeholder="选择角色类型">
+              <el-option
+                v-for="item in userRole"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id">
+              </el-option>
+            </el-select>
+            <el-button @click.prevent="removeRole(role)" style="margin-left: 20px;" v-if="form.roles.length > 1">删除
+            </el-button>
+          </el-form-item>
+          <div v-if="role.id === 'org_admin'">
+            <el-form-item label="选择组织" :required="true">
+              <el-select v-model="role.Ids" placeholder="选择组织" multiple>
+                <el-option
+                  v-for="item in form.orgList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </div>
+          <div v-if="role.id === 'test_manager'">
+            <el-form-item label="选择工作空间" :required="true">
+              <el-select v-model="role.Ids" placeholder="选择工作空间" multiple>
+                <el-option
+                  v-for="item in form.wsList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </div>
+          <div v-if="role.id ==='test_user'">
+            <el-form-item label="选择工作空间" :required="true">
+              <el-select v-model="role.Ids" placeholder="选择工作空间" multiple>
+                <el-option
+                  v-for="item in form.wsList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </div>
+          <div v-if="role.id ==='test_viewer'">
+            <el-form-item label="选择工作空间" :required="true">
+              <el-select v-model="role.Ids" placeholder="选择工作空间" multiple>
+                <el-option
+                  v-for="item in form.wsList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </div>
+        </div>
+
+        <el-form-item>
+          <template>
+            <el-button type="success" style="width: 100%;" @click="addRole()">添加角色</el-button>
+          </template>
+        </el-form-item>
       </el-form>
       <template v-slot:footer>
         <ms-dialog-footer
@@ -78,7 +146,7 @@
     <!--Modify user information in system settings-->
     <el-dialog :title="$t('user.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true"
                @close="handleClose">
-      <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule" ref="updateUserForm">
+      <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
         </el-form-item>
@@ -90,6 +158,73 @@
         </el-form-item>
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off"/>
+        </el-form-item>
+        <div v-for="(role, index) in form.roles" :key="index">
+          <el-form-item :label="'角色'+index" :required="true">
+            <el-select v-model="role.id" placeholder="选择角色类型">
+              <el-option
+                v-for="item in userRole"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id">
+              </el-option>
+            </el-select>
+            <el-button @click.prevent="removeRole(role)" style="margin-left: 20px;" v-if="form.roles.length > 1">删除
+            </el-button>
+          </el-form-item>
+          <div v-if="role.id === 'org_admin'">
+            <el-form-item label="选择组织" :required="true">
+              <el-select v-model="role.Ids" placeholder="选择组织" multiple>
+                <el-option
+                  v-for="item in form.orgList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </div>
+          <div v-if="role.id === 'test_manager'">
+            <el-form-item label="选择工作空间" :required="true">
+              <el-select v-model="role.Ids" placeholder="选择工作空间" multiple>
+                <el-option
+                  v-for="item in form.wsList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </div>
+          <div v-if="role.id ==='test_user'">
+            <el-form-item label="选择工作空间" :required="true">
+              <el-select v-model="role.Ids" placeholder="选择工作空间" multiple>
+                <el-option
+                  v-for="item in form.wsList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </div>
+          <div v-if="role.id ==='test_viewer'">
+            <el-form-item label="选择工作空间" :required="true">
+              <el-select v-model="role.Ids" placeholder="选择工作空间" multiple>
+                <el-option
+                  v-for="item in form.wsList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </div>
+        </div>
+        <el-form-item>
+          <template>
+            <el-button type="success" style="width: 100%;" @click="addRole()">添加角色</el-button>
+          </template>
         </el-form-item>
       </el-form>
       <template v-slot:footer>
@@ -152,12 +287,15 @@
         updateVisible: false,
         editPasswordVisible: false,
         multipleSelection: [],
+        userRole: [],
         currentPage: 1,
         pageSize: 5,
         total: 0,
         condition: {},
         tableData: [],
-        form: {},
+        form: {
+          roles: [{}]
+        },
         checkPasswordForm: {},
         ruleForm: {},
         setAdminParam: {},
@@ -216,14 +354,27 @@
     },
     created() {
       this.search();
+      this.getAllRole();
     },
     methods: {
       create() {
         this.createVisible = true;
+        this.getOrgList();
+        this.getWsList();
       },
       edit(row) {
         this.updateVisible = true;
         this.form = Object.assign({}, row);
+        this.$get("/organization/list", response => {
+          this.$set(this.form, "orgList", response.data);
+        });
+        this.$get("/workspace/list", response => {
+          this.$set(this.form, "wsList", response.data);
+        });
+        this.$get('/userrole/all/' + row.id, response => {
+          let data = response.data;
+          this.$set(this.form, "roles", data);
+        });
       },
       editPassword(row) {
         this.editPasswordVisible = true;
@@ -295,12 +446,12 @@
               let roles = data.roles;
               // let userRoles = result.userRoles;
               this.$set(this.tableData[i], "roles", roles);
-            })
+            });
           }
         })
       },
       handleClose() {
-        this.form = {};
+        this.form = {roles: [{value: ''}]};
       },
       changeSwitch(row) {
         this.$post(this.updatePath, row, () => {
@@ -312,7 +463,32 @@
       },
       handleSelectionChange(val) {
         this.multipleSelection = val;
-      }
+      },
+      getOrgList() {
+        this.$get("/organization/list", response => {
+          this.$set(this.form, "orgList", response.data);
+        })
+      },
+      getWsList() {
+        this.$get("/workspace/list", response => {
+          this.$set(this.form, "wsList", response.data);
+        })
+      },
+      getAllRole() {
+        this.$get("/role/all", response => {
+          this.userRole = response.data;
+        })
+      },
+      addRole() {
+        let roles = this.form.roles;
+        roles.push({});
+      },
+      removeRole(item) {
+        let index = this.form.roles.indexOf(item)
+        if (index !== -1) {
+          this.form.roles.splice(index, 1)
+        }
+      },
     }
   }
 </script>

@@ -80,6 +80,14 @@ export default {
     'weeks_5': '周五',
     'weeks_6': '周六',
     'test_unit': '测试',
+    'set_admin': '设置为管理员',
+    'system_parameter_setting': '系统参数设置',
+    'connection_successful': '连接成功',
+    'connection_failed': '连接失败',
+    'save_failed': '保存失败',
+    'host_cannot_be_empty': '主机不能为空',
+    'port_cannot_be_empty': '端口号不能为空',
+    'account_cannot_be_empty': '帐户不能为空',
   },
   workspace: {
     'create': '创建工作空间',
@@ -106,7 +114,6 @@ export default {
     'select': '选择组织',
   },
   project: {
-    'name': '项目名称',
     'recent': '最近的项目',
     'create': '创建项目',
     'edit': '编辑项目',
@@ -232,7 +239,6 @@ export default {
     'pressure_prediction_chart': '压力预估图',
   },
   api_test: {
-    title: "测试",
     save_and_run: "保存并执行",
     run: "执行",
     running: "正在执行",
@@ -252,8 +258,12 @@ export default {
       variables: "自定义变量",
       headers: "请求头",
       kv_description: "所有请求可以使用自定义变量",
+      copy: "复制场景",
+      delete: "删除场景"
     },
     request: {
+      copy: "复制请求",
+      delete: "删除请求",
       input_name: "请输入请求名称",
       name: "请求名称",
       method: "请求方法",
@@ -312,7 +322,7 @@ export default {
     assertions: "断言",
     assertions_pass: "成功断言",
     assertions_name: "断言名称",
-    assertions_message: "断言信息",
+    assertions_error_message: "错误信息",
     assertions_is_success: "是否成功",
     result: "结果",
     success: "成功",
@@ -479,6 +489,14 @@ export default {
     'delete_prompt': '此操作将永久删除该资源池, 是否继续?',
     'status_change_success': '状态修改成功!',
     'status_change_failed': '状态修改失败, 校验不通过!',
+  },
+  system_parameter_setting: {
+    'mailbox_service_settings': '邮件服务设置',
+    'test_connection': '测试连接',
+    'SMTP_host': 'SMTP主机',
+    'SMTP_port': 'SMTP端口',
+    'SMTP_account': 'SMTP账户',
+    'SMTP_password': 'SMTP密码',
   },
   i18n: {
     'home': '首页'

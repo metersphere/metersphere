@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class LogDetailDTO {
-    private String id;
+    private String resourceId;
     private String resourceName;
     private String content;
 }

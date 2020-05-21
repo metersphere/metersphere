@@ -88,6 +88,7 @@
         },
         reportRecent: {
           title: this.$t('report.recent'),
+          showTime: true,
           url: "/api/report/recent/5",
           index: function (item) {
             return '/api/report/view/' + item.id;

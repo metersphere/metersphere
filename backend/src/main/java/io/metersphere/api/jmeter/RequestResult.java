@@ -13,6 +13,8 @@ public class RequestResult {
 
     private long requestSize;
 
+    private int error;
+
     private boolean success;
 
     private String headers;

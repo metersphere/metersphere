@@ -104,9 +104,9 @@ public class PerformanceReportController {
         return reportService.logs(reportId);
     }
 
-    @GetMapping("log/download/{logId}")
-    public ResponseEntity<byte[]> downloadLog(@PathVariable String logId) {
-        byte[] bytes = reportService.downloadLog(logId);
+    @GetMapping("log/download/{reportId}/{resourceId}")
+    public ResponseEntity<byte[]> downloadLog(@PathVariable String reportId, @PathVariable String resourceId) {
+        byte[] bytes = reportService.downloadLog(reportId, resourceId);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"jmeter.log\"")

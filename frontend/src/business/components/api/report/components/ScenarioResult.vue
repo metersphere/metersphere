@@ -59,7 +59,7 @@
 
     computed: {
       assertion() {
-        return this.scenario.passAssertions - this.scenario.totalAssertions;
+        return this.scenario.passAssertions + " / " + this.scenario.totalAssertions;
       },
       success() {
         return this.scenario.error === 0;

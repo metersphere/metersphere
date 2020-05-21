@@ -252,8 +252,12 @@ export default {
       variables: "自定義變數",
       headers: "請求頭",
       kv_description: "所有請求可以使用自定義變數",
+      copy: "複製場景",
+      delete: "删除場景"
     },
     request: {
+      copy: "複製請求",
+      delete: "删除請求",
       input_name: "請輸入請求名稱",
       name: "請求名稱",
       method: "請求方法",
@@ -312,7 +316,7 @@ export default {
     assertions: "斷言",
     assertions_pass: "成功斷言",
     assertions_name: "斷言名稱",
-    assertions_message: "斷言資訊",
+    assertions_error_message: "錯誤資訊",
     assertions_is_success: "是否成功",
     result: "結果",
     success: "成功",

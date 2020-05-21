@@ -105,7 +105,7 @@
       },
 
       fail() {
-        return (this.content.error / this.content.total).toFixed(0) + "%";
+        return (this.content.error / this.content.total * 100).toFixed(0) + "%";
       },
       assertions() {
         return this.content.passAssertions + " / " + this.content.totalAssertions;

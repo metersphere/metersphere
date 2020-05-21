@@ -173,6 +173,66 @@ public class LoadTestReportDetailExample {
             addCriterion("report_id not between", value1, value2, "reportId");
             return (Criteria) this;
         }
+
+        public Criteria andPartIsNull() {
+            addCriterion("part is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPartIsNotNull() {
+            addCriterion("part is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPartEqualTo(Long value) {
+            addCriterion("part =", value, "part");
+            return (Criteria) this;
+        }
+
+        public Criteria andPartNotEqualTo(Long value) {
+            addCriterion("part <>", value, "part");
+            return (Criteria) this;
+        }
+
+        public Criteria andPartGreaterThan(Long value) {
+            addCriterion("part >", value, "part");
+            return (Criteria) this;
+        }
+
+        public Criteria andPartGreaterThanOrEqualTo(Long value) {
+            addCriterion("part >=", value, "part");
+            return (Criteria) this;
+        }
+
+        public Criteria andPartLessThan(Long value) {
+            addCriterion("part <", value, "part");
+            return (Criteria) this;
+        }
+
+        public Criteria andPartLessThanOrEqualTo(Long value) {
+            addCriterion("part <=", value, "part");
+            return (Criteria) this;
+        }
+
+        public Criteria andPartIn(List<Long> values) {
+            addCriterion("part in", values, "part");
+            return (Criteria) this;
+        }
+
+        public Criteria andPartNotIn(List<Long> values) {
+            addCriterion("part not in", values, "part");
+            return (Criteria) this;
+        }
+
+        public Criteria andPartBetween(Long value1, Long value2) {
+            addCriterion("part between", value1, value2, "part");
+            return (Criteria) this;
+        }
+
+        public Criteria andPartNotBetween(Long value1, Long value2) {
+            addCriterion("part not between", value1, value2, "part");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

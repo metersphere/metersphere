@@ -9,11 +9,10 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.CodingUtil;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.controller.request.UserRequest;
 import io.metersphere.controller.request.member.AddMemberRequest;
+import io.metersphere.controller.request.member.UserRequest;
 import io.metersphere.controller.request.member.EditPassWordRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
-import io.metersphere.controller.request.member.SetAdminRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.dto.UserDTO;
@@ -25,8 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -48,7 +46,7 @@ public class UserService {
     @Resource
     private ExtUserMapper extUserMapper;
 
-    public UserDTO insert(User user) {
+    public UserDTO insert(UserRequest user) {
         checkUserParam(user);
         //
         String id = user.getId();
@@ -58,7 +56,42 @@ public class UserService {
         } else {
             createUser(user);
         }
+        List<Map<String, Object>> roles = user.getRoles();
+        if (!roles.isEmpty()) {
+            insertUserRole(roles, user.getId());
+        }
         return getUserDTO(user.getId());
+    }
+
+    private void insertUserRole(List<Map<String, Object>> roles, String userId) {
+        for (int i = 0; i < roles.size(); i++) {
+            Map<String, Object> map = roles.get(i);
+            String role = (String) map.get("id");
+            if (StringUtils.equals(role, RoleConstants.ADMIN)) {
+                UserRole userRole = new UserRole();
+                userRole.setId(UUID.randomUUID().toString());
+                userRole.setUserId(userId);
+                userRole.setUpdateTime(System.currentTimeMillis());
+                userRole.setCreateTime(System.currentTimeMillis());
+                userRole.setRoleId(role);
+                // TODO 修改
+                userRole.setSourceId("adminSourceId");
+                userRoleMapper.insertSelective(userRole);
+            } else {
+                List<String> list = (List<String>) map.get("Ids");
+                for (int j = 0; j < list.size(); j++) {
+                    UserRole userRole1 = new UserRole();
+                    userRole1.setId(UUID.randomUUID().toString());
+                    userRole1.setUserId(userId);
+                    userRole1.setRoleId(role);
+                    userRole1.setUpdateTime(System.currentTimeMillis());
+                    userRole1.setCreateTime(System.currentTimeMillis());
+                    userRole1.setSourceId(list.get(j));
+                    // TODO 防止重复插入
+                    userRoleMapper.insertSelective(userRole1);
+                }
+            }
+        }
     }
 
     private void checkUserParam(User user) {
@@ -134,7 +167,7 @@ public class UserService {
         return userMapper.selectByExample(null);
     }
 
-    public List<User> getUserListWithRequest(UserRequest request) {
+    public List<User> getUserListWithRequest(io.metersphere.controller.request.UserRequest request) {
         return extUserMapper.getUserList(request);
     }
 
@@ -144,6 +177,19 @@ public class UserService {
             MSException.throwException(Translator.get("cannot_delete_current_user"));
         }
         userMapper.deleteByPrimaryKey(userId);
+    }
+
+    public void updateUserRole(UserRequest user) {
+        String userId = user.getId();
+        UserRoleExample userRoleExample = new UserRoleExample();
+        userRoleExample.createCriteria().andUserIdEqualTo(userId);
+        userRoleMapper.deleteByExample(userRoleExample);
+        List<Map<String, Object>> roles = user.getRoles();
+        if (!roles.isEmpty()) {
+            insertUserRole(roles, user.getId());
+        }
+        user.setUpdateTime(System.currentTimeMillis());
+        userMapper.updateByPrimaryKeySelective(user);
     }
 
     public void updateUser(User user) {
@@ -270,7 +316,7 @@ public class UserService {
 
     public void setLanguage(String lang) {
         if (SessionUtils.getUser() != null) {
-            User user = new User();
+            UserRequest user = new UserRequest();
             user.setId(SessionUtils.getUser().getId());
             user.setLanguage(lang);
             updateUser(user);
@@ -334,23 +380,6 @@ public class UserService {
     public int updateUserPassword(EditPassWordRequest request) {
         User user = updateUserPwd(request);
         return extUserMapper.updatePassword(user);
-    }
-
-    public void setAdmin(SetAdminRequest request) {
-        String adminId = request.getAdminId();
-        String password = request.getPassword();
-        if (!checkUserPassword(adminId, password)) {
-            MSException.throwException("verification failed！");
-        }
-        UserRole userRole = new UserRole();
-        userRole.setId(UUID.randomUUID().toString());
-        userRole.setUserId(request.getId());
-        // TODO 修改admin sourceId
-        userRole.setSourceId("adminSourceId");
-        userRole.setRoleId(RoleConstants.ADMIN);
-        userRole.setCreateTime(System.currentTimeMillis());
-        userRole.setUpdateTime(System.currentTimeMillis());
-        userRoleMapper.insertSelective(userRole);
     }
 
     public String getDefaultLanguage() {
