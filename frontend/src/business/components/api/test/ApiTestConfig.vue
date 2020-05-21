@@ -120,8 +120,11 @@
         })
       },
       runTest: function () {
-        this.result = this.$post("/api/run", {id: this.test.id}, () => {
+        this.result = this.$post("/api/run", {id: this.test.id}, (response) => {
           this.$success(this.$t('api_test.running'));
+          this.$router.push({
+            path: '/api/report/view/' + response.data
+          })
         });
       },
       saveRunTest: function () {

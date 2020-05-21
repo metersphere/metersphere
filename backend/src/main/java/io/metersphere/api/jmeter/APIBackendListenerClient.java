@@ -61,7 +61,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
         queue.forEach((id, sampleResults) -> {
             TestResult testResult = new TestResult();
-            testResult.setId(id);
+            testResult.setTestId(id);
             testResult.setTotal(sampleResults.size());
 
             // key: 场景Id
@@ -104,7 +104,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             testResult.getScenarios().addAll(scenarios.values());
             testResult.getScenarios().sort(Comparator.comparing(ScenarioResult::getOrder));
             apiTestService.changeStatus(id, APITestStatus.Completed);
-            apiReportService.save(testResult);
+            apiReportService.complete(testResult);
         });
         queue.clear();
         super.teardownTest(context);
