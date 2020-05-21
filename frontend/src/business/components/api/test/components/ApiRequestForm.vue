@@ -75,9 +75,9 @@
 
         let parameters = [];
         let url = new URL(this.addProtocol(this.request.url));
-        url.searchParams.forEach(function (key, value) {
+        url.searchParams.forEach((value, key) => {
           if (key && value) {
-            parameters.push(new KeyValue({name: key, value: value}));
+            parameters.push(new KeyValue(key, value));
           }
         });
         // 添加一个空的，用于填写
