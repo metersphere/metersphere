@@ -101,6 +101,7 @@ export default {
     'please_select_a_workspace_first': '请先选择工作空间！',
     'none': '无工作空间',
     'select': '选择工作空间',
+    'special_characters_are_not_supported': '格式错误(不支持特殊字符，且不能以\'-\'开头结尾)',
   },
   organization: {
     'create': '创建组织',
