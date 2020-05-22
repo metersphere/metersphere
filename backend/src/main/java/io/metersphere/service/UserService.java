@@ -80,10 +80,10 @@ public class UserService {
                 userRole.setSourceId("adminSourceId");
                 userRoleMapper.insertSelective(userRole);
             } else {
-//                if (!map.keySet().contains("Ids")) {
+//                if (!map.keySet().contains("ids")) {
 //                    MSException.throwException(role + " no source id");
 //                }
-                List<String> list = (List<String>) map.get("Ids");
+                List<String> list = (List<String>) map.get("ids");
                 for (int j = 0; j < list.size(); j++) {
                     UserRole userRole1 = new UserRole();
                     userRole1.setId(UUID.randomUUID().toString());

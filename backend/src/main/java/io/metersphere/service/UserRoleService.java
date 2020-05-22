@@ -45,11 +45,11 @@ public class UserRoleService {
         for (int i = 0; i < collect.size(); i++) {
             Map<String, Object> map = new HashMap<>(2);
             map.put("id", collect.get(i));
-            map.put("Ids", new ArrayList<>());
+            map.put("ids", new ArrayList<>());
             for (int j = 0; j < userRoles.size(); j++) {
                 String role = userRoles.get(j).getRoleId();
                 if (StringUtils.equals(role, collect.get(i))) {
-                    List ids = (List) map.get("Ids");
+                    List ids = (List) map.get("ids");
                     ids.add(userRoles.get(j).getSourceId());
                 }
             }
