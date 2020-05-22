@@ -377,6 +377,7 @@ export default {
       delete_confirm: "Confirm delete test case",
       delete: "Delete case",
       save_create_continue: "Save and create continue",
+      please_create_project: "No project available, please create the project first",
       import: {
         import: "Import test case",
         case_import: "Import test case",

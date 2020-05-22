@@ -57,6 +57,9 @@
       props: {
         treeNodes: {
           type: Array
+        },
+        currentProject: {
+          type: Object
         }
       },
       methods: {
@@ -73,6 +76,10 @@
           this.$refs['nodeForm'].validate((valid) => {
             if (valid) {
               let param = {};
+              if (!this.currentProject) {
+                this.$warning(this.$t('test_track.case.please_create_project'));
+                return;
+              }
               let url = this.buildParam(param);
               if (param.name.trim() == '') {
                 this.$warning(this.$t('test_track.case.input_name'));
@@ -106,9 +113,7 @@
           }
           param.name = this.form.name.trim();
           param.label = this.form.name;
-          if (localStorage.getItem(CURRENT_PROJECT)) {
-            param.projectId = JSON.parse(localStorage.getItem(CURRENT_PROJECT)).id;
-          }
+          param.projectId = this.currentProject.id;
           return url;
         },
         close() {

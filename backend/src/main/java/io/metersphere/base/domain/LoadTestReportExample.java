@@ -503,6 +503,76 @@ public class LoadTestReportExample {
             addCriterion("status not between", value1, value2, "status");
             return (Criteria) this;
         }
+
+        public Criteria andUserIsNull() {
+            addCriterion("user is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserIsNotNull() {
+            addCriterion("user is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserEqualTo(String value) {
+            addCriterion("user =", value, "user");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserNotEqualTo(String value) {
+            addCriterion("user <>", value, "user");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserGreaterThan(String value) {
+            addCriterion("user >", value, "user");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserGreaterThanOrEqualTo(String value) {
+            addCriterion("user >=", value, "user");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserLessThan(String value) {
+            addCriterion("user <", value, "user");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserLessThanOrEqualTo(String value) {
+            addCriterion("user <=", value, "user");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserLike(String value) {
+            addCriterion("user like", value, "user");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserNotLike(String value) {
+            addCriterion("user not like", value, "user");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserIn(List<String> values) {
+            addCriterion("user in", values, "user");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserNotIn(List<String> values) {
+            addCriterion("user not in", values, "user");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserBetween(String value1, String value2) {
+            addCriterion("user between", value1, value2, "user");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserNotBetween(String value1, String value2) {
+            addCriterion("user not between", value1, value2, "user");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

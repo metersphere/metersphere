@@ -68,20 +68,28 @@
           <el-input v-model="form.password" autocomplete="off" show-password/>
         </el-form-item>
         <div v-for="(role, index) in form.roles" :key="index">
-          <el-form-item :label="'角色'+index" :required="true">
+          <el-form-item :label="'角色'+index"
+                        :prop="'roles.' + index + '.id'"
+                        :rules="{required: true, message: '请选择角色', trigger: 'change'}"
+          >
             <el-select v-model="role.id" placeholder="选择角色类型">
               <el-option
-                v-for="item in userRole"
+                v-for="item in activeRole(role)"
                 :key="item.id"
                 :label="item.name"
-                :value="item.id">
+                :value="item.id"
+              >
+                {{item.name}}
               </el-option>
             </el-select>
             <el-button @click.prevent="removeRole(role)" style="margin-left: 20px;" v-if="form.roles.length > 1">删除
             </el-button>
           </el-form-item>
           <div v-if="role.id === 'org_admin'">
-            <el-form-item label="选择组织" :required="true">
+            <el-form-item label="选择组织"
+                          :prop="'roles.' + index + '.Ids'"
+                          :rules="{required: true, message: '请选择组织', trigger: 'change'}"
+            >
               <el-select v-model="role.Ids" placeholder="选择组织" multiple>
                 <el-option
                   v-for="item in form.orgList"
@@ -93,7 +101,10 @@
             </el-form-item>
           </div>
           <div v-if="role.id === 'test_manager'">
-            <el-form-item label="选择工作空间" :required="true">
+            <el-form-item label="选择工作空间"
+                          :prop="'roles.' + index + '.Ids'"
+                          :rules="{required: true, message: '请选择工作空间', trigger: 'change'}"
+            >
               <el-select v-model="role.Ids" placeholder="选择工作空间" multiple>
                 <el-option
                   v-for="item in form.wsList"
@@ -105,7 +116,10 @@
             </el-form-item>
           </div>
           <div v-if="role.id ==='test_user'">
-            <el-form-item label="选择工作空间" :required="true">
+            <el-form-item label="选择工作空间"
+                          :prop="'roles.' + index + '.Ids'"
+                          :rules="{required: true, message: '请选择工作空间', trigger: 'change'}"
+            >
               <el-select v-model="role.Ids" placeholder="选择工作空间" multiple>
                 <el-option
                   v-for="item in form.wsList"
@@ -117,7 +131,10 @@
             </el-form-item>
           </div>
           <div v-if="role.id ==='test_viewer'">
-            <el-form-item label="选择工作空间" :required="true">
+            <el-form-item label="选择工作空间"
+                          :prop="'roles.' + index + '.Ids'"
+                          :rules="{required: true, message: '请选择工作空间', trigger: 'change'}"
+            >
               <el-select v-model="role.Ids" placeholder="选择工作空间" multiple>
                 <el-option
                   v-for="item in form.wsList"
@@ -132,7 +149,7 @@
 
         <el-form-item>
           <template>
-            <el-button type="success" style="width: 100%;" @click="addRole()">添加角色</el-button>
+            <el-button type="success" style="width: 100%;" @click="addRole('createUserForm')" :disabled="btnAddRole">添加角色</el-button>
           </template>
         </el-form-item>
       </el-form>
@@ -160,10 +177,13 @@
           <el-input v-model="form.phone" autocomplete="off"/>
         </el-form-item>
         <div v-for="(role, index) in form.roles" :key="index">
-          <el-form-item :label="'角色'+index" :required="true">
+          <el-form-item :label="'角色'+index"
+                        :prop="'roles.' + index + '.id'"
+                        :rules="{required: true, message: '请选择角色', trigger: 'change'}"
+          >
             <el-select v-model="role.id" placeholder="选择角色类型">
               <el-option
-                v-for="item in userRole"
+                v-for="item in activeRole(role)"
                 :key="item.id"
                 :label="item.name"
                 :value="item.id">
@@ -173,7 +193,10 @@
             </el-button>
           </el-form-item>
           <div v-if="role.id === 'org_admin'">
-            <el-form-item label="选择组织" :required="true">
+            <el-form-item label="选择组织"
+                          :prop="'roles.' + index + '.Ids'"
+                          :rules="{required: true, message: '请选择组织', trigger: 'change'}"
+            >
               <el-select v-model="role.Ids" placeholder="选择组织" multiple>
                 <el-option
                   v-for="item in form.orgList"
@@ -185,7 +208,10 @@
             </el-form-item>
           </div>
           <div v-if="role.id === 'test_manager'">
-            <el-form-item label="选择工作空间" :required="true">
+            <el-form-item label="选择工作空间"
+                          :prop="'roles.' + index + '.Ids'"
+                          :rules="{required: true, message: '请选择工作空间', trigger: 'change'}"
+            >
               <el-select v-model="role.Ids" placeholder="选择工作空间" multiple>
                 <el-option
                   v-for="item in form.wsList"
@@ -197,7 +223,10 @@
             </el-form-item>
           </div>
           <div v-if="role.id ==='test_user'">
-            <el-form-item label="选择工作空间" :required="true">
+            <el-form-item label="选择工作空间"
+                          :prop="'roles.' + index + '.Ids'"
+                          :rules="{required: true, message: '请选择工作空间', trigger: 'change'}"
+            >
               <el-select v-model="role.Ids" placeholder="选择工作空间" multiple>
                 <el-option
                   v-for="item in form.wsList"
@@ -209,7 +238,10 @@
             </el-form-item>
           </div>
           <div v-if="role.id ==='test_viewer'">
-            <el-form-item label="选择工作空间" :required="true">
+            <el-form-item label="选择工作空间"
+                          :prop="'roles.' + index + '.Ids'"
+                          :rules="{required: true, message: '请选择工作空间', trigger: 'change'}"
+            >
               <el-select v-model="role.Ids" placeholder="选择工作空间" multiple>
                 <el-option
                   v-for="item in form.wsList"
@@ -223,7 +255,7 @@
         </div>
         <el-form-item>
           <template>
-            <el-button type="success" style="width: 100%;" @click="addRole()">添加角色</el-button>
+            <el-button type="success" style="width: 100%;" @click="addRole('updateUserForm')" :disabled="btnAddRole">添加角色</el-button>
           </template>
         </el-form-item>
       </el-form>
@@ -286,6 +318,7 @@
         createVisible: false,
         updateVisible: false,
         editPasswordVisible: false,
+        btnAddRole: false,
         multipleSelection: [],
         userRole: [],
         currentPage: 1,
@@ -294,11 +327,12 @@
         condition: {},
         tableData: [],
         form: {
-          roles: [{}]
+          roles: [{
+            id: ''
+          }]
         },
         checkPasswordForm: {},
         ruleForm: {},
-        setAdminParam: {},
         rule: {
           id: [
             {required: true, message: this.$t('user.input_id'), trigger: 'blur'},
@@ -451,7 +485,8 @@
         })
       },
       handleClose() {
-        this.form = {roles: [{value: ''}]};
+        this.form = {roles: [{id: ''}]};
+        this.btnAddRole = false;
       },
       changeSwitch(row) {
         this.$post(this.updatePath, row, () => {
@@ -479,16 +514,51 @@
           this.userRole = response.data;
         })
       },
-      addRole() {
-        let roles = this.form.roles;
-        roles.push({});
+      addRole(validForm) {
+        this.$refs[validForm].validate(valid => {
+          if (valid) {
+            let roleInfo = {};
+            roleInfo.selects = [];
+            let ids = this.form.roles.map(r => r.id);
+            ids.forEach(id => {
+              roleInfo.selects.push(id);
+            })
+            let roles = this.form.roles;
+            roles.push(roleInfo);
+            if (this.form.roles.length > this.userRole.length - 1) {
+              this.btnAddRole = true;
+            }
+          } else {
+            return false;
+          }
+        })
       },
       removeRole(item) {
-        let index = this.form.roles.indexOf(item)
+        let index = this.form.roles.indexOf(item);
         if (index !== -1) {
           this.form.roles.splice(index, 1)
         }
+        if (this.form.roles.length < this.userRole.length) {
+          this.btnAddRole = false;
+        }
       },
+      activeRole(roleInfo) {
+        return this.userRole.filter(function (role) {
+          let value = true;
+          if (!roleInfo.selects) {
+            return true;
+          }
+          if (roleInfo.selects.length === 0) {
+            value = true;
+          }
+          for (let i = 0; i < roleInfo.selects.length; i++) {
+            if (role.id === roleInfo.selects[i]) {
+              value = false;
+            }
+          }
+          return value;
+        })
+      }
     }
   }
 </script>

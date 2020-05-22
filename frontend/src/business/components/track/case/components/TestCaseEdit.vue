@@ -175,12 +175,12 @@
         </el-row>
       </el-form>
 
-      <template v-slot:footer>
+      <template v-slot:footer v-if="!readOnly">
         <el-switch
           v-model="isCreateContinue"
           :active-text="$t('test_track.case.save_create_continue')">
         </el-switch>
-        <ms-dialog-footer v-if="!readOnly"
+        <ms-dialog-footer
           @cancel="dialogFormVisible = false"
           @confirm="saveCase"/>
       </template>
@@ -249,6 +249,9 @@
         default: true
       },
       selectNode: {
+        type: Object
+      },
+      currentProject: {
         type: Object
       }
     },
@@ -330,9 +333,11 @@
                 param.nodePath = item.path;
               }
             });
-            if(localStorage.getItem(CURRENT_PROJECT)) {
-              param.projectId = JSON.parse(localStorage.getItem(CURRENT_PROJECT)).id;
+
+            if (this.currentProject) {
+              param.projectId = this.currentProject.id;
             }
+
             param.name = param.name.trim();
             if (param.name == '') {
               this.$warning(this.$t('test_track.case.input_name'));

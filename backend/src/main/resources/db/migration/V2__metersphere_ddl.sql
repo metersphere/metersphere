@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS `file_content` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `file_metadata` (
     `id`          varchar(64) NOT NULL COMMENT 'File ID',
@@ -18,25 +18,23 @@ CREATE TABLE IF NOT EXISTS `file_metadata` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_general_ci;
 
-CREATE TABLE IF NOT EXISTS `load_test` (
-    `id`                     varchar(50) NOT NULL COMMENT 'Test ID',
-    `project_id`             varchar(50) NOT NULL COMMENT 'Project ID this test belongs to',
-    `name`                   varchar(64) NOT NULL COMMENT 'Test name',
-    `description`            varchar(255) DEFAULT NULL COMMENT 'Test description',
-    `load_configuration`     longtext COMMENT 'Load configuration (JSON format)',
-    `advanced_configuration` longtext COMMENT 'Load configuration (JSON format)',
-    `schedule`               longtext COMMENT 'Test schedule (cron list)',
-    `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
-    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
-    `status`                 varchar(64)  DEFAULT NULL COMMENT 'Test Status Running, Completed, Error, etc.',
-    `test_resource_pool_id` varchar(50) DEFAULT NULL,
-    PRIMARY KEY (`id`)
-)
-    ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+CREATE TABLE `load_test` (
+  `id` varchar(50) NOT NULL COMMENT 'Test ID',
+  `project_id` varchar(50) NOT NULL COMMENT 'Project ID this test belongs to',
+  `name` varchar(64) NOT NULL COMMENT 'Test name',
+  `description` varchar(255) DEFAULT NULL COMMENT 'Test description',
+  `load_configuration` longtext COMMENT 'Load configuration (JSON format)',
+  `advanced_configuration` longtext COMMENT 'Load configuration (JSON format)',
+  `schedule` longtext COMMENT 'Test schedule (cron list)',
+  `create_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
+  `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
+  `status` varchar(64) DEFAULT NULL COMMENT 'Test Status Running, Completed, Error, etc.',
+  `test_resource_pool_id` varchar(50) DEFAULT NULL,
+  `user` varchar(64) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `load_test_file` (
     `test_id` varchar(64) DEFAULT NULL,
@@ -46,26 +44,24 @@ CREATE TABLE IF NOT EXISTS `load_test_file` (
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4 COMMENT ='测试和文件的关联表';
 
-CREATE TABLE IF NOT EXISTS `load_test_report` (
-    `id`          varchar(50) NOT NULL COMMENT 'Test report ID',
-    `test_id`     varchar(50) NOT NULL COMMENT 'Test ID this test report belongs to',
-    `name`        varchar(64) NOT NULL COMMENT 'Test report name',
-    `description` varchar(255) DEFAULT NULL COMMENT 'Test report name',
-    `create_time` bigint(13)  NOT NULL COMMENT 'Create timestamp',
-    `update_time` bigint(13)  NOT NULL COMMENT 'Update timestamp',
-    `status`      varchar(64) NOT NULL COMMENT 'Status of this test run',
-    PRIMARY KEY (`id`)
-)
-    ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+CREATE TABLE `load_test_report` (
+  `id` varchar(50) NOT NULL COMMENT 'Test report ID',
+  `test_id` varchar(50) NOT NULL COMMENT 'Test ID this test report belongs to',
+  `name` varchar(64) NOT NULL COMMENT 'Test report name',
+  `description` text COMMENT 'Test report message',
+  `create_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
+  `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
+  `status` varchar(64) NOT NULL COMMENT 'Status of this test run',
+  `user` varchar(64) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `load_test_report_detail` (
   `report_id` varchar(50) NOT NULL,
   `content` longtext,
   `part` bigint(11) NOT NULL,
   PRIMARY KEY (`report_id`,`part`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `load_test_report_log` (
   `id` varchar(50)  NOT NULL,
@@ -75,7 +71,7 @@ CREATE TABLE IF NOT EXISTS `load_test_report_log` (
   `part` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `load_test_report_log_report_id_resource_name_index` (`report_id`,`resource_id`,`part`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `load_test_report_result` (
   `id` varchar(50)  NOT NULL,
@@ -84,7 +80,7 @@ CREATE TABLE IF NOT EXISTS `load_test_report_result` (
   `report_value` text ,
   PRIMARY KEY (`id`),
   KEY `load_test_report_result_report_id_report_key_index` (`report_id`,`report_key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 CREATE TABLE IF NOT EXISTS `organization` (
@@ -97,7 +93,7 @@ CREATE TABLE IF NOT EXISTS `organization` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `project` (
     `id`           varchar(50) NOT NULL COMMENT 'Project ID',
@@ -110,7 +106,7 @@ CREATE TABLE IF NOT EXISTS `project` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `role` (
     `id`          varchar(50) NOT NULL COMMENT 'Role ID',
@@ -123,7 +119,7 @@ CREATE TABLE IF NOT EXISTS `role` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `system_parameter` (
     `param_key`   varchar(64) CHARACTER SET utf8mb4 NOT NULL COMMENT 'Parameter name',
@@ -134,7 +130,7 @@ CREATE TABLE IF NOT EXISTS `system_parameter` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `test_resource` (
     `id`                    varchar(50) NOT NULL COMMENT 'Test resource ID',
@@ -147,7 +143,7 @@ CREATE TABLE IF NOT EXISTS `test_resource` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `test_resource_pool` (
     `id`          varchar(50) NOT NULL COMMENT 'Test resource pool ID',
@@ -161,13 +157,13 @@ CREATE TABLE IF NOT EXISTS `test_resource_pool` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `user` (
-    `id`                   varchar(50) NOT NULL COMMENT 'User ID',
+    `id`                   varchar(50) COLLATE utf8mb4_bin NOT NULL COMMENT 'User ID',
     `name`                 varchar(64) NOT NULL COMMENT 'User name',
     `email`                varchar(64) NOT NULL COMMENT 'E-Mail address',
-    `password`             varchar(256) DEFAULT NULL,
+    `password`             varchar(256) COLLATE utf8mb4_bin DEFAULT NULL,
     `status`               varchar(50) NOT NULL COMMENT 'User status',
     `create_time`          bigint(13)  NOT NULL COMMENT 'Create timestamp',
     `update_time`          bigint(13)  NOT NULL COMMENT 'Update timestamp',
@@ -179,7 +175,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `user_role` (
     `id`          varchar(50) NOT NULL COMMENT 'ID of user''s role info',
@@ -192,7 +188,7 @@ CREATE TABLE IF NOT EXISTS `user_role` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `workspace` (
     `id`              varchar(50) NOT NULL COMMENT 'Workspace ID ',
@@ -205,7 +201,7 @@ CREATE TABLE IF NOT EXISTS `workspace` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_general_ci;
 
 -- api start
 
@@ -221,7 +217,7 @@ CREATE TABLE IF NOT EXISTS `api_test` (
     `create_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
     `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `api_test_file` (
     `test_id` varchar(64) DEFAULT NULL,
@@ -245,7 +241,7 @@ CREATE TABLE IF NOT EXISTS `api_test_report` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_general_ci;
 
 -- api end
 
@@ -270,7 +266,7 @@ CREATE TABLE IF NOT EXISTS `test_plan` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_general_ci;
 
 
 CREATE TABLE IF NOT EXISTS `test_case_node` (
@@ -285,7 +281,7 @@ CREATE TABLE IF NOT EXISTS `test_case_node` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_general_ci;
 
 
 CREATE TABLE IF NOT EXISTS `test_case` (
@@ -307,7 +303,7 @@ CREATE TABLE IF NOT EXISTS `test_case` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_general_ci;
 
 
 CREATE TABLE IF NOT EXISTS `test_plan_test_case` (
@@ -325,7 +321,7 @@ CREATE TABLE IF NOT EXISTS `test_plan_test_case` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `test_case_report_template` (
   `id`           varchar(50) NOT NULL,
@@ -336,7 +332,7 @@ CREATE TABLE IF NOT EXISTS `test_case_report_template` (
 )
     ENGINE=InnoDB
     DEFAULT CHARSET=utf8mb4
-    COLLATE=utf8mb4_bin;
+    COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `test_case_report` (
   `id`             varchar(50) NOT NULL,
@@ -348,7 +344,7 @@ CREATE TABLE IF NOT EXISTS `test_case_report` (
 )
     ENGINE=InnoDB
     DEFAULT CHARSET=utf8mb4
-    COLLATE=utf8mb4_bin;
+    COLLATE=utf8mb4_general_ci;
 
 -- track end
 

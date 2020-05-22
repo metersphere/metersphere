@@ -49,7 +49,7 @@
         </span>
       </template>
     </el-tree>
-    <node-edit ref="nodeEdit" :tree-nodes="treeNodes" @refresh="refreshNode" />
+    <node-edit ref="nodeEdit" :current-project="currentProject" :tree-nodes="treeNodes" @refresh="refreshNode" />
   </div>
 </template>
 
@@ -83,6 +83,9 @@ export default {
     draggable: {
       type: Boolean,
       default: true
+    },
+    currentProject: {
+      type: Object
     }
   },
   watch: {
