@@ -9,7 +9,7 @@
         <el-table :data="items" style="width: 100%">
           <el-table-column prop="name" :label="$t('commons.name')"/>
           <el-table-column prop="description" :label="$t('commons.description')"/>
-          <el-table-column prop="workspaceName" :label="$t('project.owning_workspace')"/>
+          <!--<el-table-column prop="workspaceName" :label="$t('project.owning_workspace')"/>-->
           <el-table-column>
             <template v-slot:default="scope">
               <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
