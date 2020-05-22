@@ -102,6 +102,7 @@ export default {
     'please_select_a_workspace_first': 'Please select a workspace first!',
     'none': 'None Workspace',
     'select': 'Select Workspace',
+    'special_characters_are_not_supported': 'Incorrect format (special characters are not supported and cannot end with \'-\')',
   },
   organization: {
     'create': 'Create Organization',

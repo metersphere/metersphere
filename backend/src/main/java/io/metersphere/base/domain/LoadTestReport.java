@@ -1,8 +1,7 @@
 package io.metersphere.base.domain;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class LoadTestReport implements Serializable {
@@ -18,7 +17,7 @@ public class LoadTestReport implements Serializable {
 
     private String status;
 
-    private String user;
+    private String userId;
 
     private String description;
 

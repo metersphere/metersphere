@@ -7,6 +7,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 import javax.validation.groups.Default;
 import java.lang.reflect.Field;
 import java.util.Set;
@@ -17,11 +18,11 @@ public class ExcelValidateHelper {
     private static ExcelValidateHelper excelValidateHelper;
 
     @Resource
-    LocalValidatorFactoryBean localValidatorFactoryBean;
+    Validator validator;
 
     public static  <T> String validateEntity(T obj) throws NoSuchFieldException {
         StringBuilder result = new StringBuilder();
-        Set<ConstraintViolation<T>> set = excelValidateHelper.localValidatorFactoryBean.getValidator().validate(obj, Default.class);
+        Set<ConstraintViolation<T>> set = excelValidateHelper.validator.validate(obj, Default.class);
         if (set != null && !set.isEmpty()) {
             for (ConstraintViolation<T> cv : set) {
                 Field declaredField = obj.getClass().getDeclaredField(cv.getPropertyPath().toString());
@@ -33,9 +34,12 @@ public class ExcelValidateHelper {
         return result.toString();
     }
 
+    /**
+     * 在静态方法中调用
+     */
     @PostConstruct
     public void initialize() {
         excelValidateHelper = this;
-        excelValidateHelper.localValidatorFactoryBean = this.localValidatorFactoryBean;
+        excelValidateHelper.validator = this.validator;
     }
 }

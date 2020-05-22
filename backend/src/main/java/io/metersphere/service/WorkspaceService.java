@@ -243,12 +243,13 @@ public class WorkspaceService {
         workspaceMapper.updateByPrimaryKeySelective(workspace);
     }
 
-    public void addWorkspaceByAdmin(Workspace workspace) {
+    public Workspace addWorkspaceByAdmin(Workspace workspace) {
         checkWorkspace(workspace);
         workspace.setId(UUID.randomUUID().toString());
         workspace.setCreateTime(System.currentTimeMillis());
         workspace.setUpdateTime(System.currentTimeMillis());
         workspaceMapper.insertSelective(workspace);
+        return workspace;
     }
 
     private void checkWorkspace(Workspace workspace) {
