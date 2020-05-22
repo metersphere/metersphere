@@ -17,6 +17,7 @@
         :draggable="true"
         :select-node.sync="selectNode"
         @refreshTable="refreshTable"
+        :current-project="currentProject"
         ref="nodeTree"/>
     </ms-aside-container>
 
@@ -39,6 +40,7 @@
       :read-only="testCaseReadOnly"
       :tree-nodes="treeNodes"
       :select-node="selectNode"
+      :current-project="currentProject"
       ref="testCaseEditDialog">
     </test-case-edit>
 

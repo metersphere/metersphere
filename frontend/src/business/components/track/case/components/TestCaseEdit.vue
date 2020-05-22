@@ -250,6 +250,9 @@
       },
       selectNode: {
         type: Object
+      },
+      currentProject: {
+        type: Object
       }
     },
     mounted() {
@@ -330,9 +333,11 @@
                 param.nodePath = item.path;
               }
             });
-            if(localStorage.getItem(CURRENT_PROJECT)) {
-              param.projectId = JSON.parse(localStorage.getItem(CURRENT_PROJECT)).id;
+
+            if (this.currentProject) {
+              param.projectId = this.currentProject.id;
             }
+
             param.name = param.name.trim();
             if (param.name == '') {
               this.$warning(this.$t('test_track.case.input_name'));

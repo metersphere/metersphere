@@ -57,6 +57,9 @@
       props: {
         treeNodes: {
           type: Array
+        },
+        currentProject: {
+          type: Object
         }
       },
       methods: {
@@ -106,8 +109,8 @@
           }
           param.name = this.form.name.trim();
           param.label = this.form.name;
-          if (localStorage.getItem(CURRENT_PROJECT)) {
-            param.projectId = JSON.parse(localStorage.getItem(CURRENT_PROJECT)).id;
+          if (this.currentProject) {
+            param.projectId = this.currentProject.id;
           }
           return url;
         },
