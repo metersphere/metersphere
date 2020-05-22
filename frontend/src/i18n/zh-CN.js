@@ -329,6 +329,7 @@ export default {
     result: "结果",
     success: "成功",
     fail: "失败",
+    total: "全部",
     test_name: "所属测试"
   },
   test_track: {

@@ -323,6 +323,7 @@ export default {
     result: "結果",
     success: "成功",
     fail: "失敗",
+    total: "全部",
     test_name: "所屬測試"
   },
   test_track: {

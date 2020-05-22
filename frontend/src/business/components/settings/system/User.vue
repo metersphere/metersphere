@@ -87,10 +87,10 @@
           </el-form-item>
           <div v-if="role.id === 'org_admin'">
             <el-form-item label="选择组织"
-                          :prop="'roles.' + index + '.Ids'"
+                          :prop="'roles.' + index + '.ids'"
                           :rules="{required: true, message: '请选择组织', trigger: 'change'}"
             >
-              <el-select v-model="role.Ids" placeholder="选择组织" multiple>
+              <el-select v-model="role.ids" placeholder="选择组织" multiple>
                 <el-option
                   v-for="item in form.orgList"
                   :key="item.id"
@@ -102,10 +102,10 @@
           </div>
           <div v-if="role.id === 'test_manager'">
             <el-form-item label="选择工作空间"
-                          :prop="'roles.' + index + '.Ids'"
+                          :prop="'roles.' + index + '.ids'"
                           :rules="{required: true, message: '请选择工作空间', trigger: 'change'}"
             >
-              <el-select v-model="role.Ids" placeholder="选择工作空间" multiple>
+              <el-select v-model="role.ids" placeholder="选择工作空间" multiple>
                 <el-option
                   v-for="item in form.wsList"
                   :key="item.id"
@@ -117,10 +117,10 @@
           </div>
           <div v-if="role.id ==='test_user'">
             <el-form-item label="选择工作空间"
-                          :prop="'roles.' + index + '.Ids'"
+                          :prop="'roles.' + index + '.ids'"
                           :rules="{required: true, message: '请选择工作空间', trigger: 'change'}"
             >
-              <el-select v-model="role.Ids" placeholder="选择工作空间" multiple>
+              <el-select v-model="role.ids" placeholder="选择工作空间" multiple>
                 <el-option
                   v-for="item in form.wsList"
                   :key="item.id"
@@ -132,10 +132,10 @@
           </div>
           <div v-if="role.id ==='test_viewer'">
             <el-form-item label="选择工作空间"
-                          :prop="'roles.' + index + '.Ids'"
+                          :prop="'roles.' + index + '.ids'"
                           :rules="{required: true, message: '请选择工作空间', trigger: 'change'}"
             >
-              <el-select v-model="role.Ids" placeholder="选择工作空间" multiple>
+              <el-select v-model="role.ids" placeholder="选择工作空间" multiple>
                 <el-option
                   v-for="item in form.wsList"
                   :key="item.id"
@@ -181,7 +181,7 @@
                         :prop="'roles.' + index + '.id'"
                         :rules="{required: true, message: '请选择角色', trigger: 'change'}"
           >
-            <el-select v-model="role.id" placeholder="选择角色类型">
+            <el-select v-model="role.id" placeholder="选择角色类型" :disabled="!!role.id">
               <el-option
                 v-for="item in activeRole(role)"
                 :key="item.id"
@@ -194,10 +194,10 @@
           </el-form-item>
           <div v-if="role.id === 'org_admin'">
             <el-form-item label="选择组织"
-                          :prop="'roles.' + index + '.Ids'"
+                          :prop="'roles.' + index + '.ids'"
                           :rules="{required: true, message: '请选择组织', trigger: 'change'}"
             >
-              <el-select v-model="role.Ids" placeholder="选择组织" multiple>
+              <el-select v-model="role.ids" placeholder="选择组织" multiple>
                 <el-option
                   v-for="item in form.orgList"
                   :key="item.id"
@@ -209,10 +209,10 @@
           </div>
           <div v-if="role.id === 'test_manager'">
             <el-form-item label="选择工作空间"
-                          :prop="'roles.' + index + '.Ids'"
+                          :prop="'roles.' + index + '.ids'"
                           :rules="{required: true, message: '请选择工作空间', trigger: 'change'}"
             >
-              <el-select v-model="role.Ids" placeholder="选择工作空间" multiple>
+              <el-select v-model="role.ids" placeholder="选择工作空间" multiple>
                 <el-option
                   v-for="item in form.wsList"
                   :key="item.id"
@@ -224,10 +224,10 @@
           </div>
           <div v-if="role.id ==='test_user'">
             <el-form-item label="选择工作空间"
-                          :prop="'roles.' + index + '.Ids'"
+                          :prop="'roles.' + index + '.ids'"
                           :rules="{required: true, message: '请选择工作空间', trigger: 'change'}"
             >
-              <el-select v-model="role.Ids" placeholder="选择工作空间" multiple>
+              <el-select v-model="role.ids" placeholder="选择工作空间" multiple>
                 <el-option
                   v-for="item in form.wsList"
                   :key="item.id"
@@ -239,10 +239,10 @@
           </div>
           <div v-if="role.id ==='test_viewer'">
             <el-form-item label="选择工作空间"
-                          :prop="'roles.' + index + '.Ids'"
+                          :prop="'roles.' + index + '.ids'"
                           :rules="{required: true, message: '请选择工作空间', trigger: 'change'}"
             >
-              <el-select v-model="role.Ids" placeholder="选择工作空间" multiple>
+              <el-select v-model="role.ids" placeholder="选择工作空间" multiple>
                 <el-option
                   v-for="item in form.wsList"
                   :key="item.id"

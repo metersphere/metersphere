@@ -81,7 +81,7 @@
       },
       copyScenario: function (index) {
         let scenario = this.scenarios[index];
-        this.scenarios.push(scenario.clone());
+        this.scenarios.push(new Scenario(scenario));
       },
       deleteScenario: function (index) {
         this.scenarios.splice(index, 1);

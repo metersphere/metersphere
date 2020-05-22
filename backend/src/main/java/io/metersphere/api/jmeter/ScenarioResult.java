@@ -12,8 +12,6 @@ public class ScenarioResult {
 
     private String name;
 
-    private String order;
-
     private long responseTime;
 
     private int error = 0;

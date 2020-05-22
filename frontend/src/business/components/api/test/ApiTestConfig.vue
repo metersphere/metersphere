@@ -114,9 +114,11 @@
       saveTest: function () {
         this.save(() => {
           this.$success(this.$t('commons.save_success'));
-          this.$router.push({
-            path: '/api/test/edit?id=' + this.test.id
-          })
+          if (this.create) {
+            this.$router.push({
+              path: '/api/test/edit?id=' + this.test.id
+            })
+          }
         })
       },
       runTest: function () {

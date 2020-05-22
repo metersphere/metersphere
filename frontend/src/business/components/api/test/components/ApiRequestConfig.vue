@@ -65,7 +65,7 @@
       },
       copyRequest: function (index) {
         let request = this.requests[index];
-        this.requests.push(request.clone());
+        this.requests.push(new Request(request));
       },
       deleteRequest: function (index) {
         this.requests.splice(index, 1);
