@@ -12,6 +12,7 @@ import io.metersphere.base.mapper.ApiTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestReportMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.i18n.Translator;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import javax.annotation.Resource;
@@ -84,6 +86,7 @@ public class APIReportService {
         report.setCreateTime(System.currentTimeMillis());
         report.setUpdateTime(System.currentTimeMillis());
         report.setStatus(APITestStatus.Running.name());
+        report.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
         apiTestReportMapper.insert(report);
 
         return report.getId();

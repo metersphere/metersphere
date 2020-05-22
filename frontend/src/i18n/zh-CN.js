@@ -239,6 +239,7 @@ export default {
     'pressure_prediction_chart': '压力预估图',
   },
   api_test: {
+    creator: "创建人",
     save_and_run: "保存并执行",
     run: "执行",
     running: "正在执行",

@@ -7,6 +7,7 @@
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
   </resultMap>
@@ -73,7 +74,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, name, description, status, create_time, update_time
+    id, project_id, name, description, status, user_id, create_time, update_time
   </sql>
   <sql id="Blob_Column_List">
     scenario_definition, schedule
@@ -128,13 +129,13 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.ApiTestWithBLOBs">
     insert into api_test (id, project_id, name, 
-      description, status, create_time, 
-      update_time, scenario_definition, schedule
-      )
+      description, status, user_id, 
+      create_time, update_time, scenario_definition, 
+      schedule)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{description,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{scenarioDefinition,jdbcType=LONGVARCHAR}, #{schedule,jdbcType=LONGVARCHAR}
-      )
+      #{description,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{scenarioDefinition,jdbcType=LONGVARCHAR}, 
+      #{schedule,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiTestWithBLOBs">
     insert into api_test
@@ -153,6 +154,9 @@
       </if>
       <if test="status != null">
         status,
+      </if>
+      <if test="userId != null">
+        user_id,
       </if>
       <if test="createTime != null">
         create_time,
@@ -182,6 +186,9 @@
       </if>
       <if test="status != null">
         #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -221,6 +228,9 @@
       <if test="record.status != null">
         status = #{record.status,jdbcType=VARCHAR},
       </if>
+      <if test="record.userId != null">
+        user_id = #{record.userId,jdbcType=VARCHAR},
+      </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
@@ -245,6 +255,7 @@
       name = #{record.name,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
       status = #{record.status,jdbcType=VARCHAR},
+      user_id = #{record.userId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       scenario_definition = #{record.scenarioDefinition,jdbcType=LONGVARCHAR},
@@ -260,6 +271,7 @@
       name = #{record.name,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
       status = #{record.status,jdbcType=VARCHAR},
+      user_id = #{record.userId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT}
     <if test="_parameter != null">
@@ -280,6 +292,9 @@
       </if>
       <if test="status != null">
         status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -302,6 +317,7 @@
       name = #{name,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
       status = #{status,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       scenario_definition = #{scenarioDefinition,jdbcType=LONGVARCHAR},
@@ -314,6 +330,7 @@
       name = #{name,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
       status = #{status,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}

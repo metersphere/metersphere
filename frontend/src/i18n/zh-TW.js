@@ -244,6 +244,7 @@ export default {
     key: "鍵",
     value: "值",
     scenario: {
+      creator: "創建人",
       config: "場景配寘",
       input_name: "請輸入場景名稱",
       name: "場景名稱",

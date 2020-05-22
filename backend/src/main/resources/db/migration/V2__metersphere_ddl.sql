@@ -216,7 +216,8 @@ CREATE TABLE IF NOT EXISTS `api_test` (
     `description` varchar(255)  DEFAULT NULL COMMENT 'Test description',
     `scenario_definition` longtext  COMMENT 'Scenario definition (JSON format)',
     `schedule` longtext  COMMENT 'Test schedule (cron list)',
-    `status` varchar(64)  DEFAULT NULL,
+    `status` varchar(64)  DEFAULT NULL COMMENT 'Status of this test',
+    `user_id` varchar(64) DEFAULT NULL COMMENT 'User ID',
     `create_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
     `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
     PRIMARY KEY (`id`)
@@ -239,6 +240,7 @@ CREATE TABLE IF NOT EXISTS `api_test_report` (
     `create_time` bigint(13)  NOT NULL COMMENT 'Create timestamp',
     `update_time` bigint(13)  NOT NULL COMMENT 'Update timestamp',
     `status`      varchar(64) NOT NULL COMMENT 'Status of this test run',
+    `user_id` varchar(64) DEFAULT NULL COMMENT 'User ID',
     PRIMARY KEY (`id`)
 )
     ENGINE = InnoDB

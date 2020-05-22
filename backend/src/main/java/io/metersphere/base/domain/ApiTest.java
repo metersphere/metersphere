@@ -1,8 +1,7 @@
 package io.metersphere.base.domain;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class ApiTest implements Serializable {
@@ -15,6 +14,8 @@ public class ApiTest implements Serializable {
     private String description;
 
     private String status;
+
+    private String userId;
 
     private Long createTime;
 
