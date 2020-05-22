@@ -190,6 +190,7 @@
             {text: this.$t('test_track.plan_view.failure'), value: 'Failure'},
             {text: this.$t('test_track.plan_view.blocking'), value: 'Blocking'},
             {text: this.$t('test_track.plan_view.skip'), value: 'Skip'},
+            {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
           ]
         }
       },
