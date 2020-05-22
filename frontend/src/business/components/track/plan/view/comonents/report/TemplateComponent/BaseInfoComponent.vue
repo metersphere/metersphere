@@ -51,7 +51,7 @@
           type: Object,
           default() {
             return {
-              projectName: this.$t('test_track.project.name'),
+              projectName: this.$t('test_track.project'),
               principal: 'Michael',
               executors: ['Michael','Tom','Jiessie'],
               startTime: '2020-6-18',
