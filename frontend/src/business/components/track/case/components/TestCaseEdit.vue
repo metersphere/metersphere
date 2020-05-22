@@ -175,12 +175,12 @@
         </el-row>
       </el-form>
 
-      <template v-slot:footer>
+      <template v-slot:footer v-if="!readOnly">
         <el-switch
           v-model="isCreateContinue"
           :active-text="$t('test_track.case.save_create_continue')">
         </el-switch>
-        <ms-dialog-footer v-if="!readOnly"
+        <ms-dialog-footer
           @cancel="dialogFormVisible = false"
           @confirm="saveCase"/>
       </template>
