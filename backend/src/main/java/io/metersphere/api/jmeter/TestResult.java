@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 public class TestResult {
 
-    private String id;
+    private String testId;
 
     private int success = 0;
 

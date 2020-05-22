@@ -13,7 +13,7 @@
         </el-select>
       </el-col>
       <el-col :span="20">
-        <ms-api-extract-common :extract-type="type" :list="list" v-if="type"/>
+        <ms-api-extract-common :extract-type="type" :list="list" v-if="type" :callback="after"/>
       </el-col>
     </el-row>
 
@@ -42,6 +42,12 @@
       return {
         options: EXTRACT_TYPE,
         type: "",
+      }
+    },
+
+    methods: {
+      after() {
+        this.type = "";
       }
     },
 

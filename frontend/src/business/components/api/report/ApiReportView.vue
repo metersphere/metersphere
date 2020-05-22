@@ -5,9 +5,9 @@
         <section class="report-container" v-if="this.report.testId">
           <header class="report-header">
             <span>{{report.projectName}} / </span>
-            <router-link :to="path">{{report.testName}}</router-link>
+            <router-link :to="path">{{report.testName}} [{{report.createTime | timestampFormatDate}}]</router-link>
           </header>
-          <main>
+          <main v-if="this.isCompleted">
             <div class="scenario-chart">
               <ms-metric-chart :content="content"></ms-metric-chart>
             </div>
@@ -59,11 +59,17 @@
 
     methods: {
       getReport() {
+        this.report = {};
+        this.content = {};
         if (this.reportId) {
           let url = "/api/report/get/" + this.reportId;
           this.result = this.$get(url, response => {
             this.report = response.data || {};
-            this.content = JSON.parse(this.report.content);
+            if (this.isCompleted) {
+              this.content = JSON.parse(this.report.content);
+            } else {
+              setTimeout(this.getReport, 2000)
+            }
           });
         }
       }
@@ -83,6 +89,9 @@
       },
       path() {
         return "/api/test/edit?id=" + this.report.testId;
+      },
+      isCompleted() {
+        return "Completed" === this.report.status;
       }
     }
   }

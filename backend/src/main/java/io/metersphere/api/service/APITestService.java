@@ -39,6 +39,8 @@ public class APITestService {
     private FileService fileService;
     @Resource
     private JMeterService jMeterService;
+    @Resource
+    private APIReportService apiReportService;
 
     public List<APITestResult> list(QueryAPITestRequest request) {
         return extApiTestMapper.list(request);
@@ -71,18 +73,23 @@ public class APITestService {
 
     public void delete(DeleteAPITestRequest request) {
         deleteFileByTestId(request.getId());
+        apiReportService.deleteByTestId(request.getId());
         apiTestMapper.deleteByPrimaryKey(request.getId());
     }
 
-    public void run(SaveAPITestRequest request) {
+    public String run(SaveAPITestRequest request) {
         ApiTestFile file = getFileByTestId(request.getId());
         if (file == null) {
             MSException.throwException(Translator.get("file_cannot_be_null"));
         }
         byte[] bytes = fileService.loadFileAsBytes(file.getFileId());
         InputStream is = new ByteArrayInputStream(bytes);
+
+        String reportId = apiReportService.create(get(request.getId()));
         changeStatus(request.getId(), APITestStatus.Running);
+
         jMeterService.run(is);
+        return reportId;
     }
 
     public void changeStatus(String id, APITestStatus status) {

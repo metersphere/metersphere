@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+
 import java.util.List;
 
 @RestController
@@ -64,7 +65,7 @@ public class APITestController {
     }
 
     @PostMapping(value = "/run")
-    public void run(@RequestBody SaveAPITestRequest request) {
-        apiTestService.run(request);
+    public String run(@RequestBody SaveAPITestRequest request) {
+        return apiTestService.run(request);
     }
 }

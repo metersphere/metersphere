@@ -37,7 +37,8 @@
     name: "MsApiAssertionText",
 
     props: {
-      list: Array
+      list: Array,
+      callback: Function
     },
 
     data() {
@@ -52,6 +53,7 @@
     methods: {
       add: function () {
         this.list.push(this.toRegex());
+        this.callback();
       },
       toRegex: function () {
         let expression = "";
