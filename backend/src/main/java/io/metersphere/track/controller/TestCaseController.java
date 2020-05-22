@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.TestCase;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
+import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
@@ -13,6 +14,8 @@ import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
 import io.metersphere.track.service.TestCaseService;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -62,36 +65,43 @@ public class TestCaseController {
     }
 
     @PostMapping("/add")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void addTestCase(@RequestBody TestCaseWithBLOBs testCase){
         testCaseService.addTestCase(testCase);
     }
 
     @PostMapping("/edit")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void editTestCase(@RequestBody TestCaseWithBLOBs testCase){
         testCaseService.editTestCase(testCase);
     }
 
     @PostMapping("/delete/{testCaseId}")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public int deleteTestCase(@PathVariable String testCaseId){
         return testCaseService.deleteTestCase(testCaseId);
     }
 
     @PostMapping("/import/{projectId}")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String projectId) throws NoSuchFieldException {
         return testCaseService.testCaseImport(file, projectId);
     }
 
     @GetMapping("/export/template")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void testCaseTemplateExport(HttpServletResponse response){
         testCaseService.testCaseTemplateExport(response);
     }
 
     @PostMapping("/batch/edit")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void editTestCaseBath(@RequestBody TestCaseBatchRequest request){
         testCaseService.editTestCaseBath(request);
     }
 
     @PostMapping("/batch/delete")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void deleteTestCaseBath(@RequestBody TestCaseBatchRequest request){
         testCaseService.deleteTestCaseBath(request);
     }
