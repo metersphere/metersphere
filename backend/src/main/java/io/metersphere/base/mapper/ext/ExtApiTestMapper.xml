@@ -5,12 +5,14 @@
     <resultMap id="BaseResultMap" type="io.metersphere.api.dto.APITestResult"
                extends="io.metersphere.base.mapper.ApiTestMapper.BaseResultMap">
         <result column="project_name" property="projectName"/>
+        <result column="user_name" property="userName"/>
     </resultMap>
 
     <select id="list" resultMap="BaseResultMap" parameterType="io.metersphere.api.dto.APITestResult">
-        select api_test.*, project.name as project_name
+        select api_test.*, project.name as project_name, user.name as user_name
         from api_test
         left join project on api_test.project_id = project.id
+        left join user on api_test.user_id = user.id
         <where>
             <if test="request.name != null">
                 and api_test.name like CONCAT('%', #{request.name},'%')

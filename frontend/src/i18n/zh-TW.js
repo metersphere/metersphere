@@ -93,6 +93,7 @@ export default {
     'please_select_a_workspace_first': '請先選擇工作空間！ ',
     'none': '無工作空間',
     'select': '選擇工作空間',
+    'special_characters_are_not_supported': '格式錯誤(不支持特殊字符，且不能以\'-\'開頭結尾)',
   },
   organization: {
     'create': '創建組織',
@@ -244,6 +245,7 @@ export default {
     key: "鍵",
     value: "值",
     scenario: {
+      creator: "創建人",
       config: "場景配寘",
       input_name: "請輸入場景名稱",
       name: "場景名稱",

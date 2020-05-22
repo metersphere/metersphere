@@ -58,14 +58,16 @@ public class WorkspaceService {
         workspace.setOrganizationId(SessionUtils.getCurrentOrganizationId());
 
         long currentTime = System.currentTimeMillis();
+
+        WorkspaceExample example = new WorkspaceExample();
+        example.createCriteria()
+                .andOrganizationIdEqualTo(SessionUtils.getCurrentOrganizationId())
+                .andNameEqualTo(workspace.getName());
+        if (workspaceMapper.countByExample(example) > 0) {
+            MSException.throwException(Translator.get("workspace_name_already_exists"));
+        }
+
         if (StringUtils.isBlank(workspace.getId())) {
-            WorkspaceExample example = new WorkspaceExample();
-            example.createCriteria()
-                    .andOrganizationIdEqualTo(SessionUtils.getCurrentOrganizationId())
-                    .andNameEqualTo(workspace.getName());
-            if (workspaceMapper.countByExample(example) > 0) {
-                MSException.throwException(Translator.get("workspace_name_already_exists"));
-            }
             workspace.setId(UUID.randomUUID().toString());
             workspace.setCreateTime(currentTime);
             workspace.setUpdateTime(currentTime);
@@ -235,12 +237,22 @@ public class WorkspaceService {
     }
 
     public void updateWorkspaceByAdmin(Workspace workspace) {
+        checkWorkspace(workspace);
         workspace.setCreateTime(null);
         workspace.setUpdateTime(System.currentTimeMillis());
         workspaceMapper.updateByPrimaryKeySelective(workspace);
     }
 
-    public void addWorkspaceByAdmin(Workspace workspace) {
+    public Workspace addWorkspaceByAdmin(Workspace workspace) {
+        checkWorkspace(workspace);
+        workspace.setId(UUID.randomUUID().toString());
+        workspace.setCreateTime(System.currentTimeMillis());
+        workspace.setUpdateTime(System.currentTimeMillis());
+        workspaceMapper.insertSelective(workspace);
+        return workspace;
+    }
+
+    private void checkWorkspace(Workspace workspace) {
         if (StringUtils.isBlank(workspace.getName())) {
             MSException.throwException(Translator.get("workspace_name_is_null"));
         }
@@ -254,9 +266,5 @@ public class WorkspaceService {
         if (workspaceMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("workspace_name_already_exists"));
         }
-        workspace.setId(UUID.randomUUID().toString());
-        workspace.setCreateTime(System.currentTimeMillis());
-        workspace.setUpdateTime(System.currentTimeMillis());
-        workspaceMapper.insertSelective(workspace);
     }
 }

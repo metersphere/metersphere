@@ -11,6 +11,7 @@ import io.metersphere.base.mapper.ApiTestMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.FileService;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -126,6 +128,7 @@ public class APITestService {
         test.setCreateTime(System.currentTimeMillis());
         test.setUpdateTime(System.currentTimeMillis());
         test.setStatus(APITestStatus.Saved.name());
+        test.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
         apiTestMapper.insert(test);
         return test;
     }

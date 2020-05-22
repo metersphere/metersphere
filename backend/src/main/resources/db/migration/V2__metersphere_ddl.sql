@@ -20,23 +20,21 @@ CREATE TABLE IF NOT EXISTS `file_metadata` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_general_ci;
 
-CREATE TABLE IF NOT EXISTS `load_test` (
-    `id`                     varchar(50) NOT NULL COMMENT 'Test ID',
-    `project_id`             varchar(50) NOT NULL COMMENT 'Project ID this test belongs to',
-    `name`                   varchar(64) NOT NULL COMMENT 'Test name',
-    `description`            varchar(255) DEFAULT NULL COMMENT 'Test description',
-    `load_configuration`     longtext COMMENT 'Load configuration (JSON format)',
-    `advanced_configuration` longtext COMMENT 'Load configuration (JSON format)',
-    `schedule`               longtext COMMENT 'Test schedule (cron list)',
-    `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
-    `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
-    `status`                 varchar(64)  DEFAULT NULL COMMENT 'Test Status Running, Completed, Error, etc.',
-    `test_resource_pool_id` varchar(50) DEFAULT NULL,
-    PRIMARY KEY (`id`)
-)
-    ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_general_ci;
+CREATE TABLE `load_test` (
+  `id` varchar(50) NOT NULL COMMENT 'Test ID',
+  `project_id` varchar(50) NOT NULL COMMENT 'Project ID this test belongs to',
+  `name` varchar(64) NOT NULL COMMENT 'Test name',
+  `description` varchar(255) DEFAULT NULL COMMENT 'Test description',
+  `load_configuration` longtext COMMENT 'Load configuration (JSON format)',
+  `advanced_configuration` longtext COMMENT 'Load configuration (JSON format)',
+  `schedule` longtext COMMENT 'Test schedule (cron list)',
+  `create_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
+  `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
+  `status` varchar(64) DEFAULT NULL COMMENT 'Test Status Running, Completed, Error, etc.',
+  `test_resource_pool_id` varchar(50) DEFAULT NULL,
+  `user_id` varchar(64) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `load_test_file` (
     `test_id` varchar(64) DEFAULT NULL,
@@ -46,19 +44,17 @@ CREATE TABLE IF NOT EXISTS `load_test_file` (
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4 COMMENT ='测试和文件的关联表';
 
-CREATE TABLE IF NOT EXISTS `load_test_report` (
-    `id`          varchar(50) NOT NULL COMMENT 'Test report ID',
-    `test_id`     varchar(50) NOT NULL COMMENT 'Test ID this test report belongs to',
-    `name`        varchar(64) NOT NULL COMMENT 'Test report name',
-    `description` varchar(255) DEFAULT NULL COMMENT 'Test report name',
-    `create_time` bigint(13)  NOT NULL COMMENT 'Create timestamp',
-    `update_time` bigint(13)  NOT NULL COMMENT 'Update timestamp',
-    `status`      varchar(64) NOT NULL COMMENT 'Status of this test run',
-    PRIMARY KEY (`id`)
-)
-    ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_general_ci;
+CREATE TABLE `load_test_report` (
+  `id` varchar(50) NOT NULL COMMENT 'Test report ID',
+  `test_id` varchar(50) NOT NULL COMMENT 'Test ID this test report belongs to',
+  `name` varchar(64) NOT NULL COMMENT 'Test report name',
+  `description` text COMMENT 'Test report message',
+  `create_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
+  `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
+  `status` varchar(64) NOT NULL COMMENT 'Status of this test run',
+  `user_id` varchar(64) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `load_test_report_detail` (
   `report_id` varchar(50) NOT NULL,
@@ -216,7 +212,8 @@ CREATE TABLE IF NOT EXISTS `api_test` (
     `description` varchar(255)  DEFAULT NULL COMMENT 'Test description',
     `scenario_definition` longtext  COMMENT 'Scenario definition (JSON format)',
     `schedule` longtext  COMMENT 'Test schedule (cron list)',
-    `status` varchar(64)  DEFAULT NULL,
+    `status` varchar(64)  DEFAULT NULL COMMENT 'Status of this test',
+    `user_id` varchar(64) DEFAULT NULL COMMENT 'User ID',
     `create_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
     `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
     PRIMARY KEY (`id`)
@@ -239,6 +236,7 @@ CREATE TABLE IF NOT EXISTS `api_test_report` (
     `create_time` bigint(13)  NOT NULL COMMENT 'Create timestamp',
     `update_time` bigint(13)  NOT NULL COMMENT 'Update timestamp',
     `status`      varchar(64) NOT NULL COMMENT 'Status of this test run',
+    `user_id` varchar(64) DEFAULT NULL COMMENT 'User ID',
     PRIMARY KEY (`id`)
 )
     ENGINE = InnoDB

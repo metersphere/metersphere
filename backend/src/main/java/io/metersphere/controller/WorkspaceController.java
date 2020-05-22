@@ -45,8 +45,8 @@ public class WorkspaceController {
 
     @PostMapping("special/add")
     @RequiresRoles(RoleConstants.ADMIN)
-    public void addWorkspaceByAdmin(@RequestBody Workspace workspace) {
-        workspaceService.addWorkspaceByAdmin(workspace);
+    public Workspace addWorkspaceByAdmin(@RequestBody Workspace workspace) {
+        return workspaceService.addWorkspaceByAdmin(workspace);
     }
 
     @PostMapping("update")

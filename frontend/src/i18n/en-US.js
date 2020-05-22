@@ -102,6 +102,7 @@ export default {
     'please_select_a_workspace_first': 'Please select a workspace first!',
     'none': 'None Workspace',
     'select': 'Select Workspace',
+    'special_characters_are_not_supported': 'Incorrect format (special characters are not supported and cannot end with \'-\')',
   },
   organization: {
     'create': 'Create Organization',
@@ -241,6 +242,7 @@ export default {
     'download_log_file': 'Download',
   },
   api_test: {
+    creator: "Creator",
     title: "Test",
     save_and_run: "Save and Run",
     run: "Run",

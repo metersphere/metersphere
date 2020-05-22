@@ -6,14 +6,16 @@
                extends="io.metersphere.base.mapper.ApiTestReportMapper.BaseResultMap">
         <result column="test_name" property="testName"/>
         <result column="project_name" property="projectName"/>
+        <result column="user_name" property="userName"/>
     </resultMap>
 
     <select id="list" resultMap="BaseResultMap">
         SELECT t.name AS test_name,
         r.name, r.description, r.id, r.test_id, r.create_time, r.update_time, r.status,
-        project.name AS project_name
+        project.name AS project_name, user.name AS user_name
         FROM api_test_report r JOIN api_test t ON r.test_id = t.id
-        JOIN project ON project.id = t.project_id
+        LEFT JOIN project ON project.id = t.project_id
+        LEFT JOIN user ON user.id = r.user_id
         <where>
             <if test="request.name != null">
                 AND r.name like CONCAT('%', #{request.name},'%')
@@ -31,9 +33,10 @@
     <select id="listByTestId" resultMap="BaseResultMap">
         SELECT t.name AS test_name,
         r.name, r.description, r.id, r.test_id, r.create_time, r.update_time, r.status,
-        project.name AS project_name
+        project.name AS project_name, user.name AS user_name
         FROM api_test_report r JOIN api_test t ON r.test_id = t.id
-        JOIN project ON project.id = t.project_id
+        LEFT JOIN project ON project.id = t.project_id
+        LEFT JOIN user ON user.id = r.user_id
         <where>
             r.test_id = #{testId}
         </where>
@@ -41,9 +44,10 @@
     </select>
 
     <select id="get" resultMap="BaseResultMap">
-        SELECT r.*, t.name AS test_name, project.name AS project_name
+        SELECT r.*, t.name AS test_name, project.name AS project_name, user.name AS user_name
         FROM api_test_report r JOIN api_test t ON r.test_id = t.id
         JOIN project ON project.id = t.project_id
+        LEFT JOIN user ON user.id = r.user_id
         <where>
             r.id = #{id}
         </where>

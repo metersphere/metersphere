@@ -9,4 +9,6 @@ import lombok.Setter;
 public class APITestResult extends ApiTestWithBLOBs {
 
     private String projectName;
+
+    private String userName;
 }

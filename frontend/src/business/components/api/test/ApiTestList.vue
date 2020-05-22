@@ -12,8 +12,8 @@
               <el-link type="info" @click="handleEdit(scope.row)">{{ scope.row.name }}</el-link>
             </template>
           </el-table-column>
-          <el-table-column prop="projectName" :label="$t('load_test.project_name')" width="150" show-overflow-tooltip>
-          </el-table-column>
+          <el-table-column prop="projectName" :label="$t('load_test.project_name')" width="150" show-overflow-tooltip/>
+          <el-table-column prop="userName" :label="$t('api_test.creator')" width="150" show-overflow-tooltip/>
           <el-table-column width="250" :label="$t('commons.create_time')">
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
