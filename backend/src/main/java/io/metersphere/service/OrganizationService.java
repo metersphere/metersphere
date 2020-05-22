@@ -48,16 +48,7 @@ public class OrganizationService {
     private UserService userService;
 
     public Organization addOrganization(Organization organization) {
-        if (StringUtils.isBlank(organization.getName())) {
-            MSException.throwException(Translator.get("organization_name_is_null"));
-        }
-
-        OrganizationExample organizationExample = new OrganizationExample();
-        organizationExample.createCriteria().andNameEqualTo(organization.getName());
-        if (organizationMapper.countByExample(organizationExample) > 0) {
-            MSException.throwException(Translator.get("organization_name_already_exists"));
-        }
-
+        checkOrgNameRepeat(organization);
         long currentTimeMillis = System.currentTimeMillis();
         organization.setId(UUID.randomUUID().toString());
         organization.setCreateTime(currentTimeMillis);
@@ -73,6 +64,17 @@ public class OrganizationService {
             criteria.andNameLike(StringUtils.wrapIfMissing(request.getName(), "%"));
         }
         return organizationMapper.selectByExample(example);
+    }
+
+    private void checkOrgNameRepeat(Organization organization) {
+        if (StringUtils.isBlank(organization.getName())) {
+            MSException.throwException(Translator.get("organization_name_is_null"));
+        }
+        OrganizationExample organizationExample = new OrganizationExample();
+        organizationExample.createCriteria().andNameEqualTo(organization.getName());
+        if (organizationMapper.countByExample(organizationExample) > 0) {
+            MSException.throwException(Translator.get("organization_name_already_exists"));
+        }
     }
 
     public void deleteOrganization(String organizationId) {
@@ -97,6 +99,7 @@ public class OrganizationService {
     }
 
     public void updateOrganization(Organization organization) {
+        checkOrgNameRepeat(organization);
         organization.setCreateTime(null);
         organization.setUpdateTime(System.currentTimeMillis());
         organizationMapper.updateByPrimaryKeySelective(organization);
