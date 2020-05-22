@@ -60,6 +60,7 @@
         <!--要生成的数据库表 -->
 
         <table tableName="load_test_report"/>
+        <table tableName="load_test"/>
 
     </context>
 </generatorConfiguration>

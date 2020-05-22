@@ -22,5 +22,7 @@ public class LoadTest implements Serializable {
 
     private String testResourcePoolId;
 
+    private String user;
+
     private static final long serialVersionUID = 1L;
 }
