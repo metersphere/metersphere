@@ -32,7 +32,7 @@ CREATE TABLE `load_test` (
   `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
   `status` varchar(64) DEFAULT NULL COMMENT 'Test Status Running, Completed, Error, etc.',
   `test_resource_pool_id` varchar(50) DEFAULT NULL,
-  `user` varchar(64) DEFAULT NULL,
+  `user_id` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -52,7 +52,7 @@ CREATE TABLE `load_test_report` (
   `create_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
   `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
   `status` varchar(64) NOT NULL COMMENT 'Status of this test run',
-  `user` varchar(64) DEFAULT NULL,
+  `user_id` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

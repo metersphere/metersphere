@@ -504,73 +504,73 @@ public class LoadTestReportExample {
             return (Criteria) this;
         }
 
-        public Criteria andUserIsNull() {
-            addCriterion("user is null");
+        public Criteria andUserIdIsNull() {
+            addCriterion("user_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andUserIsNotNull() {
-            addCriterion("user is not null");
+        public Criteria andUserIdIsNotNull() {
+            addCriterion("user_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andUserEqualTo(String value) {
-            addCriterion("user =", value, "user");
+        public Criteria andUserIdEqualTo(String value) {
+            addCriterion("user_id =", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andUserNotEqualTo(String value) {
-            addCriterion("user <>", value, "user");
+        public Criteria andUserIdNotEqualTo(String value) {
+            addCriterion("user_id <>", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andUserGreaterThan(String value) {
-            addCriterion("user >", value, "user");
+        public Criteria andUserIdGreaterThan(String value) {
+            addCriterion("user_id >", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andUserGreaterThanOrEqualTo(String value) {
-            addCriterion("user >=", value, "user");
+        public Criteria andUserIdGreaterThanOrEqualTo(String value) {
+            addCriterion("user_id >=", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andUserLessThan(String value) {
-            addCriterion("user <", value, "user");
+        public Criteria andUserIdLessThan(String value) {
+            addCriterion("user_id <", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andUserLessThanOrEqualTo(String value) {
-            addCriterion("user <=", value, "user");
+        public Criteria andUserIdLessThanOrEqualTo(String value) {
+            addCriterion("user_id <=", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andUserLike(String value) {
-            addCriterion("user like", value, "user");
+        public Criteria andUserIdLike(String value) {
+            addCriterion("user_id like", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andUserNotLike(String value) {
-            addCriterion("user not like", value, "user");
+        public Criteria andUserIdNotLike(String value) {
+            addCriterion("user_id not like", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andUserIn(List<String> values) {
-            addCriterion("user in", values, "user");
+        public Criteria andUserIdIn(List<String> values) {
+            addCriterion("user_id in", values, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andUserNotIn(List<String> values) {
-            addCriterion("user not in", values, "user");
+        public Criteria andUserIdNotIn(List<String> values) {
+            addCriterion("user_id not in", values, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andUserBetween(String value1, String value2) {
-            addCriterion("user between", value1, value2, "user");
+        public Criteria andUserIdBetween(String value1, String value2) {
+            addCriterion("user_id between", value1, value2, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andUserNotBetween(String value1, String value2) {
-            addCriterion("user not between", value1, value2, "user");
+        public Criteria andUserIdNotBetween(String value1, String value2) {
+            addCriterion("user_id not between", value1, value2, "userId");
             return (Criteria) this;
         }
     }
