@@ -8,7 +8,7 @@
             <router-link :to="path">{{report.testName}}</router-link>
             <span class="time">{{report.createTime | timestampFormatDate}}</span>
           </header>
-          <main v-if="this.isCompleted">
+          <main v-if="this.isNotRunning">
             <ms-metric-chart :content="content"/>
             <el-tabs v-model="activeName">
               <el-tab-pane :label="$t('api_report.total')" name="total">
