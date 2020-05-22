@@ -35,8 +35,7 @@ export default {
     function then(success, response, result) {
       if (!response.data) {
         success(response);
-      }
-      if (response.data.success) {
+      } else if (response.data.success) {
         success(response.data);
       } else {
         window.console.warn(response.data);
@@ -108,5 +107,40 @@ export default {
       if (array.length < 1) return;
       axios.all(array).then(axios.spread(callback));
     };
+
+    Vue.prototype.$fileDownload = function(url) {
+      axios({
+        method: 'get',
+        url: url,
+        responseType: 'blob',
+      }).then(response => {
+        let fileName = window.decodeURI(response.headers['content-disposition'].split('=')[1]);
+        let link = document.createElement("a");
+        link.href = window.URL.createObjectURL(new Blob([response.data], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"}));
+        link.download = fileName;
+        link.click();
+      })
+    };
+
+    Vue.prototype.$fileUpload = function(url, fileList, success, failure) {
+      let result = {loading: true};
+      let formData = new FormData();
+      if (fileList.length > 0) {
+        fileList.forEach(f => {
+          formData.append("file", f);
+        });
+      }
+      axios.post(url, formData, { headers: { "Content-Type": "multipart/form-data" }})
+        .then(response => {
+          then(success, response, result);
+        }).catch(error => {
+          exception(error, result);
+          if (failure) {
+          then(failure, error, result);
+        }
+      });
+      return result;
+    }
+
   }
 }

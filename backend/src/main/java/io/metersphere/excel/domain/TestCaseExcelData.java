@@ -12,33 +12,33 @@ import javax.validation.constraints.Pattern;
 @ColumnWidth(15)
 public class TestCaseExcelData {
 
-    @NotBlank
+    @NotBlank(message = "{cannot_be_null}")
     @Length(max=50)
     @ExcelProperty("{test_case_name}")
     private String name;
 
-    @NotBlank
+    @NotBlank(message = "{cannot_be_null}")
     @Length(max=1000)
     @ExcelProperty("{test_case_module}")
     @ColumnWidth(30)
     @Pattern(regexp = "^(?!.*//).*$", message = "{incorrect_format}")
     private String nodePath;
 
-    @NotBlank
+    @NotBlank(message = "{cannot_be_null}")
     @ExcelProperty("{test_case_type}")
     @Pattern(regexp = "(^functional$)|(^performance$)|(^api$)", message = "{test_case_type_validate}")
     private String type;
 
-    @NotBlank
+    @NotBlank(message = "{cannot_be_null}")
     @ExcelProperty("{test_case_maintainer}")
     private String maintainer;
 
-    @NotBlank
+    @NotBlank(message = "{cannot_be_null}")
     @ExcelProperty("{test_case_priority}")
     @Pattern(regexp = "(^P0$)|(^P1$)|(^P2$)|(^P3$)", message = "{test_case_priority_validate}")
     private String priority;
 
-    @NotBlank
+    @NotBlank(message = "{cannot_be_null}")
     @ExcelProperty("{test_case_method}")
     @Pattern(regexp = "(^manual$)|(^auto$)", message = "{test_case_method_validate}")
     private String method;

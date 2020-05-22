@@ -9,6 +9,7 @@ import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.excel.domain.ExcelErrData;
 import io.metersphere.excel.domain.ExcelResponse;
@@ -190,6 +191,7 @@ public class TestCaseService {
             EasyExcelFactory.read(file.getInputStream(), TestCaseExcelData.class, easyExcelListener).sheet().doRead();
             errList = easyExcelListener.getErrList();
         } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
             MSException.throwException(e.getMessage());
         } finally {
             easyExcelListener.close();

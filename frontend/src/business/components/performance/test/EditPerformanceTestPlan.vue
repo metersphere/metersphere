@@ -135,9 +135,9 @@
         });
       },
       saveAndRun() {
-        if (!this.validTestPlan()) {
-          return;
-        }
+        // if (!this.validTestPlan()) {
+        //   return;
+        // }
 
         let options = this.getSaveOption();
 

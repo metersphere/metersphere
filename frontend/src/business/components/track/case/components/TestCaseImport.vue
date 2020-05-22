@@ -4,21 +4,23 @@
 
       <el-row>
         <el-link type="primary" class="download-template"
-                 href="/test/case/export/template">{{$t('test_track.case.import.download_template')}}</el-link></el-row>
+                 @click="downloadTemplate"
+                 >{{$t('test_track.case.import.download_template')}}</el-link></el-row>
       <el-row>
         <el-upload
-          v-loading="isLoading"
+          v-loading="result.loading"
           :element-loading-text="$t('test_track.case.import.importing')"
           element-loading-spinner="el-icon-loading"
           class="upload-demo"
-          :action="'/test/case/import/' + projectId"
           multiple
           :limit="1"
+          action=""
           :on-exceed="handleExceed"
           :beforeUpload="UploadValidate"
           :on-success="handleSuccess"
           :on-error="handleError"
           :show-file-list="false"
+          :http-request="upload"
           :file-list="fileList">
           <template v-slot:trigger>
             <el-button size="mini" type="success" plain>{{$t('test_track.case.import.click_upload')}}</el-button>
@@ -49,6 +51,7 @@
       components: {ElUploadList, MsTableButton},
       data() {
         return {
+          result: {},
           dialogVisible: false,
           fileList: [],
           errList: [],
@@ -80,16 +83,16 @@
           return true;
         },
         handleSuccess(response) {
-          this.isLoading = false;
-          let res = response.data;
-          if (res.success) {
-            this.$success(this.$t('test_track.case.import.success'));
-            this.dialogVisible = false;
-            this.$emit("refresh");
-          } else {
-            this.errList = res.errList;
-          }
-          this.fileList = [];
+
+          // let res = response.data;
+          // if (res.success) {
+          //   this.$success(this.$t('test_track.case.import.success'));
+          //   this.dialogVisible = false;
+          //   this.$emit("refresh");
+          // } else {
+          //   this.errList = res.errList;
+          // }
+          // this.fileList = [];
         },
         handleError(err, file, fileList) {
           this.isLoading = false;
@@ -102,6 +105,28 @@
         open() {
           this.dialogVisible = true;
         },
+        downloadTemplate() {
+          // this.$get('/test/case/export/template');
+          // fileDownload('/test/case/export/template', {});
+          this.$fileDownload('/test/case/export/template');
+        },
+        upload(file) {
+          this.isLoading = false;
+          this.fileList.push(file.file);
+          this.result = this.$fileUpload('/test/case/import/' + this.projectId, this.fileList,response => {
+            let res = response.data;
+            if (res.success) {
+              this.$success(this.$t('test_track.case.import.success'));
+              this.dialogVisible = false;
+              this.$emit("refresh");
+            } else {
+              this.errList = res.errList;
+            }
+            this.fileList = [];
+          }, erro => {
+            this.fileList = [];
+          });
+        }
       }
     }
 </script>
