@@ -62,7 +62,7 @@
           let url = "/api/report/get/" + this.reportId;
           this.$get(url, response => {
             this.report = response.data || {};
-            if (this.isCompleted) {
+            if (this.isNotRunning) {
               this.content = JSON.parse(this.report.content);
               this.getFails();
               this.loading = false;
@@ -73,7 +73,7 @@
         }
       },
       getFails() {
-        if (this.isCompleted) {
+        if (this.isNotRunning) {
           this.fails = [];
           this.content.scenarios.forEach((scenario) => {
             let failScenario = Object.assign({}, scenario);
@@ -108,8 +108,8 @@
       path() {
         return "/api/test/edit?id=" + this.report.testId;
       },
-      isCompleted() {
-        return "Completed" === this.report.status;
+      isNotRunning() {
+        return "Running" !== this.report.status;
       }
     }
   }
