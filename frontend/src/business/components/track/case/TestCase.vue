@@ -35,7 +35,7 @@
     </ms-main-container>
 
     <test-case-edit
-      @refresh="refresh"
+      @refresh="refreshTable"
       :read-only="testCaseReadOnly"
       :tree-nodes="treeNodes"
       :select-node="selectNode"
