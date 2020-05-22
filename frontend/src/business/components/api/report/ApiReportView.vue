@@ -1,5 +1,5 @@
 <template>
-  <div class="container" v-loading="result.loading">
+  <div class="container" v-loading="loading">
     <div class="main-content">
       <el-card>
         <section class="report-container" v-if="this.report.testId">
@@ -53,20 +53,23 @@
       return {
         content: {},
         report: {},
-        result: {},
+        loading: true
       }
     },
 
     methods: {
       getReport() {
+        this.loading = true;
         this.report = {};
         this.content = {};
+
         if (this.reportId) {
           let url = "/api/report/get/" + this.reportId;
-          this.result = this.$get(url, response => {
+          this.$get(url, response => {
             this.report = response.data || {};
             if (this.isCompleted) {
               this.content = JSON.parse(this.report.content);
+              this.loading = false;
             } else {
               setTimeout(this.getReport, 2000)
             }
