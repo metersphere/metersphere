@@ -109,17 +109,14 @@ export default {
     };
 
     Vue.prototype.$fileDownload = function(url) {
-      axios({
-        method: 'get',
-        url: url,
-        responseType: 'blob',
-      }).then(response => {
-        let fileName = window.decodeURI(response.headers['content-disposition'].split('=')[1]);
-        let link = document.createElement("a");
-        link.href = window.URL.createObjectURL(new Blob([response.data], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"}));
-        link.download = fileName;
-        link.click();
-      })
+      axios.get(url, {responseType: 'blob'})
+        .then(response => {
+          let fileName = window.decodeURI(response.headers['content-disposition'].split('=')[1]);
+          let link = document.createElement("a");
+          link.href = window.URL.createObjectURL(new Blob([response.data], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"}));
+          link.download = fileName;
+          link.click();
+        });
     };
 
     Vue.prototype.$fileUpload = function(url, fileList, success, failure) {
@@ -141,6 +138,5 @@ export default {
       });
       return result;
     }
-
   }
 }
