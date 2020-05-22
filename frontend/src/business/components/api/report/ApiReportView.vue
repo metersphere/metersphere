@@ -5,34 +5,22 @@
         <section class="report-container" v-if="this.report.testId">
           <header class="report-header">
             <span>{{report.projectName}} / </span>
-            <router-link :to="path">{{report.testName}} [{{report.createTime | timestampFormatDate}}]</router-link>
+            <router-link :to="path">{{report.testName}}</router-link>
+            <span class="time">{{report.createTime | timestampFormatDate}}</span>
           </header>
           <main v-if="this.isCompleted">
-            <div class="scenario-chart">
-              <ms-metric-chart :content="content"></ms-metric-chart>
-            </div>
-            <el-card>
-              <div class="scenario-header">
-                <el-row :gutter="10">
-                  <el-col :span="16">
-                    {{$t('api_report.scenario_name')}}
-                  </el-col>
-                  <el-col :span="2">
-                    {{$t('api_report.response_time')}}
-                  </el-col>
-                  <el-col :span="2">
-                    {{$t('api_report.error')}}
-                  </el-col>
-                  <el-col :span="2">
-                    {{$t('api_report.assertions')}}
-                  </el-col>
-                  <el-col :span="2">
-                    {{$t('api_report.result')}}
-                  </el-col>
-                </el-row>
-              </div>
-              <ms-scenario-result v-for="(scenario, index) in content.scenarios" :key="index" :scenario="scenario"/>
-            </el-card>
+            <ms-metric-chart :content="content"/>
+            <el-tabs v-model="activeName">
+              <el-tab-pane :label="$t('api_report.total')" name="total">
+                <ms-scenario-results :scenarios="content.scenarios"/>
+              </el-tab-pane>
+              <el-tab-pane name="fail">
+                <template slot="label">
+                  <span class="fail">{{$t('api_report.fail')}}</span>
+                </template>
+                <ms-scenario-results :scenarios="fails"/>
+              </el-tab-pane>
+            </el-tabs>
           </main>
         </section>
       </el-card>
@@ -45,23 +33,30 @@
   import MsRequestResult from "./components/RequestResult";
   import MsScenarioResult from "./components/ScenarioResult";
   import MsMetricChart from "./components/MetricChart";
+  import MsScenarioResults from "./components/ScenarioResults";
 
   export default {
     name: "MsApiReportView",
-    components: {MsMetricChart, MsScenarioResult, MsRequestResult},
+    components: {MsScenarioResults, MsMetricChart, MsScenarioResult, MsRequestResult},
     data() {
       return {
+        activeName: "total",
         content: {},
         report: {},
-        loading: true
+        loading: true,
+        fails: []
       }
     },
 
     methods: {
-      getReport() {
+      init() {
         this.loading = true;
         this.report = {};
         this.content = {};
+        this.fails = [];
+      },
+      getReport() {
+        this.init();
 
         if (this.reportId) {
           let url = "/api/report/get/" + this.reportId;
@@ -69,11 +64,31 @@
             this.report = response.data || {};
             if (this.isCompleted) {
               this.content = JSON.parse(this.report.content);
+              this.getFails();
               this.loading = false;
             } else {
               setTimeout(this.getReport, 2000)
             }
           });
+        }
+      },
+      getFails() {
+        if (this.isCompleted) {
+          this.fails = [];
+          this.content.scenarios.forEach((scenario) => {
+            let failScenario = Object.assign({}, scenario);
+            if (scenario.error > 0) {
+              this.fails.push(failScenario);
+              failScenario.requestResults = [];
+              scenario.requestResults.forEach((request) => {
+                if (!request.success) {
+                  let failRequest = Object.assign({}, request);
+                  failScenario.requestResults.push(failRequest);
+                }
+              })
+
+            }
+          })
         }
       }
     },
@@ -99,6 +114,11 @@
     }
   }
 </script>
+<style>
+  .report-container .el-tabs__header {
+    margin-bottom: 1px;
+  }
+</style>
 
 <style scoped>
   .report-container {
@@ -115,11 +135,16 @@
     text-decoration: none;
   }
 
-  .scenario-header {
-    border: 1px solid #EBEEF5;
-    background-color: #F9FCFF;
-    border-left: 0;
-    border-right: 0;
-    padding: 5px 0;
+  .report-header .time {
+    color: #909399;
+    margin-left: 10px;
+  }
+
+  .report-container .fail {
+    color: #F56C6C;
+  }
+
+  .report-container .is-active .fail {
+    color: inherit;
   }
 </style>
