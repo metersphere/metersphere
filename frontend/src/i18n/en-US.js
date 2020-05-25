@@ -88,6 +88,9 @@ export default {
     'weeks_5': 'Fri',
     'weeks_6': 'Sat',
     'test_unit': 'tests',
+    'remove': 'Remove',
+    'remove_cancel': 'Remove Failed',
+    'remove_success': 'Remove Success'
   },
   workspace: {
     'create': 'Create Workspace',
@@ -143,6 +146,7 @@ export default {
     'password_format_is_incorrect': 'Password format is incorrect (At least 8-16 characters, at least 1 uppercase letter, 1 lowercase letter and 1 number)',
     'old_password': 'Old Password',
     'new_password': 'New Password',
+    'remove_member': 'Are you sure you want to remove this member'
   },
   user: {
     'create': 'Create',
