@@ -54,7 +54,6 @@ public class ProjectController {
     }
 
     @PostMapping("/list/{goPage}/{pageSize}")
-    @RequiresRoles(RoleConstants.TEST_MANAGER)
     public Pager<List<ProjectDTO>> getProjectList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ProjectRequest request) {
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);

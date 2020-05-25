@@ -19,8 +19,8 @@
             </div>
           </el-col>
           <el-col :span="12" class="head-right">
-            <el-button plain size="mini" @click="handleSave">{{$t('commons.save')}}</el-button>
-            <el-button plain size="mini" @click="handleEdit">{{$t('test_track.plan_view.edit_component')}}</el-button>
+            <el-button v-permission="['test_manager', 'test_user']" plain size="mini" @click="handleSave">{{$t('commons.save')}}</el-button>
+            <el-button v-permission="['test_manager', 'test_user']" plain size="mini" @click="handleEdit">{{$t('test_track.plan_view.edit_component')}}</el-button>
           </el-col>
         </el-row>
 

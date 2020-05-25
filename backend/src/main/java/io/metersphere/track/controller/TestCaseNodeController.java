@@ -1,9 +1,12 @@
 package io.metersphere.track.controller;
 
 import io.metersphere.base.domain.TestCaseNode;
+import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.track.dto.TestCaseNodeDTO;
 import io.metersphere.track.request.testcase.DragNodeRequest;
 import io.metersphere.track.service.TestCaseNodeService;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -32,22 +35,26 @@ public class TestCaseNodeController {
     }
 
     @PostMapping("/add")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public String addNode(@RequestBody TestCaseNode node){
         return testCaseNodeService.addNode(node);
     }
 
     @PostMapping("/edit")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public int editNode(@RequestBody DragNodeRequest node){
         return testCaseNodeService.editNode(node);
     }
 
     @PostMapping("/delete")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public int deleteNode(@RequestBody List<String> nodeIds){
         //nodeIds 包含删除节点ID及其所有子节点ID
         return testCaseNodeService.deleteNode(nodeIds);
     }
 
     @PostMapping("/drag")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void dragNode(@RequestBody DragNodeRequest node){
         testCaseNodeService.dragNode(node);
     }

@@ -17,7 +17,6 @@
           action=""
           :on-exceed="handleExceed"
           :beforeUpload="UploadValidate"
-          :on-success="handleSuccess"
           :on-error="handleError"
           :show-file-list="false"
           :http-request="upload"
@@ -82,18 +81,6 @@
           this.errList = [];
           return true;
         },
-        handleSuccess(response) {
-
-          // let res = response.data;
-          // if (res.success) {
-          //   this.$success(this.$t('test_track.case.import.success'));
-          //   this.dialogVisible = false;
-          //   this.$emit("refresh");
-          // } else {
-          //   this.errList = res.errList;
-          // }
-          // this.fileList = [];
-        },
         handleError(err, file, fileList) {
           this.isLoading = false;
           this.$error(err.message);
@@ -106,8 +93,6 @@
           this.dialogVisible = true;
         },
         downloadTemplate() {
-          // this.$get('/test/case/export/template');
-          // fileDownload('/test/case/export/template', {});
           this.$fileDownload('/test/case/export/template');
         },
         upload(file) {
