@@ -13,18 +13,17 @@ import org.apache.jmeter.visualizers.backend.BackendListenerContext;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * JMeter BackendListener扩展, jmx脚本中使用
  */
 public class APIBackendListenerClient extends AbstractBackendListenerClient implements Serializable {
 
+    public final static String TEST_ID = "ms.test.id";
+
     private final static String THREAD_SPLIT = " ";
 
     private final static String ID_SPLIT = "-";
-
-    private final static String TEST_ID = "id";
 
     private final List<SampleResult> queue = new ArrayList<>();
 
@@ -33,11 +32,11 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
     private APIReportService apiReportService;
 
     // 测试ID
-    private String id;
+    private String testId;
 
     @Override
     public void setupTest(BackendListenerContext context) throws Exception {
-        this.id = context.getParameter(TEST_ID);
+        this.testId = context.getParameter(TEST_ID);
         apiTestService = CommonBeanFactory.getBean(APITestService.class);
         if (apiTestService == null) {
             LogUtil.error("apiTestService is required");
@@ -47,6 +46,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         if (apiReportService == null) {
             LogUtil.error("apiReportService is required");
         }
+        super.setupTest(context);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
     @Override
     public void teardownTest(BackendListenerContext context) throws Exception {
         TestResult testResult = new TestResult();
-        testResult.setTestId(id);
+        testResult.setTestId(testId);
         testResult.setTotal(queue.size());
 
         // 一个脚本里可能包含多个场景(ThreadGroup)，所以要区分开，key: 场景Id
@@ -99,7 +99,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
         testResult.getScenarios().addAll(scenarios.values());
         testResult.getScenarios().sort(Comparator.comparing(ScenarioResult::getId));
-        apiTestService.changeStatus(id, APITestStatus.Completed);
+        apiTestService.changeStatus(testId, APITestStatus.Completed);
         apiReportService.complete(testResult);
 
         queue.clear();

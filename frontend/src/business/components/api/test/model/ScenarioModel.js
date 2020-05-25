@@ -386,7 +386,6 @@ class JMXGenerator {
 
     let testPlan = new TestPlan(test.name);
     this.addScenarios(testPlan, test.scenarioDefinition);
-    this.addBackendListener(testPlan, test.id);
 
     this.jmeterTestPlan = new JMeterTestPlan();
     this.jmeterTestPlan.put(testPlan);
@@ -422,12 +421,6 @@ class JMXGenerator {
 
       testPlan.put(threadGroup);
     })
-  }
-
-  addBackendListener(testPlan, testId) {
-    let className = 'io.metersphere.api.jmeter.APIBackendListenerClient';
-    let args = [new KeyValue("id", testId)];
-    testPlan.put(new BackendListener(testId, className, args));
   }
 
   addScenarioVariables(threadGroup, scenario) {
