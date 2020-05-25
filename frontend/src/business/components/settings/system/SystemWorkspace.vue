@@ -201,7 +201,7 @@
   export default {
     name: "MsSystemWorkspace",
     components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator, MsDialogFooter},
-    mounted() {
+    activated() {
       this.list();
     },
     methods: {

@@ -386,7 +386,7 @@
         }
       }
     },
-    created() {
+    activated() {
       this.search();
       this.getAllRole();
     },
