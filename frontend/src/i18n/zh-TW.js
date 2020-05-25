@@ -152,7 +152,8 @@ export default {
     'org_admin': '組織管理員',
     'test_manager': '測試經理',
     'test_user': '測試人員',
-    'test_viewer': 'Viewer'
+    'test_viewer': 'Viewer',
+    'add': '添加角色',
   },
   report: {
     'name': '項目名稱',
