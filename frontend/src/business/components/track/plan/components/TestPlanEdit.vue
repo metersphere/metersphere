@@ -22,6 +22,7 @@
           <el-col :span="11" :offset="2">
             <el-form-item :label="$t('test_track.plan.plan_project')" :label-width="formLabelWidth" prop="projectId">
               <el-select
+                :disabled="(form.status == null) ? false : true"
                 v-model="form.projectId"
                 :placeholder="$t('test_track.plan.input_plan_project')"
                 filterable>

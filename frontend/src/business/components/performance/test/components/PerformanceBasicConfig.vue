@@ -169,7 +169,7 @@
         this.fileList.splice(index, 1);
         this.tableData.splice(index, 1);
         //
-        let i = this.uploadList.indexOf(file);
+        let i = this.uploadList.findIndex(upLoadFile => upLoadFile.name === file.name);
         if (i > -1) {
           this.uploadList.splice(i, 1);
         }

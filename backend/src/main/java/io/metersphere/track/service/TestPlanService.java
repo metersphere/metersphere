@@ -66,11 +66,21 @@ public class TestPlanService {
     ExtProjectMapper extProjectMapper;
 
     public void addTestPlan(TestPlan testPlan) {
+        if (getTestPlanByName(testPlan.getName()).size() > 0) {
+            MSException.throwException(Translator.get("plan_name_already_exists"));
+        };
         testPlan.setId(UUID.randomUUID().toString());
         testPlan.setStatus(TestPlanStatus.Prepare.name());
         testPlan.setCreateTime(System.currentTimeMillis());
         testPlan.setUpdateTime(System.currentTimeMillis());
         testPlanMapper.insert(testPlan);
+    }
+
+    public List<TestPlan> getTestPlanByName(String name) {
+        TestPlanExample example = new TestPlanExample();
+        example.createCriteria().andWorkspaceIdEqualTo(SessionUtils.getCurrentWorkspaceId())
+                .andNameEqualTo(name);
+        return testPlanMapper.selectByExample(example);
     }
 
     public TestPlan getTestPlan(String testPlanId) {
