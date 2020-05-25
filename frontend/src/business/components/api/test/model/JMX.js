@@ -163,7 +163,7 @@ export class DefaultTestElement extends TestElement {
     super(tag, {
       guiclass: guiclass,
       testclass: testclass,
-      testname: testname || tag + ' Name',
+      testname: testname === undefined ? tag + ' Name' : testname,
       enabled: enabled || true
     });
   }
@@ -171,7 +171,7 @@ export class DefaultTestElement extends TestElement {
 
 export class TestPlan extends DefaultTestElement {
   constructor(testName, props) {
-    super('TestPlan', 'TestPlanGui', 'TestPlan', testName || 'TestPlan');
+    super('TestPlan', 'TestPlanGui', 'TestPlan', testName);
 
     props = props || {};
     this.boolProp("TestPlan.functional_mode", props.mode || false);
@@ -212,7 +212,7 @@ export class ThreadGroup extends DefaultTestElement {
 
 export class PostThreadGroup extends DefaultTestElement {
   constructor(testName, props) {
-    super('PostThreadGroup', 'PostThreadGroupGui', 'PostThreadGroup', testName || 'tearDown Thread Group');
+    super('PostThreadGroup', 'PostThreadGroupGui', 'PostThreadGroup', testName);
 
     props = props || {};
     this.intProp("ThreadGroup.num_threads", props.threads || 1);
@@ -238,7 +238,7 @@ export class PostThreadGroup extends DefaultTestElement {
 
 export class DebugSampler extends DefaultTestElement {
   constructor(testName) {
-    super('DebugSampler', 'TestBeanGUI', 'DebugSampler', testName || 'Debug Sampler');
+    super('DebugSampler', 'TestBeanGUI', 'DebugSampler', testName);
 
     this.boolProp("displayJMeterProperties", false);
     this.boolProp("displayJMeterVariables", true);
@@ -248,7 +248,7 @@ export class DebugSampler extends DefaultTestElement {
 
 export class HTTPSamplerProxy extends DefaultTestElement {
   constructor(testName, request) {
-    super('HTTPSamplerProxy', 'HttpTestSampleGui', 'HTTPSamplerProxy', testName || 'HTTP Request');
+    super('HTTPSamplerProxy', 'HttpTestSampleGui', 'HTTPSamplerProxy', testName);
     this.request = request || {};
 
     this.stringProp("HTTPSampler.domain", this.request.hostname);
@@ -292,7 +292,7 @@ export class HTTPSamplerArguments extends Element {
 
 export class DurationAssertion extends DefaultTestElement {
   constructor(testName, duration) {
-    super('DurationAssertion', 'DurationAssertionGui', 'DurationAssertion', testName || 'Duration Assertion');
+    super('DurationAssertion', 'DurationAssertionGui', 'DurationAssertion', testName);
     this.duration = duration || 0;
     this.stringProp('DurationAssertion.duration', this.duration);
   }
@@ -300,7 +300,7 @@ export class DurationAssertion extends DefaultTestElement {
 
 export class ResponseAssertion extends DefaultTestElement {
   constructor(testName, assertion) {
-    super('ResponseAssertion', 'AssertionGui', 'ResponseAssertion', testName || 'Response Assertion');
+    super('ResponseAssertion', 'AssertionGui', 'ResponseAssertion', testName);
     this.assertion = assertion || {};
 
     this.stringProp('Assertion.test_field', this.assertion.field);
@@ -352,7 +352,7 @@ export class ResponseHeadersAssertion extends ResponseAssertion {
 
 export class HeaderManager extends DefaultTestElement {
   constructor(testName, headers) {
-    super('HeaderManager', 'HeaderPanel', 'HeaderManager', testName || 'HTTP Header manager');
+    super('HeaderManager', 'HeaderPanel', 'HeaderManager', testName);
     this.headers = headers || [];
 
     let collectionProp = this.collectionProp('HeaderManager.headers');
@@ -366,7 +366,7 @@ export class HeaderManager extends DefaultTestElement {
 
 export class Arguments extends DefaultTestElement {
   constructor(testName, args) {
-    super('Arguments', 'ArgumentsPanel', 'Arguments', testName || 'User Defined Variables');
+    super('Arguments', 'ArgumentsPanel', 'Arguments', testName);
     this.args = args || [];
 
     let collectionProp = this.collectionProp('Arguments.arguments');
@@ -382,7 +382,7 @@ export class Arguments extends DefaultTestElement {
 
 export class BackendListener extends DefaultTestElement {
   constructor(testName, className, args) {
-    super('BackendListener', 'BackendListenerGui', 'BackendListener', testName || 'Backend Listener');
+    super('BackendListener', 'BackendListenerGui', 'BackendListener', testName);
     this.stringProp('classname', className);
     if (args && args.length > 0) {
       this.add(new ElementArguments(args));
@@ -415,7 +415,7 @@ export class ElementArguments extends Element {
 
 export class RegexExtractor extends DefaultTestElement {
   constructor(testName, props) {
-    super('RegexExtractor', 'RegexExtractorGui', 'RegexExtractor', testName || 'Regular Expression Extractor');
+    super('RegexExtractor', 'RegexExtractorGui', 'RegexExtractor', testName);
     this.props = props || {}
     this.stringProp('RegexExtractor.useHeaders', props.headers);
     this.stringProp('RegexExtractor.refname', props.name);
@@ -428,7 +428,7 @@ export class RegexExtractor extends DefaultTestElement {
 
 export class JSONPostProcessor extends DefaultTestElement {
   constructor(testName, props) {
-    super('JSONPostProcessor', 'JSONPostProcessorGui', 'JSONPostProcessor', testName || 'JSON Extractor');
+    super('JSONPostProcessor', 'JSONPostProcessorGui', 'JSONPostProcessor', testName);
     this.props = props || {}
     this.stringProp('JSONPostProcessor.referenceNames', props.name);
     this.stringProp('JSONPostProcessor.jsonPathExprs', props.expression);
@@ -438,7 +438,7 @@ export class JSONPostProcessor extends DefaultTestElement {
 
 export class XPath2Extractor extends DefaultTestElement {
   constructor(testName, props) {
-    super('XPath2Extractor', 'XPath2ExtractorGui', 'XPath2Extractor', testName || 'XPath2 Extractor');
+    super('XPath2Extractor', 'XPath2ExtractorGui', 'XPath2Extractor', testName);
     this.props = props || {}
     this.stringProp('XPathExtractor2.default', props.default);
     this.stringProp('XPathExtractor2.refname', props.name);

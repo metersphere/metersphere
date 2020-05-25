@@ -105,7 +105,7 @@
   export default {
     name: "MsOrganizationMember",
     components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator, MsDialogFooter},
-    created() {
+    activated() {
       this.initTableData();
     },
     data() {

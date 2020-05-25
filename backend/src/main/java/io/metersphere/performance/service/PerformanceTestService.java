@@ -8,6 +8,7 @@ import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.i18n.Translator;
@@ -70,20 +71,23 @@ public class PerformanceTestService {
         LoadTestReportExample loadTestReportExample = new LoadTestReportExample();
         loadTestReportExample.createCriteria().andTestIdEqualTo(testId);
         List<LoadTestReport> loadTestReports = loadTestReportMapper.selectByExample(loadTestReportExample);
-        List<String> reportIdList = loadTestReports.stream().map(LoadTestReport::getId).collect(Collectors.toList());
 
-        // delete load_test_report_result
-        LoadTestReportResultExample loadTestReportResultExample = new LoadTestReportResultExample();
-        loadTestReportResultExample.createCriteria().andReportIdIn(reportIdList);
-        loadTestReportResultMapper.deleteByExample(loadTestReportResultExample);
+        if (!loadTestReports.isEmpty()) {
+            List<String> reportIdList = loadTestReports.stream().map(LoadTestReport::getId).collect(Collectors.toList());
 
-        // delete load_test_report, delete load_test_report_detail
-        reportIdList.forEach(reportId -> {
-            LoadTestReportDetailExample example = new LoadTestReportDetailExample();
-            example.createCriteria().andReportIdEqualTo(reportId);
-            loadTestReportDetailMapper.deleteByExample(example);
-            reportService.deleteReport(reportId);
-        });
+            // delete load_test_report_result
+            LoadTestReportResultExample loadTestReportResultExample = new LoadTestReportResultExample();
+            loadTestReportResultExample.createCriteria().andReportIdIn(reportIdList);
+            loadTestReportResultMapper.deleteByExample(loadTestReportResultExample);
+
+            // delete load_test_report, delete load_test_report_detail
+            reportIdList.forEach(reportId -> {
+                LoadTestReportDetailExample example = new LoadTestReportDetailExample();
+                example.createCriteria().andReportIdEqualTo(reportId);
+                loadTestReportDetailMapper.deleteByExample(example);
+                reportService.deleteReport(reportId);
+            });
+        }
 
         // delete load_test
         loadTestMapper.deleteByPrimaryKey(request.getId());
@@ -127,6 +131,7 @@ public class PerformanceTestService {
         }
 
         final LoadTestWithBLOBs loadTest = new LoadTestWithBLOBs();
+        loadTest.setUserId(SessionUtils.getUser().getId());
         loadTest.setId(UUID.randomUUID().toString());
         loadTest.setName(request.getName());
         loadTest.setProjectId(request.getProjectId());
@@ -210,6 +215,7 @@ public class PerformanceTestService {
         testReport.setUpdateTime(engine.getStartTime());
         testReport.setTestId(loadTest.getId());
         testReport.setName(loadTest.getName());
+        testReport.setUserId(SessionUtils.getUser().getId());
         // 启动测试
 
         try {

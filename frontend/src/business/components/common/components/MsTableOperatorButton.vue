@@ -1,5 +1,6 @@
 <template>
-  <ms-tip-button @click="exec"
+  <ms-tip-button v-permission="['test_manager', 'test_user']"
+                 @click="exec"
                  @clickStop="clickStop"
                  :type="type"
                  :tip="tip"

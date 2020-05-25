@@ -23,7 +23,7 @@
       </el-menu-item>
     </el-submenu>
 
-    <el-submenu index="3" v-permission="['test_manager','test_user','test_viewer']" v-if="isCurrentWorkspaceUser">
+    <el-submenu index="3" v-permission="['test_manager']" v-if="isCurrentWorkspaceUser">
       <template v-slot:title>
         <font-awesome-icon class="icon workspace" :icon="['far', 'list-alt']" size="lg"/>
         <span>{{$t('commons.workspace')}}</span>

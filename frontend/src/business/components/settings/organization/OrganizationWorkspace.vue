@@ -156,7 +156,7 @@
   export default {
     name: "MsOrganizationWorkspace",
     components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator, MsDialogFooter},
-    mounted() {
+    activated() {
       this.list();
     },
     computed: {

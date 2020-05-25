@@ -286,4 +286,10 @@ public class TestCaseService {
         example.createCriteria().andIdIn(request.getIds());
         testCaseMapper.deleteByExample(example);
     }
+
+    public void deleteTestCaseByProjectId(String projectId) {
+        TestCaseExample example = new TestCaseExample();
+        example.createCriteria().andProjectIdEqualTo(projectId);
+        testCaseMapper.deleteByExample(example);
+    }
 }

@@ -80,7 +80,6 @@ export default {
     'weeks_5': '周五',
     'weeks_6': '周六',
     'test_unit': '测试',
-    'set_admin': '设置为管理员',
     'system_parameter_setting': '系统参数设置',
     'connection_successful': '连接成功',
     'connection_failed': '连接失败',
@@ -118,7 +117,8 @@ export default {
     'recent': '最近的项目',
     'create': '创建项目',
     'edit': '编辑项目',
-    'delete_confirm': '这个项目确定要删除吗?',
+    'delete_confirm': '确定要删除这个项目吗?',
+    'delete_tip': '删除该项目，会删除以下资源：',
     'search_by_name': '根据名称搜索',
     'input_name': '请输入项目名称',
     'owning_workspace': '所属工作空间',
@@ -160,7 +160,8 @@ export default {
     'org_admin': '组织管理员',
     'test_manager': '测试经理',
     'test_user': '测试人员',
-    'test_viewer': 'Viewer'
+    'test_viewer': 'Viewer',
+    'add': '添加角色',
   },
   report: {
     'recent': '最近的报告',
@@ -329,6 +330,7 @@ export default {
     result: "结果",
     success: "成功",
     fail: "失败",
+    total: "全部",
     test_name: "所属测试"
   },
   test_track: {

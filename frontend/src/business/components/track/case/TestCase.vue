@@ -14,7 +14,7 @@
         @refresh="refresh"
         :tree-nodes="treeNodes"
         :type="'edit'"
-        :draggable="true"
+        :draggable="nodeTreeDraggable"
         :select-node.sync="selectNode"
         @refreshTable="refreshTable"
         :current-project="currentProject"
@@ -54,13 +54,14 @@
 
   import NodeTree from '../common/NodeTree';
   import TestCaseEdit from './components/TestCaseEdit';
-  import {CURRENT_PROJECT} from '../../../../common/js/constants';
+  import {CURRENT_PROJECT, ROLE_TEST_MANAGER, ROLE_TEST_USER} from '../../../../common/js/constants';
   import TestCaseList from "./components/TestCaseList";
   import SelectMenu from "../common/SelectMenu";
   import TestCaseMove from "./components/TestCaseMove";
   import MsContainer from "../../common/components/MsContainer";
   import MsAsideContainer from "../../common/components/MsAsideContainer";
   import MsMainContainer from "../../common/components/MsMainContainer";
+  import {hasRoles} from "../../../../common/js/utils";
 
   export default {
     name: "TestCase",
@@ -81,6 +82,7 @@
         selectParentNodes: [],
         testCaseReadOnly: true,
         selectNode: {},
+        nodeTreeDraggable: true,
       }
     },
     mounted() {
@@ -213,6 +215,9 @@
         this.refresh();
       },
       getNodeTree() {
+        if (!hasRoles(ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
+          this.nodeTreeDraggable = false;
+        }
         if (this.currentProject) {
           this.result = this.$get("/case/node/list/" + this.currentProject.id, response => {
             this.treeNodes = response.data;

@@ -8,18 +8,16 @@
           <el-menu-item :index="'/track/home'">
             {{ $t("i18n.home") }}
           </el-menu-item>
-
-          <el-submenu v-if="isCurrentWorkspaceUser"
-                      index="3" popper-class="submenu" v-permission="['test_manager']" >
+          <el-submenu v-if="isCurrentWorkspaceUser" index="3" popper-class="submenu">
             <template v-slot:title>{{$t('commons.project')}}</template>
             <ms-recent-list :options="projectRecent"/>
             <el-divider/>
             <ms-show-all :index="'/track/project/all'"/>
-            <ms-create-button :index="'/track/project/create'" :title="$t('project.create')"/>
+            <ms-create-button v-permission="['test_manager', 'test_user']" :index="'/track/project/create'" :title="$t('project.create')"/>
           </el-submenu>
 
           <el-submenu v-if="isCurrentWorkspaceUser"
-                      index="6" popper-class="submenu" v-permission="['test_manager', 'test_user']">
+                      index="6" popper-class="submenu">
             <template v-slot:title>{{$t('test_track.case.test_case')}}</template>
             <ms-recent-list :options="caseRecent"/>
             <el-divider/>
@@ -27,14 +25,13 @@
             <el-menu-item :index="testCaseEditPath" class="blank_item"></el-menu-item>
           </el-submenu>
 
-          <el-submenu v-if="isCurrentWorkspaceUser"
-                      index="7" popper-class="submenu" v-permission="['test_manager', 'test_user', 'test_viewer']">
+          <el-submenu v-if="isCurrentWorkspaceUser" index="7" popper-class="submenu">
             <template v-slot:title>{{$t('test_track.plan.test_plan')}}</template>
             <ms-recent-list :options="planRecent"/>
             <el-divider/>
             <ms-show-all :index="'/track/plan/all'"/>
             <el-menu-item :index="testPlanViewPath" class="blank_item"></el-menu-item>
-            <ms-create-button :index="'/track/plan/create'" :title="$t('test_track.plan.create_plan')"/>
+            <ms-create-button v-permission="['test_manager', 'test_user']" :index="'/track/plan/create'" :title="$t('test_track.plan.create_plan')"/>
           </el-submenu>
         </el-menu>
       </el-col>

@@ -56,7 +56,6 @@ export default {
     'personal_information': 'Personal Information',
     'exit_system': 'Exit System',
     'verification': 'Verification',
-    'set_admin': 'Set Admin',
     'system_parameter_setting': 'System Parameter Setting',
     'connection_successful': 'Connection successful',
     'connection_failed': 'Connection failed',
@@ -121,6 +120,7 @@ export default {
     'create': 'Create Project',
     'edit': 'Edit Project',
     'delete_confirm': 'Are you sure you want to delete this project?',
+    'delete_tip': 'These resources will be deleted:',
     'search_by_name': 'Search by name',
     'input_name': 'Please enter a workspace name',
     'owning_workspace': 'Owning Workspace',
@@ -163,6 +163,7 @@ export default {
     'test_manager': 'Test Manager',
     'test_user': 'Test User',
     'test_viewer': 'Test Viewer',
+    'add': 'Add Role',
   },
   report: {
     'recent': 'Recent Report',
@@ -332,6 +333,7 @@ export default {
     result: "Result",
     success: "Success",
     fail: "Fail",
+    total: "Total",
     test_name: "Test"
   },
   test_track: {

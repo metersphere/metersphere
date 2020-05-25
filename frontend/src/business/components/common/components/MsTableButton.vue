@@ -1,5 +1,5 @@
 <template>
-  <el-button @click="exec()" plain :type="type" :icon="icon" :size="size">
+  <el-button v-permission="['test_manager', 'test_user']" @click="exec()" plain :type="type" :icon="icon" :size="size">
     {{content}}
   </el-button>
 </template>

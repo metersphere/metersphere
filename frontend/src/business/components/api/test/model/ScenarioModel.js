@@ -5,8 +5,6 @@ import {
   TestElement,
   TestPlan,
   ThreadGroup,
-  PostThreadGroup,
-  DebugSampler,
   HeaderManager,
   HTTPSamplerArguments,
   ResponseCodeAssertion,
@@ -121,7 +119,6 @@ export class Test extends BaseConfig {
 export class Scenario extends BaseConfig {
   constructor(options) {
     super();
-    this.id = uuid();
     this.name = undefined;
     this.url = undefined;
     this.variables = [];
@@ -137,22 +134,11 @@ export class Scenario extends BaseConfig {
     options.requests = options.requests || [new Request()];
     return options;
   }
-
-  clone() {
-    let scenario = new Scenario(this);
-    scenario.id = uuid();
-    scenario.requests.forEach(function (request) {
-      request.id = uuid();
-    });
-
-    return scenario;
-  }
 }
 
 export class Request extends BaseConfig {
   constructor(options) {
     super();
-    this.id = uuid();
     this.name = undefined;
     this.url = undefined;
     this.method = undefined;
@@ -177,12 +163,6 @@ export class Request extends BaseConfig {
 
   isValid() {
     return !!this.url && !!this.method
-  }
-
-  clone() {
-    let request = new Request(this);
-    request.id = uuid();
-    return request;
   }
 }
 
@@ -402,17 +382,18 @@ class JMeterTestPlan extends Element {
 
 class JMXGenerator {
   constructor(test) {
-    if (!test || !(test instanceof Test)) return undefined;
-
-    if (!test.id) {
-      test.id = "#NULL_TEST_ID#";
-    }
-    const SPLIT = "@@:";
+    if (!test || !test.id || !(test instanceof Test)) return undefined;
 
     let testPlan = new TestPlan(test.name);
-    test.scenarioDefinition.forEach(scenario => {
-      let testName = scenario.name ? scenario.name + SPLIT + scenario.id : SPLIT + scenario.id;
-      let threadGroup = new ThreadGroup(testName);
+    this.addScenarios(testPlan, test.scenarioDefinition);
+
+    this.jmeterTestPlan = new JMeterTestPlan();
+    this.jmeterTestPlan.put(testPlan);
+  }
+
+  addScenarios(testPlan, scenarios) {
+    scenarios.forEach(scenario => {
+      let threadGroup = new ThreadGroup(scenario.name || "");
 
       this.addScenarioVariables(threadGroup, scenario);
 
@@ -421,9 +402,7 @@ class JMXGenerator {
       scenario.requests.forEach(request => {
         if (!request.isValid()) return;
 
-        // test.id用于处理结果时区分属于哪个测试
-        let name = request.name ? request.name + SPLIT + test.id : SPLIT + test.id;
-        let httpSamplerProxy = new HTTPSamplerProxy(name, new JMXRequest(request));
+        let httpSamplerProxy = new HTTPSamplerProxy(request.name || "", new JMXRequest(request));
 
         this.addRequestHeader(httpSamplerProxy, request);
 
@@ -440,19 +419,8 @@ class JMXGenerator {
         threadGroup.put(httpSamplerProxy);
       })
 
-      this.addBackendListener(threadGroup);
       testPlan.put(threadGroup);
-
-      // 暂时不加
-      // let tearDownThreadGroup = new PostThreadGroup();
-      // tearDownThreadGroup.put(new DebugSampler(test.id));
-      // this.addBackendListener(tearDownThreadGroup);
-      //
-      // testPlan.put(tearDownThreadGroup);
     })
-
-    this.jmeterTestPlan = new JMeterTestPlan();
-    this.jmeterTestPlan.put(testPlan);
   }
 
   addScenarioVariables(threadGroup, scenario) {
@@ -565,12 +533,6 @@ class JMXGenerator {
         testName += " XPath2Evaluator";
         return new XPath2Extractor(testName, props);
     }
-  }
-
-  addBackendListener(threadGroup) {
-    let testName = 'API Backend Listener';
-    let className = 'io.metersphere.api.jmeter.APIBackendListenerClient';
-    threadGroup.put(new BackendListener(testName, className));
   }
 
   filter(config) {

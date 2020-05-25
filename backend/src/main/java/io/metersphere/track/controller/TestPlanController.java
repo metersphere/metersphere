@@ -3,6 +3,7 @@ package io.metersphere.track.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.TestPlan;
+import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
@@ -12,6 +13,8 @@ import io.metersphere.track.dto.TestPlanDTOWithMetric;
 import io.metersphere.track.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.service.TestPlanService;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -56,16 +59,19 @@ public class TestPlanController {
     }
 
     @PostMapping("/add")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void addTestPlan(@RequestBody TestPlan testPlan){
         testPlanService.addTestPlan(testPlan);
     }
 
     @PostMapping("/edit")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void editTestPlan(@RequestBody TestPlan testPlan){
         testPlanService.editTestPlan(testPlan);
     }
 
     @PostMapping("/delete/{testPlanId}")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public int deleteTestPlan(@PathVariable String testPlanId){
         return testPlanService.deleteTestPlan(testPlanId);
     }

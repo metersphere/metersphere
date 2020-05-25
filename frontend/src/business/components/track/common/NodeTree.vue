@@ -2,7 +2,7 @@
   <div v-loading="result.loading">
     <el-input :placeholder="$t('test_track.module.search')" v-model="filterText" size="small">
       <template v-if="type == 'edit'" v-slot:append>
-        <el-button icon="el-icon-folder-add" @click="openEditNodeDialog('add')"></el-button>
+        <el-button v-permission="['test_manager', 'test_user']" icon="el-icon-folder-add" @click="openEditNodeDialog('add')"></el-button>
       </template>
     </el-input>
 
@@ -24,7 +24,7 @@
 
           <span class="node-title">{{node.label}}</span>
 
-          <span v-if="type == 'edit'" class="node-operate child">
+          <span v-if="type == 'edit'" class="node-operate child" v-permission="['test_manager', 'test_user']">
             <el-tooltip
               class="item"
               effect="dark"
