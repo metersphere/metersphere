@@ -90,7 +90,7 @@ public class APITestService {
         String reportId = apiReportService.create(get(request.getId()));
         changeStatus(request.getId(), APITestStatus.Running);
 
-        jMeterService.run(is);
+        jMeterService.run(request.getId(), is);
         return reportId;
     }
 

@@ -130,7 +130,7 @@
         total: 0,
       }
     },
-    created: function () {
+    activated: function () {
       this.initTableData();
     },
     methods: {

@@ -8,6 +8,7 @@ import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.i18n.Translator;
@@ -130,6 +131,7 @@ public class PerformanceTestService {
         }
 
         final LoadTestWithBLOBs loadTest = new LoadTestWithBLOBs();
+        loadTest.setUserId(SessionUtils.getUser().getId());
         loadTest.setId(UUID.randomUUID().toString());
         loadTest.setName(request.getName());
         loadTest.setProjectId(request.getProjectId());
@@ -213,6 +215,7 @@ public class PerformanceTestService {
         testReport.setUpdateTime(engine.getStartTime());
         testReport.setTestId(loadTest.getId());
         testReport.setName(loadTest.getName());
+        testReport.setUserId(SessionUtils.getUser().getId());
         // 启动测试
 
         try {

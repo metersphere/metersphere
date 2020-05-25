@@ -80,7 +80,6 @@ export default {
     'weeks_5': '周五',
     'weeks_6': '周六',
     'test_unit': '测试',
-    'set_admin': '设置为管理员',
     'system_parameter_setting': '系统参数设置',
     'connection_successful': '连接成功',
     'connection_failed': '连接失败',
@@ -161,7 +160,8 @@ export default {
     'org_admin': '组织管理员',
     'test_manager': '测试经理',
     'test_user': '测试人员',
-    'test_viewer': 'Viewer'
+    'test_viewer': 'Viewer',
+    'add': '添加角色',
   },
   report: {
     'recent': '最近的报告',
