@@ -28,7 +28,7 @@ public interface ParamConstants {
     }
 
     enum Classify implements ParamConstants {
-        MAIL("meter"),
+        MAIL("smtp"),
         REGISTRY("registry");
 
         private String value;
@@ -86,14 +86,15 @@ public interface ParamConstants {
         }
     }
 
-    public static enum MAIL {
-        HOST("meter.host", 1),
-        PORT("meter.port", 2),
-        ACCOUNT("meter.account", 3),
-        PASSWORD("meter.password", 4),
-        SSL("meter.ssl", 5),
-        TLS("meter.tls", 6),
-        ANON("meter.anon", 7);
+    enum MAIL {
+        SERVER("smtp.server", 1),
+        PORT("smtp.port", 2),
+        ACCOUNT("smtp.account", 3),
+        PASSWORD("smtp.password", 4),
+        SSL("smtp.ssl", 5),
+        TLS("smtp.tls", 6),
+        SMTP("smtp.smtp", 7);
+        /* ANON("smtp.anon", 7);*/
 
         private String key;
         private Integer value;
