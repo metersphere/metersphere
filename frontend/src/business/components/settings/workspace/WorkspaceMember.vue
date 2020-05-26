@@ -16,7 +16,7 @@
         </el-table-column>
         <el-table-column>
           <template v-slot:default="scope">
-            <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)"
+            <ms-table-operator :tip2="$t('commons.remove')" @editClick="edit(scope.row)" @deleteClick="del(scope.row)"
                                v-permission="['test_manager']"/>
           </template>
         </el-table-column>
@@ -174,17 +174,17 @@
         this.form = {};
       },
       del(row) {
-        this.$confirm(this.$t('member.delete_confirm'), '', {
+        this.$confirm(this.$t('member.remove_member'), '', {
           confirmButtonText: this.$t('commons.confirm'),
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
           this.result = this.$get('/user/ws/member/delete/' + this.currentUser().lastWorkspaceId + '/' + row.id,() => {
-            this.$success(this.$t('commons.delete_success'));
+            this.$success(this.$t('commons.remove_success'));
             this.initTableData();
           });
         }).catch(() => {
-          this.$info(this.$t('commons.delete_cancel'));
+          this.$info(this.$t('commons.remove_cancel'));
         });
       },
       edit(row) {
