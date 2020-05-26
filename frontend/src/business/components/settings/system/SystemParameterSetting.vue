@@ -76,7 +76,7 @@
         formInline: {
           host: 'smtp.163.com',
           port: '465',
-          account: 'xjj0608@153.com',
+          account: 'xjj0608@163.com',
           password: '2345678',
         },
         result: {},

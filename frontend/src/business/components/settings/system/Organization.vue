@@ -44,7 +44,8 @@
           <template v-slot:default="scope">
             <!--<ms-table-operator @editClick="editMember(scope.row)" @deleteClick="delMember(scope.row)"/>-->
             <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="editMember(scope.row)"/>
-            <ms-table-operator-button :tip="$t('commons.remove')" icon="el-icon-s-fold" @exec="delMember(scope.row)"/>
+            <ms-table-operator-button :tip="$t('commons.remove')" icon="el-icon-delete" type="danger"
+                                      @exec="delMember(scope.row)"/>
 
 
             <!--<el-tooltip class="item" effect="dark" :content="$t('commons.remove')" placement="bottom">
