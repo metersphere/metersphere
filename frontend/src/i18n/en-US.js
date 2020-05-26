@@ -90,7 +90,8 @@ export default {
     'test_unit': 'tests',
     'remove': 'Remove',
     'remove_cancel': 'Remove Failed',
-    'remove_success': 'Remove Success'
+    'remove_success': 'Remove Success',
+    'tips': 'The authentication information has expired, please login again'
   },
   workspace: {
     'create': 'Create Workspace',

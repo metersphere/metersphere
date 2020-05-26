@@ -29,7 +29,7 @@ export default {
       }
       return response;
     }, error => {
-      return Promise.reject(error);
+      return Promise.reject(this.$t('commons.tips'));
     });
 
     function then(success, response, result) {
