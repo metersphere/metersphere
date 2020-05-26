@@ -146,7 +146,9 @@ export default {
     'password_format_is_incorrect': 'Password format is incorrect (At least 8-16 characters, at least 1 uppercase letter, 1 lowercase letter and 1 number)',
     'old_password': 'Old Password',
     'new_password': 'New Password',
-    'remove_member': 'Are you sure you want to remove this member'
+    'remove_member': 'Are you sure you want to remove this member',
+    'input_id_or_email': 'Please enter user ID, or user Email',
+    'no_such_user': 'Without this user information, please enter the correct user ID or user Email!',
   },
   user: {
     'create': 'Create',
@@ -338,7 +340,9 @@ export default {
     success: "Success",
     fail: "Fail",
     total: "Total",
-    test_name: "Test"
+    test_name: "Test",
+    request_result: "Result",
+    sub_result: "Sub Result"
   },
   test_track: {
     test_track: "Track",

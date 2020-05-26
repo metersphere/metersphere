@@ -144,7 +144,9 @@ export default {
     'password_format_is_incorrect': '密码格式不正确(至少8-16个字符，至少1个大写字母，1个小写字母和1个数字)',
     'old_password': '旧密码',
     'new_password': '新密码',
-    'remove_member': '确定要移除该成员吗'
+    'remove_member': '确定要移除该成员吗',
+    'input_id_or_email': '请输入用户 ID, 或者 用户邮箱',
+    'no_such_user': '无此用户信息, 请输入正确的用户 ID 或者 用户邮箱！',
   },
   user: {
     'create': '创建用户',
@@ -335,7 +337,9 @@ export default {
     success: "成功",
     fail: "失败",
     total: "全部",
-    test_name: "所属测试"
+    test_name: "所属测试",
+    request_result: "请求结果",
+    sub_result: "子请求"
   },
   test_track: {
     test_track: "测试跟踪",
