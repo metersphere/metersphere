@@ -9,7 +9,9 @@
         </el-col>
         <el-col :span="12">
           <div class="name">{{request.name}}</div>
-          <div class="url">{{request.url}}</div>
+          <el-tooltip effect="dark" :content="request.url" placement="bottom" :open-delay="800">
+            <div class="url">{{request.url}}</div>
+          </el-tooltip>
         </el-col>
         <el-col :span="2">
           <div class="time">
@@ -34,10 +36,24 @@
     </div>
     <el-collapse-transition>
       <div v-show="isActive">
-        <ms-request-metric :request="request"/>
-        <ms-request-text :request="request"/>
-        <br>
-        <ms-response-text :response="request.responseResult"/>
+        <el-tabs v-model="activeName" v-show="isActive" v-if="hasSub">
+          <el-tab-pane :label="$t('api_report.sub_result')" name="sub">
+            <ms-request-result class="sub-result" v-for="(sub, index) in request.subRequestResults"
+                               :key="index" :request="sub"/>
+          </el-tab-pane>
+          <el-tab-pane :label="$t('api_report.request_result')" name="result">
+            <ms-request-metric :request="request"/>
+            <ms-request-text :request="request"/>
+            <br>
+            <ms-response-text :response="request.responseResult"/>
+          </el-tab-pane>
+        </el-tabs>
+        <div v-else>
+          <ms-request-metric :request="request"/>
+          <ms-request-text :request="request"/>
+          <br>
+          <ms-response-text :response="request.responseResult"/>
+        </div>
       </div>
     </el-collapse-transition>
   </div>
@@ -59,9 +75,7 @@
     data() {
       return {
         isActive: false,
-        activeName: "request",
-        activeName2: "body",
-        activeName3: "body",
+        activeName: "sub",
       }
     },
 
@@ -75,6 +89,9 @@
       assertion() {
         return this.request.passAssertions + " / " + this.request.totalAssertions;
       },
+      hasSub() {
+        return this.request.subRequestResults.length > 0;
+      }
     }
   }
 </script>
@@ -93,7 +110,6 @@
   }
 
   .request-result .method {
-    /*border-left: 5px solid #1E90FF;*/
     color: #1E90FF;
     font-size: 14px;
     font-weight: 500;
@@ -106,9 +122,10 @@
     font-size: 12px;
     font-weight: 400;
     margin-top: 4px;
-    overflow: auto;
-    white-space: normal;
-    word-wrap: break-word;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-break: break-all;
   }
 
   .request-result .tab .el-tabs__header {
@@ -119,4 +136,18 @@
     height: 300px;
     overflow-y: auto;
   }
+
+  .sub-result .info {
+    background-color: #FFF;
+  }
+
+  .sub-result .method {
+    border-left: 5px solid #1E90FF;
+    padding-left: 20px;
+  }
+
+  .sub-result:last-child {
+    border-bottom: 1px solid #EBEEF5;
+  }
+
 </style>

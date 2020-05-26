@@ -121,6 +121,9 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         requestResult.setTotalAssertions(result.getAssertionResults().length);
         requestResult.setSuccess(result.isSuccessful());
         requestResult.setError(result.getErrorCount());
+        for (SampleResult subResult : result.getSubResults()) {
+            requestResult.getSubRequestResults().add(getRequestResult(subResult));
+        }
 
         ResponseResult responseResult = requestResult.getResponseResult();
         responseResult.setBody(new String(result.getResponseData(), StandardCharsets.UTF_8));

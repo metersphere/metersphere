@@ -335,7 +335,9 @@ export default {
     success: "成功",
     fail: "失败",
     total: "全部",
-    test_name: "所属测试"
+    test_name: "所属测试",
+    request_result: "请求结果",
+    sub_result: "子请求"
   },
   test_track: {
     test_track: "测试跟踪",

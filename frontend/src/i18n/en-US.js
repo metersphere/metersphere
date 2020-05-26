@@ -338,7 +338,9 @@ export default {
     success: "Success",
     fail: "Fail",
     total: "Total",
-    test_name: "Test"
+    test_name: "Test",
+    request_result: "Result",
+    sub_result: "Sub Result"
   },
   test_track: {
     test_track: "Track",

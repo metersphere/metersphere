@@ -326,7 +326,9 @@ export default {
     success: "成功",
     fail: "失敗",
     total: "全部",
-    test_name: "所屬測試"
+    test_name: "所屬測試",
+    request_result: "請求結果",
+    sub_result: "子請求"
   },
   test_track: {
     test_track: "測試跟踪",
