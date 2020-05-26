@@ -12,6 +12,7 @@ import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
 import org.apache.jmeter.visualizers.backend.BackendListenerContext;
 
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -122,7 +123,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         requestResult.setError(result.getErrorCount());
 
         ResponseResult responseResult = requestResult.getResponseResult();
-        responseResult.setBody(result.getResponseDataAsString());
+        responseResult.setBody(new String(result.getResponseData(), StandardCharsets.UTF_8));
         responseResult.setHeaders(result.getResponseHeaders());
         responseResult.setLatency(result.getLatency());
         responseResult.setResponseCode(result.getResponseCode());
