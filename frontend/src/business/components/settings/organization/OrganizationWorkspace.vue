@@ -75,18 +75,23 @@
                @close="closeFunc">
       <el-form :model="memberForm" ref="form" :rules="wsMemberRule" label-position="right" label-width="100px"
                size="small">
-        <el-form-item :label="$t('commons.member')" prop="userIds">
-          <el-select v-model="memberForm.userIds" multiple :placeholder="$t('member.please_choose_member')"
-                     class="select-width">
-            <el-option
-              v-for="item in memberForm.userList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id">
-              <span class="ws-member-name">{{ item.name }}</span>
-              <span class="ws-member-email">{{ item.email }}</span>
-            </el-option>
-          </el-select>
+        <el-form-item :label="$t('commons.member')" prop="memberSign" :rules="{required: true, message: '请先选择正确的信息', trigger: 'change'}">
+          <el-autocomplete
+            class="input-with-autocomplete"
+            v-model="memberForm.memberSign"
+            placeholder="请输入用户 ID , 或者用户邮箱"
+            :trigger-on-focus="false"
+            :fetch-suggestions="querySearch"
+            size="small"
+            highlight-first-item
+            value-key="email"
+            @select="handleSelect"
+          >
+            <template v-slot:default="scope">
+              <span class="ws-member-name">{{scope.item.id}}</span>
+              <span class="ws-member-email">{{scope.item.email}}</span>
+            </template>
+          </el-autocomplete>
         </el-form-item>
         <el-form-item :label="$t('commons.role')" prop="roleIds">
           <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
@@ -256,7 +261,7 @@
         this.dialogWsMemberAddVisible = true;
         this.memberForm = {};
         this.result = this.$get('/user/list/', response => {
-          this.$set(this.memberForm, "userList", response.data);
+          this.userList = response.data;
         });
         this.result = this.$get('/role/list/test', response => {
           this.$set(this.memberForm, "roles", response.data);
@@ -315,12 +320,24 @@
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
+            let userIds = [];
+            let userId = this.memberForm.userId;
+            let email  = this.memberForm.memberSign;
+            let member = this.userList.find(user => user.id === email || user.email === email);
+            if (!member) {
+              this.$warning("未找到该用户信息，请输入正确ID 或者 邮箱！");
+              return false;
+            } else {
+              userId = member.id;
+            }
+            userIds.push(userId);
             let param = {
-              userIds: this.memberForm.userIds,
+              userIds: userIds,
               roleIds: this.memberForm.roleIds,
               workspaceId: this.currentWorkspaceRow.id
             };
             this.result = this.$post("user/ws/member/add", param, () => {
+              this.$success(this.$t('commons.save_success'));
               this.cellClick(this.currentWorkspaceRow);
               this.dialogWsMemberAddVisible = false;
             })
@@ -371,6 +388,20 @@
       buildPagePath(path) {
         return path + "/" + this.dialogCurrentPage + "/" + this.dialogPageSize;
       },
+      querySearch(queryString, cb) {
+        var userList = this.userList;
+        var results = queryString ? userList.filter(this.createFilter(queryString)) : userList;
+        // 调用 callback 返回建议列表的数据
+        cb(results);
+      },
+      createFilter(queryString) {
+        return (user) => {
+          return (user.email.indexOf(queryString.toLowerCase()) === 0 || user.id.indexOf(queryString.toLowerCase()) === 0);
+        };
+      },
+      handleSelect(item) {
+        this.$set(this.form, "userId", item.id);
+      }
     },
     data() {
       return {
@@ -382,6 +413,7 @@
         condition: {},
         dialogCondition: {},
         items: [],
+        userList: [],
         currentPage: 1,
         pageSize: 5,
         total: 0,
@@ -447,6 +479,10 @@
 
   .dialog-css >>> .el-dialog__header {
     padding: 0px;
+  }
+
+  .input-with-autocomplete {
+    width: 100%;
   }
 
 </style>
