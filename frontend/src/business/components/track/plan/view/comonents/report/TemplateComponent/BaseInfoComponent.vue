@@ -19,12 +19,12 @@
         <el-col :span="12">
           <span>{{$t('report.test_start_time')}}：</span>
           <span v-if="!isReport">{{reportInfo.startTime}}</span>
-          <el-date-picker v-if="isReport" size="mini" type="date" :placeholder="$t('test_track.commons.select_date')" v-model="reportInfo.startTime"/>
+          <el-date-picker v-if="isReport" size="mini" type="date" :placeholder="$t('commons.select_date')" v-model="reportInfo.startTime"/>
         </el-col>
         <el-col :span="12">
           <span>{{$t('report.test_end_time')}}：</span>
           <span v-if="!isReport">{{reportInfo.endTime}}</span>
-          <el-date-picker v-if="isReport" size="mini" type="date" :placeholder="$t('test_track.commons.select_date')" v-model="reportInfo.endTime"/>
+          <el-date-picker v-if="isReport" size="mini" type="date" :placeholder="$t('commons.select_date')" v-model="reportInfo.endTime"/>
         </el-col>
       </el-row>
 
