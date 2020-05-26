@@ -1,5 +1,5 @@
 <template>
-  <home-base-component  v-loading>
+  <home-base-component :title="$t('test_track.home.my_plan')" v-loading>
     <el-table
       :data="tableData"
       @row-click="intoPlan"
