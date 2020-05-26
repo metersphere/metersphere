@@ -28,11 +28,11 @@
     <el-dialog :title="$t('member.create')" :visible.sync="createVisible" width="30%" :destroy-on-close="true"
                @close="handleClose">
       <el-form :model="form" ref="form" :rules="rules" label-position="right" label-width="100px" size="small">
-        <el-form-item :label="$t('commons.member')" prop="memberSign" :rules="{required: true, message: '请先选择正确的信息', trigger: 'change'}">
+        <el-form-item :label="$t('commons.member')" prop="memberSign" :rules="{required: true, message: $t('member.input_id_or_email'), trigger: 'change'}">
           <el-autocomplete
             class="input-with-autocomplete"
             v-model="form.memberSign"
-            placeholder="请输入用户 ID , 或者用户邮箱"
+            :placeholder="$t('member.input_id_or_email')"
             :trigger-on-focus="false"
             :fetch-suggestions="querySearch"
             size="small"
@@ -51,7 +51,7 @@
             <el-option
               v-for="item in form.roles"
               :key="item.id"
-              :label="item.name"
+              :label="$t('role.' + item.id)"
               :value="item.id">
             </el-option>
           </el-select>
@@ -239,7 +239,7 @@
             let email  = this.form.memberSign;
             let member = this.userList.find(user => user.id === email || user.email === email);
             if (!member) {
-              this.$warning("未找到该用户信息，请输入正确ID 或者 邮箱！");
+              this.$warning(this.$t('member.no_such_user'));
               return false;
             } else {
               userId = member.id;

@@ -134,6 +134,9 @@ export default {
     'password_format_is_incorrect': '密碼格式不正確(至少8-16個字符,至少1個大寫字母,1個小寫字母和1個數字)',
     'old_password': '舊密碼',
     'new_password': '新密碼',
+    'remove_member': '確定要移除該成員嗎',
+    'input_id_or_email': '請輸入用戶 ID, 或者 用戶郵箱',
+    'no_such_user': '無此用戶信息, 請輸入正確的用戶 ID 或者 用戶郵箱！',
   },
   user: {
     'create': '創建用戶',
