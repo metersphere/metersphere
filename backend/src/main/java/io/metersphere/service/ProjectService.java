@@ -1,5 +1,7 @@
 package io.metersphere.service;
 
+import io.metersphere.api.dto.QueryAPITestRequest;
+import io.metersphere.api.service.APITestService;
 import io.metersphere.base.domain.LoadTest;
 import io.metersphere.base.domain.LoadTestExample;
 import io.metersphere.base.domain.Project;
@@ -14,8 +16,6 @@ import io.metersphere.dto.ProjectDTO;
 import io.metersphere.dto.ProjectRelatedResourceDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.performance.service.PerformanceTestService;
-import io.metersphere.track.dto.TestPlanDTO;
-import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.DeleteTestPlanRequest;
 import io.metersphere.track.service.TestCaseService;
@@ -24,11 +24,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -53,6 +53,8 @@ public class ProjectService {
     private TestPlanService testPlanService;
     @Resource
     private TestCaseService testCaseService;
+    @Resource
+    private APITestService apiTestService;
 
     public Project addProject(Project project) {
         if (StringUtils.isBlank(project.getName())) {
@@ -98,7 +100,7 @@ public class ProjectService {
         deleteTrackResourceByProjectId(projectId);
 
         // TODO 删除项目下 接口测试 相关
-
+        deleteAPIResourceByProjectId(projectId);
         // delete project
         projectMapper.deleteByPrimaryKey(projectId);
     }
@@ -110,6 +112,14 @@ public class ProjectService {
             testPlanService.deleteTestPlan(testPlan.getId());
         });
         testCaseService.deleteTestCaseByProjectId(projectId);
+    }
+
+    private void deleteAPIResourceByProjectId(String projectId) {
+        QueryAPITestRequest request = new QueryAPITestRequest();
+        request.setProjectId(projectId);
+        apiTestService.list(request).forEach(test -> {
+            apiTestService.delete(test.getId());
+        });
     }
 
     public void updateProject(Project project) {
