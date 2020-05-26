@@ -76,7 +76,7 @@
         formInline: {
           host: 'smtp.163.com',
           port: '465',
-          account: 'xjj0608@153.com',
+          account: 'xjj0608@163.com',
           password: '2345678',
         },
         result: {},
@@ -125,24 +125,19 @@
       },
       testConnection(formInline) {
         let param = {
-          "meter.host": this.formInline.host,
-          "meter.port": this.formInline.port,
-          "meter.account": this.formInline.account,
-          "meter.password": this.formInline.password,
-          "meter.ssl": this.SSL,
-          "meter.tls": this.TLS,
-          "meter.smtp": this.SMTP,
+          "smtp.server": this.formInline.host,
+          "smtp.port": this.formInline.port,
+          "smtp.account": this.formInline.account,
+          "smtp.password": this.formInline.password,
+          "smtp.ssl": this.SSL,
+          "smtp.tls": this.TLS,
+          "smtp.smtp": this.SMTP,
         };
         this.$refs[formInline].validate((valid) => {
           if (valid) {
             this.result = this.$post("/system/testConnection", param, response => {
-              let flag = response.success;
-              if (flag) {
-                this.$success(this.$t('commons.connection_successful'));
-              } else {
-                this.$message.error(this.$t('commons.connection_failed'));
-              }
-            });
+              this.$success(this.$t('commons.connection_successful'));
+            })
           } else {
             return false;
           }
@@ -160,13 +155,13 @@
         this.showSave = false;
         this.show = true;
         let param = [
-          {paramKey: "meter.host", paramValue: this.formInline.host, type: "text", sort: 1},
-          {paramKey: "meter.port", paramValue: this.formInline.port, type: "text", sort: 2},
-          {paramKey: "meter.account", paramValue: this.formInline.account, type: "text", sort: 3},
-          {paramKey: "meter.password", paramValue: this.formInline.password, type: "password", sort: 4},
-          {paramKey: "meter.ssl", paramValue: this.SSL, type: "text", sort: 5},
-          {paramKey: "meter.tls", paramValue: this.TLS, type: "text", sort: 6},
-          {paramKey: "meter.smtp", paramValue: this.SMTP, type: "text", sort: 7}
+          {paramKey: "smtp.host", paramValue: this.formInline.host, type: "text", sort: 1},
+          {paramKey: "smtp.port", paramValue: this.formInline.port, type: "text", sort: 2},
+          {paramKey: "smtp.account", paramValue: this.formInline.account, type: "text", sort: 3},
+          {paramKey: "smtp.password", paramValue: this.formInline.password, type: "password", sort: 4},
+          {paramKey: "smtp.ssl", paramValue: this.SSL, type: "text", sort: 5},
+          {paramKey: "smtp.tls", paramValue: this.TLS, type: "text", sort: 6},
+          {paramKey: "smtp.smtp", paramValue: this.SMTP, type: "text", sort: 7}
         ]
 
         this.$refs[formInline].validate(valid => {

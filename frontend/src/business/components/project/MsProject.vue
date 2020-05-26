@@ -142,16 +142,18 @@
         });
       },
       del(row) {
-        this.$confirm(this.$t('project.delete_confirm'), this.$t('commons.prompt'), {
-          confirmButtonText: this.$t('commons.confirm'),
-          cancelButtonText: this.$t('commons.cancel'),
-          type: 'warning'
-        }).then(() => {
-          this.$get('/project/delete/' + row.id, () => {
-            Message.success(this.$t('commons.delete_success'));
-            this.list();
+        this.getRelatedResource(row.id).then(tip => {
+          this.$confirm(tip + this.$t('project.delete_confirm'), this.$t('commons.prompt'), {
+            confirmButtonText: this.$t('commons.confirm'),
+            cancelButtonText: this.$t('commons.cancel'),
+            type: 'warning'
+          }).then(() => {
+            this.$get('/project/delete/' + row.id, () => {
+              Message.success(this.$t('commons.delete_success'));
+              this.list();
+            });
+          }).catch(() => {
           });
-        }).catch(() => {
         });
       },
       search() {
@@ -165,6 +167,29 @@
           this.total = data.itemCount;
         })
       },
+      getRelatedResource(projectId) {
+        return new Promise((resolve, reject) => {
+          this.$get('/project/related/resource/' + projectId, response => {
+            let data = response.data;
+            let result = '';
+            result = this.appendDeleteTip(result, data.testCaseCount, this.$t('test_track.case.test_case'));
+            result = this.appendDeleteTip(result, data.testPlanCount, this.$t('test_track.plan.test_plan') );
+            result = this.appendDeleteTip(result, data.loadTestCount, this.$t('commons.performance'));
+            result = this.appendDeleteTip(result, data.apiTestCount, this.$t('commons.api'));
+            if (result != '') {
+              result = this.$t('project.delete_tip') + result;
+            }
+            resolve(result);
+          });
+        });
+      },
+      appendDeleteTip(result, count, tip) {
+        if (count > 0) {
+          return result + count + "个" + tip + ',';
+        } else {
+          return result;
+        }
+      }
     }
   }
 </script>

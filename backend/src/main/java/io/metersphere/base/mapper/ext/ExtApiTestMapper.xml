@@ -29,5 +29,9 @@
         </where>
         order by api_test.update_time desc
     </select>
+    <select id="countByProjectId" resultType="java.lang.Long">
+    select count(id) from api_test
+        where project_id = #{projectId};
+    </select>
 
 </mapper>

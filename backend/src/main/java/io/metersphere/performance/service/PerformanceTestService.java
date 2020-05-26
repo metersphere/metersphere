@@ -71,20 +71,23 @@ public class PerformanceTestService {
         LoadTestReportExample loadTestReportExample = new LoadTestReportExample();
         loadTestReportExample.createCriteria().andTestIdEqualTo(testId);
         List<LoadTestReport> loadTestReports = loadTestReportMapper.selectByExample(loadTestReportExample);
-        List<String> reportIdList = loadTestReports.stream().map(LoadTestReport::getId).collect(Collectors.toList());
 
-        // delete load_test_report_result
-        LoadTestReportResultExample loadTestReportResultExample = new LoadTestReportResultExample();
-        loadTestReportResultExample.createCriteria().andReportIdIn(reportIdList);
-        loadTestReportResultMapper.deleteByExample(loadTestReportResultExample);
+        if (!loadTestReports.isEmpty()) {
+            List<String> reportIdList = loadTestReports.stream().map(LoadTestReport::getId).collect(Collectors.toList());
 
-        // delete load_test_report, delete load_test_report_detail
-        reportIdList.forEach(reportId -> {
-            LoadTestReportDetailExample example = new LoadTestReportDetailExample();
-            example.createCriteria().andReportIdEqualTo(reportId);
-            loadTestReportDetailMapper.deleteByExample(example);
-            reportService.deleteReport(reportId);
-        });
+            // delete load_test_report_result
+            LoadTestReportResultExample loadTestReportResultExample = new LoadTestReportResultExample();
+            loadTestReportResultExample.createCriteria().andReportIdIn(reportIdList);
+            loadTestReportResultMapper.deleteByExample(loadTestReportResultExample);
+
+            // delete load_test_report, delete load_test_report_detail
+            reportIdList.forEach(reportId -> {
+                LoadTestReportDetailExample example = new LoadTestReportDetailExample();
+                example.createCriteria().andReportIdEqualTo(reportId);
+                loadTestReportDetailMapper.deleteByExample(example);
+                reportService.deleteReport(reportId);
+            });
+        }
 
         // delete load_test
         loadTestMapper.deleteByPrimaryKey(request.getId());

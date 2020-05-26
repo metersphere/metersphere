@@ -27,5 +27,9 @@
         </where>
         order by load_test.update_time desc
     </select>
+    <select id="countByProjectId" resultType="java.lang.Long">
+        select count(id) from load_test
+        where project_id = #{projectId};
+    </select>
 
 </mapper>

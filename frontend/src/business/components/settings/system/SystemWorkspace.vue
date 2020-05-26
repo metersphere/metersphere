@@ -100,7 +100,10 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator @editClick="editMember(scope.row)" @deleteClick="delMember(scope.row)"/>
+            <!--<ms-table-operator @editClick="editMember(scope.row)" @deleteClick="delMember(scope.row)"/>-->
+            <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="editMember(scope.row)"/>
+            <ms-table-operator-button :tip="$t('commons.remove')" icon="el-icon-delete" type="danger"
+                                      @exec="delMember(scope.row)"/>
           </template>
         </el-table-column>
       </el-table>
@@ -194,14 +197,23 @@
   import MsTableHeader from "../../common/components/MsTableHeader";
   import MsRolesTag from "../../common/components/MsRolesTag";
   import MsTableOperator from "../../common/components/MsTableOperator";
+  import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
   import {getCurrentUser, getCurrentWorkspaceId, refreshSessionAndCookies} from "../../../../common/js/utils";
   import {DEFAULT, WORKSPACE} from "../../../../common/js/constants";
 
   export default {
     name: "MsSystemWorkspace",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator, MsDialogFooter},
-    mounted() {
+    components: {
+      MsCreateBox,
+      MsTablePagination,
+      MsTableHeader,
+      MsRolesTag,
+      MsTableOperator,
+      MsDialogFooter,
+      MsTableOperatorButton
+    },
+    activated() {
       this.list();
     },
     methods: {
@@ -376,7 +388,7 @@
         this.$set(this.memberForm, 'roleIds', roleIds);
       },
       delMember(row) {
-        this.$confirm(this.$t('member.delete_confirm'), '', {
+        this.$confirm(this.$t('member.remove_member'), '', {
           confirmButtonText: this.$t('commons.confirm'),
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
@@ -389,11 +401,11 @@
               let sign = WORKSPACE;
               refreshSessionAndCookies(sign, sourceId);
             }
-            this.$success(this.$t('commons.delete_success'));
+            this.$success(this.$t('commons.remove_success'));
             this.cellClick(this.currentWorkspaceRow);
           });
         }).catch(() => {
-          this.$info(this.$t('commons.delete_cancel'));
+          this.$info(this.$t('commons.remove_cancel'));
         });
       },
       updateWorkspaceMember() {

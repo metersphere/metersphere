@@ -5,6 +5,9 @@
     <slot name="middle"></slot>
     <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" type="danger" @exec="deleteClick" @click.stop="deleteClickStop"/>
     <slot name="behind"></slot>
+<!--
+    <ms-table-operator-button :tip="$t('commons.remove')" icon="el-icon-s-fold" type="danger" @exec="removeClick" @click.stop="removeClickStop"/>
+-->
   </span>
 
 </template>
@@ -26,7 +29,13 @@
         },
         deleteClickStop() {
           this.$emit('deleteClickStop');
-        }
+        },
+        /* removeClick(){
+            this.$emit('removeClick');
+          },
+          removeClickStop(){
+            this.$emit('removeClickStop')
+          }*/
       }
     }
 </script>

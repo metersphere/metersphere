@@ -110,7 +110,8 @@ export default {
     'recent': '最近的項目',
     'create': '創建項目',
     'edit': '編輯項目',
-    'delete_confirm': '這個項目確定要刪除嗎?',
+    'delete_confirm': '確定要刪除這個項目嗎?',
+    'delete_tip': '刪除該項目，會刪除以下資源：',
     'search_by_name': '根據名稱搜索',
     'input_name': '請輸入項目名稱',
     'owning_workspace': '所屬工作空間',
@@ -152,7 +153,8 @@ export default {
     'org_admin': '組織管理員',
     'test_manager': '測試經理',
     'test_user': '測試人員',
-    'test_viewer': 'Viewer'
+    'test_viewer': 'Viewer',
+    'add': '添加角色',
   },
   report: {
     'name': '項目名稱',

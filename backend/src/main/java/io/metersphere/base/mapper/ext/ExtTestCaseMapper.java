@@ -12,4 +12,6 @@ public interface ExtTestCaseMapper {
     List<TestCase> getTestCaseNames(@Param("request") QueryTestCaseRequest request);
 
     List<TestCaseDTO> list(@Param("request") QueryTestCaseRequest request);
+
+    Long countByProjectId(String projectId);
 }

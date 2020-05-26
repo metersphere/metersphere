@@ -56,7 +56,6 @@ export default {
     'personal_information': 'Personal Information',
     'exit_system': 'Exit System',
     'verification': 'Verification',
-    'set_admin': 'Set Admin',
     'system_parameter_setting': 'System Parameter Setting',
     'connection_successful': 'Connection successful',
     'connection_failed': 'Connection failed',
@@ -89,6 +88,9 @@ export default {
     'weeks_5': 'Fri',
     'weeks_6': 'Sat',
     'test_unit': 'tests',
+    'remove': 'Remove',
+    'remove_cancel': 'Remove Failed',
+    'remove_success': 'Remove Success'
   },
   workspace: {
     'create': 'Create Workspace',
@@ -121,6 +123,7 @@ export default {
     'create': 'Create Project',
     'edit': 'Edit Project',
     'delete_confirm': 'Are you sure you want to delete this project?',
+    'delete_tip': 'These resources will be deleted:',
     'search_by_name': 'Search by name',
     'input_name': 'Please enter a workspace name',
     'owning_workspace': 'Owning Workspace',
@@ -143,6 +146,7 @@ export default {
     'password_format_is_incorrect': 'Password format is incorrect (At least 8-16 characters, at least 1 uppercase letter, 1 lowercase letter and 1 number)',
     'old_password': 'Old Password',
     'new_password': 'New Password',
+    'remove_member': 'Are you sure you want to remove this member'
   },
   user: {
     'create': 'Create',
@@ -163,6 +167,7 @@ export default {
     'test_manager': 'Test Manager',
     'test_user': 'Test User',
     'test_viewer': 'Test Viewer',
+    'add': 'Add Role',
   },
   report: {
     'recent': 'Recent Report',

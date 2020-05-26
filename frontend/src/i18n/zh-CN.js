@@ -80,7 +80,6 @@ export default {
     'weeks_5': '周五',
     'weeks_6': '周六',
     'test_unit': '测试',
-    'set_admin': '设置为管理员',
     'system_parameter_setting': '系统参数设置',
     'connection_successful': '连接成功',
     'connection_failed': '连接失败',
@@ -88,6 +87,9 @@ export default {
     'host_cannot_be_empty': '主机不能为空',
     'port_cannot_be_empty': '端口号不能为空',
     'account_cannot_be_empty': '帐户不能为空',
+    'remove': '移除',
+    'remove_cancel': '移除失败',
+    'remove_success': '移除成功'
   },
   workspace: {
     'create': '创建工作空间',
@@ -118,7 +120,8 @@ export default {
     'recent': '最近的项目',
     'create': '创建项目',
     'edit': '编辑项目',
-    'delete_confirm': '这个项目确定要删除吗?',
+    'delete_confirm': '确定要删除这个项目吗?',
+    'delete_tip': '删除该项目，会删除以下资源：',
     'search_by_name': '根据名称搜索',
     'input_name': '请输入项目名称',
     'owning_workspace': '所属工作空间',
@@ -141,6 +144,7 @@ export default {
     'password_format_is_incorrect': '密码格式不正确(至少8-16个字符，至少1个大写字母，1个小写字母和1个数字)',
     'old_password': '旧密码',
     'new_password': '新密码',
+    'remove_member': '确定要移除该成员吗'
   },
   user: {
     'create': '创建用户',
@@ -160,7 +164,8 @@ export default {
     'org_admin': '组织管理员',
     'test_manager': '测试经理',
     'test_user': '测试人员',
-    'test_viewer': 'Viewer'
+    'test_viewer': 'Viewer',
+    'add': '添加角色',
   },
   report: {
     'recent': '最近的报告',

@@ -148,7 +148,7 @@
       }
     },
 
-    created() {
+    activated() {
       this.initTableData();
     },
     methods: {
