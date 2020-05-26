@@ -5,9 +5,8 @@ import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.jmeter.TestResult;
-import io.metersphere.base.domain.ApiTest;
-import io.metersphere.base.domain.ApiTestReport;
-import io.metersphere.base.domain.ApiTestReportExample;
+import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.ApiTestReportDetailMapper;
 import io.metersphere.base.mapper.ApiTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestReportMapper;
 import io.metersphere.commons.constants.APITestStatus;
@@ -18,6 +17,7 @@ import io.metersphere.i18n.Translator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -33,6 +33,8 @@ public class APIReportService {
     @Resource
     private ApiTestReportMapper apiTestReportMapper;
     @Resource
+    private ApiTestReportDetailMapper apiTestReportDetailMapper;
+    @Resource
     private ExtApiTestReportMapper extApiTestReportMapper;
 
     public List<APIReportResult> list(QueryAPIReportRequest request) {
@@ -44,7 +46,12 @@ public class APIReportService {
     }
 
     public APIReportResult get(String reportId) {
-        return extApiTestReportMapper.get(reportId);
+        APIReportResult result = extApiTestReportMapper.get(reportId);
+        ApiTestReportDetail detail = apiTestReportDetailMapper.selectByPrimaryKey(reportId);
+        if (detail != null) {
+            result.setContent(new String(detail.getContent(), StandardCharsets.UTF_8));
+        }
+        return result;
     }
 
     public List<APIReportResult> listByTestId(String testId) {
@@ -52,6 +59,7 @@ public class APIReportService {
     }
 
     public void delete(DeleteAPIReportRequest request) {
+        apiTestReportDetailMapper.deleteByPrimaryKey(request.getId());
         apiTestReportMapper.deleteByPrimaryKey(request.getId());
     }
 
@@ -59,6 +67,10 @@ public class APIReportService {
         ApiTestReportExample example = new ApiTestReportExample();
         example.createCriteria().andTestIdEqualTo(testId);
         apiTestReportMapper.deleteByExample(example);
+
+        ApiTestReportDetailExample detailExample = new ApiTestReportDetailExample();
+        detailExample.createCriteria().andTestIdEqualTo(testId);
+        apiTestReportDetailMapper.deleteByExample(detailExample);
     }
 
     public void complete(TestResult result) {
@@ -66,7 +78,14 @@ public class APIReportService {
         if (report == null) {
             MSException.throwException(Translator.get("api_report_is_null"));
         }
-        report.setContent(JSONObject.toJSONString(result));
+        // report detail
+        ApiTestReportDetail detail = new ApiTestReportDetail();
+        detail.setReportId(report.getId());
+        detail.setTestId(report.getTestId());
+        detail.setContent(JSONObject.toJSONString(result).getBytes(StandardCharsets.UTF_8));
+        apiTestReportDetailMapper.insert(detail);
+
+        // report
         report.setUpdateTime(System.currentTimeMillis());
         report.setStatus(APITestStatus.Completed.name());
         apiTestReportMapper.updateByPrimaryKeySelective(report);

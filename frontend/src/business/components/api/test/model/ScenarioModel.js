@@ -1,16 +1,18 @@
 import {
   Element,
-  HTTPSamplerProxy,
-  HashTree,
   TestElement,
+  HashTree,
   TestPlan,
   ThreadGroup,
   HeaderManager,
+  HTTPSamplerProxy,
   HTTPSamplerArguments,
+  Arguments,
+  DurationAssertion,
   ResponseCodeAssertion,
   ResponseDataAssertion,
   ResponseHeadersAssertion,
-  BackendListener, RegexExtractor, JSONPostProcessor, XPath2Extractor, Arguments
+  RegexExtractor, JSONPostProcessor, XPath2Extractor,
 } from "./JMX";
 
 export const uuid = function () {
@@ -460,7 +462,7 @@ class JMXGenerator {
       body = request.body.kvs.filter(this.filter);
     } else {
       httpSamplerProxy.boolProp('HTTPSampler.postBodyRaw', true);
-      body.push({name: '', value: request.body.raw});
+      body.push({name: '', value: request.body.raw, encode: false});
     }
 
     httpSamplerProxy.add(new HTTPSamplerArguments(body));
@@ -475,7 +477,8 @@ class JMXGenerator {
     }
 
     if (assertions.duration.isValid()) {
-      httpSamplerProxy.put(assertions.duration.type, assertions.duration.value);
+      let name = "Response In Time :" + assertions.duration.value
+      httpSamplerProxy.put(new DurationAssertion(name, assertions.duration.value));
     }
   }
 

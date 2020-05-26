@@ -61,7 +61,7 @@ public class APITestController {
 
     @PostMapping("/delete")
     public void delete(@RequestBody DeleteAPITestRequest request) {
-        apiTestService.delete(request);
+        apiTestService.delete(request.getId());
     }
 
     @PostMapping(value = "/run")

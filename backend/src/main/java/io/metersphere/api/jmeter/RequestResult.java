@@ -2,6 +2,9 @@ package io.metersphere.api.jmeter;
 
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 public class RequestResult {
 
@@ -26,6 +29,8 @@ public class RequestResult {
     private int totalAssertions = 0;
 
     private int passAssertions = 0;
+
+    private final List<RequestResult> subRequestResults = new ArrayList<>();
 
     private final ResponseResult responseResult = new ResponseResult();
 

@@ -28,24 +28,29 @@ export class Element {
     }
   }
 
-  commonValue(tag, name, value) {
-    return this.add(new Element(tag, {name: name}, value));
+  getDefault(value, defaultValue) {
+    return value === undefined ? defaultValue : value;
   }
 
-  boolProp(name, value) {
-    return this.commonValue('boolProp', name, value);
+  commonValue(tag, name, value, defaultValue) {
+    let v = this.getDefault(value, defaultValue)
+    return this.add(new Element(tag, {name: name}, v));
   }
 
-  intProp(name, value) {
-    return this.commonValue('intProp', name, value);
+  boolProp(name, value, defaultValue) {
+    return this.commonValue('boolProp', name, value, defaultValue);
   }
 
-  longProp(name, value) {
-    return this.commonValue('longProp', name, value);
+  intProp(name, value, defaultValue) {
+    return this.commonValue('intProp', name, value, defaultValue);
   }
 
-  stringProp(name, value) {
-    return this.commonValue('stringProp', name, value);
+  longProp(name, value, defaultValue) {
+    return this.commonValue('longProp', name, value, defaultValue);
+  }
+
+  stringProp(name, value, defaultValue) {
+    return this.commonValue('stringProp', name, value, defaultValue);
   }
 
   collectionProp(name) {
@@ -174,9 +179,9 @@ export class TestPlan extends DefaultTestElement {
     super('TestPlan', 'TestPlanGui', 'TestPlan', testName);
 
     props = props || {};
-    this.boolProp("TestPlan.functional_mode", props.mode || false);
-    this.boolProp("TestPlan.serialize_threadgroups", props.stg || false);
-    this.boolProp("TestPlan.tearDown_on_shutdown", props.tos || true);
+    this.boolProp("TestPlan.functional_mode", props.mode, false);
+    this.boolProp("TestPlan.serialize_threadgroups", props.stg, false);
+    this.boolProp("TestPlan.tearDown_on_shutdown", props.tos, true);
     this.stringProp("TestPlan.comments", props.comments);
     this.stringProp("TestPlan.user_define_classpath", props.classpath);
     this.add(new ElementArguments(props.args, "TestPlan.user_defined_variables", "User Defined Variables"));
@@ -188,12 +193,12 @@ export class ThreadGroup extends DefaultTestElement {
     super('ThreadGroup', 'ThreadGroupGui', 'ThreadGroup', testName);
 
     props = props || {};
-    this.intProp("ThreadGroup.num_threads", props.threads || 1);
-    this.intProp("ThreadGroup.ramp_time", props.ramp || 1);
-    this.longProp("ThreadGroup.delay", props.delay || 0);
-    this.longProp("ThreadGroup.duration", props.delay || 0);
-    this.stringProp("ThreadGroup.on_sample_error", props.error || "continue");
-    this.boolProp("ThreadGroup.scheduler", props.scheduler || false);
+    this.intProp("ThreadGroup.num_threads", props.threads, 1);
+    this.intProp("ThreadGroup.ramp_time", props.ramp, 1);
+    this.longProp("ThreadGroup.delay", props.delay, 0);
+    this.longProp("ThreadGroup.duration", props.delay, 0);
+    this.stringProp("ThreadGroup.on_sample_error", props.error, "continue");
+    this.boolProp("ThreadGroup.scheduler", props.scheduler, false);
 
     let loopAttrs = {
       name: "ThreadGroup.main_controller",
@@ -205,44 +210,8 @@ export class ThreadGroup extends DefaultTestElement {
     };
     let loopProps = props.loopProps || {};
     let loopController = this.add(new Element('elementProp', loopAttrs));
-    loopController.boolProp('LoopController.continue_forever', loopProps.continue || false);
-    loopController.stringProp('LoopController.loops', loopProps.loops || 1);
-  }
-}
-
-export class PostThreadGroup extends DefaultTestElement {
-  constructor(testName, props) {
-    super('PostThreadGroup', 'PostThreadGroupGui', 'PostThreadGroup', testName);
-
-    props = props || {};
-    this.intProp("ThreadGroup.num_threads", props.threads || 1);
-    this.intProp("ThreadGroup.ramp_time", props.ramp || 1);
-    this.boolProp("ThreadGroup.scheduler", props.scheduler || false);
-    this.stringProp("ThreadGroup.on_sample_error", props.error || "continue");
-
-    let loopAttrs = {
-      name: "ThreadGroup.main_controller",
-      elementType: "LoopController",
-      guiclass: "LoopControlPanel",
-      testclass: "LoopController",
-      testname: "Loop Controller",
-      enabled: "true"
-    };
-
-    let loopProps = props.loopProps || {};
-    let loopController = this.add(new Element('elementProp', loopAttrs));
-    loopController.boolProp('LoopController.continue_forever', loopProps.continue || false);
-    loopController.stringProp('LoopController.loops', loopProps.loops || 1);
-  }
-}
-
-export class DebugSampler extends DefaultTestElement {
-  constructor(testName) {
-    super('DebugSampler', 'TestBeanGUI', 'DebugSampler', testName);
-
-    this.boolProp("displayJMeterProperties", false);
-    this.boolProp("displayJMeterVariables", true);
-    this.boolProp("displaySystemProperties", false);
+    loopController.boolProp('LoopController.continue_forever', loopProps.continue, false);
+    loopController.stringProp('LoopController.loops', loopProps.loops, 1);
   }
 }
 
@@ -260,6 +229,8 @@ export class HTTPSamplerProxy extends DefaultTestElement {
     } else {
       this.stringProp("HTTPSampler.port", this.request.port);
     }
+
+    this.boolProp("HTTPSampler.follow_redirects", this.request.follow, true);
   }
 }
 
@@ -279,8 +250,8 @@ export class HTTPSamplerArguments extends Element {
     let collectionProp = this.collectionProp('Arguments.arguments');
     this.args.forEach(arg => {
       let elementProp = collectionProp.elementProp(arg.name, 'HTTPArgument');
-      elementProp.boolProp('HTTPArgument.always_encode', arg.encode || true);
-      elementProp.boolProp('HTTPArgument.use_equals', arg.equals || true);
+      elementProp.boolProp('HTTPArgument.always_encode', arg.encode, true);
+      elementProp.boolProp('HTTPArgument.use_equals', arg.equals, true);
       if (arg.name) {
         elementProp.stringProp('Argument.name', arg.name);
       }
@@ -375,18 +346,8 @@ export class Arguments extends DefaultTestElement {
       elementProp.stringProp('Argument.name', arg.name);
       elementProp.stringProp('Argument.value', arg.value);
       elementProp.stringProp('Argument.desc', arg.desc);
-      elementProp.stringProp('Argument.metadata', arg.metadata || "=");
+      elementProp.stringProp('Argument.metadata', arg.metadata, "=");
     });
-  }
-}
-
-export class BackendListener extends DefaultTestElement {
-  constructor(testName, className, args) {
-    super('BackendListener', 'BackendListenerGui', 'BackendListener', testName);
-    this.stringProp('classname', className);
-    if (args && args.length > 0) {
-      this.add(new ElementArguments(args));
-    }
   }
 }
 
@@ -407,7 +368,7 @@ export class ElementArguments extends Element {
         let elementProp = collectionProp.elementProp(arg.name, 'Argument');
         elementProp.stringProp('Argument.name', arg.name);
         elementProp.stringProp('Argument.value', arg.value);
-        elementProp.stringProp('Argument.metadata', arg.metadata || "=");
+        elementProp.stringProp('Argument.metadata', arg.metadata, "=");
       });
     }
   }

@@ -76,7 +76,7 @@
         formInline: {
           host: 'smtp.163.com',
           port: '465',
-          account: 'xjj0608@153.com',
+          account: 'xjj0608@163.com',
           password: '2345678',
         },
         result: {},
@@ -136,15 +136,8 @@
         this.$refs[formInline].validate((valid) => {
           if (valid) {
             this.result = this.$post("/system/testConnection", param, response => {
-              let flag = response.success;
-              if (flag) {
-                this.$success(this.$t('commons.connection_successful'));
-              } else {
-                this.$error(this.$t('commons.connection_failed'));
-              }
-            }).catch(() => {
-              this.$info(this.$t('commons.connection_failed'));
-            });
+              this.$success(this.$t('commons.connection_successful'));
+            })
           } else {
             return false;
           }

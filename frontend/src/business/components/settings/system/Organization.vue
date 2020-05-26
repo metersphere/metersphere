@@ -42,7 +42,15 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator @editClick="editMember(scope.row)" @deleteClick="delMember(scope.row)"/>
+            <!--<ms-table-operator @editClick="editMember(scope.row)" @deleteClick="delMember(scope.row)"/>-->
+            <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="editMember(scope.row)"/>
+            <ms-table-operator-button :tip="$t('commons.remove')" icon="el-icon-delete" type="danger"
+                                      @exec="delMember(scope.row)"/>
+
+
+            <!--<el-tooltip class="item" effect="dark" :content="$t('commons.remove')" placement="bottom">
+              <el-button :icon="el-icon-remove-outline">下边</el-button>
+            </el-tooltip>-->
           </template>
         </el-table-column>
       </el-table>
@@ -173,13 +181,22 @@
   import MsTableHeader from "../../common/components/MsTableHeader";
   import MsRolesTag from "../../common/components/MsRolesTag";
   import MsTableOperator from "../../common/components/MsTableOperator";
+  import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
   import {getCurrentOrganizationId, getCurrentUser, refreshSessionAndCookies} from "../../../../common/js/utils";
   import {DEFAULT, ORGANIZATION} from "../../../../common/js/constants";
 
   export default {
     name: "MsOrganization",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator, MsDialogFooter},
+    components: {
+      MsCreateBox,
+      MsTablePagination,
+      MsTableHeader,
+      MsRolesTag,
+      MsTableOperator,
+      MsDialogFooter,
+      MsTableOperatorButton
+    },
     data() {
       return {
         queryPath: '/organization/list',
@@ -324,7 +341,7 @@
         });
       },
       delMember(row) {
-        this.$confirm(this.$t('member.delete_confirm'), '', {
+        this.$confirm(this.$t('member.remove_member'), '', {
           confirmButtonText: this.$t('commons.confirm'),
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
@@ -337,11 +354,11 @@
               let sign = ORGANIZATION;
               refreshSessionAndCookies(sign, sourceId);
             }
-            this.$success(this.$t('commons.delete_success'))
+            this.$success(this.$t('commons.remove_success'))
             this.cellClick(this.currentRow);
           });
         }).catch(() => {
-          this.$info(this.$t('commons.delete_cancel'));
+          this.$info(this.$t('commons.remove_cancel'));
         });
       },
       createOrganization(createOrganizationForm) {

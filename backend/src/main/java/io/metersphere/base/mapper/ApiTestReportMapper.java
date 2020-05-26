@@ -16,21 +16,15 @@ public interface ApiTestReportMapper {
 
     int insertSelective(ApiTestReport record);
 
-    List<ApiTestReport> selectByExampleWithBLOBs(ApiTestReportExample example);
-
     List<ApiTestReport> selectByExample(ApiTestReportExample example);
 
     ApiTestReport selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") ApiTestReport record, @Param("example") ApiTestReportExample example);
 
-    int updateByExampleWithBLOBs(@Param("record") ApiTestReport record, @Param("example") ApiTestReportExample example);
-
     int updateByExample(@Param("record") ApiTestReport record, @Param("example") ApiTestReportExample example);
 
     int updateByPrimaryKeySelective(ApiTestReport record);
-
-    int updateByPrimaryKeyWithBLOBs(ApiTestReport record);
 
     int updateByPrimaryKey(ApiTestReport record);
 }

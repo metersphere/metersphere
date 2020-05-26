@@ -11,9 +11,6 @@
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="user_id" jdbcType="VARCHAR" property="userId" />
   </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiTestReport">
-    <result column="content" jdbcType="LONGVARCHAR" property="content" />
-  </resultMap>
   <sql id="Example_Where_Clause">
     <where>
       <foreach collection="oredCriteria" item="criteria" separator="or">
@@ -75,25 +72,6 @@
   <sql id="Base_Column_List">
     id, test_id, name, description, create_time, update_time, status, user_id
   </sql>
-  <sql id="Blob_Column_List">
-    content
-  </sql>
-  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.ApiTestReportExample" resultMap="ResultMapWithBLOBs">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
-    from api_test_report
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.ApiTestReportExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
@@ -108,11 +86,9 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
     from api_test_report
     where id = #{id,jdbcType=VARCHAR}
   </select>
@@ -129,12 +105,10 @@
   <insert id="insert" parameterType="io.metersphere.base.domain.ApiTestReport">
     insert into api_test_report (id, test_id, name, 
       description, create_time, update_time, 
-      status, user_id, content
-      )
+      status, user_id)
     values (#{id,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{status,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR}
-      )
+      #{status,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiTestReport">
     insert into api_test_report
@@ -163,9 +137,6 @@
       <if test="userId != null">
         user_id,
       </if>
-      <if test="content != null">
-        content,
-      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -191,9 +162,6 @@
       </if>
       <if test="userId != null">
         #{userId,jdbcType=VARCHAR},
-      </if>
-      <if test="content != null">
-        #{content,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -230,25 +198,7 @@
       <if test="record.userId != null">
         user_id = #{record.userId,jdbcType=VARCHAR},
       </if>
-      <if test="record.content != null">
-        content = #{record.content,jdbcType=LONGVARCHAR},
-      </if>
     </set>
-    <if test="_parameter != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExampleWithBLOBs" parameterType="map">
-    update api_test_report
-    set id = #{record.id,jdbcType=VARCHAR},
-      test_id = #{record.testId,jdbcType=VARCHAR},
-      name = #{record.name,jdbcType=VARCHAR},
-      description = #{record.description,jdbcType=VARCHAR},
-      create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT},
-      status = #{record.status,jdbcType=VARCHAR},
-      user_id = #{record.userId,jdbcType=VARCHAR},
-      content = #{record.content,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -291,22 +241,7 @@
       <if test="userId != null">
         user_id = #{userId,jdbcType=VARCHAR},
       </if>
-      <if test="content != null">
-        content = #{content,jdbcType=LONGVARCHAR},
-      </if>
     </set>
-    where id = #{id,jdbcType=VARCHAR}
-  </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.ApiTestReport">
-    update api_test_report
-    set test_id = #{testId,jdbcType=VARCHAR},
-      name = #{name,jdbcType=VARCHAR},
-      description = #{description,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT},
-      status = #{status,jdbcType=VARCHAR},
-      user_id = #{userId,jdbcType=VARCHAR},
-      content = #{content,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.ApiTestReport">

@@ -73,10 +73,10 @@ public class APITestService {
         return apiTestMapper.selectByPrimaryKey(id);
     }
 
-    public void delete(DeleteAPITestRequest request) {
-        deleteFileByTestId(request.getId());
-        apiReportService.deleteByTestId(request.getId());
-        apiTestMapper.deleteByPrimaryKey(request.getId());
+    public void delete(String testId) {
+        deleteFileByTestId(testId);
+        apiReportService.deleteByTestId(testId);
+        apiTestMapper.deleteByPrimaryKey(testId);
     }
 
     public String run(SaveAPITestRequest request) {

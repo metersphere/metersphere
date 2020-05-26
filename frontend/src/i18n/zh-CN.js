@@ -87,6 +87,9 @@ export default {
     'host_cannot_be_empty': '主机不能为空',
     'port_cannot_be_empty': '端口号不能为空',
     'account_cannot_be_empty': '帐户不能为空',
+    'remove': '移除',
+    'remove_cancel': '移除失败',
+    'remove_success': '移除成功'
   },
   workspace: {
     'create': '创建工作空间',
@@ -141,6 +144,7 @@ export default {
     'password_format_is_incorrect': '密码格式不正确(至少8-16个字符，至少1个大写字母，1个小写字母和1个数字)',
     'old_password': '旧密码',
     'new_password': '新密码',
+    'remove_member': '确定要移除该成员吗'
   },
   user: {
     'create': '创建用户',
@@ -331,7 +335,9 @@ export default {
     success: "成功",
     fail: "失败",
     total: "全部",
-    test_name: "所属测试"
+    test_name: "所属测试",
+    request_result: "请求结果",
+    sub_result: "子请求"
   },
   test_track: {
     test_track: "测试跟踪",
