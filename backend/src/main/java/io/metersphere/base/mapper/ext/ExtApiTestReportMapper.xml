@@ -46,7 +46,7 @@
     <select id="get" resultMap="BaseResultMap">
         SELECT r.*, t.name AS test_name, project.name AS project_name, user.name AS user_name
         FROM api_test_report r JOIN api_test t ON r.test_id = t.id
-        JOIN project ON project.id = t.project_id
+        LEFT JOIN project ON project.id = t.project_id
         LEFT JOIN user ON user.id = r.user_id
         <where>
             r.id = #{id}

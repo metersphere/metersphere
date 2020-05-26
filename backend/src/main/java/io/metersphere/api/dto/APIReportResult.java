@@ -13,4 +13,6 @@ public class APIReportResult extends ApiTestReport {
     private String projectName;
 
     private String userName;
+
+    private String content;
 }

@@ -21,7 +21,5 @@ public class ApiTestReport implements Serializable {
 
     private String userId;
 
-    private String content;
-
     private static final long serialVersionUID = 1L;
 }

@@ -1,6 +1,7 @@
 package io.metersphere.config;
 
 import com.github.pagehelper.PageInterceptor;
+import io.metersphere.base.domain.ApiTestReportDetail;
 import io.metersphere.base.domain.FileContent;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.utils.CompressUtils;
@@ -41,6 +42,7 @@ public class MybatisConfig {
         MybatisInterceptor interceptor = new MybatisInterceptor();
         List<MybatisInterceptorConfig> configList = new ArrayList<>();
         configList.add(new MybatisInterceptorConfig(FileContent.class, "file", CompressUtils.class, "zip", "unzip"));
+        configList.add(new MybatisInterceptorConfig(ApiTestReportDetail.class, "content", CompressUtils.class, "compress", "decompress"));
         configList.add(new MybatisInterceptorConfig(TestResource.class, "configuration"));
         interceptor.setInterceptorConfigList(configList);
         return interceptor;
