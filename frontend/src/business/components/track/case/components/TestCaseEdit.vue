@@ -86,7 +86,7 @@
         </el-row>
         <el-row type="flex" justify="center" style="margin-top: 10px;">
           <el-col :span="20">
-            <el-form-item>
+            <el-form-item prop="prerequisite">
               <el-input :disabled="readOnly" v-model="form.prerequisite"
                         type="textarea"
                         :autosize="{ minRows: 2, maxRows: 4}"
@@ -233,6 +233,7 @@
           priority :[{required: true, message: this.$t('test_track.case.input_priority'), trigger: 'change'}],
           type :[{required: true, message: this.$t('test_track.case.input_type'), trigger: 'change'}],
           method :[{required: true, message: this.$t('test_track.case.input_method'), trigger: 'change'}],
+          prerequisite :[{ max: 300, message: this.$t('test_track.length_less_than') + '300', trigger: 'blur'}],
           remark :[{ max: 300, message: this.$t('test_track.length_less_than') + '300', trigger: 'blur'}]
         },
         formLabelWidth: "120px",
