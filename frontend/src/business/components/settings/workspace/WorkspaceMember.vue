@@ -16,7 +16,7 @@
         </el-table-column>
         <el-table-column>
           <template v-slot:default="scope">
-            <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)"
+            <ms-table-operator :tip2="$t('commons.remove')" @editClick="edit(scope.row)" @deleteClick="del(scope.row)"
                                v-permission="['test_manager']"/>
           </template>
         </el-table-column>
@@ -28,25 +28,30 @@
     <el-dialog :title="$t('member.create')" :visible.sync="createVisible" width="30%" :destroy-on-close="true"
                @close="handleClose">
       <el-form :model="form" ref="form" :rules="rules" label-position="right" label-width="100px" size="small">
-        <el-form-item :label="$t('commons.member')" prop="userIds">
-          <el-select v-model="form.userIds" multiple :placeholder="$t('member.please_choose_member')"
-                     class="select-width">
-            <el-option
-              v-for="item in form.userList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id">
-              <span class="workspace-member-name">{{ item.name }}</span>
-              <span class="workspace-member-email">{{ item.email }}</span>
-            </el-option>
-          </el-select>
+        <el-form-item :label="$t('commons.member')" prop="memberSign" :rules="{required: true, message: $t('member.input_id_or_email'), trigger: 'change'}">
+          <el-autocomplete
+            class="input-with-autocomplete"
+            v-model="form.memberSign"
+            :placeholder="$t('member.input_id_or_email')"
+            :trigger-on-focus="false"
+            :fetch-suggestions="querySearch"
+            size="small"
+            highlight-first-item
+            value-key="email"
+            @select="handleSelect"
+          >
+            <template v-slot:default="scope">
+              <span class="workspace-member-name">{{scope.item.id}}</span>
+              <span class="workspace-member-email">{{scope.item.email}}</span>
+            </template>
+          </el-autocomplete>
         </el-form-item>
         <el-form-item :label="$t('commons.role')" prop="roleIds">
           <el-select v-model="form.roleIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
             <el-option
               v-for="item in form.roles"
               :key="item.id"
-              :label="item.name"
+              :label="$t('role.' + item.id)"
               :value="item.id">
             </el-option>
           </el-select>
@@ -116,6 +121,7 @@
         queryPath: "/user/ws/member/list",
         condition: {},
         tableData: [],
+        userList: [],
         rules: {
           userIds: [
             {required: true, message: this.$t('member.please_choose_member'), trigger: ['blur']}
@@ -168,17 +174,17 @@
         this.form = {};
       },
       del(row) {
-        this.$confirm(this.$t('member.delete_confirm'), '', {
+        this.$confirm(this.$t('member.remove_member'), '', {
           confirmButtonText: this.$t('commons.confirm'),
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
           this.result = this.$get('/user/ws/member/delete/' + this.currentUser().lastWorkspaceId + '/' + row.id,() => {
-            this.$success(this.$t('commons.delete_success'));
+            this.$success(this.$t('commons.remove_success'));
             this.initTableData();
           });
         }).catch(() => {
-          this.$info(this.$t('commons.delete_cancel'));
+          this.$info(this.$t('commons.remove_cancel'));
         });
       },
       edit(row) {
@@ -219,7 +225,7 @@
         }
         this.$post('/user/org/member/list/all', param, response => {
           this.createVisible = true;
-          this.$set(this.form, "userList", response.data);
+          this.userList = response.data;
         })
         this.result = this.$get('/role/list/test', response => {
           this.$set(this.form, "roles", response.data);
@@ -228,17 +234,43 @@
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
+            let userIds = [];
+            let userId = this.form.userId;
+            let email  = this.form.memberSign;
+            let member = this.userList.find(user => user.id === email || user.email === email);
+            if (!member) {
+              this.$warning(this.$t('member.no_such_user'));
+              return false;
+            } else {
+              userId = member.id;
+            }
+            userIds.push(userId);
             let param = {
-              userIds: this.form.userIds,
+              userIds: userIds,
               roleIds: this.form.roleIds,
               workspaceId: this.currentUser().lastWorkspaceId
             };
             this.result = this.$post("user/ws/member/add", param, () => {
+              this.$success(this.$t('commons.save_success'));
               this.initTableData();
               this.createVisible = false;
             })
           }
         });
+      },
+      querySearch(queryString, cb) {
+        var userList = this.userList;
+        var results = queryString ? userList.filter(this.createFilter(queryString)) : userList;
+        // 调用 callback 返回建议列表的数据
+        cb(results);
+      },
+      createFilter(queryString) {
+        return (user) => {
+          return (user.email.indexOf(queryString.toLowerCase()) === 0 || user.id.indexOf(queryString.toLowerCase()) === 0);
+        };
+      },
+      handleSelect(item) {
+        this.$set(this.form, "userId", item.id);
       }
     }
   }
@@ -262,6 +294,10 @@
     float: right;
     color: #8492a6;
     font-size: 13px;
+  }
+
+  .input-with-autocomplete {
+    width: 100%;
   }
 
 </style>

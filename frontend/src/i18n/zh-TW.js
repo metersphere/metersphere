@@ -80,6 +80,17 @@ export default {
     'weeks_5': '周五',
     'weeks_6': '周六',
     'test_unit': '測試',
+    'system_parameter_setting': '系統參數設置',
+    'connection_successful': '連接成功',
+    'connection_failed': '連接失敗',
+    'save_failed': '保存失敗',
+    'host_cannot_be_empty': '主機不能為空',
+    'port_cannot_be_empty': '埠號不能為空',
+    'account_cannot_be_empty': '帳戶不能為空',
+    'remove': '移除',
+    'remove_cancel': '移除失敗',
+    'remove_success': '移除成功',
+    'tips': '认認證資訊已過期,請重新登入'
   },
   workspace: {
     'create': '創建工作空間',
@@ -134,6 +145,9 @@ export default {
     'password_format_is_incorrect': '密碼格式不正確(至少8-16個字符,至少1個大寫字母,1個小寫字母和1個數字)',
     'old_password': '舊密碼',
     'new_password': '新密碼',
+    'remove_member': '確定要移除該成員嗎',
+    'input_id_or_email': '請輸入用戶 ID, 或者 用戶郵箱',
+    'no_such_user': '無此用戶信息, 請輸入正確的用戶 ID 或者 用戶郵箱！',
   },
   user: {
     'create': '創建用戶',
@@ -492,6 +506,17 @@ export default {
     'delete_prompt': '此操作將永久刪除該資源池, 是否繼續?',
     'status_change_success': '狀態修改成功!',
     'status_change_failed': '狀態修改失敗, 校驗不通過!',
+  },
+  system_parameter_setting: {
+    'mailbox_service_settings': '郵件服務設定',
+    'test_connection': '測試連結',
+    'SMTP_host': 'SMTP主機',
+    'SMTP_port': 'SMTP埠',
+    'SMTP_account': 'SMTP帳戶',
+    'SMTP_password': 'SMTP密碼',
+    'SSL': '開啟SSL（如果SMTP埠是465，通常需要啟用SSL）',
+    'TLS': '開啟TLS（如果SMTP埠是587，通常需要啟用TLS）',
+    'SMTP': '是否匿名 SMTP',
   },
   i18n: {
     'home': '首頁'

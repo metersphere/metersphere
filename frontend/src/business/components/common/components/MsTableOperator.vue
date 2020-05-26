@@ -1,13 +1,10 @@
 <template>
   <span>
     <slot name="front"></slot>
-    <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="editClick" @click.stop="editClickStop"/>
+    <ms-table-operator-button :tip="tip1" icon="el-icon-edit" @exec="editClick" @click.stop="editClickStop"/>
     <slot name="middle"></slot>
-    <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" type="danger" @exec="deleteClick" @click.stop="deleteClickStop"/>
+    <ms-table-operator-button :tip="tip2" icon="el-icon-delete" type="danger" @exec="deleteClick" @click.stop="deleteClickStop"/>
     <slot name="behind"></slot>
-<!--
-    <ms-table-operator-button :tip="$t('commons.remove')" icon="el-icon-s-fold" type="danger" @exec="removeClick" @click.stop="removeClickStop"/>
--->
   </span>
 
 </template>
@@ -17,6 +14,20 @@
     export default {
       name: "MsTableOperator",
       components: {MsTableOperatorButton},
+      props: {
+        tip1: {
+          type: String,
+          default() {
+            return this.$t('commons.edit');
+          }
+        },
+        tip2: {
+          type: String,
+          default() {
+            return this.$t('commons.delete');
+          }
+        }
+      },
       methods: {
         editClick() {
           this.$emit('editClick');
