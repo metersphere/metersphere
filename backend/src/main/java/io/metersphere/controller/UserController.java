@@ -70,6 +70,7 @@ public class UserController {
     }
 
     @PostMapping("/special/update_status")
+    @RequiresRoles(RoleConstants.ADMIN)
     public void updateStatus(@RequestBody User user) {
         userService.updateUser(user);
     }
