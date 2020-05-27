@@ -14,7 +14,7 @@ export default {
     }
 
     let login = function () {
-      MessageBox.error({message: this.$t('commons.tips')}, {
+      MessageBox.alert(this.$t('commons.tips'), {
         callback: () => {
           window.location.href = "/login"
         }
@@ -29,8 +29,7 @@ export default {
       }
       return response;
     }, error => {
-      Message.error({message: this.$t('commons.tips')});
-      return Promise.reject(this.$t('commons.tips'));
+      return Promise.reject(error);
     });
 
     function then(success, response, result) {
