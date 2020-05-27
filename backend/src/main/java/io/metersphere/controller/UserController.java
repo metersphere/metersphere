@@ -69,6 +69,11 @@ public class UserController {
         userService.updateUserRole(user);
     }
 
+    @PostMapping("/special/update_status")
+    public void updateStatus(@RequestBody User user) {
+        userService.updateUser(user);
+    }
+
     @PostMapping("/special/ws/member/list/{goPage}/{pageSize}")
     @RequiresRoles(RoleConstants.ADMIN)
     public Pager<List<User>> getMemberListByAdmin(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryMemberRequest request) {
