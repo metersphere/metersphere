@@ -477,7 +477,7 @@ class JMXGenerator {
     }
 
     if (assertions.duration.isValid()) {
-      let name = "Response In Time :" + assertions.duration.value
+      let name = "Response In Time: " + assertions.duration.value
       httpSamplerProxy.put(new DurationAssertion(name, assertions.duration.value));
     }
   }
