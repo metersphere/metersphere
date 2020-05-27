@@ -40,13 +40,7 @@
         },
         deleteClickStop() {
           this.$emit('deleteClickStop');
-        },
-        /* removeClick(){
-            this.$emit('removeClick');
-          },
-          removeClickStop(){
-            this.$emit('removeClickStop')
-          }*/
+        }
       }
     }
 </script>
