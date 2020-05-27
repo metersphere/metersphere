@@ -20,7 +20,7 @@
       </template>
 
       <executor-edit ref="executorEdit" :select-ids="selectIds" @refresh="initTableData"/>
-      <status-edit ref="statusEdit" :select-ids="selectIds" @refresh="initTableData"/>
+      <status-edit ref="statusEdit" :plan-id="planId" :select-ids="selectIds" @refresh="initTableData"/>
 
       <el-table
         @select-all="handleSelectAll"

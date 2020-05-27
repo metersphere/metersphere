@@ -239,6 +239,7 @@
         param.issues = JSON.stringify(this.testCase.issues);
         this.$post('/test/plan/case/edit', param, () => {
           this.$success(this.$t('commons.save_success'));
+          this.setPlanStatus(this.testCase.planId);
         });
       },
       handleNext() {
@@ -309,6 +310,9 @@
       },
       addPLabel(str) {
         return "<p>" + str + "</p>";
+      },
+      setPlanStatus(planId) {
+        this.$post('/test/plan/edit/status/' + planId);
       }
     }
   }

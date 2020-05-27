@@ -144,7 +144,8 @@ public class TestPlanService {
         sqlSession.flushStatements();
 
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
-        if (StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Prepare.name())) {
+        if (StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Prepare.name())
+                || StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Completed.name())) {
             testPlan.setStatus(TestPlanStatus.Underway.name());
             testPlanMapper.updateByPrimaryKey(testPlan);
         }
@@ -343,5 +344,22 @@ public class TestPlanService {
         TestPlanExample example = new TestPlanExample();
         example.createCriteria().andIdIn(planIds);
         return testPlanMapper.selectByExample(example);
+    }
+
+    public void editTestPlanStatus(String planId) {
+        List<String> statusList = extTestPlanTestCaseMapper.getStatusByPlanId(planId);
+        TestPlan testPlan = new TestPlan();
+        testPlan.setId(planId);
+
+        for (String status: statusList){
+            if (StringUtils.equals(status, TestPlanTestCaseStatus.Prepare.name())
+                    || StringUtils.equals(status, TestPlanTestCaseStatus.Underway.name())) {
+                testPlan.setStatus(TestPlanStatus.Underway.name());
+                testPlanMapper.updateByPrimaryKeySelective(testPlan);
+                return;
+            }
+        }
+        testPlan.setStatus(TestPlanStatus.Completed.name());
+        testPlanMapper.updateByPrimaryKeySelective(testPlan);
     }
 }

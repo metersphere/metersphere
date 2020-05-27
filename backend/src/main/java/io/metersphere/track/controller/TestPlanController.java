@@ -70,6 +70,12 @@ public class TestPlanController {
         testPlanService.editTestPlan(testPlan);
     }
 
+    @PostMapping("/edit/status/{planId}")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void editTestPlanStatus(@PathVariable String planId){
+        testPlanService.editTestPlanStatus(planId);
+    }
+
     @PostMapping("/delete/{testPlanId}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public int deleteTestPlan(@PathVariable String testPlanId){
