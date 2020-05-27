@@ -489,7 +489,7 @@
         this.btnAddRole = false;
       },
       changeSwitch(row) {
-        this.$post(this.updatePath, row, () => {
+        this.$post('/user/special/update_status', row, () => {
           this.$success(this.$t('commons.modify_success'));
         })
       },
