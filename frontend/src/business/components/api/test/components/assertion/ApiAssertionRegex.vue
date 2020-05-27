@@ -51,11 +51,16 @@
 
     methods: {
       add: function () {
-        this.list.push(new Regex(this.regex));
+        this.list.push(this.getRegex());
         this.callback();
       },
       remove: function () {
         this.list.splice(this.index, 1);
+      },
+      getRegex() {
+        let regex = new Regex(this.regex);
+        regex.description = regex.subject + " has: " + regex.expression;
+        return regex;
       }
     }
   }

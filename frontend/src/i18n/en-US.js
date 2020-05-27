@@ -89,7 +89,7 @@ export default {
     'weeks_6': 'Sat',
     'test_unit': 'tests',
     'remove': 'Remove',
-    'remove_cancel': 'Remove Failed',
+    'remove_cancel': 'Remove Cancel',
     'remove_success': 'Remove Success',
     'tips': 'The authentication information has expired, please login again'
   },
