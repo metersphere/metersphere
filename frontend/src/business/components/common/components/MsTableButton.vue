@@ -1,12 +1,20 @@
 <template>
-  <el-button v-permission="['test_manager', 'test_user']" @click="exec()" plain :type="type" :icon="icon" :size="size">
+  <el-button :disabled="disabled" @click="exec()" plain :type="type" :icon="icon" :size="size">
     {{content}}
   </el-button>
 </template>
 
 <script>
+    import {hasRoles} from "../../../../common/js/utils";
+    import {ROLE_TEST_MANAGER, ROLE_TEST_USER} from "../../../../common/js/constants";
+
     export default {
       name: "MsTableButton",
+      data() {
+        return {
+          disabled: false
+        }
+      },
       props: {
         content: String,
         icon: {
@@ -25,9 +33,14 @@
           type: String,
           default: 'mini'
         },
-        disabled: {
+        isTesterPermission: {
           type: Boolean,
           default: false
+        }
+      },
+      mounted() {
+        if (this.isTesterPermission &&!hasRoles(ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
+          this.disabled = true;
         }
       },
       methods: {

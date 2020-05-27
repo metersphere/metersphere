@@ -2,7 +2,7 @@
   <div v-loading="result.loading">
     <el-input :placeholder="$t('test_track.module.search')" v-model="filterText" size="small">
       <template v-if="type == 'edit'" v-slot:append>
-        <el-button v-permission="['test_manager', 'test_user']" icon="el-icon-folder-add" @click="openEditNodeDialog('add')"></el-button>
+        <el-button :disabled="disabled" icon="el-icon-folder-add" @click="openEditNodeDialog('add')"></el-button>
       </template>
     </el-input>
 
@@ -55,6 +55,8 @@
 
 <script>
 import NodeEdit from "./NodeEdit";
+import {ROLE_TEST_MANAGER, ROLE_TEST_USER} from "../../../../common/js/constants";
+import {hasRoles} from "../../../../common/js/utils";
 
 export default {
   name: "NodeTree",
@@ -66,7 +68,8 @@ export default {
       defaultProps: {
         children: "children",
         label: "label"
-      }
+      },
+      disabled: false
     };
   },
   props: {
@@ -91,6 +94,11 @@ export default {
   watch: {
     filterText(val) {
       this.$refs.tree.filter(val);
+    }
+  },
+  mounted() {
+    if (!hasRoles(ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
+      this.disabled = true;
     }
   },
   methods: {

@@ -3,7 +3,7 @@
     <ms-main-container>
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
-          <ms-table-header :condition.sync="condition" @search="search" @create="create"
+          <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search" @create="create"
                            :create-tip="btnTips" :title="title"/>
         </template>
         <el-table :data="items" style="width: 100%">
@@ -24,9 +24,9 @@
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column>
+          <el-table-column :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
+              <ms-table-operator :is-tester-permission="true" @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
             </template>
           </el-table-column>
         </el-table>

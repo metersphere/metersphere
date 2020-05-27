@@ -1,9 +1,9 @@
 <template>
   <span>
     <slot name="front"></slot>
-    <ms-table-operator-button :tip="tip1" icon="el-icon-edit" @exec="editClick" @click.stop="editClickStop"/>
+    <ms-table-operator-button :isTesterPermission="isTesterPermission" :tip="tip1" icon="el-icon-edit" @exec="editClick" @click.stop="editClickStop"/>
     <slot name="middle"></slot>
-    <ms-table-operator-button :tip="tip2" icon="el-icon-delete" type="danger" @exec="deleteClick" @click.stop="deleteClickStop"/>
+    <ms-table-operator-button :isTesterPermission="isTesterPermission" :tip="tip2" icon="el-icon-delete" type="danger" @exec="deleteClick" @click.stop="deleteClickStop"/>
     <slot name="behind"></slot>
   </span>
 
@@ -26,6 +26,10 @@
           default() {
             return this.$t('commons.delete');
           }
+        },
+        isTesterPermission: {
+          type: Boolean,
+          default: false
         }
       },
       methods: {

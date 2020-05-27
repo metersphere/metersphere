@@ -4,15 +4,15 @@
     <el-card class="card-content" v-loading="result.loading">
       <template v-slot:header>
 
-        <ms-table-header :condition.sync="condition" @search="initTableData"
+        <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
                          :create-tip="$t('test_track.case.create')" @create="testCaseCreate">
           <template v-slot:title>
             <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="refresh"/>
           </template>
           <template v-slot:button>
-            <ms-table-button icon="el-icon-upload2" :content="$t('test_track.case.import.import')" @click="importTestCase"/>
-            <ms-table-button icon="el-icon-right" :content="$t('test_track.case.move')" @click="handleBatch('move')"/>
-            <ms-table-button icon="el-icon-delete" :content="$t('test_track.case.delete')" @click="handleBatch('delete')"/>
+            <ms-table-button :is-tester-permission="true" icon="el-icon-upload2" :content="$t('test_track.case.import.import')" @click="importTestCase"/>
+            <ms-table-button :is-tester-permission="true" icon="el-icon-right" :content="$t('test_track.case.move')" @click="handleBatch('move')"/>
+            <ms-table-button :is-tester-permission="true" icon="el-icon-delete" :content="$t('test_track.case.delete')" @click="handleBatch('delete')"/>
             <!--<test-case-export/>-->
           </template>
         </ms-table-header>
@@ -85,9 +85,9 @@
         <el-table-column
           :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator @editClick="handleEdit(scope.row)" @deleteClick="handleDelete(scope.row)">
+            <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)" @deleteClick="handleDelete(scope.row)">
               <template v-slot:middle>
-                <ms-table-operator-button :tip="$t('commons.copy')" icon="el-icon-document-copy"
+                <ms-table-operator-button :is-tester-permission="true" :tip="$t('commons.copy')" icon="el-icon-document-copy"
                                           type="success" @exec="handleCopy(scope.row)"/>
               </template>
             </ms-table-operator>
