@@ -1,10 +1,7 @@
 package io.metersphere.service;
 
 import com.alibaba.fastjson.JSON;
-import io.metersphere.base.domain.TestResource;
-import io.metersphere.base.domain.TestResourceExample;
-import io.metersphere.base.domain.TestResourcePool;
-import io.metersphere.base.domain.TestResourcePoolExample;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.TestResourceMapper;
 import io.metersphere.base.mapper.TestResourcePoolMapper;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
@@ -52,6 +49,7 @@ public class TestResourcePoolService {
     private RestTemplate restTemplate;
 
     public TestResourcePoolDTO addTestResourcePool(TestResourcePoolDTO testResourcePool) {
+        checkTestResourcePool(testResourcePool);
         testResourcePool.setId(UUID.randomUUID().toString());
         testResourcePool.setCreateTime(System.currentTimeMillis());
         testResourcePool.setUpdateTime(System.currentTimeMillis());
@@ -67,9 +65,37 @@ public class TestResourcePoolService {
     }
 
     public void updateTestResourcePool(TestResourcePoolDTO testResourcePool) {
+        checkTestResourcePool(testResourcePool);
         testResourcePool.setUpdateTime(System.currentTimeMillis());
         validateTestResourcePool(testResourcePool);
         testResourcePoolMapper.updateByPrimaryKeySelective(testResourcePool);
+    }
+
+    public void checkTestResourcePool(TestResourcePoolDTO testResourcePoolDTO) {
+        String resourcePoolName = testResourcePoolDTO.getName();
+        if (StringUtils.isBlank(resourcePoolName)) {
+            MSException.throwException(Translator.get("test_resource_pool_name_is_null"));
+        }
+
+        String id = testResourcePoolDTO.getId();
+        String name = testResourcePoolDTO.getName();
+
+        if (StringUtils.isNotBlank(id)) {
+            TestResourcePool pool = testResourcePoolMapper.selectByPrimaryKey(id);
+            if (!StringUtils.equals(pool.getName(), name)) {
+                checkPoolName(name);
+            }
+        } else {
+            checkPoolName(name);
+        }
+    }
+
+    public void checkPoolName(String poolName) {
+        TestResourcePoolExample testResourcePoolExample = new TestResourcePoolExample();
+        testResourcePoolExample.createCriteria().andNameEqualTo(poolName);
+        if (testResourcePoolMapper.countByExample(testResourcePoolExample) > 0) {
+            MSException.throwException(Translator.get("test_resource_pool_name_already_exists"));
+        }
     }
 
 
