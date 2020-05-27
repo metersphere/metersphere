@@ -48,7 +48,7 @@ public class OrganizationService {
     private UserService userService;
 
     public Organization addOrganization(Organization organization) {
-        checkOrgNameRepeat(organization);
+        checkOrganization(organization);
         long currentTimeMillis = System.currentTimeMillis();
         organization.setId(UUID.randomUUID().toString());
         organization.setCreateTime(currentTimeMillis);
@@ -66,12 +66,27 @@ public class OrganizationService {
         return organizationMapper.selectByExample(example);
     }
 
-    private void checkOrgNameRepeat(Organization organization) {
+    private void checkOrganization(Organization organization) {
         if (StringUtils.isBlank(organization.getName())) {
             MSException.throwException(Translator.get("organization_name_is_null"));
         }
+
+        String id = organization.getId();
+        String name = organization.getName();
+
+        if (StringUtils.isNotBlank(id)) {
+            Organization org = organizationMapper.selectByPrimaryKey(id);
+            if (!StringUtils.equals(org.getName(), name)) {
+                checkOrgNameRepeat(name);
+            }
+        } else {
+            checkOrgNameRepeat(name);
+        }
+    }
+
+    public void checkOrgNameRepeat(String orgName) {
         OrganizationExample organizationExample = new OrganizationExample();
-        organizationExample.createCriteria().andNameEqualTo(organization.getName());
+        organizationExample.createCriteria().andNameEqualTo(orgName);
         if (organizationMapper.countByExample(organizationExample) > 0) {
             MSException.throwException(Translator.get("organization_name_already_exists"));
         }
@@ -99,7 +114,7 @@ public class OrganizationService {
     }
 
     public void updateOrganization(Organization organization) {
-        checkOrgNameRepeat(organization);
+        checkOrganization(organization);
         organization.setCreateTime(null);
         organization.setUpdateTime(System.currentTimeMillis());
         organizationMapper.updateByPrimaryKeySelective(organization);
