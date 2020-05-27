@@ -212,7 +212,7 @@
         }
         this.form = {};
         this.createVisible = true;
-        this.result = this.$get('/user/besideorg/list/' + this.currentUser().lastOrganizationId, response => {
+        this.result = this.$get('/user/list/', response => {
           this.userList = response.data;
         });
         this.result = this.$get('/role/list/org', response => {
