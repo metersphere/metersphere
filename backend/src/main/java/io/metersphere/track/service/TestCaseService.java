@@ -285,9 +285,16 @@ public class TestCaseService {
     }
 
     public void deleteTestCaseBath(TestCaseBatchRequest request) {
+        deleteTestPlanTestCaseBath(request.getIds());
         TestCaseExample example = new TestCaseExample();
         example.createCriteria().andIdIn(request.getIds());
         testCaseMapper.deleteByExample(example);
+    }
+
+    public void deleteTestPlanTestCaseBath(List<String> caseIds) {
+        TestPlanTestCaseExample example = new TestPlanTestCaseExample();
+        example.createCriteria().andCaseIdIn(caseIds);
+        testPlanTestCaseMapper.deleteByExample(example);
     }
 
     public void deleteTestCaseByProjectId(String projectId) {

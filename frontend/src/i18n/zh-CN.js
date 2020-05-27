@@ -425,7 +425,7 @@ export default {
       plan_status_prepare: "未开始",
       plan_status_running: "进行中",
       plan_status_completed: "已完成",
-      plan_delete_confirm: "确认删除测试计划: ",
+      plan_delete_confirm: "将删除该测试计划下所有用例，确认删除测试计划: ",
     },
     module: {
       search: "搜索模块",

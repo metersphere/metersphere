@@ -10,6 +10,20 @@
           <el-table-column prop="name" :label="$t('commons.name')"/>
           <el-table-column prop="description" :label="$t('commons.description')"/>
           <!--<el-table-column prop="workspaceName" :label="$t('project.owning_workspace')"/>-->
+          <el-table-column
+            :label="$t('commons.create_time')"
+            show-overflow-tooltip>
+            <template v-slot:default="scope">
+              <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            :label="$t('commons.update_time')"
+            show-overflow-tooltip>
+            <template v-slot:default="scope">
+              <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+            </template>
+          </el-table-column>
           <el-table-column>
             <template v-slot:default="scope">
               <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
