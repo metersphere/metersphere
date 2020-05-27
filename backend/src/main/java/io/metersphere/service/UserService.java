@@ -196,6 +196,15 @@ public class UserService {
         if (!roles.isEmpty()) {
             insertUserRole(roles, user.getId());
         }
+        String email = user.getEmail();
+        User u = userMapper.selectByPrimaryKey(userId);
+        if (!StringUtils.equals(email, u.getEmail())) {
+            UserExample userExample = new UserExample();
+            userExample.createCriteria().andEmailEqualTo(email);
+            if (userMapper.countByExample(userExample) > 0) {
+                MSException.throwException(Translator.get("user_email_already_exists"));
+            }
+        }
         user.setUpdateTime(System.currentTimeMillis());
         userMapper.updateByPrimaryKeySelective(user);
     }
