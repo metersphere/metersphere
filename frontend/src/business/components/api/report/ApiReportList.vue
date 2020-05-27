@@ -3,7 +3,7 @@
     <ms-main-container>
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
-          <ms-table-header :condition.sync="condition" @search="search" :title="$t('api_report.title')"
+          <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search" :title="$t('api_report.title')"
                            :show-create="false"/>
         </template>
         <el-table :data="tableData" class="table-content">
@@ -27,8 +27,8 @@
           </el-table-column>
           <el-table-column width="150" :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <el-button @click="handleView(scope.row)" type="primary" icon="el-icon-s-data" size="mini" circle/>
-              <el-button @click="handleDelete(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
+              <el-button :is-tester-permission="true" @click="handleView(scope.row)" type="primary" icon="el-icon-s-data" size="mini" circle/>
+              <el-button :is-tester-permission="true" @click="handleDelete(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
             </template>
           </el-table-column>
         </el-table>
