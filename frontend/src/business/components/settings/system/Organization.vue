@@ -42,15 +42,7 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <!--<ms-table-operator @editClick="editMember(scope.row)" @deleteClick="delMember(scope.row)"/>-->
-            <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="editMember(scope.row)"/>
-            <ms-table-operator-button :tip="$t('commons.remove')" icon="el-icon-delete" type="danger"
-                                      @exec="delMember(scope.row)"/>
-
-
-            <!--<el-tooltip class="item" effect="dark" :content="$t('commons.remove')" placement="bottom">
-              <el-button :icon="el-icon-remove-outline">下边</el-button>
-            </el-tooltip>-->
+            <ms-table-operator :tip2="$t('commons.remove')" @editClick="editMember(scope.row)" @deleteClick="delMember(scope.row)"/>
           </template>
         </el-table-column>
       </el-table>

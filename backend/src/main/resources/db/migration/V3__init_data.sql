@@ -1,5 +1,5 @@
 INSERT INTO user (id, name, email, password, status, create_time, update_time, language, last_workspace_id, last_organization_id, phone)
-VALUES ('admin', 'Administrator', 'admin@fit2cloud.com', md5('fit2cloud'), '1', 1582597567455, 1582597567455, null, '', null, null);
+VALUES ('admin', 'Administrator', 'admin@metersphere.io', md5('metersphere'), '1', 1582597567455, 1582597567455, null, '', null, null);
 
 INSERT INTO user_role (id, user_id, role_id, source_id, create_time, update_time)
 VALUES (uuid(), 'admin', 'admin', '1', 1581576575948, 1581576575948);

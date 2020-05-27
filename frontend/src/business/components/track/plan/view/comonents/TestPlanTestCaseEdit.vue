@@ -217,7 +217,7 @@
       statusChange(status) {
         this.testCase.status = status;
       },
-      saveCase(isContinuous) {
+      saveCase() {
         let param = {};
         param.id = this.testCase.id;
         param.status = this.testCase.status;
@@ -238,22 +238,14 @@
         param.results = JSON.stringify(param.results);
         param.issues = JSON.stringify(this.testCase.issues);
         this.$post('/test/plan/case/edit', param, () => {
-          if (isContinuous) {
-            this.updateTestCases(param);
-            return;
-          }
-          this.$refs.drawer.closeDrawer();
           this.$success(this.$t('commons.save_success'));
-          this.$emit('refresh');
         });
       },
       handleNext() {
-        this.saveCase(true);
         this.index++;
         this.getTestCase(this.index);
       },
       handlePre() {
-        this.saveCase(true);
         this.index--;
         this.getTestCase(this.index);
       },

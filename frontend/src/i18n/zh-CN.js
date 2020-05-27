@@ -88,8 +88,9 @@ export default {
     'port_cannot_be_empty': '端口号不能为空',
     'account_cannot_be_empty': '帐户不能为空',
     'remove': '移除',
-    'remove_cancel': '移除失败',
-    'remove_success': '移除成功'
+    'remove_cancel': '移除取消',
+    'remove_success': '移除成功',
+    'tips': '认证信息已过期，请重新登录'
   },
   workspace: {
     'create': '创建工作空间',
@@ -144,7 +145,9 @@ export default {
     'password_format_is_incorrect': '密码格式不正确(至少8-16个字符，至少1个大写字母，1个小写字母和1个数字)',
     'old_password': '旧密码',
     'new_password': '新密码',
-    'remove_member': '确定要移除该成员吗'
+    'remove_member': '确定要移除该成员吗',
+    'input_id_or_email': '请输入用户 ID, 或者 用户邮箱',
+    'no_such_user': '无此用户信息, 请输入正确的用户 ID 或者 用户邮箱！',
   },
   user: {
     'create': '创建用户',
