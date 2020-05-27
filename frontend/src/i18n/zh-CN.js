@@ -88,7 +88,7 @@ export default {
     'port_cannot_be_empty': '端口号不能为空',
     'account_cannot_be_empty': '帐户不能为空',
     'remove': '移除',
-    'remove_cancel': '移除失败',
+    'remove_cancel': '移除取消',
     'remove_success': '移除成功',
     'tips': '认证信息已过期，请重新登录'
   },

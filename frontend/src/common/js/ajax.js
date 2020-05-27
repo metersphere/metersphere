@@ -14,7 +14,7 @@ export default {
     }
 
     let login = function () {
-      MessageBox.alert("认证信息已过期，请重新登录。", {
+      MessageBox.alert(this.$t('commons.tips'), {
         callback: () => {
           window.location.href = "/login"
         }
@@ -29,7 +29,7 @@ export default {
       }
       return response;
     }, error => {
-      return Promise.reject(this.$t('commons.tips'));
+      return Promise.reject(error);
     });
 
     function then(success, response, result) {
