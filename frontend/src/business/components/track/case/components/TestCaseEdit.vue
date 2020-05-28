@@ -64,7 +64,7 @@
         <el-row>
           <el-col :span="10" :offset="1">
             <el-form-item :label="$t('test_track.case.type')" :label-width="formLabelWidth" prop="type">
-              <el-select :disabled="readOnly" v-model="form.type" :placeholder="$t('test_track.case.input_type')">
+              <el-select @change="typeChange" :disabled="readOnly" v-model="form.type" :placeholder="$t('test_track.case.input_type')">
                 <el-option :label="$t('commons.functional')" value="functional"></el-option>
                 <el-option :label="$t('commons.performance')" value="performance"></el-option>
                 <el-option :label="$t('commons.api')" value="api"></el-option>
@@ -76,6 +76,21 @@
               <el-select :disabled="readOnly" v-model="form.method" :placeholder="$t('test_track.case.input_method')">
                 <el-option :label="$t('test_track.case.manual')" value="manual"></el-option>
                 <el-option :label="$t('test_track.case.auto')" value="auto"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row v-if="form.method && form.method == 'auto'">
+          <el-col :span="10" :offset="1">
+            <el-form-item :label="'关联测试'" :label-width="formLabelWidth" prop="testId">
+              <el-select filterable :disabled="readOnly" v-model="form.testId" :placeholder="$t('test_track.case.input_type')">
+                <el-option
+                  v-for="item in testOptions"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id">
+                </el-option>
               </el-select>
             </el-form-item>
           </el-col>
@@ -213,6 +228,7 @@
           type: '',
           method: '',
           prerequisite: '',
+          testId: '',
           steps: [{
             num: 1 ,
             desc: '',
@@ -222,6 +238,7 @@
         },
         moduleOptions: [],
         maintainerOptions: [],
+        testOptions: [],
         workspaceId: '',
         rules:{
           name :[
@@ -232,6 +249,7 @@
           maintainer :[{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
           priority :[{required: true, message: this.$t('test_track.case.input_priority'), trigger: 'change'}],
           type :[{required: true, message: this.$t('test_track.case.input_type'), trigger: 'change'}],
+          testId :[{required: true, message: '请选择测试', trigger: 'change'}],
           method :[{required: true, message: this.$t('test_track.case.input_method'), trigger: 'change'}],
           prerequisite :[{ max: 300, message: this.$t('test_track.length_less_than') + '300', trigger: 'blur'}],
           remark :[{ max: 300, message: this.$t('test_track.length_less_than') + '300', trigger: 'blur'}]
@@ -258,6 +276,9 @@
     },
     mounted() {
       this.getSelectOptions();
+    },
+    watch: {
+
     },
     methods: {
       open(testCase) {
@@ -315,48 +336,60 @@
       saveCase(){
         this.$refs['caseFrom'].validate((valid) => {
           if (valid) {
-            let param = {};
-            Object.assign(param, this.form);
-
-            for (let i = 0; i < param.steps.length; i++){
-              if ((param.steps[i].desc && param.steps[i].desc.length > 300) ||
-                (param.steps[i].result && param.steps[i].result.length > 300)) {
-                this.$warning(this.$t('test_track.case.step_desc') + ","
-                  + this.$t('test_track.case.expected_results')  + this.$t('test_track.length_less_than') + '300');
-                return;
-              }
+            let param = this.buildParam();
+            if (this.validate(param)) {
+              this.result = this.$post('/test/case/' + this.operationType, param, () => {
+                this.$success(this.$t('commons.save_success'));
+                if (this.operationType == 'add' && this.isCreateContinue) {
+                  this.form.name = '';
+                  return;
+                }
+                this.dialogFormVisible = false;
+                this.$emit("refresh");
+              });
             }
-
-            param.steps = JSON.stringify(this.form.steps);
-            param.nodeId = this.form.module;
-            this.moduleOptions.forEach(item => {
-              if(this.form.module === item.id){
-                param.nodePath = item.path;
-              }
-            });
-
-            if (this.currentProject) {
-              param.projectId = this.currentProject.id;
-            }
-
-            param.name = param.name.trim();
-            if (param.name == '') {
-              this.$warning(this.$t('test_track.case.input_name'));
-              return;
-            }
-            this.result = this.$post('/test/case/' + this.operationType, param, () => {
-              this.$success(this.$t('commons.save_success'));
-              if (this.operationType == 'add' && this.isCreateContinue) {
-                this.form.name = '';
-                return;
-              }
-              this.dialogFormVisible = false;
-              this.$emit("refresh");
-            });
           } else {
             return false;
           }
         });
+      },
+      buildParam() {
+        let param = {};
+        Object.assign(param, this.form);
+        param.steps = JSON.stringify(this.form.steps);
+        param.nodeId = this.form.module;
+        this.moduleOptions.forEach(item => {
+          if(this.form.module === item.id){
+            param.nodePath = item.path;
+          }
+        });
+        if (this.currentProject) {
+          param.projectId = this.currentProject.id;
+        }
+        param.name = param.name.trim();
+        if (param.method != 'auto') {
+          param.testId = null;
+        }
+        return param;
+      },
+      validate(param) {
+        for (let i = 0; i < param.steps.length; i++){
+          if ((param.steps[i].desc && param.steps[i].desc.length > 300) ||
+            (param.steps[i].result && param.steps[i].result.length > 300)) {
+            this.$warning(this.$t('test_track.case.step_desc') + ","
+              + this.$t('test_track.case.expected_results')  + this.$t('test_track.length_less_than') + '300');
+            return false;
+          }
+        }
+        if (param.name == '') {
+          this.$warning(this.$t('test_track.case.input_name'));
+          return false;
+        }
+        return true;
+      },
+      typeChange() {
+        this.form.testId = '';
+        this.getTestOptions()
       },
       getModuleOptions() {
         let moduleOptions = [];
@@ -371,9 +404,18 @@
           this.maintainerOptions = response.data;
         });
       },
+      getTestOptions() {
+        this.testOptions = [];
+        if (this.currentProject && this.form.type != '' && this.form.type != 'functional') {
+          this.$get('/' + this.form.type + '/list/' + this.currentProject.id, response => {
+            this.testOptions = response.data;
+          });
+        }
+      },
       getSelectOptions() {
         this.getModuleOptions();
         this.getMaintainerOptions();
+        this.getTestOptions();
       },
       buildNodePath(node, option, moduleOptions) {
         //递归构建节点路径

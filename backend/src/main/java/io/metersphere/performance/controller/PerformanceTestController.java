@@ -3,6 +3,7 @@ package io.metersphere.performance.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.FileMetadata;
+import io.metersphere.base.domain.LoadTest;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -46,6 +47,11 @@ public class PerformanceTestController {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return PageUtils.setPageInfo(page, performanceTestService.list(request));
+    }
+
+    @GetMapping("/list/{projectId}")
+    public List<LoadTest> list(@PathVariable String projectId) {
+        return performanceTestService.getLoadTestByProjectId(projectId);
     }
 
     @PostMapping(value = "/save", consumes = {"multipart/form-data"})
