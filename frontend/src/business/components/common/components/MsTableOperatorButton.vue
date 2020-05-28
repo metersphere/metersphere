@@ -1,18 +1,26 @@
 <template>
-  <ms-tip-button v-permission="['test_manager', 'test_user']"
-                 @click="exec"
-                 @clickStop="clickStop"
-                 :type="type"
-                 :tip="tip"
-                 :icon="icon" size="mini" circle/>
+  <ms-tip-button
+    :disabled="disabled"
+    @click="exec"
+    @clickStop="clickStop"
+    :type="type"
+    :tip="tip"
+    :icon="icon" size="mini" circle/>
 </template>
 
 <script>
   import MsTableButton from "./MsTableButton";
   import MsTipButton from "./MsTipButton";
+  import {hasRoles} from "../../../../common/js/utils";
+  import {ROLE_TEST_MANAGER, ROLE_TEST_USER} from "../../../../common/js/constants";
   export default {
     name: "MsTableOperatorButton",
     components: {MsTipButton, MsTableButton},
+    data() {
+      return{
+        disabled: false
+      }
+    },
     props: {
       icon: {
         type: String,
@@ -24,6 +32,15 @@
       },
       tip: {
         type: String
+      },
+      isTesterPermission: {
+        type: Boolean,
+        default: false
+      }
+    },
+    mounted() {
+      if (this.isTesterPermission && !hasRoles(ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
+        this.disabled = true;
       }
     },
     methods: {

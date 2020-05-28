@@ -280,4 +280,7 @@ public class PerformanceTestService {
         return extLoadTestReportMapper.selectDashboardTests(workspaceId, startTimestamp);
     }
 
+    public List<LoadTest> getLoadTestByProjectId(String projectId) {
+        return extLoadTestMapper.getLoadTestByProjectId(projectId);
+    }
 }

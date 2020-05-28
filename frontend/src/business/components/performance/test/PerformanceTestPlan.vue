@@ -53,7 +53,7 @@
             width="150"
             :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <ms-table-operator @editClick="handleEdit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
+              <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
             </template>
           </el-table-column>
         </el-table>

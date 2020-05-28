@@ -34,6 +34,9 @@
       props: {
         selectIds: {
           type: Set
+        },
+        planId: {
+          type: String
         }
       },
       methods: {
@@ -51,6 +54,7 @@
           this.$post('/test/plan/case/batch/edit' , param, () => {
             this.selectIds.clear();
             this.status = '';
+            this.$post('/test/plan/edit/status/' + this.planId);
             this.$success(this.$t('commons.save_success'));
             this.statusEditVisible = false;
             this.$emit('refresh');

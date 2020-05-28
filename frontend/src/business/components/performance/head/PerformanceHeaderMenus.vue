@@ -8,27 +8,27 @@
           </el-menu-item>
 
           <el-submenu v-if="isCurrentWorkspaceUser"
-                      index="3" popper-class="submenu" v-permission="['test_manager']">
+                      index="3" popper-class="submenu">
             <template v-slot:title>{{$t('commons.project')}}</template>
             <ms-recent-list :options="projectRecent"/>
             <el-divider/>
             <ms-show-all :index="'/performance/project/all'"/>
-            <ms-create-button :index="'/performance/project/create'" :title="$t('project.create')"/>
+            <ms-create-button v-permission="['test_manager', 'test_user']"  :index="'/performance/project/create'" :title="$t('project.create')"/>
           </el-submenu>
 
           <el-submenu v-if="isCurrentWorkspaceUser"
-                      index="4" popper-class="submenu" v-permission="['test_manager', 'test_user']">
+                      index="4" popper-class="submenu">
             <template v-slot:title>{{$t('commons.test')}}</template>
             <ms-recent-list :options="testRecent"/>
             <el-divider/>
             <ms-show-all :index="'/performance/test/all'"/>
-            <ms-create-button :index="'/performance/test/create'" :title="$t('load_test.create')"/>
+            <ms-create-button v-permission="['test_manager', 'test_user']" :index="'/performance/test/create'" :title="$t('load_test.create')"/>
 <!--            <el-menu-item :index="testCaseProjectPath" class="blank_item"></el-menu-item>-->
 <!--            <el-menu-item :index="testEditPath" class="blank_item"></el-menu-item>-->
           </el-submenu>
 
           <el-submenu v-if="isCurrentWorkspaceUser"
-                      index="5" popper-class="submenu" v-permission="['test_manager', 'test_user', 'test_viewer']">
+                      index="5" popper-class="submenu">
             <template v-slot:title>{{$t('commons.report')}}</template>
             <ms-recent-list :options="reportRecent"/>
             <el-divider/>

@@ -428,7 +428,7 @@ export default {
       plan_status_prepare: "Not started",
       plan_status_running: "Starting",
       plan_status_completed: "Completed",
-      plan_delete_confirm: "Confirm delete test plan: ",
+      plan_delete_confirm: "All use cases under this plan will be deleted,confirm delete test plan: ",
     },
     module: {
       search: "Search module",
@@ -489,6 +489,7 @@ export default {
       result_statistics_chart: "Result statistics chart",
       create_template: "Create template",
       report_template: "Report template",
+      test_detail: "Test detail",
     }
   },
   test_resource_pool: {

@@ -33,6 +33,7 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -92,14 +93,15 @@ public class TestPlanService {
         return testPlanMapper.updateByPrimaryKeySelective(testPlan);
     }
 
-    public int deleteTestPlan(String testPlanId) {
+    public int deleteTestPlan(String planId) {
+        deleteTestCaseByPlanId(planId);
+        return testPlanMapper.deleteByPrimaryKey(planId);
+    }
+
+    public void deleteTestCaseByPlanId(String testPlanId) {
         TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
         testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(testPlanId);
-        List<TestPlanTestCase> testPlanTestCases = testPlanTestCaseMapper.selectByExample(testPlanTestCaseExample);
-        if (testPlanTestCases.size() > 0) {
-            MSException.throwException(Translator.get("before_delete_plan"));
-        }
-        return testPlanMapper.deleteByPrimaryKey(testPlanId);
+        testPlanTestCaseMapper.deleteByExample(testPlanTestCaseExample);
     }
 
     public List<TestPlanDTO> listTestPlan(QueryTestPlanRequest request) {
@@ -144,7 +146,8 @@ public class TestPlanService {
         sqlSession.flushStatements();
 
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
-        if (StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Prepare.name())) {
+        if (StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Prepare.name())
+                || StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Completed.name())) {
             testPlan.setStatus(TestPlanStatus.Underway.name());
             testPlanMapper.updateByPrimaryKey(testPlan);
         }
@@ -343,5 +346,22 @@ public class TestPlanService {
         TestPlanExample example = new TestPlanExample();
         example.createCriteria().andIdIn(planIds);
         return testPlanMapper.selectByExample(example);
+    }
+
+    public void editTestPlanStatus(String planId) {
+        List<String> statusList = extTestPlanTestCaseMapper.getStatusByPlanId(planId);
+        TestPlan testPlan = new TestPlan();
+        testPlan.setId(planId);
+
+        for (String status: statusList){
+            if (StringUtils.equals(status, TestPlanTestCaseStatus.Prepare.name())
+                    || StringUtils.equals(status, TestPlanTestCaseStatus.Underway.name())) {
+                testPlan.setStatus(TestPlanStatus.Underway.name());
+                testPlanMapper.updateByPrimaryKeySelective(testPlan);
+                return;
+            }
+        }
+        testPlan.setStatus(TestPlanStatus.Completed.name());
+        testPlanMapper.updateByPrimaryKeySelective(testPlan);
     }
 }

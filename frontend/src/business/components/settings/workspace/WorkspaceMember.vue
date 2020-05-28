@@ -84,7 +84,7 @@
             <el-option
               v-for="item in form.allroles"
               :key="item.id"
-              :label="item.name"
+              :label="$t('role.' + item.id)"
               :value="item.id">
             </el-option>
           </el-select>
@@ -214,16 +214,20 @@
       },
       create() {
         this.form = {};
-        let param = {
-          name: this.condition.name,
-          organizationId: this.currentUser().lastOrganizationId
-        };
+        // let param = {
+        //   name: this.condition.name,
+        //   organizationId: this.currentUser().lastOrganizationId
+        // };
         let wsId = this.currentUser().lastWorkspaceId;
         if (typeof wsId == "undefined" || wsId == null || wsId == "") {
           this.$warning(this.$t('workspace.please_select_a_workspace_first'));
           return false;
         }
-        this.$post('/user/org/member/list/all', param, response => {
+        // this.$post('/user/org/member/list/all', param, response => {
+        //   this.createVisible = true;
+        //   this.userList = response.data;
+        // })
+        this.$get('/user/list/', response => {
           this.createVisible = true;
           this.userList = response.data;
         })

@@ -3,16 +3,30 @@
     <ms-main-container>
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
-          <ms-table-header :condition.sync="condition" @search="search" @create="create"
+          <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search" @create="create"
                            :create-tip="btnTips" :title="title"/>
         </template>
         <el-table :data="items" style="width: 100%">
           <el-table-column prop="name" :label="$t('commons.name')"/>
           <el-table-column prop="description" :label="$t('commons.description')"/>
           <!--<el-table-column prop="workspaceName" :label="$t('project.owning_workspace')"/>-->
-          <el-table-column>
+          <el-table-column
+            :label="$t('commons.create_time')"
+            show-overflow-tooltip>
             <template v-slot:default="scope">
-              <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
+              <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            :label="$t('commons.update_time')"
+            show-overflow-tooltip>
+            <template v-slot:default="scope">
+              <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column :label="$t('commons.operating')">
+            <template v-slot:default="scope">
+              <ms-table-operator :is-tester-permission="true" @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
             </template>
           </el-table-column>
         </el-table>

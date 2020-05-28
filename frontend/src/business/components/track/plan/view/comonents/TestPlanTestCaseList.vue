@@ -2,25 +2,25 @@
   <div class="card-container">
     <el-card class="card-content" v-loading="result.loading">
       <template v-slot:header>
-        <ms-table-header :condition.sync="condition" @search="initTableData" :show-create="false">
+        <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData" :show-create="false">
           <template v-slot:title>
             <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="refresh"/>
           </template>
           <template v-slot:button>
-            <ms-table-button v-if="!showMyTestCase" icon="el-icon-s-custom" :content="$t('test_track.plan_view.my_case')" @click="searchMyTestCase"/>
-            <ms-table-button v-if="showMyTestCase" icon="el-icon-files" :content="$t('test_track.plan_view.all_case')" @click="searchMyTestCase"/>
-            <ms-table-button icon="el-icon-connection" :content="$t('test_track.plan_view.relevance_test_case')" @click="$emit('openTestCaseRelevanceDialog')"/>
-            <ms-table-button icon="el-icon-unlock" :content="$t('test_track.plan_view.cancel_relevance')" @click="handleBatch('delete')"/>
-            <ms-table-button icon="el-icon-edit-outline" :content="$t('test_track.plan_view.change_execution_results')" @click="handleBatch('status')"/>
-            <ms-table-button icon="el-icon-user" :content="$t('test_track.plan_view.change_executor')" @click="handleBatch('executor')"/>
-            <ms-table-button v-if="!testPlan.reportId" icon="el-icon-document" :content="$t('test_track.plan_view.create_report')" @click="openTestReport"/>
-            <ms-table-button v-if="testPlan.reportId" icon="el-icon-document" :content="$t('test_track.plan_view.view_report')" @click="openReport"/>
+            <ms-table-button :is-tester-permission="true" v-if="!showMyTestCase" icon="el-icon-s-custom" :content="$t('test_track.plan_view.my_case')" @click="searchMyTestCase"/>
+            <ms-table-button :is-tester-permission="true" v-if="showMyTestCase" icon="el-icon-files" :content="$t('test_track.plan_view.all_case')" @click="searchMyTestCase"/>
+            <ms-table-button :is-tester-permission="true" icon="el-icon-connection" :content="$t('test_track.plan_view.relevance_test_case')" @click="$emit('openTestCaseRelevanceDialog')"/>
+            <ms-table-button :is-tester-permission="true" icon="el-icon-unlock" :content="$t('test_track.plan_view.cancel_relevance')" @click="handleBatch('delete')"/>
+            <ms-table-button :is-tester-permission="true" icon="el-icon-edit-outline" :content="$t('test_track.plan_view.change_execution_results')" @click="handleBatch('status')"/>
+            <ms-table-button :is-tester-permission="true" icon="el-icon-user" :content="$t('test_track.plan_view.change_executor')" @click="handleBatch('executor')"/>
+            <ms-table-button :is-tester-permission="true" v-if="!testPlan.reportId" icon="el-icon-document" :content="$t('test_track.plan_view.create_report')" @click="openTestReport"/>
+            <ms-table-button :is-tester-permission="true" v-if="testPlan.reportId" icon="el-icon-document" :content="$t('test_track.plan_view.view_report')" @click="openReport"/>
           </template>
         </ms-table-header>
       </template>
 
       <executor-edit ref="executorEdit" :select-ids="selectIds" @refresh="initTableData"/>
-      <status-edit ref="statusEdit" :select-ids="selectIds" @refresh="initTableData"/>
+      <status-edit ref="statusEdit" :plan-id="planId" :select-ids="selectIds" @refresh="initTableData"/>
 
       <el-table
         @select-all="handleSelectAll"
@@ -103,8 +103,8 @@
         <el-table-column
           :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="handleEdit(scope.row)" />
-            <ms-table-operator-button :tip="$t('test_track.plan_view.cancel_relevance')" icon="el-icon-unlock" type="danger" @exec="handleDelete(scope.row)"/>
+            <ms-table-operator-button :is-tester-permission="true" :tip="$t('commons.edit')" icon="el-icon-edit" @exec="handleEdit(scope.row)" />
+            <ms-table-operator-button :is-tester-permission="true" :tip="$t('test_track.plan_view.cancel_relevance')" icon="el-icon-unlock" type="danger" @exec="handleDelete(scope.row)"/>
           </template>
         </el-table-column>
       </el-table>
@@ -135,8 +135,8 @@
   import MsTableButton from '../../../../common/components/MsTableButton';
   import NodeBreadcrumb from '../../../common/NodeBreadcrumb';
 
-  import {TokenKey} from '../../../../../../common/js/constants';
-  import {_filter, _sort, humpToLine, tableFilter} from '../../../../../../common/js/utils';
+  import {ROLE_TEST_MANAGER, ROLE_TEST_USER, TokenKey} from '../../../../../../common/js/constants';
+  import {_filter, _sort, hasRoles, humpToLine, tableFilter} from '../../../../../../common/js/utils';
   import PriorityTableItem from "../../../common/tableItems/planview/PriorityTableItem";
   import StatusTableItem from "../../../common/tableItems/planview/StatusTableItem";
   import TypeTableItem from "../../../common/tableItems/planview/TypeTableItem";
@@ -239,10 +239,12 @@
           this.initTableData();
         },
         refreshTestPlanRecent() {
-          let param = {};
-          param.id = this.planId;
-          param.updateTime = Date.now();
-          this.$post('/test/plan/edit', param);
+          if (hasRoles(ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
+            let param = {};
+            param.id = this.planId;
+            param.updateTime = Date.now();
+            this.$post('/test/plan/edit', param);
+          }
         },
         search() {
           this.initTableData();

@@ -427,7 +427,7 @@ export default {
       plan_status_prepare: "未開始",
       plan_status_running: "進行中",
       plan_status_completed: "已完成",
-      plan_delete_confirm: "確認刪除測試計劃: ",
+      plan_delete_confirm: "將刪除該測試計劃下所有用例，確認刪除測試計劃: ",
     },
     module: {
       search: "搜索模塊",
@@ -488,6 +488,7 @@ export default {
       result_statistics_chart: "測試結果統計圖",
       create_template: "新建模版",
       report_template: "測試報告模版",
+      test_detail: "測試詳情",
     }
   },
   test_resource_pool: {

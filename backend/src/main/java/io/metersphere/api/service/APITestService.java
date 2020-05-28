@@ -167,4 +167,7 @@ public class APITestService {
         }
     }
 
+    public List<ApiTest> getApiTestByProjectId(String projectId) {
+        return extApiTestMapper.getApiTestByProjectId(projectId);
+    }
 }

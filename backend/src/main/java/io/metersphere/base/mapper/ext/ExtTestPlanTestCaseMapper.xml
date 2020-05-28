@@ -93,4 +93,9 @@
         </foreach>
         order by test_plan_test_case.update_time asc
     </select>
+    <select id="getStatusByPlanId" resultType="java.lang.String">
+        select status
+        from test_plan_test_case
+        where plan_id = #{planId}
+    </select>
 </mapper>

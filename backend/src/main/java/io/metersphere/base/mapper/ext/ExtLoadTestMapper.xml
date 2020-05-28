@@ -31,5 +31,10 @@
         select count(id) from load_test
         where project_id = #{projectId};
     </select>
+    <select id="getLoadTestByProjectId" resultType="io.metersphere.base.domain.LoadTest">
+        select id,name
+        from load_test
+        where project_id = #{projectId};
+    </select>
 
 </mapper>

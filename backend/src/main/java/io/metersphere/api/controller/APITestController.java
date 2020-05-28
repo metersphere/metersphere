@@ -7,7 +7,9 @@ import io.metersphere.api.dto.DeleteAPITestRequest;
 import io.metersphere.api.dto.QueryAPITestRequest;
 import io.metersphere.api.dto.SaveAPITestRequest;
 import io.metersphere.api.service.APITestService;
+import io.metersphere.base.domain.ApiTest;
 import io.metersphere.base.domain.ApiTestWithBLOBs;
+import io.metersphere.base.domain.LoadTest;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -42,6 +44,11 @@ public class APITestController {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return PageUtils.setPageInfo(page, apiTestService.list(request));
+    }
+
+    @GetMapping("/list/{projectId}")
+    public List<ApiTest> list(@PathVariable String projectId) {
+        return apiTestService.getApiTestByProjectId(projectId);
     }
 
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})

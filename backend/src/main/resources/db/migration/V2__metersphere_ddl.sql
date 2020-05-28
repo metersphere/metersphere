@@ -286,6 +286,7 @@ CREATE TABLE IF NOT EXISTS `test_case_node` (
 CREATE TABLE IF NOT EXISTS `test_case` (
     `id`                     varchar(50) NOT NULL COMMENT 'Test case ID',
     `node_id`                varchar(50) NOT NULL COMMENT 'Node ID this case belongs to',
+    `test_id`                varchar(50) DEFAULT NULL COMMENT 'Test ID relation to',
     `node_path`              varchar(50) NOT NULL COMMENT 'Node path this case belongs to',
     `project_id`             varchar(50) NOT NULL COMMENT 'Project ID this test belongs to',
     `name`                   varchar(64) NOT NULL COMMENT 'Case name',
@@ -309,6 +310,7 @@ CREATE TABLE IF NOT EXISTS `test_plan_test_case` (
     `id`                     varchar(50) NOT NULL COMMENT 'ID',
     `plan_id`                varchar(50) NOT NULL COMMENT 'Plan ID relation to',
     `case_id`                varchar(50) NOT NULL COMMENT 'Case ID relation to',
+    `report_id`              varchar(50) DEFAULT NULL COMMENT 'Test report ID relation to',
     `executor`               varchar(64) NOT NULL COMMENT 'Test case executor',
     `status`                 varchar(15) NULL COMMENT 'Test case status',
     `results`                longtext COMMENT 'Test case result',

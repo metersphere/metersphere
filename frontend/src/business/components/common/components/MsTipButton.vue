@@ -1,13 +1,13 @@
 <template>
 
-  <el-tooltip :disabled="disabled"
-              :content="tip"
+  <el-tooltip :content="tip"
               placement="bottom"
               :effect="effect">
     <el-button @click="exec()"
                @click.stop="clickStop"
                @keydown.enter.native.prevent
                circle
+               :disabled="disabled"
                :type="type"
                :icon="icon"
                :size="size"/>

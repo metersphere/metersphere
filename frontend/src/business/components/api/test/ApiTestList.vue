@@ -3,7 +3,7 @@
     <ms-main-container>
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
-          <ms-table-header :condition.sync="condition" @search="search" :title="$t('commons.test')"
+          <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search" :title="$t('commons.test')"
                            @create="create" :createTip="$t('load_test.create')"/>
         </template>
         <el-table :data="tableData" class="table-content">
@@ -31,7 +31,7 @@
           </el-table-column>
           <el-table-column width="150" :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <ms-table-operator @editClick="handleEdit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
+              <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
             </template>
           </el-table-column>
         </el-table>

@@ -10,6 +10,7 @@
     <result column="remark" jdbcType="VARCHAR" property="remark" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="report_id" jdbcType="VARCHAR" property="reportId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestPlanTestCaseWithBLOBs">
     <result column="results" jdbcType="LONGVARCHAR" property="results" />
@@ -74,7 +75,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, plan_id, case_id, executor, status, remark, create_time, update_time
+    id, plan_id, case_id, executor, status, remark, create_time, update_time, report_id
   </sql>
   <sql id="Blob_Column_List">
     results, issues
@@ -130,12 +131,12 @@
   <insert id="insert" parameterType="io.metersphere.base.domain.TestPlanTestCaseWithBLOBs">
     insert into test_plan_test_case (id, plan_id, case_id, 
       executor, status, remark, 
-      create_time, update_time, results, 
-      issues)
+      create_time, update_time, report_id, 
+      results, issues)
     values (#{id,jdbcType=VARCHAR}, #{planId,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, 
       #{executor,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{results,jdbcType=LONGVARCHAR}, 
-      #{issues,jdbcType=LONGVARCHAR})
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{reportId,jdbcType=VARCHAR}, 
+      #{results,jdbcType=LONGVARCHAR}, #{issues,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlanTestCaseWithBLOBs">
     insert into test_plan_test_case
@@ -163,6 +164,9 @@
       </if>
       <if test="updateTime != null">
         update_time,
+      </if>
+      <if test="reportId != null">
+        report_id,
       </if>
       <if test="results != null">
         results,
@@ -195,6 +199,9 @@
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="reportId != null">
+        #{reportId,jdbcType=VARCHAR},
       </if>
       <if test="results != null">
         #{results,jdbcType=LONGVARCHAR},
@@ -237,6 +244,9 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
+      <if test="record.reportId != null">
+        report_id = #{record.reportId,jdbcType=VARCHAR},
+      </if>
       <if test="record.results != null">
         results = #{record.results,jdbcType=LONGVARCHAR},
       </if>
@@ -258,6 +268,7 @@
       remark = #{record.remark,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
+      report_id = #{record.reportId,jdbcType=VARCHAR},
       results = #{record.results,jdbcType=LONGVARCHAR},
       issues = #{record.issues,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
@@ -273,7 +284,8 @@
       status = #{record.status,jdbcType=VARCHAR},
       remark = #{record.remark,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT}
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      report_id = #{record.reportId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -302,6 +314,9 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
+      <if test="reportId != null">
+        report_id = #{reportId,jdbcType=VARCHAR},
+      </if>
       <if test="results != null">
         results = #{results,jdbcType=LONGVARCHAR},
       </if>
@@ -320,6 +335,7 @@
       remark = #{remark,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
+      report_id = #{reportId,jdbcType=VARCHAR},
       results = #{results,jdbcType=LONGVARCHAR},
       issues = #{issues,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
@@ -332,7 +348,8 @@
       status = #{status,jdbcType=VARCHAR},
       remark = #{remark,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT}
+      update_time = #{updateTime,jdbcType=BIGINT},
+      report_id = #{reportId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

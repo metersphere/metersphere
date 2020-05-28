@@ -21,4 +21,6 @@ public interface ExtTestPlanTestCaseMapper {
     List<TestPlanCaseDTO> getRecentTestedTestCase(@Param("request") QueryTestPlanCaseRequest request);
 
     List<TestPlanCaseDTO> getPendingTestCases(@Param("request") QueryTestPlanCaseRequest request);
+
+    List<String> getStatusByPlanId(String planId);
 }

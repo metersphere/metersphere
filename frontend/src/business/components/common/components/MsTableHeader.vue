@@ -8,7 +8,7 @@
     </el-row>
     <el-row type="flex" justify="space-between" align="middle">
       <span class="operate-button">
-        <ms-table-button v-if="showCreate" icon="el-icon-circle-plus-outline" :content="createTip" @click="create"/>
+        <ms-table-button :is-tester-permission="isTesterPermission" v-if="showCreate" icon="el-icon-circle-plus-outline" :content="createTip" @click="create"/>
         <slot name="button"></slot>
       </span>
       <span>
@@ -45,6 +45,10 @@
           default() {
             return this.$t('commons.create');
           }
+        },
+        isTesterPermission: {
+          type: Boolean,
+          default: false
         }
       },
       methods: {
