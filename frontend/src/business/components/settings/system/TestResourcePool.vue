@@ -239,7 +239,7 @@
         rule: {
           name: [
             {required: true, message: this.$t('test_resource_pool.input_pool_name'), trigger: 'blur'},
-            {min: 2, max: 64, message: this.$t('commons.input_limit', [2, 64]), trigger: 'blur'},
+            {min: 2, max: 20, message: this.$t('commons.input_limit', [2, 20]), trigger: 'blur'},
             {
               required: true,
               pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/,

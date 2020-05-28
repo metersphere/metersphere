@@ -33,7 +33,7 @@
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
-        <el-form-item :label="$t('commons.description')">
+        <el-form-item :label="$t('commons.description')" prop="description">
           <el-input type="textarea" v-model="form.description"></el-input>
         </el-form-item>
         <el-form-item :label="$t('workspace.organization_name')" prop="organizationId">
@@ -134,7 +134,7 @@
             <el-option
               v-for="item in memberForm.roles"
               :key="item.id"
-              :label="item.name"
+              :label="$t('role.' + item.id)"
               :value="item.id">
             </el-option>
           </el-select>
@@ -170,7 +170,7 @@
             <el-option
               v-for="item in memberForm.allroles"
               :key="item.id"
-              :label="item.name"
+              :label="$t('role.' + item.id)"
               :value="item.id">
             </el-option>
           </el-select>
@@ -447,13 +447,16 @@
         rules: {
           name: [
             {required: true, message: this.$t('workspace.input_name'), trigger: 'blur'},
-            {min: 2, max: 50, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'},
+            {min: 2, max: 20, message: this.$t('commons.input_limit', [2, 20]), trigger: 'blur'},
             {
               required: true,
               pattern: /^(?!-)(?!.*?-$)[a-zA-Z0-9\u4e00-\u9fa5-]+$/,
               message: this.$t('workspace.special_characters_are_not_supported'),
               trigger: 'blur'
             }
+          ],
+          description: [
+            {max: 50, message: this.$t('commons.input_limit', [0, 50]), trigger: 'blur'}
           ],
           organizationId: [
             {required: true, message: this.$t('organization.select_organization'), trigger: ['blur']}
