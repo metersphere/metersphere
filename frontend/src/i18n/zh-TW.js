@@ -488,6 +488,7 @@ export default {
       result_statistics_chart: "測試結果統計圖",
       create_template: "新建模版",
       report_template: "測試報告模版",
+      test_detail: "測試詳情",
     }
   },
   test_resource_pool: {

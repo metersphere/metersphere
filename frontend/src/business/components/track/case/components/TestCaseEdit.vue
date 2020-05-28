@@ -74,8 +74,12 @@
           <el-col :span="12">
             <el-form-item :label="$t('test_track.case.method')" :label-width="formLabelWidth" prop="method">
               <el-select :disabled="readOnly" v-model="form.method" :placeholder="$t('test_track.case.input_method')">
-                <el-option :label="$t('test_track.case.manual')" value="manual"></el-option>
-                <el-option :label="$t('test_track.case.auto')" value="auto"></el-option>
+                <el-option
+                  v-for="item in methodOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+                </el-option>
               </el-select>
             </el-form-item>
           </el-col>
@@ -111,11 +115,11 @@
           </el-col>
         </el-row>
 
-        <el-row style="margin-bottom: 10px">
+        <el-row v-if="form.method && form.method != 'auto'" style="margin-bottom: 10px">
           <el-col :offset="2">{{$t('test_track.case.steps')}}:</el-col>
         </el-row>
 
-        <el-row type="flex" justify="center">
+        <el-row v-if="form.method && form.method != 'auto'" type="flex" justify="center">
           <el-col :span="20">
             <el-table
               :data="form.steps"
@@ -238,6 +242,7 @@
         },
         moduleOptions: [],
         maintainerOptions: [],
+        methodOptions: [],
         testOptions: [],
         workspaceId: '',
         rules:{
@@ -283,7 +288,6 @@
     methods: {
       open(testCase) {
         this.resetForm();
-        this.getSelectOptions();
         this.operationType = 'add';
         if(testCase){
           //修改
@@ -311,6 +315,8 @@
           this.form.method = 'manual';
           this.form.maintainer = user.id;
         }
+
+        this.getSelectOptions();
         this.dialogFormVisible = true;
       },
       handleAddStep(index, data) {
@@ -389,6 +395,7 @@
       },
       typeChange() {
         this.form.testId = '';
+        this.getMethodOptions();
         this.getTestOptions()
       },
       getModuleOptions() {
@@ -412,10 +419,22 @@
           });
         }
       },
+      getMethodOptions() {
+        if (!this.form.type || this.form.type != 'functional') {
+          this.methodOptions = [
+            {value: 'auto', label: this.$t('test_track.case.auto')},
+            {value: 'manual', label: this.$t('test_track.case.manual')}
+          ];
+        } else {
+          this.form.method = 'manual';
+          this.methodOptions = [{value: 'manual', label: this.$t('test_track.case.manual')}]
+        }
+      },
       getSelectOptions() {
         this.getModuleOptions();
         this.getMaintainerOptions();
         this.getTestOptions();
+        this.getMethodOptions();
       },
       buildNodePath(node, option, moduleOptions) {
         //递归构建节点路径
@@ -441,6 +460,7 @@
             this.form.priority = '';
             this.form.prerequisite = '';
             this.form.remark = '';
+            this.form.testId = '';
             this.form.steps = [{
               num: 1 ,
               desc: '',

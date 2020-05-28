@@ -85,7 +85,22 @@
                 </el-col>
               </el-row>
 
-              <el-row>
+              <el-row v-if="testCase.method == 'auto' && testCase.testId">
+                <el-col class="test-detail" :span="20" :offset="1">
+                    <el-tabs type="border-card">
+                      <el-tab-pane :label="$t('test_track.plan_view.test_detail')">
+                        <ms-api-test-config v-if="testCase.type == 'api'"/>
+                        <edit-performance-test-plan v-if="testCase.type == 'performance'"/>
+                      </el-tab-pane>
+                      <el-tab-pane :label="$t('test_track.plan_view.test_result')">
+                        <ms-api-report-view v-if="testCase.type == 'api'"/>
+                        <performance-report-view v-if="testCase.type == 'performance'"/>
+                      </el-tab-pane>
+                    </el-tabs>
+                </el-col>
+              </el-row>
+
+              <el-row v-if="testCase.method && testCase.method != 'auto'">
                 <el-col :span="20" :offset="1">
                   <div>
                     <span class="cast_label">{{$t('test_track.case.steps')}}：</span>
@@ -184,10 +199,16 @@
 <script>
   import TestPlanTestCaseStatusButton from '../../common/TestPlanTestCaseStatusButton';
   import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+  import MsApiTestConfig from "../../../../api/test/ApiTestConfig";
+  import MsApiReportView from "../../../../api/report/ApiReportView";
+  import EditPerformanceTestPlan from "../../../../performance/test/EditPerformanceTestPlan";
+  import PerformanceReportView from "../../../../performance/report/PerformanceReportView";
 
   export default {
     name: "TestPlanTestCaseEdit",
-    components: {TestPlanTestCaseStatusButton},
+    components: {
+      PerformanceReportView,
+      EditPerformanceTestPlan, MsApiReportView, MsApiTestConfig, TestPlanTestCaseStatusButton},
     data() {
       return {
         result: {},
@@ -196,6 +217,7 @@
         index: 0,
         testCases: [],
         editor: ClassicEditor,
+        test: {}
       };
     },
     props: {
@@ -290,9 +312,17 @@
             if (this.testCases[i].id === testCase.id) {
               this.index = i;
               this.getTestCase(i);
+              this.getRelatedTest();
             }
           }
         });
+      },
+      getRelatedTest() {
+        if (this.testCase.method == 'auto' && this.testCase.testId) {
+          this.$get('/' + this.testCase.type + '/get/' + this.testCase.testId, response => {
+            this.test = response.data;
+          });
+        }
       },
       issuesChange() {
        if (this.testCase.issues.hasIssues) {
@@ -343,7 +373,7 @@
     text-align: right;
   }
 
-  .el-col {
+  .el-col:not(.test-detail){
     line-height: 50px;
   }
 
