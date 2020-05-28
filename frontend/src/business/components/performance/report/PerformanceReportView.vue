@@ -37,16 +37,17 @@
 
         <el-tabs v-model="active" type="border-card" :stretch="true">
           <el-tab-pane :label="$t('report.test_overview')">
-            <ms-report-test-overview :id="reportId" :status="status"/>
+<!--            <ms-report-test-overview :id="reportId" :status="status"/>-->
+            <ms-report-test-overview :report="report"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('report.test_request_statistics')">
-            <ms-report-request-statistics :id="reportId" :status="status"/>
+            <ms-report-request-statistics :report="report"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('report.test_error_log')">
-            <ms-report-error-log :id="reportId" :status="status"/>
+            <ms-report-error-log :report="report"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('report.test_log_details')">
-            <ms-report-log-details :id="reportId" :status="status"/>
+            <ms-report-log-details :report="report"/>
           </el-tab-pane>
         </el-tabs>
 
@@ -89,6 +90,7 @@
         minutes: '0',
         seconds: '0',
         title: 'Logging',
+        report: {}
       }
     },
     methods: {
@@ -108,8 +110,9 @@
       },
       initReportTimeInfo() {
         if (this.reportId) {
-          this.result = this.$get("/performance/report/content/report_time/" + this.reportId, res => {
-            let data = res.data;
+          this.result = this.$get("/performance/report/content/report_time/" + this.reportId)
+            .then(res => {
+            let data = res.data.data;
             if (data) {
               this.startTime = data.startTime;
               this.endTime = data.endTime;
@@ -117,55 +120,90 @@
               this.minutes = Math.floor(duration / 60);
               this.seconds = duration % 60;
             }
+          }).catch(() => {
+            this.clearData();
           })
         }
       },
-    },
-    mounted() {
-      this.reportId = this.$route.path.split('/')[4];
-      this.result = this.$get("/performance/report/" + this.reportId, res => {
-        let data = res.data;
-        this.status = data.status;
-        switch (data.status) {
+      checkReportStatus(status) {
+        switch (status) {
           case 'Error':
             this.$warning(this.$t('report.generation_error'));
             break;
           case 'Starting':
+            this.$warning("测试处于开始状态,请稍后查看报告！");
+            break;
           case 'Reporting':
             this.$info(this.$t('report.being_generated'));
             break;
           case 'Running':
+            this.$warning("测试处于运行状态,请稍后查看报告！");
             break;
+          case 'Completed':
           default:
             break;
         }
+      },
+      clearData() {
+        this.startTime = '0';
+        this.endTime = '0';
+        this.minutes = '0';
+        this.seconds = '0';
+      }
+    },
+    created() {
+      this.reportId = this.$route.path.split('/')[4];
+      this.result = this.$get("/performance/report/" + this.reportId, res => {
+        let data = res.data;
+        this.status = data.status;
+        this.$set(this.report, "id", this.reportId);
+        this.$set(this.report, "status", data.status);
+        this.checkReportStatus(data.status);
+        if (this.status === "Completed") {
+          this.initReportTimeInfo();
+        }
       })
       this.initBreadcrumb();
-      this.initReportTimeInfo();
+
     },
     watch: {
       '$route'(to) {
-        let reportId = to.path.split('/')[4];
-        if (reportId) {
-          this.$get("/performance/report/test/pro/info/" + reportId, response => {
-            let data = response.data;
-            if (data) {
-              this.reportName = data.name;
-              this.testName = data.testName;
-              this.projectName = data.projectName;
-            }
-          });
-          this.result = this.$get("/performance/report/content/report_time/" + this.reportId, res => {
-            let data = res.data;
-            if (data) {
-              this.startTime = data.startTime;
-              this.endTime = data.endTime;
-              let duration = data.duration;
-              this.minutes = Math.floor(duration / 60);
-              this.seconds = duration % 60;
-            }
-          })
-          window.location.reload();
+        if (to.name === "perReportView") {
+          let reportId = to.path.split('/')[4];
+          this.reportId = reportId;
+          if (reportId) {
+            this.$get("/performance/report/test/pro/info/" + reportId, response => {
+              let data = response.data;
+              if (data) {
+                this.status = data.status;
+                this.reportName = data.name;
+                this.testName = data.testName;
+                this.projectName = data.projectName;
+
+                this.$set(this.report, "id", reportId);
+                this.$set(this.report, "status", data.status);
+
+                this.checkReportStatus(data.status);
+                if (this.status === "Completed") {
+                  this.result = this.$get("/performance/report/content/report_time/" + this.reportId).then(res => {
+                    let data = res.data.data;
+                    if (data) {
+                      this.startTime = data.startTime;
+                      this.endTime = data.endTime;
+                      let duration = data.duration;
+                      this.minutes = Math.floor(duration / 60);
+                      this.seconds = duration % 60;
+                    }
+                  }).catch(() => {
+                    this.clearData();
+                  })
+                } else {
+                  this.clearData();
+                }
+              }
+            });
+
+          }
         }
       }
     }
