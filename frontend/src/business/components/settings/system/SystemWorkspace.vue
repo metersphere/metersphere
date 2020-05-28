@@ -134,7 +134,7 @@
             <el-option
               v-for="item in memberForm.roles"
               :key="item.id"
-              :label="item.name"
+              :label="$t('role.' + item.id)"
               :value="item.id">
             </el-option>
           </el-select>
@@ -170,7 +170,7 @@
             <el-option
               v-for="item in memberForm.allroles"
               :key="item.id"
-              :label="item.name"
+              :label="$t('role.' + item.id)"
               :value="item.id">
             </el-option>
           </el-select>

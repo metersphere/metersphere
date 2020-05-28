@@ -84,7 +84,7 @@
             <el-option
               v-for="item in form.allroles"
               :key="item.id"
-              :label="item.name"
+              :label="$t('role.' + item.id)"
               :value="item.id">
             </el-option>
           </el-select>
