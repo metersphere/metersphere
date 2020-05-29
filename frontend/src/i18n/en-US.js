@@ -489,6 +489,7 @@ export default {
       result_statistics_chart: "Result statistics chart",
       create_template: "Create template",
       report_template: "Report template",
+      test_detail: "Test detail",
     }
   },
   test_resource_pool: {

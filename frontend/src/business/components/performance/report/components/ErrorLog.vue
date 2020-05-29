@@ -131,27 +131,40 @@
     data() {
       return {
         tableData: [],
-        errorTop5: []
+        errorTop5: [],
+        id: ''
       }
     },
     methods: {
       initTableData() {
-        this.$get("/performance/report/content/errors/" + this.id, res => {
-          this.tableData = res.data;
+        this.$get("/performance/report/content/errors/" + this.id).then(res => {
+          this.tableData = res.data.data;
+        }).catch(() => {
+          this.tableData = [];
         })
-        this.$get("/performance/report/content/errors_top5/" + this.id, res => {
-          this.errorTop5 = res.data;
+        this.$get("/performance/report/content/errors_top5/" + this.id).then(res => {
+          this.errorTop5 = res.data.data;
+        }).catch(() => {
+          this.errorTop5 = [];
         })
       }
     },
     watch: {
-      status() {
-        if ("Completed" === this.status) {
-          this.initTableData()
-        }
+      report: {
+        handler(val){
+          let status = val.status;
+          this.id = val.id;
+          if (status === "Completed") {
+            this.initTableData();
+          } else {
+            this.tableData = [];
+            this.errorTop5 = [];
+          }
+        },
+        deep:true
       }
     },
-    props: ['id','status']
+    props: ['report']
   }
 </script>
 

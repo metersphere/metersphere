@@ -12,17 +12,19 @@
 <script>
   export default {
     name: "LogDetails",
-    props: ['id', 'status'],
     data() {
       return {
         logContent: null,
         result: {},
+        id: ''
       }
     },
     methods: {
       initTableData() {
-        this.result = this.$get("/performance/report/log/" + this.id, res => {
-          this.logContent = res.data;
+        this.result = this.$get("/performance/report/log/" + this.id).then(res => {
+          this.logContent = res.data.data;
+        }).catch(() => {
+          this.logContent = null;
         })
       },
       downloadLogFile(item) {
@@ -50,12 +52,20 @@
       }
     },
     watch: {
-      status() {
-        if ("Completed" === this.status) {
-          this.initTableData()
-        }
+      report: {
+        handler(val){
+          let status = val.status;
+          this.id = val.id;
+          if (status === "Completed") {
+            this.initTableData();
+          } else {
+            this.logContent = null;
+          }
+        },
+        deep:true
       }
     },
+    props: ['report']
   }
 </script>
 
