@@ -114,7 +114,7 @@ export default {
     'input_name': 'Please enter a organization name',
     'select_organization': 'Please select organization',
     'search_by_name': 'Search by name',
-    'special_characters_are_not_supported': 'Special characters are not supported',
+    'special_characters_are_not_supported': 'Incorrect format (special characters are not supported and cannot end with \'-\')',
     'none': 'None Organization',
     'select': 'Select Organization',
   },
@@ -129,6 +129,7 @@ export default {
     'input_name': 'Please enter a workspace name',
     'owning_workspace': 'Owning Workspace',
     'please_choose_workspace': 'Please select Workspace',
+    'special_characters_are_not_supported': 'Incorrect format (special characters are not supported and cannot end with \'-\')',
   },
   member: {
     'create': 'Create',
@@ -191,6 +192,8 @@ export default {
     'generation_error': 'Report generation error, cannot be viewed!',
     'being_generated': 'Report is being generated...',
     'delete_confirm': 'Confirm delete: ',
+    'start_status': 'The test is starting, please check the report later!',
+    'run_status': 'The test is running, please check the report later！',
   },
   load_test: {
     'operating': 'Operating',

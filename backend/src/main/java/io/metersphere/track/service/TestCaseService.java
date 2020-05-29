@@ -92,7 +92,19 @@ public class TestCaseService {
 
     public int editTestCase(TestCaseWithBLOBs testCase) {
         testCase.setUpdateTime(System.currentTimeMillis());
+        checkTestCaseExist(testCase);
         return testCaseMapper.updateByPrimaryKeySelective(testCase);
+    }
+
+    private void checkTestCaseExist (TestCaseWithBLOBs testCase) {
+        TestCaseExample example = new TestCaseExample();
+        example.createCriteria()
+                .andNameEqualTo(testCase.getName())
+                .andProjectIdEqualTo(testCase.getProjectId())
+                .andIdNotEqualTo(testCase.getId());
+        if (testCaseMapper.selectByExample(example).size() > 0) {
+            MSException.throwException(Translator.get("test_case_already_exists"));
+        }
     }
 
     public int deleteTestCase(String testCaseId) {

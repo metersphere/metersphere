@@ -113,7 +113,7 @@ export default {
     'input_name': '請輸入組織名稱',
     'select_organization': '請選擇組織',
     'search_by_name': '根據名稱搜索',
-    'special_characters_are_not_supported': '不支持特殊字符',
+    'special_characters_are_not_supported': 'Incorrect format (special characters are not supported and cannot end with \'-\')',
     'none': '無組織',
     'select': '選擇組織',
   },
@@ -127,6 +127,7 @@ export default {
     'input_name': '請輸入項目名稱',
     'owning_workspace': '所屬工作空間',
     'please_choose_workspace': '請選擇工作空間',
+    'special_characters_are_not_supported': '格式錯誤(不支持特殊字符，且不能以\'-\'開頭結尾)',
   },
   member: {
     'create': '添加成員',
@@ -190,6 +191,8 @@ export default {
     'generation_error': '報告生成錯誤,無法查看!',
     'being_generated': '報告正在生成中...',
     'delete_confirm': '確認刪除報告: ',
+    'start_status': '測試處於開始狀態,請稍後查看報告！',
+    'run_status': '測試處於運行狀態,請稍後查看報告！',
   },
   load_test: {
     'operating': '操作',

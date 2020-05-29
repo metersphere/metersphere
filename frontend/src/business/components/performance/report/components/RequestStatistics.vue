@@ -95,13 +95,16 @@
     name: "RequestStatistics",
     data() {
       return {
-        tableData: []
+        tableData: [],
+        id: ''
       }
     },
     methods: {
       initTableData() {
-        this.$get("/performance/report/content/" + this.id, res => {
-          this.tableData = res.data;
+        this.$get("/performance/report/content/" + this.id).then(res => {
+          this.tableData = res.data.data;
+        }).catch(() => {
+          this.tableData = [];
         })
       },
       getSummaries(param) {
@@ -154,13 +157,20 @@
       }
     },
     watch: {
-      status() {
-        if ("Completed" === this.status) {
-          this.initTableData()
-        }
+      report: {
+        handler(val){
+          let status = val.status;
+          this.id = val.id;
+          if (status === "Completed") {
+            this.initTableData();
+          } else {
+            this.tableData = [];
+          }
+        },
+        deep:true
       }
     },
-    props: ['id', 'status']
+    props: ['report']
   }
 </script>
 

@@ -80,22 +80,31 @@
         responseTime90: "0",
         avgBandwidth: "0",
         loadOption: {},
-        resOption: {}
+        resOption: {},
+        id: ''
       }
     },
     methods: {
       initTableData() {
-        this.$get("/performance/report/content/testoverview/" + this.id, res => {
-          let data = res.data;
+        this.$get("/performance/report/content/testoverview/" + this.id).then(res => {
+          let data = res.data.data;
           this.maxUsers = data.maxUsers;
           this.avgThroughput = data.avgThroughput;
           this.errors = data.errors;
           this.avgResponseTime = data.avgResponseTime;
           this.responseTime90 = data.responseTime90;
           this.avgBandwidth = data.avgBandwidth;
+        }).catch(() => {
+          this.maxUsers = '0';
+          this.avgThroughput = '0';
+          this.errors = '0';
+          this.avgResponseTime = '0';
+          this.responseTime90 = '0';
+          this.avgBandwidth = '0';
+          this.$warning(this.$t('report.generation_error'));
         })
-        this.$get("/performance/report/content/load_chart/" + this.id, res => {
-          let data = res.data;
+        this.$get("/performance/report/content/load_chart/" + this.id).then(res => {
+          let data = res.data.data;
           let yAxisList = data.filter(m => m.yAxis2 === -1).map(m => m.yAxis);
           let yAxis2List = data.filter(m => m.yAxis === -1).map(m => m.yAxis2);
           let yAxisListMax = this._getChartMax(yAxisList);
@@ -166,9 +175,11 @@
             setting["series"].splice(0, 0, {name: item, yAxisIndex: '1'})
           })
           this.loadOption = this.generateOption(loadOption, data, setting);
+        }).catch(() => {
+          this.loadOption = {};
         })
-        this.$get("/performance/report/content/res_chart/" + this.id, res => {
-          let data = res.data;
+        this.$get("/performance/report/content/res_chart/" + this.id).then(res => {
+          let data = res.data.data;
           let yAxisList = data.filter(m => m.yAxis2 === -1).map(m => m.yAxis);
           let yAxis2List = data.filter(m => m.yAxis === -1).map(m => m.yAxis2);
           let yAxisListMax = this._getChartMax(yAxisList);
@@ -246,6 +257,8 @@
           })
 
           this.resOption = this.generateOption(resOption, data, setting);
+        }).catch(() => {
+          this.resOption = {};
         })
       },
       generateOption(option, data, setting) {
@@ -310,13 +323,27 @@
       }
     },
     watch: {
-      status() {
-        if ("Completed" === this.status) {
-          this.initTableData()
-        }
+      report: {
+        handler(val){
+          let status = val.status;
+          this.id = val.id;
+          if (status === "Completed") {
+            this.initTableData();
+          } else {
+            this.maxUsers = '0';
+            this.avgThroughput = '0';
+            this.errors = '0';
+            this.avgResponseTime = '0';
+            this.responseTime90 = '0';
+            this.avgBandwidth = '0';
+            this.loadOption = {};
+            this.resOption = {};
+          }
+        },
+        deep:true
       }
     },
-    props: ['id', 'status']
+    props: ['report']
   }
 </script>
 

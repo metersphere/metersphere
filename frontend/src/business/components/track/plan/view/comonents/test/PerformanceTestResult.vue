@@ -37,17 +37,16 @@
 
         <el-tabs v-model="active" type="border-card" :stretch="true">
           <el-tab-pane :label="$t('report.test_overview')">
-<!--            <ms-report-test-overview :id="reportId" :status="status"/>-->
-            <ms-report-test-overview :report="report"/>
+            <test-overview :report="report"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('report.test_request_statistics')">
-            <ms-report-request-statistics :report="report"/>
+            <request-statistics :report="report"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('report.test_error_log')">
-            <ms-report-error-log :report="report"/>
+            <error-log :report="report"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('report.test_log_details')">
-            <ms-report-log-details :report="report"/>
+            <log-details :report="report"/>
           </el-tab-pane>
         </el-tabs>
 
@@ -57,20 +56,20 @@
 </template>
 
 <script>
-  import MsReportErrorLog from './components/ErrorLog';
-  import MsReportLogDetails from './components/LogDetails';
-  import MsReportRequestStatistics from './components/RequestStatistics';
-  import MsReportTestOverview from './components/TestOverview';
-  import MsContainer from "../../common/components/MsContainer";
-  import MsMainContainer from "../../common/components/MsMainContainer";
+  import MsMainContainer from "../../../../../common/components/MsMainContainer";
+  import MsContainer from "../../../../../common/components/MsContainer";
+  import LogDetails from "../../../../../performance/report/components/LogDetails";
+  import ErrorLog from "../../../../../performance/report/components/ErrorLog";
+  import RequestStatistics from "../../../../../performance/report/components/RequestStatistics";
+  import TestOverview from "../../../../../performance/report/components/TestOverview";
 
   export default {
-    name: "PerformanceReportView",
+    name: "PerformanceTestResult",
     components: {
-      MsReportErrorLog,
-      MsReportLogDetails,
-      MsReportRequestStatistics,
-      MsReportTestOverview,
+      TestOverview,
+      RequestStatistics,
+      ErrorLog,
+      LogDetails,
       MsContainer,
       MsMainContainer
     },
@@ -78,7 +77,6 @@
       return {
         result: {},
         active: '0',
-        reportId: '',
         status: '',
         reportName: '',
         testId: '',
@@ -93,6 +91,7 @@
         report: {}
       }
     },
+    props: ['reportId'],
     methods: {
       initBreadcrumb() {
         if (this.reportId) {
@@ -131,13 +130,13 @@
             this.$warning(this.$t('report.generation_error'));
             break;
           case 'Starting':
-            this.$warning(this.$t('report.start_status'));
+            this.$warning("测试处于开始状态,请稍后查看报告！");
             break;
           case 'Reporting':
             this.$info(this.$t('report.being_generated'));
             break;
           case 'Running':
-            this.$warning(this.$t('report.run_status'));
+            this.$warning("测试处于运行状态,请稍后查看报告！");
             break;
           case 'Completed':
           default:
@@ -152,7 +151,6 @@
       }
     },
     created() {
-      this.reportId = this.$route.path.split('/')[4];
       this.result = this.$get("/performance/report/" + this.reportId, res => {
         let data = res.data;
         this.status = data.status;
@@ -162,7 +160,7 @@
         if (this.status === "Completed") {
           this.initReportTimeInfo();
         }
-      })
+      });
       this.initBreadcrumb();
 
     },
