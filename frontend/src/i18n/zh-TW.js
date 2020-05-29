@@ -252,6 +252,7 @@ export default {
     'resource_pool_is_null': '資源池為空',
     'download_log_file': '下載完整日誌文件',
     'pressure_prediction_chart': '壓力預估圖',
+    'user_name': '創建人'
   },
   api_test: {
     title: "測試",
