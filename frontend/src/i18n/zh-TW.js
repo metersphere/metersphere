@@ -260,6 +260,7 @@ export default {
     copied: "已拷貝",
     key: "鍵",
     value: "值",
+    create_performance_test: "創建性能測試",
     scenario: {
       creator: "創建人",
       config: "場景配寘",

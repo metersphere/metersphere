@@ -115,7 +115,23 @@
 
       this.listProjects();
     },
+    mounted() {
+      this.importAPITest();
+    },
     methods: {
+      importAPITest() {
+        let apiTest = this.$store.state.api.test;
+        if (apiTest && apiTest.name) {
+          this.testPlan.projectId = apiTest.projectId;
+          this.testPlan.name = apiTest.name;
+          let blob = new Blob([apiTest.jmx.xml], {type: "application/octet-stream"});
+          let file = new File([blob], apiTest.jmx.name);
+          this.$refs.basicConfig.beforeUpload(file);
+          this.$refs.basicConfig.handleUpload({file: file});
+          this.active = '1';
+          this.$store.commit("clearTest");
+        }
+      },
       listProjects() {
         this.result = this.$get(this.listProjectPath, response => {
           this.projects = response.data;

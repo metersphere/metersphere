@@ -262,6 +262,7 @@ export default {
     copied: "copied",
     key: "Key",
     value: "Value",
+    create_performance_test: "Create Performance Test",
     scenario: {
       config: "Scenario Config",
       input_name: "Please enter the scenario name",

@@ -259,6 +259,7 @@ export default {
     copied: "已拷贝",
     key: "键",
     value: "值",
+    create_performance_test: "创建性能测试",
     scenario: {
       config: "场景配置",
       input_name: "请输入场景名称",
