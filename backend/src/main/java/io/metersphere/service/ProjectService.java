@@ -130,13 +130,15 @@ public class ProjectService {
     }
 
     private void checkProjectExist (Project project) {
-        ProjectExample example = new ProjectExample();
-        example.createCriteria()
-                .andNameEqualTo(project.getName())
-                .andWorkspaceIdEqualTo(SessionUtils.getCurrentWorkspaceId())
-                .andIdNotEqualTo(project.getId());
-        if (projectMapper.selectByExample(example).size() > 0) {
-            MSException.throwException(Translator.get("project_name_already_exists"));
+        if (project.getName() != null) {
+            ProjectExample example = new ProjectExample();
+            example.createCriteria()
+                    .andNameEqualTo(project.getName())
+                    .andWorkspaceIdEqualTo(SessionUtils.getCurrentWorkspaceId())
+                    .andIdNotEqualTo(project.getId());
+            if (projectMapper.selectByExample(example).size() > 0) {
+                MSException.throwException(Translator.get("project_name_already_exists"));
+            }
         }
     }
 
