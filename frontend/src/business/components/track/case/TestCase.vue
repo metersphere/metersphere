@@ -160,6 +160,10 @@
       },
       editTestCase(testCase) {
         this.testCaseReadOnly = false;
+        if (this.treeNodes.length < 1) {
+          this.$warning('请先新建模块');
+          return;
+        }
         this.$refs.testCaseEditDialog.open(testCase);
       },
       copyTestCase(testCase) {
