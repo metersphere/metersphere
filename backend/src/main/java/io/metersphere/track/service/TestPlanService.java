@@ -90,7 +90,19 @@ public class TestPlanService {
 
     public int editTestPlan(TestPlan testPlan) {
         testPlan.setUpdateTime(System.currentTimeMillis());
+        checkTestPlanExist(testPlan);
         return testPlanMapper.updateByPrimaryKeySelective(testPlan);
+    }
+
+    private void checkTestPlanExist (TestPlan testPlan) {
+        TestPlanExample example = new TestPlanExample();
+        example.createCriteria()
+                .andNameEqualTo(testPlan.getName())
+                .andWorkspaceIdEqualTo(SessionUtils.getCurrentWorkspaceId())
+                .andIdNotEqualTo(testPlan.getId());
+        if (testPlanMapper.selectByExample(example).size() > 0) {
+            MSException.throwException(Translator.get("plan_name_already_exists"));
+        }
     }
 
     public int deleteTestPlan(String planId) {
