@@ -15,6 +15,7 @@
                 and w.id = #{proRequest.workspaceId}
             </if>
         </where>
+        order by p.update_time desc
     </select>
     <select id="getProjectIdByWorkspaceId" resultType="java.lang.String">
         select id
