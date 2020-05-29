@@ -308,6 +308,7 @@
           item.steptResults.push(item.steps[i]);
         }
         this.testCase = item;
+        this.initTest();
       },
       openTestCaseEdit(testCase) {
         this.showDialog = true;
@@ -340,7 +341,6 @@
               this.index = i;
               this.getTestCase(i);
               this.getRelatedTest();
-              this.initTest();
             }
           }
         });
