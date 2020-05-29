@@ -396,6 +396,7 @@ export default {
       delete: "删除用例",
       save_create_continue: "保存並繼續創建",
       please_create_project: "暫無項目，請先創建項目",
+      create_module_first: "請先新建模塊",
       import: {
         import: "導入用例",
         case_import: "導入測試用例",

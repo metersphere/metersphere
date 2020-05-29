@@ -78,12 +78,23 @@
         }
       },
       methods: {
+        listenGoBack() {
+          //监听浏览器返回操作，关闭该对话框
+          if (window.history && window.history.pushState) {
+            history.pushState(null, null, document.URL);
+            window.addEventListener('popstate', this.goBack, false);
+          }
+        },
+        goBack() {
+          this.handleClose();
+        },
         open(id) {
           if (id) {
             this.reportId = id;
           }
           this.getReport();
           this.showDialog = true;
+          this.listenGoBack();
         },
         getReport() {
           this.result = this.$get('/case/report/get/' + this.reportId, response => {
@@ -113,6 +124,7 @@
           });
         },
         handleClose() {
+          window.removeEventListener('popstate', this.goBack, false);
           this.showDialog = false;
         },
         handleEdit() {

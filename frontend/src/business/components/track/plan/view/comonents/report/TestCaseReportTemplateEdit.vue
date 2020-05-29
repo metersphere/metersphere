@@ -91,6 +91,16 @@
         }
       },
       methods: {
+        listenGoBack() {
+          //监听浏览器返回操作，关闭该对话框
+          if (window.history && window.history.pushState) {
+            history.pushState(null, null, document.URL);
+            window.addEventListener('popstate', this.goBack, false);
+          }
+        },
+        goBack() {
+          this.handleClose();
+        },
         open(id, isReport) {
           if (isReport) {
             this.isReport = isReport;
@@ -112,6 +122,7 @@
             this.initComponents();
           }
           this.showDialog = true;
+          this.listenGoBack();
         },
         initComponents() {
           this.componentMap.forEach((value, key) =>{
@@ -134,6 +145,7 @@
           });
         },
         handleClose() {
+          window.removeEventListener('popstate', this.goBack, false);
           this.showDialog = false;
         },
         change(evt) {
@@ -221,7 +233,7 @@
           }
           this.$post(url + this.type, param, () =>{
             this.$success(this.$t('commons.save_success'));
-            this.showDialog = false;
+            this.handleClose();
             this.$emit('refresh');
           });
         },
