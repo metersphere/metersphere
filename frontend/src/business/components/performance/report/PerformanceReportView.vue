@@ -178,6 +178,7 @@
                 this.status = data.status;
                 this.reportName = data.name;
                 this.testName = data.testName;
+                this.testId = data.testId;
                 this.projectName = data.projectName;
 
                 this.$set(this.report, "id", reportId);

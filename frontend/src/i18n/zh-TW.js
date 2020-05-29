@@ -194,6 +194,7 @@ export default {
     'delete_confirm': '確認刪除報告: ',
     'start_status': '測試處於開始狀態,請稍後查看報告！',
     'run_status': '測試處於運行狀態,請稍後查看報告！',
+    'user_name': '創建人'
   },
   load_test: {
     'operating': '操作',

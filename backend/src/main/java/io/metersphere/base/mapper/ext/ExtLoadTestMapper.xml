@@ -5,6 +5,7 @@
     <resultMap id="BaseResultMap" type="io.metersphere.dto.LoadTestDTO"
                extends="io.metersphere.base.mapper.LoadTestMapper.BaseResultMap">
         <result column="project_name" property="projectName"/>
+        <result column="user_name" property="userName"/>
     </resultMap>
 
     <select id="list" resultMap="BaseResultMap" parameterType="io.metersphere.track.request.testplan.QueryTestPlanRequest">
