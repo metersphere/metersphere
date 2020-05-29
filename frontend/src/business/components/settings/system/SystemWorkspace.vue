@@ -447,7 +447,7 @@
         rules: {
           name: [
             {required: true, message: this.$t('workspace.input_name'), trigger: 'blur'},
-            {min: 2, max: 20, message: this.$t('commons.input_limit', [2, 20]), trigger: 'blur'},
+            {min: 2, max: 25, message: this.$t('commons.input_limit', [2, 25]), trigger: 'blur'},
             {
               required: true,
               pattern: /^(?!-)(?!.*?-$)[a-zA-Z0-9\u4e00-\u9fa5-]+$/,
