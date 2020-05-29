@@ -136,6 +136,10 @@ export class Scenario extends BaseConfig {
     options.requests = options.requests || [new Request()];
     return options;
   }
+
+  clone() {
+    return new Scenario(this);
+  }
 }
 
 export class Request extends BaseConfig {
@@ -394,9 +398,8 @@ class JMXGenerator {
   }
 
   addScenarios(testPlan, scenarios) {
-    scenarios.forEach(options => {
-      // clone
-      let scenario = new Scenario(options);
+    scenarios.forEach(s => {
+      let scenario = s.clone();
       scenario.name = this.replace(scenario.name);
 
       let threadGroup = new ThreadGroup(scenario.name || "");
