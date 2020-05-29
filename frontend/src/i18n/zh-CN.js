@@ -113,7 +113,7 @@ export default {
     'input_name': '请输入组织名称',
     'select_organization': '请选择组织',
     'search_by_name': '根据名称搜索',
-    'special_characters_are_not_supported': '不支持特殊字符',
+    'special_characters_are_not_supported': '格式错误(不支持特殊字符，且不能以\'-\'开头结尾)',
     'none': '无组织',
     'select': '选择组织',
   },
@@ -127,6 +127,7 @@ export default {
     'input_name': '请输入项目名称',
     'owning_workspace': '所属工作空间',
     'please_choose_workspace': '请选择工作空间',
+    'special_characters_are_not_supported': '格式错误(不支持特殊字符，且不能以\'-\'开头结尾)',
   },
   member: {
     'create': '添加成员',
