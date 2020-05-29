@@ -394,7 +394,9 @@ class JMXGenerator {
   }
 
   addScenarios(testPlan, scenarios) {
-    scenarios.forEach(scenario => {
+    scenarios.forEach(options => {
+      // clone
+      let scenario = new Scenario(options);
       scenario.name = this.replace(scenario.name);
 
       let threadGroup = new ThreadGroup(scenario.name || "");
