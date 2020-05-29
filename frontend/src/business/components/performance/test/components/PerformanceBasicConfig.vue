@@ -4,7 +4,7 @@
       accept=".jmx,.csv"
       drag
       action=""
-      :limit="5"
+      :limit="2"
       multiple
       :show-file-list="false"
       :before-upload="beforeUpload"
@@ -175,7 +175,7 @@
         }
       },
       handleExceed() {
-        this.$error(this.$t('load_test.delete_file'));
+        this.$error(this.$t('load_test.file_size_limit'));
       },
       fileValidator(file) {
         /// todo: 是否需要对文件内容和大小做限制
