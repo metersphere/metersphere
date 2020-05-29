@@ -8,4 +8,5 @@ import lombok.Setter;
 @Setter
 public class LoadTestDTO extends LoadTest {
     private String projectName;
+    private String userName;
 }

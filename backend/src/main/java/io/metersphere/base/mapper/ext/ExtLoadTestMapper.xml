@@ -8,9 +8,10 @@
     </resultMap>
 
     <select id="list" resultMap="BaseResultMap" parameterType="io.metersphere.track.request.testplan.QueryTestPlanRequest">
-        select load_test.*, project.name as project_name
+        select load_test.*, project.name as project_name, user.name as user_name
         from load_test
         left join project on load_test.project_id = project.id
+        left join user on load_test.user_id = user.id
         <where>
             <if test="request.name != null">
                 and load_test.name like CONCAT('%', #{request.name},'%')

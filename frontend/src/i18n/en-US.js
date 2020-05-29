@@ -253,6 +253,7 @@ export default {
     'select_resource_pool': 'Please Select Resource Pool',
     'resource_pool_is_null': 'Resource Pool is empty',
     'download_log_file': 'Download',
+    'user_name': 'Creator'
   },
   api_test: {
     creator: "Creator",
