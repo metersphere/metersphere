@@ -77,7 +77,6 @@
       return {
         result: {},
         active: '0',
-        reportId: '',
         status: '',
         reportName: '',
         testId: '',

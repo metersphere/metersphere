@@ -289,7 +289,7 @@
       open(testCase) {
         this.resetForm();
         this.operationType = 'add';
-        if(testCase){
+        if (testCase) {
           //修改
           this.operationType = 'edit';
           //复制
