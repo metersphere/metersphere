@@ -2,7 +2,7 @@
   <div>
     <el-row :gutter="10" type="flex" justify="space-between" align="middle">
       <el-col>
-        <el-input v-model="time" step="100" size="small" type="number"
+        <el-input :value="value" v-bind="$attrs" step="100" size="small" type="number" @change="change" @input="input"
                   :placeholder="$t('api_test.request.assertions.response_in_time')"/>
       </el-col>
       <el-col class="assertion-btn">
@@ -14,32 +14,32 @@
 </template>
 
 <script>
+
   import {ResponseTime} from "../../model/ScenarioModel";
 
   export default {
     name: "MsApiAssertionResponseTime",
 
     props: {
-      edit: Boolean,
       duration: ResponseTime,
+      value: [Number, String],
+      edit: Boolean,
       callback: Function
     },
 
-    data() {
-      return {
-        time: this.duration.value
-      }
-    },
-
     methods: {
-      add: function () {
-        setTimeout(() => {
-          this.duration.value = this.time;
-          this.callback();
-        })
+      add() {
+        this.duration.value = this.value;
+        this.callback();
       },
-      remove: function () {
+      remove() {
         this.duration.value = undefined;
+      },
+      change(value) {
+        this.$emit('change', value);
+      },
+      input(value) {
+        this.$emit('input', value);
       }
     }
   }
