@@ -191,6 +191,8 @@ export default {
     'generation_error': '報告生成錯誤,無法查看!',
     'being_generated': '報告正在生成中...',
     'delete_confirm': '確認刪除報告: ',
+    'start_status': '測試處於開始狀態,請稍後查看報告！',
+    'run_status': '測試處於運行狀態,請稍後查看報告！',
   },
   load_test: {
     'operating': '操作',

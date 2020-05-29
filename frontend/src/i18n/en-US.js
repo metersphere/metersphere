@@ -192,6 +192,8 @@ export default {
     'generation_error': 'Report generation error, cannot be viewed!',
     'being_generated': 'Report is being generated...',
     'delete_confirm': 'Confirm delete: ',
+    'start_status': 'The test is starting, please check the report later!',
+    'run_status': 'The test is running, please check the report later！',
   },
   load_test: {
     'operating': 'Operating',
