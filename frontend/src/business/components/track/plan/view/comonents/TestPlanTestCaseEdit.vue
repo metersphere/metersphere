@@ -89,12 +89,12 @@
                 <el-col class="test-detail" :span="20" :offset="1">
                     <el-tabs type="border-card">
                       <el-tab-pane :label="$t('test_track.plan_view.test_detail')">
-                        <api-test-detail v-if="testCase.type == 'api'" @runTest="apiTestRun" :id="testCase.testId" v-show="testCase.type == 'api'" ref="apiTestDetail"/>
-                        <edit-performance-test-plan v-if="testCase.type == 'performance'"/>
+                        <api-test-detail v-if="testCase.type == 'api'" @runTest="apiTestRun" :id="testCase.testId" ref="apiTestDetail"/>
+                        <performance-test-detail v-if="testCase.type == 'performance'" :id="testCase.testId" ref="performanceTestDetail"/>
                       </el-tab-pane>
                       <el-tab-pane :label="$t('test_track.plan_view.test_result')">
                         <api-test-result :report-id="testCase.reportId" v-if=" testCase.type == 'api'" ref="apiTestResult"/>
-                        <performance-report-view v-if="testCase.type == 'performance'"/>
+                        <performance-test-result :report-id="testCase.reportId" v-if="testCase.type == 'performance'"/>
                       </el-tab-pane>
                     </el-tabs>
                 </el-col>
@@ -199,20 +199,19 @@
 <script>
   import TestPlanTestCaseStatusButton from '../../common/TestPlanTestCaseStatusButton';
   import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-  import MsApiTestConfig from "../../../../api/test/ApiTestConfig";
-  import MsApiReportView from "../../../../api/report/ApiReportView";
-  import EditPerformanceTestPlan from "../../../../performance/test/EditPerformanceTestPlan";
-  import PerformanceReportView from "../../../../performance/report/PerformanceReportView";
   import ApiTestDetail from "./test/ApiTestDetail";
   import ApiTestResult from "./test/ApiTestResult";
+  import PerformanceTestDetail from "./test/PerformanceTestDetail";
+  import PerformanceTestResult from "./test/PerformanceTestResult";
 
   export default {
     name: "TestPlanTestCaseEdit",
     components: {
+      PerformanceTestResult,
+      PerformanceTestDetail,
       ApiTestResult,
       ApiTestDetail,
-      PerformanceReportView,
-      EditPerformanceTestPlan, MsApiReportView, MsApiTestConfig, TestPlanTestCaseStatusButton},
+      TestPlanTestCaseStatusButton},
     data() {
       return {
         result: {},
@@ -304,17 +303,14 @@
       },
       initTest() {
         this.$nextTick(() => {
-
           if (this.testCase.method == 'auto') {
             if (this.$refs.apiTestDetail && this.testCase.type == 'api') {
               this.$refs.apiTestDetail.init();
+            } else if(this.testCase.type == 'performance') {
+              this.$refs.performanceTestDetail.init();
             }
-            // else if(testCase.type == 'api') {
-            //   this.$refs.apiTestDetail.init();
-            // }
           }
         });
-
       },
       apiTestRun(reportId) {
         this.testCase.reportId = reportId;
@@ -322,13 +318,6 @@
       },
       saveReport(reportId) {
         this.$post('/test/plan/case/edit', {id: this.testCase.id, reportId: reportId});
-      },
-      updateTestCases(testCase) {
-        this.testCases.forEach(item => {
-           if (testCase.id === item.id) {
-             Object.assign(item, testCase);
-           }
-        });
       },
       initData(testCase) {
         this.result = this.$post('/test/plan/case/list/all', this.searchParam, response => {
