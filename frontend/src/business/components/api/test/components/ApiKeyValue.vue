@@ -7,11 +7,11 @@
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <el-col>
           <el-input v-model="item.name" size="small" maxlength="100" @change="change"
-                    :placeholder="$t('api_test.key')"/>
+                    :placeholder="$t('api_test.key')" show-word-limit/>
         </el-col>
         <el-col>
           <el-input v-model="item.value" size="small" maxlength="100" @change="change"
-                    :placeholder="$t('api_test.value')"/>
+                    :placeholder="$t('api_test.value')" show-word-limit/>
         </el-col>
         <el-col class="kv-delete">
           <el-button size="mini" class="el-icon-delete-solid" circle @click="remove(index)"
