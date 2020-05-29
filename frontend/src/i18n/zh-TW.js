@@ -10,6 +10,7 @@ export default {
     'save': '保存',
     'save_success': '保存成功',
     'delete_success': '刪除成功',
+    'copy_success': '複製成功',
     'modify_success': '修改成功',
     'delete_cancel': '已取消刪除',
     'confirm': '確定',
@@ -264,6 +265,7 @@ export default {
     copied: "已拷貝",
     key: "鍵",
     value: "值",
+    create_performance_test: "創建性能測試",
     scenario: {
       creator: "創建人",
       config: "場景配寘",

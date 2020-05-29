@@ -11,6 +11,7 @@ export default {
     'save_success': 'Saved successfully',
     'delete_success': 'Deleted successfully',
     'modify_success': 'Modify Success',
+    'copy_success': 'Copy Success',
     'delete_cancel': 'Deleted Cancel',
     'confirm': 'Confirm',
     'cancel': 'Cancel',
@@ -266,6 +267,7 @@ export default {
     copied: "copied",
     key: "Key",
     value: "Value",
+    create_performance_test: "Create Performance Test",
     scenario: {
       config: "Scenario Config",
       input_name: "Please enter the scenario name",

@@ -10,6 +10,7 @@ export default {
     'save': '保存',
     'save_success': '保存成功',
     'delete_success': '删除成功',
+    'copy_success': '复制成功',
     'modify_success': '修改成功',
     'delete_cancel': '已取消删除',
     'confirm': '确定',
@@ -263,6 +264,7 @@ export default {
     copied: "已拷贝",
     key: "键",
     value: "值",
+    create_performance_test: "创建性能测试",
     scenario: {
       config: "场景配置",
       input_name: "请输入场景名称",

@@ -27,7 +27,19 @@
 
               <el-button type="warning" plain @click="cancel">{{$t('commons.cancel')}}</el-button>
 
-              <ms-api-report-dialog :test-id="id" v-if="test.status === 'Completed'"/>
+              <el-dropdown trigger="click" @command="handleCommand">
+                <el-button class="el-dropdown-link more" icon="el-icon-more" plain/>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item command="report" :disabled="test.status !== 'Completed'">
+                    {{$t('api_report.title')}}
+                  </el-dropdown-item>
+                  <el-dropdown-item command="performance" :disabled="create">
+                    {{$t('api_test.create_performance_test')}}
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+
+              <ms-api-report-dialog :test-id="id" ref="reportDialog"/>
             </el-row>
           </el-header>
           <ms-api-scenario-config :scenarios="test.scenarioDefinition" ref="config"/>
@@ -72,7 +84,7 @@
     },
 
     methods: {
-      init: function () {
+      init() {
         this.result = this.$get("/project/listAll", response => {
           this.projects = response.data;
         })
@@ -87,7 +99,7 @@
           }
         }
       },
-      getTest: function (id) {
+      getTest(id) {
         this.result = this.$get("/api/get/" + id, response => {
           if (response.data) {
             let item = response.data;
@@ -103,7 +115,7 @@
           }
         });
       },
-      save: function (callback) {
+      save(callback) {
         this.change = false;
         let url = this.create ? "/api/create" : "/api/update";
         this.result = this.$request(this.getOptions(url), () => {
@@ -111,7 +123,7 @@
           if (callback) callback();
         });
       },
-      saveTest: function () {
+      saveTest() {
         this.save(() => {
           this.$success(this.$t('commons.save_success'));
           if (this.create) {
@@ -121,7 +133,7 @@
           }
         })
       },
-      runTest: function () {
+      runTest() {
         this.result = this.$post("/api/run", {id: this.test.id}, (response) => {
           this.$success(this.$t('api_test.running'));
           this.$router.push({
@@ -129,7 +141,7 @@
           })
         });
       },
-      saveRunTest: function () {
+      saveRunTest() {
         this.change = false;
 
         this.save(() => {
@@ -137,11 +149,11 @@
           this.runTest();
         })
       },
-      cancel: function () {
+      cancel() {
         // console.log(this.test.toJMX().xml)
         this.$router.push('/api/test/list/all');
       },
-      getOptions: function (url) {
+      getOptions(url) {
         let formData = new FormData();
         let request = {
           id: this.test.id,
@@ -166,6 +178,23 @@
             'Content-Type': undefined
           }
         };
+      },
+      handleCommand(command) {
+        switch (command) {
+          case "report":
+            this.$refs.reportDialog.open();
+            break;
+          case "performance":
+            this.$store.commit('setTest', {
+              projectId: this.test.projectId,
+              name: this.test.name,
+              jmx: this.test.toJMX()
+            })
+            this.$router.push({
+              path: "/performance/test/create"
+            })
+            break;
+        }
       }
     },
 
@@ -198,5 +227,9 @@
 
   .test-project {
     min-width: 150px;
+  }
+
+  .test-container .more {
+    margin-left: 10px;
   }
 </style>
