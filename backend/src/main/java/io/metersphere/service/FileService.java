@@ -3,21 +3,19 @@ package io.metersphere.service;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.FileContentMapper;
 import io.metersphere.base.mapper.FileMetadataMapper;
-import io.metersphere.base.mapper.ApiTestFileMapper;
 import io.metersphere.base.mapper.LoadTestFileMapper;
 import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.exception.MSException;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.annotation.Resource;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
 
 @Service
 public class FileService {
@@ -25,8 +23,6 @@ public class FileService {
     private FileMetadataMapper fileMetadataMapper;
     @Resource
     private LoadTestFileMapper loadTestFileMapper;
-    @Resource
-    private ApiTestFileMapper ApiTestFileMapper;
     @Resource
     private FileContentMapper fileContentMapper;
 
@@ -48,17 +44,6 @@ public class FileService {
         FileMetadataExample example = new FileMetadataExample();
         example.createCriteria().andIdIn(fileIds);
         return fileMetadataMapper.selectByExample(example);
-    }
-
-    public FileMetadata getApiFileMetadataByTestId(String testId) {
-        ApiTestFileExample ApiTestFileExample = new ApiTestFileExample();
-        ApiTestFileExample.createCriteria().andTestIdEqualTo(testId);
-        final List<ApiTestFile> loadTestFiles = ApiTestFileMapper.selectByExample(ApiTestFileExample);
-
-        if (CollectionUtils.isEmpty(loadTestFiles)) {
-            return null;
-        }
-        return fileMetadataMapper.selectByPrimaryKey(loadTestFiles.get(0).getFileId());
     }
 
     public FileContent getFileContent(String fileId) {
@@ -98,6 +83,21 @@ public class FileService {
         }
         fileContentMapper.insert(fileContent);
 
+        return fileMetadata;
+    }
+
+    public FileMetadata copyFile(String fileId) {
+        FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(fileId);
+        FileContent fileContent = getFileContent(fileId);
+        if (fileMetadata != null && fileContent != null) {
+            fileMetadata.setId(UUID.randomUUID().toString());
+            fileMetadata.setCreateTime(System.currentTimeMillis());
+            fileMetadata.setUpdateTime(System.currentTimeMillis());
+            fileMetadataMapper.insert(fileMetadata);
+
+            fileContent.setFileId(fileMetadata.getId());
+            fileContentMapper.insert(fileContent);
+        }
         return fileMetadata;
     }
 

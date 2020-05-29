@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -67,6 +68,26 @@ public class APITestService {
         deleteFileByTestId(request.getId());
         ApiTestWithBLOBs test = updateTest(request);
         saveFile(test.getId(), files);
+    }
+
+    public void copy(SaveAPITestRequest request) {
+        // copy test
+        ApiTestWithBLOBs copy = get(request.getId());
+        copy.setId(UUID.randomUUID().toString());
+        copy.setName(copy.getName() + " Copy");
+        copy.setCreateTime(System.currentTimeMillis());
+        copy.setUpdateTime(System.currentTimeMillis());
+        copy.setStatus(APITestStatus.Saved.name());
+        copy.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+        apiTestMapper.insert(copy);
+        // copy test file
+        ApiTestFile apiTestFile = getFileByTestId(request.getId());
+        if (apiTestFile != null) {
+            FileMetadata fileMetadata = fileService.copyFile(apiTestFile.getFileId());
+            apiTestFile.setTestId(copy.getId());
+            apiTestFile.setFileId(fileMetadata.getId());
+            apiTestFileMapper.insert(apiTestFile);
+        }
     }
 
     public ApiTestWithBLOBs get(String id) {
