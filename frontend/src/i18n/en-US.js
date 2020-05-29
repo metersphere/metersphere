@@ -11,6 +11,7 @@ export default {
     'save_success': 'Saved successfully',
     'delete_success': 'Deleted successfully',
     'modify_success': 'Modify Success',
+    'copy_success': 'Copy Success',
     'delete_cancel': 'Deleted Cancel',
     'confirm': 'Confirm',
     'cancel': 'Cancel',

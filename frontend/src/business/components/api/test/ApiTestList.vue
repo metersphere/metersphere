@@ -3,16 +3,17 @@
     <ms-main-container>
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
-          <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search" :title="$t('commons.test')"
+          <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search"
+                           :title="$t('commons.test')"
                            @create="create" :createTip="$t('load_test.create')"/>
         </template>
         <el-table :data="tableData" class="table-content">
-          <el-table-column :label="$t('commons.name')" width="150" show-overflow-tooltip>
+          <el-table-column :label="$t('commons.name')" width="250" show-overflow-tooltip>
             <template v-slot:default="scope">
               <el-link type="info" @click="handleEdit(scope.row)">{{ scope.row.name }}</el-link>
             </template>
           </el-table-column>
-          <el-table-column prop="projectName" :label="$t('load_test.project_name')" width="150" show-overflow-tooltip/>
+          <el-table-column prop="projectName" :label="$t('load_test.project_name')" width="200" show-overflow-tooltip/>
           <el-table-column prop="userName" :label="$t('api_test.creator')" width="150" show-overflow-tooltip/>
           <el-table-column width="250" :label="$t('commons.create_time')">
             <template v-slot:default="scope">
@@ -31,7 +32,7 @@
           </el-table-column>
           <el-table-column width="150" :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
+              <ms-table-operators :buttons="buttons" :row="scope.row"/>
             </template>
           </el-table-column>
         </el-table>
@@ -49,9 +50,13 @@
   import MsContainer from "../../common/components/MsContainer";
   import MsMainContainer from "../../common/components/MsMainContainer";
   import MsApiTestStatus from "./ApiTestStatus";
+  import MsTableOperators from "../../common/components/MsTableOperators";
 
   export default {
-    components: {MsApiTestStatus, MsMainContainer, MsContainer, MsTableHeader, MsTablePagination, MsTableOperator},
+    components: {
+      MsTableOperators,
+      MsApiTestStatus, MsMainContainer, MsContainer, MsTableHeader, MsTablePagination, MsTableOperator
+    },
     data() {
       return {
         result: {},
@@ -62,7 +67,19 @@
         currentPage: 1,
         pageSize: 5,
         total: 0,
-        loading: false
+        loading: false,
+        buttons: [
+          {
+            tip: this.$t('commons.edit'), icon: "el-icon-edit",
+            exec: this.handleEdit
+          }, {
+            tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "success",
+            exec: this.handleCopy
+          }, {
+            tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
+            exec: this.handleDelete
+          }
+        ]
       }
     },
 
@@ -109,6 +126,12 @@
               });
             }
           }
+        });
+      },
+      handleCopy(test) {
+        this.result = this.$post("/api/copy", {id: test.id}, () => {
+          this.$success(this.$t('commons.delete_success'));
+          this.search();
         });
       },
       init() {
