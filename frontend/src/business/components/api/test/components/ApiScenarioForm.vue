@@ -1,7 +1,7 @@
 <template>
   <el-form :model="scenario" :rules="rules" ref="scenario" label-width="100px">
     <el-form-item :label="$t('api_test.scenario.name')" prop="name">
-      <el-input v-model="scenario.name" maxlength="100" @input="valid"/>
+      <el-input v-model="scenario.name" maxlength="100" show-word-limit/>
     </el-form-item>
 
     <!--    <el-form-item :label="$t('api_test.scenario.base_url')" prop="url">-->
@@ -42,13 +42,6 @@
             {max: 100, message: this.$t('commons.input_limit', [0, 100]), trigger: 'blur'}
           ]
         }
-      }
-    },
-
-    methods: {
-      valid(value) {
-        value = value.replace(/[`~!@#$%^&*()\-+=<>?:"{}|,./;'\\[\]·！￥…（）—\-《》？：“”【】、；‘’，。]/g, '').replace(/\s/g, "");
-        this.scenario.name = value;
       }
     }
   }

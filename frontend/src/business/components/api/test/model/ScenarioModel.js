@@ -395,6 +395,8 @@ class JMXGenerator {
 
   addScenarios(testPlan, scenarios) {
     scenarios.forEach(scenario => {
+      scenario.name = this.replace(scenario.name);
+
       let threadGroup = new ThreadGroup(scenario.name || "");
 
       this.addScenarioVariables(threadGroup, scenario);
@@ -403,6 +405,8 @@ class JMXGenerator {
 
       scenario.requests.forEach(request => {
         if (!request.isValid()) return;
+
+        request.name = this.replace(request.name);
 
         let httpSamplerProxy = new HTTPSamplerProxy(request.name || "", new JMXRequest(request));
 

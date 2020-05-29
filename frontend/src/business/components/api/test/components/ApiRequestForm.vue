@@ -1,7 +1,7 @@
 <template>
   <el-form :model="request" :rules="rules" ref="request" label-width="100px">
     <el-form-item :label="$t('api_test.request.name')" prop="name">
-      <el-input v-model="request.name" maxlength="100" @input="valid"/>
+      <el-input v-model="request.name" maxlength="100" show-word-limit/>
     </el-form-item>
 
     <el-form-item :label="$t('api_test.request.url')" prop="url">
@@ -108,10 +108,6 @@
           }
         }
         return url;
-      },
-      valid(value) {
-        value = value.replace(/[`~!@#$%^&*()_\-+=<>?:"{}|,./;'\\[\]·！￥…（）—\-《》？：“”【】、；‘’，。]/g, '').replace(/\s/g, "");
-        this.request.name = value;
       }
     },
 

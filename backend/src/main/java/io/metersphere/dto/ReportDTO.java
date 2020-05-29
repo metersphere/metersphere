@@ -18,4 +18,5 @@ public class ReportDTO {
     private String testName;
     private String projectId;
     private String projectName;
+    private String userName;
 }

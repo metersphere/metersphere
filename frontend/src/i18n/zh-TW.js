@@ -194,6 +194,7 @@ export default {
     'delete_confirm': '確認刪除報告: ',
     'start_status': '測試處於開始狀態,請稍後查看報告！',
     'run_status': '測試處於運行狀態,請稍後查看報告！',
+    'user_name': '創建人'
   },
   load_test: {
     'operating': '操作',
@@ -252,6 +253,7 @@ export default {
     'resource_pool_is_null': '資源池為空',
     'download_log_file': '下載完整日誌文件',
     'pressure_prediction_chart': '壓力預估圖',
+    'user_name': '創建人'
   },
   api_test: {
     title: "測試",

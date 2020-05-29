@@ -193,6 +193,7 @@ export default {
     'delete_confirm': '确认删除报告: ',
     'start_status': '测试处于开始状态,请稍后查看报告！',
     'run_status': '测试处于运行状态,请稍后查看报告！',
+    'user_name': '创建人'
   },
   load_test: {
     'operating': '操作',
@@ -251,6 +252,7 @@ export default {
     'resource_pool_is_null': '资源池为空',
     'download_log_file': '下载完整日志文件',
     'pressure_prediction_chart': '压力预估图',
+    'user_name': '创建人'
   },
   api_test: {
     creator: "创建人",

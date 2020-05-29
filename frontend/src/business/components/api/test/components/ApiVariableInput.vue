@@ -66,7 +66,7 @@
     line-height: 32px;
     position: absolute;
     top: 0;
-    right: 25px;
+    right: 70px;
     margin-right: -20px;
     display: flex;
     align-items: center;
