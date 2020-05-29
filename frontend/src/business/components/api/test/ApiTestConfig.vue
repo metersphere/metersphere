@@ -200,10 +200,10 @@
 
     computed: {
       isShowRun() {
-        return this.test.projectId && this.test.name && !this.change;
+        return this.test.isValid() && !this.change;
       },
       isDisabled() {
-        return !(this.test.projectId && this.test.name && this.change)
+        return !(this.test.isValid() && this.change)
       }
     },
 

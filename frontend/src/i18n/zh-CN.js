@@ -287,6 +287,7 @@ export default {
       method: "请求方法",
       url: "请求URL",
       url_description: "例如: https://fit2cloud.com",
+      url_invalid: "URL无效",
       parameters: "请求参数",
       parameters_desc: "参数追加到URL，例如https://fit2cloud.com/entries?key1=Value1&Key2=Value2",
       headers: "请求头",

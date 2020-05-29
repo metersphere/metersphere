@@ -110,6 +110,15 @@ export class Test extends BaseConfig {
     return options;
   }
 
+  isValid() {
+    for (let i = 0; i < this.scenarioDefinition.length; i++) {
+      if (this.scenarioDefinition[i].isValid()) {
+        return this.projectId && this.name;
+      }
+    }
+    return false;
+  }
+
   toJMX() {
     return {
       name: this.name + '.jmx',
@@ -139,6 +148,15 @@ export class Scenario extends BaseConfig {
 
   clone() {
     return new Scenario(this);
+  }
+
+  isValid() {
+    for (let i = 0; i < this.requests.length; i++) {
+      if (this.requests[i].isValid()) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 
