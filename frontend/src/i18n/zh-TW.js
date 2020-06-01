@@ -289,6 +289,7 @@ export default {
       method: "請求方法",
       url: "請求URL",
       url_description: "例如：https://fit2cloud.com",
+      url_invalid: "URL無效",
       parameters: "請求參數",
       parameters_desc: "參數追加到URL,例如https://fit2cloud.com/entries？key1=Value1&amp;Key2=Value2",
       headers: "請求頭",

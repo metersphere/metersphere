@@ -276,6 +276,7 @@ export default {
       name: "Scenario Name",
       base_url: "Base URL",
       base_url_description: "Base URL as URL prefix for all requests",
+      url_invalid: "Invalid URL",
       variables: "Variables",
       headers: "Headers",
       kv_description: "Variables are available for all requests",

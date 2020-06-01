@@ -110,6 +110,15 @@ export class Test extends BaseConfig {
     return options;
   }
 
+  isValid() {
+    for (let i = 0; i < this.scenarioDefinition.length; i++) {
+      if (this.scenarioDefinition[i].isValid()) {
+        return this.projectId && this.name;
+      }
+    }
+    return false;
+  }
+
   toJMX() {
     return {
       name: this.name + '.jmx',
@@ -135,6 +144,19 @@ export class Scenario extends BaseConfig {
     options = options || {};
     options.requests = options.requests || [new Request()];
     return options;
+  }
+
+  clone() {
+    return new Scenario(this);
+  }
+
+  isValid() {
+    for (let i = 0; i < this.requests.length; i++) {
+      if (this.requests[i].isValid()) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 
@@ -394,7 +416,8 @@ class JMXGenerator {
   }
 
   addScenarios(testPlan, scenarios) {
-    scenarios.forEach(scenario => {
+    scenarios.forEach(s => {
+      let scenario = s.clone();
       scenario.name = this.replace(scenario.name);
 
       let threadGroup = new ThreadGroup(scenario.name || "");
