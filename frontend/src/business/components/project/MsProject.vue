@@ -223,6 +223,10 @@
           this.$router.push({
             path: '/performance/test/' + row.id,
           })
+        } else if (this.$route.name === 'fucProject') {
+          this.$router.push({
+            path: '/api/test/list/' + row.id
+          })
         }
       }
     }
