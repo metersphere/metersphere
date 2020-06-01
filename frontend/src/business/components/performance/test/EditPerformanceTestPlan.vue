@@ -4,7 +4,9 @@
       <el-card v-loading="result.loading">
         <el-row>
           <el-col :span="10">
-            <el-input :placeholder="$t('load_test.input_name')" v-model="testPlan.name" class="input-with-select">
+            <el-input :placeholder="$t('load_test.input_name')" v-model="testPlan.name" class="input-with-select"
+                      maxlength="30"
+            >
               <template v-slot:prepend>
                 <el-select v-model="testPlan.projectId" :placeholder="$t('load_test.select_project')">
                   <el-option
