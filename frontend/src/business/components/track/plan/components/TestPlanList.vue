@@ -25,7 +25,24 @@
             :label="$t('test_track.plan.plan_status')"
             show-overflow-tooltip>
             <template v-slot:default="scope">
-              <plan-status-table-item :value="scope.row.status"/>
+              <el-dropdown class="test-case-status" @command="statusChange">
+                <span class="el-dropdown-link">
+                  <!--<status-table-item :value="scope.row.status"/>-->
+                  <plan-status-table-item :value="scope.row.status"/>
+                </span>
+                <el-dropdown-menu slot="dropdown" chang>
+                  <el-dropdown-item :command="{id: scope.row.id, status: 'Prepare'}">
+                    {{$t('test_track.plan.plan_status_prepare')}}
+                  </el-dropdown-item>
+                  <el-dropdown-item :command="{id: scope.row.id, status: 'Underway'}">
+                    {{$t('test_track.plan.plan_status_running')}}
+                  </el-dropdown-item>
+                  <el-dropdown-item :command="{id: scope.row.id, status: 'Completed'}">
+                    {{$t('test_track.plan.plan_status_completed')}}
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+
             </template>
           </el-table-column>
           <el-table-column
@@ -123,6 +140,16 @@
         },
         handleEdit(testPlan) {
           this.$emit('testPlanEdit', testPlan);
+        },
+        statusChange(param) {
+          this.$post('/test/plan/edit' , param, () => {
+            for (let i = 0; i < this.tableData.length; i++) {
+              if (this.tableData[i].id == param.id) {
+                this.tableData[i].status = param.status;
+                break;
+              }
+            }
+          });
         },
         handleDelete(testPlan) {
           this.$alert(this.$t('test_track.plan.plan_delete_confirm') + testPlan.name + "？", '', {
