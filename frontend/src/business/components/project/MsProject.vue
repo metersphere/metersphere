@@ -7,7 +7,11 @@
                            :create-tip="btnTips" :title="title"/>
         </template>
         <el-table :data="items" style="width: 100%">
-          <el-table-column prop="name" :label="$t('commons.name')"/>
+          <el-table-column prop="name" :label="$t('commons.name')">
+            <template v-slot:default="scope">
+              <el-link type="info" @click="link(scope.row)">{{ scope.row.name }}</el-link>
+            </template>
+          </el-table-column>
           <el-table-column prop="description" :label="$t('commons.description')"/>
           <!--<el-table-column prop="workspaceName" :label="$t('project.owning_workspace')"/>-->
           <el-table-column
@@ -211,6 +215,14 @@
           return result + count + "个" + tip + ',';
         } else {
           return result;
+        }
+      },
+      link(row) {
+        // performance_test project link
+        if (this.$route.name === 'perProject') {
+          this.$router.push({
+            path: '/performance/test/' + row.id,
+          })
         }
       }
     }
