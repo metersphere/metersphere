@@ -25,7 +25,9 @@
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="status" :label="$t('commons.status')">
+          <el-table-column prop="status" :label="$t('commons.status')"
+                           :filter-method="filter"
+                           :filters="statusFilters">
             <template v-slot:default="{row}">
               <ms-api-test-status :row="row"/>
             </template>
@@ -79,6 +81,14 @@
             tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
             exec: this.handleDelete
           }
+        ],
+        statusFilters: [
+          {text: 'Saved', value: 'Saved'},
+          {text: 'Starting', value: 'Starting'},
+          {text: 'Running', value: 'Running'},
+          {text: 'Reporting', value: 'Reporting'},
+          {text: 'Completed', value: 'Completed'},
+          {text: 'Error', value: 'Error'}
         ]
       }
     },
@@ -137,11 +147,15 @@
       init() {
         this.projectId = this.$route.params.projectId;
         this.search();
+      },
+      filter(value, row) {
+        return row.status === value;
       }
     },
     created() {
       this.init();
     }
+
   }
 </script>
 

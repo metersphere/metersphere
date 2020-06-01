@@ -20,15 +20,19 @@
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="status" :label="$t('commons.status')">
+          <el-table-column prop="status" :label="$t('commons.status')"
+                           :filter-method="filter"
+                           :filters="statusFilters">
             <template v-slot:default="{row}">
               <ms-api-report-status :row="row"/>
             </template>
           </el-table-column>
           <el-table-column width="150" :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <el-button :is-tester-permission="true" @click="handleView(scope.row)" type="primary" icon="el-icon-s-data" size="mini" circle/>
-              <el-button :is-tester-permission="true" @click="handleDelete(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle/>
+              <el-button :is-tester-permission="true" @click="handleView(scope.row)" type="primary"
+                         icon="el-icon-s-data" size="mini" circle/>
+              <el-button :is-tester-permission="true" @click="handleDelete(scope.row)" type="danger"
+                         icon="el-icon-delete" size="mini" circle/>
             </template>
           </el-table-column>
         </el-table>
@@ -57,7 +61,15 @@
         currentPage: 1,
         pageSize: 5,
         total: 0,
-        loading: false
+        loading: false,
+        statusFilters: [
+          {text: 'Saved', value: 'Saved'},
+          {text: 'Starting', value: 'Starting'},
+          {text: 'Running', value: 'Running'},
+          {text: 'Reporting', value: 'Reporting'},
+          {text: 'Completed', value: 'Completed'},
+          {text: 'Error', value: 'Error'}
+        ]
       }
     },
 
@@ -106,6 +118,9 @@
       init() {
         this.testId = this.$route.params.testId;
         this.search();
+      },
+      filter(value, row) {
+        return row.status === value;
       }
     },
 
