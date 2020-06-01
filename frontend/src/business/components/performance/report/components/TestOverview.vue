@@ -101,7 +101,7 @@
           this.avgResponseTime = '0';
           this.responseTime90 = '0';
           this.avgBandwidth = '0';
-          this.$warning("报告生成错误！")
+          this.$warning(this.$t('report.generation_error'));
         })
         this.$get("/performance/report/content/load_chart/" + this.id).then(res => {
           let data = res.data.data;

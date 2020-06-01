@@ -10,6 +10,7 @@ export default {
     'save': '保存',
     'save_success': '保存成功',
     'delete_success': '删除成功',
+    'copy_success': '复制成功',
     'modify_success': '修改成功',
     'delete_cancel': '已取消删除',
     'confirm': '确定',
@@ -190,6 +191,9 @@ export default {
     'generation_error': '报告生成错误,无法查看!',
     'being_generated': '报告正在生成中...',
     'delete_confirm': '确认删除报告: ',
+    'start_status': '测试处于开始状态,请稍后查看报告！',
+    'run_status': '测试处于运行状态,请稍后查看报告！',
+    'user_name': '创建人'
   },
   load_test: {
     'operating': '操作',
@@ -207,7 +211,7 @@ export default {
     'is_running': '正在运行！',
     'test_name_is_null': '测试名称不能为空！',
     'project_is_null': '项目不能为空！',
-    'jmx_is_null': '只能包含一个JMX文件！',
+    'jmx_is_null': '必需包含一个JMX文件，且只能包含一个JMX文件！',
     'file_name': '文件名',
     'file_size': '文件大小',
     'file_type': '文件类型',
@@ -217,7 +221,8 @@ export default {
     'upload_type': '只能上传JMX/CSV文件',
     'related_file_not_found': "未找到关联的测试文件！",
     'delete_file_confirm': '确认删除文件: ',
-    'delete_file': "请先删除已存在的文件！",
+    'file_size_limit': "文件个数超出限制！",
+    'delete_file': "文件已存在，请先删除同名文件！",
     'thread_num': '并发用户数：',
     'input_thread_num': '请输入线程数',
     'duration': '压测时长（分钟）：',
@@ -247,6 +252,7 @@ export default {
     'resource_pool_is_null': '资源池为空',
     'download_log_file': '下载完整日志文件',
     'pressure_prediction_chart': '压力预估图',
+    'user_name': '创建人'
   },
   api_test: {
     creator: "创建人",
@@ -260,6 +266,7 @@ export default {
     copied: "已拷贝",
     key: "键",
     value: "值",
+    create_performance_test: "创建性能测试",
     scenario: {
       config: "场景配置",
       input_name: "请输入场景名称",
@@ -280,6 +287,7 @@ export default {
       method: "请求方法",
       url: "请求URL",
       url_description: "例如: https://fit2cloud.com",
+      url_invalid: "URL无效",
       parameters: "请求参数",
       parameters_desc: "参数追加到URL，例如https://fit2cloud.com/entries?key1=Value1&Key2=Value2",
       headers: "请求头",
@@ -388,6 +396,7 @@ export default {
       delete: "删除用例",
       save_create_continue: "保存并继续创建",
       please_create_project: "暂无项目，请先创建项目",
+      create_module_first: "请先新建模块",
       import: {
         import: "导入用例",
         case_import: "导入测试用例",

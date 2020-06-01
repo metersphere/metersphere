@@ -1,7 +1,7 @@
 <template>
   <el-form :model="request" :rules="rules" ref="request" label-width="100px">
     <el-form-item :label="$t('api_test.request.name')" prop="name">
-      <el-input v-model="request.name" maxlength="100" @input="valid"/>
+      <el-input v-model="request.name" maxlength="100" show-word-limit/>
     </el-form-item>
 
     <el-form-item :label="$t('api_test.request.url')" prop="url">
@@ -56,6 +56,13 @@
     },
 
     data() {
+      let validateURL = (rule, value, callback) => {
+        try {
+          new URL(this.addProtocol(this.request.url));
+        } catch (e) {
+          callback(this.$t('api_test.request.url_invalid'));
+        }
+      };
       return {
         activeName: "parameters",
         rules: {
@@ -63,7 +70,8 @@
             {max: 100, message: this.$t('commons.input_limit', [0, 100]), trigger: 'blur'}
           ],
           url: [
-            {max: 100, message: this.$t('commons.input_limit', [0, 100]), trigger: 'blur'}
+            {max: 100, required: true, message: this.$t('commons.input_limit', [0, 100]), trigger: 'blur'},
+            {validator: validateURL, trigger: 'blur'}
           ]
         }
       }
@@ -74,16 +82,21 @@
         if (!this.request.url) return;
 
         let parameters = [];
-        let url = new URL(this.addProtocol(this.request.url));
-        url.searchParams.forEach((value, key) => {
-          if (key && value) {
-            parameters.push(new KeyValue(key, value));
-          }
-        });
-        // 添加一个空的，用于填写
-        parameters.push(new KeyValue());
-        this.request.parameters = parameters;
-        this.request.url = url.toString();
+        try {
+          let url = new URL(this.addProtocol(this.request.url));
+          url.searchParams.forEach((value, key) => {
+            if (key && value) {
+              parameters.push(new KeyValue(key, value));
+            }
+          });
+          // 添加一个空的，用于填写
+          parameters.push(new KeyValue());
+          this.request.parameters = parameters;
+          this.request.url = url.toString();
+        } catch (e) {
+          this.$error(this.$t('api_test.request.url_invalid'), 2000)
+        }
+
       },
       methodChange(value) {
         if (value === 'GET' && this.activeName === 'body') {
@@ -108,10 +121,6 @@
           }
         }
         return url;
-      },
-      valid(value) {
-        value = value.replace(/[`~!@#$%^&*()_\-+=<>?:"{}|,./;'\\[\]·！￥…（）—\-《》？：“”【】、；‘’，。]/g, '').replace(/\s/g, "");
-        this.request.name = value;
       }
     },
 

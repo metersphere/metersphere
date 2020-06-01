@@ -10,6 +10,7 @@ export default {
     'save': '保存',
     'save_success': '保存成功',
     'delete_success': '刪除成功',
+    'copy_success': '複製成功',
     'modify_success': '修改成功',
     'delete_cancel': '已取消刪除',
     'confirm': '確定',
@@ -191,6 +192,9 @@ export default {
     'generation_error': '報告生成錯誤,無法查看!',
     'being_generated': '報告正在生成中...',
     'delete_confirm': '確認刪除報告: ',
+    'start_status': '測試處於開始狀態,請稍後查看報告！',
+    'run_status': '測試處於運行狀態,請稍後查看報告！',
+    'user_name': '創建人'
   },
   load_test: {
     'operating': '操作',
@@ -208,7 +212,7 @@ export default {
     'is_running': '正在運行！ ',
     'test_name_is_null': '測試名稱不能為空！ ',
     'project_is_null': '項目不能為空！ ',
-    'jmx_is_null': '只能包含一個JMX文件！ ',
+    'jmx_is_null': '必需包含一個JMX文件，且只能包含一個JMX文件！',
     'file_name': '文件名',
     'file_size': '文件大小',
     'file_type': '文件類型',
@@ -218,7 +222,8 @@ export default {
     'upload_type': '只能上傳JMX/CSV文件',
     'related_file_not_found': "未找到關聯的測試文件！",
     'delete_file_confirm': '確認刪除文件: ',
-    'delete_file': "請先刪除已存在的文件！",
+    'file_size_limit': "文件個數超出限制！",
+    'delete_file': "文件已存在，請先刪除同名文件！",
     'thread_num': '並髮用戶數：',
     'input_thread_num': '請輸入線程數',
     'duration': '壓測時長（分鐘）：',
@@ -248,6 +253,7 @@ export default {
     'resource_pool_is_null': '資源池為空',
     'download_log_file': '下載完整日誌文件',
     'pressure_prediction_chart': '壓力預估圖',
+    'user_name': '創建人'
   },
   api_test: {
     title: "測試",
@@ -261,6 +267,7 @@ export default {
     copied: "已拷貝",
     key: "鍵",
     value: "值",
+    create_performance_test: "創建性能測試",
     scenario: {
       creator: "創建人",
       config: "場景配寘",
@@ -282,6 +289,7 @@ export default {
       method: "請求方法",
       url: "請求URL",
       url_description: "例如：https://fit2cloud.com",
+      url_invalid: "URL無效",
       parameters: "請求參數",
       parameters_desc: "參數追加到URL,例如https://fit2cloud.com/entries？key1=Value1&amp;Key2=Value2",
       headers: "請求頭",
@@ -390,6 +398,7 @@ export default {
       delete: "删除用例",
       save_create_continue: "保存並繼續創建",
       please_create_project: "暫無項目，請先創建項目",
+      create_module_first: "請先新建模塊",
       import: {
         import: "導入用例",
         case_import: "導入測試用例",

@@ -20,11 +20,18 @@
           <el-table-column
             prop="name"
             :label="$t('commons.name')"
+            width="200"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
             prop="testName"
             :label="$t('report.test_name')"
+            width="150"
+            show-overflow-tooltip>
+          </el-table-column>
+          <el-table-column
+            prop="userName"
+            :label="$t('report.user_name')"
             width="150"
             show-overflow-tooltip>
           </el-table-column>

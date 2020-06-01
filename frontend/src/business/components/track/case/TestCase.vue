@@ -88,24 +88,22 @@
     mounted() {
       this.getProjects();
       this.refresh();
-      if (this.$route.params.projectId){
-        this.getProjectById(this.$route.params.projectId)
-      }
-      if (this.$route.path.indexOf("/track/case/edit") >= 0){
+      if (this.$route.path.indexOf("/track/case/edit") >= 0 || this.$route.path.indexOf("/track/case/create") >= 0){
         this.openRecentTestCaseEditDialog();
         this.$router.push('/track/case/all');
+      } else if (this.$route.params.projectId){
+        this.getProjectById(this.$route.params.projectId)
       }
     },
     watch: {
       '$route'(to, from) {
         let path = to.path;
-        if (to.params.projectId){
-          this.getProjectById(to.params.projectId)
-          this.getProjects();
-        }
-        if (path.indexOf("/track/case/edit") >= 0){
+        if (path.indexOf("/track/case/edit") >= 0 || path.indexOf("/track/case/create") >= 0){
           this.openRecentTestCaseEditDialog();
           this.$router.push('/track/case/all');
+          this.getProjects();
+        } else if (to.params.projectId){
+          this.getProjectById(to.params.projectId);
           this.getProjects();
         }
       },
@@ -160,6 +158,10 @@
       },
       editTestCase(testCase) {
         this.testCaseReadOnly = false;
+        if (this.treeNodes.length < 1) {
+          this.$warning(this.$t('test_track.case.create_module_first'));
+          return;
+        }
         this.$refs.testCaseEditDialog.open(testCase);
       },
       copyTestCase(testCase) {
@@ -187,13 +189,22 @@
       },
       openRecentTestCaseEditDialog() {
         let caseId = this.$route.params.caseId;
-        this.getProjectByCaseId(caseId);
-        this.$get('/test/case/get/' + caseId, response => {
-          if (response.data) {
-            this.testCaseReadOnly = false;
-            this.$refs.testCaseEditDialog.open(response.data);
+        if (caseId) {
+          this.getProjectByCaseId(caseId);
+          this.$get('/test/case/get/' + caseId, response => {
+            if (response.data) {
+              this.testCaseReadOnly = false;
+              this.$refs.testCaseEditDialog.open(response.data);
+            }
+          });
+        } else {
+          this.testCaseReadOnly = false;
+          if (this.treeNodes.length < 1) {
+            this.$warning(this.$t('test_track.case.create_module_first'));
+            return;
           }
-        });
+          this.$refs.testCaseEditDialog.open();
+        }
       },
       getProjectById(id) {
         if (id && id != 'all') {

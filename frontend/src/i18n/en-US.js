@@ -11,6 +11,7 @@ export default {
     'save_success': 'Saved successfully',
     'delete_success': 'Deleted successfully',
     'modify_success': 'Modify Success',
+    'copy_success': 'Copy Success',
     'delete_cancel': 'Deleted Cancel',
     'confirm': 'Confirm',
     'cancel': 'Cancel',
@@ -192,6 +193,9 @@ export default {
     'generation_error': 'Report generation error, cannot be viewed!',
     'being_generated': 'Report is being generated...',
     'delete_confirm': 'Confirm delete: ',
+    'start_status': 'The test is starting, please check the report later!',
+    'run_status': 'The test is running, please check the report later！',
+    'user_name': 'Creator'
   },
   load_test: {
     'operating': 'Operating',
@@ -210,7 +214,7 @@ export default {
     'is_running': 'Test is running! ',
     'test_name_is_null': 'Test name cannot be empty! ',
     'project_is_null': 'Project cannot be empty! ',
-    'jmx_is_null': 'Can only contain one JMX file',
+    'jmx_is_null': 'Must contain a JMX file, and can only contain a JMX file!',
     'file_name': 'File name',
     'file_size': 'File size',
     'file_type': 'File Type',
@@ -220,7 +224,8 @@ export default {
     'upload_type': 'Only JMX/CSV files can be uploaded',
     'related_file_not_found': "No related test file found!",
     'delete_file_confirm': 'Confirm delete file:',
-    'delete_file': "Please delete an existing file first!",
+    'file_size_limit': "The number of files exceeds the limit！",
+    'delete_file': "The file already exists, please delete the file with the same name first!",
     'thread_num': 'Concurrent users:',
     'input_thread_num': 'Please enter the number of threads',
     'duration': 'Duration time (minutes):',
@@ -249,6 +254,7 @@ export default {
     'select_resource_pool': 'Please Select Resource Pool',
     'resource_pool_is_null': 'Resource Pool is empty',
     'download_log_file': 'Download',
+    'user_name': 'Creator'
   },
   api_test: {
     creator: "Creator",
@@ -263,12 +269,14 @@ export default {
     copied: "copied",
     key: "Key",
     value: "Value",
+    create_performance_test: "Create Performance Test",
     scenario: {
       config: "Scenario Config",
       input_name: "Please enter the scenario name",
       name: "Scenario Name",
       base_url: "Base URL",
       base_url_description: "Base URL as URL prefix for all requests",
+      url_invalid: "Invalid URL",
       variables: "Variables",
       headers: "Headers",
       kv_description: "Variables are available for all requests",
@@ -391,6 +399,7 @@ export default {
       delete: "Delete case",
       save_create_continue: "Save and create continue",
       please_create_project: "No project available, please create the project first",
+      create_module_first: "Please create module first",
       import: {
         import: "Import test case",
         case_import: "Import test case",

@@ -12,8 +12,8 @@
       <el-col :span="20">
         <ms-api-assertion-text :list="assertions.regex" v-if="type === options.TEXT" :callback="after"/>
         <ms-api-assertion-regex :list="assertions.regex" v-if="type === options.REGEX" :callback="after"/>
-        <ms-api-assertion-response-time :duration="assertions.duration" v-if="type === options.RESPONSE_TIME"
-                                        :callback="after"/>
+        <ms-api-assertion-response-time v-model="time" :duration="assertions.duration"
+                                        v-if="type === options.RESPONSE_TIME" :callback="after"/>
       </el-col>
     </el-row>
 
@@ -25,7 +25,7 @@
   import MsApiAssertionText from "./ApiAssertionText";
   import MsApiAssertionRegex from "./ApiAssertionRegex";
   import MsApiAssertionResponseTime from "./ApiAssertionResponseTime";
-  import {ASSERTION_TYPE, Assertions} from "../../model/ScenarioModel";
+  import {ASSERTION_TYPE, Assertions, ResponseTime} from "../../model/ScenarioModel";
   import MsApiAssertionsEdit from "./ApiAssertionsEdit";
 
   export default {
@@ -40,6 +40,7 @@
     data() {
       return {
         options: ASSERTION_TYPE,
+        time: "",
         type: "",
       }
     },

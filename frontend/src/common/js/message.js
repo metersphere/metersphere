@@ -34,12 +34,12 @@ export default {
       })
     };
 
-    Vue.prototype.$error = function (message) {
+    Vue.prototype.$error = function (message, duration) {
       Message.error({
         message: message,
         type: "error",
         showClose: true,
-        duration: 10000
+        duration: duration || 10000
       })
     };
 

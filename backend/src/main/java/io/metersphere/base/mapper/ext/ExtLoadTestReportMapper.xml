@@ -16,9 +16,11 @@
     </sql>
 
     <select id="getReportList" resultType="io.metersphere.dto.ReportDTO">
-        select ltr.id, ltr.name, ltr.test_id as testId, ltr.description,
+        select ltr.id, ltr.name, ltr.test_id as testId, ltr.description, user.name as userName,
                ltr.create_time as createTime, ltr.update_time as updateTime, ltr.status as status, lt.name as testName
-          from load_test_report ltr join load_test lt on ltr.test_id = lt.id
+          from load_test_report ltr
+          join load_test lt on ltr.test_id = lt.id
+          join user on ltr.user_id = user.id
         <if test="reportRequest.workspaceId != null">
             JOIN project on project.id = lt.project_id
         </if>

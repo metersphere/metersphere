@@ -131,13 +131,13 @@
             this.$warning(this.$t('report.generation_error'));
             break;
           case 'Starting':
-            this.$warning("测试处于开始状态,请稍后查看报告！");
+            this.$warning(this.$t('report.start_status'));
             break;
           case 'Reporting':
             this.$info(this.$t('report.being_generated'));
             break;
           case 'Running':
-            this.$warning("测试处于运行状态,请稍后查看报告！");
+            this.$warning(this.$t('report.run_status'));
             break;
           case 'Completed':
           default:
@@ -178,6 +178,7 @@
                 this.status = data.status;
                 this.reportName = data.name;
                 this.testName = data.testName;
+                this.testId = data.testId;
                 this.projectName = data.projectName;
 
                 this.$set(this.report, "id", reportId);

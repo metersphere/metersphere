@@ -29,6 +29,12 @@
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
+            prop="userName"
+            :label="$t('load_test.user_name')"
+            width="150"
+            show-overflow-tooltip>
+          </el-table-column>
+          <el-table-column
             width="250"
             :label="$t('commons.create_time')">
             <template v-slot:default="scope">

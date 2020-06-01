@@ -13,7 +13,7 @@
       <div>
         {{$t("api_test.request.assertions.response_time")}}
       </div>
-      <ms-api-assertion-response-time :duration="assertions.duration" :edit="true"/>
+      <ms-api-assertion-response-time v-model="assertions.duration.value" :duration="assertions.duration" :edit="true"/>
     </div>
   </div>
 

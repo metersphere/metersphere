@@ -61,6 +61,11 @@ public class APITestController {
         apiTestService.update(request, files);
     }
 
+    @PostMapping(value = "/copy")
+    public void copy(@RequestBody SaveAPITestRequest request) {
+        apiTestService.copy(request);
+    }
+
     @GetMapping("/get/{testId}")
     public ApiTestWithBLOBs get(@PathVariable String testId) {
         return apiTestService.get(testId);

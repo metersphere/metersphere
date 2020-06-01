@@ -23,6 +23,7 @@
             <el-divider/>
             <ms-show-all :index="'/track/case/all'"/>
             <el-menu-item :index="testCaseEditPath" class="blank_item"></el-menu-item>
+            <ms-create-button v-permission="['test_manager', 'test_user']" :index="'/track/case/create'" :title="$t('test_track.case.create_case')"/>
           </el-submenu>
 
           <el-submenu v-if="isCurrentWorkspaceUser" index="7" popper-class="submenu">

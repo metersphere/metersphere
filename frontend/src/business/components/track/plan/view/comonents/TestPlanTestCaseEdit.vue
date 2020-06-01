@@ -232,11 +232,23 @@
       }
     },
     methods: {
-      handleClose(done) {
+      listenGoBack() {
+        //监听浏览器返回操作，关闭该对话框
+        if (window.history && window.history.pushState) {
+          history.pushState(null, null, document.URL);
+          window.addEventListener('popstate', this.goBack, false);
+        }
+      },
+      goBack() {
+        this.handleClose();
+      },
+      handleClose() {
+        //移除监听，防止监听其他页面
+        window.removeEventListener('popstate', this.goBack, false);
         this.showDialog = false;
       },
       cancel() {
-        this.showDialog = false;
+        this.handleClose();
         this.$emit('refreshTable');
       },
       statusChange(status) {
@@ -296,9 +308,11 @@
           item.steptResults.push(item.steps[i]);
         }
         this.testCase = item;
+        this.initTest();
       },
       openTestCaseEdit(testCase) {
         this.showDialog = true;
+        this.listenGoBack();
         this.initData(testCase);
       },
       initTest() {
@@ -327,7 +341,6 @@
               this.index = i;
               this.getTestCase(i);
               this.getRelatedTest();
-              this.initTest();
             }
           }
         });

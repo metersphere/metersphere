@@ -57,7 +57,9 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
             stringBuilder.append(Translator.get("user_not_exists") + "：" + data.getMaintainer() + "; ");
         }
         if (testCaseNames.contains(data.getName())) {
-            stringBuilder.append(Translator.get("test_case_already_exists") + "：" + data.getName() + "; ");
+            stringBuilder.append(Translator.get("test_case_already_exists_excel") + "：" + data.getName() + "; ");
+        } else {
+            testCaseNames.add(data.getName());
         }
         return stringBuilder.toString();
     }

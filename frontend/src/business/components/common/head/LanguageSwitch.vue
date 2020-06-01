@@ -44,6 +44,7 @@
     },
     methods: {
       checkLanguage(lang) {
+        if (!lang) return;
         this.$setLang(lang);
         switch (lang) {
           case ZH_CN:
