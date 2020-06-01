@@ -25,9 +25,7 @@
                 AND test_plan.id = #{request.id}
             </if>
         </where>
-        <if test="request.recent">
-            order by test_plan.update_time desc
-        </if>
+        order by test_plan.update_time desc
     </select>
 
     <select id="listRelate" resultType="io.metersphere.track.dto.TestPlanDTOWithMetric">
