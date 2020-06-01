@@ -125,7 +125,7 @@
           this.$warning(this.$t('report.generation_error'));
           return false
         } else if (report.status === "Starting") {
-          this.$info(this.$t('being_generated'))
+          this.$info(this.$t('report.being_generated'))
           return false
         }
         this.$router.push({

@@ -59,7 +59,7 @@
             width="150"
             :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
+              <ms-table-operators :buttons="buttons" :row="scope.row"/>
             </template>
           </el-table-column>
         </el-table>
@@ -76,6 +76,7 @@
   import MsContainer from "../../common/components/MsContainer";
   import MsMainContainer from "../../common/components/MsMainContainer";
   import MsPerformanceTestStatus from "./PerformanceTestStatus";
+  import MsTableOperators from "../../common/components/MsTableOperators";
 
   export default {
     components: {
@@ -83,7 +84,8 @@
       MsTablePagination,
       MsTableOperator,
       MsContainer,
-      MsMainContainer
+      MsMainContainer,
+      MsTableOperators
     },
     data() {
       return {
@@ -99,6 +101,18 @@
         total: 0,
         loading: false,
         testId: null,
+        buttons: [
+          {
+            tip: this.$t('commons.edit'), icon: "el-icon-edit",
+            exec: this.handleEdit
+          }, {
+            tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "success",
+            exec: this.handleCopy
+          }, {
+            tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
+            exec: this.handleDelete
+          }
+        ]
       }
     },
     watch: {
@@ -140,6 +154,12 @@
         this.$router.push({
           path: '/performance/test/edit/' + testPlan.id,
         })
+      },
+      handleCopy(testPlan) {
+        this.result = this.$post("/performance/copy", {id: testPlan.id}, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.search();
+        });
       },
       handleDelete(testPlan) {
         this.$alert(this.$t('load_test.delete_confirm') + testPlan.name + "？", '', {
