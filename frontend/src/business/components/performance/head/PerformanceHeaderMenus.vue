@@ -91,6 +91,7 @@
         reportRecent: {
           title: this.$t('report.recent'),
           url: "/performance/report/recent/5",
+          showTime: true,
           index(item) {
             return '/performance/report/view/' + item.id;
           },

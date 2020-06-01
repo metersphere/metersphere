@@ -61,6 +61,8 @@
           </el-table-column>
           <el-table-column
             prop="status"
+            :filter-method="filter"
+            :filters="statusFilters"
             :label="$t('commons.status')">
             <template v-slot:default="{row}">
               <ms-performance-test-status :row="row"/>
@@ -88,7 +90,7 @@
   import MsMainContainer from "../../common/components/MsMainContainer";
   import MsPerformanceTestStatus from "./PerformanceTestStatus";
   import MsTableOperators from "../../common/components/MsTableOperators";
-  import {_sort} from "../../../../common/js/utils";
+  import {_filter, _sort} from "../../../../common/js/utils";
 
   export default {
     components: {
@@ -124,6 +126,14 @@
             tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
             exec: this.handleDelete
           }
+        ],
+        statusFilters: [
+          {text: 'Saved', value: 'Saved'},
+          {text: 'Starting', value: 'Starting'},
+          {text: 'Running', value: 'Running'},
+          {text: 'Reporting', value: 'Reporting'},
+          {text: 'Completed', value: 'Completed'},
+          {text: 'Error', value: 'Error'}
         ]
       }
     },
@@ -194,6 +204,9 @@
       //   _sort(column, this.condition);
       //   this.initTableData();
       // },
+      filter(value, row) {
+        return row.status === value;
+      },
       link(row) {
         this.$router.push({
           path: '/performance/test/edit/' + row.id,
