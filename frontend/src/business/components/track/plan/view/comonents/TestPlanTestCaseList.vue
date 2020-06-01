@@ -87,7 +87,25 @@
           column-key="status"
           :label="$t('test_track.plan_view.execute_result')">
           <template v-slot:default="scope">
-            <status-table-item :value="scope.row.status"/>
+              <el-dropdown class="test-case-status" @command="statusChange">
+                <span class="el-dropdown-link">
+                  <status-table-item :value="scope.row.status"/>
+                </span>
+                <el-dropdown-menu slot="dropdown" chang>
+                  <el-dropdown-item :command="{id: scope.row.id, status: 'Pass'}">
+                    {{$t('test_track.plan_view.pass')}}
+                  </el-dropdown-item>
+                  <el-dropdown-item :command="{id: scope.row.id, status: 'Failure'}">
+                    {{$t('test_track.plan_view.failure')}}
+                  </el-dropdown-item>
+                  <el-dropdown-item :command="{id: scope.row.id, status: 'Blocking'}">
+                    {{$t('test_track.plan_view.blocking')}}
+                  </el-dropdown-item>
+                  <el-dropdown-item :command="{id: scope.row.id, status: 'Skip'}">
+                    {{$t('test_track.plan_view.skip')}}
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
           </template>
         </el-table-column>
 
@@ -328,6 +346,16 @@
         openTestReport() {
           this.$refs.testReporTtemplateList.open();
         },
+        statusChange(param) {
+          this.$post('/test/plan/case/edit' , param, () => {
+            for (let i = 0; i < this.tableData.length; i++) {
+              if (this.tableData[i].id == param.id) {
+                this.tableData[i].status = param.status;
+                break;
+              }
+            }
+          });
+        },
         getTestPlanById() {
           if (this.planId) {
             this.$post('/test/plan/get/' + this.planId, {}, response => {
@@ -361,4 +389,9 @@
     margin-left: 10px;
     width: 240px;
   }
+
+  .test-case-status {
+    cursor:pointer;
+  }
+
 </style>
