@@ -1,10 +1,12 @@
 package io.metersphere.performance.service;
 
+import io.metersphere.api.dto.SaveAPITestRequest;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportDetailMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
+import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
@@ -28,6 +30,7 @@ import javax.annotation.Resource;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -284,5 +287,29 @@ public class PerformanceTestService {
 
     public List<LoadTest> getLoadTestByProjectId(String projectId) {
         return extLoadTestMapper.getLoadTestByProjectId(projectId);
+    }
+
+    public void copy(SaveTestPlanRequest request) {
+        // copy test
+        LoadTestWithBLOBs copy = loadTestMapper.selectByPrimaryKey(request.getId());
+        copy.setId(UUID.randomUUID().toString());
+        copy.setName(copy.getName() + " Copy");
+        copy.setCreateTime(System.currentTimeMillis());
+        copy.setUpdateTime(System.currentTimeMillis());
+        copy.setStatus(APITestStatus.Saved.name());
+        copy.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+        loadTestMapper.insert(copy);
+        // copy test file
+        LoadTestFileExample loadTestFileExample = new LoadTestFileExample();
+        loadTestFileExample.createCriteria().andTestIdEqualTo(request.getId());
+        List<LoadTestFile> loadTestFiles = loadTestFileMapper.selectByExample(loadTestFileExample);
+        if (!CollectionUtils.isEmpty(loadTestFiles)) {
+            loadTestFiles.forEach(loadTestFile -> {
+                FileMetadata fileMetadata = fileService.copyFile(loadTestFile.getFileId());
+                loadTestFile.setTestId(copy.getId());
+                loadTestFile.setFileId(fileMetadata.getId());
+                loadTestFileMapper.insert(loadTestFile);
+            });
+        }
     }
 }
