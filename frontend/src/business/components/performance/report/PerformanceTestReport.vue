@@ -16,7 +16,9 @@
           </div>
         </template>
 
-        <el-table :data="tableData" class="test-content">
+        <el-table :data="tableData" class="test-content"
+                  :default-sort="{prop: 'createTime', order: 'descending'}"
+        >
           <el-table-column
             prop="name"
             :label="$t('commons.name')"
@@ -36,21 +38,25 @@
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
+            prop="createTime"
+            sortable
             width="250"
             :label="$t('commons.create_time')">
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column
-            width="250"
-            :label="$t('commons.update_time')">
-            <template v-slot:default="scope">
-              <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-            </template>
-          </el-table-column>
+<!--          <el-table-column-->
+<!--            width="250"-->
+<!--            :label="$t('commons.update_time')">-->
+<!--            <template v-slot:default="scope">-->
+<!--              <span>{{ scope.row.updateTime | timestampFormatDate }}</span>-->
+<!--            </template>-->
+<!--          </el-table-column>-->
           <el-table-column
             prop="status"
+            :filter-method="filter"
+            :filters="statusFilters"
             :label="$t('commons.status')">
             <template v-slot:default="{row}">
               <ms-performance-report-status :row="row"/>
@@ -98,6 +104,13 @@
         total: 0,
         loading: false,
         testId: null,
+        statusFilters: [
+          {text: 'Starting', value: 'Starting'},
+          {text: 'Running', value: 'Running'},
+          {text: 'Reporting', value: 'Reporting'},
+          {text: 'Completed', value: 'Completed'},
+          {text: 'Error', value: 'Error'}
+        ]
       }
     },
     methods: {
@@ -147,6 +160,9 @@
           this.$success(this.$t('commons.delete_success'));
           this.initTableData();
         });
+      },
+      filter(value, row) {
+        return row.status === value;
       },
     }
   }
