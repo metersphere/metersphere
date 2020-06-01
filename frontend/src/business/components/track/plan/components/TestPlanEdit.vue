@@ -132,7 +132,8 @@
             ],
             projectId :[{required: true, message: this.$t('test_track.plan.input_plan_project'), trigger: 'change'}],
             principal :[{required: true, message: this.$t('test_track.plan.input_plan_principal'), trigger: 'change'}],
-            stage :[{required: true, message: this.$t('test_track.plan.input_plan_stage'), trigger: 'change'}]
+            stage :[{required: true, message: this.$t('test_track.plan.input_plan_stage'), trigger: 'change'}],
+            description :[{ max: 200, message: this.$t('test_track.length_less_than') + '200', trigger: 'blur'}]
           },
           formLabelWidth: "120px",
           operationType: '',
