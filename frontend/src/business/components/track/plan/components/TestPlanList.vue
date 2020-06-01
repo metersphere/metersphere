@@ -9,6 +9,8 @@
 
         <el-table
           :data="tableData"
+          @filter-change="filter"
+          @sort-change="sort"
           @row-click="intoPlan">
           <el-table-column
             prop="name"
@@ -22,12 +24,13 @@
           </el-table-column>
           <el-table-column
             prop="status"
+            column-key="status"
+            :filters="statusFilters"
             :label="$t('test_track.plan.plan_status')"
             show-overflow-tooltip>
             <template v-slot:default="scope">
               <el-dropdown class="test-case-status" @command="statusChange">
                 <span class="el-dropdown-link">
-                  <!--<status-table-item :value="scope.row.status"/>-->
                   <plan-status-table-item :value="scope.row.status"/>
                 </span>
                 <el-dropdown-menu slot="dropdown" chang>
@@ -47,6 +50,8 @@
           </el-table-column>
           <el-table-column
             prop="stage"
+            column-key="stage"
+            :filters="stageFilters"
             :label="$t('test_track.plan.plan_stage')"
             show-overflow-tooltip>
             <template v-slot:default="scope">
@@ -59,6 +64,8 @@
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
+            sortable
+            prop="createTime"
             :label="$t('commons.create_time')"
             show-overflow-tooltip>
             <template v-slot:default="scope">
@@ -66,6 +73,8 @@
             </template>
           </el-table-column>
           <el-table-column
+            sortable
+            prop="updateTime"
             :label="$t('commons.update_time')"
             show-overflow-tooltip>
             <template v-slot:default="scope">
@@ -94,6 +103,7 @@
   import MsTableOperator from "../../../common/components/MsTableOperator";
   import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
   import PlanStageTableItem from "../../common/tableItems/plan/PlanStageTableItem";
+  import {_filter, _sort} from "../../../../../common/js/utils";
 
   export default {
       name: "TestPlanList",
@@ -108,9 +118,19 @@
           deletePath: "/test/plan/delete",
           condition: {},
           currentPage: 1,
-          pageSize: 5,
+          pageSize: 10,
           total: 0,
           tableData: [],
+          statusFilters: [
+            {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
+            {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
+            {text: this.$t('test_track.plan.plan_status_completed'), value: 'Completed'}
+          ],
+          stageFilters: [
+            {text: this.$t('test_track.plan.smoke_test'), value: 'smoke'},
+            {text: this.$t('test_track.plan.system_test'), value: 'system'},
+            {text: this.$t('test_track.plan.regression_test'), value: 'regression'},
+          ],
         }
       },
       watch: {
@@ -170,6 +190,14 @@
         },
         intoPlan(row, event, column) {
           this.$router.push('/track/plan/view/' + row.id);
+        },
+        filter(filters) {
+          _filter(filters, this.condition);
+          this.initTableData();
+        },
+        sort(column) {
+          _sort(column, this.condition);
+          this.initTableData();
         }
       }
     }
