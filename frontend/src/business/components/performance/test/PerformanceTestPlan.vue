@@ -15,7 +15,10 @@
             </el-row>
           </div>
         </template>
-        <el-table :data="tableData" class="test-content">
+        <el-table :data="tableData" class="test-content"
+                  @sort-change="sort"
+                  :default-sort="{prop: 'createTime', order: 'descending'}"
+        >
           <el-table-column
             prop="name"
             :label="$t('commons.name')"
@@ -36,6 +39,8 @@
           </el-table-column>
           <el-table-column
             width="250"
+            sortable
+            prop="createTime"
             :label="$t('commons.create_time')">
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
@@ -43,6 +48,8 @@
           </el-table-column>
           <el-table-column
             width="250"
+            sortable
+            prop="updateTime"
             :label="$t('commons.update_time')">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
@@ -77,6 +84,7 @@
   import MsMainContainer from "../../common/components/MsMainContainer";
   import MsPerformanceTestStatus from "./PerformanceTestStatus";
   import MsTableOperators from "../../common/components/MsTableOperators";
+  import {_sort} from "../../../../common/js/utils";
 
   export default {
     components: {
@@ -181,6 +189,10 @@
           this.initTableData();
         });
       },
+      sort(column) {
+        _sort(column, this.condition);
+        this.initTableData();
+      }
     }
   }
 </script>

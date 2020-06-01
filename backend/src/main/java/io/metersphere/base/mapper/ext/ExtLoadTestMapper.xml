@@ -27,7 +27,12 @@
                 AND load_test.id = #{request.id}
             </if>
         </where>
-        order by load_test.update_time desc
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                test_plan_test_case.${order.name} ${order.type}
+            </foreach>
+        </if>
     </select>
     <select id="countByProjectId" resultType="java.lang.Long">
         select count(id) from load_test
