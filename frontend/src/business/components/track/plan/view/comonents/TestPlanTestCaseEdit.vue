@@ -41,7 +41,7 @@
                              @click="handleNext()"/>
                   <el-divider direction="vertical"></el-divider>
 
-                  <el-button type="primary" size="mini" @click="saveCase(false)">{{$t('test_track.save')}}</el-button>
+                  <el-button type="primary" size="mini" @click="saveCase()">{{$t('test_track.save')}}</el-button>
                 </el-col>
 
               </el-row>
@@ -87,14 +87,14 @@
 
               <el-row v-if="testCase.method == 'auto' && testCase.testId">
                 <el-col class="test-detail" :span="20" :offset="1">
-                    <el-tabs type="border-card">
-                      <el-tab-pane :label="$t('test_track.plan_view.test_detail')">
-                        <api-test-detail v-if="testCase.type == 'api'" @runTest="apiTestRun" :id="testCase.testId" ref="apiTestDetail"/>
-                        <performance-test-detail v-if="testCase.type == 'performance'" :id="testCase.testId" ref="performanceTestDetail"/>
+                    <el-tabs v-model="activeTab" type="border-card" @tab-click="testTabChange">
+                      <el-tab-pane name="detail" :label="$t('test_track.plan_view.test_detail')">
+                        <api-test-detail v-if="testCase.type == 'api'" @runTest="testRun" :id="testCase.testId" ref="apiTestDetail"/>
+                        <performance-test-detail v-if="testCase.type == 'performance'" @runTest="testRun" :id="testCase.testId" ref="performanceTestDetail"/>
                       </el-tab-pane>
-                      <el-tab-pane :label="$t('test_track.plan_view.test_result')">
+                      <el-tab-pane name="result" :label="$t('test_track.plan_view.test_result')">
                         <api-test-result :report-id="testCase.reportId" v-if=" testCase.type == 'api'" ref="apiTestResult"/>
-                        <performance-test-result :report-id="testCase.reportId" v-if="testCase.type == 'performance'"/>
+                        <performance-test-result :report-id="testCase.reportId" v-if="testCase.type == 'performance'" ref="performanceTestResult"/>
                       </el-tab-pane>
                     </el-tabs>
                 </el-col>
@@ -220,7 +220,8 @@
         index: 0,
         testCases: [],
         editor: ClassicEditor,
-        test: {}
+        test: {},
+        activeTab: 'detail'
       };
     },
     props: {
@@ -312,6 +313,7 @@
       },
       openTestCaseEdit(testCase) {
         this.showDialog = true;
+        this.activeTab = 'detail';
         this.listenGoBack();
         this.initData(testCase);
       },
@@ -326,9 +328,16 @@
           }
         });
       },
-      apiTestRun(reportId) {
+      testRun(reportId) {
         this.testCase.reportId = reportId;
         this.saveReport(reportId);
+      },
+      testTabChange(data) {
+        if (this.testCase.type == 'performance' && data.paneName == 'result') {
+          console.log(data);
+          this.$refs.performanceTestResult.checkReportStatus();
+        }
+        // console.log(data);
       },
       saveReport(reportId) {
         this.$post('/test/plan/case/edit', {id: this.testCase.id, reportId: reportId});

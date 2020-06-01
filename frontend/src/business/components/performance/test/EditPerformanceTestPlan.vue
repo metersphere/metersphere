@@ -30,10 +30,10 @@
             <performance-basic-config :test-plan="testPlan" ref="basicConfig"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.pressure_config')">
-            <performance-pressure-config :test-plan="testPlan" ref="pressureConfig"/>
+            <performance-pressure-config :test-plan="testPlan" :test-id="testId" ref="pressureConfig"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.advanced_config')" class="advanced-config">
-            <performance-advanced-config ref="advancedConfig"/>
+            <performance-advanced-config :test-id="testId" ref="advancedConfig"/>
           </el-tab-pane>
         </el-tabs>
       </el-card>
@@ -67,6 +67,7 @@
         runPath: "/performance/run",
         projects: [],
         active: '0',
+        testId: '',
         tabs: [{
           title: this.$t('load_test.basic_config'),
           id: '0',
@@ -94,8 +95,9 @@
           return;
         }
 
-        let testId = to.path.split('/')[4]; // find testId
+        let testId = to.params.testId;
         if (testId) {
+          this.testId = testId;
           this.result = this.$get('/performance/get/' + testId, response => {
             if (response.data) {
               this.testPlan = response.data;
@@ -106,8 +108,9 @@
 
     },
     created() {
-      let testId = this.$route.path.split('/')[4];
+      let testId = this.$route.params.testId;
       if (testId) {
+        this.testId = testId;
         this.result = this.$get('/performance/get/' + testId, response => {
           this.testPlan = response.data;
         });

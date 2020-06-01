@@ -22,10 +22,10 @@
             <performance-basic-config :test-plan="test" ref="basicConfig"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.pressure_config')">
-            <performance-pressure-config :test-plan="test" ref="pressureConfig"/>
+            <performance-pressure-config :test-plan="test" :test-id="id" ref="pressureConfig"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.advanced_config')" class="advanced-config">
-            <performance-advanced-config ref="advancedConfig"/>
+            <performance-advanced-config :test-id="id" ref="advancedConfig"/>
           </el-tab-pane>
         </el-tabs>
       </el-card>
@@ -93,8 +93,9 @@
         }
       },
       runTest() {
-        this.result = this.$post(this.runPath, {id: this.test.id}, () => {
+        this.result = this.$post(this.runPath, {id: this.test.id}, (response) => {
           this.$success(this.$t('load_test.is_running'));
+          this.$emit('runTest', response.data);
         });
       }
     }

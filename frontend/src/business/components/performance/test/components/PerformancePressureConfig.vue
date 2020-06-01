@@ -108,7 +108,7 @@
 
   export default {
     name: "PerformancePressureConfig",
-    props: ['testPlan'],
+    props: ['testPlan','testId'],
     data() {
       return {
         result: {},
@@ -123,9 +123,8 @@
       }
     },
     mounted() {
-      let testId = this.$route.path.split('/')[4];
-      if (testId) {
-        this.getLoadConfig(testId);
+      if (this.testId) {
+        this.getLoadConfig();
       } else {
         this.calculateChart();
       }
@@ -133,20 +132,16 @@
       this.getResourcePools();
     },
     watch: {
-      '$route'(to) {
-        if (to.name !== 'createPerTest' && to.name !== 'editPerTest') {
-          return;
-        }
-        let testId = to.path.split('/')[4];
-        if (testId) {
-          this.getLoadConfig(testId);
+      testPlan(n) {
+        this.resourcePool = n.testResourcePoolId;
+      },
+      testId () {
+        if (this.testId) {
+          this.getLoadConfig();
         } else {
           this.calculateChart();
         }
       },
-      testPlan(n) {
-        this.resourcePool = n.testResourcePoolId;
-      }
     },
     methods: {
       getResourcePools() {
@@ -158,10 +153,10 @@
           }
         })
       },
-      getLoadConfig(testId) {
-        if (testId) {
+      getLoadConfig() {
+        if (this.testId) {
 
-          this.$get('/performance/get-load-config/' + testId, (response) => {
+          this.$get('/performance/get-load-config/' + this.testId, (response) => {
             if (response.data) {
               let data = JSON.parse(response.data);
 

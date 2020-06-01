@@ -198,27 +198,23 @@
         type: Boolean,
         default: true
       },
+      testId: String,
     },
     mounted() {
-      let testId = this.$route.path.split('/')[4];
-      if (testId) {
-        this.getAdvancedConfig(testId);
+      if (this.testId) {
+        this.getAdvancedConfig();
       }
     },
     watch: {
-      '$route'(to) {
-        if (to.name !== 'createPerTest' && to.name !== 'editPerTest') {
-          return;
-        }
-        let testId = to.path.split('/')[4];
-        if (testId) {
-          this.getAdvancedConfig(testId);
+      testId () {
+        if (this.testId) {
+          this.getAdvancedConfig();
         }
       }
     },
     methods: {
-      getAdvancedConfig(testId) {
-        this.$get('/performance/get-advanced-config/' + testId, (response) => {
+      getAdvancedConfig() {
+        this.$get('/performance/get-advanced-config/' + this.testId, (response) => {
           if (response.data) {
             let data = JSON.parse(response.data);
             this.timeout = data.timeout || 10;

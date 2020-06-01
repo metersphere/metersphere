@@ -186,7 +186,7 @@ public class PerformanceTestService {
     }
 
     @Transactional(noRollbackFor = MSException.class)//  保存失败的信息
-    public void run(RunTestPlanRequest request) {
+    public String run(RunTestPlanRequest request) {
         final LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(request.getId());
         if (loadTest == null) {
             MSException.throwException(Translator.get("run_load_test_not_found") + request.getId());
@@ -206,6 +206,8 @@ public class PerformanceTestService {
         startEngine(loadTest, engine);
 
         // todo：通过调用stop方法能够停止正在运行的engine，但是如果部署了多个backend实例，页面发送的停止请求如何定位到具体的engine
+
+        return engine.getReportId();
     }
 
     private void startEngine(LoadTestWithBLOBs loadTest, Engine engine) {

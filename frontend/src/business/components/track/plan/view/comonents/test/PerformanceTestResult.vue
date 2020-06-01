@@ -92,6 +92,14 @@
       }
     },
     props: ['reportId'],
+    mounted() {
+      this.init();
+    },
+    watch: {
+      reportId() {
+        this.init();
+      }
+    },
     methods: {
       initBreadcrumb() {
         if (this.reportId) {
@@ -124,8 +132,11 @@
           })
         }
       },
-      checkReportStatus(status) {
-        switch (status) {
+      checkReportStatus() {
+        if (!this.report) {
+          return;
+        }
+        switch (this.report.status) {
           case 'Error':
             this.$warning(this.$t('report.generation_error'));
             break;
@@ -148,61 +159,58 @@
         this.endTime = '0';
         this.minutes = '0';
         this.seconds = '0';
-      }
-    },
-    created() {
-      this.result = this.$get("/performance/report/" + this.reportId, res => {
-        let data = res.data;
-        this.status = data.status;
-        this.$set(this.report, "id", this.reportId);
-        this.$set(this.report, "status", data.status);
-        this.checkReportStatus(data.status);
-        if (this.status === "Completed") {
-          this.initReportTimeInfo();
-        }
-      });
-      this.initBreadcrumb();
+      },
+      init() {
+        this.getReport();
+        this.getReportView();
+      },
+      getReportView() {
+        if (this.reportId) {
+          this.$get("/performance/report/test/pro/info/" + this.reportId, response => {
+            let data = response.data;
+            if (data) {
+              this.status = data.status;
+              this.reportName = data.name;
+              this.testName = data.testName;
+              this.projectName = data.projectName;
 
-    },
-    watch: {
-      '$route'(to) {
-        if (to.name === "perReportView") {
-          let reportId = to.path.split('/')[4];
-          this.reportId = reportId;
-          if (reportId) {
-            this.$get("/performance/report/test/pro/info/" + reportId, response => {
-              let data = response.data;
-              if (data) {
-                this.status = data.status;
-                this.reportName = data.name;
-                this.testName = data.testName;
-                this.projectName = data.projectName;
+              this.$set(this.report, "id", this.reportId);
+              this.$set(this.report, "status", data.status);
 
-                this.$set(this.report, "id", reportId);
-                this.$set(this.report, "status", data.status);
-
-                this.checkReportStatus(data.status);
-                if (this.status === "Completed") {
-                  this.result = this.$get("/performance/report/content/report_time/" + this.reportId).then(res => {
-                    let data = res.data.data;
-                    if (data) {
-                      this.startTime = data.startTime;
-                      this.endTime = data.endTime;
-                      let duration = data.duration;
-                      this.minutes = Math.floor(duration / 60);
-                      this.seconds = duration % 60;
-                    }
-                  }).catch(() => {
-                    this.clearData();
-                  })
-                } else {
+              // this.checkReportStatus(data.status);
+              if (this.status === "Completed") {
+                this.result = this.$get("/performance/report/content/report_time/" + this.reportId).then(res => {
+                  let data = res.data.data;
+                  if (data) {
+                    this.startTime = data.startTime;
+                    this.endTime = data.endTime;
+                    let duration = data.duration;
+                    this.minutes = Math.floor(duration / 60);
+                    this.seconds = duration % 60;
+                  }
+                }).catch(() => {
                   this.clearData();
-                }
+                })
+              } else {
+                this.clearData();
               }
-            });
+            }
+          });
 
-          }
         }
+      },
+      getReport() {
+        this.result = this.$get("/performance/report/" + this.reportId, res => {
+          let data = res.data;
+          this.status = data.status;
+          this.$set(this.report, "id", this.reportId);
+          this.$set(this.report, "status", data.status);
+          // this.checkReportStatus(data.status);
+          if (this.status === "Completed") {
+            this.initReportTimeInfo();
+          }
+        });
+        this.initBreadcrumb();
       }
     }
   }

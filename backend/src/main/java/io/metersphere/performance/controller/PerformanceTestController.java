@@ -91,8 +91,8 @@ public class PerformanceTestController {
     }
 
     @PostMapping("/run")
-    public void run(@RequestBody RunTestPlanRequest request) {
-        performanceTestService.run(request);
+    public String run(@RequestBody RunTestPlanRequest request) {
+        return performanceTestService.run(request);
     }
 
     @GetMapping("/file/metadata/{testId}")
