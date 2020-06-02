@@ -94,6 +94,7 @@ export default {
     'remove_success': '移除成功',
     'tips': '认证信息已过期，请重新登录',
     'not_performed_yet': '尚未执行',
+
   },
   workspace: {
     'create': '创建工作空间',
@@ -196,7 +197,8 @@ export default {
     'start_status': '测试处于开始状态,请稍后查看报告！',
     'run_status': '测试处于运行状态,请稍后查看报告！',
     'user_name': '创建人',
-    'project_name': '所属项目'
+    'project_name': '所属项目',
+
   },
   load_test: {
     'operating': '操作',

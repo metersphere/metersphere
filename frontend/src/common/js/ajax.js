@@ -1,5 +1,7 @@
 import {Message, MessageBox} from 'element-ui';
 import axios from "axios";
+import i18n from '../../i18n/i18n'
+
 
 export default {
   install(Vue) {
@@ -14,7 +16,7 @@ export default {
     }
 
     let login = function () {
-      MessageBox.alert("The authentication information has expired, please login again", "Prompt", {
+      MessageBox.alert(i18n.t('commons.tips'), i18n.t('commons.prompt'), {
         callback: () => {
           window.location.href = "/login"
         }
