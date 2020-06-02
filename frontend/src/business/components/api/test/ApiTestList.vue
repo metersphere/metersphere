@@ -148,6 +148,9 @@
       },
       init() {
         this.projectId = this.$route.params.projectId;
+        if (this.projectId && this.projectId !== "all") {
+          this.$store.commit('setProjectId', this.projectId);
+        }
         this.search();
       },
      /* filter(value, row) {
