@@ -7,7 +7,8 @@
                            :title="$t('commons.test')"
                            @create="create" :createTip="$t('load_test.create')"/>
         </template>
-        <el-table :data="tableData" class="table-content">
+        <el-table :data="tableData" class="table-content"   @sort-change="sort"
+                  @filter-change="filter">
           <el-table-column :label="$t('commons.name')" width="250" show-overflow-tooltip>
             <template v-slot:default="scope">
               <el-link type="info" @click="handleEdit(scope.row)">{{ scope.row.name }}</el-link>
@@ -28,7 +29,7 @@
             </template>
           </el-table-column>
           <el-table-column prop="status" :label="$t('commons.status')"
-                           :filter-method="filter"
+                           column-key="status"
                            :filters="statusFilters">
             <template v-slot:default="{row}">
               <ms-api-test-status :row="row"/>
@@ -55,6 +56,7 @@
   import MsMainContainer from "../../common/components/MsMainContainer";
   import MsApiTestStatus from "./ApiTestStatus";
   import MsTableOperators from "../../common/components/MsTableOperators";
+  import {_filter, _sort} from "../../../../common/js/utils";
 
   export default {
     components: {
@@ -153,9 +155,17 @@
         }
         this.search();
       },
-      filter(value, row) {
+     /* filter(value, row) {
         return row.status === value;
-      }
+      }*/
+      sort(column) {
+        _sort(column, this.condition);
+        this.init();
+      },
+      filter(filters) {
+        _filter(filters, this.condition);
+        this.init();
+      },
     },
     created() {
       this.init();

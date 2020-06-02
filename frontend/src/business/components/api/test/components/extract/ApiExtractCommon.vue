@@ -2,15 +2,15 @@
   <div>
     <el-row :gutter="10" type="flex" justify="space-between" align="middle">
       <el-col :span="10">
-        <ms-api-variable-input v-model="common.variable" size="small" maxlength="60" @change="change"
+        <ms-api-variable-input :is-read-only="isReadOnly" v-model="common.variable" size="small" maxlength="60" @change="change"
                                :placeholder="$t('api_test.variable_name')"/>
       </el-col>
       <el-col>
-        <el-input v-model="common.expression" maxlength="255" size="small" :placeholder="expression"/>
+        <el-input :disabled="isReadOnly" v-model="common.expression" maxlength="255" size="small" :placeholder="expression"/>
       </el-col>
       <el-col class="extract-btn">
-        <el-button type="danger" size="mini" icon="el-icon-delete" circle @click="remove" v-if="edit"/>
-        <el-button type="primary" size="small" icon="el-icon-plus" plain @click="add" v-else/>
+        <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove" v-if="edit"/>
+        <el-button :disabled="isReadOnly" type="primary" size="small" icon="el-icon-plus" plain @click="add" v-else/>
       </el-col>
     </el-row>
   </div>
@@ -42,7 +42,11 @@
       },
       index: Number,
       list: Array,
-      callback: Function
+      callback: Function,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      }
     },
 
     data() {

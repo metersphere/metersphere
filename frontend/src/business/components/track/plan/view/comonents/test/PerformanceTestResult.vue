@@ -1,7 +1,8 @@
 <template>
   <ms-container>
     <ms-main-container>
-      <el-card v-loading="result.loading">
+      <span v-if="!reportId">{{$t('commons.not_performed_yet')}}</span>
+      <el-card v-loading="result.loading" v-if="reportId">
         <el-row>
           <el-col :span="16">
             <el-row>
@@ -13,12 +14,12 @@
                 <el-breadcrumb-item>{{reportName}}</el-breadcrumb-item>
               </el-breadcrumb>
             </el-row>
-            <el-row class="ms-report-view-btns">
-              <el-button type="primary" plain size="mini">{{$t('report.test_stop_now')}}</el-button>
-              <el-button type="success" plain size="mini">{{$t('report.test_execute_again')}}</el-button>
-              <el-button type="info" plain size="mini">{{$t('report.export')}}</el-button>
-              <el-button type="warning" plain size="mini">{{$t('report.compare')}}</el-button>
-            </el-row>
+            <!--<el-row class="ms-report-view-btns">-->
+              <!--<el-button :disabled="isReadOnly" type="primary" plain size="mini">{{$t('report.test_stop_now')}}</el-button>-->
+              <!--<el-button :disabled="isReadOnly"  type="success" plain size="mini">{{$t('report.test_execute_again')}}</el-button>-->
+              <!--<el-button :disabled="isReadOnly"  type="info" plain size="mini">{{$t('report.export')}}</el-button>-->
+              <!--<el-button :disabled="isReadOnly"  type="warning" plain size="mini">{{$t('report.compare')}}</el-button>-->
+            <!--</el-row>-->
           </el-col>
           <el-col :span="8">
             <span class="ms-report-time-desc">
@@ -91,7 +92,13 @@
         report: {}
       }
     },
-    props: ['reportId'],
+    props: {
+      reportId: String,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      },
+    },
     mounted() {
       this.init();
     },
@@ -141,13 +148,13 @@
             this.$warning(this.$t('report.generation_error'));
             break;
           case 'Starting':
-            this.$warning("测试处于开始状态,请稍后查看报告！");
+            this.$warning(this.$t('report.start_status'));
             break;
           case 'Reporting':
             this.$info(this.$t('report.being_generated'));
             break;
           case 'Running':
-            this.$warning("测试处于运行状态,请稍后查看报告！");
+            this.$warning(this.$t('report.run_status'));
             break;
           case 'Completed':
           default:
@@ -177,7 +184,6 @@
               this.$set(this.report, "id", this.reportId);
               this.$set(this.report, "status", data.status);
 
-              // this.checkReportStatus(data.status);
               if (this.status === "Completed") {
                 this.result = this.$get("/performance/report/content/report_time/" + this.reportId).then(res => {
                   let data = res.data.data;
@@ -200,16 +206,17 @@
         }
       },
       getReport() {
-        this.result = this.$get("/performance/report/" + this.reportId, res => {
-          let data = res.data;
-          this.status = data.status;
-          this.$set(this.report, "id", this.reportId);
-          this.$set(this.report, "status", data.status);
-          // this.checkReportStatus(data.status);
-          if (this.status === "Completed") {
-            this.initReportTimeInfo();
-          }
-        });
+        if (this.reportId) {
+          this.result = this.$get("/performance/report/" + this.reportId, res => {
+            let data = res.data;
+            this.status = data.status;
+            this.$set(this.report, "id", this.reportId);
+            this.$set(this.report, "status", data.status);
+            if (this.status === "Completed") {
+              this.initReportTimeInfo();
+            }
+          });
+        }
         this.initBreadcrumb();
       }
     }

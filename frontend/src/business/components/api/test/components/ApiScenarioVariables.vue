@@ -6,16 +6,16 @@
     <div class="kv-row" v-for="(item, index) in items" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <el-col>
-          <ms-api-variable-input v-model="item.name" size="small" maxlength="100" @change="change"
+          <ms-api-variable-input :is-read-only="isReadOnly" v-model="item.name" size="small" maxlength="100" @change="change"
                                  :placeholder="$t('api_test.variable_name')" show-word-limit/>
         </el-col>
         <el-col>
-          <el-input v-model="item.value" size="small" maxlength="100" @change="change"
+          <el-input :disabled="isReadOnly" v-model="item.value" size="small" maxlength="100" @change="change"
                     :placeholder="$t('api_test.value')" show-word-limit/>
         </el-col>
         <el-col class="kv-delete">
           <el-button size="mini" class="el-icon-delete-solid" circle @click="remove(index)"
-                     :disabled="isDisable(index)"/>
+                     :disabled="isDisable(index) || isReadOnly"/>
         </el-col>
       </el-row>
     </div>
@@ -31,7 +31,11 @@
     components: {MsApiVariableInput},
     props: {
       description: String,
-      items: Array
+      items: Array,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      }
     },
 
     methods: {

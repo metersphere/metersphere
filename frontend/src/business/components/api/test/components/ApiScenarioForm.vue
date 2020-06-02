@@ -1,7 +1,7 @@
 <template>
   <el-form :model="scenario" :rules="rules" ref="scenario" label-width="100px">
     <el-form-item :label="$t('api_test.scenario.name')" prop="name">
-      <el-input v-model="scenario.name" maxlength="100" show-word-limit/>
+      <el-input :disabled="isReadOnly" v-model="scenario.name" maxlength="100" show-word-limit/>
     </el-form-item>
 
     <!--    <el-form-item :label="$t('api_test.scenario.base_url')" prop="url">-->
@@ -10,10 +10,10 @@
 
     <el-tabs v-model="activeName">
       <el-tab-pane :label="$t('api_test.scenario.variables')" name="parameters">
-        <ms-api-scenario-variables :items="scenario.variables" :description="$t('api_test.scenario.kv_description')"/>
+        <ms-api-scenario-variables :is-read-only="isReadOnly" :items="scenario.variables" :description="$t('api_test.scenario.kv_description')"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.scenario.headers')" name="headers">
-        <ms-api-key-value :items="scenario.headers" :description="$t('api_test.scenario.kv_description')"/>
+        <ms-api-key-value :is-read-only="isReadOnly" :items="scenario.headers" :description="$t('api_test.scenario.kv_description')"/>
       </el-tab-pane>
     </el-tabs>
   </el-form>
@@ -28,7 +28,11 @@
     name: "MsApiScenarioForm",
     components: {MsApiScenarioVariables, MsApiKeyValue},
     props: {
-      scenario: Scenario
+      scenario: Scenario,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      }
     },
 
     data() {

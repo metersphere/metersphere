@@ -1,6 +1,6 @@
 <template>
   <div class="variable-input">
-    <el-input :value="value" v-bind="$attrs" :size="size" @change="change" @input="input"/>
+    <el-input :disabled="isReadOnly" :value="value" v-bind="$attrs" :size="size" @change="change" @input="input"/>
     <div class="variable-combine" v-if="value">
       <div class="variable">{{variable}}</div>
       <el-tooltip :content="$t('api_test.copied')" manual v-model="visible" placement="top" :visible-arrow="false">
@@ -14,7 +14,14 @@
   export default {
     name: "MsApiVariableInput",
 
-    props: ['value', 'size'],
+    props: {
+      value: String,
+      size: String,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      }
+    },
 
     data() {
       return {

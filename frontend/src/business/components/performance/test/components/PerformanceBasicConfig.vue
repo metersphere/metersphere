@@ -10,6 +10,7 @@
       :before-upload="beforeUpload"
       :http-request="handleUpload"
       :on-exceed="handleExceed"
+      :disabled="isReadOnly"
       :file-list="fileList">
       <i class="el-icon-upload"/>
       <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
@@ -41,9 +42,9 @@
       <el-table-column
         :label="$t('commons.operating')">
         <template v-slot:default="scope">
-          <el-button @click="handleDownload(scope.row)" :disabled="!scope.row.id" type="primary" icon="el-icon-download"
+          <el-button @click="handleDownload(scope.row)" :disabled="!scope.row.id || isReadOnly" type="primary" icon="el-icon-download"
                      size="mini" circle/>
-          <el-button @click="handleDelete(scope.row, scope.$index)" type="danger" icon="el-icon-delete" size="mini"
+          <el-button :disabled="isReadOnly" @click="handleDelete(scope.row, scope.$index)" type="danger" icon="el-icon-delete" size="mini"
                      circle/>
         </template>
       </el-table-column>
@@ -56,7 +57,15 @@
 
   export default {
     name: "PerformanceBasicConfig",
-    props: ["testPlan"],
+    props: {
+      testPlan: {
+        type: Object
+      },
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      }
+    },
     data() {
       return {
         result: {},

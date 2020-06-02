@@ -90,12 +90,12 @@
                 <el-col class="test-detail" :span="20" :offset="1">
                     <el-tabs v-model="activeTab" type="border-card" @tab-click="testTabChange">
                       <el-tab-pane name="detail" :label="$t('test_track.plan_view.test_detail')">
-                        <api-test-detail v-if="testCase.type == 'api'" @runTest="testRun" :id="testCase.testId" ref="apiTestDetail"/>
-                        <performance-test-detail v-if="testCase.type == 'performance'" @runTest="testRun" :id="testCase.testId" ref="performanceTestDetail"/>
+                        <api-test-detail :is-read-only="isReadOnly" v-if="testCase.type == 'api'" @runTest="testRun" :id="testCase.testId" ref="apiTestDetail"/>
+                        <performance-test-detail :is-read-only="isReadOnly" v-if="testCase.type == 'performance'" @runTest="testRun" :id="testCase.testId" ref="performanceTestDetail"/>
                       </el-tab-pane>
                       <el-tab-pane name="result" :label="$t('test_track.plan_view.test_result')">
                         <api-test-result :report-id="testCase.reportId" v-if=" testCase.type == 'api'" ref="apiTestResult"/>
-                        <performance-test-result :report-id="testCase.reportId" v-if="testCase.type == 'performance'" ref="performanceTestResult"/>
+                        <performance-test-result :is-read-only="isReadOnly" :report-id="testCase.reportId" v-if="testCase.type == 'performance'" ref="performanceTestResult"/>
                       </el-tab-pane>
                     </el-tabs>
                 </el-col>
