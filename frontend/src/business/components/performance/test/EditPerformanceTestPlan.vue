@@ -4,7 +4,9 @@
       <el-card v-loading="result.loading">
         <el-row>
           <el-col :span="10">
-            <el-input :placeholder="$t('load_test.input_name')" v-model="testPlan.name" class="input-with-select">
+            <el-input :placeholder="$t('load_test.input_name')" v-model="testPlan.name" class="input-with-select"
+                      maxlength="30"
+            >
               <template v-slot:prepend>
                 <el-select v-model="testPlan.projectId" :placeholder="$t('load_test.select_project')">
                   <el-option
@@ -208,8 +210,12 @@
         this.$router.push({path: '/performance/test/all'})
       },
       validTestPlan() {
+        let reg = /^[\u4e00-\u9fa5_a-zA-Z0-9\s.·-]+$/;
         if (!this.testPlan.name) {
           this.$error(this.$t('load_test.test_name_is_null'));
+          return false;
+        } else if (!reg.test(this.testPlan.name)) {
+          this.$error(this.$t('load_test.special_characters_are_not_supported'));
           return false;
         }
 
