@@ -130,6 +130,7 @@ public class APITestService {
         test.setScenarioDefinition(request.getScenarioDefinition());
         test.setUpdateTime(System.currentTimeMillis());
         test.setStatus(APITestStatus.Saved.name());
+        checkApiTestPlanExist(test);
         apiTestMapper.updateByPrimaryKeySelective(test);
         return test;
     }
