@@ -3,10 +3,12 @@
     <ms-main-container>
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
-          <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search" :title="$t('api_report.title')"
+          <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search"
+                           :title="$t('api_report.title')"
                            :show-create="false"/>
         </template>
-        <el-table :data="tableData" class="table-content">
+        <el-table :data="tableData" class="table-content" @sort-change="sort"
+                  @filter-change="filter">
           <el-table-column :label="$t('commons.name')" width="200" show-overflow-tooltip>
             <template v-slot:default="scope">
               <el-link type="info" @click="handleView(scope.row)">{{ scope.row.name }}</el-link>
@@ -22,7 +24,7 @@
             </template>
           </el-table-column>
           <el-table-column prop="status" :label="$t('commons.status')"
-                           :filter-method="filter"
+                           column-key="status"
                            :filters="statusFilters">
             <template v-slot:default="{row}">
               <ms-api-report-status :row="row"/>
@@ -50,13 +52,14 @@
   import MsContainer from "../../common/components/MsContainer";
   import MsMainContainer from "../../common/components/MsMainContainer";
   import MsApiReportStatus from "./ApiReportStatus";
+  import {_filter, _sort} from "../../../../common/js/utils";
 
   export default {
     components: {MsApiReportStatus, MsMainContainer, MsContainer, MsTableHeader, MsTablePagination},
     data() {
       return {
         result: {},
-        condition: {name: ""},
+        condition: {},
         tableData: [],
         multipleSelection: [],
         currentPage: 1,
@@ -80,16 +83,14 @@
 
     methods: {
       search() {
-        let param = {
-          name: this.condition.name,
-        };
+
 
         if (this.testId !== 'all') {
-          param.testId = this.testId;
+          this.condition.testId = this.testId;
         }
 
         let url = "/api/report/list/" + this.currentPage + "/" + this.pageSize
-        this.result = this.$post(url, param, response => {
+        this.result = this.$post(url, this.condition, response => {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
@@ -120,9 +121,18 @@
         this.testId = this.$route.params.testId;
         this.search();
       },
-      filter(value, row) {
-        return row.status === value;
-      }
+      /* filter(value, row) {
+         return row.status === value;
+       },*/
+      sort(column) {
+        _sort(column, this.condition);
+        this.init();
+      },
+      filter(filters) {
+        _filter(filters, this.condition);
+        this.init();
+      },
+
     },
 
     created() {
