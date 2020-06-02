@@ -1,8 +1,10 @@
 <template>
   <div v-loading="result.loading">
     <el-tabs type="border-card" :stretch="true">
-      <el-tab-pane v-for="item in logContent" :key="item.resourceId" :label="item.resourceName" class="logging-content">
-        {{item.content}}...
+      <el-tab-pane v-for="item in resource" :key="item.resourceId" :label="item.resourceName" class="logging-content">
+        <ul class="infinite-list" v-infinite-scroll="load(item.resourceId)" infinite-scroll-disabled="disabled">
+          <li class="infinite-list-item" v-for="log in logContent" :key="log.id">{{ log.content }}</li>
+        </ul>
         <el-link type="primary" @click="downloadLogFile(item)">{{$t('load_test.download_log_file')}}</el-link>
       </el-tab-pane>
     </el-tabs>
@@ -14,17 +16,40 @@
     name: "LogDetails",
     data() {
       return {
-        logContent: null,
+        resource: [],
+        logContent: [],
         result: {},
-        id: ''
+        id: '',
+        page: 1,
+        pageCount: 1,
+        loading: false,
       }
     },
+
+    computed: {
+      disabled() {
+        return this.loading || this.page > this.pageCount;
+      }
+    },
+
     methods: {
-      initTableData() {
-        this.result = this.$get("/performance/report/log/" + this.id).then(res => {
-          this.logContent = res.data.data;
-        }).catch(() => {
-          this.logContent = null;
+      getResource() {
+        this.result = this.$get("/performance/report/log/resource/" + this.id, data => {
+          this.resource = data.data;
+        })
+      },
+      load(resourceId) {
+        if (this.loading || this.page > this.pageCount) return;
+        this.loading = true;
+        let url = "/performance/report/log/" + this.id + "/" + resourceId + "/" + this.page;
+        this.$get(url, res => {
+          let data = res.data;
+          this.pageCount = data.pageCount;
+          data.listObject.forEach(log => {
+            this.logContent.push(log);
+          })
+          this.page++;
+          this.loading = false;
         })
       },
       downloadLogFile(item) {
@@ -53,16 +78,16 @@
     },
     watch: {
       report: {
-        handler(val){
+        handler(val) {
           let status = val.status;
           this.id = val.id;
           if (status === "Completed") {
-            this.initTableData();
+            this.getResource();
           } else {
-            this.logContent = null;
+            this.resource = [];
           }
         },
-        deep:true
+        deep: true
       }
     },
     props: ['report']
@@ -73,6 +98,18 @@
   .logging-content {
     white-space: pre-line;
     overflow: auto;
+  }
+
+  .infinite-list {
+    height: 500px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    overflow: auto
+  }
+
+  .infinite-list-item {
+    overflow: hidden;
   }
 
 </style>
