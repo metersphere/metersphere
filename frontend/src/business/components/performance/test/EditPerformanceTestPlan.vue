@@ -32,7 +32,7 @@
             <performance-basic-config :test-plan="testPlan" ref="basicConfig"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.pressure_config')">
-            <performance-pressure-config :test-plan="testPlan" :test-id="testId" ref="pressureConfig"/>
+            <performance-pressure-config :test-plan="testPlan" :test-id="testId" ref="pressureConfig" @changeActive="changeTabActive"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.advanced_config')" class="advanced-config">
             <performance-advanced-config :test-id="testId" ref="advancedConfig"/>
@@ -156,9 +156,9 @@
         });
       },
       saveAndRun() {
-        // if (!this.validTestPlan()) {
-        //   return;
-        // }
+        if (!this.validTestPlan()) {
+          return;
+        }
 
         let options = this.getSaveOption();
 
@@ -239,6 +239,11 @@
         /// todo: 其他校验
 
         return true;
+      },
+      changeTabActive(activeName) {
+        this.$nextTick(()=> {
+          this.active = activeName;
+        });
       }
     }
   }
