@@ -299,6 +299,8 @@
       validConfig() {
         if (!this.resourcePool) {
           this.$warning(this.$t('load_test.resource_pool_is_null'));
+          // 资源池为空，设置参数为资源池所在Tab的name
+          this.$emit('changeActive', '1');
           return false;
         }
 
