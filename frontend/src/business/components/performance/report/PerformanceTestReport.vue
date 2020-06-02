@@ -10,13 +10,16 @@
               <el-input type="text" size="small" :placeholder="$t('report.search_by_name')"
                         prefix-icon="el-icon-search"
                         maxlength="60"
-                        v-model="condition" @change="search" clearable/>
+                        v-model="condition.name" @change="search" clearable/>
             </span>
             </el-row>
           </div>
         </template>
 
-        <el-table :data="tableData" class="test-content">
+        <el-table :data="tableData" class="test-content"
+                  @sort-change="sort"
+                  @filter-change="filter"
+        >
           <el-table-column
             prop="name"
             :label="$t('commons.name')"
@@ -36,21 +39,27 @@
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
+            prop="createTime"
+            sortable
             width="250"
             :label="$t('commons.create_time')">
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column
-            width="250"
-            :label="$t('commons.update_time')">
-            <template v-slot:default="scope">
-              <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-            </template>
-          </el-table-column>
+<!--          <el-table-column-->
+<!--            prop="updateTime"-->
+<!--            sortable-->
+<!--            width="250"-->
+<!--            :label="$t('commons.update_time')">-->
+<!--            <template v-slot:default="scope">-->
+<!--              <span>{{ scope.row.updateTime | timestampFormatDate }}</span>-->
+<!--            </template>-->
+<!--          </el-table-column>-->
           <el-table-column
             prop="status"
+            column-key="status"
+            :filters="statusFilters"
             :label="$t('commons.status')">
             <template v-slot:default="{row}">
               <ms-performance-report-status :row="row"/>
@@ -77,6 +86,7 @@
   import MsContainer from "../../common/components/MsContainer";
   import MsMainContainer from "../../common/components/MsMainContainer";
   import MsPerformanceReportStatus from "./PerformanceReportStatus";
+  import {_filter, _sort} from "../../../../common/js/utils";
 
   export default {
     name: "PerformanceTestReport",
@@ -89,7 +99,7 @@
         result: {},
         queryPath: "/performance/report/list/all",
         deletePath: "/performance/report/delete/",
-        condition: "",
+        condition: {},
         projectId: null,
         tableData: [],
         multipleSelection: [],
@@ -98,14 +108,18 @@
         total: 0,
         loading: false,
         testId: null,
+        statusFilters: [
+          {text: 'Starting', value: 'Starting'},
+          {text: 'Running', value: 'Running'},
+          {text: 'Reporting', value: 'Reporting'},
+          {text: 'Completed', value: 'Completed'},
+          {text: 'Error', value: 'Error'}
+        ]
       }
     },
     methods: {
       initTableData() {
-        let param = {
-          name: this.condition,
-        };
-        this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
+        this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
@@ -125,7 +139,7 @@
           this.$warning(this.$t('report.generation_error'));
           return false
         } else if (report.status === "Starting") {
-          this.$info(this.$t('being_generated'))
+          this.$info(this.$t('report.being_generated'))
           return false
         }
         this.$router.push({
@@ -147,6 +161,14 @@
           this.$success(this.$t('commons.delete_success'));
           this.initTableData();
         });
+      },
+      sort(column) {
+        _sort(column, this.condition);
+        this.initTableData();
+      },
+      filter(filters) {
+        _filter(filters, this.condition);
+        this.initTableData();
       },
     }
   }

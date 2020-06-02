@@ -31,8 +31,23 @@
             <if test="reportRequest.workspaceId != null">
                 AND workspace_id = #{reportRequest.workspaceId,jdbcType=VARCHAR}
             </if>
+            <if test="reportRequest.filters != null and reportRequest.filters.size() > 0">
+                <foreach collection="reportRequest.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        and ltr.${key} in
+                        <foreach collection="values" item="value" separator="," open="(" close=")">
+                            #{value}
+                        </foreach>
+                    </if>
+                </foreach>
+            </if>
         </where>
-        ORDER BY ltr.update_time DESC
+        <if test="reportRequest.orders != null and reportRequest.orders.size() > 0">
+            order by
+            <foreach collection="reportRequest.orders" separator="," item="order">
+                ltr.${order.name} ${order.type}
+            </foreach>
+        </if>
     </select>
 
     <select id="getReportTestAndProInfo" resultType="io.metersphere.dto.ReportDTO">

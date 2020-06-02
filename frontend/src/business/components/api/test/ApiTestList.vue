@@ -15,17 +15,21 @@
           </el-table-column>
           <el-table-column prop="projectName" :label="$t('load_test.project_name')" width="200" show-overflow-tooltip/>
           <el-table-column prop="userName" :label="$t('api_test.creator')" width="150" show-overflow-tooltip/>
-          <el-table-column width="250" :label="$t('commons.create_time')">
+          <el-table-column width="250" :label="$t('commons.create_time')" sortable
+                           prop="createTime">
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column width="250" :label="$t('commons.update_time')">
+          <el-table-column width="250" :label="$t('commons.update_time')" sortable
+                           prop="updateTime">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="status" :label="$t('commons.status')">
+          <el-table-column prop="status" :label="$t('commons.status')"
+                           :filter-method="filter"
+                           :filters="statusFilters">
             <template v-slot:default="{row}">
               <ms-api-test-status :row="row"/>
             </template>
@@ -79,6 +83,14 @@
             tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
             exec: this.handleDelete
           }
+        ],
+        statusFilters: [
+          {text: 'Saved', value: 'Saved'},
+          {text: 'Starting', value: 'Starting'},
+          {text: 'Running', value: 'Running'},
+          {text: 'Reporting', value: 'Reporting'},
+          {text: 'Completed', value: 'Completed'},
+          {text: 'Error', value: 'Error'}
         ]
       }
     },
@@ -137,11 +149,15 @@
       init() {
         this.projectId = this.$route.params.projectId;
         this.search();
+      },
+      filter(value, row) {
+        return row.status === value;
       }
     },
     created() {
       this.init();
     }
+
   }
 </script>
 

@@ -5,9 +5,11 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportDetailMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
+import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.dto.LoadTestDTO;
@@ -28,6 +30,7 @@ import javax.annotation.Resource;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -63,6 +66,7 @@ public class PerformanceTestService {
     private ReportService reportService;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         return extLoadTestMapper.list(request);
     }
 
@@ -186,7 +190,7 @@ public class PerformanceTestService {
     }
 
     @Transactional(noRollbackFor = MSException.class)//  保存失败的信息
-    public void run(RunTestPlanRequest request) {
+    public String run(RunTestPlanRequest request) {
         final LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(request.getId());
         if (loadTest == null) {
             MSException.throwException(Translator.get("run_load_test_not_found") + request.getId());
@@ -206,6 +210,8 @@ public class PerformanceTestService {
         startEngine(loadTest, engine);
 
         // todo：通过调用stop方法能够停止正在运行的engine，但是如果部署了多个backend实例，页面发送的停止请求如何定位到具体的engine
+
+        return engine.getReportId();
     }
 
     private void startEngine(LoadTestWithBLOBs loadTest, Engine engine) {
@@ -282,5 +288,29 @@ public class PerformanceTestService {
 
     public List<LoadTest> getLoadTestByProjectId(String projectId) {
         return extLoadTestMapper.getLoadTestByProjectId(projectId);
+    }
+
+    public void copy(SaveTestPlanRequest request) {
+        // copy test
+        LoadTestWithBLOBs copy = loadTestMapper.selectByPrimaryKey(request.getId());
+        copy.setId(UUID.randomUUID().toString());
+        copy.setName(copy.getName() + " Copy");
+        copy.setCreateTime(System.currentTimeMillis());
+        copy.setUpdateTime(System.currentTimeMillis());
+        copy.setStatus(APITestStatus.Saved.name());
+        copy.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+        loadTestMapper.insert(copy);
+        // copy test file
+        LoadTestFileExample loadTestFileExample = new LoadTestFileExample();
+        loadTestFileExample.createCriteria().andTestIdEqualTo(request.getId());
+        List<LoadTestFile> loadTestFiles = loadTestFileMapper.selectByExample(loadTestFileExample);
+        if (!CollectionUtils.isEmpty(loadTestFiles)) {
+            loadTestFiles.forEach(loadTestFile -> {
+                FileMetadata fileMetadata = fileService.copyFile(loadTestFile.getFileId());
+                loadTestFile.setTestId(copy.getId());
+                loadTestFile.setFileId(fileMetadata.getId());
+                loadTestFileMapper.insert(loadTestFile);
+            });
+        }
     }
 }

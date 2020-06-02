@@ -10,17 +10,24 @@
             <el-input type="text" size="small" :placeholder="$t('load_test.search_by_name')"
                       prefix-icon="el-icon-search"
                       maxlength="60"
-                      v-model="condition" @change="search" clearable/>
+                      v-model="condition.name" @change="search" clearable/>
           </span>
             </el-row>
           </div>
         </template>
-        <el-table :data="tableData" class="test-content">
+
+        <el-table :data="tableData" class="test-content"
+                  @sort-change="sort"
+                  @filter-change="filter"
+        >
           <el-table-column
             prop="name"
             :label="$t('commons.name')"
             width="150"
             show-overflow-tooltip>
+            <template v-slot:default="scope">
+              <el-link type="info" @click="link(scope.row)">{{ scope.row.name }}</el-link>
+            </template>
           </el-table-column>
           <el-table-column
             prop="projectName"
@@ -36,6 +43,8 @@
           </el-table-column>
           <el-table-column
             width="250"
+            sortable
+            prop="createTime"
             :label="$t('commons.create_time')">
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
@@ -43,6 +52,8 @@
           </el-table-column>
           <el-table-column
             width="250"
+            sortable
+            prop="updateTime"
             :label="$t('commons.update_time')">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
@@ -50,6 +61,8 @@
           </el-table-column>
           <el-table-column
             prop="status"
+            column-key="status"
+            :filters="statusFilters"
             :label="$t('commons.status')">
             <template v-slot:default="{row}">
               <ms-performance-test-status :row="row"/>
@@ -59,7 +72,7 @@
             width="150"
             :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
+              <ms-table-operators :buttons="buttons" :row="scope.row"/>
             </template>
           </el-table-column>
         </el-table>
@@ -76,6 +89,8 @@
   import MsContainer from "../../common/components/MsContainer";
   import MsMainContainer from "../../common/components/MsMainContainer";
   import MsPerformanceTestStatus from "./PerformanceTestStatus";
+  import MsTableOperators from "../../common/components/MsTableOperators";
+  import {_filter, _sort} from "../../../../common/js/utils";
 
   export default {
     components: {
@@ -83,14 +98,15 @@
       MsTablePagination,
       MsTableOperator,
       MsContainer,
-      MsMainContainer
+      MsMainContainer,
+      MsTableOperators
     },
     data() {
       return {
         result: {},
         queryPath: "/performance/list",
         deletePath: "/performance/delete",
-        condition: "",
+        condition: {},
         projectId: null,
         tableData: [],
         multipleSelection: [],
@@ -99,6 +115,26 @@
         total: 0,
         loading: false,
         testId: null,
+        buttons: [
+          {
+            tip: this.$t('commons.edit'), icon: "el-icon-edit",
+            exec: this.handleEdit
+          }, {
+            tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "success",
+            exec: this.handleCopy
+          }, {
+            tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
+            exec: this.handleDelete
+          }
+        ],
+        statusFilters: [
+          {text: 'Saved', value: 'Saved'},
+          {text: 'Starting', value: 'Starting'},
+          {text: 'Running', value: 'Running'},
+          {text: 'Reporting', value: 'Reporting'},
+          {text: 'Completed', value: 'Completed'},
+          {text: 'Error', value: 'Error'}
+        ]
       }
     },
     watch: {
@@ -113,15 +149,12 @@
     },
     methods: {
       initTableData() {
-        let param = {
-          name: this.condition,
-        };
 
         if (this.projectId !== 'all') {
-          param.projectId = this.projectId;
+          this.condition.projectId = this.projectId;
         }
 
-        this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
+        this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
@@ -140,6 +173,12 @@
         this.$router.push({
           path: '/performance/test/edit/' + testPlan.id,
         })
+      },
+      handleCopy(testPlan) {
+        this.result = this.$post("/performance/copy", {id: testPlan.id}, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.search();
+        });
       },
       handleDelete(testPlan) {
         this.$alert(this.$t('load_test.delete_confirm') + testPlan.name + "？", '', {
@@ -161,6 +200,19 @@
           this.initTableData();
         });
       },
+      sort(column) {
+        _sort(column, this.condition);
+        this.initTableData();
+      },
+      filter(filters) {
+        _filter(filters, this.condition);
+        this.initTableData();
+      },
+      link(row) {
+        this.$router.push({
+          path: '/performance/test/edit/' + row.id,
+        })
+      }
     }
   }
 </script>

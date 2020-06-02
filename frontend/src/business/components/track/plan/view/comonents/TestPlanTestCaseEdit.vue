@@ -41,7 +41,7 @@
                              @click="handleNext()"/>
                   <el-divider direction="vertical"></el-divider>
 
-                  <el-button type="primary" size="mini" @click="saveCase(false)">{{$t('test_track.save')}}</el-button>
+                  <el-button type="primary" size="mini" :disabled="isReadOnly" @click="saveCase()">{{$t('test_track.save')}}</el-button>
                 </el-col>
 
               </el-row>
@@ -69,6 +69,7 @@
                 <el-col :span="13">
                   <test-plan-test-case-status-button class="status-button"
                                                      @statusChange="statusChange"
+                                                     :is-read-only="isReadOnly"
                                                      :status="testCase.status"/>
                 </el-col>
               </el-row>
@@ -87,14 +88,14 @@
 
               <el-row v-if="testCase.method == 'auto' && testCase.testId">
                 <el-col class="test-detail" :span="20" :offset="1">
-                    <el-tabs type="border-card">
-                      <el-tab-pane :label="$t('test_track.plan_view.test_detail')">
-                        <api-test-detail v-if="testCase.type == 'api'" @runTest="apiTestRun" :id="testCase.testId" ref="apiTestDetail"/>
-                        <performance-test-detail v-if="testCase.type == 'performance'" :id="testCase.testId" ref="performanceTestDetail"/>
+                    <el-tabs v-model="activeTab" type="border-card" @tab-click="testTabChange">
+                      <el-tab-pane name="detail" :label="$t('test_track.plan_view.test_detail')">
+                        <api-test-detail v-if="testCase.type == 'api'" @runTest="testRun" :id="testCase.testId" ref="apiTestDetail"/>
+                        <performance-test-detail v-if="testCase.type == 'performance'" @runTest="testRun" :id="testCase.testId" ref="performanceTestDetail"/>
                       </el-tab-pane>
-                      <el-tab-pane :label="$t('test_track.plan_view.test_result')">
+                      <el-tab-pane name="result" :label="$t('test_track.plan_view.test_result')">
                         <api-test-result :report-id="testCase.reportId" v-if=" testCase.type == 'api'" ref="apiTestResult"/>
-                        <performance-test-result :report-id="testCase.reportId" v-if="testCase.type == 'performance'"/>
+                        <performance-test-result :report-id="testCase.reportId" v-if="testCase.type == 'performance'" ref="performanceTestResult"/>
                       </el-tab-pane>
                     </el-tabs>
                 </el-col>
@@ -130,6 +131,7 @@
                           type="textarea"
                           :autosize="{ minRows: 2, maxRows: 4}"
                           :rows="2"
+                          :disabled="isReadOnly"
                           v-model="scope.row.actualResult"
                           :placeholder="$t('commons.input_content')"
                           clearable></el-input>
@@ -139,6 +141,7 @@
                     <el-table-column :label="$t('test_track.plan_view.step_result')" min-width="9%">
                       <template v-slot:default="scope">
                         <el-select
+                          :disabled="isReadOnly"
                           v-model="scope.row.executeResult"
                           size="mini">
                           <el-option :label="$t('test_track.plan_view.pass')" value="Pass" style="color: #7ebf50;"></el-option>
@@ -155,6 +158,7 @@
               <el-row v-if="testCase.issues">
                 <el-col :span="5" :offset="1">
                   <el-switch
+                    :disabled="isReadOnly"
                     v-model="testCase.issues.hasIssues"
                     @change="issuesChange"
                     :active-text="$t('test_track.plan_view.submit_issues')">
@@ -164,7 +168,7 @@
 
               <el-row v-if="testCase.issues && testCase.issues.hasIssues">
                 <el-col :span="20" :offset="1" class="step-edit">
-                  <ckeditor :editor="editor" v-model="testCase.issues.content"/>
+                  <ckeditor :editor="editor" :disabled="isReadOnly" :config="editorConfig" v-model="testCase.issues.content"/>
                 </el-col>
               </el-row>
 
@@ -220,7 +224,12 @@
         index: 0,
         testCases: [],
         editor: ClassicEditor,
-        test: {}
+        editorConfig: {
+          // 'increaseIndent','decreaseIndent'
+          toolbar: [ 'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote' ,'insertTable', '|','undo', 'redo'],
+        },
+        test: {},
+        activeTab: 'detail'
       };
     },
     props: {
@@ -229,6 +238,10 @@
       },
       searchParam: {
         type: Object
+      },
+      isReadOnly: {
+        type: Boolean,
+        default: false
       }
     },
     methods: {
@@ -312,6 +325,7 @@
       },
       openTestCaseEdit(testCase) {
         this.showDialog = true;
+        this.activeTab = 'detail';
         this.listenGoBack();
         this.initData(testCase);
       },
@@ -326,9 +340,14 @@
           }
         });
       },
-      apiTestRun(reportId) {
+      testRun(reportId) {
         this.testCase.reportId = reportId;
         this.saveReport(reportId);
+      },
+      testTabChange(data) {
+        if (this.testCase.type == 'performance' && data.paneName == 'result') {
+          this.$refs.performanceTestResult.checkReportStatus();
+        }
       },
       saveReport(reportId) {
         this.$post('/test/plan/case/edit', {id: this.testCase.id, reportId: reportId});

@@ -20,7 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.annotation.Resource;
 import java.util.List;
 
@@ -91,8 +90,8 @@ public class PerformanceTestController {
     }
 
     @PostMapping("/run")
-    public void run(@RequestBody RunTestPlanRequest request) {
-        performanceTestService.run(request);
+    public String run(@RequestBody RunTestPlanRequest request) {
+        return performanceTestService.run(request);
     }
 
     @GetMapping("/file/metadata/{testId}")
@@ -112,5 +111,10 @@ public class PerformanceTestController {
     @GetMapping("dashboard/tests")
     public List<DashboardTestDTO> dashboardTests() {
         return performanceTestService.dashboardTests(SessionUtils.getCurrentWorkspaceId());
+    }
+
+    @PostMapping(value = "/copy")
+    public void copy(@RequestBody SaveTestPlanRequest request) {
+        performanceTestService.copy(request);
     }
 }

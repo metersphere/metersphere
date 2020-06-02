@@ -12,6 +12,7 @@ import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.ReportKeys;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.dto.LogDetailDTO;
 import io.metersphere.dto.ReportDTO;
 import io.metersphere.performance.base.*;
@@ -50,6 +51,7 @@ public class ReportService {
     }
 
     public List<ReportDTO> getReportList(ReportRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         return extLoadTestReportMapper.getReportList(request);
     }
 

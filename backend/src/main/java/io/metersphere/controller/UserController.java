@@ -140,7 +140,7 @@ public class UserController {
     }
 
     @PostMapping("/switch/source/org/{sourceId}")
-    @RequiresRoles(RoleConstants.ORG_ADMIN)
+    @RequiresRoles(value = {RoleConstants.ORG_ADMIN, RoleConstants.TEST_MANAGER, RoleConstants.TEST_VIEWER, RoleConstants.TEST_USER}, logical = Logical.OR)
     public UserDTO switchOrganization(@PathVariable(value = "sourceId") String sourceId) {
         userService.switchUserRole("organization", sourceId);
         return SessionUtils.getUser();

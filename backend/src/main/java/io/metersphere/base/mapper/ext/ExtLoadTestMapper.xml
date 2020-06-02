@@ -26,8 +26,23 @@
             <if test="request.id != null">
                 AND load_test.id = #{request.id}
             </if>
+            <if test="request.filters != null and request.filters.size() > 0">
+                <foreach collection="request.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        and load_test.${key} in
+                        <foreach collection="values" item="value" separator="," open="(" close=")">
+                            #{value}
+                        </foreach>
+                    </if>
+                </foreach>
+            </if>
         </where>
-        order by load_test.update_time desc
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                load_test.${order.name} ${order.type}
+            </foreach>
+        </if>
     </select>
     <select id="countByProjectId" resultType="java.lang.Long">
         select count(id) from load_test
