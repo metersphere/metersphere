@@ -199,10 +199,6 @@
           });
         } else {
           this.testCaseReadOnly = false;
-          if (this.treeNodes.length < 1) {
-            this.$warning(this.$t('test_track.case.create_module_first'));
-            return;
-          }
           this.$refs.testCaseEditDialog.open();
         }
       },
