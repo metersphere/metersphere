@@ -71,25 +71,17 @@ public class OrganizationService {
             MSException.throwException(Translator.get("organization_name_is_null"));
         }
 
-        String id = organization.getId();
-        String name = organization.getName();
-
-        if (StringUtils.isNotBlank(id)) {
-            Organization org = organizationMapper.selectByPrimaryKey(id);
-            if (!StringUtils.equals(org.getName(), name)) {
-                checkOrgNameRepeat(name);
-            }
-        } else {
-            checkOrgNameRepeat(name);
+        OrganizationExample example = new OrganizationExample();
+        OrganizationExample.Criteria criteria = example.createCriteria();
+        criteria.andNameEqualTo(organization.getName());
+        if (StringUtils.isNotBlank(organization.getId())) {
+            criteria.andIdNotEqualTo(organization.getId());
         }
-    }
 
-    public void checkOrgNameRepeat(String orgName) {
-        OrganizationExample organizationExample = new OrganizationExample();
-        organizationExample.createCriteria().andNameEqualTo(orgName);
-        if (organizationMapper.countByExample(organizationExample) > 0) {
+        if (organizationMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("organization_name_already_exists"));
         }
+
     }
 
     public void deleteOrganization(String organizationId) {
