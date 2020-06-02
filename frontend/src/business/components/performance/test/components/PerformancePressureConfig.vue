@@ -8,6 +8,7 @@
           </el-form-item>
           <el-form-item>
             <el-input-number
+              :disabled="isReadOnly"
               :placeholder="$t('load_test.input_thread_num')"
               v-model="threadNumber"
               @change="calculateChart"
@@ -21,6 +22,7 @@
           </el-form-item>
           <el-form-item>
             <el-input-number
+              :disabled="isReadOnly"
               :placeholder="$t('load_test.duration')"
               v-model="duration"
               :min="1"
@@ -35,6 +37,7 @@
             </el-form-item>
             <el-form-item>
               <el-input-number
+                :disabled="isReadOnly"
                 :placeholder="$t('load_test.input_rps_limit')"
                 v-model="rpsLimit"
                 @change="calculateChart"
@@ -50,6 +53,7 @@
           </el-form-item>
           <el-form-item>
             <el-input-number
+              :disabled="isReadOnly"
               placeholder=""
               :min="1"
               :max="duration"
@@ -62,6 +66,7 @@
           </el-form-item>
           <el-form-item>
             <el-input-number
+              :disabled="isReadOnly"
               placeholder=""
               :min="1"
               :max="Math.min(threadNumber, rampUpTime)"
@@ -78,7 +83,7 @@
             <div>{{$t('load_test.select_resource_pool')}}</div>
           </el-form-item>
           <el-form-item>
-            <el-select v-model="resourcePool" size="mini">
+            <el-select v-model="resourcePool" :disabled="isReadOnly" size="mini">
               <el-option
                 v-for="item in resourcePools"
                 :key="item.id"
@@ -108,7 +113,18 @@
 
   export default {
     name: "PerformancePressureConfig",
-    props: ['testPlan','testId'],
+    props: {
+      testPlan: {
+        type: Object
+      },
+      testId: {
+        type: String
+      },
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      }
+    },
     data() {
       return {
         result: {},

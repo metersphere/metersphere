@@ -1,17 +1,17 @@
 <template>
   <div>
     <el-radio-group v-model="body.type" size="mini">
-      <el-radio-button :label="type.KV">
+      <el-radio-button :disabled="isReadOnly" :label="type.KV">
         {{$t('api_test.request.body_kv')}}
       </el-radio-button>
-      <el-radio-button :label="type.RAW">
+      <el-radio-button :disabled="isReadOnly" :label="type.RAW">
         {{$t('api_test.request.body_text')}}
       </el-radio-button>
     </el-radio-group>
 
-    <ms-api-key-value :items="body.kvs" v-if="body.isKV()"/>
+    <ms-api-key-value :is-read-only="isReadOnly" :items="body.kvs" v-if="body.isKV()"/>
 
-    <el-input class="textarea" type="textarea" v-model="body.raw" :autosize="{ minRows: 10, maxRows: 25}" resize="none"
+    <el-input :disabled="isReadOnly" class="textarea" type="textarea" v-model="body.raw" :autosize="{ minRows: 10, maxRows: 25}" resize="none"
               v-else/>
   </div>
 </template>
@@ -24,7 +24,11 @@
     name: "MsApiBody",
     components: {MsApiKeyValue},
     props: {
-      body: Body
+      body: Body,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      }
     },
 
     data() {

@@ -2,7 +2,7 @@
   <div>
     <el-row :gutter="10" type="flex" justify="space-between" align="middle">
       <el-col class="assertion-select">
-        <el-select class="assertion-item" v-model="subject" size="small"
+        <el-select :disabled="isReadOnly" class="assertion-item" v-model="subject" size="small"
                    :placeholder="$t('api_test.request.assertions.select_subject')">
           <el-option label="Response Code" :value="subjects.RESPONSE_CODE"/>
           <el-option label="Response Headers" :value="subjects.RESPONSE_HEADERS"/>
@@ -10,7 +10,7 @@
         </el-select>
       </el-col>
       <el-col class="assertion-select">
-        <el-select class="assertion-item" v-model="condition" size="small"
+        <el-select :disabled="isReadOnly" class="assertion-item" v-model="condition" size="small"
                    :placeholder="$t('api_test.request.assertions.select_condition')">
           <el-option :label="$t('api_test.request.assertions.contains')" value="CONTAINS"/>
           <el-option :label="$t('api_test.request.assertions.not_contains')" value="NOT_CONTAINS"/>
@@ -20,11 +20,11 @@
         </el-select>
       </el-col>
       <el-col>
-        <el-input v-model="value" maxlength="200" size="small" show-word-limit
+        <el-input :disabled="isReadOnly" v-model="value" maxlength="200" size="small" show-word-limit
                   :placeholder="$t('api_test.request.assertions.value')"/>
       </el-col>
       <el-col class="assertion-btn">
-        <el-button type="primary" size="small" icon="el-icon-plus" plain @click="add"/>
+        <el-button :disabled="isReadOnly" type="primary" size="small" icon="el-icon-plus" plain @click="add"/>
       </el-col>
     </el-row>
   </div>
@@ -38,7 +38,11 @@
 
     props: {
       list: Array,
-      callback: Function
+      callback: Function,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      }
     },
 
     data() {

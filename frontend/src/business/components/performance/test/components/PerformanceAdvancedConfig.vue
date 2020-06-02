@@ -4,7 +4,7 @@
     <el-row type="flex" justify="start">
       <el-col :span="8">
         <h3>{{$t('load_test.domain_bind')}}</h3>
-        <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="add('domains')">{{$t('commons.add')}}
+        <el-button :disabled="readOnly" icon="el-icon-circle-plus-outline" plain size="mini" @click="add('domains')">{{$t('commons.add')}}
         </el-button>
       </el-col>
     </el-row>
@@ -19,7 +19,7 @@
             <template v-slot:default="{row}">
               <el-input
                 size="mini"
-                v-if="readOnly"
+                v-if="!readOnly"
                 type="textarea"
                 :rows="1"
                 class="edit-input"
@@ -36,7 +36,7 @@
             show-overflow-tooltip>
             <template v-slot:default="{row}">
               <el-switch
-                :disabled="!row.edit"
+                :disabled="!row.edit || readOnly"
                 size="mini"
                 v-model="row.enable"
                 active-color="#13ce66"
@@ -54,7 +54,7 @@
             <template v-slot:default="{row}">
               <el-input
                 size="mini"
-                v-if="readOnly"
+                v-if="!readOnly"
                 type="textarea"
                 class="edit-input"
                 :rows="1"
@@ -66,7 +66,7 @@
           </el-table-column>
           <el-table-column align="center" :label="$t('load_test.operating')">
             <template v-slot:default="{row, $index}">
-              <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" type="danger"
+              <ms-table-operator-button :disabled="readOnly" :tip="$t('commons.delete')" icon="el-icon-delete" type="danger"
                                         @exec="del(row, 'domains', $index)"/>
             </template>
           </el-table-column>
@@ -77,7 +77,7 @@
     <el-row>
       <el-col :span="8">
         <h3>{{$t('load_test.params')}}</h3>
-        <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="add('params')">{{$t('commons.add')}}
+        <el-button :disabled="readOnly" icon="el-icon-circle-plus-outline" plain size="mini" @click="add('params')">{{$t('commons.add')}}
         </el-button>
       </el-col>
     </el-row>
@@ -92,7 +92,7 @@
             <template v-slot:default="{row}">
               <el-input
                 size="mini"
-                v-if="readOnly"
+                v-if="!readOnly"
                 type="textarea"
                 :rows="1"
                 class="edit-input"
@@ -109,7 +109,7 @@
             show-overflow-tooltip>
             <template v-slot:default="{row}">
               <el-switch
-                :disabled="!row.edit"
+                :disabled="!row.edit || readOnly"
                 size="mini"
                 v-model="row.enable"
                 active-color="#13ce66"
@@ -127,7 +127,7 @@
                <span v-else>{{ row.value }}</span>-->
               <el-input
                 size="mini"
-                v-if="readOnly"
+                v-if="!readOnly"
                 type="textarea"
                 class="edit-input"
                 :rows="1"
@@ -139,7 +139,7 @@
           </el-table-column>
           <el-table-column align="center" :label="$t('load_test.operating')">
             <template v-slot:default="{row, $index}">
-              <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" type="danger"
+              <ms-table-operator-button :disabled="readOnly" :tip="$t('commons.delete')" icon="el-icon-delete" type="danger"
                                         @exec="del(row, 'params', $index)"/>
             </template>
           </el-table-column>
@@ -154,7 +154,7 @@
             <div>{{$t('load_test.connect_timeout')}}</div>
           </el-form-item>
           <el-form-item>
-            <el-input-number size="mini" v-model="timeout" :min="10" :max="100000"></el-input-number>
+            <el-input-number :disabled="readOnly" size="mini" v-model="timeout" :min="10" :max="100000"></el-input-number>
           </el-form-item>
           <el-form-item>
             ms
@@ -169,7 +169,7 @@
             <div>{{$t('load_test.custom_http_code')}}</div>
           </el-form-item>
           <el-form-item>
-            <el-input size="mini" v-model="statusCodeStr" :placeholder="$t('load_test.separated_by_commas')"
+            <el-input :disabled="readOnly" size="mini" v-model="statusCodeStr" :placeholder="$t('load_test.separated_by_commas')"
                       @input="checkStatusCode"></el-input>
           </el-form-item>
         </el-form>
@@ -196,7 +196,7 @@
     props: {
       readOnly: {
         type: Boolean,
-        default: true
+        default: false
       },
       testId: String,
     },

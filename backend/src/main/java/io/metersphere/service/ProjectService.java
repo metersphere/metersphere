@@ -10,6 +10,7 @@ import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.ProjectRequest;
 import io.metersphere.dto.ProjectDTO;
@@ -81,6 +82,7 @@ public class ProjectService {
         if (StringUtils.isNotBlank(request.getName())) {
             request.setName(StringUtils.wrapIfMissing(request.getName(), "%"));
         }
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         return extProjectMapper.getProjectWithWorkspace(request);
     }
 
