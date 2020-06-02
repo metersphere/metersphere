@@ -1,6 +1,5 @@
 package io.metersphere.performance.service;
 
-import io.metersphere.api.dto.SaveAPITestRequest;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
@@ -10,6 +9,7 @@ import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.dto.LoadTestDTO;
@@ -66,6 +66,7 @@ public class PerformanceTestService {
     private ReportService reportService;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         return extLoadTestMapper.list(request);
     }
 
