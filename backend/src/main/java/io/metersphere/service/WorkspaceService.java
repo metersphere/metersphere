@@ -59,33 +59,19 @@ public class WorkspaceService {
         workspace.setOrganizationId(currentOrgId);
 
         long currentTime = System.currentTimeMillis();
-        String wsName = workspace.getName();
+
+        checkWorkspace(workspace);
 
         if (StringUtils.isBlank(workspace.getId())) {
-            checkWsName(wsName, currentOrgId);
             workspace.setId(UUID.randomUUID().toString());
             workspace.setCreateTime(currentTime);
             workspace.setUpdateTime(currentTime);
             workspaceMapper.insertSelective(workspace);
         } else {
-            Workspace ws = workspaceMapper.selectByPrimaryKey(workspace.getId());
-            if (!StringUtils.equals(ws.getName(), wsName)) {
-                checkWsName(wsName, currentOrgId);
-            }
             workspace.setUpdateTime(currentTime);
             workspaceMapper.updateByPrimaryKeySelective(workspace);
         }
         return workspace;
-    }
-
-    public void checkWsName(String wsName, String orgId) {
-        WorkspaceExample example = new WorkspaceExample();
-        example.createCriteria()
-                .andOrganizationIdEqualTo(orgId)
-                .andNameEqualTo(wsName);
-        if (workspaceMapper.countByExample(example) > 0) {
-            MSException.throwException(Translator.get("workspace_name_already_exists"));
-        }
     }
 
     public List<Workspace> getWorkspaceList(WorkspaceRequest request) {
@@ -269,17 +255,17 @@ public class WorkspaceService {
             MSException.throwException(Translator.get("organization_id_is_null"));
         }
 
-        String id = workspace.getId();
-        String orgId = workspace.getOrganizationId();
-        String name = workspace.getName();
-
-        if (StringUtils.isNotBlank(id)) {
-            Workspace ws = workspaceMapper.selectByPrimaryKey(id);
-            if (!StringUtils.equals(ws.getName(), name)) {
-                checkWsName(name, orgId);
-            }
-        } else {
-            checkWsName(name, orgId);
+        WorkspaceExample example = new WorkspaceExample();
+        WorkspaceExample.Criteria criteria = example.createCriteria();
+        criteria.andNameEqualTo(workspace.getName())
+                .andOrganizationIdEqualTo(workspace.getOrganizationId());
+        if (StringUtils.isNotBlank(workspace.getId())) {
+            criteria.andIdNotEqualTo(workspace.getId());
         }
+
+        if (workspaceMapper.countByExample(example) > 0) {
+            MSException.throwException(Translator.get("workspace_name_already_exists"));
+        }
+
     }
 }
