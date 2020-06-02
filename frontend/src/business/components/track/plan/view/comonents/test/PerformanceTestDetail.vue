@@ -13,19 +13,19 @@
             </el-input>
           </el-col>
           <el-col :span="12" :offset="2">
-            <el-button type="primary" plain @click="runTest">执行</el-button>
+            <el-button :disabled="isReadOnly" type="primary" plain @click="runTest">执行</el-button>
           </el-col>
         </el-row>
 
         <el-tabs class="test-config" v-model="active" type="border-card" :stretch="true">
           <el-tab-pane :label="$t('load_test.basic_config')">
-            <performance-basic-config :test-plan="test" ref="basicConfig"/>
+            <performance-basic-config :is-read-only="true" :test-plan="test" ref="basicConfig"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.pressure_config')">
-            <performance-pressure-config :test-plan="test" :test-id="id" ref="pressureConfig"/>
+            <performance-pressure-config :is-read-only="true" :test-plan="test" :test-id="id" ref="pressureConfig"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.advanced_config')" class="advanced-config">
-            <performance-advanced-config :test-id="id" ref="advancedConfig"/>
+            <performance-advanced-config :read-only="true" :test-id="id" ref="advancedConfig"/>
           </el-tab-pane>
         </el-tabs>
       </el-card>
@@ -74,7 +74,13 @@
         }]
       }
     },
-    props: ['id'],
+    props: {
+      id: String,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      }
+    },
     methods: {
       init() {
         this.getTest();
