@@ -193,11 +193,11 @@
         },
         filter(filters) {
           _filter(filters, this.condition);
-          this.initTableData();
+          this.init();
         },
         sort(column) {
           _sort(column, this.condition);
-          this.initTableData();
+          this.init();
         }
       }
     }
