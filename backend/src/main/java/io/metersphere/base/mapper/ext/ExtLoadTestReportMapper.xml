@@ -77,4 +77,11 @@
         GROUP BY x
     </select>
 
+    <select id="selectResourceId" resultType="string">
+        SELECT resource_id
+        FROM load_test_report_log
+        WHERE report_id = #{reportId}
+        GROUP BY resource_id
+    </select>
+
 </mapper>

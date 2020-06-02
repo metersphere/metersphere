@@ -3,6 +3,7 @@ package io.metersphere.performance.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.LoadTestReport;
+import io.metersphere.base.domain.LoadTestReportLog;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -19,8 +20,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
 import java.util.List;
+
+import javax.annotation.Resource;
 
 @RestController
 @RequestMapping(value = "performance/report")
@@ -99,9 +101,15 @@ public class PerformanceReportController {
         return reportService.getLoadTestReport(reportId);
     }
 
-    @GetMapping("log/{reportId}")
-    public List<LogDetailDTO> logs(@PathVariable String reportId) {
-        return reportService.logs(reportId);
+    @GetMapping("log/resource/{reportId}")
+    public List<LogDetailDTO> getResourceIds(@PathVariable String reportId) {
+        return reportService.getReportLogResource(reportId);
+    }
+
+    @GetMapping("log/{reportId}/{resourceId}/{goPage}")
+    public Pager<List<LoadTestReportLog>> logs(@PathVariable String reportId, @PathVariable String resourceId, @PathVariable int goPage) {
+        Page<Object> page = PageHelper.startPage(goPage, 10, true);
+        return PageUtils.setPageInfo(page, reportService.getReportLogs(reportId, resourceId));
     }
 
     @GetMapping("log/download/{reportId}/{resourceId}")
