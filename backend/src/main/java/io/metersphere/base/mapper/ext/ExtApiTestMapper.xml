@@ -26,8 +26,23 @@
             <if test="request.id != null">
                 AND api_test.id = #{request.id}
             </if>
+            <if test="reportRequest.filters != null and reportRequest.filters.size() > 0">
+                <foreach collection="reportRequest.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        and api_test.${key} in
+                        <foreach collection="values" item="value" separator="," open="(" close=")">
+                            #{value}
+                        </foreach>
+                    </if>
+                </foreach>
+            </if>
         </where>
-        order by api_test.update_time desc
+        <if test="reportRequest.orders != null and reportRequest.orders.size() > 0">
+            order by
+            <foreach collection="reportRequest.orders" separator="," item="order">
+                api_test.${order.name} ${order.type}
+            </foreach>
+        </if>
     </select>
     <select id="countByProjectId" resultType="java.lang.Long">
         select count(id) from api_test
