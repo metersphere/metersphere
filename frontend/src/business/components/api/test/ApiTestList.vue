@@ -66,7 +66,7 @@
     data() {
       return {
         result: {},
-        condition: {name: ""},
+        condition: {},
         projectId: null,
         tableData: [],
         multipleSelection: [],
@@ -106,16 +106,14 @@
         this.$router.push('/api/test/create');
       },
       search() {
-        let param = {
-          name: this.condition.name,
-        };
+
 
         if (this.projectId !== 'all') {
-          param.projectId = this.projectId;
+          this.condition.projectId = this.projectId;
         }
 
         let url = "/api/list/" + this.currentPage + "/" + this.pageSize
-        this.result = this.$post(url, param, response => {
+        this.result = this.$post(url, this.condition, response => {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
