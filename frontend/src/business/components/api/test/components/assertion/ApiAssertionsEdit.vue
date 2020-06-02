@@ -5,7 +5,7 @@
         {{$t("api_test.request.assertions.regex")}}
       </div>
       <div class="regex-item" v-for="(regex, index) in assertions.regex" :key="index">
-        <ms-api-assertion-regex :list="assertions.regex" :regex="regex" :edit="true" :index="index"/>
+        <ms-api-assertion-regex :is-read-only="isReadOnly" :list="assertions.regex" :regex="regex" :edit="true" :index="index"/>
       </div>
     </div>
 
@@ -13,7 +13,7 @@
       <div>
         {{$t("api_test.request.assertions.response_time")}}
       </div>
-      <ms-api-assertion-response-time v-model="assertions.duration.value" :duration="assertions.duration" :edit="true"/>
+      <ms-api-assertion-response-time :is-read-only="isReadOnly" v-model="assertions.duration.value" :duration="assertions.duration" :edit="true"/>
     </div>
   </div>
 
@@ -30,7 +30,11 @@
     components: {MsApiAssertionResponseTime, MsApiAssertionRegex},
 
     props: {
-      assertions: Assertions
+      assertions: Assertions,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      }
     },
 
     computed: {

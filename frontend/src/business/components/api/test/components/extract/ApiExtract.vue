@@ -5,7 +5,7 @@
     </div>
     <el-row :gutter="10">
       <el-col :span="4">
-        <el-select class="extract-item" v-model="type" :placeholder="$t('api_test.request.extract.select_type')"
+        <el-select :disabled="isReadOnly" class="extract-item" v-model="type" :placeholder="$t('api_test.request.extract.select_type')"
                    size="small">
           <el-option :label="$t('api_test.request.extract.regex')" :value="options.REGEX"/>
           <el-option label="JSONPath" :value="options.JSON_PATH"/>
@@ -13,11 +13,11 @@
         </el-select>
       </el-col>
       <el-col :span="20">
-        <ms-api-extract-common :extract-type="type" :list="list" v-if="type" :callback="after"/>
+        <ms-api-extract-common :is-read-only="isReadOnly" :extract-type="type" :list="list" v-if="type" :callback="after"/>
       </el-col>
     </el-row>
 
-    <ms-api-extract-edit :extract="extract"/>
+    <ms-api-extract-edit :is-read-only="isReadOnly" :extract="extract"/>
   </div>
 </template>
 
@@ -35,7 +35,11 @@
     },
 
     props: {
-      extract: Extract
+      extract: Extract,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      }
     },
 
     data() {

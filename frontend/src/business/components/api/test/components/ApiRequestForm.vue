@@ -1,13 +1,13 @@
 <template>
   <el-form :model="request" :rules="rules" ref="request" label-width="100px">
     <el-form-item :label="$t('api_test.request.name')" prop="name">
-      <el-input v-model="request.name" maxlength="100" show-word-limit/>
+      <el-input :disabled="isReadOnly" v-model="request.name" maxlength="100" show-word-limit/>
     </el-form-item>
 
     <el-form-item :label="$t('api_test.request.url')" prop="url">
-      <el-input v-model="request.url" maxlength="100" :placeholder="$t('api_test.request.url_description')"
+      <el-input :disabled="isReadOnly" v-model="request.url" maxlength="100" :placeholder="$t('api_test.request.url_description')"
                 @change="urlChange" clearable>
-        <el-select v-model="request.method" slot="prepend" class="request-method-select" @change="methodChange">
+        <el-select :disabled="isReadOnly" v-model="request.method" slot="prepend" class="request-method-select" @change="methodChange">
           <el-option label="GET" value="GET"/>
           <el-option label="POST" value="POST"/>
           <el-option label="PUT" value="PUT"/>
@@ -22,20 +22,20 @@
 
     <el-tabs v-model="activeName">
       <el-tab-pane :label="$t('api_test.request.parameters')" name="parameters">
-        <ms-api-key-value :items="request.parameters" :description="$t('api_test.request.parameters_desc')"
+        <ms-api-key-value :is-read-only="isReadOnly" :items="request.parameters" :description="$t('api_test.request.parameters_desc')"
                           @change="parametersChange"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.headers')" name="headers">
-        <ms-api-key-value :items="request.headers"/>
+        <ms-api-key-value :is-read-only="isReadOnly" :items="request.headers"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.body')" name="body" v-if="isNotGet">
-        <ms-api-body :body="request.body"/>
+        <ms-api-body :is-read-only="isReadOnly" :body="request.body"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.assertions.label')" name="assertions">
-        <ms-api-assertions :assertions="request.assertions"/>
+        <ms-api-assertions :is-read-only="isReadOnly" :assertions="request.assertions"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.extract.label')" name="extract">
-        <ms-api-extract :extract="request.extract"/>
+        <ms-api-extract :is-read-only="isReadOnly" :extract="request.extract"/>
       </el-tab-pane>
     </el-tabs>
   </el-form>
@@ -52,7 +52,11 @@
     name: "MsApiRequestForm",
     components: {MsApiExtract, MsApiAssertions, MsApiBody, MsApiKeyValue},
     props: {
-      request: Request
+      request: Request,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      }
     },
 
     data() {

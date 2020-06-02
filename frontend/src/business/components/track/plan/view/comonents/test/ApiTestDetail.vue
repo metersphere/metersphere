@@ -16,7 +16,7 @@
         </el-row>
       </el-header>
 
-      <ms-api-scenario-config :scenarios="test.scenarioDefinition" ref="config"/>
+      <ms-api-scenario-config :is-read-only="true" :scenarios="test.scenarioDefinition" ref="config"/>
 
   </el-container>
   </el-card>
