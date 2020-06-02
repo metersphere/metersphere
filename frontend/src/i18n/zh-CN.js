@@ -195,7 +195,8 @@ export default {
     'delete_confirm': '确认删除报告: ',
     'start_status': '测试处于开始状态,请稍后查看报告！',
     'run_status': '测试处于运行状态,请稍后查看报告！',
-    'user_name': '创建人'
+    'user_name': '创建人',
+    'project_name': '所属项目'
   },
   load_test: {
     'operating': '操作',

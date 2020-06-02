@@ -197,7 +197,8 @@ export default {
     'delete_confirm': 'Confirm delete: ',
     'start_status': 'The test is starting, please check the report later!',
     'run_status': 'The test is running, please check the report later！',
-    'user_name': 'Creator'
+    'user_name': 'Creator',
+    'project_name': 'Project Name'
   },
   load_test: {
     'operating': 'Operating',

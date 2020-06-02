@@ -33,6 +33,12 @@
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
+            prop="projectName"
+            :label="$t('report.project_name')"
+            width="150"
+            show-overflow-tooltip>
+          </el-table-column>
+          <el-table-column
             prop="userName"
             :label="$t('report.user_name')"
             width="150"
