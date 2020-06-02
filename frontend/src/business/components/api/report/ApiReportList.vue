@@ -15,7 +15,8 @@
           <el-table-column prop="testName" :label="$t('api_report.test_name')" width="200" show-overflow-tooltip/>
           <el-table-column prop="projectName" :label="$t('load_test.project_name')" width="150" show-overflow-tooltip/>
           <el-table-column prop="userName" :label="$t('api_test.creator')" width="150" show-overflow-tooltip/>
-          <el-table-column width="250" :label="$t('commons.create_time')">
+          <el-table-column width="250" :label="$t('commons.create_time')" sortable
+                           prop="createTime">
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>

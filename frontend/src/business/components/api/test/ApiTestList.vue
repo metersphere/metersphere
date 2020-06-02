@@ -15,12 +15,14 @@
           </el-table-column>
           <el-table-column prop="projectName" :label="$t('load_test.project_name')" width="200" show-overflow-tooltip/>
           <el-table-column prop="userName" :label="$t('api_test.creator')" width="150" show-overflow-tooltip/>
-          <el-table-column width="250" :label="$t('commons.create_time')">
+          <el-table-column width="250" :label="$t('commons.create_time')" sortable
+                           prop="createTime">
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column width="250" :label="$t('commons.update_time')">
+          <el-table-column width="250" :label="$t('commons.update_time')" sortable
+                           prop="updateTime">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
