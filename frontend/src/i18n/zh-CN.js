@@ -91,7 +91,8 @@ export default {
     'remove': '移除',
     'remove_cancel': '移除取消',
     'remove_success': '移除成功',
-    'tips': '认证信息已过期，请重新登录'
+    'tips': '认证信息已过期，请重新登录',
+    'not_performed_yet': '尚未执行',
   },
   workspace: {
     'create': '创建工作空间',

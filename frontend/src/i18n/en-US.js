@@ -92,7 +92,8 @@ export default {
     'remove': 'Remove',
     'remove_cancel': 'Remove Cancel',
     'remove_success': 'Remove Success',
-    'tips': 'The authentication information has expired, please login again'
+    'tips': 'The authentication information has expired, please login again',
+    'not_performed_yet': 'Not performed yet',
   },
   workspace: {
     'create': 'Create Workspace',
