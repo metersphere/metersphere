@@ -13,6 +13,7 @@ import io.metersphere.commons.constants.ReportKeys;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
+import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.dto.LogDetailDTO;
 import io.metersphere.dto.ReportDTO;
 import io.metersphere.performance.base.*;
@@ -47,6 +48,12 @@ public class ReportService {
     private TestResourceService testResourceService;
 
     public List<ReportDTO> getRecentReportList(ReportRequest request) {
+        List<OrderRequest> orders = new ArrayList<>();
+        OrderRequest orderRequest = new OrderRequest();
+        orderRequest.setName("update_time");
+        orderRequest.setType("desc");
+        orders.add(orderRequest);
+        request.setOrders(orders);
         return extLoadTestReportMapper.getReportList(request);
     }
 
