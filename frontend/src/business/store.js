@@ -3,6 +3,17 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex);
 
+const Common = {
+  state: {
+    projectId: ""
+  },
+  mutations: {
+    setProjectId(state, projectId) {
+      state.projectId = projectId;
+    }
+  }
+}
+
 const API = {
   state: {
     test: {}
@@ -14,13 +25,12 @@ const API = {
     clearTest(state) {
       state.test = {};
     }
-  },
-  actions: {},
-  getters: {}
+  }
 }
 
 export default new Vuex.Store({
   modules: {
-    api: API
+    api: API,
+    common: Common
   }
 })

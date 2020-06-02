@@ -85,9 +85,7 @@
 
     methods: {
       init() {
-        this.result = this.$get("/project/listAll", response => {
-          this.projects = response.data;
-        })
+        let projectId;
         if (this.id) {
           this.create = false;
           this.getTest(this.id);
@@ -97,7 +95,14 @@
           if (this.$refs.config) {
             this.$refs.config.reset();
           }
+          // 仅创建时获取选择的项目
+          projectId = this.$store.state.common.projectId;
         }
+        this.result = this.$get("/project/listAll", response => {
+          this.projects = response.data;
+          // 等待项目列表加载完
+          if (projectId) this.test.projectId = projectId;
+        })
       },
       getTest(id) {
         this.result = this.$get("/api/get/" + id, response => {
