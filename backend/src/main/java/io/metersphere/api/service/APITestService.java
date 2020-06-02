@@ -130,10 +130,22 @@ public class APITestService {
         test.setScenarioDefinition(request.getScenarioDefinition());
         test.setUpdateTime(System.currentTimeMillis());
         test.setStatus(APITestStatus.Saved.name());
-        /*checkApiTestPlanExist(test);*/
+        checkApiTestExist(test);
         apiTestMapper.updateByPrimaryKeySelective(test);
         return test;
     }
+
+    private void checkApiTestExist(ApiTest apiTest) {
+        if (apiTest.getName() != null) {
+            ApiTestExample example = new ApiTestExample();
+            example.createCriteria()
+                    .andNameEqualTo(apiTest.getName());
+            if (apiTestMapper.selectByExample(example).size() > 0) {
+                MSException.throwException(Translator.get("api_test_name_already_exists"));
+            }
+        }
+    }
+
     private ApiTestWithBLOBs createTest(SaveAPITestRequest request) {
         ApiTestExample example = new ApiTestExample();
         example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId());
