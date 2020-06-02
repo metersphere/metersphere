@@ -26,8 +26,23 @@
             <if test="request.workspaceId != null">
                 AND project.workspace_id = #{request.workspaceId,jdbcType=VARCHAR}
             </if>
+            <if test="request.filters != null and request.filters.size() > 0">
+                <foreach collection="request.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        and r.${key} in
+                        <foreach collection="values" item="value" separator="," open="(" close=")">
+                            #{value}
+                        </foreach>
+                    </if>
+                </foreach>
+            </if>
         </where>
-        ORDER BY r.update_time DESC
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                r.${order.name} ${order.type}
+            </foreach>
+        </if>
     </select>
 
     <select id="listByTestId" resultMap="BaseResultMap">

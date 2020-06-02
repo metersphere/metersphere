@@ -11,20 +11,20 @@ import io.metersphere.base.mapper.ApiTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestReportMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.i18n.Translator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-
-import javax.annotation.Resource;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -38,6 +38,7 @@ public class APIReportService {
     private ExtApiTestReportMapper extApiTestReportMapper;
 
     public List<APIReportResult> list(QueryAPIReportRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         return extApiTestReportMapper.list(request);
     }
 
