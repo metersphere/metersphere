@@ -10,7 +10,7 @@
                        :placeholder="$t('api_test.select_project')">
             </el-select>
           </el-input>
-          <el-button type="primary" plain @click="runTest">
+          <el-button :disabled="isReadOnly" type="primary" plain @click="runTest">
             {{$t('api_test.run')}}
           </el-button>
         </el-row>
@@ -31,7 +31,13 @@
   export default {
     name: "ApiTestDetail",
     components: {MsMainContainer, MsContainer, MsApiScenarioConfig},
-    props: ["id"],
+    props: {
+      id: String,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      }
+    },
     data() {
       return {
         result: {},

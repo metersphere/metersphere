@@ -1,7 +1,8 @@
 <template>
   <ms-container>
     <ms-main-container>
-      <el-card v-loading="result.loading">
+      <span v-if="!reportId">{{$t('commons.not_performed_yet')}}</span>
+      <el-card v-loading="result.loading" v-if="reportId">
         <el-row>
           <el-col :span="16">
             <el-row>
@@ -147,13 +148,13 @@
             this.$warning(this.$t('report.generation_error'));
             break;
           case 'Starting':
-            this.$warning("测试处于开始状态,请稍后查看报告！");
+            this.$warning(this.$t('report.start_status'));
             break;
           case 'Reporting':
             this.$info(this.$t('report.being_generated'));
             break;
           case 'Running':
-            this.$warning("测试处于运行状态,请稍后查看报告！");
+            this.$warning(this.$t('report.run_status'));
             break;
           case 'Completed':
           default:
@@ -205,15 +206,17 @@
         }
       },
       getReport() {
-        this.result = this.$get("/performance/report/" + this.reportId, res => {
-          let data = res.data;
-          this.status = data.status;
-          this.$set(this.report, "id", this.reportId);
-          this.$set(this.report, "status", data.status);
-          if (this.status === "Completed") {
-            this.initReportTimeInfo();
-          }
-        });
+        if (this.reportId) {
+          this.result = this.$get("/performance/report/" + this.reportId, res => {
+            let data = res.data;
+            this.status = data.status;
+            this.$set(this.report, "id", this.reportId);
+            this.$set(this.report, "status", data.status);
+            if (this.status === "Completed") {
+              this.initReportTimeInfo();
+            }
+          });
+        }
         this.initBreadcrumb();
       }
     }
