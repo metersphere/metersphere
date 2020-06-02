@@ -28,7 +28,7 @@
           editor: ClassicEditor,
           // editorData: '<p>Content of the editor.</p>',
           editorConfig: {
-            // The configuration of the editor.
+            toolbar: [ 'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote' ,'insertTable', '|','undo', 'redo']
           }
         }
       },

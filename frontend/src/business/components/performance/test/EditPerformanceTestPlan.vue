@@ -4,7 +4,9 @@
       <el-card v-loading="result.loading">
         <el-row>
           <el-col :span="10">
-            <el-input :placeholder="$t('load_test.input_name')" v-model="testPlan.name" class="input-with-select">
+            <el-input :placeholder="$t('load_test.input_name')" v-model="testPlan.name" class="input-with-select"
+                      maxlength="30"
+            >
               <template v-slot:prepend>
                 <el-select v-model="testPlan.projectId" :placeholder="$t('load_test.select_project')">
                   <el-option
@@ -30,7 +32,7 @@
             <performance-basic-config :test-plan="testPlan" ref="basicConfig"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.pressure_config')">
-            <performance-pressure-config :test-plan="testPlan" :test-id="testId" ref="pressureConfig"/>
+            <performance-pressure-config :test-plan="testPlan" :test-id="testId" ref="pressureConfig" @changeActive="changeTabActive"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.advanced_config')" class="advanced-config">
             <performance-advanced-config :test-id="testId" ref="advancedConfig"/>
@@ -154,9 +156,9 @@
         });
       },
       saveAndRun() {
-        // if (!this.validTestPlan()) {
-        //   return;
-        // }
+        if (!this.validTestPlan()) {
+          return;
+        }
 
         let options = this.getSaveOption();
 
@@ -208,8 +210,12 @@
         this.$router.push({path: '/performance/test/all'})
       },
       validTestPlan() {
+        let reg = /^[\u4e00-\u9fa5_a-zA-Z0-9\s.·-]+$/;
         if (!this.testPlan.name) {
           this.$error(this.$t('load_test.test_name_is_null'));
+          return false;
+        } else if (!reg.test(this.testPlan.name)) {
+          this.$error(this.$t('load_test.special_characters_are_not_supported'));
           return false;
         }
 
@@ -233,6 +239,11 @@
         /// todo: 其他校验
 
         return true;
+      },
+      changeTabActive(activeName) {
+        this.$nextTick(()=> {
+          this.active = activeName;
+        });
       }
     }
   }

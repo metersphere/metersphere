@@ -10,14 +10,15 @@
               <el-input type="text" size="small" :placeholder="$t('report.search_by_name')"
                         prefix-icon="el-icon-search"
                         maxlength="60"
-                        v-model="condition" @change="search" clearable/>
+                        v-model="condition.name" @change="search" clearable/>
             </span>
             </el-row>
           </div>
         </template>
 
         <el-table :data="tableData" class="test-content"
-                  :default-sort="{prop: 'createTime', order: 'descending'}"
+                  @sort-change="sort"
+                  @filter-change="filter"
         >
           <el-table-column
             prop="name"
@@ -47,6 +48,8 @@
             </template>
           </el-table-column>
 <!--          <el-table-column-->
+<!--            prop="updateTime"-->
+<!--            sortable-->
 <!--            width="250"-->
 <!--            :label="$t('commons.update_time')">-->
 <!--            <template v-slot:default="scope">-->
@@ -55,7 +58,7 @@
 <!--          </el-table-column>-->
           <el-table-column
             prop="status"
-            :filter-method="filter"
+            column-key="status"
             :filters="statusFilters"
             :label="$t('commons.status')">
             <template v-slot:default="{row}">
@@ -83,6 +86,7 @@
   import MsContainer from "../../common/components/MsContainer";
   import MsMainContainer from "../../common/components/MsMainContainer";
   import MsPerformanceReportStatus from "./PerformanceReportStatus";
+  import {_filter, _sort} from "../../../../common/js/utils";
 
   export default {
     name: "PerformanceTestReport",
@@ -95,7 +99,7 @@
         result: {},
         queryPath: "/performance/report/list/all",
         deletePath: "/performance/report/delete/",
-        condition: "",
+        condition: {},
         projectId: null,
         tableData: [],
         multipleSelection: [],
@@ -115,10 +119,7 @@
     },
     methods: {
       initTableData() {
-        let param = {
-          name: this.condition,
-        };
-        this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
+        this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
@@ -161,8 +162,13 @@
           this.initTableData();
         });
       },
-      filter(value, row) {
-        return row.status === value;
+      sort(column) {
+        _sort(column, this.condition);
+        this.initTableData();
+      },
+      filter(filters) {
+        _filter(filters, this.condition);
+        this.initTableData();
       },
     }
   }

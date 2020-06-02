@@ -16,11 +16,6 @@
   export default {
     name: "MsTableOperatorButton",
     components: {MsTipButton, MsTableButton},
-    data() {
-      return{
-        disabled: false
-      }
-    },
     props: {
       icon: {
         type: String,
@@ -32,6 +27,10 @@
       },
       tip: {
         type: String
+      },
+      disabled: {
+        type: Boolean,
+        default: false
       },
       isTesterPermission: {
         type: Boolean,

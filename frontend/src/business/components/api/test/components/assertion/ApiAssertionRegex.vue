@@ -2,7 +2,7 @@
   <div>
     <el-row :gutter="10" type="flex" justify="space-between" align="middle">
       <el-col class="assertion-select">
-        <el-select class="assertion-item" v-model="regex.subject" size="small"
+        <el-select :disabled="isReadOnly" class="assertion-item" v-model="regex.subject" size="small"
                    :placeholder="$t('api_test.request.assertions.select_subject')">
           <el-option label="Response Code" :value="subjects.RESPONSE_CODE"/>
           <el-option label="Response Headers" :value="subjects.RESPONSE_HEADERS"/>
@@ -10,12 +10,12 @@
         </el-select>
       </el-col>
       <el-col>
-        <el-input v-model="regex.expression" maxlength="255" size="small" show-word-limit
+        <el-input :disabled="isReadOnly" v-model="regex.expression" maxlength="255" size="small" show-word-limit
                   :placeholder="$t('api_test.request.assertions.expression')"/>
       </el-col>
       <el-col class="assertion-btn">
-        <el-button type="danger" size="mini" icon="el-icon-delete" circle @click="remove" v-if="edit"/>
-        <el-button type="primary" size="small" icon="el-icon-plus" plain @click="add" v-else/>
+        <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove" v-if="edit"/>
+        <el-button :disabled="isReadOnly" type="primary" size="small" icon="el-icon-plus" plain @click="add" v-else/>
       </el-col>
     </el-row>
   </div>
@@ -40,7 +40,11 @@
       },
       index: Number,
       list: Array,
-      callback: Function
+      callback: Function,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      }
     },
 
     data() {

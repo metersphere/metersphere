@@ -12,6 +12,8 @@ import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.ReportKeys;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.ServiceUtils;
+import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.dto.LogDetailDTO;
 import io.metersphere.dto.ReportDTO;
 import io.metersphere.performance.base.*;
@@ -23,11 +25,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -47,10 +48,17 @@ public class ReportService {
     private TestResourceService testResourceService;
 
     public List<ReportDTO> getRecentReportList(ReportRequest request) {
+        List<OrderRequest> orders = new ArrayList<>();
+        OrderRequest orderRequest = new OrderRequest();
+        orderRequest.setName("update_time");
+        orderRequest.setType("desc");
+        orders.add(orderRequest);
+        request.setOrders(orders);
         return extLoadTestReportMapper.getReportList(request);
     }
 
     public List<ReportDTO> getReportList(ReportRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         return extLoadTestReportMapper.getReportList(request);
     }
 
@@ -159,21 +167,13 @@ public class ReportService {
         return extLoadTestReportMapper.selectByPrimaryKey(id);
     }
 
-    public List<LogDetailDTO> logs(String reportId) {
-        LoadTestReportLogExample example = new LoadTestReportLogExample();
-        example.createCriteria().andReportIdEqualTo(reportId);
-        example.setOrderByClause("part");
-        List<LoadTestReportLog> loadTestReportLogs = loadTestReportLogMapper.selectByExampleWithBLOBs(example);
-        Map<String, List<LoadTestReportLog>> reportLogs = loadTestReportLogs.stream().collect(Collectors.groupingBy(LoadTestReportLog::getResourceId));
+    public List<LogDetailDTO> getReportLogResource(String reportId) {
         List<LogDetailDTO> result = new ArrayList<>();
-        reportLogs.forEach((resourceId, resourceLogs) -> {
+        List<String> resourceIds = extLoadTestReportMapper.selectResourceId(reportId);
+        resourceIds.forEach(resourceId -> {
             LogDetailDTO detailDTO = new LogDetailDTO();
             TestResource testResource = testResourceService.getTestResource(resourceId);
-            String content = resourceLogs.stream().map(LoadTestReportLog::getContent).reduce("", (a, b) -> a + b);
-            // 显示前 2048
-            content = StringUtils.substring(content, 0, 2048);
             detailDTO.setResourceId(resourceId);
-            detailDTO.setContent(content);
             if (testResource == null) {
                 detailDTO.setResourceName(resourceId);
                 result.add(detailDTO);
@@ -199,6 +199,12 @@ public class ReportService {
         return result;
     }
 
+    public List<LoadTestReportLog> getReportLogs(String reportId, String resourceId) {
+        LoadTestReportLogExample example = new LoadTestReportLogExample();
+        example.createCriteria().andReportIdEqualTo(reportId).andResourceIdEqualTo(resourceId);
+        example.setOrderByClause("part desc");
+        return loadTestReportLogMapper.selectByExampleWithBLOBs(example);
+    }
 
     public byte[] downloadLog(String reportId, String resourceId) {
         LoadTestReportLogExample example = new LoadTestReportLogExample();

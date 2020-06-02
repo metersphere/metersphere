@@ -4,6 +4,7 @@ export default {
     'organization': '组织',
     'setting': '设置',
     'project': '项目',
+    current_project: '当前项目',
     'name': '名称',
     'description': '描述',
     'clear': '清空',
@@ -91,7 +92,8 @@ export default {
     'remove': '移除',
     'remove_cancel': '移除取消',
     'remove_success': '移除成功',
-    'tips': '认证信息已过期，请重新登录'
+    'tips': '认证信息已过期，请重新登录',
+    'not_performed_yet': '尚未执行',
   },
   workspace: {
     'create': '创建工作空间',
@@ -252,7 +254,8 @@ export default {
     'resource_pool_is_null': '资源池为空',
     'download_log_file': '下载完整日志文件',
     'pressure_prediction_chart': '压力预估图',
-    'user_name': '创建人'
+    'user_name': '创建人',
+    'special_characters_are_not_supported': '测试名称不支持特殊字符',
   },
   api_test: {
     creator: "创建人",

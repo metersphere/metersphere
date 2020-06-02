@@ -16,27 +16,27 @@
                 <el-dropdown trigger="click" @command="handleCommand">
                   <span class="el-dropdown-link el-icon-more scenario-btn"/>
                   <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item :command="{type: 'copy', index: index}">
+                    <el-dropdown-item :disabled="isReadOnly" :command="{type: 'copy', index: index}">
                       {{$t('api_test.scenario.copy')}}
                     </el-dropdown-item>
-                    <el-dropdown-item :command="{type:'delete', index:index}">
+                    <el-dropdown-item :disabled="isReadOnly" :command="{type:'delete', index:index}">
                       {{$t('api_test.scenario.delete')}}
                     </el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
               </template>
-              <ms-api-request-config :requests="scenario.requests" :open="select"/>
+              <ms-api-request-config :is-read-only="isReadOnly" :requests="scenario.requests" :open="select"/>
             </ms-api-collapse-item>
           </draggable>
         </ms-api-collapse>
       </div>
-      <el-button class="scenario-create" type="primary" size="mini" icon="el-icon-plus" plain @click="createScenario"/>
+      <el-button :disabled="isReadOnly" class="scenario-create" type="primary" size="mini" icon="el-icon-plus" plain @click="createScenario"/>
     </el-aside>
 
     <el-main class="scenario-main">
       <div class="scenario-form">
-        <ms-api-scenario-form :scenario="selected" v-if="isScenario"/>
-        <ms-api-request-form :request="selected" v-if="isRequest"/>
+        <ms-api-scenario-form :is-read-only="isReadOnly" :scenario="selected" v-if="isScenario"/>
+        <ms-api-request-form :is-read-only="isReadOnly" :request="selected" v-if="isRequest"/>
       </div>
     </el-main>
   </el-container>
@@ -65,7 +65,11 @@
     },
 
     props: {
-      scenarios: Array
+      scenarios: Array,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      }
     },
 
     data() {

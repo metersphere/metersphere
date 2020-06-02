@@ -1,7 +1,7 @@
 <template>
   <ms-container>
     <ms-main-container>
-      <span v-if="!reportId">尚未执行</span>
+      <span v-if="!reportId">{{$t('commons.not_performed_yet')}}</span>
       <el-card v-if="reportId">
         <section class="report-container" v-loading="loading">
           <header class="report-header">

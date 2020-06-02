@@ -205,7 +205,7 @@ const router = new VueRouter({
           component: TrackHome,
         },
         {
-          path: 'case/create/',
+          path: 'case/create',
           name: 'testCaseCreate',
           component: TestCase,
         },

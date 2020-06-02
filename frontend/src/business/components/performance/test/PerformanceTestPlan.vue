@@ -16,9 +16,9 @@
           </div>
         </template>
 
-<!--        @sort-change="sort"-->
         <el-table :data="tableData" class="test-content"
-                  :default-sort="{prop: 'createTime', order: 'descending'}"
+                  @sort-change="sort"
+                  @filter-change="filter"
         >
           <el-table-column
             prop="name"
@@ -61,7 +61,7 @@
           </el-table-column>
           <el-table-column
             prop="status"
-            :filter-method="filter"
+            column-key="status"
             :filters="statusFilters"
             :label="$t('commons.status')">
             <template v-slot:default="{row}">
@@ -200,12 +200,13 @@
           this.initTableData();
         });
       },
-      // sort(column) {
-      //   _sort(column, this.condition);
-      //   this.initTableData();
-      // },
-      filter(value, row) {
-        return row.status === value;
+      sort(column) {
+        _sort(column, this.condition);
+        this.initTableData();
+      },
+      filter(filters) {
+        _filter(filters, this.condition);
+        this.initTableData();
       },
       link(row) {
         this.$router.push({

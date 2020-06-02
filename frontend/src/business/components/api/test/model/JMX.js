@@ -231,6 +231,7 @@ export class HTTPSamplerProxy extends DefaultTestElement {
     }
 
     this.boolProp("HTTPSampler.follow_redirects", this.request.follow, true);
+    this.boolProp("HTTPSampler.use_keepalive", this.request.keepalive, true);
   }
 }
 

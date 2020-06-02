@@ -1,6 +1,5 @@
 package io.metersphere.performance.service;
 
-import io.metersphere.api.dto.SaveAPITestRequest;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
@@ -10,7 +9,9 @@ import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.i18n.Translator;
@@ -29,10 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -66,6 +64,7 @@ public class PerformanceTestService {
     private ReportService reportService;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         return extLoadTestMapper.list(request);
     }
 
@@ -250,6 +249,12 @@ public class PerformanceTestService {
 
     public List<LoadTestDTO> recentTestPlans(QueryTestPlanRequest request) {
         // 查询最近的测试计划
+        List<OrderRequest> orders = new ArrayList<>();
+        OrderRequest orderRequest = new OrderRequest();
+        orderRequest.setName("update_time");
+        orderRequest.setType("desc");
+        orders.add(orderRequest);
+        request.setOrders(orders);
         return extLoadTestMapper.list(request);
     }
 

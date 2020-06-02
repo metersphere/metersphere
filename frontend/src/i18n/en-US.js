@@ -4,6 +4,7 @@ export default {
     'organization': 'Organization',
     'setting': 'Setting',
     'project': 'Project',
+    current_project: 'Current Project',
     'name': 'Name',
     'description': 'Description',
     'clear': 'Clear',
@@ -92,7 +93,8 @@ export default {
     'remove': 'Remove',
     'remove_cancel': 'Remove Cancel',
     'remove_success': 'Remove Success',
-    'tips': 'The authentication information has expired, please login again'
+    'tips': 'The authentication information has expired, please login again',
+    'not_performed_yet': 'Not performed yet',
   },
   workspace: {
     'create': 'Create Workspace',
@@ -254,7 +256,8 @@ export default {
     'select_resource_pool': 'Please Select Resource Pool',
     'resource_pool_is_null': 'Resource Pool is empty',
     'download_log_file': 'Download',
-    'user_name': 'Creator'
+    'user_name': 'Creator',
+    'special_characters_are_not_supported': 'Test name does not support special characters',
   },
   api_test: {
     creator: "Creator",

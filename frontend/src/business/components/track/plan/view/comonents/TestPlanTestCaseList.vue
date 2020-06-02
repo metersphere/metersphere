@@ -28,6 +28,7 @@
         @sort-change="sort"
         @select="handleSelectionChange"
         row-key="id"
+        @row-click="showDetail"
         :data="tableData">
 
         <el-table-column
@@ -134,6 +135,7 @@
         ref="testPlanTestCaseEdit"
         :search-param="condition"
         @refresh="initTableData"
+        :is-read-only="isReadOnly"
         @refreshTable="search"/>
 
       <test-report-template-list @openReport="openReport" :plan-id="planId" ref="testReporTtemplateList"/>
@@ -188,6 +190,7 @@
           total: 0,
           selectIds: new Set(),
           testPlan: {},
+          isReadOnly: false,
           priorityFilters: [
             {text: 'P0', value: 'P0'},
             {text: 'P1', value: 'P1'},
@@ -247,6 +250,10 @@
             });
           }
         },
+        showDetail(row, event, column) {
+          this.isReadOnly = true;
+          this.$refs.testPlanTestCaseEdit.openTestCaseEdit(row);
+        },
         refresh() {
           this.condition = {};
           this.selectIds.clear();
@@ -271,6 +278,7 @@
           return path + "/" + this.currentPage + "/" + this.pageSize;
         },
         handleEdit(testCase, index) {
+          this.isReadOnly = false;
           this.$refs.testPlanTestCaseEdit.openTestCaseEdit(testCase);
         },
         handleDelete(testCase) {
@@ -390,7 +398,7 @@
     width: 240px;
   }
 
-  .test-case-status {
+  .test-case-status,.el-table {
     cursor:pointer;
   }
 

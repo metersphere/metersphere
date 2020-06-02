@@ -4,6 +4,7 @@ export default {
     'organization': '組織',
     'setting': '設置',
     'project': '項目',
+    current_project: '當前項目',
     'name': '名稱',
     'description': '描述',
     'clear': '清空',
@@ -91,7 +92,8 @@ export default {
     'remove': '移除',
     'remove_cancel': '移除取消',
     'remove_success': '移除成功',
-    'tips': '认認證資訊已過期,請重新登入'
+    'tips': '认認證資訊已過期,請重新登入',
+    'not_performed_yet': '尚未執行',
   },
   workspace: {
     'create': '創建工作空間',
@@ -253,7 +255,8 @@ export default {
     'resource_pool_is_null': '資源池為空',
     'download_log_file': '下載完整日誌文件',
     'pressure_prediction_chart': '壓力預估圖',
-    'user_name': '創建人'
+    'user_name': '創建人',
+    'special_characters_are_not_supported': '測試名稱不支持特殊字符',
   },
   api_test: {
     title: "測試",

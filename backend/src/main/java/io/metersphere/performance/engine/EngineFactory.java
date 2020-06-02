@@ -37,12 +37,12 @@ public class EngineFactory {
     public static Engine createEngine(LoadTestWithBLOBs loadTest) {
         String resourcePoolId = loadTest.getTestResourcePoolId();
         if (StringUtils.isBlank(resourcePoolId)) {
-            MSException.throwException("Resource Pool ID is empty.");
+            MSException.throwException(Translator.get("test_resource_pool_id_is_null"));
         }
 
         TestResourcePool resourcePool = testResourcePoolService.getResourcePool(resourcePoolId);
         if (resourcePool == null) {
-            MSException.throwException("Resource Pool is empty.");
+            MSException.throwException(Translator.get("test_resource_pool_id_is_null"));
         }
 
         final ResourcePoolTypeEnum type = ResourcePoolTypeEnum.valueOf(resourcePool.getType());

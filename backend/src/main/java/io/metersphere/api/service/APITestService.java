@@ -1,7 +1,6 @@
 package io.metersphere.api.service;
 
 import io.metersphere.api.dto.APITestResult;
-import io.metersphere.api.dto.DeleteAPITestRequest;
 import io.metersphere.api.dto.QueryAPITestRequest;
 import io.metersphere.api.dto.SaveAPITestRequest;
 import io.metersphere.api.jmeter.JMeterService;
@@ -11,6 +10,7 @@ import io.metersphere.base.mapper.ApiTestMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.FileService;
@@ -19,14 +19,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -46,6 +45,7 @@ public class APITestService {
     private APIReportService apiReportService;
 
     public List<APITestResult> list(QueryAPITestRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         return extApiTestMapper.list(request);
     }
 
@@ -130,8 +130,20 @@ public class APITestService {
         test.setScenarioDefinition(request.getScenarioDefinition());
         test.setUpdateTime(System.currentTimeMillis());
         test.setStatus(APITestStatus.Saved.name());
+        checkApiTestExist(test);
         apiTestMapper.updateByPrimaryKeySelective(test);
         return test;
+    }
+
+    private void checkApiTestExist(ApiTest apiTest) {
+        if (apiTest.getName() != null) {
+            ApiTestExample example = new ApiTestExample();
+            example.createCriteria()
+                    .andNameEqualTo(apiTest.getName());
+            if (apiTestMapper.selectByExample(example).size() > 0) {
+                MSException.throwException(Translator.get("api_test_name_already_exists"));
+            }
+        }
     }
 
     private ApiTestWithBLOBs createTest(SaveAPITestRequest request) {
@@ -150,8 +162,20 @@ public class APITestService {
         test.setUpdateTime(System.currentTimeMillis());
         test.setStatus(APITestStatus.Saved.name());
         test.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+        checkApiTestPlanExist(test);
         apiTestMapper.insert(test);
         return test;
+    }
+
+    private void checkApiTestPlanExist(ApiTest apiTest) {
+        if (apiTest.getName() != null) {
+            ApiTestExample example = new ApiTestExample();
+            example.createCriteria()
+                    .andNameEqualTo(apiTest.getName());
+            if (apiTestMapper.selectByExample(example).size() > 0) {
+                MSException.throwException(Translator.get("api_test_name_already_exists"));
+            }
+        }
     }
 
     private void saveFile(String testId, List<MultipartFile> files) {

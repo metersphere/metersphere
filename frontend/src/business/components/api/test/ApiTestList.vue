@@ -7,7 +7,8 @@
                            :title="$t('commons.test')"
                            @create="create" :createTip="$t('load_test.create')"/>
         </template>
-        <el-table :data="tableData" class="table-content">
+        <el-table :data="tableData" class="table-content"   @sort-change="sort"
+                  @filter-change="filter">
           <el-table-column :label="$t('commons.name')" width="250" show-overflow-tooltip>
             <template v-slot:default="scope">
               <el-link type="info" @click="handleEdit(scope.row)">{{ scope.row.name }}</el-link>
@@ -15,17 +16,21 @@
           </el-table-column>
           <el-table-column prop="projectName" :label="$t('load_test.project_name')" width="200" show-overflow-tooltip/>
           <el-table-column prop="userName" :label="$t('api_test.creator')" width="150" show-overflow-tooltip/>
-          <el-table-column width="250" :label="$t('commons.create_time')">
+          <el-table-column width="250" :label="$t('commons.create_time')" sortable
+                           prop="createTime">
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column width="250" :label="$t('commons.update_time')">
+          <el-table-column width="250" :label="$t('commons.update_time')" sortable
+                           prop="updateTime">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="status" :label="$t('commons.status')">
+          <el-table-column prop="status" :label="$t('commons.status')"
+                           column-key="status"
+                           :filters="statusFilters">
             <template v-slot:default="{row}">
               <ms-api-test-status :row="row"/>
             </template>
@@ -51,6 +56,7 @@
   import MsMainContainer from "../../common/components/MsMainContainer";
   import MsApiTestStatus from "./ApiTestStatus";
   import MsTableOperators from "../../common/components/MsTableOperators";
+  import {_filter, _sort} from "../../../../common/js/utils";
 
   export default {
     components: {
@@ -60,7 +66,7 @@
     data() {
       return {
         result: {},
-        condition: {name: ""},
+        condition: {},
         projectId: null,
         tableData: [],
         multipleSelection: [],
@@ -79,6 +85,14 @@
             tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
             exec: this.handleDelete
           }
+        ],
+        statusFilters: [
+          {text: 'Saved', value: 'Saved'},
+          {text: 'Starting', value: 'Starting'},
+          {text: 'Running', value: 'Running'},
+          {text: 'Reporting', value: 'Reporting'},
+          {text: 'Completed', value: 'Completed'},
+          {text: 'Error', value: 'Error'}
         ]
       }
     },
@@ -92,16 +106,14 @@
         this.$router.push('/api/test/create');
       },
       search() {
-        let param = {
-          name: this.condition.name,
-        };
+
 
         if (this.projectId !== 'all') {
-          param.projectId = this.projectId;
+          this.condition.projectId = this.projectId;
         }
 
         let url = "/api/list/" + this.currentPage + "/" + this.pageSize
-        this.result = this.$post(url, param, response => {
+        this.result = this.$post(url, this.condition, response => {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
@@ -136,12 +148,27 @@
       },
       init() {
         this.projectId = this.$route.params.projectId;
+        if (this.projectId && this.projectId !== "all") {
+          this.$store.commit('setProjectId', this.projectId);
+        }
         this.search();
-      }
+      },
+     /* filter(value, row) {
+        return row.status === value;
+      }*/
+      sort(column) {
+        _sort(column, this.condition);
+        this.init();
+      },
+      filter(filters) {
+        _filter(filters, this.condition);
+        this.init();
+      },
     },
     created() {
       this.init();
     }
+
   }
 </script>
 
