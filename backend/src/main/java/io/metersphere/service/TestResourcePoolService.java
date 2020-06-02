@@ -77,27 +77,18 @@ public class TestResourcePoolService {
             MSException.throwException(Translator.get("test_resource_pool_name_is_null"));
         }
 
-        String id = testResourcePoolDTO.getId();
-        String name = testResourcePoolDTO.getName();
-
-        if (StringUtils.isNotBlank(id)) {
-            TestResourcePool pool = testResourcePoolMapper.selectByPrimaryKey(id);
-            if (!StringUtils.equals(pool.getName(), name)) {
-                checkPoolName(name);
-            }
-        } else {
-            checkPoolName(name);
+        TestResourcePoolExample example = new TestResourcePoolExample();
+        TestResourcePoolExample.Criteria criteria = example.createCriteria();
+        criteria.andNameEqualTo(resourcePoolName);
+        if (StringUtils.isNotBlank(testResourcePoolDTO.getId())) {
+            criteria.andIdNotEqualTo(testResourcePoolDTO.getId());
         }
-    }
 
-    public void checkPoolName(String poolName) {
-        TestResourcePoolExample testResourcePoolExample = new TestResourcePoolExample();
-        testResourcePoolExample.createCriteria().andNameEqualTo(poolName);
-        if (testResourcePoolMapper.countByExample(testResourcePoolExample) > 0) {
+        if (testResourcePoolMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("test_resource_pool_name_already_exists"));
         }
-    }
 
+    }
 
     public void updateTestResourcePoolStatus(String poolId, String status) {
         TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(poolId);

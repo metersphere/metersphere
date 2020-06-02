@@ -92,7 +92,6 @@ public class UserService {
                     userRole1.setUpdateTime(System.currentTimeMillis());
                     userRole1.setCreateTime(System.currentTimeMillis());
                     userRole1.setSourceId(list.get(j));
-                    // TODO 防止重复插入
                     userRoleMapper.insertSelective(userRole1);
                 }
             }
@@ -196,15 +195,15 @@ public class UserService {
         if (!roles.isEmpty()) {
             insertUserRole(roles, user.getId());
         }
-        String email = user.getEmail();
-        User u = userMapper.selectByPrimaryKey(userId);
-        if (!StringUtils.equals(email, u.getEmail())) {
-            UserExample userExample = new UserExample();
-            userExample.createCriteria().andEmailEqualTo(email);
-            if (userMapper.countByExample(userExample) > 0) {
-                MSException.throwException(Translator.get("user_email_already_exists"));
-            }
+
+        UserExample example = new UserExample();
+        UserExample.Criteria criteria = example.createCriteria();
+        criteria.andEmailEqualTo(user.getEmail());
+        criteria.andIdNotEqualTo(user.getId());
+        if (userMapper.countByExample(example) > 0) {
+            MSException.throwException(Translator.get("user_email_already_exists"));
         }
+
         user.setUpdateTime(System.currentTimeMillis());
         userMapper.updateByPrimaryKeySelective(user);
     }
