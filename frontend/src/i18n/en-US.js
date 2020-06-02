@@ -254,7 +254,8 @@ export default {
     'select_resource_pool': 'Please Select Resource Pool',
     'resource_pool_is_null': 'Resource Pool is empty',
     'download_log_file': 'Download',
-    'user_name': 'Creator'
+    'user_name': 'Creator',
+    'special_characters_are_not_supported': 'Test name does not support special characters',
   },
   api_test: {
     creator: "Creator",
