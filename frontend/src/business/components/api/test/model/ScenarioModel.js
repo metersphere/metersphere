@@ -486,10 +486,10 @@ class JMXGenerator {
   addRequestBody(httpSamplerProxy, request) {
     let body = [];
     if (request.body.isKV()) {
-      body = request.body.kvs.filter(this.filter);
+      body = this.replaceKV(request.body.kvs);
     } else {
       httpSamplerProxy.boolProp('HTTPSampler.postBodyRaw', true);
-      body.push({name: '', value: request.body.raw, encode: false});
+      body.push({name: '', value: this.replace(request.body.raw), encode: false});
     }
 
     httpSamplerProxy.add(new HTTPSamplerArguments(body));
@@ -510,7 +510,7 @@ class JMXGenerator {
   }
 
   getAssertion(regex) {
-    let name = regex.description;
+    let name = this.replace(regex.description);
     let type = JMX_ASSERTION_CONDITION.CONTAINS; // 固定用Match，自己写正则
     let value = this.replace(regex.expression);
     switch (regex.subject) {
@@ -546,8 +546,8 @@ class JMXGenerator {
 
   getExtractor(extractCommon) {
     let props = {
-      name: extractCommon.variable,
-      expression: extractCommon.expression,
+      name: this.replace(extractCommon.variable),
+      expression: this.replace(extractCommon.expression),
     }
     let testName = props.name
     switch (extractCommon.type) {
@@ -570,7 +570,7 @@ class JMXGenerator {
   }
 
   replace(str) {
-    if (!str) return str;
+    if (!str || !(typeof str === 'string')) return str;
     return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/'/g, "&apos;").replace(/"/g, "&quot;");
   }
 
