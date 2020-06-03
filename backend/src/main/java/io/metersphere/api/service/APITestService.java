@@ -20,6 +20,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
@@ -122,7 +123,16 @@ public class APITestService {
         apiTestMapper.updateByPrimaryKeySelective(apiTest);
     }
 
+    private void checkNameExist(SaveAPITestRequest request) {
+        ApiTestExample example = new ApiTestExample();
+        example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
+        if (apiTestMapper.countByExample(example) > 0) {
+            MSException.throwException(Translator.get("load_test_already_exists"));
+        }
+    }
+
     private ApiTestWithBLOBs updateTest(SaveAPITestRequest request) {
+        checkNameExist(request);
         final ApiTestWithBLOBs test = new ApiTestWithBLOBs();
         test.setId(request.getId());
         test.setName(request.getName());
@@ -130,29 +140,12 @@ public class APITestService {
         test.setScenarioDefinition(request.getScenarioDefinition());
         test.setUpdateTime(System.currentTimeMillis());
         test.setStatus(APITestStatus.Saved.name());
-        checkApiTestExist(test);
         apiTestMapper.updateByPrimaryKeySelective(test);
         return test;
     }
 
-    private void checkApiTestExist(ApiTest apiTest) {
-        if (apiTest.getName() != null) {
-            ApiTestExample example = new ApiTestExample();
-            example.createCriteria()
-                    .andNameEqualTo(apiTest.getName());
-            if (apiTestMapper.selectByExample(example).size() > 0) {
-                MSException.throwException(Translator.get("api_test_name_already_exists"));
-            }
-        }
-    }
-
     private ApiTestWithBLOBs createTest(SaveAPITestRequest request) {
-        ApiTestExample example = new ApiTestExample();
-        example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId());
-        if (apiTestMapper.countByExample(example) > 0) {
-            MSException.throwException(Translator.get("load_test_already_exists"));
-        }
-
+        checkNameExist(request);
         final ApiTestWithBLOBs test = new ApiTestWithBLOBs();
         test.setId(request.getId());
         test.setName(request.getName());
@@ -162,20 +155,8 @@ public class APITestService {
         test.setUpdateTime(System.currentTimeMillis());
         test.setStatus(APITestStatus.Saved.name());
         test.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
-        checkApiTestPlanExist(test);
         apiTestMapper.insert(test);
         return test;
-    }
-
-    private void checkApiTestPlanExist(ApiTest apiTest) {
-        if (apiTest.getName() != null) {
-            ApiTestExample example = new ApiTestExample();
-            example.createCriteria()
-                    .andNameEqualTo(apiTest.getName());
-            if (apiTestMapper.selectByExample(example).size() > 0) {
-                MSException.throwException(Translator.get("api_test_name_already_exists"));
-            }
-        }
     }
 
     private void saveFile(String testId, List<MultipartFile> files) {
