@@ -84,13 +84,22 @@
           <el-table-column
             :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
+              <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)" @deleteClick="handleDelete(scope.row)">
+                <template v-slot:middle>
+                  <ms-table-operator-button type="success" v-if="!scope.row.reportId" :tip="$t('test_track.plan_view.create_report')" icon="el-icon-document" @exec="openTestReportTemplate(scope.row)"/>
+                  <ms-table-operator-button type="success" v-if="scope.row.reportId" :tip="$t('test_track.plan_view.view_report')" icon="el-icon-document" @exec="openReport(scope.row.id, scope.row.reportId)"/>
+                </template>
+              </ms-table-operator>
             </template>
           </el-table-column>
         </el-table>
 
         <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                              :total="total"/>
+
+        <test-report-template-list @openReport="openReport" ref="testReporTtemplateList"/>
+        <test-case-report-view @refresh="initTableData" ref="testCaseReportView"/>
+
       </el-card>
 </template>
 
@@ -104,10 +113,14 @@
   import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
   import PlanStageTableItem from "../../common/tableItems/plan/PlanStageTableItem";
   import {_filter, _sort} from "../../../../../common/js/utils";
+  import TestReportTemplateList from "../view/comonents/TestReportTemplateList";
+  import TestCaseReportView from "../view/comonents/report/TestCaseReportView";
 
   export default {
       name: "TestPlanList",
       components: {
+        TestCaseReportView,
+        TestReportTemplateList,
         PlanStageTableItem,
         PlanStatusTableItem,
         MsTableOperator, MsTableOperatorButton, MsDialogFooter, MsTableHeader, MsCreateBox, MsTablePagination},
@@ -198,7 +211,15 @@
         sort(column) {
           _sort(column, this.condition);
           this.initTableData();
-        }
+        },
+        openTestReportTemplate(data) {
+          this.$refs.testReporTtemplateList.open(data.id);
+        },
+        openReport(planId, reportId) {
+          if (reportId) {
+            this.$refs.testCaseReportView.open(planId, reportId);
+          }
+        },
       }
     }
 </script>

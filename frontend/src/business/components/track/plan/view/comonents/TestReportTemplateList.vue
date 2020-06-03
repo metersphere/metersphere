@@ -21,12 +21,8 @@
       data() {
         return {
           templateVisible: false,
-          templates: []
-        }
-      },
-      props: {
-        planId: {
-          type: String
+          templates: [],
+          planId: ''
         }
       },
       methods: {
@@ -43,12 +39,13 @@
           param.planId = this.planId;
           param.templateId = templateId;
           this.$post('/case/report/add', param, response => {
-            this.$emit('openReport', response.data);
+            this.$emit('openReport', param.planId, response.data);
             this.templateVisible = false;
           });
         },
-        open() {
+        open(planId) {
           this.templateVisible = true;
+          this.planId = planId;
           this.initData();
         }
 
