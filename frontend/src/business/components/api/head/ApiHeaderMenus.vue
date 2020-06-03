@@ -2,8 +2,7 @@
   <div id="menu-bar">
     <el-row type="flex">
       <el-col :span="8">
-        <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router :default-active='$route.path'
-                 menu-trigger="click">
+        <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router :default-active='$route.path'>
           <el-menu-item :index="'/api/home'">
             {{ $t("i18n.home") }}
           </el-menu-item>

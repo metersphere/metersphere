@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -43,6 +44,7 @@ public class APIReportService {
     }
 
     public List<APIReportResult> recentTest(QueryAPIReportRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         return extApiTestReportMapper.list(request);
     }
 

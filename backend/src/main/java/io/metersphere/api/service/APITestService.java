@@ -51,6 +51,7 @@ public class APITestService {
     }
 
     public List<APITestResult> recentTest(QueryAPITestRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         return extApiTestMapper.list(request);
     }
 
