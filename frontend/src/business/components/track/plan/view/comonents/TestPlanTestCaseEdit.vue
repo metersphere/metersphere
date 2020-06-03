@@ -347,6 +347,7 @@
       testTabChange(data) {
         if (this.testCase.type == 'performance' && data.paneName == 'result') {
           this.$refs.performanceTestResult.checkReportStatus();
+          this.$refs.performanceTestResult.init();
         }
       },
       saveReport(reportId) {
