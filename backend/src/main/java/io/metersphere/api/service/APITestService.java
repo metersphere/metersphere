@@ -139,7 +139,9 @@ public class APITestService {
         if (apiTest.getName() != null) {
             ApiTestExample example = new ApiTestExample();
             example.createCriteria()
-                    .andNameEqualTo(apiTest.getName());
+                    .andNameEqualTo(apiTest.getName())
+                    .andProjectIdEqualTo(apiTest.getProjectId())
+                    .andIdNotEqualTo(apiTest.getId());
             if (apiTestMapper.selectByExample(example).size() > 0) {
                 MSException.throwException(Translator.get("api_test_name_already_exists"));
             }
@@ -162,20 +164,8 @@ public class APITestService {
         test.setUpdateTime(System.currentTimeMillis());
         test.setStatus(APITestStatus.Saved.name());
         test.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
-        checkApiTestPlanExist(test);
         apiTestMapper.insert(test);
         return test;
-    }
-
-    private void checkApiTestPlanExist(ApiTest apiTest) {
-        if (apiTest.getName() != null) {
-            ApiTestExample example = new ApiTestExample();
-            example.createCriteria()
-                    .andNameEqualTo(apiTest.getName());
-            if (apiTestMapper.selectByExample(example).size() > 0) {
-                MSException.throwException(Translator.get("api_test_name_already_exists"));
-            }
-        }
     }
 
     private void saveFile(String testId, List<MultipartFile> files) {
