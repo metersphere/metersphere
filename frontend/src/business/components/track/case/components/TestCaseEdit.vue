@@ -283,7 +283,9 @@
       this.getSelectOptions();
     },
     watch: {
-
+      treeNodes() {
+        this.getModuleOptions();
+      }
     },
     methods: {
       open(testCase) {
