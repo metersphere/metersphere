@@ -23,8 +23,6 @@
             <el-divider/>
             <ms-show-all :index="'/performance/test/all'"/>
             <ms-create-button v-permission="['test_manager', 'test_user']" :index="'/performance/test/create'" :title="$t('load_test.create')"/>
-<!--            <el-menu-item :index="testCaseProjectPath" class="blank_item"></el-menu-item>-->
-<!--            <el-menu-item :index="testEditPath" class="blank_item"></el-menu-item>-->
           </el-submenu>
 
           <el-submenu v-if="isCurrentWorkspaceUser"
@@ -65,10 +63,6 @@
     data() {
       return {
         isCurrentWorkspaceUser: false,
-        // testCaseProjectPath: '',
-        // testEditPath: '',
-        // reportViewPath: '',
-        // isRouterAlive: true,
         projectRecent: {
           title: this.$t('project.recent'),
           url: "/project/recent/5",
@@ -103,32 +97,6 @@
     mounted() {
       this.isCurrentWorkspaceUser = checkoutCurrentWorkspace();
     },
-    // watch: {
-    //   '$route'(to, from) {
-    //     let path = to.path;
-    //     //激活菜单栏
-    //     if (path.indexOf("/performance/test/") >= 0) {
-    //       this.testCaseProjectPath = '/performance/test/' + this.$route.params.projectId;
-    //       this.reload();
-    //     }
-    //     if (path.indexOf("/performance/test/edit/") >= 0) {
-    //       this.testEditPath = '/performance/test/edit/' + this.$route.params.testId;
-    //       this.reload();
-    //     }
-    //     if (path.indexOf("/performance/report/view/") >= 0) {
-    //       this.reportViewPath = '/performance/report/view/' + this.$route.params.reportId;
-    //       this.reload();
-    //     }
-    //   }
-    // },
-    // methods: {
-    //   reload() {
-    //     this.isRouterAlive = false;
-    //     this.$nextTick(function () {
-    //       this.isRouterAlive = true;
-    //     })
-    //   }
-    // }
   }
 
 </script>
@@ -145,9 +113,5 @@
   #menu-bar {
     border-bottom: 1px solid #E6E6E6;
     background-color: #FFF;
-  }
-
-  .blank_item {
-    display: none;
   }
 </style>
