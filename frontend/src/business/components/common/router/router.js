@@ -31,6 +31,7 @@ import TestPlanView from "../../track/plan/view/TestPlanView";
 import TestCase from "../../track/case/TestCase";
 import TestTrack from "../../track/TestTrack";
 import ApiReportList from "../../api/report/ApiReportList";
+import axios from "axios";
 
 Vue.use(VueRouter);
 
@@ -242,6 +243,20 @@ const router = new VueRouter({
       ]
     }
   ]
+});
+
+
+router.beforeEach((to, from, next) => {
+  //解决localStorage清空，cookie没失效导致的卡死问题
+  if (!localStorage.getItem('Admin-Token')) {
+    axios.get("/signout");
+    console.log("signout");
+    localStorage.setItem('Admin-Token', "{}");
+    window.location.href = "/login";
+    next();
+  } else {
+    next();
+  }
 });
 
 export default router

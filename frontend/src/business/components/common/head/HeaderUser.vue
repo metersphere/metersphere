@@ -31,6 +31,7 @@
             break;
           case "logout":
             this.$get("/signout", function () {
+              alert("signout");
               localStorage.clear();
               window.location.href = "/login";
             });
