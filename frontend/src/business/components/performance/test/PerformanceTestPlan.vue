@@ -174,7 +174,7 @@
       },
       handleCopy(testPlan) {
         this.result = this.$post("/performance/copy", {id: testPlan.id}, () => {
-          this.$success(this.$t('commons.save_success'));
+          this.$success(this.$t('commons.copy_success'));
           this.search();
         });
       },
