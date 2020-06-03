@@ -19,15 +19,13 @@
         <el-table :data="tableData" class="test-content"
                   @sort-change="sort"
                   @filter-change="filter"
+                  @row-click="link"
         >
           <el-table-column
             prop="name"
             :label="$t('commons.name')"
             width="150"
             show-overflow-tooltip>
-            <template v-slot:default="scope">
-              <el-link type="info" @click="link(scope.row)">{{ scope.row.name }}</el-link>
-            </template>
           </el-table-column>
           <el-table-column
             prop="projectName"
@@ -227,5 +225,9 @@
     padding-top: 20px;
     margin-right: -9px;
     float: right;
+  }
+
+  .el-table {
+    cursor:pointer;
   }
 </style>

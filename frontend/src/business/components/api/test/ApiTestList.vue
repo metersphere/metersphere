@@ -7,12 +7,9 @@
                            :title="$t('commons.test')"
                            @create="create" :createTip="$t('load_test.create')"/>
         </template>
-        <el-table :data="tableData" class="table-content"   @sort-change="sort"
+        <el-table :data="tableData" class="table-content" @sort-change="sort" @row-click="handleEdit"
                   @filter-change="filter">
-          <el-table-column :label="$t('commons.name')" width="250" show-overflow-tooltip>
-            <template v-slot:default="scope">
-              <el-link type="info" @click="handleEdit(scope.row)">{{ scope.row.name }}</el-link>
-            </template>
+          <el-table-column prop="name" :label="$t('commons.name')" width="250" show-overflow-tooltip>
           </el-table-column>
           <el-table-column prop="projectName" :label="$t('load_test.project_name')" width="200" show-overflow-tooltip/>
           <el-table-column prop="userName" :label="$t('api_test.creator')" width="150" show-overflow-tooltip/>
@@ -153,9 +150,6 @@
         }
         this.search();
       },
-     /* filter(value, row) {
-        return row.status === value;
-      }*/
       sort(column) {
         _sort(column, this.condition);
         this.init();
@@ -175,5 +169,9 @@
 <style scoped>
   .table-content {
     width: 100%;
+  }
+
+  .el-table {
+    cursor: pointer;
   }
 </style>
