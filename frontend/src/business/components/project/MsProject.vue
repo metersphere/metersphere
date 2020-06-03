@@ -6,12 +6,8 @@
           <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search" @create="create"
                            :create-tip="btnTips" :title="title"/>
         </template>
-        <el-table :data="items" style="width: 100%" @sort-change="sort">
-          <el-table-column prop="name" :label="$t('commons.name')">
-            <template v-slot:default="scope">
-              <el-link type="info" @click="link(scope.row)">{{ scope.row.name }}</el-link>
-            </template>
-          </el-table-column>
+        <el-table @row-click="link" :data="items" style="width: 100%" @sort-change="sort">
+          <el-table-column prop="name" :label="$t('commons.name')"/>
           <el-table-column prop="description" :label="$t('commons.description')"/>
           <!--<el-table-column prop="workspaceName" :label="$t('project.owning_workspace')"/>-->
           <el-table-column
@@ -231,6 +227,10 @@
           this.$router.push({
             path: '/api/test/list/' + row.id
           })
+        } else if (this.$route.name ==='trackProject') {
+          this.$router.push({
+            path: '/track/case/' + row.id
+          })
         }
       },
       sort(column) {
@@ -242,5 +242,9 @@
 </script>
 
 <style scoped>
+
+  .el-table {
+    cursor:pointer;
+  }
 
 </style>
