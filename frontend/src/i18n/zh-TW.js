@@ -160,6 +160,7 @@ export default {
     'input_id': '請輸入ID',
     'input_email': '請輸入郵箱',
     'input_password': '請輸入密碼',
+    'input_phone': '請輸入電話號碼',
     'special_characters_are_not_supported': '不支持特殊字符',
     'mobile_number_format_is_incorrect': '手機號碼格式不正確',
     'email_format_is_incorrect': '郵箱格式不正確',

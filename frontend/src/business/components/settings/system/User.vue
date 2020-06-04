@@ -53,19 +53,19 @@
                :destroy-on-close="true">
       <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule" ref="createUserForm">
         <el-form-item label="ID" prop="id">
-          <el-input v-model="form.id" autocomplete="off"/>
+          <el-input v-model="form.id" autocomplete="off" :placeholder="$t('user.input_id')"/>
         </el-form-item>
         <el-form-item :label="$t('commons.username')" prop="name">
-          <el-input v-model="form.name" autocomplete="off"/>
+          <el-input v-model="form.name" autocomplete="off" :placeholder="$t('user.input_name')"/>
         </el-form-item>
         <el-form-item :label="$t('commons.email')" prop="email">
-          <el-input v-model="form.email" autocomplete="off"/>
+          <el-input v-model="form.email" autocomplete="off" :placeholder="$t('user.input_email')"/>
         </el-form-item>
         <el-form-item :label="$t('commons.phone')" prop="phone">
-          <el-input v-model="form.phone" autocomplete="off"/>
+          <el-input v-model="form.phone" autocomplete="off" :placeholder="$t('user.input_phone')"/>
         </el-form-item>
         <el-form-item :label="$t('commons.password')" prop="password">
-          <el-input v-model="form.password" autocomplete="off" show-password/>
+          <el-input v-model="form.password" autocomplete="new-password" show-password :placeholder="$t('user.input_password')"/>
         </el-form-item>
         <div v-for="(role, index) in form.roles" :key="index">
           <el-form-item :label="$t('commons.role')+index"
