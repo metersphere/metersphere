@@ -164,7 +164,7 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="memberForm.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
-        <el-form-item :label="$t('commons.role')" prop="roleIds">
+        <el-form-item :label="$t('commons.role')" prop="roleIds" :rules="{required: true, message: $t('role.please_choose_role'), trigger: 'change'}">
           <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
                      class="select-width">
             <el-option
@@ -405,7 +405,7 @@
           this.$info(this.$t('commons.remove_cancel'));
         });
       },
-      updateWorkspaceMember() {
+      updateWorkspaceMember(formName) {
         let param = {
           id: this.memberForm.id,
           name: this.memberForm.name,
@@ -414,10 +414,14 @@
           roleIds: this.memberForm.roleIds,
           workspaceId: this.currentWorkspaceRow.id
         }
-        this.result = this.$post("/workspace/member/update", param, () => {
-          this.$success(this.$t('commons.modify_success'));
-          this.dialogWsMemberUpdateVisible = false;
-          this.cellClick(this.currentWorkspaceRow);
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            this.result = this.$post("/workspace/member/update", param, () => {
+              this.$success(this.$t('commons.modify_success'));
+              this.dialogWsMemberUpdateVisible = false;
+              this.cellClick(this.currentWorkspaceRow);
+            });
+          }
         });
       },
     },

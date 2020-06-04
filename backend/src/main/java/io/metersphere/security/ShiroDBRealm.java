@@ -5,6 +5,7 @@ import io.metersphere.base.domain.Role;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.UserDTO;
+import io.metersphere.i18n.Translator;
 import io.metersphere.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.*;
@@ -67,7 +68,7 @@ public class ShiroDBRealm extends AuthorizingRealm {
         UserDTO user = userService.getUserDTO(userId);
         String msg;
         if (user == null) {
-            msg = "The user does not exist: " + userId;
+            msg = Translator.get("user_not_exist") + userId;
             logger.warn(msg);
             throw new UnknownAccountException(msg);
         }
@@ -79,7 +80,7 @@ public class ShiroDBRealm extends AuthorizingRealm {
         }
         // 密码验证
         if (!userService.checkUserPassword(userId, password)) {
-            throw new IncorrectCredentialsException("The password is incorrect");
+            throw new IncorrectCredentialsException(Translator.get("password_is_incorrect"));
         }
         //
         SessionUser sessionUser = SessionUser.fromUser(user);
