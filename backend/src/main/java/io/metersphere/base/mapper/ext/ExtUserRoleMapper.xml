@@ -43,6 +43,7 @@
         <if test="member.name != null">
             AND `user`.name like CONCAT('%', #{member.name},'%')
         </if>
+        order by user_role.update_time desc
     </select>
 
     <select id="getOrgMemberList" resultType="io.metersphere.base.domain.User">
@@ -51,6 +52,7 @@
         <if test="orgMember.name != null">
             AND `user`.name like CONCAT('%', #{orgMember.name},'%')
         </if>
+        order by user_role.update_time desc
     </select>
 
     <select id="getOrganizationMemberDTO" resultMap="BaseOrganizationMemberDTOMap">

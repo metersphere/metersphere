@@ -145,7 +145,7 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="memberForm.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
-        <el-form-item :label="$t('commons.role')" prop="roleIds">
+        <el-form-item :label="$t('commons.role')" prop="roleIds" :rules="{required: true, message: $t('role.please_choose_role'), trigger: 'change'}">
           <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
                      class="select-width">
             <el-option
@@ -427,7 +427,7 @@
           }
         });
       },
-      updateOrgMember() {
+      updateOrgMember(formName) {
         let param = {
           id: this.memberForm.id,
           name: this.memberForm.name,
@@ -436,10 +436,14 @@
           roleIds: this.memberForm.roleIds,
           organizationId: this.currentRow.id
         }
-        this.result = this.$post("/organization/member/update", param, () => {
-          this.$success(this.$t('commons.modify_success'));
-          this.dialogOrgMemberUpdateVisible = false;
-          this.cellClick(this.currentRow);
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            this.result = this.$post("/organization/member/update", param, () => {
+              this.$success(this.$t('commons.modify_success'));
+              this.dialogOrgMemberUpdateVisible = false;
+              this.cellClick(this.currentRow);
+            });
+          }
         });
       },
     }

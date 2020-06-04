@@ -125,6 +125,7 @@ public class TestResourcePoolService {
         if (StringUtils.isNotBlank(request.getName())) {
             criteria.andNameLike(StringUtils.wrapIfMissing(request.getName(), "%"));
         }
+        example.setOrderByClause("update_time desc");
         List<TestResourcePool> testResourcePools = testResourcePoolMapper.selectByExample(example);
         List<TestResourcePoolDTO> testResourcePoolDTOS = new ArrayList<>();
         testResourcePools.forEach(pool -> {
