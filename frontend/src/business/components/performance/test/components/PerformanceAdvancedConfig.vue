@@ -41,7 +41,6 @@
                 v-model="row.enable"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
-                active-value="readOnly"
                 @click="confirmEdit(row)"
               >
               </el-switch>

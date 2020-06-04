@@ -12,7 +12,6 @@ import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
 import org.apache.jmeter.visualizers.backend.BackendListenerContext;
 
 import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
