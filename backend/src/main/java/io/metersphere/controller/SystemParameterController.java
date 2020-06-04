@@ -1,11 +1,9 @@
 package io.metersphere.controller;
 
 import io.metersphere.base.domain.SystemParameter;
+import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.service.SystemParameterService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
@@ -25,6 +23,16 @@ public class SystemParameterController {
     @PostMapping("/testConnection")
     public void testConnection(@RequestBody HashMap<String, String> hashMap) {
         SystemParameterService.testConnection(hashMap);
+    }
+
+    @GetMapping("/version")
+    public String getVersion() {
+        return SystemParameterService.getVersion();
+    }
+
+    @GetMapping("/mail/info")
+    public Object mailInfo() {
+        return SystemParameterService.mailInfo(ParamConstants.Classify.MAIL.getValue());
     }
 
 }
