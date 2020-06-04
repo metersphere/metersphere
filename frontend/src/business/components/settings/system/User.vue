@@ -53,19 +53,19 @@
                :destroy-on-close="true">
       <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule" ref="createUserForm">
         <el-form-item label="ID" prop="id">
-          <el-input v-model="form.id" autocomplete="off"/>
+          <el-input v-model="form.id" autocomplete="off" placeholder="请输入用户ID"/>
         </el-form-item>
         <el-form-item :label="$t('commons.username')" prop="name">
-          <el-input v-model="form.name" autocomplete="off"/>
+          <el-input v-model="form.name" autocomplete="off" placeholder="请输入用户名"/>
         </el-form-item>
         <el-form-item :label="$t('commons.email')" prop="email">
-          <el-input v-model="form.email" autocomplete="off"/>
+          <el-input v-model="form.email" autocomplete="off" placeholder="请输入邮箱"/>
         </el-form-item>
         <el-form-item :label="$t('commons.phone')" prop="phone">
-          <el-input v-model="form.phone" autocomplete="off"/>
+          <el-input v-model="form.phone" autocomplete="off" placeholder="请输入电话号码"/>
         </el-form-item>
         <el-form-item :label="$t('commons.password')" prop="password">
-          <el-input v-model="form.password" autocomplete="off" show-password/>
+          <el-input v-model="form.password" autocomplete="new-password" show-password placeholder="请输入密码"/>
         </el-form-item>
         <div v-for="(role, index) in form.roles" :key="index">
           <el-form-item :label="$t('commons.role')+index"
