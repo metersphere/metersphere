@@ -161,6 +161,7 @@ export default {
     'input_id': '请输入ID',
     'input_email': '请输入邮箱',
     'input_password': '请输入密码',
+    'input_phone': '请输入电话号码',
     'special_characters_are_not_supported': '不支持特殊字符',
     'mobile_number_format_is_incorrect': '手机号码格式不正确',
     'email_format_is_incorrect': '邮箱格式不正确',
