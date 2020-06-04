@@ -15,9 +15,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 
 @Service
@@ -83,7 +81,30 @@ public class SystemParameterService {
         } catch (MessagingException e) {
             MSException.throwException(Translator.get("connection_failed"));
         }
-
-
+    }
+    public Object mailInfo(String type) {
+        List<SystemParameter> paramList = this.getParamList(type);
+        if (CollectionUtils.isEmpty(paramList)) {
+            paramList = new ArrayList<>();
+            ParamConstants.MAIL[] values = ParamConstants.MAIL.values();
+            for (ParamConstants.MAIL value : values) {
+                SystemParameter systemParameter = new SystemParameter();
+                if (value.equals(ParamConstants.MAIL.PASSWORD)) {
+                    systemParameter.setType(ParamConstants.Type.PASSWORD.getValue());
+                } else {
+                    systemParameter.setType(ParamConstants.Type.TEXT.getValue());
+                }
+                systemParameter.setParamKey(value.getKey());
+                systemParameter.setSort(value.getValue());
+                paramList.add(systemParameter);
+            }
+        } else {
+            paramList.stream().filter(param -> param.getParamKey().equals(ParamConstants.MAIL.PASSWORD.getKey())).forEach(param -> {
+                String string = EncryptUtils.aesDecrypt(param.getParamValue()).toString();
+                param.setParamValue(string);
+            });
+        }
+        paramList.sort(Comparator.comparingInt(SystemParameter::getSort));
+        return paramList;
     }
 }

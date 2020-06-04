@@ -42,13 +42,13 @@
 
         <!---->
         <div style="border: 0px;margin-bottom: 20px;margin-top: 20px">
-          <el-checkbox v-model="SSL" :label="$t('system_parameter_setting.SSL')"></el-checkbox>
+          <el-checkbox v-model="formInline.SSL" :label="$t('system_parameter_setting.SSL')"></el-checkbox>
         </div>
         <div style="border: 0px;margin-bottom: 20px">
-          <el-checkbox v-model="TLS" :label="$t('system_parameter_setting.TLS')"></el-checkbox>
+          <el-checkbox v-model="formInline.TLS" :label="$t('system_parameter_setting.TLS')"></el-checkbox>
         </div>
         <div style="border: 0px;margin-bottom: 20px">
-          <el-checkbox v-model="SMTP" :label="$t('system_parameter_setting.SMTP')"></el-checkbox>
+          <el-checkbox v-model="formInline.SMTP" :label="$t('system_parameter_setting.SMTP')"></el-checkbox>
         </div>
         <template v-slot:footer>
         </template>
@@ -74,15 +74,15 @@
     data() {
       return {
         formInline: {
-          host: 'smtp.163.com',
+          /*host: 'smtp.163.com',
           port: '465',
           account: 'xjj0608@163.com',
-          password: '2345678',
+          password: '2345678',*/
         },
         result: {},
-        SSL: false,
-        TLS: false,
-        SMTP: true,
+        /*SSL: [],
+        TLS: [],
+        SMTP: [],*/
         showEdit: true,
         showSave: false,
         showCancel: false,
@@ -112,8 +112,22 @@
       }
     },
 
-
+    activated() {
+      this.query()
+    },
     methods: {
+
+      query() {
+        this.result = this.$get("/system/mail/info", response => {
+          this.$set(this.formInline, "host", response.data[0].paramValue);
+          this.$set(this.formInline, "port", response.data[1].paramValue);
+          this.$set(this.formInline, "account", response.data[2].paramValue);
+          this.$set(this.formInline, "password", response.data[3].paramValue);
+          this.$set(this.formInline, "SSL", response.data[4].paramValue);
+          this.$set(this.formInline, "TLS", response.data[5].paramValue);
+          this.$set(this.formInline, "SMTP", response.data[6].paramValue);
+        })
+      },
       change() {
         if (!this.formInline.host || !this.formInline.port || !this.formInline.account) {
           this.disabledConnection = true;
@@ -129,9 +143,9 @@
           "smtp.port": this.formInline.port,
           "smtp.account": this.formInline.account,
           "smtp.password": this.formInline.password,
-          "smtp.ssl": this.SSL,
-          "smtp.tls": this.TLS,
-          "smtp.smtp": this.SMTP,
+          "smtp.ssl": this.formInline.SSL,
+          "smtp.tls": this.formInline.TLS,
+          "smtp.smtp": this.formInline.SMTP,
         };
         this.$refs[formInline].validate((valid) => {
           if (valid) {
@@ -154,14 +168,15 @@
         this.showCancel = false;
         this.showSave = false;
         this.show = true;
+        alert(this.formInline.SSL)
         let param = [
           {paramKey: "smtp.host", paramValue: this.formInline.host, type: "text", sort: 1},
           {paramKey: "smtp.port", paramValue: this.formInline.port, type: "text", sort: 2},
           {paramKey: "smtp.account", paramValue: this.formInline.account, type: "text", sort: 3},
           {paramKey: "smtp.password", paramValue: this.formInline.password, type: "password", sort: 4},
-          {paramKey: "smtp.ssl", paramValue: this.SSL, type: "text", sort: 5},
-          {paramKey: "smtp.tls", paramValue: this.TLS, type: "text", sort: 6},
-          {paramKey: "smtp.smtp", paramValue: this.SMTP, type: "text", sort: 7}
+          {paramKey: "smtp.ssl", paramValue: this.formInline.SSL, type: "text", sort: 5},
+          {paramKey: "smtp.tls", paramValue: this.formInline.TLS, type: "text", sort: 6},
+          {paramKey: "smtp.smtp", paramValue: this.formInline.SMTP, type: "text", sort: 7}
         ]
 
         this.$refs[formInline].validate(valid => {
