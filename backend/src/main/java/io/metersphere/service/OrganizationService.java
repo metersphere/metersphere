@@ -63,6 +63,7 @@ public class OrganizationService {
         if (StringUtils.isNotBlank(request.getName())) {
             criteria.andNameLike(StringUtils.wrapIfMissing(request.getName(), "%"));
         }
+        example.setOrderByClause("update_time desc");
         return organizationMapper.selectByExample(example);
     }
 

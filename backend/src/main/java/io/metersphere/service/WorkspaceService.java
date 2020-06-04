@@ -83,6 +83,7 @@ public class WorkspaceService {
         if (StringUtils.isNotBlank(request.getName())) {
             criteria.andNameLike(StringUtils.wrapIfMissing(request.getName(), "%"));
         }
+        example.setOrderByClause("update_time desc");
         return workspaceMapper.selectByExample(example);
     }
 
