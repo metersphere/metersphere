@@ -83,7 +83,9 @@ public class SystemParameterService {
         } catch (MessagingException e) {
             MSException.throwException(Translator.get("connection_failed"));
         }
+    }
 
-
+    public String getVersion() {
+        return System.getenv("MS_VERSION");
     }
 }
