@@ -78,7 +78,7 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
-        <el-form-item :label="$t('commons.role')" prop="roleIds">
+        <el-form-item :label="$t('commons.role')" prop="roleIds" :rules="{required: true, message: $t('role.please_choose_role'), trigger: 'change'}">
           <el-select v-model="form.roleIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
             <el-option
               v-for="item in form.allroles"
@@ -175,7 +175,7 @@
         // 编辑使填充角色信息
         this.$set(this.form, 'roleIds', roleIds);
       },
-      updateOrgMember() {
+      updateOrgMember(formName) {
         let param = {
           id: this.form.id,
           name: this.form.name,
@@ -184,11 +184,15 @@
           roleIds: this.form.roleIds,
           organizationId: this.currentUser().lastOrganizationId
         }
-        this.result = this.$post("/organization/member/update", param, () => {
-          this.$success(this.$t('commons.modify_success'));
-          this.updateVisible = false;
-          this.initTableData();
-        });
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            this.result = this.$post("/organization/member/update", param, () => {
+              this.$success(this.$t('commons.modify_success'));
+              this.updateVisible = false;
+              this.initTableData();
+            });
+          }
+        })
       },
       del(row) {
         this.$confirm(this.$t('member.remove_member'), '', {
