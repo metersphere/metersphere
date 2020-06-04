@@ -68,19 +68,19 @@ public class LoginController {
                 return ResultHolder.error(Translator.get("login_fail"));
             }
         } catch (ExcessiveAttemptsException e) {
-            msg = "excessive_attempts";
+            msg = Translator.get("excessive_attempts");
         } catch (LockedAccountException e) {
-            msg = "user_locked";
+            msg = Translator.get("user_locked");
         } catch (DisabledAccountException e) {
-            msg = "user_has_been_disabled ";
+            msg = Translator.get("user_has_been_disabled");
         } catch (ExpiredCredentialsException e) {
-            msg = "user_expires. ";
+            msg = Translator.get("user_expires");
         } catch (AuthenticationException e) {
             msg = e.getMessage();
         } catch (UnauthorizedException e) {
-            msg = "not_authorized" + e.getMessage();
+            msg = Translator.get("not_authorized") + e.getMessage();
         }
-        return ResultHolder.error(Translator.get(msg));
+        return ResultHolder.error(msg);
     }
 
     @GetMapping(value = "/signout")
