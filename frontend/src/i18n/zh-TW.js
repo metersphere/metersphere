@@ -4,6 +4,7 @@ export default {
     'organization': '組織',
     'setting': '設置',
     'project': '項目',
+    'about_us': '關於',
     current_project: '當前項目',
     'name': '名稱',
     'description': '描述',

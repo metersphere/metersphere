@@ -4,6 +4,7 @@ export default {
     'organization': 'Organization',
     'setting': 'Setting',
     'project': 'Project',
+    'about_us': 'About Us',
     current_project: 'Current Project',
     'name': 'Name',
     'description': 'Description',

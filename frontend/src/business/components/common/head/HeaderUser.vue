@@ -7,16 +7,21 @@
       <el-dropdown-menu>
         <el-dropdown-item command="personal">{{$t('commons.personal_information')}}</el-dropdown-item>
         <el-dropdown-item command="logout">{{$t('commons.exit_system')}}</el-dropdown-item>
+        <el-dropdown-item command="about">{{$t('commons.about_us')}} <i class="el-icon-info"/></el-dropdown-item>
       </el-dropdown-menu>
     </template>
+
+    <about-us ref="aboutUs"/>
   </el-dropdown>
 </template>
 
 <script>
   import {getCurrentUser} from "../../../../common/js/utils";
+  import AboutUs from "./AboutUs";
 
   export default {
     name: "MsUser",
+    components: {AboutUs},
     computed: {
       currentUser: () => {
         return getCurrentUser();
@@ -34,6 +39,9 @@
               localStorage.clear();
               window.location.href = "/login";
             });
+            break;
+          case "about":
+            this.$refs.aboutUs.open();
             break;
           default:
             break;

@@ -1,9 +1,9 @@
 package io.metersphere.controller;
 
 import io.metersphere.base.domain.UserRole;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.LoginRequest;
 import io.metersphere.dto.UserDTO;
+import io.metersphere.i18n.Translator;
 import io.metersphere.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -64,22 +64,22 @@ public class LoginController {
                 // 返回 userDTO
                 return ResultHolder.success(subject.getSession().getAttribute("user"));
             } else {
-                return ResultHolder.error("login fail");
+                return ResultHolder.error(Translator.get("login_fail"));
             }
         } catch (ExcessiveAttemptsException e) {
-            msg = "excessive attempts";
+            msg = "excessive_attempts";
         } catch (LockedAccountException e) {
-            msg = "the user has been locked.";
+            msg = "user_locked";
         } catch (DisabledAccountException e) {
-            msg = "the user has been disabled. ";
+            msg = "user_has_been_disabled ";
         } catch (ExpiredCredentialsException e) {
-            msg = "user expires. ";
+            msg = "user_expires. ";
         } catch (AuthenticationException e) {
             msg = e.getMessage();
         } catch (UnauthorizedException e) {
-            msg = "not authorized. " + e.getMessage();
+            msg = "not_authorized" + e.getMessage();
         }
-        return ResultHolder.error(msg);
+        return ResultHolder.error(Translator.get(msg));
     }
 
     @GetMapping(value = "/signout")
