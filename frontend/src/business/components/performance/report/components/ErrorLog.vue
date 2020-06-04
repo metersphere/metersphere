@@ -6,11 +6,11 @@
       border
       stripe
       style="width: 100%"
-      :default-sort = "{prop: 'elementLabel'}"
+      :default-sort="{prop: 'elementLabel'}"
     >
       <el-table-column
         prop="errorType"
-        label="Type of Error"
+        label="Type of error"
         sortable>
       </el-table-column>
       <el-table-column
@@ -32,7 +32,7 @@
 
     <div style="margin-top: 40px;"></div>
 
-    <span class="table-title">Top 5 Errors by sampler </span>
+    <span class="table-title">Top 5 Errors</span>
     <el-table
       :data="errorTop5"
       border
@@ -43,7 +43,7 @@
       <el-table-column
         prop="sample"
         label="Sample"
-        width="400"
+        width="200"
       >
       </el-table-column>
       <el-table-column
@@ -54,71 +54,72 @@
       </el-table-column>
       <el-table-column
         prop="errorsAllSize"
-        label="#Errors"
+        label="All Errors"
         width="100"
       >
       </el-table-column>
 
       <el-table-column
         prop="error1"
-        label="Error"
+        label="#1 Error"
         width="400"
       >
       </el-table-column>
       <el-table-column
         prop="error1Size"
-        label="#Errors"
-        width="100"
+        label="#1 Errors Count"
+        width="150"
       >
       </el-table-column>
       <el-table-column
         prop="error2"
-        label="Error"
+        label="#2 Error"
         width="400"
       >
       </el-table-column>
       <el-table-column
         prop="error2Size"
-        label="#Errors"
-        width="100"
+        label="#2 Errors Count"
+        width="150"
       >
       </el-table-column>
+
       <el-table-column
         prop="error3"
-        label="Error"
+        label="#3 Error"
         width="400"
       >
       </el-table-column>
       <el-table-column
         prop="error3Size"
-        label="#Errors"
-        width="100"
+        label="#3 Errors Count"
+        width="150"
       >
       </el-table-column>
+
       <el-table-column
         prop="error4"
-        label="Error"
+        label="#4 Error"
         width="400"
       >
       </el-table-column>
       <el-table-column
         prop="error4Size"
-        label="#Errors"
-        width="100"
+        label="#4 Errors Count"
+        width="150"
       >
       </el-table-column>
 
       <el-table-column
         prop="error5"
-        label="Error"
+        label="#5 Error"
         width="400"
       >
       </el-table-column>
-
       <el-table-column
         prop="error5Size"
-        label="#Errors"
-        width="100"
+        label="#5 Errors Count"
+        width="150"
       >
       </el-table-column>
     </el-table>
@@ -151,7 +152,7 @@
     },
     watch: {
       report: {
-        handler(val){
+        handler(val) {
           let status = val.status;
           this.id = val.id;
           if (status === "Completed") {
@@ -161,7 +162,7 @@
             this.errorTop5 = [];
           }
         },
-        deep:true
+        deep: true
       }
     },
     props: ['report']
