@@ -62,6 +62,7 @@
           report: {},
           reportId: '',
           metric: {},
+          planId: '',
           componentMap: new Map(
             [
               [1, { name: this.$t('test_track.plan_view.base_info'), id: 1 , type: 'system'}],
@@ -70,11 +71,6 @@
               [4, { name: this.$t('test_track.plan_view.custom_component'), id: 4 ,type: 'custom'}]
             ]
           )
-        }
-      },
-      props: {
-        planId: {
-          type: String
         }
       },
       methods: {
@@ -88,7 +84,8 @@
         goBack() {
           this.handleClose();
         },
-        open(id) {
+        open(planId, id) {
+          this.planId = planId;
           if (id) {
             this.reportId = id;
           }
@@ -125,6 +122,7 @@
         },
         handleClose() {
           window.removeEventListener('popstate', this.goBack, false);
+          this.$emit('refresh');
           this.showDialog = false;
         },
         handleEdit() {

@@ -126,7 +126,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         }
 
         ResponseResult responseResult = requestResult.getResponseResult();
-        responseResult.setBody(new String(result.getResponseData(), StandardCharsets.UTF_8));
+        responseResult.setBody(result.getResponseDataAsString());
         responseResult.setHeaders(result.getResponseHeaders());
         responseResult.setLatency(result.getLatency());
         responseResult.setResponseCode(result.getResponseCode());

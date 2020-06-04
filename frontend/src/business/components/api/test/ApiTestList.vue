@@ -139,7 +139,7 @@
       },
       handleCopy(test) {
         this.result = this.$post("/api/copy", {id: test.id}, () => {
-          this.$success(this.$t('commons.delete_success'));
+          this.$success(this.$t('commons.copy_success'));
           this.search();
         });
       },
