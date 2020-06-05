@@ -45,7 +45,7 @@
       return {
         dialogVisible: false,
         githubUrl: 'https://github.com/metersphere/metersphere',
-        websiteUrl: 'https://github.com/metersphere/metersphere',
+        websiteUrl: 'https://metersphere.io',
         version: '1.0.1'
       }
     },
