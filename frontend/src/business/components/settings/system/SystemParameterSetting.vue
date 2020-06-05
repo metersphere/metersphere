@@ -168,7 +168,6 @@
         this.showCancel = false;
         this.showSave = false;
         this.show = true;
-        alert(this.formInline.SSL)
         let param = [
           {paramKey: "smtp.host", paramValue: this.formInline.host, type: "text", sort: 1},
           {paramKey: "smtp.port", paramValue: this.formInline.port, type: "text", sort: 2},
@@ -199,6 +198,7 @@
         this.showCancel = false;
         this.showSave = false;
         this.show = true;
+        this.query();
       }
 
     }
