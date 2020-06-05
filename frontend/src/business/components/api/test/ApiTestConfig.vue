@@ -88,10 +88,9 @@
     methods: {
       init() {
         let projectId;
-        this.isReadOnly = false;
-        if (!checkoutTestManagerOrTestUser()) {
-          this.isReadOnly = true;
-        }
+
+        this.isReadOnly = !checkoutTestManagerOrTestUser();
+
         if (this.id) {
           this.create = false;
           this.getTest(this.id);
