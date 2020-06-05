@@ -208,7 +208,7 @@
       },
       link(row) {
         this.$router.push({
-          path: '/performance/test/view/' + row.id,
+          path: '/performance/test/edit/' + row.id,
         })
       }
     }

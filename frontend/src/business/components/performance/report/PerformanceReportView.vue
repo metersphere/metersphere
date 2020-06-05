@@ -14,10 +14,10 @@
               </el-breadcrumb>
             </el-row>
             <el-row class="ms-report-view-btns">
-              <el-button type="primary" plain size="mini">{{$t('report.test_stop_now')}}</el-button>
-              <el-button type="success" plain size="mini">{{$t('report.test_execute_again')}}</el-button>
-              <el-button type="info" plain size="mini">{{$t('report.export')}}</el-button>
-              <el-button type="warning" plain size="mini">{{$t('report.compare')}}</el-button>
+              <el-button :disabled="isReadOnly" type="primary" plain size="mini">{{$t('report.test_stop_now')}}</el-button>
+              <el-button :disabled="isReadOnly" type="success" plain size="mini">{{$t('report.test_execute_again')}}</el-button>
+              <el-button :disabled="isReadOnly" type="info" plain size="mini">{{$t('report.export')}}</el-button>
+              <el-button :disabled="isReadOnly" type="warning" plain size="mini">{{$t('report.compare')}}</el-button>
             </el-row>
           </el-col>
           <el-col :span="8">
@@ -63,6 +63,7 @@
   import MsReportTestOverview from './components/TestOverview';
   import MsContainer from "../../common/components/MsContainer";
   import MsMainContainer from "../../common/components/MsMainContainer";
+  import {checkoutTestManagerOrTestUser} from "../../../../common/js/utils";
 
   export default {
     name: "PerformanceReportView",
@@ -90,7 +91,8 @@
         minutes: '0',
         seconds: '0',
         title: 'Logging',
-        report: {}
+        report: {},
+        isReadOnly: false
       }
     },
     methods: {
@@ -152,6 +154,10 @@
       }
     },
     created() {
+      this.isReadOnly = false;
+      if (!checkoutTestManagerOrTestUser()) {
+        this.isReadOnly = true;
+      }
       this.reportId = this.$route.path.split('/')[4];
       this.result = this.$get("/performance/report/" + this.reportId, res => {
         let data = res.data;
@@ -169,6 +175,10 @@
     watch: {
       '$route'(to) {
         if (to.name === "perReportView") {
+          this.isReadOnly = false;
+          if (!checkoutTestManagerOrTestUser()) {
+            this.isReadOnly = true;
+          }
           let reportId = to.path.split('/')[4];
           this.reportId = reportId;
           if (reportId) {

@@ -54,6 +54,7 @@
   import {Test} from "./model/ScenarioModel"
   import MsApiReportStatus from "../report/ApiReportStatus";
   import MsApiReportDialog from "./ApiReportDialog";
+  import {checkoutTestManagerOrTestUser} from "../../../../common/js/utils";
 
   export default {
     name: "MsApiTestConfig",
@@ -88,7 +89,7 @@
       init() {
         let projectId;
         this.isReadOnly = false;
-        if (this.$route.path.indexOf('/api/test/view') >= 0) {
+        if (!checkoutTestManagerOrTestUser()) {
           this.isReadOnly = true;
         }
         if (this.id) {

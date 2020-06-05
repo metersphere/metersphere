@@ -166,18 +166,6 @@ const router = new VueRouter({
           }
         },
         {
-          path: "test/view/:testId",
-          name: "viewPerTest",
-          component: EditPerformanceTestPlan,
-          props: {
-            content: (route) => {
-              return {
-                ...route.params
-              }
-            }
-          }
-        },
-        {
           path: "test/:projectId",
           name: "perPlan",
           component: PerformanceTestPlan

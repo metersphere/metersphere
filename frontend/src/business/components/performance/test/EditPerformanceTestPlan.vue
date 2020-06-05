@@ -49,6 +49,7 @@
   import PerformanceAdvancedConfig from "./components/PerformanceAdvancedConfig";
   import MsContainer from "../../common/components/MsContainer";
   import MsMainContainer from "../../common/components/MsMainContainer";
+  import {checkoutTestManagerOrTestUser} from "../../../../common/js/utils";
 
   export default {
     name: "EditPerformanceTestPlan",
@@ -94,12 +95,12 @@
           return;
         }
 
-        if (to.name !== 'editPerTest' && to.name !== 'viewPerTest') {
+        if (to.name !== 'editPerTest') {
           return;
         }
 
         this.isReadOnly = false;
-        if (to.name === 'viewPerTest') {
+        if (!checkoutTestManagerOrTestUser()) {
           this.isReadOnly = true;
         }
 
@@ -118,7 +119,7 @@
     created() {
       let testId = this.$route.params.testId;
       this.isReadOnly = false;
-      if (this.$route.name === 'viewPerTest') {
+      if (!checkoutTestManagerOrTestUser()) {
         this.isReadOnly = true;
       }
       if (testId) {
