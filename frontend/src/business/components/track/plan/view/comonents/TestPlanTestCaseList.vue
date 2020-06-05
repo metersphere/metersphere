@@ -151,7 +151,14 @@
   import NodeBreadcrumb from '../../../common/NodeBreadcrumb';
 
   import {ROLE_TEST_MANAGER, ROLE_TEST_USER, TokenKey} from '../../../../../../common/js/constants';
-  import {_filter, _sort, hasRoles, humpToLine, tableFilter} from '../../../../../../common/js/utils';
+  import {
+    _filter,
+    _sort,
+    checkoutTestManagerOrTestUser,
+    hasRoles,
+    humpToLine,
+    tableFilter
+  } from '../../../../../../common/js/utils';
   import PriorityTableItem from "../../../common/tableItems/planview/PriorityTableItem";
   import StatusTableItem from "../../../common/tableItems/planview/StatusTableItem";
   import TypeTableItem from "../../../common/tableItems/planview/TypeTableItem";
@@ -272,6 +279,9 @@
         },
         handleEdit(testCase, index) {
           this.isReadOnly = false;
+          if (!checkoutTestManagerOrTestUser()) {
+            this.isReadOnly = true;
+          }
           this.$refs.testPlanTestCaseEdit.openTestCaseEdit(testCase);
         },
         handleDelete(testCase) {
