@@ -155,7 +155,6 @@ public class UserController {
     }
 
     @PostMapping("/refresh/{sign}/{sourceId}")
-    @RequiresRoles(RoleConstants.ADMIN)
     public UserDTO refreshSessionUser(@PathVariable String sign, @PathVariable String sourceId) {
         userService.refreshSessionUser(sign, sourceId);
         return SessionUtils.getUser();
