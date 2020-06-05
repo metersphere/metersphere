@@ -1,38 +1,39 @@
-## 欢迎使用 MeterSphere
+# MeterSphere 开源持续测试平台
 
 MeterSphere 是一站式的开源企业级持续测试平台，涵盖测试用例管理、接口测试、性能测试、Mock 服务等功能，兼容JMeter 等开源标准，有效助力开发和测试团队充分利用云弹性进行高度可扩展的自动化测试，加速高质量软件的交付。
 
-## 界面展示
+- 测试跟踪: 远超 TestLink 的使用体验；
+- 接口测试: 类似 Postman 的体验；
+- 性能测试: 兼容 JMeter，支持 Kubernetes 和云环境，轻松支持高并发、分布式的性能测试；
+- 团队协作: 两级租户体系，天然支持团队协作。
+
+UI 展示：
 
 ![UI](./img/ui.png)
 
-点击[这里](https://metersphere.io/index.html)查看更多功能截屏及演示视频
 
 ## 快速开始
 
-以 root 用户 ssh 登录目标服务器, 执行如下命令, 快速安装试用 MeterSphere
+仅需两步快速安装 MeterSphere：
+
+ 1. 准备一台不小于 8 G内存的 64位 Linux 主机；
+ 2. 执行如下命令一键安装 MeterSphere。
 
 ```sh
 curl -sSL https://github.com/metersphere/metersphere/releases/latest/download/quick_start.sh | sh
 ```
 
-点击[这里](https://metersphere.io/docs/quick_start/)查看完整文档
+文档和演示视频：
+
+- [完整文档](https://metersphere.io/docs/)
+- [演示视频](https://metersphere.oss-cn-hangzhou.aliyuncs.com/metersphere_demo.mp4)
 
 ## 技术优势
   
-- Full-Cycle 全生命周期: 能够覆盖从测试计划到测试执行、测试报告分析的不同阶段
-- Automation  & Scalability 自动化 & 扩展性: 支持接口和性能的自动化测试，可以充分利用云弹性实现超大规模的性能测试
-- Continuous Test 持续测试: 能够与持续集成工具无缝集成，支撑企业实现测试左移
-- Collaboration 团队协作: 支持不同规模的测试团队，小到几个人的测试团队、大到数百人的测试中心
-
-## 主要功能
-
-<!-- 添加截图 -->
-- 测试跟踪: 远超 TestLink 的使用体验
-- 接口测试: 类似 Postman 的体验, 天然支持团队协作
-- 性能测试: 兼容 JMeter，支持 Kubernetes 和云环境，
-轻松支持高并发、分布式的性能测试
-- 系统管理: 用户管理、租户管理、权限管理、团队协作
+- 全生命周期: 能够覆盖从测试计划到测试执行、测试报告分析的不同阶段；
+- 自动化 & 扩展性: 支持接口和性能的自动化测试，可以充分利用云弹性实现超大规模的性能测试；
+- 持续测试: 能够与持续集成工具无缝集成，支撑企业实现测试左移；
+- 团队协作: 支持不同规模的测试团队，小到几个人的测试团队、大到数百人的测试中心。
 
 ## 功能列表
 
@@ -162,16 +163,16 @@ curl -sSL https://github.com/metersphere/metersphere/releases/latest/download/qu
 - 基础设施: [Docker](https://www.docker.com/), [Kubernetes](https://kubernetes.io/)
 - 测试引擎: [JMeter](https://jmeter.apache.org/)
 
-## 沟通交流
-
-### 微信公众号
-
-![wechat-official](./img/wechat-official.jpg)
-
-### 微信群
+## 微信群
 
 ![wechat-group](./img/wechat-group.png)
 
-### QQ 群
+## License & Copyright
 
-![qq](./img/qq-group.png)
+Copyright (c) 2014-2020 飞致云 FIT2CLOUD, All rights reserved.
+
+Licensed under The GNU General Public License version 2 (GPLv2)  (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+
+https://www.gnu.org/licenses/gpl-2.0.html
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
