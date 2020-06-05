@@ -1,4 +1,4 @@
-## 欢迎使用 MeterSphere。
+## 欢迎使用 MeterSphere
 
 MeterSphere 是一站式的开源企业级持续测试平台，涵盖测试用例管理、接口测试、性能测试、Mock 服务等功能，兼容JMeter 等开源标准，有效助力开发和测试团队充分利用云弹性进行高度可扩展的自动化测试，加速高质量软件的交付。
 
@@ -7,6 +7,16 @@ MeterSphere 是一站式的开源企业级持续测试平台，涵盖测试用�
 ![UI](./img/ui.png)
 
 点击[这里](https://metersphere.io/index.html)查看更多功能截屏及演示视频
+
+## 快速开始
+
+以 root 用户 ssh 登录目标服务器, 执行如下命令, 快速安装试用 MeterSphere
+
+```sh
+curl -sSL https://github.com/metersphere/metersphere/releases/latest/download/quick_start.sh | sh
+```
+
+点击[这里](https://metersphere.io/docs/quick_start/)查看完整文档
 
 ## 技术优势
   
@@ -151,3 +161,17 @@ MeterSphere 是一站式的开源企业级持续测试平台，涵盖测试用�
 - 中间件: [MySQL](https://www.mysql.com/), [Kafka](https://kafka.apache.org/)
 - 基础设施: [Docker](https://www.docker.com/), [Kubernetes](https://kubernetes.io/)
 - 测试引擎: [JMeter](https://jmeter.apache.org/)
+
+## 沟通交流
+
+### 微信公众号
+
+![wechat-official](../img/wechat-official.jpg)
+
+### 微信群
+
+![wechat-group](../img/wechat-group.jpg)
+
+### QQ 群
+
+![qq](../img/qq-group.png)
