@@ -20,8 +20,6 @@ export default {
         callback: () => {
           window.location.href = "/login"
         }
-      }).then(r => {
-        window.location.href = "/login"
       });
     };
 
