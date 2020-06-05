@@ -21,10 +21,12 @@ import io.metersphere.i18n.Translator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -135,6 +137,7 @@ public class WorkspaceService {
 
     public void checkWorkspaceOwner(String workspaceId) {
         checkWorkspaceIsExist(workspaceId);
+        int size = 0;
         WorkspaceExample example = new WorkspaceExample();
         SessionUser sessionUser = SessionUtils.getUser();
         UserDTO user = userService.getUserDTO(sessionUser.getId());
@@ -142,15 +145,18 @@ public class WorkspaceService {
                 .filter(ur -> RoleConstants.ORG_ADMIN.equals(ur.getRoleId()))
                 .map(UserRole::getSourceId)
                 .collect(Collectors.toList());
-        example.createCriteria()
-                .andOrganizationIdIn(orgIds)
-                .andIdEqualTo(workspaceId);
+        if (!CollectionUtils.isEmpty(orgIds)) {
+            example.createCriteria()
+                    .andOrganizationIdIn(orgIds)
+                    .andIdEqualTo(workspaceId);
+            size = (int) workspaceMapper.countByExample(example);
+        }
         List<String> wsIds = user.getUserRoles().stream()
                 .filter(ur -> RoleConstants.TEST_MANAGER.equals(ur.getRoleId()))
                 .map(UserRole::getSourceId)
                 .collect(Collectors.toList());
         boolean contains = wsIds.contains(workspaceId);
-        if (workspaceMapper.countByExample(example) == 0 && !contains) {
+        if (size == 0 && !contains) {
             MSException.throwException(Translator.get("workspace_does_not_belong_to_user"));
         }
     }
