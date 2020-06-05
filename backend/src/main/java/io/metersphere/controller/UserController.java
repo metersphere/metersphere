@@ -17,6 +17,7 @@ import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserRoleDTO;
+import io.metersphere.i18n.Translator;
 import io.metersphere.service.OrganizationService;
 import io.metersphere.service.UserService;
 import io.metersphere.service.WorkspaceService;
@@ -206,7 +207,7 @@ public class UserController {
         workspaceService.checkWorkspaceOwner(workspaceId);
         String currentUserId = SessionUtils.getUser().getId();
         if (StringUtils.equals(userId, currentUserId)) {
-            MSException.throwException("Insufficient permissions!");
+            MSException.throwException(Translator.get("cannot_remove_current"));
         }
         userService.deleteMember(workspaceId, userId);
     }
@@ -230,7 +231,7 @@ public class UserController {
         organizationService.checkOrgOwner(organizationId);
         String currentUserId = SessionUtils.getUser().getId();
         if (StringUtils.equals(userId, currentUserId)) {
-            MSException.throwException("Insufficient permissions!");
+            MSException.throwException(Translator.get("cannot_remove_current"));
         }
         userService.delOrganizationMember(organizationId, userId);
     }
