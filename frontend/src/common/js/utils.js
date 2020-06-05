@@ -37,6 +37,11 @@ export function checkoutCurrentWorkspace() {
   return user.userRoles.filter(ur => hasRoles(ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER) && user.lastWorkspaceId === ur.sourceId).length > 0;
 }
 
+export function checkoutTestManagerOrTestUser() {
+  let user = getCurrentUser();
+  return user.userRoles.filter(ur => hasRoles(ROLE_TEST_MANAGER, ROLE_TEST_USER) && user.lastWorkspaceId === ur.sourceId).length > 0;
+}
+
 export function getCurrentOrganizationId() {
   let user = getCurrentUser();
   return user.lastOrganizationId;

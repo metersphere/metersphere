@@ -61,7 +61,7 @@
   import MsContainer from "../../common/components/MsContainer";
   import MsAsideContainer from "../../common/components/MsAsideContainer";
   import MsMainContainer from "../../common/components/MsMainContainer";
-  import {hasRoles} from "../../../../common/js/utils";
+  import {checkoutTestManagerOrTestUser, hasRoles} from "../../../../common/js/utils";
 
   export default {
     name: "TestCase",
@@ -86,32 +86,33 @@
       }
     },
     mounted() {
-      this.getProjects();
-      this.refresh();
-      if (this.$route.path.indexOf("/track/case/edit") >= 0 || this.$route.path.indexOf("/track/case/create") >= 0){
-        this.openRecentTestCaseEditDialog();
-        this.$router.push('/track/case/all');
-      } else if (this.$route.params.projectId){
-        this.getProjectById(this.$route.params.projectId)
-      }
+      this.init(this.$route);
     },
     watch: {
       '$route'(to, from) {
-        let path = to.path;
-        if (path.indexOf("/track/case/edit") >= 0 || path.indexOf("/track/case/create") >= 0){
-          this.openRecentTestCaseEditDialog();
-          this.$router.push('/track/case/all');
-          this.getProjects();
-        } else if (to.params.projectId){
-          this.getProjectById(to.params.projectId);
-          this.getProjects();
-        }
+        this.init(to);
       },
       currentProject() {
         this.refresh();
       }
     },
     methods: {
+      init(route) {
+        let path = route.path;
+        if (path.indexOf("/track/case/edit") >= 0 || path.indexOf("/track/case/create") >= 0){
+          this.getProjects();
+          this.testCaseReadOnly = false;
+          if (!checkoutTestManagerOrTestUser()) {
+            this.testCaseReadOnly = true;
+          }
+          let caseId = this.$route.params.caseId;
+          this.openRecentTestCaseEditDialog(caseId);
+          this.$router.push('/track/case/all');
+        } else if (route.params.projectId){
+          this.getProjects();
+          this.getProjectById(route.params.projectId);
+        }
+      },
       getProjects() {
           this.$get("/project/listAll", (response) => {
             this.projects = response.data;
@@ -187,18 +188,15 @@
         this.$refs.testCaseList.initTableData();
         this.getNodeTree();
       },
-      openRecentTestCaseEditDialog() {
-        let caseId = this.$route.params.caseId;
+      openRecentTestCaseEditDialog(caseId) {
         if (caseId) {
           this.getProjectByCaseId(caseId);
           this.$get('/test/case/get/' + caseId, response => {
             if (response.data) {
-              this.testCaseReadOnly = false;
               this.$refs.testCaseEditDialog.open(response.data);
             }
           });
         } else {
-          this.testCaseReadOnly = false;
           this.$refs.testCaseEditDialog.open();
         }
       },

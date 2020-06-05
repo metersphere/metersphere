@@ -4,11 +4,11 @@
       <el-card v-loading="result.loading">
         <el-row>
           <el-col :span="10">
-            <el-input :placeholder="$t('load_test.input_name')" v-model="testPlan.name" class="input-with-select"
+            <el-input :disabled="isReadOnly" :placeholder="$t('load_test.input_name')" v-model="testPlan.name" class="input-with-select"
                       maxlength="30"
             >
               <template v-slot:prepend>
-                <el-select v-model="testPlan.projectId" :placeholder="$t('load_test.select_project')">
+                <el-select :disabled="isReadOnly" v-model="testPlan.projectId" :placeholder="$t('load_test.select_project')">
                   <el-option
                     v-for="item in projects"
                     :key="item.id"
@@ -20,22 +20,22 @@
             </el-input>
           </el-col>
           <el-col :span="12" :offset="2">
-            <el-button type="primary" plain @click="save">{{$t('commons.save')}}</el-button>
-            <el-button type="primary" plain @click="saveAndRun">{{$t('load_test.save_and_run')}}</el-button>
-            <el-button type="warning" plain @click="cancel">{{$t('commons.cancel')}}</el-button>
+            <el-button :disabled="isReadOnly" type="primary" plain @click="save">{{$t('commons.save')}}</el-button>
+            <el-button :disabled="isReadOnly" type="primary" plain @click="saveAndRun">{{$t('load_test.save_and_run')}}</el-button>
+            <el-button :disabled="isReadOnly" type="warning" plain @click="cancel">{{$t('commons.cancel')}}</el-button>
           </el-col>
         </el-row>
 
 
         <el-tabs class="testplan-config" v-model="active" type="border-card" :stretch="true">
           <el-tab-pane :label="$t('load_test.basic_config')">
-            <performance-basic-config :test-plan="testPlan" ref="basicConfig"/>
+            <performance-basic-config :is-read-only="isReadOnly" :test-plan="testPlan" ref="basicConfig"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.pressure_config')">
-            <performance-pressure-config :test-plan="testPlan" :test-id="testId" ref="pressureConfig" @changeActive="changeTabActive"/>
+            <performance-pressure-config :is-read-only="isReadOnly" :test-plan="testPlan" :test-id="testId" ref="pressureConfig" @changeActive="changeTabActive"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.advanced_config')" class="advanced-config">
-            <performance-advanced-config :test-id="testId" ref="advancedConfig"/>
+            <performance-advanced-config :read-only="isReadOnly" :test-id="testId" ref="advancedConfig"/>
           </el-tab-pane>
         </el-tabs>
       </el-card>
@@ -49,6 +49,7 @@
   import PerformanceAdvancedConfig from "./components/PerformanceAdvancedConfig";
   import MsContainer from "../../common/components/MsContainer";
   import MsMainContainer from "../../common/components/MsMainContainer";
+  import {checkoutTestManagerOrTestUser} from "../../../../common/js/utils";
 
   export default {
     name: "EditPerformanceTestPlan",
@@ -70,6 +71,7 @@
         projects: [],
         active: '0',
         testId: '',
+        isReadOnly: false,
         tabs: [{
           title: this.$t('load_test.basic_config'),
           id: '0',
@@ -97,6 +99,11 @@
           return;
         }
 
+        this.isReadOnly = false;
+        if (!checkoutTestManagerOrTestUser()) {
+          this.isReadOnly = true;
+        }
+
         let testId = to.params.testId;
         if (testId) {
           this.testId = testId;
@@ -111,6 +118,10 @@
     },
     created() {
       let testId = this.$route.params.testId;
+      this.isReadOnly = false;
+      if (!checkoutTestManagerOrTestUser()) {
+        this.isReadOnly = true;
+      }
       if (testId) {
         this.testId = testId;
         this.result = this.$get('/performance/get/' + testId, response => {
