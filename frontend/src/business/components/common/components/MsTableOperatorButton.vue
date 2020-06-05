@@ -1,6 +1,6 @@
 <template>
   <ms-tip-button
-    :disabled="disabled"
+    :disabled="disabled || isReadOnly"
     @click="exec"
     @clickStop="clickStop"
     :type="type"
@@ -16,6 +16,11 @@
   export default {
     name: "MsTableOperatorButton",
     components: {MsTipButton, MsTableButton},
+    data() {
+      return {
+        isReadOnly: false
+      }
+    },
     props: {
       icon: {
         type: String,
@@ -39,7 +44,7 @@
     },
     mounted() {
       if (this.isTesterPermission && !hasRoles(ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
-        this.disabled = true;
+        this.isReadOnly = true;
       }
     },
     methods: {
