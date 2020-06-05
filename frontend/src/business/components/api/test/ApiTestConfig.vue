@@ -5,27 +5,27 @@
         <el-container class="test-container" v-loading="result.loading">
           <el-header>
             <el-row type="flex" align="middle">
-              <el-input class="test-name" v-model="test.name" maxlength="60" :placeholder="$t('api_test.input_name')"
+              <el-input :disabled="isReadOnly" class="test-name" v-model="test.name" maxlength="60" :placeholder="$t('api_test.input_name')"
                         show-word-limit>
-                <el-select class="test-project" v-model="test.projectId" slot="prepend"
+                <el-select :disabled="isReadOnly" class="test-project" v-model="test.projectId" slot="prepend"
                            :placeholder="$t('api_test.select_project')">
                   <el-option v-for="project in projects" :key="project.id" :label="project.name" :value="project.id"/>
                 </el-select>
               </el-input>
 
-              <el-button type="primary" plain :disabled="isDisabled" @click="saveTest">
+              <el-button type="primary" plain :disabled="isDisabled || isReadOnly" @click="saveTest">
                 {{$t('commons.save')}}
               </el-button>
 
-              <el-button type="primary" plain v-if="!isShowRun" :disabled="isDisabled" @click="saveRunTest">
+              <el-button type="primary" plain v-if="!isShowRun" :disabled="isDisabled || isReadOnly" @click="saveRunTest">
                 {{$t('load_test.save_and_run')}}
               </el-button>
 
-              <el-button type="primary" plain v-if="isShowRun" @click="runTest">
+              <el-button :disabled="isReadOnly" type="primary" plain v-if="isShowRun" @click="runTest">
                 {{$t('api_test.run')}}
               </el-button>
 
-              <el-button type="warning" plain @click="cancel">{{$t('commons.cancel')}}</el-button>
+              <el-button :disabled="isReadOnly" type="warning" plain @click="cancel">{{$t('commons.cancel')}}</el-button>
 
               <el-dropdown trigger="click" @command="handleCommand">
                 <el-button class="el-dropdown-link more" icon="el-icon-more" plain/>
@@ -33,7 +33,7 @@
                   <el-dropdown-item command="report" :disabled="test.status !== 'Completed'">
                     {{$t('api_report.title')}}
                   </el-dropdown-item>
-                  <el-dropdown-item command="performance" :disabled="create">
+                  <el-dropdown-item command="performance" :disabled="create || isReadOnly">
                     {{$t('api_test.create_performance_test')}}
                   </el-dropdown-item>
                 </el-dropdown-menu>
@@ -42,7 +42,7 @@
               <ms-api-report-dialog :test-id="id" ref="reportDialog"/>
             </el-row>
           </el-header>
-          <ms-api-scenario-config :scenarios="test.scenarioDefinition" ref="config"/>
+          <ms-api-scenario-config :is-read-only="isReadOnly" :scenarios="test.scenarioDefinition" ref="config"/>
         </el-container>
       </el-card>
     </div>
@@ -69,7 +69,8 @@
         result: {},
         projects: [],
         change: false,
-        test: new Test()
+        test: new Test(),
+        isReadOnly: false
       }
     },
 
@@ -86,6 +87,10 @@
     methods: {
       init() {
         let projectId;
+        this.isReadOnly = false;
+        if (this.$route.path.indexOf('/api/test/view') >= 0) {
+          this.isReadOnly = true;
+        }
         if (this.id) {
           this.create = false;
           this.getTest(this.id);
