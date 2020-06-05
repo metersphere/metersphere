@@ -407,6 +407,7 @@ export default {
       save_create_continue: "Save and create continue",
       please_create_project: "No project available, please create the project first",
       create_module_first: "Please create module first",
+      relate_test: "Relate test",
       import: {
         import: "Import test case",
         case_import: "Import test case",
