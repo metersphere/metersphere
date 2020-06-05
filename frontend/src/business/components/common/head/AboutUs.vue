@@ -1,8 +1,7 @@
 <template>
   <el-dialog
     :title="$t('commons.about_us')"
-    :visible.sync="dialogVisible"
-    width="20%">
+    :visible.sync="dialogVisible" class="about-us">
 
     <el-row>
       <el-col>
@@ -97,13 +96,12 @@
     margin-bottom: 3%;
   }
 
-  .logo:hover {
-    color: deepskyblue;
-  }
-
   .url {
     margin-left: 5px;
   }
 
+  .about-us >>> .el-dialog {
+    width: 500px;
+  }
 
 </style>
