@@ -70,12 +70,12 @@
             <el-row>
               <el-col :span="9">
                 <el-form-item prop="masterUrl" label="Master URL">
-                  <el-input v-model="item.masterUrl" autocomplete="off"/>
+                  <el-input v-model="item.masterUrl" autocomplete="new-password"/>
                 </el-form-item>
               </el-col>
               <el-col :span="9">
                 <el-form-item prop="password" label="Token" style="padding-left: 20px">
-                  <el-input v-model="item.token" show-password autocomplete="off"/>
+                  <el-input v-model="item.token"   autocomplete="new-password"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">

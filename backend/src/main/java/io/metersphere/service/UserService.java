@@ -141,8 +141,8 @@ public class UserService {
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(user, userDTO);
         UserRoleDTO userRole = getUserRole(userId);
-        userDTO.setUserRoles(userRole.getUserRoles());
-        userDTO.setRoles(userRole.getRoles());
+        userDTO.setUserRoles(Optional.ofNullable(userRole.getUserRoles()).orElse(new ArrayList<>()));
+        userDTO.setRoles(Optional.ofNullable(userRole.getRoles()).orElse(new ArrayList<>()));
         return userDTO;
     }
 
