@@ -123,6 +123,10 @@ public class OrganizationService {
                 list.add(r.getParentId());
             }
         });
+
+        // ignore list size is 0
+        list.add("no_such_id");
+
         OrganizationExample organizationExample = new OrganizationExample();
         organizationExample.createCriteria().andIdIn(list);
         return organizationMapper.selectByExample(organizationExample);

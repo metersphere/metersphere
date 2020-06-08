@@ -167,7 +167,7 @@
               </el-row>
 
               <el-row v-if="testCase.issues && testCase.issues.hasIssues">
-                <el-col :span="20" :offset="1" class="step-edit">
+                <el-col :span="20" :offset="1" class="issues-edit">
                   <ckeditor :editor="editor" :disabled="isReadOnly" :config="editorConfig" v-model="testCase.issues.content"/>
                 </el-col>
               </el-row>
@@ -425,7 +425,7 @@
     line-height: 50px;
   }
 
-  .step-edit >>> p {
+  .issues-edit >>> p {
     line-height: 16px;
   }
 
@@ -456,5 +456,4 @@
   .el-switch >>> .el-switch__label.is-active {
     color: #409EFF;
   }
-
 </style>

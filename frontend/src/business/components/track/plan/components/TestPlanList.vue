@@ -29,23 +29,24 @@
         :label="$t('test_track.plan.plan_status')"
         show-overflow-tooltip>
         <template v-slot:default="scope">
-          <el-dropdown class="test-case-status" @command="statusChange">
-            <span class="el-dropdown-link">
-              <plan-status-table-item :value="scope.row.status"/>
-            </span>
-            <el-dropdown-menu slot="dropdown" chang>
-              <el-dropdown-item :command="{id: scope.row.id, status: 'Prepare'}">
-                {{$t('test_track.plan.plan_status_prepare')}}
-              </el-dropdown-item>
-              <el-dropdown-item :command="{id: scope.row.id, status: 'Underway'}">
-                {{$t('test_track.plan.plan_status_running')}}
-              </el-dropdown-item>
-              <el-dropdown-item :command="{id: scope.row.id, status: 'Completed'}">
-                {{$t('test_track.plan.plan_status_completed')}}
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
-
+          <div @click.stop="false">
+            <el-dropdown class="test-case-status" @command="statusChange">
+              <span class="el-dropdown-link">
+                <plan-status-table-item :value="scope.row.status"/>
+              </span>
+              <el-dropdown-menu slot="dropdown" chang>
+                <el-dropdown-item :command="{id: scope.row.id, status: 'Prepare'}">
+                  {{$t('test_track.plan.plan_status_prepare')}}
+                </el-dropdown-item>
+                <el-dropdown-item :command="{id: scope.row.id, status: 'Underway'}">
+                  {{$t('test_track.plan.plan_status_running')}}
+                </el-dropdown-item>
+                <el-dropdown-item :command="{id: scope.row.id, status: 'Completed'}">
+                  {{$t('test_track.plan.plan_status_completed')}}
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </div>
         </template>
       </el-table-column>
       <el-table-column

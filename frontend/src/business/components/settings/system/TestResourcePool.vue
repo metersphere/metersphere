@@ -301,9 +301,6 @@
         });
       },
       createTestResourcePool(createTestResourcePoolForm) {
-        if (this.result.loading) {
-          return;
-        }
         this.$refs[createTestResourcePoolForm].validate(valid => {
           if (valid) {
             let vri = this.validateResourceInfo();
@@ -340,9 +337,6 @@
         this.form.resources = resources;
       },
       updateTestResourcePool(updateTestResourcePoolForm) {
-        if (this.result.loading) {
-          return;
-        }
         this.$refs[updateTestResourcePoolForm].validate(valid => {
           if (valid) {
             let vri = this.validateResourceInfo();

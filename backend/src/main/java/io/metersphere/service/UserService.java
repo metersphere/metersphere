@@ -195,6 +195,17 @@ public class UserService {
         String userId = user.getId();
         UserRoleExample userRoleExample = new UserRoleExample();
         userRoleExample.createCriteria().andUserIdEqualTo(userId);
+        List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
+        List<String> list = userRoles.stream().map(UserRole::getSourceId).collect(Collectors.toList());
+
+        if (!CollectionUtils.isEmpty(list)) {
+            if (list.contains(user.getLastWorkspaceId()) || list.contains(user.getLastOrganizationId())) {
+                user.setLastOrganizationId("");
+                user.setLastWorkspaceId("");
+                userMapper.updateByPrimaryKeySelective(user);
+            }
+        }
+
         userRoleMapper.deleteByExample(userRoleExample);
         List<Map<String, Object>> roles = user.getRoles();
         if (!roles.isEmpty()) {
@@ -275,6 +286,14 @@ public class UserService {
         UserRoleExample example = new UserRoleExample();
         example.createCriteria().andRoleIdLike("%test%")
                 .andUserIdEqualTo(userId).andSourceIdEqualTo(workspaceId);
+
+        User user = userMapper.selectByPrimaryKey(userId);
+        if (StringUtils.equals(workspaceId, user.getLastWorkspaceId())) {
+            user.setLastWorkspaceId("");
+            user.setLastOrganizationId("");
+            userMapper.updateByPrimaryKeySelective(user);
+        }
+
         userRoleMapper.deleteByExample(example);
     }
 
@@ -305,6 +324,14 @@ public class UserService {
     public void delOrganizationMember(String organizationId, String userId) {
         UserRoleExample userRoleExample = new UserRoleExample();
         userRoleExample.createCriteria().andRoleIdLike("%org%").andUserIdEqualTo(userId).andSourceIdEqualTo(organizationId);
+
+        User user = userMapper.selectByPrimaryKey(userId);
+        if (StringUtils.equals(organizationId, user.getLastOrganizationId())) {
+            user.setLastWorkspaceId("");
+            user.setLastOrganizationId("");
+            userMapper.updateByPrimaryKeySelective(user);
+        }
+
         userRoleMapper.deleteByExample(userRoleExample);
     }
 
