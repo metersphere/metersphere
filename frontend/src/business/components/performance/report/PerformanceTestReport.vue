@@ -23,7 +23,7 @@
           <el-table-column
             prop="name"
             :label="$t('commons.name')"
-            width="200"
+            width="150"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
