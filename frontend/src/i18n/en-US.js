@@ -129,6 +129,7 @@ export default {
     'recent': 'Recent Projects',
     'create': 'Create Project',
     'edit': 'Edit Project',
+    'delete': 'Delete project',
     'delete_confirm': 'Are you sure you want to delete this project?',
     'delete_tip': 'These resources will be deleted:',
     'search_by_name': 'Search by name',

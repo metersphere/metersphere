@@ -127,6 +127,7 @@ export default {
     'recent': '最近的項目',
     'create': '創建項目',
     'edit': '編輯項目',
+    'delete': '刪除項目',
     'delete_confirm': '確定要刪除這個項目嗎?',
     'delete_tip': '刪除該項目，會刪除以下資源：',
     'search_by_name': '根據名稱搜索',

@@ -127,6 +127,7 @@ export default {
     'recent': '最近的项目',
     'create': '创建项目',
     'edit': '编辑项目',
+    'delete': '删除项目',
     'delete_confirm': '确定要删除这个项目吗?',
     'delete_tip': '删除该项目，会删除以下资源：',
     'search_by_name': '根据名称搜索',

@@ -9,7 +9,6 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.ProjectRequest;
 import io.metersphere.dto.ProjectDTO;
-import io.metersphere.dto.ProjectRelatedResourceDTO;
 import io.metersphere.service.ProjectService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -71,11 +70,5 @@ public class ProjectController {
     @RequiresRoles(RoleConstants.TEST_MANAGER)
     public void updateProject(@RequestBody Project Project) {
         projectService.updateProject(Project);
-    }
-
-    @GetMapping("/related/resource/{projectId}")
-    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
-    public ProjectRelatedResourceDTO getRelatedResource(@PathVariable String projectId) {
-        return projectService.getRelatedResource(projectId);
     }
 }

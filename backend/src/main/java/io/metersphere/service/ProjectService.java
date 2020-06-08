@@ -14,7 +14,6 @@ import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.ProjectRequest;
 import io.metersphere.dto.ProjectDTO;
-import io.metersphere.dto.ProjectRelatedResourceDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
@@ -25,11 +24,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -161,14 +159,5 @@ public class ProjectService {
 
     public Project getProjectById(String id) {
         return projectMapper.selectByPrimaryKey(id);
-    }
-
-    public ProjectRelatedResourceDTO getRelatedResource(String projectId) {
-        ProjectRelatedResourceDTO projectRelatedResource = new ProjectRelatedResourceDTO();
-        projectRelatedResource.setTestCaseCount(extTestCaseMapper.countByProjectId(projectId));
-        projectRelatedResource.setTestPlanCount(extTestPlanMapper.countByProjectId(projectId));
-        projectRelatedResource.setLoadTestCount(extLoadTestMapperMapper.countByProjectId(projectId));
-        projectRelatedResource.setApiTestCount(extApiTestMapper.countByProjectId(projectId));
-        return projectRelatedResource;
     }
 }
