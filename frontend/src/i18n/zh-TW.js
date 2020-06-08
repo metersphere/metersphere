@@ -95,6 +95,8 @@ export default {
     'remove_success': '移除成功',
     'tips': '认認證資訊已過期,請重新登入',
     'not_performed_yet': '尚未執行',
+    'incorrect_input': '輸入內容不正確',
+    'delete_confirm': '請輸入以下內容，確認刪除：',
   },
   workspace: {
     'create': '創建工作空間',
@@ -445,6 +447,7 @@ export default {
       plan_status_running: "進行中",
       plan_status_completed: "已完成",
       plan_delete_confirm: "將刪除該測試計劃下所有用例，確認刪除測試計劃: ",
+      plan_delete: "刪除計劃",
     },
     module: {
       search: "搜索模塊",
