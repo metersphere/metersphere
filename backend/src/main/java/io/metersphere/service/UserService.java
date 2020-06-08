@@ -183,6 +183,11 @@ public class UserService {
         if (StringUtils.equals(user.getId(), userId)) {
             MSException.throwException(Translator.get("cannot_delete_current_user"));
         }
+
+        UserRoleExample example = new UserRoleExample();
+        example.createCriteria().andUserIdEqualTo(userId);
+        userRoleMapper.deleteByExample(example);
+
         userMapper.deleteByPrimaryKey(userId);
     }
 
