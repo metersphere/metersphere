@@ -16,7 +16,7 @@
           </div>
           <div class="form">
             <el-form-item prop="username">
-              <el-input v-model="form.username" :placeholder="$t('commons.username')" autofocus autocomplete="off"/>
+              <el-input v-model="form.username" :placeholder="$t('commons.login_username')" autofocus autocomplete="off"/>
             </el-form-item>
             <el-form-item prop="password">
               <el-input v-model="form.password" :placeholder="$t('commons.password')" show-password autocomplete="off"
@@ -64,7 +64,7 @@
         },
         rules: {
           username: [
-            {required: true, message: this.$t('commons.input_username'), trigger: 'blur'},
+            {required: true, message: this.$t('commons.input_login_username'), trigger: 'blur'},
           ],
           password: [
             {required: true, message: this.$t('commons.input_password'), trigger: 'blur'},

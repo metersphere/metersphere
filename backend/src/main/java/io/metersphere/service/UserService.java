@@ -171,7 +171,9 @@ public class UserService {
     }
 
     public List<User> getUserList() {
-        return userMapper.selectByExample(null);
+        UserExample example = new UserExample();
+        example.setOrderByClause("update_time desc");
+        return userMapper.selectByExample(example);
     }
 
     public List<User> getUserListWithRequest(io.metersphere.controller.request.UserRequest request) {

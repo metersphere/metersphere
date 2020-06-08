@@ -66,7 +66,6 @@ export default {
     'host_cannot_be_empty': 'Host cannot be empty',
     'port_cannot_be_empty': 'Port cannot be empty',
     'account_cannot_be_empty': 'Account cannot be empty',
-
     'title': 'Title',
     'custom': 'Custom',
     'select_date': 'Select date',
@@ -98,6 +97,8 @@ export default {
     'not_performed_yet': 'Not performed yet',
     'incorrect_input': 'Incorrect input',
     'delete_confirm': 'Please enter the following to confirm deletion:',
+    'login_username': 'ID or email',
+    'input_login_username': 'Please input the user ID or email',
   },
   workspace: {
     'create': 'Create Workspace',
