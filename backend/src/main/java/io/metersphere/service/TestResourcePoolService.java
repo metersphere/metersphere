@@ -1,10 +1,12 @@
 package io.metersphere.service;
 
 import com.alibaba.fastjson.JSON;
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.TestResource;
+import io.metersphere.base.domain.TestResourceExample;
+import io.metersphere.base.domain.TestResourcePool;
+import io.metersphere.base.domain.TestResourcePoolExample;
 import io.metersphere.base.mapper.TestResourceMapper;
 import io.metersphere.base.mapper.TestResourcePoolMapper;
-import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
@@ -12,7 +14,6 @@ import io.metersphere.controller.request.resourcepool.QueryResourcePoolRequest;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.dto.TestResourcePoolDTO;
 import io.metersphere.i18n.Translator;
-import io.metersphere.performance.engine.kubernetes.provider.KubernetesProvider;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -145,9 +146,6 @@ public class TestResourcePoolService {
     }
 
     private boolean validateTestResourcePool(TestResourcePoolDTO testResourcePool) {
-        if (StringUtils.equalsIgnoreCase(testResourcePool.getType(), ResourcePoolTypeEnum.K8S.name())) {
-            return validateK8s(testResourcePool);
-        }
         return validateNodes(testResourcePool);
     }
 
@@ -192,31 +190,6 @@ public class TestResourcePoolService {
         } catch (Exception e) {
             return false;
         }
-    }
-
-    private boolean validateK8s(TestResourcePoolDTO testResourcePool) {
-
-        if (CollectionUtils.isEmpty(testResourcePool.getResources()) || testResourcePool.getResources().size() != 1) {
-            throw new RuntimeException(Translator.get("only_one_k8s"));
-        }
-
-        TestResource testResource = testResourcePool.getResources().get(0);
-        testResource.setTestResourcePoolId(testResourcePool.getId());
-        boolean isValid;
-        try {
-            KubernetesProvider provider = new KubernetesProvider(testResource.getConfiguration());
-            provider.validateCredential();
-            testResource.setStatus(VALID.name());
-            testResourcePool.setStatus(VALID.name());
-            isValid = true;
-        } catch (Exception e) {
-            testResource.setStatus(ResourceStatusEnum.INVALID.name());
-            testResourcePool.setStatus(ResourceStatusEnum.INVALID.name());
-            isValid = false;
-        }
-        deleteTestResource(testResourcePool.getId());
-        updateTestResource(testResource);
-        return isValid;
     }
 
     private void updateTestResource(TestResource testResource) {

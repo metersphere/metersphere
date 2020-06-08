@@ -12,7 +12,6 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.config.KafkaProperties;
 import io.metersphere.i18n.Translator;
 import io.metersphere.performance.engine.docker.DockerTestEngine;
-import io.metersphere.performance.engine.kubernetes.KubernetesTestEngine;
 import io.metersphere.performance.parse.EngineSourceParser;
 import io.metersphere.performance.parse.EngineSourceParserFactory;
 import io.metersphere.service.FileService;
@@ -47,11 +46,8 @@ public class EngineFactory {
 
         final ResourcePoolTypeEnum type = ResourcePoolTypeEnum.valueOf(resourcePool.getType());
 
-        switch (type) {
-            case NODE:
-                return new DockerTestEngine(loadTest);
-            case K8S:
-                return new KubernetesTestEngine(loadTest);
+        if (type == ResourcePoolTypeEnum.NODE) {
+            return new DockerTestEngine(loadTest);
         }
         return null;
     }

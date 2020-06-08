@@ -18,16 +18,9 @@
         <shiro.version>1.5.1</shiro.version>
         <java.version>1.8</java.version>
         <jmeter.version>5.2.1</jmeter.version>
-        <kubernetes-client.version>4.9.0</kubernetes-client.version>
     </properties>
 
     <dependencies>
-        <!-- kubernetes client-->
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>kubernetes-client</artifactId>
-            <version>${kubernetes-client.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
