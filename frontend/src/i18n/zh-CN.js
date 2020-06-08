@@ -95,7 +95,8 @@ export default {
     'remove_success': '移除成功',
     'tips': '认证信息已过期，请重新登录',
     'not_performed_yet': '尚未执行',
-
+    'incorrect_input': '输入内容不正确',
+    'delete_confirm': '请输入以下内容，确认删除：',
   },
   workspace: {
     'create': '创建工作空间',
@@ -405,6 +406,7 @@ export default {
       save_create_continue: "保存并继续创建",
       please_create_project: "暂无项目，请先创建项目",
       create_module_first: "请先新建模块",
+      relate_test: "关联测试",
       import: {
         import: "导入用例",
         case_import: "导入测试用例",
@@ -444,6 +446,7 @@ export default {
       plan_status_running: "进行中",
       plan_status_completed: "已完成",
       plan_delete_confirm: "将删除该测试计划下所有用例，确认删除测试计划: ",
+      plan_delete: "删除计划",
     },
     module: {
       search: "搜索模块",

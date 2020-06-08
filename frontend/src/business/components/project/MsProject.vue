@@ -7,8 +7,8 @@
                            :create-tip="btnTips" :title="title"/>
         </template>
         <el-table @row-click="link" :data="items" style="width: 100%" @sort-change="sort">
-          <el-table-column prop="name" :label="$t('commons.name')"/>
-          <el-table-column prop="description" :label="$t('commons.description')"/>
+          <el-table-column prop="name" :label="$t('commons.name')" width="250" show-overflow-tooltip/>
+          <el-table-column prop="description" :label="$t('commons.description')" show-overflow-tooltip/>
           <!--<el-table-column prop="workspaceName" :label="$t('project.owning_workspace')"/>-->
           <el-table-column
             sortable

@@ -96,7 +96,8 @@ export default {
     'remove_success': 'Remove Success',
     'tips': 'The authentication information has expired, please login again',
     'not_performed_yet': 'Not performed yet',
-
+    'incorrect_input': 'Incorrect input',
+    'delete_confirm': 'Please enter the following to confirm deletion:',
   },
   workspace: {
     'create': 'Create Workspace',
@@ -407,6 +408,7 @@ export default {
       save_create_continue: "Save and create continue",
       please_create_project: "No project available, please create the project first",
       create_module_first: "Please create module first",
+      relate_test: "Relate test",
       import: {
         import: "Import test case",
         case_import: "Import test case",
@@ -446,6 +448,7 @@ export default {
       plan_status_running: "Starting",
       plan_status_completed: "Completed",
       plan_delete_confirm: "All use cases under this plan will be deleted,confirm delete test plan: ",
+      plan_delete: "Delete test plan",
     },
     module: {
       search: "Search module",
