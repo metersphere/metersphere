@@ -18,6 +18,8 @@ export default {
     let login = function () {
       MessageBox.alert(i18n.t('commons.tips'), i18n.t('commons.prompt'), {
         callback: () => {
+          axios.get("/signout");
+          localStorage.setItem('Admin-Token', "{}");
           window.location.href = "/login"
         }
       });
