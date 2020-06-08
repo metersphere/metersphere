@@ -102,6 +102,7 @@ export default {
   workspace: {
     'create': 'Create Workspace',
     'update': 'Update Workspace',
+    'delete': 'Delete Workspace',
     'delete_confirm': 'Are you sure you want to delete this workspace?',
     'add': 'Add Workspace',
     'input_name': 'Please enter a workspace name',

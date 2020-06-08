@@ -101,6 +101,7 @@ export default {
   workspace: {
     'create': '創建工作空間',
     'update': '修改工作空間',
+    'delete': '刪除工作空間',
     'delete_confirm': '刪除工作空間會關聯刪除該工作空間下的資源,確定要刪除嗎?',
     'add': '添加工作空間',
     'input_name': '請輸入工作空間名稱',

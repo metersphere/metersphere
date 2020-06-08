@@ -181,21 +181,6 @@
           this.list();
         });
       },
-      del(row) {
-        this.getRelatedResource(row.id).then(tip => {
-          this.$confirm(tip + this.$t('project.delete_confirm'), this.$t('commons.prompt'), {
-            confirmButtonText: this.$t('commons.confirm'),
-            cancelButtonText: this.$t('commons.cancel'),
-            type: 'warning'
-          }).then(() => {
-            this.$get('/project/delete/' + row.id, () => {
-              Message.success(this.$t('commons.delete_success'));
-              this.list();
-            });
-          }).catch(() => {
-          });
-        });
-      },
       search() {
         this.list();
       },
