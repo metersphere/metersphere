@@ -90,6 +90,7 @@
                        :create-tip="$t('member.create')" :title="$t('commons.member')"/>
       <!-- organization member table -->
       <el-table :data="memberLineData" style="width: 100%;margin-top: 5px;">
+        <el-table-column prop="id" label="ID"/>
         <el-table-column prop="name" :label="$t('commons.username')"/>
         <el-table-column prop="email" :label="$t('commons.email')"/>
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
