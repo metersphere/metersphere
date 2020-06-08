@@ -117,6 +117,7 @@ export default {
   organization: {
     'create': 'Create Organization',
     'modify': 'Modify',
+    'delete': 'Delete Organization',
     'delete_confirm': 'Are you sure you want to delete this workspace?',
     'input_name': 'Please enter a organization name',
     'select_organization': 'Please select organization',

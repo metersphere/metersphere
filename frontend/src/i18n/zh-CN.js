@@ -116,6 +116,7 @@ export default {
   organization: {
     'create': '创建组织',
     'modify': '修改组织',
+    'delete': '删除组织',
     'delete_confirm': '删除组织会关联删除该组织下的资源，确定要删除吗?',
     'input_name': '请输入组织名称',
     'select_organization': '请选择组织',
