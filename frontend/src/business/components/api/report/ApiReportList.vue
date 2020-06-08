@@ -8,11 +8,8 @@
                            :show-create="false"/>
         </template>
         <el-table :data="tableData" class="table-content" @sort-change="sort"
-                  @filter-change="filter">
-          <el-table-column :label="$t('commons.name')" width="200" show-overflow-tooltip>
-            <template v-slot:default="scope">
-              <el-link type="info" @click="handleView(scope.row)">{{ scope.row.name }}</el-link>
-            </template>
+                  @filter-change="filter" @row-click="handleView">
+          <el-table-column :label="$t('commons.name')" width="200" show-overflow-tooltip prop="name">
           </el-table-column>
           <el-table-column prop="testName" :label="$t('api_report.test_name')" width="200" show-overflow-tooltip/>
           <el-table-column prop="projectName" :label="$t('load_test.project_name')" width="150" show-overflow-tooltip/>
@@ -83,8 +80,6 @@
 
     methods: {
       search() {
-
-
         if (this.testId !== 'all') {
           this.condition.testId = this.testId;
         }
@@ -121,9 +116,6 @@
         this.testId = this.$route.params.testId;
         this.search();
       },
-      /* filter(value, row) {
-         return row.status === value;
-       },*/
       sort(column) {
         _sort(column, this.condition);
         this.init();
