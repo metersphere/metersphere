@@ -3,9 +3,9 @@
     <template v-slot:header>
       <span class="title">{{$t('api_report.title')}}</span>
     </template>
-    <el-table :data="tableData" class="table-content ms-cell-tooltip" @row-click="link">
-      <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip/>
-      <el-table-column :label="$t('commons.create_time')" show-overflow-tooltip>
+    <el-table :data="tableData" class="table-content" @row-click="link">
+      <el-table-column prop="name" :label="$t('commons.name')" width="150" show-overflow-tooltip/>
+      <el-table-column width="250" :label="$t('commons.create_time')">
         <template v-slot:default="scope">
           <span>{{ scope.row.createTime | timestampFormatDate }}</span>
         </template>
