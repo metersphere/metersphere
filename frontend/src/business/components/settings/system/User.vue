@@ -4,7 +4,7 @@
     <el-card class="table-card">
       <template v-slot:header>
         <ms-table-header :condition.sync="condition" @search="search" @create="create"
-                         :create-tip="$t('user.create')" :title="$t('commons.member')"/>
+                         :create-tip="$t('user.create')" :title="$t('commons.user')"/>
       </template>
 
       <el-table :data="tableData" style="width: 100%">
@@ -336,11 +336,11 @@
         rule: {
           id: [
             {required: true, message: this.$t('user.input_id'), trigger: 'blur'},
-            {min: 2, max: 20, message: this.$t('commons.input_limit', [2, 20]), trigger: 'blur'}
+            {min: 2, max: 50, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'}
           ],
           name: [
             {required: true, message: this.$t('user.input_name'), trigger: 'blur'},
-            {min: 2, max: 20, message: this.$t('commons.input_limit', [2, 20]), trigger: 'blur'},
+            {min: 2, max: 50, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'},
             {
               required: true,
               pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/,

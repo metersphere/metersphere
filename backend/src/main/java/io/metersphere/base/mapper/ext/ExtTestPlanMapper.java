@@ -11,6 +11,4 @@ public interface ExtTestPlanMapper {
     List<TestPlanDTO> list(@Param("request") QueryTestPlanRequest params);
 
     List<TestPlanDTOWithMetric> listRelate(@Param("request") QueryTestPlanRequest params);
-
-    Long countByProjectId(String projectId);
 }

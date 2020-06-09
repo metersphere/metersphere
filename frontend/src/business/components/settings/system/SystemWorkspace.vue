@@ -19,7 +19,7 @@
         </el-table-column>
         <el-table-column>
           <template v-slot:default="scope">
-            <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
+            <ms-table-operator @editClick="edit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
           </template>
         </el-table-column>
       </el-table>
@@ -90,6 +90,7 @@
                        :create-tip="$t('member.create')" :title="$t('commons.member')"/>
       <!-- organization member table -->
       <el-table :data="memberLineData" style="width: 100%;margin-top: 5px;">
+        <el-table-column prop="id" label="ID"/>
         <el-table-column prop="name" :label="$t('commons.username')"/>
         <el-table-column prop="email" :label="$t('commons.email')"/>
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
@@ -184,6 +185,8 @@
 
     </el-dialog>
 
+    <ms-delete-confirm :title="$t('workspace.delete')" @delete="_handleDelete" ref="deleteConfirm"/>
+
   </div>
 </template>
 
@@ -198,10 +201,12 @@
   import MsDialogFooter from "../../common/components/MsDialogFooter";
   import {getCurrentUser, getCurrentWorkspaceId, refreshSessionAndCookies} from "../../../../common/js/utils";
   import {DEFAULT, WORKSPACE} from "../../../../common/js/constants";
+  import MsDeleteConfirm from "../../common/components/MsDeleteConfirm";
 
   export default {
     name: "MsSystemWorkspace",
     components: {
+      MsDeleteConfirm,
       MsCreateBox,
       MsTablePagination,
       MsTableHeader,
@@ -311,26 +316,6 @@
           }
         })
       },
-      del(row) {
-        this.$confirm(this.$t('workspace.delete_confirm'), this.$t('commons.prompt'), {
-          confirmButtonText: this.$t('commons.confirm'),
-          cancelButtonText: this.$t('commons.cancel'),
-          type: 'warning'
-        }).then(() => {
-          this.$get('/workspace/special/delete/' + row.id, () => {
-            let lastWorkspaceId = getCurrentWorkspaceId();
-            let sourceId = row.id;
-            if (lastWorkspaceId === sourceId) {
-              let sign = DEFAULT;
-              refreshSessionAndCookies(sign, sourceId);
-            }
-            Message.success(this.$t('commons.delete_success'));
-            this.list();
-          });
-        }).catch(() => {
-
-        });
-      },
       handleClose() {
         this.memberForm = {};
       },
@@ -383,6 +368,21 @@
         })
         // 编辑时填充角色信息
         this.$set(this.memberForm, 'roleIds', roleIds);
+      },
+      handleDelete(workspace) {
+        this.$refs.deleteConfirm.open(workspace);
+      },
+      _handleDelete(workspace) {
+        this.$get('/workspace/special/delete/' + workspace.id, () => {
+          let lastWorkspaceId = getCurrentWorkspaceId();
+          let sourceId = workspace.id;
+          if (lastWorkspaceId === sourceId) {
+            let sign = DEFAULT;
+            refreshSessionAndCookies(sign, sourceId);
+          }
+          Message.success(this.$t('commons.delete_success'));
+          this.list();
+        });
       },
       delMember(row) {
         this.$confirm(this.$t('member.remove_member'), '', {

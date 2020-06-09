@@ -7,8 +7,8 @@
                            :create-tip="btnTips" :title="title"/>
         </template>
         <el-table @row-click="link" :data="items" style="width: 100%" @sort-change="sort">
-          <el-table-column prop="name" :label="$t('commons.name')"/>
-          <el-table-column prop="description" :label="$t('commons.description')"/>
+          <el-table-column prop="name" :label="$t('commons.name')" width="250" show-overflow-tooltip/>
+          <el-table-column prop="description" :label="$t('commons.description')" show-overflow-tooltip/>
           <!--<el-table-column prop="workspaceName" :label="$t('project.owning_workspace')"/>-->
           <el-table-column
             sortable
@@ -30,7 +30,7 @@
           </el-table-column>
           <el-table-column :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <ms-table-operator :is-tester-permission="true" @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
+              <ms-table-operator :is-tester-permission="true" @editClick="edit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
             </template>
           </el-table-column>
         </el-table>
@@ -57,6 +57,8 @@
       </template>
     </el-dialog>
 
+    <ms-delete-confirm :title="$t('project.delete')" @delete="_handleDelete" ref="deleteConfirm"/>
+
   </ms-container>
 </template>
 
@@ -70,10 +72,12 @@
   import {_sort, getCurrentUser} from "../../../common/js/utils";
   import MsContainer from "../common/components/MsContainer";
   import MsMainContainer from "../common/components/MsMainContainer";
+  import MsDeleteConfirm from "../common/components/MsDeleteConfirm";
 
   export default {
     name: "MsProject",
     components: {
+      MsDeleteConfirm,
       MsMainContainer,
       MsContainer, MsTableOperator, MsCreateBox, MsTablePagination, MsTableHeader, MsDialogFooter},
     data() {
@@ -168,19 +172,13 @@
           }
         });
       },
-      del(row) {
-        this.getRelatedResource(row.id).then(tip => {
-          this.$confirm(tip + this.$t('project.delete_confirm'), this.$t('commons.prompt'), {
-            confirmButtonText: this.$t('commons.confirm'),
-            cancelButtonText: this.$t('commons.cancel'),
-            type: 'warning'
-          }).then(() => {
-            this.$get('/project/delete/' + row.id, () => {
-              Message.success(this.$t('commons.delete_success'));
-              this.list();
-            });
-          }).catch(() => {
-          });
+      handleDelete(project) {
+        this.$refs.deleteConfirm.open(project);
+      },
+      _handleDelete(project) {
+        this.$get('/project/delete/' + project.id, () => {
+          Message.success(this.$t('commons.delete_success'));
+          this.list();
         });
       },
       search() {
@@ -193,29 +191,6 @@
           this.items = data.listObject;
           this.total = data.itemCount;
         })
-      },
-      getRelatedResource(projectId) {
-        return new Promise((resolve, reject) => {
-          this.$get('/project/related/resource/' + projectId, response => {
-            let data = response.data;
-            let result = '';
-            result = this.appendDeleteTip(result, data.testCaseCount, this.$t('test_track.case.test_case'));
-            result = this.appendDeleteTip(result, data.testPlanCount, this.$t('test_track.plan.test_plan') );
-            result = this.appendDeleteTip(result, data.loadTestCount, this.$t('commons.performance'));
-            result = this.appendDeleteTip(result, data.apiTestCount, this.$t('commons.api'));
-            if (result != '') {
-              result = this.$t('project.delete_tip') + result;
-            }
-            resolve(result);
-          });
-        });
-      },
-      appendDeleteTip(result, count, tip) {
-        if (count > 0) {
-          return result + count + "个" + tip + ',';
-        } else {
-          return result;
-        }
       },
       link(row) {
         // performance_test project link

@@ -199,7 +199,7 @@ public class PerformanceTestService {
         }
 
         LogUtil.info("Load test started " + loadTest.getName());
-        // engine type (NODE|K8S)
+        // engine type (NODE)
         final Engine engine = EngineFactory.createEngine(loadTest);
         if (engine == null) {
             MSException.throwException(String.format("Test cannot be run，test ID：%s", request.getId()));

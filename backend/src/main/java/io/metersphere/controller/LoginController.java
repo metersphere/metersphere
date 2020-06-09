@@ -9,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.UnauthorizedException;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.subject.Subject;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static io.metersphere.commons.constants.SessionConstants.ATTR_USER;
 
 @RestController
 @RequestMapping
@@ -48,9 +49,9 @@ public class LoginController {
         try {
             subject.login(token);
             if (subject.isAuthenticated()) {
-                UserDTO user = (UserDTO) subject.getSession().getAttribute("user");
+                UserDTO user = (UserDTO) subject.getSession().getAttribute(ATTR_USER);
                 // 自动选中组织，工作空间
-                if (StringUtils.isBlank(user.getLastOrganizationId())) {
+                if (StringUtils.isEmpty(user.getLastOrganizationId())) {
                     List<UserRole> userRoles = user.getUserRoles();
                     List<UserRole> test = userRoles.stream().filter(ur -> ur.getRoleId().startsWith("test")).collect(Collectors.toList());
                     List<UserRole> org = userRoles.stream().filter(ur -> ur.getRoleId().startsWith("org")).collect(Collectors.toList());

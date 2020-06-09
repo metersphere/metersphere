@@ -36,7 +36,8 @@
             <el-form-item :label="$t('system_parameter_setting.SMTP_password')" prop="password">
             </el-form-item>
             <el-input v-model="formInline.password" :placeholder="$t('system_parameter_setting.SMTP_password')"
-                      show-password></el-input>
+                      autocomplete="new-password" show-password type="text" @focus="changeType">
+            </el-input>
           </el-col>
         </el-row>
 
@@ -79,10 +80,8 @@
           account: 'xjj0608@163.com',
           password: '2345678',*/
         },
+        visible: true,
         result: {},
-        /*SSL: [],
-        TLS: [],
-        SMTP: [],*/
         showEdit: true,
         showSave: false,
         showCancel: false,
@@ -116,16 +115,21 @@
       this.query()
     },
     methods: {
-
+      changeType() {
+        this.type = 'password'
+      },
+      /*changePass(value) {
+        this.visible = !(value === 'show');
+      },*/
       query() {
         this.result = this.$get("/system/mail/info", response => {
           this.$set(this.formInline, "host", response.data[0].paramValue);
           this.$set(this.formInline, "port", response.data[1].paramValue);
           this.$set(this.formInline, "account", response.data[2].paramValue);
           this.$set(this.formInline, "password", response.data[3].paramValue);
-          this.$set(this.formInline, "SSL", response.data[4].paramValue);
-          this.$set(this.formInline, "TLS", response.data[5].paramValue);
-          this.$set(this.formInline, "SMTP", response.data[6].paramValue);
+          this.$set(this.formInline, "SSL", JSON.parse(response.data[4].paramValue));
+          this.$set(this.formInline, "TLS", JSON.parse(response.data[5].paramValue));
+          this.$set(this.formInline, "SMTP", JSON.parse(response.data[6].paramValue));
         })
       },
       change() {

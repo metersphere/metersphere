@@ -11,7 +11,6 @@
         <el-table-column prop="type" :label="$t('test_resource_pool.type')">
           <template v-slot:default="scope">
             <span v-if="scope.row.type === 'NODE'">Node</span>
-            <span v-if="scope.row.type === 'K8S'">Kubernetes</span>
           </template>
         </el-table-column>
         <el-table-column prop="status" :label="$t('test_resource_pool.enable_disable')">
@@ -61,31 +60,10 @@
         <el-form-item :label="$t('test_resource_pool.type')" prop="type">
           <el-select v-model="form.type" :placeholder="$t('test_resource_pool.select_pool_type')"
                      @change="changeResourceType()">
-            <el-option key="K8S" value="K8S" label="Kubernetes">Kubernetes</el-option>
             <el-option key="NODE" value="NODE" label="Node">Node</el-option>
           </el-select>
         </el-form-item>
         <div v-for="(item,index) in infoList " :key="index">
-          <div class="node-line" v-if="form.type === 'K8S'">
-            <el-row>
-              <el-col :span="9">
-                <el-form-item prop="masterUrl" label="Master URL">
-                  <el-input v-model="item.masterUrl" autocomplete="new-password"/>
-                </el-form-item>
-              </el-col>
-              <el-col :span="9">
-                <el-form-item prop="password" label="Token" style="padding-left: 20px">
-                  <el-input v-model="item.token"   autocomplete="new-password"/>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"
-                              style="padding-left: 20px">
-                  <el-input-number v-model="item.maxConcurrency" :min="1" :max="9999"></el-input-number>
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </div>
           <div class="node-line" v-if="form.type === 'NODE'">
             <el-row>
               <el-col :span="8">
@@ -144,31 +122,10 @@
         <el-form-item :label="$t('test_resource_pool.type')" prop="type">
           <el-select v-model="form.type" :placeholder="$t('test_resource_pool.select_pool_type')"
                      @change="changeResourceType()">
-            <el-option key="K8S" value="K8S" label="Kubernetes">Kubernetes</el-option>
             <el-option key="NODE" value="NODE" label="Node">Node</el-option>
           </el-select>
         </el-form-item>
         <div v-for="(item,index) in infoList " :key="index">
-          <div class="node-line" v-if="form.type === 'K8S'">
-            <el-row>
-              <el-col :span="9">
-                <el-form-item prop="masterUrl" label="Master URL">
-                  <el-input v-model="item.masterUrl" autocomplete="off"/>
-                </el-form-item>
-              </el-col>
-              <el-col :span="9">
-                <el-form-item prop="password" label="Token" style="padding-left: 20px">
-                  <el-input v-model="item.token" show-password autocomplete="off"/>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"
-                              style="padding-left: 20px">
-                  <el-input-number v-model="item.maxConcurrency" :min="1" :max="9999"></el-input-number>
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </div>
           <div class="node-line" v-if="form.type === 'NODE'">
             <el-row>
               <el-col :span="8">
@@ -344,9 +301,6 @@
         });
       },
       createTestResourcePool(createTestResourcePoolForm) {
-        if (this.result.loading) {
-          return;
-        }
         this.$refs[createTestResourcePoolForm].validate(valid => {
           if (valid) {
             let vri = this.validateResourceInfo();
@@ -383,9 +337,6 @@
         this.form.resources = resources;
       },
       updateTestResourcePool(updateTestResourcePoolForm) {
-        if (this.result.loading) {
-          return;
-        }
         this.$refs[updateTestResourcePoolForm].validate(valid => {
           if (valid) {
             let vri = this.validateResourceInfo();

@@ -86,7 +86,8 @@
           column-key="status"
           :label="$t('test_track.plan_view.execute_result')">
           <template v-slot:default="scope">
-              <el-dropdown class="test-case-status" @command="statusChange">
+            <div @click.stop="false">
+              <el-dropdown class="test-case-status" @command="statusChange" >
                 <span class="el-dropdown-link">
                   <status-table-item :value="scope.row.status"/>
                 </span>
@@ -105,6 +106,7 @@
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
+            </div>
           </template>
         </el-table-column>
 

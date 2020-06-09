@@ -95,10 +95,13 @@ export default {
     'remove_success': '移除成功',
     'tips': '认認證資訊已過期,請重新登入',
     'not_performed_yet': '尚未執行',
+    'incorrect_input': '輸入內容不正確',
+    'delete_confirm': '請輸入以下內容，確認刪除：',
   },
   workspace: {
     'create': '創建工作空間',
     'update': '修改工作空間',
+    'delete': '刪除工作空間',
     'delete_confirm': '刪除工作空間會關聯刪除該工作空間下的資源,確定要刪除嗎?',
     'add': '添加工作空間',
     'input_name': '請輸入工作空間名稱',
@@ -113,6 +116,7 @@ export default {
   organization: {
     'create': '創建組織',
     'modify': '修改組織',
+    'delete': '刪除組織',
     'delete_confirm': '刪除組織會關聯刪除該組織下的資源,確定要刪除嗎?',
     'input_name': '請輸入組織名稱',
     'select_organization': '請選擇組織',
@@ -125,6 +129,7 @@ export default {
     'recent': '最近的項目',
     'create': '創建項目',
     'edit': '編輯項目',
+    'delete': '刪除項目',
     'delete_confirm': '確定要刪除這個項目嗎?',
     'delete_tip': '刪除該項目，會刪除以下資源：',
     'search_by_name': '根據名稱搜索',
@@ -405,6 +410,7 @@ export default {
       save_create_continue: "保存並繼續創建",
       please_create_project: "暫無項目，請先創建項目",
       create_module_first: "請先新建模塊",
+      relate_test: "關聯測試",
       import: {
         import: "導入用例",
         case_import: "導入測試用例",
@@ -444,6 +450,7 @@ export default {
       plan_status_running: "進行中",
       plan_status_completed: "已完成",
       plan_delete_confirm: "將刪除該測試計劃下所有用例，確認刪除測試計劃: ",
+      plan_delete: "刪除計劃",
     },
     module: {
       search: "搜索模塊",

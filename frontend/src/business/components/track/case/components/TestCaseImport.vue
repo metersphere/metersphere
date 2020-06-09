@@ -1,5 +1,5 @@
 <template>
-    <el-dialog width="30%" :title="$t('test_track.case.import.case_import')" :visible.sync="dialogVisible"
+    <el-dialog class="testcase-import" :title="$t('test_track.case.import.case_import')" :visible.sync="dialogVisible"
                @close="init">
 
       <el-row>
@@ -125,5 +125,10 @@
     padding-top: 0px;
     padding-bottom: 10px;
   }
+
+  .testcase-import >>> .el-dialog {
+    width: 400px;
+  }
+
 
 </style>

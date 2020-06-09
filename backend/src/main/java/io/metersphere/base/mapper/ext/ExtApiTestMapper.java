@@ -10,7 +10,5 @@ import java.util.List;
 public interface ExtApiTestMapper {
     List<APITestResult> list(@Param("request") QueryAPITestRequest request);
 
-    Long countByProjectId(String projectId);
-
     List<ApiTest> getApiTestByProjectId(String projectId);
 }

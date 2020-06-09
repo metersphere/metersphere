@@ -16,7 +16,7 @@
         </el-table-column>
         <el-table-column>
           <template v-slot:default="scope">
-            <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
+            <ms-table-operator @editClick="edit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
           </template>
         </el-table-column>
       </el-table>
@@ -144,6 +144,8 @@
       </template>
     </el-dialog>
 
+    <ms-delete-confirm :title="$t('workspace.delete')" @delete="_handleDelete" ref="deleteConfirm"/>
+
   </div>
 </template>
 
@@ -158,10 +160,12 @@
   import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
   import {getCurrentUser, getCurrentWorkspaceId, refreshSessionAndCookies} from "../../../../common/js/utils";
+  import MsDeleteConfirm from "../../common/components/MsDeleteConfirm";
 
   export default {
     name: "MsOrganizationWorkspace",
     components: {
+      MsDeleteConfirm,
       MsCreateBox,
       MsTablePagination,
       MsTableHeader,
@@ -204,24 +208,19 @@
         this.dialogWsAddVisible = true;
         this.form = Object.assign({}, row);
       },
-      del(row) {
-        this.$confirm(this.$t('workspace.delete_confirm'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          cancelButtonText: this.$t('commons.cancel'),
-          type: 'warning'
-        }).then(() => {
-          this.$get('/workspace/delete/' + row.id, () => {
-            let lastWorkspaceId = getCurrentWorkspaceId();
-            let sourceId = row.id;
-            if (lastWorkspaceId === sourceId) {
-              let sign = DEFAULT;
-              refreshSessionAndCookies(sign, sourceId);
-            }
-            this.$success(this.$t('commons.delete_success'));
-            this.list();
-          });
-        }).catch(() => {
-
+      handleDelete(workspace) {
+        this.$refs.deleteConfirm.open(workspace);
+      },
+      _handleDelete(workspace) {
+        this.$get('/workspace/delete/' + workspace.id, () => {
+          let lastWorkspaceId = getCurrentWorkspaceId();
+          let sourceId = workspace.id;
+          if (lastWorkspaceId === sourceId) {
+            let sign = DEFAULT;
+            refreshSessionAndCookies(sign, sourceId);
+          }
+          this.$success(this.$t('commons.delete_success'));
+          this.list();
         });
       },
       list() {

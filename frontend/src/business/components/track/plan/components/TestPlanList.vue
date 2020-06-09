@@ -1,106 +1,108 @@
 <template>
   <el-card class="table-card" v-loading="result.loading">
-        <template v-slot:header>
-          <ms-table-header :is-tester-permission="true" :condition.sync="condition"
-                           @search="initTableData" @create="testPlanCreate"
-                           :create-tip="$t('test_track.plan.create_plan')"
-                           :title="$t('test_track.plan.test_plan')"/>
+    <template v-slot:header>
+      <ms-table-header :is-tester-permission="true" :condition.sync="condition"
+                       @search="initTableData" @create="testPlanCreate"
+                       :create-tip="$t('test_track.plan.create_plan')"
+                       :title="$t('test_track.plan.test_plan')"/>
+    </template>
+
+    <el-table
+      :data="tableData"
+      @filter-change="filter"
+      @sort-change="sort"
+      @row-click="intoPlan">
+      <el-table-column
+        prop="name"
+        :label="$t('commons.name')"
+        show-overflow-tooltip>
+      </el-table-column>
+      <el-table-column
+        prop="principal"
+        :label="$t('test_track.plan.plan_principal')"
+        show-overflow-tooltip>
+      </el-table-column>
+      <el-table-column
+        prop="status"
+        column-key="status"
+        :filters="statusFilters"
+        :label="$t('test_track.plan.plan_status')"
+        show-overflow-tooltip>
+        <template v-slot:default="scope">
+          <div @click.stop="false">
+            <el-dropdown class="test-case-status" @command="statusChange">
+              <span class="el-dropdown-link">
+                <plan-status-table-item :value="scope.row.status"/>
+              </span>
+              <el-dropdown-menu slot="dropdown" chang>
+                <el-dropdown-item :command="{id: scope.row.id, status: 'Prepare'}">
+                  {{$t('test_track.plan.plan_status_prepare')}}
+                </el-dropdown-item>
+                <el-dropdown-item :command="{id: scope.row.id, status: 'Underway'}">
+                  {{$t('test_track.plan.plan_status_running')}}
+                </el-dropdown-item>
+                <el-dropdown-item :command="{id: scope.row.id, status: 'Completed'}">
+                  {{$t('test_track.plan.plan_status_completed')}}
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </div>
         </template>
-
-        <el-table
-          :data="tableData"
-          @filter-change="filter"
-          @sort-change="sort"
-          @row-click="intoPlan">
-          <el-table-column
-            prop="name"
-            :label="$t('commons.name')"
-            show-overflow-tooltip>
-          </el-table-column>
-          <el-table-column
-            prop="principal"
-            :label="$t('test_track.plan.plan_principal')"
-            show-overflow-tooltip>
-          </el-table-column>
-          <el-table-column
-            prop="status"
-            column-key="status"
-            :filters="statusFilters"
-            :label="$t('test_track.plan.plan_status')"
-            show-overflow-tooltip>
-            <template v-slot:default="scope">
-              <el-dropdown class="test-case-status" @command="statusChange">
-                <span class="el-dropdown-link">
-                  <plan-status-table-item :value="scope.row.status"/>
-                </span>
-                <el-dropdown-menu slot="dropdown" chang>
-                  <el-dropdown-item :command="{id: scope.row.id, status: 'Prepare'}">
-                    {{$t('test_track.plan.plan_status_prepare')}}
-                  </el-dropdown-item>
-                  <el-dropdown-item :command="{id: scope.row.id, status: 'Underway'}">
-                    {{$t('test_track.plan.plan_status_running')}}
-                  </el-dropdown-item>
-                  <el-dropdown-item :command="{id: scope.row.id, status: 'Completed'}">
-                    {{$t('test_track.plan.plan_status_completed')}}
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
-
+      </el-table-column>
+      <el-table-column
+        prop="stage"
+        column-key="stage"
+        :filters="stageFilters"
+        :label="$t('test_track.plan.plan_stage')"
+        show-overflow-tooltip>
+        <template v-slot:default="scope">
+          <plan-stage-table-item :stage="scope.row.stage"/>
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="projectName"
+        :label="$t('test_track.plan.plan_project')"
+        show-overflow-tooltip>
+      </el-table-column>
+      <el-table-column
+        sortable
+        prop="createTime"
+        :label="$t('commons.create_time')"
+        show-overflow-tooltip>
+        <template v-slot:default="scope">
+          <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
+        sortable
+        prop="updateTime"
+        :label="$t('commons.update_time')"
+        show-overflow-tooltip>
+        <template v-slot:default="scope">
+          <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
+        :label="$t('commons.operating')">
+        <template v-slot:default="scope">
+          <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)" @deleteClick="handleDelete(scope.row)">
+            <template v-slot:middle>
+              <ms-table-operator-button type="success" v-if="!scope.row.reportId" :tip="$t('test_track.plan_view.create_report')" icon="el-icon-document" @exec="openTestReportTemplate(scope.row)"/>
+              <ms-table-operator-button type="success" v-if="scope.row.reportId" :tip="$t('test_track.plan_view.view_report')" icon="el-icon-document" @exec="openReport(scope.row.id, scope.row.reportId)"/>
             </template>
-          </el-table-column>
-          <el-table-column
-            prop="stage"
-            column-key="stage"
-            :filters="stageFilters"
-            :label="$t('test_track.plan.plan_stage')"
-            show-overflow-tooltip>
-            <template v-slot:default="scope">
-              <plan-stage-table-item :stage="scope.row.stage"/>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="projectName"
-            :label="$t('test_track.plan.plan_project')"
-            show-overflow-tooltip>
-          </el-table-column>
-          <el-table-column
-            sortable
-            prop="createTime"
-            :label="$t('commons.create_time')"
-            show-overflow-tooltip>
-            <template v-slot:default="scope">
-              <span>{{ scope.row.createTime | timestampFormatDate }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            sortable
-            prop="updateTime"
-            :label="$t('commons.update_time')"
-            show-overflow-tooltip>
-            <template v-slot:default="scope">
-              <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            :label="$t('commons.operating')">
-            <template v-slot:default="scope">
-              <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)" @deleteClick="handleDelete(scope.row)">
-                <template v-slot:middle>
-                  <ms-table-operator-button type="success" v-if="!scope.row.reportId" :tip="$t('test_track.plan_view.create_report')" icon="el-icon-document" @exec="openTestReportTemplate(scope.row)"/>
-                  <ms-table-operator-button type="success" v-if="scope.row.reportId" :tip="$t('test_track.plan_view.view_report')" icon="el-icon-document" @exec="openReport(scope.row.id, scope.row.reportId)"/>
-                </template>
-              </ms-table-operator>
-            </template>
-          </el-table-column>
-        </el-table>
+          </ms-table-operator>
+        </template>
+      </el-table-column>
+    </el-table>
 
-        <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
-                             :total="total"/>
+    <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                         :total="total"/>
 
-        <test-report-template-list @openReport="openReport" ref="testReporTtemplateList"/>
-        <test-case-report-view @refresh="initTableData" ref="testCaseReportView"/>
+    <test-report-template-list @openReport="openReport" ref="testReporTtemplateList"/>
+    <test-case-report-view @refresh="initTableData" ref="testCaseReportView"/>
+    <ms-delete-confirm :title="$t('test_track.plan.plan_delete')" @delete="_handleDelete" ref="deleteConfirm"/>
 
-      </el-card>
+  </el-card>
 </template>
 
 <script>
@@ -115,10 +117,12 @@
   import {_filter, _sort} from "../../../../../common/js/utils";
   import TestReportTemplateList from "../view/comonents/TestReportTemplateList";
   import TestCaseReportView from "../view/comonents/report/TestCaseReportView";
+  import MsDeleteConfirm from "../../../common/components/MsDeleteConfirm";
 
   export default {
       name: "TestPlanList",
       components: {
+        MsDeleteConfirm,
         TestCaseReportView,
         TestReportTemplateList,
         PlanStageTableItem,
@@ -185,14 +189,7 @@
           });
         },
         handleDelete(testPlan) {
-          this.$alert(this.$t('test_track.plan.plan_delete_confirm') + testPlan.name + "？", '', {
-            confirmButtonText: this.$t('commons.confirm'),
-            callback: (action) => {
-              if (action === 'confirm') {
-                this._handleDelete(testPlan);
-              }
-            }
-          });
+          this.$refs.deleteConfirm.open(testPlan);
         },
         _handleDelete(testPlan) {
           let testPlanId = testPlan.id;

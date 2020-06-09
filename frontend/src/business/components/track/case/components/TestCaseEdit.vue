@@ -87,7 +87,7 @@
 
         <el-row v-if="form.method && form.method == 'auto'">
           <el-col :span="10" :offset="1">
-            <el-form-item :label="'关联测试'" :label-width="formLabelWidth" prop="testId">
+            <el-form-item :label="$t('test_track.case.relate_test')" :label-width="formLabelWidth" prop="testId">
               <el-select filterable :disabled="readOnly" v-model="form.testId" :placeholder="$t('test_track.case.input_type')">
                 <el-option
                   v-for="item in testOptions"

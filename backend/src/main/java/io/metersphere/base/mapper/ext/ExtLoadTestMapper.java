@@ -10,7 +10,5 @@ import java.util.List;
 public interface ExtLoadTestMapper {
     List<LoadTestDTO> list(@Param("request") QueryTestPlanRequest params);
 
-    Long countByProjectId(String projectId);
-
     List<LoadTest> getLoadTestByProjectId(String projectId);
 }

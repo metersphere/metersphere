@@ -58,9 +58,4 @@
         )
         order by test_plan.update_time desc
     </select>
-    <select id="countByProjectId" resultType="java.lang.Long">
-        select count(id) from test_plan
-        where project_id = #{projectId}
-    </select>
-
 </mapper>

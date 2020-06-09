@@ -66,7 +66,6 @@ export default {
     'host_cannot_be_empty': 'Host cannot be empty',
     'port_cannot_be_empty': 'Port cannot be empty',
     'account_cannot_be_empty': 'Account cannot be empty',
-
     'title': 'Title',
     'custom': 'Custom',
     'select_date': 'Select date',
@@ -96,11 +95,15 @@ export default {
     'remove_success': 'Remove Success',
     'tips': 'The authentication information has expired, please login again',
     'not_performed_yet': 'Not performed yet',
-
+    'incorrect_input': 'Incorrect input',
+    'delete_confirm': 'Please enter the following to confirm deletion:',
+    'login_username': 'ID or email',
+    'input_login_username': 'Please input the user ID or email',
   },
   workspace: {
     'create': 'Create Workspace',
     'update': 'Update Workspace',
+    'delete': 'Delete Workspace',
     'delete_confirm': 'Are you sure you want to delete this workspace?',
     'add': 'Add Workspace',
     'input_name': 'Please enter a workspace name',
@@ -115,6 +118,7 @@ export default {
   organization: {
     'create': 'Create Organization',
     'modify': 'Modify',
+    'delete': 'Delete Organization',
     'delete_confirm': 'Are you sure you want to delete this workspace?',
     'input_name': 'Please enter a organization name',
     'select_organization': 'Please select organization',
@@ -128,6 +132,7 @@ export default {
     'recent': 'Recent Projects',
     'create': 'Create Project',
     'edit': 'Edit Project',
+    'delete': 'Delete project',
     'delete_confirm': 'Are you sure you want to delete this project?',
     'delete_tip': 'These resources will be deleted:',
     'search_by_name': 'Search by name',
@@ -407,6 +412,7 @@ export default {
       save_create_continue: "Save and create continue",
       please_create_project: "No project available, please create the project first",
       create_module_first: "Please create module first",
+      relate_test: "Relate test",
       import: {
         import: "Import test case",
         case_import: "Import test case",
@@ -446,6 +452,7 @@ export default {
       plan_status_running: "Starting",
       plan_status_completed: "Completed",
       plan_delete_confirm: "All use cases under this plan will be deleted,confirm delete test plan: ",
+      plan_delete: "Delete test plan",
     },
     module: {
       search: "Search module",

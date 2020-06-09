@@ -33,8 +33,10 @@ body {
   clear: both;
 }
 
-
-
+/*解决富文本框中link显示问题*/
+.ck-rounded-corners .ck.ck-balloon-panel,.ck.ck-balloon-panel.ck-rounded-corners {
+  z-index: 10055 !important;
+}
 
 .table-card > .el-card__body {
   padding-top: 0;

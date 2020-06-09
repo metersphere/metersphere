@@ -3,10 +3,10 @@
     <ms-main-container v-loading="result.loading">
       <el-row :gutter="20">
         <el-col :span="12">
-          <ms-performance-report-recent-list/>
+          <ms-performance-test-recent-list/>
         </el-col>
         <el-col :span="12">
-          <ms-performance-test-recent-list/>
+          <ms-performance-report-recent-list/>
         </el-col>
       </el-row>
       <el-row :gutter="20">
