@@ -10,9 +10,9 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.member.AddMemberRequest;
-import io.metersphere.controller.request.member.UserRequest;
 import io.metersphere.controller.request.member.EditPassWordRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
+import io.metersphere.controller.request.member.UserRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.dto.UserDTO;
@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
+
 import javax.annotation.Resource;
 import java.util.List;
 
@@ -161,7 +162,7 @@ public class UserController {
     }
 
     @GetMapping("/info/{userId}")
-    public User getUserInfo(@PathVariable(value = "userId") String userId) {
+    public UserDTO getUserInfo(@PathVariable(value = "userId") String userId) {
         return userService.getUserInfo(userId);
     }
 

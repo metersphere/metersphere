@@ -11,9 +11,9 @@ import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.CodingUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.member.AddMemberRequest;
-import io.metersphere.controller.request.member.UserRequest;
 import io.metersphere.controller.request.member.EditPassWordRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
+import io.metersphere.controller.request.member.UserRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.dto.UserDTO;
@@ -25,6 +25,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -252,8 +253,8 @@ public class UserService {
         userMapper.updateByPrimaryKeySelective(newUser);
     }
 
-    public User getUserInfo(String userId) {
-        return userMapper.selectByPrimaryKey(userId);
+    public UserDTO getUserInfo(String userId) {
+        return getUserDTO(userId);
     }
 
     public List<User> getMemberList(QueryMemberRequest request) {
