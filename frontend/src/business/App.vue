@@ -69,7 +69,7 @@
     height: 40px;
     background-repeat: no-repeat;
     background-position: 50% center;
-    background-image: url("../assets/MeterSphere-反白.png");
+    background-image: url("../assets/logo-light-MeterSphere.svg");
   }
 
   .menus > * {
