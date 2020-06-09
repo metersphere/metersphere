@@ -109,9 +109,6 @@ curl -sSL https://github.com/metersphere/metersphere/releases/latest/download/qu
             <td>分布式压力测试</td>
         </tr>
         <tr>
-            <td>支持独立主机、Kubernetes&nbsp;集群等多种类型的测试执行环境</td>
-        </tr>
-        <tr>
             <td>支持参数化测试</td>
         </tr>
         <tr>
