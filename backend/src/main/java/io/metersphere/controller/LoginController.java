@@ -1,8 +1,6 @@
 package io.metersphere.controller;
 
 import io.metersphere.base.domain.UserRole;
-import io.metersphere.commons.user.SessionUser;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.LoginRequest;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.i18n.Translator;
@@ -12,6 +10,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.subject.Subject;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -30,12 +29,7 @@ public class LoginController {
     @GetMapping(value = "/isLogin")
     public ResultHolder isLogin() {
         if (SecurityUtils.getSubject().isAuthenticated()) {
-            // 每次刷新页面时重新 put session user
-            SessionUser user = SessionUtils.getUser();
-            UserDTO userDTO = userService.getUserDTO(user.getId());
-            SessionUser sessionUser = SessionUser.fromUser(userDTO);
-            SessionUtils.putUser(sessionUser);
-            return ResultHolder.success(sessionUser);
+            return ResultHolder.success(LocaleContextHolder.getLocale());
         }
         return ResultHolder.error("");
     }

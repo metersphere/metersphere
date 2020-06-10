@@ -25,7 +25,6 @@
   import MsUser from "./components/common/head/HeaderUser";
   import MsHeaderOrgWs from "./components/common/head/HeaderOrgWs";
   import MsLanguageSwitch from "./components/common/head/LanguageSwitch";
-  import {saveLocalStorage} from "../common/js/utils";
 
   export default {
     name: 'app',
@@ -36,10 +35,8 @@
     },
     beforeCreate() {
       this.$get("/isLogin").then(response => {
-        let res = response.data;
-        if (res.success) {
-          this.$setLang(res.data.language);
-          saveLocalStorage(res);
+        if (response.data.success) {
+          this.$setLang(response.data.data);
           this.auth = true;
         } else {
           window.location.href = "/login"
