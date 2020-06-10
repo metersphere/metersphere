@@ -40,7 +40,7 @@
     computed: {
       isShow() {
         let rt = this.assertions.duration;
-        return rt.value !== null && rt.value > 0;
+        return rt.value !== undefined;
       }
     }
   }
