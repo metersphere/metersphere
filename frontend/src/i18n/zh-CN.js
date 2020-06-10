@@ -531,6 +531,7 @@ export default {
     'delete_prompt': '此操作将永久删除该资源池, 是否继续?',
     'status_change_success': '状态修改成功!',
     'status_change_failed': '状态修改失败, 校验不通过!',
+    'check_in': '校验中',
   },
   system_parameter_setting: {
     'mailbox_service_settings': '邮件服务设置',

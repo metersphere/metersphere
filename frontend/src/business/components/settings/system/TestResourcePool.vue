@@ -364,12 +364,16 @@
         this.form = {};
       },
       changeSwitch(row) {
-        this.result = this.$get('/testresourcepool/update/' + row.id + '/' + row.status)
+        this.result.loading = true;
+        this.$info(this.$t('test_resource_pool.check_in'), 1000);
+        this.$get('/testresourcepool/update/' + row.id + '/' + row.status)
           .then(() => {
             this.$success(this.$t('test_resource_pool.status_change_success'));
+            this.result.loading = false;
           }).catch(() => {
             this.$error(this.$t('test_resource_pool.status_change_failed'));
             row.status = 'INVALID';
+            this.result.loading = false;
           })
       }
     }

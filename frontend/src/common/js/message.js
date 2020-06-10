@@ -16,12 +16,12 @@ export default {
       })
     };
 
-    Vue.prototype.$info = function (message) {
+    Vue.prototype.$info = function (message, duration) {
       Message.info({
         message: message,
         type: "info",
         showClose: true,
-        duration: 3000
+        duration: duration || 3000
       })
     };
 

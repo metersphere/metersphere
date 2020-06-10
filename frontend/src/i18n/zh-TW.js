@@ -530,6 +530,7 @@ export default {
     'delete_prompt': '此操作將永久刪除該資源池, 是否繼續?',
     'status_change_success': '狀態修改成功!',
     'status_change_failed': '狀態修改失敗, 校驗不通過!',
+    'check_in': '校驗中',
   },
   system_parameter_setting: {
     'mailbox_service_settings': '郵件服務設定',

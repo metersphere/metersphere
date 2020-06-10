@@ -532,6 +532,7 @@ export default {
     'delete_prompt': 'This operation will permanently delete the resource pool, continue?',
     'status_change_success': 'Successfully changed the status!',
     'status_change_failed': 'Failed to change the status, resource pool is invalid!',
+    'check_in': 'Check in',
   },
   system_parameter_setting: {
     'mailbox_service_settings': 'Mailbox Service Settings',
