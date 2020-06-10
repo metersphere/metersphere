@@ -3,15 +3,15 @@
     <template v-slot:header>
       <span class="title">{{$t('commons.test')}}</span>
     </template>
-    <el-table :data="tableData" class="table-content ms-cell-tooltip" @row-click="link">
-      <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip/>
-      <el-table-column prop="projectName" :label="$t('load_test.project_name')" show-overflow-tooltip/>
-      <el-table-column width="200" :label="$t('commons.create_time')">
+    <el-table :data="tableData" class="table-content" @row-click="link">
+      <el-table-column prop="name" :label="$t('commons.name')" width="150" show-overflow-tooltip/>
+      <el-table-column prop="projectName" :label="$t('load_test.project_name')" width="150" show-overflow-tooltip/>
+      <el-table-column width="250" :label="$t('commons.create_time')">
         <template v-slot:default="scope">
           <span>{{ scope.row.createTime | timestampFormatDate }}</span>
         </template>
       </el-table-column>
-      <el-table-column width="200" :label="$t('commons.update_time')">
+      <el-table-column width="250" :label="$t('commons.update_time')">
         <template v-slot:default="scope">
           <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
         </template>
@@ -55,6 +55,9 @@
     },
 
     created() {
+      this.search();
+    },
+    activated() {
       this.search();
     }
   }

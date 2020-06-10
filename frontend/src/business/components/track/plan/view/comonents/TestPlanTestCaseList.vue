@@ -13,6 +13,8 @@
             <ms-table-button :is-tester-permission="true" icon="el-icon-unlock" :content="$t('test_track.plan_view.cancel_relevance')" @click="handleBatch('delete')"/>
             <ms-table-button :is-tester-permission="true" icon="el-icon-edit-outline" :content="$t('test_track.plan_view.change_execution_results')" @click="handleBatch('status')"/>
             <ms-table-button :is-tester-permission="true" icon="el-icon-user" :content="$t('test_track.plan_view.change_executor')" @click="handleBatch('executor')"/>
+            <ms-table-button :is-tester-permission="true" v-if="!testPlan.reportId" icon="el-icon-document" :content="$t('test_track.plan_view.create_report')" @click="openTestReport"/>
+            <ms-table-button :is-tester-permission="true" v-if="testPlan.reportId" icon="el-icon-document" :content="$t('test_track.plan_view.view_report')" @click="openReport"/>
           </template>
         </ms-table-header>
       </template>
@@ -138,6 +140,9 @@
         :is-read-only="isReadOnly"
         @refreshTable="search"/>
 
+      <test-report-template-list @openReport="openReport" ref="testReporTtemplateList"/>
+      <test-case-report-view @refresh="initTableData" ref="testCaseReportView"/>
+
     </el-card>
   </div>
 </template>
@@ -173,6 +178,8 @@
   export default {
       name: "TestPlanTestCaseList",
       components: {
+        TestCaseReportView,
+        TestReportTemplateList,
         MsTableOperatorButton,
         MsTableOperator,
         MethodTableItem,
@@ -356,6 +363,9 @@
           }
           this.initTableData();
         },
+        openTestReport() {
+          this.$refs.testReporTtemplateList.open(this.planId);
+        },
         statusChange(param) {
           this.$post('/test/plan/case/edit' , param, () => {
             for (let i = 0; i < this.tableData.length; i++) {
@@ -373,6 +383,16 @@
               this.refreshTestPlanRecent();
             });
           }
+        },
+        openReport(planId, id) {
+          this.getTestPlanById();
+          if (!id) {
+            id = this.testPlan.reportId;
+          }
+          if (!planId) {
+            planId = this.planId;
+          }
+          this.$refs.testCaseReportView.open(planId, id);
         },
         filter(filters) {
           _filter(filters, this.condition);

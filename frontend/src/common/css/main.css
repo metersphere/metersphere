@@ -42,9 +42,8 @@ body {
   padding-top: 0;
 }
 
-/*处理 show-overflow-tooltip 在 Safari 无效
-  el-table-column 设置 width 后，此 css 无效
-  https://github.com/ElemeFE/element/issues/10308 */
-.ms-cell-tooltip .cell.el-tooltip {
-  max-width: 90%;
+/* Safari 表格不错位 */
+.el-table__body {
+  width: 100%;
+  table-layout: fixed !important;
 }
