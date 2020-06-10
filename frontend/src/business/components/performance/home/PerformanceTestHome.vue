@@ -42,10 +42,18 @@
       }
     },
     mounted() {
-      this.result = this.$get('/performance/dashboard/tests', response => {
-        this.values = response.data;
-      });
+      this.getValues();
     },
+    activated() {
+      this.getValues();
+    },
+    methods: {
+      getValues() {
+        this.result = this.$get('/performance/dashboard/tests', response => {
+          this.values = response.data;
+        });
+      }
+    }
   }
 </script>
 

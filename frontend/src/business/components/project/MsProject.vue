@@ -122,6 +122,9 @@
       }
       this.list();
     },
+    activated() {
+      this.list();
+    },
     watch: {
       '$route'(to) {
         if (this.$route.path.split('/')[2] === 'project' &&
