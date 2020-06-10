@@ -13,7 +13,7 @@
             <ms-recent-list :options="projectRecent"/>
             <el-divider/>
             <ms-show-all :index="'/performance/project/all'"/>
-            <ms-create-button v-permission="['test_manager', 'test_user']"  :index="'/performance/project/create'" :title="$t('project.create')"/>
+            <ms-create-button v-if="isTestManagerOrTestUser"  :index="'/performance/project/create'" :title="$t('project.create')"/>
           </el-submenu>
 
           <el-submenu v-if="isCurrentWorkspaceUser"
@@ -22,7 +22,7 @@
             <ms-recent-list :options="testRecent"/>
             <el-divider/>
             <ms-show-all :index="'/performance/test/all'"/>
-            <ms-create-button v-permission="['test_manager', 'test_user']" :index="'/performance/test/create'" :title="$t('load_test.create')"/>
+            <ms-create-button v-if="isTestManagerOrTestUser" :index="'/performance/test/create'" :title="$t('load_test.create')"/>
           </el-submenu>
 
           <el-submenu v-if="isCurrentWorkspaceUser"
@@ -36,7 +36,7 @@
       </el-col>
       <el-col :span="8">
         <el-row type="flex" justify="center">
-          <ms-create-test :show="isCurrentWorkspaceUser" :to="'/performance/test/create'"/>
+          <ms-create-test v-if="isTestManagerOrTestUser" :to="'/performance/test/create'"/>
         </el-row>
       </el-col>
       <el-col :span="8"/>
@@ -46,7 +46,7 @@
 
 <script>
 
-  import {checkoutCurrentWorkspace} from "../../../../common/js/utils";
+  import {checkoutCurrentWorkspace, checkoutTestManagerOrTestUser} from "../../../../common/js/utils";
   import MsCreateTest from "../../common/head/CreateTest";
   import MsRecentList from "../../common/head/RecentList";
   import MsCreateButton from "../../common/head/CreateButton";
@@ -63,6 +63,7 @@
     data() {
       return {
         isCurrentWorkspaceUser: false,
+        isTestManagerOrTestUser: false,
         projectRecent: {
           title: this.$t('project.recent'),
           url: "/project/recent/5",
@@ -96,6 +97,7 @@
     },
     mounted() {
       this.isCurrentWorkspaceUser = checkoutCurrentWorkspace();
+      this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
     },
   }
 

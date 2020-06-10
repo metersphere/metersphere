@@ -363,7 +363,9 @@ export default {
     total: "全部",
     test_name: "所属测试",
     request_result: "请求结果",
-    sub_result: "子请求"
+    sub_result: "子请求",
+    detail: "报告详情",
+    delete: "删除报告",
   },
   test_track: {
     test_track: "测试跟踪",

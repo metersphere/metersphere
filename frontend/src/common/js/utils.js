@@ -1,6 +1,7 @@
 import {
   REFRESH_SESSION_USER_URL,
   ROLE_ORG_ADMIN,
+  ROLE_ADMIN,
   ROLE_TEST_MANAGER,
   ROLE_TEST_USER,
   ROLE_TEST_VIEWER,
@@ -14,6 +15,7 @@ export function hasRole(role) {
   return roles.indexOf(role) > -1;
 }
 
+// 是否含有某个角色
 export function hasRoles(...roles) {
   let user = getCurrentUser();
   let rs = user.roles.map(r => r.id);
@@ -25,21 +27,44 @@ export function hasRoles(...roles) {
   return false;
 }
 
-export function checkoutCurrentOrganization() {
+export function hasRolePermission(role) {
   let user = getCurrentUser();
+  for (let ur of user.userRoles) {
+    if (role === ur.roleId) {
+      if (ur.roleId === ROLE_ADMIN) {
+        return true;
+      } else if (ur.roleId === ROLE_ORG_ADMIN && user.lastOrganizationId === ur.sourceId) {
+        return true;
+      } else if (user.lastWorkspaceId === ur.sourceId) {
+        return true;
+      }
+    }
+  }
+  return false
+}
+
+//是否含有对应组织或工作空间的角色
+export function hasRolePermissions(...roles) {
+  for (let role of roles) {
+    if (hasRolePermission(role)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+export function checkoutCurrentOrganization() {
   // 查看当前用户是否是 lastOrganizationId 的组织管理员
-  return user.userRoles.filter(ur => hasRole(ROLE_ORG_ADMIN) && user.lastOrganizationId === ur.sourceId).length > 0;
+  return hasRolePermissions(ROLE_ORG_ADMIN);
 }
 
 export function checkoutCurrentWorkspace() {
-  let user = getCurrentUser();
   // 查看当前用户是否是 lastWorkspaceId 的工作空间用户
-  return user.userRoles.filter(ur => hasRoles(ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER) && user.lastWorkspaceId === ur.sourceId).length > 0;
+  return hasRolePermissions(ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER);
 }
 
 export function checkoutTestManagerOrTestUser() {
-  let user = getCurrentUser();
-  return user.userRoles.filter(ur => hasRoles(ROLE_TEST_MANAGER, ROLE_TEST_USER) && user.lastWorkspaceId === ur.sourceId).length > 0;
+  return hasRolePermissions(ROLE_TEST_MANAGER, ROLE_TEST_USER);
 }
 
 export function getCurrentOrganizationId() {

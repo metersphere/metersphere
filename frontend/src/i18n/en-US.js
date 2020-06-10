@@ -364,7 +364,9 @@ export default {
     total: "Total",
     test_name: "Test",
     request_result: "Result",
-    sub_result: "Sub Result"
+    sub_result: "Sub Result",
+    detail: "Report detail",
+    delete: "Delete report",
   },
   test_track: {
     test_track: "Track",
