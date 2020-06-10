@@ -48,7 +48,9 @@
       :title="$t('test_resource_pool.create_resource_pool')"
       :visible.sync="createVisible" width="70%"
       @closed="closeFunc"
-      :destroy-on-close="true">
+      :destroy-on-close="true"
+      v-loading="result.loading"
+    >
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
                ref="createTestResourcePoolForm">
         <el-form-item :label="$t('commons.name')" prop="name">
