@@ -41,3 +41,9 @@ body {
 .table-card > .el-card__body {
   padding-top: 0;
 }
+
+/* Safari 表格不错位 */
+.el-table__body {
+  width: 100%;
+  table-layout: fixed !important;
+}

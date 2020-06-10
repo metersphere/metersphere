@@ -37,11 +37,19 @@
         result: {},
       }
     },
-    mounted() {
-      this.result = this.$get('/api/report/dashboard/tests', response => {
-        this.values = response.data;
-      });
+    activated() {
+      this.getValues();
     },
+    mounted() {
+      this.getValues();
+    },
+    methods: {
+      getValues() {
+        this.result = this.$get('/api/report/dashboard/tests', response => {
+          this.values = response.data;
+        });
+      }
+    }
   }
 </script>
 

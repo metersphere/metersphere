@@ -56,6 +56,9 @@
 
     created() {
       this.search();
+    },
+    activated() {
+      this.search();
     }
   }
 </script>

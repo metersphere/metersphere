@@ -15,7 +15,7 @@
     props: ['values'],
     data() {
       return {
-        endDate: new Date(),
+        endDate: (new Date().getTime() + 7*24*60*60*1000),
         colorRange: ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127'],
       }
     },

@@ -112,8 +112,7 @@ CREATE TABLE IF NOT EXISTS `role` (
     PRIMARY KEY (`id`)
 )
     ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-   ;
+    DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `system_parameter` (
     `param_key`   varchar(64) CHARACTER SET utf8mb4 NOT NULL COMMENT 'Parameter name',
@@ -123,8 +122,7 @@ CREATE TABLE IF NOT EXISTS `system_parameter` (
     PRIMARY KEY (`param_key`)
 )
     ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-   ;
+    DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `test_resource` (
     `id`                    varchar(50) NOT NULL COMMENT 'Test resource ID',
@@ -136,8 +134,7 @@ CREATE TABLE IF NOT EXISTS `test_resource` (
     PRIMARY KEY (`id`)
 )
     ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-   ;
+    DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `test_resource_pool` (
     `id`          varchar(50) NOT NULL COMMENT 'Test resource pool ID',
@@ -150,8 +147,7 @@ CREATE TABLE IF NOT EXISTS `test_resource_pool` (
     PRIMARY KEY (`id`)
 )
     ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-   ;
+    DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `user` (
     `id`                   varchar(50) COLLATE utf8mb4_bin NOT NULL COMMENT 'User ID',
@@ -168,8 +164,7 @@ CREATE TABLE IF NOT EXISTS `user` (
     PRIMARY KEY (`id`)
 )
     ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-   ;
+    DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `user_role` (
     `id`          varchar(50) NOT NULL COMMENT 'ID of user''s role info',
@@ -181,8 +176,7 @@ CREATE TABLE IF NOT EXISTS `user_role` (
     PRIMARY KEY (`id`)
 )
     ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-   ;
+    DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `workspace` (
     `id`              varchar(50) NOT NULL COMMENT 'Workspace ID ',
@@ -194,8 +188,7 @@ CREATE TABLE IF NOT EXISTS `workspace` (
     PRIMARY KEY (`id`)
 )
     ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-   ;
+    DEFAULT CHARSET = utf8mb4;
 
 -- api start
 

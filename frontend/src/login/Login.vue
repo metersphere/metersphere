@@ -4,7 +4,7 @@
       <el-col :span="12">
         <el-form :model="form" :rules="rules" ref="form">
           <div class="logo">
-            <img src="../assets/MeterSphere-彩色.png" style="width: 224px" alt="">
+            <img src="../assets/logo-dark-MeterSphere.svg" style="width: 224px" alt="">
           </div>
           <div class="title">
             <span id="s1">{{$t('commons.login')}}</span>
