@@ -36,7 +36,7 @@
             <el-form-item :label="$t('system_parameter_setting.SMTP_password')" prop="password">
             </el-form-item>
             <el-input v-model="formInline.password" :placeholder="$t('system_parameter_setting.SMTP_password')"
-                      autocomplete="new-password" show-password type="text" @focus="changeType">
+                      autocomplete="new-password" show-password type="text" @focus="changeType" ref="input">
             </el-input>
           </el-col>
         </el-row>
@@ -80,6 +80,8 @@
           account: 'xjj0608@163.com',
           password: '2345678',*/
         },
+
+        input: '',
         visible: true,
         result: {},
         showEdit: true,
@@ -116,11 +118,8 @@
     },
     methods: {
       changeType() {
-        this.type = 'password'
+        this.$refs.input = 'password'
       },
-      /*changePass(value) {
-        this.visible = !(value === 'show');
-      },*/
       query() {
         this.result = this.$get("/system/mail/info", response => {
           this.$set(this.formInline, "host", response.data[0].paramValue);
