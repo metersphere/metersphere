@@ -48,7 +48,7 @@ public class ProjectController {
     }
 
     @PostMapping("/add")
-    @RequiresRoles(RoleConstants.TEST_MANAGER)
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER,}, logical = Logical.OR)
     public Project addProject(@RequestBody Project project) {
         return projectService.addProject(project);
     }
@@ -61,13 +61,13 @@ public class ProjectController {
     }
 
     @GetMapping("/delete/{projectId}")
-    @RequiresRoles(RoleConstants.TEST_MANAGER)
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER,}, logical = Logical.OR)
     public void deleteProject(@PathVariable(value = "projectId") String projectId) {
         projectService.deleteProject(projectId);
     }
 
     @PostMapping("/update")
-    @RequiresRoles(RoleConstants.TEST_MANAGER)
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER,}, logical = Logical.OR)
     public void updateProject(@RequestBody Project Project) {
         projectService.updateProject(Project);
     }
