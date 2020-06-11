@@ -59,6 +59,7 @@ public class TestPlanTestCaseService {
         if (StringUtils.equals(TestPlanTestCaseStatus.Prepare.name(), testPlanTestCase.getStatus())) {
             testPlanTestCase.setStatus(TestPlanTestCaseStatus.Underway.name());
         }
+        testPlanTestCase.setExecutor(SessionUtils.getUser().getId());
         testPlanTestCase.setUpdateTime(System.currentTimeMillis());
         testPlanTestCaseMapper.updateByPrimaryKeySelective(testPlanTestCase);
     }

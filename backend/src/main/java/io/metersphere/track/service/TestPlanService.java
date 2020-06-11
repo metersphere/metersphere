@@ -148,7 +148,7 @@ public class TestPlanService {
                 TestCaseWithBLOBs testCase = testCaseMap.get(caseId);
                 TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
                 testPlanTestCase.setId(UUID.randomUUID().toString());
-                testPlanTestCase.setExecutor(testCase.getMaintainer());
+                testPlanTestCase.setExecutor(SessionUtils.getUser().getId());
                 testPlanTestCase.setCaseId(caseId);
                 testPlanTestCase.setCreateTime(System.currentTimeMillis());
                 testPlanTestCase.setUpdateTime(System.currentTimeMillis());
