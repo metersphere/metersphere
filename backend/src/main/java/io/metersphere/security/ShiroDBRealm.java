@@ -68,10 +68,15 @@ public class ShiroDBRealm extends AuthorizingRealm {
         UserDTO user = userService.getUserDTO(userId);
         String msg;
         if (user == null) {
-            msg = "The user does not exist: " + userId;
-            logger.warn(msg);
-            throw new UnknownAccountException(Translator.get("user_not_exist") + userId);
+            user = userService.getUserDTOByEmail(userId);
+            if (user == null) {
+                msg = "The user does not exist: " + userId;
+                logger.warn(msg);
+                throw new UnknownAccountException(Translator.get("user_not_exist") + userId);
+            }
+            userId = user.getId();
         }
+
         // local test
         if (StringUtils.equals("local", runMode)) {
             SessionUser sessionUser = SessionUser.fromUser(user);

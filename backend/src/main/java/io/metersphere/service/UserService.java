@@ -147,6 +147,16 @@ public class UserService {
         return userDTO;
     }
 
+    public UserDTO getUserDTOByEmail(String email) {
+        UserExample example = new UserExample();
+        example.createCriteria().andEmailEqualTo(email);
+        List<User> users = userMapper.selectByExample(example);
+        if (users == null || users.size() <= 0) {
+            return null;
+        }
+        return getUserDTO(users.get(0).getId());
+    }
+
     public UserRoleDTO getUserRole(String userId) {
         UserRoleDTO userRoleDTO = new UserRoleDTO();
         //
