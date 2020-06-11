@@ -5,7 +5,7 @@
 </template>
 
 <script>
-    import {hasRoles} from "../../../../common/js/utils";
+  import {checkoutTestManagerOrTestUser, hasRoles} from "../../../../common/js/utils";
     import {ROLE_TEST_MANAGER, ROLE_TEST_USER} from "../../../../common/js/constants";
 
     export default {
@@ -39,7 +39,7 @@
         }
       },
       mounted() {
-        if (this.isTesterPermission &&!hasRoles(ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
+        if (this.isTesterPermission && !checkoutTestManagerOrTestUser()) {
           this.disabled = true;
         }
       },

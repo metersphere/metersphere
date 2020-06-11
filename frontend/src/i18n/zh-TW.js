@@ -362,7 +362,9 @@ export default {
     total: "全部",
     test_name: "所屬測試",
     request_result: "請求結果",
-    sub_result: "子請求"
+    sub_result: "子請求",
+    detail: "報告詳情",
+    delete: "刪除報告",
   },
   test_track: {
     test_track: "測試跟踪",

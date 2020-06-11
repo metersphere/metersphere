@@ -13,7 +13,7 @@
             <ms-recent-list :options="projectRecent"/>
             <el-divider/>
             <ms-show-all :index="'/track/project/all'"/>
-            <ms-create-button v-permission="['test_manager', 'test_user']" :index="'/track/project/create'" :title="$t('project.create')"/>
+            <ms-create-button v-if="isTestManagerOrTestUser" :index="'/track/project/create'" :title="$t('project.create')"/>
           </el-submenu>
 
           <el-submenu v-if="isCurrentWorkspaceUser"
@@ -23,7 +23,7 @@
             <el-divider/>
             <ms-show-all :index="'/track/case/all'"/>
             <el-menu-item :index="testCaseEditPath" class="blank_item"></el-menu-item>
-            <ms-create-button v-permission="['test_manager', 'test_user']" :index="'/track/case/create'" :title="$t('test_track.case.create_case')"/>
+            <ms-create-button v-if="isTestManagerOrTestUser" :index="'/track/case/create'" :title="$t('test_track.case.create_case')"/>
           </el-submenu>
 
           <el-submenu v-if="isCurrentWorkspaceUser" index="7" popper-class="submenu">
@@ -32,7 +32,7 @@
             <el-divider/>
             <ms-show-all :index="'/track/plan/all'"/>
             <el-menu-item :index="testPlanViewPath" class="blank_item"></el-menu-item>
-            <ms-create-button v-permission="['test_manager', 'test_user']" :index="'/track/plan/create'" :title="$t('test_track.plan.create_plan')"/>
+            <ms-create-button v-if="isTestManagerOrTestUser" :index="'/track/plan/create'" :title="$t('test_track.plan.create_plan')"/>
           </el-submenu>
         </el-menu>
       </el-col>
@@ -43,7 +43,7 @@
 </template>
 <script>
 
-  import {checkoutCurrentWorkspace} from "../../../../common/js/utils";
+  import {checkoutCurrentWorkspace, checkoutTestManagerOrTestUser} from "../../../../common/js/utils";
   import MsShowAll from "../../common/head/ShowAll";
   import MsRecentList from "../../common/head/RecentList";
   import MsCreateButton from "../../common/head/CreateButton";
@@ -54,6 +54,7 @@
     data() {
       return {
         isCurrentWorkspaceUser: false,
+        isTestManagerOrTestUser: false,
         testPlanViewPath: '',
         isRouterAlive: true,
         testCaseEditPath: '',
@@ -100,6 +101,7 @@
     },
     mounted() {
       this.isCurrentWorkspaceUser = checkoutCurrentWorkspace();
+      this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
     },
     methods: {
       reload() {

@@ -19,8 +19,8 @@
             </div>
           </el-col>
           <el-col :span="12" class="head-right">
-            <el-button v-permission="['test_manager', 'test_user']" plain size="mini" @click="handleSave">{{$t('commons.save')}}</el-button>
-            <el-button v-permission="['test_manager', 'test_user']" plain size="mini" @click="handleEdit">{{$t('test_track.plan_view.edit_component')}}</el-button>
+            <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleSave">{{$t('commons.save')}}</el-button>
+            <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleEdit">{{$t('test_track.plan_view.edit_component')}}</el-button>
           </el-col>
         </el-row>
 
@@ -40,7 +40,7 @@
 </template>
 
 <script>
-  import {jsonToMap, mapToJson} from "../../../../../../../common/js/utils";
+  import {checkoutTestManagerOrTestUser, jsonToMap, mapToJson} from "../../../../../../../common/js/utils";
     import BaseInfoComponent from "./TemplateComponent/BaseInfoComponent";
     import TestResultChartComponent from "./TemplateComponent/TestResultChartComponent";
     import TestResultComponent from "./TemplateComponent/TestResultComponent";
@@ -70,8 +70,12 @@
               [3, { name: this.$t('test_track.plan_view.result_distribution'), id: 3 ,type: 'system'}],
               [4, { name: this.$t('test_track.plan_view.custom_component'), id: 4 ,type: 'custom'}]
             ]
-          )
+          ),
+          isTestManagerOrTestUser: false
         }
+      },
+      mounted() {
+        this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
       },
       methods: {
         listenGoBack() {

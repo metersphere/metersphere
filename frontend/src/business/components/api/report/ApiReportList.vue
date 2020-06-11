@@ -29,10 +29,8 @@
           </el-table-column>
           <el-table-column width="150" :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <el-button :is-tester-permission="true" @click="handleView(scope.row)" type="primary"
-                         icon="el-icon-s-data" size="mini" circle/>
-              <el-button :is-tester-permission="true" @click="handleDelete(scope.row)" type="danger"
-                         icon="el-icon-delete" size="mini" circle/>
+              <ms-table-operator-button :tip="$t('api_report.detail')" icon="el-icon-s-data" @exec="handleView(scope.row)" type="primary"/>
+              <ms-table-operator-button :is-tester-permission="true" :tip="$t('api_report.delete')" icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger"/>
             </template>
           </el-table-column>
         </el-table>
@@ -50,9 +48,12 @@
   import MsMainContainer from "../../common/components/MsMainContainer";
   import MsApiReportStatus from "./ApiReportStatus";
   import {_filter, _sort} from "../../../../common/js/utils";
+  import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
 
   export default {
-    components: {MsApiReportStatus, MsMainContainer, MsContainer, MsTableHeader, MsTablePagination},
+    components: {
+      MsTableOperatorButton,
+      MsApiReportStatus, MsMainContainer, MsContainer, MsTableHeader, MsTablePagination},
     data() {
       return {
         result: {},

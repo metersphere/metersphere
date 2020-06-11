@@ -24,7 +24,7 @@
 
           <span class="node-title">{{node.label}}</span>
 
-          <span v-if="type == 'edit'" class="node-operate child" v-permission="['test_manager', 'test_user']">
+          <span v-if="type == 'edit' && !disabled" class="node-operate child">
             <el-tooltip
               class="item"
               effect="dark"
@@ -56,7 +56,7 @@
 <script>
 import NodeEdit from "./NodeEdit";
 import {ROLE_TEST_MANAGER, ROLE_TEST_USER} from "../../../../common/js/constants";
-import {hasRoles} from "../../../../common/js/utils";
+import {checkoutTestManagerOrTestUser, hasRoles} from "../../../../common/js/utils";
 
 export default {
   name: "NodeTree",
@@ -97,7 +97,7 @@ export default {
     }
   },
   mounted() {
-    if (!hasRoles(ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
+    if (!checkoutTestManagerOrTestUser()) {
       this.disabled = true;
     }
   },
