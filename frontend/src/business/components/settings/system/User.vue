@@ -336,7 +336,13 @@
         rule: {
           id: [
             {required: true, message: this.$t('user.input_id'), trigger: 'blur'},
-            {min: 2, max: 50, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'}
+            {min: 2, max: 50, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'},
+            {
+              required: true,
+              pattern: /^[a-zA-Z0-9]+$/,
+              message: this.$t('user.special_characters_are_not_supported'),
+              trigger: 'blur'
+            }
           ],
           name: [
             {required: true, message: this.$t('user.input_name'), trigger: 'blur'},
