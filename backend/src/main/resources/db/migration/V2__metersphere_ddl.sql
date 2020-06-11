@@ -319,7 +319,7 @@ CREATE TABLE IF NOT EXISTS `test_case_report_template` (
   PRIMARY KEY (`id`)
 )
     ENGINE=InnoDB
-    DEFAULT CHARSET=utf8mb;
+    DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `test_case_report` (
   `id`             varchar(50) NOT NULL,
