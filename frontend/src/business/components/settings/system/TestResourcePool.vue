@@ -294,10 +294,10 @@
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
-          this.result = this.$get(`/testresourcepool/delete/${row.id}`).then(() => {
+          this.result = this.$get(`/testresourcepool/delete/${row.id}`,() => {
             this.initTableData();
+            this.$success(this.$t('commons.delete_success'));
           });
-          this.$success(this.$t('commons.delete_success'));
         }).catch(() => {
           this.$info(this.$t('commons.delete_cancel'));
         });

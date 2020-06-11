@@ -1,12 +1,11 @@
 package io.metersphere.service;
 
 import com.alibaba.fastjson.JSON;
-import io.metersphere.base.domain.TestResource;
-import io.metersphere.base.domain.TestResourceExample;
-import io.metersphere.base.domain.TestResourcePool;
-import io.metersphere.base.domain.TestResourcePoolExample;
+import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.TestResourceMapper;
 import io.metersphere.base.mapper.TestResourcePoolMapper;
+import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
@@ -27,6 +26,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -49,6 +49,8 @@ public class TestResourcePoolService {
     private TestResourceMapper testResourceMapper;
     @Resource
     private RestTemplate restTemplate;
+    @Resource
+    private LoadTestMapper loadTestMapper;
 
     public TestResourcePoolDTO addTestResourcePool(TestResourcePoolDTO testResourcePool) {
         checkTestResourcePool(testResourcePool);
@@ -62,8 +64,21 @@ public class TestResourcePoolService {
     }
 
     public void deleteTestResourcePool(String testResourcePoolId) {
+        // check test is Running Starting Error
+        checkTestStatus(testResourcePoolId);
         deleteTestResource(testResourcePoolId);
         testResourcePoolMapper.deleteByPrimaryKey(testResourcePoolId);
+    }
+
+    public void checkTestStatus(String testResourcePoolId) {
+        List list = Arrays.asList(PerformanceTestStatus.Running, PerformanceTestStatus.Starting, PerformanceTestStatus.Error);
+        LoadTestExample example = new LoadTestExample();
+        example.createCriteria()
+                .andTestResourcePoolIdEqualTo(testResourcePoolId)
+                .andStatusIn(list);
+        if (loadTestMapper.countByExample(example) > 0) {
+            MSException.throwException(Translator.get("test_resource_pool_is_use"));
+        }
     }
 
     public void updateTestResourcePool(TestResourcePoolDTO testResourcePool) {
