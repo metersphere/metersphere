@@ -124,7 +124,7 @@
               :key="item.id"
               :label="item.name"
               :value="item.id">
-              <span class="ws-member-name">{{ item.name }}</span>
+              <span class="ws-member-id">{{ item.id }}</span>
               <span class="ws-member-email">{{ item.email }}</span>
             </el-option>
           </el-select>
@@ -491,7 +491,7 @@
     cursor: pointer;
   }
 
-  .ws-member-name {
+  .ws-member-id {
     float: left;
   }
 

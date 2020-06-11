@@ -107,7 +107,8 @@ public class JmeterDocumentParser implements DocumentParser {
                     } else if (nodeNameEquals(ele, CONFIG_TEST_ELEMENT)) {
                         processConfigTestElement(ele);
                     } else if (nodeNameEquals(ele, DNS_CACHE_MANAGER)) {
-                        processDnsCacheManager(ele);
+                        // todo dns cache manager bug:  https://bz.apache.org/bugzilla/show_bug.cgi?id=63858
+                        // processDnsCacheManager(ele);
                     } else if (nodeNameEquals(ele, ARGUMENTS)) {
                         processArguments(ele);
                     } else if (nodeNameEquals(ele, RESPONSE_ASSERTION)) {
