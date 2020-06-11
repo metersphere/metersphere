@@ -53,7 +53,6 @@
 <style scoped>
   #header-top {
     width: 100%;
-    height: 40px;
     padding: 0 10px;
     background-color: rgb(44, 42, 72);
     color: rgb(245, 245, 245);
@@ -62,11 +61,14 @@
 
   .logo {
     width: 156px;
+    margin-bottom: 0;
+    border: 0;
     margin-right: 20px;
     display: inline-block;
-    line-height: 40px;
+    line-height: 37px;
     background-size: 156px 30px;
-    height: 40px;
+    box-sizing: border-box;
+    height: 37px;
     background-repeat: no-repeat;
     background-position: 50% center;
     background-image: url("../assets/logo-light-MeterSphere.svg");

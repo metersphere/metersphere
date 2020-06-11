@@ -54,4 +54,9 @@
 </script>
 <style scoped>
 
+  .el-menu >>> .el-menu-item {
+    box-sizing: border-box;
+    height: 37px;
+  }
+
 </style>
