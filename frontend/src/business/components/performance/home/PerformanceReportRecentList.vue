@@ -5,17 +5,17 @@
     </template>
     <el-table :data="tableData" class="table-content" @row-click="link">
       <el-table-column prop="name" :label="$t('commons.name')" width="150" show-overflow-tooltip/>
-      <el-table-column width="200" :label="$t('commons.create_time')">
+      <el-table-column width="250" :label="$t('commons.create_time')">
         <template v-slot:default="scope">
           <span>{{ scope.row.createTime | timestampFormatDate }}</span>
         </template>
       </el-table-column>
-      <el-table-column width="200" :label="$t('commons.update_time')">
+      <el-table-column width="250" :label="$t('commons.update_time')">
         <template v-slot:default="scope">
           <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
         </template>
       </el-table-column>
-      <el-table-column width="150" prop="status" :label="$t('commons.status')">
+      <el-table-column  prop="status" :label="$t('commons.status')">
         <template v-slot:default="{row}">
           <ms-performance-report-status :row="row"/>
         </template>
