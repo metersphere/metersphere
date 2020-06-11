@@ -171,6 +171,7 @@ export default {
     'mobile_number_format_is_incorrect': '手機號碼格式不正確',
     'email_format_is_incorrect': '郵箱格式不正確',
     'delete_confirm': '這個用戶確定要刪除嗎?',
+    'input_id_placeholder': '請輸入ID (只支持數字、英文字母)'
   },
   role: {
     'please_choose_role': '請選擇角色',

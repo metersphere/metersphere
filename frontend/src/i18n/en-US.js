@@ -174,6 +174,7 @@ export default {
     'mobile_number_format_is_incorrect': 'Mobile number format is incorrect',
     'email_format_is_incorrect': 'Email format is incorrect',
     'delete_confirm': 'Are you sure you want to delete this User?',
+    'input_id_placeholder': 'Please enter ID (only supports numbers and English letters)'
   },
   role: {
     'please_choose_role': 'Please Choose Role',
