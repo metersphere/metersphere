@@ -235,7 +235,7 @@ public class TestPlanService {
 
     private double getPercentWithTwoDecimals(double value) {
         return new BigDecimal(value * 100)
-                .setScale(2, BigDecimal.ROUND_HALF_UP)
+                .setScale(1, BigDecimal.ROUND_HALF_UP)
                 .doubleValue();
     }
 
