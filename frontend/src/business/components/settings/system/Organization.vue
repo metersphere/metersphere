@@ -105,7 +105,7 @@
               :key="item.id"
               :label="item.name"
               :value="item.id">
-              <span class="org-member-name">{{ item.name }}</span>
+              <span class="org-member-id">{{ item.id }}</span>
               <span class="org-member-email">{{ item.email }}</span>
             </el-option>
           </el-select>
@@ -458,7 +458,7 @@
     cursor: pointer;
   }
 
-  .org-member-name {
+  .org-member-id {
     float: left;
   }
 
