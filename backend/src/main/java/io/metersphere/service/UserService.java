@@ -101,6 +101,10 @@ public class UserService {
 
     private void checkUserParam(User user) {
 
+        if (StringUtils.isBlank(user.getId())) {
+            MSException.throwException(Translator.get("user_id_is_null"));
+        }
+
         if (StringUtils.isBlank(user.getName())) {
             MSException.throwException(Translator.get("user_name_is_null"));
         }
