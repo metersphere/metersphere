@@ -1,24 +1,38 @@
 import router from './components/common/router/router'
 import {TokenKey} from '../common/js/constants';
+import {hasRolePermissions, hasRoles} from "../common/js/utils";
 
 const whiteList = ['/login']; // no redirect whitelist
 
 export const permission = {
   inserted(el, binding) {
-    const { value } = binding;
-    const rolesString = localStorage.getItem("roles");
-    const roles = rolesString.split(',');
-    if (value && value instanceof Array && value.length > 0) {
-      const permissionRoles = value;
-      const hasPermission = roles.some(role => {
-        return permissionRoles.includes(role)
-      });
-      if (!hasPermission) {
-        el.parentNode && el.parentNode.removeChild(el)
-      }
-    } else {
-      throw new Error(`need roles! Like v-permission="['admin','editor']"`)
+    checkRolePermission(el, binding, 'permission');
+  }
+};
+
+export const roles = {
+  inserted(el, binding) {
+    checkRolePermission(el, binding, 'roles');
+  }
+};
+
+function checkRolePermission(el, binding, type) {
+  const { value } = binding;
+  const rolesString = localStorage.getItem("roles");
+  const roles = rolesString.split(',');
+  if (value && value instanceof Array && value.length > 0) {
+    const permissionRoles = value;
+    let hasPermission = false;
+    if (type === 'roles') {
+      hasPermission  = hasRoles(...permissionRoles);
+    } else if (type === 'permission') {
+      hasPermission = hasRolePermissions(...permissionRoles);
     }
+    if (!hasPermission) {
+      el.parentNode && el.parentNode.removeChild(el)
+    }
+  } else {
+    throw new Error(`need roles! Like v-permission="['admin','editor']"`)
   }
 }
 
