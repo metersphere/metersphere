@@ -201,11 +201,6 @@ public class TestResourcePoolService {
 
     private boolean validateNode(NodeDTO node) {
         try {
-            HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
-            httpRequestFactory.setConnectionRequestTimeout(4000);
-            httpRequestFactory.setConnectTimeout(4000);
-            httpRequestFactory.setReadTimeout(5000);
-            restTemplate.setRequestFactory(httpRequestFactory);
             ResponseEntity<String> entity = restTemplate.getForEntity(String.format(nodeControllerUrl, node.getIp(), node.getPort()), String.class);
             return HttpStatus.OK.equals(entity.getStatusCode());
         } catch (Exception e) {

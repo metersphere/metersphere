@@ -6,6 +6,7 @@ import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.performance.engine.AbstractEngine;
@@ -84,7 +85,12 @@ public class DockerTestEngine extends AbstractEngine {
         testRequest.setTestData(context.getTestData());
         testRequest.setEnv(context.getEnv());
 
-        restTemplate.postForObject(uri, testRequest, String.class);
+        try {
+            restTemplate.postForObject(uri, testRequest, String.class);
+        } catch (Exception e) {
+            LogUtil.error("run test fail..." + testId);
+            MSException.throwException(Translator.get("start_engine_fail"));
+        }
     }
 
     @Override
@@ -97,7 +103,12 @@ public class DockerTestEngine extends AbstractEngine {
             Integer port = node.getPort();
 
             String uri = String.format(BASE_URL + "/jmeter/container/stop/" + testId, ip, port);
-            restTemplate.getForObject(uri, String.class);
+            try {
+                restTemplate.getForObject(uri, String.class);
+            } catch (Exception e) {
+                LogUtil.error("stop load test fail... " + testId);
+                MSException.throwException(Translator.get("delete_fail"));
+            }
         });
     }
 
