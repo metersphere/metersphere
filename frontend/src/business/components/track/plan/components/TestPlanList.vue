@@ -29,8 +29,8 @@
         :label="$t('test_track.plan.plan_status')"
         show-overflow-tooltip>
         <template v-slot:default="scope">
-          <div @click.stop="false">
-            <el-dropdown class="test-case-status" @command="statusChange">
+          <span @click.stop="clickt = 'stop'">
+            <el-dropdown v-permission="['test_manager','test_user']" class="test-case-status" @command="statusChange">
               <span class="el-dropdown-link">
                 <plan-status-table-item :value="scope.row.status"/>
               </span>
@@ -46,7 +46,8 @@
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
-          </div>
+          </span>
+          <plan-status-table-item v-permission="['test_viewer']" :value="scope.row.status"/>
         </template>
       </el-table-column>
       <el-table-column

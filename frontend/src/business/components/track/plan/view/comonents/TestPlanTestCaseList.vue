@@ -88,8 +88,8 @@
           column-key="status"
           :label="$t('test_track.plan_view.execute_result')">
           <template v-slot:default="scope">
-            <div @click.stop="false">
-              <el-dropdown class="test-case-status" @command="statusChange" >
+            <span @click.stop="clickt = 'stop'">
+              <el-dropdown v-permission="['test_manager','test_user']" class="test-case-status" @command="statusChange" >
                 <span class="el-dropdown-link">
                   <status-table-item :value="scope.row.status"/>
                 </span>
@@ -108,7 +108,8 @@
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
-            </div>
+            </span>
+            <status-table-item v-permission="['test_viewer']" :value="scope.row.status"/>
           </template>
         </el-table-column>
 
