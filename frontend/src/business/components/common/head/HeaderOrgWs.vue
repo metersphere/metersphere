@@ -104,6 +104,9 @@
         }
         this.$post("/user/switch/source/org/" + orgId, {}, response => {
           saveLocalStorage(response);
+          if (response.data.workspaceId) {
+            localStorage.setItem("workspace_id", response.data.workspaceId);
+          }
           this.$router.push('/');
           window.location.reload();
         });

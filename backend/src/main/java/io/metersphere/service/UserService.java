@@ -22,6 +22,7 @@ import io.metersphere.i18n.Translator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.DisabledAccountException;
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -48,6 +49,9 @@ public class UserService {
     private WorkspaceMapper workspaceMapper;
     @Resource
     private ExtUserMapper extUserMapper;
+    @Lazy
+    @Resource
+    private WorkspaceService workspaceService;
 
     public UserDTO insert(UserRequest user) {
         checkUserParam(user);
@@ -250,11 +254,16 @@ public class UserService {
         SessionUser sessionUser = SessionUtils.getUser();
         // 获取最新UserDTO
         UserDTO user = getUserDTO(sessionUser.getId());
-
         User newUser = new User();
+
         if (StringUtils.equals("organization", sign)) {
             user.setLastOrganizationId(sourceId);
-            user.setLastWorkspaceId("");
+            List<Workspace> workspaces = workspaceService.getWorkspaceListByOrgIdAndUserId(sourceId);
+            if (workspaces.size() > 0) {
+                user.setLastWorkspaceId(workspaces.get(0).getId());
+            } else {
+                user.setLastWorkspaceId("");
+            }
         }
         if (StringUtils.equals("workspace", sign)) {
             Workspace workspace = workspaceMapper.selectByPrimaryKey(sourceId);
