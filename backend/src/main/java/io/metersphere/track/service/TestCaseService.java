@@ -6,6 +6,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
+import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.BeanUtils;
@@ -63,6 +64,9 @@ public class TestCaseService {
 
     @Resource
     UserMapper userMapper;
+
+    @Resource
+    UserRoleMapper userRoleMapper;
 
     public void addTestCase(TestCaseWithBLOBs testCase) {
         testCase.setName(testCase.getName());
@@ -196,10 +200,12 @@ public class TestCaseService {
                 .map(TestCase::getName)
                 .collect(Collectors.toSet());
 
-        UserExample userExample =  new UserExample();
-        userExample.createCriteria().andLastWorkspaceIdEqualTo(currentWorkspaceId);
-        List<User> users = userMapper.selectByExample(userExample);
-        Set<String> userIds = users.stream().map(User::getId).collect(Collectors.toSet());
+        UserRoleExample userRoleExample = new UserRoleExample();
+        userRoleExample.createCriteria()
+                .andRoleIdIn(Arrays.asList(RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER))
+                .andSourceIdEqualTo(currentWorkspaceId);
+
+        Set<String> userIds = userRoleMapper.selectByExample(userRoleExample).stream().map(UserRole::getUserId).collect(Collectors.toSet());
 
         EasyExcelListener easyExcelListener = null;
         List<ExcelErrData<TestCaseExcelData>> errList = null;
