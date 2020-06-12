@@ -162,9 +162,7 @@
     _filter,
     _sort,
     checkoutTestManagerOrTestUser,
-    hasRoles,
-    humpToLine,
-    tableFilter
+    hasRoles
   } from '../../../../../../common/js/utils';
   import PriorityTableItem from "../../../common/tableItems/planview/PriorityTableItem";
   import StatusTableItem from "../../../common/tableItems/planview/StatusTableItem";

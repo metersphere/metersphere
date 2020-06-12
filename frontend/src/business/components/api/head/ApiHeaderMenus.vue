@@ -7,25 +7,25 @@
             {{ $t("i18n.home") }}
           </el-menu-item>
 
-          <el-submenu v-if="isCurrentWorkspaceUser" index="3">
+          <el-submenu v-permission="['test_manager','test_user','test_viewer']" index="3">
             <template v-slot:title>{{$t('commons.project')}}</template>
             <ms-recent-list :options="projectRecent"/>
             <el-divider class="menu-divider"/>
             <ms-show-all :index="'/api/project/all'"/>
-            <ms-create-button v-if="isTestManagerOrTestUser" :index="'/api/project/create'"
+            <ms-create-button v-permission="['test_manager','test_user']" :index="'/api/project/create'"
                               :title="$t('project.create')"/>
           </el-submenu>
 
-          <el-submenu v-if="isCurrentWorkspaceUser" index="4">
+          <el-submenu v-permission="['test_manager','test_user','test_viewer']" index="4">
             <template v-slot:title>{{$t('commons.test')}}</template>
             <ms-recent-list :options="testRecent"/>
             <el-divider class="menu-divider"/>
             <ms-show-all :index="'/api/test/list/all'"/>
-            <ms-create-button v-if="isTestManagerOrTestUser" :index="'/api/test/create'"
+            <ms-create-button v-permission="['test_manager','test_user']" :index="'/api/test/create'"
                               :title="$t('load_test.create')"/>
           </el-submenu>
 
-          <el-submenu v-if="isCurrentWorkspaceUser" index="5">
+          <el-submenu v-permission="['test_manager','test_user','test_viewer']" index="5">
             <template v-slot:title>{{$t('commons.report')}}</template>
             <ms-recent-list :options="reportRecent"/>
             <el-divider class="menu-divider"/>
@@ -35,7 +35,7 @@
       </el-col>
       <el-col :span="8">
         <el-row type="flex" justify="center">
-          <ms-create-test v-if="isTestManagerOrTestUser" :to="'/api/test/create'"/>
+          <ms-create-test v-permission="['test_manager','test_user']" :to="'/api/test/create'"/>
         </el-row>
       </el-col>
       <el-col :span="8"/>
@@ -46,7 +46,6 @@
 
 <script>
 
-  import {checkoutCurrentWorkspace, checkoutTestManagerOrTestUser} from "../../../../common/js/utils";
   import MsRecentList from "../../common/head/RecentList";
   import MsShowAll from "../../common/head/ShowAll";
   import MsCreateButton from "../../common/head/CreateButton";
@@ -57,8 +56,6 @@
     components: {MsCreateTest, MsCreateButton, MsShowAll, MsRecentList},
     data() {
       return {
-        isCurrentWorkspaceUser: false,
-        isTestManagerOrTestUser: false,
         projectRecent: {
           title: this.$t('project.recent'),
           url: "/project/recent/5",
@@ -88,11 +85,7 @@
           }
         }
       }
-    },
-    mounted() {
-      this.isCurrentWorkspaceUser = checkoutCurrentWorkspace();
-      this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
-    },
+    }
   }
 
 </script>
