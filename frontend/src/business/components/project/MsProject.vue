@@ -45,7 +45,7 @@
           <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item :label="$t('commons.description')" prop="description">
-          <el-input type="textarea" v-model="form.description"></el-input>
+          <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.description"></el-input>
         </el-form-item>
       </el-form>
       <template v-slot:footer>
