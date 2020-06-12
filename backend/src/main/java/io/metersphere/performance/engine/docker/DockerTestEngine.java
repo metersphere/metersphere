@@ -14,7 +14,6 @@ import io.metersphere.performance.engine.EngineContext;
 import io.metersphere.performance.engine.EngineFactory;
 import io.metersphere.performance.engine.docker.request.TestRequest;
 import org.springframework.web.client.RestTemplate;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +22,7 @@ import java.util.stream.Collectors;
 public class DockerTestEngine extends AbstractEngine {
     private static final String BASE_URL = "http://%s:%d";
     private RestTemplate restTemplate;
+    private RestTemplate restTemplateWithTimeOut;
 
     public DockerTestEngine(LoadTestWithBLOBs loadTest) {
         this.init(loadTest);
@@ -31,7 +31,8 @@ public class DockerTestEngine extends AbstractEngine {
     @Override
     protected void init(LoadTestWithBLOBs loadTest) {
         super.init(loadTest);
-        this.restTemplate = CommonBeanFactory.getBean(RestTemplate.class);
+        this.restTemplate = (RestTemplate) CommonBeanFactory.getBean("restTemplate");
+        this.restTemplateWithTimeOut = (RestTemplate) CommonBeanFactory.getBean("restTemplateWithTimeOut");
         // todo 初始化操作
     }
 
@@ -85,12 +86,7 @@ public class DockerTestEngine extends AbstractEngine {
         testRequest.setTestData(context.getTestData());
         testRequest.setEnv(context.getEnv());
 
-        try {
-            restTemplate.postForObject(uri, testRequest, String.class);
-        } catch (Exception e) {
-            LogUtil.error("run test fail..." + testId);
-            MSException.throwException(Translator.get("start_engine_fail"));
-        }
+        restTemplate.postForObject(uri, testRequest, String.class);
     }
 
     @Override
@@ -104,7 +100,7 @@ public class DockerTestEngine extends AbstractEngine {
 
             String uri = String.format(BASE_URL + "/jmeter/container/stop/" + testId, ip, port);
             try {
-                restTemplate.getForObject(uri, String.class);
+                restTemplateWithTimeOut.getForObject(uri, String.class);
             } catch (Exception e) {
                 LogUtil.error("stop load test fail... " + testId);
                 MSException.throwException(Translator.get("delete_fail"));

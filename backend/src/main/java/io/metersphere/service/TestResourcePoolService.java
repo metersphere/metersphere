@@ -48,7 +48,7 @@ public class TestResourcePoolService {
     @Resource
     private TestResourceMapper testResourceMapper;
     @Resource
-    private RestTemplate restTemplate;
+    private RestTemplate restTemplateWithTimeOut;
     @Resource
     private LoadTestMapper loadTestMapper;
 
@@ -201,7 +201,7 @@ public class TestResourcePoolService {
 
     private boolean validateNode(NodeDTO node) {
         try {
-            ResponseEntity<String> entity = restTemplate.getForEntity(String.format(nodeControllerUrl, node.getIp(), node.getPort()), String.class);
+            ResponseEntity<String> entity = restTemplateWithTimeOut.getForEntity(String.format(nodeControllerUrl, node.getIp(), node.getPort()), String.class);
             return HttpStatus.OK.equals(entity.getStatusCode());
         } catch (Exception e) {
             LogUtil.error(e);
