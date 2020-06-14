@@ -152,6 +152,8 @@ curl -sSL https://github.com/metersphere/metersphere/releases/latest/download/qu
     </tbody>
 </table>
 
+详细版本规划请参考 [版本路线图](https://github.com/metersphere/metersphere/blob/master/ROADMAP.md)
+
 ## 技术栈
 
 - 后端: [Spring Boot](https://www.tutorialspoint.com/spring_boot/spring_boot_introduction.htm)
