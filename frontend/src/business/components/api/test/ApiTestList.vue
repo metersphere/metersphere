@@ -143,7 +143,7 @@
         });
       },
       handleCopy(test) {
-        this.result = this.$post("/api/copy", {id: test.id}, () => {
+        this.result = this.$post("/api/copy", {projectId: test.projectId, id: test.id, name: test.name}, () => {
           this.$success(this.$t('commons.copy_success'));
           this.search();
         });

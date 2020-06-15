@@ -1,5 +1,6 @@
 package io.metersphere.api.service;
 
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.APITestResult;
 import io.metersphere.api.dto.QueryAPITestRequest;
 import io.metersphere.api.dto.SaveAPITestRequest;
@@ -25,6 +26,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -73,10 +75,17 @@ public class APITestService {
     }
 
     public void copy(SaveAPITestRequest request) {
+        request.setName(request.getName() + " Copy");
+        try {
+            checkNameExist(request);
+        } catch (Exception e) {
+            request.setName(request.getName() + " " + new Random().nextInt(1000));
+        }
+
         // copy test
         ApiTestWithBLOBs copy = get(request.getId());
         copy.setId(UUID.randomUUID().toString());
-        copy.setName(copy.getName() + " Copy");
+        copy.setName(request.getName());
         copy.setCreateTime(System.currentTimeMillis());
         copy.setUpdateTime(System.currentTimeMillis());
         copy.setStatus(APITestStatus.Saved.name());
@@ -94,6 +103,10 @@ public class APITestService {
 
     public ApiTestWithBLOBs get(String id) {
         return apiTestMapper.selectByPrimaryKey(id);
+    }
+
+    public List<ApiTest> getApiTestByProjectId(String projectId) {
+        return extApiTestMapper.getApiTestByProjectId(projectId);
     }
 
     public void delete(String testId) {
@@ -138,7 +151,7 @@ public class APITestService {
         test.setId(request.getId());
         test.setName(request.getName());
         test.setProjectId(request.getProjectId());
-        test.setScenarioDefinition(request.getScenarioDefinition());
+        test.setScenarioDefinition(JSONObject.toJSONString(request.getScenarioDefinition()));
         test.setUpdateTime(System.currentTimeMillis());
         test.setStatus(APITestStatus.Saved.name());
         apiTestMapper.updateByPrimaryKeySelective(test);
@@ -151,7 +164,7 @@ public class APITestService {
         test.setId(request.getId());
         test.setName(request.getName());
         test.setProjectId(request.getProjectId());
-        test.setScenarioDefinition(request.getScenarioDefinition());
+        test.setScenarioDefinition(JSONObject.toJSONString(request.getScenarioDefinition()));
         test.setCreateTime(System.currentTimeMillis());
         test.setUpdateTime(System.currentTimeMillis());
         test.setStatus(APITestStatus.Saved.name());
@@ -194,7 +207,4 @@ public class APITestService {
         }
     }
 
-    public List<ApiTest> getApiTestByProjectId(String projectId) {
-        return extApiTestMapper.getApiTestByProjectId(projectId);
-    }
 }
