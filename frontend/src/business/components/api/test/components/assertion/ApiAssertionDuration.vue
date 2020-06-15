@@ -15,13 +15,13 @@
 
 <script>
 
-  import {ResponseTime} from "../../model/ScenarioModel";
+  import {Duration} from "../../model/ScenarioModel";
 
   export default {
-    name: "MsApiAssertionResponseTime",
+    name: "MsApiAssertionDuration",
 
     props: {
-      duration: ResponseTime,
+      duration: Duration,
       value: [Number, String],
       edit: Boolean,
       callback: Function,

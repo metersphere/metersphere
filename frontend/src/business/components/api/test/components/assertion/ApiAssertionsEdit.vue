@@ -13,7 +13,7 @@
       <div>
         {{$t("api_test.request.assertions.response_time")}}
       </div>
-      <ms-api-assertion-response-time :is-read-only="isReadOnly" v-model="assertions.duration.value" :duration="assertions.duration" :edit="true"/>
+      <ms-api-assertion-duration :is-read-only="isReadOnly" v-model="assertions.duration.value" :duration="assertions.duration" :edit="true"/>
     </div>
   </div>
 
@@ -21,13 +21,13 @@
 
 <script>
   import MsApiAssertionRegex from "./ApiAssertionRegex";
-  import MsApiAssertionResponseTime from "./ApiAssertionResponseTime";
+  import MsApiAssertionDuration from "./ApiAssertionDuration";
   import {Assertions} from "../../model/ScenarioModel";
 
   export default {
     name: "MsApiAssertionsEdit",
 
-    components: {MsApiAssertionResponseTime, MsApiAssertionRegex},
+    components: {MsApiAssertionDuration, MsApiAssertionRegex},
 
     props: {
       assertions: Assertions,
