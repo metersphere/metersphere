@@ -68,7 +68,7 @@
               [1, { name: this.$t('test_track.plan_view.base_info'), id: 1 , type: 'system'}],
               [2, { name: this.$t('test_track.plan_view.test_result'), id: 2 , type: 'system'}],
               [3, { name: this.$t('test_track.plan_view.result_distribution'), id: 3 ,type: 'system'}],
-              [4, { name: '失败用例', id: 4 ,type: 'system'}],
+              [4, { name: this.$t('test_track.plan_view.failure_case'), id: 4 ,type: 'system'}],
               [5, { name: this.$t('test_track.plan_view.custom_component'), id: 5 ,type: 'custom'}]
             ]
           ),

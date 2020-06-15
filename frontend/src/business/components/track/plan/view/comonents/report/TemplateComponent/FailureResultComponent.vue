@@ -1,6 +1,6 @@
 <template>
 
-  <common-component :title="'失败用例'">
+  <common-component :title="$t('test_track.plan_view.failure_case')">
     <template>
       <el-table
         row-key="id"
