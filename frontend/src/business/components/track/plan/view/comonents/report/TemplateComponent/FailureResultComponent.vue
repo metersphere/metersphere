@@ -60,7 +60,6 @@
         </el-table-column>
 
         <el-table-column
-          sortable
           prop="updateTime"
           :label="$t('commons.update_time')"
           show-overflow-tooltip>
@@ -90,22 +89,24 @@
           default() {
             return [
               {
-                moduleName: this.$t('test_track.module.module') + '1',
-                caseCount: '14',
-                passRate: 10.8,
-                issuesCount: 3
+                name: 'testCase1',
+                priority: 'P1',
+                type: 'api',
+                method: 'auto',
+                nodePath: '/module1/module2',
+                executorName: "Tom",
+                status: "Failure",
+                updateTime: new Date(),
               },
               {
-                moduleName: this.$t('test_track.module.module') + '2',
-                caseCount: '24',
-                passRate: 40,
-                issuesCount: 6
-              },
-              {
-                moduleName: this.$t('test_track.module.module') + '3',
-                caseCount: '50',
-                passRate: 76.9,
-                issuesCount: 8
+                name: 'testCase2',
+                priority: 'P0',
+                type: 'functional',
+                method: 'manual',
+                nodePath: '/module1',
+                executorName: "Micheal",
+                status: "Failure",
+                updateTime: new Date(),
               }
             ]
           }

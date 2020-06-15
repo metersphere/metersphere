@@ -6,8 +6,8 @@
       <base-info-component :is-report="false" v-if="preview.id == 1"/>
       <test-result-component v-if="preview.id == 2"/>
       <test-result-chart-component v-if="preview.id == 3"/>
+      <failure-result-component v-if="preview.id == 4"/>
       <rich-text-component :preview="preview" v-if="preview.type != 'system'"/>
-      <failure-result-component/>
     </div>
 
     <!--报告-->
@@ -15,8 +15,8 @@
       <base-info-component :report-info="metric" v-if="preview.id == 1"/>
       <test-result-component :test-results="metric.moduleExecuteResult" v-if="preview.id == 2"/>
       <test-result-chart-component :execute-result="metric.executeResult" v-if="preview.id == 3"/>
+      <failure-result-component :failure-test-cases="metric.failureTestCases" v-if="preview.id == 4"/>
       <rich-text-component :is-report-view="isReportView" :preview="preview" v-if="preview.type != 'system'"/>
-      <failure-result-component :failure-test-cases="metric.failureTestCases"/>
     </div>
 
   </div>
