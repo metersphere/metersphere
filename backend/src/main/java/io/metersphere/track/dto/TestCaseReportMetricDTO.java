@@ -11,6 +11,7 @@ public class TestCaseReportMetricDTO {
 
     private List<TestCaseReportStatusResultDTO> executeResult;
     private List<TestCaseReportModuleResultDTO> moduleExecuteResult;
+    private List<TestPlanCaseDTO> failureTestCases;
     private List<String> executors;
     private String principal;
     private Long startTime;

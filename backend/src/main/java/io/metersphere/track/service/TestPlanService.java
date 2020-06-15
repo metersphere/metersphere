@@ -3,10 +3,7 @@ package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.TestCaseMapper;
-import io.metersphere.base.mapper.TestCaseNodeMapper;
-import io.metersphere.base.mapper.TestPlanMapper;
-import io.metersphere.base.mapper.TestPlanTestCaseMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
@@ -66,6 +63,9 @@ public class TestPlanService {
 
     @Resource
     ExtProjectMapper extProjectMapper;
+
+    @Resource
+    TestCaseReportMapper testCaseReportMapper;
 
     public void addTestPlan(TestPlan testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -256,6 +256,8 @@ public class TestPlanService {
         QueryTestPlanRequest queryTestPlanRequest = new QueryTestPlanRequest();
         queryTestPlanRequest.setId(planId);
         TestPlanDTO testPlan = extTestPlanMapper.list(queryTestPlanRequest).get(0);
+        TestCaseReport testCaseReport = testCaseReportMapper.selectByPrimaryKey(testPlan.getReportId());
+//        testCaseReport.get
 
         Set<String> executors = new HashSet<>();
         Map<String, TestCaseReportStatusResultDTO> reportStatusResultMap = new HashMap<>();
@@ -274,6 +276,7 @@ public class TestPlanService {
         });
 
         List<TestPlanCaseDTO> testPlanTestCases = listTestCaseByPlanId(planId);
+        List<TestPlanCaseDTO> failureTestCases = new ArrayList<>();
 
         Map<String, TestCaseReportModuleResultDTO> moduleResultMap = new HashMap<>();
 
@@ -281,6 +284,7 @@ public class TestPlanService {
             executors.add(testCase.getExecutor());
             getStatusResultMap(reportStatusResultMap, testCase);
             getModuleResultMap(childIdMap, moduleResultMap, testCase, nodeTrees);
+            getFailureTestCases(failureTestCases, testCase);
         }
 
         nodeTrees.forEach(rootNode -> {
@@ -303,8 +307,15 @@ public class TestPlanService {
         testCaseReportMetricDTO.setExecutors(new ArrayList<>(executors));
         testCaseReportMetricDTO.setExecuteResult(new ArrayList<>(reportStatusResultMap.values()));
         testCaseReportMetricDTO.setModuleExecuteResult(new ArrayList<>(moduleResultMap.values()));
+        testCaseReportMetricDTO.setFailureTestCases(failureTestCases);
 
         return testCaseReportMetricDTO;
+    }
+
+    private void getFailureTestCases(List<TestPlanCaseDTO> failureTestCases, TestPlanCaseDTO testCase) {
+        if (StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Failure.name())) {
+            failureTestCases.add(testCase);
+        }
     }
 
     private void getStatusResultMap(Map<String, TestCaseReportStatusResultDTO> reportStatusResultMap, TestPlanCaseDTO testCase) {
