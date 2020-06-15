@@ -36,7 +36,7 @@
       </el-col>
       <el-col :span="8">
         <el-row type="flex" justify="center">
-          <ms-create-test v-permission="['test_manager','test_user']" :to="'/performance/test/create'"/>
+          <ms-create-test :to="'/performance/test/create'"/>
         </el-row>
       </el-col>
       <el-col :span="8"/>
