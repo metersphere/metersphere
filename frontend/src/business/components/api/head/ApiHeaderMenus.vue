@@ -35,7 +35,7 @@
       </el-col>
       <el-col :span="8">
         <el-row type="flex" justify="center">
-          <ms-create-test v-if="isTestManagerOrTestUser" :to="'/api/test/create'"/>
+          <ms-create-test :to="'/api/test/create'"/>
         </el-row>
       </el-col>
       <el-col :span="8"/>

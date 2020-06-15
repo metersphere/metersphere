@@ -1,5 +1,5 @@
 <template>
-  <router-link v-if="this.show" class="create-test" :to="this.to" v-permission="this.permission">
+  <router-link class="create-test" :to="this.to" v-permission="this.permission">
     <el-button type="primary" size="small">{{this.title}}</el-button>
   </router-link>
 </template>
@@ -8,7 +8,6 @@
   export default {
     name: "MsCreateTest",
     props: {
-      show: Boolean,
       to: [String, Object],
       title: {
         type: String,

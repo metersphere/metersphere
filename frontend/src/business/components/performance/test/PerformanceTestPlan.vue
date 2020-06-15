@@ -3,17 +3,9 @@
     <ms-main-container>
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
-          <div>
-            <el-row type="flex" justify="space-between" align="middle">
-              <span class="title">{{$t('commons.test')}}</span>
-              <span class="search">
-            <el-input type="text" size="small" :placeholder="$t('load_test.search_by_name')"
-                      prefix-icon="el-icon-search"
-                      maxlength="60"
-                      v-model="condition.name" @change="search" clearable/>
-          </span>
-            </el-row>
-          </div>
+          <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search"
+                           :title="$t('commons.test')"
+                           @create="create" :createTip="$t('load_test.create')"/>
         </template>
 
         <el-table :data="tableData" class="test-content"
@@ -89,9 +81,11 @@
   import MsPerformanceTestStatus from "./PerformanceTestStatus";
   import MsTableOperators from "../../common/components/MsTableOperators";
   import {_filter, _sort} from "../../../../common/js/utils";
+  import MsTableHeader from "../../common/components/MsTableHeader";
 
   export default {
     components: {
+      MsTableHeader,
       MsPerformanceTestStatus,
       MsTablePagination,
       MsTableOperator,
@@ -210,6 +204,9 @@
         this.$router.push({
           path: '/performance/test/edit/' + row.id,
         })
+      },
+      create() {
+        this.$router.push('/performance/test/create');
       }
     }
   }
