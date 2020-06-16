@@ -154,7 +154,7 @@ export default {
     'special_characters_are_not_supported': '不支持特殊字符',
     'mobile_number_format_is_incorrect': '手机号码格式不正确',
     'email_format_is_incorrect': '邮箱格式不正确',
-    'password_format_is_incorrect': '密码格式不正确(至少8-16个字符，至少1个大写字母，1个小写字母和1个数字)',
+    'password_format_is_incorrect': '有效密码：8-16位，英文大小写字母+数字',
     'old_password': '旧密码',
     'new_password': '新密码',
     'remove_member': '确定要移除该成员吗',
@@ -268,6 +268,7 @@ export default {
     'pressure_prediction_chart': '压力预估图',
     'user_name': '创建人',
     'special_characters_are_not_supported': '测试名称不支持特殊字符',
+    'pressure_config_params_is_empty': '压力配置参数不能为空!'
   },
   api_test: {
     creator: "创建人",

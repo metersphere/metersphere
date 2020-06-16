@@ -57,7 +57,7 @@
     </el-dialog>
 
     <!--Change personal password-->
-    <el-dialog :title="$t('member.edit_password')" :visible.sync="editPasswordVisible" width="30%" left>
+    <el-dialog :title="$t('member.edit_password')" :visible.sync="editPasswordVisible" width="35%" left>
       <el-form :model="ruleForm" :rules="rules" ref="editPasswordForm" label-width="120px" class="demo-ruleForm">
         <el-form-item :label="$t('member.old_password')" prop="password" style="margin-bottom: 29px">
           <el-input v-model="ruleForm.password" autocomplete="off" show-password/>

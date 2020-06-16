@@ -64,8 +64,9 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off" :placeholder="$t('user.input_phone')"/>
         </el-form-item>
-        <el-form-item :label="$t('commons.password')" prop="password">
-          <el-input v-model="form.password" autocomplete="new-password" show-password :placeholder="$t('user.input_password')"/>
+        <el-form-item :label="$t('commons.password')" prop="password" style="margin-bottom: 29px">
+          <el-input v-model="form.password" autocomplete="new-password" show-password
+                    :placeholder="$t('user.input_password')"/>
         </el-form-item>
         <div v-for="(role, index) in form.roles" :key="index">
           <el-form-item :label="$t('commons.role')+index"
