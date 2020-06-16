@@ -126,10 +126,12 @@ export function _filter(filters, condition) {
     condition.filters = {};
   }
   for (let filter in filters) {
-    if (filters[filter] && filters[filter].length > 0) {
-      condition.filters[filter] = filters[filter];
-    } else {
-      condition.filters[filter] = null;
+    if (filters.hasOwnProperty(filter)) {
+      if (filters[filter] && filters[filter].length > 0) {
+        condition.filters[filter] = filters[filter];
+      } else {
+        condition.filters[filter] = null;
+      }
     }
   }
 }
@@ -137,7 +139,7 @@ export function _filter(filters, condition) {
 //表格数据排序
 export function _sort(column, condition) {
   column.prop = humpToLine(column.prop);
-  if (column.order == 'descending') {
+  if (column.order === 'descending') {
     column.order = 'desc';
   } else {
     column.order = 'asc';
@@ -147,10 +149,9 @@ export function _sort(column, condition) {
   }
   let hasProp = false;
   condition.orders.forEach(order => {
-    if (order.name == column.prop) {
+    if (order.name === column.prop) {
       order.type = column.order;
       hasProp = true;
-      return;
     }
   });
   if (!hasProp) {
