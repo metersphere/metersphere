@@ -11,6 +11,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.config.KafkaProperties;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.dto.LoadTestDTO;
@@ -28,6 +29,9 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -62,6 +66,8 @@ public class PerformanceTestService {
     private TestResourceService testResourceService;
     @Resource
     private ReportService reportService;
+    @Resource
+    private KafkaProperties kafkaProperties;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -197,6 +203,8 @@ public class PerformanceTestService {
         if (StringUtils.equalsAny(loadTest.getStatus(), PerformanceTestStatus.Running.name(), PerformanceTestStatus.Starting.name())) {
             MSException.throwException(Translator.get("load_test_is_running"));
         }
+        // check kafka
+        checkKafka();
 
         LogUtil.info("Load test started " + loadTest.getName());
         // engine type (NODE)
@@ -210,6 +218,31 @@ public class PerformanceTestService {
         // todo：通过调用stop方法能够停止正在运行的engine，但是如果部署了多个backend实例，页面发送的停止请求如何定位到具体的engine
 
         return engine.getReportId();
+    }
+
+    private void checkKafka() {
+        String bootstrapServers = kafkaProperties.getBootstrapServers();
+        String[] servers = StringUtils.split(bootstrapServers, ",");
+        try {
+            for (String s : servers) {
+                String[] ipAndPort = s.split(":");
+                //1,建立tcp
+                String ip = ipAndPort[0];
+                int port = Integer.parseInt(ipAndPort[1]);
+                Socket soc = new Socket();
+                soc.connect(new InetSocketAddress(ip, port), 1000); // 1s timeout
+                //2.输入内容
+                String content = "1010";
+                byte[] bs = content.getBytes();
+                OutputStream os = soc.getOutputStream();
+                os.write(bs);
+                //3.关闭
+                soc.close();
+            }
+        } catch (Exception e) {
+            LogUtil.error(e);
+            MSException.throwException(Translator.get("load_test_kafka_invalid"));
+        }
     }
 
     private void startEngine(LoadTestWithBLOBs loadTest, Engine engine) {
