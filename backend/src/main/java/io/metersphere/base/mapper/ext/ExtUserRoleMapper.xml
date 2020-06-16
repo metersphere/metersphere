@@ -89,7 +89,12 @@
           join role r on r.id = ur.role_id
          where w.id = #{workspaceId} and ur.user_id = #{userId}
     </select>
-
-
-
+    <select id="getTestManagerAndTestUserList" resultType="io.metersphere.base.domain.User">
+        SELECT distinct `user`.* FROM user_role INNER JOIN `user` ON user_role.user_id = `user`.id
+        WHERE user_role.source_id = #{request.workspaceId} And user_role.role_id in ('test_manager', 'test_user')
+        <if test="request.name != null">
+            AND `user`.name like CONCAT('%', #{request.name},'%')
+        </if>
+        order by user_role.update_time desc
+    </select>
 </mapper>
