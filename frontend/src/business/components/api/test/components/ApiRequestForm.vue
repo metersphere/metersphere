@@ -5,7 +5,7 @@
     </el-form-item>
 
     <el-form-item :label="$t('api_test.request.url')" prop="url">
-      <el-input :disabled="isReadOnly" v-model="request.url" maxlength="100" :placeholder="$t('api_test.request.url_description')"
+      <el-input :disabled="isReadOnly" v-model="request.url" maxlength="500" :placeholder="$t('api_test.request.url_description')"
                 @change="urlChange" clearable>
         <el-select :disabled="isReadOnly" v-model="request.method" slot="prepend" class="request-method-select" @change="methodChange">
           <el-option label="GET" value="GET"/>
@@ -74,7 +74,7 @@
             {max: 100, message: this.$t('commons.input_limit', [0, 100]), trigger: 'blur'}
           ],
           url: [
-            {max: 100, required: true, message: this.$t('commons.input_limit', [0, 100]), trigger: 'blur'},
+            {max: 500, required: true, message: this.$t('commons.input_limit', [0, 500]), trigger: 'blur'},
             {validator: validateURL, trigger: 'blur'}
           ]
         }
