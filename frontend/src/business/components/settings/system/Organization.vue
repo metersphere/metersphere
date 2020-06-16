@@ -61,7 +61,7 @@
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
         <el-form-item :label="$t('commons.description')" prop="description">
-          <el-input v-model="form.description" autocomplete="off"/>
+          <el-input v-model="form.description" autocomplete="off" type="textarea"/>
         </el-form-item>
       </el-form>
       <template v-slot:footer>

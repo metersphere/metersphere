@@ -36,6 +36,9 @@
                     #{nodeId}
                 </foreach>
             </if>
+            <if test="request.status != null">
+                and test_plan_test_case.status = #{request.status}
+            </if>
             <if test="request.executor != null">
                 and test_plan_test_case.executor = #{request.executor}
             </if>

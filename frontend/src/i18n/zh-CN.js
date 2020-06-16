@@ -154,7 +154,7 @@ export default {
     'special_characters_are_not_supported': '不支持特殊字符',
     'mobile_number_format_is_incorrect': '手机号码格式不正确',
     'email_format_is_incorrect': '邮箱格式不正确',
-    'password_format_is_incorrect': '密码格式不正确(至少8-16个字符，至少1个大写字母，1个小写字母和1个数字)',
+    'password_format_is_incorrect': '有效密码：8-16位，英文大小写字母+数字+特殊字符（可选）',
     'old_password': '旧密码',
     'new_password': '新密码',
     'remove_member': '确定要移除该成员吗',
@@ -516,6 +516,7 @@ export default {
       create_template: "新建模版",
       report_template: "测试报告模版",
       test_detail: "测试详情",
+      failure_case: "失败用例",
     }
   },
   test_resource_pool: {
