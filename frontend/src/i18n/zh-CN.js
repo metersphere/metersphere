@@ -516,6 +516,7 @@ export default {
       create_template: "新建模版",
       report_template: "测试报告模版",
       test_detail: "测试详情",
+      failure_case: "失败用例",
     }
   },
   test_resource_pool: {

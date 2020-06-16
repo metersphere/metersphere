@@ -517,6 +517,7 @@ export default {
       create_template: "Create template",
       report_template: "Report template",
       test_detail: "Test detail",
+      failure_case: "Failure case",
     }
   },
   test_resource_pool: {

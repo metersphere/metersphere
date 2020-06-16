@@ -40,7 +40,7 @@ export const BODY_TYPE = {
 export const ASSERTION_TYPE = {
   TEXT: "Text",
   REGEX: "Regex",
-  RESPONSE_TIME: "Response Time"
+  DURATION: "Duration"
 }
 
 export const ASSERTION_REGEX_SUBJECT = {
@@ -253,7 +253,7 @@ export class Assertions extends BaseConfig {
 
   initOptions(options) {
     options = options || {};
-    options.duration = new ResponseTime(options.duration);
+    options.duration = new Duration(options.duration);
     return options;
   }
 }
@@ -291,9 +291,9 @@ export class Regex extends AssertionType {
   }
 }
 
-export class ResponseTime extends AssertionType {
+export class Duration extends AssertionType {
   constructor(options) {
-    super(ASSERTION_TYPE.RESPONSE_TIME);
+    super(ASSERTION_TYPE.DURATION);
     this.value = undefined;
 
     this.set(options);
