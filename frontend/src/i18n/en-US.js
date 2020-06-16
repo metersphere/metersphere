@@ -155,7 +155,7 @@ export default {
     'special_characters_are_not_supported': 'Special characters are not supported',
     'mobile_number_format_is_incorrect': 'Mobile number format is incorrect',
     'email_format_is_incorrect': 'Email format is incorrect',
-    'password_format_is_incorrect': 'Password format is incorrect (At least 8-16 characters, at least 1 uppercase letter, 1 lowercase letter and 1 number)',
+    'password_format_is_incorrect': 'Valid password: 8-16 digits, English upper and lower case letters + numbers + special characters (optional)',
     'old_password': 'Old Password',
     'new_password': 'New Password',
     'remove_member': 'Are you sure you want to remove this member',

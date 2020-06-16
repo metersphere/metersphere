@@ -152,7 +152,7 @@ export default {
     'special_characters_are_not_supported': '不支持特殊字符',
     'mobile_number_format_is_incorrect': '手機號碼格式不正確',
     'email_format_is_incorrect': '郵箱格式不正確',
-    'password_format_is_incorrect': '密碼格式不正確(至少8-16個字符,至少1個大寫字母,1個小寫字母和1個數字)',
+    'password_format_is_incorrect': '有效密碼：8-16比特，英文大小寫字母+數位+特殊字元（可選）',
     'old_password': '舊密碼',
     'new_password': '新密碼',
     'remove_member': '確定要移除該成員嗎',
