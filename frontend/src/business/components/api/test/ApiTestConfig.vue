@@ -205,7 +205,7 @@
             })
             break;
           case "export":
-            downloadFile(this.test.name + ".json", JSON.stringify(this.test.scenarioDefinition));
+            downloadFile(this.test.name + ".json", this.test.export());
             break;
         }
       }

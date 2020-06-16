@@ -94,6 +94,7 @@ export class BaseConfig {
 export class Test extends BaseConfig {
   constructor(options) {
     super();
+    this.type = "MS API CONFIG";
     this.version = '1.0.0';
     this.id = uuid();
     this.name = undefined;
@@ -102,6 +103,16 @@ export class Test extends BaseConfig {
 
     this.set(options);
     this.sets({scenarioDefinition: Scenario}, options);
+  }
+
+  export() {
+    let obj = {
+      type: this.type,
+      version: this.version,
+      scenarios: this.scenarioDefinition
+    };
+
+    return JSON.stringify(obj);
   }
 
   initOptions(options) {
