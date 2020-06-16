@@ -268,6 +268,7 @@ export default {
     'pressure_prediction_chart': '压力预估图',
     'user_name': '创建人',
     'special_characters_are_not_supported': '测试名称不支持特殊字符',
+    'pressure_config_params_is_empty': '压力配置参数不能为空!'
   },
   api_test: {
     creator: "创建人",
