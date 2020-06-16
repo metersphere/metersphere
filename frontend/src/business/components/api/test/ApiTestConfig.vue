@@ -39,6 +39,9 @@
                   <el-dropdown-item command="performance" :disabled="create || isReadOnly">
                     {{$t('api_test.create_performance_test')}}
                   </el-dropdown-item>
+                  <el-dropdown-item command="export" :disabled="isDisabled || isReadOnly">
+                    {{$t('api_test.export_config')}}
+                  </el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
 
@@ -57,7 +60,7 @@
   import {Test} from "./model/ScenarioModel"
   import MsApiReportStatus from "../report/ApiReportStatus";
   import MsApiReportDialog from "./ApiReportDialog";
-  import {checkoutTestManagerOrTestUser} from "../../../../common/js/utils";
+  import {checkoutTestManagerOrTestUser, downloadFile} from "../../../../common/js/utils";
 
   export default {
     name: "MsApiTestConfig",
@@ -200,6 +203,9 @@
             this.$router.push({
               path: "/performance/test/create"
             })
+            break;
+          case "export":
+            downloadFile(this.test.name + ".json", JSON.stringify(this.test));
             break;
         }
       }

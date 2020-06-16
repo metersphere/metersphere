@@ -280,6 +280,7 @@ export default {
     key: "鍵",
     value: "值",
     create_performance_test: "創建性能測試",
+    export_config: "匯出配寘",
     scenario: {
       creator: "創建人",
       config: "場景配寘",

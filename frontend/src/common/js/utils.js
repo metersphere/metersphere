@@ -125,7 +125,7 @@ export function _filter(filters, condition) {
   if (!condition.filters) {
     condition.filters = {};
   }
-  for(let filter in filters) {
+  for (let filter in filters) {
     if (filters[filter] && filters[filter].length > 0) {
       condition.filters[filter] = filters[filter];
     } else {
@@ -155,5 +155,21 @@ export function _sort(column, condition) {
   });
   if (!hasProp) {
     condition.orders.push({name: column.prop, type: column.order});
+  }
+}
+
+export function downloadFile(name, content) {
+  const blob = new Blob([content]);
+  if ("download" in document.createElement("a")) {
+    // 非IE下载
+    //  chrome/firefox
+    let aTag = document.createElement('a');
+    aTag.download = name;
+    aTag.href = URL.createObjectURL(blob);
+    aTag.click();
+    URL.revokeObjectURL(aTag.href)
+  } else {
+    // IE10+下载
+    navigator.msSaveBlob(blob, name)
   }
 }

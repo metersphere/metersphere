@@ -283,6 +283,7 @@ export default {
     key: "Key",
     value: "Value",
     create_performance_test: "Create Performance Test",
+    export_config: "Export Configuration",
     scenario: {
       config: "Scenario Config",
       input_name: "Please enter the scenario name",
