@@ -463,7 +463,7 @@ public class JmeterDocumentParser implements DocumentParser {
             elementProp.setAttribute("testname", "Loop Controller");
             elementProp.setAttribute("enabled", "true");
             elementProp.appendChild(createBoolProp(document, "LoopController.continue_forever", false));
-            elementProp.appendChild(createIntProp(document, "LoopController.loops", -1));
+            elementProp.appendChild(createIntProp(document, "LoopController.loops", 1));
             setupElement.appendChild(elementProp);
             setupElement.appendChild(createStringProp(document, "ThreadGroup.num_threads", "1"));
             setupElement.appendChild(createStringProp(document, "ThreadGroup.ramp_time", "1"));
