@@ -10,7 +10,7 @@
                     :placeholder="$t('api_test.key')" show-word-limit/>
         </el-col>
         <el-col>
-          <el-input :disabled="isReadOnly" v-model="item.value" size="small" maxlength="100" @change="change"
+          <el-input :disabled="isReadOnly" v-model="item.value" size="small" maxlength="500" @change="change"
                     :placeholder="$t('api_test.value')" show-word-limit/>
         </el-col>
         <el-col class="kv-delete">

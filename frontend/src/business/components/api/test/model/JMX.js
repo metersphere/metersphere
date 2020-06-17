@@ -33,7 +33,7 @@ export class Element {
   }
 
   commonValue(tag, name, value, defaultValue) {
-    let v = this.getDefault(value, defaultValue)
+    let v = this.getDefault(value, defaultValue);
     return this.add(new Element(tag, {name: name}, v));
   }
 
@@ -73,6 +73,11 @@ export class Element {
     return this.isEmptyValue() && this.isEmptyElement();
   }
 
+  replace(str) {
+    if (!str || !(typeof str === 'string')) return str;
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+  }
+
   toXML(indent) {
     if (indent) {
       this.indent = indent;
@@ -85,10 +90,10 @@ export class Element {
   }
 
   start() {
-    let str = this.indent + '<' + this.name;
+    let str = this.indent + '<' + this.replace(this.name);
     for (let key in this.attributes) {
       if (this.attributes.hasOwnProperty(key)) {
-        str += ' ' + key + '="' + this.attributes[key] + '"';
+        str += ' ' + this.replace(key) + '="' + this.replace(this.attributes[key]) + '"';
       }
     }
     if (this.isEmpty()) {
@@ -101,7 +106,7 @@ export class Element {
 
   content() {
     if (!this.isEmptyValue()) {
-      return this.value;
+      return this.replace(this.value);
     }
 
     let str = '';
@@ -120,7 +125,7 @@ export class Element {
     if (this.isEmpty()) {
       return '\n';
     }
-    let str = '</' + this.name + '>\n';
+    let str = '</' + this.replace(this.name) + '>\n';
     if (!this.isEmptyValue()) {
       return str;
     }

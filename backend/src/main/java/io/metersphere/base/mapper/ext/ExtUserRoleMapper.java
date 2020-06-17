@@ -27,4 +27,5 @@ public interface ExtUserRoleMapper {
     List<User> getBesideOrgMemberList(@Param("orgId") String orgId);
 
 
+    List<User> getTestManagerAndTestUserList(@Param("request") QueryMemberRequest request);
 }

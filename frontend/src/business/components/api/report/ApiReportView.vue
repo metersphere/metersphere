@@ -63,7 +63,12 @@
           this.$get(url, response => {
             this.report = response.data || {};
             if (this.isNotRunning) {
-              this.content = JSON.parse(this.report.content);
+              try {
+                this.content = JSON.parse(this.report.content);
+              } catch (e) {
+                console.log(this.report.content)
+                throw e;
+              }
               this.getFails();
               this.loading = false;
             } else {

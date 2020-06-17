@@ -268,6 +268,7 @@ export default {
     'pressure_prediction_chart': '压力预估图',
     'user_name': '创建人',
     'special_characters_are_not_supported': '测试名称不支持特殊字符',
+    'pressure_config_params_is_empty': '压力配置参数不能为空!'
   },
   api_test: {
     creator: "创建人",
@@ -282,6 +283,7 @@ export default {
     key: "键",
     value: "值",
     create_performance_test: "创建性能测试",
+    export_config: "导出配置",
     scenario: {
       config: "场景配置",
       input_name: "请输入场景名称",

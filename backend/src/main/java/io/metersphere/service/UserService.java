@@ -457,4 +457,7 @@ public class UserService {
         return extUserMapper.getDefaultLanguage(key);
     }
 
+    public List<User> getTestManagerAndTestUserList(QueryMemberRequest request) {
+        return extUserRoleMapper.getTestManagerAndTestUserList(request);
+    }
 }

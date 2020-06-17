@@ -94,6 +94,7 @@ export class BaseConfig {
 export class Test extends BaseConfig {
   constructor(options) {
     super();
+    this.type = "MS API CONFIG";
     this.version = '1.0.0';
     this.id = uuid();
     this.name = undefined;
@@ -102,6 +103,16 @@ export class Test extends BaseConfig {
 
     this.set(options);
     this.sets({scenarioDefinition: Scenario}, options);
+  }
+
+  export() {
+    let obj = {
+      type: this.type,
+      version: this.version,
+      scenarios: this.scenarioDefinition
+    };
+
+    return JSON.stringify(obj);
   }
 
   initOptions(options) {
@@ -377,8 +388,8 @@ class JMXRequest {
     if (request && request instanceof Request && request.url) {
       let url = new URL(request.url);
       this.method = request.method;
-      this.hostname = url.hostname;
-      this.pathname = url.pathname;
+      this.hostname = decodeURIComponent(url.hostname);
+      this.pathname = decodeURIComponent(url.pathname);
       this.port = url.port;
       this.protocol = url.protocol.split(":")[0];
       if (this.method.toUpperCase() !== "GET") {
@@ -418,7 +429,6 @@ class JMXGenerator {
   addScenarios(testPlan, scenarios) {
     scenarios.forEach(s => {
       let scenario = s.clone();
-      scenario.name = this.replace(scenario.name);
 
       let threadGroup = new ThreadGroup(scenario.name || "");
 
@@ -428,8 +438,6 @@ class JMXGenerator {
 
       scenario.requests.forEach(request => {
         if (!request.isValid()) return;
-
-        request.name = this.replace(request.name);
 
         let httpSamplerProxy = new HTTPSamplerProxy(request.name || "", new JMXRequest(request));
 
@@ -453,7 +461,7 @@ class JMXGenerator {
   }
 
   addScenarioVariables(threadGroup, scenario) {
-    let args = this.replaceKV(scenario.variables);
+    let args = this.filterKV(scenario.variables);
     if (args.length > 0) {
       let name = scenario.name + " Variables"
       threadGroup.put(new Arguments(name, args));
@@ -461,7 +469,7 @@ class JMXGenerator {
   }
 
   addScenarioHeaders(threadGroup, scenario) {
-    let headers = this.replaceKV(scenario.headers);
+    let headers = this.filterKV(scenario.headers);
     if (headers.length > 0) {
       let name = scenario.name + " Headers"
       threadGroup.put(new HeaderManager(name, headers));
@@ -470,14 +478,14 @@ class JMXGenerator {
 
   addRequestHeader(httpSamplerProxy, request) {
     let name = request.name + " Headers";
-    let headers = this.replaceKV(request.headers);
+    let headers = this.filterKV(request.headers);
     if (headers.length > 0) {
       httpSamplerProxy.put(new HeaderManager(name, headers));
     }
   }
 
   addRequestArguments(httpSamplerProxy, request) {
-    let args = this.replaceKV(request.parameters);
+    let args = this.filterKV(request.parameters);
     if (args.length > 0) {
       httpSamplerProxy.add(new HTTPSamplerArguments(args));
     }
@@ -486,10 +494,10 @@ class JMXGenerator {
   addRequestBody(httpSamplerProxy, request) {
     let body = [];
     if (request.body.isKV()) {
-      body = this.replaceKV(request.body.kvs);
+      body = this.filterKV(request.body.kvs);
     } else {
       httpSamplerProxy.boolProp('HTTPSampler.postBodyRaw', true);
-      body.push({name: '', value: this.replace(request.body.raw), encode: false});
+      body.push({name: '', value: request.body.raw, encode: false});
     }
 
     httpSamplerProxy.add(new HTTPSamplerArguments(body));
@@ -510,9 +518,9 @@ class JMXGenerator {
   }
 
   getAssertion(regex) {
-    let name = this.replace(regex.description);
+    let name = regex.description;
     let type = JMX_ASSERTION_CONDITION.CONTAINS; // 固定用Match，自己写正则
-    let value = this.replace(regex.expression);
+    let value = regex.expression;
     switch (regex.subject) {
       case ASSERTION_REGEX_SUBJECT.RESPONSE_CODE:
         return new ResponseCodeAssertion(name, type, value);
@@ -546,8 +554,8 @@ class JMXGenerator {
 
   getExtractor(extractCommon) {
     let props = {
-      name: this.replace(extractCommon.variable),
-      expression: this.replace(extractCommon.expression),
+      name: extractCommon.variable,
+      expression: extractCommon.expression,
     }
     let testName = props.name
     switch (extractCommon.type) {
@@ -569,19 +577,8 @@ class JMXGenerator {
     return config.isValid();
   }
 
-  replace(str) {
-    if (!str || !(typeof str === 'string')) return str;
-    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/'/g, "&apos;").replace(/"/g, "&quot;");
-  }
-
-  replaceKV(kvs) {
-    let results = [];
-    kvs.filter(this.filter).forEach(kv => {
-      let name = this.replace(kv.name);
-      let value = this.replace(kv.value);
-      results.push(new KeyValue(name, value));
-    });
-    return results;
+  filterKV(kvs) {
+    return kvs.filter(this.filter);
   }
 
   toXML() {

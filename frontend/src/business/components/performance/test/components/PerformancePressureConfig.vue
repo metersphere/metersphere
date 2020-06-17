@@ -304,6 +304,12 @@
           return false;
         }
 
+        if (!this.threadNumber || !this.duration || !this.rampUpTime || !this.step || !this.rpsLimit) {
+          this.$warning(this.$t('load_test.pressure_config_params_is_empty'));
+          this.$emit('changeActive', '1');
+          return false;
+        }
+
         return true;
       },
       convertProperty() {

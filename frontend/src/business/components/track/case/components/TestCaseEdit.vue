@@ -409,7 +409,7 @@
       },
       getMaintainerOptions() {
         let workspaceId = localStorage.getItem(WORKSPACE_ID);
-        this.$post('/user/ws/member/list/all', {workspaceId:workspaceId}, response => {
+        this.$post('/user/ws/member/tester/list', {workspaceId:workspaceId}, response => {
           this.maintainerOptions = response.data;
         });
       },

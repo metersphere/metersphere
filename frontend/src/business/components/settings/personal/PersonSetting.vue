@@ -57,7 +57,7 @@
     </el-dialog>
 
     <!--Change personal password-->
-    <el-dialog :title="$t('member.edit_password')" :visible.sync="editPasswordVisible" width="30%" left>
+    <el-dialog :title="$t('member.edit_password')" :visible.sync="editPasswordVisible" width="35%" left>
       <el-form :model="ruleForm" :rules="rules" ref="editPasswordForm" label-width="120px" class="demo-ruleForm">
         <el-form-item :label="$t('member.old_password')" prop="password" style="margin-bottom: 29px">
           <el-input v-model="ruleForm.password" autocomplete="off" show-password/>
@@ -128,12 +128,6 @@
         rules:{
           password: [
             {required: true, message: this.$t('user.input_password'), trigger: 'blur'},
-            {
-              required: true,
-              pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,16}$/,
-              message: this.$t('member.password_format_is_incorrect'),
-              trigger: 'blur'
-            }
           ],
           newpassword: [
             {required: true, message: this.$t('user.input_password'), trigger: 'blur'},

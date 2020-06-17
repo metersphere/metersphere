@@ -268,6 +268,7 @@ export default {
     'download_log_file': 'Download',
     'user_name': 'Creator',
     'special_characters_are_not_supported': 'Test name does not support special characters',
+    'pressure_config_params_is_empty': 'Pressure configuration parameters cannot be empty!'
   },
   api_test: {
     creator: "Creator",
@@ -283,6 +284,7 @@ export default {
     key: "Key",
     value: "Value",
     create_performance_test: "Create Performance Test",
+    export_config: "Export Configuration",
     scenario: {
       config: "Scenario Config",
       input_name: "Please enter the scenario name",
