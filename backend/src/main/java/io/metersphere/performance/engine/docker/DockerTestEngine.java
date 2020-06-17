@@ -90,7 +90,7 @@ public class DockerTestEngine extends AbstractEngine {
             restTemplate.postForObject(uri, testRequest, String.class);
         } catch (Exception e) {
             LogUtil.error(e);
-            MSException.throwException(Translator.get("load_test_kafka_invalid"));
+            MSException.throwException(Translator.get("start_engine_fail"));
         }
     }
 
