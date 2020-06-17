@@ -89,27 +89,26 @@
           :label="$t('test_track.plan_view.execute_result')">
           <template v-slot:default="scope">
             <span @click.stop="clickt = 'stop'">
-              <el-dropdown v-permission="['test_manager','test_user']" class="test-case-status" @command="statusChange" >
+              <el-dropdown class="test-case-status" @command="statusChange" >
                 <span class="el-dropdown-link">
                   <status-table-item :value="scope.row.status"/>
                 </span>
                 <el-dropdown-menu slot="dropdown" chang>
-                  <el-dropdown-item :command="{id: scope.row.id, status: 'Pass'}">
+                  <el-dropdown-item :disabled="!isTestManagerOrTestUser" :command="{id: scope.row.id, status: 'Pass'}">
                     {{$t('test_track.plan_view.pass')}}
                   </el-dropdown-item>
-                  <el-dropdown-item :command="{id: scope.row.id, status: 'Failure'}">
+                  <el-dropdown-item :disabled="!isTestManagerOrTestUser" :command="{id: scope.row.id, status: 'Failure'}">
                     {{$t('test_track.plan_view.failure')}}
                   </el-dropdown-item>
-                  <el-dropdown-item :command="{id: scope.row.id, status: 'Blocking'}">
+                  <el-dropdown-item :disabled="!isTestManagerOrTestUser" :command="{id: scope.row.id, status: 'Blocking'}">
                     {{$t('test_track.plan_view.blocking')}}
                   </el-dropdown-item>
-                  <el-dropdown-item :command="{id: scope.row.id, status: 'Skip'}">
+                  <el-dropdown-item :disabled="!isTestManagerOrTestUser" :command="{id: scope.row.id, status: 'Skip'}">
                     {{$t('test_track.plan_view.skip')}}
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
             </span>
-            <status-table-item v-permission="['test_viewer']" :value="scope.row.status"/>
           </template>
         </el-table-column>
 
@@ -199,6 +198,7 @@
           selectIds: new Set(),
           testPlan: {},
           isReadOnly: false,
+          isTestManagerOrTestUser: false,
           priorityFilters: [
             {text: 'P0', value: 'P0'},
             {text: 'P1', value: 'P1'},
@@ -244,6 +244,7 @@
       },
       mounted() {
         this.refreshTableAndPlan();
+        this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
       },
       methods: {
         initTableData() {
