@@ -9,7 +9,6 @@ import io.metersphere.api.dto.SaveAPITestRequest;
 import io.metersphere.api.service.APITestService;
 import io.metersphere.base.domain.ApiTest;
 import io.metersphere.base.domain.ApiTestWithBLOBs;
-import io.metersphere.base.domain.LoadTest;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -19,9 +18,9 @@ import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
-
 import java.util.List;
+
+import javax.annotation.Resource;
 
 @RestController
 @RequestMapping(value = "/api")
