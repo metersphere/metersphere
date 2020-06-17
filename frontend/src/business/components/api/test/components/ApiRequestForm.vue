@@ -5,9 +5,10 @@
     </el-form-item>
 
     <el-form-item :label="$t('api_test.request.url')" prop="url">
-      <el-input :disabled="isReadOnly" v-model="request.url" maxlength="500" :placeholder="$t('api_test.request.url_description')"
-                @change="urlChange" clearable>
-        <el-select :disabled="isReadOnly" v-model="request.method" slot="prepend" class="request-method-select" @change="methodChange">
+      <el-input :disabled="isReadOnly" v-model="request.url" maxlength="500"
+                :placeholder="$t('api_test.request.url_description')" @change="urlChange" clearable>
+        <el-select :disabled="isReadOnly" v-model="request.method" slot="prepend" class="request-method-select"
+                   @change="methodChange">
           <el-option label="GET" value="GET"/>
           <el-option label="POST" value="POST"/>
           <el-option label="PUT" value="PUT"/>
@@ -22,8 +23,8 @@
 
     <el-tabs v-model="activeName">
       <el-tab-pane :label="$t('api_test.request.parameters')" name="parameters">
-        <ms-api-key-value :is-read-only="isReadOnly" :items="request.parameters" :description="$t('api_test.request.parameters_desc')"
-                          @change="parametersChange"/>
+        <ms-api-key-value :is-read-only="isReadOnly" :items="request.parameters"
+                          :description="$t('api_test.request.parameters_desc')" @change="parametersChange"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.headers')" name="headers">
         <ms-api-key-value :is-read-only="isReadOnly" :items="request.headers"/>
@@ -96,7 +97,7 @@
           // 添加一个空的，用于填写
           parameters.push(new KeyValue());
           this.request.parameters = parameters;
-          this.request.url = url.toString();
+          this.request.url = this.getURL(url);
         } catch (e) {
           this.$error(this.$t('api_test.request.url_invalid'), 2000)
         }
@@ -116,7 +117,7 @@
             url.searchParams.append(parameter.name, parameter.value);
           }
         })
-        this.request.url = url.toString();
+        this.request.url = this.getURL(url);
       },
       addProtocol(url) {
         if (url) {
@@ -125,6 +126,9 @@
           }
         }
         return url;
+      },
+      getURL(url) {
+        return decodeURIComponent(url.origin + url.pathname) + "?" + url.searchParams.toString();
       }
     },
 
