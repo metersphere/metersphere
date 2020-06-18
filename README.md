@@ -9,7 +9,7 @@ MeterSphere 是一站式的开源企业级持续测试平台，涵盖测试跟�
 
 UI 展示：
 
-![UI](./img/ui.png)
+![UI](https://metersphere.io/images/screenshot/ss07.png)
 
 
 ## 快速开始
@@ -164,7 +164,7 @@ curl -sSL https://github.com/metersphere/metersphere/releases/latest/download/qu
 
 ## 微信群
 
-![wechat-group](./img/wechat-group.png)
+![wechat-group](https://metersphere.io/images/contact/wechat-group.png)
 
 ## License & Copyright
 
