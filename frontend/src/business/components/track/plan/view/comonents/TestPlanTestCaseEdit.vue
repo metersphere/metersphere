@@ -289,8 +289,20 @@
         param.issues = JSON.stringify(this.testCase.issues);
         this.$post('/test/plan/case/edit', param, () => {
           this.$success(this.$t('commons.save_success'));
+          this.updateTestCases(param);
           this.setPlanStatus(this.testCase.planId);
         });
+      },
+      updateTestCases(param) {
+        for (let i = 0; i < this.testCases.length; i++) {
+          let testCase = this.testCases[i];
+          if (testCase.id === param.id) {
+            testCase.results = param.results;
+            testCase.issues = param.issues;
+            testCase.status = param.status;
+            return;
+          }
+        }
       },
       handleNext() {
         this.index++;

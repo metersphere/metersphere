@@ -30,24 +30,23 @@
         show-overflow-tooltip>
         <template v-slot:default="scope">
           <span @click.stop="clickt = 'stop'">
-            <el-dropdown v-permission="['test_manager','test_user']" class="test-case-status" @command="statusChange">
+            <el-dropdown class="test-case-status" @command="statusChange">
               <span class="el-dropdown-link">
                 <plan-status-table-item :value="scope.row.status"/>
               </span>
               <el-dropdown-menu slot="dropdown" chang>
-                <el-dropdown-item :command="{id: scope.row.id, status: 'Prepare'}">
+                <el-dropdown-item :disabled="!isTestManagerOrTestUser" :command="{id: scope.row.id, status: 'Prepare'}">
                   {{$t('test_track.plan.plan_status_prepare')}}
                 </el-dropdown-item>
-                <el-dropdown-item :command="{id: scope.row.id, status: 'Underway'}">
+                <el-dropdown-item :disabled="!isTestManagerOrTestUser" :command="{id: scope.row.id, status: 'Underway'}">
                   {{$t('test_track.plan.plan_status_running')}}
                 </el-dropdown-item>
-                <el-dropdown-item :command="{id: scope.row.id, status: 'Completed'}">
+                <el-dropdown-item :disabled="!isTestManagerOrTestUser" :command="{id: scope.row.id, status: 'Completed'}">
                   {{$t('test_track.plan.plan_status_completed')}}
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </span>
-          <plan-status-table-item v-permission="['test_viewer']" :value="scope.row.status"/>
         </template>
       </el-table-column>
       <el-table-column
@@ -115,7 +114,7 @@
   import MsTableOperator from "../../../common/components/MsTableOperator";
   import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
   import PlanStageTableItem from "../../common/tableItems/plan/PlanStageTableItem";
-  import {_filter, _sort} from "../../../../../common/js/utils";
+  import {_filter, _sort, checkoutTestManagerOrTestUser} from "../../../../../common/js/utils";
   import TestReportTemplateList from "../view/comonents/TestReportTemplateList";
   import TestCaseReportView from "../view/comonents/report/TestCaseReportView";
   import MsDeleteConfirm from "../../../common/components/MsDeleteConfirm";
@@ -137,6 +136,7 @@
           condition: {},
           currentPage: 1,
           pageSize: 10,
+          isTestManagerOrTestUser: false,
           total: 0,
           tableData: [],
           statusFilters: [
@@ -160,6 +160,7 @@
       },
       created() {
         this.projectId = this.$route.params.projectId;
+        this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
         this.initTableData();
       },
       methods: {

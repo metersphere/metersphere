@@ -25,4 +25,6 @@ public class QueryTestPlanCaseRequest extends TestPlanTestCase {
     private String workspaceId;
 
     private String name;
+
+    private String status;
 }

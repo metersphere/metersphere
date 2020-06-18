@@ -5,7 +5,8 @@
         <el-container class="test-container" v-loading="result.loading">
           <el-header>
             <el-row type="flex" align="middle">
-              <el-input :disabled="isReadOnly" class="test-name" v-model="test.name" maxlength="60" :placeholder="$t('api_test.input_name')"
+              <el-input :disabled="isReadOnly" class="test-name" v-model="test.name" maxlength="60"
+                        :placeholder="$t('api_test.input_name')"
                         show-word-limit>
                 <el-select :disabled="isReadOnly" class="test-project" v-model="test.projectId" slot="prepend"
                            :placeholder="$t('api_test.select_project')">
@@ -17,7 +18,8 @@
                 {{$t('commons.save')}}
               </el-button>
 
-              <el-button type="primary" plain v-if="!isShowRun" :disabled="isDisabled || isReadOnly" @click="saveRunTest">
+              <el-button type="primary" plain v-if="!isShowRun" :disabled="isDisabled || isReadOnly"
+                         @click="saveRunTest">
                 {{$t('load_test.save_and_run')}}
               </el-button>
 
@@ -25,7 +27,8 @@
                 {{$t('api_test.run')}}
               </el-button>
 
-              <el-button :disabled="isReadOnly" type="warning" plain @click="cancel">{{$t('commons.cancel')}}</el-button>
+              <el-button :disabled="isReadOnly" type="warning" plain @click="cancel">{{$t('commons.cancel')}}
+              </el-button>
 
               <el-dropdown trigger="click" @command="handleCommand">
                 <el-button class="el-dropdown-link more" icon="el-icon-more" plain/>
@@ -35,6 +38,9 @@
                   </el-dropdown-item>
                   <el-dropdown-item command="performance" :disabled="create || isReadOnly">
                     {{$t('api_test.create_performance_test')}}
+                  </el-dropdown-item>
+                  <el-dropdown-item command="export" :disabled="isDisabled || isReadOnly">
+                    {{$t('api_test.export_config')}}
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
@@ -54,7 +60,7 @@
   import {Test} from "./model/ScenarioModel"
   import MsApiReportStatus from "../report/ApiReportStatus";
   import MsApiReportDialog from "./ApiReportDialog";
-  import {checkoutTestManagerOrTestUser} from "../../../../common/js/utils";
+  import {checkoutTestManagerOrTestUser, downloadFile} from "../../../../common/js/utils";
 
   export default {
     name: "MsApiTestConfig",
@@ -165,13 +171,7 @@
       },
       getOptions(url) {
         let formData = new FormData();
-        let request = {
-          id: this.test.id,
-          projectId: this.test.projectId,
-          name: this.test.name,
-          scenarioDefinition: JSON.stringify(this.test.scenarioDefinition)
-        }
-        let requestJson = JSON.stringify(request);
+        let requestJson = JSON.stringify(this.test);
 
         formData.append('request', new Blob([requestJson], {
           type: "application/json"
@@ -203,6 +203,9 @@
             this.$router.push({
               path: "/performance/test/create"
             })
+            break;
+          case "export":
+            downloadFile(this.test.name + ".json", this.test.export());
             break;
         }
       }

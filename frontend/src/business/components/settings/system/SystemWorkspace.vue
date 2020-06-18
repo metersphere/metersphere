@@ -61,7 +61,7 @@
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
-        <el-form-item :label="$t('commons.description')">
+        <el-form-item :label="$t('commons.description')" prop="description">
           <el-input type="textarea" v-model="form.description"></el-input>
         </el-form-item>
         <el-form-item :label="$t('workspace.organization_name')" prop="organizationId">

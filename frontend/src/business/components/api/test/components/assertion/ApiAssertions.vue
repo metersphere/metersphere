@@ -6,14 +6,14 @@
                    size="small">
           <el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT"/>
           <el-option :label="$t('api_test.request.assertions.regex')" :value="options.REGEX"/>
-          <el-option :label="$t('api_test.request.assertions.response_time')" :value="options.RESPONSE_TIME"/>
+          <el-option :label="$t('api_test.request.assertions.response_time')" :value="options.DURATION"/>
         </el-select>
       </el-col>
       <el-col :span="20">
         <ms-api-assertion-text :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.TEXT" :callback="after"/>
         <ms-api-assertion-regex :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.REGEX" :callback="after"/>
-        <ms-api-assertion-response-time :is-read-only="isReadOnly" v-model="time" :duration="assertions.duration"
-                                        v-if="type === options.RESPONSE_TIME" :callback="after"/>
+        <ms-api-assertion-duration :is-read-only="isReadOnly" v-model="time" :duration="assertions.duration"
+                                        v-if="type === options.DURATION" :callback="after"/>
       </el-col>
     </el-row>
 
@@ -24,14 +24,14 @@
 <script>
   import MsApiAssertionText from "./ApiAssertionText";
   import MsApiAssertionRegex from "./ApiAssertionRegex";
-  import MsApiAssertionResponseTime from "./ApiAssertionResponseTime";
-  import {ASSERTION_TYPE, Assertions, ResponseTime} from "../../model/ScenarioModel";
+  import MsApiAssertionDuration from "./ApiAssertionDuration";
+  import {ASSERTION_TYPE, Assertions} from "../../model/ScenarioModel";
   import MsApiAssertionsEdit from "./ApiAssertionsEdit";
 
   export default {
     name: "MsApiAssertions",
 
-    components: {MsApiAssertionsEdit, MsApiAssertionResponseTime, MsApiAssertionRegex, MsApiAssertionText},
+    components: {MsApiAssertionsEdit, MsApiAssertionDuration, MsApiAssertionRegex, MsApiAssertionText},
 
     props: {
       assertions: Assertions,

@@ -152,7 +152,7 @@ export default {
     'special_characters_are_not_supported': '不支持特殊字符',
     'mobile_number_format_is_incorrect': '手機號碼格式不正確',
     'email_format_is_incorrect': '郵箱格式不正確',
-    'password_format_is_incorrect': '密碼格式不正確(至少8-16個字符,至少1個大寫字母,1個小寫字母和1個數字)',
+    'password_format_is_incorrect': '有效密碼：8-16比特，英文大小寫字母+數位',
     'old_password': '舊密碼',
     'new_password': '新密碼',
     'remove_member': '確定要移除該成員嗎',
@@ -266,6 +266,7 @@ export default {
     'pressure_prediction_chart': '壓力預估圖',
     'user_name': '創建人',
     'special_characters_are_not_supported': '測試名稱不支持特殊字符',
+    'pressure_config_params_is_empty': '壓力配置參數不能為空!'
   },
   api_test: {
     title: "測試",
@@ -280,6 +281,7 @@ export default {
     key: "鍵",
     value: "值",
     create_performance_test: "創建性能測試",
+    export_config: "匯出配寘",
     scenario: {
       creator: "創建人",
       config: "場景配寘",
@@ -515,6 +517,7 @@ export default {
       create_template: "新建模版",
       report_template: "測試報告模版",
       test_detail: "測試詳情",
+      failure_case: "失敗用例",
     }
   },
   test_resource_pool: {

@@ -274,4 +274,14 @@ public class UserController {
         return userService.updateUserPassword(request);
     }
 
+    /**
+     * 获取工作空间成员用户 不分页
+     */
+    @PostMapping("/ws/member/tester/list")
+    @RequiresRoles(value = {RoleConstants.ORG_ADMIN, RoleConstants.TEST_MANAGER,
+            RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
+    public List<User> getTestManagerAndTestUserList(@RequestBody QueryMemberRequest request) {
+        return userService.getTestManagerAndTestUserList(request);
+    }
+
 }

@@ -155,7 +155,7 @@ export default {
     'special_characters_are_not_supported': 'Special characters are not supported',
     'mobile_number_format_is_incorrect': 'Mobile number format is incorrect',
     'email_format_is_incorrect': 'Email format is incorrect',
-    'password_format_is_incorrect': 'Password format is incorrect (At least 8-16 characters, at least 1 uppercase letter, 1 lowercase letter and 1 number)',
+    'password_format_is_incorrect': 'Valid password: 8-16 digits, English upper and lower case letters + numbers ',
     'old_password': 'Old Password',
     'new_password': 'New Password',
     'remove_member': 'Are you sure you want to remove this member',
@@ -268,6 +268,7 @@ export default {
     'download_log_file': 'Download',
     'user_name': 'Creator',
     'special_characters_are_not_supported': 'Test name does not support special characters',
+    'pressure_config_params_is_empty': 'Pressure configuration parameters cannot be empty!'
   },
   api_test: {
     creator: "Creator",
@@ -283,6 +284,7 @@ export default {
     key: "Key",
     value: "Value",
     create_performance_test: "Create Performance Test",
+    export_config: "Export Configuration",
     scenario: {
       config: "Scenario Config",
       input_name: "Please enter the scenario name",
@@ -517,6 +519,7 @@ export default {
       create_template: "Create template",
       report_template: "Report template",
       test_detail: "Test detail",
+      failure_case: "Failure case",
     }
   },
   test_resource_pool: {

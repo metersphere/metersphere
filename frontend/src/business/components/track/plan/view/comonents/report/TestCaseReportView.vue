@@ -68,7 +68,8 @@
               [1, { name: this.$t('test_track.plan_view.base_info'), id: 1 , type: 'system'}],
               [2, { name: this.$t('test_track.plan_view.test_result'), id: 2 , type: 'system'}],
               [3, { name: this.$t('test_track.plan_view.result_distribution'), id: 3 ,type: 'system'}],
-              [4, { name: this.$t('test_track.plan_view.custom_component'), id: 4 ,type: 'custom'}]
+              [4, { name: this.$t('test_track.plan_view.failure_case'), id: 4 ,type: 'system'}],
+              [5, { name: this.$t('test_track.plan_view.custom_component'), id: 5 ,type: 'custom'}]
             ]
           ),
           isTestManagerOrTestUser: false
@@ -165,6 +166,15 @@
         getMetric() {
           this.result = this.$get('/test/plan/get/metric/' + this.planId, response => {
             this.metric = response.data;
+            if (!this.metric.failureTestCases) {
+              this.metric.failureTestCases = [];
+            }
+            if (!this.metric.executeResult) {
+              this.metric.executeResult = [];
+            }
+            if (!this.metric.moduleExecuteResult) {
+              this.metric.moduleExecuteResult = [];
+            }
             if (this.report.startTime) {
               this.metric.startTime = new Date(this.report.startTime);
             }
