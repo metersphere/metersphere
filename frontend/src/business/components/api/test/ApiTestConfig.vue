@@ -46,6 +46,8 @@
               </el-dropdown>
 
               <ms-api-report-dialog :test-id="id" ref="reportDialog"/>
+
+              <scheduler-config/>
             </el-row>
           </el-header>
           <ms-api-scenario-config :is-read-only="isReadOnly" :scenarios="test.scenarioDefinition" ref="config"/>
@@ -61,11 +63,12 @@
   import MsApiReportStatus from "../report/ApiReportStatus";
   import MsApiReportDialog from "./ApiReportDialog";
   import {checkoutTestManagerOrTestUser, downloadFile} from "../../../../common/js/utils";
+  import SchedulerConfig from "./SchedulerConfig";
 
   export default {
     name: "MsApiTestConfig",
 
-    components: {MsApiReportDialog, MsApiReportStatus, MsApiScenarioConfig},
+    components: {SchedulerConfig, MsApiReportDialog, MsApiReportStatus, MsApiScenarioConfig},
 
     props: ["id"],
 
