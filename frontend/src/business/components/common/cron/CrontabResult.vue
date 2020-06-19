@@ -2,16 +2,16 @@
 	<div class="popup-result">
 		<p class="title">最近5次运行时间</p>
 		<ul class="popup-result-scroll">
-			<template v-if='isShow'>
+			<template>
 				<li v-for='item in resultList' :key="item">{{item}}</li>
 			</template>
-			<li v-else>计算结果中...</li>
 		</ul>
 	</div>
 </template>
 
 <script>
 export default {
+  name: 'CrontabResult',
 	data() {
 		return {
 			dayRule: '',
@@ -21,13 +21,23 @@ export default {
 			isShow: false
 		}
 	},
-	name: 'crontab-result',
+  watch: {
+    'ex': 'expressionChange'
+  },
+  props: ['ex'],
+  mounted: function () {
+    // 初始化 获取一次结果
+    this.expressionChange();
+  },
 	methods: {
 		// 表达式值变化时，开始去计算结果
 		expressionChange() {
-
 			// 计算开始-隐藏结果
 			this.isShow = false;
+      if (!this.ex) {
+        this.resultList = [];
+        return;
+      }
 			// 获取规则数组[0秒、1分、2时、3日、4月、5星期、6年]
 			let ruleArr = this.$options.propsData.ex.split(' ');
 			// 用于记录进入循环的次数
@@ -552,15 +562,30 @@ export default {
 			let format = this.formatDate(time)
 			return value == format ? true : false;
 		}
-	},
-	watch: {
-		'ex': 'expressionChange'
-	},
-	props: ['ex'],
-	mounted: function () {
-		// 初始化 获取一次结果
-		this.expressionChange();
 	}
 }
 
 </script>
+<style>
+
+  .title {
+    margin: 0;
+  }
+
+  .popup-result-scroll {
+    font-size: 12px;
+    line-height: 24px;
+    height: 10em;
+    overflow-y: auto;
+  }
+
+  .popup-result {
+    box-sizing: border-box;
+    line-height: 24px;
+    margin: 25px auto;
+    padding: 15px 10px 10px;
+    border: 1px solid #ccc;
+    position: relative;
+  }
+
+</style>

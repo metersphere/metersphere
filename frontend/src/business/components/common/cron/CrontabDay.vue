@@ -66,7 +66,7 @@ export default {
 			checkNum: this.$options.propsData.check
 		}
 	},
-	name: 'crontab-day',
+	name: 'CrontabDay',
 	props: ['check', 'cron'],
 	methods: {
 		// 单选按钮值变化时

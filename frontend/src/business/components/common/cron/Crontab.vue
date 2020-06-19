@@ -2,11 +2,15 @@
   <div>
     <el-tabs type="border-card">
       <el-tab-pane label="秒" v-if="shouldHide('second')">
-        <CrontabSecond @update="updateContabValue" :check="checkNumber" ref="cronsecond" />
+        <crontab-second
+          @update="updateContabValue"
+          :check="checkNumber"
+          ref="cronsecond"
+        />
       </el-tab-pane>
 
       <el-tab-pane label="分钟" v-if="shouldHide('min')">
-        <CrontabMin
+        <crontab-min
           @update="updateContabValue"
           :check="checkNumber"
           :cron="contabValueObj"
@@ -15,7 +19,7 @@
       </el-tab-pane>
 
       <el-tab-pane label="小时" v-if="shouldHide('hour')">
-        <CrontabHour
+        <crontab-hour
           @update="updateContabValue"
           :check="checkNumber"
           :cron="contabValueObj"
@@ -24,7 +28,7 @@
       </el-tab-pane>
 
       <el-tab-pane label="日" v-if="shouldHide('day')">
-        <CrontabDay
+        <crontab-day
           @update="updateContabValue"
           :check="checkNumber"
           :cron="contabValueObj"
@@ -33,7 +37,7 @@
       </el-tab-pane>
 
       <el-tab-pane label="月" v-if="shouldHide('mouth')">
-        <CrontabMouth
+        <crontab-mouth
           @update="updateContabValue"
           :check="checkNumber"
           :cron="contabValueObj"
@@ -42,7 +46,7 @@
       </el-tab-pane>
 
       <el-tab-pane label="周" v-if="shouldHide('week')">
-        <CrontabWeek
+        <crontab-week
           @update="updateContabValue"
           :check="checkNumber"
           :cron="contabValueObj"
@@ -51,17 +55,15 @@
       </el-tab-pane>
 
       <el-tab-pane label="年" v-if="shouldHide('year')">
-        <CrontabYear
-          @update="updateContabValue"
-          :check="checkNumber"
-          :cron="contabValueObj"
-          ref="cronyear"
-        />
+        <crontab-year @update="updateContabValue"
+                      :check="checkNumber"
+                      :cron="contabValueObj"
+                      ref="cronyear"/>
       </el-tab-pane>
     </el-tabs>
 
     <div class="popup-main">
-      <div class="popup-result">
+      <div class="popup-result-container">
         <p class="title">时间表达式</p>
         <table>
           <thead>
@@ -96,7 +98,7 @@
           </tbody>
         </table>
       </div>
-      <CrontabResult :ex="contabValueString"></CrontabResult>
+      <crontab-result :ex="contabValueString"/>
 
       <div class="pop_btn">
         <el-button size="small" type="primary" @click="submitFill">确定</el-button>
@@ -108,16 +110,17 @@
 </template>
 
 <script>
-  import CrontabSecond from "./Crontab-Second.vue";
-  import CrontabMin from "./Crontab-Min.vue";
-  import CrontabHour from "./Crontab-Hour.vue";
-  import CrontabDay from "./Crontab-Day.vue";
-  import CrontabMouth from "./Crontab-Mouth.vue";
-  import CrontabWeek from "./Crontab-Week.vue";
-  import CrontabYear from "./Crontab-Year.vue";
-  import CrontabResult from "./Crontab-Result.vue";
+  import CrontabSecond from "./CrontabSecond.vue";
+  import CrontabMin from "./CrontabMin.vue";
+  import CrontabHour from "./CrontabHour.vue";
+  import CrontabDay from "./CrontabDay.vue";
+  import CrontabMouth from "./CrontabMouth.vue";
+  import CrontabWeek from "./CrontabWeek.vue";
+  import CrontabYear from "./CrontabYear.vue";
+  import CrontabResult from "./CrontabResult.vue";
 
   export default {
+    name: "Crontab",
     data() {
       return {
         tabTitles: ["秒", "分钟", "小时", "日", "月", "周", "年"],
@@ -134,7 +137,6 @@
         },
       };
     },
-    name: "vcrontab",
     props: ["expression", "hideComponent"],
     methods: {
       shouldHide(key) {
@@ -382,7 +384,7 @@
     padding-top: 6px;
     background: #f2f2f2;
   }
-  .popup-result {
+  .popup-result-container {
     box-sizing: border-box;
     line-height: 24px;
     margin: 25px auto;
@@ -390,7 +392,7 @@
     border: 1px solid #ccc;
     position: relative;
   }
-  .popup-result .title {
+  .popup-result-container .title {
     position: absolute;
     top: -28px;
     left: 50%;
@@ -401,12 +403,12 @@
     line-height: 30px;
     background: #fff;
   }
-  .popup-result table {
+  .popup-result-container table {
     text-align: center;
     width: 100%;
     margin: 0 auto;
   }
-  .popup-result table span {
+  .popup-result-container table span {
     display: block;
     width: 100%;
     font-family: arial;
@@ -416,10 +418,5 @@
     overflow: hidden;
     border: 1px solid #e8e8e8;
   }
-  .popup-result-scroll {
-    font-size: 12px;
-    line-height: 24px;
-    height: 10em;
-    overflow-y: auto;
-  }
+
 </style>

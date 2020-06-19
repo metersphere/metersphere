@@ -62,7 +62,7 @@ export default {
 			checkNum: this.$options.propsData.check
 		}
 	},
-	name: 'crontab-week',
+	name: 'CrontabWeek',
 	props: ['check', 'cron'],
 	methods: {
 		// 单选按钮值变化时
@@ -72,10 +72,10 @@ export default {
 				this.$emit('update', 'year', '*');
 			} else {
 				if (this.cron.mouth === '*') {
-					this.$emit('update', 'mouth', '0', 'week');
+					this.$emit('update', 'mouth', '1', 'week');
 				}
 				if (this.cron.day === '*') {
-					this.$emit('update', 'day', '0', 'week');
+					this.$emit('update', 'day', '1', 'week');
 				}
 				if (this.cron.hour === '*') {
 					this.$emit('update', 'hour', '0', 'week');
@@ -160,7 +160,7 @@ export default {
 		// 计算勾选的checkbox值合集
 		checkboxString: function () {
 			let str = this.checkboxList.join();
-			return str == '' ? '*' : str;
+			return str == '' ? '?' : str;
 		}
 	}
 }

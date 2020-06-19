@@ -1,0 +1,92 @@
+<template>
+  <el-dialog width="30%" class="scheduler-edit" :title="'编辑定时任务'" :visible.sync="dialogVisible"  @close="close">
+    <div id="app">
+      <el-form :model="form" :rules="rules" ref="from">
+        <el-form-item
+          :placeholder="'请输入 Cron 表达式'"
+          prop="cronValue">
+          <el-input v-model="form.cronValue" placeholder class="inp"/>
+          <el-button type="primary" @click="showCronDialog">生成 Cron</el-button>
+          <el-button type="primary" @click="save">保存</el-button>
+        </el-form-item>
+        <crontab-result :ex="cronExpression"/>
+      </el-form>
+      <el-dialog title="生成 cron" :visible.sync="showCron" :modal="false">
+        <crontab @hide="showCron=false" @fill="crontabFill" :expression="cronExpression"/>
+      </el-dialog>
+    </div>
+  </el-dialog>
+</template>
+
+<script>
+
+    import Crontab from "../cron/Crontab";
+    import CrontabResult from "../cron/CrontabResult";
+    import {cronValidate} from "../../../../common/js/cron";
+
+    export default {
+      name: "MsSchedulerEdit",
+      components: {CrontabResult, Crontab},
+      data() {
+          const validateCron = (rule, cronValue, callback) => {
+            if (!cronValidate(cronValue)) {
+              callback(new Error('Cron 表达式格式错误'));
+            } else {
+              this.cronExpression = cronValue;
+              callback();
+            }
+          };
+          return {
+            dialogVisible: false,
+            cronExpression: null,
+            showCron: false,
+            form: {
+              cronValue: ""
+            },
+            rules: {
+              cronValue :[{required: true, validator: validateCron, trigger: 'blur'}],
+            }
+          }
+      },
+      methods: {
+        open() {
+          this.dialogVisible = true;
+        },
+        crontabFill(value) {
+          //确定后回传的值
+          this.cronExpression = value;
+          this.form.cronValue = value;
+          this.$refs['from'].validate();
+        },
+        showCronDialog() {
+          this.showCron = true;
+        },
+        save () {
+          if (!this.formValidate()) {
+            return;
+          }
+          console.log("save");
+        },
+        formValidate() {
+          this.$refs['from'].validate((valid) => {
+            if (!valid) {
+              return false;
+            }
+          });
+        },
+        close() {
+          this.cronExpression = null;
+          this.$refs['from'].resetFields();
+        }
+      }
+    }
+</script>
+
+<style scoped>
+
+  .inp {
+    width: 50%;
+    margin-right: 20px;
+  }
+
+</style>

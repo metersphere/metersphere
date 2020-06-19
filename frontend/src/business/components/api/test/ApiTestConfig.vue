@@ -4,7 +4,7 @@
       <el-card>
         <el-container class="test-container" v-loading="result.loading">
           <el-header>
-            <el-row type="flex" align="middle">
+            <el-row>
               <el-input :disabled="isReadOnly" class="test-name" v-model="test.name" maxlength="60"
                         :placeholder="$t('api_test.input_name')"
                         show-word-limit>
@@ -47,7 +47,7 @@
 
               <ms-api-report-dialog :test-id="id" ref="reportDialog"/>
 
-              <scheduler-config/>
+              <ms-scheduler-config/>
             </el-row>
           </el-header>
           <ms-api-scenario-config :is-read-only="isReadOnly" :scenarios="test.scenarioDefinition" ref="config"/>
@@ -63,12 +63,12 @@
   import MsApiReportStatus from "../report/ApiReportStatus";
   import MsApiReportDialog from "./ApiReportDialog";
   import {checkoutTestManagerOrTestUser, downloadFile} from "../../../../common/js/utils";
-  import SchedulerConfig from "./SchedulerConfig";
+  import MsSchedulerConfig from "../../common/components/MsSchedulerConfig";
 
   export default {
     name: "MsApiTestConfig",
 
-    components: {SchedulerConfig, MsApiReportDialog, MsApiReportStatus, MsApiScenarioConfig},
+    components: {MsSchedulerConfig, MsApiReportDialog, MsApiReportStatus, MsApiScenarioConfig},
 
     props: ["id"],
 
@@ -247,5 +247,9 @@
 
   .test-container .more {
     margin-left: 10px;
+  }
+
+  .scheduler-config {
+    float: right;
   }
 </style>

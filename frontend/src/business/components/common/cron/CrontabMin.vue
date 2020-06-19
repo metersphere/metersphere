@@ -47,7 +47,7 @@ export default {
 			checkNum: this.$options.propsData.check
 		}
 	},
-	name: 'crontab-min',
+	name: 'CrontabMin',
 	props: ['check', 'cron'],
 	methods: {
 		// 单选按钮值变化时
