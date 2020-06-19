@@ -1,5 +1,6 @@
 export default {
   commons: {
+    'delete_cancelled': '已取消删除',
     'workspace': '工作空間',
     'organization': '組織',
     'setting': '設置',
@@ -102,7 +103,7 @@ export default {
     'create': '創建工作空間',
     'update': '修改工作空間',
     'delete': '刪除工作空間',
-    'delete_confirm': '刪除工作空間會關聯刪除該工作空間下的資源,確定要刪除嗎?',
+    'delete_confirm': '删除該工作空間會關聯删除該工作空間下的所有資源（如：相關項目，測試用例等），確定要删除嗎？',
     'add': '添加工作空間',
     'input_name': '請輸入工作空間名稱',
     'search_by_name': '根據名稱搜索',
@@ -112,18 +113,21 @@ export default {
     'none': '無工作空間',
     'select': '選擇工作空間',
     'special_characters_are_not_supported': '格式錯誤(不支持特殊字符，且不能以\'-\'開頭結尾)',
+    'delete_warning': '删除该工作空间将同步删除该工作空间下所有项目，以及项目中的所有用例、接口测试、性能测试等,确定要删除吗?',
   },
   organization: {
     'create': '創建組織',
     'modify': '修改組織',
     'delete': '刪除組織',
-    'delete_confirm': '刪除組織會關聯刪除該組織下的資源,確定要刪除嗎?',
+    'delete_confirm': '删除該組織會關聯删除該組織下的所有資源（如：相關工作空間，項目，測試用例等），確定要删除嗎?',
     'input_name': '請輸入組織名稱',
     'select_organization': '請選擇組織',
     'search_by_name': '根據名稱搜索',
     'special_characters_are_not_supported': 'Incorrect format (special characters are not supported and cannot end with \'-\')',
     'none': '無組織',
     'select': '選擇組織',
+    'delete_warning': '删除该组织将同步删除该组织下所有相关工作空间和相关工作空间下的所有项目，以及项目中的所有用例、接口测试、性能测试等,确定要删除吗?',
+
   },
   project: {
     'recent': '最近的項目',
@@ -131,7 +135,7 @@ export default {
     'edit': '編輯項目',
     'delete': '刪除項目',
     'delete_confirm': '確定要刪除這個項目嗎?',
-    'delete_tip': '刪除該項目，會刪除以下資源：',
+    'delete_tip': '删除該項目，會删除該項目下所有測試資源，確定要删除嗎？',
     'search_by_name': '根據名稱搜索',
     'input_name': '請輸入項目名稱',
     'owning_workspace': '所屬工作空間',
