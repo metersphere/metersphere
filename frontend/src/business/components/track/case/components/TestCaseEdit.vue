@@ -2,8 +2,9 @@
 
   <div>
 
-    <el-dialog :title="operationType == 'edit' ? ( readOnly ? $t('test_track.case.view_case') : $t('test_track.case.edit_case')) : $t('test_track.case.create')"
-               :visible.sync="dialogFormVisible" width="65%">
+    <el-dialog
+      :title="operationType == 'edit' ? ( readOnly ? $t('test_track.case.view_case') : $t('test_track.case.edit_case')) : $t('test_track.case.create')"
+      :visible.sync="dialogFormVisible" width="65%">
 
       <el-form :model="form" :rules="rules" ref="caseFrom" v-loading="result.loading">
 
@@ -39,7 +40,8 @@
         <el-row>
           <el-col :span="10" :offset="1">
             <el-form-item :label="$t('test_track.case.maintainer')" :label-width="formLabelWidth" prop="maintainer">
-              <el-select :disabled="readOnly" v-model="form.maintainer" :placeholder="$t('test_track.case.input_maintainer')" filterable>
+              <el-select :disabled="readOnly" v-model="form.maintainer"
+                         :placeholder="$t('test_track.case.input_maintainer')" filterable>
                 <el-option
                   v-for="item in maintainerOptions"
                   :key="item.id"
@@ -51,7 +53,8 @@
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('test_track.case.priority')" :label-width="formLabelWidth" prop="priority">
-              <el-select :disabled="readOnly" v-model="form.priority" clearable :placeholder="$t('test_track.case.input_priority')">
+              <el-select :disabled="readOnly" v-model="form.priority" clearable
+                         :placeholder="$t('test_track.case.input_priority')">
                 <el-option label="P0" value="P0"></el-option>
                 <el-option label="P1" value="P1"></el-option>
                 <el-option label="P2" value="P2"></el-option>
@@ -64,7 +67,8 @@
         <el-row>
           <el-col :span="10" :offset="1">
             <el-form-item :label="$t('test_track.case.type')" :label-width="formLabelWidth" prop="type">
-              <el-select @change="typeChange" :disabled="readOnly" v-model="form.type" :placeholder="$t('test_track.case.input_type')">
+              <el-select @change="typeChange" :disabled="readOnly" v-model="form.type"
+                         :placeholder="$t('test_track.case.input_type')">
                 <el-option :label="$t('commons.functional')" value="functional"></el-option>
                 <el-option :label="$t('commons.performance')" value="performance"></el-option>
                 <el-option :label="$t('commons.api')" value="api"></el-option>
@@ -88,7 +92,8 @@
         <el-row v-if="form.method && form.method == 'auto'">
           <el-col :span="10" :offset="1">
             <el-form-item :label="$t('test_track.case.relate_test')" :label-width="formLabelWidth" prop="testId">
-              <el-select filterable :disabled="readOnly" v-model="form.testId" :placeholder="$t('test_track.case.input_type')">
+              <el-select filterable :disabled="readOnly" v-model="form.testId"
+                         :placeholder="$t('test_track.case.input_type')">
                 <el-option
                   v-for="item in testOptions"
                   :key="item.id"
@@ -126,7 +131,7 @@
               class="tb-edit"
               border
               size="mini"
-              :default-sort = "{prop: 'num', order: 'ascending'}"
+              :default-sort="{prop: 'num', order: 'ascending'}"
               highlight-current-row>
               <el-table-column :label="$t('test_track.case.number')" prop="num" min-width="15%"></el-table-column>
               <el-table-column :label="$t('test_track.case.step_desc')" prop="desc" min-width="35%">
@@ -196,12 +201,12 @@
 
       <template v-slot:footer>
         <el-switch v-if="operationType == 'add'"
-          v-model="isCreateContinue"
-          :active-text="$t('test_track.case.save_create_continue')">
+                   v-model="isCreateContinue"
+                   :active-text="$t('test_track.case.save_create_continue')">
         </el-switch>
         <ms-dialog-footer v-if="!readOnly"
-          @cancel="dialogFormVisible = false"
-          @confirm="saveCase"/>
+                          @cancel="dialogFormVisible = false"
+                          @confirm="saveCase"/>
       </template>
 
     </el-dialog>
@@ -234,7 +239,7 @@
           prerequisite: '',
           testId: '',
           steps: [{
-            num: 1 ,
+            num: 1,
             desc: '',
             result: ''
           }],
@@ -245,19 +250,19 @@
         methodOptions: [],
         testOptions: [],
         workspaceId: '',
-        rules:{
-          name :[
+        rules: {
+          name: [
             {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
-            { max: 30, message: this.$t('test_track.length_less_than') + '30', trigger: 'blur' }
+            {max: 30, message: this.$t('test_track.length_less_than') + '30', trigger: 'blur'}
           ],
-          module :[{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
-          maintainer :[{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
-          priority :[{required: true, message: this.$t('test_track.case.input_priority'), trigger: 'change'}],
-          type :[{required: true, message: this.$t('test_track.case.input_type'), trigger: 'change'}],
-          testId :[{required: true, message: '请选择测试', trigger: 'change'}],
-          method :[{required: true, message: this.$t('test_track.case.input_method'), trigger: 'change'}],
-          prerequisite :[{ max: 300, message: this.$t('test_track.length_less_than') + '300', trigger: 'blur'}],
-          remark :[{ max: 300, message: this.$t('test_track.length_less_than') + '300', trigger: 'blur'}]
+          module: [{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
+          maintainer: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
+          priority: [{required: true, message: this.$t('test_track.case.input_priority'), trigger: 'change'}],
+          type: [{required: true, message: this.$t('test_track.case.input_type'), trigger: 'change'}],
+          testId: [{required: true, message: '请选择测试', trigger: 'change'}],
+          method: [{required: true, message: this.$t('test_track.case.input_method'), trigger: 'change'}],
+          prerequisite: [{max: 300, message: this.$t('test_track.length_less_than') + '300', trigger: 'blur'}],
+          remark: [{max: 300, message: this.$t('test_track.length_less_than') + '300', trigger: 'blur'}]
         },
         formLabelWidth: "120px",
         operationType: '',
@@ -327,8 +332,8 @@
         step.desc = null;
         step.result = null;
         this.form.steps.forEach(step => {
-          if(step.num > data.num){
-            step.num ++;
+          if (step.num > data.num) {
+            step.num++;
           }
         });
         this.form.steps.splice(index + 1, 0, step);
@@ -336,12 +341,12 @@
       handleDeleteStep(index, data) {
         this.form.steps.splice(index, 1);
         this.form.steps.forEach(step => {
-          if(step.num > data.num){
-            step.num --;
+          if (step.num > data.num) {
+            step.num--;
           }
         });
       },
-      saveCase(){
+      saveCase() {
         this.$refs['caseFrom'].validate((valid) => {
           if (valid) {
             let param = this.buildParam();
@@ -350,6 +355,7 @@
                 this.$success(this.$t('commons.save_success'));
                 if (this.operationType == 'add' && this.isCreateContinue) {
                   this.form.name = '';
+                  this.$emit("refresh");
                   return;
                 }
                 this.dialogFormVisible = false;
@@ -367,7 +373,7 @@
         param.steps = JSON.stringify(this.form.steps);
         param.nodeId = this.form.module;
         this.moduleOptions.forEach(item => {
-          if(this.form.module === item.id){
+          if (this.form.module === item.id) {
             param.nodePath = item.path;
           }
         });
@@ -381,11 +387,11 @@
         return param;
       },
       validate(param) {
-        for (let i = 0; i < param.steps.length; i++){
+        for (let i = 0; i < param.steps.length; i++) {
           if ((param.steps[i].desc && param.steps[i].desc.length > 300) ||
             (param.steps[i].result && param.steps[i].result.length > 300)) {
             this.$warning(this.$t('test_track.case.step_desc') + ","
-              + this.$t('test_track.case.expected_results')  + this.$t('test_track.length_less_than') + '300');
+              + this.$t('test_track.case.expected_results') + this.$t('test_track.length_less_than') + '300');
             return false;
           }
         }
@@ -409,7 +415,7 @@
       },
       getMaintainerOptions() {
         let workspaceId = localStorage.getItem(WORKSPACE_ID);
-        this.$post('/user/ws/member/tester/list', {workspaceId:workspaceId}, response => {
+        this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
           this.maintainerOptions = response.data;
         });
       },
@@ -444,8 +450,8 @@
         option.path = option.path + '/' + node.name;
         moduleOptions.push(option);
         if (node.children) {
-          for (let i = 0; i < node.children.length; i++){
-            this.buildNodePath(node.children[i], { path: option.path }, moduleOptions);
+          for (let i = 0; i < node.children.length; i++) {
+            this.buildNodePath(node.children[i], {path: option.path}, moduleOptions);
           }
         }
       },
@@ -464,7 +470,7 @@
             this.form.remark = '';
             this.form.testId = '';
             this.form.steps = [{
-              num: 1 ,
+              num: 1,
               desc: '',
               result: ''
             }];
@@ -481,10 +487,12 @@
   .tb-edit .el-textarea {
     display: none;
   }
+
   .tb-edit .current-row .el-textarea {
     display: block;
   }
-  .tb-edit .current-row .el-textarea+span {
+
+  .tb-edit .current-row .el-textarea + span {
     display: none;
   }
 
