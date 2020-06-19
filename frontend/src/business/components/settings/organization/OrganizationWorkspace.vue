@@ -14,7 +14,7 @@
             </el-button>
           </template>
         </el-table-column>
-        <el-table-column>
+        <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
             <ms-table-operator @editClick="edit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
           </template>
@@ -159,7 +159,12 @@
   import MsTableOperator from "../../common/components/MsTableOperator";
   import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
-  import {getCurrentUser, getCurrentWorkspaceId, refreshSessionAndCookies} from "../../../../common/js/utils";
+  import {
+    getCurrentOrganizationId,
+    getCurrentUser,
+    getCurrentWorkspaceId,
+    refreshSessionAndCookies
+  } from "../../../../common/js/utils";
   import MsDeleteConfirm from "../../common/components/MsDeleteConfirm";
 
   export default {
@@ -212,16 +217,28 @@
         this.$refs.deleteConfirm.open(workspace);
       },
       _handleDelete(workspace) {
-        this.$get('/workspace/delete/' + workspace.id, () => {
-          let lastWorkspaceId = getCurrentWorkspaceId();
-          let sourceId = workspace.id;
-          if (lastWorkspaceId === sourceId) {
-            let sign = DEFAULT;
-            refreshSessionAndCookies(sign, sourceId);
-          }
-          this.$success(this.$t('commons.delete_success'));
-          this.list();
+        this.$confirm(this.$t('organization.delete_confirm'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          type: 'warning'
+        }).then(() => {
+          this.$get('/workspace/delete/' + workspace.id, () => {
+            let lastWorkspaceId = getCurrentWorkspaceId();
+            let sourceId = workspace.id;
+            if (lastWorkspaceId === sourceId) {
+              let sign = DEFAULT;
+              refreshSessionAndCookies(sign, sourceId);
+            }
+            this.$success(this.$t('commons.delete_success'));
+            this.list();
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: this.$t('commons.delete_cancelled')
+          });
         });
+
       },
       list() {
         let url = '/workspace/list/' + this.currentPage + '/' + this.pageSize;
