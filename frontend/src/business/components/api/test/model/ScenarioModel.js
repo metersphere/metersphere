@@ -100,6 +100,7 @@ export class Test extends BaseConfig {
     this.name = undefined;
     this.projectId = undefined;
     this.scenarioDefinition = [];
+    this.schedule = {};
 
     this.set(options);
     this.sets({scenarioDefinition: Scenario}, options);

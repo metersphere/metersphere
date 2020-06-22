@@ -50,6 +50,11 @@ public class APITestController {
         return apiTestService.getApiTestByProjectId(projectId);
     }
 
+    @PostMapping(value = "/schedule/update")
+    public void updateSchedule(@RequestBody SaveAPITestRequest request) {
+        apiTestService.updateSchedule(request);
+    }
+
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
     public void create(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "files") List<MultipartFile> files) {
         apiTestService.create(request, files);

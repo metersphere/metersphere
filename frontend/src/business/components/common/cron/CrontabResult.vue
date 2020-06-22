@@ -344,9 +344,10 @@ export default {
 					this.resultList.push('最近100年内只有上面' + resultArr.length + '条结果！')
 				}
 			}
+
+			this.$emit("resultListChange", this.resultList);
 			// 计算完成-显示结果
 			this.isShow = true;
-
 
 		},
 		//用于计算某位数字在数组中的索引
