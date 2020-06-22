@@ -1,7 +1,7 @@
 # MeterSphere 开源持续测试平台
 
-![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/metersphere/metersphere)
-![GitHub All Releases](https://img.shields.io/github/downloads/metersphere/metersphere/total)
+[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/metersphere/metersphere)](https://github.com/metersphere/metersphere/releases/latest)
+[![GitHub All Releases](https://img.shields.io/github/downloads/metersphere/metersphere/total)](https://github.com/metersphere/metersphere/releases)
 
 MeterSphere 是一站式的开源企业级持续测试平台，涵盖测试跟踪、接口测试、性能测试、团队协作等功能，兼容JMeter 等开源标准，有效助力开发和测试团队充分利用云弹性进行高度可扩展的自动化测试，加速高质量软件的交付。
 
