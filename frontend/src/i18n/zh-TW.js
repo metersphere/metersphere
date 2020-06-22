@@ -37,6 +37,7 @@ export default {
     'personal_info': '個人信息',
     'status': '狀態',
     'show_all': '顯示全部',
+    'show': '顯示',
     'report': '報告',
     'user': '用戶',
     'system': '系統',

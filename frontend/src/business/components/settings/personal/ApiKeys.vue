@@ -17,7 +17,11 @@
 
       <el-table :data="tableData" style="width: 100%">
         <el-table-column prop="accessKey" label="Access Key"/>
-        <el-table-column prop="secretKey" label="Secret Key"/>
+        <el-table-column prop="secretKey" label="Secret Key">
+          <template v-slot:default="scope">
+            <el-link type="info" @click="showSecretKey(scope.row)">{{$t('commons.show')}}</el-link>
+          </template>
+        </el-table-column>
         <el-table-column prop="status" :label="$t('commons.status')">
           <template v-slot:default="scope">
             <el-switch v-model="scope.row.status"
@@ -116,6 +120,9 @@
           });
         }
       },
+      showSecretKey(row) {
+        this.$alert(row.secretKey, 'Secret Key');
+      }
     }
   }
 </script>
