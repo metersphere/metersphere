@@ -4,7 +4,7 @@
       <el-card>
         <el-container class="test-container" v-loading="result.loading">
           <el-header>
-            <el-row type="flex" align="middle">
+            <el-row>
               <el-input :disabled="isReadOnly" class="test-name" v-model="test.name" maxlength="60"
                         :placeholder="$t('api_test.input_name')"
                         show-word-limit>
@@ -46,6 +46,8 @@
               </el-dropdown>
 
               <ms-api-report-dialog :test-id="id" ref="reportDialog"/>
+
+              <ms-schedule-config :schedule="test.schedule" :save="saveCronExpression" @scheduleChange="saveSchedule" :check-open="checkScheduleEdit"/>
             </el-row>
           </el-header>
           <ms-api-scenario-config :is-read-only="isReadOnly" :scenarios="test.scenarioDefinition" ref="config"/>
@@ -61,11 +63,12 @@
   import MsApiReportStatus from "../report/ApiReportStatus";
   import MsApiReportDialog from "./ApiReportDialog";
   import {checkoutTestManagerOrTestUser, downloadFile} from "../../../../common/js/utils";
+  import MsScheduleConfig from "../../common/components/MsScheduleConfig";
 
   export default {
     name: "MsApiTestConfig",
 
-    components: {MsApiReportDialog, MsApiReportStatus, MsApiScenarioConfig},
+    components: {MsScheduleConfig, MsApiReportDialog, MsApiReportStatus, MsApiScenarioConfig},
 
     props: ["id"],
 
@@ -126,6 +129,7 @@
               name: item.name,
               status: item.status,
               scenarioDefinition: JSON.parse(item.scenarioDefinition),
+              schedule: item.schedule ? JSON.parse(item.schedule) : {},
             });
             this.$refs.config.reset();
           }
@@ -208,6 +212,31 @@
             downloadFile(this.test.name + ".json", this.test.export());
             break;
         }
+      },
+      saveCronExpression(cronExpression) {
+        this.test.schedule.enable = true;
+        this.test.schedule.cronExpression = cronExpression;
+        this.saveSchedule();
+      },
+      saveSchedule() {
+        if (this.create) {
+          this.$message('请先保存测试，在设置定时任务');
+          return;
+        }
+        let param = {};
+        param.id = this.test.id;
+        param.schedule = this.test.schedule;
+        this.$post('/api/schedule/update', param, response => {
+          this.$success('保存成功');
+          this.getTest(this.test.id);
+        });
+      },
+      checkScheduleEdit() {
+        if (this.create) {
+          this.$message('请先保存测试');
+          return false;
+        }
+        return true;
       }
     },
 
@@ -244,5 +273,9 @@
 
   .test-container .more {
     margin-left: 10px;
+  }
+
+  .schedule-config {
+    float: right;
   }
 </style>

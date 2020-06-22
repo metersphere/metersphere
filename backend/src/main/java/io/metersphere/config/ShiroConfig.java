@@ -1,5 +1,6 @@
 package io.metersphere.config;
 
+import io.metersphere.security.ApiKeyFilter;
 import io.metersphere.security.LoginFilter;
 import io.metersphere.security.ShiroDBRealm;
 import org.apache.shiro.cache.MemoryConstrainedCacheManager;
@@ -37,6 +38,7 @@ public class ShiroConfig {
         shiroFilterFactoryBean.setUnauthorizedUrl("/403");
         shiroFilterFactoryBean.setSuccessUrl("/");
 
+        shiroFilterFactoryBean.getFilters().put("apikey", new ApiKeyFilter());
 
         Map<String, String> filterChainDefinitionMap = shiroFilterFactoryBean.getFilterChainDefinitionMap();
         filterChainDefinitionMap.put("/resource/**", "anon");
@@ -51,7 +53,7 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/api/**", "anon");
         filterChainDefinitionMap.put("/403", "anon");
         filterChainDefinitionMap.put("/anonymous/**", "anon");
-        filterChainDefinitionMap.put("/**", "authc");
+        filterChainDefinitionMap.put("/**", "apikey, authc");
         return shiroFilterFactoryBean;
     }
 

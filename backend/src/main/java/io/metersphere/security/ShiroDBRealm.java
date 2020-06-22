@@ -83,6 +83,12 @@ public class ShiroDBRealm extends AuthorizingRealm {
             SessionUtils.putUser(sessionUser);
             return new SimpleAuthenticationInfo(userId, password, getName());
         }
+        // apikey 校验不验证密码
+        if (ApiKeySessionHandler.random.equalsIgnoreCase(password)) {
+            SessionUser sessionUser = SessionUser.fromUser(user);
+            SessionUtils.putUser(sessionUser);
+            return new SimpleAuthenticationInfo(userId, password, getName());
+        }
         // 密码验证
         if (!userService.checkUserPassword(userId, password)) {
             throw new IncorrectCredentialsException(Translator.get("password_is_incorrect"));

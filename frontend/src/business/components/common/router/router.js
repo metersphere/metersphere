@@ -32,6 +32,7 @@ import TestCase from "../../track/case/TestCase";
 import TestTrack from "../../track/TestTrack";
 import ApiReportList from "../../api/report/ApiReportList";
 import axios from "axios";
+import ApiKeys from "../../settings/personal/ApiKeys";
 
 Vue.use(VueRouter);
 
@@ -69,6 +70,10 @@ const router = new VueRouter({
         {
           path: 'personsetting',
           component: PersonSetting
+        },
+        {
+          path: 'apikeys',
+          component: ApiKeys
         },
         {
           path: 'member',

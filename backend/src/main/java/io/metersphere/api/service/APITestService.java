@@ -207,4 +207,14 @@ public class APITestService {
         }
     }
 
+    public void updateSchedule(SaveAPITestRequest request) {
+
+        // todo 开启调度线程
+
+        ApiTestWithBLOBs apiTest = new ApiTestWithBLOBs();
+        apiTest.setId(request.getId());
+        apiTest.setSchedule(JSONObject.toJSONString(request.getSchedule()));
+        apiTest.setUpdateTime(System.currentTimeMillis());
+        apiTestMapper.updateByPrimaryKeySelective(apiTest);
+    }
 }

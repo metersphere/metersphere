@@ -157,7 +157,7 @@ export default {
     'special_characters_are_not_supported': '不支持特殊字符',
     'mobile_number_format_is_incorrect': '手机号码格式不正确',
     'email_format_is_incorrect': '邮箱格式不正确',
-    'password_format_is_incorrect': '有效密码：8-16位，英文大小写字母+数字',
+    'password_format_is_incorrect': '有效密码：8-16位，英文大小写字母+数字+特殊字符（可选）',
     'old_password': '旧密码',
     'new_password': '新密码',
     'remove_member': '确定要移除该成员吗',
@@ -176,6 +176,7 @@ export default {
     'mobile_number_format_is_incorrect': '手机号码格式不正确',
     'email_format_is_incorrect': '邮箱格式不正确',
     'delete_confirm': '这个用户确定要删除吗?',
+    'apikey_delete_confirm': '这个 API Key 确定要删除吗?',
     'input_id_placeholder': '请输入ID (只支持数字、英文字母)'
   },
   role: {
