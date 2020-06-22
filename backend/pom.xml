@@ -18,7 +18,6 @@
         <shiro.version>1.5.1</shiro.version>
         <java.version>1.8</java.version>
         <jmeter.version>5.2.1</jmeter.version>
-        <quartz-starter.version>0.0.4</quartz-starter.version>
     </properties>
 
     <dependencies>
@@ -77,13 +76,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>com.fit2cloud</groupId>
-            <artifactId>quartz-spring-boot-starter</artifactId>
-            <version>${quartz-starter.version}</version>
-        </dependency>
-
 
         <!-- flyway -->
         <dependency>
@@ -161,6 +153,12 @@
             <groupId>com.alibaba</groupId>
             <artifactId>easyexcel</artifactId>
             <version>2.1.7</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <version>2.3.0</version>
         </dependency>
 
     </dependencies>
