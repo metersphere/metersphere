@@ -8,4 +8,6 @@ public interface PersonRepo {
     List<String> getAllPersonNames();
 
     List findByName(String name);
+
+    String getDnForUser(String name);
 }

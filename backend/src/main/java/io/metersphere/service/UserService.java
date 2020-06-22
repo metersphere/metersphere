@@ -31,7 +31,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -76,6 +75,10 @@ public class UserService {
             insertUserRole(roles, user.getId());
         }
         return getUserDTO(user.getId());
+    }
+
+    public User selectUser(String id) {
+        return userMapper.selectByPrimaryKey(id);
     }
 
     private void insertUserRole(List<Map<String, Object>> roles, String userId) {
@@ -127,7 +130,7 @@ public class UserService {
         // password
     }
 
-    private void createUser(User userRequest) {
+    public void createUser(User userRequest) {
         User user = new User();
         BeanUtils.copyProperties(userRequest, user);
         user.setCreateTime(System.currentTimeMillis());

@@ -25,19 +25,21 @@ public class LdapService {
 
     public boolean authenticate(LoginRequest request) {
 //        String userDn, String credentials
+        DirContext ctx = null;
+        String dn = null;
         String username = request.getUsername();
         String credentials = request.getPassword();
 
         List user = personRepo.findByName(username);
+
         if (user.size() > 0) {
-            System.out.println(user);
+            dn = personRepo.getDnForUser(username);
         } else {
             MSException.throwException("no such user");
         }
         try {
-            ldapTemplate.authenticate(query()
-                    .where("objectclass").is("person")
-                    .and("cn").is(username), credentials);
+            ctx = ldapTemplate.getContextSource().getContext(dn, credentials);
+//            ldapTemplate.authenticate(dn, credentials);
             // Take care here - if a base was specified on the ContextSource
             // that needs to be removed from the user DN for the lookup to succeed.
             // ctx.lookup(userDn);
@@ -45,10 +47,11 @@ public class LdapService {
         } catch (Exception e) {
             // Context creation failed - authentication did not succeed
             System.out.println("Login failed: " + e);
+            MSException.throwException("login failed...");
             return false;
         } finally {
             // It is imperative that the created DirContext instance is always closed
-//            LdapUtils.closeContext((LdapContext) ctx);
+            LdapUtils.closeContext((LdapContext) ctx);
         }
     }
 }

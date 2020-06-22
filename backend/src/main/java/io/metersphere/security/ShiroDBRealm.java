@@ -8,6 +8,7 @@ import io.metersphere.dto.UserDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.UserService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
@@ -89,6 +90,14 @@ public class ShiroDBRealm extends AuthorizingRealm {
             SessionUtils.putUser(sessionUser);
             return new SimpleAuthenticationInfo(userId, password, getName());
         }
+
+        String login = (String) SecurityUtils.getSubject().getSession().getAttribute("authenticate");
+        if (StringUtils.equals(login, "ldap")) {
+            SessionUser sessionUser = SessionUser.fromUser(user);
+            SessionUtils.putUser(sessionUser);
+            return new SimpleAuthenticationInfo(userId, password, getName());
+        }
+
         // 密码验证
         if (!userService.checkUserPassword(userId, password)) {
             throw new IncorrectCredentialsException(Translator.get("password_is_incorrect"));
