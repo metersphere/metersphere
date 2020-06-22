@@ -17,7 +17,7 @@ UI 展示：
 仅需两步快速安装 MeterSphere：
 
  1. 准备一台不小于 8 G内存的 64位 Linux 主机；
- 2. 执行如下命令一键安装 MeterSphere。
+ 2. 以 root 用户执行如下命令一键安装 MeterSphere。
 
 ```sh
 curl -sSL https://github.com/metersphere/metersphere/releases/latest/download/quick_start.sh | sh
