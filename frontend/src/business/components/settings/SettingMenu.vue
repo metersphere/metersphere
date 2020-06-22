@@ -38,6 +38,7 @@
         <span>{{$t('commons.personal_info')}}</span>
       </template>
       <el-menu-item index="/setting/personsetting">{{$t('commons.personal_setting')}}</el-menu-item>
+      <el-menu-item index="/setting/apikeys">API Keys</el-menu-item>
     </el-submenu>
 
   </el-menu>
