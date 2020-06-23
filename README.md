@@ -1,5 +1,8 @@
 # MeterSphere 开源持续测试平台
 
+[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/metersphere/metersphere)](https://github.com/metersphere/metersphere/releases/latest)
+[![GitHub All Releases](https://img.shields.io/github/downloads/metersphere/metersphere/total)](https://github.com/metersphere/metersphere/releases)
+
 MeterSphere 是一站式的开源企业级持续测试平台，涵盖测试跟踪、接口测试、性能测试、团队协作等功能，兼容JMeter 等开源标准，有效助力开发和测试团队充分利用云弹性进行高度可扩展的自动化测试，加速高质量软件的交付。
 
 - 测试跟踪: 远超 TestLink 的使用体验；
@@ -17,7 +20,7 @@ UI 展示：
 仅需两步快速安装 MeterSphere：
 
  1. 准备一台不小于 8 G内存的 64位 Linux 主机；
- 2. 执行如下命令一键安装 MeterSphere。
+ 2. 以 root 用户执行如下命令一键安装 MeterSphere。
 
 ```sh
 curl -sSL https://github.com/metersphere/metersphere/releases/latest/download/quick_start.sh | sh

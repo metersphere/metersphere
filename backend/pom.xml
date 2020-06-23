@@ -161,6 +161,12 @@
             <version>2.3.0</version>
         </dependency>
 
+        <!-- LDAP Module -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-ldap</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
