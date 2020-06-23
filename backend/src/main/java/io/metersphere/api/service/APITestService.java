@@ -11,10 +11,18 @@ import io.metersphere.base.mapper.ApiTestMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
+import io.metersphere.job.QuartzManager;
+import io.metersphere.job.sechedule.ApiTestJob;
 import io.metersphere.service.FileService;
+import org.apache.commons.lang3.StringUtils;
+import org.quartz.JobDataMap;
+import org.quartz.JobKey;
+import org.quartz.SchedulerException;
+import org.quartz.TriggerKey;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -209,12 +217,32 @@ public class APITestService {
 
     public void updateSchedule(SaveAPITestRequest request) {
 
-        // todo 开启调度线程
-
         ApiTestWithBLOBs apiTest = new ApiTestWithBLOBs();
         apiTest.setId(request.getId());
         apiTest.setSchedule(JSONObject.toJSONString(request.getSchedule()));
         apiTest.setUpdateTime(System.currentTimeMillis());
         apiTestMapper.updateByPrimaryKeySelective(apiTest);
+
+        Boolean enable = request.getSchedule().getEnable();
+        String cronExpression = request.getSchedule().getCronExpression();
+
+        if (enable != null && enable && StringUtils.isNotBlank(cronExpression)) {
+            try {
+                JobDataMap jobDataMap = new JobDataMap();
+                jobDataMap.put("testId", request.getId());
+                jobDataMap.put("cronExpression", cronExpression);
+                QuartzManager.addOrUpdateCronJob(new JobKey(request.getId()), new TriggerKey(request.getId()), ApiTestJob.class, cronExpression, jobDataMap);
+            } catch (SchedulerException e) {
+                LogUtil.error(e.getMessage(), e);
+                MSException.throwException("定时任务开启异常");
+            }
+        } else {
+            try {
+                QuartzManager.removeJob(new JobKey(request.getId()), new TriggerKey(request.getId()));
+            } catch (Exception e) {
+                MSException.throwException("定时任务关闭异常");
+            }
+
+        }
     }
 }
