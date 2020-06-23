@@ -128,13 +128,19 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
         </dependency>
+        <!-- openapi -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>1.2.32</version>
+        </dependency>
 
         <!-- jmeter -->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.jmeter</groupId>-->
-<!--            <artifactId>ApacheJMeter_core</artifactId>-->
-<!--            <version>${jmeter.version}</version>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.apache.jmeter</groupId>-->
+        <!--            <artifactId>ApacheJMeter_core</artifactId>-->
+        <!--            <version>${jmeter.version}</version>-->
+        <!--        </dependency>-->
 
         <dependency>
             <groupId>org.apache.jmeter</groupId>
