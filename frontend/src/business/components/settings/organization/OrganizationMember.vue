@@ -15,7 +15,7 @@
             <ms-roles-tag :roles="scope.row.roles"/>
           </template>
         </el-table-column>
-        <el-table-column>
+        <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
             <ms-table-operator :tip2="$t('commons.remove')" @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
           </template>

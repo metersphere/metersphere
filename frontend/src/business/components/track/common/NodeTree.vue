@@ -9,8 +9,11 @@
     <el-tree
       class="filter-tree node-tree"
       :data="treeNodes"
+      :default-expanded-keys="expandedNode"
       node-key="id"
       @node-drag-end="handleDragEnd"
+      @node-expand="nodeExpand"
+      @node-collapse="nodeCollapse"
       :filter-node-method="filterNode"
       :expand-on-click-node="false"
       highlight-current
@@ -64,6 +67,7 @@ export default {
   data() {
     return {
       result: {},
+      expandedNode: [],
       filterText: "",
       defaultProps: {
         children: "children",
@@ -216,6 +220,12 @@ export default {
     },
     refreshNode() {
       this.$emit("refresh");
+    },
+    nodeExpand(data) {
+      this.expandedNode.push(data.id);
+    },
+    nodeCollapse(data) {
+      this.expandedNode.splice(this.expandedNode.indexOf(data.id), 1);
     }
   }
 };

@@ -1,5 +1,6 @@
 export default {
   commons: {
+    'delete_cancelled': 'Delete cancelled',
     'workspace': 'Workspace',
     'organization': 'Organization',
     'setting': 'Setting',
@@ -105,7 +106,7 @@ export default {
     'create': 'Create Workspace',
     'update': 'Update Workspace',
     'delete': 'Delete Workspace',
-    'delete_confirm': 'Are you sure you want to delete this workspace?',
+    'delete_confirm': 'Deleting the workspace will delete all resources (such as related projects, test cases, etc.) under the workspace. Are you sure you want to delete?',
     'add': 'Add Workspace',
     'input_name': 'Please enter a workspace name',
     'search_by_name': 'Search by name',
@@ -115,18 +116,21 @@ export default {
     'none': 'None Workspace',
     'select': 'Select Workspace',
     'special_characters_are_not_supported': 'Incorrect format (special characters are not supported and cannot end with \'-\')',
+
   },
   organization: {
     'create': 'Create Organization',
     'modify': 'Modify',
     'delete': 'Delete Organization',
-    'delete_confirm': 'Are you sure you want to delete this workspace?',
+    'delete_confirm': 'Deleting this organization will delete all resources (such as related workspaces, projects, test cases, etc.) under this organization. Are you sure you want to delete?',
     'input_name': 'Please enter a organization name',
     'select_organization': 'Please select organization',
     'search_by_name': 'Search by name',
     'special_characters_are_not_supported': 'Incorrect format (special characters are not supported and cannot end with \'-\')',
     'none': 'None Organization',
     'select': 'Select Organization',
+
+
   },
   project: {
     'name': 'Project name',
@@ -134,8 +138,8 @@ export default {
     'create': 'Create Project',
     'edit': 'Edit Project',
     'delete': 'Delete project',
-    'delete_confirm': 'Are you sure you want to delete this project?',
-    'delete_tip': 'These resources will be deleted:',
+    'delete_confirm': 'Deleting this project will delete all test resources under this project. Are you sure you want to delete?',
+    'delete_tip': 'Deleting this project will delete all test resources under this project. Are you sure you want to delete?',
     'search_by_name': 'Search by name',
     'input_name': 'Please enter a workspace name',
     'owning_workspace': 'Owning Workspace',

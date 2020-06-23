@@ -69,10 +69,11 @@
   import MsTableHeader from "../common/components/MsTableHeader";
   import MsTableOperator from "../common/components/MsTableOperator";
   import MsDialogFooter from "../common/components/MsDialogFooter";
-  import {_sort, getCurrentUser} from "../../../common/js/utils";
+  import {_sort, getCurrentOrganizationId, getCurrentUser, refreshSessionAndCookies} from "../../../common/js/utils";
   import MsContainer from "../common/components/MsContainer";
   import MsMainContainer from "../common/components/MsMainContainer";
   import MsDeleteConfirm from "../common/components/MsDeleteConfirm";
+  import {DEFAULT} from "../../../common/js/constants";
 
   export default {
     name: "MsProject",
@@ -179,9 +180,20 @@
         this.$refs.deleteConfirm.open(project);
       },
       _handleDelete(project) {
-        this.$get('/project/delete/' + project.id, () => {
-          Message.success(this.$t('commons.delete_success'));
-          this.list();
+        this.$confirm(this.$t('project.delete_tip'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          type: 'warning'
+        }).then(() => {
+          this.$get('/project/delete/' + project.id, () => {
+            Message.success(this.$t('commons.delete_success'));
+            this.list();
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: this.$t('commons.delete_cancelled')
+          });
         });
       },
       search() {

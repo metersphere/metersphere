@@ -318,18 +318,29 @@
         });
       },
       handleDelete(organization) {
-        this.$refs.deleteConfirm.open(organization);
+         this.$refs.deleteConfirm.open(organization);
       },
       _handleDelete(organization) {
-        this.result = this.$get(this.deletePath + organization.id, () => {
-          let lastOrganizationId = getCurrentOrganizationId();
-          let sourceId = organization.id;
-          if (lastOrganizationId === sourceId) {
-            let sign = DEFAULT;
-            refreshSessionAndCookies(sign, sourceId);
-          }
-          this.$success(this.$t('commons.delete_success'));
-          this.initTableData();
+        this.$confirm(this.$t('organization.delete_confirm'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          type: 'warning'
+        }).then(() => {
+          this.result = this.$get(this.deletePath + organization.id, () => {
+            let lastOrganizationId = getCurrentOrganizationId();
+            let sourceId = organization.id;
+            if (lastOrganizationId === sourceId) {
+              let sign = DEFAULT;
+              refreshSessionAndCookies(sign, sourceId);
+            }
+            this.$success(this.$t('commons.delete_success'));
+            this.initTableData();
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: this.$t('commons.delete_cancelled')
+          });
         });
       },
       delMember(row) {
