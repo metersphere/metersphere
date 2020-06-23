@@ -229,6 +229,7 @@ export class HTTPSamplerProxy extends DefaultTestElement {
     this.stringProp("HTTPSampler.protocol", this.request.protocol.split(":")[0]);
     this.stringProp("HTTPSampler.path", this.request.pathname);
     this.stringProp("HTTPSampler.method", this.request.method);
+    this.stringProp("HTTPSampler.contentEncoding", this.request.encoding, "UTF-8");
     if (!this.request.port) {
       this.stringProp("HTTPSampler.port", "");
     } else {
