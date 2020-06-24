@@ -5,6 +5,10 @@
  * @return True is expression is valid
  */
 export function cronValidate(cronExpression ){
+
+  if (!cronExpression) {
+    return false;
+  }
   //alert("校验函数的开始！");
   var cronParams = cronExpression.split(" ");
 

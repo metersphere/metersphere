@@ -129,7 +129,7 @@
               name: item.name,
               status: item.status,
               scenarioDefinition: JSON.parse(item.scenarioDefinition),
-              schedule: item.schedule ? JSON.parse(item.schedule) : {},
+              schedule: item.schedule ? item.schedule : {},
             });
             this.$refs.config.reset();
           }
@@ -215,7 +215,7 @@
       },
       saveCronExpression(cronExpression) {
         this.test.schedule.enable = true;
-        this.test.schedule.cronExpression = cronExpression;
+        this.test.schedule.value = cronExpression;
         this.saveSchedule();
       },
       saveSchedule() {
@@ -224,9 +224,13 @@
           return;
         }
         let param = {};
-        param.id = this.test.id;
-        param.schedule = this.test.schedule;
-        this.$post('/api/schedule/update', param, response => {
+        param = this.test.schedule;
+        param.resourceId = this.test.id;
+        let url = '/api/schedule/create';
+        if (param.id) {
+          url = '/api/schedule/update';
+        }
+        this.$post(url, param, response => {
           this.$success('保存成功');
           this.getTest(this.test.id);
         });

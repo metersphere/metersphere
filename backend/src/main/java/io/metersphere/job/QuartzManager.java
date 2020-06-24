@@ -101,7 +101,7 @@ public class QuartzManager {
 
         Scheduler sched = sf.getScheduler();
 
-        LogUtil.info("modifyCronJobTime: " + triggerKey.getName());
+        LogUtil.info("modifyCronJobTime: " + triggerKey.getName() + "," + triggerKey.getGroup());
 
         try {
             CronTrigger trigger = (CronTrigger) sched.getTrigger(triggerKey);
@@ -152,7 +152,7 @@ public class QuartzManager {
 
         try {
 
-            LogUtil.info("modifySimpleJobTime: " + triggerKey.getName());
+            LogUtil.info("modifySimpleJobTime: " + triggerKey.getName() + "," + triggerKey.getGroup());
 
             SimpleTrigger trigger = (SimpleTrigger) sched.getTrigger(triggerKey);
 
@@ -205,7 +205,7 @@ public class QuartzManager {
 
         try {
 
-            LogUtil.info("RemoveJob: " + jobKey.getName());
+            LogUtil.info("RemoveJob: " + jobKey.getName() + "," + jobKey.getGroup());
 
             Scheduler sched = sf.getScheduler();
 
@@ -282,7 +282,7 @@ public class QuartzManager {
     public static void addOrUpdateCronJob(JobKey jobKey, TriggerKey triggerKey, Class jobClass, String cron, JobDataMap jobDataMap) throws SchedulerException {
         Scheduler sched = sf.getScheduler();
 
-        LogUtil.info("AddOrUpdateCronJob: " + jobKey.getName());
+        LogUtil.info("AddOrUpdateCronJob: " + jobKey.getName() + "," + triggerKey.getGroup());
 
         if (sched.checkExists(triggerKey)) {
             modifyCronJobTime(triggerKey, cron);
@@ -293,5 +293,12 @@ public class QuartzManager {
 
     public static void addOrUpdateCronJob(JobKey jobKey, TriggerKey triggerKey, Class jobClass, String cron) throws SchedulerException {
         addOrUpdateCronJob(jobKey, triggerKey, jobClass, cron, null);
+    }
+
+    public static JobDataMap getDefaultJobDataMap(String resourceId, String expression) {
+        JobDataMap jobDataMap = new JobDataMap();
+        jobDataMap.put("resourceId", resourceId);
+        jobDataMap.put("expression", expression);
+        return jobDataMap;
     }
 }

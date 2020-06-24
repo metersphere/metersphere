@@ -9,10 +9,10 @@
           <el-button type="primary" @click="showCronDialog">生成 Cron</el-button>
           <el-button type="primary" @click="saveCron">保存</el-button>
         </el-form-item>
-        <crontab-result :ex="schedule.cronExpression" ref="crontabResult"/>
+        <crontab-result :ex="schedule.value" ref="crontabResult"/>
       </el-form>
       <el-dialog title="生成 cron" :visible.sync="showCron" :modal="false">
-        <crontab @hide="showCron=false" @fill="crontabFill" :expression="schedule.cronExpression"/>
+        <crontab @hide="showCron=false" @fill="crontabFill" :expression="schedule.value"/>
       </el-dialog>
     </div>
   </el-dialog>
@@ -32,8 +32,8 @@
         schedule: {},
       },
       watch: {
-        'schedule.cronExpression'() {
-          this.form.cronValue = this.schedule.cronExpression;
+        'schedule.value'() {
+          this.form.cronValue = this.schedule.value;
         }
       },
       data() {
@@ -41,7 +41,7 @@
             if (!cronValidate(cronValue)) {
               callback(new Error('Cron 表达式格式错误'));
             } else {
-              this.schedule.cronExpression = cronValue;
+              this.schedule.value = cronValue;
               callback();
             }
           };
@@ -62,7 +62,7 @@
         },
         crontabFill(value) {
           //确定后回传的值
-          this.schedule.cronExpression = value;
+          this.schedule.value = value;
           this.form.cronValue = value;
           this.$refs['from'].validate();
         },

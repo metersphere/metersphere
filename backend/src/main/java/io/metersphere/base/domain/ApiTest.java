@@ -21,5 +21,7 @@ public class ApiTest implements Serializable {
 
     private Long updateTime;
 
+    private String scenarioDefinition;
+
     private static final long serialVersionUID = 1L;
 }

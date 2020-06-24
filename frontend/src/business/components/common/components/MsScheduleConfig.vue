@@ -5,9 +5,9 @@
           <i class="el-icon-date" size="small"></i>
           <span class="character" @click="scheduleEdit">SCHEDULER</span>
         </span>
-        <el-switch :disabled="!schedule.cronExpression" v-model="schedule.enable" @change="scheduleChange"/>
+        <el-switch :disabled="!schedule.value" v-model="schedule.enable" @change="scheduleChange"/>
         <ms-schedule-edit :schedule="schedule" :save="save" ref="scheduleEdit"/>
-        <crontab-result v-show="false" :ex="schedule.cronExpression" ref="crontabResult" @resultListChange="recentListChange"/>
+        <crontab-result v-show="false" :ex="schedule.value" ref="crontabResult" @resultListChange="recentListChange"/>
       </div>
       <div>
         <span :class="{'disable-character': !schedule.enable}"> 下次执行时间：{{this.recentList.length > 0 ? this.recentList[0] : ''}} </span>
@@ -36,20 +36,6 @@
           }
         },
       },
-      // mounted() {
-      //   console.log(this.schedule);
-      //   // this.recentList = this.$refs.crontabResult.resultList;
-      //   // console.log(this.recentList);
-      //   console.log(this.recentList+ "====");
-      // },
-      // watch: {
-      //   'schedule.cronExpression'() {
-      //     console.log(this.schedule);
-      //     this.$refs.crontabResult.expressionChange();
-      //     this.recentList = this.$refs.crontabResult.resultList;
-      //     console.log(this.recentList);
-      //   }
-      // },
       methods: {
         scheduleEdit() {
           if (!this.checkOpen()) {

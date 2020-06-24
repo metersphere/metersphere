@@ -2,27 +2,16 @@ package io.metersphere.job.sechedule;
 
 import io.metersphere.api.dto.SaveAPITestRequest;
 import io.metersphere.api.service.APITestService;
+import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.job.QuartzManager;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.*;
 
-public class ApiTestJob implements Job {
+public class ApiTestJob extends MsScheduleJob {
 
     private APITestService apiTestService;
-
-    private String testId;
-
-    private String cronExpression;
-
-    public void setTestId(String testId) {
-        this.testId = testId;
-    }
-
-    public void setCronExpression(String cronExpression) {
-        this.cronExpression = cronExpression;
-    }
 
     public ApiTestJob() {
         apiTestService = (APITestService) CommonBeanFactory.getBean(APITestService.class);
@@ -30,13 +19,21 @@ public class ApiTestJob implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        if (StringUtils.isBlank(testId)) {
-            QuartzManager.removeJob(new JobKey(testId), new TriggerKey(testId));
+        if (StringUtils.isBlank(resourceId)) {
+            QuartzManager.removeJob(new JobKey(resourceId), new TriggerKey(resourceId));
         }
-        LogUtil.info("ApiTestSchedule Running: " + testId);
-        LogUtil.info("CronExpression: " + cronExpression);
+        LogUtil.info("ApiTestSchedule Running: " + resourceId);
+        LogUtil.info("CronExpression: " + expression);
         SaveAPITestRequest request = new SaveAPITestRequest();
-        request.setId(testId);
+        request.setId(resourceId);
         apiTestService.run(request);
+    }
+
+    public static JobKey getJobKey(String testId) {
+        return new JobKey(testId, ScheduleGroup.API_TEST.name());
+    }
+
+    public static TriggerKey getTriggerKey(String testId) {
+        return new TriggerKey(testId, ScheduleGroup.API_TEST.name());
     }
 }

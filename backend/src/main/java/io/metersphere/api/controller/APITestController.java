@@ -8,7 +8,7 @@ import io.metersphere.api.dto.QueryAPITestRequest;
 import io.metersphere.api.dto.SaveAPITestRequest;
 import io.metersphere.api.service.APITestService;
 import io.metersphere.base.domain.ApiTest;
-import io.metersphere.base.domain.ApiTestWithBLOBs;
+import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -51,8 +51,13 @@ public class APITestController {
     }
 
     @PostMapping(value = "/schedule/update")
-    public void updateSchedule(@RequestBody SaveAPITestRequest request) {
+    public void updateSchedule(@RequestBody Schedule request) {
         apiTestService.updateSchedule(request);
+    }
+
+    @PostMapping(value = "/schedule/create")
+    public void createSchedule(@RequestBody Schedule request) {
+        apiTestService.createSchedule(request);
     }
 
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
@@ -71,7 +76,7 @@ public class APITestController {
     }
 
     @GetMapping("/get/{testId}")
-    public ApiTestWithBLOBs get(@PathVariable String testId) {
+    public APITestResult get(@PathVariable String testId) {
         return apiTestService.get(testId);
     }
 

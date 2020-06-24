@@ -10,7 +10,10 @@ import io.metersphere.base.mapper.ApiTestFileMapper;
 import io.metersphere.base.mapper.ApiTestMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestMapper;
 import io.metersphere.commons.constants.APITestStatus;
+import io.metersphere.commons.constants.ScheduleGroup;
+import io.metersphere.commons.constants.ScheduleType;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
@@ -18,6 +21,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.job.QuartzManager;
 import io.metersphere.job.sechedule.ApiTestJob;
 import io.metersphere.service.FileService;
+import io.metersphere.service.ScheduleService;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobDataMap;
 import org.quartz.JobKey;
@@ -54,6 +58,8 @@ public class APITestService {
     private JMeterService jMeterService;
     @Resource
     private APIReportService apiReportService;
+    @Resource
+    private ScheduleService scheduleService;
 
     public List<APITestResult> list(QueryAPITestRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -69,7 +75,7 @@ public class APITestService {
         if (files == null || files.isEmpty()) {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
         }
-        ApiTestWithBLOBs test = createTest(request);
+        ApiTest test = createTest(request);
         saveFile(test.getId(), files);
     }
 
@@ -78,7 +84,7 @@ public class APITestService {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
         }
         deleteFileByTestId(request.getId());
-        ApiTestWithBLOBs test = updateTest(request);
+        ApiTest test = updateTest(request);
         saveFile(test.getId(), files);
     }
 
@@ -91,7 +97,7 @@ public class APITestService {
         }
 
         // copy test
-        ApiTestWithBLOBs copy = get(request.getId());
+        ApiTest copy = get(request.getId());
         copy.setId(UUID.randomUUID().toString());
         copy.setName(request.getName());
         copy.setCreateTime(System.currentTimeMillis());
@@ -109,8 +115,12 @@ public class APITestService {
         }
     }
 
-    public ApiTestWithBLOBs get(String id) {
-        return apiTestMapper.selectByPrimaryKey(id);
+    public APITestResult get(String id) {
+        APITestResult apiTest = new APITestResult();
+        BeanUtils.copyBean(apiTest, apiTestMapper.selectByPrimaryKey(id));
+        Schedule schedule = scheduleService.getScheduleByResource(id, ScheduleGroup.API_TEST.name());
+        apiTest.setSchedule(schedule);
+        return apiTest;
     }
 
     public List<ApiTest> getApiTestByProjectId(String projectId) {
@@ -139,7 +149,7 @@ public class APITestService {
     }
 
     public void changeStatus(String id, APITestStatus status) {
-        ApiTestWithBLOBs apiTest = new ApiTestWithBLOBs();
+        ApiTest apiTest = new ApiTest();
         apiTest.setId(id);
         apiTest.setStatus(status.name());
         apiTestMapper.updateByPrimaryKeySelective(apiTest);
@@ -153,9 +163,9 @@ public class APITestService {
         }
     }
 
-    private ApiTestWithBLOBs updateTest(SaveAPITestRequest request) {
+    private ApiTest updateTest(SaveAPITestRequest request) {
         checkNameExist(request);
-        final ApiTestWithBLOBs test = new ApiTestWithBLOBs();
+        final ApiTest test = new ApiTest();
         test.setId(request.getId());
         test.setName(request.getName());
         test.setProjectId(request.getProjectId());
@@ -166,9 +176,9 @@ public class APITestService {
         return test;
     }
 
-    private ApiTestWithBLOBs createTest(SaveAPITestRequest request) {
+    private ApiTest createTest(SaveAPITestRequest request) {
         checkNameExist(request);
-        final ApiTestWithBLOBs test = new ApiTestWithBLOBs();
+        final ApiTest test = new ApiTest();
         test.setId(request.getId());
         test.setName(request.getName());
         test.setProjectId(request.getProjectId());
@@ -215,34 +225,44 @@ public class APITestService {
         }
     }
 
-    public void updateSchedule(SaveAPITestRequest request) {
+    public void updateSchedule(Schedule request) {
+        scheduleService.editSchedule(request);
+        updateApiTestCronJob(request);
+    }
 
-        ApiTestWithBLOBs apiTest = new ApiTestWithBLOBs();
-        apiTest.setId(request.getId());
-        apiTest.setSchedule(JSONObject.toJSONString(request.getSchedule()));
-        apiTest.setUpdateTime(System.currentTimeMillis());
-        apiTestMapper.updateByPrimaryKeySelective(apiTest);
+    public void createSchedule(Schedule request) {
+        scheduleService.addSchedule(buildApiTestSchedule(request));
+        updateApiTestCronJob(request);
+    }
 
-        Boolean enable = request.getSchedule().getEnable();
-        String cronExpression = request.getSchedule().getCronExpression();
+    private Schedule buildApiTestSchedule(Schedule request) {
+        Schedule schedule = new Schedule();
+        schedule.setResourceId(request.getResourceId());
+        schedule.setEnable(request.getEnable());
+        schedule.setValue(request.getValue().trim());
+        schedule.setGroup(ScheduleGroup.API_TEST.name());
+        schedule.setKey(request.getResourceId());
+        schedule.setType(ScheduleType.CRON.name());
+        return schedule;
+    }
 
+    private void updateApiTestCronJob(Schedule request) {
+        Boolean enable = request.getEnable();
+        String cronExpression = request.getValue();
         if (enable != null && enable && StringUtils.isNotBlank(cronExpression)) {
             try {
-                JobDataMap jobDataMap = new JobDataMap();
-                jobDataMap.put("testId", request.getId());
-                jobDataMap.put("cronExpression", cronExpression);
-                QuartzManager.addOrUpdateCronJob(new JobKey(request.getId()), new TriggerKey(request.getId()), ApiTestJob.class, cronExpression, jobDataMap);
+                QuartzManager.addOrUpdateCronJob(ApiTestJob.getJobKey(request.getResourceId()),
+                        ApiTestJob.getTriggerKey(request.getResourceId()), ApiTestJob.class, cronExpression, QuartzManager.getDefaultJobDataMap(request.getResourceId(), cronExpression));
             } catch (SchedulerException e) {
                 LogUtil.error(e.getMessage(), e);
                 MSException.throwException("定时任务开启异常");
             }
         } else {
             try {
-                QuartzManager.removeJob(new JobKey(request.getId()), new TriggerKey(request.getId()));
+                QuartzManager.removeJob(ApiTestJob.getJobKey(request.getResourceId()), ApiTestJob.getTriggerKey(request.getResourceId()));
             } catch (Exception e) {
                 MSException.throwException("定时任务关闭异常");
             }
-
         }
     }
 }

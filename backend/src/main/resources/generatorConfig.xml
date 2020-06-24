@@ -8,6 +8,11 @@
     <!--<classPathEntry location="/Users/liuruibin/.m2/repository/mysql/mysql-connector-java/5.1.34/mysql-connector-java-5.1.34.jar"/>-->
     <!-- 此处指定生成针对MyBatis3的DAO -->
     <context id="mysql" targetRuntime="MyBatis3">
+        <!-- 字段带`,解决列表跟关键字冲突问题 -->
+        <property name="autoDelimitKeywords" value="true" />
+        <property name="beginningDelimiter" value="`" />
+        <property name="endingDelimiter" value="`" />
+
         <plugin type="org.mybatis.generator.plugins.SerializablePlugin"/>
         <plugin type="org.mybatis.generator.plugins.UnmergeableXmlMappersPlugin" />
         <!-- Lombok插件 -->
@@ -59,8 +64,8 @@
 
         <!--要生成的数据库表 -->
 
-        <table tableName="test_plan_test_case"/>
-        <table tableName="test_case"/>
+        <table tableName="schedule"/>
+
 
     </context>
 </generatorConfiguration>

@@ -1,7 +1,7 @@
 package io.metersphere.api.dto;
 
 import io.metersphere.api.dto.scenario.Scenario;
-import io.metersphere.dto.ScheduleDTO;
+import io.metersphere.base.domain.Schedule;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,5 +19,5 @@ public class SaveAPITestRequest {
 
     private List<Scenario> scenarioDefinition;
 
-    private ScheduleDTO schedule;
+    private Schedule schedule;
 }
