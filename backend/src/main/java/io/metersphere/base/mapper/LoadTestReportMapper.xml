@@ -9,6 +9,7 @@
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="trigger_mode" jdbcType="VARCHAR" property="triggerMode" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.LoadTestReport">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
@@ -72,7 +73,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, test_id, name, create_time, update_time, status, user_id
+    id, test_id, `name`, create_time, update_time, `status`, user_id, trigger_mode
   </sql>
   <sql id="Blob_Column_List">
     description
@@ -126,12 +127,14 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.LoadTestReport">
-    insert into load_test_report (id, test_id, name, 
-      create_time, update_time, status, 
-      user_id, description)
+    insert into load_test_report (id, test_id, `name`, 
+      create_time, update_time, `status`, 
+      user_id, trigger_mode, description
+      )
     values (#{id,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, 
-      #{userId,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR})
+      #{userId,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.LoadTestReport">
     insert into load_test_report
@@ -143,7 +146,7 @@
         test_id,
       </if>
       <if test="name != null">
-        name,
+        `name`,
       </if>
       <if test="createTime != null">
         create_time,
@@ -152,10 +155,13 @@
         update_time,
       </if>
       <if test="status != null">
-        status,
+        `status`,
       </if>
       <if test="userId != null">
         user_id,
+      </if>
+      <if test="triggerMode != null">
+        trigger_mode,
       </if>
       <if test="description != null">
         description,
@@ -183,6 +189,9 @@
       <if test="userId != null">
         #{userId,jdbcType=VARCHAR},
       </if>
+      <if test="triggerMode != null">
+        #{triggerMode,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
       </if>
@@ -204,7 +213,7 @@
         test_id = #{record.testId,jdbcType=VARCHAR},
       </if>
       <if test="record.name != null">
-        name = #{record.name,jdbcType=VARCHAR},
+        `name` = #{record.name,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -213,10 +222,13 @@
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
       <if test="record.status != null">
-        status = #{record.status,jdbcType=VARCHAR},
+        `status` = #{record.status,jdbcType=VARCHAR},
       </if>
       <if test="record.userId != null">
         user_id = #{record.userId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.triggerMode != null">
+        trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
       </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
@@ -230,11 +242,12 @@
     update load_test_report
     set id = #{record.id,jdbcType=VARCHAR},
       test_id = #{record.testId,jdbcType=VARCHAR},
-      name = #{record.name,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      status = #{record.status,jdbcType=VARCHAR},
+      `status` = #{record.status,jdbcType=VARCHAR},
       user_id = #{record.userId,jdbcType=VARCHAR},
+      trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -244,11 +257,12 @@
     update load_test_report
     set id = #{record.id,jdbcType=VARCHAR},
       test_id = #{record.testId,jdbcType=VARCHAR},
-      name = #{record.name,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      status = #{record.status,jdbcType=VARCHAR},
-      user_id = #{record.userId,jdbcType=VARCHAR}
+      `status` = #{record.status,jdbcType=VARCHAR},
+      user_id = #{record.userId,jdbcType=VARCHAR},
+      trigger_mode = #{record.triggerMode,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -260,7 +274,7 @@
         test_id = #{testId,jdbcType=VARCHAR},
       </if>
       <if test="name != null">
-        name = #{name,jdbcType=VARCHAR},
+        `name` = #{name,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -269,10 +283,13 @@
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
       <if test="status != null">
-        status = #{status,jdbcType=VARCHAR},
+        `status` = #{status,jdbcType=VARCHAR},
       </if>
       <if test="userId != null">
         user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="triggerMode != null">
+        trigger_mode = #{triggerMode,jdbcType=VARCHAR},
       </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
@@ -283,22 +300,24 @@
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.LoadTestReport">
     update load_test_report
     set test_id = #{testId,jdbcType=VARCHAR},
-      name = #{name,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      status = #{status,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=VARCHAR},
       user_id = #{userId,jdbcType=VARCHAR},
+      trigger_mode = #{triggerMode,jdbcType=VARCHAR},
       description = #{description,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.LoadTestReport">
     update load_test_report
     set test_id = #{testId,jdbcType=VARCHAR},
-      name = #{name,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      status = #{status,jdbcType=VARCHAR},
-      user_id = #{userId,jdbcType=VARCHAR}
+      `status` = #{status,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=VARCHAR},
+      trigger_mode = #{triggerMode,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

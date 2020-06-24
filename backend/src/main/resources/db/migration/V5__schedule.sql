@@ -15,3 +15,5 @@ CREATE TABLE IF NOT EXISTS `schedule` (
 
 ALTER TABLE `api_test` DROP COLUMN `schedule`;
 ALTER TABLE `load_test` DROP COLUMN `schedule`;
+ALTER TABLE `api_test_report` ADD `trigger_mode` varchar(64) NULL;
+ALTER TABLE `load_test_report` ADD `trigger_mode` varchar(64) NULL;
