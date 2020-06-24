@@ -1,7 +1,11 @@
 package io.metersphere.ldap;
 
 
+import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.ldap.domain.Person;
+import org.apache.shiro.realm.ldap.LdapUtils;
+import org.springframework.ldap.AuthenticationException;
 import org.springframework.ldap.NamingException;
 import org.springframework.ldap.core.*;
 import org.springframework.ldap.core.support.AbstractContextMapper;
@@ -9,10 +13,9 @@ import org.springframework.ldap.query.LdapQuery;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.naming.directory.Attributes;
-
-
+import javax.naming.directory.DirContext;
+import javax.naming.ldap.LdapContext;
 import java.util.List;
-
 import static org.springframework.ldap.query.LdapQueryBuilder.query;
 
 @Service
@@ -34,6 +37,38 @@ public class PersonRepoImpl implements PersonRepo {
                         return attrs.toString();
                     }
                 });
+    }
+
+    public boolean authenticate(String dn, String credentials) {
+        DirContext ctx = null;
+        try {
+            ctx = ldapTemplate.getContextSource().getContext(dn, credentials);
+//            ldapTemplate.authenticate(dn, credentials);
+            // Take care here - if a base was specified on the ContextSource
+            // that needs to be removed from the user DN for the lookup to succeed.
+            // ctx.lookup(userDn);
+            return true;
+        } catch (AuthenticationException e) {
+            LogUtil.error("ldap authenticate failed..." + e);
+            System.out.println("Login failed: " + e);
+            MSException.throwException("用户认证失败！");
+            return false;
+        } catch (Exception e) {
+            // Context creation failed - authentication did not succeed
+            LogUtil.error("ldap authenticate failed..." + e);
+            System.out.println("Login failed: " + e);
+            MSException.throwException("login failed...");
+            return false;
+        } finally {
+            // It is imperative that the created DirContext instance is always closed
+            LdapUtils.closeContext((LdapContext) ctx);
+        }
+    }
+
+    public List<Person> getAllPersons() {
+        ldapTemplate.setIgnorePartialResultException(true);
+        return ldapTemplate.search(query()
+                .where("objectclass").is("person"), getContextMapper());
     }
 
     @Override
@@ -74,7 +109,9 @@ public class PersonRepoImpl implements PersonRepo {
         public Person doMapFromContext(DirContextOperations context) {
             Person person = new Person();
             person.setCommonName(context.getStringAttribute("cn"));
-            person.setSuerName(context.getStringAttribute("sn"));
+            person.setSurName(context.getStringAttribute("sn"));
+            person.setUsername(context.getStringAttribute("sAMAccountName"));
+            person.setEmail(context.getStringAttribute("mail"));
             return person;
         }
     }
