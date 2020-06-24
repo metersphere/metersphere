@@ -108,7 +108,7 @@ public class APIReportService {
         report.setCreateTime(System.currentTimeMillis());
         report.setUpdateTime(System.currentTimeMillis());
         report.setStatus(APITestStatus.Running.name());
-        report.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+        report.setUserId(test.getUserId());
         apiTestReportMapper.insert(report);
 
         return report.getId();

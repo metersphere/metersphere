@@ -10,7 +10,7 @@
         <crontab-result v-show="false" :ex="schedule.value" ref="crontabResult" @resultListChange="recentListChange"/>
       </div>
       <div>
-        <span :class="{'disable-character': !schedule.enable}"> 下次执行时间：{{this.recentList.length > 0 ? this.recentList[0] : ''}} </span>
+        <span :class="{'disable-character': !schedule.enable}"> 下次执行时间：{{this.recentList.length > 0 ? this.recentList[0] : '未设置'}} </span>
       </div>
     </div>
 </template>

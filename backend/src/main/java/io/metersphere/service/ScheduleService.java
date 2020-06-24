@@ -48,4 +48,10 @@ public class ScheduleService {
         ScheduleExample example = new ScheduleExample();
         return scheduleMapper.selectByExample(example);
     }
+
+    public List<Schedule> getEnableSchedule() {
+        ScheduleExample example = new ScheduleExample();
+        example.createCriteria().andEnableEqualTo(true);
+        return scheduleMapper.selectByExample(example);
+    }
 }

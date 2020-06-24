@@ -19,5 +19,7 @@ public class SaveAPITestRequest {
 
     private List<Scenario> scenarioDefinition;
 
+    private String userId;
+
     private Schedule schedule;
 }

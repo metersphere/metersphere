@@ -26,6 +26,7 @@ public class ApiTestJob extends MsScheduleJob {
         LogUtil.info("CronExpression: " + expression);
         SaveAPITestRequest request = new SaveAPITestRequest();
         request.setId(resourceId);
+        request.setUserId(userId);
         apiTestService.run(request);
     }
 

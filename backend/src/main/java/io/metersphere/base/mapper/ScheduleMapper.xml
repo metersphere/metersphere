@@ -7,8 +7,10 @@
     <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="value" jdbcType="VARCHAR" property="value" />
     <result column="group" jdbcType="VARCHAR" property="group" />
+    <result column="job" jdbcType="VARCHAR" property="job" />
     <result column="enable" jdbcType="BIT" property="enable" />
     <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.Schedule">
     <result column="custom_data" jdbcType="LONGVARCHAR" property="customData" />
@@ -72,7 +74,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `key`, `type`, `value`, `group`, `enable`, resource_id
+    id, `key`, `type`, `value`, `group`, job, `enable`, resource_id, user_id
   </sql>
   <sql id="Blob_Column_List">
     custom_data
@@ -127,10 +129,12 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.Schedule">
     insert into schedule (id, `key`, `type`, 
-      `value`, `group`, `enable`, resource_id, 
+      `value`, `group`, job, 
+      `enable`, resource_id, user_id, 
       custom_data)
     values (#{id,jdbcType=VARCHAR}, #{key,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
-      #{value,jdbcType=VARCHAR}, #{group,jdbcType=VARCHAR}, #{enable,jdbcType=BIT}, #{resourceId,jdbcType=VARCHAR}, 
+      #{value,jdbcType=VARCHAR}, #{group,jdbcType=VARCHAR}, #{job,jdbcType=VARCHAR}, 
+      #{enable,jdbcType=BIT}, #{resourceId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, 
       #{customData,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.Schedule">
@@ -151,11 +155,17 @@
       <if test="group != null">
         `group`,
       </if>
+      <if test="job != null">
+        job,
+      </if>
       <if test="enable != null">
         `enable`,
       </if>
       <if test="resourceId != null">
         resource_id,
+      </if>
+      <if test="userId != null">
+        user_id,
       </if>
       <if test="customData != null">
         custom_data,
@@ -177,11 +187,17 @@
       <if test="group != null">
         #{group,jdbcType=VARCHAR},
       </if>
+      <if test="job != null">
+        #{job,jdbcType=VARCHAR},
+      </if>
       <if test="enable != null">
         #{enable,jdbcType=BIT},
       </if>
       <if test="resourceId != null">
         #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=VARCHAR},
       </if>
       <if test="customData != null">
         #{customData,jdbcType=LONGVARCHAR},
@@ -212,11 +228,17 @@
       <if test="record.group != null">
         `group` = #{record.group,jdbcType=VARCHAR},
       </if>
+      <if test="record.job != null">
+        job = #{record.job,jdbcType=VARCHAR},
+      </if>
       <if test="record.enable != null">
         `enable` = #{record.enable,jdbcType=BIT},
       </if>
       <if test="record.resourceId != null">
         resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userId != null">
+        user_id = #{record.userId,jdbcType=VARCHAR},
       </if>
       <if test="record.customData != null">
         custom_data = #{record.customData,jdbcType=LONGVARCHAR},
@@ -233,8 +255,10 @@
       `type` = #{record.type,jdbcType=VARCHAR},
       `value` = #{record.value,jdbcType=VARCHAR},
       `group` = #{record.group,jdbcType=VARCHAR},
+      job = #{record.job,jdbcType=VARCHAR},
       `enable` = #{record.enable,jdbcType=BIT},
       resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      user_id = #{record.userId,jdbcType=VARCHAR},
       custom_data = #{record.customData,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -247,8 +271,10 @@
       `type` = #{record.type,jdbcType=VARCHAR},
       `value` = #{record.value,jdbcType=VARCHAR},
       `group` = #{record.group,jdbcType=VARCHAR},
+      job = #{record.job,jdbcType=VARCHAR},
       `enable` = #{record.enable,jdbcType=BIT},
-      resource_id = #{record.resourceId,jdbcType=VARCHAR}
+      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      user_id = #{record.userId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -268,11 +294,17 @@
       <if test="group != null">
         `group` = #{group,jdbcType=VARCHAR},
       </if>
+      <if test="job != null">
+        job = #{job,jdbcType=VARCHAR},
+      </if>
       <if test="enable != null">
         `enable` = #{enable,jdbcType=BIT},
       </if>
       <if test="resourceId != null">
         resource_id = #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=VARCHAR},
       </if>
       <if test="customData != null">
         custom_data = #{customData,jdbcType=LONGVARCHAR},
@@ -286,8 +318,10 @@
       `type` = #{type,jdbcType=VARCHAR},
       `value` = #{value,jdbcType=VARCHAR},
       `group` = #{group,jdbcType=VARCHAR},
+      job = #{job,jdbcType=VARCHAR},
       `enable` = #{enable,jdbcType=BIT},
       resource_id = #{resourceId,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=VARCHAR},
       custom_data = #{customData,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -297,8 +331,10 @@
       `type` = #{type,jdbcType=VARCHAR},
       `value` = #{value,jdbcType=VARCHAR},
       `group` = #{group,jdbcType=VARCHAR},
+      job = #{job,jdbcType=VARCHAR},
       `enable` = #{enable,jdbcType=BIT},
-      resource_id = #{resourceId,jdbcType=VARCHAR}
+      resource_id = #{resourceId,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

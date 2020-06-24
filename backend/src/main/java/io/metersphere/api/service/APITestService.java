@@ -141,7 +141,11 @@ public class APITestService {
         byte[] bytes = fileService.loadFileAsBytes(file.getFileId());
         InputStream is = new ByteArrayInputStream(bytes);
 
-        String reportId = apiReportService.create(get(request.getId()));
+        APITestResult apiTest = get(request.getId());
+        if (SessionUtils.getUser() == null) {
+            apiTest.setUserId(request.getUserId());
+        }
+        String reportId = apiReportService.create(apiTest);
         changeStatus(request.getId(), APITestStatus.Running);
 
         jMeterService.run(request.getId(), is);
@@ -239,10 +243,12 @@ public class APITestService {
         Schedule schedule = new Schedule();
         schedule.setResourceId(request.getResourceId());
         schedule.setEnable(request.getEnable());
+        schedule.setJob(ApiTestJob.class.getName());
         schedule.setValue(request.getValue().trim());
         schedule.setGroup(ScheduleGroup.API_TEST.name());
         schedule.setKey(request.getResourceId());
         schedule.setType(ScheduleType.CRON.name());
+        schedule.setUserId(SessionUtils.getUser().getId());
         return schedule;
     }
 
@@ -252,7 +258,7 @@ public class APITestService {
         if (enable != null && enable && StringUtils.isNotBlank(cronExpression)) {
             try {
                 QuartzManager.addOrUpdateCronJob(ApiTestJob.getJobKey(request.getResourceId()),
-                        ApiTestJob.getTriggerKey(request.getResourceId()), ApiTestJob.class, cronExpression, QuartzManager.getDefaultJobDataMap(request.getResourceId(), cronExpression));
+                        ApiTestJob.getTriggerKey(request.getResourceId()), ApiTestJob.class, cronExpression, QuartzManager.getDefaultJobDataMap(request.getResourceId(), cronExpression, SessionUtils.getUser().getId()));
             } catch (SchedulerException e) {
                 LogUtil.error(e.getMessage(), e);
                 MSException.throwException("定时任务开启异常");

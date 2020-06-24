@@ -295,10 +295,11 @@ public class QuartzManager {
         addOrUpdateCronJob(jobKey, triggerKey, jobClass, cron, null);
     }
 
-    public static JobDataMap getDefaultJobDataMap(String resourceId, String expression) {
+    public static JobDataMap getDefaultJobDataMap(String resourceId, String expression, String userId) {
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("resourceId", resourceId);
         jobDataMap.put("expression", expression);
+        jobDataMap.put("userId", userId);
         return jobDataMap;
     }
 }
