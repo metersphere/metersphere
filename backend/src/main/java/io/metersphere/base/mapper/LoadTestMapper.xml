@@ -15,7 +15,6 @@
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.LoadTestWithBLOBs">
     <result column="load_configuration" jdbcType="LONGVARCHAR" property="loadConfiguration" />
     <result column="advanced_configuration" jdbcType="LONGVARCHAR" property="advancedConfiguration" />
-    <result column="schedule" jdbcType="LONGVARCHAR" property="schedule" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -76,11 +75,11 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, name, description, create_time, update_time, status, test_resource_pool_id, 
+    id, project_id, `name`, description, create_time, update_time, `status`, test_resource_pool_id, 
     user_id
   </sql>
   <sql id="Blob_Column_List">
-    load_configuration, advanced_configuration, schedule
+    load_configuration, advanced_configuration
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.LoadTestExample" resultMap="ResultMapWithBLOBs">
     select
@@ -131,16 +130,16 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.LoadTestWithBLOBs">
-    insert into load_test (id, project_id, name, 
+    insert into load_test (id, project_id, `name`, 
       description, create_time, update_time, 
-      status, test_resource_pool_id, user_id, 
-      load_configuration, advanced_configuration, 
-      schedule)
+      `status`, test_resource_pool_id, user_id, 
+      load_configuration, advanced_configuration
+      )
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{status,jdbcType=VARCHAR}, #{testResourcePoolId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, 
-      #{loadConfiguration,jdbcType=LONGVARCHAR}, #{advancedConfiguration,jdbcType=LONGVARCHAR}, 
-      #{schedule,jdbcType=LONGVARCHAR})
+      #{loadConfiguration,jdbcType=LONGVARCHAR}, #{advancedConfiguration,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.LoadTestWithBLOBs">
     insert into load_test
@@ -152,7 +151,7 @@
         project_id,
       </if>
       <if test="name != null">
-        name,
+        `name`,
       </if>
       <if test="description != null">
         description,
@@ -164,7 +163,7 @@
         update_time,
       </if>
       <if test="status != null">
-        status,
+        `status`,
       </if>
       <if test="testResourcePoolId != null">
         test_resource_pool_id,
@@ -177,9 +176,6 @@
       </if>
       <if test="advancedConfiguration != null">
         advanced_configuration,
-      </if>
-      <if test="schedule != null">
-        schedule,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -216,9 +212,6 @@
       <if test="advancedConfiguration != null">
         #{advancedConfiguration,jdbcType=LONGVARCHAR},
       </if>
-      <if test="schedule != null">
-        #{schedule,jdbcType=LONGVARCHAR},
-      </if>
     </trim>
   </insert>
   <select id="countByExample" parameterType="io.metersphere.base.domain.LoadTestExample" resultType="java.lang.Long">
@@ -237,7 +230,7 @@
         project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
       <if test="record.name != null">
-        name = #{record.name,jdbcType=VARCHAR},
+        `name` = #{record.name,jdbcType=VARCHAR},
       </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=VARCHAR},
@@ -249,7 +242,7 @@
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
       <if test="record.status != null">
-        status = #{record.status,jdbcType=VARCHAR},
+        `status` = #{record.status,jdbcType=VARCHAR},
       </if>
       <if test="record.testResourcePoolId != null">
         test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
@@ -263,9 +256,6 @@
       <if test="record.advancedConfiguration != null">
         advanced_configuration = #{record.advancedConfiguration,jdbcType=LONGVARCHAR},
       </if>
-      <if test="record.schedule != null">
-        schedule = #{record.schedule,jdbcType=LONGVARCHAR},
-      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -275,16 +265,15 @@
     update load_test
     set id = #{record.id,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
-      name = #{record.name,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      status = #{record.status,jdbcType=VARCHAR},
+      `status` = #{record.status,jdbcType=VARCHAR},
       test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
       user_id = #{record.userId,jdbcType=VARCHAR},
       load_configuration = #{record.loadConfiguration,jdbcType=LONGVARCHAR},
-      advanced_configuration = #{record.advancedConfiguration,jdbcType=LONGVARCHAR},
-      schedule = #{record.schedule,jdbcType=LONGVARCHAR}
+      advanced_configuration = #{record.advancedConfiguration,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -293,11 +282,11 @@
     update load_test
     set id = #{record.id,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
-      name = #{record.name,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      status = #{record.status,jdbcType=VARCHAR},
+      `status` = #{record.status,jdbcType=VARCHAR},
       test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
       user_id = #{record.userId,jdbcType=VARCHAR}
     <if test="_parameter != null">
@@ -311,7 +300,7 @@
         project_id = #{projectId,jdbcType=VARCHAR},
       </if>
       <if test="name != null">
-        name = #{name,jdbcType=VARCHAR},
+        `name` = #{name,jdbcType=VARCHAR},
       </if>
       <if test="description != null">
         description = #{description,jdbcType=VARCHAR},
@@ -323,7 +312,7 @@
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
       <if test="status != null">
-        status = #{status,jdbcType=VARCHAR},
+        `status` = #{status,jdbcType=VARCHAR},
       </if>
       <if test="testResourcePoolId != null">
         test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
@@ -337,35 +326,31 @@
       <if test="advancedConfiguration != null">
         advanced_configuration = #{advancedConfiguration,jdbcType=LONGVARCHAR},
       </if>
-      <if test="schedule != null">
-        schedule = #{schedule,jdbcType=LONGVARCHAR},
-      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.LoadTestWithBLOBs">
     update load_test
     set project_id = #{projectId,jdbcType=VARCHAR},
-      name = #{name,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      status = #{status,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=VARCHAR},
       test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
       user_id = #{userId,jdbcType=VARCHAR},
       load_configuration = #{loadConfiguration,jdbcType=LONGVARCHAR},
-      advanced_configuration = #{advancedConfiguration,jdbcType=LONGVARCHAR},
-      schedule = #{schedule,jdbcType=LONGVARCHAR}
+      advanced_configuration = #{advancedConfiguration,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.LoadTest">
     update load_test
     set project_id = #{projectId,jdbcType=VARCHAR},
-      name = #{name,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      status = #{status,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=VARCHAR},
       test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
       user_id = #{userId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
