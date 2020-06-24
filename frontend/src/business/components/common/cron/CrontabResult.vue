@@ -36,6 +36,7 @@ export default {
 			this.isShow = false;
       if (!this.ex) {
         this.resultList = [];
+        this.$emit("resultListChange", this.resultList);
         return;
       }
 			// 获取规则数组[0秒、1分、2时、3日、4月、5星期、6年]

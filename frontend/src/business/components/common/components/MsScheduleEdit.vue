@@ -1,7 +1,7 @@
 <template>
   <el-dialog width="30%" class="schedule-edit" :title="'编辑定时任务'" :visible.sync="dialogVisible"  @close="close">
     <div id="app">
-      <el-form :model="form" :rules="rules" ref="from">
+      <el-form :model="schedule" :rules="rules" ref="from">
         <el-form-item
           :placeholder="'请输入 Cron 表达式'"
           prop="cronValue">
@@ -81,6 +81,7 @@
         },
         close() {
           this.$refs['from'].resetFields();
+          this.form.cronValue = this.schedule.value;
           this.$refs.crontabResult.resultList = [];
         }
       }
