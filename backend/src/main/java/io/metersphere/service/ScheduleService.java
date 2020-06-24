@@ -4,9 +4,16 @@ import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.base.domain.ScheduleExample;
 import io.metersphere.base.mapper.ScheduleMapper;
+import io.metersphere.commons.constants.ScheduleGroup;
+import io.metersphere.commons.constants.ScheduleType;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.job.QuartzManager;
+import io.metersphere.job.sechedule.ApiTestJob;
+import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobKey;
+import org.quartz.SchedulerException;
 import org.quartz.TriggerKey;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,5 +83,34 @@ public class ScheduleService {
                 e.printStackTrace();
             }
         });
+    }
+
+    public Schedule buildApiTestSchedule(Schedule request) {
+        Schedule schedule = new Schedule();
+        schedule.setResourceId(request.getResourceId());
+        schedule.setEnable(request.getEnable());
+        schedule.setValue(request.getValue().trim());
+        schedule.setKey(request.getResourceId());
+        schedule.setUserId(SessionUtils.getUser().getId());
+        return schedule;
+    }
+
+    public void addOrUpdateCronJob(Schedule request, JobKey jobKey, TriggerKey triggerKey, Class clazz) {
+        Boolean enable = request.getEnable();
+        String cronExpression = request.getValue();
+        if (enable != null && enable && StringUtils.isNotBlank(cronExpression)) {
+            try {
+                QuartzManager.addOrUpdateCronJob(jobKey, triggerKey, clazz, cronExpression, QuartzManager.getDefaultJobDataMap(request.getResourceId(), cronExpression, SessionUtils.getUser().getId()));
+            } catch (SchedulerException e) {
+                LogUtil.error(e.getMessage(), e);
+                MSException.throwException("定时任务开启异常");
+            }
+        } else {
+            try {
+                QuartzManager.removeJob(jobKey, triggerKey);
+            } catch (Exception e) {
+                MSException.throwException("定时任务关闭异常");
+            }
+        }
     }
 }

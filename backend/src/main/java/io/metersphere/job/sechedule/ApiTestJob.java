@@ -20,7 +20,7 @@ public class ApiTestJob extends MsScheduleJob {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         if (StringUtils.isBlank(resourceId)) {
-            QuartzManager.removeJob(new JobKey(resourceId), new TriggerKey(resourceId));
+            QuartzManager.removeJob(getJobKey(resourceId), getTriggerKey(resourceId));
         }
         LogUtil.info("ApiTestSchedule Running: " + resourceId);
         LogUtil.info("CronExpression: " + expression);

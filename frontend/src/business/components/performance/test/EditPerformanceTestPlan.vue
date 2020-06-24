@@ -23,6 +23,8 @@
             <el-button :disabled="isReadOnly" type="primary" plain @click="save">{{$t('commons.save')}}</el-button>
             <el-button :disabled="isReadOnly" type="primary" plain @click="saveAndRun">{{$t('load_test.save_and_run')}}</el-button>
             <el-button :disabled="isReadOnly" type="warning" plain @click="cancel">{{$t('commons.cancel')}}</el-button>
+
+            <ms-schedule-config :schedule="testPlan.schedule" :save="saveCronExpression" @scheduleChange="saveSchedule" :check-open="checkScheduleEdit"/>
           </el-col>
         </el-row>
 
@@ -50,10 +52,12 @@
   import MsContainer from "../../common/components/MsContainer";
   import MsMainContainer from "../../common/components/MsMainContainer";
   import {checkoutTestManagerOrTestUser} from "../../../../common/js/utils";
+  import MsScheduleConfig from "../../common/components/MsScheduleConfig";
 
   export default {
     name: "EditPerformanceTestPlan",
     components: {
+      MsScheduleConfig,
       PerformancePressureConfig,
       PerformanceBasicConfig,
       PerformanceAdvancedConfig,
@@ -63,7 +67,7 @@
     data() {
       return {
         result: {},
-        testPlan: {},
+        testPlan: {schedule:{}},
         listProjectPath: "/project/listAll",
         savePath: "/performance/save",
         editPath: "/performance/edit",
@@ -103,32 +107,16 @@
         if (!checkoutTestManagerOrTestUser()) {
           this.isReadOnly = true;
         }
-
-        let testId = to.params.testId;
-        if (testId) {
-          this.testId = testId;
-          this.result = this.$get('/performance/get/' + testId, response => {
-            if (response.data) {
-              this.testPlan = response.data;
-            }
-          });
-        }
+        this.getTest(to.params.testId);
       }
 
     },
     created() {
-      let testId = this.$route.params.testId;
       this.isReadOnly = false;
       if (!checkoutTestManagerOrTestUser()) {
         this.isReadOnly = true;
       }
-      if (testId) {
-        this.testId = testId;
-        this.result = this.$get('/performance/get/' + testId, response => {
-          this.testPlan = response.data;
-        });
-      }
-
+      this.getTest(this.$route.params.testId);
       this.listProjects();
     },
     mounted() {
@@ -146,6 +134,19 @@
           this.$refs.basicConfig.handleUpload({file: file});
           this.active = '1';
           this.$store.commit("clearTest");
+        }
+      },
+      getTest(testId) {
+        if (testId) {
+          this.testId = testId;
+          this.result = this.$get('/performance/get/' + testId, response => {
+            if (response.data) {
+              this.testPlan = response.data;
+              if (!this.testPlan.schedule) {
+                this.testPlan.schedule = {};
+              }
+            }
+          });
         }
       },
       listProjects() {
@@ -251,6 +252,32 @@
         this.$nextTick(()=> {
           this.active = activeName;
         });
+      },
+      saveCronExpression(cronExpression) {
+        this.testPlan.schedule.enable = true;
+        this.testPlan.schedule.value = cronExpression;
+        this.saveSchedule();
+      },
+      saveSchedule() {
+        this.checkScheduleEdit();
+        let param = {};
+        param = this.testPlan.schedule;
+        param.resourceId = this.testPlan.id;
+        let url = '/performance/schedule/create';
+        if (param.id) {
+          url = '/performance/schedule/update';
+        }
+        this.$post(url, param, response => {
+          this.$success('保存成功');
+          this.getTest(this.testPlan.id);
+        });
+      },
+      checkScheduleEdit() {
+        if (!this.testPlan.id) {
+          this.$message('请先保存测试');
+          return false;
+        }
+        return true;
       }
     }
   }

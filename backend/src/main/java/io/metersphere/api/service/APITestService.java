@@ -20,6 +20,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.QuartzManager;
 import io.metersphere.job.sechedule.ApiTestJob;
+import io.metersphere.job.sechedule.PerformanceTestJob;
 import io.metersphere.service.FileService;
 import io.metersphere.service.ScheduleService;
 import org.apache.commons.lang3.StringUtils;
@@ -40,6 +41,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -231,44 +234,23 @@ public class APITestService {
 
     public void updateSchedule(Schedule request) {
         scheduleService.editSchedule(request);
-        updateApiTestCronJob(request);
+        addOrUpdateApiTestCronJob(request);
     }
 
     public void createSchedule(Schedule request) {
         scheduleService.addSchedule(buildApiTestSchedule(request));
-        updateApiTestCronJob(request);
+        addOrUpdateApiTestCronJob(request);
     }
 
     private Schedule buildApiTestSchedule(Schedule request) {
-        Schedule schedule = new Schedule();
-        schedule.setResourceId(request.getResourceId());
-        schedule.setEnable(request.getEnable());
+        Schedule schedule = scheduleService.buildApiTestSchedule(request);
         schedule.setJob(ApiTestJob.class.getName());
-        schedule.setValue(request.getValue().trim());
         schedule.setGroup(ScheduleGroup.API_TEST.name());
-        schedule.setKey(request.getResourceId());
         schedule.setType(ScheduleType.CRON.name());
-        schedule.setUserId(SessionUtils.getUser().getId());
         return schedule;
     }
 
-    private void updateApiTestCronJob(Schedule request) {
-        Boolean enable = request.getEnable();
-        String cronExpression = request.getValue();
-        if (enable != null && enable && StringUtils.isNotBlank(cronExpression)) {
-            try {
-                QuartzManager.addOrUpdateCronJob(ApiTestJob.getJobKey(request.getResourceId()),
-                        ApiTestJob.getTriggerKey(request.getResourceId()), ApiTestJob.class, cronExpression, QuartzManager.getDefaultJobDataMap(request.getResourceId(), cronExpression, SessionUtils.getUser().getId()));
-            } catch (SchedulerException e) {
-                LogUtil.error(e.getMessage(), e);
-                MSException.throwException("定时任务开启异常");
-            }
-        } else {
-            try {
-                QuartzManager.removeJob(ApiTestJob.getJobKey(request.getResourceId()), ApiTestJob.getTriggerKey(request.getResourceId()));
-            } catch (Exception e) {
-                MSException.throwException("定时任务关闭异常");
-            }
-        }
+    private void addOrUpdateApiTestCronJob(Schedule request) {
+        scheduleService.addOrUpdateCronJob(request, ApiTestJob.getJobKey(request.getResourceId()), ApiTestJob.getTriggerKey(request.getResourceId()), ApiTestJob.class);
     }
 }

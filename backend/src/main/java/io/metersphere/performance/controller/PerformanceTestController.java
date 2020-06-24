@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.LoadTest;
+import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -117,4 +118,15 @@ public class PerformanceTestController {
     public void copy(@RequestBody SaveTestPlanRequest request) {
         performanceTestService.copy(request);
     }
+
+    @PostMapping(value = "/schedule/create")
+    public void createSchedule(@RequestBody Schedule request) {
+        performanceTestService.createSchedule(request);
+    }
+
+    @PostMapping(value = "/schedule/update")
+    public void updateSchedule(@RequestBody Schedule request) {
+        performanceTestService.updateSchedule(request);
+    }
+
 }

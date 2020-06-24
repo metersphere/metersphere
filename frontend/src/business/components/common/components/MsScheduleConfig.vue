@@ -32,7 +32,9 @@
         checkOpen: {
           type: Function,
           default() {
-            return new Function()
+            return {
+              checkOpen() {return true;}
+            }
           }
         },
       },

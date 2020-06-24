@@ -1,4 +1,4 @@
-package io.metersphere.listeners;
+package io.metersphere.listener;
 
 import io.metersphere.service.ScheduleService;
 import org.springframework.boot.context.event.ApplicationReadyEvent;

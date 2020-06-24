@@ -219,10 +219,7 @@
         this.saveSchedule();
       },
       saveSchedule() {
-        if (this.create) {
-          this.$message('请先保存测试，在设置定时任务');
-          return;
-        }
+        this.checkScheduleEdit();
         let param = {};
         param = this.test.schedule;
         param.resourceId = this.test.id;
@@ -277,9 +274,5 @@
 
   .test-container .more {
     margin-left: 10px;
-  }
-
-  .schedule-config {
-    float: right;
   }
 </style>

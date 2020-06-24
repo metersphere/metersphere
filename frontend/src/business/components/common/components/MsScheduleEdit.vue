@@ -1,7 +1,7 @@
 <template>
   <el-dialog width="30%" class="schedule-edit" :title="'编辑定时任务'" :visible.sync="dialogVisible"  @close="close">
     <div id="app">
-      <el-form :model="schedule" :rules="rules" ref="from">
+      <el-form :model="form" :rules="rules" ref="from">
         <el-form-item
           :placeholder="'请输入 Cron 表达式'"
           prop="cronValue">
@@ -9,7 +9,7 @@
           <el-button type="primary" @click="showCronDialog">生成 Cron</el-button>
           <el-button type="primary" @click="saveCron">保存</el-button>
         </el-form-item>
-        <crontab-result :ex="schedule.value" ref="crontabResult"/>
+        <crontab-result :ex="form.cronValue" ref="crontabResult"/>
       </el-form>
       <el-dialog title="生成 cron" :visible.sync="showCron" :modal="false">
         <crontab @hide="showCron=false" @fill="crontabFill" :expression="schedule.value"/>
@@ -41,7 +41,6 @@
             if (!cronValidate(cronValue)) {
               callback(new Error('Cron 表达式格式错误'));
             } else {
-              this.schedule.value = cronValue;
               callback();
             }
           };
@@ -62,7 +61,6 @@
         },
         crontabFill(value) {
           //确定后回传的值
-          this.schedule.value = value;
           this.form.cronValue = value;
           this.$refs['from'].validate();
         },
@@ -80,9 +78,11 @@
           });
         },
         close() {
+          this.form.cronValue = '';
           this.$refs['from'].resetFields();
-          this.form.cronValue = this.schedule.value;
-          this.$refs.crontabResult.resultList = [];
+          if (!this.schedule.value) {
+            this.$refs.crontabResult.resultList = [];
+          }
         }
       }
     }

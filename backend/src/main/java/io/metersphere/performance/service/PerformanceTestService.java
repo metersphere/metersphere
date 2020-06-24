@@ -7,6 +7,8 @@ import io.metersphere.base.mapper.ext.ExtLoadTestReportDetailMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.PerformanceTestStatus;
+import io.metersphere.commons.constants.ScheduleGroup;
+import io.metersphere.commons.constants.ScheduleType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
@@ -16,9 +18,11 @@ import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.i18n.Translator;
+import io.metersphere.job.sechedule.PerformanceTestJob;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
 import io.metersphere.service.FileService;
+import io.metersphere.service.ScheduleService;
 import io.metersphere.service.TestResourceService;
 import io.metersphere.track.request.testplan.*;
 import org.apache.commons.collections4.ListUtils;
@@ -68,6 +72,8 @@ public class PerformanceTestService {
     private ReportService reportService;
     @Resource
     private KafkaProperties kafkaProperties;
+    @Resource
+    private ScheduleService scheduleService;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -196,6 +202,9 @@ public class PerformanceTestService {
     @Transactional(noRollbackFor = MSException.class)//  保存失败的信息
     public String run(RunTestPlanRequest request) {
         final LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(request.getId());
+        if (request.getUserId() != null) {
+            loadTest.setUserId(request.getUserId());
+        }
         if (loadTest == null) {
             MSException.throwException(Translator.get("run_load_test_not_found") + request.getId());
         }
@@ -252,7 +261,7 @@ public class PerformanceTestService {
         testReport.setUpdateTime(engine.getStartTime());
         testReport.setTestId(loadTest.getId());
         testReport.setName(loadTest.getName());
-        testReport.setUserId(SessionUtils.getUser().getId());
+        testReport.setUserId(Optional.ofNullable(SessionUtils.getUser().getId()).orElse(loadTest.getUserId()));
         // 启动测试
 
         try {
@@ -296,7 +305,10 @@ public class PerformanceTestService {
         request.setId(testId);
         List<LoadTestDTO> testDTOS = extLoadTestMapper.list(request);
         if (!CollectionUtils.isEmpty(testDTOS)) {
-            return testDTOS.get(0);
+            LoadTestDTO loadTestDTO = testDTOS.get(0);
+            Schedule schedule = scheduleService.getScheduleByResource(loadTestDTO.getId(), ScheduleGroup.PERFORMANCE_TEST.name());
+            loadTestDTO.setSchedule(schedule);
+            return loadTestDTO;
         }
         return null;
     }
@@ -349,5 +361,27 @@ public class PerformanceTestService {
                 loadTestFileMapper.insert(loadTestFile);
             });
         }
+    }
+
+    public void updateSchedule(Schedule request) {
+        scheduleService.editSchedule(request);
+        addOrUpdatePerformanceTestCronJob(request);
+    }
+
+    public void createSchedule(Schedule request) {
+        scheduleService.addSchedule(buildPerformanceTestSchedule(request));
+        addOrUpdatePerformanceTestCronJob(request);
+    }
+
+    private Schedule buildPerformanceTestSchedule(Schedule request) {
+        Schedule schedule = scheduleService.buildApiTestSchedule(request);
+        schedule.setJob(PerformanceTestJob.class.getName());
+        schedule.setGroup(ScheduleGroup.PERFORMANCE_TEST.name());
+        schedule.setType(ScheduleType.CRON.name());
+        return schedule;
+    }
+
+    private void addOrUpdatePerformanceTestCronJob(Schedule request) {
+        scheduleService.addOrUpdateCronJob(request, PerformanceTestJob.getJobKey(request.getResourceId()), PerformanceTestJob.getTriggerKey(request.getResourceId()), PerformanceTestJob.class);
     }
 }
