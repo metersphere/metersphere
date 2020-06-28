@@ -14,35 +14,24 @@ import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.constants.ScheduleType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
-import io.metersphere.job.QuartzManager;
 import io.metersphere.job.sechedule.ApiTestJob;
-import io.metersphere.job.sechedule.PerformanceTestJob;
 import io.metersphere.service.FileService;
 import io.metersphere.service.ScheduleService;
-import org.apache.commons.lang3.StringUtils;
-import org.quartz.JobDataMap;
-import org.quartz.JobKey;
-import org.quartz.SchedulerException;
-import org.quartz.TriggerKey;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service

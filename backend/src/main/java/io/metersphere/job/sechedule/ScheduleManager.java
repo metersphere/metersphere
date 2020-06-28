@@ -1,12 +1,16 @@
-package io.metersphere.job;
+package io.metersphere.job.sechedule;
 
 import io.metersphere.commons.utils.LogUtil;
 import org.quartz.*;
-import org.quartz.impl.StdSchedulerFactory;
+import org.springframework.stereotype.Component;
 
-public class QuartzManager {
+import javax.annotation.Resource;
 
-    public static StdSchedulerFactory sf = new StdSchedulerFactory();
+@Component
+public class ScheduleManager {
+
+    @Resource
+    private Scheduler scheduler;
 
     /**
      * 添加 simpleJob
@@ -17,24 +21,28 @@ public class QuartzManager {
      * @param jobDataMap
      * @throws SchedulerException
      */
-    public static void addSimpleJob(JobKey jobKey, TriggerKey triggerKey, Class<? extends Job> cls, int repeatIntervalTime,
-                              JobDataMap jobDataMap) throws SchedulerException {
+    public void addSimpleJob(JobKey jobKey, TriggerKey triggerKey, Class<? extends Job> cls, int repeatIntervalTime,
+                                    JobDataMap jobDataMap) throws SchedulerException {
 
-        Scheduler sched = sf.getScheduler();
+        JobBuilder jobBuilder = JobBuilder.newJob(cls).withIdentity(jobKey);
 
-        JobDetail jd = JobBuilder.newJob(cls).withIdentity(jobKey).setJobData(jobDataMap).build();
+        if (jobDataMap != null) {
+            jobBuilder.usingJobData(jobDataMap);
+        }
+
+        JobDetail jd = jobBuilder.build();
 
         SimpleTrigger trigger = TriggerBuilder.newTrigger().withIdentity(triggerKey)
                 .withSchedule(
                         SimpleScheduleBuilder.simpleSchedule().withIntervalInHours(repeatIntervalTime).repeatForever())
                 .startNow().build();
 
-        sched.scheduleJob(jd, trigger);
+        scheduler.scheduleJob(jd, trigger);
 
         try {
 
-            if (!sched.isShutdown()) {
-                sched.start();
+            if (!scheduler.isShutdown()) {
+                scheduler.start();
             }
 
         } catch (SchedulerException e) {
@@ -44,8 +52,8 @@ public class QuartzManager {
         }
     }
 
-    public static void addSimpleJob(JobKey jobKey, TriggerKey triggerKey, Class<? extends Job> cls, int repeatIntervalTime) throws SchedulerException {
-       addSimpleJob(jobKey, triggerKey, cls, repeatIntervalTime);
+    public void addSimpleJob(JobKey jobKey, TriggerKey triggerKey, Class<? extends Job> cls, int repeatIntervalTime) throws SchedulerException {
+        addSimpleJob(jobKey, triggerKey, cls, repeatIntervalTime);
     }
 
     /**
@@ -56,11 +64,14 @@ public class QuartzManager {
      * @param cron
      * @param jobDataMap
      */
-    public static void addCronJob(JobKey jobKey, TriggerKey triggerKey, Class jobClass, String cron, JobDataMap jobDataMap) {
+    public void addCronJob(JobKey jobKey, TriggerKey triggerKey, Class jobClass, String cron, JobDataMap jobDataMap) {
         try {
+
+            LogUtil.info("addCronJob: " + triggerKey.getName() + "," + triggerKey.getGroup());
+
             JobBuilder jobBuilder = JobBuilder.newJob(jobClass).withIdentity(jobKey);
             if (jobDataMap != null) {
-                jobBuilder.setJobData(jobDataMap);
+                jobBuilder.usingJobData(jobDataMap);
             }
             JobDetail jobDetail = jobBuilder.build();
 
@@ -74,12 +85,10 @@ public class QuartzManager {
 
             CronTrigger trigger = (CronTrigger) triggerBuilder.build();
 
-            Scheduler sched = sf.getScheduler();
+            scheduler.scheduleJob(jobDetail, trigger);
 
-            sched.scheduleJob(jobDetail, trigger);
-
-            if (!sched.isShutdown()) {
-                sched.start();
+            if (!scheduler.isShutdown()) {
+                scheduler.start();
             }
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
@@ -87,7 +96,7 @@ public class QuartzManager {
         }
     }
 
-    public static void addCronJob(JobKey jobKey, TriggerKey triggerKey, Class jobClass, String cron) {
+    public void addCronJob(JobKey jobKey, TriggerKey triggerKey, Class jobClass, String cron) {
         addCronJob(jobKey, triggerKey, jobClass, cron, null);
     }
 
@@ -97,14 +106,12 @@ public class QuartzManager {
      * @param cron
      * @throws SchedulerException
      */
-    public static void modifyCronJobTime(TriggerKey triggerKey, String cron) throws SchedulerException {
-
-        Scheduler sched = sf.getScheduler();
+    public void modifyCronJobTime(TriggerKey triggerKey, String cron) throws SchedulerException {
 
         LogUtil.info("modifyCronJobTime: " + triggerKey.getName() + "," + triggerKey.getGroup());
 
         try {
-            CronTrigger trigger = (CronTrigger) sched.getTrigger(triggerKey);
+            CronTrigger trigger = (CronTrigger) scheduler.getTrigger(triggerKey);
 
             if (trigger == null) {
                 return;
@@ -125,7 +132,7 @@ public class QuartzManager {
 
                 trigger = (CronTrigger) triggerBuilder.build();// 创建Trigger对象
 
-                sched.rescheduleJob(triggerKey, trigger);// 修改一个任务的触发时间
+                scheduler.rescheduleJob(triggerKey, trigger);// 修改一个任务的触发时间
                 /** 方式一 ：调用 rescheduleJob 结束 */
 
                 /** 方式二：先删除，然后在创建一个新的Job */
@@ -146,15 +153,13 @@ public class QuartzManager {
      * @param repeatIntervalTime
      * @throws SchedulerException
      */
-    public static void modifySimpleJobTime(TriggerKey triggerKey, int repeatIntervalTime) throws SchedulerException {
-
-        Scheduler sched = sf.getScheduler();
+    public void modifySimpleJobTime(TriggerKey triggerKey, int repeatIntervalTime) throws SchedulerException {
 
         try {
 
             LogUtil.info("modifySimpleJobTime: " + triggerKey.getName() + "," + triggerKey.getGroup());
 
-            SimpleTrigger trigger = (SimpleTrigger) sched.getTrigger(triggerKey);
+            SimpleTrigger trigger = (SimpleTrigger) scheduler.getTrigger(triggerKey);
 
             if (trigger == null) {
                 return;
@@ -175,7 +180,7 @@ public class QuartzManager {
 
                 trigger = (SimpleTrigger) triggerBuilder.build();// 创建Trigger对象
 
-                sched.rescheduleJob(triggerKey, trigger);// 修改一个任务的触发时间
+                scheduler.rescheduleJob(triggerKey, trigger);// 修改一个任务的触发时间
 
                 /** 方式一 ：调用 rescheduleJob 结束 */
 
@@ -201,19 +206,17 @@ public class QuartzManager {
      * @param jobKey
      * @param triggerKey
      */
-    public static void removeJob(JobKey jobKey, TriggerKey triggerKey) {
+    public void removeJob(JobKey jobKey, TriggerKey triggerKey) {
 
         try {
 
             LogUtil.info("RemoveJob: " + jobKey.getName() + "," + jobKey.getGroup());
 
-            Scheduler sched = sf.getScheduler();
+            scheduler.pauseTrigger(triggerKey);
 
-            sched.pauseTrigger(triggerKey);
+            scheduler.unscheduleJob(triggerKey);
 
-            sched.unscheduleJob(triggerKey);
-
-            sched.deleteJob(jobKey);
+            scheduler.deleteJob(jobKey);
 
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
@@ -232,7 +235,7 @@ public class QuartzManager {
     }
 
 
-    public static void shutdownJobs(Scheduler sched) {
+    public void shutdownJobs(Scheduler sched) {
         try {
             if (!sched.isShutdown()) {
                 sched.shutdown();
@@ -252,12 +255,10 @@ public class QuartzManager {
      * @param jobDataMap
      * @throws SchedulerException
      */
-    public static void addOrUpdateSimpleJob(JobKey jobKey, TriggerKey triggerKey, Class clz,
-                                   int intervalTime, JobDataMap jobDataMap) throws SchedulerException {
+    public void addOrUpdateSimpleJob(JobKey jobKey, TriggerKey triggerKey, Class clz,
+                                            int intervalTime, JobDataMap jobDataMap) throws SchedulerException {
 
-        Scheduler sched = sf.getScheduler();
-
-        if (sched.checkExists(triggerKey)) {
+        if (scheduler.checkExists(triggerKey)) {
             modifySimpleJobTime(triggerKey, intervalTime);
         } else {
             addSimpleJob(jobKey, triggerKey, clz, intervalTime, jobDataMap);
@@ -265,7 +266,7 @@ public class QuartzManager {
 
     }
 
-    public static void addOrUpdateSimpleJob(JobKey jobKey, TriggerKey triggerKey, Class clz, int intervalTime) throws SchedulerException {
+    public void addOrUpdateSimpleJob(JobKey jobKey, TriggerKey triggerKey, Class clz, int intervalTime) throws SchedulerException {
         addOrUpdateSimpleJob(jobKey, triggerKey, clz, intervalTime, null);
     }
 
@@ -279,23 +280,22 @@ public class QuartzManager {
      * @param jobDataMap
      * @throws SchedulerException
      */
-    public static void addOrUpdateCronJob(JobKey jobKey, TriggerKey triggerKey, Class jobClass, String cron, JobDataMap jobDataMap) throws SchedulerException {
-        Scheduler sched = sf.getScheduler();
+    public void addOrUpdateCronJob(JobKey jobKey, TriggerKey triggerKey, Class jobClass, String cron, JobDataMap jobDataMap) throws SchedulerException {
 
         LogUtil.info("AddOrUpdateCronJob: " + jobKey.getName() + "," + triggerKey.getGroup());
 
-        if (sched.checkExists(triggerKey)) {
+        if (scheduler.checkExists(triggerKey)) {
             modifyCronJobTime(triggerKey, cron);
         } else {
             addCronJob(jobKey, triggerKey, jobClass, cron, jobDataMap);
         }
     }
 
-    public static void addOrUpdateCronJob(JobKey jobKey, TriggerKey triggerKey, Class jobClass, String cron) throws SchedulerException {
+    public void addOrUpdateCronJob(JobKey jobKey, TriggerKey triggerKey, Class jobClass, String cron) throws SchedulerException {
         addOrUpdateCronJob(jobKey, triggerKey, jobClass, cron, null);
     }
 
-    public static JobDataMap getDefaultJobDataMap(String resourceId, String expression, String userId) {
+    public JobDataMap getDefaultJobDataMap(String resourceId, String expression, String userId) {
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("resourceId", resourceId);
         jobDataMap.put("expression", expression);

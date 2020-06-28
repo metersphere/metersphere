@@ -4,13 +4,10 @@ import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.base.domain.ScheduleExample;
 import io.metersphere.base.mapper.ScheduleMapper;
-import io.metersphere.commons.constants.ScheduleGroup;
-import io.metersphere.commons.constants.ScheduleType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.job.QuartzManager;
-import io.metersphere.job.sechedule.ApiTestJob;
+import io.metersphere.job.sechedule.ScheduleManager;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
@@ -28,6 +25,8 @@ public class ScheduleService {
     
     @Resource
     private ScheduleMapper scheduleMapper;
+    @Resource
+    private ScheduleManager scheduleManager;
 
     public void addSchedule(Schedule schedule) {
         schedule.setId(UUID.randomUUID().toString());
@@ -73,11 +72,10 @@ public class ScheduleService {
             try {
                 if (schedule.getEnable()) {
                     LogUtil.error("初始化任务：" + JSON.toJSONString(schedule));
-                    QuartzManager.addOrUpdateCronJob(new JobKey(schedule.getKey(), schedule.getGroup()),
+                    scheduleManager.addOrUpdateCronJob(new JobKey(schedule.getKey(), schedule.getGroup()),
                             new TriggerKey(schedule.getKey(), schedule.getGroup()), Class.forName(schedule.getJob()), schedule.getValue(),
-                            QuartzManager.getDefaultJobDataMap(schedule.getResourceId(), schedule.getValue(), schedule.getUserId()));
+                            scheduleManager.getDefaultJobDataMap(schedule.getResourceId(), schedule.getValue(), schedule.getUserId()));
                 }
-                Thread.sleep(1*60*1000);
             } catch (Exception e) {
                 LogUtil.error("初始化任务失败", e);
                 e.printStackTrace();
@@ -100,14 +98,14 @@ public class ScheduleService {
         String cronExpression = request.getValue();
         if (enable != null && enable && StringUtils.isNotBlank(cronExpression)) {
             try {
-                QuartzManager.addOrUpdateCronJob(jobKey, triggerKey, clazz, cronExpression, QuartzManager.getDefaultJobDataMap(request.getResourceId(), cronExpression, SessionUtils.getUser().getId()));
+                scheduleManager.addOrUpdateCronJob(jobKey, triggerKey, clazz, cronExpression, scheduleManager.getDefaultJobDataMap(request.getResourceId(), cronExpression, SessionUtils.getUser().getId()));
             } catch (SchedulerException e) {
                 LogUtil.error(e.getMessage(), e);
                 MSException.throwException("定时任务开启异常");
             }
         } else {
             try {
-                QuartzManager.removeJob(jobKey, triggerKey);
+                scheduleManager.removeJob(jobKey, triggerKey);
             } catch (Exception e) {
                 MSException.throwException("定时任务关闭异常");
             }
