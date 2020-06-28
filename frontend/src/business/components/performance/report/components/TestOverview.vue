@@ -324,10 +324,10 @@
     },
     watch: {
       report: {
-        handler(val){
+        handler(val) {
           let status = val.status;
           this.id = val.id;
-          if (status === "Completed") {
+          if (status === "Completed" || status === "Running") {
             this.initTableData();
           } else {
             this.maxUsers = '0';
@@ -340,7 +340,7 @@
             this.resOption = {};
           }
         },
-        deep:true
+        deep: true
       }
     },
     props: ['report']

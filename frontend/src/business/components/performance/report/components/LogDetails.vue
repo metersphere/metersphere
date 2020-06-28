@@ -81,7 +81,7 @@
         handler(val) {
           let status = val.status;
           this.id = val.id;
-          if (status === "Completed") {
+          if (status === "Completed" || status === "Running") {
             this.getResource();
           } else {
             this.resource = [];
