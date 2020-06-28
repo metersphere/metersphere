@@ -10,6 +10,8 @@
 </template>
 
 <script>
+import {cronValidate} from "../../../../common/js/cron";
+
 export default {
   name: 'CrontabResult',
 	data() {
@@ -30,11 +32,11 @@ export default {
     this.expressionChange();
   },
 	methods: {
-		// 表达式值变化时，开始去计算结果
+		// 表达式值变化时，开始去计算  结果
 		expressionChange() {
 			// 计算开始-隐藏结果
 			this.isShow = false;
-      if (!this.ex) {
+      if (!cronValidate(this.ex)) {
         this.resultList = [];
         this.$emit("resultListChange", this.resultList);
         return;

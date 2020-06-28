@@ -6,8 +6,8 @@
           <span class="character" @click="scheduleEdit">SCHEDULER</span>
         </span>
         <el-switch :disabled="!schedule.value" v-model="schedule.enable" @change="scheduleChange"/>
-        <ms-schedule-edit :schedule="schedule" :save="save" ref="scheduleEdit"/>
-        <crontab-result v-show="false" :ex="schedule.value" ref="crontabResult" @resultListChange="recentListChange"/>
+        <ms-schedule-edit :schedule="schedule" :save="save" :custom-validate="customValidate" ref="scheduleEdit"/>
+        <crontab-result v-show="false" :ex="schedule.value" ref="crontabResult" @resultListChange="resultListChange"/>
       </div>
       <div>
         <span :class="{'disable-character': !schedule.enable}"> 下次执行时间：{{this.recentList.length > 0 ? this.recentList[0] : '未设置'}} </span>
@@ -18,6 +18,9 @@
 <script>
     import MsScheduleEdit from "./MsScheduleEdit";
     import CrontabResult from "../cron/CrontabResult";
+
+    function defaultCustomValidate() {return {pass: true};}
+
     export default {
       name: "MsScheduleConfig",
       components: {CrontabResult, MsScheduleEdit},
@@ -37,6 +40,10 @@
             }
           }
         },
+        customValidate: {
+          type: Function,
+          default: defaultCustomValidate
+        },
       },
       methods: {
         scheduleEdit() {
@@ -48,8 +55,11 @@
         scheduleChange() {
           this.$emit('scheduleChange');
         },
-        recentListChange(resultList) {
+        resultListChange(resultList) {
           this.recentList = resultList;
+        },
+        flashResultList() {
+          this.$refs.crontabResult.expressionChange();
         }
       }
     }
