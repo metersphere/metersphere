@@ -134,7 +134,9 @@ public class TestCaseService {
     public List<TestCase> getTestCaseNames(QueryTestCaseRequest request) {
         if ( StringUtils.isNotBlank(request.getPlanId()) ) {
             TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
-            request.setProjectId(testPlan.getProjectId());
+            if (testPlan != null) {
+                request.setProjectId(testPlan.getProjectId());
+            }
         }
 
         List<TestCase> testCaseNames = extTestCaseMapper.getTestCaseNames(request);
