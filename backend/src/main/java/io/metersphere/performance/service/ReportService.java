@@ -25,10 +25,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.annotation.Resource;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -154,11 +153,7 @@ public class ReportService {
     public void checkReportStatus(String reportId) {
         LoadTestReport loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
         String reportStatus = loadTestReport.getStatus();
-        if (StringUtils.equals(PerformanceTestStatus.Running.name(), reportStatus)) {
-            MSException.throwException("Reporting in progress...");
-        } else if (StringUtils.equals(PerformanceTestStatus.Reporting.name(), reportStatus)) {
-            MSException.throwException("Reporting in progress...");
-        } else if (StringUtils.equals(PerformanceTestStatus.Error.name(), reportStatus)) {
+        if (StringUtils.equals(PerformanceTestStatus.Error.name(), reportStatus)) {
             MSException.throwException("Report generation error!");
         }
     }

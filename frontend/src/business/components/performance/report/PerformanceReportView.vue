@@ -37,7 +37,7 @@
 
         <el-tabs v-model="active" type="border-card" :stretch="true">
           <el-tab-pane :label="$t('report.test_overview')">
-<!--            <ms-report-test-overview :id="reportId" :status="status"/>-->
+            <!--            <ms-report-test-overview :id="reportId" :status="status"/>-->
             <ms-report-test-overview :report="report"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('report.test_request_statistics')">
@@ -114,17 +114,17 @@
         if (this.reportId) {
           this.result = this.$get("/performance/report/content/report_time/" + this.reportId)
             .then(res => {
-            let data = res.data.data;
-            if (data) {
-              this.startTime = data.startTime;
-              this.endTime = data.endTime;
-              let duration = data.duration;
-              this.minutes = Math.floor(duration / 60);
-              this.seconds = duration % 60;
-            }
-          }).catch(() => {
-            this.clearData();
-          })
+              let data = res.data.data;
+              if (data) {
+                this.startTime = data.startTime;
+                this.endTime = data.endTime;
+                let duration = data.duration;
+                this.minutes = Math.floor(duration / 60);
+                this.seconds = duration % 60;
+              }
+            }).catch(() => {
+              this.clearData();
+            })
         }
       },
       checkReportStatus(status) {
@@ -136,11 +136,7 @@
             this.$warning(this.$t('report.start_status'));
             break;
           case 'Reporting':
-            this.$info(this.$t('report.being_generated'));
-            break;
           case 'Running':
-            this.$warning(this.$t('report.run_status'));
-            break;
           case 'Completed':
           default:
             break;
@@ -165,7 +161,7 @@
         this.$set(this.report, "id", this.reportId);
         this.$set(this.report, "status", data.status);
         this.checkReportStatus(data.status);
-        if (this.status === "Completed") {
+        if (this.status === "Completed" || this.status === "Running") {
           this.initReportTimeInfo();
         }
       })

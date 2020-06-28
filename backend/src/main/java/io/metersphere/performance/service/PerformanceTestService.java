@@ -5,10 +5,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportDetailMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
-import io.metersphere.commons.constants.APITestStatus;
-import io.metersphere.commons.constants.PerformanceTestStatus;
-import io.metersphere.commons.constants.ScheduleGroup;
-import io.metersphere.commons.constants.ScheduleType;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
@@ -281,6 +278,13 @@ public class PerformanceTestService {
             loadTestReportDetailMapper.insertSelective(reportDetail);
             // append \n
             extLoadTestReportDetailMapper.appendLine(testReport.getId(), "\n");
+            // 保存一个 reportStatus
+            LoadTestReportResult reportResult = new LoadTestReportResult();
+            reportResult.setId(UUID.randomUUID().toString());
+            reportResult.setReportId(testReport.getId());
+            reportResult.setReportKey(ReportKeys.ResultStatus.name());
+            reportResult.setReportValue("Ready"); // 初始化一个 result_status, 这个值用在data-streaming中
+            loadTestReportResultMapper.insertSelective(reportResult);
         } catch (MSException e) {
             LogUtil.error(e);
             loadTest.setStatus(PerformanceTestStatus.Error.name());
