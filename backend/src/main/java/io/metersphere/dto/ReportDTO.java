@@ -19,4 +19,5 @@ public class ReportDTO {
     private String projectId;
     private String projectName;
     private String userName;
+    private String triggerMode;
 }

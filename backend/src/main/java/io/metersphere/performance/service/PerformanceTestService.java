@@ -222,7 +222,7 @@ public class PerformanceTestService {
             MSException.throwException(String.format("Test cannot be run，test ID：%s", request.getId()));
         }
 
-        startEngine(loadTest, engine);
+        startEngine(loadTest, engine, request.getTriggerMode());
 
         // todo：通过调用stop方法能够停止正在运行的engine，但是如果部署了多个backend实例，页面发送的停止请求如何定位到具体的engine
 
@@ -254,13 +254,14 @@ public class PerformanceTestService {
         }
     }
 
-    private void startEngine(LoadTestWithBLOBs loadTest, Engine engine) {
+    private void startEngine(LoadTestWithBLOBs loadTest, Engine engine, String triggerMode) {
         LoadTestReport testReport = new LoadTestReport();
         testReport.setId(engine.getReportId());
         testReport.setCreateTime(engine.getStartTime());
         testReport.setUpdateTime(engine.getStartTime());
         testReport.setTestId(loadTest.getId());
         testReport.setName(loadTest.getName());
+        testReport.setTriggerMode(triggerMode);
         testReport.setUserId(Optional.ofNullable(SessionUtils.getUser().getId()).orElse(loadTest.getUserId()));
         // 启动测试
 

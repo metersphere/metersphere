@@ -15,6 +15,11 @@
           <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
         </template>
       </el-table-column>
+      <el-table-column prop="triggerMode" width="150" :label="'触发方式'">
+        <template v-slot:default="scope">
+          <report-trigger-mode-item :trigger-mode="scope.row.triggerMode"/>
+        </template>
+      </el-table-column>
       <el-table-column  prop="status" :label="$t('commons.status')">
         <template v-slot:default="{row}">
           <ms-api-report-status :row="row"/>
@@ -26,11 +31,12 @@
 
 <script>
   import MsApiReportStatus from "../report/ApiReportStatus";
+  import ReportTriggerModeItem from "../../common/tableItem/ReportTriggerModeItem";
 
   export default {
     name: "MsApiReportRecentList",
 
-    components: {MsApiReportStatus},
+    components: {ReportTriggerModeItem, MsApiReportStatus},
 
     data() {
       return {

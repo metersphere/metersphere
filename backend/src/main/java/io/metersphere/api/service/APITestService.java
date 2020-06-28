@@ -148,7 +148,7 @@ public class APITestService {
         if (SessionUtils.getUser() == null) {
             apiTest.setUserId(request.getUserId());
         }
-        String reportId = apiReportService.create(apiTest);
+        String reportId = apiReportService.create(apiTest, request.getTriggerMode());
         changeStatus(request.getId(), APITestStatus.Running);
 
         jMeterService.run(request.getId(), is);

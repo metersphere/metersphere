@@ -1,5 +1,6 @@
 package io.metersphere.job.sechedule;
 
+import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
@@ -30,6 +31,7 @@ public class PerformanceTestJob extends MsScheduleJob {
         RunTestPlanRequest request = new RunTestPlanRequest();
         request.setId(resourceId);
         request.setUserId(userId);
+        request.setTriggerMode(ReportTriggerMode.SCHEDULE.name());
         performanceTestService.run(request);
 
     }

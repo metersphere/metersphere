@@ -177,7 +177,7 @@
         this.result = this.$request(options, (response) => {
           this.testPlan.id = response.data;
           this.$success(this.$t('commons.save_success'));
-          this.result = this.$post(this.runPath, {id: this.testPlan.id}, () => {
+          this.result = this.$post(this.runPath, {id: this.testPlan.id, triggerMode: 'MANUAL'}, () => {
             this.$success(this.$t('load_test.is_running'))
             this.$router.push({path: '/performance/report/all'})
           })

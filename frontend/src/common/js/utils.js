@@ -128,9 +128,9 @@ export function _filter(filters, condition) {
   for (let filter in filters) {
     if (filters.hasOwnProperty(filter)) {
       if (filters[filter] && filters[filter].length > 0) {
-        condition.filters[filter] = filters[filter];
+        condition.filters[humpToLine(filter)] = filters[filter];
       } else {
-        condition.filters[filter] = null;
+        condition.filters[humpToLine(filter)] = null;
       }
     }
   }

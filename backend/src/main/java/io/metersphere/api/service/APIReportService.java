@@ -94,7 +94,7 @@ public class APIReportService {
         apiTestReportMapper.updateByPrimaryKeySelective(report);
     }
 
-    public String create(ApiTest test) {
+    public String create(ApiTest test, String triggerMode) {
         ApiTestReport running = getRunningReport(test.getId());
         if (running != null) {
             return running.getId();
@@ -104,6 +104,7 @@ public class APIReportService {
         report.setId(UUID.randomUUID().toString());
         report.setTestId(test.getId());
         report.setName(test.getName());
+        report.setTriggerMode(triggerMode);
         report.setDescription(test.getDescription());
         report.setCreateTime(System.currentTimeMillis());
         report.setUpdateTime(System.currentTimeMillis());
