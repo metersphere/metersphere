@@ -1,7 +1,12 @@
 <template>
   <div>
     <el-row :gutter="10" type="flex" justify="space-between" align="middle">
-      <el-col :span="10">
+      <el-col v-if="extractType == 'Regex'" :span="5">
+        <el-select :disabled="isReadOnly" class="extract-item" v-model="common.useHeaders" :placeholder="$t('api_test.request.assertions.select_subject')" size="small">
+          <el-option v-for="item in useHeadersOption" :key="item.value" :label="item.label" :value="item.value"/>
+        </el-select>
+      </el-col>
+      <el-col>
         <ms-api-variable-input :is-read-only="isReadOnly" v-model="common.variable" size="small" maxlength="60"
                                @change="change" show-word-limit :placeholder="$t('api_test.variable_name')"/>
       </el-col>
@@ -53,7 +58,17 @@
 
     data() {
       return {
-        visible: false
+        visible: false,
+        useHeadersOption: [
+          {label: 'Body',value:'false'},
+          {label: 'Request Headers',value:'request_headers'},
+          {label: 'Body (unescaped)', value:'unescaped'},
+          {label: 'Body as a Document', value:'as_document'},
+          {label: 'Response Headers', value:'true'},
+          {label: 'URL', value:'URL'},
+          {label: 'Response Code', value:'code'},
+          {label: 'Response Message', value:'message'}
+        ]
       }
     },
 
