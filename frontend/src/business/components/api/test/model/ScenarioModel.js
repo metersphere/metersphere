@@ -393,6 +393,7 @@ class JMXRequest {
       this.pathname = decodeURIComponent(url.pathname);
       this.port = url.port;
       this.protocol = url.protocol.split(":")[0];
+      this.url = request.url;
       if (this.method.toUpperCase() !== "GET") {
         this.pathname += url.search.replace('&', '&amp;');
       }
