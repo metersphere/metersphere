@@ -224,10 +224,10 @@ export class HTTPSamplerProxy extends DefaultTestElement {
   constructor(testName, request) {
     super('HTTPSamplerProxy', 'HttpTestSampleGui', 'HTTPSamplerProxy', testName);
     this.request = request || {};
-    // this.stringProp("HTTPSampler.domain", this.request.hostname);
-    // this.stringProp("HTTPSampler.protocol", this.request.protocol.split(":")[0]);
-    //主机名和端口添加在 path 中，支持变量的形式
-    this.stringProp("HTTPSampler.path", this.request.url);
+
+    this.stringProp("HTTPSampler.domain", this.request.hostname);
+    this.stringProp("HTTPSampler.protocol", this.request.protocol.split(":")[0]);
+    this.stringProp("HTTPSampler.path", this.request.pathname);
     this.stringProp("HTTPSampler.method", this.request.method);
     this.stringProp("HTTPSampler.contentEncoding", this.request.encoding, "UTF-8");
     if (!this.request.port) {
