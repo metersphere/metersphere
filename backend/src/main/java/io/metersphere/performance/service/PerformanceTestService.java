@@ -393,4 +393,8 @@ public class PerformanceTestService {
     private void addOrUpdatePerformanceTestCronJob(Schedule request) {
         scheduleService.addOrUpdateCronJob(request, PerformanceTestJob.getJobKey(request.getResourceId()), PerformanceTestJob.getTriggerKey(request.getResourceId()), PerformanceTestJob.class);
     }
+
+    public void stopTest(String reportId) {
+        reportService.deleteReport(reportId);
+    }
 }

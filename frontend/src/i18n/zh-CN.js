@@ -202,6 +202,8 @@ export default {
     'test_start_time': '开始时间',
     'test_end_time': '结束时间',
     'test_stop_now': '立即停止',
+    'test_stop_now_confirm': '确定要立即停止当前测试吗？',
+    'test_stop_success': '停止成功',
     'test_execute_again': '再次执行',
     'export': '导出',
     'compare': '比较',

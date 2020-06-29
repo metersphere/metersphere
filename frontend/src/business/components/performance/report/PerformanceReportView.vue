@@ -13,12 +13,21 @@
                 <el-breadcrumb-item>{{reportName}}</el-breadcrumb-item>
               </el-breadcrumb>
             </el-row>
-            <!--            <el-row class="ms-report-view-btns">-->
-            <!--              <el-button :disabled="isReadOnly" type="primary" plain size="mini">{{$t('report.test_stop_now')}}</el-button>-->
-            <!--              <el-button :disabled="isReadOnly" type="success" plain size="mini">{{$t('report.test_execute_again')}}</el-button>-->
-            <!--              <el-button :disabled="isReadOnly" type="info" plain size="mini">{{$t('report.export')}}</el-button>-->
-            <!--              <el-button :disabled="isReadOnly" type="warning" plain size="mini">{{$t('report.compare')}}</el-button>-->
-            <!--            </el-row>-->
+            <el-row class="ms-report-view-btns">
+              <el-button :disabled="isReadOnly || status !== 'Running'" type="primary" plain size="mini"
+                         @click="stopTest(reportId)">
+                {{$t('report.test_stop_now')}}
+              </el-button>
+              <!--<el-button :disabled="isReadOnly || status !== 'Completed'" type="success" plain size="mini">
+                {{$t('report.test_execute_again')}}
+              </el-button>
+              <el-button :disabled="isReadOnly" type="info" plain size="mini">
+                {{$t('report.export')}}
+              </el-button>
+              <el-button :disabled="isReadOnly" type="warning" plain size="mini">
+                {{$t('report.compare')}}
+              </el-button>-->
+            </el-row>
           </el-col>
           <el-col :span="8">
             <span class="ms-report-time-desc">
@@ -147,7 +156,20 @@
         this.endTime = '0';
         this.minutes = '0';
         this.seconds = '0';
-      }
+      },
+      stopTest(reportId) {
+        this.$confirm(this.$t('report.test_stop_now_confirm'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          type: 'warning'
+        }).then(() => {
+          this.result = this.$get('/performance/stop/' + reportId, () => {
+            this.$success(this.$t('report.test_stop_success'));
+            this.$router.push('/performance/report/all');
+          })
+        }).catch(() => {
+        });
+      },
     },
     created() {
       this.isReadOnly = false;
