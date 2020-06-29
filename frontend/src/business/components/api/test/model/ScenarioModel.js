@@ -344,6 +344,7 @@ export class ExtractCommon extends ExtractType {
   constructor(type, options) {
     super(type);
     this.variable = undefined;
+    this.useHeaders = undefined;
     this.value = ""; // ${variable}
     this.expression = undefined;
     this.description = undefined;
@@ -562,7 +563,7 @@ class JMXGenerator {
     switch (extractCommon.type) {
       case EXTRACT_TYPE.REGEX:
         testName += " RegexExtractor";
-        props.headers = "false"; // 对应jMeter body
+        props.headers = extractCommon.useHeaders; // 对应jMeter body
         props.template = "$1$";
         return new RegexExtractor(testName, props);
       case EXTRACT_TYPE.JSON_PATH:
