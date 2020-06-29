@@ -68,6 +68,8 @@ public class PerformanceTestService {
     private ReportService reportService;
     @Resource
     private KafkaProperties kafkaProperties;
+    @Resource
+    private TestCaseMapper testCaseMapper;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -76,6 +78,20 @@ public class PerformanceTestService {
 
     public void delete(DeleteTestPlanRequest request) {
         String testId = request.getId();
+
+        // 是否关联测试用例
+        TestCaseExample testCaseExample = new TestCaseExample();
+        testCaseExample.createCriteria().andTestIdEqualTo(testId);
+        List<TestCase> testCases = testCaseMapper.selectByExample(testCaseExample);
+        if (testCases.size() > 0) {
+            String caseName = "";
+            for (int i = 0; i < testCases.size(); i++) {
+                caseName = caseName + testCases.get(i).getName() + ",";
+            }
+            caseName = caseName.substring(0, caseName.length() - 1);
+            MSException.throwException(Translator.get("related_case_del_fail_prefix") + caseName + Translator.get("related_case_del_fail_suffix"));
+        }
+
         LoadTestReportExample loadTestReportExample = new LoadTestReportExample();
         loadTestReportExample.createCriteria().andTestIdEqualTo(testId);
         List<LoadTestReport> loadTestReports = loadTestReportMapper.selectByExample(loadTestReportExample);
