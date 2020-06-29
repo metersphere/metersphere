@@ -259,7 +259,11 @@ public class PerformanceTestService {
         testReport.setTestId(loadTest.getId());
         testReport.setName(loadTest.getName());
         testReport.setTriggerMode(triggerMode);
-        testReport.setUserId(Optional.ofNullable(SessionUtils.getUser().getId()).orElse(loadTest.getUserId()));
+        if (SessionUtils.getUser() == null) {
+            testReport.setUserId(loadTest.getUserId());
+        } else {
+            testReport.setUserId(SessionUtils.getUser().getId());
+        }
         // 启动测试
 
         try {
