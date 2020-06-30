@@ -101,7 +101,8 @@
         seconds: '0',
         title: 'Logging',
         report: {},
-        isReadOnly: false
+        isReadOnly: false,
+        websocket: null
       }
     },
     methods: {
@@ -135,6 +136,14 @@
               this.clearData();
             })
         }
+      },
+      initWebSocket() {
+        const uri = "ws://" + window.location.host + "/performance/report/" + this.reportId;
+        this.websocket = new WebSocket(uri);
+        this.websocket.onmessage = this.onMessage;
+        this.websocket.onopen = this.onOpen;
+        this.websocket.onerror = this.onError;
+        this.websocket.onclose = this.onClose;
       },
       checkReportStatus(status) {
         switch (status) {
@@ -170,6 +179,20 @@
         }).catch(() => {
         });
       },
+      onOpen() {
+        window.console.log("open WebSocket");
+      },
+      onError(e) {
+        window.console.error(e)
+      },
+      onMessage(e) {
+        this.$set(this.report, "refresh", e.data); // 触发刷新
+        this.initReportTimeInfo();
+      },
+      onClose(e) {
+        this.$set(this.report, "refresh", e.data); // 触发刷新
+        this.initReportTimeInfo();
+      }
     },
     created() {
       this.isReadOnly = false;
@@ -188,7 +211,10 @@
         }
       })
       this.initBreadcrumb();
-
+      this.initWebSocket();
+    },
+    beforeDestroy() {
+      this.websocket.close() //离开路由之后断开websocket连接
     },
     watch: {
       '$route'(to) {
