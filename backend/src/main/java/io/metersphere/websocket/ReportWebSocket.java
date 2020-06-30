@@ -87,7 +87,7 @@ public class ReportWebSocket {
                     if (PerformanceTestStatus.Running.name().equals(report.getStatus())) {
                         session.getBasicRemote().sendText("refresh-" + this.refresh++);
                     }
-                    Thread.sleep(10 * 1000L);
+                    Thread.sleep(20 * 1000L);
                 } catch (Exception e) {
                     LogUtil.error(e);
                 }
