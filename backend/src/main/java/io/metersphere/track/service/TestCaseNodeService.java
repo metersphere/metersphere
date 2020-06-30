@@ -229,6 +229,9 @@ public class TestCaseNodeService {
 
     public List<TestCaseNodeDTO> getAllNodeByPlanId(String planId) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
+        if (testPlan == null) {
+            return Collections.emptyList();
+        }
         return getNodeTreeByProjectId(testPlan.getProjectId());
     }
 
