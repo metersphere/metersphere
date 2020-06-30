@@ -29,8 +29,13 @@
             </template>
           </el-table-column>
           <el-table-column :label="$t('commons.operating')">
-            <template v-slot:default="scope">
-              <ms-table-operator :is-tester-permission="true" @editClick="edit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
+            <template v-if="baseUrl == 'api'" v-slot:default="scope">
+              <ms-table-operator :is-tester-permission="true" @editClick="edit(scope.row)" @deleteClick="handleDelete(scope.row)">
+                <template v-slot:behind>
+                  <ms-table-operator-button :is-tester-permission="true" :tip="'环境配置'" icon="el-icon-setting"
+                                            type="info" @exec="openEnvironmentConfig(scope.row)"/>
+                </template>
+              </ms-table-operator>
             </template>
           </el-table-column>
         </el-table>
@@ -59,6 +64,8 @@
 
     <ms-delete-confirm :title="$t('project.delete')" @delete="_handleDelete" ref="deleteConfirm"/>
 
+    <api-environment-config ref="environmentConfig"/>
+
   </ms-container>
 </template>
 
@@ -74,10 +81,15 @@
   import MsMainContainer from "../common/components/MsMainContainer";
   import MsDeleteConfirm from "../common/components/MsDeleteConfirm";
   import {DEFAULT} from "../../../common/js/constants";
+  import MsTableOperatorButton from "../common/components/MsTableOperatorButton";
+  import ApiEnvironmentConfig from "../api/test/components/ApiEnvironmentConfig";
+
 
   export default {
     name: "MsProject",
     components: {
+      ApiEnvironmentConfig,
+      MsTableOperatorButton,
       MsDeleteConfirm,
       MsMainContainer,
       MsContainer, MsTableOperator, MsCreateBox, MsTablePagination, MsTableHeader, MsDialogFooter},
@@ -227,6 +239,9 @@
         _sort(column, this.condition);
         this.list();
       },
+      openEnvironmentConfig(project) {
+        this.$refs.environmentConfig.open(project);
+      }
     }
   }
 </script>
