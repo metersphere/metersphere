@@ -171,3 +171,5 @@ ALTER TABLE `api_test_report` ADD `trigger_mode` varchar(64) NULL;
 ALTER TABLE `load_test_report` ADD `trigger_mode` varchar(64) NULL;
 UPDATE `api_test_report`  SET `trigger_mode` = 'MANUAL' WHERE 1;
 UPDATE `load_test_report`  SET `trigger_mode` = 'MANUAL' WHERE 1;
+
+alter table test_case add sort int null comment 'Import test case sort';

@@ -35,6 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -121,7 +122,13 @@ public class TestCaseService {
     }
 
     public List<TestCaseDTO> listTestCase(QueryTestCaseRequest request) {
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        List<OrderRequest> orderList = ServiceUtils.getDefaultOrder(request.getOrders());
+        OrderRequest order = new OrderRequest();
+        // 对模板导入的测试用例排序
+        order.setName("sort");
+        order.setType("desc");
+        orderList.add(order);
+        request.setOrders(orderList);
         return extTestCaseMapper.list(request);
     }
 
@@ -176,7 +183,7 @@ public class TestCaseService {
 
         TestCaseExample testCaseExample = new TestCaseExample();
         testCaseExample.createCriteria().andProjectIdIn(projectIds);
-        testCaseExample.setOrderByClause("update_time desc");
+        testCaseExample.setOrderByClause("update_time desc, sort desc");
         return testCaseMapper.selectByExample(testCaseExample);
     }
 
@@ -235,8 +242,10 @@ public class TestCaseService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
         if (!testCases.isEmpty()) {
+            AtomicInteger sort = new AtomicInteger();
             testCases.forEach(testcase -> {
                 testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
+                testcase.setSort(sort.getAndIncrement());
                 mapper.insert(testcase);
             });
         }
