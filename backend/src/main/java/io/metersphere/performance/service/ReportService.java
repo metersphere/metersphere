@@ -108,7 +108,7 @@ public class ReportService {
         return loadTestReportResults.get(0).getReportValue();
     }
 
-    public List<Statistics> getReport(String id) {
+    public List<Statistics> getReportStatistics(String id) {
         checkReportStatus(id);
         String reportValue = getContent(id, ReportKeys.RequestStatistics);
         return JSON.parseArray(reportValue, Statistics.class);
@@ -208,5 +208,9 @@ public class ReportService {
 
         String content = loadTestReportLogs.stream().map(LoadTestReportLog::getContent).reduce("", (a, b) -> a + b);
         return content.getBytes();
+    }
+
+    public LoadTestReport getReport(String reportId) {
+        return loadTestReportMapper.selectByPrimaryKey(reportId);
     }
 }

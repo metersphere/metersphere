@@ -31,5 +31,7 @@ public class TestCase implements Serializable {
 
     private String testId;
 
+    private Integer sort;
+
     private static final long serialVersionUID = 1L;
 }

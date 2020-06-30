@@ -10,6 +10,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -71,6 +72,8 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
         if (!errList.isEmpty()) {
             return;
         }
+
+        Collections.reverse(list);
 
         List<TestCaseWithBLOBs> result = list.stream()
                 .map(item -> this.convert2TestCase(item))
