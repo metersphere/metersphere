@@ -2,9 +2,9 @@ package io.metersphere.controller;
 
 import io.metersphere.base.domain.SystemParameter;
 import io.metersphere.commons.constants.ParamConstants;
+import io.metersphere.ldap.domain.LdapInfo;
 import io.metersphere.service.SystemParameterService;
 import org.springframework.web.bind.annotation.*;
-
 import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +33,16 @@ public class SystemParameterController {
     @GetMapping("/mail/info")
     public Object mailInfo() {
         return SystemParameterService.mailInfo(ParamConstants.Classify.MAIL.getValue());
+    }
+
+    @PostMapping("/save/ldap")
+    public void saveLdap(@RequestBody List<SystemParameter> systemParameter) {
+        SystemParameterService.saveLdap(systemParameter);
+    }
+
+    @GetMapping("/ldap/info")
+    public LdapInfo getLdapInfo() {
+        return SystemParameterService.getLdapInfo(ParamConstants.Classify.LDAP.getValue());
     }
 
 }

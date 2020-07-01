@@ -7,12 +7,13 @@ import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.i18n.Translator;
+import io.metersphere.ldap.LdapService;
+import io.metersphere.ldap.domain.LdapInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
-
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import java.util.*;
@@ -111,5 +112,48 @@ public class SystemParameterService {
         }
         paramList.sort(Comparator.comparingInt(SystemParameter::getSort));
         return paramList;
+    }
+
+    public void saveLdap(List<SystemParameter> parameters) {
+        SystemParameterExample example = new SystemParameterExample();
+        parameters.forEach(param -> {
+            if (param.getParamKey().equals(ParamConstants.LDAP.PASSWORD.getValue())) {
+                String string = EncryptUtils.aesEncrypt(param.getParamValue()).toString();
+                param.setParamValue(string);
+            }
+            example.createCriteria().andParamKeyEqualTo(param.getParamKey());
+            if (systemParameterMapper.countByExample(example) > 0) {
+                systemParameterMapper.updateByPrimaryKey(param);
+            } else {
+                systemParameterMapper.insert(param);
+            }
+            example.clear();
+        });
+    }
+
+    public LdapInfo getLdapInfo(String type) {
+        List<SystemParameter> params = getParamList(type);
+        LdapInfo ldap = new LdapInfo();
+        if (!CollectionUtils.isEmpty(params)) {
+            for (SystemParameter param : params) {
+                if (StringUtils.equals(param.getParamKey(), ParamConstants.LDAP.URL.getValue())) {
+                    ldap.setUrl(param.getParamValue());
+                } else if (StringUtils.equals(param.getParamKey(), ParamConstants.LDAP.DN.getValue())) {
+                    ldap.setDn(param.getParamValue());
+                } else if (StringUtils.equals(param.getParamKey(), ParamConstants.LDAP.PASSWORD.getValue())) {
+                    String password = EncryptUtils.aesDecrypt(param.getParamValue()).toString();
+                    ldap.setPassword(password);
+                } else if (StringUtils.equals(param.getParamKey(), ParamConstants.LDAP.OU.getValue())) {
+                    ldap.setOu(param.getParamValue());
+                } else if (StringUtils.equals(param.getParamKey(), ParamConstants.LDAP.FILTER.getValue())) {
+                    ldap.setFilter(param.getParamValue());
+                } else if (StringUtils.equals(param.getParamKey(), ParamConstants.LDAP.MAPPING.getValue())) {
+                    ldap.setMapping(param.getParamValue());
+                } else if (StringUtils.equals(param.getParamKey(), ParamConstants.LDAP.OPEN.getValue())) {
+                    ldap.setOpen(param.getParamValue());
+                }
+            }
+        }
+        return ldap;
     }
 }
