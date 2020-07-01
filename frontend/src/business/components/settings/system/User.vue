@@ -9,7 +9,7 @@
 
       <el-table :data="tableData" style="width: 100%">
         <el-table-column prop="id" label="ID"/>
-        <el-table-column prop="name" :label="$t('commons.username')" width="200"/>
+        <el-table-column prop="name" :label="$t('commons.name')" width="200"/>
         <el-table-column :label="$t('commons.role')" width="120">
           <template v-slot:default="scope">
             <ms-roles-tag :roles="scope.row.roles"/>
