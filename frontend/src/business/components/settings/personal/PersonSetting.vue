@@ -154,17 +154,6 @@
         this.form = Object.assign({}, row);
       },
       editPassword(row) {
-        this.$get("ldap/test", res => {
-          console.log(res)
-        })
-
-        this.$get("ldap/find/admin", res => {
-          console.log(res)
-        })
-
-        this.$get("ldap/testUser", res => {
-          console.log(res)
-        })
         this.editPasswordVisible = true;
       },
       updateUser(updateUserForm) {
