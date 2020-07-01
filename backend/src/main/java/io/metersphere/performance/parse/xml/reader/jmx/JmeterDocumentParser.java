@@ -732,12 +732,12 @@ public class JmeterDocumentParser implements DocumentParser {
         elementProp.setAttribute("elementType", "com.blazemeter.jmeter.control.VirtualUserController");
         threadGroup.appendChild(elementProp);
 
-
+        String duration = context.getProperty("duration").toString();
         threadGroup.appendChild(createStringProp(document, "ThreadGroup.on_sample_error", "continue"));
         threadGroup.appendChild(createStringProp(document, "TargetLevel", "2"));
         threadGroup.appendChild(createStringProp(document, "RampUp", "12"));
         threadGroup.appendChild(createStringProp(document, "Steps", "2"));
-        threadGroup.appendChild(createStringProp(document, "Hold", "12"));
+        threadGroup.appendChild(createStringProp(document, "Hold", duration));
         threadGroup.appendChild(createStringProp(document, "LogFilename", ""));
         threadGroup.appendChild(createStringProp(document, "Iterations", "1"));
         threadGroup.appendChild(createStringProp(document, "Unit", "M"));
