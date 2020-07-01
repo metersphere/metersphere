@@ -55,6 +55,11 @@ public class TestPlanTestCaseService {
         return list;
     }
 
+    public List<TestPlanCaseDTO> listByNode(QueryTestPlanCaseRequest request) {
+        List<TestPlanCaseDTO> list = extTestPlanTestCaseMapper.listByNode(request);
+        return list;
+    }
+
     public void editTestCase(TestPlanTestCaseWithBLOBs testPlanTestCase) {
         if (StringUtils.equals(TestPlanTestCaseStatus.Prepare.name(), testPlanTestCase.getStatus())) {
             testPlanTestCase.setStatus(TestPlanTestCaseStatus.Underway.name());

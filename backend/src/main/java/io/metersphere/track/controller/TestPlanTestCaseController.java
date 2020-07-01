@@ -26,18 +26,26 @@ public class TestPlanTestCaseController {
     TestPlanTestCaseService testPlanTestCaseService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
-    public Pager<List<TestPlanCaseDTO>> getTestPlanCases(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanCaseRequest request){
+    public Pager<List<TestPlanCaseDTO>> getTestPlanCases(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanCaseRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testPlanTestCaseService.list(request));
     }
 
+    @GetMapping("/list/{planId}/{nodeId}")
+    public List<TestPlanCaseDTO> getTestPlanCases(@PathVariable String planId, @PathVariable String nodeId) {
+        QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
+        request.setPlanId(planId);
+        request.setNode(nodeId);
+        return testPlanTestCaseService.listByNode(request);
+    }
+
     @GetMapping("/get/{caseId}")
-    public TestPlanCaseDTO getTestPlanCases(@PathVariable String caseId){
+    public TestPlanCaseDTO getTestPlanCases(@PathVariable String caseId) {
         return testPlanTestCaseService.get(caseId);
     }
 
     @PostMapping("recent/{count}")
-    public List<TestPlanCaseDTO> getRecentTestCases(@PathVariable int count, @RequestBody QueryTestPlanCaseRequest request){
+    public List<TestPlanCaseDTO> getRecentTestCases(@PathVariable int count, @RequestBody QueryTestPlanCaseRequest request) {
         return testPlanTestCaseService.getRecentTestCases(request, count);
     }
 

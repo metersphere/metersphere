@@ -132,14 +132,20 @@ public class TestCaseService {
         return extTestCaseMapper.list(request);
     }
 
+    public List<TestCaseDTO> listTestCaseMthod(QueryTestCaseRequest request) {
+        return extTestCaseMapper.listByMethod(request);
+    }
+
+
     /**
      * 获取测试用例
      * 过滤已关联
+     *
      * @param request
      * @return
      */
     public List<TestCase> getTestCaseNames(QueryTestCaseRequest request) {
-        if ( StringUtils.isNotBlank(request.getPlanId()) ) {
+        if (StringUtils.isNotBlank(request.getPlanId())) {
             TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
             if (testPlan != null) {
                 request.setProjectId(testPlan.getProjectId());
