@@ -115,6 +115,7 @@
 
     activated() {
       this.query()
+      this.change()
     },
     methods: {
       changeType() {
@@ -161,6 +162,7 @@
         })
       },
       edit() {
+        this.change()
         this.showEdit = false;
         this.showSave = true;
         this.showCancel = true;
@@ -197,11 +199,13 @@
         })
       },
       cancel() {
+        this.query();
         this.showEdit = true;
         this.showCancel = false;
         this.showSave = false;
         this.show = true;
-        this.query();
+        this.change()
+
       }
 
     }
