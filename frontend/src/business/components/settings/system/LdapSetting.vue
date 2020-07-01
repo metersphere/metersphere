@@ -11,7 +11,7 @@
         <el-form-item label="密码" prop="password">
           <el-input v-model="form.password" placeholder="请输入密码" show-password auto-complete="new-password"></el-input>
         </el-form-item>
-        <el-form-item label="用户OU" porp="ou">
+        <el-form-item label="用户OU" prop="ou">
           <el-input v-model="form.ou" placeholder="输入用户OU (使用|分隔各OU)"></el-input>
         </el-form-item>
         <el-form-item label="用户过滤器" prop="filter">
@@ -52,7 +52,8 @@
         rules: {
           url: {required: true, message: '请输入LDAP地址', trigger: ['change']},
           dn: {required: true, message: '请输入DN', trigger: ['change']},
-          password: {required: true, message: '请输入密码', trigger: ['change']}
+          password: {required: true, message: '请输入密码', trigger: ['change']},
+          ou: {required: true, message: '请输入OU', trigger: ['change']},
         }
       }
     },
@@ -61,7 +62,7 @@
     },
     methods: {
       init() {
-        this.$get("/system/ldap/info", response => {
+        this.result = this.$get("/system/ldap/info", response => {
           this.form = response.data;
           this.form.open = this.form.open === 'true' ? true : false;
         })
@@ -80,8 +81,8 @@
         this.init();
       },
       testConnection() {
-        this.$post("/system/test-connection/ldap", this.params, response => {
-          console.log(response)
+        this.result = this.$post("/ldap/connect", this.form, response => {
+          this.$success("连接成功！")
         })
       },
       save(form) {
