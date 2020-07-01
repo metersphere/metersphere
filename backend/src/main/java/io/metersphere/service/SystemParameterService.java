@@ -7,7 +7,6 @@ import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.i18n.Translator;
-import io.metersphere.ldap.LdapService;
 import io.metersphere.ldap.domain.LdapInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -155,5 +154,13 @@ public class SystemParameterService {
             }
         }
         return ldap;
+    }
+
+    public String getValue(String key) {
+        SystemParameter param = systemParameterMapper.selectByPrimaryKey(key);
+        if (param == null) {
+            return null;
+        }
+        return param.getParamValue();
     }
 }

@@ -1,11 +1,9 @@
-package io.metersphere.ldap;
+package io.metersphere.ldap.dao;
 
 
 import java.util.List;
 
 public interface PersonRepo {
-
-    List<String> getAllPersonNames();
 
     List findByName(String name);
 
