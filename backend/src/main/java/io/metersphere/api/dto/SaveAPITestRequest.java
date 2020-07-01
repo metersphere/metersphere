@@ -22,4 +22,6 @@ public class SaveAPITestRequest {
     private String userId;
 
     private Schedule schedule;
+
+    private String triggerMode;
 }

@@ -11,7 +11,7 @@
 
     <select id="list" resultMap="BaseResultMap">
         SELECT t.name AS test_name,
-        r.name, r.description, r.id, r.test_id, r.create_time, r.update_time, r.status,
+        r.name, r.description, r.id, r.test_id, r.create_time, r.update_time, r.status, r.trigger_mode,
         project.name AS project_name, user.name AS user_name
         FROM api_test_report r JOIN api_test t ON r.test_id = t.id
         LEFT JOIN project ON project.id = t.project_id

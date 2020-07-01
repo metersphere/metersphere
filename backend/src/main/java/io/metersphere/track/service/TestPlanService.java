@@ -91,7 +91,7 @@ public class TestPlanService {
     }
 
     public TestPlan getTestPlan(String testPlanId) {
-        return testPlanMapper.selectByPrimaryKey(testPlanId);
+        return Optional.ofNullable(testPlanMapper.selectByPrimaryKey(testPlanId)).orElse(new TestPlan());
     }
 
     public int editTestPlan(TestPlan testPlan) {

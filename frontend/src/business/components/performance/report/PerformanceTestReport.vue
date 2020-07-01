@@ -53,6 +53,11 @@
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
+          <el-table-column prop="triggerMode" width="150" :label="'触发方式'" column-key="triggerMode" :filters="triggerFilters">
+            <template v-slot:default="scope">
+              <report-trigger-mode-item :trigger-mode="scope.row.triggerMode"/>
+            </template>
+          </el-table-column>
           <el-table-column
             prop="status"
             column-key="status"
@@ -85,10 +90,13 @@
   import MsPerformanceReportStatus from "./PerformanceReportStatus";
   import {_filter, _sort} from "../../../../common/js/utils";
   import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
+  import ReportTriggerModeItem from "../../common/tableItem/ReportTriggerModeItem";
 
   export default {
     name: "PerformanceTestReport",
-    components: {MsTableOperatorButton, MsPerformanceReportStatus, MsTablePagination, MsContainer, MsMainContainer},
+    components: {
+      ReportTriggerModeItem,
+      MsTableOperatorButton, MsPerformanceReportStatus, MsTablePagination, MsContainer, MsMainContainer},
     created: function () {
       this.initTableData();
     },
@@ -112,7 +120,12 @@
           {text: 'Reporting', value: 'Reporting'},
           {text: 'Completed', value: 'Completed'},
           {text: 'Error', value: 'Error'}
-        ]
+        ],
+        triggerFilters: [
+          {text: '手动', value: 'MANUAL'},
+          {text: '定时任务', value: 'SCHEDULE'},
+          {text: 'API', value: 'API'}
+        ],
       }
     },
     methods: {

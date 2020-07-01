@@ -98,7 +98,7 @@
           </tbody>
         </table>
       </div>
-      <crontab-result :ex="contabValueString"/>
+      <crontab-result :ex="contabValueString" ref="crontabResult"/>
 
       <div class="pop_btn">
         <el-button size="small" type="primary" @click="submitFill">确定</el-button>
@@ -305,7 +305,7 @@
       },
       // 填充表达式
       submitFill() {
-        this.$emit("fill", this.contabValueString);
+        this.$emit("fill", this.contabValueString, this.$refs.crontabResult.resultList);
         this.hidePopup();
       },
       clearCron() {

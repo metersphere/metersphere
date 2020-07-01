@@ -1,5 +1,6 @@
 package io.metersphere.track.request.testplan;
 
+import io.metersphere.base.domain.Schedule;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,7 +28,7 @@ public class TestPlanRequest {
 
     private String runtimeConfiguration;
 
-    private String schedule;
+    private Schedule schedule;
 
     private String testResourcePoolId;
 

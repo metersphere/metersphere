@@ -204,6 +204,8 @@ export default {
     'test_start_time': 'Test Start Time',
     'test_end_time': 'Test End Time',
     'test_stop_now': 'Test Stop Now',
+    'test_stop_now_confirm': 'Are you sure you want to stop the current test immediately?',
+    'test_stop_success': 'Test stop successfully',
     'test_execute_again': 'Test Execute Again',
     'export': 'Export',
     'compare': 'Compare',

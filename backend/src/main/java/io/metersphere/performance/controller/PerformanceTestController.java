@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import javax.annotation.Resource;
 import java.util.List;
 
@@ -99,6 +100,11 @@ public class PerformanceTestController {
     @PostMapping("/run")
     public String run(@RequestBody RunTestPlanRequest request) {
         return performanceTestService.run(request);
+    }
+
+    @GetMapping("stop/{reportId}")
+    public void stopTest(@PathVariable String reportId) {
+        performanceTestService.stopTest(reportId);
     }
 
     @GetMapping("/file/metadata/{testId}")

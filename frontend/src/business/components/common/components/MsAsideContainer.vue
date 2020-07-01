@@ -1,6 +1,6 @@
 <template>
 
-  <el-aside class="ms-aside-container">
+  <el-aside :width="width" class="ms-aside-container">
     <slot></slot>
   </el-aside>
 
@@ -8,7 +8,13 @@
 
 <script>
     export default {
-      name: "MsAsideContainer"
+      name: "MsAsideContainer",
+      props: {
+        width: {
+          type: String,
+          default: '300px'
+        }
+      }
     }
 </script>
 

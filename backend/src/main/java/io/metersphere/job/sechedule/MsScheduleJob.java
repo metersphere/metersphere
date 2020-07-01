@@ -1,8 +1,9 @@
 package io.metersphere.job.sechedule;
 
-import org.quartz.Job;
+import io.metersphere.commons.utils.LogUtil;
+import org.quartz.*;
 
-public abstract class MsScheduleJob implements Job{
+public abstract class MsScheduleJob implements Job {
 
     protected String resourceId;
 
@@ -10,15 +11,19 @@ public abstract class MsScheduleJob implements Job{
 
     protected String expression;
 
-    public void setResourceId(String resourceId) {
-        this.resourceId = resourceId;
+    @Override
+    public void execute(JobExecutionContext context) throws JobExecutionException {
+
+        JobKey jobKey = context.getTrigger().getJobKey();
+        JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
+        this.resourceId = jobDataMap.getString("resourceId");
+        this.userId = jobDataMap.getString("userId");
+        this.expression = jobDataMap.getString("expression");
+
+        LogUtil.info(jobKey.getGroup()+ " Running: " + resourceId);
+        LogUtil.info("CronExpression: " + expression);
+        businessExecute(context);
     }
 
-    public void setExpression(String expression) {
-        this.expression = expression;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
+    abstract void businessExecute(JobExecutionContext context);
 }

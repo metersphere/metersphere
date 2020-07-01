@@ -9,10 +9,10 @@
           <el-button type="primary" @click="showCronDialog">生成 Cron</el-button>
           <el-button type="primary" @click="saveCron">保存</el-button>
         </el-form-item>
-        <crontab-result :ex="form.cronValue" ref="crontabResult"/>
+        <crontab-result :ex="form.cronValue" ref="crontabResult" />
       </el-form>
       <el-dialog title="生成 cron" :visible.sync="showCron" :modal="false">
-        <crontab @hide="showCron=false" @fill="crontabFill" :expression="schedule.value"/>
+        <crontab @hide="showCron=false" @fill="crontabFill" :expression="schedule.value" ref="crontab"/>
       </el-dialog>
     </div>
   </el-dialog>
@@ -24,12 +24,18 @@
     import CrontabResult from "../cron/CrontabResult";
     import {cronValidate} from "../../../../common/js/cron";
 
+    function defaultCustomValidate() {return {pass: true};}
+
     export default {
       name: "MsScheduleEdit",
       components: {CrontabResult, Crontab},
       props: {
         save: Function,
         schedule: {},
+        customValidate: {
+          type: Function,
+          default: defaultCustomValidate
+        },
       },
       watch: {
         'schedule.value'() {
@@ -38,8 +44,13 @@
       },
       data() {
           const validateCron = (rule, cronValue, callback) => {
+            let customValidate = this.customValidate(this.getIntervalTime());
             if (!cronValidate(cronValue)) {
               callback(new Error('Cron 表达式格式错误'));
+            } else if(!this.intervalShortValidate()) {
+              callback(new Error('间隔时间请大于 5 分钟'));
+            } else if (!customValidate.pass){
+              callback(new Error(customValidate.info));
             } else {
               callback();
             }
@@ -58,10 +69,12 @@
       methods: {
         open() {
           this.dialogVisible = true;
+          this.form.cronValue = this.schedule.value;
         },
-        crontabFill(value) {
+        crontabFill(value, resultList) {
           //确定后回传的值
           this.form.cronValue = value;
+          this.$refs.crontabResult.resultList = resultList;
           this.$refs['from'].validate();
         },
         showCronDialog() {
@@ -78,11 +91,27 @@
           });
         },
         close() {
+          this.dialogVisible = false;
           this.form.cronValue = '';
           this.$refs['from'].resetFields();
           if (!this.schedule.value) {
             this.$refs.crontabResult.resultList = [];
           }
+        },
+        intervalShortValidate() {
+          if (this.getIntervalTime() < 5*60*1000) {
+            return false;
+          }
+          return true;
+        },
+        resultListChange() {
+          this.$refs['from'].validate();
+        },
+        getIntervalTime() {
+          let resultList = this.$refs.crontabResult.resultList;
+          let time1 = new Date(resultList[0]);
+          let time2 = new Date(resultList[1]);
+          return time2 - time1;
         }
       }
     }

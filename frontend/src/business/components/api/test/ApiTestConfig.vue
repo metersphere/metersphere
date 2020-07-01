@@ -154,7 +154,7 @@
         })
       },
       runTest() {
-        this.result = this.$post("/api/run", {id: this.test.id}, (response) => {
+        this.result = this.$post("/api/run", {id: this.test.id, triggerMode: 'MANUAL'}, (response) => {
           this.$success(this.$t('api_test.running'));
           this.$router.push({
             path: '/api/report/view/' + response.data

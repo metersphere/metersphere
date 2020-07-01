@@ -151,11 +151,7 @@
             this.$warning(this.$t('report.start_status'));
             break;
           case 'Reporting':
-            this.$info(this.$t('report.being_generated'));
-            break;
           case 'Running':
-            this.$warning(this.$t('report.run_status'));
-            break;
           case 'Completed':
           default:
             break;

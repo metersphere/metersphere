@@ -162,9 +162,15 @@
         </dependency>
 
         <dependency>
-            <groupId>org.quartz-scheduler</groupId>
-            <artifactId>quartz</artifactId>
-            <version>2.3.0</version>
+            <groupId>com.fit2cloud</groupId>
+            <artifactId>quartz-spring-boot-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-autoconfigure</artifactId>
+                </exclusion>
+            </exclusions>
+            <version>0.0.4</version>
         </dependency>
 
         <!-- LDAP Module -->
@@ -287,6 +293,44 @@
             </plugin>
         </plugins>
     </build>
+
+    <repositories>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/libs-milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>jcenter-snapshots</id>
+            <name>jcenter</name>
+            <url>https://jcenter.bintray.com/</url>
+        </repository>
+        <repository>
+            <id>fit2cloud-enterprise-release</id>
+            <name>Fit2Cloud Enterprise Release</name>
+            <url>http://repository.fit2cloud.com/content/repositories/fit2cloud-enterprise-release/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>fit2cloud</id>
+            <name>fit2cloud</name>
+            <url>http://repository.fit2cloud.com/content/groups/public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
 
 </project>

@@ -25,10 +25,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.annotation.Resource;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -109,7 +108,7 @@ public class ReportService {
         return loadTestReportResults.get(0).getReportValue();
     }
 
-    public List<Statistics> getReport(String id) {
+    public List<Statistics> getReportStatistics(String id) {
         checkReportStatus(id);
         String reportValue = getContent(id, ReportKeys.RequestStatistics);
         return JSON.parseArray(reportValue, Statistics.class);
@@ -154,11 +153,7 @@ public class ReportService {
     public void checkReportStatus(String reportId) {
         LoadTestReport loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
         String reportStatus = loadTestReport.getStatus();
-        if (StringUtils.equals(PerformanceTestStatus.Running.name(), reportStatus)) {
-            MSException.throwException("Reporting in progress...");
-        } else if (StringUtils.equals(PerformanceTestStatus.Reporting.name(), reportStatus)) {
-            MSException.throwException("Reporting in progress...");
-        } else if (StringUtils.equals(PerformanceTestStatus.Error.name(), reportStatus)) {
+        if (StringUtils.equals(PerformanceTestStatus.Error.name(), reportStatus)) {
             MSException.throwException("Report generation error!");
         }
     }
@@ -213,5 +208,9 @@ public class ReportService {
 
         String content = loadTestReportLogs.stream().map(LoadTestReportLog::getContent).reduce("", (a, b) -> a + b);
         return content.getBytes();
+    }
+
+    public LoadTestReport getReport(String reportId) {
+        return loadTestReportMapper.selectByPrimaryKey(reportId);
     }
 }

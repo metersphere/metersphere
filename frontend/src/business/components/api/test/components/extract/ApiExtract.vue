@@ -4,7 +4,7 @@
       {{$t('api_test.request.extract.description')}}
     </div>
     <el-row :gutter="10">
-      <el-col :span="4">
+      <el-col :span="2">
         <el-select :disabled="isReadOnly" class="extract-item" v-model="type" :placeholder="$t('api_test.request.extract.select_type')"
                    size="small">
           <el-option :label="$t('api_test.request.extract.regex')" :value="options.REGEX"/>
@@ -12,7 +12,7 @@
           <el-option label="XPath" :value="options.XPATH"/>
         </el-select>
       </el-col>
-      <el-col :span="20">
+      <el-col :span="22">
         <ms-api-extract-common :is-read-only="isReadOnly" :extract-type="type" :list="list" v-if="type" :callback="after"/>
       </el-col>
     </el-row>

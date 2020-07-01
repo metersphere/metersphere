@@ -5,10 +5,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportDetailMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
-import io.metersphere.commons.constants.APITestStatus;
-import io.metersphere.commons.constants.PerformanceTestStatus;
-import io.metersphere.commons.constants.ScheduleGroup;
-import io.metersphere.commons.constants.ScheduleType;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
@@ -74,6 +71,8 @@ public class PerformanceTestService {
     private KafkaProperties kafkaProperties;
     @Resource
     private ScheduleService scheduleService;
+    @Resource
+    private TestCaseMapper testCaseMapper;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -82,6 +81,20 @@ public class PerformanceTestService {
 
     public void delete(DeleteTestPlanRequest request) {
         String testId = request.getId();
+
+        // 是否关联测试用例
+        TestCaseExample testCaseExample = new TestCaseExample();
+        testCaseExample.createCriteria().andTestIdEqualTo(testId);
+        List<TestCase> testCases = testCaseMapper.selectByExample(testCaseExample);
+        if (testCases.size() > 0) {
+            String caseName = "";
+            for (int i = 0; i < testCases.size(); i++) {
+                caseName = caseName + testCases.get(i).getName() + ",";
+            }
+            caseName = caseName.substring(0, caseName.length() - 1);
+            MSException.throwException(Translator.get("related_case_del_fail_prefix") + caseName + Translator.get("related_case_del_fail_suffix"));
+        }
+
         LoadTestReportExample loadTestReportExample = new LoadTestReportExample();
         loadTestReportExample.createCriteria().andTestIdEqualTo(testId);
         List<LoadTestReport> loadTestReports = loadTestReportMapper.selectByExample(loadTestReportExample);
@@ -222,7 +235,7 @@ public class PerformanceTestService {
             MSException.throwException(String.format("Test cannot be run，test ID：%s", request.getId()));
         }
 
-        startEngine(loadTest, engine);
+        startEngine(loadTest, engine, request.getTriggerMode());
 
         // todo：通过调用stop方法能够停止正在运行的engine，但是如果部署了多个backend实例，页面发送的停止请求如何定位到具体的engine
 
@@ -254,14 +267,19 @@ public class PerformanceTestService {
         }
     }
 
-    private void startEngine(LoadTestWithBLOBs loadTest, Engine engine) {
+    private void startEngine(LoadTestWithBLOBs loadTest, Engine engine, String triggerMode) {
         LoadTestReport testReport = new LoadTestReport();
         testReport.setId(engine.getReportId());
         testReport.setCreateTime(engine.getStartTime());
         testReport.setUpdateTime(engine.getStartTime());
         testReport.setTestId(loadTest.getId());
         testReport.setName(loadTest.getName());
-        testReport.setUserId(Optional.ofNullable(SessionUtils.getUser().getId()).orElse(loadTest.getUserId()));
+        testReport.setTriggerMode(triggerMode);
+        if (SessionUtils.getUser() == null) {
+            testReport.setUserId(loadTest.getUserId());
+        } else {
+            testReport.setUserId(SessionUtils.getUser().getId());
+        }
         // 启动测试
 
         try {
@@ -280,6 +298,13 @@ public class PerformanceTestService {
             loadTestReportDetailMapper.insertSelective(reportDetail);
             // append \n
             extLoadTestReportDetailMapper.appendLine(testReport.getId(), "\n");
+            // 保存一个 reportStatus
+            LoadTestReportResult reportResult = new LoadTestReportResult();
+            reportResult.setId(UUID.randomUUID().toString());
+            reportResult.setReportId(testReport.getId());
+            reportResult.setReportKey(ReportKeys.ResultStatus.name());
+            reportResult.setReportValue("Ready"); // 初始化一个 result_status, 这个值用在data-streaming中
+            loadTestReportResultMapper.insertSelective(reportResult);
         } catch (MSException e) {
             LogUtil.error(e);
             loadTest.setStatus(PerformanceTestStatus.Error.name());
@@ -387,5 +412,9 @@ public class PerformanceTestService {
 
     private void addOrUpdatePerformanceTestCronJob(Schedule request) {
         scheduleService.addOrUpdateCronJob(request, PerformanceTestJob.getJobKey(request.getResourceId()), PerformanceTestJob.getTriggerKey(request.getResourceId()), PerformanceTestJob.class);
+    }
+
+    public void stopTest(String reportId) {
+        reportService.deleteReport(reportId);
     }
 }

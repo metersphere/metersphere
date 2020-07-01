@@ -161,7 +161,7 @@
         handler(val){
           let status = val.status;
           this.id = val.id;
-          if (status === "Completed") {
+          if (status === "Completed" || status === "Running") {
             this.initTableData();
           } else {
             this.tableData = [];
