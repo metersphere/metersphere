@@ -14,6 +14,7 @@ import io.metersphere.performance.engine.EngineContext;
 import io.metersphere.performance.engine.EngineFactory;
 import io.metersphere.performance.engine.docker.request.TestRequest;
 import org.springframework.web.client.RestTemplate;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,16 +56,16 @@ public class DockerTestEngine extends AbstractEngine {
         for (int i = 0, size = resourceList.size(); i < size; i++) {
             int ratio = resourceRatio.get(i);
             double realThreadNum = ((double) ratio / totalThreadNum) * threadNum;
-            runTest(resourceList.get(i), Math.round(realThreadNum));
+            runTest(resourceList.get(i), Math.round(realThreadNum), i);
         }
 
     }
 
-    private void runTest(TestResource resource, long realThreadNum) {
+    private void runTest(TestResource resource, long realThreadNum, int resourceIndex) {
         // todo 运行测试
         EngineContext context = null;
         try {
-            context = EngineFactory.createContext(loadTest, resource.getId(), realThreadNum, this.getStartTime(), this.getReportId());
+            context = EngineFactory.createContext(loadTest, resource.getId(), realThreadNum, this.getStartTime(), this.getReportId(), resourceIndex);
         } catch (Exception e) {
             MSException.throwException(e);
         }
