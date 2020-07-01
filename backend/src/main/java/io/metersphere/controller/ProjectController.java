@@ -31,6 +31,14 @@ public class ProjectController {
         return projectService.getProjectList(request);
     }
 
+    /*jenkins项目列表*/
+    @GetMapping("/listAll/{workspaceId}")
+    public List<ProjectDTO> jlistAll(@PathVariable String workspaceId) {
+        ProjectRequest request = new ProjectRequest();
+        request.setWorkspaceId(workspaceId);
+        return projectService.getProjectList(request);
+    }
+
     @GetMapping("/recent/{count}")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
     public List<Project> recentProjects(@PathVariable int count) {

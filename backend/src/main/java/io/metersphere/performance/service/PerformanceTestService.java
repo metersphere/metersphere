@@ -339,6 +339,10 @@ public class PerformanceTestService {
         return extLoadTestMapper.getLoadTestByProjectId(projectId);
     }
 
+    public LoadTest getLoadTestBytestId(String testId) {
+        return loadTestMapper.selectByPrimaryKey(testId);
+    }
+
     public void copy(SaveTestPlanRequest request) {
         // copy test
         LoadTestWithBLOBs copy = loadTestMapper.selectByPrimaryKey(request.getId());

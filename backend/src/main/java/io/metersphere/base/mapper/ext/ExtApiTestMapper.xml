@@ -45,7 +45,7 @@
         </if>
     </select>
     <select id="getApiTestByProjectId" resultType="io.metersphere.base.domain.ApiTest">
-        select id,name
+        select id,name,status
         from api_test
         where project_id = #{projectId}
     </select>

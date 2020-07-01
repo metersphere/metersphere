@@ -12,4 +12,7 @@ public interface ExtTestCaseMapper {
     List<TestCase> getTestCaseNames(@Param("request") QueryTestCaseRequest request);
 
     List<TestCaseDTO> list(@Param("request") QueryTestCaseRequest request);
+
+    List<TestCaseDTO> listByMethod(@Param("request") QueryTestCaseRequest request);
+
 }

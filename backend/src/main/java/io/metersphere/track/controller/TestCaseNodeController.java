@@ -23,7 +23,7 @@ public class TestCaseNodeController {
     public List<TestCaseNodeDTO> getNodeByProjectId(@PathVariable String projectId){
         return testCaseNodeService.getNodeTreeByProjectId(projectId);
     }
-
+    /*模块列表列表*/
     @GetMapping("/list/all/plan/{planId}")
     public List<TestCaseNodeDTO> getAllNodeByPlanId(@PathVariable String planId){
         return testCaseNodeService.getAllNodeByPlanId(planId);
