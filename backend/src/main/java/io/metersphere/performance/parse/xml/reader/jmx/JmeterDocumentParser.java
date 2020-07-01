@@ -800,6 +800,8 @@ public class JmeterDocumentParser implements DocumentParser {
     }
 
     private void processConcurrencyThreadGroup(Element concurrencyThreadGroup) {
+        String testname = concurrencyThreadGroup.getAttribute("testname");
+        concurrencyThreadGroup.setAttribute("testname", testname + "-" + context.getResourceIndex());
         if (concurrencyThreadGroup.getChildNodes().getLength() > 0) {
             final NodeList childNodes = concurrencyThreadGroup.getChildNodes();
             for (int i = 0; i < childNodes.getLength(); i++) {
