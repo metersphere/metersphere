@@ -29,9 +29,9 @@
             </template>
           </el-table-column>
           <el-table-column :label="$t('commons.operating')">
-            <template v-if="baseUrl == 'api'" v-slot:default="scope">
+            <template v-slot:default="scope">
               <ms-table-operator :is-tester-permission="true" @editClick="edit(scope.row)" @deleteClick="handleDelete(scope.row)">
-                <template v-slot:behind>
+                <template v-if="baseUrl == 'api'" v-slot:behind>
                   <ms-table-operator-button :is-tester-permission="true" :tip="'环境配置'" icon="el-icon-setting"
                                             type="info" @exec="openEnvironmentConfig(scope.row)"/>
                 </template>
@@ -238,7 +238,7 @@
         this.list();
       },
       openEnvironmentConfig(project) {
-        this.$refs.environmentConfig.open(project);
+        this.$refs.environmentConfig.open(project.id);
       }
     }
   }
