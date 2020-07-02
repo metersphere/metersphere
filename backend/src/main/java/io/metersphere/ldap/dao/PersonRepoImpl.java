@@ -105,9 +105,12 @@ public class PersonRepoImpl implements PersonRepo {
         String url = service.getValue(ParamConstants.LDAP.URL.getValue());
         String dn = service.getValue(ParamConstants.LDAP.DN.getValue());
         String ou = service.getValue(ParamConstants.LDAP.OU.getValue());
-        String credentials = EncryptUtils.aesDecrypt(service.getValue(ParamConstants.LDAP.PASSWORD.getValue())).toString();
+        String password = service.getValue(ParamConstants.LDAP.PASSWORD.getValue());
 
-        preConnect(url, dn, ou, credentials);
+        preConnect(url, dn, ou, password);
+
+        String credentials = EncryptUtils.aesDecrypt(password).toString();
+
 
         LdapContextSource sourceLdapCtx = new LdapContextSource();
         sourceLdapCtx.setUrl(url);
