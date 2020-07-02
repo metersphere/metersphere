@@ -203,6 +203,7 @@ export default {
     'test_end_time': '結束時間',
     'test_stop_now': '立即停止',
     'test_stop_now_confirm': '確定要立即停止當前測試嗎？',
+    'test_rerun_confirm': '確定要再次執行當前測試嗎？',
     'test_stop_success': '停止成功',
     'test_execute_again': '再次執行',
     'export': '導出',

@@ -1,16 +1,23 @@
 <template>
-  <ms-aside-container :width="width">
-    <div class="title-bar">
-      <span class="title-left">{{title}}</span>
-      <span class="title-right">
-        <i class="el-icon-plus" @click="addFuc"/>
-      </span>
+  <ms-aside-container :width="width + 'px'">
+    <div class="title-bar" :style="{'height': titleBarHeight + 'px'}">
+      <slot name="title">
+        <span :style="{'line-height': titleBarHeight - 10 + 'px'}" class="title-left">
+          {{title}}
+        </span>
+        <span :style="{'line-height': titleBarHeight - 10 + 'px'}" class="title-right">
+          <i class="el-icon-plus" @click="addFuc"/>
+        </span>
+      </slot>
     </div>
 
-    <div v-for="(item, index) in data" :key="index" class="item-bar" @click="itemSelected(index, item)" :class="{'item-selected' : index == selectIndex}">
-      <span class="item-left">{{item.name}}</span>
-      <span class="item-right">
-        <i class="el-icon-delete" @click="deleteFuc(item)"/>
+    <div :style="{'height': itemBarHeight + 'px'}" v-for="(item, index) in data" :key="index" class="item-bar" @click="itemSelected(index, item)" :class="{'item-selected' : index == selectIndex}">
+<!--      <span :style="{'line-height': itemBarHeight - 10 + 'px'}" class="item-left">-->
+<!--&lt;!&ndash;        {{item.name}}&ndash;&gt;-->
+<!--      </span>-->
+      <input class="item-input" :style="{'height': itemBarHeight - 12 + 'px', 'line-height': itemBarHeight - 12 + 'px', 'width': width - 90 + 'px'}" v-model="item.name" placeholder="请输入内容"/>
+      <span :style="{'line-height': itemBarHeight - 10 + 'px'}" class="item-right">
+        <i v-for="(operator, index) in itemOperators" :key="index" :class="operator.icon" @click="operator.func(item)"/>
       </span>
     </div>
   </ms-aside-container>
@@ -29,13 +36,32 @@
       },
       props: {
         width: {
-          type: String,
-          default: '200px'
+          type: Number,
+          default: 200
+        },
+        titleBarHeight: {
+          type: Number,
+          default: 40
+        },
+        itemBarHeight: {
+          type: Number,
+          default: 35
         },
         title: String,
         data: Array,
         deleteFuc: Function,
         addFuc: Function,
+        itemOperators: {
+          type: Array,
+          default() {
+            return [
+              {
+                icon: 'el-icon-delete',
+                func: this.deleteFuc
+              }
+            ];
+          }
+        },
       },
       methods: {
         itemSelected(index, item) {
@@ -48,28 +74,27 @@
 
 <style scoped>
 
+  .ms-aside-container {
+    padding: 0;
+  }
+
   .title-bar {
     width: 100%;
     background: #e9ebef;
-    height: 40px;
     padding: 5px 10px;
     box-sizing: border-box;
-  }
-
-  .title-bar span {
-    line-height: 30px;
   }
 
   .item-bar {
     width: 100%;
     background: #F9F9F9;
-    height: 35px;
     padding: 5px 10px;
     box-sizing: border-box;
+    border: solid 1px #e6e6e6;
   }
 
-  .item-bar span {
-    line-height: 25px;
+  .item-bar:hover .item-right {
+    visibility: visible;
   }
 
   .title-right,.item-right {
@@ -80,8 +105,8 @@
     visibility: hidden;
   }
 
-  .ms-aside-container {
-    padding: 0;
+  .item-right i {
+    margin: 5px;
   }
 
   i:hover {
@@ -89,16 +114,23 @@
     font-size: large;
   }
 
-  .item-bar:hover .item-right {
-    visibility: visible;
-  }
-
   .item-selected {
-    background: #edf6fd;
+    background: #ECF5FF;
+    border-left: solid #409EFF 5px;
   }
 
   .item-selected .item-right {
     visibility: visible;
+  }
+
+  .item-input {
+    border: hidden;
+    display: inline;
+    background-color:rgba(0,0,0,0);
+  }
+
+  .item-input:focus{
+    outline:none;
   }
 
 </style>
