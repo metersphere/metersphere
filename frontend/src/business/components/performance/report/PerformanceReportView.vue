@@ -18,10 +18,11 @@
                          @click="stopTest(reportId)">
                 {{$t('report.test_stop_now')}}
               </el-button>
-              <!--<el-button :disabled="isReadOnly || status !== 'Completed'" type="success" plain size="mini">
+              <el-button :disabled="isReadOnly || status !== 'Completed'" type="success" plain size="mini"
+                         @click="rerun(testId)">
                 {{$t('report.test_execute_again')}}
               </el-button>
-              <el-button :disabled="isReadOnly" type="info" plain size="mini">
+              <!--<el-button :disabled="isReadOnly" type="info" plain size="mini">
                 {{$t('report.export')}}
               </el-button>
               <el-button :disabled="isReadOnly" type="warning" plain size="mini">
@@ -175,6 +176,19 @@
           this.result = this.$get('/performance/stop/' + reportId, () => {
             this.$success(this.$t('report.test_stop_success'));
             this.$router.push('/performance/report/all');
+          })
+        }).catch(() => {
+        });
+      },
+      rerun(testId) {
+        this.$confirm(this.$t('report.test_rerun_confirm'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          type: 'warning'
+        }).then(() => {
+          this.result = this.$post('/performance/run', {id: testId, triggerMode: 'MANUAL'}, () => {
+            this.$success(this.$t('load_test.is_running'))
+            this.$router.push({path: '/performance/report/all'})
           })
         }).catch(() => {
         });
