@@ -2,13 +2,16 @@ package io.metersphere.controller;
 
 import io.metersphere.base.domain.UserKey;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.security.ApiKeyHandler;
 import io.metersphere.service.UserKeyService;
+import org.apache.shiro.web.util.WebUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletRequest;
 import java.util.List;
 
 @RestController
@@ -22,6 +25,11 @@ public class UserKeysController {
     public List<UserKey> getUserKeysInfo() {
         String userId = SessionUtils.getUser().getId();
         return userKeyService.getUserKeysInfo(userId);
+    }
+
+    @GetMapping("validate")
+    public String validate(ServletRequest request) {
+        return ApiKeyHandler.getUser(WebUtils.toHttp(request));
     }
 
     @GetMapping("generate")

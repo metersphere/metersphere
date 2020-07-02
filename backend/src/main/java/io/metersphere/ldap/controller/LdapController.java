@@ -1,16 +1,18 @@
 package io.metersphere.ldap.controller;
 
 import io.metersphere.base.domain.User;
+import io.metersphere.commons.constants.ParamConstants;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.LoginRequest;
-import io.metersphere.ldap.LdapService;
+import io.metersphere.ldap.service.LdapService;
+import io.metersphere.ldap.domain.LdapInfo;
+import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.UserService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
-import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
-
-import static io.metersphere.commons.constants.SessionConstants.ATTR_USER;
 
 @RestController
 @RequestMapping("/ldap")
@@ -20,9 +22,17 @@ public class LdapController {
     private UserService userService;
     @Resource
     private LdapService ldapService;
+    @Resource
+    private SystemParameterService systemParameterService;
 
     @PostMapping(value = "/signin")
     public ResultHolder login(@RequestBody LoginRequest request) {
+
+        String isOpen = systemParameterService.getValue(ParamConstants.LDAP.OPEN.getValue());
+        if (StringUtils.isBlank(isOpen) || StringUtils.equals(Boolean.FALSE.toString(), isOpen)) {
+            MSException.throwException("LDAP 认证未启用！");
+        }
+
         ldapService.authenticate(request);
 
         SecurityUtils.getSubject().getSession().setAttribute("authenticate", "ldap");
@@ -47,8 +57,14 @@ public class LdapController {
         return userService.login(request);
     }
 
+    @PostMapping("/test/connect")
+    public void testConnect(@RequestBody LdapInfo ldapInfo) {
+        ldapService.testConnect(ldapInfo);
+    }
 
-
-
+    @PostMapping("/test/login")
+    public void testLogin(@RequestBody LoginRequest request) {
+        ldapService.authenticate(request);
+    }
 
 }

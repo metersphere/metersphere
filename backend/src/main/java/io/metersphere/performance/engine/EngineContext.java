@@ -13,6 +13,7 @@ public class EngineContext {
     private Long threadNum;
     private Long startTime;
     private String reportId;
+    private Integer resourceIndex;
     private Map<String, Object> properties = new HashMap<>();
     private Map<String, String> testData = new HashMap<>();
     private Map<String, String> env = new HashMap<>();
@@ -115,5 +116,14 @@ public class EngineContext {
 
     public void setReportId(String reportId) {
         this.reportId = reportId;
+    }
+
+
+    public Integer getResourceIndex() {
+        return resourceIndex;
+    }
+
+    public void setResourceIndex(Integer resourceIndex) {
+        this.resourceIndex = resourceIndex;
     }
 }

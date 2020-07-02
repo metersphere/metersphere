@@ -27,4 +27,6 @@ public class QueryTestPlanCaseRequest extends TestPlanTestCase {
     private String name;
 
     private String status;
+
+    private String node;
 }

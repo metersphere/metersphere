@@ -45,9 +45,10 @@ public class APITestController {
         return PageUtils.setPageInfo(page, apiTestService.list(request));
     }
 
-    @GetMapping("/list/{projectId}")
-    public List<ApiTest> list(@PathVariable String projectId) {
-        return apiTestService.getApiTestByProjectId(projectId);
+    /*查询某个api测试状态*/
+    @GetMapping("/list/all/{testId}")
+    public ApiTest list(@PathVariable String testId) {
+        return apiTestService.getApiTestByProjectId(testId);
     }
 
     @PostMapping(value = "/schedule/update")
@@ -89,4 +90,5 @@ public class APITestController {
     public String run(@RequestBody SaveAPITestRequest request) {
         return apiTestService.run(request);
     }
+
 }

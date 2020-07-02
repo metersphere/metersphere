@@ -55,6 +55,12 @@ public class PerformanceTestController {
         return performanceTestService.getLoadTestByProjectId(projectId);
     }
 
+    /*查询某个测试状态*/
+    @GetMapping("/list/all/{testId}")
+    public LoadTest listByTestId(@PathVariable String testId) {
+        return performanceTestService.getLoadTestBytestId(testId);
+    }
+
     @PostMapping(value = "/save", consumes = {"multipart/form-data"})
     public String save(
             @RequestPart("request") SaveTestPlanRequest request,

@@ -35,6 +35,15 @@ public class TestPlanController {
         return PageUtils.setPageInfo(page, testPlanService.listTestPlan(request));
     }
 
+    /*jenkins测试计划*/
+    @GetMapping("/list/all/{projectId}/{workspaceId}")
+    public List<TestPlanDTO> listByprojectId(@PathVariable String projectId, @PathVariable String workspaceId) {
+        QueryTestPlanRequest request = new QueryTestPlanRequest();
+        request.setWorkspaceId(workspaceId);
+        request.setProjectId(projectId);
+        return testPlanService.listTestPlan(request);
+    }
+
     @PostMapping("/list/all")
     public List<TestPlan> listAll() {
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();

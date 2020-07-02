@@ -36,6 +36,23 @@ public class TestCaseController {
         return PageUtils.setPageInfo(page, testCaseService.listTestCase(request));
     }
 
+    @GetMapping("/list/{projectId}")
+    public List<TestCaseDTO> list(@PathVariable String projectId) {
+        QueryTestCaseRequest request = new QueryTestCaseRequest();
+        request.setProjectId(projectId);
+        return testCaseService.listTestCase(request);
+    }
+
+    /*项目下自动测试用例*/
+    @GetMapping("/list/method/{projectId}")
+    public List<TestCaseDTO> listByMethod(@PathVariable String projectId) {
+        QueryTestCaseRequest request = new QueryTestCaseRequest();
+        request.setProjectId(projectId);
+        request.setMethod("auto");
+        return testCaseService.listTestCaseMthod(request);
+    }
+
+
     @GetMapping("recent/{count}")
     public List<TestCase> recentTestPlans(@PathVariable int count) {
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
