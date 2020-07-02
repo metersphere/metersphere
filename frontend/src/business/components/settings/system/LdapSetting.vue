@@ -26,11 +26,11 @@
       </el-form>
 
       <div>
-        <el-button type="primary" plain v-if="showEdit" size="small" @click="edit">编辑</el-button>
-        <el-button type="success" plain v-if="showSave" size="small" @click="save('form')">保存</el-button>
-        <el-button type="info" plain v-if="showCancel" size="small" @click="cancel">取消</el-button>
-        <el-button size="small" :disabled="!show" @click="testConnection">测试连接</el-button>
-        <el-button size="small" :disabled="!show">测试登录</el-button>
+        <el-button type="primary" size="small" :disabled="!show" @click="testConnection">测试连接</el-button>
+        <el-button type="primary" size="small" :disabled="!show">测试登录</el-button>
+        <el-button v-if="showEdit" size="small" @click="edit">编辑</el-button>
+        <el-button type="success" v-if="showSave" size="small" @click="save('form')">保存</el-button>
+        <el-button type="info" v-if="showCancel" size="small" @click="cancel">取消</el-button>
       </div>
     </el-card>
   </div>

@@ -2,39 +2,39 @@
   <div>
     <el-card class="box-card" v-loading="result.loading">
       <!--邮件表单-->
-      <el-form :inline="true" :model="formInline" :rules="rules" ref="formInline" class="demo-form-inline"
-               :disabled="show" v-loading="loading">
+      <el-form :model="formInline" :rules="rules" ref="formInline" class="demo-form-inline"
+               :disabled="show" v-loading="loading" size="small">
         <el-row>
           <el-col>
             <el-form-item :label="$t('system_parameter_setting.SMTP_host')" prop="host">
+              <el-input v-model="formInline.host" :placeholder="$t('system_parameter_setting.SMTP_host')"
+                        v-on:input="change()"></el-input>
             </el-form-item>
-            <el-input v-model="formInline.host" :placeholder="$t('system_parameter_setting.SMTP_host')"
-                      v-on:input="change()"></el-input>
           </el-col>
         </el-row>
         <el-row>
           <el-col>
             <el-form-item :label="$t('system_parameter_setting.SMTP_port')" prop="port">
+              <el-input v-model="formInline.port" :placeholder="$t('system_parameter_setting.SMTP_port')"
+                        v-on:input="change()"></el-input>
             </el-form-item>
-            <el-input v-model="formInline.port" :placeholder="$t('system_parameter_setting.SMTP_port')"
-                      v-on:input="change()"></el-input>
           </el-col>
         </el-row>
         <el-row>
           <el-col>
             <el-form-item :label="$t('system_parameter_setting.SMTP_account')" prop="account">
+              <el-input v-model="formInline.account" :placeholder="$t('system_parameter_setting.SMTP_account')"
+                        v-on:input="change()"></el-input>
             </el-form-item>
-            <el-input v-model="formInline.account" :placeholder="$t('system_parameter_setting.SMTP_account')"
-                      v-on:input="change()"></el-input>
           </el-col>
         </el-row>
         <el-row>
           <el-col>
             <el-form-item :label="$t('system_parameter_setting.SMTP_password')" prop="password">
+              <el-input v-model="formInline.password" :placeholder="$t('system_parameter_setting.SMTP_password')"
+                        autocomplete="new-password" show-password type="text" @focus="changeType" ref="input">
+              </el-input>
             </el-form-item>
-            <el-input v-model="formInline.password" :placeholder="$t('system_parameter_setting.SMTP_password')"
-                      autocomplete="new-password" show-password type="text" @focus="changeType" ref="input">
-            </el-input>
           </el-col>
         </el-row>
 
@@ -51,15 +51,15 @@
         <template v-slot:footer>
         </template>
       </el-form>
-      <div style="margin-left: 640px">
-        <el-button type="primary" @click="testConnection('formInline')" :disabled="disabledConnection">
+      <div>
+        <el-button type="primary" @click="testConnection('formInline')" :disabled="disabledConnection" size="small">
           {{$t('system_parameter_setting.test_connection')}}
         </el-button>
-        <el-button @click="edit" v-if="showEdit">{{$t('commons.edit')}}</el-button>
-        <el-button type="success" @click="save('formInline')" v-if="showSave" :disabled="disabledSave">
+        <el-button @click="edit" v-if="showEdit" size="small">{{$t('commons.edit')}}</el-button>
+        <el-button type="success" @click="save('formInline')" v-if="showSave" :disabled="disabledSave" size="small">
           {{$t('commons.save')}}
         </el-button>
-        <el-button @click="cancel" type="info" v-if="showCancel">{{$t('commons.cancel')}}</el-button>
+        <el-button @click="cancel" type="info" v-if="showCancel" size="small">{{$t('commons.cancel')}}</el-button>
       </div>
     </el-card>
   </div>
@@ -206,20 +206,5 @@
 </script>
 
 <style scoped>
-  .text {
-    font-size: 18px;
-  }
 
-  .item {
-    margin-bottom: 30px;
-  }
-
-  .box-card {
-    padding-left: 5px;
-  }
-
-  /deep/ .el-input__inner {
-    border-width: 0px;
-    border-bottom-width: 1px;
-  }
 </style>
