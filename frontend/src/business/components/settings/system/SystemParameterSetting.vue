@@ -1,10 +1,10 @@
 <template>
   <div>
     <el-tabs class="system-setting" v-model="activeName">
-      <el-tab-pane label="邮箱设置" name="email">
+      <el-tab-pane :label="$t('system_parameter_setting.mailbox_service_settings')" name="email">
         <email-setting/>
       </el-tab-pane>
-      <el-tab-pane label="LDAP设置" name="ldap">
+      <el-tab-pane :label="$t('system_parameter_setting.ldap_setting')" name="ldap">
         <ldap-setting/>
       </el-tab-pane>
     </el-tabs>

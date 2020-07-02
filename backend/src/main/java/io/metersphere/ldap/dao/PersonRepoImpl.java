@@ -5,6 +5,7 @@ import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.i18n.Translator;
 import io.metersphere.ldap.domain.Person;
 import io.metersphere.service.SystemParameterService;
 import org.apache.commons.lang3.StringUtils;
@@ -42,13 +43,13 @@ public class PersonRepoImpl implements PersonRepo {
         } catch (AuthenticationException e) {
             LogUtil.error("ldap authenticate failed..." + e);
             System.out.println("Login failed: " + e);
-            MSException.throwException("用户认证失败！");
+            MSException.throwException(Translator.get("authentication_failed"));
             return false;
         } catch (Exception e) {
             // Context creation failed - authentication did not succeed
             LogUtil.error("ldap authenticate failed..." + e);
             System.out.println("Login failed: " + e);
-            MSException.throwException("连接失败");
+            MSException.throwException(Translator.get("ldap_connect_fail"));
             return false;
         } finally {
             // It is imperative that the created DirContext instance is always closed
@@ -78,7 +79,7 @@ public class PersonRepoImpl implements PersonRepo {
                 });
 
         if (result.size() != 1) {
-            throw new RuntimeException("User not found or not unique");
+            throw new RuntimeException(Translator.get("user_not_found_or_not_unique"));
         }
 
         return result.get(0);
@@ -126,19 +127,19 @@ public class PersonRepoImpl implements PersonRepo {
     private void preConnect(String url, String dn, String ou, String password) {
 
         if (StringUtils.isBlank(url)) {
-            MSException.throwException("ldap url is null");
+            MSException.throwException(Translator.get("ldap_url_is_null"));
         }
 
         if (StringUtils.isBlank(dn)) {
-            MSException.throwException("ldap dn is null");
+            MSException.throwException(Translator.get("ldap_dn_is_null"));
         }
 
         if (StringUtils.isBlank(ou)) {
-            MSException.throwException("ldap ou is null");
+            MSException.throwException(Translator.get("ldap_ou_is_null"));
         }
 
         if (StringUtils.isBlank(password)) {
-            MSException.throwException("ldap password is null");
+            MSException.throwException(Translator.get("ldap_password_is_null"));
         }
 
     }

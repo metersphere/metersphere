@@ -547,7 +547,8 @@ export default {
     'check_in': '校驗中',
   },
   system_parameter_setting: {
-    'mailbox_service_settings': '郵件服務設定',
+    'mailbox_service_settings': '郵件設置',
+    'ldap_setting': 'LDAP設置',
     'test_connection': '測試連結',
     'SMTP_host': 'SMTP主機',
     'SMTP_port': 'SMTP埠',
@@ -559,5 +560,32 @@ export default {
   },
   i18n: {
     'home': '首頁'
+  },
+  ldap: {
+    'url': 'LDAP地址',
+    'dn': '綁定DN',
+    'password': '密碼',
+    'ou': '用戶OU',
+    'filter': '用戶過濾器',
+    'mapping': 'LDAP屬性映射',
+    'open': '啟用LDAP認證',
+    'input_url': '請輸入LDAP地址',
+    'input_dn': '請輸入DN',
+    'input_password': '請輸入密碼',
+    'input_ou': '請輸入用戶OU',
+    'input_filter': '請輸入用戶過濾器',
+    'input_mapping': '請輸入LDAP屬性映射',
+    'input_username': '請輸入用戶名',
+    'input_url_placeholder': '請輸入LDAP地址 (如 ldap://localhost:389)',
+    'input_ou_placeholder': '輸入用戶OU (使用|分隔各OU)',
+    'input_filter_placeholder': '輸入過濾器 [可能的選項是cn或uid或sAMAccountName=%(user)s]',
+    'test_connect': '測試連接',
+    'test_login': '測試登錄',
+    'edit': '編輯',
+    'login_success': '登錄成功',
+    'url_cannot_be_empty': 'LDAP 地址不能為空',
+    'dn_cannot_be_empty': 'LDAP DN不能為空',
+    'ou_cannot_be_empty': 'LDAP OU不能為空',
+    'password_cannot_be_empty': 'LDAP 密碼不能為空',
   }
 };

@@ -32,10 +32,10 @@ public class LdapService {
             } else if (user.size() == 0) {
                 MSException.throwException(Translator.get("user_not_exist") + username);
             } else {
-                MSException.throwException("Found multiple users");
+                MSException.throwException(Translator.get("find_more_user"));
             }
         } catch (CommunicationException e) {
-            MSException.throwException("LDAP Server connection failed!");
+            MSException.throwException(Translator.get("ldap_connect_fail"));
         }
         personRepo.authenticate(dn, credentials);
     }
