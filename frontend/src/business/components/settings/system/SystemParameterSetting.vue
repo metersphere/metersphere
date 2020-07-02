@@ -95,7 +95,7 @@
           host: [
             {
               required: true,
-              message: ''
+              message: ' '
             },
           ],
           port: [
