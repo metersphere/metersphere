@@ -757,6 +757,9 @@ public class JmeterDocumentParser implements DocumentParser {
           </collectionProp>
         </kg.apc.jmeter.timers.VariableThroughputTimer>
          */
+        if (context.getProperty("rpsLimitEnable") == null || StringUtils.equals(context.getProperty("rpsLimitEnable").toString(), "false")) {
+            return;
+        }
         Document document = element.getOwnerDocument();
 
 

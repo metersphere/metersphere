@@ -36,8 +36,11 @@
               <div class="config-form-label">{{$t('load_test.rps_limit')}}</div>
             </el-form-item>
             <el-form-item>
+              <el-switch v-model="rpsLimitEnable"/>
+            </el-form-item>
+            <el-form-item>
               <el-input-number
-                :disabled="isReadOnly"
+                :disabled="isReadOnly || !rpsLimitEnable"
                 :placeholder="$t('load_test.input_rps_limit')"
                 v-model="rpsLimit"
                 @change="calculateChart"
@@ -110,6 +113,7 @@
   const STEPS = "Steps";
   const DURATION = "duration";
   const RPS_LIMIT = "rpsLimit";
+  const RPS_LIMIT_ENABLE = "rpsLimitEnable";
 
   export default {
     name: "PerformancePressureConfig",
@@ -133,6 +137,7 @@
         rampUpTime: 10,
         step: 10,
         rpsLimit: 10,
+        rpsLimitEnable: false,
         orgOptions: {},
         resourcePool: null,
         resourcePools: [],
@@ -151,7 +156,7 @@
       testPlan(n) {
         this.resourcePool = n.testResourcePoolId;
       },
-      testId () {
+      testId() {
         if (this.testId) {
           this.getLoadConfig();
         } else {
@@ -320,6 +325,7 @@
           {key: STEPS, value: this.step},
           {key: DURATION, value: this.duration},
           {key: RPS_LIMIT, value: this.rpsLimit},
+          {key: RPS_LIMIT_ENABLE, value: this.rpsLimitEnable},
         ];
       }
     }
@@ -345,14 +351,17 @@
   .chart-container {
     width: 100%;
   }
-  .el-col .el-form{
+
+  .el-col .el-form {
     margin-top: 15px;
     text-align: left;
   }
+
   .el-col {
     margin-top: 15px;
     text-align: left;
   }
+
   .title {
     margin-left: 60px;
   }
