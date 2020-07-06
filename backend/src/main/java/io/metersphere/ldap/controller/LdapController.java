@@ -5,6 +5,7 @@ import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.LoginRequest;
+import io.metersphere.i18n.Translator;
 import io.metersphere.ldap.service.LdapService;
 import io.metersphere.ldap.domain.LdapInfo;
 import io.metersphere.service.SystemParameterService;
@@ -30,7 +31,7 @@ public class LdapController {
 
         String isOpen = systemParameterService.getValue(ParamConstants.LDAP.OPEN.getValue());
         if (StringUtils.isBlank(isOpen) || StringUtils.equals(Boolean.FALSE.toString(), isOpen)) {
-            MSException.throwException("LDAP 认证未启用！");
+            MSException.throwException(Translator.get("ldap_authentication_not_enabled"));
         }
 
         ldapService.authenticate(request);

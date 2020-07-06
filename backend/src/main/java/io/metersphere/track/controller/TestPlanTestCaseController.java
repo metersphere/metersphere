@@ -16,6 +16,8 @@ import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @RequestMapping("/test/plan/case")
@@ -31,11 +33,15 @@ public class TestPlanTestCaseController {
         return PageUtils.setPageInfo(page, testPlanTestCaseService.list(request));
     }
 
-    @GetMapping("/list/{planId}/{nodeId}")
-    public List<TestPlanCaseDTO> getTestPlanCases(@PathVariable String planId, @PathVariable String nodeId) {
+    /*jenkins测试计划下的测试用例*/
+    @GetMapping("/list/node/{planId}/{nodePaths}")
+    public List<TestPlanCaseDTO> getTestPlanCases(@PathVariable String planId, @PathVariable String nodePaths) {
+        String nodePath = nodePaths.replace("f", "/");
+        String[] array = nodePath.split(",");
+        List<String> list = Arrays.asList(array);
         QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
         request.setPlanId(planId);
-        request.setNode(nodeId);
+        request.setNodePaths(list);
         return testPlanTestCaseService.listByNode(request);
     }
 
@@ -50,36 +56,36 @@ public class TestPlanTestCaseController {
     }
 
     @PostMapping("pending/{count}")
-    public List<TestPlanCaseDTO> getPrepareTestCases(@PathVariable int count, @RequestBody QueryTestPlanCaseRequest request){
+    public List<TestPlanCaseDTO> getPrepareTestCases(@PathVariable int count, @RequestBody QueryTestPlanCaseRequest request) {
         return testPlanTestCaseService.getPendingTestCases(request, count);
     }
 
     @PostMapping("/list/all")
-    public List<TestPlanCaseDTO> getTestPlanCases(@RequestBody QueryTestPlanCaseRequest request){
+    public List<TestPlanCaseDTO> getTestPlanCases(@RequestBody QueryTestPlanCaseRequest request) {
         return testPlanTestCaseService.list(request);
     }
 
     @PostMapping("/edit")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void editTestCase(@RequestBody TestPlanTestCaseWithBLOBs testPlanTestCase){
+    public void editTestCase(@RequestBody TestPlanTestCaseWithBLOBs testPlanTestCase) {
         testPlanTestCaseService.editTestCase(testPlanTestCase);
     }
 
     @PostMapping("/batch/edit")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void editTestCaseBath(@RequestBody TestPlanCaseBatchRequest request){
+    public void editTestCaseBath(@RequestBody TestPlanCaseBatchRequest request) {
         testPlanTestCaseService.editTestCaseBath(request);
     }
 
     @PostMapping("/batch/delete")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void deleteTestCaseBath(@RequestBody TestPlanCaseBatchRequest request){
+    public void deleteTestCaseBath(@RequestBody TestPlanCaseBatchRequest request) {
         testPlanTestCaseService.deleteTestCaseBath(request);
     }
 
     @PostMapping("/delete/{id}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public int deleteTestCase(@PathVariable String id){
+    public int deleteTestCase(@PathVariable String id) {
         return testPlanTestCaseService.deleteTestCase(id);
     }
 

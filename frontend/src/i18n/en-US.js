@@ -550,7 +550,8 @@ export default {
     'check_in': 'Check in',
   },
   system_parameter_setting: {
-    'mailbox_service_settings': 'Mailbox Service Settings',
+    'mailbox_service_settings': 'Mailbox Settings',
+    'ldap_setting': 'LDAP Setting',
     'test_connection': 'Test connection',
     'SMTP_host': 'SMTP host',
     'SMTP_port': 'SMTP port',
@@ -563,5 +564,32 @@ export default {
   },
   i18n: {
     'home': 'Home'
+  },
+  ldap: {
+    'url': 'LDAP URL',
+    'dn': 'Bind DN',
+    'password': 'Password',
+    'ou': 'User OU',
+    'filter': 'User Filter',
+    'mapping': 'LDAP Mapping',
+    'open': 'Enable LDAP Authentication',
+    'input_url': 'Please enter LDAP url',
+    'input_dn': 'Please enter DN',
+    'input_password': 'Please enter the password',
+    'input_ou': 'Please enter user OU',
+    'input_filter': 'Please enter a user filter',
+    'input_mapping': 'Please enter LDAP attribute mapping',
+    'input_username': 'please enter user name',
+    'input_url_placeholder': 'Please enter the LDAP address (eg ldap://localhost:389)',
+    'input_ou_placeholder': 'Enter user OU (use | to separate each OU)',
+    'input_filter_placeholder': 'Input filter [Possible options are cn or uid or sAMAccountName=%(user)s]',
+    'test_connect': 'Test Connection',
+    'test_login': 'Test Login',
+    'edit': 'Edit',
+    'login_success': 'login success',
+    'url_cannot_be_empty': 'LDAP address cannot be empty',
+    'dn_cannot_be_empty': 'LDAP DN cannot be empty',
+    'ou_cannot_be_empty': 'LDAP OU cannot be empty',
+    'password_cannot_be_empty': 'LDAP password cannot be empty',
   }
 };

@@ -43,12 +43,11 @@ public class TestCaseController {
         return testCaseService.listTestCase(request);
     }
 
-    /*项目下自动测试用例*/
+    /*项目下自动测试*/
     @GetMapping("/list/method/{projectId}")
     public List<TestCaseDTO> listByMethod(@PathVariable String projectId) {
         QueryTestCaseRequest request = new QueryTestCaseRequest();
         request.setProjectId(projectId);
-        request.setMethod("auto");
         return testCaseService.listTestCaseMthod(request);
     }
 

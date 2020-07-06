@@ -548,7 +548,8 @@ export default {
     'check_in': '校验中',
   },
   system_parameter_setting: {
-    'mailbox_service_settings': '邮件服务设置',
+    'mailbox_service_settings': '邮件设置',
+    'ldap_setting': 'LDAP设置',
     'test_connection': '测试连接',
     'SMTP_host': 'SMTP主机',
     'SMTP_port': 'SMTP端口',
@@ -560,5 +561,32 @@ export default {
   },
   i18n: {
     'home': '首页'
+  },
+  ldap: {
+    'url': 'LDAP地址',
+    'dn': '绑定DN',
+    'password': '密码',
+    'ou': '用户OU',
+    'filter': '用户过滤器',
+    'mapping': 'LDAP属性映射',
+    'open': '启用LDAP认证',
+    'input_url': '请输入LDAP地址',
+    'input_dn': '请输入DN',
+    'input_password': '请输入密码',
+    'input_ou': '请输入用户OU',
+    'input_filter': '请输入用户过滤器',
+    'input_mapping': '请输入LDAP属性映射',
+    'input_username': '请输入用户名',
+    'input_url_placeholder': '请输入LDAP地址 (如 ldap://localhost:389)',
+    'input_ou_placeholder': '输入用户OU (使用|分隔各OU)',
+    'input_filter_placeholder': '输入过滤器 [可能的选项是cn或uid或sAMAccountName=%(user)s]',
+    'test_connect': '测试连接',
+    'test_login': '测试登录',
+    'edit': '编辑',
+    'login_success': '登录成功',
+    'url_cannot_be_empty': 'LDAP 地址不能为空',
+    'dn_cannot_be_empty': 'LDAP DN不能为空',
+    'ou_cannot_be_empty': 'LDAP OU不能为空',
+    'password_cannot_be_empty': 'LDAP 密码不能为空',
   }
 };

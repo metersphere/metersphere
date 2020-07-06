@@ -2,44 +2,49 @@
   <div>
     <el-card class="box-card" v-loading="result.loading">
       <el-form :model="form" size="small" :rules="rules" :disabled="show" ref="form">
-        <el-form-item label="LDAP地址" prop="url">
-          <el-input v-model="form.url" placeholder="请输入LDAP地址 (如 ldap://localhost:389)"></el-input>
+        <el-form-item :label="$t('ldap.url')" prop="url">
+          <el-input v-model="form.url" :placeholder="$t('ldap.input_url_placeholder')"></el-input>
         </el-form-item>
-        <el-form-item label="绑定DN" prop="dn">
-          <el-input v-model="form.dn" placeholder="请输入DN"></el-input>
+        <el-form-item :label="$t('ldap.dn')" prop="dn">
+          <el-input v-model="form.dn" :placeholder="$t('ldap.input_dn')"></el-input>
         </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input v-model="form.password" placeholder="请输入密码" show-password auto-complete="new-password"></el-input>
+        <el-form-item :label="$t('ldap.password')" prop="password">
+          <el-input v-model="form.password" :placeholder="$t('ldap.input_password')" show-password
+                    auto-complete="new-password"></el-input>
         </el-form-item>
-        <el-form-item label="用户OU" prop="ou">
-          <el-input v-model="form.ou" placeholder="输入用户OU (使用|分隔各OU)"></el-input>
+        <el-form-item :label="$t('ldap.ou')" prop="ou">
+          <el-input v-model="form.ou" :placeholder="$t('ldap.input_ou_placeholder')"></el-input>
         </el-form-item>
-        <el-form-item label="用户过滤器" prop="filter">
-          <el-input v-model="form.filter" placeholder="输入过滤器 [可能的选项是cn或uid或sAMAccountName=%(user)s]"></el-input>
+        <el-form-item :label="$t('ldap.filter')" prop="filter">
+          <el-input v-model="form.filter" :placeholder="$t('ldap.input_filter_placeholder')"></el-input>
         </el-form-item>
-        <el-form-item label="LDAP属性映射" prop="mapping">
-          <el-input v-model="form.mapping" placeholder="属性映射"></el-input>
+        <el-form-item :label="$t('ldap.mapping')" prop="mapping">
+          <el-input v-model="form.mapping" :placeholder="$t('ldap.input_mapping')"></el-input>
         </el-form-item>
-        <el-form-item label="启用LDAP认证" prop="open">
+        <el-form-item :label="$t('ldap.open')" prop="open">
           <el-checkbox v-model="form.open"></el-checkbox>
         </el-form-item>
       </el-form>
 
       <div>
-        <el-button type="primary" size="small" :disabled="!show" @click="testConnection">测试连接</el-button>
-        <el-button type="primary" size="small" :disabled="!show" @click="testLogin">测试登录</el-button>
-        <el-button v-if="showEdit" size="small" @click="edit">编辑</el-button>
-        <el-button type="success" v-if="showSave" size="small" @click="save('form')">保存</el-button>
-        <el-button type="info" v-if="showCancel" size="small" @click="cancel">取消</el-button>
+        <el-button type="primary" size="small" :disabled="!show" @click="testConnection">{{$t('ldap.test_connect')}}
+        </el-button>
+        <el-button type="primary" size="small" :disabled="!show" @click="testLogin">{{$t('ldap.test_login')}}
+        </el-button>
+        <el-button v-if="showEdit" size="small" @click="edit">{{$t('ldap.edit')}}</el-button>
+        <el-button type="success" v-if="showSave" size="small" @click="save('form')">{{$t('commons.save')}}</el-button>
+        <el-button type="info" v-if="showCancel" size="small" @click="cancel">{{$t('commons.cancel')}}</el-button>
       </div>
 
-      <el-dialog title="测试登录" :visible.sync="loginVisible" width="30%" destroy-on-close v-loading="result.loading">
-        <el-form :model="loginForm" :rules="loginFormRules" ref="loginForm" label-width="80px">
-          <el-form-item label="用户名" prop="username">
-            <el-input v-model="loginForm.username" autocomplete="off" placeholder="请输入用户名"/>
+      <el-dialog :title="$t('ldap.test_login')" :visible.sync="loginVisible" width="30%" destroy-on-close
+                 v-loading="result.loading">
+        <el-form :model="loginForm" :rules="loginFormRules" ref="loginForm" label-width="90px">
+          <el-form-item :label="$t('commons.username')" prop="username">
+            <el-input v-model="loginForm.username" autocomplete="off" :placeholder="$t('ldap.input_username')"/>
           </el-form-item>
-          <el-form-item label="密码" prop="password" >
-            <el-input v-model="loginForm.password" autocomplete="new-password" placeholder="请输入密码" show-password/>
+          <el-form-item :label="$t('commons.password')" prop="password">
+            <el-input v-model="loginForm.password" autocomplete="new-password" :placeholder="$t('ldap.input_password')"
+                      show-password/>
           </el-form-item>
         </el-form>
         <span slot="footer">
@@ -55,6 +60,7 @@
 
 <script>
   import MsDialogFooter from "../../common/components/MsDialogFooter";
+
   export default {
     name: "LdapSetting",
     components: {
@@ -71,14 +77,14 @@
         showCancel: false,
         loginVisible: false,
         rules: {
-          url: {required: true, message: '请输入LDAP地址', trigger: ['change','blur']},
-          dn: {required: true, message: '请输入DN', trigger: ['change','blur']},
-          password: {required: true, message: '请输入密码', trigger: ['change','blur']},
-          ou: {required: true, message: '请输入OU', trigger: ['change','blur']},
+          url: {required: true, message: this.$t('ldap.input_url'), trigger: ['change', 'blur']},
+          dn: {required: true, message: this.$t('ldap.input_dn'), trigger: ['change', 'blur']},
+          password: {required: true, message: this.$t('ldap.input_password'), trigger: ['change', 'blur']},
+          ou: {required: true, message: this.$t('ldap.input_ou'), trigger: ['change', 'blur']},
         },
         loginFormRules: {
-          username: {required: true, message: '请输入用户名', trigger: 'blur'},
-          password: {required: true, message: '请输入密码', trigger: 'blur'}
+          username: {required: true, message: this.$t('ldap.input_username'), trigger: 'blur'},
+          password: {required: true, message: this.$t('ldap.input_password'), trigger: 'blur'}
         }
       }
     },
@@ -113,7 +119,7 @@
           return false;
         }
         this.result = this.$post("/ldap/test/connect", this.form, response => {
-          this.$success("连接成功！")
+          this.$success(this.$t('commons.connection_successful'));
         })
       },
       testLogin() {
@@ -122,7 +128,7 @@
         }
 
         if (!this.form.ou) {
-          this.$warning("LDAP OU不能为空！");
+          this.$warning(this.$t('ldap.ou_cannot_be_empty'));
           return false;
         }
 
@@ -131,17 +137,17 @@
       },
       checkParam() {
         if (!this.form.url) {
-          this.$warning("LDAP 地址不能为空！");
+          this.$warning(this.$t('ldap.url_cannot_be_empty'));
           return false;
         }
 
         if (!this.form.dn) {
-          this.$warning("LDAP DN不能为空！");
+          this.$warning(this.$t('ldap.dn_cannot_be_empty'));
           return false;
         }
 
         if (!this.form.password) {
-          this.$warning("LDAP 密码不能为空！");
+          this.$warning(this.$t('ldap.password_cannot_be_empty'));
           return false;
         }
 
@@ -166,7 +172,7 @@
               this.showEdit = true;
               this.showSave = false;
               this.showCancel = false;
-              this.$success("保存成功")
+              this.$success(this.$t('commons.save_success'));
               this.init();
             });
           } else {
@@ -178,7 +184,7 @@
         this.$refs[form].validate(valid => {
           if (valid) {
             this.result = this.$post("/ldap/test/login", this.loginForm, response => {
-              this.$success("登录成功")
+              this.$success(this.$t('ldap.login_success'));
             });
           } else {
             return false;

@@ -731,13 +731,15 @@ public class JmeterDocumentParser implements DocumentParser {
         elementProp.setAttribute("name", "ThreadGroup.main_controller");
         elementProp.setAttribute("elementType", "com.blazemeter.jmeter.control.VirtualUserController");
         threadGroup.appendChild(elementProp);
-
+        // 持续时长
         String duration = context.getProperty("duration").toString();
+        String rampUp = context.getProperty("RampUp").toString();
+        int realHold = Integer.parseInt(duration) - Integer.parseInt(rampUp);
         threadGroup.appendChild(createStringProp(document, "ThreadGroup.on_sample_error", "continue"));
         threadGroup.appendChild(createStringProp(document, "TargetLevel", "2"));
         threadGroup.appendChild(createStringProp(document, "RampUp", "12"));
         threadGroup.appendChild(createStringProp(document, "Steps", "2"));
-        threadGroup.appendChild(createStringProp(document, "Hold", duration));
+        threadGroup.appendChild(createStringProp(document, "Hold", String.valueOf(realHold)));
         threadGroup.appendChild(createStringProp(document, "LogFilename", ""));
         threadGroup.appendChild(createStringProp(document, "Iterations", "1"));
         threadGroup.appendChild(createStringProp(document, "Unit", "M"));
@@ -755,6 +757,9 @@ public class JmeterDocumentParser implements DocumentParser {
           </collectionProp>
         </kg.apc.jmeter.timers.VariableThroughputTimer>
          */
+        if (context.getProperty("rpsLimitEnable") == null || StringUtils.equals(context.getProperty("rpsLimitEnable").toString(), "false")) {
+            return;
+        }
         Document document = element.getOwnerDocument();
 
 
