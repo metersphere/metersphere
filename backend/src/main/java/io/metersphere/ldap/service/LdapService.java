@@ -5,6 +5,7 @@ import io.metersphere.controller.request.LoginRequest;
 import io.metersphere.i18n.Translator;
 import io.metersphere.ldap.dao.PersonRepoImpl;
 import io.metersphere.ldap.domain.LdapInfo;
+import io.metersphere.ldap.domain.Person;
 import org.springframework.ldap.CommunicationException;
 import org.springframework.stereotype.Service;
 
@@ -18,18 +19,19 @@ public class LdapService {
     private PersonRepoImpl personRepo;
 
 
-    public void authenticate(LoginRequest request) {
+    public Person authenticate(LoginRequest request) {
         String dn = null;
         String username = request.getUsername();
         String credentials = request.getPassword();
 
+        List<Person> personList = null;
         try {
             // select user by sAMAccountName
-            List user = personRepo.findByName(username);
+            personList = personRepo.findByName(username);
 
-            if (user.size() == 1) {
+            if (personList.size() == 1) {
                 dn = personRepo.getDnForUser(username);
-            } else if (user.size() == 0) {
+            } else if (personList.size() == 0) {
                 MSException.throwException(Translator.get("user_not_exist") + username);
             } else {
                 MSException.throwException(Translator.get("find_more_user"));
@@ -38,6 +40,8 @@ public class LdapService {
             MSException.throwException(Translator.get("ldap_connect_fail"));
         }
         personRepo.authenticate(dn, credentials);
+
+        return personList.get(0);
     }
 
     public void testConnect(LdapInfo ldap) {
