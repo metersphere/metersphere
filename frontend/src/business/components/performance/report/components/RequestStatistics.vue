@@ -131,12 +131,15 @@
         let transactions = data.reduce(function (total, currentValue) {
           return total + parseFloat(currentValue.transactions);
         }, 0);
+        transactions = transactions.toFixed(2);
         let received = data.reduce(function (total, currentValue) {
           return total + parseFloat(currentValue.received);
         }, 0);
+        received = received.toFixed(2);
         let sent = data.reduce(function (total, currentValue) {
           return total + parseFloat(currentValue.sent);
         }, 0);
+        sent = sent.toFixed(2);
 
         let error = (Math.round(failSize / allSamples * 10000) / 100) + '%';
         let averageTime = (averageTimeTotal / allSamples).toFixed(2);
