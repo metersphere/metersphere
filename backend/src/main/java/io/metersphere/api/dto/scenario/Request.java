@@ -11,6 +11,8 @@ public class Request {
     private String name;
     private String url;
     private String method;
+    private Boolean useEnvironment;
+    private String path;
     private List<KeyValue> parameters;
     private List<KeyValue> headers;
     private Body body;

@@ -25,7 +25,7 @@
                   </el-dropdown-menu>
                 </el-dropdown>
               </template>
-              <ms-api-request-config :is-read-only="isReadOnly" :requests="scenario.requests" :open="select"/>
+              <ms-api-request-config :is-read-only="isReadOnly" :scenario="scenario" :open="select"/>
             </ms-api-collapse-item>
           </draggable>
         </ms-api-collapse>
@@ -35,8 +35,8 @@
 
     <el-main class="scenario-main">
       <div class="scenario-form">
-        <ms-api-scenario-form :is-read-only="isReadOnly" :scenario="selected" v-if="isScenario"/>
-        <ms-api-request-form :is-read-only="isReadOnly" :request="selected" v-if="isRequest"/>
+        <ms-api-scenario-form :is-read-only="isReadOnly" :scenario="selected" :project-id="projectId" v-if="isScenario"/>
+        <ms-api-request-form :is-read-only="isReadOnly" :request="selected" :project-id="projectId" v-if="isRequest"/>
       </div>
     </el-main>
   </el-container>
@@ -66,6 +66,7 @@
 
     props: {
       scenarios: Array,
+      projectId: String,
       isReadOnly: {
         type: Boolean,
         default: false

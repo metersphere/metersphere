@@ -50,7 +50,7 @@
               <ms-schedule-config :schedule="test.schedule" :save="saveCronExpression" @scheduleChange="saveSchedule" :check-open="checkScheduleEdit"/>
             </el-row>
           </el-header>
-          <ms-api-scenario-config :is-read-only="isReadOnly" :scenarios="test.scenarioDefinition" ref="config"/>
+          <ms-api-scenario-config :is-read-only="isReadOnly" :scenarios="test.scenarioDefinition" :project-id="test.projectId" ref="config"/>
         </el-container>
       </el-card>
     </div>

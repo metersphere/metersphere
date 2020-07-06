@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :title="'环境配置'" :visible.sync="visible" class="environment-dialog">
+  <el-dialog :title="'环境配置'" :visible.sync="visible" class="environment-dialog" @close="close">
     <el-container v-loading="result.loading">
       <ms-aside-item :title="'环境列表'" :data="environments" :item-operators="environmentOperators" :add-fuc="addEnvironment"
                      :delete-fuc="deleteEnvironment" @itemSelected="environmentSelected" ref="environmentItems"/>
@@ -93,6 +93,9 @@
         },
         getDefaultEnvironment() {
           return {variables: [{}], headers: [{}], protocol: 'https', projectId: this.projectId};
+        },
+        close() {
+          this.$emit('close');
         }
       }
     }

@@ -1,7 +1,7 @@
 <template>
   <div class="request-container">
-    <draggable :list="requests" group="Request" class="request-draggable" ghost-class="request-ghost">
-      <div class="request-item" v-for="(request, index) in requests" :key="index" @click="select(request)"
+    <draggable :list="this.scenario.requests" group="Request" class="request-draggable" ghost-class="request-ghost">
+      <div class="request-item" v-for="(request, index) in this.scenario.requests" :key="index" @click="select(request)"
            :class="{'selected': isSelected(request)}">
         <el-row type="flex">
           <div class="request-method">
@@ -40,7 +40,7 @@
     components: {draggable},
 
     props: {
-      requests: Array,
+      scenario: Object,
       open: Function,
       isReadOnly: {
         type: Boolean,
@@ -65,15 +65,15 @@
     methods: {
       createRequest: function () {
         let request = new Request();
-        this.requests.push(request);
+        this.scenario.requests.push(request);
       },
       copyRequest: function (index) {
-        let request = this.requests[index];
-        this.requests.push(new Request(request));
+        let request = this.scenario.requests[index];
+        this.scenario.requests.push(new Request(request));
       },
       deleteRequest: function (index) {
-        this.requests.splice(index, 1);
-        if (this.requests.length === 0) {
+        this.scenario.requests.splice(index, 1);
+        if (this.scenario.requests.length === 0) {
           this.createRequest();
         }
       },
@@ -88,13 +88,17 @@
         }
       },
       select: function (request) {
+        request.environment = this.scenario.environment;
+        if (!request.useEnvironment) {
+          request.useEnvironment = false;
+        }
         this.selected = request;
         this.open(request);
       }
     },
 
     created() {
-      this.select(this.requests[0]);
+      this.select(this.scenario.requests[0]);
     }
   }
 </script>
