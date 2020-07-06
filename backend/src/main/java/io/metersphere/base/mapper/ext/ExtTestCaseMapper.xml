@@ -40,7 +40,7 @@
                     <if test="values != null and values.size() > 0">
                         and test_case.${key} in
                         <foreach collection="values" item="value" separator="," open="(" close=")">
-                           #{value}
+                            #{value}
                         </foreach>
                     </if>
                 </foreach>
@@ -54,22 +54,18 @@
         </if>
     </select>
     <select id="listByMethod" resultType="io.metersphere.track.dto.TestCaseDTO">
-        select test_case.* from test_case
+        SELECT id,name,status,project_id,type from api_test
         <where>
-            <if test="request.method != null">
-                and test_case.method =#{request.method}
+            <if test="request.projectId!=null">
+                and project_id=#{request.projectId}
             </if>
-            <if test="request.nodeIds != null and request.nodeIds.size() > 0">
-                and test_case.node_id in
-                <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
-                    #{nodeId}
-                </foreach>
-            </if>
-            <if test="request.projectId != null">
-                and test_case.project_id = #{request.projectId}
-            </if>
-
         </where>
-
+        UNION ALL
+        select id,name,status,project_id,type from load_test
+        <where>
+            <if test="request.projectId!=null">
+                and project_id= #{request.projectId}
+            </if>
+        </where>
     </select>
 </mapper>

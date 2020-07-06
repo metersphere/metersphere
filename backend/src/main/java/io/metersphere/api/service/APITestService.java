@@ -115,8 +115,12 @@ public class APITestService {
         return apiTest;
     }
 
-    public ApiTest getApiTestByProjectId(String testId) {
+    public ApiTest getApiTestByTestId(String testId) {
         return apiTestMapper.selectByPrimaryKey(testId);
+    }
+
+    public List<ApiTest> getApiTestByProjectId(String projectId) {
+        return extApiTestMapper.getApiTestByProjectId(projectId);
     }
 
     public void delete(String testId) {

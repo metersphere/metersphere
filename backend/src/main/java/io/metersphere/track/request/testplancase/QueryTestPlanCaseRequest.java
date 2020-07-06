@@ -14,6 +14,8 @@ public class QueryTestPlanCaseRequest extends TestPlanTestCase {
 
     private List<String> nodeIds;
 
+    private List<String> nodePaths;
+
     private List<OrderRequest> orders;
 
     private Map<String, List<String>> filters;
@@ -29,4 +31,6 @@ public class QueryTestPlanCaseRequest extends TestPlanTestCase {
     private String status;
 
     private String node;
+
+    private String method;
 }
