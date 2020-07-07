@@ -40,17 +40,24 @@ public class SystemParameterService {
 
     public void editMail(List<SystemParameter> parameters) {
         List<SystemParameter> paramList = this.getParamList(ParamConstants.Classify.MAIL.getValue());
-        boolean empty = paramList.size() < 2;
+        boolean empty = paramList.size() <= 0;
+
         parameters.forEach(parameter -> {
+            SystemParameterExample example = new SystemParameterExample();
             if (parameter.getParamKey().equals(ParamConstants.MAIL.PASSWORD.getKey())) {
-                String string = EncryptUtils.aesEncrypt(parameter.getParamValue()).toString();
-                parameter.setParamValue(string);
+                if (!StringUtils.isBlank(parameter.getParamValue())) {
+                    String string = EncryptUtils.aesEncrypt(parameter.getParamValue()).toString();
+                    parameter.setParamValue(string);
+                }
             }
-            if (empty) {
-                systemParameterMapper.insert(parameter);
-            } else {
+            example.createCriteria().andParamKeyEqualTo(parameter.getParamKey());
+            if (systemParameterMapper.countByExample(example) > 0) {
                 systemParameterMapper.updateByPrimaryKey(parameter);
+            } else {
+                systemParameterMapper.insert(parameter);
             }
+            example.clear();
+
         });
     }
 
@@ -105,8 +112,11 @@ public class SystemParameterService {
             }
         } else {
             paramList.stream().filter(param -> param.getParamKey().equals(ParamConstants.MAIL.PASSWORD.getKey())).forEach(param -> {
-                String string = EncryptUtils.aesDecrypt(param.getParamValue()).toString();
-                param.setParamValue(string);
+                if (!StringUtils.isBlank(param.getParamValue())) {
+                    String string = EncryptUtils.aesDecrypt(param.getParamValue()).toString();
+                    param.setParamValue(string);
+                }
+
             });
         }
         paramList.sort(Comparator.comparingInt(SystemParameter::getSort));
