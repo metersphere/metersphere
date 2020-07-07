@@ -228,13 +228,13 @@
           url = '/api/schedule/update';
         }
         this.$post(url, param, response => {
-          this.$success('保存成功');
+          this.$success(this.$t('commons.save_success'));
           this.getTest(this.test.id);
         });
       },
       checkScheduleEdit() {
         if (this.create) {
-          this.$message('请先保存测试');
+          this.$message(this.$t('api_test.environment.please_save_test'));
           return false;
         }
         return true;

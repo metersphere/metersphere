@@ -1,7 +1,7 @@
 <template>
-  <el-dialog :title="'环境配置'" :visible.sync="visible" class="environment-dialog" @close="close">
+  <el-dialog :title="$t('api_test.environment.environment_config')" :visible.sync="visible" class="environment-dialog" @close="close">
     <el-container v-loading="result.loading">
-      <ms-aside-item :title="'环境列表'" :data="environments" :item-operators="environmentOperators" :add-fuc="addEnvironment"
+      <ms-aside-item :title="$t('api_test.environment.environment_list')" :data="environments" :item-operators="environmentOperators" :add-fuc="addEnvironment"
                      :delete-fuc="deleteEnvironment" @itemSelected="environmentSelected" ref="environmentItems"/>
       <environment-edit :environment="currentEnvironment" ref="environmentEdit"/>
     </el-container>
@@ -51,7 +51,7 @@
         },
         deleteEnvironment(environment) {
           this.result = this.$get('/api/environment/delete/' + environment.id, response => {
-            this.$success('删除成功');
+            this.$success(this.$t('commons.delete_success'));
             this.getEnvironments();
           });
         },

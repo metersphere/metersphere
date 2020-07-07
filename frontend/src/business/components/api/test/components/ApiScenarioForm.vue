@@ -4,10 +4,10 @@
       <el-input :disabled="isReadOnly" v-model="scenario.name" maxlength="100" show-word-limit/>
     </el-form-item>
 
-      <el-form-item :label="'环境'">
+      <el-form-item :label="$t('api_test.environment.environment')">
         <el-select :disabled="isReadOnly" v-model="scenario.environmentId" class="environment-select" @change="environmentChange" clearable>
           <el-option v-for="(environment, index) in environments" :key="index" :label="environment.name + ': ' + environment.protocol + '://' + environment.socket" :value="environment.id"/>
-          <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">环境配置</el-button>
+          <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">{{$t('api_test.environment.environment_config')}}</el-button>
         </el-select>
       </el-form-item>
 

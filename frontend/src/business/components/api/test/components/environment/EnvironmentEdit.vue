@@ -2,13 +2,13 @@
   <el-main v-loading="result.loading">
     <el-form :model="environment" :rules="rules" ref="from">
 
-      <span>环境名称</span>
+      <span>{{$t('api_test.environment.name')}}</span>
       <el-form-item
         prop="name">
-        <el-input v-model="environment.name" :placeholder="'请填写名称'" clearable></el-input>
+        <el-input v-model="environment.name" :placeholder="this.$t('commons.input_name')" clearable></el-input>
       </el-form-item>
 
-      <span>环境域名</span>
+      <span>{{$t('api_test.environment.socket')}}</span>
       <el-form-item
         prop="socket">
         <el-input v-model="environment.socket" :placeholder="$t('api_test.request.url_description')" clearable>
@@ -21,14 +21,14 @@
         </el-input>
       </el-form-item>
 
-      <span>全局变量</span>
+      <span>{{$t('api_test.environment.globalVariable')}}</span>
       <ms-api-scenario-variables :items="environment.variables"/>
 
-      <span>请求头</span>
+      <span>{{$t('api_test.request.headers')}}</span>
       <ms-api-key-value :items="environment.headers"/>
 
       <div class="environment-footer">
-        <el-button type="primary" @click="save">保存</el-button>
+        <el-button type="primary" @click="save">{{this.$t('commons.save')}}</el-button>
       </div>
 
     </el-form>
@@ -53,7 +53,7 @@
       data() {
         let socketValidator = (rule, value, callback) => {
           if (!this.validateSocket(value)) {
-            callback(new Error('格式错误'));
+            callback(new Error(this.$t('commons.formatErr')));
           } else {
             callback();
           }
@@ -61,7 +61,7 @@
         return {
           result: {},
           rules: {
-            name :[{required: true, message: '请填写名称', trigger: 'blur'}],
+            name :[{required: true, message: this.$t('commons.input_name'), trigger: 'blur'}],
             socket :[{required: true, validator: socketValidator, trigger: 'blur'}],
           },
         }
@@ -84,7 +84,7 @@
           }
           this.result = this.$post(url, param,  response => {
             this.environment.id = response.data;
-            this.$success("保存成功");
+            this.$success(this.$t('commons.save_success'));
           });
         },
         buildParam() {

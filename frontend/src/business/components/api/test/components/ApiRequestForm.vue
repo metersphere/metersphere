@@ -14,27 +14,27 @@
       </el-input>
     </el-form-item>
 
-    <el-form-item v-if="request.useEnvironment" :label="'请求路径'" prop="path">
+    <el-form-item v-if="request.useEnvironment" :label="$t('api_test.request.path')" prop="path">
       <el-input :disabled="isReadOnly" v-model="request.path" maxlength="500"
-                :placeholder="'例如：/login'" @change="pathChange" clearable>
+                :placeholder="$t('api_test.request.path_description')" @change="pathChange" clearable>
         <template  v-slot:prepend>
           <ApiRequestMethodSelect :is-read-only="isReadOnly" :request="request" @change="methodChange"/>
         </template>
       </el-input>
     </el-form-item>
 
-    <el-form-item v-if="request.useEnvironment" :label="'请求地址'" class="adjust-margin-bottom">
+    <el-form-item v-if="request.useEnvironment" :label="$t('api_test.request.address')" class="adjust-margin-bottom">
       <el-tag class="environment-display">
         <span class="environment-name">{{request.environment ? request.environment.name + ': ' : ''}}</span>
         <span class="environment-url">{{displayUrl}}</span>
-        <span v-if="!displayUrl" class="environment-url-tip">请在场景中配置环境</span>
+        <span v-if="!displayUrl" class="environment-url-tip">{{$t('api_test.request.please_configure_environment_in_scenario')}}</span>
       </el-tag>
     </el-form-item>
 
     <el-form-item>
       <el-switch
         v-model="request.useEnvironment"
-        active-text="引用环境" @change="useEnvironmentChange">
+        :active-text="$t('api_test.request.refer_to_environment')" @change="useEnvironmentChange">
       </el-switch>
     </el-form-item>
 
@@ -140,7 +140,7 @@
       },
       useEnvironmentChange(value) {
         if (value && !this.request.environment) {
-          this.$error('请先在场景中添加环境配置！' , 2000);
+          this.$error(this.$t('api_test.request.please_add_environment_to_scenario'), 2000);
           this.request.useEnvironment = false;
         }
       },

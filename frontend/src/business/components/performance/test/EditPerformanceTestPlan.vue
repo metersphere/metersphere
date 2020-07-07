@@ -268,7 +268,7 @@
           url = '/performance/schedule/update';
         }
         this.$post(url, param, response => {
-          this.$success('保存成功');
+          this.$success(this.$t('commons.save_success'));
           this.getTest(this.testPlan.id);
         });
       },

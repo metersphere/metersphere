@@ -1,17 +1,17 @@
 <template>
-  <el-dialog width="30%" class="schedule-edit" :title="'编辑定时任务'" :visible.sync="dialogVisible"  @close="close">
+  <el-dialog width="30%" class="schedule-edit" :title="$t('schedule.edit_timer_task')" :visible.sync="dialogVisible"  @close="close">
     <div id="app">
       <el-form :model="form" :rules="rules" ref="from">
         <el-form-item
-          :placeholder="'请输入 Cron 表达式'"
+          :placeholder="$t('schedule.please_input_cron_expression')"
           prop="cronValue">
           <el-input v-model="form.cronValue" placeholder class="inp"/>
-          <el-button type="primary" @click="showCronDialog">生成 Cron</el-button>
-          <el-button type="primary" @click="saveCron">保存</el-button>
+          <el-button type="primary" @click="showCronDialog">{{$t('schedule.generate_expression')}}</el-button>
+          <el-button type="primary" @click="saveCron">{{$t('commons.save')}}</el-button>
         </el-form-item>
         <crontab-result :ex="form.cronValue" ref="crontabResult" />
       </el-form>
-      <el-dialog title="生成 cron" :visible.sync="showCron" :modal="false">
+      <el-dialog :title="$t('schedule.generate_expression')" :visible.sync="showCron" :modal="false">
         <crontab @hide="showCron=false" @fill="crontabFill" :expression="schedule.value" ref="crontab"/>
       </el-dialog>
     </div>
@@ -46,9 +46,9 @@
           const validateCron = (rule, cronValue, callback) => {
             let customValidate = this.customValidate(this.getIntervalTime());
             if (!cronValidate(cronValue)) {
-              callback(new Error('Cron 表达式格式错误'));
+              callback(new Error(this.$t('schedule.cron_expression_format_error')));
             } else if(!this.intervalShortValidate()) {
-              callback(new Error('间隔时间请大于 5 分钟'));
+              callback(new Error(this.$t('schedule.cron_expression_interval_short_error')));
             } else if (!customValidate.pass){
               callback(new Error(customValidate.info));
             } else {

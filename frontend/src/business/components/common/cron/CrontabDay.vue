@@ -2,49 +2,49 @@
 	<el-form size="small">
 		<el-form-item>
 			<el-radio v-model='radioValue' :label="1">
-				日，允许的通配符[, - * / L M]
+        {{$t('schedule.cron.day')}}，{{$t('schedule.cron.day_allowed_wildcards')}}
 			</el-radio>
 		</el-form-item>
 
 		<el-form-item>
 			<el-radio v-model='radioValue' :label="2">
-				不指定
+        {{$t('schedule.cron.not_specify')}}
 			</el-radio>
 		</el-form-item>
 
 		<el-form-item>
 			<el-radio v-model='radioValue' :label="3">
-				周期从
+				{{$t('schedule.cron.period')}} {{$t('schedule.cron.from')}}
 				<el-input-number v-model='cycle01' :min="0" :max="31" /> -
-				<el-input-number v-model='cycle02' :min="0" :max="31" /> 日
+				<el-input-number v-model='cycle02' :min="0" :max="31" /> {{$t('schedule.cron.day')}}
 			</el-radio>
 		</el-form-item>
 
 		<el-form-item>
 			<el-radio v-model='radioValue' :label="4">
-				从
-				<el-input-number v-model='average01' :min="0" :max="31" /> 号开始，每
-				<el-input-number v-model='average02' :min="0" :max="31" /> 日执行一次
+        {{$t('schedule.cron.from')}}
+				<el-input-number v-model='average01' :min="0" :max="31" /> {{$t('schedule.cron.day_unit')}}{{$t('schedule.cron.start')}}，{{$t('schedule.cron.every')}}
+				<el-input-number v-model='average02' :min="0" :max="31" /> {{$t('schedule.cron.day')}}{{$t('schedule.cron.execute_once')}}
 			</el-radio>
 		</el-form-item>
 
 		<el-form-item>
 			<el-radio v-model='radioValue' :label="5">
-				每月
-				<el-input-number v-model='workday' :min="0" :max="31" /> 号最近的那个工作日
+        {{$t('schedule.cron.every')}}{{$t('schedule.cron.month')}}
+				<el-input-number v-model='workday' :min="0" :max="31" /> {{$t('schedule.cron.day_unit')}}{{$t('schedule.cron.last_working_day')}}
 			</el-radio>
 		</el-form-item>
 
 		<el-form-item>
 			<el-radio v-model='radioValue' :label="6">
-				本月最后一天
+        {{$t('schedule.cron.last_working_day')}}{{$t('schedule.cron.last_day_of_the_month')}}
 			</el-radio>
 		</el-form-item>
 
 		<el-form-item>
 			<el-radio v-model='radioValue' :label="7">
-				指定
-				<el-select clearable v-model="checkboxList" placeholder="可多选" multiple style="width:100%">
+        {{$t('schedule.cron.specify')}}
+				<el-select clearable v-model="checkboxList" :placeholder="$t('schedule.cron.multi_select')" multiple style="width:100%">
 					<el-option v-for="item in 31" :key="item" :value="item">{{item}}</el-option>
 				</el-select>
 			</el-radio>
