@@ -3,10 +3,7 @@ package io.metersphere.performance.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.LoadTestMapper;
-import io.metersphere.base.mapper.LoadTestReportLogMapper;
-import io.metersphere.base.mapper.LoadTestReportMapper;
-import io.metersphere.base.mapper.LoadTestReportResultMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.ReportKeys;
@@ -45,6 +42,8 @@ public class ReportService {
     private LoadTestReportLogMapper loadTestReportLogMapper;
     @Resource
     private TestResourceService testResourceService;
+    @Resource
+    private LoadTestReportDetailMapper loadTestReportDetailMapper;
 
     public List<ReportDTO> getRecentReportList(ReportRequest request) {
         List<OrderRequest> orders = new ArrayList<>();
@@ -84,6 +83,16 @@ public class ReportService {
             LogUtil.info("Start stop engine, report status: %s" + reportStatus);
             stopEngine(loadTest, engine);
         }
+
+        // delete load_test_report_result
+        LoadTestReportResultExample loadTestReportResultExample = new LoadTestReportResultExample();
+        loadTestReportResultExample.createCriteria().andReportIdEqualTo(reportId);
+        loadTestReportResultMapper.deleteByExample(loadTestReportResultExample);
+
+        // delete load_test_report_detail
+        LoadTestReportDetailExample example = new LoadTestReportDetailExample();
+        example.createCriteria().andReportIdEqualTo(reportId);
+        loadTestReportDetailMapper.deleteByExample(example);
 
         loadTestReportMapper.deleteByPrimaryKey(reportId);
     }
