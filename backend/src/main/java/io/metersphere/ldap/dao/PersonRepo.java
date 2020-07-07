@@ -1,11 +1,9 @@
 package io.metersphere.ldap.dao;
 
 
-import java.util.List;
+import io.metersphere.ldap.domain.Person;
 
 public interface PersonRepo {
 
-    List findByName(String name);
-
-    String getDnForUser(String name);
+    Person getDnForUser(String name);
 }

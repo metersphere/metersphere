@@ -23,25 +23,27 @@ public class LdapService {
         String dn = null;
         String username = request.getUsername();
         String credentials = request.getPassword();
-
+        Person person = null;
         List<Person> personList = null;
         try {
-            // select user by sAMAccountName
-            personList = personRepo.findByName(username);
-
-            if (personList.size() == 1) {
-                dn = personRepo.getDnForUser(username);
-            } else if (personList.size() == 0) {
-                MSException.throwException(Translator.get("user_not_exist") + username);
-            } else {
-                MSException.throwException(Translator.get("find_more_user"));
-            }
+//            // select user by sAMAccountName
+//            personList = personRepo.findByName(username);
+//
+//            if (personList.size() == 1) {
+//                dn = personRepo.getDnForUser(username);
+//            } else if (personList.size() == 0) {
+//                MSException.throwException(Translator.get("user_not_exist") + username);
+//            } else {
+//                MSException.throwException(Translator.get("find_more_user"));
+//            }
+            person = personRepo.getDnForUser(username);
+            dn = person.getDn();
         } catch (CommunicationException e) {
             MSException.throwException(Translator.get("ldap_connect_fail"));
         }
         personRepo.authenticate(dn, credentials);
 
-        return personList.get(0);
+        return person;
     }
 
     public void testConnect(LdapInfo ldap) {

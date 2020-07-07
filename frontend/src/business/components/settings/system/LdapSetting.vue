@@ -82,6 +82,7 @@
           dn: {required: true, message: this.$t('ldap.input_dn'), trigger: ['change', 'blur']},
           password: {required: true, message: this.$t('ldap.input_password'), trigger: ['change', 'blur']},
           ou: {required: true, message: this.$t('ldap.input_ou'), trigger: ['change', 'blur']},
+          filter: {required: true, message: this.$t('ldap.input_ou'), trigger: ['change', 'blur']}
         },
         loginFormRules: {
           username: {required: true, message: this.$t('ldap.input_username'), trigger: 'blur'},

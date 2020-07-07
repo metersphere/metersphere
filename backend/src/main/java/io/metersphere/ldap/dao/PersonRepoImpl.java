@@ -15,12 +15,15 @@ import org.springframework.ldap.core.*;
 import org.springframework.ldap.core.support.AbstractContextMapper;
 import org.springframework.ldap.core.support.DefaultDirObjectFactory;
 import org.springframework.ldap.core.support.LdapContextSource;
-import org.springframework.ldap.query.LdapQuery;
+import org.springframework.ldap.query.SearchScope;
 import org.springframework.stereotype.Service;
+
 import javax.annotation.Resource;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.ldap.query.LdapQueryBuilder.query;
 
@@ -62,29 +65,30 @@ public class PersonRepoImpl implements PersonRepo {
     }
 
     @Override
-    public List<Person> findByName(String name) {
+    public Person getDnForUser(String username) {
         LdapTemplate ldapTemplate = getConnection();
-        LdapQuery query = query().where("cn").is(name);
-        return ldapTemplate.search(query, getContextMapper());
-    }
+        String filter = getFilter();
 
-    @Override
-    public String getDnForUser(String uid) {
-        LdapTemplate ldapTemplate = getConnection();
-        List<String> result = ldapTemplate.search(
-                query().where("cn").is(uid),
-                new AbstractContextMapper() {
-                    @Override
-                    protected String doMapFromContext(DirContextOperations ctx) {
-                        return ctx.getNameInNamespace();
-                    }
-                });
+        List<Person> result = ldapTemplate.search(
+                query().filter(filter, username),
+                getContextMapper());
+
+        System.out.println(result.toString());
 
         if (result.size() != 1) {
             throw new RuntimeException(Translator.get("user_not_found_or_not_unique"));
         }
-
         return result.get(0);
+    }
+
+    private String getFilter() {
+        String filter = service.getValue(ParamConstants.LDAP.FILTER.getValue());
+
+        if (StringUtils.isBlank(filter)) {
+            filter = "(sAMAccountName={0})";
+        }
+
+        return filter;
     }
 
     protected ContextMapper getContextMapper() {
@@ -95,6 +99,8 @@ public class PersonRepoImpl implements PersonRepo {
         @Override
         public Person doMapFromContext(DirContextOperations context) {
             Person person = new Person();
+            person.setDn(context.getNameInNamespace());
+            person.setUid(context.getStringAttribute("uid"));
             person.setCommonName(context.getStringAttribute("cn"));
             person.setSurName(context.getStringAttribute("sn"));
             person.setUsername(context.getStringAttribute("sAMAccountName"));
@@ -123,6 +129,11 @@ public class PersonRepoImpl implements PersonRepo {
         sourceLdapCtx.afterPropertiesSet();
         LdapTemplate ldapTemplate = new LdapTemplate(sourceLdapCtx);
         ldapTemplate.setIgnorePartialResultException(true);
+        Map<String, Object> baseEnv = new Hashtable<>();
+        baseEnv.put("com.sun.jndi.ldap.connect.timeout", "3000");
+        baseEnv.put("com.sun.jndi.ldap.read.timeout", "3000");
+        sourceLdapCtx.setBaseEnvironmentProperties(baseEnv);
+        ldapTemplate.setDefaultSearchScope(SearchScope.SUBTREE.getId());
 
         // ldapTemplate 是否可用
         authenticate(dn, credentials, ldapTemplate);
