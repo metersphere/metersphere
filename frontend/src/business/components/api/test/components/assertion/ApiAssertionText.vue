@@ -24,7 +24,7 @@
                   :placeholder="$t('api_test.request.assertions.value')"/>
       </el-col>
       <el-col class="assertion-btn">
-        <el-button :disabled="isReadOnly" type="primary" size="small" icon="el-icon-plus" plain @click="add"/>
+        <el-button :disabled="isReadOnly" type="primary" size="small"  @click="add">Add</el-button>
       </el-col>
     </el-row>
   </div>
