@@ -32,6 +32,10 @@ public class PersonRepoImpl implements PersonRepo {
 
     public boolean authenticate(String dn, String credentials) {
         LdapTemplate ldapTemplate = getConnection();
+        return authenticate(dn, credentials, ldapTemplate);
+    }
+
+    private boolean authenticate(String dn, String credentials, LdapTemplate ldapTemplate) {
         DirContext ctx = null;
         try {
             ctx = ldapTemplate.getContextSource().getContext(dn, credentials);
@@ -58,9 +62,8 @@ public class PersonRepoImpl implements PersonRepo {
     }
 
     @Override
-    public List findByName(String name) {
+    public List<Person> findByName(String name) {
         LdapTemplate ldapTemplate = getConnection();
-        ldapTemplate.setIgnorePartialResultException(true);
         LdapQuery query = query().where("cn").is(name);
         return ldapTemplate.search(query, getContextMapper());
     }
@@ -68,7 +71,6 @@ public class PersonRepoImpl implements PersonRepo {
     @Override
     public String getDnForUser(String uid) {
         LdapTemplate ldapTemplate = getConnection();
-        ldapTemplate.setIgnorePartialResultException(true);
         List<String> result = ldapTemplate.search(
                 query().where("cn").is(uid),
                 new AbstractContextMapper() {
@@ -112,7 +114,6 @@ public class PersonRepoImpl implements PersonRepo {
 
         String credentials = EncryptUtils.aesDecrypt(password).toString();
 
-
         LdapContextSource sourceLdapCtx = new LdapContextSource();
         sourceLdapCtx.setUrl(url);
         sourceLdapCtx.setUserDn(dn);
@@ -120,8 +121,13 @@ public class PersonRepoImpl implements PersonRepo {
         sourceLdapCtx.setBase(ou);
         sourceLdapCtx.setDirObjectFactory(DefaultDirObjectFactory.class);
         sourceLdapCtx.afterPropertiesSet();
+        LdapTemplate ldapTemplate = new LdapTemplate(sourceLdapCtx);
+        ldapTemplate.setIgnorePartialResultException(true);
 
-        return new LdapTemplate(sourceLdapCtx);
+        // ldapTemplate 是否可用
+        authenticate(dn, credentials, ldapTemplate);
+
+        return ldapTemplate;
     }
 
     private void preConnect(String url, String dn, String ou, String password) {
