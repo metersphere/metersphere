@@ -75,6 +75,8 @@ public class SystemParameterService {
         javaMailSender.setUsername(hashMap.get(ParamConstants.MAIL.ACCOUNT.getKey()));
         javaMailSender.setPassword(hashMap.get(ParamConstants.MAIL.PASSWORD.getKey()));
         Properties props = new Properties();
+        props.put("mail.smtp.timeout", "5000");
+        props.put("mail.smtp.connectiontimeout", "5000");
         props.put("mail.smtp.auth", "true");
         if (BooleanUtils.toBoolean(hashMap.get(ParamConstants.MAIL.SSL.getKey()))) {
             props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
