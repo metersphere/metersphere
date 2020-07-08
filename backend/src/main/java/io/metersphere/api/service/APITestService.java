@@ -19,6 +19,7 @@ import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.constants.ScheduleType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
@@ -260,24 +261,23 @@ public class APITestService {
         scheduleService.addOrUpdateCronJob(request, ApiTestJob.getJobKey(request.getResourceId()), ApiTestJob.getTriggerKey(request.getResourceId()), ApiTestJob.class);
     }
 
-    public ApiTest apiTestImport(MultipartFile file, String platform, String projectId) {
+    public ApiTest apiTestImport(MultipartFile file, String platform) {
+        ApiImportParser apiImportParser = ApiImportParserFactory.getApiImportParser(platform);
+        ApiImport apiImport = null;
         try {
-
-            ApiImportParser apiImportParser = ApiImportParserFactory.getApiImportParser(platform);
-            ApiImport apiImport = apiImportParser.parse(file.getInputStream());
-            SaveAPITestRequest request = getImportApiTest(file, projectId, apiImport);
-            ApiTest test = createTest(request);
-            return test;
-        } catch (IOException e) {
-            e.printStackTrace();
+            apiImport = apiImportParser.parse(file.getInputStream());
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(Translator.get("parse_data_error"));
         }
-        return null;
+        SaveAPITestRequest request = getImportApiTest(file, apiImport);
+        return createTest(request);
     }
 
-    private SaveAPITestRequest getImportApiTest(MultipartFile file, String projectId, ApiImport apiImport) {
+    private SaveAPITestRequest getImportApiTest(MultipartFile file, ApiImport apiImport) {
         SaveAPITestRequest request =  new SaveAPITestRequest();
         request.setName(file.getOriginalFilename());
-        request.setProjectId(projectId);
+        request.setProjectId("");
         request.setScenarioDefinition(apiImport.getScenarios());
         request.setUserId(SessionUtils.getUser().getId());
         request.setId(UUID.randomUUID().toString());

@@ -364,6 +364,19 @@ export default {
         json_path_expression: "JSONPath expression",
         xpath_expression: "XPath expression",
       }
+    },
+    api_import: {
+      label: "Import",
+      title: "API test import",
+      data_format: "Data format",
+      file_size_limit: "The file size does not exceed 20 M",
+      tip: "Instructions",
+      export_tip: "Export Tip",
+      ms_tip: "Support for Metersphere JSON format",
+      ms_export_tip: "Export jSON-formatted files via Metersphere website or browser plug-ins",
+      postman_tip: "Only Postman Collection V2.1 json files are supported",
+      post_man_export_tip: "Export the test collection by Postman",
+      suffixFormatErr: "The file format does not meet the requirements",
     }
   },
   api_report: {

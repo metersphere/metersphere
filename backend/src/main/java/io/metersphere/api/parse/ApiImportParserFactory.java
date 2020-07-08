@@ -10,6 +10,8 @@ public class ApiImportParserFactory {
     public static ApiImportParser getApiImportParser(String platform) {
         if (StringUtils.equals(ApiImportPlatform.Metersphere.name(), platform)) {
             return new MsParser();
+        } else if (StringUtils.equals(ApiImportPlatform.Postman.name(), platform)) {
+            return new PostmanParser();
         }
         return null;
     }

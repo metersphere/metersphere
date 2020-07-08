@@ -1,8 +1,8 @@
 <template>
-  <el-dialog :title="'接口测试导入'" :visible.sync="visible" class="api-import" v-loading="result.loading">
+  <el-dialog :title="$t('api_test.api_import.title')" :visible.sync="visible" class="api-import" v-loading="result.loading">
 
     <div class="data-format">
-      <div>数据格式</div>
+      <div>{{$t('api_test.api_import.data_format')}}</div>
       <el-radio-group v-model="selectedPlatformValue">
         <el-radio v-for="(item, index) in platforms" :key="index" :label="item.value">{{item.name}}</el-radio>
       </el-radio-group>
@@ -19,17 +19,17 @@
         :file-list="fileList"
         multiple>
         <i class="el-icon-upload"></i>
-        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-        <div class="el-upload__tip" slot="tip">文件大小不超过 20 M</div>
+        <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
+        <div class="el-upload__tip" slot="tip">{{$t('api_test.api_import.file_size_limit')}}</div>
       </el-upload>
     </div>
 
     <div class="format-tip">
       <div>
-        <span>说明：{{selectedPlatform.tip}}</span>
+        <span>{{$t('api_test.api_import.tip')}}：{{selectedPlatform.tip}}</span>
       </div>
       <div>
-        <span>导出方法：{{selectedPlatform.exportTip}}</span>
+        <span>{{$t('api_test.api_import.export_tip')}}：{{selectedPlatform.exportTip}}</span>
       </div>
     </div>
 
@@ -41,7 +41,6 @@
     export default {
       name: "ApiImport",
       components: {MsDialogFooter},
-      props: ['projectId'],
       data() {
         return {
           visible: false,
@@ -49,8 +48,15 @@
             {
               name: 'Metersphere',
               value: 'Metersphere',
-              tip: '支持 Metersphere json 格式',
-              exportTip: '通过 Metersphere Api 测试页面或者浏览器插件导出 json 格式文件',
+              tip: this.$t('api_test.api_import.ms_tip'),
+              exportTip: this.$t('api_test.api_import.ms_export_tip'),
+              suffixes: new Set(['json'])
+            },
+            {
+              name: 'Postman',
+              value: 'Postman',
+              tip: this.$t('api_test.api_import.postman_tip'),
+              exportTip: this.$t('api_test.api_import.post_man_export_tip'),
               suffixes: new Set(['json'])
             }
           ],
@@ -64,9 +70,9 @@
         this.selectedPlatform = this.platforms[0];
       },
       watch: {
-        selectedPlatformId() {
+        selectedPlatformValue() {
           for (let i in this.platforms) {
-            if (this.platforms[i].id === this.selectedPlatformValue) {
+            if (this.platforms[i].value === this.selectedPlatformValue) {
               this.selectedPlatform = this.platforms[i];
               break;
             }
@@ -79,7 +85,7 @@
         },
         upload(file) {
           this.fileList.push(file.file);
-          this.result = this.$fileUpload('/api/import/' + this.selectedPlatformValue + '/' + this.projectId, this.fileList, response => {
+          this.result = this.$fileUpload('/api/import/' + this.selectedPlatformValue, this.fileList, response => {
             let res = response.data;
             this.$success(this.$t('test_track.case.import.success'));
             this.visible = false;
@@ -90,7 +96,7 @@
         uploadValidate(file, fileList) {
           let suffix = file.name.substring(file.name.lastIndexOf('.') + 1);
           if (!this.selectedPlatform.suffixes.has(suffix)) {
-            this.$warning("格式错误");
+            this.$warning(this.$t('api_test.api_import.suffixFormatErr'));
             return false;
           }
 
