@@ -39,11 +39,17 @@
                   <el-dropdown-item command="performance" :disabled="create || isReadOnly">
                     {{$t('api_test.create_performance_test')}}
                   </el-dropdown-item>
-                  <el-dropdown-item command="export" :disabled="isDisabled || isReadOnly">
+                  <el-dropdown-item command="export" :disabled="isReadOnly || create">
                     {{$t('api_test.export_config')}}
+                  </el-dropdown-item>
+                  <el-dropdown-item command="import" :disabled="isReadOnly">
+                    导入
+<!--                    {{$t('api_test.export_config')}}-->
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
+
+              <api-import :project-id="test.projectId" ref="apiImport"/>
 
               <ms-api-report-dialog :test-id="id" ref="reportDialog"/>
 
@@ -64,11 +70,12 @@
   import MsApiReportDialog from "./ApiReportDialog";
   import {checkoutTestManagerOrTestUser, downloadFile} from "../../../../common/js/utils";
   import MsScheduleConfig from "../../common/components/MsScheduleConfig";
+  import ApiImport from "./components/import/ApiImport";
 
   export default {
     name: "MsApiTestConfig",
 
-    components: {MsScheduleConfig, MsApiReportDialog, MsApiReportStatus, MsApiScenarioConfig},
+    components: {ApiImport, MsScheduleConfig, MsApiReportDialog, MsApiReportStatus, MsApiScenarioConfig},
 
     props: ["id"],
 
@@ -210,6 +217,9 @@
             break;
           case "export":
             downloadFile(this.test.name + ".json", this.test.export());
+            break;
+          case "import":
+            this.$refs.apiImport.open();
             break;
         }
       },

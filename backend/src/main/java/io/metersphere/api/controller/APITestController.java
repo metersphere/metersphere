@@ -96,4 +96,10 @@ public class APITestController {
         return apiTestService.run(request);
     }
 
+    @PostMapping("/import/{platform}/{projectId}")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public ApiTest testCaseImport(MultipartFile file, @PathVariable String platform, @PathVariable String projectId) {
+        return apiTestService.apiTestImport(file, platform, projectId);
+    }
+
 }
