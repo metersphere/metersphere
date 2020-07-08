@@ -7,7 +7,7 @@
       </el-col>
       <el-col class="assertion-btn">
         <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove" v-if="edit"/>
-        <el-button :disabled="isReadOnly" type="primary" size="small" icon="el-icon-plus" plain @click="add" v-else/>
+        <el-button :disabled="isReadOnly" type="primary" size="small" @click="add" v-else>Add</el-button>
       </el-col>
     </el-row>
   </div>

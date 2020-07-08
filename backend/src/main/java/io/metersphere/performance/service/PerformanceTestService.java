@@ -102,16 +102,8 @@ public class PerformanceTestService {
         if (!loadTestReports.isEmpty()) {
             List<String> reportIdList = loadTestReports.stream().map(LoadTestReport::getId).collect(Collectors.toList());
 
-            // delete load_test_report_result
-            LoadTestReportResultExample loadTestReportResultExample = new LoadTestReportResultExample();
-            loadTestReportResultExample.createCriteria().andReportIdIn(reportIdList);
-            loadTestReportResultMapper.deleteByExample(loadTestReportResultExample);
-
-            // delete load_test_report, delete load_test_report_detail
+            // delete load_test_report
             reportIdList.forEach(reportId -> {
-                LoadTestReportDetailExample example = new LoadTestReportDetailExample();
-                example.createCriteria().andReportIdEqualTo(reportId);
-                loadTestReportDetailMapper.deleteByExample(example);
                 reportService.deleteReport(reportId);
             });
         }

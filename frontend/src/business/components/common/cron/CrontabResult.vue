@@ -1,6 +1,6 @@
 <template>
 	<div class="popup-result">
-		<p class="title">最近5次运行时间</p>
+		<p class="title">{{$t('schedule.cron.recent_run_time')}}</p>
 		<ul class="popup-result-scroll">
 			<template>
 				<li v-for='item in resultList' :key="item">{{item}}</li>
@@ -340,12 +340,12 @@ export default {
 			}
 			// 判断100年内的结果条数
 			if (resultArr.length == 0) {
-				this.resultList = ['没有达到条件的结果！'];
+				this.resultList = [this.$t('schedule.cron.no_qualifying_results')];
 			} else {
 				this.resultList = resultArr;
-				if (resultArr.length !== 5) {
-					this.resultList.push('最近100年内只有上面' + resultArr.length + '条结果！')
-				}
+				// if (resultArr.length !== 5) {
+				// 	this.resultList.push('最近100年内只有上面' + resultArr.length + '条结果！')
+				// }
 			}
 
 			this.$emit("resultListChange", this.resultList);

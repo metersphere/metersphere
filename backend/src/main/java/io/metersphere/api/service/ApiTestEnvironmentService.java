@@ -3,6 +3,8 @@ package io.metersphere.api.service;
 import io.metersphere.base.domain.ApiTestEnvironmentExample;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
+import io.metersphere.commons.exception.MSException;
+import io.metersphere.i18n.Translator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +39,20 @@ public class ApiTestEnvironmentService {
 
     public String add(ApiTestEnvironmentWithBLOBs apiTestEnvironmentWithBLOBs) {
         apiTestEnvironmentWithBLOBs.setId(UUID.randomUUID().toString());
+        checkEnvironmentExist(apiTestEnvironmentWithBLOBs);
         apiTestEnvironmentMapper.insert(apiTestEnvironmentWithBLOBs);
         return apiTestEnvironmentWithBLOBs.getId();
+    }
+
+    private void checkEnvironmentExist (ApiTestEnvironmentWithBLOBs environment) {
+        if (environment.getName() != null) {
+            ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
+            example.createCriteria()
+                    .andNameEqualTo(environment.getName())
+                    .andProjectIdEqualTo(environment.getProjectId());
+            if (apiTestEnvironmentMapper.selectByExample(example).size() > 0) {
+                MSException.throwException(Translator.get("api_test_environment_already_exists"));
+            }
+        }
     }
 }

@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-tabs type="border-card">
-      <el-tab-pane label="秒" v-if="shouldHide('second')">
+      <el-tab-pane :label="$t('schedule.cron.seconds')" v-if="shouldHide('second')">
         <crontab-second
           @update="updateContabValue"
           :check="checkNumber"
@@ -9,7 +9,7 @@
         />
       </el-tab-pane>
 
-      <el-tab-pane label="分钟" v-if="shouldHide('min')">
+      <el-tab-pane :label="$t('schedule.cron.minutes')"  v-if="shouldHide('min')">
         <crontab-min
           @update="updateContabValue"
           :check="checkNumber"
@@ -18,7 +18,7 @@
         />
       </el-tab-pane>
 
-      <el-tab-pane label="小时" v-if="shouldHide('hour')">
+      <el-tab-pane :label="$t('schedule.cron.hours')" v-if="shouldHide('hour')">
         <crontab-hour
           @update="updateContabValue"
           :check="checkNumber"
@@ -27,7 +27,7 @@
         />
       </el-tab-pane>
 
-      <el-tab-pane label="日" v-if="shouldHide('day')">
+      <el-tab-pane :label="$t('schedule.cron.day')" v-if="shouldHide('day')">
         <crontab-day
           @update="updateContabValue"
           :check="checkNumber"
@@ -36,7 +36,7 @@
         />
       </el-tab-pane>
 
-      <el-tab-pane label="月" v-if="shouldHide('mouth')">
+      <el-tab-pane :label="$t('schedule.cron.month')" v-if="shouldHide('mouth')">
         <crontab-mouth
           @update="updateContabValue"
           :check="checkNumber"
@@ -45,7 +45,7 @@
         />
       </el-tab-pane>
 
-      <el-tab-pane label="周" v-if="shouldHide('week')">
+      <el-tab-pane :label="$t('schedule.cron.weeks')" v-if="shouldHide('week')">
         <crontab-week
           @update="updateContabValue"
           :check="checkNumber"
@@ -54,7 +54,7 @@
         />
       </el-tab-pane>
 
-      <el-tab-pane label="年" v-if="shouldHide('year')">
+      <el-tab-pane :label="$t('schedule.cron.years')" v-if="shouldHide('year')">
         <crontab-year @update="updateContabValue"
                       :check="checkNumber"
                       :cron="contabValueObj"
@@ -64,11 +64,11 @@
 
     <div class="popup-main">
       <div class="popup-result-container">
-        <p class="title">时间表达式</p>
+        <p class="title">{{$t('schedule.cron.time_expression')}}</p>
         <table>
           <thead>
           <th v-for="item of tabTitles" width="40" :key="item">{{item}}</th>
-          <th>crontab完整表达式</th>
+          <th>{{$t('schedule.cron.complete_expression')}}</th>
           </thead>
           <tbody>
           <td>
@@ -101,9 +101,9 @@
       <crontab-result :ex="contabValueString" ref="crontabResult"/>
 
       <div class="pop_btn">
-        <el-button size="small" type="primary" @click="submitFill">确定</el-button>
-        <el-button size="small" type="warning" @click="clearCron">重置</el-button>
-        <el-button size="small" @click="hidePopup">取消</el-button>
+        <el-button size="small" type="primary" @click="submitFill">{{$t('commons.confirm')}}</el-button>
+        <el-button size="small" type="warning" @click="clearCron">{{$t('api_test.reset')}}</el-button>
+        <el-button size="small" @click="hidePopup">{{$t('commons.cancel')}}</el-button>
       </div>
     </div>
   </div>
@@ -123,7 +123,14 @@
     name: "Crontab",
     data() {
       return {
-        tabTitles: ["秒", "分钟", "小时", "日", "月", "周", "年"],
+        tabTitles: [
+          this.$t('schedule.cron.seconds'),
+          this.$t('schedule.cron.minutes'),
+          this.$t('schedule.cron.hours'),
+          this.$t('schedule.cron.day'),
+          this.$t('schedule.cron.month'),
+          this.$t('schedule.cron.weeks'),
+          this.$t('schedule.cron.years')],
         tabActive: 0,
         myindex: 0,
         contabValueObj: {
@@ -179,7 +186,7 @@
         "updateContabValue", name, value, from;
         this.contabValueObj[name] = value;
         if (from && from !== name) {
-          console.log(`来自组件 ${from} 改变了 ${name} ${value}`);
+          // console.log(`来自组件 ${from} 改变了 ${name} ${value}`);
           this.changeRadio(name, value);
         }
       },
@@ -310,7 +317,7 @@
       },
       clearCron() {
         // 还原选择项
-        ("准备还原");
+        // ("准备还原");
         this.contabValueObj = {
           second: "*",
           min: "*",
