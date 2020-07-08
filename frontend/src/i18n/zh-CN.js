@@ -609,7 +609,7 @@ export default {
     'input_username': '请输入用户名',
     'input_url_placeholder': '请输入LDAP地址 (如 ldap://localhost:389)',
     'input_ou_placeholder': '输入用户OU (使用|分隔各OU)',
-    'input_filter_placeholder': '输入过滤器 [可能的选项是cn或uid或sAMAccountName=%(user)s]',
+    'input_filter_placeholder': '输入过滤器 [可能的选项是cn或uid或sAMAccountName={0}, 如：(uid={0})]',
     'test_connect': '测试连接',
     'test_login': '测试登录',
     'edit': '编辑',
@@ -617,6 +617,7 @@ export default {
     'url_cannot_be_empty': 'LDAP 地址不能为空',
     'dn_cannot_be_empty': 'LDAP DN不能为空',
     'ou_cannot_be_empty': 'LDAP OU不能为空',
+    'filter_cannot_be_empty': 'LDAP 用户过滤器不能为空',
     'password_cannot_be_empty': 'LDAP 密码不能为空',
   },
   schedule: {

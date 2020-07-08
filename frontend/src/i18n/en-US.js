@@ -612,7 +612,7 @@ export default {
     'input_username': 'please enter user name',
     'input_url_placeholder': 'Please enter the LDAP address (eg ldap://localhost:389)',
     'input_ou_placeholder': 'Enter user OU (use | to separate each OU)',
-    'input_filter_placeholder': 'Input filter [Possible options are cn or uid or sAMAccountName=%(user)s]',
+    'input_filter_placeholder': 'Input filter [Possible options are cn or uid or sAMAccountName={0}, eg: (uid={0})]',
     'test_connect': 'Test Connection',
     'test_login': 'Test Login',
     'edit': 'Edit',
@@ -620,6 +620,7 @@ export default {
     'url_cannot_be_empty': 'LDAP address cannot be empty',
     'dn_cannot_be_empty': 'LDAP DN cannot be empty',
     'ou_cannot_be_empty': 'LDAP OU cannot be empty',
+    'filter_cannot_be_empty': 'LDAP user filter cannot be empty',
     'password_cannot_be_empty': 'LDAP password cannot be empty',
   },
   schedule: {
