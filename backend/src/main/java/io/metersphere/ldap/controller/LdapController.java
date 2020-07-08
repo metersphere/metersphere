@@ -66,7 +66,7 @@ public class LdapController {
 
     @PostMapping("/test/connect")
     public void testConnect(@RequestBody LdapInfo ldapInfo) {
-        ldapService.testConnect(ldapInfo);
+        ldapService.testConnect();
     }
 
     @PostMapping("/test/login")

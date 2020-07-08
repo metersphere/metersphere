@@ -4,13 +4,15 @@ package io.metersphere.ldap.dao;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.EncryptUtils;
-import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.i18n.Translator;
 import io.metersphere.ldap.domain.Person;
 import io.metersphere.service.SystemParameterService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.realm.ldap.LdapUtils;
 import org.springframework.ldap.AuthenticationException;
+import org.springframework.ldap.InvalidNameException;
+import org.springframework.ldap.InvalidSearchFilterException;
+import org.springframework.ldap.NameNotFoundException;
 import org.springframework.ldap.core.*;
 import org.springframework.ldap.core.support.AbstractContextMapper;
 import org.springframework.ldap.core.support.DefaultDirObjectFactory;
@@ -38,57 +40,61 @@ public class PersonRepoImpl implements PersonRepo {
         return authenticate(dn, credentials, ldapTemplate);
     }
 
-    private boolean authenticate(String dn, String credentials, LdapTemplate ldapTemplate) {
+    private boolean authenticate(String dn, String credentials, LdapTemplate ldapTemplate) throws AuthenticationException {
         DirContext ctx = null;
         try {
             ctx = ldapTemplate.getContextSource().getContext(dn, credentials);
-//            ldapTemplate.authenticate(dn, credentials);
-            // Take care here - if a base was specified on the ContextSource
-            // that needs to be removed from the user DN for the lookup to succeed.
-            // ctx.lookup(userDn);
             return true;
-        } catch (AuthenticationException e) {
-            LogUtil.error("ldap authenticate failed..." + e);
-            System.out.println("Login failed: " + e);
-            MSException.throwException(Translator.get("authentication_failed"));
-            return false;
-        } catch (Exception e) {
-            // Context creation failed - authentication did not succeed
-            LogUtil.error("ldap authenticate failed..." + e);
-            System.out.println("Login failed: " + e);
-            MSException.throwException(Translator.get("ldap_connect_fail"));
-            return false;
         } finally {
             // It is imperative that the created DirContext instance is always closed
             LdapUtils.closeContext((LdapContext) ctx);
         }
     }
 
+
     @Override
     public Person getDnForUser(String username) {
         LdapTemplate ldapTemplate = getConnection();
-        String filter = getFilter();
 
-        List<Person> result = ldapTemplate.search(
-                query().filter(filter, username),
-                getContextMapper());
+        String filter = getUserFilter();
+        String ou = getUserOu();
 
-        System.out.println(result.toString());
+        List<Person> result = null;
+        try {
+            result = ldapTemplate.search(query().base(ou).filter(filter, username), getContextMapper());
+        } catch (NameNotFoundException e) {
+            MSException.throwException(Translator.get("login_fail_ou_error"));
+        } catch (InvalidNameException e) {
+            MSException.throwException(Translator.get("login_fail_ou_error"));
+        } catch (InvalidSearchFilterException e) {
+            MSException.throwException(Translator.get("login_fail_filter_error"));
+        }
 
         if (result.size() != 1) {
-            throw new RuntimeException(Translator.get("user_not_found_or_not_unique"));
+            MSException.throwException(Translator.get("user_not_found_or_not_unique"));
         }
+
         return result.get(0);
     }
 
-    private String getFilter() {
+    private String getUserFilter() {
         String filter = service.getValue(ParamConstants.LDAP.FILTER.getValue());
 
         if (StringUtils.isBlank(filter)) {
-            filter = "(sAMAccountName={0})";
+            MSException.throwException(Translator.get("ldap_user_filter_is_null"));
         }
 
         return filter;
+    }
+
+    private String getUserOu() {
+        String ou = service.getValue(ParamConstants.LDAP.OU.getValue());
+
+        if (StringUtils.isBlank(ou)) {
+            MSException.throwException(Translator.get("ldap_ou_is_null"));
+        }
+
+        return ou;
     }
 
     protected ContextMapper getContextMapper() {
@@ -113,10 +119,9 @@ public class PersonRepoImpl implements PersonRepo {
 
         String url = service.getValue(ParamConstants.LDAP.URL.getValue());
         String dn = service.getValue(ParamConstants.LDAP.DN.getValue());
-        String ou = service.getValue(ParamConstants.LDAP.OU.getValue());
         String password = service.getValue(ParamConstants.LDAP.PASSWORD.getValue());
 
-        preConnect(url, dn, ou, password);
+        preConnect(url, dn, password);
 
         String credentials = EncryptUtils.aesDecrypt(password).toString();
 
@@ -124,7 +129,6 @@ public class PersonRepoImpl implements PersonRepo {
         sourceLdapCtx.setUrl(url);
         sourceLdapCtx.setUserDn(dn);
         sourceLdapCtx.setPassword(credentials);
-        sourceLdapCtx.setBase(ou);
         sourceLdapCtx.setDirObjectFactory(DefaultDirObjectFactory.class);
         sourceLdapCtx.afterPropertiesSet();
         LdapTemplate ldapTemplate = new LdapTemplate(sourceLdapCtx);
@@ -136,12 +140,18 @@ public class PersonRepoImpl implements PersonRepo {
         ldapTemplate.setDefaultSearchScope(SearchScope.SUBTREE.getId());
 
         // ldapTemplate 是否可用
-        authenticate(dn, credentials, ldapTemplate);
+        try {
+            authenticate(dn, credentials, ldapTemplate);
+        } catch (AuthenticationException e) {
+            MSException.throwException(Translator.get("ldap_connect_fail_user"));
+        } catch (Exception e) {
+            MSException.throwException(Translator.get("ldap_connect_fail"));
+        }
 
         return ldapTemplate;
     }
 
-    private void preConnect(String url, String dn, String ou, String password) {
+    private void preConnect(String url, String dn, String password) {
 
         if (StringUtils.isBlank(url)) {
             MSException.throwException(Translator.get("ldap_url_is_null"));
@@ -149,10 +159,6 @@ public class PersonRepoImpl implements PersonRepo {
 
         if (StringUtils.isBlank(dn)) {
             MSException.throwException(Translator.get("ldap_dn_is_null"));
-        }
-
-        if (StringUtils.isBlank(ou)) {
-            MSException.throwException(Translator.get("ldap_ou_is_null"));
         }
 
         if (StringUtils.isBlank(password)) {
