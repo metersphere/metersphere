@@ -282,6 +282,18 @@
               + this.$t('test_track.length_less_than') + '300');
             return;
           }
+          if (!result.executeResult) {
+            this.$warning(this.testCase.steptResults[i].desc + this.$t('test_track.execution_result')
+            );
+            return;
+          }
+          if (!result.actualResult) {
+            this.$warning(this.testCase.steptResults[i].desc + this.$t('test_track.actual_result')
+            );
+            return;
+          }
+
+
           param.results.push(result);
         }
 
