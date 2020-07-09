@@ -405,7 +405,13 @@ class JMXRequest {
       this.port = url.port;
       this.protocol = url.protocol.split(":")[0];
       if (this.method.toUpperCase() !== "GET") {
-        this.pathname += url.search.replace('&', '&amp;');
+        // this.pathname += url.search.replace('&', '&amp;');
+        this.pathname += '?';
+        request.parameters.forEach(parameter => {
+          if (parameter.name) {
+            this.pathname += (parameter.name + '=' + parameter.value + '&');
+          }
+        });
       }
     }
   }
