@@ -43,13 +43,12 @@
                     {{$t('api_test.export_config')}}
                   </el-dropdown-item>
                   <el-dropdown-item command="import" :disabled="isReadOnly">
-                    导入
-<!--                    {{$t('api_test.export_config')}}-->
+                    {{$t('api_test.api_import.label')}}
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
 
-              <api-import :project-id="test.projectId" ref="apiImport"/>
+              <api-import ref="apiImport"/>
 
               <ms-api-report-dialog :test-id="id" ref="reportDialog"/>
 

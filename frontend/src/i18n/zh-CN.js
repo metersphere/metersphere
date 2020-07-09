@@ -362,6 +362,19 @@ export default {
         json_path_expression: "JSONPath表达式",
         xpath_expression: "XPath表达式",
       }
+    },
+    api_import: {
+      label: "导入",
+      title: "接口测试导入",
+      data_format: "数据格式",
+      file_size_limit: "文件大小不超过 20 M",
+      tip: "说明",
+      export_tip: "导出方法",
+      ms_tip: "支持 Metersphere json 格式",
+      ms_export_tip: "通过 Metersphere Api 测试页面或者浏览器插件导出 json 格式文件",
+      postman_tip: "只支持 Postman Collection v2.1 格式的 json 文件",
+      post_man_export_tip: "通过 Postman 导出测试集合",
+      suffixFormatErr: "文件格式不符合要求",
     }
   },
   api_report: {
