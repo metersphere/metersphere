@@ -42,6 +42,7 @@ public class TestPlanTestCaseController {
         QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
         request.setPlanId(planId);
         request.setNodePaths(list);
+        request.setMethod("auto");
         return testPlanTestCaseService.listByNode(request);
     }
 
