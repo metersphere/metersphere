@@ -50,8 +50,8 @@ public class APITestController {
         return apiTestService.getApiTestByProjectId(projectId);
     }
 
-    /*查询某个api测试状态*/
-    @GetMapping("/list/all/{testId}")
+
+    @GetMapping("/state/get/{testId}")
     public ApiTest apiState(@PathVariable String testId) {
         return apiTestService.getApiTestByTestId(testId);
     }
