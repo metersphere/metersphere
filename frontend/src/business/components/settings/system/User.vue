@@ -9,7 +9,7 @@
 
       <el-table :data="tableData" style="width: 100%">
         <el-table-column prop="id" label="ID"/>
-        <el-table-column prop="name" :label="$t('commons.username')" width="200"/>
+        <el-table-column prop="name" :label="$t('commons.name')" width="200"/>
         <el-table-column :label="$t('commons.role')" width="120">
           <template v-slot:default="scope">
             <ms-roles-tag :roles="scope.row.roles"/>
@@ -162,7 +162,7 @@
     </el-dialog>
 
     <!--Modify user information in system settings-->
-    <el-dialog :title="$t('user.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true"
+    <el-dialog :title="$t('user.modify')" :visible.sync="updateVisible" width="35%" :destroy-on-close="true"
                @close="handleClose">
       <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
