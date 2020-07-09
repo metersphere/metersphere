@@ -8,6 +8,7 @@ import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiTestFileMapper;
 import io.metersphere.base.mapper.ApiTestMapper;
+import io.metersphere.base.mapper.TestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.exception.MSException;
@@ -46,6 +47,8 @@ public class APITestService {
     private JMeterService jMeterService;
     @Resource
     private APIReportService apiReportService;
+    @Resource
+    private TestCaseMapper testCaseMapper;
 
     public List<APITestResult> list(QueryAPITestRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -110,6 +113,20 @@ public class APITestService {
     }
 
     public void delete(String testId) {
+
+        // 是否关联测试用例
+        TestCaseExample testCaseExample = new TestCaseExample();
+        testCaseExample.createCriteria().andTestIdEqualTo(testId);
+        List<TestCase> testCases = testCaseMapper.selectByExample(testCaseExample);
+        if (testCases.size() > 0) {
+            String caseName = "";
+            for (int i = 0; i < testCases.size(); i++) {
+                caseName = caseName + testCases.get(i).getName() + ",";
+            }
+            caseName = caseName.substring(0, caseName.length() - 1);
+            MSException.throwException(Translator.get("related_case_del_fail_prefix") + caseName + Translator.get("related_case_del_fail_suffix"));
+        }
+
         deleteFileByTestId(testId);
         apiReportService.deleteByTestId(testId);
         apiTestMapper.deleteByPrimaryKey(testId);

@@ -355,6 +355,13 @@
                 this.$success(this.$t('commons.save_success'));
                 if (this.operationType == 'add' && this.isCreateContinue) {
                   this.form.name = '';
+                  this.form.prerequisite = '';
+                  this.form.steps = [{
+                    num: 1,
+                    desc: '',
+                    result: ''
+                  }];
+                  this.form.remark = '';
                   this.$emit("refresh");
                   return;
                 }

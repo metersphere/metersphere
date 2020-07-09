@@ -95,7 +95,7 @@
           host: [
             {
               required: true,
-              message: ''
+              message: ' '
             },
           ],
           port: [
@@ -115,6 +115,7 @@
 
     activated() {
       this.query()
+      this.change()
     },
     methods: {
       changeType() {
@@ -126,9 +127,15 @@
           this.$set(this.formInline, "port", response.data[1].paramValue);
           this.$set(this.formInline, "account", response.data[2].paramValue);
           this.$set(this.formInline, "password", response.data[3].paramValue);
-          this.$set(this.formInline, "SSL", JSON.parse(response.data[4].paramValue));
-          this.$set(this.formInline, "TLS", JSON.parse(response.data[5].paramValue));
-          this.$set(this.formInline, "SMTP", JSON.parse(response.data[6].paramValue));
+          if(response.data[4].paramValue!=""){
+            this.$set(this.formInline, "SSL", JSON.parse(response.data[4].paramValue));
+          }
+          if(response.data[5].paramValue!=""){
+            this.$set(this.formInline, "TLS", JSON.parse(response.data[5].paramValue));
+          }
+          if(response.data[6].paramValue!=""){
+            this.$set(this.formInline, "SMTP", JSON.parse(response.data[6].paramValue));
+          }
         })
       },
       change() {
@@ -161,6 +168,7 @@
         })
       },
       edit() {
+        this.change()
         this.showEdit = false;
         this.showSave = true;
         this.showCancel = true;
@@ -197,11 +205,13 @@
         })
       },
       cancel() {
+        this.query();
         this.showEdit = true;
         this.showCancel = false;
         this.showSave = false;
         this.show = true;
-        this.query();
+        this.change()
+
       }
 
     }
