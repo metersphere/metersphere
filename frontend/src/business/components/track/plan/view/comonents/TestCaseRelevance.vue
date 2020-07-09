@@ -19,6 +19,11 @@
 
         <el-container>
           <el-main class="case-content" v-loading="result.loading">
+            <el-row>
+              <el-col :offset="16" :span="8">
+                <ms-table-search-bar :condition.sync="condition" @change="initData"/>
+              </el-col>
+            </el-row>
             <el-table
               :data="testCases"
               @filter-change="filter"
@@ -80,10 +85,11 @@
   import PriorityTableItem from "../../../common/tableItems/planview/PriorityTableItem";
   import TypeTableItem from "../../../common/tableItems/planview/TypeTableItem";
   import {_filter} from "../../../../../../common/js/utils";
+  import MsTableSearchBar from "../../../../common/components/MsTableSearchBar";
 
   export default {
     name: "TestCaseRelevance",
-    components: {NodeTree, MsDialogFooter, PriorityTableItem, TypeTableItem},
+    components: {NodeTree, MsDialogFooter, PriorityTableItem, TypeTableItem, MsTableSearchBar},
     data() {
       return {
         result: {},

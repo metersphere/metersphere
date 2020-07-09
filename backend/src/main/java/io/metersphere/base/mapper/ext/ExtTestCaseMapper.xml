@@ -6,6 +6,9 @@
         select test_case.id, test_case.name, test_case.priority, test_case.type
         from test_case
         <where>
+            <if test="request.name != null">
+                and test_case.name like CONCAT('%', #{request.name},'%')
+            </if>
             <if test="request.projectId != null">
                 AND test_case.project_id = #{request.projectId}
             </if>
@@ -14,7 +17,6 @@
                 <foreach collection="request.nodeIds" open="(" close=")" separator="," item="nodeId">
                     #{nodeId}
                 </foreach>
-
             </if>
             <if test="request.filters != null and request.filters.size() > 0">
                 <foreach collection="request.filters.entrySet()" index="key" item="values">
