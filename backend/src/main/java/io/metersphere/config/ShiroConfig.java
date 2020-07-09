@@ -56,7 +56,6 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/swagger-ui/**", "anon");
         filterChainDefinitionMap.put("/v3/api-docs/**", "anon");
 
-        filterChainDefinitionMap.put("/api/**", "anon");
         filterChainDefinitionMap.put("/403", "anon");
         filterChainDefinitionMap.put("/anonymous/**", "anon");
         filterChainDefinitionMap.put("/**", "apikey, authc");
