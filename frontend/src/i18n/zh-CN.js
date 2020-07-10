@@ -102,7 +102,42 @@ export default {
     'login_username': 'ID 或 邮箱',
     'input_login_username': '请输入用户 ID 或 邮箱',
     'input_name': '请输入名称',
-    'formatErr': '格式错误'
+    'formatErr': '格式错误',
+    date: {
+      select_date: '选择日期',
+      start_date: '开始日期',
+      end_date: '结束日期',
+      select_date_time: '选择日期时间',
+      start_date_time: '开始日期时间',
+      end_date_time: '结束日期时间',
+      range_separator: "至",
+    },
+    trigger_mode: {
+      name: "触发方式",
+      manual: "手动触发",
+      schedule: "定时任务",
+      api: "API调用"
+    },
+    adv_search: {
+      title: '高级搜索',
+      combine: '组合查询',
+      search: "查询",
+      and: '所有',
+      or: '任意一个',
+      operators: {
+        like: "包含",
+        not_like: "不包含",
+        in: "属于",
+        not_in: "不属于",
+        gt: "大于",
+        ge: "大于等于",
+        lt: "小于",
+        le: "小于等于",
+        equals: "等于",
+        between: "之间",
+        current_user: "是当前登录用户"
+      }
+    }
   },
   workspace: {
     'create': '创建工作空间',

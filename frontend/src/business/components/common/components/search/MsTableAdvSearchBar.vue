@@ -4,20 +4,18 @@
     <el-dialog :title="$t('commons.adv_search.combine')" :visible.sync="visible" width="70%">
       <div>
         <div class="search-label">{{$t('commons.adv_search.combine')}}: </div>
-        <el-select v-model="condition.logic" :placeholder="$t('commons.please_select')" size="small"
-                   class="search-combine">
-          <el-option :label="$t('commons.adv_search.and')" value="and"></el-option>
-          <el-option :label="$t('commons.adv_search.or')" value="or"></el-option>
+        <el-select v-model="logic" :placeholder="$t('commons.please_select')" size="small" class="search-combine">
+          <el-option v-for="op in options" :key="op.value" :label="$t(op.label)" :value="op.value"/>
         </el-select>
         <div class="search-items">
           <component class="search-item" v-for="(component, index) in condition.components" :key="index"
-                     :is="component.name" v-model="component.value" :component="component"/>
+                     :is="component.name" :component="component"/>
         </div>
       </div>
       <template v-slot:footer>
         <div class="dialog-footer">
           <el-button @click="visible = false">{{$t('commons.cancel')}}</el-button>
-          <el-button type="primary" @click="search">{{$t('commons.search')}}</el-button>
+          <el-button type="primary" @click="search">{{$t('commons.adv_search.search')}}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -25,7 +23,7 @@
 </template>
 
 <script>
-  import components from "./search-components";
+  import {default as components, LOGIC} from "./search-components";
 
   export default {
     components: {...components},
@@ -36,31 +34,37 @@
     data() {
       return {
         visible: false,
-        operator: ""
+        options: [LOGIC.AND, LOGIC.OR],
+        logic: this.condition.logic || LOGIC.AND.value
       }
     },
     methods: {
       search() {
         let condition = {
-          logic: this.condition.logic
+          logic: this.logic
         }
         this.condition.components.forEach(component => {
-          if (component.value !== undefined && component.value !== null) {
-            condition[component.key] = {
-              operator: component.operator,
-              value: component.value
+          if (Array.isArray(component.value)) {
+            if (component.value.length > 0) {
+              condition[component.key] = {
+                operator: component.operator,
+                value: component.value
+              }
+            }
+          } else {
+            if (component.value !== undefined && component.value !== null) {
+              condition[component.key] = {
+                operator: component.operator,
+                value: component.value
+              }
             }
           }
         });
+
         this.$emit('search', condition);
       },
       open() {
         this.visible = true;
-      }
-    },
-    created() {
-      if (this.condition.logic === undefined) {
-        this.condition.logic = 'and';
       }
     }
   }

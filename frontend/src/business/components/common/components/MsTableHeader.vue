@@ -14,7 +14,7 @@
       </span>
       <span>
         <ms-table-search-bar :condition.sync="condition" @change="search" class="search-bar"/>
-        <ms-table-adv-search-bar :condition.sync="condition" @search="search"/>
+        <ms-table-adv-search-bar :condition="advanced" @search="search" v-if="advanced"/>
       </span>
     </el-row>
   </div>
@@ -22,7 +22,7 @@
 </template>
 
 <script>
-  import MsTableSearchBar from './search/MsTableSearchBar';
+  import MsTableSearchBar from './MsTableSearchBar';
   import MsTableButton from './MsTableButton';
   import MsTableAdvSearchBar from "./search/MsTableAdvSearchBar";
 
@@ -43,6 +43,7 @@
       condition: {
         type: Object
       },
+      advanced: Object,
       createTip: {
         type: String,
         default() {

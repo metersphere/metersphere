@@ -3,11 +3,11 @@
     <template v-slot="scope">
       <el-date-picker
         v-model="scope.component.value" v-bind="scope.component.props"
-        :placeholder="$t('commons.select_date')" size="small"
-        :type="type" value-format="timestamp"
-        :range-separator="$t('commons.range_separator')"
-        :start-placeholder="$t('commons.start_date')"
-        :end-placeholder="$t('commons.end_date')">
+        :placeholder="$t('commons.date.select_date')" size="small"
+        :type="type" :key="type" value-format="timestamp"
+        :range-separator="$t('commons.date.range_separator')"
+        :start-placeholder="$t('commons.date.start_date')"
+        :end-placeholder="$t('commons.date.end_date')">
       </el-date-picker>
     </template>
   </ms-table-search-component>
@@ -22,12 +22,23 @@
     name: "MsTableSearchDatePicker",
     components: {MsTableSearchComponent},
     props: ['component'],
-    computed: {
-      type() {
-        if (this.component.operator === OPERATORS.BETWEEN.value) {
-          return "daterange";
+    data() {
+      return {
+        type: "daterange"
+      }
+    },
+    methods: {
+      change(value) {
+        if (value === OPERATORS.BETWEEN.value) {
+          if (!Array.isArray(this.component.value)) {
+            this.component.value = [];
+          }
+          this.type = "daterange";
         } else {
-          return "date";
+          if (Array.isArray(this.component.value)) {
+            this.component.value = "";
+          }
+          this.type = "date";
         }
       }
     }

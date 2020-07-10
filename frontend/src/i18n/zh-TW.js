@@ -100,7 +100,42 @@ export default {
     'incorrect_input': '輸入內容不正確',
     'delete_confirm': '請輸入以下內容，確認刪除：',
     'input_name': '請輸入名稱',
-    'formatErr': '格式錯誤'
+    'formatErr': '格式錯誤',
+    date: {
+      select_date: '選擇日期',
+      start_date: '開始日期',
+      end_date: '結束日期',
+      select_date_time: '選擇日期時間',
+      start_date_time: '開始日期時間',
+      end_date_time: '結束日期時間',
+      range_separator: "至",
+    },
+    trigger_mode: {
+      name: "觸發方式",
+      manual: "手動觸發",
+      schedule: "定時任務",
+      api: "API調用"
+    },
+    adv_search: {
+      title: '高級搜索',
+      combine: '組合查詢',
+      search: "查詢",
+      and: '所有',
+      or: '任意一個',
+      operators: {
+        like: "包含",
+        not_like: "不包含",
+        in: "屬於",
+        not_in: "不屬於",
+        gt: "大於",
+        ge: "大於等於",
+        lt: "小於",
+        le: "小於等於",
+        equals: "等於",
+        between: "之間",
+        current_user: "是當前登錄用戶"
+      }
+    }
   },
   workspace: {
     'create': '創建工作空間',

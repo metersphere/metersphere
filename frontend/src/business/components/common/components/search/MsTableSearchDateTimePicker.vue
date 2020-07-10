@@ -1,13 +1,12 @@
 <template>
-  <ms-table-search-component v-model="component.operator" :component="component">
+  <ms-table-search-component v-model="component.operator" :component="component" @change="change">
     <template v-slot="scope">
-      <el-date-picker
-        v-model="scope.component.value" v-bind="scope.component.props"
-        :placeholder="$t('commons.select_date_time')" size="small"
-        :type="type" value-format="timestamp"
-        :range-separator="$t('commons.range_separator')"
-        :start-placeholder="$t('commons.start_date_time')"
-        :end-placeholder="$t('commons.end_date_time')">
+      <el-date-picker v-model="scope.component.value" v-bind="scope.component.props"
+                      :placeholder="$t('commons.date.select_date_time')" size="small"
+                      :type="type" :key="type" value-format="timestamp"
+                      :range-separator="$t('commons.date.range_separator')"
+                      :start-placeholder="$t('commons.date.start_date_time')"
+                      :end-placeholder="$t('commons.date.end_date_time')">
       </el-date-picker>
     </template>
   </ms-table-search-component>
@@ -22,12 +21,23 @@
     name: "MsTableSearchDateTimePicker",
     components: {MsTableSearchComponent},
     props: ['component'],
-    computed: {
-      type() {
-        if (this.component.operator === OPERATORS.BETWEEN.value) {
-          return "datetimerange";
+    data() {
+      return {
+        type: "datetimerange"
+      }
+    },
+    methods: {
+      change(value) {
+        if (value === OPERATORS.BETWEEN.value) {
+          if (!Array.isArray(this.component.value)) {
+            this.component.value = [];
+          }
+          this.type = "datetimerange";
         } else {
-          return "datetime";
+          if (Array.isArray(this.component.value)) {
+            this.component.value = "";
+          }
+          this.type = "datetime";
         }
       }
     }

@@ -7,6 +7,17 @@ export default {
   MsTableSearchInput, MsTableSearchDatePicker, MsTableSearchDateTimePicker, MsTableSearchSelect
 }
 
+export const LOGIC = {
+  AND: {
+    label: "commons.adv_search.and",
+    value: "and"
+  },
+  OR: {
+    label: "commons.adv_search.or",
+    value: "or"
+  },
+}
+
 export const OPERATORS = {
   LIKE: {
     label: "commons.adv_search.operators.like",
@@ -23,14 +34,6 @@ export const OPERATORS = {
   NOT_IN: {
     label: "commons.adv_search.operators.not_in",
     value: "not in"
-  },
-  IS: {
-    label: "commons.adv_search.operators.is",
-    value: "is"
-  },
-  NOT_IS: {
-    label: "commons.adv_search.operators.not_is",
-    value: "not is"
   },
   GT: {
     label: "commons.adv_search.operators.gt",
@@ -107,7 +110,7 @@ export const CREATOR = {
   key: "creator",
   name: 'MsTableSearchSelect',
   labelI18n: 'api_test.creator',
-  operators: [OPERATORS.IN, OPERATORS.NOT_IN, OPERATORS.IS, OPERATORS.NOT_IS, OPERATORS.CURRENT_USER],
+  operators: [OPERATORS.IN, OPERATORS.NOT_IN, OPERATORS.CURRENT_USER],
   options: {
     url: "/user/list",
     label: "name",
@@ -123,3 +126,22 @@ export const CREATOR = {
     return operator !== OPERATORS.CURRENT_USER.value;
   }
 }
+
+export const TRIGGER_MODE = {
+  key: "triggerMode",
+  name: 'MsTableSearchSelect',
+  labelI18n: 'commons.trigger_mode.name',
+  operators: [OPERATORS.IN, OPERATORS.NOT_IN],
+  options: [
+    {label: "commons.trigger_mode.manual", value: "MANUAL"},
+    {label: "commons.trigger_mode.schedule", value: "SCHEDULE"},
+    {label: "commons.trigger_mode.api", value: "API"}
+  ],
+  props: {
+    multiple: true
+  }
+}
+
+export const TEST_CONFIGS = [TEST_NAME, UPDATE_TIME, PROJECT_NAME, CREATE_TIME, STATUS, CREATOR]
+
+export const REPORT_CONFIGS = [TEST_NAME, UPDATE_TIME, PROJECT_NAME, CREATE_TIME, STATUS, CREATOR, TRIGGER_MODE]
