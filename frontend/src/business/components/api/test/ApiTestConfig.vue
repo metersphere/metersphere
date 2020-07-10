@@ -39,18 +39,23 @@
                   <el-dropdown-item command="performance" :disabled="create || isReadOnly">
                     {{$t('api_test.create_performance_test')}}
                   </el-dropdown-item>
-                  <el-dropdown-item command="export" :disabled="isDisabled || isReadOnly">
+                  <el-dropdown-item command="export" :disabled="isReadOnly || create">
                     {{$t('api_test.export_config')}}
+                  </el-dropdown-item>
+                  <el-dropdown-item command="import" :disabled="isReadOnly">
+                    {{$t('api_test.api_import.label')}}
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
+
+              <api-import ref="apiImport"/>
 
               <ms-api-report-dialog :test-id="id" ref="reportDialog"/>
 
               <ms-schedule-config :schedule="test.schedule" :save="saveCronExpression" @scheduleChange="saveSchedule" :check-open="checkScheduleEdit"/>
             </el-row>
           </el-header>
-          <ms-api-scenario-config :is-read-only="isReadOnly" :scenarios="test.scenarioDefinition" ref="config"/>
+          <ms-api-scenario-config :is-read-only="isReadOnly" :scenarios="test.scenarioDefinition" :project-id="test.projectId" ref="config"/>
         </el-container>
       </el-card>
     </div>
@@ -64,11 +69,12 @@
   import MsApiReportDialog from "./ApiReportDialog";
   import {checkoutTestManagerOrTestUser, downloadFile} from "../../../../common/js/utils";
   import MsScheduleConfig from "../../common/components/MsScheduleConfig";
+  import ApiImport from "./components/import/ApiImport";
 
   export default {
     name: "MsApiTestConfig",
 
-    components: {MsScheduleConfig, MsApiReportDialog, MsApiReportStatus, MsApiScenarioConfig},
+    components: {ApiImport, MsScheduleConfig, MsApiReportDialog, MsApiReportStatus, MsApiScenarioConfig},
 
     props: ["id"],
 
@@ -211,6 +217,9 @@
           case "export":
             downloadFile(this.test.name + ".json", this.test.export());
             break;
+          case "import":
+            this.$refs.apiImport.open();
+            break;
         }
       },
       saveCronExpression(cronExpression) {
@@ -228,13 +237,13 @@
           url = '/api/schedule/update';
         }
         this.$post(url, param, response => {
-          this.$success('保存成功');
+          this.$success(this.$t('commons.save_success'));
           this.getTest(this.test.id);
         });
       },
       checkScheduleEdit() {
         if (this.create) {
-          this.$message('请先保存测试');
+          this.$message(this.$t('api_test.environment.please_save_test'));
           return false;
         }
         return true;

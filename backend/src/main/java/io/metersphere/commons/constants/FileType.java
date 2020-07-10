@@ -1,7 +1,7 @@
 package io.metersphere.commons.constants;
 
 public enum FileType {
-    JMX(".jmx"), CSV(".csv");
+    JMX(".jmx"), CSV(".csv"), JSON(".json");
 
     // 保存后缀
     private String suffix;

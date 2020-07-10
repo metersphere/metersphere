@@ -55,8 +55,8 @@ public class PerformanceTestController {
         return performanceTestService.getLoadTestByProjectId(projectId);
     }
 
-    /*查询某个测试状态*/
-    @GetMapping("/list/all/{testId}")
+
+    @GetMapping("/state/get/{testId}")
     public LoadTest listByTestId(@PathVariable String testId) {
         return performanceTestService.getLoadTestBytestId(testId);
     }

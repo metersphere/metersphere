@@ -139,7 +139,11 @@
         }
       },
       initWebSocket() {
-        const uri = "ws://" + window.location.host + "/performance/report/" + this.reportId;
+        let protocol = "ws://";
+        if (window.location.protocol === 'https:') {
+          protocol = "wss://";
+        }
+        const uri = protocol + window.location.host + "/performance/report/" + this.reportId;
         this.websocket = new WebSocket(uri);
         this.websocket.onmessage = this.onMessage;
         this.websocket.onopen = this.onOpen;

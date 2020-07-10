@@ -225,9 +225,15 @@ export class HTTPSamplerProxy extends DefaultTestElement {
     super('HTTPSamplerProxy', 'HttpTestSampleGui', 'HTTPSamplerProxy', testName);
     this.request = request || {};
 
-    this.stringProp("HTTPSampler.domain", this.request.hostname);
-    this.stringProp("HTTPSampler.protocol", this.request.protocol.split(":")[0]);
-    this.stringProp("HTTPSampler.path", this.request.pathname);
+    if (request.useEnvironment) {
+      this.stringProp("HTTPSampler.domain", this.request.environment.domain);
+      this.stringProp("HTTPSampler.protocol", this.request.environment.protocol);
+      this.stringProp("HTTPSampler.path", this.request.path);
+    } else {
+      this.stringProp("HTTPSampler.domain", this.request.hostname);
+      this.stringProp("HTTPSampler.protocol", this.request.protocol.split(":")[0]);
+      this.stringProp("HTTPSampler.path", this.request.pathname);
+    }
     this.stringProp("HTTPSampler.method", this.request.method);
     this.stringProp("HTTPSampler.contentEncoding", this.request.encoding, "UTF-8");
     if (!this.request.port) {

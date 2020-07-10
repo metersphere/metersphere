@@ -18,9 +18,9 @@
         <el-form-item :label="$t('ldap.filter')" prop="filter">
           <el-input v-model="form.filter" :placeholder="$t('ldap.input_filter_placeholder')"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('ldap.mapping')" prop="mapping">
-          <el-input v-model="form.mapping" :placeholder="$t('ldap.input_mapping')"></el-input>
-        </el-form-item>
+<!--        <el-form-item :label="$t('ldap.mapping')" prop="mapping">-->
+<!--          <el-input v-model="form.mapping" :placeholder="$t('ldap.input_mapping')"></el-input>-->
+<!--        </el-form-item>-->
         <el-form-item :label="$t('ldap.open')" prop="open">
           <el-checkbox v-model="form.open"></el-checkbox>
         </el-form-item>
@@ -29,7 +29,7 @@
       <div>
         <el-button type="primary" size="small" :disabled="!show" @click="testConnection">{{$t('ldap.test_connect')}}
         </el-button>
-        <el-button type="primary" size="small" :disabled="!show" @click="testLogin">{{$t('ldap.test_login')}}
+        <el-button type="primary" size="small" :disabled="!showLogin || !show" @click="testLogin">{{$t('ldap.test_login')}}
         </el-button>
         <el-button v-if="showEdit" size="small" @click="edit">{{$t('ldap.edit')}}</el-button>
         <el-button type="success" v-if="showSave" size="small" @click="save('form')">{{$t('commons.save')}}</el-button>
@@ -75,12 +75,14 @@
         showEdit: true,
         showSave: false,
         showCancel: false,
+        showLogin: false,
         loginVisible: false,
         rules: {
           url: {required: true, message: this.$t('ldap.input_url'), trigger: ['change', 'blur']},
           dn: {required: true, message: this.$t('ldap.input_dn'), trigger: ['change', 'blur']},
           password: {required: true, message: this.$t('ldap.input_password'), trigger: ['change', 'blur']},
           ou: {required: true, message: this.$t('ldap.input_ou'), trigger: ['change', 'blur']},
+          filter: {required: true, message: this.$t('ldap.input_filter'), trigger: ['change', 'blur']}
         },
         loginFormRules: {
           username: {required: true, message: this.$t('ldap.input_username'), trigger: 'blur'},
@@ -120,6 +122,9 @@
         }
         this.result = this.$post("/ldap/test/connect", this.form, response => {
           this.$success(this.$t('commons.connection_successful'));
+          this.showLogin = true;
+        }, () => {
+          this.showLogin = false;
         })
       },
       testLogin() {
@@ -129,6 +134,11 @@
 
         if (!this.form.ou) {
           this.$warning(this.$t('ldap.ou_cannot_be_empty'));
+          return false;
+        }
+
+        if (!this.form.filter) {
+          this.$warning(this.$t('ldap.filter_cannot_be_empty'));
           return false;
         }
 
@@ -172,6 +182,7 @@
               this.showEdit = true;
               this.showSave = false;
               this.showCancel = false;
+              this.showLogin = false;
               this.$success(this.$t('commons.save_success'));
               this.init();
             });

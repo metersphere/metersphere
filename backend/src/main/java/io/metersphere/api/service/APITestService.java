@@ -2,18 +2,25 @@ package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.APITestResult;
+import io.metersphere.api.dto.parse.ApiImport;
 import io.metersphere.api.dto.QueryAPITestRequest;
 import io.metersphere.api.dto.SaveAPITestRequest;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.parse.ApiImportParser;
+import io.metersphere.api.parse.ApiImportParserFactory;
+import io.metersphere.api.parse.MsParser;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiTestFileMapper;
 import io.metersphere.base.mapper.ApiTestMapper;
+import io.metersphere.base.mapper.TestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestMapper;
 import io.metersphere.commons.constants.APITestStatus;
+import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.constants.ScheduleType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
@@ -26,8 +33,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -52,6 +58,8 @@ public class APITestService {
     private APIReportService apiReportService;
     @Resource
     private ScheduleService scheduleService;
+    @Resource
+    private TestCaseMapper testCaseMapper;
 
     public List<APITestResult> list(QueryAPITestRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -124,6 +132,20 @@ public class APITestService {
     }
 
     public void delete(String testId) {
+
+        // 是否关联测试用例
+        TestCaseExample testCaseExample = new TestCaseExample();
+        testCaseExample.createCriteria().andTestIdEqualTo(testId);
+        List<TestCase> testCases = testCaseMapper.selectByExample(testCaseExample);
+        if (testCases.size() > 0) {
+            String caseName = "";
+            for (int i = 0; i < testCases.size(); i++) {
+                caseName = caseName + testCases.get(i).getName() + ",";
+            }
+            caseName = caseName.substring(0, caseName.length() - 1);
+            MSException.throwException(Translator.get("related_case_del_fail_prefix") + caseName + Translator.get("related_case_del_fail_suffix"));
+        }
+
         deleteFileByTestId(testId);
         apiReportService.deleteByTestId(testId);
         apiTestMapper.deleteByPrimaryKey(testId);
@@ -161,6 +183,15 @@ public class APITestService {
         if (apiTestMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("load_test_already_exists"));
         }
+    }
+
+    private Boolean isNameExist(SaveAPITestRequest request) {
+        ApiTestExample example = new ApiTestExample();
+        example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
+        if (apiTestMapper.countByExample(example) > 0) {
+           return true;
+        }
+        return false;
     }
 
     private ApiTest updateTest(SaveAPITestRequest request) {
@@ -245,5 +276,38 @@ public class APITestService {
 
     private void addOrUpdateApiTestCronJob(Schedule request) {
         scheduleService.addOrUpdateCronJob(request, ApiTestJob.getJobKey(request.getResourceId()), ApiTestJob.getTriggerKey(request.getResourceId()), ApiTestJob.class);
+    }
+
+    public ApiTest apiTestImport(MultipartFile file, String platform) {
+        ApiImportParser apiImportParser = ApiImportParserFactory.getApiImportParser(platform);
+        ApiImport apiImport = null;
+        try {
+            apiImport = apiImportParser.parse(file.getInputStream());
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(Translator.get("parse_data_error"));
+        }
+        SaveAPITestRequest request = getImportApiTest(file, apiImport);
+        return createTest(request);
+    }
+
+    private SaveAPITestRequest getImportApiTest(MultipartFile file, ApiImport apiImport) {
+        SaveAPITestRequest request =  new SaveAPITestRequest();
+        request.setName(file.getOriginalFilename());
+        request.setProjectId("");
+        request.setScenarioDefinition(apiImport.getScenarios());
+        request.setUserId(SessionUtils.getUser().getId());
+        request.setId(UUID.randomUUID().toString());
+        for (FileType fileType : FileType.values()) {
+            String suffix = fileType.suffix();
+            String name = request.getName();
+            if (name.endsWith(suffix)) {
+                request.setName(name.substring(0, name.length() - suffix.length()));
+            }
+        };
+        if (isNameExist(request)) {
+            request.setName(request.getName() + "_" + request.getId().substring(0, 5));
+        }
+        return request;
     }
 }

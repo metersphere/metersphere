@@ -16,7 +16,7 @@
           :limit="1"
           action=""
           :on-exceed="handleExceed"
-          :beforeUpload="UploadValidate"
+          :beforeUpload="uploadValidate"
           :on-error="handleError"
           :show-file-list="false"
           :http-request="upload"
@@ -66,8 +66,8 @@
         handleExceed(files, fileList) {
           this.$warning(this.$t('test_track.case.import.upload_limit_count'));
         },
-        UploadValidate(file) {
-          var suffix =file.name.substring(file.name.lastIndexOf('.') + 1);
+        uploadValidate(file) {
+          let suffix = file.name.substring(file.name.lastIndexOf('.') + 1);
           if (suffix != 'xls' && suffix != 'xlsx') {
             this.$warning(this.$t('test_track.case.import.upload_limit_format'));
             return false;

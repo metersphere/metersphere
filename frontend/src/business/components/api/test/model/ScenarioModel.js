@@ -147,6 +147,7 @@ export class Scenario extends BaseConfig {
     this.variables = [];
     this.headers = [];
     this.requests = [];
+    this.environmentId = undefined;
 
     this.set(options);
     this.sets({variables: KeyValue, headers: KeyValue, requests: Request}, options);
@@ -164,11 +165,14 @@ export class Scenario extends BaseConfig {
 
   isValid() {
     for (let i = 0; i < this.requests.length; i++) {
-      if (this.requests[i].isValid()) {
-        return true;
+      if (!this.requests[i].isValid()) {
+        return false;
       }
     }
-    return false;
+    if (!this.name) {
+      return false;
+    }
+    return true;
   }
 }
 
@@ -177,12 +181,15 @@ export class Request extends BaseConfig {
     super();
     this.name = undefined;
     this.url = undefined;
+    this.path = undefined;
     this.method = undefined;
     this.parameters = [];
     this.headers = [];
     this.body = undefined;
     this.assertions = undefined;
     this.extract = undefined;
+    this.environment = undefined;
+    this.useEnvironment = undefined;
 
     this.set(options);
     this.sets({parameters: KeyValue, headers: KeyValue}, options);
@@ -198,7 +205,7 @@ export class Request extends BaseConfig {
   }
 
   isValid() {
-    return !!this.url && !!this.method
+    return ((!this.useEnvironment && !!this.url) || (this.useEnvironment && !!this.path && this.environment)) && !!this.method
   }
 }
 
@@ -392,10 +399,19 @@ class JMXRequest {
       this.method = request.method;
       this.hostname = decodeURIComponent(url.hostname);
       this.pathname = decodeURIComponent(url.pathname);
+      this.path = decodeURIComponent(request.path);
+      this.useEnvironment = request.useEnvironment;
+      this.environment = request.environment;
       this.port = url.port;
       this.protocol = url.protocol.split(":")[0];
       if (this.method.toUpperCase() !== "GET") {
-        this.pathname += url.search.replace('&', '&amp;');
+        // this.pathname += url.search.replace('&', '&amp;');
+        this.pathname += '?';
+        request.parameters.forEach(parameter => {
+          if (parameter.name) {
+            this.pathname += (parameter.name + '=' + parameter.value + '&');
+          }
+        });
       }
     }
   }
@@ -463,6 +479,22 @@ class JMXGenerator {
   }
 
   addScenarioVariables(threadGroup, scenario) {
+    let scenarioVariableKeys = new Set();
+    scenario.variables.forEach(item => {
+      scenarioVariableKeys.add(item.name);
+    });
+    let environment = scenario.environment;
+    if (environment) {
+      let envVariables = environment.variables;
+      if (!(envVariables instanceof Array)) {
+        envVariables = JSON.parse(environment.variables);
+        envVariables.forEach(item => {
+          if (item.name && !scenarioVariableKeys.has(item.name)) {
+            scenario.variables.push(new KeyValue(item.name, item.value));
+          }
+        })
+      }
+    }
     let args = this.filterKV(scenario.variables);
     if (args.length > 0) {
       let name = scenario.name + " Variables"
@@ -471,6 +503,22 @@ class JMXGenerator {
   }
 
   addScenarioHeaders(threadGroup, scenario) {
+    let scenarioHeaderKeys = new Set();
+    scenario.headers.forEach(item => {
+      scenarioHeaderKeys.add(item.name);
+    });
+    let environment = scenario.environment;
+    if (environment) {
+      let envHeaders = environment.headers;
+      if (!(envHeaders instanceof Array)) {
+        envHeaders = JSON.parse(environment.headers);
+        envHeaders.forEach(item => {
+          if (item.name && !scenarioHeaderKeys.has(item.name)) {
+            scenario.headers.push(new KeyValue(item.name, item.value));
+          }
+        })
+      }
+    }
     let headers = this.filterKV(scenario.headers);
     if (headers.length > 0) {
       let name = scenario.name + " Headers"

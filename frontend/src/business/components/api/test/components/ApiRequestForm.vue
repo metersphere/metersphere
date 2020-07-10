@@ -1,30 +1,47 @@
 <template>
   <el-form :model="request" :rules="rules" ref="request" label-width="100px">
+
     <el-form-item :label="$t('api_test.request.name')" prop="name">
       <el-input :disabled="isReadOnly" v-model="request.name" maxlength="100" show-word-limit/>
     </el-form-item>
 
-    <el-form-item :label="$t('api_test.request.url')" prop="url">
+    <el-form-item v-if="!request.useEnvironment" :label="$t('api_test.request.url')" prop="url" class="adjust-margin-bottom">
       <el-input :disabled="isReadOnly" v-model="request.url" maxlength="500"
                 :placeholder="$t('api_test.request.url_description')" @change="urlChange" clearable>
-        <el-select :disabled="isReadOnly" v-model="request.method" slot="prepend" class="request-method-select"
-                   @change="methodChange">
-          <el-option label="GET" value="GET"/>
-          <el-option label="POST" value="POST"/>
-          <el-option label="PUT" value="PUT"/>
-          <el-option label="PATCH" value="PATCH"/>
-          <el-option label="DELETE" value="DELETE"/>
-          <el-option label="OPTIONS" value="OPTIONS"/>
-          <el-option label="HEAD" value="HEAD"/>
-          <el-option label="CONNECT" value="CONNECT"/>
-        </el-select>
+        <template  v-slot:prepend>
+          <ApiRequestMethodSelect :is-read-only="isReadOnly" :request="request" @change="methodChange"/>
+        </template>
       </el-input>
+    </el-form-item>
+
+    <el-form-item v-if="request.useEnvironment" :label="$t('api_test.request.path')" prop="path">
+      <el-input :disabled="isReadOnly" v-model="request.path" maxlength="500"
+                :placeholder="$t('api_test.request.path_description')" @change="pathChange" clearable>
+        <template  v-slot:prepend>
+          <ApiRequestMethodSelect :is-read-only="isReadOnly" :request="request" @change="methodChange"/>
+        </template>
+      </el-input>
+    </el-form-item>
+
+    <el-form-item v-if="request.useEnvironment" :label="$t('api_test.request.address')" class="adjust-margin-bottom">
+      <el-tag class="environment-display">
+        <span class="environment-name">{{request.environment ? request.environment.name + ': ' : ''}}</span>
+        <span class="environment-url">{{displayUrl}}</span>
+        <span v-if="!displayUrl" class="environment-url-tip">{{$t('api_test.request.please_configure_environment_in_scenario')}}</span>
+      </el-tag>
+    </el-form-item>
+
+    <el-form-item>
+      <el-switch
+        v-model="request.useEnvironment"
+        :active-text="$t('api_test.request.refer_to_environment')" @change="useEnvironmentChange">
+      </el-switch>
     </el-form-item>
 
     <el-tabs v-model="activeName">
       <el-tab-pane :label="$t('api_test.request.parameters')" name="parameters">
         <ms-api-key-value :is-read-only="isReadOnly" :items="request.parameters"
-                          :description="$t('api_test.request.parameters_desc')" @change="parametersChange"/>
+                          :description="$t('api_test.request.parameters_desc')"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.headers')" name="headers">
         <ms-api-key-value :is-read-only="isReadOnly" :items="request.headers"/>
@@ -48,10 +65,11 @@
   import MsApiAssertions from "./assertion/ApiAssertions";
   import {KeyValue, Request} from "../model/ScenarioModel";
   import MsApiExtract from "./extract/ApiExtract";
+  import ApiRequestMethodSelect from "./collapse/ApiRequestMethodSelect";
 
   export default {
     name: "MsApiRequestForm",
-    components: {MsApiExtract, MsApiAssertions, MsApiBody, MsApiKeyValue},
+    components: {ApiRequestMethodSelect, MsApiExtract, MsApiAssertions, MsApiBody, MsApiKeyValue},
     props: {
       request: Request,
       isReadOnly: {
@@ -77,6 +95,9 @@
           url: [
             {max: 500, required: true, message: this.$t('commons.input_limit', [0, 500]), trigger: 'blur'},
             {validator: validateURL, trigger: 'blur'}
+          ],
+          path: [
+            {max: 500, required: true, message: this.$t('commons.input_limit', [0, 500]), trigger: 'blur'},
           ]
         }
       }
@@ -85,39 +106,43 @@
     methods: {
       urlChange() {
         if (!this.request.url) return;
-
-        let parameters = [];
+        let url = this.getURL(this.addProtocol(this.request.url));
+        if (url) {
+          this.request.url = decodeURIComponent(url.origin + url.pathname);
+        }
+      },
+      pathChange() {
+        if (!this.request.path) return;
+        if (!this.request.path.startsWith('/')) {
+          this.request.path = '/' + this.request.path;
+        }
+        let url = this.getURL(this.displayUrl);
+        this.request.path = decodeURIComponent(url.pathname);
+        this.request.urlWirhEnv = decodeURIComponent(url.origin + url.pathname);
+      },
+      getURL(urlStr) {
         try {
-          let url = new URL(this.addProtocol(this.request.url));
+          let url = new URL(urlStr);
           url.searchParams.forEach((value, key) => {
             if (key && value) {
-              parameters.push(new KeyValue(key, value));
+              this.request.parameters.splice(0, 0, new KeyValue(key, value));
             }
           });
-          // 添加一个空的，用于填写
-          parameters.push(new KeyValue());
-          this.request.parameters = parameters;
-          this.request.url = this.getURL(url);
+          return url;
         } catch (e) {
-          this.$error(this.$t('api_test.request.url_invalid'), 2000)
+          this.$error(this.$t('api_test.request.url_invalid'), 2000);
         }
-
       },
       methodChange(value) {
         if (value === 'GET' && this.activeName === 'body') {
           this.activeName = 'parameters';
         }
       },
-      parametersChange(parameters) {
-        if (!this.request.url) return;
-        let url = new URL(this.addProtocol(this.request.url));
-        url.search = "";
-        parameters.forEach(function (parameter) {
-          if (parameter.name && parameter.value) {
-            url.searchParams.append(parameter.name, parameter.value);
-          }
-        })
-        this.request.url = this.getURL(url);
+      useEnvironmentChange(value) {
+        if (value && !this.request.environment) {
+          this.$error(this.$t('api_test.request.please_add_environment_to_scenario'), 2000);
+          this.request.useEnvironment = false;
+        }
       },
       addProtocol(url) {
         if (url) {
@@ -126,15 +151,15 @@
           }
         }
         return url;
-      },
-      getURL(url) {
-        return decodeURIComponent(url.origin + url.pathname) + "?" + url.searchParams.toString();
       }
     },
 
     computed: {
       isNotGet() {
         return this.request.method !== "GET";
+      },
+      displayUrl() {
+        return this.request.environment ? this.request.environment.protocol + '://' + this.request.environment.socket + (this.request.path ? this.request.path : '') : '';
       }
     }
   }
@@ -144,4 +169,28 @@
   .request-method-select {
     width: 110px;
   }
+
+  .el-tag {
+    width: 100%;
+    height: 40px;
+    line-height: 40px;
+  }
+
+  .environment-display {
+    font-size: 14px;
+  }
+
+  .environment-name {
+    font-weight: bold;
+    font-style: italic;
+  }
+
+  .adjust-margin-bottom {
+    margin-bottom: 10px;
+  }
+
+  .environment-url-tip {
+    color: #F56C6C;
+  }
+
 </style>

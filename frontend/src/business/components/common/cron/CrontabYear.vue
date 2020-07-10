@@ -2,29 +2,29 @@
 	<el-form size="small">
 		<el-form-item>
 			<el-radio :label="1" v-model='radioValue'>
-				不填，允许的通配符[, - * /]
-			</el-radio>
+        {{$t('schedule.cron.not_fill')}}，{{$t('schedule.cron.allowed_wildcards')}}
+      </el-radio>
 		</el-form-item>
 
 		<el-form-item>
 			<el-radio :label="2" v-model='radioValue'>
-				每年
+        {{$t('schedule.cron.every')}}{{$t('schedule.cron.years')}}
 			</el-radio>
 		</el-form-item>
 
 		<el-form-item>
 			<el-radio :label="3" v-model='radioValue'>
-				周期从
-				<el-input-number v-model='cycle01' :min='fullYear' /> -
+        {{$t('schedule.cron.period')}} {{$t('schedule.cron.from')}}
+        <el-input-number v-model='cycle01' :min='fullYear' /> -
 				<el-input-number v-model='cycle02' :min='fullYear' />
 			</el-radio>
 		</el-form-item>
 
 		<el-form-item>
 			<el-radio :label="4" v-model='radioValue'>
-				从
-				<el-input-number v-model='average01' :min='fullYear' /> 年开始，每
-				<el-input-number v-model='average02' :min='fullYear' /> 年执行一次
+        {{$t('schedule.cron.from')}}
+        <el-input-number v-model='average01' :min='fullYear' /> {{$t('schedule.cron.years')}}{{$t('schedule.cron.start')}}，{{$t('schedule.cron.every')}}
+				<el-input-number v-model='average02' :min='fullYear' /> {{$t('schedule.cron.years')}}{{$t('schedule.cron.execute_once')}}
 			</el-radio>
 
 		</el-form-item>
@@ -32,7 +32,7 @@
 		<el-form-item>
 			<el-radio :label="5" v-model='radioValue'>
 				指定
-				<el-select clearable v-model="checkboxList" placeholder="可多选" multiple>
+				<el-select clearable v-model="checkboxList" :placeholder="$t('schedule.cron.multi_select')" multiple>
 					<el-option v-for="item in 9" :key="item" :value="item - 1 + fullYear" :label="item -1 + fullYear" />
 				</el-select>
 			</el-radio>

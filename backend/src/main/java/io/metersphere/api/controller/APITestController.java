@@ -50,8 +50,8 @@ public class APITestController {
         return apiTestService.getApiTestByProjectId(projectId);
     }
 
-    /*查询某个api测试状态*/
-    @GetMapping("/list/all/{testId}")
+
+    @GetMapping("/state/get/{testId}")
     public ApiTest apiState(@PathVariable String testId) {
         return apiTestService.getApiTestByTestId(testId);
     }
@@ -94,6 +94,12 @@ public class APITestController {
     @PostMapping(value = "/run")
     public String run(@RequestBody SaveAPITestRequest request) {
         return apiTestService.run(request);
+    }
+
+    @PostMapping("/import/{platform}")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public ApiTest testCaseImport(MultipartFile file, @PathVariable String platform) {
+        return apiTestService.apiTestImport(file, platform);
     }
 
 }

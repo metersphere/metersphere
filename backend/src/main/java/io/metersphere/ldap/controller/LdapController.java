@@ -6,6 +6,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.LoginRequest;
 import io.metersphere.i18n.Translator;
+import io.metersphere.ldap.domain.Person;
 import io.metersphere.ldap.service.LdapService;
 import io.metersphere.ldap.domain.LdapInfo;
 import io.metersphere.service.SystemParameterService;
@@ -34,20 +35,25 @@ public class LdapController {
             MSException.throwException(Translator.get("ldap_authentication_not_enabled"));
         }
 
-        ldapService.authenticate(request);
+        Person person = ldapService.authenticate(request);
 
         SecurityUtils.getSubject().getSession().setAttribute("authenticate", "ldap");
 
         String username = request.getUsername();
         String password = request.getPassword();
 
+        String email = person.getEmail();
+
+        if (StringUtils.isBlank(email)) {
+            MSException.throwException(Translator.get("login_fail_email_null"));
+        }
+
         User u = userService.selectUser(request.getUsername());
         if (u == null) {
             User user = new User();
             user.setId(username);
             user.setName(username);
-            // todo user email ?
-            user.setEmail(username + "@fit2cloud.com");
+            user.setEmail(email);
             user.setPassword(password);
             userService.createUser(user);
         } else {
@@ -60,7 +66,7 @@ public class LdapController {
 
     @PostMapping("/test/connect")
     public void testConnect(@RequestBody LdapInfo ldapInfo) {
-        ldapService.testConnect(ldapInfo);
+        ldapService.testConnect();
     }
 
     @PostMapping("/test/login")
