@@ -1,11 +1,10 @@
 <template>
   <div>
-    <div class="search-label" v-if="component.label">{{component.label}}:</div>
-    <div class="search-label" v-else>{{$t(component.labelI18n)}}:</div>
+    <div class="search-label">{{component.label}}:</div>
 
     <el-select class="search-operator" v-model="operator" :placeholder="$t('commons.please_select')" size="small"
                @change="change" @input="input">
-      <el-option v-for="op in operators" :key="op.value" :label="$t(op.label)" :value="op.value"/>
+      <el-option v-for="o in operators" :key="o.value" :label="o.label" :value="o.value"/>
     </el-select>
 
     <div class="search-content" v-if="showContent(operator)">

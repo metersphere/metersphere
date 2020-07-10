@@ -5,7 +5,7 @@
       <div>
         <div class="search-label">{{$t('commons.adv_search.combine')}}: </div>
         <el-select v-model="logic" :placeholder="$t('commons.please_select')" size="small" class="search-combine">
-          <el-option v-for="op in options" :key="op.value" :label="$t(op.label)" :value="op.value"/>
+          <el-option v-for="o in options" :key="o.value" :label="o.label" :value="o.value"/>
         </el-select>
         <div class="search-items">
           <component class="search-item" v-for="(component, index) in condition.components" :key="index"
@@ -23,7 +23,7 @@
 </template>
 
 <script>
-  import {default as components, LOGIC} from "./search-components";
+  import components from "./search-components";
 
   export default {
     components: {...components},
@@ -34,8 +34,14 @@
     data() {
       return {
         visible: false,
-        options: [LOGIC.AND, LOGIC.OR],
-        logic: this.condition.logic || LOGIC.AND.value
+        options: [{
+          label: this.$t("commons.adv_search.and"),
+          value: "and"
+        }, {
+          label: this.$t("commons.adv_search.or"),
+          value: "or"
+        }],
+        logic: this.condition.logic || "and"
       }
     },
     methods: {

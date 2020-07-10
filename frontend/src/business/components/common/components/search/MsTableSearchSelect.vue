@@ -26,7 +26,7 @@
         this.$get(this.component.options.url, response => {
           if (response.data) {
             response.data.forEach(item => {
-              this.options.push({label: item[this.component.options.label], value: item[this.component.options.value]})
+              this.options.push({label: item[this.component.options.labelKey], value: item[this.component.options.valueKey]})
             })
           }
         })
@@ -38,7 +38,7 @@
           if (this.component.options.showLabel) {
             return this.component.options.showLabel(op);
           }
-          return op.label
+          return op.label;
         }
       }
     }

@@ -2,65 +2,55 @@ import MsTableSearchInput from "./MsTableSearchInput";
 import MsTableSearchDateTimePicker from "./MsTableSearchDateTimePicker";
 import MsTableSearchDatePicker from "./MsTableSearchDatePicker";
 import MsTableSearchSelect from "./MsTableSearchSelect";
+import i18n from "../../../../../i18n/i18n";
 
 export default {
   MsTableSearchInput, MsTableSearchDatePicker, MsTableSearchDateTimePicker, MsTableSearchSelect
 }
 
-export const LOGIC = {
-  AND: {
-    label: "commons.adv_search.and",
-    value: "and"
-  },
-  OR: {
-    label: "commons.adv_search.or",
-    value: "or"
-  },
-}
-
 export const OPERATORS = {
   LIKE: {
-    label: "commons.adv_search.operators.like",
+    label: i18n.t("commons.adv_search.operators.like"),
     value: "like"
   },
   NOT_LIKE: {
-    label: "commons.adv_search.operators.not_like",
+    label: i18n.t("commons.adv_search.operators.not_like"),
     value: "not like"
   },
   IN: {
-    label: "commons.adv_search.operators.in",
+    label: i18n.t("commons.adv_search.operators.in"),
     value: "in"
   },
   NOT_IN: {
-    label: "commons.adv_search.operators.not_in",
+    label: i18n.t("commons.adv_search.operators.not_in"),
     value: "not in"
   },
   GT: {
-    label: "commons.adv_search.operators.gt",
+    label: i18n.t("commons.adv_search.operators.gt"),
     value: ">"
   },
   GE: {
-    label: "commons.adv_search.operators.ge",
+    label: i18n.t("commons.adv_search.operators.ge"),
     value: ">="
   },
   LT: {
-    label: "commons.adv_search.operators.lt",
+    label: i18n.t("commons.adv_search.operators.lt"),
     value: "<"
   },
   LE: {
-    label: "commons.adv_search.operators.le",
+    label: i18n.t("commons.adv_search.operators.le"),
     value: "<="
   },
   EQ: {
-    label: "commons.adv_search.operators.equals",
+    label: i18n.t("commons.adv_search.operators.equals"),
     value: "=="
   },
   BETWEEN: {
-    label: "commons.adv_search.operators.between",
+    label: i18n.t("commons.adv_search.operators.between"),
     value: "between"
   },
   CURRENT_USER: {
-    label: "commons.adv_search.operators.current_user",
+    label: i18n.t("commons.adv_search.operators.current_user"),
     value: "current user"
   },
 }
@@ -68,33 +58,33 @@ export const OPERATORS = {
 export const TEST_NAME = {
   key: "name",
   name: 'MsTableSearchInput',
-  labelI18n: 'commons.name',
+  label: i18n.t('commons.name'),
   operators: [OPERATORS.LIKE, OPERATORS.NOT_LIKE],
 }
 
 export const UPDATE_TIME = {
   key: "updateTime",
   name: 'MsTableSearchDateTimePicker',
-  labelI18n: 'commons.update_time',
+  label: i18n.t('commons.update_time'),
   operators: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE, OPERATORS.EQ],
 }
 export const PROJECT_NAME = {
   key: "projectName",
   name: 'MsTableSearchInput',
-  labelI18n: 'load_test.project_name',
+  label: i18n.t('load_test.project_name'),
   operators: [OPERATORS.LIKE, OPERATORS.NOT_LIKE],
 }
 export const CREATE_TIME = {
   key: "createTime",
   name: 'MsTableSearchDateTimePicker',
-  labelI18n: 'commons.create_time',
+  label: i18n.t('commons.create_time'),
   operators: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE, OPERATORS.EQ],
 }
 
 export const STATUS = {
   key: "status",
   name: 'MsTableSearchSelect',
-  labelI18n: 'commons.status',
+  label: i18n.t('commons.status'),
   operators: [OPERATORS.IN, OPERATORS.NOT_IN],
   options: [
     {label: "Saved", value: "Saved"}, {label: "Starting", value: "Starting"},
@@ -109,12 +99,12 @@ export const STATUS = {
 export const CREATOR = {
   key: "creator",
   name: 'MsTableSearchSelect',
-  labelI18n: 'api_test.creator',
+  label: i18n.t('api_test.creator'),
   operators: [OPERATORS.IN, OPERATORS.NOT_IN, OPERATORS.CURRENT_USER],
   options: {
     url: "/user/list",
-    label: "name",
-    value: "id",
+    labelKey: "name",
+    valueKey: "id",
     showLabel: option => {
       return option.label + "(" + option.value + ")";
     }
@@ -130,12 +120,12 @@ export const CREATOR = {
 export const TRIGGER_MODE = {
   key: "triggerMode",
   name: 'MsTableSearchSelect',
-  labelI18n: 'commons.trigger_mode.name',
+  label: i18n.t('commons.trigger_mode.name'),
   operators: [OPERATORS.IN, OPERATORS.NOT_IN],
   options: [
-    {label: "commons.trigger_mode.manual", value: "MANUAL"},
-    {label: "commons.trigger_mode.schedule", value: "SCHEDULE"},
-    {label: "commons.trigger_mode.api", value: "API"}
+    {label: i18n.t("commons.trigger_mode.manual"), value: "MANUAL"},
+    {label: i18n.t("commons.trigger_mode.schedule"), value: "SCHEDULE"},
+    {label: i18n.t("commons.trigger_mode.api"), value: "API"}
   ],
   props: {
     multiple: true

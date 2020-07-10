@@ -106,8 +106,8 @@
       create() {
         this.$router.push('/api/test/create');
       },
-      search(condition) {
-        console.log(condition)
+      search(advanced) {
+        console.log(advanced)
         if (this.projectId !== 'all') {
           this.condition.projectId = this.projectId;
         }
