@@ -21,6 +21,8 @@ public class UserDTO {
 
     private String status;
 
+    private String source;
+
     private Long createTime;
 
     private Long updateTime;

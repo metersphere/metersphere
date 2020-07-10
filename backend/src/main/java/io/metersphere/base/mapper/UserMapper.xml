@@ -13,6 +13,7 @@
     <result column="last_workspace_id" jdbcType="VARCHAR" property="lastWorkspaceId" />
     <result column="last_organization_id" jdbcType="VARCHAR" property="lastOrganizationId" />
     <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="source" jdbcType="VARCHAR" property="source" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -73,8 +74,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, name, email, password, status, create_time, update_time, language, last_workspace_id, 
-    last_organization_id, phone
+    id, `name`, email, `password`, `status`, create_time, update_time, `language`, last_workspace_id, 
+    last_organization_id, phone, `source`
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.UserExample" resultMap="BaseResultMap">
     select
@@ -107,14 +108,16 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.User">
-    insert into user (id, name, email, 
-      password, status, create_time, 
-      update_time, language, last_workspace_id, 
-      last_organization_id, phone)
+    insert into user (id, `name`, email, 
+      `password`, `status`, create_time, 
+      update_time, `language`, last_workspace_id, 
+      last_organization_id, phone, `source`
+      )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, 
       #{password,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
       #{updateTime,jdbcType=BIGINT}, #{language,jdbcType=VARCHAR}, #{lastWorkspaceId,jdbcType=VARCHAR}, 
-      #{lastOrganizationId,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR})
+      #{lastOrganizationId,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{source,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.User">
     insert into user
@@ -123,16 +126,16 @@
         id,
       </if>
       <if test="name != null">
-        name,
+        `name`,
       </if>
       <if test="email != null">
         email,
       </if>
       <if test="password != null">
-        password,
+        `password`,
       </if>
       <if test="status != null">
-        status,
+        `status`,
       </if>
       <if test="createTime != null">
         create_time,
@@ -141,7 +144,7 @@
         update_time,
       </if>
       <if test="language != null">
-        language,
+        `language`,
       </if>
       <if test="lastWorkspaceId != null">
         last_workspace_id,
@@ -151,6 +154,9 @@
       </if>
       <if test="phone != null">
         phone,
+      </if>
+      <if test="source != null">
+        `source`,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -187,6 +193,9 @@
       <if test="phone != null">
         #{phone,jdbcType=VARCHAR},
       </if>
+      <if test="source != null">
+        #{source,jdbcType=VARCHAR},
+      </if>
     </trim>
   </insert>
   <select id="countByExample" parameterType="io.metersphere.base.domain.UserExample" resultType="java.lang.Long">
@@ -202,16 +211,16 @@
         id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.name != null">
-        name = #{record.name,jdbcType=VARCHAR},
+        `name` = #{record.name,jdbcType=VARCHAR},
       </if>
       <if test="record.email != null">
         email = #{record.email,jdbcType=VARCHAR},
       </if>
       <if test="record.password != null">
-        password = #{record.password,jdbcType=VARCHAR},
+        `password` = #{record.password,jdbcType=VARCHAR},
       </if>
       <if test="record.status != null">
-        status = #{record.status,jdbcType=VARCHAR},
+        `status` = #{record.status,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -220,7 +229,7 @@
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
       <if test="record.language != null">
-        language = #{record.language,jdbcType=VARCHAR},
+        `language` = #{record.language,jdbcType=VARCHAR},
       </if>
       <if test="record.lastWorkspaceId != null">
         last_workspace_id = #{record.lastWorkspaceId,jdbcType=VARCHAR},
@@ -231,6 +240,9 @@
       <if test="record.phone != null">
         phone = #{record.phone,jdbcType=VARCHAR},
       </if>
+      <if test="record.source != null">
+        `source` = #{record.source,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -239,16 +251,17 @@
   <update id="updateByExample" parameterType="map">
     update user
     set id = #{record.id,jdbcType=VARCHAR},
-      name = #{record.name,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
       email = #{record.email,jdbcType=VARCHAR},
-      password = #{record.password,jdbcType=VARCHAR},
-      status = #{record.status,jdbcType=VARCHAR},
+      `password` = #{record.password,jdbcType=VARCHAR},
+      `status` = #{record.status,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      language = #{record.language,jdbcType=VARCHAR},
+      `language` = #{record.language,jdbcType=VARCHAR},
       last_workspace_id = #{record.lastWorkspaceId,jdbcType=VARCHAR},
       last_organization_id = #{record.lastOrganizationId,jdbcType=VARCHAR},
-      phone = #{record.phone,jdbcType=VARCHAR}
+      phone = #{record.phone,jdbcType=VARCHAR},
+      `source` = #{record.source,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -257,16 +270,16 @@
     update user
     <set>
       <if test="name != null">
-        name = #{name,jdbcType=VARCHAR},
+        `name` = #{name,jdbcType=VARCHAR},
       </if>
       <if test="email != null">
         email = #{email,jdbcType=VARCHAR},
       </if>
       <if test="password != null">
-        password = #{password,jdbcType=VARCHAR},
+        `password` = #{password,jdbcType=VARCHAR},
       </if>
       <if test="status != null">
-        status = #{status,jdbcType=VARCHAR},
+        `status` = #{status,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -275,7 +288,7 @@
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
       <if test="language != null">
-        language = #{language,jdbcType=VARCHAR},
+        `language` = #{language,jdbcType=VARCHAR},
       </if>
       <if test="lastWorkspaceId != null">
         last_workspace_id = #{lastWorkspaceId,jdbcType=VARCHAR},
@@ -286,22 +299,25 @@
       <if test="phone != null">
         phone = #{phone,jdbcType=VARCHAR},
       </if>
+      <if test="source != null">
+        `source` = #{source,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.User">
     update user
-    set name = #{name,jdbcType=VARCHAR},
+    set `name` = #{name,jdbcType=VARCHAR},
       email = #{email,jdbcType=VARCHAR},
-      password = #{password,jdbcType=VARCHAR},
-      status = #{status,jdbcType=VARCHAR},
+      `password` = #{password,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      language = #{language,jdbcType=VARCHAR},
+      `language` = #{language,jdbcType=VARCHAR},
       last_workspace_id = #{lastWorkspaceId,jdbcType=VARCHAR},
       last_organization_id = #{lastOrganizationId,jdbcType=VARCHAR},
-      phone = #{phone,jdbcType=VARCHAR}
+      phone = #{phone,jdbcType=VARCHAR},
+      `source` = #{source,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
-
 </mapper>

@@ -2,6 +2,7 @@ package io.metersphere.ldap.controller;
 
 import io.metersphere.base.domain.User;
 import io.metersphere.commons.constants.ParamConstants;
+import io.metersphere.commons.constants.UserSource;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.LoginRequest;
@@ -55,6 +56,7 @@ public class LdapController {
             user.setName(username);
             user.setEmail(email);
             user.setPassword(password);
+            user.setSource(UserSource.Ldap.name());
             userService.createUser(user);
         } else {
             request.setUsername(u.getId());
