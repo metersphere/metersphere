@@ -1,5 +1,5 @@
 <template>
-  <div class="container" v-if="ready">
+  <div class="container" v-loading="result.loading" v-if="ready">
     <el-row type="flex">
       <el-col :span="12">
         <el-form :model="form" :rules="rules" ref="form">
@@ -22,7 +22,8 @@
               </el-radio-group>
             </el-form-item>
             <el-form-item prop="username">
-              <el-input v-model="form.username" :placeholder="$t('commons.login_username')" autofocus autocomplete="off"/>
+              <el-input v-model="form.username" :placeholder="$t('commons.login_username')" autofocus
+                        autocomplete="off"/>
             </el-form-item>
             <el-form-item prop="password">
               <el-input v-model="form.password" :placeholder="$t('commons.password')" show-password autocomplete="off"
@@ -64,6 +65,7 @@
         }
       };*/
       return {
+        result: {},
         form: {
           username: '',
           password: '',
@@ -128,13 +130,13 @@
         });
       },
       normalLogin() {
-        this.$post("signin", this.form, response => {
+        this.result = this.$post("signin", this.form, response => {
           saveLocalStorage(response);
           this.getLanguage(response.data.language);
         });
       },
       ldapLogin() {
-        this.$post("ldap/signin", this.form, response => {
+        this.result = this.$post("ldap/signin", this.form, response => {
           saveLocalStorage(response);
           this.getLanguage(response.data.language);
         });
