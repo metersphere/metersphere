@@ -54,6 +54,14 @@
   import MsApiTestStatus from "./ApiTestStatus";
   import MsTableOperators from "../../common/components/MsTableOperators";
   import {_filter, _sort} from "../../../../common/js/utils";
+  import {
+    TEST_NAME,
+    UPDATE_TIME,
+    PROJECT_NAME,
+    CREATE_TIME,
+    STATUS,
+    CREATOR,
+  } from "../../common/components/search/search-components";
 
   export default {
     components: {
@@ -63,7 +71,9 @@
     data() {
       return {
         result: {},
-        condition: {},
+        condition: {
+          components: [TEST_NAME, UPDATE_TIME, PROJECT_NAME, CREATE_TIME, STATUS, CREATOR]
+        },
         projectId: null,
         tableData: [],
         multipleSelection: [],
@@ -102,9 +112,8 @@
       create() {
         this.$router.push('/api/test/create');
       },
-      search() {
-
-
+      search(condition) {
+        console.log(condition)
         if (this.projectId !== 'all') {
           this.condition.projectId = this.projectId;
         }
