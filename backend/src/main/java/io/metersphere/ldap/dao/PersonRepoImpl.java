@@ -57,23 +57,17 @@ public class PersonRepoImpl implements PersonRepo {
         LdapTemplate ldapTemplate = getConnection();
 
         String filter = getUserFilter();
-        String[] arr = getUserOu();
+        String ou = getUserOu();
 
         List<Person> result = null;
-
-        for (String ou : arr) {
-            try {
-                result = ldapTemplate.search(query().base(ou.trim()).filter(filter, username), getContextMapper());
-                if (result.size() == 1) {
-                    return result.get(0);
-                }
-            } catch (NameNotFoundException e) {
-                MSException.throwException(Translator.get("login_fail_ou_error"));
-            } catch (InvalidNameException e) {
-                MSException.throwException(Translator.get("login_fail_ou_error"));
-            } catch (InvalidSearchFilterException e) {
-                MSException.throwException(Translator.get("login_fail_filter_error"));
-            }
+        try {
+            result = ldapTemplate.search(query().base(ou).filter(filter, username), getContextMapper());
+        } catch (NameNotFoundException e) {
+            MSException.throwException(Translator.get("login_fail_ou_error"));
+        } catch (InvalidNameException e) {
+            MSException.throwException(Translator.get("login_fail_ou_error"));
+        } catch (InvalidSearchFilterException e) {
+            MSException.throwException(Translator.get("login_fail_filter_error"));
         }
 
         if (result.size() != 1) {
@@ -93,16 +87,14 @@ public class PersonRepoImpl implements PersonRepo {
         return filter;
     }
 
-    private String[] getUserOu() {
+    private String getUserOu() {
         String ou = service.getValue(ParamConstants.LDAP.OU.getValue());
 
         if (StringUtils.isBlank(ou)) {
             MSException.throwException(Translator.get("ldap_ou_is_null"));
         }
 
-        String[] arr = ou.split("\\|");
-
-        return arr;
+        return ou;
     }
 
     protected ContextMapper getContextMapper() {

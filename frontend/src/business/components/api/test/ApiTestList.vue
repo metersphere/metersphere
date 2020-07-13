@@ -4,7 +4,7 @@
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
           <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search"
-                           :title="$t('commons.test')"
+                           :title="$t('commons.test')" :advanced="advanced"
                            @create="create" :createTip="$t('load_test.create')"/>
         </template>
         <el-table :data="tableData" class="table-content" @sort-change="sort" @row-click="handleView"
@@ -54,6 +54,7 @@
   import MsApiTestStatus from "./ApiTestStatus";
   import MsTableOperators from "../../common/components/MsTableOperators";
   import {_filter, _sort} from "../../../../common/js/utils";
+  import {TEST_CONFIGS} from "../../common/components/search/search-components";
 
   export default {
     components: {
@@ -64,6 +65,9 @@
       return {
         result: {},
         condition: {},
+        advanced: {
+          components: TEST_CONFIGS
+        },
         projectId: null,
         tableData: [],
         multipleSelection: [],
@@ -102,9 +106,8 @@
       create() {
         this.$router.push('/api/test/create');
       },
-      search() {
-
-
+      search(advanced) {
+        console.log(advanced)
         if (this.projectId !== 'all') {
           this.condition.projectId = this.projectId;
         }
