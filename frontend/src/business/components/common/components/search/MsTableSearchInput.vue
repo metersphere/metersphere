@@ -1,5 +1,5 @@
 <template>
-  <ms-table-search-component v-model="component.operator" :component="component">
+  <ms-table-search-component v-model="component.operator.value" :component="component">
     <template v-slot="scope">
       <el-input v-model="scope.component.value" v-bind="props"
                 :placeholder="$t('commons.input_content')" size="small"/>

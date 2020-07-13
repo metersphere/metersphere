@@ -14,7 +14,7 @@
       </span>
       <span>
         <ms-table-search-bar :condition.sync="condition" @change="search" class="search-bar"/>
-        <ms-table-adv-search-bar :condition="advanced" @search="search" v-if="advanced"/>
+        <ms-table-adv-search-bar :condition="condition" @search="search" v-if="isCombine"/>
       </span>
     </el-row>
   </div>
@@ -43,7 +43,6 @@
       condition: {
         type: Object
       },
-      advanced: Object,
       createTip: {
         type: String,
         default() {
@@ -62,6 +61,11 @@
       },
       create() {
         this.$emit('create');
+      }
+    },
+    computed: {
+      isCombine() {
+        return this.condition.components !== undefined && this.condition.components.length > 0;
       }
     }
   }

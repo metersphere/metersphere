@@ -4,7 +4,7 @@
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
           <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search"
-                           :title="$t('api_report.title')" :advanced="advanced"
+                           :title="$t('api_report.title')"
                            :show-create="false"/>
         </template>
         <el-table :data="tableData" class="table-content" @sort-change="sort"
@@ -57,7 +57,7 @@
   import {_filter, _sort} from "../../../../common/js/utils";
   import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
   import ReportTriggerModeItem from "../../common/tableItem/ReportTriggerModeItem";
-  import {REPORT_CONFIGS} from "../../common/components/search/search-components";
+  import {getReportConfigs} from "../../common/components/search/search-components";
 
   export default {
     components: {
@@ -68,9 +68,8 @@
     data() {
       return {
         result: {},
-        condition: {},
-        advanced: {
-          components: REPORT_CONFIGS
+        condition: {
+          components: getReportConfigs()
         },
         tableData: [],
         multipleSelection: [],
@@ -99,14 +98,15 @@
     },
 
     methods: {
-      search(advanced) {
-        console.log(advanced)
+      search(combine) {
+        // 只有在点击高级搜索的查询按钮时combine才有值
+        let condition = combine ? {combine: combine} : this.condition;
         if (this.testId !== 'all') {
-          this.condition.testId = this.testId;
+          condition.testId = this.testId;
         }
 
         let url = "/api/report/list/" + this.currentPage + "/" + this.pageSize;
-        this.result = this.$post(url, this.condition, response => {
+        this.result = this.$post(url, condition, response => {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;

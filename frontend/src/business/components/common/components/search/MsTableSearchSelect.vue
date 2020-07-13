@@ -1,8 +1,8 @@
 <template>
-  <ms-table-search-component v-model="component.operator" :component="component">
+  <ms-table-search-component v-model="component.operator.value" :component="component">
     <template v-slot="scope">
-      <el-select v-model="scope.component.value" :placeholder="$t('commons.please_select')" size="small" filterable
-                 v-bind="scope.component.props" class="search-select">
+      <el-select v-model="scope.component.value" :placeholder="$t('commons.please_select')" size="small"
+                 filterable v-bind="scope.component.props" class="search-select">
         <el-option v-for="op in options" :key="op.value" :label="label(op)" :value="op.value"></el-option>
       </el-select>
     </template>
@@ -26,7 +26,10 @@
         this.$get(this.component.options.url, response => {
           if (response.data) {
             response.data.forEach(item => {
-              this.options.push({label: item[this.component.options.labelKey], value: item[this.component.options.valueKey]})
+              this.options.push({
+                label: item[this.component.options.labelKey],
+                value: item[this.component.options.valueKey]
+              })
             })
           }
         })

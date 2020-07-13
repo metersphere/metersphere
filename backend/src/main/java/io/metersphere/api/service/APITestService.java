@@ -33,11 +33,9 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+
 import java.io.*;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -189,7 +187,7 @@ public class APITestService {
         ApiTestExample example = new ApiTestExample();
         example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
         if (apiTestMapper.countByExample(example) > 0) {
-           return true;
+            return true;
         }
         return false;
     }
@@ -292,7 +290,7 @@ public class APITestService {
     }
 
     private SaveAPITestRequest getImportApiTest(MultipartFile file, ApiImport apiImport) {
-        SaveAPITestRequest request =  new SaveAPITestRequest();
+        SaveAPITestRequest request = new SaveAPITestRequest();
         request.setName(file.getOriginalFilename());
         request.setProjectId("");
         request.setScenarioDefinition(apiImport.getScenarios());
@@ -304,7 +302,8 @@ public class APITestService {
             if (name.endsWith(suffix)) {
                 request.setName(name.substring(0, name.length() - suffix.length()));
             }
-        };
+        }
+        ;
         if (isNameExist(request)) {
             request.setName(request.getName() + "_" + request.getId().substring(0, 5));
         }

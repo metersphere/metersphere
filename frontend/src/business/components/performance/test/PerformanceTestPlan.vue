@@ -82,6 +82,7 @@
   import MsTableOperators from "../../common/components/MsTableOperators";
   import {_filter, _sort} from "../../../../common/js/utils";
   import MsTableHeader from "../../common/components/MsTableHeader";
+  import {getTestConfigs} from "../../common/components/search/search-components";
 
   export default {
     components: {
@@ -98,7 +99,9 @@
         result: {},
         queryPath: "/performance/list",
         deletePath: "/performance/delete",
-        condition: {},
+        condition: {
+          components: getTestConfigs()
+        },
         projectId: null,
         tableData: [],
         multipleSelection: [],
@@ -140,20 +143,20 @@
       this.initTableData();
     },
     methods: {
-      initTableData() {
-
+      initTableData(combine) {
+        let condition = combine ? {combine: combine} : this.condition;
         if (this.projectId !== 'all') {
-          this.condition.projectId = this.projectId;
+          condition.projectId = this.projectId;
         }
 
-        this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
+        this.result = this.$post(this.buildPagePath(this.queryPath), condition, response => {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
         });
       },
-      search() {
-        this.initTableData();
+      search(combine) {
+        this.initTableData(combine);
       },
       buildPagePath(path) {
         return path + "/" + this.currentPage + "/" + this.pageSize;
@@ -225,6 +228,6 @@
   }
 
   .el-table {
-    cursor:pointer;
+    cursor: pointer;
   }
 </style>

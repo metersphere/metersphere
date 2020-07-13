@@ -3,10 +3,11 @@
     <el-link type="primary" @click="open">{{$t('commons.adv_search.title')}}</el-link>
     <el-dialog :title="$t('commons.adv_search.combine')" :visible.sync="visible" width="70%">
       <div>
-        <div class="search-label">{{$t('commons.adv_search.combine')}}: </div>
-        <el-select v-model="logic" :placeholder="$t('commons.please_select')" size="small" class="search-combine">
-          <el-option v-for="o in options" :key="o.value" :label="o.label" :value="o.value"/>
-        </el-select>
+<!--        如果有需求再加上-->
+        <!--        <div class="search-label">{{$t('commons.adv_search.combine')}}: </div>-->
+        <!--        <el-select v-model="logic" :placeholder="$t('commons.please_select')" size="small" class="search-combine">-->
+        <!--          <el-option v-for="o in options" :key="o.value" :label="o.label" :value="o.value"/>-->
+        <!--        </el-select>-->
         <div class="search-items">
           <component class="search-item" v-for="(component, index) in condition.components" :key="index"
                      :is="component.name" :component="component"/>
@@ -47,27 +48,30 @@
     methods: {
       search() {
         let condition = {
-          logic: this.logic
+          // logic: this.logic // 如果有需求再加上
         }
         this.condition.components.forEach(component => {
+          let operator = component.operator.value;
+          let value = component.value;
           if (Array.isArray(component.value)) {
             if (component.value.length > 0) {
               condition[component.key] = {
-                operator: component.operator,
-                value: component.value
+                operator: operator,
+                value: value
               }
             }
           } else {
-            if (component.value !== undefined && component.value !== null) {
+            if (component.value !== undefined && component.value !== null && component.value !== "") {
               condition[component.key] = {
-                operator: component.operator,
-                value: component.value
+                operator: operator,
+                value: value
               }
             }
           }
         });
 
         this.$emit('search', condition);
+        this.visible = false;
       },
       open() {
         this.visible = true;

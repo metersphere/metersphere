@@ -14,4 +14,5 @@ public class ReportRequest {
     private String workspaceId;
     private List<OrderRequest> orders;
     private Map<String, List<String>> filters;
+    private Map<String, Object> combine;
 }

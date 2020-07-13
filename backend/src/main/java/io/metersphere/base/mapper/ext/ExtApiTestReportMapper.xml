@@ -9,6 +9,55 @@
         <result column="user_name" property="userName"/>
     </resultMap>
 
+    <sql id="condition">
+        <include refid="io.metersphere.base.mapper.ext.ExtApiTestMapper.condition"/>
+    </sql>
+
+    <sql id="combine">
+        <if test="${condition}.name != null">
+            and r.name
+            <include refid="condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
+        <if test="${condition}.testName != null">
+            and t.name
+            <include refid="condition">
+                <property name="object" value="${condition}.testName"/>
+            </include>
+        </if>
+        <if test="${condition}.projectName != null">
+            and project.name
+            <include refid="condition">
+                <property name="object" value="${condition}.projectName"/>
+            </include>
+        </if>
+        <if test="${condition}.createTime != null">
+            and r.create_time
+            <include refid="condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+        <if test="${condition}.status != null">
+            and r.status
+            <include refid="condition">
+                <property name="object" value="${condition}.status"/>
+            </include>
+        </if>
+        <if test="${condition}.triggerMode != null">
+            and r.trigger_mode
+            <include refid="condition">
+                <property name="object" value="${condition}.triggerMode"/>
+            </include>
+        </if>
+        <if test="${condition}.creator != null">
+            and r.user_id
+            <include refid="condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+    </sql>
+
     <select id="list" resultMap="BaseResultMap">
         SELECT t.name AS test_name,
         r.name, r.description, r.id, r.test_id, r.create_time, r.update_time, r.status, r.trigger_mode,
@@ -17,9 +66,20 @@
         LEFT JOIN project ON project.id = t.project_id
         LEFT JOIN user ON user.id = r.user_id
         <where>
-            <if test="request.name != null">
-                AND r.name like CONCAT('%', #{request.name},'%')
-            </if>
+            <choose>
+                <!--高级-->
+                <when test="request.combine != null">
+                    <include refid="combine">
+                        <property name="condition" value="request.combine"/>
+                    </include>
+                </when>
+                <!--普通-->
+                <otherwise>
+                    <if test="request.name != null">
+                        and r.name like CONCAT('%', #{request.name},'%')
+                    </if>
+                </otherwise>
+            </choose>
             <if test="request.projectId != null">
                 AND project.id = #{request.projectId}
             </if>

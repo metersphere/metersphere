@@ -5,11 +5,16 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import static io.metersphere.commons.constants.SessionConstants.ATTR_USER;
 
 public class SessionUtils {
+
+    public static String getUserId() {
+        return Objects.requireNonNull(getUser()).getId();
+    }
 
     public static SessionUser getUser() {
         try {

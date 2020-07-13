@@ -3,7 +3,7 @@
     <div class="search-label">{{component.label}}:</div>
 
     <el-select class="search-operator" v-model="operator" :placeholder="$t('commons.please_select')" size="small"
-               @change="change" @input="input">
+               @change="change" @input="input" v-bind="component.operator.props">
       <el-option v-for="o in operators" :key="o.value" :label="o.label" :value="o.value"/>
     </el-select>
 
@@ -19,19 +19,22 @@
     props: ['component'],
     data() {
       return {
-        operators: this.component.operators || [],
+        operators: this.component.operator.options || [],
         operator: (() => {
-          if (this.component.operator === undefined && this.component.operators.length > 0) {
-            this.$emit('input', this.component.operators[0].value);
-            return this.component.operators[0].value;
+          if (this.component.operator.value === undefined && this.component.operator.options.length > 0) {
+            this.$emit('input', this.component.operator.options[0].value);
+            return this.component.operator.options[0].value;
           } else {
-            this.component.operator
+            return this.component.operator.value
           }
         })()
       }
     },
     methods: {
       change(value) {
+        if (this.component.operator.change) {
+          this.component.operator.change(this.component, value)
+        }
         this.$emit('change', value);
       },
       input(value) {
@@ -41,8 +44,8 @@
     computed: {
       showContent() {
         return operator => {
-          if (this.component.showContent) {
-            return this.component.showContent(operator);
+          if (this.component.isShow) {
+            return this.component.isShow(operator);
           }
           return true;
         }
