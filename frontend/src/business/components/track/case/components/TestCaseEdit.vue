@@ -429,7 +429,7 @@
       getTestOptions() {
         this.testOptions = [];
         if (this.currentProject && this.form.type != '' && this.form.type != 'functional') {
-          this.$get('/' + this.form.type + '/list/' + this.currentProject.id, response => {
+          this.result = this.$get('/' + this.form.type + '/list/' + this.currentProject.id, response => {
             this.testOptions = response.data;
           });
         }
