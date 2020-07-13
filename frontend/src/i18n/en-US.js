@@ -104,28 +104,28 @@ export default {
     input_name: 'Please enter name',
     formatErr: 'Format Error',
     date: {
-      select_date: 'Select date',
-      start_date: 'Start date',
-      end_date: 'End date',
-      select_date_time: 'Select date and time',
-      start_date_time: 'Start date and time',
-      end_date_time: 'End date time',
+      select_date:'Select date',
+      start_date:'Start date',
+      end_date:'End date',
+      select_date_time:'Select date and time',
+      start_date_time:'Start date and time',
+      end_date_time:'End date time',
       range_separator: "To",
     },
     trigger_mode: {
       name: "Trigger Mode",
-      manual: "Manual",
+      manual: "Manual trigger",
       schedule: "Scheduled Task",
       api: "API call"
     },
     adv_search: {
-      title: 'Advanced Search',
-      combine: 'Combined query',
-      test: "Test",
-      project: "Project",
+      title:'Advanced Search',
+      combine:'Combined query',
+      test: "Affiliated Test",
+      project: "Affiliated Project",
       search: "Query",
-      and: 'All',
-      or: 'any one',
+      and:'All',
+      or:'any one',
       operators: {
         like: "Contains",
         not_like: "Not included",
@@ -137,7 +137,7 @@ export default {
         le: "Less than or equal to",
         equals: "Equal",
         between: "Between",
-        current_user: "Current user"
+        current_user: "current user"
       }
     }
   },
@@ -648,7 +648,7 @@ export default {
     input_mapping: 'Please enter LDAP attribute mapping',
     input_username: 'please enter user name',
     input_url_placeholder: 'Please enter the LDAP address (eg ldap://localhost:389)',
-    input_ou_placeholder: 'Enter user OU',
+    input_ou_placeholder: 'Enter user OU (use | to separate each OU)',
     input_filter_placeholder: 'Input filter [Possible options are cn or uid or sAMAccountName={0}, eg: (uid={0})]',
     test_connect: 'Test Connection',
     test_login: 'Test Login',
