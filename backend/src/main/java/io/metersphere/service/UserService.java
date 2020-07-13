@@ -5,6 +5,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtUserMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
 import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.commons.constants.UserSource;
 import io.metersphere.commons.constants.UserStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
@@ -137,6 +138,7 @@ public class UserService {
         user.setUpdateTime(System.currentTimeMillis());
         // 默认1:启用状态
         user.setStatus(UserStatus.NORMAL);
+        user.setSource(UserSource.Local.name());
         // 密码使用 MD5
         user.setPassword(CodingUtil.md5(user.getPassword()));
         UserExample userExample = new UserExample();
