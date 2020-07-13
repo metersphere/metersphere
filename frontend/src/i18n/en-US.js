@@ -121,6 +121,8 @@ export default {
     adv_search: {
       title: 'Advanced Search',
       combine: 'Combined query',
+      test: "Test",
+      project: "Project",
       search: "Query",
       and: 'All',
       or: 'any one',

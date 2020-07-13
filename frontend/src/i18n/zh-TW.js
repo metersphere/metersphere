@@ -119,6 +119,8 @@ export default {
     adv_search: {
       title: '高級搜索',
       combine: '組合查詢',
+      test: "所屬測試",
+      project: "所屬項目",
       search: "查詢",
       and: '所有',
       or: '任意一個',

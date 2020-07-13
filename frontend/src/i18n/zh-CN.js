@@ -121,6 +121,8 @@ export default {
     adv_search: {
       title: '高级搜索',
       combine: '组合查询',
+      test: "所属测试",
+      project: "所属项目",
       search: "查询",
       and: '所有',
       or: '任意一个',

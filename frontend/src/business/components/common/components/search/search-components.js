@@ -55,7 +55,7 @@ export const OPERATORS = {
   },
 }
 
-export const TEST_NAME = {
+export const NAME = {
   key: "name",
   name: 'MsTableSearchInput',
   label: i18n.t('commons.name'),
@@ -71,7 +71,13 @@ export const UPDATE_TIME = {
 export const PROJECT_NAME = {
   key: "projectName",
   name: 'MsTableSearchInput',
-  label: i18n.t('load_test.project_name'),
+  label: i18n.t('commons.adv_search.project'),
+  operators: [OPERATORS.LIKE, OPERATORS.NOT_LIKE],
+}
+export const TEST_NAME = {
+  key: "testName",
+  name: 'MsTableSearchInput',
+  label: i18n.t('commons.adv_search.test'),
   operators: [OPERATORS.LIKE, OPERATORS.NOT_LIKE],
 }
 export const CREATE_TIME = {
@@ -132,6 +138,6 @@ export const TRIGGER_MODE = {
   }
 }
 
-export const TEST_CONFIGS = [TEST_NAME, UPDATE_TIME, PROJECT_NAME, CREATE_TIME, STATUS, CREATOR]
+export const TEST_CONFIGS = [NAME, UPDATE_TIME, PROJECT_NAME, CREATE_TIME, STATUS, CREATOR]
 
-export const REPORT_CONFIGS = [TEST_NAME, UPDATE_TIME, PROJECT_NAME, CREATE_TIME, STATUS, CREATOR, TRIGGER_MODE]
+export const REPORT_CONFIGS = [NAME, TEST_NAME, PROJECT_NAME, CREATE_TIME, STATUS, CREATOR, TRIGGER_MODE]
