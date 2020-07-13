@@ -645,7 +645,7 @@ export default {
     input_mapping: '请输入LDAP属性映射',
     input_username: '请输入用户名',
     input_url_placeholder: '请输入LDAP地址 (如 ldap://localhost:389)',
-    input_ou_placeholder: '输入用户OU',
+    input_ou_placeholder: '输入用户OU (使用|分隔各OU)',
     input_filter_placeholder: '输入过滤器 [可能的选项是cn或uid或sAMAccountName={0}, 如：(uid={0})]',
     test_connect: '测试连接',
     test_login: '测试登录',
