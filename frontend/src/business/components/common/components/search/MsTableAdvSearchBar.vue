@@ -1,7 +1,7 @@
 <template>
   <span class="adv-search-bar">
     <el-link type="primary" @click="open">{{$t('commons.adv_search.title')}}</el-link>
-    <el-dialog :title="$t('commons.adv_search.combine')" :visible.sync="visible" width="70%">
+    <el-dialog :title="$t('commons.adv_search.combine')" :visible.sync="visible" width="70%" :append-to-body="true">
       <div>
 <!--        如果有需求再加上-->
         <!--        <div class="search-label">{{$t('commons.adv_search.combine')}}: </div>-->
