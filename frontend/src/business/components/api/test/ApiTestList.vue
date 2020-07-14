@@ -54,6 +54,7 @@
   import MsApiTestStatus from "./ApiTestStatus";
   import MsTableOperators from "../../common/components/MsTableOperators";
   import {_filter, _sort} from "../../../../common/js/utils";
+  import {getTestConfigs} from "../../common/components/search/search-components";
 
   export default {
     components: {
@@ -63,7 +64,9 @@
     data() {
       return {
         result: {},
-        condition: {},
+        condition: {
+          components: getTestConfigs()
+        },
         projectId: null,
         tableData: [],
         multipleSelection: [],
@@ -102,15 +105,15 @@
       create() {
         this.$router.push('/api/test/create');
       },
-      search() {
-
-
+      search(combine) {
+        // 只有在点击高级搜索的查询按钮时combine才有值
+        let condition = combine ? {combine: combine} : this.condition;
         if (this.projectId !== 'all') {
-          this.condition.projectId = this.projectId;
+          condition.projectId = this.projectId;
         }
 
-        let url = "/api/list/" + this.currentPage + "/" + this.pageSize
-        this.result = this.$post(url, this.condition, response => {
+        let url = "/api/list/" + this.currentPage + "/" + this.pageSize;
+        this.result = this.$post(url, condition, response => {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;

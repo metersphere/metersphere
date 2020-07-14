@@ -25,4 +25,6 @@ public class QueryTestCaseRequest extends TestCase {
     private String planId;
 
     private String workspaceId;
+
+    private Map<String, Object> combine;
 }

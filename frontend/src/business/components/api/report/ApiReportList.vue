@@ -14,13 +14,13 @@
           <el-table-column prop="testName" :label="$t('api_report.test_name')" width="200" show-overflow-tooltip/>
           <el-table-column prop="projectName" :label="$t('load_test.project_name')" width="150" show-overflow-tooltip/>
           <el-table-column prop="userName" :label="$t('api_test.creator')" width="150" show-overflow-tooltip/>
-          <el-table-column width="250" :label="$t('commons.create_time')" sortable
-                           prop="createTime">
+          <el-table-column prop="createTime" width="250" :label="$t('commons.create_time')" sortable>
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="triggerMode" width="150" :label="'触发方式'" column-key="triggerMode" :filters="triggerFilters">
+          <el-table-column prop="triggerMode" width="150" :label="$t('commons.trigger_mode.name')"
+                           column-key="triggerMode" :filters="triggerFilters">
             <template v-slot:default="scope">
               <report-trigger-mode-item :trigger-mode="scope.row.triggerMode"/>
             </template>
@@ -34,8 +34,10 @@
           </el-table-column>
           <el-table-column width="150" :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <ms-table-operator-button :tip="$t('api_report.detail')" icon="el-icon-s-data" @exec="handleView(scope.row)" type="primary"/>
-              <ms-table-operator-button :is-tester-permission="true" :tip="$t('api_report.delete')" icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger"/>
+              <ms-table-operator-button :tip="$t('api_report.detail')" icon="el-icon-s-data"
+                                        @exec="handleView(scope.row)" type="primary"/>
+              <ms-table-operator-button :is-tester-permission="true" :tip="$t('api_report.delete')"
+                                        icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger"/>
             </template>
           </el-table-column>
         </el-table>
@@ -55,16 +57,20 @@
   import {_filter, _sort} from "../../../../common/js/utils";
   import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
   import ReportTriggerModeItem from "../../common/tableItem/ReportTriggerModeItem";
+  import {getReportConfigs} from "../../common/components/search/search-components";
 
   export default {
     components: {
       ReportTriggerModeItem,
       MsTableOperatorButton,
-      MsApiReportStatus, MsMainContainer, MsContainer, MsTableHeader, MsTablePagination},
+      MsApiReportStatus, MsMainContainer, MsContainer, MsTableHeader, MsTablePagination
+    },
     data() {
       return {
         result: {},
-        condition: {},
+        condition: {
+          components: getReportConfigs()
+        },
         tableData: [],
         multipleSelection: [],
         currentPage: 1,
@@ -80,9 +86,9 @@
           {text: 'Error', value: 'Error'}
         ],
         triggerFilters: [
-          {text: '手动', value: 'MANUAL'},
-          {text: '定时任务', value: 'SCHEDULE'},
-          {text: 'API', value: 'API'}
+          {text: this.$t('commons.trigger_mode.manual'), value: 'MANUAL'},
+          {text: this.$t('commons.trigger_mode.schedule'), value: 'SCHEDULE'},
+          {text: this.$t('commons.trigger_mode.api'), value: 'API'}
         ],
       }
     },
@@ -92,13 +98,15 @@
     },
 
     methods: {
-      search() {
+      search(combine) {
+        // 只有在点击高级搜索的查询按钮时combine才有值
+        let condition = combine ? {combine: combine} : this.condition;
         if (this.testId !== 'all') {
-          this.condition.testId = this.testId;
+          condition.testId = this.testId;
         }
 
         let url = "/api/report/list/" + this.currentPage + "/" + this.pageSize;
-        this.result = this.$post(url, this.condition, response => {
+        this.result = this.$post(url, condition, response => {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;

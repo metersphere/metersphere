@@ -15,6 +15,55 @@
     id, test_id, name, create_time, update_time, status
     </sql>
 
+    <sql id="condition">
+        <include refid="io.metersphere.base.mapper.ext.ExtApiTestMapper.condition"/>
+    </sql>
+
+    <sql id="combine">
+        <if test="${condition}.name != null">
+            and ltr.name
+            <include refid="condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
+        <if test="${condition}.testName != null">
+            and lt.name
+            <include refid="condition">
+                <property name="object" value="${condition}.testName"/>
+            </include>
+        </if>
+        <if test="${condition}.projectName != null">
+            and project.name
+            <include refid="condition">
+                <property name="object" value="${condition}.projectName"/>
+            </include>
+        </if>
+        <if test="${condition}.createTime != null">
+            and ltr.create_time
+            <include refid="condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+        <if test="${condition}.status != null">
+            and ltr.status
+            <include refid="condition">
+                <property name="object" value="${condition}.status"/>
+            </include>
+        </if>
+        <if test="${condition}.triggerMode != null">
+            and ltr.trigger_mode
+            <include refid="condition">
+                <property name="object" value="${condition}.triggerMode"/>
+            </include>
+        </if>
+        <if test="${condition}.creator != null">
+            and ltr.user_id
+            <include refid="condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+    </sql>
+
     <select id="getReportList" resultType="io.metersphere.dto.ReportDTO">
         select ltr.id, ltr.name, ltr.test_id as testId, ltr.description, user.name as userName, project.name as
         projectName, ltr.trigger_mode,
@@ -26,9 +75,20 @@
             JOIN project on project.id = lt.project_id
         </if>
         <where>
-            <if test="reportRequest.name != null">
-                AND ltr.name like CONCAT('%', #{reportRequest.name},'%')
-            </if>
+            <choose>
+                <!--高级-->
+                <when test="reportRequest.combine != null">
+                    <include refid="combine">
+                        <property name="condition" value="reportRequest.combine"/>
+                    </include>
+                </when>
+                <!--普通-->
+                <otherwise>
+                    <if test="reportRequest.name != null">
+                        AND ltr.name like CONCAT('%', #{reportRequest.name},'%')
+                    </if>
+                </otherwise>
+            </choose>
             <if test="reportRequest.workspaceId != null">
                 AND workspace_id = #{reportRequest.workspaceId,jdbcType=VARCHAR}
             </if>

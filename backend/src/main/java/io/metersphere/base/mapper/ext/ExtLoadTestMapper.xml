@@ -8,15 +8,69 @@
         <result column="user_name" property="userName"/>
     </resultMap>
 
+    <sql id="condition">
+        <include refid="io.metersphere.base.mapper.ext.ExtApiTestMapper.condition"/>
+    </sql>
+
+    <sql id="combine">
+        <if test="${condition}.name != null">
+            and load_test.name
+            <include refid="condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
+        <if test="${condition}.updateTime != null">
+            and load_test.update_time
+            <include refid="condition">
+                <property name="object" value="${condition}.updateTime"/>
+            </include>
+        </if>
+        <if test="${condition}.projectName != null">
+            and project.name
+            <include refid="condition">
+                <property name="object" value="${condition}.projectName"/>
+            </include>
+        </if>
+        <if test="${condition}.createTime != null">
+            and load_test.create_time
+            <include refid="condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+        <if test="${condition}.status != null">
+            and load_test.status
+            <include refid="condition">
+                <property name="object" value="${condition}.status"/>
+            </include>
+        </if>
+        <if test="${condition}.creator != null">
+            and load_test.user_id
+            <include refid="condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+    </sql>
+
     <select id="list" resultMap="BaseResultMap" parameterType="io.metersphere.track.request.testplan.QueryTestPlanRequest">
         select load_test.*, project.name as project_name, user.name as user_name
         from load_test
         left join project on load_test.project_id = project.id
         left join user on load_test.user_id = user.id
         <where>
-            <if test="request.name != null">
-                and load_test.name like CONCAT('%', #{request.name},'%')
-            </if>
+            <choose>
+                <!--高级-->
+                <when test="request.combine != null">
+                    <include refid="combine">
+                        <property name="condition" value="request.combine"/>
+                    </include>
+                </when>
+                <!--普通-->
+                <otherwise>
+                    <if test="request.name != null">
+                        and load_test.name like CONCAT('%', #{request.name},'%')
+                    </if>
+                </otherwise>
+            </choose>
             <if test="request.workspaceId != null">
                 AND project.workspace_id = #{request.workspaceId}
             </if>

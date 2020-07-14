@@ -18,4 +18,5 @@ public class QueryAPIReportRequest {
     private boolean recent = false;
     private List<OrderRequest> orders;
     private Map<String, List<String>> filters;
+    private Map<String, Object> combine;
 }
