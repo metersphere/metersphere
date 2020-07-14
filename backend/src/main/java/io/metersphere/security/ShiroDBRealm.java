@@ -2,6 +2,7 @@ package io.metersphere.security;
 
 
 import io.metersphere.base.domain.Role;
+import io.metersphere.commons.constants.UserSource;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.UserDTO;
@@ -64,9 +65,68 @@ public class ShiroDBRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
         UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
+        String login = (String) SecurityUtils.getSubject().getSession().getAttribute("authenticate");
+
         String userId = token.getUsername();
         String password = String.valueOf(token.getPassword());
+
+        if (StringUtils.equals("local", runMode)) {
+            UserDTO user = getUserWithOutAuthenticate(userId);
+            userId = user.getId();
+            SessionUser sessionUser = SessionUser.fromUser(user);
+            SessionUtils.putUser(sessionUser);
+            return new SimpleAuthenticationInfo(userId, password, getName());
+        }
+
+        if (StringUtils.equals(login, UserSource.LOCAL.name())) {
+            return loginLocalMode(userId, password);
+        }
+
+        if (StringUtils.equals(login, UserSource.LDAP.name())) {
+            return loginLdapMode(userId, password);
+        }
+
+        UserDTO user = getUserWithOutAuthenticate(userId);
+        userId = user.getId();
+        SessionUser sessionUser = SessionUser.fromUser(user);
+        SessionUtils.putUser(sessionUser);
+        return new SimpleAuthenticationInfo(userId, password, getName());
+
+    }
+
+    private UserDTO getUserWithOutAuthenticate(String userId) {
         UserDTO user = userService.getUserDTO(userId);
+        String msg;
+        if (user == null) {
+            user = userService.getUserDTOByEmail(userId);
+            if (user == null) {
+                msg = "The user does not exist: " + userId;
+                logger.warn(msg);
+                throw new UnknownAccountException(Translator.get("user_not_exist") + userId);
+            }
+        }
+        return user;
+    }
+
+
+    private AuthenticationInfo loginLdapMode(String userId, String password) {
+        UserDTO user = userService.getLoginUser(userId, UserSource.LDAP.name());
+        String msg;
+        if (user == null) {
+            msg = "The user does not exist: " + userId;
+            logger.warn(msg);
+            throw new UnknownAccountException(Translator.get("user_not_exist") + userId);
+        }
+        userId = user.getId();
+
+        SessionUser sessionUser = SessionUser.fromUser(user);
+        SessionUtils.putUser(sessionUser);
+        return new SimpleAuthenticationInfo(userId, password, getName());
+
+    }
+
+    private AuthenticationInfo loginLocalMode(String userId, String password) {
+        UserDTO user = userService.getLoginUser(userId, UserSource.LOCAL.name());
         String msg;
         if (user == null) {
             user = userService.getUserDTOByEmail(userId);
@@ -77,27 +137,6 @@ public class ShiroDBRealm extends AuthorizingRealm {
             }
             userId = user.getId();
         }
-
-        // local test
-        if (StringUtils.equals("local", runMode)) {
-            SessionUser sessionUser = SessionUser.fromUser(user);
-            SessionUtils.putUser(sessionUser);
-            return new SimpleAuthenticationInfo(userId, password, getName());
-        }
-        // apikey 校验不验证密码
-        if (ApiKeySessionHandler.random.equalsIgnoreCase(password)) {
-            SessionUser sessionUser = SessionUser.fromUser(user);
-            SessionUtils.putUser(sessionUser);
-            return new SimpleAuthenticationInfo(userId, password, getName());
-        }
-
-        String login = (String) SecurityUtils.getSubject().getSession().getAttribute("authenticate");
-        if (StringUtils.equals(login, "ldap")) {
-            SessionUser sessionUser = SessionUser.fromUser(user);
-            SessionUtils.putUser(sessionUser);
-            return new SimpleAuthenticationInfo(userId, password, getName());
-        }
-
         // 密码验证
         if (!userService.checkUserPassword(userId, password)) {
             throw new IncorrectCredentialsException(Translator.get("password_is_incorrect"));

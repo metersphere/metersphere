@@ -17,8 +17,8 @@
           <div class="form">
             <el-form-item v-slot:default>
               <el-radio-group v-model="form.authenticate">
-                <el-radio label="ldap" size="mini">LDAP</el-radio>
-                <el-radio label="normal" size="mini">普通登录</el-radio>
+                <el-radio label="LDAP" size="mini">LDAP</el-radio>
+                <el-radio label="LOCAL" size="mini">普通登录</el-radio>
               </el-radio-group>
             </el-form-item>
             <el-form-item prop="username">
@@ -69,7 +69,7 @@
         form: {
           username: '',
           password: '',
-          authenticate: 'normal'
+          authenticate: 'LOCAL'
         },
         rules: {
           username: [
@@ -115,10 +115,10 @@
         this.$refs[form].validate((valid) => {
           if (valid) {
             switch (this.form.authenticate) {
-              case "normal":
+              case "LOCAL":
                 this.normalLogin();
                 break;
-              case "ldap":
+              case "LDAP":
                 this.ldapLogin();
                 break;
               default:
