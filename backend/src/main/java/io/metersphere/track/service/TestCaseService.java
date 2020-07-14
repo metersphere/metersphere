@@ -353,11 +353,11 @@ public class TestCaseService {
                 result.setLength(0);
                 data.setRemark(TestCaseList.get(i).getRemark());
 
-            } else if(TestCaseList.get(i).getMethod().equals("auto")&&TestCaseList.get(i).getType().equals("api")){
+            } else if (TestCaseList.get(i).getMethod().equals("auto") && TestCaseList.get(i).getType().equals("api")) {
                 data.setStepDesc("");
                 data.setStepResult("");
                 data.setRemark(TestCaseList.get(i).getApiName());
-            }else if(TestCaseList.get(i).getMethod().equals("auto")&&TestCaseList.get(i).getType().equals("performance")){
+            } else if (TestCaseList.get(i).getMethod().equals("auto") && TestCaseList.get(i).getType().equals("performance")) {
                 data.setStepDesc("");
                 data.setStepResult("");
                 data.setRemark(TestCaseList.get(i).getPerformName());
