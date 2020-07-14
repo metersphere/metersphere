@@ -16,6 +16,8 @@ public class QueryTestCaseRequest extends TestCase {
 
     private List<String> nodeIds;
 
+    private List<String> testCaseIds;
+
     private List<OrderRequest> orders;
 
     private Map<String, List<String>> filters;
@@ -23,4 +25,6 @@ public class QueryTestCaseRequest extends TestCase {
     private String planId;
 
     private String workspaceId;
+
+    private Map<String, Object> combine;
 }

@@ -160,10 +160,75 @@ export const TRIGGER_MODE = {
   }
 }
 
+export const PRIORITY = {
+  key: "priority",
+  name: 'MsTableSearchSelect',
+  label: i18n.t("test_track.case.priority"),
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.NOT_IN]
+  },
+  options: [
+    {label: "P0", value: "P0"},
+    {label: "P1", value: "P1"},
+    {label: "P2", value: "P2"},
+    {label: "P3", value: "P3"},
+  ],
+  props: {
+    multiple: true
+  }
+}
+
+export const TYPE = {
+  key: "type",
+  name: 'MsTableSearchSelect',
+  label: i18n.t("test_track.case.type"),
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.NOT_IN]
+  },
+  options: [
+    {label: i18n.t('commons.functional'), value: 'functional'},
+    {label: i18n.t('commons.performance'), value: 'performance'},
+    {label: i18n.t('commons.api'), value: 'api'}
+  ],
+  props: {
+    multiple: true
+  }
+}
+
+export const METHOD = {
+  key: "method",
+  name: 'MsTableSearchSelect',
+  label: i18n.t("test_track.case.method"),
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.NOT_IN]
+  },
+  options: [
+    {label: i18n.t('test_track.case.manual'), value: 'manual'},
+    {label: i18n.t('test_track.case.auto'), value: 'auto'}
+  ],
+  props: {
+    multiple: true
+  }
+}
+
+export const MODULE = {
+  key: "module",
+  name: 'MsTableSearchInput',
+  label: i18n.t("test_track.case.module"),
+  operator: {
+    value: OPERATORS.LIKE.value, // 如果未设置value初始值，则value初始值为options[0]
+    options: [OPERATORS.LIKE, OPERATORS.NOT_LIKE] // 运算符候选项
+  },
+}
+
 export const getTestConfigs = () => {
   return _.cloneDeep([NAME, UPDATE_TIME, PROJECT_NAME, CREATE_TIME, STATUS, CREATOR]);
 }
 
 export const getReportConfigs = () => {
   return _.cloneDeep([NAME, TEST_NAME, PROJECT_NAME, CREATE_TIME, STATUS, CREATOR, TRIGGER_MODE]);
+}
+
+export const getTestCaseConfigs = () => {
+  return _.cloneDeep([NAME, MODULE, PRIORITY, CREATE_TIME, TYPE, UPDATE_TIME, METHOD, CREATOR]);
 }

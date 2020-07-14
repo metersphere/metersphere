@@ -1,7 +1,7 @@
 <template>
   <span class="adv-search-bar">
     <el-link type="primary" @click="open">{{$t('commons.adv_search.title')}}</el-link>
-    <el-dialog :title="$t('commons.adv_search.combine')" :visible.sync="visible" custom-class="adv-dialog">
+    <el-dialog :title="$t('commons.adv_search.combine')" :visible.sync="visible" custom-class="adv-dialog" :append-to-body="true">
       <div>
 <!--        如果有需求再加上-->
         <!--        <div class="search-label">{{$t('commons.adv_search.combine')}}: </div>-->
@@ -80,33 +80,6 @@
   }
 </script>
 
-<style>
-  @media only screen and (min-width: 1800px) {
-    .el-dialog.adv-dialog {
-      width: 70%;
-    }
-  }
-
-  @media only screen and (min-width: 1560px) and (max-width: 1799px) {
-    .el-dialog.adv-dialog {
-      width: 80%;
-    }
-  }
-
-  @media only screen and (min-width: 1400px) and (max-width: 1559px) {
-    .el-dialog.adv-dialog {
-      width: 90%;
-    }
-  }
-
-  @media only screen and (max-width: 1399px) {
-    .el-dialog.adv-dialog {
-      width: 70%;
-      min-width: 655px;
-    }
-  }
-</style>
-
 <style scoped>
   .adv-search-bar {
     margin-left: 5px;
@@ -131,20 +104,10 @@
     width: 100%;
   }
 
-  @media only screen and (max-width: 1399px) {
-    .search-item {
-      width: 100%;
-    }
-  }
-
-  @media only screen and (min-width: 1400px) {
-    .search-item {
-      width: 50%;
-    }
-  }
-
   .search-item {
     display: inline-block;
+    width: 50%;
+    max-width: 50%;
     margin-top: 10px;
   }
 </style>

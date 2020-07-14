@@ -11,6 +11,8 @@
           </template>
           <template v-slot:button>
             <ms-table-button :is-tester-permission="true" icon="el-icon-upload2" :content="$t('test_track.case.import.import')" @click="importTestCase"/>
+            <ms-table-button :is-tester-permission="true" icon="el-icon-download"
+                             :content="$t('test_track.case.export.export')" @click="handleBatch('export')"/>
             <ms-table-button :is-tester-permission="true" icon="el-icon-right" :content="$t('test_track.case.move')" @click="handleBatch('move')"/>
             <ms-table-button :is-tester-permission="true" icon="el-icon-delete" :content="$t('test_track.case.delete')" @click="handleBatch('delete')"/>
             <!--<test-case-export/>-->
@@ -116,7 +118,7 @@
   import MsTableOperator from "../../../common/components/MsTableOperator";
   import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
   import MsTableButton from "../../../common/components/MsTableButton";
-  import {_filter, _sort, humpToLine} from "../../../../../common/js/utils";
+  import {_filter, _sort, downloadFile, humpToLine} from "../../../../../common/js/utils";
 
   export default {
     name: "TestCaseList",
@@ -254,7 +256,7 @@
           }
         },
         handleSelectionChange(selection, row) {
-          if(this.selectIds.has(row.id)){
+          if (this.selectIds.has(row.id)) {
             this.selectIds.delete(row.id);
           } else {
             this.selectIds.add(row.id);
@@ -263,15 +265,37 @@
         importTestCase() {
           this.$refs.testCaseImport.open();
         },
-        handleBatch(type){
+        exportTestCase() {
+          let config = {
+            url: '/test/case/export/testCase/' + [...this.selectIds],
+            method: 'get',
+            responseType: 'blob'
+          };
+          this.result = this.$request(config).then(response => {
+            const filename = '测试用例.xlsx'
+            const blob = new Blob([response.data]);
+            if ("download" in document.createElement("a")) {
+              let aTag = document.createElement('a');
+              aTag.download = filename;
+              aTag.href = URL.createObjectURL(blob);
+              aTag.click();
+              URL.revokeObjectURL(aTag.href)
+            } else {
+              navigator.msSaveBlob(blob, filename);
+            }
+          });
+        },
+        handleBatch(type) {
           if (this.selectIds.size < 1) {
             this.$warning(this.$t('test_track.plan_view.select_manipulate'));
             return;
           }
-          if (type === 'move'){
+          if (type === 'move') {
             this.$emit('moveToNode', this.selectIds);
-          } else if (type === 'delete'){
+          } else if (type === 'delete') {
             this.handleDeleteBatch();
+          } else {
+            this.exportTestCase();
           }
         },
         filter(filters) {

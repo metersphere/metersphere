@@ -6,8 +6,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class TestCaseDTO extends TestCaseWithBLOBs{
+public class TestCaseDTO extends TestCaseWithBLOBs {
 
     private String maintainerName;
+    private String apiName;
+    private String performName;
 
 }
