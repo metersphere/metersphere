@@ -110,6 +110,8 @@ public class EngineFactory {
         try (ByteArrayInputStream source = new ByteArrayInputStream(fileContent.getFile())) {
             String content = engineSourceParser.parse(engineContext, source);
             engineContext.setContent(content);
+        } catch (MSException e) {
+            throw e;
         } catch (Exception e) {
             MSException.throwException(e);
         }

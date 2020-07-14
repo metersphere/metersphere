@@ -66,6 +66,8 @@ public class DockerTestEngine extends AbstractEngine {
         EngineContext context = null;
         try {
             context = EngineFactory.createContext(loadTest, resource.getId(), realThreadNum, this.getStartTime(), this.getReportId(), resourceIndex);
+        } catch (MSException e) {
+            throw e;
         } catch (Exception e) {
             MSException.throwException(e);
         }
