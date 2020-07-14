@@ -1,10 +1,10 @@
 <template>
   <div>
-    <div class="search-label">{{component.label}}:</div>
+    <div class="search-label">{{$t(component.label)}}</div>
 
     <el-select class="search-operator" v-model="operator" :placeholder="$t('commons.please_select')" size="small"
                @change="change" @input="input" v-bind="component.operator.props">
-      <el-option v-for="o in operators" :key="o.value" :label="o.label" :value="o.value"/>
+      <el-option v-for="o in operators" :key="o.value" :label="$t(o.label)" :value="o.value"/>
     </el-select>
 
     <div class="search-content" v-if="showContent(operator)">
@@ -57,19 +57,21 @@
 <style scoped>
   .search-label {
     display: inline-block;
-    width: 80px;
+    width: 120px;
     box-sizing: border-box;
     padding-left: 5px;
   }
 
   .search-operator {
     display: inline-block;
-    width: 160px;
+    width: 120px;
   }
 
   .search-content {
     display: inline-block;
-    margin: 0 5px 0 10px;
-    width: calc(100% - 255px);
+    padding: 0 5px 0 10px;
+    width: calc(100% - 240px);
+    min-width: 400px;
+    box-sizing: border-box;
   }
 </style>

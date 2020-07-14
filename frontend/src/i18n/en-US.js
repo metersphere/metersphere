@@ -104,12 +104,12 @@ export default {
     input_name: 'Please enter name',
     formatErr: 'Format Error',
     date: {
-      select_date:'Select date',
-      start_date:'Start date',
-      end_date:'End date',
-      select_date_time:'Select date and time',
-      start_date_time:'Start date and time',
-      end_date_time:'End date time',
+      select_date: 'Select date',
+      start_date: 'Start date',
+      end_date: 'End date',
+      select_date_time: 'Select date and time',
+      start_date_time: 'Start date and time',
+      end_date_time: 'End date time',
       range_separator: "To",
     },
     trigger_mode: {
@@ -119,25 +119,25 @@ export default {
       api: "API call"
     },
     adv_search: {
-      title:'Advanced Search',
-      combine:'Combined query',
-      test: "Affiliated Test",
-      project: "Affiliated Project",
+      title: 'Advanced Search',
+      combine: 'Combined query',
+      test: "Test",
+      project: "Project",
       search: "Query",
-      and:'All',
-      or:'any one',
+      and: 'All',
+      or: 'any one',
       operators: {
         like: "Contains",
         not_like: "Not included",
         in: "Belong to",
         not_in: "Not belonging",
-        gt: "Greater than",
-        ge: "Greater than or equal to",
-        lt: "Less than",
-        le: "Less than or equal to",
-        equals: "Equal",
+        gt: ">",
+        ge: ">=",
+        lt: "<",
+        le: "<=",
+        equals: "=",
         between: "Between",
-        current_user: "current user"
+        current_user: "Current user"
       }
     }
   },
