@@ -2,8 +2,10 @@ package io.metersphere.performance.parse.xml.reader.jmx;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.config.KafkaProperties;
+import io.metersphere.i18n.Translator;
 import io.metersphere.performance.engine.EngineContext;
 import io.metersphere.performance.parse.xml.reader.DocumentParser;
 import org.apache.commons.lang3.StringUtils;
@@ -709,6 +711,14 @@ public class JmeterDocumentParser implements DocumentParser {
     }
 
     private void processThreadGroup(Element threadGroup) {
+        // 检查 threadgroup 后面的hashtree是否为空
+        Node hashTree = threadGroup.getNextSibling();
+        while (!(hashTree instanceof Element)) {
+            hashTree = hashTree.getNextSibling();
+        }
+        if (!hashTree.hasChildNodes()) {
+            MSException.throwException(Translator.get("jmx_content_valid"));
+        }
         // 重命名 tagName
         Document document = threadGroup.getOwnerDocument();
         document.renameNode(threadGroup, threadGroup.getNamespaceURI(), CONCURRENCY_THREAD_GROUP);
