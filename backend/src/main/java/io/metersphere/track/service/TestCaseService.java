@@ -341,21 +341,23 @@ public class TestCaseService {
             if (TestCaseList.get(i).getMethod().equals("manual")) {
                 String steps = TestCaseList.get(i).getSteps();
                 JSONArray jsonArray = JSON.parseArray(steps);
-                for (int j = 0; j <jsonArray.size(); j++) {
-                    int num=j+1;
-                    step.append(num + ":" + jsonArray.getJSONObject(j).getString("desc"));
-                    step.append("\n");
-                    data.setStepDesc(step.toString());
-                    result.append(num + ":" + jsonArray.getJSONObject(j).getString("result"));
-                    result.append("\n");
-                    data.setStepResult(result.toString());
+                for (int j = 0; j < jsonArray.size(); j++) {
+                    int num = j + 1;
+                    step.append(num + ":" + jsonArray.getJSONObject(j).getString("desc") + "\n");
+                    result.append(num + ":" + jsonArray.getJSONObject(j).getString("result") + "\n");
+
                 }
+                data.setStepDesc(step.toString());
+                data.setStepResult(result.toString());
+                step.setLength(0);
+                result.setLength(0);
                 data.setRemark(TestCaseList.get(i).getRemark());
-            } else if(TestCaseList.get(i).getMethod().equals("auto")&&TestCaseList.get(i).getType().equals("api")){
+
+            } else if (TestCaseList.get(i).getMethod().equals("auto") && TestCaseList.get(i).getType().equals("api")) {
                 data.setStepDesc("");
                 data.setStepResult("");
                 data.setRemark(TestCaseList.get(i).getApiName());
-            }else if(TestCaseList.get(i).getMethod().equals("auto")&&TestCaseList.get(i).getType().equals("performance")){
+            } else if (TestCaseList.get(i).getMethod().equals("auto") && TestCaseList.get(i).getType().equals("performance")) {
                 data.setStepDesc("");
                 data.setStepResult("");
                 data.setRemark(TestCaseList.get(i).getPerformName());
