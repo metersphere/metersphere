@@ -109,6 +109,11 @@ public class TestCaseController {
     public void testCaseTemplateExport(HttpServletResponse response){
         testCaseService.testCaseTemplateExport(response);
     }
+    @GetMapping("/export/testCase/{testCaseIds}")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void testCaseExport(HttpServletResponse response,QueryTestCaseRequest request){
+        testCaseService.testCaseExport(response,request);
+    }
 
     @PostMapping("/batch/edit")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)

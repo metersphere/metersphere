@@ -80,4 +80,15 @@
             </if>
         </where>
     </select>
+    <select id="listBytestCaseIds" resultType="io.metersphere.track.dto.TestCaseDTO">
+        select test_case.*,api_test.name as apiName,load_test.name AS performName from test_case  left join  api_test on test_case.test_id=api_test.id left join load_test on test_case.test_id=load_test.id
+        <where>
+            <if test="request.testCaseIds!=null and request.testCaseIds.size() > 0">
+                and test_case.id in
+                <foreach collection="request.testCaseIds" open="(" close=")" separator="," item="id">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
 </mapper>
