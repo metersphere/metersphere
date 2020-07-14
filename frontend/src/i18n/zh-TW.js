@@ -317,7 +317,7 @@ export default {
     pressure_config_params_is_empty: '壓力配置參數不能為空!'
   },
   api_test: {
-    title: "測試",
+    creator: "創建人",
     save_and_run: "保存並執行",
     run: "執行",
     running: "正在執行",
