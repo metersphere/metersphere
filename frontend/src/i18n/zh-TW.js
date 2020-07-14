@@ -384,6 +384,8 @@ export default {
     recent_plan: "最近的計劃",
     recent_case: "最近的用例",
     pass_rate: "通過率",
+    execution_result: ": 請選擇執行結果",
+    actual_result: ": 實際結果為空",
     case: {
       test_case: "測試用例",
       move: "移動用例",

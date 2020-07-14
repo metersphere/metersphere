@@ -91,12 +91,11 @@
           let url = new URL(this.addProtocol(this.request.url));
           url.searchParams.forEach((value, key) => {
             if (key && value) {
-              parameters.push(new KeyValue(key, value));
+              this.request.parameters.splice(0, 0, new KeyValue(key, value));
             }
           });
           // 添加一个空的，用于填写
           parameters.push(new KeyValue());
-          this.request.parameters = parameters;
           this.request.url = this.getURL(url);
         } catch (e) {
           this.$error(this.$t('api_test.request.url_invalid'), 2000)
@@ -128,7 +127,7 @@
         return url;
       },
       getURL(url) {
-        return decodeURIComponent(url.origin + url.pathname) + "?" + url.searchParams.toString();
+        return decodeURIComponent(url.origin + url.pathname);
       }
     },
 
