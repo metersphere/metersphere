@@ -27,6 +27,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiTestJob;
 import io.metersphere.service.FileService;
 import io.metersphere.service.ScheduleService;
+import io.metersphere.track.service.TestCaseService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -58,6 +59,8 @@ public class APITestService {
     private ScheduleService scheduleService;
     @Resource
     private TestCaseMapper testCaseMapper;
+    @Resource
+    private TestCaseService testCaseService;
 
     public List<APITestResult> list(QueryAPITestRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -130,20 +133,7 @@ public class APITestService {
     }
 
     public void delete(String testId) {
-
-        // 是否关联测试用例
-        TestCaseExample testCaseExample = new TestCaseExample();
-        testCaseExample.createCriteria().andTestIdEqualTo(testId);
-        List<TestCase> testCases = testCaseMapper.selectByExample(testCaseExample);
-        if (testCases.size() > 0) {
-            String caseName = "";
-            for (int i = 0; i < testCases.size(); i++) {
-                caseName = caseName + testCases.get(i).getName() + ",";
-            }
-            caseName = caseName.substring(0, caseName.length() - 1);
-            MSException.throwException(Translator.get("related_case_del_fail_prefix") + caseName + Translator.get("related_case_del_fail_suffix"));
-        }
-
+        testCaseService.checkIsRelateTest(testId);
         deleteFileByTestId(testId);
         apiReportService.deleteByTestId(testId);
         apiTestMapper.deleteByPrimaryKey(testId);
