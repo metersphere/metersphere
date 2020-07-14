@@ -138,7 +138,7 @@ public class UserService {
         user.setUpdateTime(System.currentTimeMillis());
         // 默认1:启用状态
         user.setStatus(UserStatus.NORMAL);
-        user.setSource(UserSource.Local.name());
+        user.setSource(UserSource.LOCAL.name());
         // 密码使用 MD5
         user.setPassword(CodingUtil.md5(user.getPassword()));
         checkEmailIsExist(user.getEmail());
