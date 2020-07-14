@@ -41,7 +41,7 @@
           if (this.component.options.showLabel) {
             return this.component.options.showLabel(op);
           }
-          return op.label;
+          return this.$t(op.label);
         }
       }
     }
