@@ -163,7 +163,7 @@ export const TRIGGER_MODE = {
 export const PRIORITY = {
   key: "priority",
   name: 'MsTableSearchSelect',
-  label: i18n.t("test_track.case.priority"),
+  label: "test_track.case.priority",
   operator: {
     options: [OPERATORS.IN, OPERATORS.NOT_IN]
   },
@@ -181,14 +181,14 @@ export const PRIORITY = {
 export const TYPE = {
   key: "type",
   name: 'MsTableSearchSelect',
-  label: i18n.t("test_track.case.type"),
+  label: "test_track.case.type",
   operator: {
     options: [OPERATORS.IN, OPERATORS.NOT_IN]
   },
   options: [
-    {label: i18n.t('commons.functional'), value: 'functional'},
-    {label: i18n.t('commons.performance'), value: 'performance'},
-    {label: i18n.t('commons.api'), value: 'api'}
+    {label: 'commons.functional', value: 'functional'},
+    {label: 'commons.performance', value: 'performance'},
+    {label: 'commons.api', value: 'api'}
   ],
   props: {
     multiple: true
@@ -198,13 +198,13 @@ export const TYPE = {
 export const METHOD = {
   key: "method",
   name: 'MsTableSearchSelect',
-  label: i18n.t("test_track.case.method"),
+  label: "test_track.case.method",
   operator: {
     options: [OPERATORS.IN, OPERATORS.NOT_IN]
   },
   options: [
-    {label: i18n.t('test_track.case.manual'), value: 'manual'},
-    {label: i18n.t('test_track.case.auto'), value: 'auto'}
+    {label: 'test_track.case.manual', value: 'manual'},
+    {label: 'test_track.case.auto', value: 'auto'}
   ],
   props: {
     multiple: true
@@ -214,7 +214,7 @@ export const METHOD = {
 export const MODULE = {
   key: "module",
   name: 'MsTableSearchInput',
-  label: i18n.t("test_track.case.module"),
+  label: "test_track.case.module",
   operator: {
     value: OPERATORS.LIKE.value, // 如果未设置value初始值，则value初始值为options[0]
     options: [OPERATORS.LIKE, OPERATORS.NOT_LIKE] // 运算符候选项
