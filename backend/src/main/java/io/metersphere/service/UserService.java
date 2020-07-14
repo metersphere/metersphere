@@ -141,14 +141,26 @@ public class UserService {
         user.setSource(UserSource.Local.name());
         // 密码使用 MD5
         user.setPassword(CodingUtil.md5(user.getPassword()));
+        checkEmailIsExist(user.getEmail());
+        userMapper.insertSelective(user);
+    }
+
+    public void addLdapUser(User user) {
+        user.setCreateTime(System.currentTimeMillis());
+        user.setUpdateTime(System.currentTimeMillis());
+        user.setStatus(UserStatus.NORMAL);
+        checkEmailIsExist(user.getEmail());
+        userMapper.insertSelective(user);
+    }
+
+    private void checkEmailIsExist(String email) {
         UserExample userExample = new UserExample();
         UserExample.Criteria criteria = userExample.createCriteria();
-        criteria.andEmailEqualTo(user.getEmail());
+        criteria.andEmailEqualTo(email);
         List<User> userList = userMapper.selectByExample(userExample);
         if (!CollectionUtils.isEmpty(userList)) {
             MSException.throwException(Translator.get("user_email_already_exists"));
         }
-        userMapper.insertSelective(user);
     }
 
     public UserDTO getUserDTO(String userId) {

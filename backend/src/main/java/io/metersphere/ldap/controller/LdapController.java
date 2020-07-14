@@ -57,7 +57,7 @@ public class LdapController {
             user.setEmail(email);
             user.setPassword(password);
             user.setSource(UserSource.Ldap.name());
-            userService.createUser(user);
+            userService.addLdapUser(user);
         } else {
             request.setUsername(u.getId());
             request.setPassword(u.getPassword());
