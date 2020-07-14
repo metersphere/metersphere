@@ -137,7 +137,7 @@ export default {
         le: "小于等于",
         equals: "等于",
         between: "之间",
-        current_user: "是当前登录用户"
+        current_user: "是当前用户"
       }
     }
   },

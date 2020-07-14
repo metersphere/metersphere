@@ -64,12 +64,14 @@
 
   .search-operator {
     display: inline-block;
-    width: 160px;
+    width: 120px;
   }
 
   .search-content {
     display: inline-block;
-    margin: 0 5px 0 10px;
-    width: calc(100% - 255px);
+    padding: 0 5px 0 10px;
+    width: calc(100% - 200px);
+    min-width: 400px;
+    box-sizing: border-box;
   }
 </style>
