@@ -180,6 +180,15 @@ public class UserService {
         return userDTO;
     }
 
+    public UserDTO getLoginUser(String userId, String source) {
+        UserExample example = new UserExample();
+        example.createCriteria().andIdEqualTo(userId).andSourceEqualTo(source);
+        if (userMapper.countByExample(example) == 0) {
+            return null;
+        }
+        return getUserDTO(userId);
+    }
+
     public UserDTO getUserDTOByEmail(String email) {
         UserExample example = new UserExample();
         example.createCriteria().andEmailEqualTo(email);
@@ -487,11 +496,15 @@ public class UserService {
     }
 
     public ResultHolder login(LoginRequest request) {
+        String login = (String) SecurityUtils.getSubject().getSession().getAttribute("authenticate");
         String msg;
         String username = StringUtils.trim(request.getUsername());
-        String password = StringUtils.trim(request.getPassword());
-        if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
-            return ResultHolder.error("user or password can't be null");
+        String password = "";
+        if (!StringUtils.equals(login, UserSource.LDAP.name())) {
+            password = StringUtils.trim(request.getPassword());
+            if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
+                return ResultHolder.error("user or password can't be null");
+            }
         }
 
         UsernamePasswordToken token = new UsernamePasswordToken(username, password);

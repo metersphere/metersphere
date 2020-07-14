@@ -199,7 +199,7 @@
       initTableData() {
         this.result = this.$get("/user/info/" + this.currentUser().id, response => {
           let data = response.data;
-          this.isLdapUser = response.data.source === 'Ldap' ? true : false;
+          this.isLdapUser = response.data.source === 'LDAP' ? true : false;
           let dataList = [];
           dataList[0] = data;
           this.tableData = dataList;
