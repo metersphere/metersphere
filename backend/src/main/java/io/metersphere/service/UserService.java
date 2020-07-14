@@ -532,6 +532,7 @@ public class UserService {
         } catch (UnauthorizedException e) {
             msg = Translator.get("not_authorized") + e.getMessage();
         }
-        return ResultHolder.error(msg);
+        MSException.throwException(msg);
+        return null;
     }
 }
