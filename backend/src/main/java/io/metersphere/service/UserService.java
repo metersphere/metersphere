@@ -180,9 +180,9 @@ public class UserService {
         return userDTO;
     }
 
-    public UserDTO getLoginUser(String userId, String source) {
+    public UserDTO getLoginUser(String userId, List<String> list) {
         UserExample example = new UserExample();
-        example.createCriteria().andIdEqualTo(userId).andSourceEqualTo(source);
+        example.createCriteria().andIdEqualTo(userId).andSourceIn(list);
         if (userMapper.countByExample(example) == 0) {
             return null;
         }
@@ -192,6 +192,16 @@ public class UserService {
     public UserDTO getUserDTOByEmail(String email) {
         UserExample example = new UserExample();
         example.createCriteria().andEmailEqualTo(email);
+        List<User> users = userMapper.selectByExample(example);
+        if (users == null || users.size() <= 0) {
+            return null;
+        }
+        return getUserDTO(users.get(0).getId());
+    }
+
+    public UserDTO getLoginUserByEmail(String email, String source) {
+        UserExample example = new UserExample();
+        example.createCriteria().andEmailEqualTo(email).andSourceEqualTo(source);
         List<User> users = userMapper.selectByExample(example);
         if (users == null || users.size() <= 0) {
             return null;

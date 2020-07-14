@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -110,7 +112,8 @@ public class ShiroDBRealm extends AuthorizingRealm {
 
 
     private AuthenticationInfo loginLdapMode(String userId, String password) {
-        UserDTO user = userService.getLoginUser(userId, UserSource.LDAP.name());
+        //
+        UserDTO user = userService.getLoginUser(userId, Arrays.asList(UserSource.LDAP.name(), UserSource.LOCAL.name()));
         String msg;
         if (user == null) {
             msg = "The user does not exist: " + userId;
@@ -126,10 +129,10 @@ public class ShiroDBRealm extends AuthorizingRealm {
     }
 
     private AuthenticationInfo loginLocalMode(String userId, String password) {
-        UserDTO user = userService.getLoginUser(userId, UserSource.LOCAL.name());
+        UserDTO user = userService.getLoginUser(userId, Collections.singletonList(UserSource.LOCAL.name()));
         String msg;
         if (user == null) {
-            user = userService.getUserDTOByEmail(userId);
+            user = userService.getLoginUserByEmail(userId, UserSource.LOCAL.name());
             if (user == null) {
                 msg = "The user does not exist: " + userId;
                 logger.warn(msg);
