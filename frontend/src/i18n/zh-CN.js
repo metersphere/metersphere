@@ -124,6 +124,7 @@ export default {
       test: "所属测试",
       project: "所属项目",
       search: "查询",
+      reset: "重置",
       and: '所有',
       or: '任意一个',
       operators: {

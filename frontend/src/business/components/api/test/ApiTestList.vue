@@ -54,7 +54,7 @@
   import MsApiTestStatus from "./ApiTestStatus";
   import MsTableOperators from "../../common/components/MsTableOperators";
   import {_filter, _sort} from "../../../../common/js/utils";
-  import {getTestConfigs} from "../../common/components/search/search-components";
+  import {TEST_CONFIGS} from "../../common/components/search/search-components";
 
   export default {
     components: {
@@ -65,7 +65,7 @@
       return {
         result: {},
         condition: {
-          components: getTestConfigs()
+          components: TEST_CONFIGS
         },
         projectId: null,
         tableData: [],

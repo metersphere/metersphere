@@ -82,7 +82,7 @@
   import MsTableOperators from "../../common/components/MsTableOperators";
   import {_filter, _sort} from "../../../../common/js/utils";
   import MsTableHeader from "../../common/components/MsTableHeader";
-  import {getTestConfigs} from "../../common/components/search/search-components";
+  import {TEST_CONFIGS} from "../../common/components/search/search-components";
 
   export default {
     components: {
@@ -100,7 +100,7 @@
         queryPath: "/performance/list",
         deletePath: "/performance/delete",
         condition: {
-          components: getTestConfigs()
+          components: TEST_CONFIGS
         },
         projectId: null,
         tableData: [],

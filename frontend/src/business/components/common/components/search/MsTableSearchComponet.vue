@@ -2,12 +2,13 @@
   <div>
     <div class="search-label">{{$t(component.label)}}</div>
 
-    <el-select class="search-operator" v-model="operator" :placeholder="$t('commons.please_select')" size="small"
+    <el-select class="search-operator" v-model="component.operator.value" :placeholder="$t('commons.please_select')"
+               size="small"
                @change="change" @input="input" v-bind="component.operator.props">
       <el-option v-for="o in operators" :key="o.value" :label="$t(o.label)" :value="o.value"/>
     </el-select>
 
-    <div class="search-content" v-if="showContent(operator)">
+    <div class="search-content" v-if="showContent">
       <slot v-bind:component="component"></slot>
     </div>
   </div>
@@ -20,14 +21,6 @@
     data() {
       return {
         operators: this.component.operator.options || [],
-        operator: (() => {
-          if (this.component.operator.value === undefined && this.component.operator.options.length > 0) {
-            this.$emit('input', this.component.operator.options[0].value);
-            return this.component.operator.options[0].value;
-          } else {
-            return this.component.operator.value
-          }
-        })()
       }
     },
     methods: {
@@ -43,12 +36,10 @@
     },
     computed: {
       showContent() {
-        return operator => {
-          if (this.component.isShow) {
-            return this.component.isShow(operator);
-          }
-          return true;
+        if (this.component.isShow) {
+          return this.component.isShow(this.component.operator.value);
         }
+        return true;
       }
     }
   }

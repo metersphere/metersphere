@@ -2,7 +2,6 @@ import MsTableSearchInput from "./MsTableSearchInput";
 import MsTableSearchDateTimePicker from "./MsTableSearchDateTimePicker";
 import MsTableSearchDatePicker from "./MsTableSearchDatePicker";
 import MsTableSearchSelect from "./MsTableSearchSelect";
-import _ from "lodash"
 
 export default {
   MsTableSearchInput, MsTableSearchDatePicker, MsTableSearchDateTimePicker, MsTableSearchSelect
@@ -221,14 +220,8 @@ export const MODULE = {
   },
 }
 
-export const getTestConfigs = () => {
-  return _.cloneDeep([NAME, UPDATE_TIME, PROJECT_NAME, CREATE_TIME, STATUS, CREATOR]);
-}
+export const TEST_CONFIGS = [NAME, UPDATE_TIME, PROJECT_NAME, CREATE_TIME, STATUS, CREATOR];
 
-export const getReportConfigs = () => {
-  return _.cloneDeep([NAME, TEST_NAME, PROJECT_NAME, CREATE_TIME, STATUS, CREATOR, TRIGGER_MODE]);
-}
+export const REPORT_CONFIGS = [NAME, TEST_NAME, PROJECT_NAME, CREATE_TIME, STATUS, CREATOR, TRIGGER_MODE];
 
-export const getTestCaseConfigs = () => {
-  return _.cloneDeep([NAME, MODULE, PRIORITY, CREATE_TIME, TYPE, UPDATE_TIME, METHOD, CREATOR]);
-}
+export const TEST_CASE_CONFIGS = [NAME, MODULE, PRIORITY, CREATE_TIME, TYPE, UPDATE_TIME, METHOD, CREATOR];

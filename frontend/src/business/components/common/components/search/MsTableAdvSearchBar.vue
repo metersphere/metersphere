@@ -1,7 +1,8 @@
 <template>
   <span class="adv-search-bar">
     <el-link type="primary" @click="open">{{$t('commons.adv_search.title')}}</el-link>
-    <el-dialog :title="$t('commons.adv_search.combine')" :visible.sync="visible" custom-class="adv-dialog" :append-to-body="true">
+    <el-dialog :title="$t('commons.adv_search.combine')" :visible.sync="visible" custom-class="adv-dialog"
+               :append-to-body="true">
       <div>
 <!--        如果有需求再加上-->
         <!--        <div class="search-label">{{$t('commons.adv_search.combine')}}: </div>-->
@@ -9,13 +10,13 @@
         <!--          <el-option v-for="o in options" :key="o.value" :label="o.label" :value="o.value"/>-->
         <!--        </el-select>-->
         <div class="search-items">
-          <component class="search-item" v-for="(component, index) in condition.components" :key="index"
+          <component class="search-item" v-for="(component, index) in config.components" :key="index"
                      :is="component.name" :component="component"/>
         </div>
       </div>
       <template v-slot:footer>
         <div class="dialog-footer">
-          <el-button @click="visible = false">{{$t('commons.cancel')}}</el-button>
+          <el-button @click="reset">{{$t('commons.adv_search.reset')}}</el-button>
           <el-button type="primary" @click="search">{{$t('commons.adv_search.search')}}</el-button>
         </div>
       </template>
@@ -25,6 +26,7 @@
 
 <script>
   import components from "./search-components";
+  import _ from "lodash";
 
   export default {
     components: {...components},
@@ -35,6 +37,7 @@
     data() {
       return {
         visible: false,
+        config: this.init(),
         options: [{
           label: this.$t("commons.adv_search.and"),
           value: "and"
@@ -46,11 +49,19 @@
       }
     },
     methods: {
+      init() { // 设置默认值
+        let config = _.cloneDeep(this.condition);
+        config.components.forEach(component => {
+          let operator = component.operator.value;
+          component.operator.value = operator === undefined ? component.operator.options[0].value : operator;
+        })
+        return config;
+      },
       search() {
         let condition = {
           // logic: this.logic // 如果有需求再加上
         }
-        this.condition.components.forEach(component => {
+        this.config.components.forEach(component => {
           let operator = component.operator.value;
           let value = component.value;
           if (Array.isArray(component.value)) {
@@ -72,6 +83,14 @@
 
         this.$emit('search', condition);
         this.visible = false;
+      },
+      reset() {
+        let source = this.condition.components;
+        this.config.components.forEach((component, index) => {
+          let operator = source[index].operator.value;
+          component.operator.value = operator === undefined ? component.operator.options[0].value : operator;
+          component.value = source[index].value;
+        })
       },
       open() {
         this.visible = true;

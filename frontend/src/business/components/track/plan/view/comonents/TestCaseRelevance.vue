@@ -84,7 +84,7 @@
   import MsTableSearchBar from "../../../../common/components/MsTableSearchBar";
   import MsTableAdvSearchBar from "../../../../common/components/search/MsTableAdvSearchBar";
   import MsTableHeader from "../../../../common/components/MsTableHeader";
-  import {getTestCaseConfigs} from "../../../../common/components/search/search-components";
+  import {TEST_CASE_CONFIGS} from "../../../../common/components/search/search-components";
 
   export default {
     name: "TestCaseRelevance",
@@ -108,7 +108,7 @@
         selectNodeIds: [],
         selectNodeNames: [],
         condition: {
-          components: getTestCaseConfigs()
+          components: TEST_CASE_CONFIGS
         },
         priorityFilters: [
           {text: 'P0', value: 'P0'},

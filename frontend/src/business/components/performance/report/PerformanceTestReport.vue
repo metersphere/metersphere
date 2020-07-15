@@ -83,7 +83,7 @@
   import {_filter, _sort} from "../../../../common/js/utils";
   import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
   import ReportTriggerModeItem from "../../common/tableItem/ReportTriggerModeItem";
-  import {getReportConfigs} from "../../common/components/search/search-components";
+  import {REPORT_CONFIGS} from "../../common/components/search/search-components";
   import MsTableHeader from "../../common/components/MsTableHeader";
 
   export default {
@@ -101,7 +101,7 @@
         queryPath: "/performance/report/list/all",
         deletePath: "/performance/report/delete/",
         condition: {
-          components: getReportConfigs()
+          components: REPORT_CONFIGS
         },
         projectId: null,
         tableData: [],
