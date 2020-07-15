@@ -169,9 +169,6 @@ export class Scenario extends BaseConfig {
         return false;
       }
     }
-    if (!this.name) {
-      return false;
-    }
     return true;
   }
 }
@@ -396,8 +393,6 @@ class JMXRequest {
   constructor(request) {
     if (request && request instanceof Request && (request.url || request.path)) {
       this.useEnvironment = request.useEnvironment;
-      this.environment = request.environment;
-      this.path = decodeURIComponent(request.path);
       this.method = request.method;
       if (!request.useEnvironment) {
         let url = new URL(request.url);
@@ -405,19 +400,28 @@ class JMXRequest {
         this.pathname = decodeURIComponent(url.pathname);
         this.port = url.port;
         this.protocol = url.protocol.split(":")[0];
-      }
-
-      if (this.method.toUpperCase() !== "GET") {
-        // this.pathname += url.search.replace('&', '&amp;');
-        this.pathname += '?';
-        request.parameters.forEach(parameter => {
-          if (parameter.name) {
-            this.pathname += (parameter.name + '=' + parameter.value + '&');
-          }
-        });
+        this.pathname =  this.getPostQueryParameters(request, this.pathname);
+      } else {
+        this.environment = request.environment;
+        this.port = request.environment.port;
+        this.path = decodeURIComponent(request.path);
+        this.path =  this.getPostQueryParameters(request, this.path);
       }
     }
   }
+
+  getPostQueryParameters(request, path) {
+    if (this.method.toUpperCase() !== "GET") {
+      path += '?';
+      request.parameters.forEach(parameter => {
+        if (parameter.name) {
+          path += (parameter.name + '=' + parameter.value + '&');
+        }
+      });
+    }
+    return path;
+  }
+
 }
 
 class JMeterTestPlan extends Element {

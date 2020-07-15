@@ -61,7 +61,10 @@
         return {
           result: {},
           rules: {
-            name :[{required: true, message: this.$t('commons.input_name'), trigger: 'blur'}],
+            name :[
+              {required: true, message: this.$t('commons.input_name'), trigger: 'blur'},
+              {max: 64, message: this.$t('commons.input_limit', [1, 64]), trigger: 'blur'}
+            ],
             socket :[{required: true, validator: socketValidator, trigger: 'blur'}],
           },
         }
@@ -83,7 +86,9 @@
             url = '/api/environment/update';
           }
           this.result = this.$post(url, param,  response => {
-            this.environment.id = response.data;
+            if (!param.id) {
+              this.environment.id = response.data;
+            }
             this.$success(this.$t('commons.save_success'));
           });
         },

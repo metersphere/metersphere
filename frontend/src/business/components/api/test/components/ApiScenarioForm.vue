@@ -8,6 +8,11 @@
         <el-select :disabled="isReadOnly" v-model="scenario.environmentId" class="environment-select" @change="environmentChange" clearable>
           <el-option v-for="(environment, index) in environments" :key="index" :label="environment.name + ': ' + environment.protocol + '://' + environment.socket" :value="environment.id"/>
           <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">{{$t('api_test.environment.environment_config')}}</el-button>
+          <template v-slot:empty>
+            <div class="empty-environment">
+              <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">{{$t('api_test.environment.environment_config')}}</el-button>
+            </div>
+          </template>
         </el-select>
       </el-form-item>
 
@@ -65,18 +70,32 @@
         }
       }
     },
+    watch: {
+      projectId() {
+        this.getEnvironments();
+      }
+    },
     methods: {
       getEnvironments() {
         if (this.projectId) {
           this.result = this.$get('/api/environment/list/' + this.projectId, response => {
             this.environments = response.data;
+            let hasEnvironment = false;
             for (let i in this.environments) {
               if (this.environments[i].id === this.scenario.environmentId) {
                 this.scenario.environment = this.environments[i];
+                hasEnvironment = true;
                 break;
               }
             }
+            if (!hasEnvironment) {
+              this.scenario.environmentId = '';
+              this.scenario.environment = undefined;
+            }
           });
+        } else {
+          this.scenario.environmentId = '';
+          this.scenario.environment = undefined;
         }
       },
       environmentChange(value) {
@@ -97,6 +116,10 @@
         }
       },
       openEnvironmentConfig() {
+        if (!this.projectId) {
+          this.$error(this.$t('api_test.select_project'));
+          return;
+        }
         this.$refs.environmentConfig.open(this.projectId);
       },
       environmentConfigClose() {
@@ -115,6 +138,10 @@
   .environment-button {
     margin-left: 20px;
     padding: 7px;
+  }
+
+  .empty-environment {
+    padding: 10px 0px;
   }
 
 </style>
