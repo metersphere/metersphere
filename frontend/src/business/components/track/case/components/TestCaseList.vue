@@ -316,6 +316,10 @@
         this.initTableData();
       },
       sort(column) {
+        // 每次只对一个字段排序
+        if (this.condition.orders) {
+          this.condition.orders = [];
+        }
         _sort(column, this.condition);
         this.initTableData();
       }
