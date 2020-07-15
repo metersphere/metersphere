@@ -40,6 +40,7 @@
           type="selection"/>
         <el-table-column
           prop="num"
+          sortable="custom"
           :label="$t('commons.id')"
           show-overflow-tooltip>
         </el-table-column>
