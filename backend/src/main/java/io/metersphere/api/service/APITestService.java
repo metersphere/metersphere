@@ -2,17 +2,15 @@ package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.APITestResult;
-import io.metersphere.api.dto.parse.ApiImport;
 import io.metersphere.api.dto.QueryAPITestRequest;
 import io.metersphere.api.dto.SaveAPITestRequest;
+import io.metersphere.api.dto.parse.ApiImport;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.api.parse.ApiImportParserFactory;
-import io.metersphere.api.parse.MsParser;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiTestFileMapper;
 import io.metersphere.base.mapper.ApiTestMapper;
-import io.metersphere.base.mapper.TestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.FileType;
@@ -27,18 +25,21 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiTestJob;
 import io.metersphere.service.FileService;
 import io.metersphere.service.ScheduleService;
+import io.metersphere.track.service.TestCaseService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -59,7 +60,7 @@ public class APITestService {
     @Resource
     private ScheduleService scheduleService;
     @Resource
-    private TestCaseMapper testCaseMapper;
+    private TestCaseService testCaseService;
 
     public List<APITestResult> list(QueryAPITestRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -132,20 +133,7 @@ public class APITestService {
     }
 
     public void delete(String testId) {
-
-        // 是否关联测试用例
-        TestCaseExample testCaseExample = new TestCaseExample();
-        testCaseExample.createCriteria().andTestIdEqualTo(testId);
-        List<TestCase> testCases = testCaseMapper.selectByExample(testCaseExample);
-        if (testCases.size() > 0) {
-            String caseName = "";
-            for (int i = 0; i < testCases.size(); i++) {
-                caseName = caseName + testCases.get(i).getName() + ",";
-            }
-            caseName = caseName.substring(0, caseName.length() - 1);
-            MSException.throwException(Translator.get("related_case_del_fail_prefix") + caseName + Translator.get("related_case_del_fail_suffix"));
-        }
-
+        testCaseService.checkIsRelateTest(testId);
         deleteFileByTestId(testId);
         apiReportService.deleteByTestId(testId);
         apiTestMapper.deleteByPrimaryKey(testId);
@@ -188,10 +176,7 @@ public class APITestService {
     private Boolean isNameExist(SaveAPITestRequest request) {
         ApiTestExample example = new ApiTestExample();
         example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
-        if (apiTestMapper.countByExample(example) > 0) {
-           return true;
-        }
-        return false;
+        return apiTestMapper.countByExample(example) > 0;
     }
 
     private ApiTest updateTest(SaveAPITestRequest request) {
@@ -292,11 +277,11 @@ public class APITestService {
     }
 
     private SaveAPITestRequest getImportApiTest(MultipartFile file, ApiImport apiImport) {
-        SaveAPITestRequest request =  new SaveAPITestRequest();
+        SaveAPITestRequest request = new SaveAPITestRequest();
         request.setName(file.getOriginalFilename());
         request.setProjectId("");
         request.setScenarioDefinition(apiImport.getScenarios());
-        request.setUserId(SessionUtils.getUser().getId());
+        request.setUserId(SessionUtils.getUserId());
         request.setId(UUID.randomUUID().toString());
         for (FileType fileType : FileType.values()) {
             String suffix = fileType.suffix();
@@ -304,7 +289,8 @@ public class APITestService {
             if (name.endsWith(suffix)) {
                 request.setName(name.substring(0, name.length() - suffix.length()));
             }
-        };
+        }
+
         if (isNameExist(request)) {
             request.setName(request.getName() + "_" + request.getId().substring(0, 5));
         }

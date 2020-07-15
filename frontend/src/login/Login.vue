@@ -1,5 +1,5 @@
 <template>
-  <div class="container" v-if="ready">
+  <div class="container" v-loading="result.loading" v-if="ready">
     <el-row type="flex">
       <el-col :span="12">
         <el-form :model="form" :rules="rules" ref="form">
@@ -17,12 +17,13 @@
           <div class="form">
             <el-form-item v-slot:default>
               <el-radio-group v-model="form.authenticate">
-                <el-radio label="ldap" size="mini">LDAP</el-radio>
-                <el-radio label="normal" size="mini">普通登录</el-radio>
+                <el-radio label="LDAP" size="mini">LDAP</el-radio>
+                <el-radio label="LOCAL" size="mini">普通登录</el-radio>
               </el-radio-group>
             </el-form-item>
             <el-form-item prop="username">
-              <el-input v-model="form.username" :placeholder="$t('commons.login_username')" autofocus autocomplete="off"/>
+              <el-input v-model="form.username" :placeholder="$t('commons.login_username')" autofocus
+                        autocomplete="off"/>
             </el-form-item>
             <el-form-item prop="password">
               <el-input v-model="form.password" :placeholder="$t('commons.password')" show-password autocomplete="off"
@@ -64,10 +65,11 @@
         }
       };*/
       return {
+        result: {},
         form: {
           username: '',
           password: '',
-          authenticate: 'normal'
+          authenticate: 'LOCAL'
         },
         rules: {
           username: [
@@ -113,10 +115,10 @@
         this.$refs[form].validate((valid) => {
           if (valid) {
             switch (this.form.authenticate) {
-              case "normal":
+              case "LOCAL":
                 this.normalLogin();
                 break;
-              case "ldap":
+              case "LDAP":
                 this.ldapLogin();
                 break;
               default:
@@ -128,13 +130,13 @@
         });
       },
       normalLogin() {
-        this.$post("signin", this.form, response => {
+        this.result = this.$post("signin", this.form, response => {
           saveLocalStorage(response);
           this.getLanguage(response.data.language);
         });
       },
       ldapLogin() {
-        this.$post("ldap/signin", this.form, response => {
+        this.result = this.$post("ldap/signin", this.form, response => {
           saveLocalStorage(response);
           this.getLanguage(response.data.language);
         });

@@ -1,15 +1,25 @@
 <template>
   <div>
-    <el-tooltip class="item" effect="dark" :content="$t('test_track.case.export.export')" placement="right">
-      <el-button type="info" icon="el-icon-download" size="mini" circle></el-button>
-    </el-tooltip>
+    <el-row>
+      <el-link type="primary" class="download-case"
+               @click="downloadCase"
+      >{{$t('test_track.case.import.download_case')}}
+      </el-link>
+    </el-row>
   </div>
+
 </template>
 
 <script>
-    export default {
-        name: "TestCaseImport"
+  export default {
+    name: "TestCaseExport",
+    methods: {
+      downloadCase() {
+
+      }
     }
+  }
+
 </script>
 
 <style scoped>

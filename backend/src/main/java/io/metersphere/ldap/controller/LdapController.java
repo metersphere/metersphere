@@ -2,18 +2,19 @@ package io.metersphere.ldap.controller;
 
 import io.metersphere.base.domain.User;
 import io.metersphere.commons.constants.ParamConstants;
+import io.metersphere.commons.constants.UserSource;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.LoginRequest;
 import io.metersphere.i18n.Translator;
 import io.metersphere.ldap.domain.Person;
 import io.metersphere.ldap.service.LdapService;
-import io.metersphere.ldap.domain.LdapInfo;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.web.bind.annotation.*;
+
 import javax.annotation.Resource;
 
 @RestController
@@ -37,10 +38,9 @@ public class LdapController {
 
         Person person = ldapService.authenticate(request);
 
-        SecurityUtils.getSubject().getSession().setAttribute("authenticate", "ldap");
+        SecurityUtils.getSubject().getSession().setAttribute("authenticate", UserSource.LDAP.name());
 
         String username = request.getUsername();
-        String password = request.getPassword();
 
         String email = person.getEmail();
 
@@ -54,18 +54,15 @@ public class LdapController {
             user.setId(username);
             user.setName(username);
             user.setEmail(email);
-            user.setPassword(password);
-            userService.createUser(user);
-        } else {
-            request.setUsername(u.getId());
-            request.setPassword(u.getPassword());
+            user.setSource(UserSource.LDAP.name());
+            userService.addLdapUser(user);
         }
 
         return userService.login(request);
     }
 
     @PostMapping("/test/connect")
-    public void testConnect(@RequestBody LdapInfo ldapInfo) {
+    public void testConnect() {
         ldapService.testConnect();
     }
 

@@ -19,6 +19,7 @@
 
         <el-container>
           <el-main class="case-content" v-loading="result.loading">
+            <ms-table-header :condition.sync="condition" @search="getCaseNames" title="" :show-create="false"/>
             <el-table
               :data="testCases"
               @filter-change="filter"
@@ -80,10 +81,22 @@
   import PriorityTableItem from "../../../common/tableItems/planview/PriorityTableItem";
   import TypeTableItem from "../../../common/tableItems/planview/TypeTableItem";
   import {_filter} from "../../../../../../common/js/utils";
+  import MsTableSearchBar from "../../../../common/components/MsTableSearchBar";
+  import MsTableAdvSearchBar from "../../../../common/components/search/MsTableAdvSearchBar";
+  import MsTableHeader from "../../../../common/components/MsTableHeader";
+  import {TEST_CASE_CONFIGS} from "../../../../common/components/search/search-components";
 
   export default {
     name: "TestCaseRelevance",
-    components: {NodeTree, MsDialogFooter, PriorityTableItem, TypeTableItem},
+    components: {
+      NodeTree,
+      MsDialogFooter,
+      PriorityTableItem,
+      TypeTableItem,
+      MsTableSearchBar,
+      MsTableAdvSearchBar,
+      MsTableHeader
+    },
     data() {
       return {
         result: {},
@@ -94,7 +107,9 @@
         treeNodes: [],
         selectNodeIds: [],
         selectNodeNames: [],
-        condition: {},
+        condition: {
+          components: TEST_CASE_CONFIGS
+        },
         priorityFilters: [
           {text: 'P0', value: 'P0'},
           {text: 'P1', value: 'P1'},
@@ -137,17 +152,19 @@
           this.$emit('refresh');
         });
       },
-      getCaseNames() {
+      getCaseNames(combine) {
         let param = {};
+        // 只有在点击高级搜索的查询按钮时combine才有值
+        let condition = combine ? {combine: combine} : this.condition;
         if (this.planId) {
           // param.planId = this.planId;
-          this.condition.planId = this.planId;
+          condition.planId = this.planId;
         }
         if (this.selectNodeIds && this.selectNodeIds.length > 0) {
           // param.nodeIds = this.selectNodeIds;
-          this.condition.nodeIds = this.selectNodeIds;
+          condition.nodeIds = this.selectNodeIds;
         }
-        this.result = this.$post('/test/case/name', this.condition, response => {
+        this.result = this.$post('/test/case/name', condition, response => {
           this.testCases = response.data;
           this.testCases.forEach(item => {
             item.checked = false;

@@ -2,6 +2,8 @@ package io.metersphere.track.service;
 
 
 import com.alibaba.excel.EasyExcelFactory;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
@@ -101,7 +103,7 @@ public class TestCaseService {
         return testCaseMapper.updateByPrimaryKeySelective(testCase);
     }
 
-    private void checkTestCaseExist (TestCaseWithBLOBs testCase) {
+    private void checkTestCaseExist(TestCaseWithBLOBs testCase) {
         if (testCase.getName() != null) {
             TestCaseExample example = new TestCaseExample();
             example.createCriteria()
@@ -154,7 +156,7 @@ public class TestCaseService {
 
         List<TestCase> testCaseNames = extTestCaseMapper.getTestCaseNames(request);
 
-        if ( StringUtils.isNotBlank(request.getPlanId()) ) {
+        if (StringUtils.isNotBlank(request.getPlanId())) {
             TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
             testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(request.getPlanId());
             List<String> relevanceIds = testPlanTestCaseMapper.selectByExample(testPlanTestCaseExample).stream()
@@ -284,9 +286,9 @@ public class TestCaseService {
             data.setName(Translator.get("test_case") + i);
             path.append("/" + Translator.get("module") + i);
             data.setNodePath(path.toString());
-            data.setPriority("P" + i%4);
-            data.setType(types.get(i%3));
-            data.setMethod(methods.get(i%2));
+            data.setPriority("P" + i % 4);
+            data.setType(types.get(i % 3));
+            data.setMethod(methods.get(i % 2));
             data.setPrerequisite(Translator.get("preconditions_optional"));
             data.setStepDesc("1. " + Translator.get("step_tip_separate") +
                     "\n2. " + Translator.get("step_tip_order") + "\n3. " + Translator.get("step_tip_optional"));
@@ -308,6 +310,75 @@ public class TestCaseService {
         list.add(explain);
         return list;
     }
+
+    public void testCaseExport(HttpServletResponse response, QueryTestCaseRequest request) {
+        EasyExcelExporter easyExcelExporter = null;
+        try {
+            easyExcelExporter = new EasyExcelExporter(TestCaseExcelData.class);
+            easyExcelExporter.export(response, generateTestCaseExcel(request),
+                    Translator.get("test_case_import_template_name"), Translator.get("test_case_import_template_sheet"));
+        } catch (Exception e) {
+            MSException.throwException(e);
+        } finally {
+            easyExcelExporter.close();
+        }
+    }
+
+    private List<TestCaseExcelData> generateTestCaseExcel(QueryTestCaseRequest request) {
+        List<TestCaseDTO> TestCaseList = extTestCaseMapper.listBytestCaseIds(request);
+        List<TestCaseExcelData> list = new ArrayList<>();
+        SessionUser user = SessionUtils.getUser();
+        StringBuilder step = new StringBuilder("");
+        StringBuilder result = new StringBuilder("");
+        TestCaseList.forEach(t -> {
+            TestCaseExcelData data = new TestCaseExcelData();
+            data.setName(t.getName());
+            data.setNodePath(t.getNodePath());
+            data.setPriority(t.getPriority());
+            data.setType(t.getType());
+            data.setMethod(t.getMethod());
+            data.setPrerequisite(t.getPrerequisite());
+            if (t.getMethod().equals("manual")) {
+                String steps = t.getSteps();
+                JSONArray jsonArray = JSON.parseArray(steps);
+                for (int j = 0; j < jsonArray.size(); j++) {
+                    int num = j + 1;
+                    step.append(num + ":" + jsonArray.getJSONObject(j).getString("desc") + "\n");
+                    result.append(num + ":" + jsonArray.getJSONObject(j).getString("result") + "\n");
+
+                }
+                data.setStepDesc(step.toString());
+                data.setStepResult(result.toString());
+                step.setLength(0);
+                result.setLength(0);
+                data.setRemark(t.getRemark());
+
+            } else if (t.getMethod().equals("auto") && t.getType().equals("api")) {
+                data.setStepDesc("");
+                data.setStepResult("");
+                data.setRemark(t.getApiName());
+            } else if (t.getMethod().equals("auto") && t.getType().equals("performance")) {
+                data.setStepDesc("");
+                data.setStepResult("");
+                data.setRemark(t.getPerformName());
+            }
+            data.setMaintainer(user.getId());
+            list.add(data);
+
+        });
+        list.add(new TestCaseExcelData());
+        TestCaseExcelData explain = new TestCaseExcelData();
+        explain.setName(Translator.get("do_not_modify_header_order"));
+        explain.setNodePath(Translator.get("module_created_automatically"));
+        explain.setType(Translator.get("options") + "（functional、performance、api）");
+        explain.setMethod(Translator.get("options") + "（manual、auto）");
+        explain.setPriority(Translator.get("options") + "（P0、P1、P2、P3）");
+        explain.setMaintainer(Translator.get("please_input_workspace_member"));
+
+        list.add(explain);
+        return list;
+    }
+
 
     public void editTestCaseBath(TestCaseBatchRequest request) {
         TestCaseExample testCaseExample = new TestCaseExample();
@@ -338,5 +409,24 @@ public class TestCaseService {
         TestCaseExample example = new TestCaseExample();
         example.createCriteria().andProjectIdEqualTo(projectId);
         testCaseMapper.deleteByExample(example);
+    }
+
+    /**
+     * 是否关联测试
+     *
+     * @param testId
+     */
+    public void checkIsRelateTest(String testId) {
+        TestCaseExample testCaseExample = new TestCaseExample();
+        testCaseExample.createCriteria().andTestIdEqualTo(testId);
+        List<TestCase> testCases = testCaseMapper.selectByExample(testCaseExample);
+        StringBuilder caseName = new StringBuilder();
+        if (testCases.size() > 0) {
+            for (TestCase testCase : testCases) {
+                caseName = caseName.append(testCase.getName()).append(",");
+            }
+            String str = caseName.toString().substring(0, caseName.length() - 1);
+            MSException.throwException(Translator.get("related_case_del_fail_prefix") + " " + str + " " + Translator.get("related_case_del_fail_suffix"));
+        }
     }
 }

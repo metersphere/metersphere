@@ -24,7 +24,7 @@
           <template v-slot:default="scope">
             <ms-table-operator-button :tip="$t('member.edit_information')" icon="el-icon-edit"
                                       type="primary" @exec="edit(scope.row)"/>
-            <ms-table-operator-button :tip="$t('member.edit_password')" icon="el-icon-s-tools"
+            <ms-table-operator-button :tip="$t('member.edit_password')" icon="el-icon-s-tools" v-if="!isLdapUser"
                                       type="success" @exec="editPassword(scope.row)"/>
           </template>
         </el-table-column>
@@ -43,7 +43,7 @@
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
         <el-form-item :label="$t('commons.email')" prop="email">
-          <el-input v-model="form.email" autocomplete="off"/>
+          <el-input v-model="form.email" autocomplete="off" :disabled="isLdapUser"/>
         </el-form-item>
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off"/>
@@ -89,6 +89,7 @@
     data() {
       return {
         result: {},
+        isLdapUser: false,
         updateVisible: false,
         editPasswordVisible: false,
         tableData: [],
@@ -198,6 +199,7 @@
       initTableData() {
         this.result = this.$get("/user/info/" + this.currentUser().id, response => {
           let data = response.data;
+          this.isLdapUser = response.data.source === 'LDAP' ? true : false;
           let dataList = [];
           dataList[0] = data;
           this.tableData = dataList;

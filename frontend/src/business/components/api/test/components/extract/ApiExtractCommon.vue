@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-row :gutter="10" type="flex" justify="space-between" align="middle">
-      <el-col v-if="extractType == 'Regex'" :span="5">
+      <el-col v-if="extractType === 'Regex'" :span="5">
         <el-select :disabled="isReadOnly" class="extract-item" v-model="common.useHeaders" :placeholder="$t('api_test.request.assertions.select_subject')" size="small">
           <el-option v-for="item in useHeadersOption" :key="item.value" :label="item.label" :value="item.value"/>
         </el-select>

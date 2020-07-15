@@ -15,4 +15,6 @@ public interface ExtTestCaseMapper {
 
     List<TestCaseDTO> listByMethod(@Param("request") QueryTestCaseRequest request);
 
+    List<TestCaseDTO> listBytestCaseIds(@Param("request")  QueryTestCaseRequest request);
+
 }

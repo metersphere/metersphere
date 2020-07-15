@@ -2,10 +2,120 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="io.metersphere.base.mapper.ext.ExtTestCaseMapper">
 
+    <sql id="condition">
+        <choose>
+            <when test='${object}.operator == "like"'>
+                like CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "not like"'>
+                not like CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "in"'>
+                in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "not in"'>
+                not in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "between"'>
+                between #{${object}.value[0]} and #{${object}.value[1]}
+            </when>
+            <when test='${object}.operator == "gt"'>
+                &gt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "lt"'>
+                &lt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "ge"'>
+                &gt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "le"'>
+                &lt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "current user"'>
+                = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}'
+            </when>
+            <otherwise>
+                = #{${object}.value}
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="combine">
+        <if test="${condition}.name != null">
+            and test_case.name
+            <include refid="condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
+        <if test="${condition}.module != null">
+            and test_case.node_path
+            <include refid="condition">
+                <property name="object" value="${condition}.module"/>
+            </include>
+        </if>
+        <if test="${condition}.priority != null">
+            and test_case.priority
+            <include refid="condition">
+                <property name="object" value="${condition}.priority"/>
+            </include>
+        </if>
+        <if test="${condition}.createTime != null">
+            and test_case.create_time
+            <include refid="condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+        <if test="${condition}.type != null">
+            and test_case.type
+            <include refid="condition">
+                <property name="object" value="${condition}.type"/>
+            </include>
+        </if>
+        <if test="${condition}.updateTime != null">
+            and test_case.update_time
+            <include refid="condition">
+                <property name="object" value="${condition}.updateTime"/>
+            </include>
+        </if>
+        <if test="${condition}.method != null">
+            and test_case.method
+            <include refid="condition">
+                <property name="object" value="${condition}.method"/>
+            </include>
+        </if>
+        <if test="${condition}.creator != null">
+            and test_case.maintainer
+            <include refid="condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+    </sql>
+
+
     <select id="getTestCaseNames" resultType="io.metersphere.base.domain.TestCase">
         select test_case.id, test_case.name, test_case.priority, test_case.type
         from test_case
         <where>
+            <choose>
+                <!--高级-->
+                <when test="request.combine != null">
+                    <include refid="combine">
+                        <property name="condition" value="request.combine"/>
+                    </include>
+                </when>
+                <!--普通-->
+                <otherwise>
+                    <if test="request.name != null">
+                        and test_case.name like CONCAT('%', #{request.name},'%')
+                    </if>
+                </otherwise>
+            </choose>
             <if test="request.projectId != null">
                 AND test_case.project_id = #{request.projectId}
             </if>
@@ -14,7 +124,6 @@
                 <foreach collection="request.nodeIds" open="(" close=")" separator="," item="nodeId">
                     #{nodeId}
                 </foreach>
-
             </if>
             <if test="request.filters != null and request.filters.size() > 0">
                 <foreach collection="request.filters.entrySet()" index="key" item="values">
@@ -75,6 +184,17 @@
         <where>
             <if test="request.projectId!=null">
                 and project_id= #{request.projectId}
+            </if>
+        </where>
+    </select>
+    <select id="listBytestCaseIds" resultType="io.metersphere.track.dto.TestCaseDTO">
+        select test_case.*,api_test.name as apiName,load_test.name AS performName from test_case  left join  api_test on test_case.test_id=api_test.id left join load_test on test_case.test_id=load_test.id
+        <where>
+            <if test="request.testCaseIds!=null and request.testCaseIds.size() > 0">
+                and test_case.id in
+                <foreach collection="request.testCaseIds" open="(" close=")" separator="," item="id">
+                    #{id}
+                </foreach>
             </if>
         </where>
     </select>
