@@ -122,6 +122,7 @@ export default {
       test: "所屬測試",
       project: "所屬項目",
       search: "查詢",
+      reset: "重置",
       and: '所有',
       or: '任意一個',
       operators: {

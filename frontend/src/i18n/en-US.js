@@ -124,6 +124,7 @@ export default {
       test: "Test",
       project: "Project",
       search: "Query",
+      reset: "Reset",
       and: 'All',
       or: 'any one',
       operators: {
