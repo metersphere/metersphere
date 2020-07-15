@@ -84,6 +84,7 @@ public class TestCaseService {
         testCase.setId(UUID.randomUUID().toString());
         testCase.setCreateTime(System.currentTimeMillis());
         testCase.setUpdateTime(System.currentTimeMillis());
+        testCase.setNum(getNextNum(testCase.getProjectId()));
         testCaseMapper.insert(testCase);
     }
 
@@ -253,9 +254,12 @@ public class TestCaseService {
         TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
         if (!testCases.isEmpty()) {
             AtomicInteger sort = new AtomicInteger();
+            AtomicInteger num = new AtomicInteger();
+            num.set(getNextNum(projectId)+testCases.size());
             testCases.forEach(testcase -> {
                 testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
                 testcase.setSort(sort.getAndIncrement());
+                testcase.setNum(num.decrementAndGet());
                 mapper.insert(testcase);
             });
         }
@@ -427,6 +431,19 @@ public class TestCaseService {
             }
             String str = caseName.toString().substring(0, caseName.length() - 1);
             MSException.throwException(Translator.get("related_case_del_fail_prefix") + " " + str + " " + Translator.get("related_case_del_fail_suffix"));
+        }
+    }
+
+    /**
+     * 获取项目下一个num (页面展示的ID)
+     * @return
+     */
+    private int getNextNum(String projectId) {
+        TestCase testCase = extTestCaseMapper.getMaxNumByProjectId(projectId);
+        if (testCase == null) {
+            return 100001;
+        } else {
+            return Optional.ofNullable(testCase.getNum()+1).orElse(100001);
         }
     }
 }

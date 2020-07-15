@@ -39,8 +39,8 @@
         <!-- jdbc连接信息 --> <!-- EduLoanManage EduTestDataBase -->
         <!--<jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://192.168.20.180:3306/fit2cloud"-->
         <!--userId="root" password="Fit2cloud2015!" />-->
-        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
-                        connectionURL="${spring.datasource.url}"
+        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
+                        connectionURL="${spring.datasource.url}&amp;nullCatalogMeansCurrent=true"
                         userId="${spring.datasource.username}" password="${spring.datasource.password}"/>
 
         <!-- javaTypeResolver式类型转换的信息 -->
@@ -64,7 +64,7 @@
 
         <!--要生成的数据库表 -->
 
-        <table tableName="load_test"/>
+        <table tableName="test_case"/>
 
 
     </context>
