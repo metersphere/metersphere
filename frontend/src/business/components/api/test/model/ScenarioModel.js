@@ -394,16 +394,19 @@ const JMX_ASSERTION_CONDITION = {
 
 class JMXRequest {
   constructor(request) {
-    if (request && request instanceof Request && request.url) {
-      let url = new URL(request.url);
-      this.method = request.method;
-      this.hostname = decodeURIComponent(url.hostname);
-      this.pathname = decodeURIComponent(url.pathname);
-      this.path = decodeURIComponent(request.path);
+    if (request && request instanceof Request && (request.url || request.path)) {
       this.useEnvironment = request.useEnvironment;
       this.environment = request.environment;
-      this.port = url.port;
-      this.protocol = url.protocol.split(":")[0];
+      this.path = decodeURIComponent(request.path);
+      this.method = request.method;
+      if (!request.useEnvironment) {
+        let url = new URL(request.url);
+        this.hostname = decodeURIComponent(url.hostname);
+        this.pathname = decodeURIComponent(url.pathname);
+        this.port = url.port;
+        this.protocol = url.protocol.split(":")[0];
+      }
+
       if (this.method.toUpperCase() !== "GET") {
         // this.pathname += url.search.replace('&', '&amp;');
         this.pathname += '?';
