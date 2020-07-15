@@ -411,8 +411,10 @@ export default {
       export_tip: "Export Tip",
       ms_tip: "Support for Metersphere JSON format",
       ms_export_tip: "Export jSON-formatted files via Metersphere website or browser plug-ins",
+      swagger_tip: "Only Swagger2.x json files are supported",
       postman_tip: "Only Postman Collection V2.1 json files are supported",
-      post_man_export_tip: "Export the test collection by Postman",
+      postman_export_tip: "Export the test collection by Postman",
+      swagger_export_tip: "Export jSON-formatted files via Swagger website",
       suffixFormatErr: "The file format does not meet the requirements",
     }
   },

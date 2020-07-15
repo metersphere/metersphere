@@ -14,4 +14,5 @@ public class SwaggerApi {
     private List<String> schemes;
     private List<SwaggerTag> tags;
     private JSONObject paths;
+    private JSONObject definitions;
 }

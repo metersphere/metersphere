@@ -56,7 +56,14 @@
               name: 'Postman',
               value: 'Postman',
               tip: this.$t('api_test.api_import.postman_tip'),
-              exportTip: this.$t('api_test.api_import.post_man_export_tip'),
+              exportTip: this.$t('api_test.api_import.post_export_tip'),
+              suffixes: new Set(['json'])
+            },
+            {
+              name: 'Swagger',
+              value: 'Swagger2',
+              tip: this.$t('api_test.api_import.swagger_tip'),
+              exportTip: this.$t('api_test.api_import.swagger_export_tip'),
               suffixes: new Set(['json'])
             }
           ],

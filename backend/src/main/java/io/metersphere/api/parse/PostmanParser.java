@@ -14,6 +14,7 @@ import io.metersphere.commons.constants.PostmanRequestBodyMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jetty.http.HttpHeader;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -64,32 +65,27 @@ public class PostmanParser extends ApiImportAbstractParser {
             request.setMethod(requestDesc.getMethod());
             request.setHeaders(parseKeyValue(requestDesc.getHeader()));
             request.setParameters(parseKeyValue(url.getQuery()));
-            Body body = new Body();
-            JSONObject postmanBody = requestDesc.getBody();
-            String bodyMode = postmanBody.getString("mode");
-            if (StringUtils.equals(bodyMode, PostmanRequestBodyMode.RAW.value())) {
-                body.setRaw(postmanBody.getString(bodyMode));
-                body.setType(MsRequestBodyType.RAW.value());
-                String contentType = postmanBody.getJSONObject("options").getJSONObject("raw").getString("language");
-                List<KeyValue> headers = request.getHeaders();
-                boolean hasContentType = false;
-                for (KeyValue header : headers) {
-                    if (StringUtils.equalsIgnoreCase(header.getName(), "Content-Type")) {
-                        hasContentType = true;
-                    }
-                }
-                if (!hasContentType) {
-                    headers.add(new KeyValue("Content-Type", contentType));
-                }
-            } else if (StringUtils.equals(bodyMode, PostmanRequestBodyMode.FORM_DATA.value()) || StringUtils.equals(bodyMode, PostmanRequestBodyMode.URLENCODED.value())) {
-                List<PostmanKeyValue> postmanKeyValues = JSON.parseArray(postmanBody.getString(bodyMode), PostmanKeyValue.class);
-                body.setType(MsRequestBodyType.KV.value());
-                body.setKvs(parseKeyValue(postmanKeyValues));
-            }
-            request.setBody(body);
+            request.setBody(parseBody(requestDesc, request));
             requests.add(request);
         }
         return requests;
+    }
+
+    private Body parseBody(PostmanRequest requestDesc, Request request) {
+        Body body = new Body();
+        JSONObject postmanBody = requestDesc.getBody();
+        String bodyMode = postmanBody.getString("mode");
+        if (StringUtils.equals(bodyMode, PostmanRequestBodyMode.RAW.value())) {
+            body.setRaw(postmanBody.getString(bodyMode));
+            body.setType(MsRequestBodyType.RAW.value());
+            String contentType = postmanBody.getJSONObject("options").getJSONObject("raw").getString("language");
+            addContentType(request, contentType);
+        } else if (StringUtils.equals(bodyMode, PostmanRequestBodyMode.FORM_DATA.value()) || StringUtils.equals(bodyMode, PostmanRequestBodyMode.URLENCODED.value())) {
+            List<PostmanKeyValue> postmanKeyValues = JSON.parseArray(postmanBody.getString(bodyMode), PostmanKeyValue.class);
+            body.setType(MsRequestBodyType.KV.value());
+            body.setKvs(parseKeyValue(postmanKeyValues));
+        }
+        return body;
     }
 
 }

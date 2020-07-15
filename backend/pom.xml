@@ -190,6 +190,13 @@
             <artifactId>spring-boot-starter-data-ldap</artifactId>
         </dependency>
 
+        <!-- swagger 解析 -->
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-parser</artifactId>
+            <version>1.0.51</version>
+        </dependency>
+
     </dependencies>
 
     <build>
