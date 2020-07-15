@@ -330,16 +330,16 @@ public class TestCaseService {
         SessionUser user = SessionUtils.getUser();
         StringBuilder step = new StringBuilder("");
         StringBuilder result = new StringBuilder("");
-        for (int i = 0; i < TestCaseList.size(); i++) {
+        TestCaseList.forEach(t -> {
             TestCaseExcelData data = new TestCaseExcelData();
-            data.setName(TestCaseList.get(i).getName());
-            data.setNodePath(TestCaseList.get(i).getNodePath());
-            data.setPriority(TestCaseList.get(i).getPriority());
-            data.setType(TestCaseList.get(i).getType());
-            data.setMethod(TestCaseList.get(i).getMethod());
-            data.setPrerequisite(TestCaseList.get(i).getPrerequisite());
-            if (TestCaseList.get(i).getMethod().equals("manual")) {
-                String steps = TestCaseList.get(i).getSteps();
+            data.setName(t.getName());
+            data.setNodePath(t.getNodePath());
+            data.setPriority(t.getPriority());
+            data.setType(t.getType());
+            data.setMethod(t.getMethod());
+            data.setPrerequisite(t.getPrerequisite());
+            if (t.getMethod().equals("manual")) {
+                String steps = t.getSteps();
                 JSONArray jsonArray = JSON.parseArray(steps);
                 for (int j = 0; j < jsonArray.size(); j++) {
                     int num = j + 1;
@@ -351,21 +351,21 @@ public class TestCaseService {
                 data.setStepResult(result.toString());
                 step.setLength(0);
                 result.setLength(0);
-                data.setRemark(TestCaseList.get(i).getRemark());
+                data.setRemark(t.getRemark());
 
-            } else if (TestCaseList.get(i).getMethod().equals("auto") && TestCaseList.get(i).getType().equals("api")) {
+            } else if (t.getMethod().equals("auto") && t.getType().equals("api")) {
                 data.setStepDesc("");
                 data.setStepResult("");
-                data.setRemark(TestCaseList.get(i).getApiName());
-            } else if (TestCaseList.get(i).getMethod().equals("auto") && TestCaseList.get(i).getType().equals("performance")) {
+                data.setRemark(t.getApiName());
+            } else if (t.getMethod().equals("auto") && t.getType().equals("performance")) {
                 data.setStepDesc("");
                 data.setStepResult("");
-                data.setRemark(TestCaseList.get(i).getPerformName());
+                data.setRemark(t.getPerformName());
             }
             data.setMaintainer(user.getId());
             list.add(data);
-        }
 
+        });
         list.add(new TestCaseExcelData());
         TestCaseExcelData explain = new TestCaseExcelData();
         explain.setName(Translator.get("do_not_modify_header_order"));
