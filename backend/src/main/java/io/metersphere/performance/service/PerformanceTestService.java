@@ -22,6 +22,7 @@ import io.metersphere.service.FileService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.service.TestResourceService;
 import io.metersphere.track.request.testplan.*;
+import io.metersphere.track.service.TestCaseService;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -73,6 +74,8 @@ public class PerformanceTestService {
     private ScheduleService scheduleService;
     @Resource
     private TestCaseMapper testCaseMapper;
+    @Resource
+    private TestCaseService testCaseService;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -82,18 +85,7 @@ public class PerformanceTestService {
     public void delete(DeleteTestPlanRequest request) {
         String testId = request.getId();
 
-        // 是否关联测试用例
-        TestCaseExample testCaseExample = new TestCaseExample();
-        testCaseExample.createCriteria().andTestIdEqualTo(testId);
-        List<TestCase> testCases = testCaseMapper.selectByExample(testCaseExample);
-        if (testCases.size() > 0) {
-            String caseName = "";
-            for (int i = 0; i < testCases.size(); i++) {
-                caseName = caseName + testCases.get(i).getName() + ",";
-            }
-            caseName = caseName.substring(0, caseName.length() - 1);
-            MSException.throwException(Translator.get("related_case_del_fail_prefix") + caseName + Translator.get("related_case_del_fail_suffix"));
-        }
+        testCaseService.checkIsRelateTest(testId);
 
         LoadTestReportExample loadTestReportExample = new LoadTestReportExample();
         loadTestReportExample.createCriteria().andTestIdEqualTo(testId);

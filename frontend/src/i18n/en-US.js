@@ -320,7 +320,6 @@ export default {
   },
   api_test: {
     creator: "Creator",
-    title: "Test",
     save_and_run: "Save and Run",
     run: "Run",
     running: "Running",

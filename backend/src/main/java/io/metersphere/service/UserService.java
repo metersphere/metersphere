@@ -138,17 +138,29 @@ public class UserService {
         user.setUpdateTime(System.currentTimeMillis());
         // 默认1:启用状态
         user.setStatus(UserStatus.NORMAL);
-        user.setSource(UserSource.Local.name());
+        user.setSource(UserSource.LOCAL.name());
         // 密码使用 MD5
         user.setPassword(CodingUtil.md5(user.getPassword()));
+        checkEmailIsExist(user.getEmail());
+        userMapper.insertSelective(user);
+    }
+
+    public void addLdapUser(User user) {
+        user.setCreateTime(System.currentTimeMillis());
+        user.setUpdateTime(System.currentTimeMillis());
+        user.setStatus(UserStatus.NORMAL);
+        checkEmailIsExist(user.getEmail());
+        userMapper.insertSelective(user);
+    }
+
+    private void checkEmailIsExist(String email) {
         UserExample userExample = new UserExample();
         UserExample.Criteria criteria = userExample.createCriteria();
-        criteria.andEmailEqualTo(user.getEmail());
+        criteria.andEmailEqualTo(email);
         List<User> userList = userMapper.selectByExample(userExample);
         if (!CollectionUtils.isEmpty(userList)) {
             MSException.throwException(Translator.get("user_email_already_exists"));
         }
-        userMapper.insertSelective(user);
     }
 
     public UserDTO getUserDTO(String userId) {
@@ -168,9 +180,28 @@ public class UserService {
         return userDTO;
     }
 
+    public UserDTO getLoginUser(String userId, List<String> list) {
+        UserExample example = new UserExample();
+        example.createCriteria().andIdEqualTo(userId).andSourceIn(list);
+        if (userMapper.countByExample(example) == 0) {
+            return null;
+        }
+        return getUserDTO(userId);
+    }
+
     public UserDTO getUserDTOByEmail(String email) {
         UserExample example = new UserExample();
         example.createCriteria().andEmailEqualTo(email);
+        List<User> users = userMapper.selectByExample(example);
+        if (users == null || users.size() <= 0) {
+            return null;
+        }
+        return getUserDTO(users.get(0).getId());
+    }
+
+    public UserDTO getLoginUserByEmail(String email, String source) {
+        UserExample example = new UserExample();
+        example.createCriteria().andEmailEqualTo(email).andSourceEqualTo(source);
         List<User> users = userMapper.selectByExample(example);
         if (users == null || users.size() <= 0) {
             return null;
@@ -475,11 +506,15 @@ public class UserService {
     }
 
     public ResultHolder login(LoginRequest request) {
+        String login = (String) SecurityUtils.getSubject().getSession().getAttribute("authenticate");
         String msg;
         String username = StringUtils.trim(request.getUsername());
-        String password = StringUtils.trim(request.getPassword());
-        if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
-            return ResultHolder.error("user or password can't be null");
+        String password = "";
+        if (!StringUtils.equals(login, UserSource.LDAP.name())) {
+            password = StringUtils.trim(request.getPassword());
+            if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
+                return ResultHolder.error("user or password can't be null");
+            }
         }
 
         UsernamePasswordToken token = new UsernamePasswordToken(username, password);
@@ -520,6 +555,7 @@ public class UserService {
         } catch (UnauthorizedException e) {
             msg = Translator.get("not_authorized") + e.getMessage();
         }
-        return ResultHolder.error(msg);
+        MSException.throwException(msg);
+        return null;
     }
 }

@@ -81,25 +81,25 @@
 </script>
 
 <style>
-  @media only screen and (min-width: 1800px) {
+  @media only screen and (min-width: 1870px) {
     .el-dialog.adv-dialog {
       width: 70%;
     }
   }
 
-  @media only screen and (min-width: 1560px) and (max-width: 1799px) {
+  @media only screen and (min-width: 1650px) and (max-width: 1869px) {
     .el-dialog.adv-dialog {
       width: 80%;
     }
   }
 
-  @media only screen and (min-width: 1400px) and (max-width: 1559px) {
+  @media only screen and (min-width: 1470px) and (max-width: 1649px) {
     .el-dialog.adv-dialog {
       width: 90%;
     }
   }
 
-  @media only screen and (max-width: 1399px) {
+  @media only screen and (max-width: 1469px) {
     .el-dialog.adv-dialog {
       width: 70%;
       min-width: 695px;
@@ -131,13 +131,13 @@
     width: 100%;
   }
 
-  @media only screen and (max-width: 1399px) {
+  @media only screen and (max-width: 1469px) {
     .search-item {
       width: 100%;
     }
   }
 
-  @media only screen and (min-width: 1400px) {
+  @media only screen and (min-width: 1470px) {
     .search-item {
       width: 50%;
     }

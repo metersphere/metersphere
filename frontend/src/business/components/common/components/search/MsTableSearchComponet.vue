@@ -71,7 +71,6 @@
     display: inline-block;
     padding: 0 5px 0 10px;
     width: calc(100% - 240px);
-    min-width: 400px;
     box-sizing: border-box;
   }
 </style>

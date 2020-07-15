@@ -410,4 +410,23 @@ public class TestCaseService {
         example.createCriteria().andProjectIdEqualTo(projectId);
         testCaseMapper.deleteByExample(example);
     }
+
+    /**
+     * 是否关联测试
+     *
+     * @param testId
+     */
+    public void checkIsRelateTest(String testId) {
+        TestCaseExample testCaseExample = new TestCaseExample();
+        testCaseExample.createCriteria().andTestIdEqualTo(testId);
+        List<TestCase> testCases = testCaseMapper.selectByExample(testCaseExample);
+        StringBuilder caseName = new StringBuilder();
+        if (testCases.size() > 0) {
+            for (TestCase testCase : testCases) {
+                caseName = caseName.append(testCase.getName()).append(",");
+            }
+            String str = caseName.toString().substring(0, caseName.length() - 1);
+            MSException.throwException(Translator.get("related_case_del_fail_prefix") + " " + str + " " + Translator.get("related_case_del_fail_suffix"));
+        }
+    }
 }
