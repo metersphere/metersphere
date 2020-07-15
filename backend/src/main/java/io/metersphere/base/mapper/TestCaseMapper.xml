@@ -16,6 +16,7 @@
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="test_id" jdbcType="VARCHAR" property="testId" />
     <result column="sort" jdbcType="INTEGER" property="sort" />
+    <result column="num" jdbcType="INTEGER" property="num" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestCaseWithBLOBs">
     <result column="remark" jdbcType="LONGVARCHAR" property="remark" />
@@ -81,7 +82,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, node_id, node_path, project_id, `name`, `type`, maintainer, priority, `method`, 
-    prerequisite, create_time, update_time, test_id, sort
+    prerequisite, create_time, update_time, test_id, sort, num
   </sql>
   <sql id="Blob_Column_List">
     remark, steps
@@ -139,14 +140,14 @@
       project_id, `name`, `type`, 
       maintainer, priority, `method`, 
       prerequisite, create_time, update_time, 
-      test_id, sort, remark, 
-      steps)
+      test_id, sort, num, 
+      remark, steps)
     values (#{id,jdbcType=VARCHAR}, #{nodeId,jdbcType=VARCHAR}, #{nodePath,jdbcType=VARCHAR}, 
       #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
       #{maintainer,jdbcType=VARCHAR}, #{priority,jdbcType=VARCHAR}, #{method,jdbcType=VARCHAR}, 
       #{prerequisite,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{testId,jdbcType=VARCHAR}, #{sort,jdbcType=INTEGER}, #{remark,jdbcType=LONGVARCHAR}, 
-      #{steps,jdbcType=LONGVARCHAR})
+      #{testId,jdbcType=VARCHAR}, #{sort,jdbcType=INTEGER}, #{num,jdbcType=INTEGER}, 
+      #{remark,jdbcType=LONGVARCHAR}, #{steps,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseWithBLOBs">
     insert into test_case
@@ -192,6 +193,9 @@
       </if>
       <if test="sort != null">
         sort,
+      </if>
+      <if test="num != null">
+        num,
       </if>
       <if test="remark != null">
         remark,
@@ -242,6 +246,9 @@
       </if>
       <if test="sort != null">
         #{sort,jdbcType=INTEGER},
+      </if>
+      <if test="num != null">
+        #{num,jdbcType=INTEGER},
       </if>
       <if test="remark != null">
         #{remark,jdbcType=LONGVARCHAR},
@@ -302,6 +309,9 @@
       <if test="record.sort != null">
         sort = #{record.sort,jdbcType=INTEGER},
       </if>
+      <if test="record.num != null">
+        num = #{record.num,jdbcType=INTEGER},
+      </if>
       <if test="record.remark != null">
         remark = #{record.remark,jdbcType=LONGVARCHAR},
       </if>
@@ -329,6 +339,7 @@
       update_time = #{record.updateTime,jdbcType=BIGINT},
       test_id = #{record.testId,jdbcType=VARCHAR},
       sort = #{record.sort,jdbcType=INTEGER},
+      num = #{record.num,jdbcType=INTEGER},
       remark = #{record.remark,jdbcType=LONGVARCHAR},
       steps = #{record.steps,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
@@ -350,7 +361,8 @@
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       test_id = #{record.testId,jdbcType=VARCHAR},
-      sort = #{record.sort,jdbcType=INTEGER}
+      sort = #{record.sort,jdbcType=INTEGER},
+      num = #{record.num,jdbcType=INTEGER}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -397,6 +409,9 @@
       <if test="sort != null">
         sort = #{sort,jdbcType=INTEGER},
       </if>
+      <if test="num != null">
+        num = #{num,jdbcType=INTEGER},
+      </if>
       <if test="remark != null">
         remark = #{remark,jdbcType=LONGVARCHAR},
       </if>
@@ -421,6 +436,7 @@
       update_time = #{updateTime,jdbcType=BIGINT},
       test_id = #{testId,jdbcType=VARCHAR},
       sort = #{sort,jdbcType=INTEGER},
+      num = #{num,jdbcType=INTEGER},
       remark = #{remark,jdbcType=LONGVARCHAR},
       steps = #{steps,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
@@ -439,7 +455,8 @@
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       test_id = #{testId,jdbcType=VARCHAR},
-      sort = #{sort,jdbcType=INTEGER}
+      sort = #{sort,jdbcType=INTEGER},
+      num = #{num,jdbcType=INTEGER}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

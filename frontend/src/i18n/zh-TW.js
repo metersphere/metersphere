@@ -101,6 +101,7 @@ export default {
     delete_confirm: '請輸入以下內容，確認刪除：',
     input_name: '請輸入名稱',
     formatErr: '格式錯誤',
+    id: 'ID',
     date: {
       select_date: '選擇日期',
       start_date: '開始日期',

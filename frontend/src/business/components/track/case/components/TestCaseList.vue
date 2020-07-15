@@ -39,6 +39,11 @@
         <el-table-column
           type="selection"/>
         <el-table-column
+          prop="num"
+          :label="$t('commons.id')"
+          show-overflow-tooltip>
+        </el-table-column>
+        <el-table-column
           prop="name"
           :label="$t('commons.name')"
           show-overflow-tooltip>
