@@ -22,23 +22,25 @@
     name: "MsTableSearchDatePicker",
     components: {MsTableSearchComponent},
     props: ['component'],
-    data() {
-      return {
-        type: "daterange"
-      }
-    },
     methods: {
       change(value) {
         if (value === OPERATORS.BETWEEN.value) {
           if (!Array.isArray(this.component.value)) {
             this.component.value = [];
           }
-          this.type = "daterange";
         } else {
           if (Array.isArray(this.component.value)) {
             this.component.value = "";
           }
-          this.type = "date";
+        }
+      }
+    },
+    computed: {
+      type() {
+        if (this.component.operator.value === OPERATORS.BETWEEN.value) {
+          return "daterange";
+        } else {
+          return "date";
         }
       }
     }

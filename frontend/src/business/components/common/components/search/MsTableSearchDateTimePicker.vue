@@ -21,23 +21,25 @@
     name: "MsTableSearchDateTimePicker",
     components: {MsTableSearchComponent},
     props: ['component'],
-    data() {
-      return {
-        type: "datetimerange"
-      }
-    },
     methods: {
       change(value) {
         if (value === OPERATORS.BETWEEN.value) {
           if (!Array.isArray(this.component.value)) {
             this.component.value = [];
           }
-          this.type = "datetimerange";
         } else {
           if (Array.isArray(this.component.value)) {
             this.component.value = "";
           }
-          this.type = "datetime";
+        }
+      }
+    },
+    computed: {
+      type() {
+        if (this.component.operator.value === OPERATORS.BETWEEN.value) {
+          return "datetimerange";
+        } else {
+          return "datetime";
         }
       }
     }
