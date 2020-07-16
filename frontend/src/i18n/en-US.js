@@ -627,6 +627,9 @@ export default {
     SSL: 'Turn on SSL (if the SMTP port is 465, you usually need to enable SSL)',
     TLS: 'Turn on TLS (if the SMTP port is 587, you usually need to enable TLS)',
     SMTP: 'Anonymous SMTP or not',
+    host: 'Host number cannot be empty',
+    port: 'Port cannot be empty',
+    account: 'Account cannot be empty',
 
   },
   i18n: {
