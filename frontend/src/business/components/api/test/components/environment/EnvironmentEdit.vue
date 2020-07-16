@@ -28,7 +28,10 @@
       <ms-api-key-value :items="environment.headers"/>
 
       <div class="environment-footer">
-        <el-button type="primary" @click="save">{{this.$t('commons.save')}}</el-button>
+        <ms-dialog-footer
+          @cancel="cancel"
+          @confirm="save()"/>
+<!--        <el-button type="primary" @click="save">{{this.$t('commons.save')}}</el-button>-->
       </div>
 
     </el-form>
@@ -38,10 +41,11 @@
 <script>
     import MsApiScenarioVariables from "../ApiScenarioVariables";
     import MsApiKeyValue from "../ApiKeyValue";
+    import MsDialogFooter from "../../../../common/components/MsDialogFooter";
 
     export default {
       name: "EnvironmentEdit",
-      components: {MsApiKeyValue, MsApiScenarioVariables},
+      components: {MsDialogFooter, MsApiKeyValue, MsApiScenarioVariables},
       props: {
         environment: {
           type: Object,
@@ -127,8 +131,11 @@
             return true
           }
           return false;
+        },
+        cancel() {
+          this.$emit('close');
         }
-      }
+      },
     }
 </script>
 

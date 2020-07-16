@@ -3,7 +3,7 @@
     <el-container v-loading="result.loading">
       <ms-aside-item :title="$t('api_test.environment.environment_list')" :data="environments" :item-operators="environmentOperators" :add-fuc="addEnvironment"
                      :delete-fuc="deleteEnvironment" @itemSelected="environmentSelected" ref="environmentItems"/>
-      <environment-edit :environment="currentEnvironment" ref="environmentEdit"/>
+      <environment-edit :environment="currentEnvironment" ref="environmentEdit" @close="close"/>
     </el-container>
   </el-dialog>
 </template>
@@ -96,6 +96,7 @@
         },
         close() {
           this.$emit('close');
+          this.visible = false;
         }
       }
     }
