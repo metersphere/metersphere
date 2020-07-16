@@ -78,30 +78,30 @@
         save() {
           this.$refs['from'].validate((valid) => {
             if (valid) {
-             this._save();
+             this._save(this.environment);
             } else  {
               return false;
             }
           });
         },
-        _save() {
-          let param = this.buildParam();
+        _save(environment) {
+          let param = this.buildParam(environment);
           let url = '/api/environment/add';
           if (param.id) {
             url = '/api/environment/update';
           }
           this.result = this.$post(url, param,  response => {
             if (!param.id) {
-              this.environment.id = response.data;
+              environment.id = response.data;
             }
             this.$success(this.$t('commons.save_success'));
           });
         },
-        buildParam() {
+        buildParam(environment) {
           let param = {};
-          Object.assign(param, this.environment);
-          param.variables = JSON.stringify(this.environment.variables);
-          param.headers = JSON.stringify(this.environment.headers);
+          Object.assign(param, environment);
+          param.variables = JSON.stringify(environment.variables);
+          param.headers = JSON.stringify(environment.headers);
           return param;
         },
         validateSocket(socket) {
@@ -135,6 +135,9 @@
         },
         cancel() {
           this.$emit('close');
+        },
+        clearValidate() {
+          this.$refs["from"].clearValidate();
         }
       },
     }
