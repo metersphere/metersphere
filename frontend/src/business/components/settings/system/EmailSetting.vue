@@ -92,19 +92,22 @@
           host: [
             {
               required: true,
-              message: ''
+              message: this.$t('system_parameter_setting.host'),
+              trigger: ['change', 'blur']
             },
           ],
           port: [
             {
               required: true,
-              message: ' '
+              message: this.$t('system_parameter_setting.port'),
+              trigger: ['change', 'blur']
             }
           ],
           account: [
             {
               required: true,
-              message: ' '
+              message: this.$t('system_parameter_setting.account'),
+              trigger: ['change', 'blur']
             }]
         }
       }

@@ -629,6 +629,9 @@ export default {
     SSL: '開啟SSL（如果SMTP埠是465，通常需要啟用SSL）',
     TLS: '開啟TLS（如果SMTP埠是587，通常需要啟用TLS）',
     SMTP: '是否匿名 SMTP',
+    host: '主機號不能為空',
+    port: '埠號不能為空',
+    account: '帳戶不能為空',
   },
   i18n: {
     home: '首頁'
