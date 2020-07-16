@@ -18,3 +18,37 @@ export const DEFAULT = 'default';
 export const ZH_CN = 'zh_CN';
 export const ZH_TW = 'zh_TW';
 export const EN_US = 'en_US';
+
+export const requestHeaders = [
+  {value: 'Accept'},
+  {value: 'Accept-Charset'},
+  {value: 'Accept-Language'},
+  {value: 'Accept-Datetime'},
+  {value: 'Authorization'},
+  {value: 'Cache-Control'},
+  {value: 'Connection'},
+  {value: 'Cookie'},
+  {value: 'Content-Length'},
+  {value: 'Content-MD5'},
+  {value: 'Content-Type'},
+  {value: 'Date'},
+  {value: 'Expect'},
+  {value: 'From'},
+  {value: 'Host'},
+  {value: 'If-Match'},
+  {value: 'If-Modified-Since'},
+  {value: 'If-None-Match'},
+  {value: 'If-Range'},
+  {value: 'If-Unmodified-Since'},
+  {value: 'Max-Forwards'},
+  {value: 'Origin'},
+  {value: 'Pragma'},
+  {value: 'Proxy-Authorization'},
+  {value: 'Range'},
+  {value: 'Referer'},
+  {value: 'TE'},
+  {value: 'User-Agent'},
+  {value: 'Upgrade'},
+  {value: 'Via'},
+  {value: 'Warning'}
+]

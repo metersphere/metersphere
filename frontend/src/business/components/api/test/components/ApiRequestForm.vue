@@ -44,7 +44,7 @@
                           :description="$t('api_test.request.parameters_desc')"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.headers')" name="headers">
-        <ms-api-key-value :is-read-only="isReadOnly" :items="request.headers"/>
+        <ms-api-key-value :is-read-only="isReadOnly" :suggestions="headerSuggestions" :items="request.headers"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.body')" name="body" v-if="isNotGet">
         <ms-api-body :is-read-only="isReadOnly" :body="request.body"/>
@@ -66,6 +66,7 @@
   import {KeyValue, Request} from "../model/ScenarioModel";
   import MsApiExtract from "./extract/ApiExtract";
   import ApiRequestMethodSelect from "./collapse/ApiRequestMethodSelect";
+  import {requestHeaders} from "../../../../../common/js/constants";
 
   export default {
     name: "MsApiRequestForm",
@@ -99,7 +100,8 @@
           path: [
             {max: 500, required: true, message: this.$t('commons.input_limit', [1, 500]), trigger: 'blur'},
           ]
-        }
+        },
+        headerSuggestions: requestHeaders
       }
     },
 

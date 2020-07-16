@@ -6,8 +6,11 @@
     <div class="kv-row" v-for="(item, index) in items" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <el-col>
-          <el-input :disabled="isReadOnly" v-model="item.name" size="small" maxlength="100" @change="change"
+          <el-input v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="100" @change="change"
                     :placeholder="$t('api_test.key')" show-word-limit/>
+          <el-autocomplete :maxlength="100" v-if="suggestions" v-model="item.name" size="small"
+                           :fetch-suggestions="querySearch" @change="change" :placeholder="$t('api_test.key')" show-word-limit/>
+
         </el-col>
         <el-col>
           <el-input :disabled="isReadOnly" v-model="item.value" size="small" maxlength="500" @change="change"
@@ -34,7 +37,8 @@
       isReadOnly: {
         type: Boolean,
         default: false
-      }
+      },
+      suggestions: Array
     },
 
     methods: {
@@ -63,9 +67,18 @@
       },
       isDisable: function (index) {
         return this.items.length - 1 === index;
-      }
+      },
+      querySearch(queryString, cb) {
+        let suggestions = this.suggestions;
+        let results = queryString ? suggestions.filter(this.createFilter(queryString)) : suggestions;
+        cb(results);
+      },
+      createFilter(queryString) {
+        return (restaurant) => {
+          return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+        };
+      },
     },
-
     created() {
       if (this.items.length === 0) {
         this.items.push(new KeyValue());
@@ -85,5 +98,9 @@
 
   .kv-delete {
     width: 60px;
+  }
+
+  .el-autocomplete {
+    width: 100%;
   }
 </style>

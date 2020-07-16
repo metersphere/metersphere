@@ -25,7 +25,7 @@
         <ms-api-scenario-variables :is-read-only="isReadOnly" :items="scenario.variables" :description="$t('api_test.scenario.kv_description')"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.scenario.headers')" name="headers">
-        <ms-api-key-value :is-read-only="isReadOnly" :items="scenario.headers" :description="$t('api_test.scenario.kv_description')"/>
+        <ms-api-key-value :is-read-only="isReadOnly" :items="scenario.headers" :suggestions="headerSuggestions" :description="$t('api_test.scenario.kv_description')"/>
       </el-tab-pane>
     </el-tabs>
 
@@ -40,6 +40,7 @@
   import {Scenario} from "../model/ScenarioModel";
   import MsApiScenarioVariables from "./ApiScenarioVariables";
   import ApiEnvironmentConfig from "./ApiEnvironmentConfig";
+  import {requestHeaders} from "../../../../../common/js/constants";
 
   export default {
     name: "MsApiScenarioForm",
@@ -62,12 +63,13 @@
         environments: [],
         rules: {
           name: [
-            {max: 100, message: this.$t('commons.input_limit', [0, 100]), trigger: 'blur'}
+            {max: 100, message: this.$t('commons.input_limit', [1, 100]), trigger: 'blur'}
           ],
           url: [
-            {max: 100, message: this.$t('commons.input_limit', [0, 100]), trigger: 'blur'}
+            {max: 100, message: this.$t('commons.input_limit', [1, 100]), trigger: 'blur'}
           ]
-        }
+        },
+        headerSuggestions: requestHeaders
       }
     },
     watch: {
