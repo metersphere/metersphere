@@ -103,6 +103,7 @@ export default {
     input_login_username: 'Please input the user ID or email',
     input_name: 'Please enter name',
     formatErr: 'Format Error',
+    id: 'ID',
     date: {
       select_date: 'Select date',
       start_date: 'Start date',

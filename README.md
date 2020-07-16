@@ -167,6 +167,11 @@ curl -sSL https://github.com/metersphere/metersphere/releases/latest/download/qu
 - 基础设施: [Docker](https://www.docker.com/), [Kubernetes](https://kubernetes.io/)
 - 测试引擎: [JMeter](https://jmeter.apache.org/)
 
+## 加入 MeterSphere 团队
+我们正在招聘 MeterSphere 技术布道师，一起打造开源明星项目，请发简历到 metersphere@fit2cloud.com
+
+点击查看 [岗位详情](https://www.zhipin.com/job_detail/b151c4b3d594688733Ny3dy1GFI~.html)
+
 ## 微信群
 
 ![wechat-group](https://metersphere.io/images/contact/wechat-group.png)

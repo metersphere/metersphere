@@ -90,14 +90,14 @@
         activeName: "parameters",
         rules: {
           name: [
-            {max: 100, message: this.$t('commons.input_limit', [0, 100]), trigger: 'blur'}
+            {max: 100, message: this.$t('commons.input_limit', [1, 100]), trigger: 'blur'}
           ],
           url: [
-            {max: 500, required: true, message: this.$t('commons.input_limit', [0, 500]), trigger: 'blur'},
+            {max: 500, required: true, message: this.$t('commons.input_limit', [1, 500]), trigger: 'blur'},
             {validator: validateURL, trigger: 'blur'}
           ],
           path: [
-            {max: 500, required: true, message: this.$t('commons.input_limit', [0, 500]), trigger: 'blur'},
+            {max: 500, required: true, message: this.$t('commons.input_limit', [1, 500]), trigger: 'blur'},
           ]
         }
       }
@@ -143,6 +143,7 @@
           this.$error(this.$t('api_test.request.please_add_environment_to_scenario'), 2000);
           this.request.useEnvironment = false;
         }
+        this.$refs["request"].clearValidate();
       },
       addProtocol(url) {
         if (url) {

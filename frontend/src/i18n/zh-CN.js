@@ -103,6 +103,7 @@ export default {
     input_login_username: '请输入用户 ID 或 邮箱',
     input_name: '请输入名称',
     formatErr: '格式错误',
+    id: 'ID',
     date: {
       select_date: '选择日期',
       start_date: '开始日期',
