@@ -33,6 +33,21 @@ curl -sSL https://github.com/metersphere/metersphere/releases/latest/download/qu
 - [完整文档](https://metersphere.io/docs/)
 - [演示视频](http://video.fit2cloud.com/%E3%80%90%E6%BC%94%E7%A4%BA%E8%A7%86%E9%A2%91%E3%80%91202006%20MeterSphere%20v1.0%20%E5%8A%9F%E8%83%BD%E6%BC%94%E7%A4%BA.mp4)
 
+## 版本说明
+
+MeterSphere 版本号命名规则为：v大版本.功能版本.Bug修复版本。比如：
+
+```
+v1.0.1 是 v1.0.0 之后的Bug修复版本；
+v1.1.0 是 v1.0.0 之后的功能版本。
+```
+像其它优秀开源项目一样，MeterSphere 将每月发布一个功能版本，并同时维护 3 个功能版本。比如：
+
+```
+在 v1.3 发布前，我们会同时维护 v1.0、v1.1、v1.2；
+在 v1.3 发布后，我们会同时维护 v1.1、v1.2、v1.3；v1.0 会停止维护。
+```
+
 ## 技术优势
   
 - 全生命周期: 能够覆盖从测试计划到测试执行、测试报告分析的不同阶段；
