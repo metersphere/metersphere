@@ -4,11 +4,6 @@
     <el-dialog :title="$t('commons.adv_search.combine')" :visible.sync="visible" custom-class="adv-dialog"
                :append-to-body="true">
       <div>
-<!--        如果有需求再加上-->
-        <!--        <div class="search-label">{{$t('commons.adv_search.combine')}}: </div>-->
-        <!--        <el-select v-model="logic" :placeholder="$t('commons.please_select')" size="small" class="search-combine">-->
-        <!--          <el-option v-for="o in options" :key="o.value" :label="o.label" :value="o.value"/>-->
-        <!--        </el-select>-->
         <div class="search-items">
           <component class="search-item" v-for="(component, index) in config.components" :key="index"
                      :is="component.name" :component="component"/>
@@ -26,7 +21,7 @@
 
 <script>
   import components from "./search-components";
-  import _ from "lodash";
+  import {cloneDeep} from "lodash";
 
   export default {
     components: {...components},
@@ -37,20 +32,12 @@
     data() {
       return {
         visible: false,
-        config: this.init(),
-        options: [{
-          label: this.$t("commons.adv_search.and"),
-          value: "and"
-        }, {
-          label: this.$t("commons.adv_search.or"),
-          value: "or"
-        }],
-        logic: this.condition.logic || "and"
+        config: this.init()
       }
     },
     methods: {
-      init() { // 设置默认值
-        let config = _.cloneDeep(this.condition);
+      init() {
+        let config = cloneDeep(this.condition);
         config.components.forEach(component => {
           let operator = component.operator.value;
           component.operator.value = operator === undefined ? component.operator.options[0].value : operator;
@@ -58,21 +45,19 @@
         return config;
       },
       search() {
-        let condition = {
-          // logic: this.logic // 如果有需求再加上
-        }
+        let condition = {}
         this.config.components.forEach(component => {
           let operator = component.operator.value;
           let value = component.value;
-          if (Array.isArray(component.value)) {
-            if (component.value.length > 0) {
+          if (Array.isArray(value)) {
+            if (value.length > 0) {
               condition[component.key] = {
                 operator: operator,
                 value: value
               }
             }
           } else {
-            if (component.value !== undefined && component.value !== null && component.value !== "") {
+            if (value !== undefined && value !== null && value !== "") {
               condition[component.key] = {
                 operator: operator,
                 value: value
@@ -133,17 +118,6 @@
 
   .dialog-footer {
     text-align: center;
-  }
-
-  .search-label {
-    display: inline-block;
-    width: 80px;
-    box-sizing: border-box;
-    padding-left: 5px;
-  }
-
-  .search-combine {
-    width: 160px;
   }
 
   .search-items {

@@ -188,7 +188,8 @@
         </where>
     </select>
     <select id="listBytestCaseIds" resultType="io.metersphere.track.dto.TestCaseDTO">
-        select test_case.*,api_test.name as apiName,load_test.name AS performName from test_case  left join  api_test on test_case.test_id=api_test.id left join load_test on test_case.test_id=load_test.id
+        select test_case.*,api_test.name as apiName,load_test.name AS performName from test_case left join api_test on
+        test_case.test_id=api_test.id left join load_test on test_case.test_id=load_test.id
         <where>
             <if test="request.testCaseIds!=null and request.testCaseIds.size() > 0">
                 and test_case.id in
@@ -197,5 +198,9 @@
                 </foreach>
             </if>
         </where>
+    </select>
+
+    <select id="getMaxNumByProjectId" resultType="io.metersphere.base.domain.TestCase">
+        select * from test_case where test_case.project_id = #{projectId} order by num desc limit 1;
     </select>
 </mapper>

@@ -101,6 +101,7 @@ export default {
     delete_confirm: '請輸入以下內容，確認刪除：',
     input_name: '請輸入名稱',
     formatErr: '格式錯誤',
+    id: 'ID',
     date: {
       select_date: '選擇日期',
       start_date: '開始日期',
@@ -411,7 +412,9 @@ export default {
       ms_tip: "支持 Metersphere json 格式",
       ms_export_tip: "通過 Metersphere Api 測試頁面或者瀏覽器插件導出 json 格式文件",
       postman_tip: "只支持 Postman Collection v2.1 格式的 json 文件",
-      post_man_export_tip: "通過 Postman 導出測試集合",
+      swagger_tip: "只支持 Swagger2.x 版本的 json 文件",
+      post_export_tip: "通過 Postman 導出測試集合",
+      swagger_export_tip: "通過 Swagger 頁面導出",
       suffixFormatErr: "文件格式不符合要求",
     }
   },

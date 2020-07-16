@@ -12,5 +12,5 @@ public class SwaggerRequest {
     private String operationId;
     private List<String> consumes;
     private List<String> produces;
-    private SwaggerParameter parameters;
+    private List<SwaggerParameter> parameters;
 }
