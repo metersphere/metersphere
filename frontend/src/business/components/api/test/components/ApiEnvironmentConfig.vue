@@ -50,19 +50,34 @@
           this.getEnvironments();
         },
         deleteEnvironment(environment) {
-          this.result = this.$get('/api/environment/delete/' + environment.id, response => {
-            this.$success(this.$t('commons.delete_success'));
-            this.getEnvironments();
-          });
+          if (environment.id) {
+            this.result = this.$get('/api/environment/delete/' + environment.id, () => {
+              this.$success(this.$t('commons.delete_success'));
+              this.getEnvironments();
+            });
+          }
         },
         copyEnvironment(environment) {
           let newEnvironment = {};
           Object.assign(newEnvironment, environment);
           newEnvironment.id = null;
+          newEnvironment.name = this.getNoRepeatName(newEnvironment.name);
+          this.$refs.environmentEdit._save(newEnvironment);
           this.environments.push(newEnvironment);
+          this.$refs.environmentItems.itemSelected(this.environments.length -1 , newEnvironment);
+        },
+        getNoRepeatName(name) {
+          for (let i in this.environments) {
+            if (this.environments[i].name === name) {
+              return this.getNoRepeatName(name + ' copy');
+            }
+          }
+          return name;
         },
         addEnvironment() {
-          this.environments.push(this.getDefaultEnvironment());
+          let newEnvironment = this.getDefaultEnvironment();
+          this.environments.push(newEnvironment);
+          this.$refs.environmentItems.itemSelected(this.environments.length -1 , newEnvironment);
         },
         environmentSelected(environment) {
           this.getEnvironment(environment);
@@ -97,6 +112,7 @@
         close() {
           this.$emit('close');
           this.visible = false;
+          this.$refs.environmentEdit.clearValidate();
         }
       }
     }
@@ -116,7 +132,4 @@
     height: 100%;
     position: absolute;
   }
-
-
-
 </style>

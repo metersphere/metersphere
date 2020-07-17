@@ -70,6 +70,8 @@
             });
             this.getProject(item.projectId);
             this.$refs.config.reset();
+          } else {
+            this.test = new Test();
           }
         });
       },

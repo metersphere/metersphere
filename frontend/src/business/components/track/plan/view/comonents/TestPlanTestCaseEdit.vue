@@ -380,7 +380,13 @@
       getRelatedTest() {
         if (this.testCase.method == 'auto' && this.testCase.testId) {
           this.$get('/' + this.testCase.type + '/get/' + this.testCase.testId, response => {
-            this.test = response.data;
+            let data = response.data;
+            if (data) {
+              this.test = data;
+            } else {
+              this.test = {};
+              this.$warning(this.$t("test_track.case.relate_test_not_find"));
+            }
           });
         }
       },

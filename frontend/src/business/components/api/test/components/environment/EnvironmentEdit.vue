@@ -25,13 +25,12 @@
       <ms-api-scenario-variables :items="environment.variables"/>
 
       <span>{{$t('api_test.request.headers')}}</span>
-      <ms-api-key-value :items="environment.headers"/>
+      <ms-api-key-value :items="environment.headers" :suggestions="headerSuggestions"/>
 
       <div class="environment-footer">
         <ms-dialog-footer
           @cancel="cancel"
           @confirm="save()"/>
-<!--        <el-button type="primary" @click="save">{{this.$t('commons.save')}}</el-button>-->
       </div>
 
     </el-form>
@@ -42,6 +41,7 @@
     import MsApiScenarioVariables from "../ApiScenarioVariables";
     import MsApiKeyValue from "../ApiKeyValue";
     import MsDialogFooter from "../../../../common/components/MsDialogFooter";
+    import {requestHeaders} from "../../../../../../common/js/constants";
 
     export default {
       name: "EnvironmentEdit",
@@ -71,36 +71,37 @@
             ],
             socket :[{required: true, validator: socketValidator, trigger: 'blur'}],
           },
+          headerSuggestions: requestHeaders
         }
       },
       methods: {
         save() {
           this.$refs['from'].validate((valid) => {
             if (valid) {
-             this._save();
+             this._save(this.environment);
             } else  {
               return false;
             }
           });
         },
-        _save() {
-          let param = this.buildParam();
+        _save(environment) {
+          let param = this.buildParam(environment);
           let url = '/api/environment/add';
           if (param.id) {
             url = '/api/environment/update';
           }
           this.result = this.$post(url, param,  response => {
             if (!param.id) {
-              this.environment.id = response.data;
+              environment.id = response.data;
             }
             this.$success(this.$t('commons.save_success'));
           });
         },
-        buildParam() {
+        buildParam(environment) {
           let param = {};
-          Object.assign(param, this.environment);
-          param.variables = JSON.stringify(this.environment.variables);
-          param.headers = JSON.stringify(this.environment.headers);
+          Object.assign(param, environment);
+          param.variables = JSON.stringify(environment.variables);
+          param.headers = JSON.stringify(environment.headers);
           return param;
         },
         validateSocket(socket) {
@@ -134,6 +135,9 @@
         },
         cancel() {
           this.$emit('close');
+        },
+        clearValidate() {
+          this.$refs["from"].clearValidate();
         }
       },
     }

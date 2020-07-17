@@ -34,7 +34,7 @@ public class ApiTestEnvironmentService {
     }
 
     public void update(ApiTestEnvironmentWithBLOBs apiTestEnvironment) {
-        apiTestEnvironmentMapper.updateByPrimaryKeySelective(apiTestEnvironment);
+        apiTestEnvironmentMapper.updateByPrimaryKey(apiTestEnvironment);
     }
 
     public String add(ApiTestEnvironmentWithBLOBs apiTestEnvironmentWithBLOBs) {
