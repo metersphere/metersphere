@@ -111,7 +111,7 @@ public class DockerTestEngine extends AbstractEngine {
                 restTemplateWithTimeOut.getForObject(uri, String.class);
             } catch (Exception e) {
                 LogUtil.error("stop load test fail... " + testId);
-                MSException.throwException(Translator.get("delete_fail"));
+                MSException.throwException(Translator.get("container_delete_fail"));
             }
         });
     }
