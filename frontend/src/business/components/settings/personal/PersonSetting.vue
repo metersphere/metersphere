@@ -57,7 +57,8 @@
     </el-dialog>
 
     <!--Change personal password-->
-    <el-dialog :title="$t('member.edit_password')" :visible.sync="editPasswordVisible" width="35%" :before-close='closeDialog' left  >
+    <el-dialog :title="$t('member.edit_password')" :visible.sync="editPasswordVisible" width="35%"
+               :destroy-on-close="true" @close="handleClose" left>
       <el-form :model="ruleForm" :rules="rules" ref="editPasswordForm" label-width="120px" class="demo-ruleForm">
         <el-form-item :label="$t('member.old_password')" prop="password" style="margin-bottom: 29px">
           <el-input v-model="ruleForm.password" autocomplete="off" show-password/>
@@ -68,7 +69,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
            <ms-dialog-footer
-             @cancel="cancel()"
+             @cancel="editPasswordVisible = false"
              @confirm="updatePassword('editPasswordForm')"/>
         </span>
     </el-dialog>

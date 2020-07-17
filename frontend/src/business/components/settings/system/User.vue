@@ -267,7 +267,8 @@
       </template>
     </el-dialog>
     <!--Changing user password in system settings-->
-    <el-dialog :title="$t('member.edit_password')" :visible.sync="editPasswordVisible" width="30%" left>
+    <el-dialog :title="$t('member.edit_password')" :visible.sync="editPasswordVisible" width="30%"
+               :destroy-on-close="true" @close="handleClose" left>
       <el-form :model="ruleForm" label-position="right" label-width="120px" size="small" :rules="rule"
                ref="editPasswordForm" class="demo-ruleForm">
         <el-form-item :label="$t('member.new_password')" prop="newpassword">

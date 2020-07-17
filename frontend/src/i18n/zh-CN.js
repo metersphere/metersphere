@@ -460,6 +460,9 @@ export default {
     recent_plan: "最近的计划",
     recent_case: "最近的用例",
     pass_rate: "通过率",
+    execution_result: ": 请选择执行结果",
+    actual_result: ": 实际结果为空",
+
     case: {
       test_case: "测试用例",
       move: "移动用例",

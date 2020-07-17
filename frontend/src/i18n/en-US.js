@@ -461,6 +461,8 @@ export default {
     recent_plan: "Recent plan",
     recent_case: "Recent case",
     pass_rate: "Pass rate",
+    execution_result: ": Please select the execution result",
+    actual_result: ": The actual result is empty",
     case: {
       test_case: "Case",
       move: "Move case",
