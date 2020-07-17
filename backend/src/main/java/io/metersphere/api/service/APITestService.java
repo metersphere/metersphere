@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
@@ -38,8 +39,6 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -76,6 +75,7 @@ public class APITestService {
         if (files == null || files.isEmpty()) {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
         }
+        checkNameExist(request);
         ApiTest test = createTest(request);
         saveFile(test.getId(), files);
     }
@@ -177,12 +177,6 @@ public class APITestService {
         }
     }
 
-    private Boolean isNameExist(SaveAPITestRequest request) {
-        ApiTestExample example = new ApiTestExample();
-        example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
-        return apiTestMapper.countByExample(example) > 0;
-    }
-
     private ApiTest updateTest(SaveAPITestRequest request) {
         checkNameExist(request);
         final ApiTest test = new ApiTest();
@@ -197,7 +191,6 @@ public class APITestService {
     }
 
     private ApiTest createTest(SaveAPITestRequest request) {
-        checkNameExist(request);
         final ApiTest test = new ApiTest();
         test.setId(request.getId());
         test.setName(request.getName());
@@ -293,10 +286,6 @@ public class APITestService {
             if (name.endsWith(suffix)) {
                 request.setName(name.substring(0, name.length() - suffix.length()));
             }
-        }
-
-        if (isNameExist(request)) {
-            request.setName(request.getName() + "_" + request.getId().substring(0, 5));
         }
         return request;
     }

@@ -14,9 +14,22 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PostmanParser extends ApiImportAbstractParser {
+
+    private static Map<String, String> postmanBodyRowMap;
+
+    static {
+        postmanBodyRowMap = new HashMap<>();
+        postmanBodyRowMap.put("json", "application/json");
+        postmanBodyRowMap.put("text", "text/plain");
+        postmanBodyRowMap.put("html", "text/html");
+        postmanBodyRowMap.put("xml", "text/xml");
+        postmanBodyRowMap.put("javascript", "application/x-javascript");
+    }
 
     @Override
     public ApiImport parse(InputStream source) {
@@ -69,7 +82,7 @@ public class PostmanParser extends ApiImportAbstractParser {
         if (StringUtils.equals(bodyMode, PostmanRequestBodyMode.RAW.value())) {
             body.setRaw(postmanBody.getString(bodyMode));
             body.setType(MsRequestBodyType.RAW.value());
-            String contentType = postmanBody.getJSONObject("options").getJSONObject("raw").getString("language");
+            String contentType = postmanBodyRowMap.get(postmanBody.getJSONObject("options").getJSONObject("raw").getString("language"));
             addContentType(request, contentType);
         } else if (StringUtils.equals(bodyMode, PostmanRequestBodyMode.FORM_DATA.value()) || StringUtils.equals(bodyMode, PostmanRequestBodyMode.URLENCODED.value())) {
             List<PostmanKeyValue> postmanKeyValues = JSON.parseArray(postmanBody.getString(bodyMode), PostmanKeyValue.class);

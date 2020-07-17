@@ -255,7 +255,7 @@
         return this.test.isValid() && !this.change;
       },
       isDisabled() {
-        return !(this.test.isValid())
+        return !(this.test.isValid() && this.change);
       }
     },
 
