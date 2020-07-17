@@ -118,10 +118,14 @@ public class APITestService {
 
     public APITestResult get(String id) {
         APITestResult apiTest = new APITestResult();
-        BeanUtils.copyBean(apiTest, apiTestMapper.selectByPrimaryKey(id));
-        Schedule schedule = scheduleService.getScheduleByResource(id, ScheduleGroup.API_TEST.name());
-        apiTest.setSchedule(schedule);
-        return apiTest;
+        ApiTest test = apiTestMapper.selectByPrimaryKey(id);
+        if (test != null) {
+            BeanUtils.copyBean(apiTest, test);
+            Schedule schedule = scheduleService.getScheduleByResource(id, ScheduleGroup.API_TEST.name());
+            apiTest.setSchedule(schedule);
+            return apiTest;
+        }
+        return null;
     }
 
     public ApiTest getApiTestByTestId(String testId) {
