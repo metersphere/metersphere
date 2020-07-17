@@ -1,28 +1,69 @@
 <template>
-  <el-dialog :title="$t('api_test.api_import.title')" :visible.sync="visible" class="api-import" v-loading="result.loading">
+  <el-dialog :title="$t('api_test.api_import.title')" :visible.sync="visible" class="api-import" v-loading="result.loading" @close="close">
 
-    <div class="data-format">
+    <div class="header-bar">
       <div>{{$t('api_test.api_import.data_format')}}</div>
       <el-radio-group v-model="selectedPlatformValue">
         <el-radio v-for="(item, index) in platforms" :key="index" :label="item.value">{{item.name}}</el-radio>
       </el-radio-group>
+
+      <div class="operate-button">
+        <el-button class="save-button" type="primary" plain  @click="save">
+          {{$t('commons.save')}}
+        </el-button>
+        <el-button class="cancel-button" type="warning" plain @click="visible = false">
+          {{$t('commons.cancel')}}
+        </el-button>
+      </div>
     </div>
 
-    <div  class="api-upload">
-      <el-upload
-        drag
-        action=""
-        :http-request="upload"
-        :limit="1"
-        :beforeUpload="uploadValidate"
-        :show-file-list="false"
-        :file-list="fileList"
-        multiple>
-        <i class="el-icon-upload"></i>
-        <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
-        <div class="el-upload__tip" slot="tip">{{$t('api_test.api_import.file_size_limit')}}</div>
-      </el-upload>
-    </div>
+    <el-form :model="formData" :rules="rules" label-width="100px" v-loading="result.loading" ref="form">
+      <el-row>
+        <el-col :span="11">
+          <el-form-item :label="$t('commons.name')" prop="name">
+            <el-input size="small" class="name-input" v-model="formData.name" clearable show-word-limit/>
+          </el-form-item>
+          <el-form-item :label="$t('commons.project')" prop="projectId">
+            <el-select size="small" v-model="formData.projectId" class="project-select" clearable>
+              <el-option v-for="(project, index) in projects" :key="index" :label="project.name" :value="project.id"/>
+            </el-select>
+          </el-form-item>
+          <el-form-item v-if="(selectedPlatformValue != 'Postman' && useEnvironment) || selectedPlatformValue == 'Swagger2'" :label="$t('api_test.environment.environment_config')" prop="environmentId">
+            <el-select size="small"  v-model="formData.environmentId" class="environment-select" clearable>
+              <el-option v-for="(environment, index) in environments" :key="index" :label="environment.name + ': ' + environment.protocol + '://' + environment.socket" :value="environment.id"/>
+              <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">{{$t('api_test.environment.environment_config')}}</el-button>
+              <template v-slot:empty>
+                <div class="empty-environment">
+                  <el-button :disabled="formData.projectId == ''" class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">{{$t('api_test.environment.environment_config')}}</el-button>
+                </div>
+              </template>
+            </el-select>
+          </el-form-item>
+          <el-form-item v-if="selectedPlatformValue == 'Metersphere'" prop="useEnvironment">
+            <el-checkbox v-model="useEnvironment">{{$t('api_test.environment.config_environment')}}</el-checkbox>
+          </el-form-item>
+        </el-col>
+        <el-col :span="1">
+          <el-divider direction="vertical"/>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item prop="file" class="api-upload">
+            <el-upload
+              drag
+              action=""
+              :http-request="upload"
+              :limit="1"
+              :beforeUpload="uploadValidate"
+              :file-list="fileList"
+              multiple>
+              <i class="el-icon-upload"></i>
+              <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
+              <div class="el-upload__tip" slot="tip">{{$t('api_test.api_import.file_size_limit')}}</div>
+            </el-upload>
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </el-form>
 
     <div class="format-tip">
       <div>
@@ -33,14 +74,17 @@
       </div>
     </div>
 
+    <api-environment-config ref="environmentConfig" @close="getEnvironments"/>
+
   </el-dialog>
 </template>
 
 <script>
     import MsDialogFooter from "../../../../common/components/MsDialogFooter";
+    import ApiEnvironmentConfig from "../ApiEnvironmentConfig";
     export default {
       name: "ApiImport",
-      components: {MsDialogFooter},
+      components: {ApiEnvironmentConfig, MsDialogFooter},
       data() {
         return {
           visible: false,
@@ -69,12 +113,37 @@
           ],
           selectedPlatform: {},
           selectedPlatformValue: 'Metersphere',
-          fileList: [],
           result: {},
+          projects: [],
+          environments: [],
+          useEnvironment: false,
+          formData: {
+            name: '',
+            environmentId: '',
+            projectId: '',
+            file: undefined
+          },
+          rules: {
+            name: [
+              {required: true, message: this.$t('commons.input_name'), trigger: 'blur'},
+              {max: 60, message: this.$t('commons.input_limit', [1, 60]), trigger: 'blur'}
+            ],
+            environmentId: [
+              {required: true, message: this.$t('api_test.environment.select_environment'), trigger: 'blur'},
+            ],
+            projectId: [
+              {required: true, message: this.$t('api_test.select_project'), trigger: 'blur'},
+            ],
+            file: [
+              {required: true, message: this.$t('commons.please_upload'), trigger: 'blur'},
+            ],
+          },
+          fileList: []
         }
       },
       created() {
         this.selectedPlatform = this.platforms[0];
+        this.getProjects();
       },
       watch: {
         selectedPlatformValue() {
@@ -84,6 +153,9 @@
               break;
             }
           }
+        },
+        'formData.projectId'() {
+          this.getEnvironments();
         }
       },
       methods: {
@@ -91,14 +163,8 @@
           this.visible = true;
         },
         upload(file) {
+          this.formData.file = file.file;
           this.fileList.push(file.file);
-          this.result = this.$fileUpload('/api/import/' + this.selectedPlatformValue, this.fileList, response => {
-            let res = response.data;
-            this.$success(this.$t('test_track.case.import.success'));
-            this.visible = false;
-            this.$router.push({path: '/api/test/edit', query: {id: res.id}});
-          });
-          this.fileList = [];
         },
         uploadValidate(file, fileList) {
           let suffix = file.name.substring(file.name.lastIndexOf('.') + 1);
@@ -112,6 +178,55 @@
             return false;
           }
           return true;
+        },
+        getEnvironments() {
+          if (this.formData.projectId) {
+            this.$get('/api/environment/list/' + this.formData.projectId, response => {
+              this.environments = response.data;
+            });
+          } else {
+            this.environments = [];
+            this.formData.environmentId = '';
+          }
+        },
+        getProjects() {
+          this.result = this.$get("/project/listAll", response => {
+            this.projects = response.data;
+          })
+        },
+        openEnvironmentConfig() {
+          if (!this.formData.projectId) {
+            this.$error(this.$t('api_test.select_project'));
+            return;
+          }
+          this.$refs.environmentConfig.open(this.formData.projectId);
+        },
+        save() {
+          this.$refs.form.validate(valid => {
+            if (valid) {
+              let param = {};
+              Object.assign(param, this.formData);
+              param.platform = this.selectedPlatformValue;
+              param.useEnvironment = this.useEnvironment;
+              this.result = this.$fileUpload('/api/import', param.file, param,response => {
+                let res = response.data;
+                this.$success(this.$t('test_track.case.import.success'));
+                this.visible = false;
+                this.$router.push({path: '/api/test/edit', query: {id: res.id}});
+              });
+            } else {
+              return false;
+            }
+          });
+        },
+        close() {
+          this.formData =  {
+            name: '',
+            environmentId: '',
+            projectId: '',
+            file: undefined
+          };
+          this.fileList = [];
         }
       }
     }
@@ -125,21 +240,59 @@
 
   .api-upload {
     text-align: center;
+    display: inline-block;
   }
 
   .el-radio-group {
     margin: 10px 0;
   }
 
-  .data-format,.format-tip,.api-upload {
+  .header-bar,.format-tip,.el-form {
     border: solid #E1E1E1 1px;
     margin: 10px 0;
     padding: 10px;
     border-radius: 3px;
   }
 
+  .header-bar {
+    padding: 10px 30px;
+  }
+
   .api-import >>> .el-dialog__body {
     padding: 15px 25px;
+  }
+
+  .operate-button {
+    float: right;
+  }
+
+  .save-button {
+    margin-left: 10px;
+  }
+
+  .environment-button {
+    margin-left: 20px;
+    padding: 7px;
+  }
+
+  .empty-environment {
+    padding: 10px 0px;
+  }
+
+  .el-form {
+    padding: 30px 10px;
+  }
+
+  .el-divider {
+    height: 200px;
+  }
+
+  .name-input {
+    width: 195px;
+  }
+
+  .dialog-footer {
+    float: right;
   }
 
 </style>

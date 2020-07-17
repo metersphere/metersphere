@@ -102,6 +102,7 @@ export default {
     input_name: '請輸入名稱',
     formatErr: '格式錯誤',
     id: 'ID',
+    please_upload: '請上傳文件',
     date: {
       select_date: '選擇日期',
       start_date: '開始日期',
@@ -331,14 +332,16 @@ export default {
     key: "鍵",
     value: "值",
     create_performance_test: "創建性能測試",
-    export_config: "匯出配寘",
+    export_config: "匯出",
     environment: {
       name: "環境名稱",
       socket: "環境域名",
       globalVariable: "全局變量",
       environment_list: "環境列表",
       environment_config: "環境配置",
+      config_environment: "配置環境",
       environment: "環境",
+      select_environment: "請選擇環境",
       please_save_test: "請先保存測試",
     },
     scenario: {

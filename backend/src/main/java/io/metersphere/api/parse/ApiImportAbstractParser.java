@@ -1,7 +1,9 @@
 package io.metersphere.api.parse;
 
+import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.Request;
+import io.metersphere.api.dto.scenario.Scenario;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -40,6 +42,12 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
             }
         }
         return testStr.toString();
+    }
+
+    protected void setScenarioByRequest(Scenario scenario, ApiTestImportRequest request) {
+        if (request.getUseEnvironment()) {
+            scenario.setEnvironmentId(request.getEnvironmentId());
+        }
     }
 
     protected void addContentType(Request request, String contentType) {

@@ -102,6 +102,7 @@ export default {
     login_username: 'ID 或 邮箱',
     input_login_username: '请输入用户 ID 或 邮箱',
     input_name: '请输入名称',
+    please_upload: '请上传文件',
     formatErr: '格式错误',
     id: 'ID',
     date: {
@@ -332,14 +333,16 @@ export default {
     key: "键",
     value: "值",
     create_performance_test: "创建性能测试",
-    export_config: "导出配置",
+    export_config: "导出",
     environment: {
       name: "环境名称",
       socket: "环境域名",
       globalVariable: "全局变量",
       environment_list: "环境列表",
       environment_config: "环境配置",
+      config_environment: "配置环境",
       environment: "环境",
+      select_environment: "请选择环境",
       please_save_test: "请先保存测试",
     },
     scenario: {
