@@ -72,9 +72,13 @@
       reset() {
         let source = this.condition.components;
         this.config.components.forEach((component, index) => {
-          let operator = source[index].operator.value;
-          component.operator.value = operator === undefined ? component.operator.options[0].value : operator;
-          component.value = source[index].value;
+          if (component.operator.value !== undefined) {
+            let operator = source[index].operator.value;
+            component.operator.value = operator === undefined ? component.operator.options[0].value : operator;
+          }
+          if (component.value !== undefined) {
+            component.value = source[index].value;
+          }
         })
       },
       open() {
