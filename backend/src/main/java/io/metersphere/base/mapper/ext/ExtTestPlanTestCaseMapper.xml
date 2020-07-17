@@ -2,7 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper">
 
-    <select id="getReportMetric" parameterType="java.lang.String" resultType="io.metersphere.track.dto.TestCaseReportStatusResultDTO">
+    <select id="getReportMetric" parameterType="java.lang.String"
+            resultType="io.metersphere.track.dto.TestCaseReportStatusResultDTO">
         select count(t1.id) as `count`, t1.status
         from test_plan_test_case t1
         inner join test_case t2
@@ -45,6 +46,9 @@
             <if test="request.planId != null">
                 and test_plan_test_case.plan_id = #{request.planId}
             </if>
+            <if test="request.method != null">
+                and test_case.method = #{request.method}
+            </if>
             <if test="request.filters != null and request.filters.size() > 0">
                 <foreach collection="request.filters.entrySet()" index="key" item="values">
                     <if test="values != null and values.size() > 0">
@@ -79,6 +83,27 @@
                 and test_case.node_path in
                 <foreach collection="request.nodePaths" item="nodePaths" separator="," open="(" close=")">
                     #{nodePaths}
+                </foreach>
+            </if>
+
+        </where>
+
+    </select>
+    <select id="listByNodes" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
+        select test_plan_test_case.*, test_case.*
+        from test_plan_test_case
+        inner join test_case on test_plan_test_case.case_id = test_case.id
+        <where>
+            <if test="request.planId != null">
+                and test_plan_test_case.plan_id = #{request.planId}
+            </if>
+            <if test="request.method != null">
+                and test_case.method = #{request.method}
+            </if>
+            <if test="request.nodePaths != null and request.nodePaths.size() > 0">
+                and
+                <foreach collection="request.nodePaths" item="nodePaths" separator="or" index="index">
+                    test_case.node_path like concat('%',#{nodePaths},'%')
                 </foreach>
             </if>
 
