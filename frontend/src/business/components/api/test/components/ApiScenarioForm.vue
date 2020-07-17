@@ -16,10 +16,6 @@
         </el-select>
       </el-form-item>
 
-<!--      <el-form-item :label="$t('api_test.scenario.base_url')" prop="url">-->
-<!--        <el-input :placeholder="$t('api_test.scenario.base_url_description')" v-model="scenario.url" maxlength="200"/>-->
-<!--      </el-form-item>-->
-
     <el-tabs v-model="activeName">
       <el-tab-pane :label="$t('api_test.scenario.variables')" name="parameters">
         <ms-api-scenario-variables :is-read-only="isReadOnly" :items="scenario.variables" :description="$t('api_test.scenario.kv_description')"/>
@@ -86,6 +82,7 @@
             for (let i in this.environments) {
               if (this.environments[i].id === this.scenario.environmentId) {
                 this.scenario.environment = this.environments[i];
+                this.setRequestEnvironments();
                 hasEnvironment = true;
                 break;
               }
@@ -104,9 +101,7 @@
         for (let i in this.environments) {
           if (this.environments[i].id === value) {
             this.scenario.environment = this.environments[i];
-            this.scenario.requests.forEach(request => {
-              request.environment = this.environments[i];
-            });
+            this.setRequestEnvironments();
             break;
           }
         }
@@ -126,6 +121,11 @@
       },
       environmentConfigClose() {
         this.getEnvironments();
+      },
+      setRequestEnvironments() {
+        this.scenario.requests.forEach(request => {
+          request.environment = this.scenario.environment;
+        });
       }
     }
   }

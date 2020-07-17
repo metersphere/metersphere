@@ -10,14 +10,10 @@
         </span>
       </slot>
     </div>
-
     <div :style="{'height': itemBarHeight + 'px'}" v-for="(item, index) in data" :key="index" class="item-bar" @click="itemSelected(index, item)" :class="{'item-selected' : index == selectIndex}">
-<!--      <span :style="{'line-height': itemBarHeight - 10 + 'px'}" class="item-left">-->
-<!--&lt;!&ndash;        {{item.name}}&ndash;&gt;-->
-<!--      </span>-->
-      <input class="item-input" :style="{'height': itemBarHeight - 12 + 'px', 'line-height': itemBarHeight - 12 + 'px', 'width': width - 90 + 'px'}" v-model="item.name" placeholder="请输入内容"/>
+      <input class="item-input" :style="{'height': itemBarHeight - 12 + 'px', 'line-height': itemBarHeight - 12 + 'px', 'width': width - 90 + 'px'}" v-model="item.name" :placeholder="$t('commons.input_content')"/>
       <span :style="{'line-height': itemBarHeight - 10 + 'px'}" class="item-right">
-        <i v-for="(operator, index) in itemOperators" :key="index" :class="operator.icon" @click="operator.func(item)"/>
+        <i v-for="(operator, index) in itemOperators" :key="index" :class="operator.icon" @click.stop="operator.func(item)"/>
       </span>
     </div>
   </ms-aside-container>

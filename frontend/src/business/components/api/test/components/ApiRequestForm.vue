@@ -2,7 +2,7 @@
   <el-form :model="request" :rules="rules" ref="request" label-width="100px">
 
     <el-form-item :label="$t('api_test.request.name')" prop="name">
-      <el-input :disabled="isReadOnly" v-model="request.name" maxlength="100" show-word-limit/>
+      <el-input :disabled="isReadOnly" v-model="request.name" maxlength="300" show-word-limit/>
     </el-form-item>
 
     <el-form-item v-if="!request.useEnvironment" :label="$t('api_test.request.url')" prop="url" class="adjust-margin-bottom">
@@ -91,7 +91,7 @@
         activeName: "parameters",
         rules: {
           name: [
-            {max: 100, message: this.$t('commons.input_limit', [1, 100]), trigger: 'blur'}
+            {max: 300, message: this.$t('commons.input_limit', [1, 300]), trigger: 'blur'}
           ],
           url: [
             {max: 500, required: true, message: this.$t('commons.input_limit', [1, 500]), trigger: 'blur'},
