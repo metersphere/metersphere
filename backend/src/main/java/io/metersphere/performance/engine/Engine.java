@@ -1,7 +1,5 @@
 package io.metersphere.performance.engine;
 
-import java.util.Map;
-
 public interface Engine {
     Long getStartTime();
 
@@ -10,6 +8,4 @@ public interface Engine {
     void start();
 
     void stop();
-
-    Map<String, String> log();
 }

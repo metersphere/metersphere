@@ -33,9 +33,16 @@ public class TestPlanTestCaseController {
         return PageUtils.setPageInfo(page, testPlanTestCaseService.list(request));
     }
 
-    /*jenkins测试计划下的测试用例*/
+    @GetMapping("/list/{planId}")
+    public List<TestPlanCaseDTO> getTestPlanCaseByPlanId(@PathVariable String planId) {
+        QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
+        request.setPlanId(planId);
+        request.setMethod("auto");
+        return testPlanTestCaseService.list(request);
+    }
+
     @GetMapping("/list/node/{planId}/{nodePaths}")
-    public List<TestPlanCaseDTO> getTestPlanCases(@PathVariable String planId, @PathVariable String nodePaths) {
+    public List<TestPlanCaseDTO> getTestPlanCasesByNodePath(@PathVariable String planId, @PathVariable String nodePaths) {
         String nodePath = nodePaths.replace("f", "/");
         String[] array = nodePath.split(",");
         List<String> list = Arrays.asList(array);
@@ -44,6 +51,18 @@ public class TestPlanTestCaseController {
         request.setNodePaths(list);
         request.setMethod("auto");
         return testPlanTestCaseService.listByNode(request);
+    }
+
+    @GetMapping("/list/node/all/{planId}/{nodePaths}")
+    public List<TestPlanCaseDTO> getTestPlanCasesByNodePaths(@PathVariable String planId, @PathVariable String nodePaths) {
+        String nodePath = nodePaths.replace("f", "");
+        String[] array = nodePath.split(",");
+        List<String> list = Arrays.asList(array);
+        QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
+        request.setPlanId(planId);
+        request.setNodePaths(list);
+        request.setMethod("auto");
+        return testPlanTestCaseService.listByNodes(request);
     }
 
     @GetMapping("/get/{caseId}")

@@ -93,8 +93,12 @@
       getTest() {
         if (this.id) {
           this.result = this.$get('/performance/get/' + this.id, response => {
-            this.test = response.data;
-            this.getProject(this.test.projectId);
+            if (response.data) {
+              this.test = response.data;
+              this.getProject(this.test.projectId);
+            } else {
+              this.test = {};
+            }
           });
         }
       },

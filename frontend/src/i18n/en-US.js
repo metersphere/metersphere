@@ -464,6 +464,8 @@ export default {
     recent_plan: "Recent plan",
     recent_case: "Recent case",
     pass_rate: "Pass rate",
+    execution_result: ": Please select the execution result",
+    actual_result: ": The actual result is empty",
     case: {
       test_case: "Case",
       move: "Move case",
@@ -500,6 +502,7 @@ export default {
       please_create_project: "No project available, please create the project first",
       create_module_first: "Please create module first",
       relate_test: "Relate test",
+      relate_test_not_find: 'The associated test does not exist, please check the test case',
       import: {
         import: "Import test case",
         case_import: "Import test case",

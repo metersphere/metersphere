@@ -463,6 +463,9 @@ export default {
     recent_plan: "最近的计划",
     recent_case: "最近的用例",
     pass_rate: "通过率",
+    execution_result: ": 请选择执行结果",
+    actual_result: ": 实际结果为空",
+
     case: {
       test_case: "测试用例",
       move: "移动用例",
@@ -499,6 +502,7 @@ export default {
       please_create_project: "暂无项目，请先创建项目",
       create_module_first: "请先新建模块",
       relate_test: "关联测试",
+      relate_test_not_find: '关联的测试不存在,请检查用例',
       import: {
         import: "导入用例",
         case_import: "导入测试用例",

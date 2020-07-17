@@ -463,6 +463,8 @@ export default {
     recent_plan: "最近的計劃",
     recent_case: "最近的用例",
     pass_rate: "通過率",
+    execution_result: ": 請選擇執行結果",
+    actual_result: ": 實際結果為空",
     case: {
       test_case: "測試用例",
       move: "移動用例",
@@ -499,6 +501,7 @@ export default {
       please_create_project: "暫無項目，請先創建項目",
       create_module_first: "請先新建模塊",
       relate_test: "關聯測試",
+      relate_test_not_find: '關聯的測試不存在,請檢查用例',
       import: {
         import: "導入用例",
         case_import: "導入測試用例",

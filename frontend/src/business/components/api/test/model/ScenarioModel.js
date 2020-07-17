@@ -400,12 +400,12 @@ class JMXRequest {
         this.pathname = decodeURIComponent(url.pathname);
         this.port = url.port;
         this.protocol = url.protocol.split(":")[0];
-        this.pathname =  this.getPostQueryParameters(request, this.pathname);
+        this.pathname = this.getPostQueryParameters(request, this.pathname);
       } else {
         this.environment = request.environment;
         this.port = request.environment.port;
         this.path = decodeURIComponent(request.path);
-        this.path =  this.getPostQueryParameters(request, this.path);
+        this.path = this.getPostQueryParameters(request, this.path);
       }
     }
   }
@@ -485,22 +485,26 @@ class JMXGenerator {
     })
   }
 
-  addScenarioVariables(threadGroup, scenario) {
-    let scenarioVariableKeys = new Set();
-    scenario.variables.forEach(item => {
-      scenarioVariableKeys.add(item.name);
+  addEnvironments(environments, target) {
+    let keys = new Set();
+    target.forEach(item => {
+      keys.add(item.name);
     });
+    let envArray = environments;
+    if (!(envArray instanceof Array)) {
+      envArray = JSON.parse(environments);
+      envArray.forEach(item => {
+        if (item.name && !keys.has(item.name)) {
+          target.push(new KeyValue(item.name, item.value));
+        }
+      })
+    }
+  }
+
+  addScenarioVariables(threadGroup, scenario) {
     let environment = scenario.environment;
     if (environment) {
-      let envVariables = environment.variables;
-      if (!(envVariables instanceof Array)) {
-        envVariables = JSON.parse(environment.variables);
-        envVariables.forEach(item => {
-          if (item.name && !scenarioVariableKeys.has(item.name)) {
-            scenario.variables.push(new KeyValue(item.name, item.value));
-          }
-        })
-      }
+      this.addEnvironments(environment.variables, scenario.variables)
     }
     let args = this.filterKV(scenario.variables);
     if (args.length > 0) {
@@ -510,21 +514,9 @@ class JMXGenerator {
   }
 
   addScenarioHeaders(threadGroup, scenario) {
-    let scenarioHeaderKeys = new Set();
-    scenario.headers.forEach(item => {
-      scenarioHeaderKeys.add(item.name);
-    });
     let environment = scenario.environment;
     if (environment) {
-      let envHeaders = environment.headers;
-      if (!(envHeaders instanceof Array)) {
-        envHeaders = JSON.parse(environment.headers);
-        envHeaders.forEach(item => {
-          if (item.name && !scenarioHeaderKeys.has(item.name)) {
-            scenario.headers.push(new KeyValue(item.name, item.value));
-          }
-        })
-      }
+      this.addEnvironments(environment.headers, scenario.headers)
     }
     let headers = this.filterKV(scenario.headers);
     if (headers.length > 0) {

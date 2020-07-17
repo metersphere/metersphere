@@ -282,6 +282,21 @@
               + this.$t('test_track.length_less_than') + '300');
             return;
           }
+
+          if (this.testCase.method != 'auto') {
+            if (!result.actualResult) {
+              this.$warning(this.testCase.steptResults[i].desc + this.$t('test_track.actual_result')
+              );
+              return;
+            }
+            if (!result.executeResult) {
+              this.$warning(this.testCase.steptResults[i].desc + this.$t('test_track.execution_result')
+              );
+              return;
+            }
+          }
+
+
           param.results.push(result);
         }
 
@@ -380,7 +395,13 @@
       getRelatedTest() {
         if (this.testCase.method == 'auto' && this.testCase.testId) {
           this.$get('/' + this.testCase.type + '/get/' + this.testCase.testId, response => {
-            this.test = response.data;
+            let data = response.data;
+            if (data) {
+              this.test = data;
+            } else {
+              this.test = {};
+              this.$warning(this.$t("test_track.case.relate_test_not_find"));
+            }
           });
         }
       },

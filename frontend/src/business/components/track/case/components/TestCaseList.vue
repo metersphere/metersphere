@@ -10,9 +10,9 @@
             <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="refresh"/>
           </template>
           <template v-slot:button>
-            <ms-table-button :is-tester-permission="true" icon="el-icon-upload2"
-                             :content="$t('test_track.case.import.import')" @click="importTestCase"/>
             <ms-table-button :is-tester-permission="true" icon="el-icon-download"
+                             :content="$t('test_track.case.import.import')" @click="importTestCase"/>
+            <ms-table-button :is-tester-permission="true" icon="el-icon-upload2"
                              :content="$t('test_track.case.export.export')" @click="handleBatch('export')"/>
             <ms-table-button :is-tester-permission="true" icon="el-icon-right" :content="$t('test_track.case.move')"
                              @click="handleBatch('move')"/>

@@ -215,8 +215,8 @@ export const MODULE = {
   name: 'MsTableSearchInput',
   label: "test_track.case.module",
   operator: {
-    value: OPERATORS.LIKE.value, // 如果未设置value初始值，则value初始值为options[0]
-    options: [OPERATORS.LIKE, OPERATORS.NOT_LIKE] // 运算符候选项
+    value: OPERATORS.LIKE.value,
+    options: [OPERATORS.LIKE, OPERATORS.NOT_LIKE]
   },
 }
 
