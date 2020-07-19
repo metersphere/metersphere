@@ -361,6 +361,8 @@ export default {
       copy: "复制请求",
       delete: "删除请求",
       input_name: "请输入请求名称",
+      input_url: "请输入请求URL",
+      input_path: "请输入请求路径",
       name: "请求名称",
       method: "请求方法",
       url: "请求URL",

@@ -361,6 +361,8 @@ export default {
       copy: "複製請求",
       delete: "删除請求",
       input_name: "請輸入請求名稱",
+      input_url: "請輸入請求URL",
+      input_path: "請輸入請求路徑",
       name: "請求名稱",
       method: "請求方法",
       url: "請求URL",

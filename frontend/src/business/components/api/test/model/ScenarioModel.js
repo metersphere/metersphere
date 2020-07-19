@@ -124,11 +124,23 @@ export class Test extends BaseConfig {
 
   isValid() {
     for (let i = 0; i < this.scenarioDefinition.length; i++) {
-      if (this.scenarioDefinition[i].isValid()) {
-        return this.projectId && this.name;
+      let validator = this.scenarioDefinition[i].isValid();
+      if (!validator.isValid) {
+        return validator;
       }
     }
-    return false;
+    if (!this.projectId) {
+      return {
+        isValid: false,
+        info: 'api_test.select_project'
+      }
+    } else if (!this.name) {
+      return {
+        isValid: false,
+        info: 'api_test.input_name'
+      }
+    }
+    return { isValid: true};
   }
 
   toJMX() {
@@ -165,11 +177,12 @@ export class Scenario extends BaseConfig {
 
   isValid() {
     for (let i = 0; i < this.requests.length; i++) {
-      if (!this.requests[i].isValid()) {
-        return false;
+      let validator = this.requests[i].isValid();
+      if (!validator.isValid) {
+        return validator;
       }
     }
-    return true;
+    return {isValid: true};
   }
 }
 
@@ -202,7 +215,27 @@ export class Request extends BaseConfig {
   }
 
   isValid() {
-    return ((!this.useEnvironment && !!this.url) || (this.useEnvironment && !!this.path && this.environment)) && !!this.method
+    if (this.useEnvironment){
+      if (!this.environment) {
+        return {
+          isValid: false,
+          info: 'api_test.request.please_configure_environment_in_scenario'
+        }
+      } else if (!this.path) {
+        return {
+          isValid: false,
+          info: 'api_test.request.input_path'
+        }
+      }
+    } else if (!this.url){
+      return {
+        isValid: false,
+        info: 'api_test.request.input_url'
+      }
+    }
+    return  {
+      isValid: true
+    }
   }
 }
 

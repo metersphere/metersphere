@@ -363,6 +363,8 @@ export default {
       copy: "Copy request",
       delete: "Delete request",
       input_name: "Please enter the request name",
+      input_url: "Please enter the request URL",
+      input_path: "Please enter the request path",
       name: "Name",
       method: "Method",
       url: "URL",
