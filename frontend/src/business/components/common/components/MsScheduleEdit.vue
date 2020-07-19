@@ -3,11 +3,13 @@
     <div id="app">
       <el-form :model="form" :rules="rules" ref="from">
         <el-form-item
-          :placeholder="$t('schedule.please_input_cron_expression')"
           prop="cronValue">
-          <el-input v-model="form.cronValue" placeholder class="inp"/>
-          <el-button type="primary" @click="showCronDialog">{{$t('schedule.generate_expression')}}</el-button>
+          <el-input v-model="form.cronValue" class="inp" :placeholder="$t('schedule.please_input_cron_expression')"/>
+<!--          <el-button type="primary" @click="showCronDialog">{{$t('schedule.generate_expression')}}</el-button>-->
           <el-button type="primary" @click="saveCron">{{$t('commons.save')}}</el-button>
+        </el-form-item>
+        <el-form-item>
+          <el-link type="primary" @click="showCronDialog">{{$t('schedule.generate_expression')}}</el-link>
         </el-form-item>
         <crontab-result :ex="form.cronValue" ref="crontabResult" />
       </el-form>
@@ -122,6 +124,10 @@
   .inp {
     width: 50%;
     margin-right: 20px;
+  }
+
+  .el-form-item {
+    margin-bottom: 10px;
   }
 
 </style>

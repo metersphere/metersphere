@@ -586,7 +586,7 @@ export default {
   .popup-result {
     box-sizing: border-box;
     line-height: 24px;
-    margin: 25px auto;
+    margin: 10px auto;
     padding: 15px 10px 10px;
     border: 1px solid #ccc;
     position: relative;
