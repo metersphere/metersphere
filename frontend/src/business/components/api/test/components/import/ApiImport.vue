@@ -54,7 +54,9 @@
               :http-request="upload"
               :limit="1"
               :beforeUpload="uploadValidate"
+              :on-remove="handleRemove"
               :file-list="fileList"
+              :on-exceed="handleExceed"
               multiple>
               <i class="el-icon-upload"></i>
               <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
@@ -160,7 +162,12 @@
         },
         upload(file) {
           this.formData.file = file.file;
-          this.fileList.push(file.file);
+        },
+        handleExceed(files, fileList) {
+          this.$warning(this.$t('test_track.case.import.upload_limit_count'));
+        },
+        handleRemove(file, fileList) {
+          this.formData.file = undefined;
         },
         uploadValidate(file, fileList) {
           let suffix = file.name.substring(file.name.lastIndexOf('.') + 1);
@@ -204,7 +211,7 @@
               Object.assign(param, this.formData);
               param.platform = this.selectedPlatformValue;
               param.useEnvironment = this.useEnvironment;
-              if (!param.file) {
+              if (!this.formData.file) {
                 this.$warning(this.$t('commons.please_upload'));
                 return ;
               }
