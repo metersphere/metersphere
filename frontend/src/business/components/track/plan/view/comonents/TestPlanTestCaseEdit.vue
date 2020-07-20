@@ -298,11 +298,6 @@
             return;
           }
           if (this.testCase.method != 'auto') {
-            if (!result.actualResult) {
-              this.$warning(this.testCase.steptResults[i].desc + this.$t('test_track.actual_result')
-              );
-              return;
-            }
             if (!result.executeResult) {
               this.$warning(this.testCase.steptResults[i].desc + this.$t('test_track.execution_result')
               );
