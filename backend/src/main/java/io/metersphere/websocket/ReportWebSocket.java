@@ -79,7 +79,7 @@ public class ReportWebSocket {
             while (stopMe) {
                 try {
                     LoadTestReport report = reportService.getReport(reportId);
-                    if (StringUtils.equalsAny(report.getStatus(), PerformanceTestStatus.Completed.name(), PerformanceTestStatus.Error.name())) {
+                    if (report == null || StringUtils.equalsAny(report.getStatus(), PerformanceTestStatus.Completed.name(), PerformanceTestStatus.Error.name())) {
                         this.stopMe();
                         session.close();
                         break;
