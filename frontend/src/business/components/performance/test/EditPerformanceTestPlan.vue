@@ -126,8 +126,8 @@
       importAPITest() {
         let apiTest = this.$store.state.api.test;
         if (apiTest && apiTest.name) {
-          this.testPlan.projectId = apiTest.projectId;
-          this.testPlan.name = apiTest.name;
+          this.$set(this.testPlan, "projectId", apiTest.projectId);
+          this.$set(this.testPlan, "name", apiTest.name);
           let blob = new Blob([apiTest.jmx.xml], {type: "application/octet-stream"});
           let file = new File([blob], apiTest.jmx.name);
           this.$refs.basicConfig.beforeUpload(file);
