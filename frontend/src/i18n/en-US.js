@@ -102,6 +102,7 @@ export default {
     login_username: 'ID or email',
     input_login_username: 'Please input the user ID or email',
     input_name: 'Please enter name',
+    please_save: 'Please save first',
     formatErr: 'Format Error',
     id: 'ID',
     please_upload: 'Please upload file',
@@ -319,7 +320,8 @@ export default {
     download_log_file: 'Download',
     user_name: 'Creator',
     special_characters_are_not_supported: 'Test name does not support special characters',
-    pressure_config_params_is_empty: 'Pressure configuration parameters cannot be empty!'
+    pressure_config_params_is_empty: 'Pressure configuration parameters cannot be empty!',
+    schedule_tip: 'The interval must not be less than the pressure measuring time'
   },
   api_test: {
     creator: "Creator",

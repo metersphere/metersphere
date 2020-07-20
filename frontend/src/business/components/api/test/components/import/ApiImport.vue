@@ -47,20 +47,21 @@
           <el-divider direction="vertical"/>
         </el-col>
         <el-col :span="12">
-          <el-form-item prop="file" class="api-upload">
             <el-upload
+              class="api-upload"
               drag
               action=""
               :http-request="upload"
               :limit="1"
               :beforeUpload="uploadValidate"
+              :on-remove="handleRemove"
               :file-list="fileList"
+              :on-exceed="handleExceed"
               multiple>
               <i class="el-icon-upload"></i>
               <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
               <div class="el-upload__tip" slot="tip">{{$t('api_test.api_import.file_size_limit')}}</div>
             </el-upload>
-          </el-form-item>
         </el-col>
       </el-row>
     </el-form>
@@ -133,15 +134,12 @@
             ],
             projectId: [
               {required: true, message: this.$t('api_test.select_project'), trigger: 'blur'},
-            ],
-            file: [
-              {required: true, message: this.$t('commons.please_upload'), trigger: 'blur'},
-            ],
+            ]
           },
           fileList: []
         }
       },
-      created() {
+      activated() {
         this.selectedPlatform = this.platforms[0];
         this.getProjects();
       },
@@ -164,7 +162,12 @@
         },
         upload(file) {
           this.formData.file = file.file;
-          this.fileList.push(file.file);
+        },
+        handleExceed(files, fileList) {
+          this.$warning(this.$t('test_track.case.import.upload_limit_count'));
+        },
+        handleRemove(file, fileList) {
+          this.formData.file = undefined;
         },
         uploadValidate(file, fileList) {
           let suffix = file.name.substring(file.name.lastIndexOf('.') + 1);
@@ -208,6 +211,10 @@
               Object.assign(param, this.formData);
               param.platform = this.selectedPlatformValue;
               param.useEnvironment = this.useEnvironment;
+              if (!this.formData.file) {
+                this.$warning(this.$t('commons.please_upload'));
+                return ;
+              }
               this.result = this.$fileUpload('/api/import', param.file, param,response => {
                 let res = response.data;
                 this.$success(this.$t('test_track.case.import.success'));
@@ -240,7 +247,15 @@
 
   .api-upload {
     text-align: center;
-    display: inline-block;
+    margin: auto 0;
+  }
+
+  .api-upload >>> .el-upload {
+    width: 100%;
+  }
+
+  .api-upload  >>> .el-upload-dragger {
+    width: 100%;
   }
 
   .el-radio-group {
@@ -288,7 +303,7 @@
   }
 
   .name-input {
-    width: 195px;
+    max-width: 195px;
   }
 
   .dialog-footer {
