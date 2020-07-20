@@ -274,7 +274,7 @@
       },
       checkScheduleEdit() {
         if (!this.testPlan.id) {
-          this.$message('请先保存测试');
+          this.$message(this.$t('api_test.environment.please_save_test'));
           return false;
         }
         return true;
@@ -284,7 +284,7 @@
         if (intervalTime < duration) {
           return {
             pass: false,
-            info: '间隔时间不能小于压测时长'
+            info: this.$t('load_test.schedule_tip')
           }
         }
         return {

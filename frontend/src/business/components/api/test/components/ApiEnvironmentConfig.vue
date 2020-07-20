@@ -58,13 +58,31 @@
           }
         },
         copyEnvironment(environment) {
+          if (!environment.id) {
+            this.$warning(this.$t('commons.please_save'))
+            return;
+          }
           let newEnvironment = {};
           Object.assign(newEnvironment, environment);
           newEnvironment.id = null;
           newEnvironment.name = this.getNoRepeatName(newEnvironment.name);
+          if (!this.validateEnvironment(newEnvironment)) {
+            return;
+          }
           this.$refs.environmentEdit._save(newEnvironment);
           this.environments.push(newEnvironment);
           this.$refs.environmentItems.itemSelected(this.environments.length -1 , newEnvironment);
+        },
+        validateEnvironment(environment) {
+          if (!environment.name || !!environment.name && environment.name.length > 64) {
+            this.$error(this.$t('commons.input_limit', [1, 64]));
+            return false;
+          }
+          if (!this.$refs.environmentEdit.validateSocket(environment.socket)) {
+            this.$error(this.$t('commons.formatErr'));
+            return false;
+          }
+          return true;
         },
         getNoRepeatName(name) {
           for (let i in this.environments) {
@@ -97,14 +115,13 @@
           }
         },
         getEnvironment(environment) {
-          let item = environment;
           if (!(environment.variables instanceof Array)) {
-            item.variables = JSON.parse(environment.variables);
+            environment.variables = JSON.parse(environment.variables);
           }
           if (!(environment.headers instanceof Array)) {
-            item.headers = JSON.parse(environment.headers);
+            environment.headers = JSON.parse(environment.headers);
           }
-          this.currentEnvironment =  item;
+          this.currentEnvironment =  environment;
         },
         getDefaultEnvironment() {
           return {variables: [{}], headers: [{}], protocol: 'https', projectId: this.projectId};

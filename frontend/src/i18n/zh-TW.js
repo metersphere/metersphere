@@ -101,6 +101,7 @@ export default {
     delete_confirm: '請輸入以下內容，確認刪除：',
     input_name: '請輸入名稱',
     formatErr: '格式錯誤',
+    please_save: '請先保存',
     id: 'ID',
     please_upload: '請上傳文件',
     date: {
@@ -317,7 +318,8 @@ export default {
     pressure_prediction_chart: '壓力預估圖',
     user_name: '創建人',
     special_characters_are_not_supported: '測試名稱不支持特殊字符',
-    pressure_config_params_is_empty: '壓力配置參數不能為空!'
+    pressure_config_params_is_empty: '壓力配置參數不能為空!',
+    schedule_tip: '間隔時間不能小於壓測時長'
   },
   api_test: {
     creator: "創建人",

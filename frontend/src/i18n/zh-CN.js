@@ -104,6 +104,7 @@ export default {
     input_name: '请输入名称',
     please_upload: '请上传文件',
     formatErr: '格式错误',
+    please_save: '请先保存',
     id: 'ID',
     date: {
       select_date: '选择日期',
@@ -318,7 +319,8 @@ export default {
     pressure_prediction_chart: '压力预估图',
     user_name: '创建人',
     special_characters_are_not_supported: '测试名称不支持特殊字符',
-    pressure_config_params_is_empty: '压力配置参数不能为空!'
+    pressure_config_params_is_empty: '压力配置参数不能为空!',
+    schedule_tip: '间隔时间不能小于压测时长'
   },
   api_test: {
     creator: "创建人",
