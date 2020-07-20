@@ -103,7 +103,7 @@
         }
       },
       runTest() {
-        this.result = this.$post(this.runPath, {id: this.test.id}, (response) => {
+        this.result = this.$post(this.runPath, {id: this.test.id, triggerMode: 'MANUAL'}, (response) => {
           this.$success(this.$t('load_test.is_running'));
           this.$emit('runTest', response.data);
         });
