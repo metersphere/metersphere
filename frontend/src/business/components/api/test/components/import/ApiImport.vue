@@ -139,7 +139,7 @@
           fileList: []
         }
       },
-      created() {
+      activated() {
         this.selectedPlatform = this.platforms[0];
         this.getProjects();
       },
