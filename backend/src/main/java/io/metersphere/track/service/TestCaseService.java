@@ -366,7 +366,7 @@ public class TestCaseService {
                 data.setStepResult("");
                 data.setRemark(t.getPerformName());
             }
-            data.setMaintainer(user.getId());
+            data.setMaintainer(t.getMaintainer());
             list.add(data);
 
         });
