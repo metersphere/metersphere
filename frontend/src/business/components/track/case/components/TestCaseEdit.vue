@@ -259,7 +259,7 @@
           maintainer: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
           priority: [{required: true, message: this.$t('test_track.case.input_priority'), trigger: 'change'}],
           type: [{required: true, message: this.$t('test_track.case.input_type'), trigger: 'change'}],
-          testId: [{required: true, message: '请选择测试', trigger: 'change'}],
+          testId: [{required: true, message: this.$t('commons.please_select'), trigger: 'change'}],
           method: [{required: true, message: this.$t('test_track.case.input_method'), trigger: 'change'}],
           prerequisite: [{max: 300, message: this.$t('test_track.length_less_than') + '300', trigger: 'blur'}],
           remark: [{max: 300, message: this.$t('test_track.length_less_than') + '300', trigger: 'blur'}]

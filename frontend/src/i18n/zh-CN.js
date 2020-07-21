@@ -114,6 +114,7 @@ export default {
       start_date_time: '开始日期时间',
       end_date_time: '结束日期时间',
       range_separator: "至",
+      data_time_error: "开始日期不能大于结束日期",
     },
     trigger_mode: {
       name: "触发方式",

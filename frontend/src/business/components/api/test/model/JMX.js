@@ -226,8 +226,8 @@ export class HTTPSamplerProxy extends DefaultTestElement {
     this.request = request || {};
 
     if (request.useEnvironment) {
-      this.stringProp("HTTPSampler.domain", this.request.environment.domain);
-      this.stringProp("HTTPSampler.protocol", this.request.environment.protocol);
+      this.stringProp("HTTPSampler.domain", request.domain);
+      this.stringProp("HTTPSampler.protocol", request.protocol);
       this.stringProp("HTTPSampler.path", this.request.path);
     } else {
       this.stringProp("HTTPSampler.domain", this.request.hostname);

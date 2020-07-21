@@ -80,6 +80,16 @@
       }
     },
 
+    watch: {
+      projectId() {
+        this.initScenarioEnvironment();
+      }
+    },
+
+    activated() {
+      this.initScenarioEnvironment();
+    },
+
     methods: {
       createScenario: function () {
         this.scenarios.push(new Scenario());
@@ -119,6 +129,22 @@
           this.activeName = 0;
           this.select(this.scenarios[0]);
         });
+      },
+      initScenarioEnvironment: function ()  {
+        if (this.projectId) {
+          this.result = this.$get('/api/environment/list/' + this.projectId, response => {
+            let environments = response.data;
+            let environmentMap = new Map();
+            environments.forEach(environment => {
+              environmentMap.set(environment.id, environment);
+            });
+            this.scenarios.forEach(scenario => {
+              if (scenario.environmentId) {
+                scenario.environment = environmentMap.get(scenario.environmentId);
+              }
+            });
+          });
+        }
       }
     },
 

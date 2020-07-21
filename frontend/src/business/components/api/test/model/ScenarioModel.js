@@ -160,6 +160,7 @@ export class Scenario extends BaseConfig {
     this.headers = [];
     this.requests = [];
     this.environmentId = undefined;
+    this.environment = undefined;
 
     this.set(options);
     this.sets({variables: KeyValue, headers: KeyValue, requests: Request}, options);
@@ -177,7 +178,7 @@ export class Scenario extends BaseConfig {
 
   isValid() {
     for (let i = 0; i < this.requests.length; i++) {
-      let validator = this.requests[i].isValid();
+      let validator = this.requests[i].isValid(this.environmentId);
       if (!validator.isValid) {
         return validator;
       }
@@ -214,9 +215,9 @@ export class Request extends BaseConfig {
     return options;
   }
 
-  isValid() {
+  isValid(environmentId) {
     if (this.useEnvironment){
-      if (!this.environment) {
+      if (!environmentId) {
         return {
           isValid: false,
           info: 'api_test.request.please_configure_environment_in_scenario'
@@ -423,7 +424,7 @@ const JMX_ASSERTION_CONDITION = {
 }
 
 class JMXRequest {
-  constructor(request) {
+  constructor(request, environment) {
     if (request && request instanceof Request && (request.url || request.path)) {
       this.useEnvironment = request.useEnvironment;
       this.method = request.method;
@@ -435,10 +436,12 @@ class JMXRequest {
         this.protocol = url.protocol.split(":")[0];
         this.pathname = this.getPostQueryParameters(request, this.pathname);
       } else {
-        this.environment = request.environment;
-        this.port = request.environment.port;
-        this.path = decodeURIComponent(request.path);
-        this.path = this.getPostQueryParameters(request, this.path);
+        if (environment) {
+          this.port = environment.port;
+          this.protocol = environment.protocol;
+          this.domain = environment.domain;
+        }
+        this.path = this.getPostQueryParameters(request, decodeURIComponent(request.path));
       }
     }
   }
@@ -497,7 +500,7 @@ class JMXGenerator {
       scenario.requests.forEach(request => {
         if (!request.isValid()) return;
 
-        let httpSamplerProxy = new HTTPSamplerProxy(request.name || "", new JMXRequest(request));
+        let httpSamplerProxy = new HTTPSamplerProxy(request.name || "", new JMXRequest(request, scenario.environment));
 
         this.addRequestHeader(httpSamplerProxy, request);
 

@@ -22,7 +22,7 @@
       </el-form-item>
 
       <span>{{$t('api_test.environment.globalVariable')}}</span>
-      <ms-api-scenario-variables :items="environment.variables"/>
+      <ms-api-scenario-variables :show-variable="false" :items="environment.variables"/>
 
       <span>{{$t('api_test.request.headers')}}</span>
       <ms-api-key-value :items="environment.headers" :suggestions="headerSuggestions"/>
