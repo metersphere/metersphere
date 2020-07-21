@@ -12,7 +12,7 @@ import {
   ResponseCodeAssertion,
   ResponseDataAssertion,
   ResponseHeadersAssertion,
-  RegexExtractor, JSONPostProcessor, XPath2Extractor,
+  RegexExtractor, JSONPostProcessor, XPath2Extractor, DubboSample,
 } from "./JMX";
 
 export const uuid = function () {
@@ -74,7 +74,7 @@ export class BaseConfig {
     if (types) {
       for (let name in types) {
         if (types.hasOwnProperty(name) && options.hasOwnProperty(name)) {
-          options[name].forEach((o) => {
+          options[name].forEach(o => {
             this[name].push(new types[name](o));
           })
         }
@@ -95,7 +95,7 @@ export class Test extends BaseConfig {
   constructor(options) {
     super();
     this.type = "MS API CONFIG";
-    this.version = '1.0.0';
+    this.version = '1.1.0';
     this.id = uuid();
     this.name = undefined;
     this.projectId = undefined;
@@ -140,7 +140,7 @@ export class Test extends BaseConfig {
 }
 
 export class Scenario extends BaseConfig {
-  constructor(options) {
+  constructor(options = {}) {
     super();
     this.name = undefined;
     this.url = undefined;
@@ -148,14 +148,20 @@ export class Scenario extends BaseConfig {
     this.headers = [];
     this.requests = [];
     this.environmentId = undefined;
+    this.dubboConfig = undefined;
 
     this.set(options);
-    this.sets({variables: KeyValue, headers: KeyValue, requests: Request}, options);
+    this.sets({variables: KeyValue, headers: KeyValue, requests: RequestFactory}, options);
   }
 
   initOptions(options) {
     options = options || {};
-    options.requests = options.requests || [new Request()];
+    options.requests = options.requests || [new RequestFactory()];
+    options.dubboConfig = {
+      configCenter: new ConfigCenter(options.configCenter),
+      registryCenter: new RegistryCenter(options.configCenter),
+      consumerAndService: new ConsumerAndService(options.configCenter),
+    }
     return options;
   }
 
@@ -173,9 +179,41 @@ export class Scenario extends BaseConfig {
   }
 }
 
+export class RequestFactory {
+  static TYPES = {
+    HTTP: "HTTP",
+    DUBBO: "DUBBO",
+  }
+
+  constructor(options = {}) {
+    options.type = options.type || RequestFactory.TYPES.HTTP
+    switch (options.type) {
+      case RequestFactory.TYPES.DUBBO:
+        return new DubboRequest(options);
+      default:
+        return new HttpRequest(options);
+    }
+  }
+}
+
 export class Request extends BaseConfig {
-  constructor(options) {
+  constructor(type) {
     super();
+    this.type = type;
+  }
+
+  showType() {
+    return this.type;
+  }
+
+  showMethod() {
+    return "";
+  }
+}
+
+export class HttpRequest extends Request {
+  constructor(options) {
+    super(RequestFactory.TYPES.HTTP);
     this.name = undefined;
     this.url = undefined;
     this.path = undefined;
@@ -203,6 +241,119 @@ export class Request extends BaseConfig {
 
   isValid() {
     return ((!this.useEnvironment && !!this.url) || (this.useEnvironment && !!this.path && this.environment)) && !!this.method
+  }
+
+  showType() {
+    return this.type;
+  }
+
+  showMethod() {
+    return this.method.toUpperCase();
+  }
+}
+
+export class DubboRequest extends Request {
+  static PROTOCOLS = {
+    DUBBO: "dubbo://",
+    RMI: "rmi://",
+  }
+
+  constructor(options = {}) {
+    super(RequestFactory.TYPES.DUBBO);
+    this.name = options.name;
+    this.protocol = options.protocol || DubboRequest.PROTOCOLS.DUBBO;
+    this.interface = options.interface;
+    this.method = options.method;
+    this.configCenter = new ConfigCenter(options.configCenter);
+    this.registryCenter = new RegistryCenter(options.registryCenter);
+    this.consumerAndService = new ConsumerAndService(options.consumerAndService);
+    this.args = [];
+    this.attachmentArgs = [];
+    this.assertions = new Assertions(options.assertions);
+    this.extract = new Extract(options.extract);
+
+    this.sets({args: KeyValue, attachmentArgs: KeyValue}, options);
+  }
+
+  isValid() {
+    return !!this.name;
+  }
+
+  showType() {
+    return "RPC";
+  }
+
+  showMethod() {
+    // dubbo:// -> DUBBO
+    return this.protocol.substr(0, this.protocol.length - 3).toUpperCase();
+  }
+
+  clone() {
+    return new DubboRequest(this);
+  }
+}
+
+export class ConfigCenter extends BaseConfig {
+  static PROTOCOLS = ["zookeeper", "nacos", "apollo"];
+
+  constructor(options) {
+    super();
+    this.protocol = undefined;
+    this.group = undefined;
+    this.namespace = undefined;
+    this.username = undefined;
+    this.address = undefined;
+    this.password = undefined;
+    this.timeout = undefined;
+
+    this.set(options);
+  }
+
+  isValid() {
+    return !!this.protocol || !!this.group || !!this.namespace || !!this.username || !!this.address || !!this.password || !!this.timeout;
+  }
+}
+
+export class RegistryCenter extends BaseConfig {
+  static PROTOCOLS = ["none", "zookeeper", "nacos", "apollo", "multicast", "redis", "simple"];
+
+  constructor(options) {
+    super();
+    this.protocol = undefined;
+    this.group = undefined;
+    this.username = undefined;
+    this.address = undefined;
+    this.password = undefined;
+    this.timeout = undefined;
+
+    this.set(options);
+  }
+
+  isValid() {
+    return !!this.protocol || !!this.group || !!this.username || !!this.address || !!this.password || !!this.timeout;
+  }
+}
+
+export class ConsumerAndService extends BaseConfig {
+  static ASYNC_OPTIONS = ["sync", "async"];
+  static LOAD_BALANCE_OPTIONS = ["random", "roundrobin", "leastactive", "consistenthash"];
+
+  constructor(options) {
+    super();
+    this.timeout = "1000";
+    this.version = "1.0";
+    this.retries = "0";
+    this.cluster = "failfast";
+    this.group = undefined;
+    this.connections = "100";
+    this.async = "sync";
+    this.loadBalance = "random";
+
+    this.set(options);
+  }
+
+  isValid() {
+    return !!this.timeout || !!this.version || !!this.retries || !!this.cluster || !!this.group || !!this.connections || !!this.async || !!this.loadBalance;
   }
 }
 
@@ -389,9 +540,9 @@ const JMX_ASSERTION_CONDITION = {
   OR: 1 << 5
 }
 
-class JMXRequest {
+class JMXHttpRequest {
   constructor(request) {
-    if (request && request instanceof Request && (request.url || request.path)) {
+    if (request && request instanceof HttpRequest && (request.url || request.path)) {
       this.useEnvironment = request.useEnvironment;
       this.method = request.method;
       if (!request.useEnvironment) {
@@ -421,7 +572,38 @@ class JMXRequest {
     }
     return path;
   }
+}
 
+class JMXDubboRequest {
+  constructor(request, dubboConfig) {
+    // Request 复制
+    let obj = request.clone();
+    // 去掉无效的kv
+    obj.args = obj.args.filter(arg => {
+      return arg.isValid();
+    });
+    obj.attachmentArgs = obj.attachmentArgs.filter(arg => {
+      return arg.isValid();
+    });
+
+    // Scenario DubboConfig复制，需要Request中的内容无效才会复制
+    this.copy(obj.configCenter, dubboConfig.configCenter);
+    this.copy(obj.registryCenter, dubboConfig.registryCenter);
+    this.copy(obj.consumerAndService, dubboConfig.consumerAndService);
+
+    return obj;
+  }
+
+  copy(source, target) {
+    if (source.isValid()) return;
+
+    let keys = Object.keys(target);
+    keys.forEach(key => {
+      if (source[key] === undefined) {
+        source[key] = target[key];
+      }
+    })
+  }
 }
 
 class JMeterTestPlan extends Element {
@@ -463,22 +645,27 @@ class JMXGenerator {
 
       scenario.requests.forEach(request => {
         if (!request.isValid()) return;
+        let sampler;
 
-        let httpSamplerProxy = new HTTPSamplerProxy(request.name || "", new JMXRequest(request));
-
-        this.addRequestHeader(httpSamplerProxy, request);
-
-        if (request.method.toUpperCase() === 'GET') {
-          this.addRequestArguments(httpSamplerProxy, request);
-        } else {
-          this.addRequestBody(httpSamplerProxy, request);
+        if (request instanceof DubboRequest) {
+          sampler = new DubboSample(request.name || "", new JMXDubboRequest(request, scenario.dubboConfig));
         }
 
-        this.addRequestAssertion(httpSamplerProxy, request);
+        if (request instanceof HttpRequest) {
+          let sampler = new HTTPSamplerProxy(request.name || "", new JMXHttpRequest(request));
+          this.addRequestHeader(sampler, request);
+          if (request.method.toUpperCase() === 'GET') {
+            this.addRequestArguments(sampler, request);
+          } else {
+            this.addRequestBody(sampler, request);
+          }
+        }
 
-        this.addRequestExtractor(httpSamplerProxy, request);
+        this.addRequestAssertion(sampler, request);
 
-        threadGroup.put(httpSamplerProxy);
+        this.addRequestExtractor(sampler, request);
+
+        threadGroup.put(sampler);
       })
 
       testPlan.put(threadGroup);

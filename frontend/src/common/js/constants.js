@@ -19,7 +19,7 @@ export const ZH_CN = 'zh_CN';
 export const ZH_TW = 'zh_TW';
 export const EN_US = 'en_US';
 
-export const requestHeaders = [
+export const REQUEST_HEADERS = [
   {value: 'Accept'},
   {value: 'Accept-Charset'},
   {value: 'Accept-Language'},

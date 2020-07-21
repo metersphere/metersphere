@@ -344,6 +344,7 @@ export default {
       please_save_test: "Please Save Test First",
     },
     scenario: {
+      dubbo: "Dubbo Config",
       config: "Scenario Config",
       input_name: "Please enter the scenario name",
       name: "Scenario Name",
@@ -401,6 +402,9 @@ export default {
         regex_expression: "Regular expression",
         json_path_expression: "JSONPath expression",
         xpath_expression: "XPath expression",
+      },
+      dubbo: {
+        protocol: "protocol"
       }
     },
     api_import: {

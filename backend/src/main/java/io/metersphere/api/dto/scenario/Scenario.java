@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.scenario;
 
+import io.metersphere.api.dto.scenario.request.Request;
 import lombok.Data;
 
 import java.util.List;
@@ -12,4 +13,5 @@ public class Scenario {
     private List<KeyValue> variables;
     private List<KeyValue> headers;
     private List<Request> requests;
+    private DubboConfig dubboConfig;
 }

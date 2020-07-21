@@ -343,6 +343,7 @@ export default {
       please_save_test: "请先保存测试",
     },
     scenario: {
+      dubbo: "Dubbo配置",
       config: "场景配置",
       input_name: "请输入场景名称",
       name: "场景名称",
@@ -400,6 +401,9 @@ export default {
         regex_expression: "Perl型正则表达式",
         json_path_expression: "JSONPath表达式",
         xpath_expression: "XPath表达式",
+      },
+      dubbo: {
+        protocol: "协议"
       }
     },
     api_import: {

@@ -342,6 +342,7 @@ export default {
       please_save_test: "請先保存測試",
     },
     scenario: {
+      dubbo: "Dubbo配寘",
       creator: "創建人",
       config: "場景配寘",
       input_name: "請輸入場景名稱",
@@ -400,6 +401,9 @@ export default {
         regex_expression: "Perl型規則運算式",
         json_path_expression: "JSONPath運算式",
         xpath_expression: "XPath運算式",
+      },
+      dubbo: {
+        protocol: "協定"
       }
     },
     api_import: {

@@ -6,15 +6,17 @@
     <div class="kv-row" v-for="(item, index) in items" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <el-col>
-          <el-input v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="100" @change="change"
-                    :placeholder="$t('api_test.key')" show-word-limit/>
+          <el-input v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="100"
+                    @change="change"
+                    :placeholder="keyText" show-word-limit/>
           <el-autocomplete :maxlength="100" v-if="suggestions" v-model="item.name" size="small"
-                           :fetch-suggestions="querySearch" @change="change" :placeholder="$t('api_test.key')" show-word-limit/>
+                           :fetch-suggestions="querySearch" @change="change" :placeholder="keyText"
+                           show-word-limit/>
 
         </el-col>
         <el-col>
           <el-input :disabled="isReadOnly" v-model="item.value" size="small" maxlength="500" @change="change"
-                    :placeholder="$t('api_test.value')" show-word-limit/>
+                    :placeholder="valueText" show-word-limit/>
         </el-col>
         <el-col class="kv-delete">
           <el-button size="mini" class="el-icon-delete-solid" circle @click="remove(index)"
@@ -32,6 +34,8 @@
     name: "MsApiKeyValue",
 
     props: {
+      keyPlaceholder: String,
+      valuePlaceholder: String,
       description: String,
       items: Array,
       isReadOnly: {
@@ -39,6 +43,15 @@
         default: false
       },
       suggestions: Array
+    },
+
+    computed: {
+      keyText() {
+        return this.keyPlaceholder || this.$t("api_test.key");
+      },
+      valueText() {
+        return this.valuePlaceholder || this.$t("api_test.value");
+      }
     },
 
     methods: {

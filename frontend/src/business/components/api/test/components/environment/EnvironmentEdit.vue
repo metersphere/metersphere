@@ -41,7 +41,7 @@
     import MsApiScenarioVariables from "../ApiScenarioVariables";
     import MsApiKeyValue from "../ApiKeyValue";
     import MsDialogFooter from "../../../../common/components/MsDialogFooter";
-    import {requestHeaders} from "../../../../../../common/js/constants";
+    import {REQUEST_HEADERS} from "../../../../../../common/js/constants";
 
     export default {
       name: "EnvironmentEdit",
@@ -71,7 +71,7 @@
             ],
             socket :[{required: true, validator: socketValidator, trigger: 'blur'}],
           },
-          headerSuggestions: requestHeaders
+          headerSuggestions: REQUEST_HEADERS
         }
       },
       methods: {
