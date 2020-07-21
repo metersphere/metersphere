@@ -72,12 +72,7 @@
     data() {
       return {
         formInline: {
-          /*host: 'smtp.163.com',
-          port: '465',
-          account: 'xjj0608@163.com',
-          password: '2345678',*/
         },
-
         input: '',
         visible: true,
         result: {},
@@ -113,7 +108,7 @@
       }
     },
 
-    activated() {
+    created() {
       this.query()
     },
     methods: {
@@ -129,6 +124,9 @@
           this.$set(this.formInline, "SSL", JSON.parse(response.data[4].paramValue));
           this.$set(this.formInline, "TLS", JSON.parse(response.data[5].paramValue));
           this.$set(this.formInline, "SMTP", JSON.parse(response.data[6].paramValue));
+          this.$nextTick(() => {
+            this.$refs.formInline.clearValidate();
+          })
         })
       },
       change() {
