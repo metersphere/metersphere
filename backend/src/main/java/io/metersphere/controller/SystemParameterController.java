@@ -2,15 +2,19 @@ package io.metersphere.controller;
 
 import io.metersphere.base.domain.SystemParameter;
 import io.metersphere.commons.constants.ParamConstants;
+import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.ldap.domain.LdapInfo;
 import io.metersphere.service.SystemParameterService;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
+
 import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 
 @RestController
 @RequestMapping(value = "/system")
+@RequiresRoles(RoleConstants.ADMIN)
 public class SystemParameterController {
     @Resource
     private SystemParameterService SystemParameterService;
