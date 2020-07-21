@@ -229,7 +229,7 @@ export default {
     org_admin: '組織管理員',
     test_manager: '測試經理',
     test_user: '測試人員',
-    test_viewer: 'Viewer',
+    test_viewer: '只讀用戶',
     add: '添加角色',
   },
   report: {
@@ -601,6 +601,7 @@ export default {
       component_library_tip: "拖拽組件庫中組件,添加至右側,預覽報告效果,每個系統組件只能添加壹個。",
       delete_component_tip: "請至少保留壹個組件",
       input_template_name: "輸入模版名稱",
+      template_special_characters: '模版名稱不支持特殊字符',
       case_count: "用例數",
       issues_count: "缺陷數",
       result_statistics: "測試結果統計",
