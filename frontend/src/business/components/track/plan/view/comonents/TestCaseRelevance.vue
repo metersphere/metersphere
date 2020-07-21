@@ -5,7 +5,7 @@
     <el-dialog :title="$t('test_track.plan_view.relevance_test_case')"
                :visible.sync="dialogFormVisible"
                @close="close"
-               width="60%"
+               width="60%" v-loading="result.loading"
                top="50px">
 
       <el-container class="main-content">
@@ -18,7 +18,7 @@
         </el-aside>
 
         <el-container>
-          <el-main class="case-content" v-loading="result.loading">
+          <el-main class="case-content">
             <ms-table-header :condition.sync="condition" @search="getCaseNames" title="" :show-create="false"/>
             <el-table
               :data="testCases"
@@ -26,7 +26,7 @@
               row-key="id"
               @select-all="handleSelectAll"
               @select="handleSelectionChange"
-              height="70vh"
+              height="50vh"
               ref="table">
 
               <el-table-column
@@ -145,7 +145,7 @@
         let param = {};
         param.planId = this.planId;
         param.testCaseIds = [...this.selectIds];
-        this.$post('/test/plan/relevance', param, () => {
+        this.result = this.$post('/test/plan/relevance', param, () => {
           this.selectIds.clear();
           this.$success(this.$t('commons.save_success'));
           this.dialogFormVisible = false;
