@@ -161,6 +161,8 @@
             this.$router.push({
               path: '/api/test/edit?id=' + this.test.id
             })
+          } else {
+            this.$router.push({path: '/api/test/list/all'})
           }
         })
       },
