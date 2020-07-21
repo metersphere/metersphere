@@ -80,6 +80,9 @@ public class PostmanParser extends ApiImportAbstractParser {
     private Body parseBody(PostmanRequest requestDesc, Request request) {
         Body body = new Body();
         JSONObject postmanBody = requestDesc.getBody();
+        if (postmanBody == null) {
+            return null;
+        }
         String bodyMode = postmanBody.getString("mode");
         if (StringUtils.equals(bodyMode, PostmanRequestBodyMode.RAW.value())) {
             body.setRaw(postmanBody.getString(bodyMode));
