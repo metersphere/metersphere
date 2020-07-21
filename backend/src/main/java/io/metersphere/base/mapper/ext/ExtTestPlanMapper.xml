@@ -6,15 +6,114 @@
                extends="io.metersphere.base.mapper.TestPlanMapper.BaseResultMap">
         <result column="project_name" property="projectName"/>
     </resultMap>
+    <sql id="condition">
+        <choose>
+            <when test='${object}.operator == "like"'>
+                like CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "not like"'>
+                not like CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "in"'>
+                in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "not in"'>
+                not in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "between"'>
+                between #{${object}.value[0]} and #{${object}.value[1]}
+            </when>
+            <when test='${object}.operator == "gt"'>
+                &gt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "lt"'>
+                &lt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "ge"'>
+                &gt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "le"'>
+                &lt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "current user"'>
+                = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}'
+            </when>
+            <otherwise>
+                = #{${object}.value}
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="combine">
+        <if test="${condition}.name != null">
+            and test_plan.name
+            <include refid="condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
+        <if test="${condition}.projectName != null">
+            and project.name
+            <include refid="condition">
+                <property name="object" value="${condition}.projectName"/>
+            </include>
+        </if>
+        <if test="${condition}.principal != null">
+            and test_plan.principal
+            <include refid="condition">
+                <property name="object" value="${condition}.principal"/>
+            </include>
+        </if>
+        <if test="${condition}.createTime != null">
+            and test_plan.create_time
+            <include refid="condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+        <if test="${condition}.status != null">
+            and test_plan.status
+            <include refid="condition">
+                <property name="object" value="${condition}.status"/>
+            </include>
+        </if>
+        <if test="${condition}.updateTime != null">
+            and test_plan.update_time
+            <include refid="condition">
+                <property name="object" value="${condition}.updateTime"/>
+            </include>
+        </if>
+        <if test="${condition}.stage != null">
+            and test_plan.stage
+            <include refid="condition">
+                <property name="object" value="${condition}.stage"/>
+            </include>
+        </if>
+    </sql>
 
     <select id="list" resultMap="BaseResultMap" parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
         select test_plan.*, project.name as project_name
         from test_plan
         left join project on test_plan.project_id = project.id
         <where>
-            <if test="request.name != null">
-                and test_plan.name like CONCAT('%', #{request.name},'%')
-            </if>
+            <choose>
+                <!--高级-->
+                <when test="request.combine != null">
+                    <include refid="combine">
+                        <property name="condition" value="request.combine"/>
+                    </include>
+                </when>
+                <!--普通-->
+                <otherwise>
+                    <if test="request.name != null">
+                        and test_plan.name like CONCAT('%', #{request.name},'%')
+                    </if>
+                </otherwise>
+            </choose>
             <if test="request.workspaceId != null">
                 AND project.workspace_id = #{request.workspaceId}
             </if>

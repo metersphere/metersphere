@@ -142,9 +142,20 @@
     <select id="list" resultType="io.metersphere.track.dto.TestCaseDTO">
         select test_case.* from test_case
         <where>
-            <if test="request.name != null">
-                and test_case.name like CONCAT('%', #{request.name},'%')
-            </if>
+            <choose>
+                <!--高级-->
+                <when test="request.combine != null">
+                    <include refid="combine">
+                        <property name="condition" value="request.combine"/>
+                    </include>
+                </when>
+                <!--普通-->
+                <otherwise>
+                    <if test="request.name != null">
+                        and test_case.name like CONCAT('%', #{request.name},'%')
+                    </if>
+                </otherwise>
+            </choose>
             <if test="request.nodeIds != null and request.nodeIds.size() > 0">
                 and test_case.node_id in
                 <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">

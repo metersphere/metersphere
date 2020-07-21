@@ -220,8 +220,72 @@ export const MODULE = {
   },
 }
 
+export const PRINCIPAL = {
+  key: "principal",
+  name: 'MsTableSearchSelect',
+  label: 'test_track.plan.plan_principal',
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.NOT_IN, OPERATORS.CURRENT_USER],
+    change: function (component, value) { // 运算符change事件
+      if (value === OPERATORS.CURRENT_USER.value) {
+        component.value = value;
+      }
+    }
+  },
+  options: { // 异步获取候选项
+    url: "/user/list",
+    labelKey: "name",
+    valueKey: "id",
+    showLabel: option => {
+      return option.label + "(" + option.value + ")";
+    }
+  },
+  props: {
+    multiple: true
+  },
+  isShow: operator => {
+    return operator !== OPERATORS.CURRENT_USER.value;
+  }
+};
+
+export const STAGE = {
+  key: "stage",
+  name: 'MsTableSearchSelect',
+  label: "test_track.plan.plan_stage",
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.NOT_IN]
+  },
+  options: [
+    {label: 'test_track.plan.smoke_test', value: 'smoke'},
+    {label: 'test_track.plan.regression_test', value: 'regression'},
+    {label: 'test_track.plan.system_test', value: 'system'}
+  ],
+  props: {
+    multiple: true
+  }
+};
+
+export const TEST_PLAN_STATUS = {
+  key: "status",
+  name: 'MsTableSearchSelect',
+  label: "test_track.plan.plan_status",
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.NOT_IN]
+  },
+  options: [
+    {label: 'test_track.plan.plan_status_prepare', value: 'Prepare'},
+    {label: 'test_track.plan.plan_status_running', value: 'Underway'},
+    {label: 'test_track.plan.plan_status_completed', value: 'Completed'}
+  ],
+  props: {
+    multiple: true
+  }
+};
+
 export const TEST_CONFIGS = [NAME, UPDATE_TIME, PROJECT_NAME, CREATE_TIME, STATUS, CREATOR];
 
 export const REPORT_CONFIGS = [NAME, TEST_NAME, PROJECT_NAME, CREATE_TIME, STATUS, CREATOR, TRIGGER_MODE];
 
 export const TEST_CASE_CONFIGS = [NAME, MODULE, PRIORITY, CREATE_TIME, TYPE, UPDATE_TIME, METHOD, CREATOR];
+
+export const TEST_PLAN_CONFIGS = [NAME, UPDATE_TIME, PROJECT_NAME, CREATE_TIME, PRINCIPAL, TEST_PLAN_STATUS, STAGE];

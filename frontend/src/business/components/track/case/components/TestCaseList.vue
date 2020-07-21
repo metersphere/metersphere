@@ -130,7 +130,8 @@
   import MsTableOperator from "../../../common/components/MsTableOperator";
   import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
   import MsTableButton from "../../../common/components/MsTableButton";
-  import {_filter, _sort, downloadFile, humpToLine} from "../../../../../common/js/utils";
+  import {_filter, _sort} from "../../../../../common/js/utils";
+  import {TEST_CASE_CONFIGS} from "../../../common/components/search/search-components";
 
   export default {
     name: "TestCaseList",
@@ -147,7 +148,9 @@
       return {
         result: {},
         deletePath: "/test/case/delete",
-        condition: {},
+        condition: {
+          components: TEST_CASE_CONFIGS
+        },
         tableData: [],
         currentPage: 1,
         pageSize: 10,
@@ -193,11 +196,20 @@
       }
     },
     methods: {
-      initTableData() {
-        this.condition.nodeIds = this.selectNodeIds;
+      initTableData(combine) {
+        // 只有在点击高级搜索的查询按钮时combine才有值
+        let condition = combine ? {combine: combine} : this.condition;
+        if (this.planId) {
+          // param.planId = this.planId;
+          condition.planId = this.planId;
+        }
+        if (this.selectNodeIds && this.selectNodeIds.length > 0) {
+          // param.nodeIds = this.selectNodeIds;
+          condition.nodeIds = this.selectNodeIds;
+        }
         if (this.currentProject) {
-          this.condition.projectId = this.currentProject.id;
-          this.result = this.$post(this.buildPagePath('/test/case/list'), this.condition, response => {
+          condition.projectId = this.currentProject.id;
+          this.result = this.$post(this.buildPagePath('/test/case/list'), condition, response => {
             let data = response.data;
             this.total = data.itemCount;
             this.tableData = data.listObject;
@@ -252,7 +264,7 @@
         });
       },
       refresh() {
-        this.condition = {};
+        this.condition = {components: TEST_CASE_CONFIGS};
         this.selectIds.clear();
         this.$emit('refresh');
       },
