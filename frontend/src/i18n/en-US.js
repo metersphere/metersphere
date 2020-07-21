@@ -114,6 +114,7 @@ export default {
       start_date_time: 'Start date and time',
       end_date_time: 'End date time',
       range_separator: "To",
+      data_time_error: "Start date cannot be later than the end date",
     },
     trigger_mode: {
       name: "Trigger Mode",
