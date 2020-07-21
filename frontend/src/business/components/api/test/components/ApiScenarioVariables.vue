@@ -6,7 +6,7 @@
     <div class="kv-row" v-for="(item, index) in items" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <el-col>
-          <ms-api-variable-input :is-read-only="isReadOnly" v-model="item.name" size="small" maxlength="100" @change="change"
+          <ms-api-variable-input :show-variable="showVariable" :is-read-only="isReadOnly" v-model="item.name" size="small" maxlength="100" @change="change"
                                  :placeholder="$t('api_test.variable_name')" show-word-limit/>
         </el-col>
         <el-col>
@@ -35,7 +35,11 @@
       isReadOnly: {
         type: Boolean,
         default: false
-      }
+      },
+      showVariable: {
+        type: Boolean,
+        default: true
+      },
     },
 
     methods: {

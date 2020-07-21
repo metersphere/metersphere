@@ -1,8 +1,8 @@
 <template>
   <div class="variable-input">
     <el-input :disabled="isReadOnly" :value="value" v-bind="$attrs" :size="size" @change="change" @input="input"/>
-    <div class="variable-combine" v-if="value">
-      <div class="variable">{{variable}}</div>
+    <div :class="{'hidden': !showVariable}" class="variable-combine" v-if="value">
+      <div  class="variable">{{variable}}</div>
       <el-tooltip :content="$t('api_test.copied')" manual v-model="visible" placement="top" :visible-arrow="false">
         <i class="el-icon-copy-document copy" @click="copy"/>
       </el-tooltip>
@@ -20,7 +20,11 @@
       isReadOnly: {
         type: Boolean,
         default: false
-      }
+      },
+      showVariable: {
+        type: Boolean,
+        default: true
+      },
     },
 
     data() {
@@ -93,4 +97,9 @@
     cursor: pointer;
     color: #1E90FF;
   }
+
+  .hidden {
+    visibility: hidden;
+  }
+
 </style>
