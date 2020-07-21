@@ -140,7 +140,7 @@ export class Test extends BaseConfig {
         info: 'api_test.input_name'
       }
     }
-    return { isValid: true};
+    return {isValid: true};
   }
 
   toJMX() {
@@ -169,11 +169,7 @@ export class Scenario extends BaseConfig {
   initOptions(options) {
     options = options || {};
     options.requests = options.requests || [new RequestFactory()];
-    options.dubboConfig = {
-      configCenter: new ConfigCenter(options.configCenter),
-      registryCenter: new RegistryCenter(options.configCenter),
-      consumerAndService: new ConsumerAndService(options.configCenter),
-    }
+    options.dubboConfig = new DubboConfig(options.dubboConfig);
     return options;
   }
 
@@ -189,6 +185,15 @@ export class Scenario extends BaseConfig {
       }
     }
     return {isValid: true};
+  }
+}
+
+class DubboConfig extends BaseConfig {
+  constructor(options = {}) {
+    super();
+    this.configCenter = new ConfigCenter(options.configCenter)
+    this.registryCenter = new RegistryCenter(options.registryCenter)
+    this.consumerAndService = new ConsumerAndService(options.consumerAndService)
   }
 }
 
@@ -253,7 +258,7 @@ export class HttpRequest extends Request {
   }
 
   isValid() {
-    if (this.useEnvironment){
+    if (this.useEnvironment) {
       if (!this.environment) {
         return {
           isValid: false,
@@ -265,13 +270,13 @@ export class HttpRequest extends Request {
           info: 'api_test.request.input_path'
         }
       }
-    } else if (!this.url){
+    } else if (!this.url) {
       return {
         isValid: false,
         info: 'api_test.request.input_url'
       }
     }
-    return  {
+    return {
       isValid: true
     }
   }
@@ -304,12 +309,46 @@ export class DubboRequest extends Request {
     this.attachmentArgs = [];
     this.assertions = new Assertions(options.assertions);
     this.extract = new Extract(options.extract);
+    // Scenario.dubboConfig
+    this.dubboConfig = undefined;
 
     this.sets({args: KeyValue, attachmentArgs: KeyValue}, options);
   }
 
   isValid() {
-    return !!this.name;
+    if (!this.interface) {
+      return {
+        isValid: false,
+        info: 'api_test.request.dubbo.input_interface'
+      }
+    }
+    if (!this.method) {
+      return {
+        isValid: false,
+        info: 'api_test.request.dubbo.input_method'
+      }
+    }
+    if (!this.configCenter.isValid()) {
+      return {
+        isValid: false,
+        info: 'api_test.request.dubbo.input_config_center'
+      }
+    }
+    if (!this.registryCenter.isValid()) {
+      return {
+        isValid: false,
+        info: 'api_test.request.dubbo.input_registry_center'
+      }
+    }
+    if (!this.consumerAndService.isValid()) {
+      return {
+        isValid: false,
+        info: 'api_test.request.dubbo.input_consumer_service'
+      }
+    }
+    return {
+      isValid: true
+    }
   }
 
   showType() {
@@ -619,7 +658,7 @@ class JMXDubboRequest {
       return arg.isValid();
     });
 
-    // Scenario DubboConfig复制，需要Request中的内容无效才会复制
+    // Scenario DubboConfig复制
     this.copy(obj.configCenter, dubboConfig.configCenter);
     this.copy(obj.registryCenter, dubboConfig.registryCenter);
     this.copy(obj.consumerAndService, dubboConfig.consumerAndService);
@@ -627,15 +666,14 @@ class JMXDubboRequest {
     return obj;
   }
 
-  copy(source, target) {
-    if (source.isValid()) return;
-
-    let keys = Object.keys(target);
-    keys.forEach(key => {
-      if (source[key] === undefined) {
-        source[key] = target[key];
+  copy(target, source) {
+    for (let key in source) {
+      if (source.hasOwnProperty(key)) {
+        if (source[key] !== undefined && !target[key]) {
+          target[key] = source[key];
+        }
       }
-    })
+    }
   }
 }
 
@@ -685,7 +723,7 @@ class JMXGenerator {
         }
 
         if (request instanceof HttpRequest) {
-          let sampler = new HTTPSamplerProxy(request.name || "", new JMXHttpRequest(request));
+          sampler = new HTTPSamplerProxy(request.name || "", new JMXHttpRequest(request));
           this.addRequestHeader(sampler, request);
           if (request.method.toUpperCase() === 'GET') {
             this.addRequestArguments(sampler, request);

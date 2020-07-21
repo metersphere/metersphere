@@ -13,16 +13,19 @@
 
     <el-tabs v-model="activeName">
       <el-tab-pane label="Interface" name="interface">
-        <ms-dubbo-interface :request="request"/>
+        <ms-dubbo-interface :request="request" :is-read-only="isReadOnly"/>
       </el-tab-pane>
       <el-tab-pane label="Config Center" name="config">
-        <ms-dubbo-config-center :config="request.configCenter"/>
+        <ms-dubbo-config-center :config="request.configCenter" :is-read-only="isReadOnly"
+                                :description="$t('api_test.request.dubbo.form_description')"/>
       </el-tab-pane>
       <el-tab-pane label="Registry Center" name="registry">
-        <ms-dubbo-registry-center :registry="request.registryCenter"/>
+        <ms-dubbo-registry-center :registry="request.registryCenter" :is-read-only="isReadOnly"
+                                  :description="$t('api_test.request.dubbo.form_description')"/>
       </el-tab-pane>
       <el-tab-pane label="Consumer & Service" name="consumer">
-        <ms-dubbo-consumer-service :consumer="request.consumerAndService"/>
+        <ms-dubbo-consumer-service :consumer="request.consumerAndService" :is-read-only="isReadOnly"
+                                   :description="$t('api_test.request.dubbo.form_description')"/>
       </el-tab-pane>
     </el-tabs>
     <el-tabs v-model="activeName2">

@@ -1,5 +1,8 @@
 <template>
-  <el-form :model="registry" :rules="rules" ref="registry" label-width="100px" size="small">
+  <el-form :model="registry" :rules="rules" ref="registry" label-width="100px" size="small" :disabled="isReadOnly">
+    <div class="dubbo-form-description" v-if="description">
+      {{description}}
+    </div>
     <el-form-item label="Protocol" prop="protocol" class="dubbo-form-item">
       <el-select v-model="registry.protocol" class="select-100">
         <el-option v-for="p in protocols" :key="p" :label="p" :value="p"/>
@@ -39,7 +42,12 @@
   export default {
     name: "MsDubboRegistryCenter",
     props: {
-      registry: RegistryCenter
+      description: String,
+      registry: RegistryCenter,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      }
     },
     data() {
       return {

@@ -1,6 +1,9 @@
 <template>
 
-  <el-form :model="consumer" :rules="rules" ref="consumer" label-width="100px" size="small">
+  <el-form :model="consumer" :rules="rules" ref="consumer" label-width="100px" size="small" :disabled="isReadOnly">
+    <div class="dubbo-form-description" v-if="description">
+      {{description}}
+    </div>
     <el-form-item label="Timeout" prop="timeout" class="dubbo-form-item">
       <el-input type="number" v-model="consumer.timeout" :placeholder="$t('commons.input_content')"/>
     </el-form-item>
@@ -45,12 +48,17 @@
 
 <script>
   import './dubbo.css'
-  import {ConsumerAndService} from "@/business/components/api/test/model/ScenarioModel";
+  import {ConsumerAndService, RegistryCenter} from "@/business/components/api/test/model/ScenarioModel";
 
   export default {
     name: "MsDubboConsumerService",
     props: {
-      consumer: ConsumerAndService
+      description: String,
+      consumer: ConsumerAndService,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      }
     },
     data() {
       return {

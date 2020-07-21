@@ -67,7 +67,7 @@
   import {Test} from "./model/ScenarioModel"
   import MsApiReportStatus from "../report/ApiReportStatus";
   import MsApiReportDialog from "./ApiReportDialog";
-  import {checkoutTestManagerOrTestUser, downloadFile} from "../../../../common/js/utils";
+  import {checkoutTestManagerOrTestUser, downloadFile} from "@/common/js/utils";
   import MsScheduleConfig from "../../common/components/MsScheduleConfig";
   import ApiImport from "./components/import/ApiImport";
 
@@ -181,8 +181,8 @@
         })
       },
       cancel() {
-        console.log(this.test.toJMX().xml)
-        // this.$router.push('/api/test/list/all');
+        // console.log(this.test.toJMX().xml)
+        this.$router.push('/api/test/list/all');
       },
       getOptions(url) {
         let formData = new FormData();

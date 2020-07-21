@@ -410,7 +410,14 @@ export default {
         xpath_expression: "XPath表达式",
       },
       dubbo: {
-        protocol: "协议"
+        protocol: "协议",
+        input_interface: "请输入Interface",
+        input_method: "请输入Method",
+        input_config_center: "请输入Config Center",
+        input_registry_center: "请输入Registry Center",
+        input_consumer_service: "请输入Consumer & Service",
+        check_registry_center: "获取失败，请检查Registry Center",
+        form_description: "如果当前配置项无值，则取场景配置项的值",
       }
     },
     api_import: {
@@ -420,8 +427,8 @@ export default {
       file_size_limit: "文件大小不超过 20 M",
       tip: "说明",
       export_tip: "导出方法",
-      ms_tip: "支持 Metersphere json 格式",
-      ms_export_tip: "通过 Metersphere Api 测试页面或者浏览器插件导出 json 格式文件",
+      ms_tip: "支持 MeterSphere json 格式",
+      ms_export_tip: "通过 MeterSphere Api 测试页面或者浏览器插件导出 json 格式文件",
       postman_tip: "只支持 Postman Collection v2.1 格式的 json 文件",
       swagger_tip: "只支持 Swagger2.x 版本的 json 文件",
       post_export_tip: "通过 Postman 导出测试集合",

@@ -411,7 +411,13 @@ export default {
         xpath_expression: "XPath expression",
       },
       dubbo: {
-        protocol: "protocol"
+        protocol: "protocol",
+        input_interface: "Please enter the interface",
+        input_method: "Please enter the method",
+        input_config_center: "Please enter the config center",
+        input_registry_center: "Please enter the registry center",
+        input_consumer_service: "Please enter the consumer & service",
+        check_registry_center: "Can't get interface list, please check the registry center",
       }
     },
     api_import: {
@@ -421,8 +427,8 @@ export default {
       file_size_limit: "The file size does not exceed 20 M",
       tip: "Instructions",
       export_tip: "Export Tip",
-      ms_tip: "Support for Metersphere JSON format",
-      ms_export_tip: "Export jSON-formatted files via Metersphere website or browser plug-ins",
+      ms_tip: "Support for MeterSphere JSON format",
+      ms_export_tip: "Export jSON-formatted files via MeterSphere website or browser plug-ins",
       swagger_tip: "Only Swagger2.x json files are supported",
       postman_tip: "Only Postman Collection V2.1 json files are supported",
       postman_export_tip: "Export the test collection by Postman",

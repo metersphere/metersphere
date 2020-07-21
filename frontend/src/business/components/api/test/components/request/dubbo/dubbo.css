@@ -4,7 +4,7 @@
   }
 
   .dubbo-form-item-long {
-    width: 50%;
+    width: 100%;
   }
 }
 
@@ -34,4 +34,10 @@
 
 .select-100 {
   width: 100%;
+}
+
+.dubbo-form-description {
+  width: 100%;
+  font-size: 13px;
+  margin-bottom: 12px;
 }

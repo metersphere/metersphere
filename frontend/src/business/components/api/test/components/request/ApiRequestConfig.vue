@@ -107,6 +107,7 @@
         if (!request.useEnvironment) {
           request.useEnvironment = false;
         }
+        request.dubboConfig = this.scenario.dubboConfig;
         this.selected = request;
         this.$emit("select", request);
       }
