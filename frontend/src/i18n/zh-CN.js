@@ -684,7 +684,7 @@ export default {
     please_input_cron_expression: "请输入 Cron 表达式",
     generate_expression: "生成表达式",
     cron_expression_format_error: "Cron 表达式格式错误",
-    cron_expression_interval_short_error: "间隔时间请大于 5 分钟",
+    cron_expression_interval_short_error: "间隔时间小于 3 分钟, 请避免执行耗时过长的测试",
     cron: {
       seconds: "秒",
       minutes: "分钟",

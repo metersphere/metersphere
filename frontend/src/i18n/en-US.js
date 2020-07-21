@@ -685,7 +685,7 @@ export default {
     please_input_cron_expression: "Please Input Cron Expression",
     generate_expression: "Generate Expression",
     cron_expression_format_error: "Cron Expression Format Error",
-    cron_expression_interval_short_error: "Interval Time Should Longer than 5 Minutes",
+    cron_expression_interval_short_error: "Interval time shorter than 3 minutes, please avoid running tests that take too long",
     cron: {
       seconds: "Seconds",
       minutes: "Minutes",
