@@ -228,7 +228,7 @@ export default {
     org_admin: '組織管理員',
     test_manager: '測試經理',
     test_user: '測試人員',
-    test_viewer: 'Viewer',
+    test_viewer: '只讀用戶',
     add: '添加角色',
   },
   report: {

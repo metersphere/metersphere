@@ -229,7 +229,7 @@ export default {
     org_admin: '组织管理员',
     test_manager: '测试经理',
     test_user: '测试人员',
-    test_viewer: 'Viewer',
+    test_viewer: '只读用户',
     add: '添加角色',
   },
   report: {

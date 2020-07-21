@@ -231,7 +231,7 @@ export default {
     org_admin: 'Org_Admin',
     test_manager: 'Test Manager',
     test_user: 'Test User',
-    test_viewer: 'Test Viewer',
+    test_viewer: 'Read-only User',
     add: 'Add Role',
   },
   report: {
