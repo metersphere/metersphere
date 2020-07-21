@@ -602,6 +602,7 @@ export default {
       component_library_tip: "拖拽组件库中组件，添加至右侧，预览报告效果，每个系统组件只能添加一个。",
       delete_component_tip: "请至少保留一个组件",
       input_template_name: "输入模版名称",
+      template_special_characters: '模版名称不支持特殊字符',
       case_count: "用例数",
       issues_count: "缺陷数",
       result_statistics: "测试结果统计",

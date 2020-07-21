@@ -602,6 +602,7 @@ export default {
       component_library_tip: "Drag and drop the component from the component library, add to the right, preview the report effect, only one can be added per system component.",
       delete_component_tip: "Please reserve at least one component",
       input_template_name: "Input template name",
+      template_special_characters: 'Template name does not support special characters',
       case_count: "Case count",
       issues_count: "Issues count",
       result_statistics: "Result statistics",
