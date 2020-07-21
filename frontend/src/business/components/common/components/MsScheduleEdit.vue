@@ -1,5 +1,5 @@
 <template>
-  <el-dialog width="30%" class="schedule-edit" :title="$t('schedule.edit_timer_task')" :visible.sync="dialogVisible"  @close="close">
+  <el-dialog width="35%" class="schedule-edit" :title="$t('schedule.edit_timer_task')" :visible.sync="dialogVisible"  @close="close">
     <div id="app">
       <el-form :model="form" :rules="rules" ref="from">
         <el-form-item
@@ -47,7 +47,9 @@
       data() {
           const validateCron = (rule, cronValue, callback) => {
             let customValidate = this.customValidate(this.getIntervalTime());
-            if (!cronValidate(cronValue)) {
+            if (!cronValue) {
+              callback(new Error(this.$t('commons.input_content')));
+            } else if (!cronValidate(cronValue)) {
               callback(new Error(this.$t('schedule.cron_expression_format_error')));
             } else if(!this.intervalShortValidate()) {
               callback(new Error(this.$t('schedule.cron_expression_interval_short_error')));

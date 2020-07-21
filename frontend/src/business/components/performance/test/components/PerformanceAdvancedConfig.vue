@@ -112,7 +112,7 @@
     components: {MsTableOperatorButton},
     data() {
       return {
-        timeout: 100,
+        timeout: 2000,
         statusCode: [],
         domains: [],
         params: [],
