@@ -112,6 +112,7 @@ export default {
       start_date_time: '開始日期時間',
       end_date_time: '結束日期時間',
       range_separator: "至",
+      data_time_error: "開始日期不能大於結束日期",
     },
     trigger_mode: {
       name: "觸發方式",
@@ -228,7 +229,7 @@ export default {
     org_admin: '組織管理員',
     test_manager: '測試經理',
     test_user: '測試人員',
-    test_viewer: 'Viewer',
+    test_viewer: '只讀用戶',
     add: '添加角色',
   },
   report: {
@@ -610,6 +611,7 @@ export default {
       component_library_tip: "拖拽組件庫中組件,添加至右側,預覽報告效果,每個系統組件只能添加壹個。",
       delete_component_tip: "請至少保留壹個組件",
       input_template_name: "輸入模版名稱",
+      template_special_characters: '模版名稱不支持特殊字符',
       case_count: "用例數",
       issues_count: "缺陷數",
       result_statistics: "測試結果統計",
@@ -691,7 +693,7 @@ export default {
     please_input_cron_expression: "請輸入 Cron 表達式",
     generate_expression: "生成表達式",
     cron_expression_format_error: "Cron 表達式格式錯誤",
-    cron_expression_interval_short_error: "間隔時間請大於 5 分鐘",
+    cron_expression_interval_short_error: "間隔時間小於 3 分鐘, 請避免執行耗時過長的測試",
     cron: {
       seconds: "秒",
       minutes: "分鐘",

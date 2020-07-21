@@ -5,7 +5,7 @@
         <el-row>
           <el-col :span="10">
             <el-input :disabled="isReadOnly" :placeholder="$t('load_test.input_name')" v-model="testPlan.name" class="input-with-select"
-                      maxlength="30"
+                      maxlength="30" show-word-limit
             >
               <template v-slot:prepend>
                 <el-select :disabled="isReadOnly" v-model="testPlan.projectId" :placeholder="$t('load_test.select_project')">

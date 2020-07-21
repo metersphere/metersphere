@@ -109,6 +109,8 @@ export default {
     handleDragEnd(draggingNode, dropNode, dropType, ev) {
       let param = {};
       param.id = draggingNode.data.id;
+      param.name = draggingNode.data.name;
+      param.projectId = draggingNode.data.projectId;
       if (dropType === "inner") {
         param.parentId = dropNode.data.id;
         param.level = dropNode.data.level + 1;

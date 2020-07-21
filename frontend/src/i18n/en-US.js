@@ -114,6 +114,7 @@ export default {
       start_date_time: 'Start date and time',
       end_date_time: 'End date time',
       range_separator: "To",
+      data_time_error: "Start date cannot be later than the end date",
     },
     trigger_mode: {
       name: "Trigger Mode",
@@ -231,7 +232,7 @@ export default {
     org_admin: 'Org_Admin',
     test_manager: 'Test Manager',
     test_user: 'Test User',
-    test_viewer: 'Test Viewer',
+    test_viewer: 'Read-only User',
     add: 'Add Role',
   },
   report: {
@@ -611,6 +612,7 @@ export default {
       component_library_tip: "Drag and drop the component from the component library, add to the right, preview the report effect, only one can be added per system component.",
       delete_component_tip: "Please reserve at least one component",
       input_template_name: "Input template name",
+      template_special_characters: 'Template name does not support special characters',
       case_count: "Case count",
       issues_count: "Issues count",
       result_statistics: "Result statistics",
@@ -693,7 +695,7 @@ export default {
     please_input_cron_expression: "Please Input Cron Expression",
     generate_expression: "Generate Expression",
     cron_expression_format_error: "Cron Expression Format Error",
-    cron_expression_interval_short_error: "Interval Time Should Longer than 5 Minutes",
+    cron_expression_interval_short_error: "Interval time shorter than 3 minutes, please avoid running tests that take too long",
     cron: {
       seconds: "Seconds",
       minutes: "Minutes",

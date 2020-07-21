@@ -24,11 +24,11 @@
         return {
           dataMap: new Map([
             ["Pass", {name: this.$t('test_track.plan_view.pass'), itemStyle: {color: '#67C23A'}}],
+            ["Failure", {name: this.$t('test_track.plan_view.failure'), itemStyle: {color: '#F56C6C'}}],
             ["Blocking", {name: this.$t('test_track.plan_view.blocking'), itemStyle: {color: '#E6A23C'}}],
             ["Skip", {name: this.$t('test_track.plan_view.skip'), itemStyle: {color: '#909399'}}],
-            ["Prepare", {name: this.$t('test_track.plan.plan_status_prepare'), itemStyle: {color: '#DEDE10'}}],
-            ["Failure", {name: this.$t('test_track.plan_view.failure'), itemStyle: {color: '#F56C6C'}}],
-            ["Underway", {name: this.$t('test_track.plan.plan_status_running'), itemStyle: {color: 'lightskyblue'}}]
+            ["Underway", {name: this.$t('test_track.plan.plan_status_running'), itemStyle: {color: 'lightskyblue'}}],
+            ["Prepare", {name: this.$t('test_track.plan.plan_status_prepare'), itemStyle: {color: '#DEDE10'}}]
           ]),
           charData: [],
           isShow: true
@@ -40,11 +40,11 @@
           default() {
             return [
               {status: 'Pass', count: '235'},
+              {status: 'Failure', count: '310'},
               {status: 'Blocking', count: '274'},
               {status: 'Skip', count: '335'},
-              {status: 'Prepare', count: '265'},
-              {status: 'Failure', count: '310'},
               {status: 'Underway', count: '245'},
+              {status: 'Prepare', count: '265'},
             ]
           }
         }

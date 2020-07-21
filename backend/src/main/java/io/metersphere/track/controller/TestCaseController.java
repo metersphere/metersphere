@@ -25,6 +25,7 @@ import java.util.List;
 
 @RequestMapping("/test/case")
 @RestController
+@RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER, RoleConstants.ORG_ADMIN}, logical = Logical.OR)
 public class TestCaseController {
 
     @Resource

@@ -73,14 +73,7 @@ public class TestCaseService {
 
     public void addTestCase(TestCaseWithBLOBs testCase) {
         testCase.setName(testCase.getName());
-        TestCaseExample testCaseExample = new TestCaseExample();
-        testCaseExample.createCriteria()
-                .andProjectIdEqualTo(testCase.getProjectId())
-                .andNameEqualTo(testCase.getName());
-        List<TestCase> testCases = testCaseMapper.selectByExample(testCaseExample);
-        if (testCases.size() > 0) {
-            MSException.throwException(Translator.get("test_case_exist") + testCase.getName());
-        }
+        checkTestCaseExist(testCase);
         testCase.setId(UUID.randomUUID().toString());
         testCase.setCreateTime(System.currentTimeMillis());
         testCase.setUpdateTime(System.currentTimeMillis());
@@ -107,10 +100,12 @@ public class TestCaseService {
     private void checkTestCaseExist(TestCaseWithBLOBs testCase) {
         if (testCase.getName() != null) {
             TestCaseExample example = new TestCaseExample();
-            example.createCriteria()
-                    .andNameEqualTo(testCase.getName())
-                    .andProjectIdEqualTo(testCase.getProjectId())
-                    .andIdNotEqualTo(testCase.getId());
+            TestCaseExample.Criteria criteria = example.createCriteria();
+            criteria.andNameEqualTo(testCase.getName())
+                    .andProjectIdEqualTo(testCase.getProjectId());
+            if (StringUtils.isNotBlank(testCase.getId())) {
+                criteria.andIdNotEqualTo(testCase.getId());
+            }
             if (testCaseMapper.selectByExample(example).size() > 0) {
                 MSException.throwException(Translator.get("test_case_already_exists"));
             }
@@ -366,7 +361,7 @@ public class TestCaseService {
                 data.setStepResult("");
                 data.setRemark(t.getPerformName());
             }
-            data.setMaintainer(user.getId());
+            data.setMaintainer(t.getMaintainer());
             list.add(data);
 
         });

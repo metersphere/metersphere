@@ -19,12 +19,12 @@
         <el-col :span="12">
           <span>{{$t('report.test_start_time')}}：</span>
           <span v-if="!isReport">{{reportInfo.startTime}}</span>
-          <el-date-picker v-if="isReport" size="mini" type="date" :placeholder="$t('commons.select_date')" v-model="reportInfo.startTime"/>
+          <el-date-picker @change="startTimeChange" v-if="isReport" size="mini" type="date" :placeholder="$t('commons.select_date')" v-model="reportInfo.startTime"/>
         </el-col>
         <el-col :span="12">
           <span>{{$t('report.test_end_time')}}：</span>
           <span v-if="!isReport">{{reportInfo.endTime}}</span>
-          <el-date-picker v-if="isReport" size="mini" type="date" :placeholder="$t('commons.select_date')" v-model="reportInfo.endTime"/>
+          <el-date-picker @change="endTimeChange" v-if="isReport" size="mini" type="date" :placeholder="$t('commons.select_date')" v-model="reportInfo.endTime"/>
         </el-col>
       </el-row>
 
@@ -55,13 +55,27 @@
               principal: 'Michael',
               executors: ['Michael','Tom','Jiessie'],
               startTime: '2020-6-18',
-              endTime: '2020-6-18'
+              endTime: '2020-6-19'
             }
           }
         },
         isReport: {
           type: Boolean,
           default: true
+        }
+      },
+      methods: {
+        startTimeChange(value) {
+          if (!!this.reportInfo.endTime && this.reportInfo.endTime - this.reportInfo.startTime < 0) {
+            this.reportInfo.startTime = undefined;
+            this.$warning(this.$t('commons.date.data_time_error'));
+          }
+        },
+        endTimeChange(value) {
+          if (!!this.reportInfo.startTime && this.reportInfo.endTime - this.reportInfo.startTime < 0) {
+            this.reportInfo.endTime = undefined;
+            this.$warning(this.$t('commons.date.data_time_error'));
+          }
         }
       }
     }

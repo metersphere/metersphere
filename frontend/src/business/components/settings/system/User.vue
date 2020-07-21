@@ -37,7 +37,7 @@
             <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)">
               <template v-slot:behind>
                 <ms-table-operator-button :tip="$t('member.edit_password')" icon="el-icon-s-tools"
-                                          type="success" @exec="editPassword(scope.row)"/>
+                                          type="success" @exec="editPassword(scope.row)" v-if="!scope.row.isLdapUser"/>
               </template>
             </ms-table-operator>
           </template>
@@ -163,7 +163,7 @@
 
     <!--Modify user information in system settings-->
     <el-dialog :title="$t('user.modify')" :visible.sync="updateVisible" width="35%" :destroy-on-close="true"
-               @close="handleClose">
+               @close="handleClose" v-loading="result.loading">
       <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
@@ -172,7 +172,7 @@
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
         <el-form-item :label="$t('commons.email')" prop="email">
-          <el-input v-model="form.email" autocomplete="off"/>
+          <el-input v-model="form.email" autocomplete="off" :disabled="form.source === 'LDAP' ? true : false"/>
         </el-form-item>
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off"/>
@@ -488,6 +488,7 @@
               let roles = data.roles;
               // let userRoles = result.userRoles;
               this.$set(this.tableData[i], "roles", roles);
+              this.$set(this.tableData[i], "isLdapUser", this.tableData[i].source === 'LDAP' ? true : false);
             });
           }
         })

@@ -118,6 +118,7 @@
   import TestReportTemplateList from "../view/comonents/TestReportTemplateList";
   import TestCaseReportView from "../view/comonents/report/TestCaseReportView";
   import MsDeleteConfirm from "../../../common/components/MsDeleteConfirm";
+  import {TEST_PLAN_CONFIGS} from "../../../common/components/search/search-components";
 
   export default {
       name: "TestPlanList",
@@ -133,7 +134,9 @@
           result: {},
           queryPath: "/test/plan/list",
           deletePath: "/test/plan/delete",
-          condition: {},
+          condition: {
+            components: TEST_PLAN_CONFIGS
+          },
           currentPage: 1,
           pageSize: 10,
           isTestManagerOrTestUser: false,
@@ -164,8 +167,18 @@
         this.initTableData();
       },
       methods: {
-        initTableData() {
-          this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
+        initTableData(combine) {
+          // 只有在点击高级搜索的查询按钮时combine才有值
+          let condition = combine ? {combine: combine} : this.condition;
+          if (this.planId) {
+            // param.planId = this.planId;
+            condition.planId = this.planId;
+          }
+          if (this.selectNodeIds && this.selectNodeIds.length > 0) {
+            // param.nodeIds = this.selectNodeIds;
+            condition.nodeIds = this.selectNodeIds;
+          }
+          this.result = this.$post(this.buildPagePath(this.queryPath), condition, response => {
             let data = response.data;
             this.total = data.itemCount;
             this.tableData = data.listObject;

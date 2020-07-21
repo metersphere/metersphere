@@ -161,6 +161,7 @@ export class Scenario extends BaseConfig {
     this.requests = [];
     this.environmentId = undefined;
     this.dubboConfig = undefined;
+    this.environment = undefined;
 
     this.set(options);
     this.sets({variables: KeyValue, headers: KeyValue, requests: RequestFactory}, options);
@@ -179,7 +180,7 @@ export class Scenario extends BaseConfig {
 
   isValid() {
     for (let i = 0; i < this.requests.length; i++) {
-      let validator = this.requests[i].isValid();
+      let validator = this.requests[i].isValid(this.environmentId);
       if (!validator.isValid) {
         return validator;
       }
@@ -257,9 +258,9 @@ export class HttpRequest extends Request {
     return options;
   }
 
-  isValid() {
-    if (this.useEnvironment) {
-      if (!this.environment) {
+  isValid(environmentId) {
+    if (this.useEnvironment){
+      if (!environmentId) {
         return {
           isValid: false,
           info: 'api_test.request.please_configure_environment_in_scenario'
@@ -613,7 +614,7 @@ const JMX_ASSERTION_CONDITION = {
 }
 
 class JMXHttpRequest {
-  constructor(request) {
+  constructor(request, environment) {
     if (request && request instanceof HttpRequest && (request.url || request.path)) {
       this.useEnvironment = request.useEnvironment;
       this.method = request.method;
@@ -625,10 +626,12 @@ class JMXHttpRequest {
         this.protocol = url.protocol.split(":")[0];
         this.pathname = this.getPostQueryParameters(request, this.pathname);
       } else {
-        this.environment = request.environment;
-        this.port = request.environment.port;
-        this.path = decodeURIComponent(request.path);
-        this.path = this.getPostQueryParameters(request, this.path);
+        if (environment) {
+          this.port = environment.port;
+          this.protocol = environment.protocol;
+          this.domain = environment.domain;
+        }
+        this.path = this.getPostQueryParameters(request, decodeURIComponent(request.path));
       }
     }
   }
@@ -723,7 +726,7 @@ class JMXGenerator {
         }
 
         if (request instanceof HttpRequest) {
-          sampler = new HTTPSamplerProxy(request.name || "", new JMXHttpRequest(request));
+          sampler = new HTTPSamplerProxy(request.name || "", new JMXHttpRequest(request, scenario.environment));
           this.addRequestHeader(sampler, request);
           if (request.method.toUpperCase() === 'GET') {
             this.addRequestArguments(sampler, request);

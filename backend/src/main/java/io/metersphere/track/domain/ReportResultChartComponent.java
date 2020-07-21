@@ -1,5 +1,6 @@
 package io.metersphere.track.domain;
 
+import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.track.dto.TestCaseReportMetricDTO;
 import io.metersphere.track.dto.TestCaseReportStatusResultDTO;
 import io.metersphere.track.dto.TestPlanCaseDTO;
@@ -7,6 +8,7 @@ import io.metersphere.track.dto.TestPlanDTO;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ReportResultChartComponent extends ReportComponent {
@@ -25,7 +27,24 @@ public class ReportResultChartComponent extends ReportComponent {
 
     @Override
     public void afterBuild(TestCaseReportMetricDTO testCaseReportMetric) {
-        testCaseReportMetric.setExecuteResult(new ArrayList<>(reportStatusResultMap.values()));
+        testCaseReportMetric.setExecuteResult(getReportStatusResult());
+    }
+
+    private List<TestCaseReportStatusResultDTO> getReportStatusResult() {
+        List<TestCaseReportStatusResultDTO> reportStatusResult = new ArrayList<>();
+        addToReportStatusResultList(reportStatusResult, TestPlanTestCaseStatus.Pass.name());
+        addToReportStatusResultList(reportStatusResult, TestPlanTestCaseStatus.Failure.name());
+        addToReportStatusResultList(reportStatusResult, TestPlanTestCaseStatus.Blocking.name());
+        addToReportStatusResultList(reportStatusResult, TestPlanTestCaseStatus.Skip.name());
+        addToReportStatusResultList(reportStatusResult, TestPlanTestCaseStatus.Underway.name());
+        addToReportStatusResultList(reportStatusResult, TestPlanTestCaseStatus.Prepare.name());
+        return reportStatusResult;
+    }
+
+    private void addToReportStatusResultList(List<TestCaseReportStatusResultDTO> reportStatusResultList, String status) {
+        if (reportStatusResultMap.get(status) != null) {
+            reportStatusResultList.add(reportStatusResultMap.get(status));
+        }
     }
 
     private void getStatusResultMap(Map<String, TestCaseReportStatusResultDTO> reportStatusResultMap, TestPlanCaseDTO testCase) {

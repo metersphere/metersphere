@@ -51,9 +51,11 @@
               callback(new Error(this.$t('commons.input_content')));
             } else if (!cronValidate(cronValue)) {
               callback(new Error(this.$t('schedule.cron_expression_format_error')));
-            } else if(!this.intervalShortValidate()) {
-              callback(new Error(this.$t('schedule.cron_expression_interval_short_error')));
-            } else if (!customValidate.pass){
+            }
+            // else if(!this.intervalShortValidate()) {
+            //   callback(new Error(this.$t('schedule.cron_expression_interval_short_error')));
+            // }
+            else if (!customValidate.pass){
               callback(new Error(customValidate.info));
             } else {
               callback();
@@ -87,6 +89,7 @@
         saveCron () {
           this.$refs['from'].validate((valid) => {
             if (valid) {
+              this.intervalShortValidate();
               this.save(this.form.cronValue);
               this.dialogVisible = false;
             } else  {
@@ -103,8 +106,9 @@
           }
         },
         intervalShortValidate() {
-          if (this.getIntervalTime() < 5*60*1000) {
-            return false;
+          if (this.getIntervalTime() < 3*60*1000) {
+            // return false;
+            this.$info(this.$t('schedule.cron_expression_interval_short_error'));
           }
           return true;
         },
