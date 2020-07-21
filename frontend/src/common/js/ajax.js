@@ -95,7 +95,7 @@ export default {
       }
     };
 
-    Vue.prototype.$request = function (axiosRequestConfig, success) {
+    Vue.prototype.$request = function (axiosRequestConfig, success, failure) {
       let result = {loading: true};
       if (!success) {
         return axios.request(axiosRequestConfig);
@@ -104,6 +104,9 @@ export default {
           then(success, response, result);
         }).catch(error => {
           exception(error, result);
+          if (failure) {
+            then(failure, error, result);
+          }
         });
         return result;
       }
@@ -125,24 +128,20 @@ export default {
         });
     };
 
-    Vue.prototype.$fileUpload = function(url, fileList, success, failure) {
-      let result = {loading: true};
+    Vue.prototype.$fileUpload = function(url, file, param, success, failure) {
       let formData = new FormData();
-      if (fileList.length > 0) {
-        fileList.forEach(f => {
-          formData.append("file", f);
-        });
-      }
-      axios.post(url, formData, { headers: { "Content-Type": "multipart/form-data" }})
-        .then(response => {
-          then(success, response, result);
-        }).catch(error => {
-          exception(error, result);
-          if (failure) {
-          then(failure, error, result);
+      formData.append("file", file);
+      formData.append('request', new Blob([JSON.stringify(param)], {type: "application/json"}));
+      let axiosRequestConfig =  {
+        method: 'POST',
+        url: url,
+        data: formData,
+        headers: {
+          'Content-Type': undefined
         }
-      });
-      return result;
+      };
+      return  Vue.prototype.$request(axiosRequestConfig, success, failure);
     }
+
   }
 }

@@ -2,6 +2,7 @@ package io.metersphere.api.parse;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.parse.ApiImport;
 import io.metersphere.api.dto.parse.postman.*;
 import io.metersphere.api.dto.scenario.Body;
@@ -33,7 +34,7 @@ public class PostmanParser extends ApiImportAbstractParser {
     }
 
     @Override
-    public ApiImport parse(InputStream source) {
+    public ApiImport parse(InputStream source, ApiTestImportRequest request) {
         String testStr = getApiTestStr(source);
         PostmanCollection postmanCollection = JSON.parseObject(testStr, PostmanCollection.class);
         PostmanCollectionInfo info = postmanCollection.getInfo();
@@ -43,6 +44,7 @@ public class PostmanParser extends ApiImportAbstractParser {
         Scenario scenario = new Scenario();
         scenario.setRequests(requests);
         scenario.setName(info.getName());
+        setScenarioByRequest(scenario, request);
         scenarios.add(scenario);
         apiImport.setScenarios(scenarios);
         return apiImport;

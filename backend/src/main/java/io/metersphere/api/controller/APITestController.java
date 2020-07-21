@@ -2,10 +2,7 @@ package io.metersphere.api.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.api.dto.APITestResult;
-import io.metersphere.api.dto.DeleteAPITestRequest;
-import io.metersphere.api.dto.QueryAPITestRequest;
-import io.metersphere.api.dto.SaveAPITestRequest;
+import io.metersphere.api.dto.*;
 import io.metersphere.api.service.APITestService;
 import io.metersphere.base.domain.ApiTest;
 import io.metersphere.base.domain.Schedule;
@@ -49,7 +46,6 @@ public class APITestController {
     public List<ApiTest> list(@PathVariable String projectId) {
         return apiTestService.getApiTestByProjectId(projectId);
     }
-
 
     @GetMapping("/state/get/{testId}")
     public ApiTest apiState(@PathVariable String testId) {
@@ -96,10 +92,10 @@ public class APITestController {
         return apiTestService.run(request);
     }
 
-    @PostMapping("/import/{platform}")
+    @PostMapping(value = "/import", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public ApiTest testCaseImport(MultipartFile file, @PathVariable String platform) {
-        return apiTestService.apiTestImport(file, platform);
+    public ApiTest testCaseImport(@RequestPart(value = "file") MultipartFile file, @RequestPart("request")  ApiTestImportRequest request) {
+        return apiTestService.apiTestImport(file, request);
     }
 
 }

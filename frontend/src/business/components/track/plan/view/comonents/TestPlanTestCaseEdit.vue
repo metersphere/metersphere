@@ -9,191 +9,204 @@
     ref="drawer"
     v-loading="result.loading">
 
-      <template v-slot:default="scope">
-        <div class="container">
+    <template v-slot:default="scope">
+      <div class="container">
 
-          <el-scrollbar>
+        <el-scrollbar>
 
-            <el-header>
+          <el-header>
 
-              <el-row type="flex" class="head-bar">
+            <el-row type="flex" class="head-bar">
 
-                <el-col :span="12">
-                  <el-button plain size="mini"
-                             icon="el-icon-back"
-                             @click="cancel">{{$t('test_track.return')}}</el-button>
-                </el-col>
+              <el-col :span="12">
+                <el-button plain size="mini"
+                           icon="el-icon-back"
+                           @click="cancel">{{$t('test_track.return')}}
+                </el-button>
+              </el-col>
 
-                <el-col :span="12" class="head-right">
+              <el-col :span="12" class="head-right">
                 <span class="head-right-tip" v-if="index + 1 == testCases.length">
                   {{$t('test_track.plan_view.pre_case')}} : {{testCases[index - 1] ? testCases[index - 1].name : ''}}
                 </span>
-                  <span class="head-right-tip" v-if="index + 1 != testCases.length">
+                <span class="head-right-tip" v-if="index + 1 != testCases.length">
                   {{$t('test_track.plan_view.next_case')}} : {{testCases[index + 1] ? testCases[index + 1].name : ''}}
                 </span>
 
-                  <el-button plain size="mini" icon="el-icon-arrow-up"
-                             :disabled="index + 1 <= 1"
-                             @click="handlePre()"/>
-                  <span>  {{index + 1}}/{{testCases.length}} </span>
-                  <el-button plain size="mini" icon="el-icon-arrow-down"
-                             :disabled="index + 1 >= testCases.length"
-                             @click="handleNext()"/>
-                  <el-divider direction="vertical"></el-divider>
+                <el-button plain size="mini" icon="el-icon-arrow-up"
+                           :disabled="index + 1 <= 1"
+                           @click="handlePre()"/>
+                <span>  {{index + 1}}/{{testCases.length}} </span>
+                <el-button plain size="mini" icon="el-icon-arrow-down"
+                           :disabled="index + 1 >= testCases.length"
+                           @click="handleNext()"/>
+                <el-divider direction="vertical"></el-divider>
 
-                  <el-button type="primary" size="mini" :disabled="isReadOnly" @click="saveCase()">{{$t('test_track.save')}}</el-button>
-                </el-col>
+                <el-button type="primary" size="mini" :disabled="isReadOnly" @click="saveCase()">
+                  {{$t('test_track.save')}}
+                </el-button>
+              </el-col>
 
-              </el-row>
+            </el-row>
 
-              <el-row style="margin-top: 0px;">
-                <el-col>
-                  <el-divider content-position="left">{{testCase.name}}</el-divider>
-                </el-col>
-              </el-row>
+            <el-row style="margin-top: 0px;">
+              <el-col>
+                <el-divider content-position="left">{{testCase.name}}</el-divider>
+              </el-col>
+            </el-row>
 
-            </el-header>
+          </el-header>
 
-            <div class="case_container">
-              <el-row >
-                <el-col :span="4" :offset="1">
-                  <span class="cast_label">{{$t('test_track.case.priority')}}：</span>
-                  <span class="cast_item">{{testCase.priority}}</span>
-                </el-col>
-                <el-col :span="5">
-                  <span class="cast_label">{{$t('test_track.case.case_type')}}：</span>
-                  <span class="cast_item" v-if="testCase.type == 'functional'">{{$t('commons.functional')}}</span>
-                  <span class="cast_item" v-if="testCase.type == 'performance'">{{$t('commons.performance')}}</span>
-                  <span class="cast_item" v-if="testCase.type == 'api'">{{$t('commons.api')}}</span>
-                </el-col>
-                <el-col :span="13">
-                  <test-plan-test-case-status-button class="status-button"
-                                                     @statusChange="statusChange"
-                                                     :is-read-only="isReadOnly"
-                                                     :status="testCase.status"/>
-                </el-col>
-              </el-row>
+          <div class="case_container">
+            <el-row>
+              <el-col :span="4" :offset="1">
+                <span class="cast_label">{{$t('test_track.case.priority')}}：</span>
+                <span class="cast_item">{{testCase.priority}}</span>
+              </el-col>
+              <el-col :span="5">
+                <span class="cast_label">{{$t('test_track.case.case_type')}}：</span>
+                <span class="cast_item" v-if="testCase.type == 'functional'">{{$t('commons.functional')}}</span>
+                <span class="cast_item" v-if="testCase.type == 'performance'">{{$t('commons.performance')}}</span>
+                <span class="cast_item" v-if="testCase.type == 'api'">{{$t('commons.api')}}</span>
+              </el-col>
+              <el-col :span="13">
+                <test-plan-test-case-status-button class="status-button"
+                                                   @statusChange="statusChange"
+                                                   :is-read-only="isReadOnly"
+                                                   :is-failure="isFailure"
+                                                   :status="testCase.status"/>
+              </el-col>
+            </el-row>
 
-              <el-row>
-                <el-col :span="4" :offset="1">
-                  <span class="cast_label">{{$t('test_track.case.method')}}：</span>
-                  <span v-if="testCase.method == 'manual'">{{$t('test_track.case.manual')}}</span>
-                  <span v-if="testCase.method == 'auto'">{{$t('test_track.case.auto')}}</span>
-                </el-col>
-                <el-col :span="5">
-                  <span class="cast_label">{{$t('test_track.case.module')}}：</span>
-                  <span class="cast_item">{{testCase.nodePath}}</span>
-                </el-col>
-              </el-row>
+            <el-row>
+              <el-col :span="4" :offset="1">
+                <span class="cast_label">{{$t('test_track.case.method')}}：</span>
+                <span v-if="testCase.method == 'manual'">{{$t('test_track.case.manual')}}</span>
+                <span v-if="testCase.method == 'auto'">{{$t('test_track.case.auto')}}</span>
+              </el-col>
+              <el-col :span="5">
+                <span class="cast_label">{{$t('test_track.case.module')}}：</span>
+                <span class="cast_item">{{testCase.nodePath}}</span>
+              </el-col>
+            </el-row>
 
-              <el-row v-if="testCase.method == 'auto' && testCase.testId">
-                <el-col class="test-detail" :span="20" :offset="1">
-                    <el-tabs v-model="activeTab" type="border-card" @tab-click="testTabChange">
-                      <el-tab-pane name="detail" :label="$t('test_track.plan_view.test_detail')">
-                        <api-test-detail :is-read-only="isReadOnly" v-if="testCase.type == 'api'" @runTest="testRun" :id="testCase.testId" ref="apiTestDetail"/>
-                        <performance-test-detail :is-read-only="isReadOnly" v-if="testCase.type == 'performance'" @runTest="testRun" :id="testCase.testId" ref="performanceTestDetail"/>
-                      </el-tab-pane>
-                      <el-tab-pane name="result" :label="$t('test_track.plan_view.test_result')">
-                        <api-test-result :report-id="testCase.reportId" v-if=" testCase.type == 'api'" ref="apiTestResult"/>
-                        <performance-test-result :is-read-only="isReadOnly" :report-id="testCase.reportId" v-if="testCase.type == 'performance'" ref="performanceTestResult"/>
-                      </el-tab-pane>
-                    </el-tabs>
-                </el-col>
-              </el-row>
+            <el-row v-if="testCase.method == 'auto' && testCase.testId">
+              <el-col class="test-detail" :span="20" :offset="1">
+                <el-tabs v-model="activeTab" type="border-card" @tab-click="testTabChange">
+                  <el-tab-pane name="detail" :label="$t('test_track.plan_view.test_detail')">
+                    <api-test-detail :is-read-only="isReadOnly" v-if="testCase.type == 'api'" @runTest="testRun"
+                                     :id="testCase.testId" ref="apiTestDetail"/>
+                    <performance-test-detail :is-read-only="isReadOnly" v-if="testCase.type == 'performance'"
+                                             @runTest="testRun" :id="testCase.testId" ref="performanceTestDetail"/>
+                  </el-tab-pane>
+                  <el-tab-pane name="result" :label="$t('test_track.plan_view.test_result')">
+                    <api-test-result :report-id="testCase.reportId" v-if=" testCase.type == 'api'" ref="apiTestResult"/>
+                    <performance-test-result :is-read-only="isReadOnly" :report-id="testCase.reportId"
+                                             v-if="testCase.type == 'performance'" ref="performanceTestResult"/>
+                  </el-tab-pane>
+                </el-tabs>
+              </el-col>
+            </el-row>
 
-              <el-row v-if="testCase.method && testCase.method != 'auto'">
-                <el-col :span="20" :offset="1">
-                  <div>
-                    <span class="cast_label">{{$t('test_track.case.steps')}}：</span>
-                  </div>
-                  <el-table
-                    :data="testCase.steptResults"
-                    class="tb-edit"
-                    size="mini"
-                    :border="true"
-                    :default-sort = "{prop: 'num', order: 'ascending'}"
-                    highlight-current-row>
-                    <el-table-column :label="$t('test_track.case.number')" prop="num" min-width="5%"></el-table-column>
-                    <el-table-column :label="$t('test_track.case.step_desc')" prop="desc" min-width="29%">
-                      <template v-slot:default="scope">
-                        <span>{{scope.row.desc}}</span>
-                      </template>
-                    </el-table-column>
-                    <el-table-column :label="$t('test_track.case.expected_results')" prop="result" min-width="28%">
-                      <template v-slot:default="scope">
-                        <span>{{scope.row.result}}</span>
-                      </template>
-                    </el-table-column>
-                    <el-table-column :label="$t('test_track.plan_view.actual_result')" min-width="29%">
-                      <template v-slot:default="scope">
-                        <el-input
-                          size="mini"
-                          type="textarea"
-                          :autosize="{ minRows: 2, maxRows: 4}"
-                          :rows="2"
-                          :disabled="isReadOnly"
-                          v-model="scope.row.actualResult"
-                          :placeholder="$t('commons.input_content')"
-                          clearable></el-input>
-                        <span>{{scope.row.actualResult}}</span>
-                      </template>
-                    </el-table-column>
-                    <el-table-column :label="$t('test_track.plan_view.step_result')" min-width="9%">
-                      <template v-slot:default="scope">
-                        <el-select
-                          :disabled="isReadOnly"
-                          v-model="scope.row.executeResult"
-                          size="mini">
-                          <el-option :label="$t('test_track.plan_view.pass')" value="Pass" style="color: #7ebf50;"></el-option>
-                          <el-option :label="$t('test_track.plan_view.failure')" value="Failure" style="color: #e57471;"></el-option>
-                          <el-option :label="$t('test_track.plan_view.blocking')" value="Blocking" style="color: #dda451;"></el-option>
-                          <el-option :label="$t('test_track.plan_view.skip')" value="Skip" style="color: #919399;"></el-option>
-                        </el-select>
-                      </template>
-                    </el-table-column>
-                  </el-table>
-                </el-col>
-              </el-row>
+            <el-row v-if="testCase.method && testCase.method != 'auto'">
+              <el-col :span="20" :offset="1">
+                <div>
+                  <span class="cast_label">{{$t('test_track.case.steps')}}：</span>
+                </div>
+                <el-table
+                  :data="testCase.steptResults"
+                  class="tb-edit"
+                  size="mini"
+                  :border="true"
+                  :default-sort="{prop: 'num', order: 'ascending'}"
+                  highlight-current-row>
+                  <el-table-column :label="$t('test_track.case.number')" prop="num" min-width="5%"></el-table-column>
+                  <el-table-column :label="$t('test_track.case.step_desc')" prop="desc" min-width="29%">
+                    <template v-slot:default="scope">
+                      <span>{{scope.row.desc}}</span>
+                    </template>
+                  </el-table-column>
+                  <el-table-column :label="$t('test_track.case.expected_results')" prop="result" min-width="28%">
+                    <template v-slot:default="scope">
+                      <span>{{scope.row.result}}</span>
+                    </template>
+                  </el-table-column>
+                  <el-table-column :label="$t('test_track.plan_view.actual_result')" min-width="29%">
+                    <template v-slot:default="scope">
+                      <el-input
+                        size="mini"
+                        type="textarea"
+                        :autosize="{ minRows: 2, maxRows: 4}"
+                        :rows="2"
+                        :disabled="isReadOnly"
+                        v-model="scope.row.actualResult"
+                        :placeholder="$t('commons.input_content')"
+                        clearable></el-input>
+                      <span>{{scope.row.actualResult}}</span>
+                    </template>
+                  </el-table-column>
+                  <el-table-column :label="$t('test_track.plan_view.step_result')" min-width="9%">
+                    <template v-slot:default="scope">
+                      <el-select
+                        :disabled="isReadOnly"
+                        v-model="scope.row.executeResult"
+                        @change="stepResultChange()"
+                        size="mini">
+                        <el-option :label="$t('test_track.plan_view.pass')" value="Pass"
+                                   style="color: #7ebf50;"></el-option>
+                        <el-option :label="$t('test_track.plan_view.failure')" value="Failure"
+                                   style="color: #e57471;"></el-option>
+                        <el-option :label="$t('test_track.plan_view.blocking')" value="Blocking"
+                                   style="color: #dda451;"></el-option>
+                        <el-option :label="$t('test_track.plan_view.skip')" value="Skip"
+                                   style="color: #919399;"></el-option>
+                      </el-select>
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </el-col>
+            </el-row>
 
-              <el-row v-if="testCase.issues">
-                <el-col :span="5" :offset="1">
-                  <el-switch
-                    :disabled="isReadOnly"
-                    v-model="testCase.issues.hasIssues"
-                    @change="issuesChange"
-                    :active-text="$t('test_track.plan_view.submit_issues')">
-                  </el-switch>
-                </el-col>
-              </el-row>
+            <el-row v-if="testCase.issues">
+              <el-col :span="5" :offset="1">
+                <el-switch
+                  :disabled="isReadOnly"
+                  v-model="testCase.issues.hasIssues"
+                  @change="issuesChange"
+                  :active-text="$t('test_track.plan_view.submit_issues')">
+                </el-switch>
+              </el-col>
+            </el-row>
 
-              <el-row v-if="testCase.issues && testCase.issues.hasIssues">
-                <el-col :span="20" :offset="1" class="issues-edit">
-                  <ckeditor :editor="editor" :disabled="isReadOnly" :config="editorConfig" v-model="testCase.issues.content"/>
-                </el-col>
-              </el-row>
+            <el-row v-if="testCase.issues && testCase.issues.hasIssues">
+              <el-col :span="20" :offset="1" class="issues-edit">
+                <ckeditor :editor="editor" :disabled="isReadOnly" :config="editorConfig"
+                          v-model="testCase.issues.content"/>
+              </el-col>
+            </el-row>
 
-              <el-row>
-                <el-col :span="15" :offset="1">
-                  <div>
-                    <span class="cast_label">{{$t('commons.remark')}}：</span>
-                    <span v-if="testCase.remark == null || testCase.remark == ''" style="color: darkgrey">{{$t('commons.not_filled')}}</span>
-                  </div>
-                  <div>
-                    <el-input :rows="3"
-                              type="textarea"
-                              v-if="testCase.remark"
-                              disabled
-                              v-model="testCase.remark"></el-input>
-                  </div>
-                </el-col>
-              </el-row>
-            </div>
+            <el-row>
+              <el-col :span="15" :offset="1">
+                <div>
+                  <span class="cast_label">{{$t('commons.remark')}}：</span>
+                  <span v-if="testCase.remark == null || testCase.remark == ''" style="color: darkgrey">{{$t('commons.not_filled')}}</span>
+                </div>
+                <div>
+                  <el-input :rows="3"
+                            type="textarea"
+                            v-if="testCase.remark"
+                            disabled
+                            v-model="testCase.remark"></el-input>
+                </div>
+              </el-col>
+            </el-row>
+          </div>
 
-          </el-scrollbar>
+        </el-scrollbar>
 
-        </div>
+      </div>
 
-      </template>
+    </template>
 
   </el-drawer>
 
@@ -215,7 +228,8 @@
       PerformanceTestDetail,
       ApiTestResult,
       ApiTestDetail,
-      TestPlanTestCaseStatusButton},
+      TestPlanTestCaseStatusButton
+    },
     data() {
       return {
         result: {},
@@ -226,10 +240,11 @@
         editor: ClassicEditor,
         editorConfig: {
           // 'increaseIndent','decreaseIndent'
-          toolbar: [ 'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote' ,'insertTable', '|','undo', 'redo'],
+          toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'insertTable', '|', 'undo', 'redo'],
         },
         test: {},
-        activeTab: 'detail'
+        activeTab: 'detail',
+        isFailure: false,
       };
     },
     props: {
@@ -273,7 +288,7 @@
         param.status = this.testCase.status;
         param.results = [];
 
-        for (let i = 0; i < this.testCase.steptResults.length; i++){
+        for (let i = 0; i < this.testCase.steptResults.length; i++) {
           let result = {};
           result.actualResult = this.testCase.steptResults[i].actualResult;
           result.executeResult = this.testCase.steptResults[i].executeResult;
@@ -282,6 +297,15 @@
               + this.$t('test_track.length_less_than') + '300');
             return;
           }
+          if (this.testCase.method != 'auto') {
+            if (!result.executeResult) {
+              this.$warning(this.testCase.steptResults[i].desc + this.$t('test_track.execution_result')
+              );
+              return;
+            }
+          }
+
+
           param.results.push(result);
         }
 
@@ -325,8 +349,8 @@
           item.issues.hasIssues = false;
         }
         item.steptResults = [];
-        for (let i = 0; i < item.steps.length; i++){
-          if(item.results[i]){
+        for (let i = 0; i < item.steps.length; i++) {
+          if (item.results[i]) {
             item.steps[i].actualResult = item.results[i].actualResult;
             item.steps[i].executeResult = item.results[i].executeResult;
           }
@@ -334,6 +358,8 @@
         }
         this.testCase = item;
         this.initTest();
+        //
+        this.stepResultChange();
       },
       openTestCaseEdit(testCase) {
         this.showDialog = true;
@@ -346,7 +372,7 @@
           if (this.testCase.method == 'auto') {
             if (this.$refs.apiTestDetail && this.testCase.type == 'api') {
               this.$refs.apiTestDetail.init();
-            } else if(this.testCase.type == 'performance') {
+            } else if (this.testCase.type == 'performance') {
               this.$refs.performanceTestDetail.init();
             }
           }
@@ -380,12 +406,18 @@
       getRelatedTest() {
         if (this.testCase.method == 'auto' && this.testCase.testId) {
           this.$get('/' + this.testCase.type + '/get/' + this.testCase.testId, response => {
-            this.test = response.data;
+            let data = response.data;
+            if (data) {
+              this.test = data;
+            } else {
+              this.test = {};
+              this.$warning(this.$t("test_track.case.relate_test_not_find"));
+            }
           });
         }
       },
       issuesChange() {
-       if (this.testCase.issues.hasIssues) {
+        if (this.testCase.issues.hasIssues) {
           let desc = this.addPLabel('[' + this.$t('test_track.plan_view.operate_step') + ']');
           let result = this.addPLabel('[' + this.$t('test_track.case.expected_results') + ']');
           let executeResult = this.addPLabel('[' + this.$t('test_track.plan_view.actual_result') + ']');
@@ -403,6 +435,11 @@
       },
       setPlanStatus(planId) {
         this.$post('/test/plan/edit/status/' + planId);
+      },
+      stepResultChange() {
+        this.isFailure = this.testCase.steptResults.filter(s => {
+          return !s.executeResult || s.executeResult === 'Failure' || s.executeResult === 'Blocking';
+        }).length > 0;
       }
     }
   }
@@ -414,10 +451,12 @@
   .tb-edit .el-textarea {
     display: none;
   }
+
   .tb-edit .current-row .el-textarea {
     display: block;
   }
-  .tb-edit .current-row .el-textarea+span {
+
+  .tb-edit .current-row .el-textarea + span {
     display: none;
   }
 
@@ -433,7 +472,7 @@
     text-align: right;
   }
 
-  .el-col:not(.test-detail){
+  .el-col:not(.test-detail) {
     line-height: 50px;
   }
 
@@ -457,7 +496,7 @@
     height: 100vh;
   }
 
-  .case_container > .el-row{
+  .case_container > .el-row {
     margin-top: 1%;
   }
 

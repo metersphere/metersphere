@@ -126,8 +126,8 @@
       importAPITest() {
         let apiTest = this.$store.state.api.test;
         if (apiTest && apiTest.name) {
-          this.testPlan.projectId = apiTest.projectId;
-          this.testPlan.name = apiTest.name;
+          this.$set(this.testPlan, "projectId", apiTest.projectId);
+          this.$set(this.testPlan, "name", apiTest.name);
           let blob = new Blob([apiTest.jmx.xml], {type: "application/octet-stream"});
           let file = new File([blob], apiTest.jmx.name);
           this.$refs.basicConfig.beforeUpload(file);
@@ -274,7 +274,7 @@
       },
       checkScheduleEdit() {
         if (!this.testPlan.id) {
-          this.$message('请先保存测试');
+          this.$message(this.$t('api_test.environment.please_save_test'));
           return false;
         }
         return true;
@@ -284,7 +284,7 @@
         if (intervalTime < duration) {
           return {
             pass: false,
-            info: '间隔时间不能小于压测时长'
+            info: this.$t('load_test.schedule_tip')
           }
         }
         return {

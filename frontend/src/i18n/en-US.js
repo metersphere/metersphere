@@ -102,8 +102,10 @@ export default {
     login_username: 'ID or email',
     input_login_username: 'Please input the user ID or email',
     input_name: 'Please enter name',
+    please_save: 'Please save first',
     formatErr: 'Format Error',
     id: 'ID',
+    please_upload: 'Please upload file',
     date: {
       select_date: 'Select date',
       start_date: 'Start date',
@@ -318,7 +320,8 @@ export default {
     download_log_file: 'Download',
     user_name: 'Creator',
     special_characters_are_not_supported: 'Test name does not support special characters',
-    pressure_config_params_is_empty: 'Pressure configuration parameters cannot be empty!'
+    pressure_config_params_is_empty: 'Pressure configuration parameters cannot be empty!',
+    schedule_tip: 'The interval must not be less than the pressure measuring time'
   },
   api_test: {
     creator: "Creator",
@@ -327,20 +330,22 @@ export default {
     running: "Running",
     reset: "Rest",
     input_name: "Please enter the test name",
-    select_project: "Select project",
+    select_project: "Please select project",
     variable_name: "Variable name",
     copied: "copied",
     key: "Key",
     value: "Value",
     create_performance_test: "Create Performance Test",
-    export_config: "Export Configuration",
+    export_config: "Export",
     environment: {
       name: "Environment Name",
       socket: "Socket",
       globalVariable: "Global Variable",
       environment_list: "Environment List",
       environment_config: "Environment Config",
+      config_environment: "Config Environment",
       environment: "Environment",
+      select_environment: "Please select environment",
       please_save_test: "Please Save Test First",
     },
     scenario: {
@@ -361,6 +366,8 @@ export default {
       copy: "Copy request",
       delete: "Delete request",
       input_name: "Please enter the request name",
+      input_url: "Please enter the request URL",
+      input_path: "Please enter the request path",
       name: "Name",
       method: "Method",
       url: "URL",
@@ -465,6 +472,8 @@ export default {
     recent_plan: "Recent plan",
     recent_case: "Recent case",
     pass_rate: "Pass rate",
+    execution_result: ": Please select the execution result",
+    actual_result: ": The actual result is empty",
     case: {
       test_case: "Case",
       move: "Move case",
@@ -501,6 +510,7 @@ export default {
       please_create_project: "No project available, please create the project first",
       create_module_first: "Please create module first",
       relate_test: "Relate test",
+      relate_test_not_find: 'The associated test does not exist, please check the test case',
       import: {
         import: "Import test case",
         case_import: "Import test case",

@@ -102,7 +102,9 @@ export default {
     login_username: 'ID 或 邮箱',
     input_login_username: '请输入用户 ID 或 邮箱',
     input_name: '请输入名称',
+    please_upload: '请上传文件',
     formatErr: '格式错误',
+    please_save: '请先保存',
     id: 'ID',
     date: {
       select_date: '选择日期',
@@ -317,7 +319,8 @@ export default {
     pressure_prediction_chart: '压力预估图',
     user_name: '创建人',
     special_characters_are_not_supported: '测试名称不支持特殊字符',
-    pressure_config_params_is_empty: '压力配置参数不能为空!'
+    pressure_config_params_is_empty: '压力配置参数不能为空!',
+    schedule_tip: '间隔时间不能小于压测时长'
   },
   api_test: {
     creator: "创建人",
@@ -332,14 +335,16 @@ export default {
     key: "键",
     value: "值",
     create_performance_test: "创建性能测试",
-    export_config: "导出配置",
+    export_config: "导出",
     environment: {
       name: "环境名称",
       socket: "环境域名",
       globalVariable: "全局变量",
       environment_list: "环境列表",
       environment_config: "环境配置",
+      config_environment: "配置环境",
       environment: "环境",
+      select_environment: "请选择环境",
       please_save_test: "请先保存测试",
     },
     scenario: {
@@ -359,6 +364,8 @@ export default {
       copy: "复制请求",
       delete: "删除请求",
       input_name: "请输入请求名称",
+      input_url: "请输入请求URL",
+      input_path: "请输入请求路径",
       name: "请求名称",
       method: "请求方法",
       url: "请求URL",
@@ -464,6 +471,9 @@ export default {
     recent_plan: "最近的计划",
     recent_case: "最近的用例",
     pass_rate: "通过率",
+    execution_result: ": 请选择执行结果",
+    actual_result: ": 实际结果为空",
+
     case: {
       test_case: "测试用例",
       move: "移动用例",
@@ -500,6 +510,7 @@ export default {
       please_create_project: "暂无项目，请先创建项目",
       create_module_first: "请先新建模块",
       relate_test: "关联测试",
+      relate_test_not_find: '关联的测试不存在,请检查用例',
       import: {
         import: "导入用例",
         case_import: "导入测试用例",

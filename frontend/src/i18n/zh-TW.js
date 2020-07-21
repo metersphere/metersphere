@@ -101,7 +101,9 @@ export default {
     delete_confirm: '請輸入以下內容，確認刪除：',
     input_name: '請輸入名稱',
     formatErr: '格式錯誤',
+    please_save: '請先保存',
     id: 'ID',
+    please_upload: '請上傳文件',
     date: {
       select_date: '選擇日期',
       start_date: '開始日期',
@@ -316,7 +318,8 @@ export default {
     pressure_prediction_chart: '壓力預估圖',
     user_name: '創建人',
     special_characters_are_not_supported: '測試名稱不支持特殊字符',
-    pressure_config_params_is_empty: '壓力配置參數不能為空!'
+    pressure_config_params_is_empty: '壓力配置參數不能為空!',
+    schedule_tip: '間隔時間不能小於壓測時長'
   },
   api_test: {
     creator: "創建人",
@@ -331,14 +334,16 @@ export default {
     key: "鍵",
     value: "值",
     create_performance_test: "創建性能測試",
-    export_config: "匯出配寘",
+    export_config: "匯出",
     environment: {
       name: "環境名稱",
       socket: "環境域名",
       globalVariable: "全局變量",
       environment_list: "環境列表",
       environment_config: "環境配置",
+      config_environment: "配置環境",
       environment: "環境",
+      select_environment: "請選擇環境",
       please_save_test: "請先保存測試",
     },
     scenario: {
@@ -359,6 +364,8 @@ export default {
       copy: "複製請求",
       delete: "删除請求",
       input_name: "請輸入請求名稱",
+      input_url: "請輸入請求URL",
+      input_path: "請輸入請求路徑",
       name: "請求名稱",
       method: "請求方法",
       url: "請求URL",
@@ -464,6 +471,8 @@ export default {
     recent_plan: "最近的計劃",
     recent_case: "最近的用例",
     pass_rate: "通過率",
+    execution_result: ": 請選擇執行結果",
+    actual_result: ": 實際結果為空",
     case: {
       test_case: "測試用例",
       move: "移動用例",
@@ -500,6 +509,7 @@ export default {
       please_create_project: "暫無項目，請先創建項目",
       create_module_first: "請先新建模塊",
       relate_test: "關聯測試",
+      relate_test_not_find: '關聯的測試不存在,請檢查用例',
       import: {
         import: "導入用例",
         case_import: "導入測試用例",

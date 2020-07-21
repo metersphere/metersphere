@@ -15,9 +15,7 @@ import io.metersphere.performance.engine.EngineFactory;
 import io.metersphere.performance.engine.docker.request.TestRequest;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class DockerTestEngine extends AbstractEngine {
@@ -110,25 +108,9 @@ public class DockerTestEngine extends AbstractEngine {
             try {
                 restTemplateWithTimeOut.getForObject(uri, String.class);
             } catch (Exception e) {
-                LogUtil.error("stop load test fail... " + testId);
-                MSException.throwException(Translator.get("container_delete_fail"));
+                LogUtil.error("stop load test fail... " + testId, e);
+                MSException.throwException(Translator.get("container_delete_fail") + ", Error: " + e.getMessage());
             }
         });
-    }
-
-    @Override
-    public Map<String, String> log() {
-        String testId = loadTest.getId();
-        Map<String, String> logs = new HashMap<>();
-        this.resourceList.forEach(r -> {
-            NodeDTO node = JSON.parseObject(r.getConfiguration(), NodeDTO.class);
-            String ip = node.getIp();
-            Integer port = node.getPort();
-
-            String uri = String.format(BASE_URL + "/jmeter/container/log/" + testId, ip, port);
-            String log = restTemplate.getForObject(uri, String.class);
-            logs.put(node.getIp(), log);
-        });
-        return logs;
     }
 }

@@ -2,6 +2,7 @@ package io.metersphere.api.parse;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.parse.ApiImport;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -17,6 +18,7 @@ import io.swagger.models.properties.ObjectProperty;
 import io.swagger.models.properties.Property;
 import io.swagger.models.properties.RefProperty;
 import io.swagger.parser.SwaggerParser;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
 import java.util.*;
@@ -24,12 +26,18 @@ import java.util.*;
 public class Swagger2Parser extends ApiImportAbstractParser {
 
     @Override
-    public ApiImport parse(InputStream source) {
-        String testStr = getApiTestStr(source);
-//        Swagger swagger = new SwaggerParser().read("http://petstore.swagger.io/v2/swagger.json");
-        Swagger swagger = new SwaggerParser().readWithInfo(testStr).getSwagger();
+    public ApiImport parse(InputStream source, ApiTestImportRequest request) {
+        Swagger swagger = null;
+        if (StringUtils.isNotBlank(request.getSwaggerUrl())) {
+            swagger = new SwaggerParser().read(request.getSwaggerUrl());
+        } else {
+            swagger = new SwaggerParser().readWithInfo(getApiTestStr(source)).getSwagger();
+        }
         ApiImport apiImport = new ApiImport();
         apiImport.setScenarios(parseRequests(swagger));
+        apiImport.getScenarios().forEach(scenario -> {
+            scenario.setEnvironmentId(request.getEnvironmentId());
+        });
         return apiImport;
     }
 

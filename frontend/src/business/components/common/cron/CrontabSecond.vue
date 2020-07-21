@@ -9,15 +9,15 @@
     <el-form-item>
       <el-radio v-model='radioValue' :label="2">
         {{$t('schedule.cron.period')}} {{$t('schedule.cron.from')}}
-        <el-input-number v-model='cycle01' :min="0" :max="60" /> -
-        <el-input-number v-model='cycle02' :min="0" :max="60" /> {{$t('schedule.cron.seconds')}}
+        <el-input-number v-model='cycle01' :min="0" :max="59" /> -
+        <el-input-number v-model='cycle02' :min="0" :max="59" /> {{$t('schedule.cron.seconds')}}
       </el-radio>
     </el-form-item>
 
     <el-form-item>
       <el-radio v-model='radioValue' :label="3">
         {{$t('schedule.cron.from')}}
-        <el-input-number v-model='average01' :min="0" :max="60" /> {{$t('schedule.cron.seconds')}}{{$t('schedule.cron.start')}}，{{$t('schedule.cron.every')}}
+        <el-input-number v-model='average01' :min="0" :max="59" /> {{$t('schedule.cron.seconds')}}{{$t('schedule.cron.start')}}，{{$t('schedule.cron.every')}}
         <el-input-number v-model='average02' :min="0" :max="60" /> {{$t('schedule.cron.seconds')}}{{$t('schedule.cron.execute_once')}}
       </el-radio>
     </el-form-item>
@@ -113,14 +113,14 @@
     computed: {
       // 计算两个周期值
       cycleTotal: function () {
-        this.cycle01 = this.checkNum(this.cycle01, 0, 59);
-        this.cycle02 = this.checkNum(this.cycle02, 0, 59);
+        this.checkNum(this.cycle01, 0, 59);
+        this.checkNum(this.cycle02, 0, 59);
         return this.cycle01 + '-' + this.cycle02;
       },
       // 计算平均用到的值
       averageTotal: function () {
-        this.average01 = this.checkNum(this.average01, 0, 59)
-        this.average02 = this.checkNum(this.average02, 1, 59)
+        this.checkNum(this.average01, 0, 59)
+        this.checkNum(this.average02, 1, 59)
         return this.average01 + '/' + this.average02;
       },
       // 计算勾选的checkbox值合集

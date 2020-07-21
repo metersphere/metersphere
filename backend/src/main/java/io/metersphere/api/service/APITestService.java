@@ -2,6 +2,7 @@ package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.APITestResult;
+import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.QueryAPITestRequest;
 import io.metersphere.api.dto.SaveAPITestRequest;
 import io.metersphere.api.dto.parse.ApiImport;
@@ -75,7 +76,6 @@ public class APITestService {
         if (files == null || files.isEmpty()) {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
         }
-        checkNameExist(request);
         ApiTest test = createTest(request);
         saveFile(test.getId(), files);
     }
@@ -118,10 +118,14 @@ public class APITestService {
 
     public APITestResult get(String id) {
         APITestResult apiTest = new APITestResult();
-        BeanUtils.copyBean(apiTest, apiTestMapper.selectByPrimaryKey(id));
-        Schedule schedule = scheduleService.getScheduleByResource(id, ScheduleGroup.API_TEST.name());
-        apiTest.setSchedule(schedule);
-        return apiTest;
+        ApiTest test = apiTestMapper.selectByPrimaryKey(id);
+        if (test != null) {
+            BeanUtils.copyBean(apiTest, test);
+            Schedule schedule = scheduleService.getScheduleByResource(id, ScheduleGroup.API_TEST.name());
+            apiTest.setSchedule(schedule);
+            return apiTest;
+        }
+        return null;
     }
 
     public ApiTest getApiTestByTestId(String testId) {
@@ -187,6 +191,7 @@ public class APITestService {
     }
 
     private ApiTest createTest(SaveAPITestRequest request) {
+        checkNameExist(request);
         final ApiTest test = new ApiTest();
         test.setId(request.getId());
         test.setName(request.getName());
@@ -256,23 +261,23 @@ public class APITestService {
         scheduleService.addOrUpdateCronJob(request, ApiTestJob.getJobKey(request.getResourceId()), ApiTestJob.getTriggerKey(request.getResourceId()), ApiTestJob.class);
     }
 
-    public ApiTest apiTestImport(MultipartFile file, String platform) {
-        ApiImportParser apiImportParser = ApiImportParserFactory.getApiImportParser(platform);
+    public ApiTest apiTestImport(MultipartFile file, ApiTestImportRequest request) {
+        ApiImportParser apiImportParser = ApiImportParserFactory.getApiImportParser(request.getPlatform());
         ApiImport apiImport = null;
         try {
-            apiImport = apiImportParser.parse(file.getInputStream());
+            apiImport = apiImportParser.parse(file.getInputStream(), request);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(Translator.get("parse_data_error"));
         }
-        SaveAPITestRequest request = getImportApiTest(file, apiImport);
-        return createTest(request);
+        SaveAPITestRequest saveRequest = getImportApiTest(request, apiImport);
+        return createTest(saveRequest);
     }
 
-    private SaveAPITestRequest getImportApiTest(MultipartFile file, ApiImport apiImport) {
+    private SaveAPITestRequest getImportApiTest(ApiTestImportRequest importRequest, ApiImport apiImport) {
         SaveAPITestRequest request = new SaveAPITestRequest();
-        request.setName(file.getOriginalFilename());
-        request.setProjectId("");
+        request.setName(importRequest.getName());
+        request.setProjectId(importRequest.getProjectId());
         request.setScenarioDefinition(apiImport.getScenarios());
         request.setUserId(SessionUtils.getUserId());
         request.setId(UUID.randomUUID().toString());

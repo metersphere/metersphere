@@ -14,18 +14,18 @@
                 </el-select>
               </el-input>
 
-              <el-button type="primary" plain :disabled="isDisabled || isReadOnly" @click="saveTest">
+              <el-button type="primary" plain :disabled="isReadOnly" @click="saveTest">
                 {{$t('commons.save')}}
               </el-button>
 
-              <el-button type="primary" plain v-if="!isShowRun" :disabled="isDisabled || isReadOnly"
+              <el-button type="primary" plain  :disabled="isReadOnly"
                          @click="saveRunTest">
                 {{$t('load_test.save_and_run')}}
               </el-button>
 
-              <el-button :disabled="isReadOnly" type="primary" plain v-if="isShowRun" @click="runTest">
-                {{$t('api_test.run')}}
-              </el-button>
+<!--              <el-button :disabled="isReadOnly" type="primary" plain v-if="isShowRun" @click="runTest">-->
+<!--                {{$t('api_test.run')}}-->
+<!--              </el-button>-->
 
               <el-button :disabled="isReadOnly" type="warning" plain @click="cancel">{{$t('commons.cancel')}}
               </el-button>
@@ -142,6 +142,11 @@
         });
       },
       save(callback) {
+        let validator = this.test.isValid();
+        if (!validator.isValid) {
+          this.$warning(this.$t(validator.info));
+          return;
+        }
         this.change = false;
         let url = this.create ? "/api/create" : "/api/update";
         this.result = this.$request(this.getOptions(url), () => {
@@ -236,7 +241,7 @@
         if (param.id) {
           url = '/api/schedule/update';
         }
-        this.$post(url, param, response => {
+        this.$post(url, param, () => {
           this.$success(this.$t('commons.save_success'));
           this.getTest(this.test.id);
         });
@@ -247,15 +252,6 @@
           return false;
         }
         return true;
-      }
-    },
-
-    computed: {
-      isShowRun() {
-        return this.test.isValid() && !this.change;
-      },
-      isDisabled() {
-        return !(this.test.isValid() && this.change);
       }
     },
 

@@ -27,7 +27,7 @@ public class WebConfig implements WebMvcConfigurer {
         HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
         httpRequestFactory.setConnectionRequestTimeout(4000);
         httpRequestFactory.setConnectTimeout(4000);
-        httpRequestFactory.setReadTimeout(5000);
+        httpRequestFactory.setReadTimeout(10 * 1000);
         restTemplate.setRequestFactory(httpRequestFactory);
         return restTemplate;
     }

@@ -100,8 +100,12 @@
         buildParam(environment) {
           let param = {};
           Object.assign(param, environment);
-          param.variables = JSON.stringify(environment.variables);
-          param.headers = JSON.stringify(environment.headers);
+          if (!(environment.variables instanceof String)) {
+            param.variables = JSON.stringify(environment.variables);
+          }
+          if (!(environment.headers instanceof String)) {
+            param.headers = JSON.stringify(environment.headers);
+          }
           return param;
         },
         validateSocket(socket) {
