@@ -88,6 +88,10 @@
                 <span class="cast_label">{{$t('test_track.case.module')}}：</span>
                 <span class="cast_item">{{testCase.nodePath}}</span>
               </el-col>
+              <el-col :span="4" :offset="1">
+                <span class="cast_label">{{$t('test_track.case.prerequisite')}}：</span>
+                <span class="cast_item">{{testCase.prerequisite}}</span>
+              </el-col>
             </el-row>
 
             <el-row v-if="testCase.method == 'auto' && testCase.testId">
@@ -121,17 +125,18 @@
                   :default-sort="{prop: 'num', order: 'ascending'}"
                   highlight-current-row>
                   <el-table-column :label="$t('test_track.case.number')" prop="num" min-width="5%"></el-table-column>
-                  <el-table-column :label="$t('test_track.case.step_desc')" prop="desc" min-width="29%">
+
+                  <el-table-column :label="$t('test_track.case.step_desc')" prop="desc" min-width="21%">
                     <template v-slot:default="scope">
                       <span>{{scope.row.desc}}</span>
                     </template>
                   </el-table-column>
-                  <el-table-column :label="$t('test_track.case.expected_results')" prop="result" min-width="28%">
+                  <el-table-column :label="$t('test_track.case.expected_results')" prop="result" min-width="21%">
                     <template v-slot:default="scope">
                       <span>{{scope.row.result}}</span>
                     </template>
                   </el-table-column>
-                  <el-table-column :label="$t('test_track.plan_view.actual_result')" min-width="29%">
+                  <el-table-column :label="$t('test_track.plan_view.actual_result')" min-width="21%">
                     <template v-slot:default="scope">
                       <el-input
                         size="mini"
@@ -145,7 +150,7 @@
                       <span>{{scope.row.actualResult}}</span>
                     </template>
                   </el-table-column>
-                  <el-table-column :label="$t('test_track.plan_view.step_result')" min-width="9%">
+                  <el-table-column :label="$t('test_track.plan_view.step_result')" min-width="12%">
                     <template v-slot:default="scope">
                       <el-select
                         :disabled="isReadOnly"
@@ -297,15 +302,6 @@
               + this.$t('test_track.length_less_than') + '300');
             return;
           }
-          if (this.testCase.method != 'auto') {
-            if (!result.executeResult) {
-              this.$warning(this.testCase.steptResults[i].desc + this.$t('test_track.execution_result')
-              );
-              return;
-            }
-          }
-
-
           param.results.push(result);
         }
 
