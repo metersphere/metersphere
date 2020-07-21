@@ -163,7 +163,7 @@
 
     <!--Modify user information in system settings-->
     <el-dialog :title="$t('user.modify')" :visible.sync="updateVisible" width="35%" :destroy-on-close="true"
-               @close="handleClose">
+               @close="handleClose" v-loading="result.loading">
       <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
@@ -172,7 +172,7 @@
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
         <el-form-item :label="$t('commons.email')" prop="email">
-          <el-input v-model="form.email" autocomplete="off"/>
+          <el-input v-model="form.email" autocomplete="off" :disabled="form.source === 'LDAP' ? true : false"/>
         </el-form-item>
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off"/>
