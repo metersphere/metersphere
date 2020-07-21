@@ -224,6 +224,12 @@
             <version>0.0.4</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.github.ningyu</groupId>
+            <artifactId>jmeter-plugins-dubbo</artifactId>
+            <version>2.7.7</version>
+        </dependency>
+
         <!-- LDAP Module -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -357,6 +363,11 @@
             <id>github</id>
             <name>fit2cloud</name>
             <url>https://maven.pkg.github.com/fit2cloud/quartz-spring-boot-starter</url>
+        </repository>
+        <repository>
+            <id>github</id>
+            <name>metersphere</name>
+            <url>https://maven.pkg.github.com/metersphere/jmeter-plugins-for-apache-dubbo</url>
         </repository>
     </repositories>
 
