@@ -45,16 +45,40 @@ public class TestCaseNodeService {
     SqlSessionFactory sqlSessionFactory;
 
     public String addNode(TestCaseNode node) {
-
-        if(node.getLevel() > TestCaseConstants.MAX_NODE_DEPTH){
-            throw new RuntimeException(Translator.get("test_case_node_level_tip")
-                    + TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level"));
-        }
+        validateNode(node);
         node.setCreateTime(System.currentTimeMillis());
         node.setUpdateTime(System.currentTimeMillis());
         node.setId(UUID.randomUUID().toString());
         testCaseNodeMapper.insertSelective(node);
         return node.getId();
+    }
+
+    private void validateNode(TestCaseNode node) {
+        if(node.getLevel() > TestCaseConstants.MAX_NODE_DEPTH){
+            throw new RuntimeException(Translator.get("test_case_node_level_tip")
+                    + TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level"));
+        }
+        checkTestCaseNodeExist(node);
+    }
+
+    private void checkTestCaseNodeExist(TestCaseNode node) {
+        if (node.getName() != null) {
+            TestCaseNodeExample example = new TestCaseNodeExample();
+            TestCaseNodeExample.Criteria criteria = example.createCriteria();
+            criteria.andNameEqualTo(node.getName())
+                    .andProjectIdEqualTo(node.getProjectId());
+            if (StringUtils.isNotBlank(node.getParentId())) {
+                criteria.andParentIdEqualTo(node.getParentId());
+            } else {
+                criteria.andParentIdIsNull();
+            }
+            if (StringUtils.isNotBlank(node.getId())) {
+                criteria.andIdNotEqualTo(node.getId());
+            }
+            if (testCaseNodeMapper.selectByExample(example).size() > 0) {
+                MSException.throwException(Translator.get("test_case_module_already_exists"));
+            }
+        }
     }
 
     public List<TestCaseNodeDTO> getNodeTreeByProjectId(String projectId) {
@@ -119,7 +143,7 @@ public class TestCaseNodeService {
 
     public int editNode(DragNodeRequest request) {
         request.setUpdateTime(System.currentTimeMillis());
-
+        checkTestCaseNodeExist(request);
         List<TestCaseDTO> testCases = QueryTestCaseByNodeIds(request.getNodeIds());
 
         testCases.forEach(testCase -> {
@@ -376,7 +400,7 @@ public class TestCaseNodeService {
 
     public void dragNode(DragNodeRequest request) {
 
-//        editNode(request);
+        checkTestCaseNodeExist(request);
 
         List<String> nodeIds = request.getNodeIds();
 
