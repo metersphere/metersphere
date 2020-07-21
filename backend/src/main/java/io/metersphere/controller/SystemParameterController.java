@@ -15,38 +15,41 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/system")
-@RequiresRoles(RoleConstants.ADMIN)
 public class SystemParameterController {
     @Resource
     private SystemParameterService SystemParameterService;
 
     @PostMapping("/edit/email")
+    @RequiresRoles(value = {RoleConstants.ADMIN})
     public void editMail(@RequestBody List<SystemParameter> systemParameter) {
         SystemParameterService.editMail(systemParameter);
     }
 
     @PostMapping("/testConnection")
+    @RequiresRoles(value = {RoleConstants.ADMIN})
     public void testConnection(@RequestBody HashMap<String, String> hashMap) {
         SystemParameterService.testConnection(hashMap);
     }
 
     @GetMapping("/version")
-    @RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER, RoleConstants.ORG_ADMIN}, logical = Logical.OR)
     public String getVersion() {
         return SystemParameterService.getVersion();
     }
 
     @GetMapping("/mail/info")
+    @RequiresRoles(value = {RoleConstants.ADMIN})
     public Object mailInfo() {
         return SystemParameterService.mailInfo(ParamConstants.Classify.MAIL.getValue());
     }
 
     @PostMapping("/save/ldap")
+    @RequiresRoles(value = {RoleConstants.ADMIN})
     public void saveLdap(@RequestBody List<SystemParameter> systemParameter) {
         SystemParameterService.saveLdap(systemParameter);
     }
 
     @GetMapping("/ldap/info")
+    @RequiresRoles(value = {RoleConstants.ADMIN})
     public LdapInfo getLdapInfo() {
         return SystemParameterService.getLdapInfo(ParamConstants.Classify.LDAP.getValue());
     }
