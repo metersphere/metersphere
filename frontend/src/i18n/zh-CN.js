@@ -349,6 +349,7 @@ export default {
       please_save_test: "请先保存测试",
     },
     scenario: {
+      dubbo: "Dubbo配置",
       config: "场景配置",
       input_name: "请输入场景名称",
       name: "场景名称",
@@ -408,6 +409,16 @@ export default {
         regex_expression: "Perl型正则表达式",
         json_path_expression: "JSONPath表达式",
         xpath_expression: "XPath表达式",
+      },
+      dubbo: {
+        protocol: "协议",
+        input_interface: "请输入Interface",
+        input_method: "请输入Method",
+        input_config_center: "请输入Config Center",
+        input_registry_center: "请输入Registry Center",
+        input_consumer_service: "请输入Consumer & Service",
+        check_registry_center: "获取失败，请检查Registry Center",
+        form_description: "如果当前配置项无值，则取场景配置项的值",
       }
     },
     api_import: {
@@ -668,6 +679,7 @@ export default {
     input_url_placeholder: '请输入LDAP地址 (如 ldap://localhost:389)',
     input_ou_placeholder: '输入用户OU (使用|分隔各OU)',
     input_filter_placeholder: '输入过滤器 [可能的选项是cn或uid或sAMAccountName={0}, 如：(uid={0})]',
+    input_mapping_placeholder: '如：{"username":"uid","name":"sn","email":"mail"}, username映射的选项可能是cn或uid或sAMAccountName',
     test_connect: '测试连接',
     test_login: '测试登录',
     edit: '编辑',
@@ -676,6 +688,7 @@ export default {
     dn_cannot_be_empty: 'LDAP DN不能为空',
     ou_cannot_be_empty: 'LDAP OU不能为空',
     filter_cannot_be_empty: 'LDAP 用户过滤器不能为空',
+    mapping_cannot_be_empty: 'LDAP 用户属性映射不能为空',
     password_cannot_be_empty: 'LDAP 密码不能为空',
   },
   schedule: {

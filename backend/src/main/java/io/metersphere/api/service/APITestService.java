@@ -1,11 +1,10 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.api.dto.APITestResult;
-import io.metersphere.api.dto.ApiTestImportRequest;
-import io.metersphere.api.dto.QueryAPITestRequest;
-import io.metersphere.api.dto.SaveAPITestRequest;
+import io.github.ningyu.jmeter.plugin.dubbo.sample.ProviderService;
+import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.parse.ApiImport;
+import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.api.parse.ApiImportParserFactory;
@@ -27,12 +26,14 @@ import io.metersphere.job.sechedule.ApiTestJob;
 import io.metersphere.service.FileService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.track.service.TestCaseService;
+import org.apache.dubbo.common.URL;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
@@ -287,5 +288,24 @@ public class APITestService {
             }
         }
         return request;
+    }
+
+    public List<DubboProvider> getProviders(RegistryCenter registry) {
+        ProviderService providerService = ProviderService.get("provider");
+        List<String> providers = providerService.getProviders(registry.getProtocol(), registry.getAddress(), registry.getGroup());
+        List<DubboProvider> providerList = new ArrayList<>();
+        providers.forEach(p -> {
+            Map<String, URL> services = providerService.findByService(p);
+            services.forEach((k, v) -> {
+                DubboProvider provider = new DubboProvider();
+                provider.setVersion(v.getParameter("version"));
+                provider.setService(v.getServiceKey());
+                provider.setServiceInterface(v.getServiceInterface());
+                String[] methods = v.getParameter("methods").split(",");
+                provider.setMethods(Arrays.asList(methods));
+                providerList.add(provider);
+            });
+        });
+        return providerList;
     }
 }

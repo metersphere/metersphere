@@ -350,6 +350,7 @@ export default {
       please_save_test: "Please Save Test First",
     },
     scenario: {
+      dubbo: "Dubbo Config",
       config: "Scenario Config",
       input_name: "Please enter the scenario name",
       name: "Scenario Name",
@@ -409,6 +410,15 @@ export default {
         regex_expression: "Regular expression",
         json_path_expression: "JSONPath expression",
         xpath_expression: "XPath expression",
+      },
+      dubbo: {
+        protocol: "protocol",
+        input_interface: "Please enter the interface",
+        input_method: "Please enter the method",
+        input_config_center: "Please enter the config center",
+        input_registry_center: "Please enter the registry center",
+        input_consumer_service: "Please enter the consumer & service",
+        check_registry_center: "Can't get interface list, please check the registry center",
       }
     },
     api_import: {
@@ -418,8 +428,8 @@ export default {
       file_size_limit: "The file size does not exceed 20 M",
       tip: "Instructions",
       export_tip: "Export Tip",
-      ms_tip: "Support for Metersphere JSON format",
-      ms_export_tip: "Export jSON-formatted files via Metersphere website or browser plug-ins",
+      ms_tip: "Support for MeterSphere JSON format",
+      ms_export_tip: "Export jSON-formatted files via MeterSphere website or browser plug-ins",
       swagger_tip: "Only Swagger2.x json files are supported",
       postman_tip: "Only Postman Collection V2.1 json files are supported",
       postman_export_tip: "Export the test collection by Postman",
@@ -669,6 +679,7 @@ export default {
     input_url_placeholder: 'Please enter the LDAP address (eg ldap://localhost:389)',
     input_ou_placeholder: 'Enter user OU (use | to separate each OU)',
     input_filter_placeholder: 'Input filter [Possible options are cn or uid or sAMAccountName={0}, eg: (uid={0})]',
+    input_mapping_placeholder: 'eg：{"username":"uid","name":"sn","email":"mail"}, The username mapping option may be cn or uid or sAMAccountName',
     test_connect: 'Test Connection',
     test_login: 'Test Login',
     edit: 'Edit',
@@ -678,6 +689,7 @@ export default {
     ou_cannot_be_empty: 'LDAP OU cannot be empty',
     filter_cannot_be_empty: 'LDAP user filter cannot be empty',
     password_cannot_be_empty: 'LDAP password cannot be empty',
+    mapping_cannot_be_empty: 'LDAP mapping cannot be empty',
   },
   schedule: {
     not_set: "Not Set",

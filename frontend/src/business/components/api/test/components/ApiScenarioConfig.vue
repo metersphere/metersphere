@@ -25,7 +25,7 @@
                   </el-dropdown-menu>
                 </el-dropdown>
               </template>
-              <ms-api-request-config :is-read-only="isReadOnly" :scenario="scenario" :open="select"/>
+              <ms-api-request-config :is-read-only="isReadOnly" :scenario="scenario" @select="select"/>
             </ms-api-collapse-item>
           </draggable>
         </ms-api-collapse>
@@ -36,7 +36,7 @@
     <el-main class="scenario-main">
       <div class="scenario-form">
         <ms-api-scenario-form :is-read-only="isReadOnly" :scenario="selected" :project-id="projectId" v-if="isScenario"/>
-        <ms-api-request-form :is-read-only="isReadOnly" :request="selected" :project-id="projectId" v-if="isRequest"/>
+        <ms-api-request-form :is-read-only="isReadOnly" :request="selected" v-if="isRequest"/>
       </div>
     </el-main>
   </el-container>
@@ -46,8 +46,8 @@
 
   import MsApiCollapseItem from "./collapse/ApiCollapseItem";
   import MsApiCollapse from "./collapse/ApiCollapse";
-  import MsApiRequestConfig from "./ApiRequestConfig";
-  import MsApiRequestForm from "./ApiRequestForm";
+  import MsApiRequestConfig from "./request/ApiRequestConfig";
+  import MsApiRequestForm from "./request/ApiRequestForm";
   import MsApiScenarioForm from "./ApiScenarioForm";
   import {Scenario, Request} from "../model/ScenarioModel";
   import draggable from 'vuedraggable';

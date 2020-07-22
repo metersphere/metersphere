@@ -3,9 +3,12 @@
     <draggable :list="this.scenario.requests" group="Request" class="request-draggable" ghost-class="request-ghost">
       <div class="request-item" v-for="(request, index) in this.scenario.requests" :key="index" @click="select(request)"
            :class="{'selected': isSelected(request)}">
-        <el-row type="flex">
+        <el-row type="flex" align="middle">
+          <div class="request-type">
+            {{request.showType()}}
+          </div>
           <div class="request-method">
-            {{request.method}}
+            {{request.showMethod()}}
           </div>
           <div class="request-name">
             {{request.name}}
@@ -26,12 +29,20 @@
         </el-row>
       </div>
     </draggable>
-    <el-button :disabled="isReadOnly" class="request-create" type="primary" size="mini" icon="el-icon-plus" plain @click="createRequest"/>
+    <el-popover placement="top" v-model="visible">
+      <el-radio-group v-model="type" @change="createRequest">
+        <el-radio :label="types.HTTP">HTTP</el-radio>
+        <el-radio :label="types.DUBBO">DUBBO</el-radio>
+      </el-radio-group>
+      <el-button slot="reference" :disabled="isReadOnly"
+                 class="request-create" type="primary" size="mini" icon="el-icon-plus" plain/>
+    </el-popover>
+
   </div>
 </template>
 
 <script>
-  import {Request} from "../model/ScenarioModel";
+  import {RequestFactory} from "../../model/ScenarioModel";
   import draggable from 'vuedraggable';
 
   export default {
@@ -41,7 +52,6 @@
 
     props: {
       scenario: Object,
-      open: Function,
       isReadOnly: {
         type: Boolean,
         default: false
@@ -51,6 +61,9 @@
     data() {
       return {
         selected: 0,
+        visible: false,
+        types: RequestFactory.TYPES,
+        type: ""
       }
     },
 
@@ -63,13 +76,15 @@
     },
 
     methods: {
-      createRequest: function () {
-        let request = new Request();
+      createRequest: function (type) {
+        let request = new RequestFactory({type: type});
         this.scenario.requests.push(request);
+        this.type = "";
+        this.visible = false;
       },
       copyRequest: function (index) {
         let request = this.scenario.requests[index];
-        this.scenario.requests.push(new Request(request));
+        this.scenario.requests.push(new RequestFactory(request));
       },
       deleteRequest: function (index) {
         this.scenario.requests.splice(index, 1);
@@ -92,8 +107,9 @@
         if (!request.useEnvironment) {
           request.useEnvironment = false;
         }
+        request.dubboConfig = this.scenario.dubboConfig;
         this.selected = request;
-        this.open(request);
+        this.$emit("select", request);
       }
     },
 
@@ -106,7 +122,6 @@
 <style scoped>
   .request-item {
     border-left: 5px solid #1E90FF;
-    line-height: 40px;
     max-height: 40px;
     border-top: 1px solid #EBEEF5;
     cursor: pointer;
@@ -122,6 +137,19 @@
 
   .request-item.selected {
     background-color: #F5F5F5;
+  }
+
+  .request-type {
+    background-color: #409eff;
+    color: #fff;
+    margin-left: 5px;
+    padding: 4px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+    font-size: 12px;
+    display: inline-block;
+    line-height: 1;
+    text-align: center;
   }
 
   .request-method {

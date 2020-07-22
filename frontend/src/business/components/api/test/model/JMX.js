@@ -220,6 +220,60 @@ export class ThreadGroup extends DefaultTestElement {
   }
 }
 
+export class DubboSample extends DefaultTestElement {
+  constructor(testName, request = {}) {
+    super('io.github.ningyu.jmeter.plugin.dubbo.sample.DubboSample',
+      'io.github.ningyu.jmeter.plugin.dubbo.gui.DubboSampleGui',
+      'io.github.ningyu.jmeter.plugin.dubbo.sample.DubboSample', testName);
+    this.request = request;
+
+    this.stringProp("FIELD_DUBBO_CONFIG_CENTER_PROTOCOL", this.request.configCenter.protocol);
+    this.stringProp("FIELD_DUBBO_CONFIG_CENTER_GROUP", this.request.configCenter.group);
+    this.stringProp("FIELD_DUBBO_CONFIG_CENTER_NAMESPACE", this.request.configCenter.namespace);
+    this.stringProp("FIELD_DUBBO_CONFIG_CENTER_USER_NAME", this.request.configCenter.username);
+    this.stringProp("FIELD_DUBBO_CONFIG_CENTER_PASSWORD", this.request.configCenter.password);
+    this.stringProp("FIELD_DUBBO_CONFIG_CENTER_ADDRESS", this.request.configCenter.address);
+    this.stringProp("FIELD_DUBBO_CONFIG_CENTER_TIMEOUT", this.request.configCenter.timeout);
+
+    this.stringProp("FIELD_DUBBO_REGISTRY_PROTOCOL", this.request.registryCenter.protocol);
+    this.stringProp("FIELD_DUBBO_REGISTRY_GROUP", this.request.registryCenter.group);
+    this.stringProp("FIELD_DUBBO_REGISTRY_USER_NAME", this.request.registryCenter.username);
+    this.stringProp("FIELD_DUBBO_REGISTRY_PASSWORD", this.request.registryCenter.password);
+    this.stringProp("FIELD_DUBBO_ADDRESS", this.request.registryCenter.address);
+    this.stringProp("FIELD_DUBBO_REGISTRY_TIMEOUT", this.request.registryCenter.timeout);
+
+    this.stringProp("FIELD_DUBBO_TIMEOUT", this.request.consumerAndService.timeout);
+    this.stringProp("FIELD_DUBBO_VERSION", this.request.consumerAndService.version);
+    this.stringProp("FIELD_DUBBO_RETRIES", this.request.consumerAndService.retries);
+    this.stringProp("FIELD_DUBBO_GROUP", this.request.consumerAndService.group);
+    this.stringProp("FIELD_DUBBO_CONNECTIONS", this.request.consumerAndService.connections);
+    this.stringProp("FIELD_DUBBO_LOADBALANCE", this.request.consumerAndService.loadBalance);
+    this.stringProp("FIELD_DUBBO_ASYNC", this.request.consumerAndService.async);
+    this.stringProp("FIELD_DUBBO_CLUSTER", this.request.consumerAndService.cluster);
+
+    this.stringProp("FIELD_DUBBO_RPC_PROTOCOL", this.request.protocol);
+    this.stringProp("FIELD_DUBBO_INTERFACE", this.request.interface);
+    this.stringProp("FIELD_DUBBO_METHOD", this.request.method);
+
+    this.intProp("FIELD_DUBBO_METHOD_ARGS_SIZE", this.request.args.length);
+    this.intProp("FIELD_DUBBO_ATTACHMENT_ARGS_SIZE", this.request.attachmentArgs.length);
+    this.request.args.forEach((arg, i) => {
+      if (!!arg.name || !!arg.value) {
+        let index = i + 1;
+        this.stringProp("FIELD_DUBBO_METHOD_ARGS_PARAM_TYPE" + index, arg.name);
+        this.stringProp("FIELD_DUBBO_METHOD_ARGS_PARAM_VALUE" + index, arg.value);
+      }
+    })
+    this.request.attachmentArgs.forEach((arg, i) => {
+      if (!!arg.name || !!arg.value) {
+        let index = i + 1;
+        this.stringProp("FIELD_DUBBO_ATTACHMENT_ARGS_KEY" + index, arg.name);
+        this.stringProp("FIELD_DUBBO_ATTACHMENT_ARGS_VALUE" + index, arg.value);
+      }
+    })
+  }
+}
+
 export class HTTPSamplerProxy extends DefaultTestElement {
   constructor(testName, request) {
     super('HTTPSamplerProxy', 'HttpTestSampleGui', 'HTTPSamplerProxy', testName);

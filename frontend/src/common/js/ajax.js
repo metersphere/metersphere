@@ -56,7 +56,7 @@ export default {
       result.loading = false;
       window.console.error(error.response || error.message);
       if (error.response && error.response.data) {
-        if (error.response.headers["authentication-status"] != "invalid") {
+        if (error.response.headers["authentication-status"] !== "invalid") {
           Message.error({message: error.response.data.message, showClose: true});
         }
       } else {

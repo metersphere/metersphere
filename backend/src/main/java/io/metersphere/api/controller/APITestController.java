@@ -3,6 +3,7 @@ package io.metersphere.api.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.*;
+import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
 import io.metersphere.api.service.APITestService;
 import io.metersphere.base.domain.ApiTest;
 import io.metersphere.base.domain.Schedule;
@@ -98,4 +99,8 @@ public class APITestController {
         return apiTestService.apiTestImport(file, request);
     }
 
+    @PostMapping("/dubbo/providers")
+    public List<DubboProvider> getProviders(@RequestBody RegistryCenter registry) {
+        return apiTestService.getProviders(registry);
+    }
 }

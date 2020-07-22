@@ -1,5 +1,6 @@
 package io.metersphere.api.jmeter;
 
+import io.github.ningyu.jmeter.plugin.dubbo.sample.ProviderService;
 import io.metersphere.api.service.APIReportService;
 import io.metersphere.api.service.APITestService;
 import io.metersphere.commons.constants.APITestStatus;
@@ -107,14 +108,11 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
     }
 
     private RequestResult getRequestResult(SampleResult result) {
-        String body = result.getSamplerData();
-        String method = StringUtils.substringBefore(body, " ");
-
         RequestResult requestResult = new RequestResult();
         requestResult.setName(result.getSampleLabel());
         requestResult.setUrl(result.getUrlAsString());
-        requestResult.setMethod(method);
-        requestResult.setBody(body);
+        requestResult.setMethod(getMethod(result));
+        requestResult.setBody(result.getSamplerData());
         requestResult.setHeaders(result.getRequestHeaders());
         requestResult.setRequestSize(result.getSentBytes());
         requestResult.setTotalAssertions(result.getAssertionResults().length);
@@ -141,6 +139,19 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             responseResult.getAssertions().add(responseAssertionResult);
         }
         return requestResult;
+    }
+
+    private String getMethod(SampleResult result) {
+        String body = result.getSamplerData();
+        // Dubbo Protocol
+        String start = "RPC Protocol: ";
+        String end = "://";
+        if (StringUtils.contains(body, start)) {
+            return StringUtils.substringBetween(body, start, end).toUpperCase();
+        } else {
+            // Http Method
+            return StringUtils.substringBefore(body, " ");
+        }
     }
 
     private ResponseAssertionResult getResponseAssertionResult(AssertionResult assertionResult) {

@@ -6,8 +6,9 @@ import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.parse.ApiImport;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
-import io.metersphere.api.dto.scenario.Request;
+import io.metersphere.api.dto.scenario.request.HttpRequest;
 import io.metersphere.api.dto.scenario.Scenario;
+import io.metersphere.api.dto.scenario.request.Request;
 import io.metersphere.commons.constants.MsRequestBodyType;
 import io.metersphere.commons.constants.SwaggerParameterType;
 import io.swagger.models.*;
@@ -51,7 +52,7 @@ public class Swagger2Parser extends ApiImportAbstractParser {
             Set<HttpMethod> httpMethods = operationMap.keySet();
             for (HttpMethod method : httpMethods) {
                 Operation operation = operationMap.get(method);
-                Request request = new Request();
+                HttpRequest request = new HttpRequest();
                 request.setName(operation.getOperationId());
                 request.setPath(pathName);
                 request.setUseEnvironment(true);
@@ -76,13 +77,11 @@ public class Swagger2Parser extends ApiImportAbstractParser {
 
             }
         }
-        scenarioMap.values().forEach(scenario -> {
-            scenarios.add(scenario);
-        });
+        scenarios.addAll(scenarioMap.values());
         return scenarios;
     }
 
-    private void parseParameters(Operation operation, Map<String, Model> definitions, Request request) {
+    private void parseParameters(Operation operation, Map<String, Model> definitions, HttpRequest request) {
 
         List<Parameter> parameters = operation.getParameters();
 
@@ -113,17 +112,17 @@ public class Swagger2Parser extends ApiImportAbstractParser {
         }
     }
 
-    private void parseCookieParameters(Parameter parameter, Request request) {
+    private void parseCookieParameters(Parameter parameter, HttpRequest request) {
         CookieParameter cookieParameter = (CookieParameter) parameter;
         addCookie(request, cookieParameter.getName(), cookieParameter.getDescription());
     }
 
-    private void parseHeaderParameters(Parameter parameter, Request request) {
+    private void parseHeaderParameters(Parameter parameter, HttpRequest request) {
         HeaderParameter headerParameter = (HeaderParameter) parameter;
         addHeader(request, headerParameter.getName(), headerParameter.getDescription());
     }
 
-    private void parseBodyParameters(Parameter parameter, Request request, Map<String, Model> definitions) {
+    private void parseBodyParameters(Parameter parameter, HttpRequest request, Map<String, Model> definitions) {
         BodyParameter bodyParameter = (BodyParameter) parameter;
         Body body = Optional.ofNullable(request.getBody()).orElse(new Body());
         body.setType(MsRequestBodyType.RAW.value());
@@ -175,7 +174,7 @@ public class Swagger2Parser extends ApiImportAbstractParser {
         return jsonObject;
     }
 
-    private void parseFormDataParameters(Parameter parameter, Request request) {
+    private void parseFormDataParameters(Parameter parameter, HttpRequest request) {
         Body body = Optional.ofNullable(request.getBody()).orElse(new Body());
         body.setType(MsRequestBodyType.FORM_DATA.value());
         List<KeyValue> keyValues = Optional.ofNullable(body.getKvs()).orElse(new ArrayList<>());
@@ -184,7 +183,7 @@ public class Swagger2Parser extends ApiImportAbstractParser {
         request.setBody(body);
     }
 
-    private void parseQueryParameters(Parameter parameter, Request request) {
+    private void parseQueryParameters(Parameter parameter, HttpRequest request) {
         QueryParameter queryParameter = (QueryParameter) parameter;
         List<KeyValue> parameters = Optional.ofNullable(request.getParameters()).orElse(new ArrayList<>());
         parameters.add(new KeyValue(queryParameter.getName(), "", queryParameter.getDescription()));
