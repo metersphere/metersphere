@@ -436,6 +436,7 @@ export default {
       post_export_tip: "通过 Postman 导出测试集合",
       swagger_export_tip: "通过 Swagger 页面导出",
       suffixFormatErr: "文件格式不符合要求",
+      swagger_url_import: "使用URL导入",
     }
   },
   api_report: {

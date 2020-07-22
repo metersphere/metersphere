@@ -33,4 +33,6 @@ public class QueryTestPlanCaseRequest extends TestPlanTestCase {
     private String node;
 
     private String method;
+
+    private Map<String, Object> combine;
 }
