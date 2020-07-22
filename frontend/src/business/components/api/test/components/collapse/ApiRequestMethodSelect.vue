@@ -12,17 +12,19 @@
 </template>
 
 <script>
-    export default {
-      name: "ApiRequestMethodSelect",
-      props: ['isReadOnly', 'request'],
-      methods: {
-        change(value) {
-          this.$emit('change', value);
-        }
+  export default {
+    name: "ApiRequestMethodSelect",
+    props: ['isReadOnly', 'request'],
+    methods: {
+      change(value) {
+        this.$emit('change', value);
       }
     }
+  }
 </script>
 
 <style scoped>
-
+  .request-method-select {
+    width: 110px;
+  }
 </style>

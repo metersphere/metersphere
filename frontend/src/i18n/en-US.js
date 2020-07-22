@@ -350,6 +350,7 @@ export default {
       please_save_test: "Please Save Test First",
     },
     scenario: {
+      dubbo: "Dubbo Config",
       config: "Scenario Config",
       input_name: "Please enter the scenario name",
       name: "Scenario Name",
@@ -409,6 +410,15 @@ export default {
         regex_expression: "Regular expression",
         json_path_expression: "JSONPath expression",
         xpath_expression: "XPath expression",
+      },
+      dubbo: {
+        protocol: "protocol",
+        input_interface: "Please enter the interface",
+        input_method: "Please enter the method",
+        input_config_center: "Please enter the config center",
+        input_registry_center: "Please enter the registry center",
+        input_consumer_service: "Please enter the consumer & service",
+        check_registry_center: "Can't get interface list, please check the registry center",
       }
     },
     api_import: {
@@ -418,8 +428,8 @@ export default {
       file_size_limit: "The file size does not exceed 20 M",
       tip: "Instructions",
       export_tip: "Export Tip",
-      ms_tip: "Support for Metersphere JSON format",
-      ms_export_tip: "Export jSON-formatted files via Metersphere website or browser plug-ins",
+      ms_tip: "Support for MeterSphere JSON format",
+      ms_export_tip: "Export jSON-formatted files via MeterSphere website or browser plug-ins",
       swagger_tip: "Only Swagger2.x json files are supported",
       postman_tip: "Only Postman Collection V2.1 json files are supported",
       postman_export_tip: "Export the test collection by Postman",
@@ -686,7 +696,7 @@ export default {
     please_input_cron_expression: "Please Input Cron Expression",
     generate_expression: "Generate Expression",
     cron_expression_format_error: "Cron Expression Format Error",
-    cron_expression_interval_short_error: "Interval Time Should Longer than 5 Minutes",
+    cron_expression_interval_short_error: "Interval time shorter than 3 minutes, please avoid running tests that take too long",
     cron: {
       seconds: "Seconds",
       minutes: "Minutes",

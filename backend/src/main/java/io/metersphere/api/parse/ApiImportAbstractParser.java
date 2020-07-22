@@ -2,8 +2,8 @@ package io.metersphere.api.parse;
 
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.scenario.KeyValue;
-import io.metersphere.api.dto.scenario.Request;
 import io.metersphere.api.dto.scenario.Scenario;
+import io.metersphere.api.dto.scenario.request.HttpRequest;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -50,11 +50,11 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
         }
     }
 
-    protected void addContentType(Request request, String contentType) {
+    protected void addContentType(HttpRequest request, String contentType) {
         addHeader(request, HttpHeader.CONTENT_TYPE.toString(), contentType);
     }
 
-    protected void addCookie(Request request, String key, String value) {
+    protected void addCookie(HttpRequest request, String key, String value) {
         List<KeyValue> headers = Optional.ofNullable(request.getHeaders()).orElse(new ArrayList<>());
         boolean hasCookie = false;
         for (KeyValue header : headers) {
@@ -69,7 +69,7 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
         }
     }
 
-    protected void addHeader(Request request, String key, String value) {
+    protected void addHeader(HttpRequest request, String key, String value) {
         List<KeyValue> headers = Optional.ofNullable(request.getHeaders()).orElse(new ArrayList<>());
         boolean hasContentType = false;
         for (KeyValue header : headers) {

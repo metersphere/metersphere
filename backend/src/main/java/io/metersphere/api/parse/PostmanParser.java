@@ -7,8 +7,9 @@ import io.metersphere.api.dto.parse.ApiImport;
 import io.metersphere.api.dto.parse.postman.*;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
-import io.metersphere.api.dto.scenario.Request;
+import io.metersphere.api.dto.scenario.request.HttpRequest;
 import io.metersphere.api.dto.scenario.Scenario;
+import io.metersphere.api.dto.scenario.request.Request;
 import io.metersphere.commons.constants.MsRequestBodyType;
 import io.metersphere.commons.constants.PostmanRequestBodyMode;
 import org.apache.commons.lang3.StringUtils;
@@ -62,7 +63,7 @@ public class PostmanParser extends ApiImportAbstractParser {
         List<PostmanItem> item = postmanCollection.getItem();
         List<Request> requests = new ArrayList<>();
         for (PostmanItem requestItem : item) {
-            Request request = new Request();
+            HttpRequest request = new HttpRequest();
             PostmanRequest requestDesc = requestItem.getRequest();
             PostmanUrl url = requestDesc.getUrl();
             request.setName(requestItem.getName());
@@ -77,7 +78,7 @@ public class PostmanParser extends ApiImportAbstractParser {
         return requests;
     }
 
-    private Body parseBody(PostmanRequest requestDesc, Request request) {
+    private Body parseBody(PostmanRequest requestDesc, HttpRequest request) {
         Body body = new Body();
         JSONObject postmanBody = requestDesc.getBody();
         if (postmanBody == null) {

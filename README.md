@@ -172,7 +172,7 @@ v1.1.0 是 v1.0.0 之后的功能版本。
     </tbody>
 </table>
 
-详细版本规划请参考 [版本路线图](https://github.com/metersphere/metersphere/blob/master/ROADMAP.md)
+详细的版本规划请参考 [版本路线图](https://github.com/metersphere/metersphere/blob/master/ROADMAP.md)
 
 ## 技术栈
 

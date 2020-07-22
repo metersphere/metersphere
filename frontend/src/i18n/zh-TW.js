@@ -348,6 +348,7 @@ export default {
       please_save_test: "請先保存測試",
     },
     scenario: {
+      dubbo: "Dubbo配寘",
       creator: "創建人",
       config: "場景配寘",
       input_name: "請輸入場景名稱",
@@ -408,6 +409,15 @@ export default {
         regex_expression: "Perl型規則運算式",
         json_path_expression: "JSONPath運算式",
         xpath_expression: "XPath運算式",
+      },
+      dubbo: {
+        protocol: "協定",
+        input_interface: "請輸入Interface",
+        input_method: "請輸入Method",
+        input_config_center: "請輸入Config Center",
+        input_registry_center: "請輸入Registry Center",
+        input_consumer_service: "請輸入Consumer & Service",
+        check_registry_center: "獲取失敗，請檢查Registry Center",
       }
     },
     api_import: {
@@ -417,8 +427,8 @@ export default {
       file_size_limit: "文件大小不超過 20 M",
       tip: "說明",
       export_tip: "導出方法",
-      ms_tip: "支持 Metersphere json 格式",
-      ms_export_tip: "通過 Metersphere Api 測試頁面或者瀏覽器插件導出 json 格式文件",
+      ms_tip: "支持 MeterSphere json 格式",
+      ms_export_tip: "通過 MeterSphere Api 測試頁面或者瀏覽器插件導出 json 格式文件",
       postman_tip: "只支持 Postman Collection v2.1 格式的 json 文件",
       swagger_tip: "只支持 Swagger2.x 版本的 json 文件",
       post_export_tip: "通過 Postman 導出測試集合",
@@ -684,7 +694,7 @@ export default {
     please_input_cron_expression: "請輸入 Cron 表達式",
     generate_expression: "生成表達式",
     cron_expression_format_error: "Cron 表達式格式錯誤",
-    cron_expression_interval_short_error: "間隔時間請大於 5 分鐘",
+    cron_expression_interval_short_error: "間隔時間小於 3 分鐘, 請避免執行耗時過長的測試",
     cron: {
       seconds: "秒",
       minutes: "分鐘",

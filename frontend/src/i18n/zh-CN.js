@@ -349,6 +349,7 @@ export default {
       please_save_test: "请先保存测试",
     },
     scenario: {
+      dubbo: "Dubbo配置",
       config: "场景配置",
       input_name: "请输入场景名称",
       name: "场景名称",
@@ -408,6 +409,16 @@ export default {
         regex_expression: "Perl型正则表达式",
         json_path_expression: "JSONPath表达式",
         xpath_expression: "XPath表达式",
+      },
+      dubbo: {
+        protocol: "协议",
+        input_interface: "请输入Interface",
+        input_method: "请输入Method",
+        input_config_center: "请输入Config Center",
+        input_registry_center: "请输入Registry Center",
+        input_consumer_service: "请输入Consumer & Service",
+        check_registry_center: "获取失败，请检查Registry Center",
+        form_description: "如果当前配置项无值，则取场景配置项的值",
       }
     },
     api_import: {
@@ -685,7 +696,7 @@ export default {
     please_input_cron_expression: "请输入 Cron 表达式",
     generate_expression: "生成表达式",
     cron_expression_format_error: "Cron 表达式格式错误",
-    cron_expression_interval_short_error: "间隔时间请大于 5 分钟",
+    cron_expression_interval_short_error: "间隔时间小于 3 分钟, 请避免执行耗时过长的测试",
     cron: {
       seconds: "秒",
       minutes: "分钟",

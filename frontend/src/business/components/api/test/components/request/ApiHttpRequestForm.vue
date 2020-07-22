@@ -5,10 +5,11 @@
       <el-input :disabled="isReadOnly" v-model="request.name" maxlength="300" show-word-limit/>
     </el-form-item>
 
-    <el-form-item v-if="!request.useEnvironment" :label="$t('api_test.request.url')" prop="url" class="adjust-margin-bottom">
+    <el-form-item v-if="!request.useEnvironment" :label="$t('api_test.request.url')" prop="url"
+                  class="adjust-margin-bottom">
       <el-input :disabled="isReadOnly" v-model="request.url" maxlength="500"
                 :placeholder="$t('api_test.request.url_description')" @change="urlChange" clearable>
-        <template  v-slot:prepend>
+        <template v-slot:prepend>
           <ApiRequestMethodSelect :is-read-only="isReadOnly" :request="request" @change="methodChange"/>
         </template>
       </el-input>
@@ -17,7 +18,7 @@
     <el-form-item v-if="request.useEnvironment" :label="$t('api_test.request.path')" prop="path">
       <el-input :disabled="isReadOnly" v-model="request.path" maxlength="500"
                 :placeholder="$t('api_test.request.path_description')" @change="pathChange" clearable>
-        <template  v-slot:prepend>
+        <template v-slot:prepend>
           <ApiRequestMethodSelect :is-read-only="isReadOnly" :request="request" @change="methodChange"/>
         </template>
       </el-input>
@@ -60,19 +61,20 @@
 </template>
 
 <script>
-  import MsApiKeyValue from "./ApiKeyValue";
-  import MsApiBody from "./ApiBody";
-  import MsApiAssertions from "./assertion/ApiAssertions";
-  import {KeyValue, Request} from "../model/ScenarioModel";
-  import MsApiExtract from "./extract/ApiExtract";
-  import ApiRequestMethodSelect from "./collapse/ApiRequestMethodSelect";
-  import {requestHeaders} from "../../../../../common/js/constants";
+  import MsApiKeyValue from "../ApiKeyValue";
+  import MsApiBody from "../ApiBody";
+  import MsApiAssertions from "../assertion/ApiAssertions";
+  import {KeyValue} from "../../model/ScenarioModel";
+  import MsApiExtract from "../extract/ApiExtract";
+  import ApiRequestMethodSelect from "../collapse/ApiRequestMethodSelect";
+  import {REQUEST_HEADERS} from "@/common/js/constants";
+  import {HttpRequest} from "../../model/ScenarioModel";
 
   export default {
-    name: "MsApiRequestForm",
+    name: "MsApiHttpRequestForm",
     components: {ApiRequestMethodSelect, MsApiExtract, MsApiAssertions, MsApiBody, MsApiKeyValue},
     props: {
-      request: Request,
+      request: HttpRequest,
       isReadOnly: {
         type: Boolean,
         default: false
@@ -101,7 +103,7 @@
             {max: 500, required: true, message: this.$t('commons.input_limit', [1, 500]), trigger: 'blur'},
           ]
         },
-        headerSuggestions: requestHeaders
+        headerSuggestions: REQUEST_HEADERS
       }
     },
 
@@ -119,7 +121,8 @@
           this.request.path = '/' + this.request.path;
         }
         let url = this.getURL(this.displayUrl);
-        this.request.path = decodeURIComponent(url.pathname);
+        this
+          .request.path = decodeURIComponent(url.pathname);
         this.request.urlWirhEnv = decodeURIComponent(url.origin + url.pathname);
       },
       getURL(urlStr) {
@@ -169,10 +172,6 @@
 </script>
 
 <style scoped>
-  .request-method-select {
-    width: 110px;
-  }
-
   .el-tag {
     width: 100%;
     height: 40px;

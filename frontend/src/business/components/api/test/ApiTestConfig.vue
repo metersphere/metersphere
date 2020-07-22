@@ -67,7 +67,7 @@
   import {Test} from "./model/ScenarioModel"
   import MsApiReportStatus from "../report/ApiReportStatus";
   import MsApiReportDialog from "./ApiReportDialog";
-  import {checkoutTestManagerOrTestUser, downloadFile} from "../../../../common/js/utils";
+  import {checkoutTestManagerOrTestUser, downloadFile} from "@/common/js/utils";
   import MsScheduleConfig from "../../common/components/MsScheduleConfig";
   import ApiImport from "./components/import/ApiImport";
 
