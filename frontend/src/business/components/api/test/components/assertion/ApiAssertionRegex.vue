@@ -53,6 +53,15 @@
       }
     },
 
+    watch: {
+      'regex.subject'() {
+        this.setRegexDescription();
+      },
+      'regex.expression'() {
+        this.setRegexDescription();
+      }
+    },
+
     methods: {
       add: function () {
         this.list.push(this.getRegex());
@@ -65,6 +74,9 @@
         let regex = new Regex(this.regex);
         regex.description = regex.subject + " has: " + regex.expression;
         return regex;
+      },
+      setRegexDescription() {
+        this.regex.description = this.regex.subject + " has: " + this.regex.expression;
       }
     }
   }
