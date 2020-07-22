@@ -126,12 +126,11 @@
       }
     },
     methods: {
-      initTableData(combine) {
-        let condition = combine ? {combine: combine} : this.condition;
+      initTableData() {
         if (this.testId !== 'all') {
-          condition.testId = this.testId;
+          this.condition.testId = this.testId;
         }
-        this.result = this.$post(this.buildPagePath(this.queryPath), condition, response => {
+        this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;

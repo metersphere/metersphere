@@ -105,15 +105,13 @@
       create() {
         this.$router.push('/api/test/create');
       },
-      search(combine) {
-        // 只有在点击高级搜索的查询按钮时combine才有值
-        let condition = combine ? {combine: combine} : this.condition;
+      search() {
         if (this.projectId !== 'all') {
-          condition.projectId = this.projectId;
+          this.condition.projectId = this.projectId;
         }
 
         let url = "/api/list/" + this.currentPage + "/" + this.pageSize;
-        this.result = this.$post(url, condition, response => {
+        this.result = this.$post(url, this.condition, response => {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;

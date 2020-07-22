@@ -20,7 +20,7 @@
     </sql>
 
     <sql id="combine">
-        <if test="${condition}.name != null">
+        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
             and ltr.name
             <include refid="condition">
                 <property name="object" value="${condition}.name"/>
@@ -75,20 +75,15 @@
             JOIN project on project.id = lt.project_id
         </if>
         <where>
-            <choose>
-                <!--高级-->
-                <when test="reportRequest.combine != null">
-                    <include refid="combine">
-                        <property name="condition" value="reportRequest.combine"/>
-                    </include>
-                </when>
-                <!--普通-->
-                <otherwise>
-                    <if test="reportRequest.name != null">
-                        AND ltr.name like CONCAT('%', #{reportRequest.name},'%')
-                    </if>
-                </otherwise>
-            </choose>
+            <if test="reportRequest.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="reportRequest.combine"/>
+                    <property name="name" value="reportRequest.name"/>
+                </include>
+            </if>
+            <if test="reportRequest.name != null">
+                AND ltr.name like CONCAT('%', #{reportRequest.name},'%')
+            </if>
             <if test="reportRequest.workspaceId != null">
                 AND workspace_id = #{reportRequest.workspaceId,jdbcType=VARCHAR}
             </if>

@@ -66,6 +66,11 @@
           }
         });
 
+        // 清除name
+        if (this.condition.name) this.condition.name = undefined;
+        // 添加组合条件
+        this.condition.combine = condition;
+        this.$emit('update:condition', this.condition);
         this.$emit('search', condition);
         this.visible = false;
       },
@@ -80,6 +85,9 @@
             component.value = source[index].value;
           }
         })
+        this.condition.combine = undefined;
+        this.$emit('update:condition', this.condition);
+        this.$emit('search');
       },
       open() {
         this.visible = true;

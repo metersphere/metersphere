@@ -14,7 +14,7 @@
       </span>
       <span>
         <ms-table-search-bar :condition.sync="condition" @change="search" class="search-bar"/>
-        <ms-table-adv-search-bar :condition="condition" @search="search" v-if="isCombine"/>
+        <ms-table-adv-search-bar :condition.sync="condition" @search="search" v-if="isCombine"/>
       </span>
     </el-row>
   </div>
