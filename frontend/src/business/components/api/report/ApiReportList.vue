@@ -98,15 +98,13 @@
     },
 
     methods: {
-      search(combine) {
-        // 只有在点击高级搜索的查询按钮时combine才有值
-        let condition = combine ? {combine: combine} : this.condition;
+      search() {
         if (this.testId !== 'all') {
-          condition.testId = this.testId;
+          this.condition.testId = this.testId;
         }
 
         let url = "/api/report/list/" + this.currentPage + "/" + this.pageSize;
-        this.result = this.$post(url, condition, response => {
+        this.result = this.$post(url, this.condition, response => {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;

@@ -13,7 +13,7 @@
     </sql>
 
     <sql id="combine">
-        <if test="${condition}.name != null">
+        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
             and load_test.name
             <include refid="condition">
                 <property name="object" value="${condition}.name"/>
@@ -57,20 +57,15 @@
         left join project on load_test.project_id = project.id
         left join user on load_test.user_id = user.id
         <where>
-            <choose>
-                <!--高级-->
-                <when test="request.combine != null">
-                    <include refid="combine">
-                        <property name="condition" value="request.combine"/>
-                    </include>
-                </when>
-                <!--普通-->
-                <otherwise>
-                    <if test="request.name != null">
-                        and load_test.name like CONCAT('%', #{request.name},'%')
-                    </if>
-                </otherwise>
-            </choose>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                </include>
+            </if>
+            <if test="request.name != null">
+                and load_test.name like CONCAT('%', #{request.name},'%')
+            </if>
             <if test="request.workspaceId != null">
                 AND project.workspace_id = #{request.workspaceId}
             </if>
