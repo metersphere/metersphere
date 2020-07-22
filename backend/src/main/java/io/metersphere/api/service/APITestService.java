@@ -263,7 +263,7 @@ public class APITestService {
         ApiImportParser apiImportParser = ApiImportParserFactory.getApiImportParser(request.getPlatform());
         ApiImport apiImport = null;
         try {
-            apiImport = apiImportParser.parse(file.getInputStream(), request);
+            apiImport = Objects.requireNonNull(apiImportParser).parse(file.getInputStream(), request);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(Translator.get("parse_data_error"));
@@ -290,21 +290,26 @@ public class APITestService {
     }
 
     public List<DubboProvider> getProviders(RegistryCenter registry) {
-        ProviderService providerService = ProviderService.get("provider");
+        ProviderService providerService = ProviderService.get(registry.getAddress());
         List<String> providers = providerService.getProviders(registry.getProtocol(), registry.getAddress(), registry.getGroup());
-        List<DubboProvider> providerList = new ArrayList<>();
+        List<DubboProvider> list = new ArrayList<>();
         providers.forEach(p -> {
+            DubboProvider provider = new DubboProvider();
+            String[] info = p.split(":");
+            if (info.length > 1) {
+                provider.setVersion(info[1]);
+            }
+            provider.setService(info[0]);
+            provider.setServiceInterface(p);
             Map<String, URL> services = providerService.findByService(p);
-            services.forEach((k, v) -> {
-                DubboProvider provider = new DubboProvider();
-                provider.setVersion(v.getParameter("version"));
-                provider.setService(v.getServiceKey());
-                provider.setServiceInterface(v.getServiceInterface());
-                String[] methods = v.getParameter("methods").split(",");
+            if (services != null && !services.isEmpty()) {
+                String[] methods = services.values().stream().findFirst().get().getParameter("methods").split(",");
                 provider.setMethods(Arrays.asList(methods));
-                providerList.add(provider);
-            });
+            } else {
+                provider.setMethods(new ArrayList<>());
+            }
+            list.add(provider);
         });
-        return providerList;
+        return list;
     }
 }
