@@ -3,7 +3,7 @@
     <el-tabs type="border-card" :stretch="true">
       <el-tab-pane v-for="item in resource" :key="item.resourceId" :label="item.resourceName" class="logging-content">
         <ul class="infinite-list" v-infinite-scroll="load(item.resourceId)" infinite-scroll-disabled="disabled">
-          <li class="infinite-list-item" v-for="log in logContent" :key="log.id">{{ log.content }}</li>
+          <li class="infinite-list-item" v-for="(log, index) in logContent" :key="index">{{ log.content }}</li>
         </ul>
         <el-link type="primary" @click="downloadLogFile(item)">{{$t('load_test.download_log_file')}}</el-link>
       </el-tab-pane>
