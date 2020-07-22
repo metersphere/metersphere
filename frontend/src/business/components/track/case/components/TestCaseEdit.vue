@@ -218,9 +218,8 @@
 
 <script>
 
-  import {CURRENT_PROJECT, WORKSPACE_ID, TokenKey} from '../../../../../common/js/constants';
+  import {WORKSPACE_ID, TokenKey} from '../../../../../common/js/constants';
   import MsDialogFooter from '../../../common/components/MsDialogFooter'
-
 
   export default {
     name: "TestCaseEdit",
@@ -290,6 +289,9 @@
     watch: {
       treeNodes() {
         this.getModuleOptions();
+      },
+      currentProject() {
+        this.getTestOptions();
       }
     },
     methods: {
