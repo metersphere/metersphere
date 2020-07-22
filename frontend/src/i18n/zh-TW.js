@@ -675,6 +675,7 @@ export default {
     ou_cannot_be_empty: 'LDAP OU不能為空',
     filter_cannot_be_empty: 'LDAP 用戶過濾器不能為空',
     password_cannot_be_empty: 'LDAP 密碼不能為空',
+    mapping_cannot_be_empty: 'LDAP 用戶屬性映射不能為空',
   },
   schedule: {
     not_set: "未設置",

@@ -675,6 +675,7 @@ export default {
     dn_cannot_be_empty: 'LDAP DN不能为空',
     ou_cannot_be_empty: 'LDAP OU不能为空',
     filter_cannot_be_empty: 'LDAP 用户过滤器不能为空',
+    mapping_cannot_be_empty: 'LDAP 用户属性映射不能为空',
     password_cannot_be_empty: 'LDAP 密码不能为空',
   },
   schedule: {

@@ -677,6 +677,7 @@ export default {
     ou_cannot_be_empty: 'LDAP OU cannot be empty',
     filter_cannot_be_empty: 'LDAP user filter cannot be empty',
     password_cannot_be_empty: 'LDAP password cannot be empty',
+    mapping_cannot_be_empty: 'LDAP mapping cannot be empty',
   },
   schedule: {
     not_set: "Not Set",
