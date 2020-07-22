@@ -94,7 +94,7 @@ public class APITestController {
 
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public ApiTest testCaseImport(@RequestPart(value = "file") MultipartFile file, @RequestPart("request")  ApiTestImportRequest request) {
+    public ApiTest testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request")  ApiTestImportRequest request) {
         return apiTestService.apiTestImport(file, request);
     }
 

@@ -425,6 +425,7 @@ export default {
       postman_export_tip: "Export the test collection by Postman",
       swagger_export_tip: "Export jSON-formatted files via Swagger website",
       suffixFormatErr: "The file format does not meet the requirements",
+      swagger_url_import: "Import using URL",
     }
   },
   api_report: {

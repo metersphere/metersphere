@@ -29,7 +29,7 @@
             </el-select>
           </el-form-item>
           <el-form-item v-if="(selectedPlatformValue != 'Postman' && useEnvironment) || selectedPlatformValue == 'Swagger2'" :label="$t('api_test.environment.environment_config')" prop="environmentId">
-            <el-select size="small"  v-model="formData.environmentId" class="environment-select" clearable>
+            <el-select v-if="showEnvironmentSelect" size="small"  v-model="formData.environmentId" class="environment-select" clearable>
               <el-option v-for="(environment, index) in environments" :key="index" :label="environment.name + ': ' + environment.protocol + '://' + environment.socket" :value="environment.id"/>
               <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">{{$t('api_test.environment.environment_config')}}</el-button>
               <template v-slot:empty>
@@ -42,11 +42,23 @@
           <el-form-item v-if="selectedPlatformValue == 'Metersphere'" prop="useEnvironment">
             <el-checkbox v-model="useEnvironment">{{$t('api_test.environment.config_environment')}}</el-checkbox>
           </el-form-item>
+
+          <el-form-item :label="'Swagger URL'" prop="wgerUrl" v-if="selectedPlatformValue == 'Swagger2' && swaggerUrlEable">
+            <el-input size="small" v-model="formData.swaggerUrl" clearable show-word-limit />
+          </el-form-item>
+
+          <el-form-item  v-if="selectedPlatformValue == 'Swagger2'">
+            <el-switch
+              v-model="swaggerUrlEable"
+              :active-text="$t('api_test.api_import.swagger_url_import')">
+            </el-switch>
+          </el-form-item>
         </el-col>
-        <el-col :span="1">
+
+        <el-col :span="1" v-if="selectedPlatformValue != 'Swagger2' || (selectedPlatformValue == 'Swagger2' && !swaggerUrlEable)">
           <el-divider direction="vertical"/>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="12" v-if="selectedPlatformValue != 'Swagger2' || (selectedPlatformValue == 'Swagger2' && !swaggerUrlEable)">
             <el-upload
               class="api-upload"
               drag
@@ -89,6 +101,8 @@
       data() {
         return {
           visible: false,
+          swaggerUrlEable: false,
+          showEnvironmentSelect: true,
           platforms: [
             {
               name: 'Metersphere',
@@ -122,7 +136,8 @@
             name: '',
             environmentId: '',
             projectId: '',
-            file: undefined
+            file: undefined,
+            swaggerUrl: ''
           },
           rules: {
             name: [
@@ -202,7 +217,9 @@
             this.$error(this.$t('api_test.select_project'));
             return;
           }
+          this.showEnvironmentSelect = false;
           this.$refs.environmentConfig.open(this.formData.projectId);
+          this.showEnvironmentSelect = true;
         },
         save() {
           this.$refs.form.validate(valid => {
@@ -211,9 +228,12 @@
               Object.assign(param, this.formData);
               param.platform = this.selectedPlatformValue;
               param.useEnvironment = this.useEnvironment;
-              if (!this.formData.file) {
+              if ((this.selectedPlatformValue != 'Swagger2' || (this.selectedPlatformValue == 'Swagger2' && !this.swaggerUrlEable)) && !this.formData.file) {
                 this.$warning(this.$t('commons.please_upload'));
                 return ;
+              }
+              if (!this.swaggerUrlEable) {
+                param.swaggerUrl = undefined;
               }
               this.result = this.$fileUpload('/api/import', param.file, param,response => {
                 let res = response.data;
@@ -231,7 +251,8 @@
             name: '',
             environmentId: '',
             projectId: '',
-            file: undefined
+            file: undefined,
+            swaggerUrl: ''
           };
           this.fileList = [];
         }
@@ -252,6 +273,7 @@
 
   .api-upload >>> .el-upload {
     width: 100%;
+    max-width: 350px;
   }
 
   .api-upload  >>> .el-upload-dragger {
