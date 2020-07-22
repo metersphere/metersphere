@@ -678,6 +678,7 @@ export default {
     input_url_placeholder: 'Please enter the LDAP address (eg ldap://localhost:389)',
     input_ou_placeholder: 'Enter user OU (use | to separate each OU)',
     input_filter_placeholder: 'Input filter [Possible options are cn or uid or sAMAccountName={0}, eg: (uid={0})]',
+    input_mapping_placeholder: 'eg：{"username":"uid","name":"sn","email":"mail"}, The username mapping option may be cn or uid or sAMAccountName',
     test_connect: 'Test Connection',
     test_login: 'Test Login',
     edit: 'Edit',

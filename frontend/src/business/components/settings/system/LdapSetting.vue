@@ -19,7 +19,7 @@
           <el-input v-model="form.filter" :placeholder="$t('ldap.input_filter_placeholder')"></el-input>
         </el-form-item>
         <el-form-item :label="$t('ldap.mapping')" prop="mapping">
-          <el-input v-model="form.mapping" :placeholder="$t('ldap.input_mapping')"></el-input>
+          <el-input v-model="form.mapping" :placeholder="$t('ldap.input_mapping_placeholder')"></el-input>
         </el-form-item>
         <el-form-item :label="$t('ldap.open')" prop="open">
           <el-checkbox v-model="form.open"></el-checkbox>
