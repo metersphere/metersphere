@@ -82,7 +82,7 @@
   }
 
   .metric .code {
-    width: 120px;
+    min-width: 120px;
   }
 
   .metric .code .value {
@@ -97,5 +97,10 @@
     height: 114px;
     border-left: 1px solid #EBEEF5;
     margin-right: 20px;
+  }
+
+  .metric .message {
+    max-height: 114px;
+    overflow-y: auto;
   }
 </style>
