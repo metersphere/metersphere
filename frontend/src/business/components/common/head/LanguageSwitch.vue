@@ -72,6 +72,7 @@
         this.checkLanguage(language);
         this.result = this.$post("/user/update/current", user, response => {
           localStorage.setItem(TokenKey, JSON.stringify(response.data));
+          window.location.reload();
         });
       }
     }
