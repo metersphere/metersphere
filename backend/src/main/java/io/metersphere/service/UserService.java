@@ -78,8 +78,18 @@ public class UserService {
         return getUserDTO(user.getId());
     }
 
-    public User selectUser(String id) {
-        return userMapper.selectByPrimaryKey(id);
+    public User selectUser(String userId, String email) {
+        User user = userMapper.selectByPrimaryKey(userId);
+        if (user == null) {
+            UserExample example = new UserExample();
+            example.createCriteria().andEmailEqualTo(email);
+            List<User> users = userMapper.selectByExample(example);
+            if (!CollectionUtils.isEmpty(users)) {
+                return users.get(0);
+            }
+        }
+        return user;
+
     }
 
     private void insertUserRole(List<Map<String, Object>> roles, String userId) {
@@ -199,9 +209,9 @@ public class UserService {
         return getUserDTO(users.get(0).getId());
     }
 
-    public UserDTO getLoginUserByEmail(String email, String source) {
+    public UserDTO getLoginUserByEmail(String email, List<String> list) {
         UserExample example = new UserExample();
-        example.createCriteria().andEmailEqualTo(email).andSourceEqualTo(source);
+        example.createCriteria().andEmailEqualTo(email).andSourceIn(list);
         List<User> users = userMapper.selectByExample(example);
         if (users == null || users.size() <= 0) {
             return null;

@@ -297,7 +297,7 @@
           responseType: 'blob'
         };
         this.result = this.$request(config).then(response => {
-          const filename = '测试用例.xlsx'
+          const filename = this.$t('test_track.case.test_case') + ".xlsx";
           const blob = new Blob([response.data]);
           if ("download" in document.createElement("a")) {
             let aTag = document.createElement('a');

@@ -49,12 +49,15 @@
           this.projectId = projectId;
           this.getEnvironments();
         },
-        deleteEnvironment(environment) {
+        deleteEnvironment(environment, index) {
           if (environment.id) {
             this.result = this.$get('/api/environment/delete/' + environment.id, () => {
               this.$success(this.$t('commons.delete_success'));
               this.getEnvironments();
             });
+          }
+          else {
+            this.environments.splice(index, 1);
           }
         },
         copyEnvironment(environment) {
@@ -149,4 +152,5 @@
     height: 100%;
     position: absolute;
   }
+
 </style>
