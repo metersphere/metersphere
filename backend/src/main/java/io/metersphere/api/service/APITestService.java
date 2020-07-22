@@ -27,6 +27,7 @@ import io.metersphere.service.FileService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.dubbo.common.URL;
+import org.apache.dubbo.common.constants.CommonConstants;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -303,7 +304,7 @@ public class APITestService {
             provider.setServiceInterface(p);
             Map<String, URL> services = providerService.findByService(p);
             if (services != null && !services.isEmpty()) {
-                String[] methods = services.values().stream().findFirst().get().getParameter("methods").split(",");
+                String[] methods = services.values().stream().findFirst().get().getParameter(CommonConstants.METHODS_KEY).split(",");
                 provider.setMethods(Arrays.asList(methods));
             } else {
                 provider.setMethods(new ArrayList<>());
