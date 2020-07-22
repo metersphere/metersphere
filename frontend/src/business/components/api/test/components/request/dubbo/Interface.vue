@@ -96,6 +96,7 @@
             this.methods = this.methodMap[this.request.interface].methods;
           }
           this.loading = false;
+          this.$success(this.$t('api_test.request.dubbo.get_provider_success'));
         }).catch(() => {
           this.loading = false;
           this.$warning(this.$t('api_test.request.dubbo.check_registry_center'));
