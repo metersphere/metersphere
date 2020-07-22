@@ -310,7 +310,7 @@ public class TestCaseService {
         return list;
     }
 
-    public void testCaseExport(HttpServletResponse response, QueryTestCaseRequest request) {
+    public void testCaseExport(HttpServletResponse response, TestCaseBatchRequest request) {
         EasyExcelExporter easyExcelExporter = null;
         try {
             easyExcelExporter = new EasyExcelExporter(TestCaseExcelData.class);
@@ -323,7 +323,7 @@ public class TestCaseService {
         }
     }
 
-    private List<TestCaseExcelData> generateTestCaseExcel(QueryTestCaseRequest request) {
+    private List<TestCaseExcelData> generateTestCaseExcel(TestCaseBatchRequest request) {
         List<TestCaseDTO> TestCaseList = extTestCaseMapper.listBytestCaseIds(request);
         List<TestCaseExcelData> list = new ArrayList<>();
         SessionUser user = SessionUtils.getUser();

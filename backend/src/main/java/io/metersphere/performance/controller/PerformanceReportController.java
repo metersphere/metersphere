@@ -15,12 +15,11 @@ import io.metersphere.performance.controller.request.ReportRequest;
 import io.metersphere.performance.service.ReportService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
 import java.util.List;
 
 @RestController
@@ -112,11 +111,15 @@ public class PerformanceReportController {
     }
 
     @GetMapping("log/download/{reportId}/{resourceId}")
-    public ResponseEntity<byte[]> downloadLog(@PathVariable String reportId, @PathVariable String resourceId) {
-        byte[] bytes = reportService.downloadLog(reportId, resourceId);
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"jmeter.log\"")
-                .body(bytes);
+    public void downloadLog(@PathVariable String reportId, @PathVariable String resourceId, HttpServletResponse response) throws Exception {
+        try (OutputStream outputStream = response.getOutputStream()) {
+            List<String> content = reportService.downloadLog(reportId, resourceId);
+            response.setContentType("application/x-download");
+            response.addHeader("Content-Disposition", "attachment;filename=jmeter.log");
+            for (String log : content) {
+                outputStream.write(log.getBytes());
+            }
+            outputStream.flush();
+        }
     }
 }
