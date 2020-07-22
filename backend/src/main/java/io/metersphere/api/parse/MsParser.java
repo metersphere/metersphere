@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.parse.ApiImport;
+import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.commons.constants.MsRequestBodyType;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpMethod;
@@ -38,6 +39,7 @@ public class MsParser extends ApiImportAbstractParser {
                 requestsObject.keySet().forEach(requestName -> {
                     JSONObject requestObject = requestsObject.getJSONObject(requestName);
                     requestObject.put("name", requestName);
+                    requestObject.put("type", RequestType.HTTP);
                     JSONArray bodies = requestObject.getJSONArray("body");
                     if (StringUtils.equalsIgnoreCase(requestObject.getString("method"), HttpMethod.POST.name()) && bodies != null) {
                         StringBuilder bodyStr = new StringBuilder();
