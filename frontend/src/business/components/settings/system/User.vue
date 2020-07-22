@@ -32,6 +32,7 @@
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
+        <el-table-column prop="source" :label="$t('user.source')"/>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
             <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)">

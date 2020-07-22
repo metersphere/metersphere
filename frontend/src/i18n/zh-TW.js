@@ -221,7 +221,8 @@ export default {
     email_format_is_incorrect: '郵箱格式不正確',
     delete_confirm: '這個用戶確定要刪除嗎?',
     apikey_delete_confirm: '這個 API Key 確定要刪除嗎?',
-    input_id_placeholder: '請輸入ID (只支持數字、英文字母)'
+    input_id_placeholder: '請輸入ID (只支持數字、英文字母)',
+    source: '用戶來源'
   },
   role: {
     please_choose_role: '請選擇角色',
@@ -434,6 +435,7 @@ export default {
       post_export_tip: "通過 Postman 導出測試集合",
       swagger_export_tip: "通過 Swagger 頁面導出",
       suffixFormatErr: "文件格式不符合要求",
+      swagger_url_import: "使用URL導入",
     }
   },
   api_report: {

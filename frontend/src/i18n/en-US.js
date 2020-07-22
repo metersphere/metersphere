@@ -224,7 +224,8 @@ export default {
     email_format_is_incorrect: 'Email format is incorrect',
     delete_confirm: 'Are you sure you want to delete this User?',
     apikey_delete_confirm: 'Are you sure you want to delete this API Key?',
-    input_id_placeholder: 'Please enter ID (only supports numbers and English letters)'
+    input_id_placeholder: 'Please enter ID (only supports numbers and English letters)',
+    source: 'Source'
   },
   role: {
     please_choose_role: 'Please Choose Role',
@@ -435,6 +436,7 @@ export default {
       postman_export_tip: "Export the test collection by Postman",
       swagger_export_tip: "Export jSON-formatted files via Swagger website",
       suffixFormatErr: "The file format does not meet the requirements",
+      swagger_url_import: "Import using URL",
     }
   },
   api_report: {

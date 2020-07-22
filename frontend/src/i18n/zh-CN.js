@@ -222,7 +222,8 @@ export default {
     email_format_is_incorrect: '邮箱格式不正确',
     delete_confirm: '这个用户确定要删除吗?',
     apikey_delete_confirm: '这个 API Key 确定要删除吗?',
-    input_id_placeholder: '请输入ID (只支持数字、英文字母)'
+    input_id_placeholder: '请输入ID (只支持数字、英文字母)',
+    source: '用户来源'
   },
   role: {
     please_choose_role: '请选择角色',
@@ -435,6 +436,7 @@ export default {
       post_export_tip: "通过 Postman 导出测试集合",
       swagger_export_tip: "通过 Swagger 页面导出",
       suffixFormatErr: "文件格式不符合要求",
+      swagger_url_import: "使用URL导入",
     }
   },
   api_report: {
