@@ -107,7 +107,7 @@
           }
           let caseId = this.$route.params.caseId;
           this.openRecentTestCaseEditDialog(caseId);
-          this.$router.push('/track/case/all');
+          // this.$router.push('/track/case/all');
         } else if (route.params.projectId){
           this.getProjects();
           this.getProjectById(route.params.projectId);
@@ -205,7 +205,7 @@
           this.$get('/project/get/' + id, response => {
             let project = response.data;
             this.setCurrentProject(project);
-            this.$router.push('/track/case/all');
+            // this.$router.push('/track/case/all');
           });
         }
         if (id === 'all') {

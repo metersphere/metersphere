@@ -2,7 +2,7 @@
 
   <div>
 
-    <el-dialog
+    <el-dialog @close="close"
       :title="operationType == 'edit' ? ( readOnly ? $t('test_track.case.view_case') : $t('test_track.case.edit_case')) : $t('test_track.case.create')"
       :visible.sync="dialogFormVisible" width="65%">
 
@@ -295,6 +295,7 @@
     methods: {
       open(testCase) {
         this.resetForm();
+        this.listenGoBack();
         this.operationType = 'add';
         if (testCase) {
           //修改
@@ -345,6 +346,18 @@
             step.num--;
           }
         });
+      },
+      listenGoBack() {
+        //监听浏览器返回操作，关闭该对话框
+        if (window.history && window.history.pushState) {
+          history.pushState(null, null, document.URL);
+          window.addEventListener('popstate', this.close, false);
+        }
+      },
+      close() {
+        //移除监听，防止监听其他页面
+        window.removeEventListener('popstate', this.goBack, false);
+        this.dialogFormVisible = false;
       },
       saveCase() {
         this.$refs['caseFrom'].validate((valid) => {
