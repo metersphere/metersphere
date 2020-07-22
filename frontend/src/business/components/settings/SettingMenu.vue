@@ -29,7 +29,8 @@
         <span>{{$t('commons.workspace')}}</span>
       </template>
       <el-menu-item index="/setting/member">{{$t('commons.member')}}</el-menu-item>
-      <el-menu-item index="/setting/testcase/report/template">{{$t('test_track.plan_view.report_template')}}</el-menu-item>
+      <el-menu-item index="/setting/testcase/report/template">{{$t('test_track.plan_view.report_template')}}
+      </el-menu-item>
     </el-submenu>
 
     <el-submenu index="4">
@@ -38,7 +39,9 @@
         <span>{{$t('commons.personal_info')}}</span>
       </template>
       <el-menu-item index="/setting/personsetting">{{$t('commons.personal_setting')}}</el-menu-item>
-      <el-menu-item index="/setting/apikeys">API Keys</el-menu-item>
+      <el-menu-item v-permission="['admin', 'org_admin', 'test_manager', 'test_user', 'test_viewer']"
+                    index="/setting/apikeys">API Keys
+      </el-menu-item>
     </el-submenu>
 
   </el-menu>

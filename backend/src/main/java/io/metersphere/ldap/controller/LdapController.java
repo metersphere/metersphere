@@ -7,12 +7,12 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.LoginRequest;
 import io.metersphere.i18n.Translator;
-import io.metersphere.ldap.domain.Person;
 import io.metersphere.ldap.service.LdapService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
+import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -36,29 +36,37 @@ public class LdapController {
             MSException.throwException(Translator.get("ldap_authentication_not_enabled"));
         }
 
-        Person person = ldapService.authenticate(request);
+        DirContextOperations dirContext = ldapService.authenticate(request);
+        String email = ldapService.getMappingAttr("email", dirContext);
+        String userId = ldapService.getMappingAttr("username", dirContext);
 
         SecurityUtils.getSubject().getSession().setAttribute("authenticate", UserSource.LDAP.name());
+        SecurityUtils.getSubject().getSession().setAttribute("email", email);
 
-        String username = request.getUsername();
-
-        String email = person.getEmail();
 
         if (StringUtils.isBlank(email)) {
             MSException.throwException(Translator.get("login_fail_email_null"));
         }
 
-        User u = userService.selectUser(request.getUsername());
+        // userId 或 email 有一个相同即为存在本地用户
+        User u = userService.selectUser(userId, email);
         if (u == null) {
+
+            // 新建用户 获取LDAP映射属性
+            String name = ldapService.getMappingAttr("name", dirContext);
+
             User user = new User();
-            user.setId(username);
-            user.setName(username);
+            user.setId(userId);
+            user.setName(name);
             user.setEmail(email);
             user.setSource(UserSource.LDAP.name());
             userService.addLdapUser(user);
         }
 
-        return userService.login(request);
+        // 执行 ShiroDBRealm 中 LDAP 登录逻辑
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setUsername(userId);
+        return userService.login(loginRequest);
     }
 
     @PostMapping("/test/connect")

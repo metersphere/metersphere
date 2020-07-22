@@ -222,7 +222,8 @@ export default {
     email_format_is_incorrect: '邮箱格式不正确',
     delete_confirm: '这个用户确定要删除吗?',
     apikey_delete_confirm: '这个 API Key 确定要删除吗?',
-    input_id_placeholder: '请输入ID (只支持数字、英文字母)'
+    input_id_placeholder: '请输入ID (只支持数字、英文字母)',
+    source: '用户来源'
   },
   role: {
     please_choose_role: '请选择角色',
@@ -435,6 +436,7 @@ export default {
       post_export_tip: "通过 Postman 导出测试集合",
       swagger_export_tip: "通过 Swagger 页面导出",
       suffixFormatErr: "文件格式不符合要求",
+      swagger_url_import: "使用URL导入",
     }
   },
   api_report: {
@@ -678,6 +680,7 @@ export default {
     input_url_placeholder: '请输入LDAP地址 (如 ldap://localhost:389)',
     input_ou_placeholder: '输入用户OU (使用|分隔各OU)',
     input_filter_placeholder: '输入过滤器 [可能的选项是cn或uid或sAMAccountName={0}, 如：(uid={0})]',
+    input_mapping_placeholder: '如：{"username":"uid","name":"sn","email":"mail"}, username映射的选项可能是cn或uid或sAMAccountName',
     test_connect: '测试连接',
     test_login: '测试登录',
     edit: '编辑',
@@ -686,6 +689,7 @@ export default {
     dn_cannot_be_empty: 'LDAP DN不能为空',
     ou_cannot_be_empty: 'LDAP OU不能为空',
     filter_cannot_be_empty: 'LDAP 用户过滤器不能为空',
+    mapping_cannot_be_empty: 'LDAP 用户属性映射不能为空',
     password_cannot_be_empty: 'LDAP 密码不能为空',
   },
   schedule: {

@@ -18,9 +18,9 @@
         <el-form-item :label="$t('ldap.filter')" prop="filter">
           <el-input v-model="form.filter" :placeholder="$t('ldap.input_filter_placeholder')"></el-input>
         </el-form-item>
-<!--        <el-form-item :label="$t('ldap.mapping')" prop="mapping">-->
-<!--          <el-input v-model="form.mapping" :placeholder="$t('ldap.input_mapping')"></el-input>-->
-<!--        </el-form-item>-->
+        <el-form-item :label="$t('ldap.mapping')" prop="mapping">
+          <el-input v-model="form.mapping" :placeholder="$t('ldap.input_mapping_placeholder')"></el-input>
+        </el-form-item>
         <el-form-item :label="$t('ldap.open')" prop="open">
           <el-checkbox v-model="form.open"></el-checkbox>
         </el-form-item>
@@ -82,7 +82,8 @@
           dn: {required: true, message: this.$t('ldap.input_dn'), trigger: ['change', 'blur']},
           password: {required: true, message: this.$t('ldap.input_password'), trigger: ['change', 'blur']},
           ou: {required: true, message: this.$t('ldap.input_ou'), trigger: ['change', 'blur']},
-          filter: {required: true, message: this.$t('ldap.input_filter'), trigger: ['change', 'blur']}
+          filter: {required: true, message: this.$t('ldap.input_filter'), trigger: ['change', 'blur']},
+          mapping: {required: true, message: this.$t('ldap.input_mapping'), trigger: ['change', 'blur']}
         },
         loginFormRules: {
           username: {required: true, message: this.$t('ldap.input_username'), trigger: 'blur'},
@@ -139,6 +140,11 @@
 
         if (!this.form.filter) {
           this.$warning(this.$t('ldap.filter_cannot_be_empty'));
+          return false;
+        }
+
+        if (!this.form.mapping) {
+          this.$warning(this.$t('ldap.mapping_cannot_be_empty'));
           return false;
         }
 

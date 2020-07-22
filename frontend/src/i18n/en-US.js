@@ -224,7 +224,8 @@ export default {
     email_format_is_incorrect: 'Email format is incorrect',
     delete_confirm: 'Are you sure you want to delete this User?',
     apikey_delete_confirm: 'Are you sure you want to delete this API Key?',
-    input_id_placeholder: 'Please enter ID (only supports numbers and English letters)'
+    input_id_placeholder: 'Please enter ID (only supports numbers and English letters)',
+    source: 'Source'
   },
   role: {
     please_choose_role: 'Please Choose Role',
@@ -435,6 +436,7 @@ export default {
       postman_export_tip: "Export the test collection by Postman",
       swagger_export_tip: "Export jSON-formatted files via Swagger website",
       suffixFormatErr: "The file format does not meet the requirements",
+      swagger_url_import: "Import using URL",
     }
   },
   api_report: {
@@ -678,6 +680,7 @@ export default {
     input_url_placeholder: 'Please enter the LDAP address (eg ldap://localhost:389)',
     input_ou_placeholder: 'Enter user OU (use | to separate each OU)',
     input_filter_placeholder: 'Input filter [Possible options are cn or uid or sAMAccountName={0}, eg: (uid={0})]',
+    input_mapping_placeholder: 'eg：{"username":"uid","name":"sn","email":"mail"}, The username mapping option may be cn or uid or sAMAccountName',
     test_connect: 'Test Connection',
     test_login: 'Test Login',
     edit: 'Edit',
@@ -687,6 +690,7 @@ export default {
     ou_cannot_be_empty: 'LDAP OU cannot be empty',
     filter_cannot_be_empty: 'LDAP user filter cannot be empty',
     password_cannot_be_empty: 'LDAP password cannot be empty',
+    mapping_cannot_be_empty: 'LDAP mapping cannot be empty',
   },
   schedule: {
     not_set: "Not Set",
