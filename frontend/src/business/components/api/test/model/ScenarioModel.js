@@ -194,6 +194,18 @@ class DubboConfig extends BaseConfig {
     super();
     this.configCenter = new ConfigCenter(options.configCenter)
     this.registryCenter = new RegistryCenter(options.registryCenter)
+    if (options.consumerAndService === undefined) {
+      options.consumerAndService = {
+        timeout: undefined,
+        version: undefined,
+        retries: undefined,
+        cluster: undefined,
+        group: undefined,
+        connections: undefined,
+        async: undefined,
+        loadBalance: undefined
+      }
+    }
     this.consumerAndService = new ConsumerAndService(options.consumerAndService)
   }
 }
@@ -259,7 +271,7 @@ export class HttpRequest extends Request {
   }
 
   isValid(environmentId) {
-    if (this.useEnvironment){
+    if (this.useEnvironment) {
       if (!environmentId) {
         return {
           isValid: false,

@@ -417,6 +417,7 @@ export default {
         input_interface: "Please enter the interface",
         input_method: "Please enter the method",
         input_config_center: "Please enter the config center",
+        get_provider_success: "get provider list to finish",
         input_registry_center: "Please enter the registry center",
         input_consumer_service: "Please enter the consumer & service",
         check_registry_center: "Can't get interface list, please check the registry center",

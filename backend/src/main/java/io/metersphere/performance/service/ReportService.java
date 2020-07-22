@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -210,13 +211,13 @@ public class ReportService {
         return loadTestReportLogMapper.selectByExampleWithBLOBs(example);
     }
 
-    public byte[] downloadLog(String reportId, String resourceId) {
+    public List<String> downloadLog(String reportId, String resourceId) {
         LoadTestReportLogExample example = new LoadTestReportLogExample();
         example.createCriteria().andReportIdEqualTo(reportId).andResourceIdEqualTo(resourceId);
+        example.setOrderByClause("part desc");
         List<LoadTestReportLog> loadTestReportLogs = loadTestReportLogMapper.selectByExampleWithBLOBs(example);
 
-        String content = loadTestReportLogs.stream().map(LoadTestReportLog::getContent).reduce("", (a, b) -> a + b);
-        return content.getBytes();
+        return loadTestReportLogs.stream().map(LoadTestReportLog::getContent).collect(Collectors.toList());
     }
 
     public LoadTestReport getReport(String reportId) {
