@@ -110,9 +110,9 @@ public class TestCaseController {
     public void testCaseTemplateExport(HttpServletResponse response){
         testCaseService.testCaseTemplateExport(response);
     }
-    @GetMapping("/export/testCase/{testCaseIds}")
+    @PostMapping("/export/testcase")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void testCaseExport(HttpServletResponse response,QueryTestCaseRequest request){
+    public void testCaseExport( HttpServletResponse response,@RequestBody TestCaseBatchRequest request){
         testCaseService.testCaseExport(response,request);
     }
 
