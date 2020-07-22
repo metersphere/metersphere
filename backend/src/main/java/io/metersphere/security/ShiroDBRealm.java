@@ -112,15 +112,19 @@ public class ShiroDBRealm extends AuthorizingRealm {
 
 
     private AuthenticationInfo loginLdapMode(String userId, String password) {
-        //
+        // userId 或 email 有一个相同就返回User
+        String email = (String) SecurityUtils.getSubject().getSession().getAttribute("email");
         UserDTO user = userService.getLoginUser(userId, Arrays.asList(UserSource.LDAP.name(), UserSource.LOCAL.name()));
         String msg;
         if (user == null) {
-            msg = "The user does not exist: " + userId;
-            logger.warn(msg);
-            throw new UnknownAccountException(Translator.get("user_not_exist") + userId);
+            user = userService.getLoginUserByEmail(email, Arrays.asList(UserSource.LDAP.name(), UserSource.LOCAL.name()));
+            if (user == null) {
+                msg = "The user does not exist: " + userId;
+                logger.warn(msg);
+                throw new UnknownAccountException(Translator.get("user_not_exist") + userId);
+            }
+            userId = user.getId();
         }
-        userId = user.getId();
 
         SessionUser sessionUser = SessionUser.fromUser(user);
         SessionUtils.putUser(sessionUser);
@@ -132,7 +136,7 @@ public class ShiroDBRealm extends AuthorizingRealm {
         UserDTO user = userService.getLoginUser(userId, Collections.singletonList(UserSource.LOCAL.name()));
         String msg;
         if (user == null) {
-            user = userService.getLoginUserByEmail(userId, UserSource.LOCAL.name());
+            user = userService.getLoginUserByEmail(userId, Collections.singletonList(UserSource.LOCAL.name()));
             if (user == null) {
                 msg = "The user does not exist: " + userId;
                 logger.warn(msg);

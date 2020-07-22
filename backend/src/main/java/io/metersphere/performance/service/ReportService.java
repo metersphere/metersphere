@@ -213,6 +213,7 @@ public class ReportService {
     public byte[] downloadLog(String reportId, String resourceId) {
         LoadTestReportLogExample example = new LoadTestReportLogExample();
         example.createCriteria().andReportIdEqualTo(reportId).andResourceIdEqualTo(resourceId);
+        example.setOrderByClause("part desc");
         List<LoadTestReportLog> loadTestReportLogs = loadTestReportLogMapper.selectByExampleWithBLOBs(example);
 
         String content = loadTestReportLogs.stream().map(LoadTestReportLog::getContent).reduce("", (a, b) -> a + b);
