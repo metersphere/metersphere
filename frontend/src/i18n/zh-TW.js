@@ -415,6 +415,7 @@ export default {
         input_interface: "請輸入Interface",
         input_method: "請輸入Method",
         input_config_center: "請輸入Config Center",
+        get_provider_success: "獲取成功",
         input_registry_center: "請輸入Registry Center",
         input_consumer_service: "請輸入Consumer & Service",
         check_registry_center: "獲取失敗，請檢查Registry Center",

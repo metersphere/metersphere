@@ -417,6 +417,7 @@ export default {
         input_config_center: "请输入Config Center",
         input_registry_center: "请输入Registry Center",
         input_consumer_service: "请输入Consumer & Service",
+        get_provider_success: "获取成功",
         check_registry_center: "获取失败，请检查Registry Center",
         form_description: "如果当前配置项无值，则取场景配置项的值",
       }
