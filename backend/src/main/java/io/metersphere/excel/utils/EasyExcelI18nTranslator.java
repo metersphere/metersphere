@@ -33,12 +33,12 @@ public class EasyExcelI18nTranslator {
     private void readExcelProperty(Class clazz, BiConsumer<String, Map<String, Object>> operate) {
         Field field;
         Field[] fields = clazz.getDeclaredFields();
-        for (int i = 0; i < fields.length ; i++) {
+        for (int i = 0; i < fields.length; i++) {
             try {
                 field = clazz.getDeclaredField(fields[i].getName());
                 field.setAccessible(true);
                 ExcelProperty excelProperty = field.getAnnotation(ExcelProperty.class);
-                if(excelProperty != null){
+                if (excelProperty != null) {
                     InvocationHandler invocationHandler = Proxy.getInvocationHandler(excelProperty);
                     Field fieldValue = invocationHandler.getClass().getDeclaredField("memberValues");
                     fieldValue.setAccessible(true);
@@ -51,7 +51,7 @@ public class EasyExcelI18nTranslator {
                     }
 
                     operate.accept(field.getName(), memberValues);
-                    
+
                 }
             } catch (NoSuchFieldException e) {
                 e.printStackTrace();
@@ -64,7 +64,7 @@ public class EasyExcelI18nTranslator {
 
     public void saveOriginalExcelProperty() {
         readExcelProperty(clazz, (fieldName, memberValues) -> {
-            List<String> values = Arrays.asList((String [])memberValues.get("value"));
+            List<String> values = Arrays.asList((String[]) memberValues.get("value"));
             List<String> copyValues = new ArrayList<>();
             values.forEach(value -> {
                 copyValues.add(value);
@@ -74,11 +74,11 @@ public class EasyExcelI18nTranslator {
     }
 
     public void translateExcelProperty() {
-       readExcelProperty(TestCaseExcelData.class, (fieldName, memberValues) -> {
-            String [] values = (String[]) memberValues.get("value");
+        readExcelProperty(TestCaseExcelData.class, (fieldName, memberValues) -> {
+            String[] values = (String[]) memberValues.get("value");
             for (int j = 0; j < values.length; j++) {
                 if (Pattern.matches("^\\{.+\\}$", values[j])) {
-                    values[j] =  Translator.get(values[j].substring(1, values[j].length() - 1));
+                    values[j] = Translator.get(values[j].substring(1, values[j].length() - 1));
                 }
             }
             memberValues.put("value", values);
@@ -87,7 +87,7 @@ public class EasyExcelI18nTranslator {
 
     public void resetExcelProperty() {
         readExcelProperty(clazz, (fieldName, memberValues) -> {
-            String [] values = (String[]) memberValues.get("value");
+            String[] values = (String[]) memberValues.get("value");
             List<String> list = excelPropertyMap.get(fieldName);
             for (int j = 0; j < values.length; j++) {
                 values[j] = list.get(j);

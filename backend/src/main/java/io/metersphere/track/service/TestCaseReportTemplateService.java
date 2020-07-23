@@ -26,11 +26,11 @@ public class TestCaseReportTemplateService {
         TestCaseReportTemplateExample example = new TestCaseReportTemplateExample();
         TestCaseReportTemplateExample.Criteria criteria1 = example.createCriteria();
         TestCaseReportTemplateExample.Criteria criteria2 = example.createCriteria();
-        if ( StringUtils.isNotBlank(request.getName()) ) {
+        if (StringUtils.isNotBlank(request.getName())) {
             criteria1.andNameLike("%" + request.getName() + "%");
             criteria2.andNameLike("%" + request.getName() + "%");
         }
-        if ( StringUtils.isNotBlank(request.getWorkspaceId()) ) {
+        if (StringUtils.isNotBlank(request.getWorkspaceId())) {
             criteria1.andWorkspaceIdEqualTo(request.getWorkspaceId());
         }
         if (request.getQueryDefault() != null) {
@@ -55,7 +55,7 @@ public class TestCaseReportTemplateService {
         testCaseReportTemplateMapper.updateByPrimaryKeyWithBLOBs(testCaseReportTemplate);
     }
 
-    private void checkCaseReportTemplateExist (TestCaseReportTemplate testCaseReportTemplate) {
+    private void checkCaseReportTemplateExist(TestCaseReportTemplate testCaseReportTemplate) {
         TestCaseReportTemplateExample example = new TestCaseReportTemplateExample();
         example.createCriteria()
                 .andNameEqualTo(testCaseReportTemplate.getName())

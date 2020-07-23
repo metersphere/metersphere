@@ -16,9 +16,8 @@ import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
 import javax.annotation.Resource;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api")
@@ -95,7 +94,7 @@ public class APITestController {
 
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public ApiTest testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request")  ApiTestImportRequest request) {
+    public ApiTest testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ApiTestImportRequest request) {
         return apiTestService.apiTestImport(file, request);
     }
 

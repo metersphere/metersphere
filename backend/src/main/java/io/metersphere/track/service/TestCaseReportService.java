@@ -1,23 +1,22 @@
 package io.metersphere.track.service;
 
-import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.*;
-import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
+import io.metersphere.base.domain.TestCaseReport;
+import io.metersphere.base.domain.TestCaseReportExample;
+import io.metersphere.base.domain.TestCaseReportTemplate;
+import io.metersphere.base.domain.TestPlan;
+import io.metersphere.base.mapper.TestCaseReportMapper;
+import io.metersphere.base.mapper.TestCaseReportTemplateMapper;
+import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
-import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
-import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.track.request.testCaseReport.CreateReportRequest;
-import io.metersphere.track.request.testcase.QueryTestPlanRequest;
-import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
-import io.metersphere.track.dto.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.math.BigDecimal;
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -37,7 +36,7 @@ public class TestCaseReportService {
 
     public List<TestCaseReport> listTestCaseReport(TestCaseReport request) {
         TestCaseReportExample example = new TestCaseReportExample();
-        if ( StringUtils.isNotBlank(request.getName()) ) {
+        if (StringUtils.isNotBlank(request.getName())) {
             example.createCriteria().andNameEqualTo(request.getName());
         }
         return testCaseReportMapper.selectByExample(example);

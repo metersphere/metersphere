@@ -13,12 +13,12 @@ import javax.validation.constraints.Pattern;
 public class TestCaseExcelData {
 
     @NotBlank(message = "{cannot_be_null}")
-    @Length(max=50)
+    @Length(max = 50)
     @ExcelProperty("{test_case_name}")
     private String name;
 
     @NotBlank(message = "{cannot_be_null}")
-    @Length(max=1000)
+    @Length(max = 1000)
     @ExcelProperty("{test_case_module}")
     @ColumnWidth(30)
     @Pattern(regexp = "^(?!.*//).*$", message = "{incorrect_format}")
@@ -45,21 +45,21 @@ public class TestCaseExcelData {
 
     @ColumnWidth(50)
     @ExcelProperty("{test_case_prerequisite}")
-    @Length(min=0, max=1000)
+    @Length(min = 0, max = 1000)
     private String prerequisite;
 
     @ColumnWidth(50)
     @ExcelProperty("{test_case_remark}")
-    @Length(max=1000)
+    @Length(max = 1000)
     private String remark;
 
     @ColumnWidth(50)
     @ExcelProperty("{test_case_step_desc}")
-    @Length(max=1000)
+    @Length(max = 1000)
     private String stepDesc;
 
     @ColumnWidth(50)
     @ExcelProperty("{test_case_step_result}")
-    @Length(max=1000)
+    @Length(max = 1000)
     private String stepResult;
 }

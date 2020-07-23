@@ -22,7 +22,7 @@ import java.util.UUID;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ScheduleService {
-    
+
     @Resource
     private ScheduleMapper scheduleMapper;
     @Resource

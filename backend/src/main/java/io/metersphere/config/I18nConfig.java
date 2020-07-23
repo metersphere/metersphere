@@ -7,9 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
-import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 
 import javax.validation.Validator;
 
@@ -31,6 +29,7 @@ public class I18nConfig {
 
     /**
      * JSR-303校验国际化
+     *
      * @param messageSource
      * @return
      */
@@ -43,7 +42,7 @@ public class I18nConfig {
     }
 
     @Bean
-    public Validator validator(LocalValidatorFactoryBean localValidatorFactoryBean){
+    public Validator validator(LocalValidatorFactoryBean localValidatorFactoryBean) {
         return localValidatorFactoryBean.getValidator();
     }
 

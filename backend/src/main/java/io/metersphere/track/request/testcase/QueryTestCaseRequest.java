@@ -12,7 +12,7 @@ import java.util.Map;
 @Setter
 public class QueryTestCaseRequest extends TestCase {
 
-    private  String name;
+    private String name;
 
     private List<String> nodeIds;
 

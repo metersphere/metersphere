@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 @Data
 public class ExtractRegex extends ExtractCommon {
     private String useHeaders;
+
     public ExtractRegex() {
         setType(ExtractType.REGEX);
     }
