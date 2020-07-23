@@ -207,14 +207,14 @@ public class ReportService {
     public List<LoadTestReportLog> getReportLogs(String reportId, String resourceId) {
         LoadTestReportLogExample example = new LoadTestReportLogExample();
         example.createCriteria().andReportIdEqualTo(reportId).andResourceIdEqualTo(resourceId);
-        example.setOrderByClause("part desc");
+        example.setOrderByClause("part");
         return loadTestReportLogMapper.selectByExampleWithBLOBs(example);
     }
 
     public List<String> downloadLog(String reportId, String resourceId) {
         LoadTestReportLogExample example = new LoadTestReportLogExample();
         example.createCriteria().andReportIdEqualTo(reportId).andResourceIdEqualTo(resourceId);
-        example.setOrderByClause("part desc");
+        example.setOrderByClause("part");
         List<LoadTestReportLog> loadTestReportLogs = loadTestReportLogMapper.selectByExampleWithBLOBs(example);
 
         return loadTestReportLogs.stream().map(LoadTestReportLog::getContent).collect(Collectors.toList());
