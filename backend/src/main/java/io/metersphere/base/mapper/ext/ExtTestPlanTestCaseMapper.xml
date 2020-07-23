@@ -46,7 +46,7 @@
     </sql>
 
     <sql id="combine">
-        <if test="${condition}.name != null">
+        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
             and test_case.name
             <include refid="condition">
                 <property name="object" value="${condition}.name"/>
@@ -119,20 +119,15 @@
         from test_plan_test_case
         inner join test_case on test_plan_test_case.case_id = test_case.id
         <where>
-            <choose>
-                <!--高级-->
-                <when test="request.combine != null">
-                    <include refid="combine">
-                        <property name="condition" value="request.combine"/>
-                    </include>
-                </when>
-                <!--普通-->
-                <otherwise>
-                    <if test="request.name != null">
-                        and test_case.name like CONCAT('%', #{request.name},'%')
-                    </if>
-                </otherwise>
-            </choose>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                </include>
+            </if>
+            <if test="request.name != null">
+                and test_case.name like CONCAT('%', #{request.name},'%')
+            </if>
             <if test="request.id != null">
                 and test_case.id = #{request.id}
             </if>
