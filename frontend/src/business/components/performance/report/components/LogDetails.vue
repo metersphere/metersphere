@@ -21,7 +21,7 @@
         result: {},
         id: '',
         page: 1,
-        pageCount: 1,
+        pageCount: 5,
         loading: false,
       }
     },
@@ -36,6 +36,8 @@
       getResource() {
         this.result = this.$get("/performance/report/log/resource/" + this.id, data => {
           this.resource = data.data;
+          this.page = 1;
+          this.logContent = [];
         })
       },
       load(resourceId) {
@@ -44,7 +46,6 @@
         let url = "/performance/report/log/" + this.id + "/" + resourceId + "/" + this.page;
         this.$get(url, res => {
           let data = res.data;
-          this.pageCount = data.pageCount;
           data.listObject.forEach(log => {
             this.logContent.push(log);
           })
