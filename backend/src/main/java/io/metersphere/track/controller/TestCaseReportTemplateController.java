@@ -24,25 +24,25 @@ public class TestCaseReportTemplateController {
     }
 
     @GetMapping("/get/{id}")
-    public TestCaseReportTemplate get(@PathVariable String id){
+    public TestCaseReportTemplate get(@PathVariable String id) {
         return testCaseReportTemplateService.getTestCaseReportTemplate(id);
     }
 
     @PostMapping("/add")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void add(@RequestBody TestCaseReportTemplate testCaseReportTemplate){
+    public void add(@RequestBody TestCaseReportTemplate testCaseReportTemplate) {
         testCaseReportTemplateService.addTestCaseReportTemplate(testCaseReportTemplate);
     }
 
     @PostMapping("/edit")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void edit(@RequestBody TestCaseReportTemplate testCaseReportTemplate){
+    public void edit(@RequestBody TestCaseReportTemplate testCaseReportTemplate) {
         testCaseReportTemplateService.editTestCaseReportTemplate(testCaseReportTemplate);
     }
 
     @PostMapping("/delete/{id}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public int delete(@PathVariable String id){
+    public int delete(@PathVariable String id) {
         return testCaseReportTemplateService.deleteTestCaseReportTemplate(id);
     }
 

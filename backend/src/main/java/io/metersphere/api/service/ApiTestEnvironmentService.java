@@ -21,7 +21,7 @@ public class ApiTestEnvironmentService {
     private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
 
     public List<ApiTestEnvironmentWithBLOBs> list(String projectId) {
-        ApiTestEnvironmentExample example =new ApiTestEnvironmentExample();
+        ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
         example.createCriteria().andProjectIdEqualTo(projectId);
         return apiTestEnvironmentMapper.selectByExampleWithBLOBs(example);
     }
@@ -46,7 +46,7 @@ public class ApiTestEnvironmentService {
         return apiTestEnvironmentWithBLOBs.getId();
     }
 
-    private void checkEnvironmentExist (ApiTestEnvironmentWithBLOBs environment) {
+    private void checkEnvironmentExist(ApiTestEnvironmentWithBLOBs environment) {
         if (environment.getName() != null) {
             ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
             ApiTestEnvironmentExample.Criteria criteria = example.createCriteria();

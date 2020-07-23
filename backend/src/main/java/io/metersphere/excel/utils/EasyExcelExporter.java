@@ -1,24 +1,14 @@
 package io.metersphere.excel.utils;
 
 import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.annotation.ExcelProperty;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.excel.domain.TestCaseExcelData;
 import io.metersphere.exception.ExcelException;
-import io.metersphere.i18n.Translator;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
 import java.net.URLEncoder;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
 
 public class EasyExcelExporter {
 

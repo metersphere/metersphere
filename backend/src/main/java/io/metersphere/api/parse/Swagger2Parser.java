@@ -6,8 +6,8 @@ import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.parse.ApiImport;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
-import io.metersphere.api.dto.scenario.request.HttpRequest;
 import io.metersphere.api.dto.scenario.Scenario;
+import io.metersphere.api.dto.scenario.request.HttpRequest;
 import io.metersphere.api.dto.scenario.request.Request;
 import io.metersphere.commons.constants.MsRequestBodyType;
 import io.metersphere.commons.constants.SwaggerParameterType;
@@ -64,7 +64,8 @@ public class Swagger2Parser extends ApiImportAbstractParser {
                         Scenario scenario = Optional.ofNullable(scenarioMap.get(tag)).orElse(new Scenario());
                         List<Request> requests = Optional.ofNullable(scenario.getRequests()).orElse(new ArrayList<>());
                         requests.add(request);
-                        scenario.setRequests(requests);scenario.setName(tag);
+                        scenario.setRequests(requests);
+                        scenario.setName(tag);
                         scenarioMap.put(tag, scenario);
                     });
                 } else {
@@ -86,7 +87,7 @@ public class Swagger2Parser extends ApiImportAbstractParser {
         List<Parameter> parameters = operation.getParameters();
 
         for (Parameter parameter : parameters) {
-            switch (parameter.getIn()){
+            switch (parameter.getIn()) {
 //                case SwaggerParameterType.PATH:
 //                   parsePathParameters(parameter, request);
 //                   break;
@@ -137,7 +138,7 @@ public class Swagger2Parser extends ApiImportAbstractParser {
             ArrayModel arrayModel = (ArrayModel) bodyParameter.getSchema();
             Property items = arrayModel.getItems();
             if (items instanceof RefProperty) {
-                RefProperty refProperty =  (RefProperty) items;
+                RefProperty refProperty = (RefProperty) items;
                 Model model = definitions.get(refProperty.getSimpleRef());
                 JSONArray propertyList = new JSONArray();
                 propertyList.add(getBodyJSONObjectParameters(model.getProperties(), definitions));
@@ -155,11 +156,11 @@ public class Swagger2Parser extends ApiImportAbstractParser {
             if (value instanceof ObjectProperty) {
                 ObjectProperty objectProperty = (ObjectProperty) value;
                 jsonObject.put(key, getBodyJSONObjectParameters(objectProperty.getProperties(), definitions));
-            } else if (value instanceof ArrayProperty)  {
+            } else if (value instanceof ArrayProperty) {
                 ArrayProperty arrayProperty = (ArrayProperty) value;
                 Property items = arrayProperty.getItems();
                 if (items instanceof RefProperty) {
-                    RefProperty refProperty =  (RefProperty) items;
+                    RefProperty refProperty = (RefProperty) items;
                     Model model = definitions.get(refProperty.getSimpleRef());
                     JSONArray propertyList = new JSONArray();
                     propertyList.add(getBodyJSONObjectParameters(model.getProperties(), definitions));

@@ -33,8 +33,8 @@ public class UserRoleService {
         return extUserRoleMapper.getWorkspaceMemberRoles(workspaceId, userId);
     }
 
-    public List<Map<String,Object>> getUserRole(String userId) {
-        List<Map<String,Object>> list = new ArrayList<>();
+    public List<Map<String, Object>> getUserRole(String userId) {
+        List<Map<String, Object>> list = new ArrayList<>();
         UserRoleExample userRoleExample = new UserRoleExample();
         userRoleExample.createCriteria().andUserIdEqualTo(userId);
         List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);

@@ -7,6 +7,7 @@ public class MathUtils {
     /**
      * 获取百分比
      * 保留一位小数
+     *
      * @param value
      * @return
      */
