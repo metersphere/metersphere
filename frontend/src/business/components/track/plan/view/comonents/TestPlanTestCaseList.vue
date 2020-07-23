@@ -266,19 +266,17 @@
       this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
     },
     methods: {
-      initTableData(combine) {
-        // 只有在点击高级搜索的查询按钮时combine才有值
-        let condition = combine ? {combine: combine} : this.condition;
+      initTableData() {
         if (this.planId) {
           // param.planId = this.planId;
-          condition.planId = this.planId;
+          this.condition.planId = this.planId;
         }
         if (this.selectNodeIds && this.selectNodeIds.length > 0) {
           // param.nodeIds = this.selectNodeIds;
-          condition.nodeIds = this.selectNodeIds;
+          this.condition.nodeIds = this.selectNodeIds;
         }
         if (this.planId) {
-          this.result = this.$post(this.buildPagePath('/test/plan/case/list'), condition, response => {
+          this.result = this.$post(this.buildPagePath('/test/plan/case/list'), this.condition, response => {
             let data = response.data;
             this.total = data.itemCount;
             this.tableData = data.listObject;

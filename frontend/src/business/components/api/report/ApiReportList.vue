@@ -54,7 +54,7 @@
   import MsContainer from "../../common/components/MsContainer";
   import MsMainContainer from "../../common/components/MsMainContainer";
   import MsApiReportStatus from "./ApiReportStatus";
-  import {_filter, _sort} from "../../../../common/js/utils";
+  import {_filter, _sort} from "@/common/js/utils";
   import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
   import ReportTriggerModeItem from "../../common/tableItem/ReportTriggerModeItem";
   import {REPORT_CONFIGS} from "../../common/components/search/search-components";
