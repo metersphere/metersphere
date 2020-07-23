@@ -23,9 +23,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -211,13 +212,28 @@ public class ReportService {
         return loadTestReportLogMapper.selectByExampleWithBLOBs(example);
     }
 
-    public List<String> downloadLog(String reportId, String resourceId) {
+    public void downloadLog(HttpServletResponse response, String reportId, String resourceId) throws Exception {
         LoadTestReportLogExample example = new LoadTestReportLogExample();
-        example.createCriteria().andReportIdEqualTo(reportId).andResourceIdEqualTo(resourceId);
+        LoadTestReportLogExample.Criteria criteria = example.createCriteria();
+        criteria.andReportIdEqualTo(reportId).andResourceIdEqualTo(resourceId);
         example.setOrderByClause("part");
-        List<LoadTestReportLog> loadTestReportLogs = loadTestReportLogMapper.selectByExampleWithBLOBs(example);
 
-        return loadTestReportLogs.stream().map(LoadTestReportLog::getContent).collect(Collectors.toList());
+        long count = loadTestReportLogMapper.countByExample(example);
+
+        try (OutputStream outputStream = response.getOutputStream()) {
+            response.setContentType("application/x-download");
+            response.addHeader("Content-Disposition", "attachment;filename=jmeter.log");
+            for (long i = 1; i <= count; i++) {
+                example.clear();
+                LoadTestReportLogExample.Criteria innerCriteria = example.createCriteria();
+                innerCriteria.andReportIdEqualTo(reportId).andResourceIdEqualTo(resourceId).andPartEqualTo(i);
+
+                List<LoadTestReportLog> loadTestReportLogs = loadTestReportLogMapper.selectByExampleWithBLOBs(example);
+                LoadTestReportLog content = loadTestReportLogs.get(0);
+                outputStream.write(content.getContent().getBytes());
+            }
+            outputStream.flush();
+        }
     }
 
     public LoadTestReport getReport(String reportId) {

@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.io.OutputStream;
 import java.util.List;
 
 @RestController
@@ -112,14 +111,6 @@ public class PerformanceReportController {
 
     @GetMapping("log/download/{reportId}/{resourceId}")
     public void downloadLog(@PathVariable String reportId, @PathVariable String resourceId, HttpServletResponse response) throws Exception {
-        try (OutputStream outputStream = response.getOutputStream()) {
-            List<String> content = reportService.downloadLog(reportId, resourceId);
-            response.setContentType("application/x-download");
-            response.addHeader("Content-Disposition", "attachment;filename=jmeter.log");
-            for (String log : content) {
-                outputStream.write(log.getBytes());
-            }
-            outputStream.flush();
-        }
+        reportService.downloadLog(response, reportId, resourceId);
     }
 }
