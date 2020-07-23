@@ -55,6 +55,12 @@ public class ScheduleService {
         return scheduleMapper.deleteByPrimaryKey(scheduleId);
     }
 
+    public int deleteByResourceId(String resourceId) {
+        ScheduleExample scheduleExample = new ScheduleExample();
+        scheduleExample.createCriteria().andResourceIdEqualTo(resourceId);
+        return scheduleMapper.deleteByExample(scheduleExample);
+    }
+
     public List<Schedule> listSchedule() {
         ScheduleExample example = new ScheduleExample();
         return scheduleMapper.selectByExample(example);

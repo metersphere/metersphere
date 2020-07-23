@@ -138,6 +138,7 @@ public class APITestService {
         testCaseService.checkIsRelateTest(testId);
         deleteFileByTestId(testId);
         apiReportService.deleteByTestId(testId);
+        scheduleService.deleteByResourceId(testId);
         apiTestMapper.deleteByPrimaryKey(testId);
     }
 
