@@ -106,13 +106,7 @@
         rules: {
           name: [
             {required: true, message: this.$t('project.input_name'), trigger: 'blur'},
-            {min: 2, max: 25, message: this.$t('commons.input_limit', [2, 25]), trigger: 'blur'},
-            {
-              required: true,
-              pattern: /^(?!-)(?!.*?-$)[a-zA-Z0-9\u4e00-\u9fa5-]+$/,
-              message: this.$t('project.special_characters_are_not_supported'),
-              trigger: 'blur'
-            }
+            {min: 2, max: 25, message: this.$t('commons.input_limit', [2, 25]), trigger: 'blur'}
           ],
           description: [
             {max: 50, message: this.$t('commons.input_limit', [0, 50]), trigger: 'blur'}
