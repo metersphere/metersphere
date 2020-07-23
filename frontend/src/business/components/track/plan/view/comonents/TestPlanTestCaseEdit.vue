@@ -354,7 +354,6 @@
         }
         this.testCase = item;
         this.initTest();
-        //
         this.stepResultChange();
       },
       openTestCaseEdit(testCase) {

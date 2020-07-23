@@ -129,7 +129,7 @@ public class ProjectService {
         projectMapper.updateByPrimaryKeySelective(project);
     }
 
-    private void checkProjectExist (Project project) {
+    private void checkProjectExist(Project project) {
         if (project.getName() != null) {
             ProjectExample example = new ProjectExample();
             example.createCriteria()

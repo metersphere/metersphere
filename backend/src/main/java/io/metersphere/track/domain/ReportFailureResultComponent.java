@@ -11,6 +11,7 @@ import java.util.List;
 
 public class ReportFailureResultComponent extends ReportComponent {
     private List<TestPlanCaseDTO> failureTestCases = new ArrayList<>();
+
     public ReportFailureResultComponent(TestPlanDTO testPlan) {
         super(testPlan);
         componentId = "4";

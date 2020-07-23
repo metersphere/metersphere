@@ -3,6 +3,7 @@ package io.metersphere.base.mapper.ext;
 import io.metersphere.base.domain.TestCase;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.dto.TestCaseDTO;
+import io.metersphere.track.request.testcase.TestCaseBatchRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public interface ExtTestCaseMapper {
 
     List<TestCaseDTO> listByMethod(@Param("request") QueryTestCaseRequest request);
 
-    List<TestCaseDTO> listBytestCaseIds(@Param("request")  QueryTestCaseRequest request);
+    List<TestCaseDTO> listBytestCaseIds(@Param("request") TestCaseBatchRequest request);
 
     TestCase getMaxNumByProjectId(@Param("projectId") String projectId);
 

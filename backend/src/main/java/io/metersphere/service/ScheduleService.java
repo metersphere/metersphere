@@ -7,6 +7,7 @@ import io.metersphere.base.mapper.ScheduleMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.job.sechedule.ApiTestJob;
 import io.metersphere.job.sechedule.ScheduleManager;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobKey;
@@ -22,7 +23,7 @@ import java.util.UUID;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ScheduleService {
-    
+
     @Resource
     private ScheduleMapper scheduleMapper;
     @Resource
@@ -52,7 +53,16 @@ public class ScheduleService {
     }
 
     public int deleteSchedule(String scheduleId) {
+        Schedule schedule = scheduleMapper.selectByPrimaryKey(scheduleId);
+        removeJob(schedule.getResourceId());
         return scheduleMapper.deleteByPrimaryKey(scheduleId);
+    }
+
+    public int deleteByResourceId(String resourceId) {
+        ScheduleExample scheduleExample = new ScheduleExample();
+        scheduleExample.createCriteria().andResourceIdEqualTo(resourceId);
+        removeJob(resourceId);
+        return scheduleMapper.deleteByExample(scheduleExample);
     }
 
     public List<Schedule> listSchedule() {
@@ -91,6 +101,10 @@ public class ScheduleService {
         schedule.setKey(request.getResourceId());
         schedule.setUserId(SessionUtils.getUser().getId());
         return schedule;
+    }
+
+    public void removeJob(String resourceId) {
+        scheduleManager.removeJob(ApiTestJob.getJobKey(resourceId), ApiTestJob.getTriggerKey(resourceId));
     }
 
     public void addOrUpdateCronJob(Schedule request, JobKey jobKey, TriggerKey triggerKey, Class clazz) {

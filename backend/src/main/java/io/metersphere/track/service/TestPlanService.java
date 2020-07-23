@@ -1,11 +1,13 @@
 package io.metersphere.track.service;
 
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.TestCaseMapper;
+import io.metersphere.base.mapper.TestCaseReportMapper;
+import io.metersphere.base.mapper.TestPlanMapper;
+import io.metersphere.base.mapper.TestPlanTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
@@ -16,15 +18,15 @@ import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.MathUtils;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.controller.request.ProjectRequest;
-import io.metersphere.controller.request.member.QueryMemberRequest;
-import io.metersphere.dto.ProjectDTO;
+import io.metersphere.i18n.Translator;
 import io.metersphere.track.Factory.ReportComponentFactory;
 import io.metersphere.track.domain.ReportComponent;
-import io.metersphere.track.dto.*;
+import io.metersphere.track.dto.TestCaseReportMetricDTO;
+import io.metersphere.track.dto.TestPlanCaseDTO;
+import io.metersphere.track.dto.TestPlanDTO;
+import io.metersphere.track.dto.TestPlanDTOWithMetric;
 import io.metersphere.track.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
-import io.metersphere.i18n.Translator;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -35,10 +37,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -75,7 +75,8 @@ public class TestPlanService {
     public void addTestPlan(TestPlan testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
             MSException.throwException(Translator.get("plan_name_already_exists"));
-        };
+        }
+        ;
         testPlan.setId(UUID.randomUUID().toString());
         testPlan.setStatus(TestPlanStatus.Prepare.name());
         testPlan.setCreateTime(System.currentTimeMillis());
@@ -100,7 +101,7 @@ public class TestPlanService {
         return testPlanMapper.updateByPrimaryKeySelective(testPlan);
     }
 
-    private void checkTestPlanExist (TestPlan testPlan) {
+    private void checkTestPlanExist(TestPlan testPlan) {
         if (testPlan.getName() != null) {
             TestPlanExample example = new TestPlanExample();
             example.createCriteria()
@@ -142,8 +143,8 @@ public class TestPlanService {
 
         Map<String, TestCaseWithBLOBs> testCaseMap =
                 testCaseMapper.selectByExampleWithBLOBs(testCaseExample)
-                .stream()
-                .collect(Collectors.toMap(TestCase::getId, testcase -> testcase));
+                        .stream()
+                        .collect(Collectors.toMap(TestCase::getId, testcase -> testcase));
 
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestPlanTestCaseMapper batchMapper = sqlSession.getMapper(TestPlanTestCaseMapper.class);
@@ -193,7 +194,7 @@ public class TestPlanService {
     public List<TestPlanDTOWithMetric> listRelateAllPlan() {
         SessionUser user = SessionUtils.getUser();
 
-        QueryTestPlanRequest request =  new QueryTestPlanRequest();
+        QueryTestPlanRequest request = new QueryTestPlanRequest();
         request.setPrincipal(user.getId());
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         request.setPlanIds(extTestPlanTestCaseMapper.findRelateTestPlanId(user.getId(), SessionUtils.getCurrentWorkspaceId()));
@@ -231,8 +232,8 @@ public class TestPlanService {
                     }
                 });
             }
-            testPlan.setPassRate(MathUtils.getPercentWithDecimal(testPlan.getTested() == 0 ? 0 : testPlan.getPassed()*1.0/testPlan.getTested()));
-            testPlan.setTestRate(MathUtils.getPercentWithDecimal(testPlan.getTotal() == 0 ? 0 : testPlan.getTested()*1.0/testPlan.getTotal()));
+            testPlan.setPassRate(MathUtils.getPercentWithDecimal(testPlan.getTested() == 0 ? 0 : testPlan.getPassed() * 1.0 / testPlan.getTested()));
+            testPlan.setTestRate(MathUtils.getPercentWithDecimal(testPlan.getTotal() == 0 ? 0 : testPlan.getTested() * 1.0 / testPlan.getTotal()));
         });
 
         return testPlans;
@@ -263,7 +264,7 @@ public class TestPlanService {
         List<ReportComponent> components = ReportComponentFactory.createComponents(componentIds.toJavaList(String.class), testPlan);
 
         List<TestPlanCaseDTO> testPlanTestCases = listTestCaseByPlanId(planId);
-        for (TestPlanCaseDTO testCase: testPlanTestCases) {
+        for (TestPlanCaseDTO testCase : testPlanTestCases) {
             components.forEach(component -> {
                 component.readRecord(testCase);
             });
@@ -287,7 +288,7 @@ public class TestPlanService {
         TestPlan testPlan = new TestPlan();
         testPlan.setId(planId);
 
-        for (String status: statusList){
+        for (String status : statusList) {
             if (StringUtils.equals(status, TestPlanTestCaseStatus.Prepare.name())
                     || StringUtils.equals(status, TestPlanTestCaseStatus.Underway.name())) {
                 testPlan.setStatus(TestPlanStatus.Underway.name());

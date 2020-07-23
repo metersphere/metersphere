@@ -290,9 +290,10 @@
       },
       exportTestCase() {
         let config = {
-          url: '/test/case/export/testCase/' + [...this.selectIds],
-          method: 'get',
-          responseType: 'blob'
+          url: '/test/case/export/testcase',
+          method: 'post',
+          responseType: 'blob',
+          data: {ids: [...this.selectIds]}
         };
         this.result = this.$request(config).then(response => {
           const filename = this.$t('test_track.case.test_case') + ".xlsx";

@@ -8,7 +8,8 @@
           <el-menu-item :index="'/track/home'">
             {{ $t("i18n.home") }}
           </el-menu-item>
-          <el-submenu v-permission="['test_manager','test_user','test_viewer']" index="3" popper-class="submenu">
+          <el-submenu :class="{'deactivation':!isProjectActivation}"
+                      v-permission="['test_manager','test_user','test_viewer']" index="3" popper-class="submenu">
             <template v-slot:title>{{$t('commons.project')}}</template>
             <ms-recent-list :options="projectRecent"/>
             <el-divider/>
@@ -23,6 +24,7 @@
             <el-divider/>
             <ms-show-all :index="'/track/case/all'"/>
             <el-menu-item :index="testCaseEditPath" class="blank_item"></el-menu-item>
+            <el-menu-item :index="testCaseProjectPath" class="blank_item"></el-menu-item>
             <ms-create-button v-permission="['test_manager','test_user']" :index="'/track/case/create'" :title="$t('test_track.case.create_case')"/>
           </el-submenu>
 
@@ -55,6 +57,8 @@
         testPlanViewPath: '',
         isRouterAlive: true,
         testCaseEditPath: '',
+        testCaseProjectPath: '',
+        isProjectActivation: true,
         projectRecent: {
           title: this.$t('project.recent'),
           url: "/project/recent/5",
@@ -84,17 +88,12 @@
       }
     },
     watch: {
-      '$route'(to, from) {
-        let path = to.path;
-        if (path.indexOf("/track/plan/view") >= 0) {
-          this.testPlanViewPath = '/track/plan/view/' + this.$route.params.planId;
-          this.reload();
-        }
-        if (path.indexOf("/track/case/edit") >= 0) {
-          this.testCaseEditPath = '/track/case/edit/' + this.$route.params.caseId;
-          this.reload();
-        }
+      '$route'(to) {
+        this.init();
       }
+    },
+    mounted() {
+      this.init();
     },
     methods: {
       reload() {
@@ -102,6 +101,25 @@
         this.$nextTick(function () {
           this.isRouterAlive = true;
         });
+      },
+      init() {
+        let path = this.$route.path;
+        if (path.indexOf("/track/case") >= 0 && !!this.$route.params.projectId) {
+          this.testCaseProjectPath = path;
+          //不激活项目菜单栏
+          this.isProjectActivation =  false;
+          this.reload();
+        } else {
+          this.isProjectActivation =  true;
+        }
+        if (path.indexOf("/track/plan/view") >= 0) {
+          this.testPlanViewPath = path;
+          this.reload();
+        }
+        if (path.indexOf("/track/case/edit") >= 0) {
+          this.testCaseEditPath = path;
+          this.reload();
+        }
       }
     }
   }
@@ -125,4 +143,9 @@
   .el-divider--horizontal {
     margin: 0;
   }
+
+  .deactivation >>> .el-submenu__title {
+    border-bottom: white !important;
+  }
+
 </style>

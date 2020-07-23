@@ -54,7 +54,7 @@ public class TestCaseNodeService {
     }
 
     private void validateNode(TestCaseNode node) {
-        if(node.getLevel() > TestCaseConstants.MAX_NODE_DEPTH){
+        if (node.getLevel() > TestCaseConstants.MAX_NODE_DEPTH) {
             throw new RuntimeException(Translator.get("test_case_node_level_tip")
                     + TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level"));
         }
@@ -97,7 +97,7 @@ public class TestCaseNodeService {
 
         nodes.forEach(node -> {
             Integer level = node.getLevel();
-            if( nodeLevelMap.containsKey(level) ){
+            if (nodeLevelMap.containsKey(level)) {
                 nodeLevelMap.get(level).add(node);
             } else {
                 List<TestCaseNode> testCaseNodes = new ArrayList<>();
@@ -114,25 +114,26 @@ public class TestCaseNodeService {
 
     /**
      * 递归构建节点树
+     *
      * @param nodeLevelMap
      * @param rootNode
      * @return
      */
-    private TestCaseNodeDTO buildNodeTree(Map<Integer,List<TestCaseNode>> nodeLevelMap, TestCaseNode rootNode) {
+    private TestCaseNodeDTO buildNodeTree(Map<Integer, List<TestCaseNode>> nodeLevelMap, TestCaseNode rootNode) {
 
         TestCaseNodeDTO nodeTree = new TestCaseNodeDTO();
         BeanUtils.copyBean(nodeTree, rootNode);
         nodeTree.setLabel(rootNode.getName());
 
         List<TestCaseNode> lowerNodes = nodeLevelMap.get(rootNode.getLevel() + 1);
-        if(lowerNodes == null){
+        if (lowerNodes == null) {
             return nodeTree;
         }
 
         List<TestCaseNodeDTO> children = Optional.ofNullable(nodeTree.getChildren()).orElse(new ArrayList<>());
 
         lowerNodes.forEach(node -> {
-            if (node.getParentId() != null && node.getParentId().equals(rootNode.getId())){
+            if (node.getParentId() != null && node.getParentId().equals(rootNode.getId())) {
                 children.add(buildNodeTree(nodeLevelMap, node));
                 nodeTree.setChildren(children);
             }
@@ -150,7 +151,7 @@ public class TestCaseNodeService {
             StringBuilder path = new StringBuilder(testCase.getNodePath());
             List<String> pathLists = Arrays.asList(path.toString().split("/"));
             pathLists.set(request.getLevel(), request.getName());
-            path.delete( 0, path.length());
+            path.delete(0, path.length());
             for (int i = 1; i < pathLists.size(); i++) {
                 path = path.append("/").append(pathLists.get(i));
             }
@@ -175,6 +176,7 @@ public class TestCaseNodeService {
     /**
      * 获取当前计划下
      * 有关联数据的节点
+     *
      * @param planId
      * @return
      */
@@ -207,9 +209,9 @@ public class TestCaseNodeService {
         List<TestCaseNodeDTO> nodeTrees = getNodeTrees(nodes);
 
         Iterator<TestCaseNodeDTO> iterator = nodeTrees.iterator();
-        while(iterator.hasNext()){
+        while (iterator.hasNext()) {
             TestCaseNodeDTO rootNode = iterator.next();
-            if(pruningTree(rootNode, dataNodeIds)){
+            if (pruningTree(rootNode, dataNodeIds)) {
                 iterator.remove();
             }
         }
@@ -219,26 +221,27 @@ public class TestCaseNodeService {
 
     /**
      * 去除没有数据的节点
+     *
      * @param rootNode
      * @param nodeIds
      * @return 是否剪枝
-     * */
+     */
     public boolean pruningTree(TestCaseNodeDTO rootNode, List<String> nodeIds) {
 
         List<TestCaseNodeDTO> children = rootNode.getChildren();
 
-        if(children == null || children.isEmpty()){
+        if (children == null || children.isEmpty()) {
             //叶子节点,并且该节点无数据
-            if(!nodeIds.contains(rootNode.getId())){
+            if (!nodeIds.contains(rootNode.getId())) {
                 return true;
             }
         }
 
-        if(children != null) {
+        if (children != null) {
             Iterator<TestCaseNodeDTO> iterator = children.iterator();
-            while(iterator.hasNext()){
+            while (iterator.hasNext()) {
                 TestCaseNodeDTO subNode = iterator.next();
-                if(pruningTree(subNode, nodeIds)){
+                if (pruningTree(subNode, nodeIds)) {
                     iterator.remove();
                 }
             }
@@ -293,7 +296,8 @@ public class TestCaseNodeService {
                         hasNode = true;
                         createNodeByPathIterator(pathIterator, "/" + rootNodeName, nodeTree,
                                 pathMap, projectId, 2);
-                    };
+                    }
+                    ;
                 }
             }
 
@@ -309,18 +313,19 @@ public class TestCaseNodeService {
 
     /**
      * 根据目标节点路径，创建相关节点
+     *
      * @param pathIterator 遍历子路径
-     * @param path 当前路径
-     * @param treeNode 当前节点
-     * @param pathMap 记录节点路径对应的nodeId
+     * @param path         当前路径
+     * @param treeNode     当前节点
+     * @param pathMap      记录节点路径对应的nodeId
      */
     private void createNodeByPathIterator(Iterator<String> pathIterator, String path, TestCaseNodeDTO treeNode,
-                                  Map<String, String> pathMap, String projectId, Integer level) {
+                                          Map<String, String> pathMap, String projectId, Integer level) {
 
         List<TestCaseNodeDTO> children = treeNode.getChildren();
 
         if (children == null || children.isEmpty() || !pathIterator.hasNext()) {
-            pathMap.put(path , treeNode.getId());
+            pathMap.put(path, treeNode.getId());
             if (pathIterator.hasNext()) {
                 createNodeByPath(pathIterator, pathIterator.next().trim(), treeNode, projectId, level, path, pathMap);
             }
@@ -336,7 +341,8 @@ public class TestCaseNodeService {
                 hasNode = true;
                 createNodeByPathIterator(pathIterator, path + "/" + child.getName(),
                         child, pathMap, projectId, level + 1);
-            };
+            }
+            ;
         }
 
         //若子节点中不包含该目标节点，则在该节点下创建
@@ -347,10 +353,9 @@ public class TestCaseNodeService {
     }
 
     /**
-     *
      * @param pathIterator 迭代器，遍历子节点
-     * @param nodeName 当前节点
-     * @param pNode 父节点
+     * @param nodeName     当前节点
+     * @param pNode        父节点
      */
     private void createNodeByPath(Iterator<String> pathIterator, String nodeName,
                                   TestCaseNodeDTO pNode, String projectId, Integer level,
@@ -467,7 +472,7 @@ public class TestCaseNodeService {
         }
 
         List<TestCaseNodeDTO> children = rootNode.getChildren();
-        if (children != null && children.size() > 0){
+        if (children != null && children.size() > 0) {
             for (int i = 0; i < children.size(); i++) {
                 buildUpdateTestCase(children.get(i), testCases, updateNodes, rootPath + '/', rootNode.getId(), level + 1);
             }

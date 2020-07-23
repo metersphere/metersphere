@@ -42,7 +42,7 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
 
         if (nodePath != null) {
             String[] nodes = nodePath.split("/");
-            if ( nodes.length > TestCaseConstants.MAX_NODE_DEPTH + 1) {
+            if (nodes.length > TestCaseConstants.MAX_NODE_DEPTH + 1) {
                 stringBuilder.append(Translator.get("test_case_node_level_tip") +
                         TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level"));
             }
@@ -122,7 +122,7 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
         String pattern = "(^\\d+)(\\.)?";
         int index = stepDesc.length > stepRes.length ? stepDesc.length : stepRes.length;
 
-        for (int i = 0; i < index; i++){
+        for (int i = 0; i < index; i++) {
 
             JSONObject step = new JSONObject();
             step.put("num", i + 1);

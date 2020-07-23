@@ -1,9 +1,5 @@
 package io.metersphere.track.dto;
 
-import io.metersphere.track.domain.ReportBaseInfoComponent;
-import io.metersphere.track.domain.ReportFailureResultComponent;
-import io.metersphere.track.domain.ReportResultChartComponent;
-import io.metersphere.track.domain.ReportResultComponent;
 import lombok.Getter;
 import lombok.Setter;
 

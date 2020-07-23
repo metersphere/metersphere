@@ -100,6 +100,9 @@ public class PerformanceTestService {
             });
         }
 
+        //delete schedule
+        scheduleService.deleteByResourceId(testId);
+
         // delete load_test
         loadTestMapper.deleteByPrimaryKey(request.getId());
 

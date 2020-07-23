@@ -1,6 +1,5 @@
 package io.metersphere.track.dto;
 
-import io.metersphere.base.domain.TestPlan;
 import lombok.Getter;
 import lombok.Setter;
 

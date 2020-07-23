@@ -62,40 +62,40 @@ public class TestCaseController {
     }
 
     @PostMapping("/list")
-    public List<TestCase> getTestCaseByNodeId(@RequestBody List<String> nodeIds){
+    public List<TestCase> getTestCaseByNodeId(@RequestBody List<String> nodeIds) {
         return testCaseService.getTestCaseByNodeId(nodeIds);
     }
 
     @PostMapping("/name")
-    public List<TestCase> getTestCaseNames(@RequestBody QueryTestCaseRequest request){
+    public List<TestCase> getTestCaseNames(@RequestBody QueryTestCaseRequest request) {
         return testCaseService.getTestCaseNames(request);
     }
 
     @GetMapping("/get/{testCaseId}")
-    public TestCaseWithBLOBs getTestCase(@PathVariable String testCaseId){
+    public TestCaseWithBLOBs getTestCase(@PathVariable String testCaseId) {
         return testCaseService.getTestCase(testCaseId);
     }
 
     @GetMapping("/project/{testCaseId}")
-    public Project getProjectByTestCaseId(@PathVariable String testCaseId){
+    public Project getProjectByTestCaseId(@PathVariable String testCaseId) {
         return testCaseService.getProjectByTestCaseId(testCaseId);
     }
 
     @PostMapping("/add")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void addTestCase(@RequestBody TestCaseWithBLOBs testCase){
+    public void addTestCase(@RequestBody TestCaseWithBLOBs testCase) {
         testCaseService.addTestCase(testCase);
     }
 
     @PostMapping("/edit")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void editTestCase(@RequestBody TestCaseWithBLOBs testCase){
+    public void editTestCase(@RequestBody TestCaseWithBLOBs testCase) {
         testCaseService.editTestCase(testCase);
     }
 
     @PostMapping("/delete/{testCaseId}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public int deleteTestCase(@PathVariable String testCaseId){
+    public int deleteTestCase(@PathVariable String testCaseId) {
         return testCaseService.deleteTestCase(testCaseId);
     }
 
@@ -107,24 +107,25 @@ public class TestCaseController {
 
     @GetMapping("/export/template")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void testCaseTemplateExport(HttpServletResponse response){
+    public void testCaseTemplateExport(HttpServletResponse response) {
         testCaseService.testCaseTemplateExport(response);
     }
-    @GetMapping("/export/testCase/{testCaseIds}")
+
+    @PostMapping("/export/testcase")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void testCaseExport(HttpServletResponse response,QueryTestCaseRequest request){
-        testCaseService.testCaseExport(response,request);
+    public void testCaseExport(HttpServletResponse response, @RequestBody TestCaseBatchRequest request) {
+        testCaseService.testCaseExport(response, request);
     }
 
     @PostMapping("/batch/edit")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void editTestCaseBath(@RequestBody TestCaseBatchRequest request){
+    public void editTestCaseBath(@RequestBody TestCaseBatchRequest request) {
         testCaseService.editTestCaseBath(request);
     }
 
     @PostMapping("/batch/delete")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void deleteTestCaseBath(@RequestBody TestCaseBatchRequest request){
+    public void deleteTestCaseBath(@RequestBody TestCaseBatchRequest request) {
         testCaseService.deleteTestCaseBath(request);
     }
 
