@@ -22,7 +22,7 @@ import java.util.Map;
 
 public class PostmanParser extends ApiImportAbstractParser {
 
-    private static Map<String, String> postmanBodyRowMap;
+    private static final Map<String, String> postmanBodyRowMap;
 
     static {
         postmanBodyRowMap = new HashMap<>();

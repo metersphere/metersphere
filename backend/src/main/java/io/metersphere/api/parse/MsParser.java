@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpMethod;
 
 import java.io.InputStream;
-import java.util.Map;
 
 public class MsParser extends ApiImportAbstractParser {
 
@@ -19,9 +18,7 @@ public class MsParser extends ApiImportAbstractParser {
     public ApiImport parse(InputStream source, ApiTestImportRequest request) {
         String testStr = getApiTestStr(source);
         ApiImport apiImport = JSON.parseObject(parsePluginFormat(testStr), ApiImport.class);
-        apiImport.getScenarios().forEach(scenario -> {
-            setScenarioByRequest(scenario, request);
-        });
+        apiImport.getScenarios().forEach(scenario -> setScenarioByRequest(scenario, request));
         return apiImport;
     }
 
@@ -45,9 +42,7 @@ public class MsParser extends ApiImportAbstractParser {
                         requestObject.put("type", RequestType.HTTP);
                     }
 
-                    requestTmpObject.keySet().forEach(key -> {
-                        requestObject.put(key, requestTmpObject.get(key));
-                    });;
+                    requestTmpObject.keySet().forEach(key -> requestObject.put(key, requestTmpObject.get(key)));
                     requestObject.put("name", requestName);
                     JSONArray bodies = requestObject.getJSONArray("body");
                     if (StringUtils.equalsIgnoreCase(requestObject.getString("method"), HttpMethod.POST.name()) && bodies != null) {
