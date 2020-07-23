@@ -264,7 +264,7 @@ public class APITestService {
         ApiImportParser apiImportParser = ApiImportParserFactory.getApiImportParser(request.getPlatform());
         ApiImport apiImport = null;
         try {
-            apiImport = Objects.requireNonNull(apiImportParser).parse(file.getInputStream(), request);
+            apiImport = Objects.requireNonNull(apiImportParser).parse(file == null ? null : file.getInputStream(), request);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(Translator.get("parse_data_error"));
