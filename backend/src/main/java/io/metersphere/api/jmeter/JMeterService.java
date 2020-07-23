@@ -10,10 +10,9 @@ import org.apache.jmeter.visualizers.backend.BackendListener;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-
-import javax.annotation.Resource;
 
 @Service
 public class JMeterService {

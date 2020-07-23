@@ -21,42 +21,43 @@ public class TestCaseNodeController {
     TestCaseNodeService testCaseNodeService;
 
     @GetMapping("/list/{projectId}")
-    public List<TestCaseNodeDTO> getNodeByProjectId(@PathVariable String projectId){
+    public List<TestCaseNodeDTO> getNodeByProjectId(@PathVariable String projectId) {
         return testCaseNodeService.getNodeTreeByProjectId(projectId);
     }
+
     /*模块列表列表*/
     @GetMapping("/list/all/plan/{planId}")
-    public List<TestCaseNodeDTO> getAllNodeByPlanId(@PathVariable String planId){
+    public List<TestCaseNodeDTO> getAllNodeByPlanId(@PathVariable String planId) {
         return testCaseNodeService.getAllNodeByPlanId(planId);
     }
 
     @GetMapping("/list/plan/{planId}")
-    public List<TestCaseNodeDTO> getNodeByPlanId(@PathVariable String planId){
+    public List<TestCaseNodeDTO> getNodeByPlanId(@PathVariable String planId) {
         return testCaseNodeService.getNodeByPlanId(planId);
     }
 
     @PostMapping("/add")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public String addNode(@RequestBody TestCaseNode node){
+    public String addNode(@RequestBody TestCaseNode node) {
         return testCaseNodeService.addNode(node);
     }
 
     @PostMapping("/edit")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public int editNode(@RequestBody DragNodeRequest node){
+    public int editNode(@RequestBody DragNodeRequest node) {
         return testCaseNodeService.editNode(node);
     }
 
     @PostMapping("/delete")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public int deleteNode(@RequestBody List<String> nodeIds){
+    public int deleteNode(@RequestBody List<String> nodeIds) {
         //nodeIds 包含删除节点ID及其所有子节点ID
         return testCaseNodeService.deleteNode(nodeIds);
     }
 
     @PostMapping("/drag")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void dragNode(@RequestBody DragNodeRequest node){
+    public void dragNode(@RequestBody DragNodeRequest node) {
         testCaseNodeService.dragNode(node);
     }
 }

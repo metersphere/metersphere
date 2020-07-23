@@ -250,7 +250,7 @@ public class TestCaseService {
         if (!testCases.isEmpty()) {
             AtomicInteger sort = new AtomicInteger();
             AtomicInteger num = new AtomicInteger();
-            num.set(getNextNum(projectId)+testCases.size());
+            num.set(getNextNum(projectId) + testCases.size());
             testCases.forEach(testcase -> {
                 testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
                 testcase.setSort(sort.getAndIncrement());
@@ -431,6 +431,7 @@ public class TestCaseService {
 
     /**
      * 获取项目下一个num (页面展示的ID)
+     *
      * @return
      */
     private int getNextNum(String projectId) {
@@ -438,7 +439,7 @@ public class TestCaseService {
         if (testCase == null) {
             return 100001;
         } else {
-            return Optional.ofNullable(testCase.getNum()+1).orElse(100001);
+            return Optional.ofNullable(testCase.getNum() + 1).orElse(100001);
         }
     }
 }

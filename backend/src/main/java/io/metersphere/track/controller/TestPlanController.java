@@ -63,41 +63,41 @@ public class TestPlanController {
     }
 
     @PostMapping("/get/{testPlanId}")
-    public TestPlan getTestPlan(@PathVariable String testPlanId){
+    public TestPlan getTestPlan(@PathVariable String testPlanId) {
         return testPlanService.getTestPlan(testPlanId);
     }
 
     @PostMapping("/add")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void addTestPlan(@RequestBody TestPlan testPlan){
+    public void addTestPlan(@RequestBody TestPlan testPlan) {
         testPlanService.addTestPlan(testPlan);
     }
 
     @PostMapping("/edit")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void editTestPlan(@RequestBody TestPlan testPlan){
+    public void editTestPlan(@RequestBody TestPlan testPlan) {
         testPlanService.editTestPlan(testPlan);
     }
 
     @PostMapping("/edit/status/{planId}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void editTestPlanStatus(@PathVariable String planId){
+    public void editTestPlanStatus(@PathVariable String planId) {
         testPlanService.editTestPlanStatus(planId);
     }
 
     @PostMapping("/delete/{testPlanId}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public int deleteTestPlan(@PathVariable String testPlanId){
+    public int deleteTestPlan(@PathVariable String testPlanId) {
         return testPlanService.deleteTestPlan(testPlanId);
     }
 
     @PostMapping("/relevance")
-    public void testPlanRelevance(@RequestBody PlanCaseRelevanceRequest request){
+    public void testPlanRelevance(@RequestBody PlanCaseRelevanceRequest request) {
         testPlanService.testPlanRelevance(request);
     }
 
     @GetMapping("/get/metric/{planId}")
-    public TestCaseReportMetricDTO getMetric(@PathVariable String planId){
+    public TestCaseReportMetricDTO getMetric(@PathVariable String planId) {
         return testPlanService.getMetric(planId);
     }
 }

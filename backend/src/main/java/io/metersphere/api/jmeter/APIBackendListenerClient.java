@@ -1,6 +1,5 @@
 package io.metersphere.api.jmeter;
 
-import io.github.ningyu.jmeter.plugin.dubbo.sample.ProviderService;
 import io.metersphere.api.service.APIReportService;
 import io.metersphere.api.service.APITestService;
 import io.metersphere.commons.constants.APITestStatus;

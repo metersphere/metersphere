@@ -55,7 +55,6 @@ public class LdapService {
         getMappingAttr("email", dirContextOperations);
 
 
-
         return dirContextOperations;
     }
 

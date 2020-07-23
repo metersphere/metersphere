@@ -55,7 +55,7 @@ public class ReportResultComponent extends ReportComponent {
         });
 
         for (TestCaseReportModuleResultDTO moduleResult : moduleResultMap.values()) {
-            moduleResult.setPassRate(MathUtils.getPercentWithDecimal(moduleResult.getPassCount()*1.0f/moduleResult.getCaseCount()));
+            moduleResult.setPassRate(MathUtils.getPercentWithDecimal(moduleResult.getPassCount() * 1.0f / moduleResult.getCaseCount()));
             if (moduleResult.getCaseCount() <= 0) {
                 moduleResultMap.remove(moduleResult.getModuleId());
             }
@@ -69,9 +69,9 @@ public class ReportResultComponent extends ReportComponent {
 
         List<TestCaseNodeDTO> children = rootNode.getChildren();
 
-        if(children != null) {
+        if (children != null) {
             Iterator<TestCaseNodeDTO> iterator = children.iterator();
-            while(iterator.hasNext()){
+            while (iterator.hasNext()) {
                 getChildIds(iterator.next(), childIds);
             }
         }
@@ -95,7 +95,8 @@ public class ReportResultComponent extends ReportComponent {
                 if (StringUtils.isNotBlank(testCase.getIssues())) {
                     if (JSON.parseObject(testCase.getIssues()).getBoolean("hasIssues")) {
                         moduleResult.setIssuesCount(moduleResult.getIssuesCount() + 1);
-                    };
+                    }
+                    ;
                 }
                 moduleResultMap.put(rootNodeId, moduleResult);
                 return;

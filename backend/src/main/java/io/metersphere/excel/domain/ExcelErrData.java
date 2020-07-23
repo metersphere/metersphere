@@ -11,9 +11,10 @@ public class ExcelErrData<T> {
 
     private String errMsg;
 
-    public ExcelErrData(){}
+    public ExcelErrData() {
+    }
 
-    public ExcelErrData(T t, Integer rowNum,String errMsg){
+    public ExcelErrData(T t, Integer rowNum, String errMsg) {
         this.t = t;
         this.rowNum = rowNum;
         this.errMsg = errMsg;
