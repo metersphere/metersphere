@@ -231,8 +231,8 @@ public class ReportService {
                 List<LoadTestReportLog> loadTestReportLogs = loadTestReportLogMapper.selectByExampleWithBLOBs(example);
                 LoadTestReportLog content = loadTestReportLogs.get(0);
                 outputStream.write(content.getContent().getBytes());
+                outputStream.flush();
             }
-            outputStream.flush();
         }
     }
 

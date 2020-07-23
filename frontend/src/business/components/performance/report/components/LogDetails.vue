@@ -36,6 +36,8 @@
       getResource() {
         this.result = this.$get("/performance/report/log/resource/" + this.id, data => {
           this.resource = data.data;
+          this.page = 1;
+          this.logContent = [];
         })
       },
       load(resourceId) {
