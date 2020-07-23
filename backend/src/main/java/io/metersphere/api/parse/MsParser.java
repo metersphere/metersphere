@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpMethod;
 
 import java.io.InputStream;
+import java.util.Map;
 
 public class MsParser extends ApiImportAbstractParser {
 
@@ -37,9 +38,17 @@ public class MsParser extends ApiImportAbstractParser {
                 JSONArray requestsObjects = new JSONArray();
                 JSONObject requestsObject = testObject.getJSONObject(scenarioName);
                 requestsObject.keySet().forEach(requestName -> {
-                    JSONObject requestObject = requestsObject.getJSONObject(requestName);
+                    JSONObject requestObject = new JSONObject(true);
+                    JSONObject requestTmpObject = requestsObject.getJSONObject(requestName);
+                    //排序，确保type在第一个，否则转换失败
+                    if (StringUtils.isBlank(requestTmpObject.getString("type"))) {
+                        requestObject.put("type", RequestType.HTTP);
+                    }
+
+                    requestTmpObject.keySet().forEach(key -> {
+                        requestObject.put(key, requestTmpObject.get(key));
+                    });;
                     requestObject.put("name", requestName);
-                    requestObject.put("type", RequestType.HTTP);
                     JSONArray bodies = requestObject.getJSONArray("body");
                     if (StringUtils.equalsIgnoreCase(requestObject.getString("method"), HttpMethod.POST.name()) && bodies != null) {
                         StringBuilder bodyStr = new StringBuilder();
