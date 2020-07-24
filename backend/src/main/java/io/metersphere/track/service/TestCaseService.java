@@ -32,6 +32,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -98,17 +99,45 @@ public class TestCaseService {
     }
 
     private void checkTestCaseExist(TestCaseWithBLOBs testCase) {
-        if (testCase.getName() != null) {
+
+        // 全部字段值相同才判断为用例存在
+        if (testCase != null) {
             TestCaseExample example = new TestCaseExample();
             TestCaseExample.Criteria criteria = example.createCriteria();
             criteria.andNameEqualTo(testCase.getName())
-                    .andProjectIdEqualTo(testCase.getProjectId());
+                    .andProjectIdEqualTo(testCase.getProjectId())
+                    .andNodeIdEqualTo(testCase.getNodeId())
+                    .andNodePathEqualTo(testCase.getNodePath())
+                    .andTypeEqualTo(testCase.getType())
+                    .andMaintainerEqualTo(testCase.getMaintainer())
+                    .andPriorityEqualTo(testCase.getPriority())
+                    .andMethodEqualTo(testCase.getMethod());
+
+            if (StringUtils.isNotBlank(testCase.getTestId())) {
+                criteria.andTestIdEqualTo(testCase.getTestId());
+            }
+
+            if (StringUtils.isNotBlank(testCase.getPrerequisite())) {
+                criteria.andPrerequisiteEqualTo(testCase.getPrerequisite());
+            }
+
             if (StringUtils.isNotBlank(testCase.getId())) {
                 criteria.andIdNotEqualTo(testCase.getId());
             }
-            if (testCaseMapper.selectByExample(example).size() > 0) {
-                MSException.throwException(Translator.get("test_case_already_exists"));
+
+            List<TestCaseWithBLOBs> caseList = testCaseMapper.selectByExampleWithBLOBs(example);
+
+            // 如果上边字段全部相同，去检查 steps 和 remark
+            if (!CollectionUtils.isEmpty(caseList)) {
+                caseList.forEach(tc -> {
+                    String steps = tc.getSteps();
+                    String remark = tc.getRemark();
+                    if (StringUtils.equals(steps, testCase.getSteps()) && StringUtils.equals(remark, testCase.getRemark())) {
+                        MSException.throwException(Translator.get("test_case_already_exists"));
+                    }
+                });
             }
+
         }
     }
 
