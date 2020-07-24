@@ -646,10 +646,9 @@ class JMXHttpRequest {
         }
         let url = new URL(request.url);
         this.hostname = decodeURIComponent(url.hostname);
-        this.pathname = decodeURIComponent(url.pathname);
         this.port = url.port;
         this.protocol = url.protocol.split(":")[0];
-        this.pathname = this.getPostQueryParameters(request, this.pathname);
+        this.pathname = this.getPostQueryParameters(request, decodeURIComponent(url.pathname));
       } else {
         if (environment) {
           this.port = environment.port;
@@ -666,7 +665,7 @@ class JMXHttpRequest {
       path += '?';
       request.parameters.forEach(parameter => {
         if (parameter.name) {
-          path += (parameter.name + '=' + parameter.value + '&');
+          path += ((parameter.name) + '=' + (parameter.value) + '&');
         }
       });
     }

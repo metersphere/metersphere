@@ -87,7 +87,12 @@ public class APIReportService {
 
         // report
         report.setUpdateTime(System.currentTimeMillis());
-        report.setStatus(APITestStatus.Completed.name());
+        if (result.getError() > 0) {
+            report.setStatus(APITestStatus.Error.name());
+        } else {
+            report.setStatus(APITestStatus.Success.name());
+        }
+
         apiTestReportMapper.updateByPrimaryKeySelective(report);
     }
 
