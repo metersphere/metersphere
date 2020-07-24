@@ -353,7 +353,7 @@ public class TestCaseService {
     }
 
     private List<TestCaseExcelData> generateTestCaseExcel(TestCaseBatchRequest request) {
-        List<TestCaseDTO> TestCaseList = extTestCaseMapper.listBytestCaseIds(request);
+        List<TestCaseDTO> TestCaseList = extTestCaseMapper.listByTestCaseIds(request);
         List<TestCaseExcelData> list = new ArrayList<>();
         SessionUser user = SessionUtils.getUser();
         StringBuilder step = new StringBuilder("");
