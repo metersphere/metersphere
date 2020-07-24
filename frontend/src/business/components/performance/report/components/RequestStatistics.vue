@@ -25,7 +25,7 @@
 
         <el-table-column
           prop="ko"
-          label="KO%"
+          label="KO"
           align="center"
         />
 
@@ -109,7 +109,7 @@
       },
       getSummaries(param) {
         const {data} = param;
-        const sums = []
+        const sums = [];
         let allSamples = data.reduce(function (total, currentValue) {
           return total + parseFloat(currentValue.samples);
         }, 0);
