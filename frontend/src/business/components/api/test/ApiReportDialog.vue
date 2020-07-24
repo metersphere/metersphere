@@ -1,6 +1,6 @@
 <template>
   <el-dialog :title="$t('api_report.title')" :visible.sync="reportVisible">
-    <el-table :data="tableData" v-loading="result.loading">
+    <el-table border class="adjust-table" :data="tableData" v-loading="result.loading">
       <el-table-column :label="$t('commons.name')" width="150" show-overflow-tooltip>
         <template v-slot:default="scope">
           <el-link type="info" @click="link(scope.row)">{{ scope.row.name }}</el-link>

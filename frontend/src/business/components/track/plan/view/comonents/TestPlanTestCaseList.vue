@@ -34,6 +34,8 @@
       <status-edit ref="statusEdit" :plan-id="planId" :select-ids="selectIds" @refresh="initTableData"/>
 
       <el-table
+        class="adjust-table"
+        border
         @select-all="handleSelectAll"
         @filter-change="filter"
         @sort-change="sort"

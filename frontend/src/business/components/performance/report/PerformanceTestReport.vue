@@ -8,7 +8,7 @@
                            :show-create="false"/>
         </template>
 
-        <el-table :data="tableData" class="test-content"
+        <el-table border :data="tableData" class="adjust-table test-content"
                   @sort-change="sort"
                   @filter-change="filter"
         >

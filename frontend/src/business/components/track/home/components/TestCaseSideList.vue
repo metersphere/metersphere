@@ -4,6 +4,8 @@
 
     <el-table
       row-key="id"
+      border
+      class="adjust-table"
       @row-click="editTestCase"
       :data="tableData"
       v-loading="result.loading">
