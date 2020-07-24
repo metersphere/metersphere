@@ -1,9 +1,12 @@
 <template>
   <div>
-    <el-tag size="mini" type="primary" v-if="row.status === 'Starting'">
+    <el-tag size="mini" type="info" v-if="row.status === 'Starting'">
       {{ row.status }}
     </el-tag>
-    <el-tag size="mini" type="success" v-else-if="row.status === 'Running'">
+    <el-tag size="mini" type="primary" effect="plain" v-else-if="row.status === 'Running'">
+      {{ row.status }}
+    </el-tag>
+    <el-tag size="mini" type="success" v-else-if="row.status === 'Success'">
       {{ row.status }}
     </el-tag>
     <el-tag size="mini" type="warning" v-else-if="row.status === 'Reporting'">
