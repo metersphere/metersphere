@@ -100,7 +100,7 @@
     <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                          :total="total"/>
 
-    <test-report-template-list @openReport="openReport" ref="testReporTtemplateList"/>
+    <test-report-template-list @openReport="openReport" ref="testReportTemplateList"/>
     <test-case-report-view @refresh="initTableData" ref="testCaseReportView"/>
     <ms-delete-confirm :title="$t('test_track.plan.plan_delete')" @delete="_handleDelete" ref="deleteConfirm"/>
 
@@ -225,7 +225,7 @@
           this.initTableData();
         },
         openTestReportTemplate(data) {
-          this.$refs.testReporTtemplateList.open(data.id);
+          this.$refs.testReportTemplateList.open(data.id);
         },
         openReport(planId, reportId) {
           if (reportId) {

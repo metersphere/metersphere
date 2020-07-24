@@ -199,23 +199,21 @@ public class UserService {
         return getUserDTO(userId);
     }
 
-    public UserDTO getUserDTOByEmail(String email) {
+    public UserDTO getUserDTOByEmail(String email, String... source) {
         UserExample example = new UserExample();
-        example.createCriteria().andEmailEqualTo(email);
-        List<User> users = userMapper.selectByExample(example);
-        if (users == null || users.size() <= 0) {
-            return null;
-        }
-        return getUserDTO(users.get(0).getId());
-    }
+        UserExample.Criteria criteria = example.createCriteria();
+        criteria.andEmailEqualTo(email);
 
-    public UserDTO getLoginUserByEmail(String email, List<String> list) {
-        UserExample example = new UserExample();
-        example.createCriteria().andEmailEqualTo(email).andSourceIn(list);
+        if (!CollectionUtils.isEmpty(Arrays.asList(source))) {
+            criteria.andSourceIn(Arrays.asList(source));
+        }
+
         List<User> users = userMapper.selectByExample(example);
+
         if (users == null || users.size() <= 0) {
             return null;
         }
+
         return getUserDTO(users.get(0).getId());
     }
 

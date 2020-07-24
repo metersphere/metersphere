@@ -117,7 +117,7 @@ public class ShiroDBRealm extends AuthorizingRealm {
         UserDTO user = userService.getLoginUser(userId, Arrays.asList(UserSource.LDAP.name(), UserSource.LOCAL.name()));
         String msg;
         if (user == null) {
-            user = userService.getLoginUserByEmail(email, Arrays.asList(UserSource.LDAP.name(), UserSource.LOCAL.name()));
+            user = userService.getUserDTOByEmail(email, UserSource.LDAP.name(), UserSource.LOCAL.name());
             if (user == null) {
                 msg = "The user does not exist: " + userId;
                 logger.warn(msg);
@@ -136,7 +136,7 @@ public class ShiroDBRealm extends AuthorizingRealm {
         UserDTO user = userService.getLoginUser(userId, Collections.singletonList(UserSource.LOCAL.name()));
         String msg;
         if (user == null) {
-            user = userService.getLoginUserByEmail(userId, Collections.singletonList(UserSource.LOCAL.name()));
+            user = userService.getUserDTOByEmail(userId, UserSource.LOCAL.name());
             if (user == null) {
                 msg = "The user does not exist: " + userId;
                 logger.warn(msg);
