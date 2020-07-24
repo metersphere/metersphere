@@ -27,7 +27,7 @@ public class Swagger2Parser extends ApiImportAbstractParser {
 
     @Override
     public ApiImport parse(InputStream source, ApiTestImportRequest request) {
-        Swagger swagger = null;
+        Swagger swagger;
         if (StringUtils.isNotBlank(request.getSwaggerUrl())) {
             swagger = new SwaggerParser().read(request.getSwaggerUrl());
         } else {
@@ -35,9 +35,7 @@ public class Swagger2Parser extends ApiImportAbstractParser {
         }
         ApiImport apiImport = new ApiImport();
         apiImport.setScenarios(parseRequests(swagger));
-        apiImport.getScenarios().forEach(scenario -> {
-            scenario.setEnvironmentId(request.getEnvironmentId());
-        });
+        apiImport.getScenarios().forEach(scenario -> scenario.setEnvironmentId(request.getEnvironmentId()));
         return apiImport;
     }
 
@@ -45,7 +43,6 @@ public class Swagger2Parser extends ApiImportAbstractParser {
         Map<String, Path> paths = swagger.getPaths();
         Set<String> pathNames = paths.keySet();
         Map<String, Scenario> scenarioMap = new HashMap<>();
-        List<Scenario> scenarios = new ArrayList<>();
         for (String pathName : pathNames) {
             Path path = paths.get(pathName);
             Map<HttpMethod, Operation> operationMap = path.getOperationMap();
@@ -78,8 +75,7 @@ public class Swagger2Parser extends ApiImportAbstractParser {
 
             }
         }
-        scenarios.addAll(scenarioMap.values());
-        return scenarios;
+        return new ArrayList<>(scenarioMap.values());
     }
 
     private void parseParameters(Operation operation, Map<String, Model> definitions, HttpRequest request) {
