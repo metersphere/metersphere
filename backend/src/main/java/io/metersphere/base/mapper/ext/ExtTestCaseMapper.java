@@ -16,7 +16,7 @@ public interface ExtTestCaseMapper {
 
     List<TestCaseDTO> listByMethod(@Param("request") QueryTestCaseRequest request);
 
-    List<TestCaseDTO> listBytestCaseIds(@Param("request") TestCaseBatchRequest request);
+    List<TestCaseDTO> listByTestCaseIds(@Param("request") TestCaseBatchRequest request);
 
     TestCase getMaxNumByProjectId(@Param("projectId") String projectId);
 

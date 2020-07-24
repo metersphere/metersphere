@@ -85,10 +85,20 @@
             <if test="request.filters != null and request.filters.size() > 0">
                 <foreach collection="request.filters.entrySet()" index="key" item="values">
                     <if test="values != null and values.size() > 0">
-                        and r.${key} in
-                        <foreach collection="values" item="value" separator="," open="(" close=")">
-                            #{value}
-                        </foreach>
+                        <choose>
+                            <when test="key=='status'">
+                                and r.status in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <otherwise>
+                                and r.trigger_mode in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </otherwise>
+                        </choose>
                     </if>
                 </foreach>
             </if>
