@@ -161,7 +161,7 @@
         :is-read-only="isReadOnly"
         @refreshTable="search"/>
 
-      <test-report-template-list @openReport="openReport" ref="testReporTtemplateList"/>
+      <test-report-template-list @openReport="openReport" ref="testReportTemplateList"/>
       <test-case-report-view @refresh="initTableData" ref="testCaseReportView"/>
 
     </el-card>
@@ -391,7 +391,7 @@
         this.initTableData();
       },
       openTestReport() {
-        this.$refs.testReporTtemplateList.open(this.planId);
+        this.$refs.testReportTemplateList.open(this.planId);
       },
       statusChange(param) {
         this.$post('/test/plan/case/edit', param, () => {
