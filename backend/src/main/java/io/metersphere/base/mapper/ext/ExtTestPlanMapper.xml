@@ -95,7 +95,8 @@
         </if>
     </sql>
 
-    <select id="list" resultMap="BaseResultMap" parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
+    <select id="list" resultMap="BaseResultMap"
+            parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
         select test_plan.*, project.name as project_name
         from test_plan
         left join project on test_plan.project_id = project.id
@@ -126,10 +127,21 @@
             <if test="request.filters != null and request.filters.size() > 0">
                 <foreach collection="request.filters.entrySet()" index="key" item="values">
                     <if test="values != null and values.size() > 0">
-                        and ${key} in
-                        <foreach collection="values" item="value" separator="," open="(" close=")">
-                            #{value}
-                        </foreach>
+                        <choose>
+
+                            <when test="key=='stage'">
+                                and test_plan.stage in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <otherwise>
+                                and test_plan.status in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </otherwise>
+                        </choose>
                     </if>
                 </foreach>
             </if>
@@ -149,7 +161,7 @@
         where test_plan.workspace_id = #{request.workspaceId}
         and (test_plan.principal = #{request.principal}
         <if test="request.planIds != null and request.planIds.size() > 0">
-            or test_plan.id in 
+            or test_plan.id in
             <foreach collection="request.planIds" item="planId" open="(" close=")" separator=",">
                 #{planId}
             </foreach>

@@ -3,12 +3,12 @@
 <mapper namespace="io.metersphere.base.mapper.ext.ExtLoadTestReportMapper">
 
     <resultMap id="BaseResultMap" type="io.metersphere.base.domain.LoadTestReport">
-        <id column="id" jdbcType="VARCHAR" property="id" />
-        <result column="test_id" jdbcType="VARCHAR" property="testId" />
-        <result column="name" jdbcType="VARCHAR" property="name" />
-        <result column="create_time" jdbcType="BIGINT" property="createTime" />
-        <result column="update_time" jdbcType="BIGINT" property="updateTime" />
-        <result column="status" jdbcType="VARCHAR" property="status" />
+        <id column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="test_id" jdbcType="VARCHAR" property="testId"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="create_time" jdbcType="BIGINT" property="createTime"/>
+        <result column="update_time" jdbcType="BIGINT" property="updateTime"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -95,10 +95,21 @@
             <if test="reportRequest.filters != null and reportRequest.filters.size() > 0">
                 <foreach collection="reportRequest.filters.entrySet()" index="key" item="values">
                     <if test="values != null and values.size() > 0">
-                        and ltr.${key} in
-                        <foreach collection="values" item="value" separator="," open="(" close=")">
-                            #{value}
-                        </foreach>
+                        <choose>
+                            <when test="key=='status'">
+                                and ltr.status in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <otherwise>
+                                and ltr.trigger_mode in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </otherwise>
+                        </choose>
+
                     </if>
                 </foreach>
             </if>

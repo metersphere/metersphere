@@ -51,7 +51,8 @@
         </if>
     </sql>
 
-    <select id="list" resultMap="BaseResultMap" parameterType="io.metersphere.track.request.testplan.QueryTestPlanRequest">
+    <select id="list" resultMap="BaseResultMap"
+            parameterType="io.metersphere.track.request.testplan.QueryTestPlanRequest">
         select load_test.*, project.name as project_name, user.name as user_name
         from load_test
         left join project on load_test.project_id = project.id
@@ -83,7 +84,7 @@
             <if test="request.filters != null and request.filters.size() > 0">
                 <foreach collection="request.filters.entrySet()" index="key" item="values">
                     <if test="values != null and values.size() > 0">
-                        and load_test.${key} in
+                        and load_test.status in
                         <foreach collection="values" item="value" separator="," open="(" close=")">
                             #{value}
                         </foreach>
