@@ -83,7 +83,8 @@
           {text: 'Running', value: 'Running'},
           {text: 'Reporting', value: 'Reporting'},
           {text: 'Completed', value: 'Completed'},
-          {text: 'Error', value: 'Error'}
+          {text: 'Error', value: 'Error'},
+          {text: 'Success', value: 'Success'},
         ],
         triggerFilters: [
           {text: this.$t('commons.trigger_mode.manual'), value: 'MANUAL'},
