@@ -283,10 +283,20 @@ export class HttpRequest extends Request {
           info: 'api_test.request.input_path'
         }
       }
-    } else if (!this.url) {
-      return {
-        isValid: false,
-        info: 'api_test.request.input_url'
+    } else {
+      if  (!this.url) {
+        return {
+          isValid: false,
+          info: 'api_test.request.input_url'
+        }
+      }
+      try {
+        new URL(this.url)
+      } catch (e) {
+        return {
+          isValid: false,
+          info: 'api_test.request.url_invalid'
+        }
       }
     }
     return {
@@ -631,6 +641,9 @@ class JMXHttpRequest {
       this.useEnvironment = request.useEnvironment;
       this.method = request.method;
       if (!request.useEnvironment) {
+        if (!request.url.startsWith("http://") && !request.url.startsWith("https://")) {
+          request.url = 'http://' + request.url;
+        }
         let url = new URL(request.url);
         this.hostname = decodeURIComponent(url.hostname);
         this.pathname = decodeURIComponent(url.pathname);

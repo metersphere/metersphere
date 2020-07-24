@@ -7,7 +7,7 @@
                            :title="$t('api_report.title')"
                            :show-create="false"/>
         </template>
-        <el-table :data="tableData" class="table-content" @sort-change="sort"
+        <el-table border :data="tableData" class="adjust-table table-content" @sort-change="sort"
                   @filter-change="filter" @row-click="handleView">
           <el-table-column :label="$t('commons.name')" width="200" show-overflow-tooltip prop="name">
           </el-table-column>
@@ -83,7 +83,8 @@
           {text: 'Running', value: 'Running'},
           {text: 'Reporting', value: 'Reporting'},
           {text: 'Completed', value: 'Completed'},
-          {text: 'Error', value: 'Error'}
+          {text: 'Error', value: 'Error'},
+          {text: 'Success', value: 'Success'},
         ],
         triggerFilters: [
           {text: this.$t('commons.trigger_mode.manual'), value: 'MANUAL'},
