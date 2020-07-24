@@ -3,33 +3,34 @@
     <el-card class="box-card" v-loading="result.loading">
       <el-form :model="form" size="small" :rules="rules" :disabled="show" ref="form">
         <el-form-item :label="$t('ldap.url')" prop="url">
-          <el-input v-model="form.url" :placeholder="$t('ldap.input_url_placeholder')"></el-input>
+          <el-input v-model="form.url" :placeholder="$t('ldap.input_url_placeholder')"/>
         </el-form-item>
         <el-form-item :label="$t('ldap.dn')" prop="dn">
-          <el-input v-model="form.dn" :placeholder="$t('ldap.input_dn')"></el-input>
+          <el-input v-model="form.dn" :placeholder="$t('ldap.input_dn')"/>
         </el-form-item>
         <el-form-item :label="$t('ldap.password')" prop="password">
           <el-input v-model="form.password" :placeholder="$t('ldap.input_password')" show-password
-                    auto-complete="new-password"></el-input>
+                    auto-complete="new-password"/>
         </el-form-item>
         <el-form-item :label="$t('ldap.ou')" prop="ou">
-          <el-input v-model="form.ou" :placeholder="$t('ldap.input_ou_placeholder')"></el-input>
+          <el-input v-model="form.ou" :placeholder="$t('ldap.input_ou_placeholder')"/>
         </el-form-item>
         <el-form-item :label="$t('ldap.filter')" prop="filter">
-          <el-input v-model="form.filter" :placeholder="$t('ldap.input_filter_placeholder')"></el-input>
+          <el-input v-model="form.filter" :placeholder="$t('ldap.input_filter_placeholder')"/>
         </el-form-item>
         <el-form-item :label="$t('ldap.mapping')" prop="mapping">
-          <el-input v-model="form.mapping" :placeholder="$t('ldap.input_mapping_placeholder')"></el-input>
+          <el-input v-model="form.mapping" :placeholder="$t('ldap.input_mapping_placeholder')"/>
         </el-form-item>
         <el-form-item :label="$t('ldap.open')" prop="open">
-          <el-checkbox v-model="form.open"></el-checkbox>
+          <el-checkbox v-model="form.open"/>
         </el-form-item>
       </el-form>
 
       <div>
         <el-button type="primary" size="small" :disabled="!show" @click="testConnection">{{$t('ldap.test_connect')}}
         </el-button>
-        <el-button type="primary" size="small" :disabled="!showLogin || !show" @click="testLogin">{{$t('ldap.test_login')}}
+        <el-button type="primary" size="small" :disabled="!showLogin || !show" @click="testLogin">
+          {{$t('ldap.test_login')}}
         </el-button>
         <el-button v-if="showEdit" size="small" @click="edit">{{$t('ldap.edit')}}</el-button>
         <el-button type="success" v-if="showSave" size="small" @click="save('form')">{{$t('commons.save')}}</el-button>
@@ -98,7 +99,7 @@
       init() {
         this.result = this.$get("/system/ldap/info", response => {
           this.form = response.data;
-          this.form.open = this.form.open === 'true' ? true : false;
+          this.form.open = this.form.open === 'true';
           this.$nextTick(() => {
             this.$refs.form.clearValidate();
           })
@@ -121,7 +122,7 @@
         if (!this.checkParam()) {
           return false;
         }
-        this.result = this.$post("/ldap/test/connect", this.form, response => {
+        this.result = this.$post("/ldap/test/connect", this.form, () => {
           this.$success(this.$t('commons.connection_successful'));
           this.showLogin = true;
         }, () => {
@@ -179,11 +180,11 @@
           {paramKey: "ldap.filter", paramValue: this.form.filter, type: "text", sort: 5},
           {paramKey: "ldap.mapping", paramValue: this.form.mapping, type: "text", sort: 6},
           {paramKey: "ldap.open", paramValue: this.form.open, type: "text", sort: 7}
-        ]
+        ];
 
         this.$refs[form].validate(valid => {
           if (valid) {
-            this.result = this.$post("/system/save/ldap", param, response => {
+            this.result = this.$post("/system/save/ldap", param, () => {
               this.show = true;
               this.showEdit = true;
               this.showSave = false;
@@ -200,7 +201,7 @@
       login(form) {
         this.$refs[form].validate(valid => {
           if (valid) {
-            this.result = this.$post("/ldap/test/login", this.loginForm, response => {
+            this.result = this.$post("/ldap/test/login", this.loginForm, () => {
               this.$success(this.$t('ldap.login_success'));
             });
           } else {
