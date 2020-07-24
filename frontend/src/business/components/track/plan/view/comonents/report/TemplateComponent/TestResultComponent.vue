@@ -3,6 +3,8 @@
   <common-component :title="$t('test_track.plan_view.test_result')">
     <template>
       <el-table
+        border
+        class="adjust-table"
         :data="testResults"
         stripe
         style="width: 100%">

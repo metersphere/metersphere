@@ -6,7 +6,7 @@
           <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search" @create="create"
                            :create-tip="btnTips" :title="title"/>
         </template>
-        <el-table @row-click="link" :data="items" style="width: 100%" @sort-change="sort">
+        <el-table border class="adjust-table" @row-click="link" :data="items" style="width: 100%" @sort-change="sort">
           <el-table-column prop="name" :label="$t('commons.name')" width="250" show-overflow-tooltip/>
           <el-table-column prop="description" :label="$t('commons.description')" show-overflow-tooltip/>
           <!--<el-table-column prop="workspaceName" :label="$t('project.owning_workspace')"/>-->

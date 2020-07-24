@@ -28,6 +28,7 @@
                         ref="testCaseImport"/>
 
       <el-table
+        border
         :data="tableData"
         @sort-change="sort"
         @filter-change="filter"
@@ -35,7 +36,7 @@
         @select="handleSelectionChange"
         @row-click="showDetail"
         row-key="id"
-        class="test-content">
+        class="test-content adjust-table">
         <el-table-column
           type="selection"/>
         <el-table-column

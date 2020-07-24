@@ -1,6 +1,8 @@
 <template>
   <home-base-component :title="$t('test_track.home.my_plan')" v-loading>
     <el-table
+      class="adjust-table"
+      border
       :data="tableData"
       @row-click="intoPlan"
       v-loading="result.loading">

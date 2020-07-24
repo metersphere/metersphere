@@ -10,7 +10,7 @@
       </template>
 
       <!--Personal information menu-->
-      <el-table :data="tableData" style="width: 100%">
+      <el-table border class="adjust-table" :data="tableData" style="width: 100%">
         <el-table-column prop="id" label="ID"/>
         <el-table-column prop="name" :label="$t('commons.username')"/>
         <el-table-column prop="email" :label="$t('commons.email')"/>

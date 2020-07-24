@@ -47,3 +47,31 @@ body {
   width: 100%;
   table-layout: fixed !important;
 }
+
+/* <-- 表格拖拽表头调整宽度，在 t-bable 上添加 border 属性，并添加 adjust-table 类名*/
+.adjust-table td {
+  border-right-color: white;
+}
+
+.adjust-table th {
+  border-right-color: white;
+}
+
+.adjust-table {
+  border-color: white;
+}
+
+.adjust-table:after {
+  background-color: white;
+}
+
+.adjust-table th:hover:after {
+  content: '';
+  position: absolute;
+  top: 25%;
+  right: 0;
+  height: 50%;
+  width: 3px;
+  background-color: #EBEEF5;
+}
+/* 表格拖拽表头调整宽度 --> */

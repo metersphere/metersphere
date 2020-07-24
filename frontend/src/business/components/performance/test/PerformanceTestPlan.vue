@@ -8,7 +8,7 @@
                            @create="create" :createTip="$t('load_test.create')"/>
         </template>
 
-        <el-table :data="tableData" class="test-content"
+        <el-table border :data="tableData" class="adjust-table test-content"
                   @sort-change="sort"
                   @filter-change="filter"
                   @row-click="link"

@@ -8,6 +8,8 @@
     </template>
 
     <el-table
+      border
+      class="adjust-table"
       :data="tableData"
       @filter-change="filter"
       @sort-change="sort"

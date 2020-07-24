@@ -5,7 +5,7 @@
         <ms-table-header :condition.sync="condition" @search="search" @create="create"
                          :create-tip="$t('test_resource_pool.create_resource_pool')" :title="$t('commons.test_resource_pool')"/>
       </template>
-      <el-table :data="items" style="width: 100%">
+      <el-table  border class="adjust-table" :data="items" style="width: 100%">
         <el-table-column prop="name" :label="$t('commons.name')"/>
         <el-table-column prop="description" :label="$t('commons.description')"/>
         <el-table-column prop="type" :label="$t('test_resource_pool.type')">

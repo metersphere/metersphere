@@ -7,7 +7,7 @@
                            :title="$t('commons.test')"
                            @create="create" :createTip="$t('load_test.create')"/>
         </template>
-        <el-table :data="tableData" class="table-content" @sort-change="sort" @row-click="handleView"
+        <el-table border :data="tableData" class="adjust-table table-content" @sort-change="sort" @row-click="handleView"
                   @filter-change="filter">
           <el-table-column prop="name" :label="$t('commons.name')" width="250" show-overflow-tooltip>
           </el-table-column>

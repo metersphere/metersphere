@@ -15,7 +15,7 @@
         </div>
       </template>
 
-      <el-table :data="tableData" style="width: 100%">
+      <el-table border class="adjust-table" :data="tableData" style="width: 100%">
         <el-table-column prop="accessKey" label="Access Key"/>
         <el-table-column prop="secretKey" label="Secret Key">
           <template v-slot:default="scope">
