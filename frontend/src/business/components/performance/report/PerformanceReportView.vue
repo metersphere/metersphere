@@ -185,8 +185,7 @@
       stopTest(forceStop) {
         this.result = this.$get('/performance/stop/' + this.reportId + '/' + forceStop, () => {
           this.$success(this.$t('report.test_stop_success'));
-          this.$set(this.report, "refresh", Math.random()); // 触发刷新
-          this.$set(this.report, "status", 'Completed');
+          this.report.status = 'Completed';
           if (forceStop) {
             this.$router.push('/performance/report/all');
           }
