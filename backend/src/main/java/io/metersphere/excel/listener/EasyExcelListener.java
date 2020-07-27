@@ -7,6 +7,7 @@ import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.alibaba.excel.util.StringUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.excel.domain.ExcelErrData;
+import io.metersphere.excel.domain.TestCaseExcelData;
 import io.metersphere.excel.utils.EasyExcelI18nTranslator;
 import io.metersphere.excel.utils.ExcelValidateHelper;
 import io.metersphere.i18n.Translator;
@@ -23,6 +24,8 @@ public abstract class EasyExcelListener<T> extends AnalysisEventListener<T> {
     protected List<T> list = new ArrayList<>();
 
     protected EasyExcelI18nTranslator easyExcelI18nTranslator;
+
+    protected List<TestCaseExcelData> excelDataList = new ArrayList<>();
 
     /**
      * 每隔2000条存储数据库，然后清理list ，方便内存回收
