@@ -256,11 +256,14 @@ export default {
     generation_error: '报告生成错误,无法查看!',
     being_generated: '报告正在生成中...',
     delete_confirm: '确认删除报告: ',
-    start_status: '测试处于开始状态,请稍后查看报告！',
+    start_status: '测试处于开始状态, 我们生成报告后会自动展示到页面上！',
     run_status: '测试处于运行状态,请稍后查看报告！',
     user_name: '创建人',
     project_name: '所属项目',
-
+    force_stop_tips: '<strong>强制停止</strong>测试会立刻结束当前测试并删除报告数据',
+    stop_tips: '<strong>停止</strong>测试会结束当前测试并保留报告数据',
+    force_stop_btn: '强制停止',
+    stop_btn: '停止',
   },
   load_test: {
     operating: '操作',
