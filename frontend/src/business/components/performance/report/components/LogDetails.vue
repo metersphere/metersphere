@@ -80,6 +80,9 @@
     watch: {
       report: {
         handler(val) {
+          if (!val.status || !val.id) {
+            return;
+          }
           let status = val.status;
           this.id = val.id;
           if (status === "Completed" || status === "Running") {

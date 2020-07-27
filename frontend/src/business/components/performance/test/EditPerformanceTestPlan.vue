@@ -4,11 +4,13 @@
       <el-card v-loading="result.loading">
         <el-row>
           <el-col :span="10">
-            <el-input :disabled="isReadOnly" :placeholder="$t('load_test.input_name')" v-model="testPlan.name" class="input-with-select"
+            <el-input :disabled="isReadOnly" :placeholder="$t('load_test.input_name')" v-model="testPlan.name"
+                      class="input-with-select"
                       maxlength="30" show-word-limit
             >
               <template v-slot:prepend>
-                <el-select :disabled="isReadOnly" v-model="testPlan.projectId" :placeholder="$t('load_test.select_project')">
+                <el-select :disabled="isReadOnly" v-model="testPlan.projectId"
+                           :placeholder="$t('load_test.select_project')">
                   <el-option
                     v-for="item in projects"
                     :key="item.id"
@@ -21,10 +23,13 @@
           </el-col>
           <el-col :span="12" :offset="2">
             <el-button :disabled="isReadOnly" type="primary" plain @click="save">{{$t('commons.save')}}</el-button>
-            <el-button :disabled="isReadOnly" type="primary" plain @click="saveAndRun">{{$t('load_test.save_and_run')}}</el-button>
+            <el-button :disabled="isReadOnly" type="primary" plain @click="saveAndRun">
+              {{$t('load_test.save_and_run')}}
+            </el-button>
             <el-button :disabled="isReadOnly" type="warning" plain @click="cancel">{{$t('commons.cancel')}}</el-button>
 
-            <ms-schedule-config :schedule="testPlan.schedule" :save="saveCronExpression" @scheduleChange="saveSchedule" :check-open="checkScheduleEdit" :custom-validate="durationValidate"/>
+            <ms-schedule-config :schedule="testPlan.schedule" :save="saveCronExpression" @scheduleChange="saveSchedule"
+                                :check-open="checkScheduleEdit" :custom-validate="durationValidate"/>
           </el-col>
         </el-row>
 
@@ -34,7 +39,8 @@
             <performance-basic-config :is-read-only="isReadOnly" :test-plan="testPlan" ref="basicConfig"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.pressure_config')">
-            <performance-pressure-config :is-read-only="isReadOnly" :test-plan="testPlan" :test-id="testId" ref="pressureConfig" @changeActive="changeTabActive"/>
+            <performance-pressure-config :is-read-only="isReadOnly" :test-plan="testPlan" :test-id="testId"
+                                         ref="pressureConfig" @changeActive="changeTabActive"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.advanced_config')" class="advanced-config">
             <performance-advanced-config :read-only="isReadOnly" :test-id="testId" ref="advancedConfig"/>
@@ -67,7 +73,7 @@
     data() {
       return {
         result: {},
-        testPlan: {schedule:{}},
+        testPlan: {schedule: {}},
         listProjectPath: "/project/listAll",
         savePath: "/performance/save",
         editPath: "/performance/edit",
@@ -177,9 +183,10 @@
         this.result = this.$request(options, (response) => {
           this.testPlan.id = response.data;
           this.$success(this.$t('commons.save_success'));
-          this.result = this.$post(this.runPath, {id: this.testPlan.id, triggerMode: 'MANUAL'}, () => {
+          this.result = this.$post(this.runPath, {id: this.testPlan.id, triggerMode: 'MANUAL'}, (response) => {
             this.$success(this.$t('load_test.is_running'))
-            this.$router.push({path: '/performance/report/all'})
+            let reportId = response.data;
+            this.$router.push({path: '/performance/report/view/' + reportId})
           })
         });
       },
@@ -249,7 +256,7 @@
         return true;
       },
       changeTabActive(activeName) {
-        this.$nextTick(()=> {
+        this.$nextTick(() => {
           this.active = activeName;
         });
       },

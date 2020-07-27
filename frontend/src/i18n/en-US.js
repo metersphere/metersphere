@@ -258,7 +258,7 @@ export default {
     generation_error: 'Report generation error, cannot be viewed!',
     being_generated: 'Report is being generated...',
     delete_confirm: 'Confirm delete: ',
-    start_status: 'The test is starting, please check the report later!',
+    start_status: 'The test is in the beginning state, we will automatically display it on the page after we generate the report!',
     run_status: 'The test is running, please check the report later！',
     user_name: 'Creator',
     project_name: 'Project Name'

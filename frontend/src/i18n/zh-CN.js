@@ -256,7 +256,7 @@ export default {
     generation_error: '报告生成错误,无法查看!',
     being_generated: '报告正在生成中...',
     delete_confirm: '确认删除报告: ',
-    start_status: '测试处于开始状态,请稍后查看报告！',
+    start_status: '测试处于开始状态, 我们生成报告后会自动展示到页面上！',
     run_status: '测试处于运行状态,请稍后查看报告！',
     user_name: '创建人',
     project_name: '所属项目',
