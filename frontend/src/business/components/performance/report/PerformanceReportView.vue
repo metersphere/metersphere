@@ -185,9 +185,10 @@
       stopTest(forceStop) {
         this.result = this.$get('/performance/stop/' + this.reportId + '/' + forceStop, () => {
           this.$success(this.$t('report.test_stop_success'));
-          this.report.status = 'Completed';
           if (forceStop) {
             this.$router.push('/performance/report/all');
+          } else {
+            this.report.status = 'Completed';
           }
         })
         this.dialogFormVisible = false;
