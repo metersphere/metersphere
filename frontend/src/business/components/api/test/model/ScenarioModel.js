@@ -663,11 +663,19 @@ class JMXHttpRequest {
   getPostQueryParameters(request, path) {
     if (this.method.toUpperCase() !== "GET") {
       path += '?';
+      let parameters = [];
       request.parameters.forEach(parameter => {
-        if (parameter.name) {
-          path += ((parameter.name) + '=' + (parameter.value) + '&');
+        if (parameter.name && parameter.value) {
+          parameters.push(parameter);
         }
       });
+      for (let i = 0; i < parameters.length; i++) {
+        let parameter = parameters[i];
+        path += (encodeURIComponent(parameter.name) + '=' + encodeURIComponent(parameter.value));
+        if (i != parameters.length -1) {
+          path += '&';
+        }
+      }
     }
     return path;
   }
