@@ -15,7 +15,7 @@
             </el-row>
             <el-row class="ms-report-view-btns">
               <el-button :disabled="isReadOnly || report.status !== 'Running'" type="primary" plain size="mini"
-                         @click="stopTest(reportId)">
+                         @click="dialogFormVisible=true">
                 {{$t('report.test_stop_now')}}
               </el-button>
               <el-button :disabled="isReadOnly || report.status !== 'Completed'" type="success" plain size="mini"
@@ -62,6 +62,16 @@
         </el-tabs>
 
       </el-card>
+      <el-dialog :title="$t('report.test_stop_now_confirm')" :visible.sync="dialogFormVisible" width="30%">
+        <p v-html="$t('report.force_stop_tips')"></p>
+        <p v-html="$t('report.stop_tips')"></p>
+        <div slot="footer" class="dialog-footer">
+          <el-button type="danger" size="small" @click="stopTest(true)">{{$t('report.force_stop_btn')}}
+          </el-button>
+          <el-button type="primary" size="small" @click="stopTest(false)">{{$t('report.stop_btn')}}
+          </el-button>
+        </div>
+      </el-dialog>
     </ms-main-container>
   </ms-container>
 </template>
@@ -103,7 +113,8 @@
         title: 'Logging',
         report: {},
         isReadOnly: false,
-        websocket: null
+        websocket: null,
+        dialogFormVisible: false,
       }
     },
     methods: {
@@ -171,18 +182,16 @@
         this.minutes = '0';
         this.seconds = '0';
       },
-      stopTest(reportId) {
-        this.$confirm(this.$t('report.test_stop_now_confirm'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          cancelButtonText: this.$t('commons.cancel'),
-          type: 'warning'
-        }).then(() => {
-          this.result = this.$get('/performance/stop/' + reportId, () => {
-            this.$success(this.$t('report.test_stop_success'));
+      stopTest(forceStop) {
+        this.result = this.$get('/performance/stop/' + this.reportId + '/' + forceStop, () => {
+          this.$success(this.$t('report.test_stop_success'));
+          this.$set(this.report, "refresh", Math.random()); // 触发刷新
+          this.$set(this.report, "status", 'Completed');
+          if (forceStop) {
             this.$router.push('/performance/report/all');
-          })
-        }).catch(() => {
-        });
+          }
+        })
+        this.dialogFormVisible = false;
       },
       rerun(testId) {
         this.$confirm(this.$t('report.test_rerun_confirm'), '', {

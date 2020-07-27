@@ -261,7 +261,11 @@ export default {
     start_status: 'The test is in the beginning state, we will automatically display it on the page after we generate the report!',
     run_status: 'The test is running, please check the report later！',
     user_name: 'Creator',
-    project_name: 'Project Name'
+    project_name: 'Project Name',
+    force_stop_tips: '<strong>Terminating</strong> the servers will immediately kill the servers and the JTL files will be lost.',
+    stop_tips: 'A <strong>Graceful shutdown</strong> will archive the JTL files and then stop the servers.',
+    force_stop_btn: 'Terminating',
+    stop_btn: 'Graceful shutdown',
   },
   load_test: {
     operating: 'Operating',

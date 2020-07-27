@@ -259,7 +259,11 @@ export default {
     start_status: '測試處於開始狀態, 我們生成報告後會自動展示到頁面上！',
     run_status: '測試處於運行狀態,請稍後查看報告！',
     user_name: '創建人',
-    project_name: '所屬項目'
+    project_name: '所屬項目',
+    force_stop_tips: '<strong>強制停止</strong>測試會立刻結束當前測試並刪除報告數據',
+    stop_tips: '<strong>停止</strong>測試會結束當前測試並保留報告數據',
+    force_stop_btn: '強制停止',
+    stop_btn: '停止',
   },
   load_test: {
     operating: '操作',

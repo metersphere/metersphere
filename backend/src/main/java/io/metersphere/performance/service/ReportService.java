@@ -99,7 +99,7 @@ public class ReportService {
         loadTestReportMapper.deleteByPrimaryKey(reportId);
     }
 
-    private void stopEngine(LoadTestWithBLOBs loadTest, Engine engine) {
+    public void stopEngine(LoadTestWithBLOBs loadTest, Engine engine) {
         engine.stop();
         loadTest.setStatus(PerformanceTestStatus.Saved.name());
         loadTestMapper.updateByPrimaryKeySelective(loadTest);
@@ -238,5 +238,12 @@ public class ReportService {
 
     public LoadTestReport getReport(String reportId) {
         return loadTestReportMapper.selectByPrimaryKey(reportId);
+    }
+
+    public void updateStatus(String reportId, String status) {
+        LoadTestReport report = new LoadTestReport();
+        report.setId(reportId);
+        report.setStatus(status);
+        loadTestReportMapper.updateByPrimaryKeySelective(report);
     }
 }
