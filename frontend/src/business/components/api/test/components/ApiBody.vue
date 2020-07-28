@@ -9,20 +9,26 @@
       </el-radio-button>
     </el-radio-group>
 
+    <ms-dropdown :default-command="body.format" v-if="body.type == 'Raw'" :commands="modes" @command="modeChange"/>
+
     <ms-api-key-value :is-read-only="isReadOnly" :items="body.kvs" v-if="body.isKV()"/>
 
-    <el-input :disabled="isReadOnly" class="textarea" type="textarea" v-model="body.raw" :autosize="{ minRows: 10, maxRows: 25}" resize="none"
-              v-else/>
+    <div class="body-raw" v-if="body.type == 'Raw'">
+      <ms-code-edit :mode="body.format" :read-only="isReadOnly" :data.sync="body.raw" :modes="modes" ref="codeEdit"/>
+    </div>
+
   </div>
 </template>
 
 <script>
   import MsApiKeyValue from "./ApiKeyValue";
-  import {Body, BODY_TYPE} from "../model/ScenarioModel";
+  import {Body, BODY_FORMAT, BODY_TYPE} from "../model/ScenarioModel";
+  import MsCodeEdit from "../../../common/components/MsCodeEdit";
+  import MsDropdown from "../../../common/components/MsDropdown";
 
   export default {
     name: "MsApiBody",
-    components: {MsApiKeyValue},
+    components: {MsDropdown, MsCodeEdit, MsApiKeyValue},
     props: {
       body: Body,
       isReadOnly: {
@@ -33,15 +39,23 @@
 
     data() {
       return {
-        type: BODY_TYPE
+        type: BODY_TYPE,
+        modes: ['text', 'json', 'xml', 'html']
       };
     },
 
-    methods: {},
+    methods: {
+      modeChange(mode) {
+        this.body.format = mode;
+      }
+    },
 
     created() {
-      if (this.body.type === null) {
+      if (!this.body.type) {
         this.body.type = BODY_TYPE.KV;
+      }
+      if (!this.body.format) {
+        this.body.format = BODY_FORMAT.TEXT;
       }
     }
   }
@@ -51,4 +65,19 @@
   .textarea {
     margin-top: 10px;
   }
+
+  .body-raw {
+    padding: 15px 0;
+    height: 300px;
+  }
+
+  .el-dropdown {
+    margin-left: 20px;
+    line-height: 30px;
+  }
+
+  .ace_editor {
+    border-radius: 5px;
+  }
+
 </style>

@@ -382,7 +382,7 @@ public class UserService {
                 userRoleExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(request.getOrganizationId());
                 List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
                 if (userRoles.size() > 0) {
-                    MSException.throwException(Translator.get("user_already_exists"));
+                    MSException.throwException(Translator.get("user_already_exists") + ": " + userId);
                 } else {
                     for (String roleId : request.getRoleIds()) {
                         UserRole userRole = new UserRole();
@@ -565,5 +565,9 @@ public class UserService {
         }
         MSException.throwException(msg);
         return null;
+    }
+
+    public List<User> searchUser(String condition) {
+        return extUserMapper.searchUser(condition);
     }
 }

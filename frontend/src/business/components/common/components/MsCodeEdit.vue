@@ -8,7 +8,6 @@
       components: { editor: require('vue2-ace-editor')},
       data() {
         return {
-          mode: 'text',
           formatData: ''
         }
       },
@@ -25,6 +24,12 @@
             return false;
           }
         },
+        mode: {
+          type: String,
+          default() {
+            return 'text';
+          }
+        },
         modes: {
           type: Array,
           default() {
@@ -34,6 +39,14 @@
       },
       mounted() {
         this.format();
+      },
+      watch: {
+        formatData() {
+          this.$emit('update:data', this.formatData);
+        },
+        mode() {
+          this.format();
+        }
       },
       methods: {
         editorInit: function (editor) {
@@ -51,19 +64,19 @@
           }
         },
         format() {
-          if (this.mode === 'json') {
+          if (this.mode === 'json' && this.readOnly) {
             try {
               this.formatData = JSON.stringify(JSON.parse(this.data), null, '\t');
             } catch (e) {
-              this.formatData = this.data;
+              if (this.data) {
+                this.formatData = this.data;
+              }
             }
           } else {
-            this.formatData = this.data;
+            if (this.data) {
+              this.formatData = this.data;
+            }
           }
-        },
-        setMode(mode) {
-          this.mode = mode;
-          this.format();
         }
       }
     }

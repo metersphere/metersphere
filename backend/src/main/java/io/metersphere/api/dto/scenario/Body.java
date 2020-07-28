@@ -8,5 +8,6 @@ import java.util.List;
 public class Body {
     private String type;
     private String raw;
+    private String format;
     private List<KeyValue> kvs;
 }

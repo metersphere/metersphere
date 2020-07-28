@@ -284,4 +284,10 @@ public class UserController {
         return userService.getTestManagerAndTestUserList(request);
     }
 
+    @GetMapping("/search/{condition}")
+    @RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.ORG_ADMIN, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public List<User> searchUser(@PathVariable String condition) {
+        return userService.searchUser(condition);
+    }
+
 }
