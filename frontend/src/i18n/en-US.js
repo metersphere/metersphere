@@ -474,6 +474,7 @@ export default {
     sub_result: "Sub Result",
     detail: "Report detail",
     delete: "Delete report",
+    running: "The test is running",
   },
   test_track: {
     test_track: "Track",

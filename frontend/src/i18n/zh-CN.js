@@ -473,6 +473,7 @@ export default {
     sub_result: "子请求",
     detail: "报告详情",
     delete: "删除报告",
+    running: "测试执行中",
   },
   test_track: {
     test_track: "测试跟踪",
