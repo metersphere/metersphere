@@ -35,6 +35,11 @@ curl -sSL https://github.com/metersphere/metersphere/releases/latest/download/qu
 - [完整文档](https://metersphere.io/docs/)
 - [演示视频](http://video.fit2cloud.com/%E3%80%90%E6%BC%94%E7%A4%BA%E8%A7%86%E9%A2%91%E3%80%91202006%20MeterSphere%20v1.0%20%E5%8A%9F%E8%83%BD%E6%BC%94%E7%A4%BA.mp4)
 
+## 相关工具
+
+- [Jenkins 插件](https://github.com/metersphere/jenkins-plugin)
+- [浏览器插件](https://github.com/metersphere/chrome-extensions)
+
 ## 版本说明
 
 MeterSphere 版本号命名规则为：v大版本.功能版本.Bug修复版本。比如：
