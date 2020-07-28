@@ -14,4 +14,6 @@ public interface ExtUserMapper {
 
     String getDefaultLanguage(String paramKey);
 
+    List<User> searchUser(String condition);
+
 }
