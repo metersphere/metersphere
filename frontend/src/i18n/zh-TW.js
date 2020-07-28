@@ -473,6 +473,7 @@ export default {
     sub_result: "子請求",
     detail: "報告詳情",
     delete: "刪除報告",
+    running: "測試執行中",
   },
   test_track: {
     test_track: "測試跟踪",
