@@ -37,6 +37,13 @@ export const BODY_TYPE = {
   RAW: "Raw"
 }
 
+export const BODY_FORMAT = {
+  TEXT: "text",
+  JSON: "json",
+  XML: "xml",
+  HTML: "html",
+}
+
 export const ASSERTION_TYPE = {
   TEXT: "Text",
   REGEX: "Regex",
@@ -820,10 +827,40 @@ class JMXGenerator {
 
   addRequestHeader(httpSamplerProxy, request) {
     let name = request.name + " Headers";
+    this.addBodyFormat(request);
     let headers = this.filterKV(request.headers);
     if (headers.length > 0) {
       httpSamplerProxy.put(new HeaderManager(name, headers));
     }
+  }
+
+  addBodyFormat(request) {
+    let bodyFormat = request.body.format;
+    if (bodyFormat) {
+      switch (bodyFormat) {
+        case BODY_FORMAT.JSON:
+          this.addContentType(request, 'application/json');
+          break;
+        case BODY_FORMAT.HTML:
+          this.addContentType(request, 'text/html');
+          break;
+        case BODY_FORMAT.XML:
+          this.addContentType(request, 'text/xml');
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  addContentType(request, type) {
+    for (let index in request.headers) {
+      if (request.headers[index].name == 'Content-Type') {
+        request.headers.splice(index, 1);
+        break;
+      }
+    }
+    request.headers.push(new KeyValue('Content-Type', type));
   }
 
   addRequestArguments(httpSamplerProxy, request) {

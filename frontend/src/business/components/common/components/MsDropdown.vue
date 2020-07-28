@@ -25,10 +25,15 @@
       props: {
         commands: {
           type: Array
+        },
+        defaultCommand: {
+          type: String
         }
       },
       created() {
-        if (this.commands && this.commands.length > 0) {
+        if (this.defaultCommand) {
+          this.currentCommand = this.defaultCommand;
+        } else if (this.commands && this.commands.length > 0) {
           this.currentCommand = this.commands [0];
         }
       },

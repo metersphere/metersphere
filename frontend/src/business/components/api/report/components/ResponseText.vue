@@ -7,7 +7,7 @@
     <el-collapse-transition>
       <el-tabs v-model="activeName" v-show="isActive">
         <el-tab-pane label="Body" name="body" class="pane">
-          <ms-code-edit :read-only="true" :data="response.body" :modes="modes" ref="codeEdit"/>
+          <ms-code-edit :mode="mode" :read-only="true" :data="response.body" :modes="modes" ref="codeEdit"/>
         </el-tab-pane>
         <el-tab-pane label="Headers" name="headers" class="pane">
           <pre>{{response.headers}}</pre>
@@ -31,6 +31,7 @@
   import MsAssertionResults from "./AssertionResults";
   import MsCodeEdit from "../../../common/components/MsCodeEdit";
   import MsDropdown from "../../../common/components/MsDropdown";
+  import {BODY_FORMAT} from "../../test/model/ScenarioModel";
 
   export default {
     name: "MsResponseText",
@@ -50,6 +51,7 @@
         isActive: false,
         activeName: "body",
         modes: ['text', 'json', 'xml', 'html'],
+        mode: BODY_FORMAT.TEXT
       }
     },
 
@@ -58,7 +60,7 @@
         this.isActive = !this.isActive;
       },
       modeChange(mode) {
-        this.$refs.codeEdit.setMode(mode);
+        this.mode = mode;
       }
     },
   }
