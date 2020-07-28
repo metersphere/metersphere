@@ -48,6 +48,7 @@ public class ShiroConfig implements EnvironmentAware {
         filterChainDefinitionMap.put("/", "anon");
         filterChainDefinitionMap.put("/signin", "anon");
         filterChainDefinitionMap.put("/ldap/signin", "anon");
+        filterChainDefinitionMap.put("/ldap/open", "anon");
         filterChainDefinitionMap.put("/isLogin", "anon");
         filterChainDefinitionMap.put("/css/**", "anon");
         filterChainDefinitionMap.put("/js/**", "anon");

@@ -13,10 +13,7 @@ import io.metersphere.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -80,6 +77,11 @@ public class LdapController {
     @PostMapping("/test/login")
     public void testLogin(@RequestBody LoginRequest request) {
         ldapService.authenticate(request);
+    }
+
+    @GetMapping("/open")
+    public boolean isOpen() {
+        return ldapService.isOpen();
     }
 
 }

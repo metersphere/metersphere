@@ -106,12 +106,15 @@ public class TestCaseService {
             TestCaseExample.Criteria criteria = example.createCriteria();
             criteria.andNameEqualTo(testCase.getName())
                     .andProjectIdEqualTo(testCase.getProjectId())
-                    .andNodeIdEqualTo(testCase.getNodeId())
                     .andNodePathEqualTo(testCase.getNodePath())
                     .andTypeEqualTo(testCase.getType())
                     .andMaintainerEqualTo(testCase.getMaintainer())
                     .andPriorityEqualTo(testCase.getPriority())
                     .andMethodEqualTo(testCase.getMethod());
+
+//            if (StringUtils.isNotBlank(testCase.getNodeId())) {
+//                criteria.andNodeIdEqualTo(testCase.getTestId());
+//            }
 
             if (StringUtils.isNotBlank(testCase.getTestId())) {
                 criteria.andTestIdEqualTo(testCase.getTestId());
@@ -371,8 +374,8 @@ public class TestCaseService {
                 JSONArray jsonArray = JSON.parseArray(steps);
                 for (int j = 0; j < jsonArray.size(); j++) {
                     int num = j + 1;
-                    step.append(num + ":" + jsonArray.getJSONObject(j).getString("desc") + "\n");
-                    result.append(num + ":" + jsonArray.getJSONObject(j).getString("result") + "\n");
+                    step.append(num + "." + jsonArray.getJSONObject(j).getString("desc") + "\n");
+                    result.append(num + "." + jsonArray.getJSONObject(j).getString("result") + "\n");
 
                 }
                 data.setStepDesc(step.toString());
@@ -470,5 +473,22 @@ public class TestCaseService {
         } else {
             return Optional.ofNullable(testCase.getNum() + 1).orElse(100001);
         }
+    }
+
+
+    /**
+     * 导入用例前，检查数据库是否存在此用例
+     * @param testCaseWithBLOBs
+     * @return
+     */
+    public boolean exist(TestCaseWithBLOBs testCaseWithBLOBs) {
+
+        try {
+            checkTestCaseExist(testCaseWithBLOBs);
+        } catch (MSException e) {
+            return true;
+        }
+
+        return false;
     }
 }

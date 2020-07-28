@@ -92,9 +92,7 @@ public class LdapService {
                 if (result.size() == 1) {
                     return result.get(0);
                 }
-            } catch (NameNotFoundException e) {
-                MSException.throwException(Translator.get("login_fail_ou_error"));
-            } catch (InvalidNameException e) {
+            } catch (NameNotFoundException | InvalidNameException e) {
                 MSException.throwException(Translator.get("login_fail_ou_error"));
             } catch (InvalidSearchFilterException e) {
                 MSException.throwException(Translator.get("login_fail_filter_error"));
@@ -125,9 +123,7 @@ public class LdapService {
             MSException.throwException(Translator.get("ldap_ou_is_null"));
         }
 
-        String[] arr = ou.split("\\|");
-
-        return arr;
+        return ou.split("\\|");
     }
 
     private static class MsContextMapper extends AbstractContextMapper<DirContextOperations> {
@@ -217,4 +213,11 @@ public class LdapService {
         return result;
     }
 
+    public boolean isOpen() {
+        String open = service.getValue(ParamConstants.LDAP.OPEN.getValue());
+        if (StringUtils.isBlank(open)) {
+            return false;
+        }
+        return StringUtils.equals(Boolean.TRUE.toString(), open);
+    }
 }

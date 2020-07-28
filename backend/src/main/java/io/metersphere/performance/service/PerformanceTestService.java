@@ -401,7 +401,19 @@ public class PerformanceTestService {
         scheduleService.addOrUpdateCronJob(request, PerformanceTestJob.getJobKey(request.getResourceId()), PerformanceTestJob.getTriggerKey(request.getResourceId()), PerformanceTestJob.class);
     }
 
-    public void stopTest(String reportId) {
-        reportService.deleteReport(reportId);
+    public void stopTest(String reportId, boolean forceStop) {
+        if (forceStop) {
+            reportService.deleteReport(reportId);
+        } else {
+            LoadTestReport loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
+            LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(loadTestReport.getTestId());
+            final Engine engine = EngineFactory.createEngine(loadTest);
+            if (engine == null) {
+                MSException.throwException(String.format("Stop report fail. create engine fail，report ID：%s", reportId));
+            }
+            reportService.stopEngine(loadTest, engine);
+            // 停止测试之后设置报告的状态
+            reportService.updateStatus(reportId, PerformanceTestStatus.Completed.name());
+        }
     }
 }

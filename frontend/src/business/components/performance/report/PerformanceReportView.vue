@@ -14,11 +14,11 @@
               </el-breadcrumb>
             </el-row>
             <el-row class="ms-report-view-btns">
-              <el-button :disabled="isReadOnly || status !== 'Running'" type="primary" plain size="mini"
-                         @click="stopTest(reportId)">
+              <el-button :disabled="isReadOnly || report.status !== 'Running'" type="primary" plain size="mini"
+                         @click="dialogFormVisible=true">
                 {{$t('report.test_stop_now')}}
               </el-button>
-              <el-button :disabled="isReadOnly || status !== 'Completed'" type="success" plain size="mini"
+              <el-button :disabled="isReadOnly || report.status !== 'Completed'" type="success" plain size="mini"
                          @click="rerun(testId)">
                 {{$t('report.test_execute_again')}}
               </el-button>
@@ -62,6 +62,16 @@
         </el-tabs>
 
       </el-card>
+      <el-dialog :title="$t('report.test_stop_now_confirm')" :visible.sync="dialogFormVisible" width="30%">
+        <p v-html="$t('report.force_stop_tips')"></p>
+        <p v-html="$t('report.stop_tips')"></p>
+        <div slot="footer" class="dialog-footer">
+          <el-button type="danger" size="small" @click="stopTest(true)">{{$t('report.force_stop_btn')}}
+          </el-button>
+          <el-button type="primary" size="small" @click="stopTest(false)">{{$t('report.stop_btn')}}
+          </el-button>
+        </div>
+      </el-dialog>
     </ms-main-container>
   </ms-container>
 </template>
@@ -103,7 +113,8 @@
         title: 'Logging',
         report: {},
         isReadOnly: false,
-        websocket: null
+        websocket: null,
+        dialogFormVisible: false,
       }
     },
     methods: {
@@ -156,7 +167,7 @@
             this.$warning(this.$t('report.generation_error'));
             break;
           case 'Starting':
-            this.$warning(this.$t('report.start_status'));
+            this.$alert(this.$t('report.start_status'));
             break;
           case 'Reporting':
           case 'Running':
@@ -171,18 +182,16 @@
         this.minutes = '0';
         this.seconds = '0';
       },
-      stopTest(reportId) {
-        this.$confirm(this.$t('report.test_stop_now_confirm'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          cancelButtonText: this.$t('commons.cancel'),
-          type: 'warning'
-        }).then(() => {
-          this.result = this.$get('/performance/stop/' + reportId, () => {
-            this.$success(this.$t('report.test_stop_success'));
+      stopTest(forceStop) {
+        this.result = this.$get('/performance/stop/' + this.reportId + '/' + forceStop, () => {
+          this.$success(this.$t('report.test_stop_success'));
+          if (forceStop) {
             this.$router.push('/performance/report/all');
-          })
-        }).catch(() => {
-        });
+          } else {
+            this.report.status = 'Completed';
+          }
+        })
+        this.dialogFormVisible = false;
       },
       rerun(testId) {
         this.$confirm(this.$t('report.test_rerun_confirm'), '', {
@@ -190,26 +199,32 @@
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
-          this.result = this.$post('/performance/run', {id: testId, triggerMode: 'MANUAL'}, () => {
-            this.$success(this.$t('load_test.is_running'))
-            this.$router.push({path: '/performance/report/all'})
+          this.result = this.$post('/performance/run', {id: testId, triggerMode: 'MANUAL'}, (response) => {
+            this.reportId = response.data;
+            this.$router.push({path: '/performance/report/view/' + this.reportId})
+            // 注册 socket
+            this.initWebSocket();
           })
         }).catch(() => {
         });
       },
       onOpen() {
-        window.console.log("open WebSocket");
+        window.console.log("socket opening.");
       },
       onError(e) {
         window.console.error(e)
       },
       onMessage(e) {
         this.$set(this.report, "refresh", e.data); // 触发刷新
+        this.$set(this.report, "status", 'Running');
         this.initReportTimeInfo();
+        window.console.log('receive a message:', e.data);
       },
       onClose(e) {
-        this.$set(this.report, "refresh", e.data); // 触发刷新
+        this.$set(this.report, "refresh", Math.random()); // 触发刷新
+        this.$set(this.report, "status", 'Completed');
         this.initReportTimeInfo();
+        window.console.log("socket closed.");
       }
     },
     created() {

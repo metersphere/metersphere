@@ -34,7 +34,8 @@
     "babel-eslint": "^10.0.3",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
-    "vue-template-compiler": "^2.6.10"
+    "vue-template-compiler": "^2.6.10",
+    "vue2-ace-editor": "0.0.15"
   },
   "eslintConfig": {
     "root": true,

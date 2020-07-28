@@ -102,9 +102,9 @@ public class PerformanceTestController {
         return performanceTestService.run(request);
     }
 
-    @GetMapping("stop/{reportId}")
-    public void stopTest(@PathVariable String reportId) {
-        performanceTestService.stopTest(reportId);
+    @GetMapping("stop/{reportId}/{forceStop}")
+    public void stopTest(@PathVariable String reportId, @PathVariable boolean forceStop) {
+        performanceTestService.stopTest(reportId, forceStop);
     }
 
     @GetMapping("/file/metadata/{testId}")
