@@ -18,7 +18,7 @@
             <el-form-item v-slot:default>
               <el-radio-group v-model="form.authenticate">
                 <el-radio label="LDAP" size="mini" v-if="openLdap">LDAP</el-radio>
-                <el-radio label="LOCAL" size="mini">普通登录</el-radio>
+                <el-radio label="LOCAL" size="mini" v-if="openLdap">普通登录</el-radio>
               </el-radio-group>
             </el-form-item>
             <el-form-item prop="username">
