@@ -7,7 +7,7 @@
     <el-collapse-transition>
       <el-tabs v-model="activeName" v-show="isActive">
         <el-tab-pane label="Body" name="body" class="pane">
-          <div>{{response.body}}</div>
+          <ms-code-edit :read-only="true" :data="response.body" :modes="modes" ref="codeEdit"/>
         </el-tab-pane>
         <el-tab-pane label="Headers" name="headers" class="pane">
           <pre>{{response.headers}}</pre>
@@ -15,6 +15,13 @@
         <el-tab-pane :label="$t('api_report.assertions')" name="assertions" class="pane assertions">
           <ms-assertion-results :assertions="response.assertions"/>
         </el-tab-pane>
+
+        <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane assertions">
+          <template v-slot:label>
+            <ms-dropdown :commands="modes" @command="modeChange"/>
+          </template>
+        </el-tab-pane>
+
       </el-tabs>
     </el-collapse-transition>
   </div>
@@ -22,11 +29,17 @@
 
 <script>
   import MsAssertionResults from "./AssertionResults";
+  import MsCodeEdit from "../../../common/components/MsCodeEdit";
+  import MsDropdown from "../../../common/components/MsDropdown";
 
   export default {
     name: "MsResponseText",
 
-    components: {MsAssertionResults},
+    components: {
+      MsDropdown,
+      MsCodeEdit,
+      MsAssertionResults,
+    },
 
     props: {
       response: Object
@@ -36,12 +49,16 @@
       return {
         isActive: false,
         activeName: "body",
+        modes: ['text', 'json', 'xml', 'html'],
       }
     },
 
     methods: {
       active() {
         this.isActive = !this.isActive;
+      },
+      modeChange(mode) {
+        this.$refs.codeEdit.setMode(mode);
       }
     },
   }
