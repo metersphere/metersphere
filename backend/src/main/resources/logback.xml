@@ -157,6 +157,6 @@
 	</logger>
 
 	<logger name="com.alibaba.nacos.naming.client.listener" additivity="false" level="ERROR"/>
-	<logger name="org.apache.dubbo.registry.nacos.NacosRegistry" additivity="false" level="ERROR"/>
+	<logger name="org.apache.dubbo" additivity="false" level="ERROR"/>
 
 </configuration>
