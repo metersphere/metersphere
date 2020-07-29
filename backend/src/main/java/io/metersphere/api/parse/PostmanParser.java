@@ -19,17 +19,6 @@ import java.util.*;
 
 public class PostmanParser extends ApiImportAbstractParser {
 
-    private static final Map<String, String> postmanBodyRowMap;
-
-    static {
-        postmanBodyRowMap = new HashMap<>();
-        postmanBodyRowMap.put("json", "application/json");
-        postmanBodyRowMap.put("text", "text/plain");
-        postmanBodyRowMap.put("html", "text/html");
-        postmanBodyRowMap.put("xml", "text/xml");
-        postmanBodyRowMap.put("javascript", "application/x-javascript");
-    }
-
     @Override
     public ApiImport parse(InputStream source, ApiTestImportRequest request) {
 
@@ -92,11 +81,11 @@ public class PostmanParser extends ApiImportAbstractParser {
         request.setMethod(requestDesc.getMethod());
         request.setHeaders(parseKeyValue(requestDesc.getHeader()));
         request.setParameters(parseKeyValue(url.getQuery()));
-        request.setBody(parseBody(requestDesc, request));
+        request.setBody(parseBody(requestDesc));
         return request;
     }
 
-    private Body parseBody(PostmanRequest requestDesc, HttpRequest request) {
+    private Body parseBody(PostmanRequest requestDesc) {
         Body body = new Body();
         JSONObject postmanBody = requestDesc.getBody();
         if (postmanBody == null) {

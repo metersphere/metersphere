@@ -142,8 +142,7 @@ public class Swagger2Parser extends ApiImportAbstractParser {
             }
         }
         request.setBody(body);
-        addContentType(request, "application/json");
-
+        body.setFormat("json");
     }
 
     private JSONObject getBodyJSONObjectParameters(Map<String, Property> properties, Map<String, Model> definitions) {
