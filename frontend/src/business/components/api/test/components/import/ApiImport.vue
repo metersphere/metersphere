@@ -28,7 +28,7 @@
               <el-option v-for="(project, index) in projects" :key="index" :label="project.name" :value="project.id"/>
             </el-select>
           </el-form-item>
-          <el-form-item v-if="(selectedPlatformValue != 'Postman' && useEnvironment) || selectedPlatformValue == 'Swagger2'" :label="$t('api_test.environment.environment_config')" prop="environmentId">
+          <el-form-item v-if="useEnvironment || selectedPlatformValue == 'Swagger2'" :label="$t('api_test.environment.environment_config')" prop="environmentId">
             <el-select v-if="showEnvironmentSelect" size="small"  v-model="formData.environmentId" class="environment-select" clearable>
               <el-option v-for="(environment, index) in environments" :key="index" :label="environment.name + ': ' + environment.protocol + '://' + environment.socket" :value="environment.id"/>
               <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">{{$t('api_test.environment.environment_config')}}</el-button>
@@ -39,7 +39,7 @@
               </template>
             </el-select>
           </el-form-item>
-          <el-form-item v-if="selectedPlatformValue == 'Metersphere'" prop="useEnvironment">
+          <el-form-item v-if="selectedPlatformValue != 'Swagger2'" prop="useEnvironment">
             <el-checkbox v-model="useEnvironment">{{$t('api_test.environment.config_environment')}}</el-checkbox>
           </el-form-item>
 
