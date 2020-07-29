@@ -64,7 +64,7 @@
           }
         },
         format() {
-          if (this.mode === 'json' && this.readOnly) {
+          if (this.mode === 'json') {
             try {
               this.formatData = JSON.stringify(JSON.parse(this.data), null, '\t');
             } catch (e) {

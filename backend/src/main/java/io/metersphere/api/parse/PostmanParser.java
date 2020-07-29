@@ -19,17 +19,6 @@ import java.util.*;
 
 public class PostmanParser extends ApiImportAbstractParser {
 
-    private static Map<String, String> postmanBodyRowMap;
-
-    static {
-        postmanBodyRowMap = new HashMap<>();
-        postmanBodyRowMap.put("json", "application/json");
-        postmanBodyRowMap.put("text", "text/plain");
-        postmanBodyRowMap.put("html", "text/html");
-        postmanBodyRowMap.put("xml", "text/xml");
-        postmanBodyRowMap.put("javascript", "application/x-javascript");
-    }
-
     @Override
     public ApiImport parse(InputStream source, ApiTestImportRequest request) {
 
