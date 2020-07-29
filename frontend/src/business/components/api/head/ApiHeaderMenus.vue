@@ -11,7 +11,7 @@
             <template v-slot:title>{{$t('commons.project')}}</template>
             <ms-recent-list :options="projectRecent"/>
             <el-divider class="menu-divider"/>
-            <ms-show-all :index="'/api/project/all'"/>
+            <ms-show-all :index="'/api/project'"/>
             <ms-create-button v-permission="['test_manager','test_user']" :index="'/api/project/create'"
                               :title="$t('project.create')"/>
           </el-submenu>
@@ -20,7 +20,7 @@
             <template v-slot:title>{{$t('commons.test')}}</template>
             <ms-recent-list :options="testRecent"/>
             <el-divider class="menu-divider"/>
-            <ms-show-all :index="'/api/test/list/all'"/>
+            <ms-show-all :index="'/api/test/list'"/>
             <ms-create-button v-permission="['test_manager','test_user']" :index="'/api/test/create'"
                               :title="$t('load_test.create')"/>
           </el-submenu>
@@ -29,7 +29,7 @@
             <template v-slot:title>{{$t('commons.report')}}</template>
             <ms-recent-list :options="reportRecent"/>
             <el-divider class="menu-divider"/>
-            <ms-show-all :index="'/api/report/list/all'"/>
+            <ms-show-all :index="'/api/report/list'"/>
           </el-submenu>
         </el-menu>
       </el-col>
