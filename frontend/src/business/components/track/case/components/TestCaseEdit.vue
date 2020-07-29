@@ -145,7 +145,7 @@
                     v-model="scope.row.desc"
                     :placeholder="$t('commons.input_content')"
                     clearable></el-input>
-                  <span>{{scope.row.desc}}</span>
+                  <pre>{{scope.row.desc}}</pre>
                 </template>
               </el-table-column>
               <el-table-column :label="$t('test_track.case.expected_results')" prop="result" min-width="35%">
@@ -159,7 +159,7 @@
                     v-model="scope.row.result"
                     :placeholder="$t('commons.input_content')"
                     clearable></el-input>
-                  <span>{{scope.row.result}}</span>
+                  <pre>{{scope.row.result}}</pre>
                 </template>
               </el-table-column>
               <el-table-column :label="$t('commons.input_content')" min-width="15%">
