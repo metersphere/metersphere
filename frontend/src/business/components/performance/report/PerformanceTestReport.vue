@@ -125,6 +125,12 @@
         ],
       }
     },
+    watch: {
+      '$route'(to) {
+        this.projectId = to.params.projectId;
+        this.initTableData();
+      }
+    },
     methods: {
       initTableData() {
         if (this.testId !== 'all') {

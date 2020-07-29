@@ -43,7 +43,7 @@
     z-index: 199;
     width: 8px;
     height: 50px;
-    top: calc((100vh - 80px)/2);
+    top: calc((100vh - 80px)/3);
     line-height: 50px;
     border-radius: 0 15px 15px 0;
     background-color: #acb7c1;
@@ -59,7 +59,13 @@
   }
 
   .hiddenBottom:hover {
-    opacity: 0.5;
+    opacity: 0.8;
+    width: 12px;
+  }
+
+  .hiddenBottom:hover i {
+    margin-left: 0;
+    color: white;
   }
 
 </style>
