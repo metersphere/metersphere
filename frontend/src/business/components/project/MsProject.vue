@@ -136,6 +136,9 @@
           to.path.split('/')[3] === 'create') {
           this.create();
           this.$router.push('/' + this.baseUrl + '/project/all');
+        } else if (this.$route.path.split('/')[2] === 'project' &&
+          to.path.split('/')[3] === 'all') {
+          this.list();
         }
       }
     },
