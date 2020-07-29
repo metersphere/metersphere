@@ -54,11 +54,17 @@ public class LdapController {
 
             // 新建用户 获取LDAP映射属性
             String name = ldapService.getMappingAttr("name", dirContext);
+            String phone = ldapService.getNotRequiredMappingAttr("phone", dirContext);
 
             User user = new User();
             user.setId(userId);
             user.setName(name);
             user.setEmail(email);
+
+            if (StringUtils.isNotBlank(phone)) {
+                user.setPhone(phone);
+            }
+
             user.setSource(UserSource.LDAP.name());
             userService.addLdapUser(user);
         }
