@@ -6,16 +6,16 @@
     <div class="kv-row" v-for="(item, index) in items" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <el-col>
-          <el-input v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="100"
+          <el-input v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="200"
                     @change="change"
                     :placeholder="keyText" show-word-limit/>
-          <el-autocomplete :maxlength="100" v-if="suggestions" v-model="item.name" size="small"
+          <el-autocomplete :maxlength="200" v-if="suggestions" v-model="item.name" size="small"
                            :fetch-suggestions="querySearch" @change="change" :placeholder="keyText"
                            show-word-limit/>
 
         </el-col>
         <el-col>
-          <el-input :disabled="isReadOnly" v-model="item.value" size="small" maxlength="500" @change="change"
+          <el-input :disabled="isReadOnly" v-model="item.value" size="small" maxlength="2000" @change="change"
                     :placeholder="valueText" show-word-limit/>
         </el-col>
         <el-col class="kv-delete">
