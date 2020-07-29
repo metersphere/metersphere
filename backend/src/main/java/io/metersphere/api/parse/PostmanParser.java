@@ -106,8 +106,13 @@ public class PostmanParser extends ApiImportAbstractParser {
         if (StringUtils.equals(bodyMode, PostmanRequestBodyMode.RAW.value())) {
             body.setRaw(postmanBody.getString(bodyMode));
             body.setType(MsRequestBodyType.RAW.value());
-            String language = postmanBody.getJSONObject("options").getJSONObject(PostmanRequestBodyMode.RAW.value()).getString("language");
-            body.setFormat(language);
+            JSONObject options = postmanBody.getJSONObject("options");
+            if (options != null) {
+                JSONObject raw = options.getJSONObject(PostmanRequestBodyMode.RAW.value());
+                if (raw != null) {
+                    body.setFormat(raw.getString("language"));
+                }
+            }
         } else if (StringUtils.equals(bodyMode, PostmanRequestBodyMode.FORM_DATA.value()) || StringUtils.equals(bodyMode, PostmanRequestBodyMode.URLENCODED.value())) {
             List<PostmanKeyValue> postmanKeyValues = JSON.parseArray(postmanBody.getString(bodyMode), PostmanKeyValue.class);
             body.setType(MsRequestBodyType.KV.value());
