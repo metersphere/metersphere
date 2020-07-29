@@ -128,12 +128,12 @@
 
                   <el-table-column :label="$t('test_track.case.step_desc')" prop="desc" min-width="21%">
                     <template v-slot:default="scope">
-                      <span>{{scope.row.desc}}</span>
+                      <pre>{{scope.row.desc}}</pre>
                     </template>
                   </el-table-column>
                   <el-table-column :label="$t('test_track.case.expected_results')" prop="result" min-width="21%">
                     <template v-slot:default="scope">
-                      <span>{{scope.row.result}}</span>
+                      <pre>{{scope.row.result}}</pre>
                     </template>
                   </el-table-column>
                   <el-table-column :label="$t('test_track.plan_view.actual_result')" min-width="21%">
@@ -147,7 +147,7 @@
                         v-model="scope.row.actualResult"
                         :placeholder="$t('commons.input_content')"
                         clearable></el-input>
-                      <span>{{scope.row.actualResult}}</span>
+                      <pre>{{scope.row.actualResult}}</pre>
                     </template>
                   </el-table-column>
                   <el-table-column :label="$t('test_track.plan_view.step_result')" min-width="12%">
