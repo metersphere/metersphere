@@ -215,7 +215,7 @@
         </dependency>
 
         <dependency>
-            <groupId>io.github.ningyu</groupId>
+            <groupId>io.metersphere</groupId>
             <artifactId>jmeter-plugins-dubbo</artifactId>
             <version>2.7.7</version>
         </dependency>
@@ -280,7 +280,27 @@
                     <skipTests>true</skipTests>
                 </configuration>
             </plugin>
-
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>src/main/resources/static</directory>
+                            <includes>
+                                <include>**</include>
+                            </includes>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                        <fileset>
+                            <directory>src/main/resources/templates</directory>
+                            <includes>
+                                <include>**</include>
+                            </includes>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -348,33 +368,4 @@
         </plugins>
     </build>
 
-    <!--
-       项目中依赖了某些私有仓库的包，现已经发布到 Github Packages，
-       开发者下载依赖可按照 Github Maven 仓库的使用指导添加 Maven 仓库地址：https://docs.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-apache-maven-for-use-with-github-packages
-       示例：下载请在 settings 文件中配置自己 Github 账号和 GITHUB_TOKEN
-       <servers>
-         <server>
-           <id>fit2cloud</id>
-           <username>USERNAME</username>
-           <password>TOKEN</password>
-         </server>
-         <server>
-           <id>metersphere</id>
-           <username>USERNAME</username>
-           <password>TOKEN</password>
-         </server>
-       </servers>
-         -->
-    <repositories>
-        <repository>
-            <id>fit2cloud</id>
-            <name>fit2cloud</name>
-            <url>https://maven.pkg.github.com/fit2cloud/quartz-spring-boot-starter</url>
-        </repository>
-        <repository>
-            <id>metersphere</id>
-            <name>metersphere</name>
-            <url>https://maven.pkg.github.com/metersphere/jmeter-plugins-for-apache-dubbo</url>
-        </repository>
-    </repositories>
 </project>
