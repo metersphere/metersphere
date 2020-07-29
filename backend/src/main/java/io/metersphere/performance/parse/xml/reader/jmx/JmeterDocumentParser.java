@@ -751,7 +751,8 @@ public class JmeterDocumentParser implements DocumentParser {
         threadGroup.appendChild(createStringProp(document, "Steps", "2"));
         threadGroup.appendChild(createStringProp(document, "Hold", String.valueOf(realHold)));
         threadGroup.appendChild(createStringProp(document, "LogFilename", ""));
-        threadGroup.appendChild(createStringProp(document, "Iterations", "1"));
+        // bzm - Concurrency Thread Group "Thread Iterations Limit:" 设置为空
+//        threadGroup.appendChild(createStringProp(document, "Iterations", "1"));
         threadGroup.appendChild(createStringProp(document, "Unit", "M"));
     }
 
