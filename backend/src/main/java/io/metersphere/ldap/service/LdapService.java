@@ -213,6 +213,18 @@ public class LdapService {
         return result;
     }
 
+    public String getNotRequiredMappingAttr(String attr, DirContextOperations dirContext) {
+        String mapping = getLdapMapping();
+        JSONObject jsonObject = JSONObject.parseObject(mapping);
+
+        String mapAttr = jsonObject.getString(attr);
+
+        if (StringUtils.isNotBlank(mapAttr)) {
+            return dirContext.getStringAttribute(mapAttr);
+        }
+        return mapAttr;
+    }
+
     public boolean isOpen() {
         String open = service.getValue(ParamConstants.LDAP.OPEN.getValue());
         if (StringUtils.isBlank(open)) {
