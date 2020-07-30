@@ -403,6 +403,7 @@ export default {
         start_with: "以…開始",
         end_with: "以…結束",
         value: "值",
+        expect: "期望值",
         expression: "Perl型規則運算式",
         response_in_time: "回應時間在…毫秒以內",
       },

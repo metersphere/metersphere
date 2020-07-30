@@ -402,6 +402,7 @@ export default {
         start_with: "以...开始",
         end_with: "以...结束",
         value: "值",
+        expect: "期望值",
         expression: "Perl型正则表达式",
         response_in_time: "响应时间在...毫秒以内",
       },

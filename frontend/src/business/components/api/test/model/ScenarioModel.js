@@ -12,7 +12,7 @@ import {
   ResponseCodeAssertion,
   ResponseDataAssertion,
   ResponseHeadersAssertion,
-  RegexExtractor, JSONPostProcessor, XPath2Extractor, DubboSample,
+  RegexExtractor, JSONPostProcessor, XPath2Extractor, DubboSample, JSONPathAssertion,
 } from "./JMX";
 
 export const uuid = function () {
@@ -47,6 +47,7 @@ export const BODY_FORMAT = {
 export const ASSERTION_TYPE = {
   TEXT: "Text",
   REGEX: "Regex",
+  JSON_PATH: "JSON",
   DURATION: "Duration"
 }
 
@@ -358,12 +359,6 @@ export class DubboRequest extends Request {
         info: 'api_test.request.dubbo.input_method'
       }
     }
-    if (!this.configCenter.isValid()) {
-      return {
-        isValid: false,
-        info: 'api_test.request.dubbo.input_config_center'
-      }
-    }
     if (!this.registryCenter.isValid()) {
       return {
         isValid: false,
@@ -514,10 +509,11 @@ export class Assertions extends BaseConfig {
     super();
     this.text = [];
     this.regex = [];
+    this.jsonPath = [];
     this.duration = undefined;
 
     this.set(options);
-    this.sets({text: Text, regex: Regex}, options);
+    this.sets({text: Text, regex: Regex, jsonPath: JSONPath}, options);
   }
 
   initOptions(options) {
@@ -557,6 +553,21 @@ export class Regex extends AssertionType {
 
   isValid() {
     return !!this.subject && !!this.expression;
+  }
+}
+
+export class JSONPath extends AssertionType {
+  constructor(options) {
+    super(ASSERTION_TYPE.JSON_PATH);
+    this.expression = undefined;
+    this.expect = undefined;
+    this.description = undefined;
+
+    this.set(options);
+  }
+
+  isValid() {
+    return !!this.expression;
   }
 }
 
@@ -886,7 +897,13 @@ class JMXGenerator {
     let assertions = request.assertions;
     if (assertions.regex.length > 0) {
       assertions.regex.filter(this.filter).forEach(regex => {
-        httpSamplerProxy.put(this.getAssertion(regex));
+        httpSamplerProxy.put(this.getResponseAssertion(regex));
+      })
+    }
+
+    if (assertions.jsonPath.length > 0) {
+      assertions.jsonPath.filter(this.filter).forEach(item => {
+        httpSamplerProxy.put(this.getJSONPathAssertion(item));
       })
     }
 
@@ -896,7 +913,12 @@ class JMXGenerator {
     }
   }
 
-  getAssertion(regex) {
+  getJSONPathAssertion(jsonPath) {
+    let name = jsonPath.description;
+    return new JSONPathAssertion(name, jsonPath);
+  }
+
+  getResponseAssertion(regex) {
     let name = regex.description;
     let type = JMX_ASSERTION_CONDITION.CONTAINS; // 固定用Match，自己写正则
     let value = regex.expression;

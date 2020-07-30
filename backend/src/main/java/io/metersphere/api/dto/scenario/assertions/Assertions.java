@@ -7,5 +7,6 @@ import java.util.List;
 @Data
 public class Assertions {
     private List<AssertionRegex> regex;
+    private List<AssertionJsonPath> jsonPath;
     private AssertionDuration duration;
 }
