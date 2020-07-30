@@ -359,12 +359,6 @@ export class DubboRequest extends Request {
         info: 'api_test.request.dubbo.input_method'
       }
     }
-    if (!this.configCenter.isValid()) {
-      return {
-        isValid: false,
-        info: 'api_test.request.dubbo.input_config_center'
-      }
-    }
     if (!this.registryCenter.isValid()) {
       return {
         isValid: false,
