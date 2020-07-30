@@ -28,8 +28,8 @@
     <el-dialog :title="$t('member.create')" :visible.sync="createVisible" width="30%" :destroy-on-close="true"
                @close="handleClose">
       <el-form :model="form" ref="form" :rules="rules" label-position="right" label-width="100px" size="small">
-
-        <el-form-item :label="$t('commons.member')" prop="ids" :rules="{required: true, message: $t('member.input_id_or_email'), trigger: 'blur'}">
+        <el-form-item :label="$t('commons.member')" prop="ids"
+                      :rules="{required: true, message: $t('member.input_id_or_email'), trigger: 'blur'}">
           <el-select
             v-model="form.ids"
             multiple
@@ -51,9 +51,9 @@
                 <span class="org-member-email">{{item.email}}</span>
               </template>
             </el-option>
-
           </el-select>
         </el-form-item>
+
         <el-form-item :label="$t('commons.role')" prop="roleIds">
           <el-select v-model="form.roleIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
             <el-option
@@ -65,6 +65,7 @@
           </el-select>
         </el-form-item>
       </el-form>
+
       <template v-slot:footer>
         <ms-dialog-footer
           @cancel="createVisible = false"
@@ -87,7 +88,8 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
-        <el-form-item :label="$t('commons.role')" prop="roleIds" :rules="{required: true, message: $t('role.please_choose_role'), trigger: 'change'}">
+        <el-form-item :label="$t('commons.role')" prop="roleIds"
+                      :rules="{required: true, message: $t('role.please_choose_role'), trigger: 'change'}">
           <el-select v-model="form.roleIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
             <el-option
               v-for="item in form.allroles"
@@ -127,7 +129,6 @@
         result: {},
         createVisible: false,
         updateVisible: false,
-        userList: [],
         form: {},
         queryPath: "/user/org/member/list",
         condition: {},
@@ -146,7 +147,6 @@
         total: 0,
         options: [],
         loading: false,
-        ids: []
       }
     },
     methods: {
@@ -184,7 +184,7 @@
         let roleIds = this.form.roles.map(r => r.id);
         this.result = this.$get('/role/list/org', response => {
           this.$set(this.form, "allroles", response.data);
-        })
+        });
         // 编辑使填充角色信息
         this.$set(this.form, 'roleIds', roleIds);
       },
@@ -196,7 +196,7 @@
           phone: this.form.phone,
           roleIds: this.form.roleIds,
           organizationId: this.currentUser().lastOrganizationId
-        }
+        };
         this.$refs[formName].validate((valid) => {
           if (valid) {
             this.result = this.$post("/organization/member/update", param, () => {
@@ -229,9 +229,6 @@
         }
         this.form = {};
         this.createVisible = true;
-        // this.result = this.$get('/user/list/', response => {
-        //   this.userList = response.data;
-        // });
         this.result = this.$get('/role/list/org', response => {
           this.$set(this.form, "roles", response.data);
         })
@@ -256,7 +253,7 @@
         });
       },
       remoteMethod(query) {
-        query = query.trim()
+        query = query.trim();
         if (query !== '') {
           this.loading = true;
           setTimeout(() => {
@@ -283,10 +280,6 @@
     float: right;
     color: #8492a6;
     font-size: 13px;
-  }
-
-  .input-with-autocomplete {
-    width: 100%;
   }
 
   .select-width {
