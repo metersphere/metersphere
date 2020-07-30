@@ -34,6 +34,8 @@ import ApiReportList from "../../api/report/ApiReportList";
 import axios from "axios";
 import ApiKeys from "../../settings/personal/ApiKeys";
 
+const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/)
+
 Vue.use(VueRouter);
 
 const router = new VueRouter({
@@ -45,6 +47,7 @@ const router = new VueRouter({
         sidebar: RouterSidebar
       }
     },
+    ...requireContext.keys().map(key => requireContext(key).default),
     {
       path: "/setting",
       components: {
