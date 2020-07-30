@@ -352,6 +352,20 @@ export class ResponseAssertion extends DefaultTestElement {
   }
 }
 
+export class JSONPathAssertion extends DefaultTestElement {
+  constructor(testName, jsonPath) {
+    super('JSONPathAssertion', 'JSONPathAssertionGui', 'JSONPathAssertion', testName);
+    this.jsonPath = jsonPath || {};
+
+    this.stringProp('JSON_PATH', this.jsonPath.expression);
+    this.stringProp('EXPECTED_VALUE', this.jsonPath.expect);
+    this.boolProp('JSONVALIDATION', true);
+    this.boolProp('EXPECT_NULL', false);
+    this.boolProp('INVERT', false);
+    this.boolProp('ISREGEX', true);
+  }
+}
+
 export class ResponseCodeAssertion extends ResponseAssertion {
   constructor(testName, type, value, message) {
     let assertion = {

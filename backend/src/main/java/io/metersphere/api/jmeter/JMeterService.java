@@ -1,6 +1,7 @@
 package io.metersphere.api.jmeter;
 
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.config.JmeterProperties;
 import io.metersphere.i18n.Translator;
 import org.apache.jmeter.config.Arguments;
@@ -33,6 +34,7 @@ public class JMeterService {
             LocalRunner runner = new LocalRunner(testPlan);
             runner.run();
         } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
             MSException.throwException(Translator.get("api_load_script_error"));
         }
     }

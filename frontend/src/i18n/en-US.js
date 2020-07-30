@@ -404,6 +404,7 @@ export default {
         start_with: "Start with",
         end_with: "End With",
         value: "Value",
+        expect: "Expect Value",
         expression: "Expression",
         response_in_time: "Response in time",
       },
