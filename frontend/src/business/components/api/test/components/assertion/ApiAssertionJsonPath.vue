@@ -2,11 +2,11 @@
   <div>
     <el-row :gutter="10" type="flex" justify="space-between" align="middle">
       <el-col>
-        <el-input :disabled="isReadOnly" v-model="jsonPath.expression" maxlength="255" size="small" show-word-limit
+        <el-input :disabled="isReadOnly" v-model="jsonPath.expression" maxlength="200" size="small" show-word-limit
                   :placeholder="$t('api_test.request.extract.json_path_expression')"/>
       </el-col>
       <el-col>
-        <el-input :disabled="isReadOnly" v-model="jsonPath.expect" maxlength="255" size="small" show-word-limit
+        <el-input :disabled="isReadOnly" v-model="jsonPath.expect" maxlength="2000" size="small" show-word-limit
                   :placeholder="$t('api_test.request.assertions.expect')"/>
       </el-col>
       <el-col class="assertion-btn">
