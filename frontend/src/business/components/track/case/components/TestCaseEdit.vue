@@ -175,7 +175,7 @@
                     icon="el-icon-delete"
                     circle size="mini"
                     @click="handleDeleteStep(scope.$index, scope.row)"
-                    :disabled="readOnly || scope.$index == 0 ? true : false"></el-button>
+                    :disabled="readOnly || (scope.$index == 0 && form.steps.length <= 1)"></el-button>
                 </template>
               </el-table-column>
             </el-table>
