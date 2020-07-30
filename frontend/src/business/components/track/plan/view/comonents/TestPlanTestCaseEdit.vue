@@ -451,7 +451,7 @@
     display: block;
   }
 
-  .tb-edit .current-row .el-textarea + span {
+  .tb-edit .current-row .el-textarea + pre {
     display: none;
   }
 
