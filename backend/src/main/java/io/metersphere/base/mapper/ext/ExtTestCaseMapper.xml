@@ -235,6 +235,7 @@
                 </foreach>
             </if>
         </where>
+        order by update_time desc
     </select>
 
     <select id="getMaxNumByProjectId" resultType="io.metersphere.base.domain.TestCase">

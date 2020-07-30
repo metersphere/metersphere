@@ -358,7 +358,6 @@ public class TestCaseService {
     private List<TestCaseExcelData> generateTestCaseExcel(TestCaseBatchRequest request) {
         List<TestCaseDTO> TestCaseList = extTestCaseMapper.listByTestCaseIds(request);
         List<TestCaseExcelData> list = new ArrayList<>();
-        SessionUser user = SessionUtils.getUser();
         StringBuilder step = new StringBuilder("");
         StringBuilder result = new StringBuilder("");
         TestCaseList.forEach(t -> {
@@ -395,18 +394,7 @@ public class TestCaseService {
             }
             data.setMaintainer(t.getMaintainer());
             list.add(data);
-
         });
-        list.add(new TestCaseExcelData());
-        TestCaseExcelData explain = new TestCaseExcelData();
-        explain.setName(Translator.get("do_not_modify_header_order"));
-        explain.setNodePath(Translator.get("module_created_automatically"));
-        explain.setType(Translator.get("options") + "（functional、performance、api）");
-        explain.setMethod(Translator.get("options") + "（manual、auto）");
-        explain.setPriority(Translator.get("options") + "（P0、P1、P2、P3）");
-        explain.setMaintainer(Translator.get("please_input_workspace_member"));
-
-        list.add(explain);
         return list;
     }
 
