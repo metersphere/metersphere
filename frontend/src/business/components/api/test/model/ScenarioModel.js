@@ -689,7 +689,7 @@ class JMXHttpRequest {
       });
       for (let i = 0; i < parameters.length; i++) {
         let parameter = parameters[i];
-        path += (encodeURIComponent(parameter.name) + '=' + encodeURIComponent(parameter.value));
+        path += (parameter.name + '=' + parameter.value);
         if (i != parameters.length -1) {
           path += '&';
         }
