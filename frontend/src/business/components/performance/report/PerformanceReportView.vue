@@ -43,12 +43,12 @@
           </el-col>
         </el-row>
 
-        <el-divider></el-divider>
+        <el-divider/>
 
         <el-tabs v-model="active" type="border-card" :stretch="true">
           <el-tab-pane :label="$t('report.test_overview')">
             <!--            <ms-report-test-overview :id="reportId" :status="status"/>-->
-            <ms-report-test-overview :report="report"/>
+            <ms-report-test-overview :report="report" ref="testOverview"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('report.test_request_statistics')">
             <ms-report-request-statistics :report="report"/>
@@ -63,8 +63,8 @@
 
       </el-card>
       <el-dialog :title="$t('report.test_stop_now_confirm')" :visible.sync="dialogFormVisible" width="30%">
-        <p v-html="$t('report.force_stop_tips')"></p>
-        <p v-html="$t('report.stop_tips')"></p>
+        <p v-html="$t('report.force_stop_tips')"/>
+        <p v-html="$t('report.stop_tips')"/>
         <div slot="footer" class="dialog-footer">
           <el-button type="danger" size="small" @click="stopTest(true)">{{$t('report.force_stop_btn')}}
           </el-button>
@@ -190,7 +190,7 @@
           } else {
             this.report.status = 'Completed';
           }
-        })
+        });
         this.dialogFormVisible = false;
       },
       rerun(testId) {
@@ -201,7 +201,7 @@
         }).then(() => {
           this.result = this.$post('/performance/run', {id: testId, triggerMode: 'MANUAL'}, (response) => {
             this.reportId = response.data;
-            this.$router.push({path: '/performance/report/view/' + this.reportId})
+            this.$router.push({path: '/performance/report/view/' + this.reportId});
             // 注册 socket
             this.initWebSocket();
           })
@@ -235,16 +235,21 @@
       this.reportId = this.$route.path.split('/')[4];
       this.result = this.$get("/performance/report/" + this.reportId, res => {
         let data = res.data;
-        this.status = data.status;
-        this.$set(this.report, "id", this.reportId);
-        this.$set(this.report, "status", data.status);
-        this.checkReportStatus(data.status);
-        if (this.status === "Completed" || this.status === "Running") {
-          this.initReportTimeInfo();
+        if (data) {
+          this.status = data.status;
+          this.$set(this.report, "id", this.reportId);
+          this.$set(this.report, "status", data.status);
+          this.checkReportStatus(data.status);
+          if (this.status === "Completed" || this.status === "Running") {
+            this.initReportTimeInfo();
+          }
+          this.initBreadcrumb();
+          this.initWebSocket();
+        } else {
+          this.$error(this.$t('report.not_exist'))
         }
-      })
-      this.initBreadcrumb();
-      this.initWebSocket();
+      });
+
     },
     beforeDestroy() {
       this.websocket.close() //离开路由之后断开websocket连接
@@ -288,6 +293,8 @@
                 } else {
                   this.clearData();
                 }
+              } else {
+                this.$error(this.$t('report.not_exist'));
               }
             });
 
