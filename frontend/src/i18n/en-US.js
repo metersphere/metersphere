@@ -266,6 +266,7 @@ export default {
     stop_tips: 'A <strong>Graceful shutdown</strong> will archive the JTL files and then stop the servers.',
     force_stop_btn: 'Terminating',
     stop_btn: 'Graceful shutdown',
+    not_exist: "Test report does not exist",
   },
   load_test: {
     operating: 'Operating',
@@ -476,6 +477,7 @@ export default {
     detail: "Report detail",
     delete: "Delete report",
     running: "The test is running",
+    not_exist: "Test report does not exist",
   },
   test_track: {
     test_track: "Track",
