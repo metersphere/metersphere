@@ -15,7 +15,7 @@
 
         </el-col>
         <el-col>
-          <el-input :disabled="isReadOnly" v-model="item.value" size="small" maxlength="2000" @change="change"
+          <el-input :disabled="isReadOnly" v-model="item.value" size="small" @change="change"
                     :placeholder="valueText" show-word-limit/>
         </el-col>
         <el-col class="kv-delete">
