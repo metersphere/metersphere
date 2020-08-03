@@ -1,7 +1,7 @@
 <template>
   <el-aside :width="width" class="ms-aside-container"
             :style="{'margin-left': asideHidden ? '0' : '-' + width}">
-    <div class="hiddenBottom" @click="asideHidden = !asideHidden" :style="{'left': width}">
+    <div v-if="enableAsideHidden" class="hiddenBottom" @click="asideHidden = !asideHidden" :style="{'left': width}">
       <i v-if="asideHidden" class="el-icon-arrow-left"/>
       <i v-if="!asideHidden" class="el-icon-arrow-right"/>
     </div>
@@ -16,7 +16,11 @@
         width: {
           type: String,
           default: '300px'
-        }
+        },
+        enableAsideHidden: {
+          type: Boolean,
+          default: true
+        },
       },
       data() {
         return {
