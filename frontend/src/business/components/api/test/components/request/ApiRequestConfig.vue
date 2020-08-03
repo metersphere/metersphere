@@ -78,6 +78,9 @@
     methods: {
       createRequest: function (type) {
         let request = new RequestFactory({type: type});
+        if (this.scenario.environmentId) {
+          request.useEnvironment = true;
+        }
         this.scenario.requests.push(request);
         this.type = "";
         this.visible = false;
