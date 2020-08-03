@@ -100,7 +100,7 @@
             {validator: validateURL, trigger: 'blur'}
           ],
           path: [
-            {max: 500, required: true, message: this.$t('commons.input_limit', [1, 500]), trigger: 'blur'},
+            {max: 500, message: this.$t('commons.input_limit', [0, 500]), trigger: 'blur'},
           ]
         },
         headerSuggestions: REQUEST_HEADERS
@@ -117,13 +117,12 @@
       },
       pathChange() {
         if (!this.request.path) return;
-        if (!this.request.path.startsWith('/')) {
-          this.request.path = '/' + this.request.path;
-        }
         let url = this.getURL(this.displayUrl);
-        this
-          .request.path = decodeURIComponent(url.pathname);
-        this.request.urlWirhEnv = decodeURIComponent(url.origin + url.pathname);
+        let urlStr = url.origin + url.pathname;
+        let envUrl = this.request.environment.protocol + '://' + this.request.environment.socket;
+        let test = urlStr.substring(envUrl.length, urlStr.length);
+
+        this.request.path = decodeURIComponent(test);
       },
       getURL(urlStr) {
         try {
