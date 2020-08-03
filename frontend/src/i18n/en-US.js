@@ -527,6 +527,7 @@ export default {
       create_module_first: "Please create module first",
       relate_test: "Relate test",
       relate_test_not_find: 'The associated test does not exist, please check the test case',
+      batch_handle: 'Batch processing (select {0} item)',
       import: {
         import: "Import test case",
         case_import: "Import test case",

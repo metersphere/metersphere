@@ -526,6 +526,7 @@ export default {
       create_module_first: "請先新建模塊",
       relate_test: "關聯測試",
       relate_test_not_find: '關聯的測試不存在,請檢查用例',
+      batch_handle: '批量處理 (選中{0}項)',
       import: {
         import: "導入用例",
         case_import: "導入測試用例",

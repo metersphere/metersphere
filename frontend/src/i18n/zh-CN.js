@@ -527,6 +527,7 @@ export default {
       create_module_first: "请先新建模块",
       relate_test: "关联测试",
       relate_test_not_find: '关联的测试不存在,请检查用例',
+      batch_handle: '批量处理 (选中{0}项)',
       import: {
         import: "导入用例",
         case_import: "导入测试用例",

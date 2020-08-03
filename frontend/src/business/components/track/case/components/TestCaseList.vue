@@ -39,6 +39,11 @@
         class="test-content adjust-table">
         <el-table-column
           type="selection"/>
+        <el-table-column width="40" :resizable="false" align="center">
+          <template v-slot:default="scope">
+            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>
+          </template>
+        </el-table-column>
         <el-table-column
           prop="num"
           sortable="custom"
@@ -96,7 +101,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          :label="$t('commons.operating')">
+          :label="$t('commons.operating')" min-width="100">
           <template v-slot:default="scope">
             <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)"
                                @deleteClick="handleDelete(scope.row)">
@@ -133,6 +138,7 @@
   import MsTableButton from "../../../common/components/MsTableButton";
   import {_filter, _sort} from "../../../../../common/js/utils";
   import {TEST_CASE_CONFIGS} from "../../../common/components/search/search-components";
+  import ShowMoreBtn from "./ShowMoreBtn";
 
   export default {
     name: "TestCaseList",
@@ -143,7 +149,7 @@
       MethodTableItem,
       TypeTableItem,
       PriorityTableItem,
-      MsCreateBox, TestCaseImport, TestCaseExport, MsTablePagination, NodeBreadcrumb, MsTableHeader
+      MsCreateBox, TestCaseImport, TestCaseExport, MsTablePagination, NodeBreadcrumb, MsTableHeader, ShowMoreBtn
     },
     data() {
       return {
@@ -156,7 +162,8 @@
         currentPage: 1,
         pageSize: 10,
         total: 0,
-        selectIds: new Set(),
+        // selectIds: new Set(),
+        selectRows: new Set(),
         priorityFilters: [
           {text: 'P0', value: 'P0'},
           {text: 'P1', value: 'P1'},
@@ -171,6 +178,16 @@
           {text: this.$t('commons.functional'), value: 'functional'},
           {text: this.$t('commons.performance'), value: 'performance'},
           {text: this.$t('commons.api'), value: 'api'}
+        ],
+        showMore: false,
+        buttons: [
+          {
+            name: '批量编辑用例', stop: this.handleClickStop
+          }, {
+            name: '批量移动用例', stop: this.handleClickStop
+          }, {
+            name: '批量删除用例', stop: this.handleClickStop
+          }
         ]
       }
     },
@@ -212,7 +229,8 @@
             let data = response.data;
             this.total = data.itemCount;
             this.tableData = data.listObject;
-            this.selectIds.clear();
+            // this.selectIds.clear();
+            this.selectRows.clear();
           });
         }
       },
@@ -246,8 +264,15 @@
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              this.$post('/test/case/batch/delete', {ids: [...this.selectIds]}, () => {
-                this.selectIds.clear();
+              // this.$post('/test/case/batch/delete', {ids: [...this.selectIds]}, () => {
+              //   this.selectIds.clear();
+              //   this.$emit("refresh");
+              //   this.$success(this.$t('commons.delete_success'));
+              // });
+              let ids = Array.from(this.selectRows).map(row => row.id);
+              this.$post('/test/case/batch/delete', {ids: ids}, () => {
+                // this.selectIds.clear();
+                this.selectRows.clear();
                 this.$emit("refresh");
                 this.$success(this.$t('commons.delete_success'));
               });
@@ -264,7 +289,8 @@
       },
       refresh() {
         this.condition = {components: TEST_CASE_CONFIGS};
-        this.selectIds.clear();
+        // this.selectIds.clear();
+        this.selectRows.clear();
         this.$emit('refresh');
       },
       showDetail(row, event, column) {
@@ -272,29 +298,54 @@
       },
       handleSelectAll(selection) {
         if (selection.length > 0) {
-          this.tableData.forEach(item => {
-            this.selectIds.add(item.id);
-          });
+          if (selection.length === 1) {
+            this.selectRows.add(selection[0]);
+          } else {
+            this.tableData.forEach(item => {
+              this.$set(item, "showMore", true);
+              this.selectRows.add(item);
+            });
+          }
         } else {
-          this.selectIds.clear();
+          this.selectRows.clear();
+          this.tableData.forEach(row => {
+            this.$set(row, "showMore", false);
+          })
         }
       },
       handleSelectionChange(selection, row) {
-        if (this.selectIds.has(row.id)) {
-          this.selectIds.delete(row.id);
+        // if (this.selectIds.has(row.id)) {
+        //   this.selectIds.delete(row.id);
+        // } else {
+        //   this.selectIds.add(row.id);
+        // }
+        if (this.selectRows.has(row)) {
+          this.$set(row, "showMore", false);
+          this.selectRows.delete(row);
         } else {
-          this.selectIds.add(row.id);
+          this.selectRows.add(row);
+        }
+
+        if (this.selectRows.size > 1) {
+          Array.from(this.selectRows).forEach(row => {
+            this.$set(row, "showMore", true);
+          })
+        } else if (this.selectRows.size === 1) {
+          let arr = Array.from(this.selectRows);
+          this.$set(arr[0], "showMore", false);
         }
       },
       importTestCase() {
         this.$refs.testCaseImport.open();
       },
       exportTestCase() {
+        let ids = Array.from(this.selectRows).map(row => row.id);
         let config = {
           url: '/test/case/export/testcase',
           method: 'post',
           responseType: 'blob',
-          data: {ids: [...this.selectIds]}
+          // data: {ids: [...this.selectIds]}
+          data: {ids: ids}
         };
         this.result = this.$request(config).then(response => {
           const filename = this.$t('test_track.case.test_case') + ".xlsx";
@@ -311,12 +362,18 @@
         });
       },
       handleBatch(type) {
-        if (this.selectIds.size < 1) {
+        // if (this.selectIds.size < 1) {
+        //   this.$warning(this.$t('test_track.plan_view.select_manipulate'));
+        //   return;
+        // }
+        if (this.selectRows.size < 1) {
           this.$warning(this.$t('test_track.plan_view.select_manipulate'));
           return;
         }
         if (type === 'move') {
-          this.$emit('moveToNode', this.selectIds);
+          let ids = Array.from(this.selectRows).map(row => row.id);
+          // this.$emit('moveToNode', this.selectIds);
+          this.$emit('moveToNode', ids);
         } else if (type === 'delete') {
           this.handleDeleteBatch();
         } else {
@@ -334,6 +391,9 @@
         }
         _sort(column, this.condition);
         this.initTableData();
+      },
+      handleClickStop() {
+        console.log("click stop");
       }
     }
   }
