@@ -491,6 +491,9 @@ export default {
     execution_result: ": Please select the execution result",
     actual_result: ": The actual result is empty",
     case: {
+      input_test_case:'Please enter the associated case name',
+      test_name:'TestName',
+      other:'--Other--',
       test_case: "Case",
       move: "Move case",
       case_list: "Test case list",

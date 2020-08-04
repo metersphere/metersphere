@@ -90,9 +90,9 @@
         </el-row>
 
         <el-row v-if="form.method && form.method == 'auto'">
-          <el-col :span="10" :offset="1">
+          <el-col :span="9" :offset="1">
             <el-form-item :label="$t('test_track.case.relate_test')" :label-width="formLabelWidth" prop="testId">
-              <el-select filterable :disabled="readOnly" v-model="form.testId"
+              <el-select  filterable :disabled="readOnly" v-model="form.testId"
                          :placeholder="$t('test_track.case.input_type')">
                 <el-option
                   v-for="item in testOptions"
@@ -103,8 +103,12 @@
               </el-select>
             </el-form-item>
           </el-col>
+          <el-col :span="9" :offset="1" v-if="form.testId=='other'">
+            <el-form-item :label="$t('test_track.case.test_name')" :label-width="formLabelWidth" prop="testId">
+              <el-input  v-model="form.testName" :placeholder="$t('test_track.case.input_test_case')" ></el-input>
+            </el-form-item>
+          </el-col>
         </el-row>
-
         <el-row style="margin-top: 15px;">
           <el-col :offset="2">{{$t('test_track.case.prerequisite')}}:</el-col>
         </el-row>
@@ -237,6 +241,7 @@
           method: '',
           prerequisite: '',
           testId: '',
+          testName:'',
           steps: [{
             num: 1,
             desc: '',
@@ -446,6 +451,7 @@
         if (this.currentProject && this.form.type != '' && this.form.type != 'functional') {
           this.result = this.$get('/' + this.form.type + '/list/' + this.currentProject.id, response => {
             this.testOptions = response.data;
+            this.testOptions.unshift({id:'other',name:this.$t('test_track.case.other')})
           });
         }
       },
@@ -491,6 +497,7 @@
             this.form.prerequisite = '';
             this.form.remark = '';
             this.form.testId = '';
+            this.form.testName='';
             this.form.steps = [{
               num: 1,
               desc: '',

@@ -490,6 +490,9 @@ export default {
     execution_result: ": 請選擇執行結果",
     actual_result: ": 實際結果為空",
     case: {
+      input_test_case:'請輸入關聯用例名稱',
+      test_name:'測試名稱',
+      other:'--其他--',
       test_case: "測試用例",
       move: "移動用例",
       case_list: "用例列表",
