@@ -266,6 +266,7 @@ export default {
     stop_tips: 'A <strong>Graceful shutdown</strong> will archive the JTL files and then stop the servers.',
     force_stop_btn: 'Terminating',
     stop_btn: 'Graceful shutdown',
+    not_exist: "Test report does not exist",
   },
   load_test: {
     operating: 'Operating',
@@ -476,6 +477,7 @@ export default {
     detail: "Report detail",
     delete: "Delete report",
     running: "The test is running",
+    not_exist: "Test report does not exist",
   },
   test_track: {
     test_track: "Track",
@@ -491,6 +493,9 @@ export default {
     execution_result: ": Please select the execution result",
     actual_result: ": The actual result is empty",
     case: {
+      input_test_case:'Please enter the associated case name',
+      test_name:'TestName',
+      other:'--Other--',
       test_case: "Case",
       move: "Move case",
       case_list: "Test case list",
@@ -527,6 +532,8 @@ export default {
       create_module_first: "Please create module first",
       relate_test: "Relate test",
       relate_test_not_find: 'The associated test does not exist, please check the test case',
+      batch_handle: 'Batch processing (select {0} item)',
+      batch_update: 'Update the attributes of {0} cases',
       import: {
         import: "Import test case",
         case_import: "Import test case",

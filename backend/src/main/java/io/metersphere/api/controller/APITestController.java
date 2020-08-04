@@ -49,10 +49,6 @@ public class APITestController {
         return apiTestService.getApiTestByProjectId(projectId);
     }
 
-    @GetMapping("/state/get/{testId}")
-    public ApiTest apiState(@PathVariable String testId) {
-        return apiTestService.getApiTestByTestId(testId);
-    }
 
     @PostMapping(value = "/schedule/update")
     public void updateSchedule(@RequestBody Schedule request) {
