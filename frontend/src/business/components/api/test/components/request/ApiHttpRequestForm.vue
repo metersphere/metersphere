@@ -120,9 +120,7 @@
         let url = this.getURL(this.displayUrl);
         let urlStr = url.origin + url.pathname;
         let envUrl = this.request.environment.protocol + '://' + this.request.environment.socket;
-        let test = urlStr.substring(envUrl.length, urlStr.length);
-
-        this.request.path = decodeURIComponent(test);
+        this.request.path = decodeURIComponent(urlStr.substring(envUrl.length, urlStr.length));
       },
       getURL(urlStr) {
         try {
