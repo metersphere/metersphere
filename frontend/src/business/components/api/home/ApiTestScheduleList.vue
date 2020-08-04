@@ -63,7 +63,7 @@
       },
       link(row) {
         this.$router.push({
-          path: this.operators.linkUrl + '?id=' + row.resourceId,
+          path: this.operators.linkUrl + row.resourceId,
         })
       },
       update(schedule) {
@@ -76,12 +76,12 @@
           case SCHEDULE_TYPE.API_TEST:
             this.operators.listUrl = '/api/list/schedule';
             this.operators.updateUrl = '/api/schedule/update';
-            this.operators.linkUrl = '/api/test/edit';
+            this.operators.linkUrl = '/api/test/edit?id=';
             break;
           case SCHEDULE_TYPE.PERFORMANCE_TEST:
             this.operators.listUrl = '/performance/list/schedule';
             this.operators.updateUrl = '/performance/schedule/update';
-            this.operators.linkUrl = '/performance//test/edit';
+            this.operators.linkUrl = '/performance/test/edit/';
             break;
           default:
             break;

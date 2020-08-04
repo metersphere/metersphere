@@ -424,11 +424,13 @@ public class PerformanceTestService {
         List<String> resourceIds = schedules.stream()
                 .map(Schedule::getResourceId)
                 .collect(Collectors.toList());
-        LoadTestExample example = new LoadTestExample();
-        example.createCriteria().andIdIn(resourceIds);
-        List<LoadTest> loadTests = loadTestMapper.selectByExample(example);
-        Map<String, String> loadTestMap = loadTests.stream().collect(Collectors.toMap(LoadTest::getId, LoadTest::getName));
-        scheduleService.build(loadTestMap, schedules);
+        if (!resourceIds.isEmpty()) {
+            LoadTestExample example = new LoadTestExample();
+            example.createCriteria().andIdIn(resourceIds);
+            List<LoadTest> loadTests = loadTestMapper.selectByExample(example);
+            Map<String, String> loadTestMap = loadTests.stream().collect(Collectors.toMap(LoadTest::getId, LoadTest::getName));
+            scheduleService.build(loadTestMap, schedules);
+        }
         return schedules;
     }
 }
