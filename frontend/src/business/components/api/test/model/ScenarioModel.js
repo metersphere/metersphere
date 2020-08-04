@@ -1,18 +1,22 @@
 import {
-  Element,
-  TestElement,
-  HashTree,
-  TestPlan,
-  ThreadGroup,
-  HeaderManager,
-  HTTPSamplerProxy,
-  HTTPSamplerArguments,
   Arguments,
+  DubboSample,
   DurationAssertion,
+  Element,
+  HashTree,
+  HeaderManager,
+  HTTPSamplerArguments,
+  HTTPSamplerProxy,
+  JSONPathAssertion,
+  JSONPostProcessor,
+  RegexExtractor,
   ResponseCodeAssertion,
   ResponseDataAssertion,
   ResponseHeadersAssertion,
-  RegexExtractor, JSONPostProcessor, XPath2Extractor, DubboSample, JSONPathAssertion,
+  TestElement,
+  TestPlan,
+  ThreadGroup,
+  XPath2Extractor,
 } from "./JMX";
 
 export const uuid = function () {
@@ -284,6 +288,11 @@ export class HttpRequest extends Request {
         return {
           isValid: false,
           info: 'api_test.request.please_configure_environment_in_scenario'
+        }
+      } else if (!this.path) {
+        return {
+          isValid: false,
+          info: 'api_test.request.input_path'
         }
       }
     } else {
@@ -663,11 +672,12 @@ class JMXHttpRequest {
         this.protocol = url.protocol.split(":")[0];
         this.pathname = this.getPostQueryParameters(request, decodeURIComponent(url.pathname));
       } else {
-        this.port = environment.port;
-        this.protocol = environment.protocol;
-        this.domain = environment.domain;
-        let url = new URL(environment.protocol + "://" + environment.socket);
-        this.path = this.getPostQueryParameters(request, decodeURIComponent(url.pathname));
+        if (environment) {
+          this.port = environment.port;
+          this.protocol = environment.protocol;
+          this.domain = environment.domain;
+        }
+        this.path = this.getPostQueryParameters(request, decodeURIComponent(request.path));
       }
     }
   }
@@ -683,8 +693,8 @@ class JMXHttpRequest {
       });
       for (let i = 0; i < parameters.length; i++) {
         let parameter = parameters[i];
-        path += (encodeURIComponent(parameter.name) + '=' + encodeURIComponent(parameter.value));
-        if (i !== parameters.length - 1) {
+        path += (parameter.name + '=' + parameter.value);
+        if (i != parameters.length - 1) {
           path += '&';
         }
       }
