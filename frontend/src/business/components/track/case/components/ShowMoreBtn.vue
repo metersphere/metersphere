@@ -56,7 +56,7 @@
 
   .show-more-btn-title {
     color: #696969;
-    background-color: #C0C0C0;
+    background-color: #e2e2e2;
     padding: 5px;
   }
 
