@@ -21,6 +21,8 @@ import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.controller.request.QueryScheduleRequest;
+import io.metersphere.dto.ScheduleDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiTestJob;
 import io.metersphere.service.FileService;
@@ -312,5 +314,18 @@ public class APITestService {
             list.add(provider);
         });
         return list;
+    }
+
+    public List<ScheduleDao> listSchedule(QueryScheduleRequest request) {
+        List<ScheduleDao> schedules = scheduleService.list(request);
+        List<String> resourceIds = schedules.stream()
+                .map(Schedule::getResourceId)
+                .collect(Collectors.toList());
+        ApiTestExample example = new ApiTestExample();
+        example.createCriteria().andIdIn(resourceIds);
+        List<ApiTest> apiTests = apiTestMapper.selectByExample(example);
+        Map<String, String> apiTestMap = apiTests.stream().collect(Collectors.toMap(ApiTest::getId, ApiTest::getName));
+        scheduleService.build(apiTestMap, schedules);
+        return schedules;
     }
 }

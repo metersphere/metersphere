@@ -1,7 +1,8 @@
 package io.metersphere.base.domain;
 
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 public class Schedule implements Serializable {
@@ -22,6 +23,12 @@ public class Schedule implements Serializable {
     private String resourceId;
 
     private String userId;
+
+    private String workspaceId;
+
+    private Long createTime;
+
+    private Long updateTime;
 
     private String customData;
 

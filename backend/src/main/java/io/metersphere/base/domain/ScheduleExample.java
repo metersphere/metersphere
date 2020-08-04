@@ -723,6 +723,196 @@ public class ScheduleExample {
             addCriterion("user_id not between", value1, value2, "userId");
             return (Criteria) this;
         }
+
+        public Criteria andWorkspaceIdIsNull() {
+            addCriterion("workspace_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdIsNotNull() {
+            addCriterion("workspace_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdEqualTo(String value) {
+            addCriterion("workspace_id =", value, "workspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdNotEqualTo(String value) {
+            addCriterion("workspace_id <>", value, "workspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdGreaterThan(String value) {
+            addCriterion("workspace_id >", value, "workspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdGreaterThanOrEqualTo(String value) {
+            addCriterion("workspace_id >=", value, "workspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdLessThan(String value) {
+            addCriterion("workspace_id <", value, "workspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdLessThanOrEqualTo(String value) {
+            addCriterion("workspace_id <=", value, "workspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdLike(String value) {
+            addCriterion("workspace_id like", value, "workspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdNotLike(String value) {
+            addCriterion("workspace_id not like", value, "workspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdIn(List<String> values) {
+            addCriterion("workspace_id in", values, "workspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdNotIn(List<String> values) {
+            addCriterion("workspace_id not in", values, "workspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdBetween(String value1, String value2) {
+            addCriterion("workspace_id between", value1, value2, "workspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdNotBetween(String value1, String value2) {
+            addCriterion("workspace_id not between", value1, value2, "workspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeIsNull() {
+            addCriterion("create_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeIsNotNull() {
+            addCriterion("create_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeEqualTo(Long value) {
+            addCriterion("create_time =", value, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeNotEqualTo(Long value) {
+            addCriterion("create_time <>", value, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeGreaterThan(Long value) {
+            addCriterion("create_time >", value, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("create_time >=", value, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeLessThan(Long value) {
+            addCriterion("create_time <", value, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeLessThanOrEqualTo(Long value) {
+            addCriterion("create_time <=", value, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeIn(List<Long> values) {
+            addCriterion("create_time in", values, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeNotIn(List<Long> values) {
+            addCriterion("create_time not in", values, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeBetween(Long value1, Long value2) {
+            addCriterion("create_time between", value1, value2, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeNotBetween(Long value1, Long value2) {
+            addCriterion("create_time not between", value1, value2, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateTimeIsNull() {
+            addCriterion("update_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateTimeIsNotNull() {
+            addCriterion("update_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateTimeEqualTo(Long value) {
+            addCriterion("update_time =", value, "updateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateTimeNotEqualTo(Long value) {
+            addCriterion("update_time <>", value, "updateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateTimeGreaterThan(Long value) {
+            addCriterion("update_time >", value, "updateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("update_time >=", value, "updateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateTimeLessThan(Long value) {
+            addCriterion("update_time <", value, "updateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateTimeLessThanOrEqualTo(Long value) {
+            addCriterion("update_time <=", value, "updateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateTimeIn(List<Long> values) {
+            addCriterion("update_time in", values, "updateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateTimeNotIn(List<Long> values) {
+            addCriterion("update_time not in", values, "updateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateTimeBetween(Long value1, Long value2) {
+            addCriterion("update_time between", value1, value2, "updateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateTimeNotBetween(Long value1, Long value2) {
+            addCriterion("update_time not between", value1, value2, "updateTime");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

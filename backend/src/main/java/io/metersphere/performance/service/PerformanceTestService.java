@@ -12,8 +12,10 @@ import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.config.KafkaProperties;
 import io.metersphere.controller.request.OrderRequest;
+import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.dto.LoadTestDTO;
+import io.metersphere.dto.ScheduleDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.PerformanceTestJob;
 import io.metersphere.performance.engine.Engine;
@@ -415,5 +417,18 @@ public class PerformanceTestService {
             // 停止测试之后设置报告的状态
             reportService.updateStatus(reportId, PerformanceTestStatus.Completed.name());
         }
+    }
+
+    public List<ScheduleDao> listSchedule(QueryScheduleRequest request) {
+        List<ScheduleDao> schedules = scheduleService.list(request);
+        List<String> resourceIds = schedules.stream()
+                .map(Schedule::getResourceId)
+                .collect(Collectors.toList());
+        LoadTestExample example = new LoadTestExample();
+        example.createCriteria().andIdIn(resourceIds);
+        List<LoadTest> loadTests = loadTestMapper.selectByExample(example);
+        Map<String, String> loadTestMap = loadTests.stream().collect(Collectors.toMap(LoadTest::getId, LoadTest::getName));
+        scheduleService.build(loadTestMap, schedules);
+        return schedules;
     }
 }
