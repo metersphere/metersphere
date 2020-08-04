@@ -6,8 +6,6 @@
 
 > [English](README_EN.md) | 中文
 
-[MeterSphere 的初心和使命](https://mp.weixin.qq.com/s/DpCt3BNgBTlV3sJ5qtPmZw)
-
 MeterSphere 是一站式的开源企业级持续测试平台，涵盖测试跟踪、接口测试、性能测试、团队协作等功能，兼容JMeter 等开源标准，有效助力开发和测试团队充分利用云弹性进行高度可扩展的自动化测试，加速高质量软件的交付。
 
 - 测试跟踪: 远超 TestLink 的使用体验；
@@ -17,10 +15,11 @@ MeterSphere 是一站式的开源企业级持续测试平台，涵盖测试跟�
 
 ![产品定位](https://metersphere.io/images/icon/ct-devops.png)
 
-UI 展示：
+> 如需进一步了解 MeterSphere 开源项目，推荐阅读 [MeterSphere 的初心和使命](https://mp.weixin.qq.com/s/DpCt3BNgBTlV3sJ5qtPmZw)
+
+## UI 展示
 
 ![UI](https://metersphere.io/images/screenshot/ss07.png)
-
 
 ## 快速开始
 
@@ -193,6 +192,7 @@ v1.1.0 是 v1.0.0 之后的功能版本。
 - 测试引擎: [JMeter](https://jmeter.apache.org/)
 
 ## 加入 MeterSphere 团队
+
 我们正在招聘 MeterSphere 技术布道师，一起打造开源明星项目，请发简历到 metersphere@fit2cloud.com
 
 点击查看 [岗位详情](https://www.zhipin.com/job_detail/b151c4b3d594688733Ny3dy1GFI~.html)
