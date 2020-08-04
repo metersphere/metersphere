@@ -49,8 +49,8 @@
 
   .show-more-btn {
     width: 20px;
-    height: 30px;
-    line-height: 30px;
+    height: 25px;
+    line-height: 25px;
     background-color: #FFF;
   }
 

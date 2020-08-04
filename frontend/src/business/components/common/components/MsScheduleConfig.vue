@@ -5,8 +5,8 @@
           <i class="el-icon-date" size="small"></i>
           <span class="character" @click="scheduleEdit">SCHEDULER</span>
         </span>
-        <el-switch :disabled="!schedule.value" v-model="schedule.enable" @change="scheduleChange"/>
-        <ms-schedule-edit :schedule="schedule" :save="save" :custom-validate="customValidate" ref="scheduleEdit"/>
+        <el-switch :disabled="!schedule.value && isReadOnly" v-model="schedule.enable" @change="scheduleChange"/>
+        <ms-schedule-edit :is-read-only="isReadOnly" :schedule="schedule" :save="save" :custom-validate="customValidate" ref="scheduleEdit"/>
         <crontab-result v-show="false" :ex="schedule.value" ref="crontabResult" @resultListChange="resultListChange"/>
       </div>
       <div>
@@ -44,6 +44,10 @@
           type: Function,
           default: defaultCustomValidate
         },
+        isReadOnly: {
+          type: Boolean,
+          default: false
+        }
       },
       methods: {
         scheduleEdit() {

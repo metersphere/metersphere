@@ -264,6 +264,7 @@ export default {
     stop_tips: '<strong>停止</strong>測試會結束當前測試並保留報告數據',
     force_stop_btn: '強制停止',
     stop_btn: '停止',
+    not_exist: "測試報告不存在",
   },
   load_test: {
     operating: '操作',
@@ -475,6 +476,7 @@ export default {
     detail: "報告詳情",
     delete: "刪除報告",
     running: "測試執行中",
+    not_exist: "測試報告不存在",
   },
   test_track: {
     test_track: "測試跟踪",
@@ -530,6 +532,7 @@ export default {
       relate_test: "關聯測試",
       relate_test_not_find: '關聯的測試不存在,請檢查用例',
       batch_handle: '批量處理 (選中{0}項)',
+      batch_update: '更新{0}個用例的屬性',
       import: {
         import: "導入用例",
         case_import: "導入測試用例",

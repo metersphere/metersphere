@@ -10,7 +10,7 @@
         </el-select>
       </el-col>
       <el-col>
-        <el-input :disabled="isReadOnly" v-model="regex.expression" maxlength="2000" size="small" show-word-limit
+        <el-input :disabled="isReadOnly" v-model="regex.expression" size="small" show-word-limit
                   :placeholder="$t('api_test.request.assertions.expression')"/>
       </el-col>
       <el-col class="assertion-btn">

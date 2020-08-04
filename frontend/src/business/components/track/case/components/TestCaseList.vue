@@ -119,6 +119,8 @@
                            :total="total"/>
 
     </el-card>
+
+    <batch-edit ref="batchEdit"/>
   </div>
 </template>
 
@@ -139,6 +141,7 @@
   import {_filter, _sort} from "../../../../../common/js/utils";
   import {TEST_CASE_CONFIGS} from "../../../common/components/search/search-components";
   import ShowMoreBtn from "./ShowMoreBtn";
+  import BatchEdit from "./BatchEdit";
 
   export default {
     name: "TestCaseList",
@@ -149,7 +152,14 @@
       MethodTableItem,
       TypeTableItem,
       PriorityTableItem,
-      MsCreateBox, TestCaseImport, TestCaseExport, MsTablePagination, NodeBreadcrumb, MsTableHeader, ShowMoreBtn
+      MsCreateBox,
+      TestCaseImport,
+      TestCaseExport,
+      MsTablePagination,
+      NodeBreadcrumb,
+      MsTableHeader,
+      ShowMoreBtn,
+      BatchEdit
     },
     data() {
       return {
@@ -326,6 +336,7 @@
           this.selectRows.add(row);
         }
 
+        // todo
         if (this.selectRows.size > 1) {
           Array.from(this.selectRows).forEach(row => {
             this.$set(row, "showMore", true);
@@ -393,7 +404,7 @@
         this.initTableData();
       },
       handleClickStop() {
-        console.log("click stop");
+        this.$refs.batchEdit.open();
       }
     }
   }
