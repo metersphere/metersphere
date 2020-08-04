@@ -285,14 +285,9 @@ export class HttpRequest extends Request {
           isValid: false,
           info: 'api_test.request.please_configure_environment_in_scenario'
         }
-      } else if (!this.path) {
-        return {
-          isValid: false,
-          info: 'api_test.request.input_path'
-        }
       }
     } else {
-      if  (!this.url) {
+      if (!this.url) {
         return {
           isValid: false,
           info: 'api_test.request.input_url'
@@ -668,12 +663,11 @@ class JMXHttpRequest {
         this.protocol = url.protocol.split(":")[0];
         this.pathname = this.getPostQueryParameters(request, decodeURIComponent(url.pathname));
       } else {
-        if (environment) {
-          this.port = environment.port;
-          this.protocol = environment.protocol;
-          this.domain = environment.domain;
-        }
-        this.path = this.getPostQueryParameters(request, decodeURIComponent(request.path));
+        this.port = environment.port;
+        this.protocol = environment.protocol;
+        this.domain = environment.domain;
+        let url = new URL(environment.protocol + "://" + environment.socket);
+        this.path = this.getPostQueryParameters(request, decodeURIComponent(url.pathname + (request.path ? request.path : '')));
       }
     }
   }
@@ -690,7 +684,7 @@ class JMXHttpRequest {
       for (let i = 0; i < parameters.length; i++) {
         let parameter = parameters[i];
         path += (parameter.name + '=' + parameter.value);
-        if (i != parameters.length -1) {
+        if (i != parameters.length - 1) {
           path += '&';
         }
       }

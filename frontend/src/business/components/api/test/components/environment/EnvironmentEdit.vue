@@ -42,6 +42,7 @@
     import MsApiKeyValue from "../ApiKeyValue";
     import MsDialogFooter from "../../../../common/components/MsDialogFooter";
     import {REQUEST_HEADERS} from "../../../../../../common/js/constants";
+    import {KeyValue} from "../../model/ScenarioModel";
 
     export default {
       name: "EnvironmentEdit",
@@ -110,39 +111,30 @@
         },
         validateSocket(socket) {
           if (!socket) return;
-          let socketInfo = socket.split(":");
-          if (socketInfo.length > 2) {
-            return false;
+          let urlStr = this.environment.protocol + '://' + socket;
+          let url = {};
+          try {
+            url = new URL(urlStr);
+          } catch (e) {
+            return false
           }
-          let host = socketInfo[0];
-          let port = socketInfo[1];
-          if (!this.validateHost(host) || !(port == undefined || this.validatePort(port))) {
-            return false;
+
+          this.environment.port = url.port;
+          this.environment.domain = decodeURIComponent(url.hostname);
+          if (url.port) {
+            this.environment.socket = this.environment.domain + ':' + url.port + url.pathname;
+          } else {
+            this.environment.socket = this.environment.domain + url.pathname;
           }
-          this.environment.domain = host;
-          this.environment.port = port;
           return true;
         },
-        validateHost(host) {
-          let hostReg =  /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/;
-          if (hostReg.test(host) || host === 'localhost') {
-            return true;
-          }
-          return false;
-        },
-        validatePort(port) {
-          let portReg = /^[1-9]\d*$/;
-          if (portReg.test(port) && 1 <= 1*port && 1*port <= 65535){
-            return true
-          }
-          return false;
-        },
+
         cancel() {
           this.$emit('close');
         },
         clearValidate() {
           this.$refs["from"].clearValidate();
-        }
+        },
       },
     }
 </script>
