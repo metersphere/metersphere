@@ -9,8 +9,10 @@ import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.dto.LoadTestDTO;
+import io.metersphere.dto.ScheduleDao;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.FileService;
 import io.metersphere.track.request.testplan.*;
@@ -141,4 +143,14 @@ public class PerformanceTestController {
         performanceTestService.updateSchedule(request);
     }
 
+    @PostMapping("/list/schedule/{goPage}/{pageSize}")
+    public List<ScheduleDao> listSchedule(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryScheduleRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return performanceTestService.listSchedule(request);
+    }
+
+    @PostMapping("/list/schedule")
+    public List<ScheduleDao> listSchedule(@RequestBody QueryScheduleRequest request) {
+        return performanceTestService.listSchedule(request);
+    }
 }
