@@ -39,9 +39,25 @@
           @confirm="submit('form')"/>
       </template>
     </el-dialog>
+    <el-dialog :title="$t('workspace.update')" :visible.sync="dialogWsUpdateVisible" width="30%">
+      <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="100px" size="small">
+        <el-form-item :label="$t('commons.name')" prop="name">
+          <el-input v-model="form.name" autocomplete="off"/>
+        </el-form-item>
+        <el-form-item :label="$t('commons.description')" prop="description">
+          <el-input type="textarea" v-model="form.description"></el-input>
+        </el-form-item>
+      </el-form>
+      <template v-slot:footer>
+        <ms-dialog-footer
+          @cancel="dialogWsUpdateVisible = false"
+          @confirm="submit('form')"/>
+      </template>
+    </el-dialog>
 
     <!-- dialog of workspace member -->
-    <el-dialog :visible.sync="dialogWsMemberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc" class="dialog-css">
+    <el-dialog :visible.sync="dialogWsMemberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc"
+               class="dialog-css">
       <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="dialogSearch"
                        :create-tip="$t('member.create')" :title="$t('commons.member')"/>
       <!-- organization member table -->
@@ -201,8 +217,13 @@
             }
             this.$post("/workspace/" + saveType, this.form, () => {
               this.dialogWsAddVisible = false;
+              this.dialogWsUpdateVisible = false;
               this.list();
-              Message.success(this.$t('commons.save_success'));
+              if (saveType == 'add') {
+                Message.success(this.$t('commons.save_success'));
+              } else if (saveType == 'update') {
+                Message.success(this.$t('commons.modify_success'));
+              }
             });
           } else {
             return false;
@@ -210,7 +231,7 @@
         });
       },
       edit(row) {
-        this.dialogWsAddVisible = true;
+        this.dialogWsUpdateVisible = true;
         this.form = Object.assign({}, row);
       },
       handleDelete(workspace) {
@@ -423,6 +444,7 @@
       return {
         result: {},
         dialogWsAddVisible: false,
+        dialogWsUpdateVisible: false,
         dialogWsMemberVisible: false,
         dialogWsMemberAddVisible: false,
         dialogWsMemberUpdateVisible: false,
