@@ -105,7 +105,7 @@
           </el-col>
           <el-col :span="9" :offset="1" v-if="form.testId=='other'">
             <el-form-item :label="$t('test_track.case.test_name')" :label-width="formLabelWidth" prop="testId">
-              <el-input  v-model="form.testName" :placeholder="$t('test_track.case.input_test_case')" ></el-input>
+              <el-input  v-model="form.otherTestName" :placeholder="$t('test_track.case.input_test_case')" ></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -241,7 +241,7 @@
           method: '',
           prerequisite: '',
           testId: '',
-          testName:'',
+          otherTestName:'',
           steps: [{
             num: 1,
             desc: '',
