@@ -128,7 +128,6 @@ public class UserController {
     }
 
     @GetMapping("/list")
-    @RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.ORG_ADMIN, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public List<User> getUserList() {
         return userService.getUserList();
     }

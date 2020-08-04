@@ -4,12 +4,12 @@
       <el-form :model="form" :rules="rules" ref="from">
         <el-form-item
           prop="cronValue">
-          <el-input v-model="form.cronValue" class="inp" :placeholder="$t('schedule.please_input_cron_expression')"/>
+          <el-input :disabled="isReadOnly" v-model="form.cronValue" class="inp" :placeholder="$t('schedule.please_input_cron_expression')"/>
 <!--          <el-button type="primary" @click="showCronDialog">{{$t('schedule.generate_expression')}}</el-button>-->
-          <el-button type="primary" @click="saveCron">{{$t('commons.save')}}</el-button>
+          <el-button :disabled="isReadOnly" type="primary" @click="saveCron">{{$t('commons.save')}}</el-button>
         </el-form-item>
         <el-form-item>
-          <el-link type="primary" @click="showCronDialog">{{$t('schedule.generate_expression')}}</el-link>
+          <el-link :disabled="isReadOnly" type="primary" @click="showCronDialog">{{$t('schedule.generate_expression')}}</el-link>
         </el-form-item>
         <crontab-result :ex="form.cronValue" ref="crontabResult" />
       </el-form>
@@ -38,6 +38,10 @@
           type: Function,
           default: defaultCustomValidate
         },
+        isReadOnly: {
+          type: Boolean,
+          default: false
+        }
       },
       watch: {
         'schedule.value'() {

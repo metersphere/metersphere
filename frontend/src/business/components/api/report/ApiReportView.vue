@@ -62,17 +62,22 @@ export default {
         let url = "/api/report/get/" + this.reportId;
         this.$get(url, response => {
           this.report = response.data || {};
-          if (this.isNotRunning) {
-            try {
-              this.content = JSON.parse(this.report.content);
-            } catch (e) {
-              console.log(this.report.content)
-              throw e;
+          if (response.data) {
+            if (this.isNotRunning) {
+              try {
+                this.content = JSON.parse(this.report.content);
+              } catch (e) {
+                console.log(this.report.content)
+                throw e;
+              }
+              this.getFails();
+              this.loading = false;
+            } else {
+              setTimeout(this.getReport, 2000)
             }
-            this.getFails();
-            this.loading = false;
           } else {
-            setTimeout(this.getReport, 2000)
+            this.loading = false;
+            this.$error(this.$t('api_report.not_exist'));
           }
         });
       }

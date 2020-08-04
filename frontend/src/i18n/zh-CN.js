@@ -264,6 +264,7 @@ export default {
     stop_tips: '<strong>停止</strong>测试会结束当前测试并保留报告数据',
     force_stop_btn: '强制停止',
     stop_btn: '停止',
+    not_exist: "测试报告不存在",
   },
   load_test: {
     operating: '操作',
@@ -475,6 +476,7 @@ export default {
     detail: "报告详情",
     delete: "删除报告",
     running: "测试执行中",
+    not_exist: "测试报告不存在",
   },
   test_track: {
     test_track: "测试跟踪",
