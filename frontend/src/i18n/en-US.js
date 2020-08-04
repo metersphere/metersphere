@@ -528,6 +528,7 @@ export default {
       relate_test: "Relate test",
       relate_test_not_find: 'The associated test does not exist, please check the test case',
       batch_handle: 'Batch processing (select {0} item)',
+      batch_update: 'Update the attributes of {0} cases',
       import: {
         import: "Import test case",
         case_import: "Import test case",

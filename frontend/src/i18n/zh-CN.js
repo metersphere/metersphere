@@ -528,6 +528,7 @@ export default {
       relate_test: "关联测试",
       relate_test_not_find: '关联的测试不存在,请检查用例',
       batch_handle: '批量处理 (选中{0}项)',
+      batch_update: '更新{0}个用例的属性',
       import: {
         import: "导入用例",
         case_import: "导入测试用例",
