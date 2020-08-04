@@ -287,7 +287,7 @@ export class HttpRequest extends Request {
         }
       }
     } else {
-      if  (!this.url) {
+      if (!this.url) {
         return {
           isValid: false,
           info: 'api_test.request.input_url'
@@ -684,7 +684,7 @@ class JMXHttpRequest {
       for (let i = 0; i < parameters.length; i++) {
         let parameter = parameters[i];
         path += (encodeURIComponent(parameter.name) + '=' + encodeURIComponent(parameter.value));
-        if (i != parameters.length -1) {
+        if (i !== parameters.length - 1) {
           path += '&';
         }
       }
@@ -860,9 +860,11 @@ class JMXGenerator {
 
   addContentType(request, type) {
     for (let index in request.headers) {
-      if (request.headers[index].name == 'Content-Type') {
-        request.headers.splice(index, 1);
-        break;
+      if (request.headers.hasOwnProperty(index)) {
+        if (request.headers[index].name === 'Content-Type') {
+          request.headers.splice(index, 1);
+          break;
+        }
       }
     }
     request.headers.push(new KeyValue('Content-Type', type));
