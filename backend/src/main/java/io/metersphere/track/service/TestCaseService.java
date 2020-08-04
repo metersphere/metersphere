@@ -356,6 +356,12 @@ public class TestCaseService {
     }
 
     private List<TestCaseExcelData> generateTestCaseExcel(TestCaseBatchRequest request) {
+        List<OrderRequest> orderList = ServiceUtils.getDefaultOrder(request.getOrders());
+        OrderRequest order = new OrderRequest();
+        order.setName("sort");
+        order.setType("desc");
+        orderList.add(order);
+        request.setOrders(orderList);
         List<TestCaseDTO> TestCaseList = extTestCaseMapper.listByTestCaseIds(request);
         List<TestCaseExcelData> list = new ArrayList<>();
         StringBuilder step = new StringBuilder("");
@@ -466,6 +472,7 @@ public class TestCaseService {
 
     /**
      * 导入用例前，检查数据库是否存在此用例
+     *
      * @param testCaseWithBLOBs
      * @return
      */

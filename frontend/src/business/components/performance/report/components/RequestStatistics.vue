@@ -66,8 +66,8 @@
       <el-table-column label="Throughput">
         <el-table-column
           prop="transactions"
-          label="Transactions"
-          width="100"
+          label="Transactions/s"
+          width="150"
         />
       </el-table-column>
 
@@ -76,13 +76,13 @@
           prop="received"
           label="Received"
           align="center"
-          width="200"
+          width="150"
         />
         <el-table-column
           prop="sent"
           label="Sent"
           align="center"
-          width="200"
+          width="150"
         />
       </el-table-column>
 
