@@ -11,6 +11,8 @@ import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.controller.request.QueryScheduleRequest;
+import io.metersphere.dto.ScheduleDao;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
@@ -97,5 +99,16 @@ public class APITestController {
     @PostMapping("/dubbo/providers")
     public List<DubboProvider> getProviders(@RequestBody RegistryCenter registry) {
         return apiTestService.getProviders(registry);
+    }
+
+    @PostMapping("/list/schedule/{goPage}/{pageSize}")
+    public List<ScheduleDao> listSchedule(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryScheduleRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return apiTestService.listSchedule(request);
+    }
+
+    @PostMapping("/list/schedule")
+    public List<ScheduleDao> listSchedule(@RequestBody QueryScheduleRequest request) {
+        return apiTestService.listSchedule(request);
     }
 }
