@@ -172,7 +172,6 @@
         currentPage: 1,
         pageSize: 10,
         total: 0,
-        // selectIds: new Set(),
         selectRows: new Set(),
         priorityFilters: [
           {text: 'P0', value: 'P0'},
@@ -274,14 +273,8 @@
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              // this.$post('/test/case/batch/delete', {ids: [...this.selectIds]}, () => {
-              //   this.selectIds.clear();
-              //   this.$emit("refresh");
-              //   this.$success(this.$t('commons.delete_success'));
-              // });
               let ids = Array.from(this.selectRows).map(row => row.id);
               this.$post('/test/case/batch/delete', {ids: ids}, () => {
-                // this.selectIds.clear();
                 this.selectRows.clear();
                 this.$emit("refresh");
                 this.$success(this.$t('commons.delete_success'));
@@ -375,17 +368,12 @@
         });
       },
       handleBatch(type) {
-        // if (this.selectIds.size < 1) {
-        //   this.$warning(this.$t('test_track.plan_view.select_manipulate'));
-        //   return;
-        // }
         if (this.selectRows.size < 1) {
           this.$warning(this.$t('test_track.plan_view.select_manipulate'));
           return;
         }
         if (type === 'move') {
           let ids = Array.from(this.selectRows).map(row => row.id);
-          // this.$emit('moveToNode', this.selectIds);
           this.$emit('moveToNode', ids);
         } else if (type === 'delete') {
           this.handleDeleteBatch();

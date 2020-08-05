@@ -36,6 +36,7 @@
 <script>
   import MsDialogFooter from "../../../common/components/MsDialogFooter";
   import {WORKSPACE_ID} from "../../../../../common/js/constants";
+  import {listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
 
   export default {
     name: "BatchEdit",
@@ -88,9 +89,11 @@
       open() {
         this.dialogVisible = true;
         this.size = this.$parent.selectRows.size;
+        listenGoBack(this.handleClose);
       },
       handleClose() {
         this.form = {};
+        removeGoBackListener(this.handleClose);
       },
       changeType(val) {
         this.$set(this.form, "value", "");

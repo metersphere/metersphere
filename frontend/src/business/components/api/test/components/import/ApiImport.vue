@@ -95,6 +95,7 @@
 <script>
     import MsDialogFooter from "../../../../common/components/MsDialogFooter";
     import ApiEnvironmentConfig from "../ApiEnvironmentConfig";
+    import {listenGoBack, removeGoBackListener} from "../../../../../../common/js/utils";
     export default {
       name: "ApiImport",
       components: {ApiEnvironmentConfig, MsDialogFooter},
@@ -174,6 +175,7 @@
       methods: {
         open() {
           this.visible = true;
+          listenGoBack(this.close);
         },
         upload(file) {
           this.formData.file = file.file;
@@ -255,6 +257,8 @@
             swaggerUrl: ''
           };
           this.fileList = [];
+          removeGoBackListener(this.close);
+          this.visible = false;
         }
       }
     }

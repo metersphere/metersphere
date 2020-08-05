@@ -178,6 +178,7 @@
   import MsTableHeader from "../../common/components/MsTableHeader";
   import MsTableOperator from "../../common/components/MsTableOperator";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
+  import {listenGoBack, removeGoBackListener} from "../../../../common/js/utils";
 
   export default {
     name: "MsTestResourcePool",
@@ -272,11 +273,13 @@
       },
       create() {
         this.createVisible = true;
+        listenGoBack(this.closeFunc);
       },
       edit(row) {
         this.updateVisible = true;
         this.form = JSON.parse(JSON.stringify(row));
         this.convertResources();
+        listenGoBack(this.closeFunc);
       },
       convertResources() {
         let resources = [];
@@ -364,6 +367,9 @@
       },
       closeFunc() {
         this.form = {};
+        this.updateVisible = false;
+        this.createVisible = false;
+        removeGoBackListener(this.closeFunc);
       },
       changeSwitch(row) {
         this.result.loading = true;

@@ -81,7 +81,7 @@
 <script>
   import {TokenKey} from "../../../../common/js/constants";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
-  import {getCurrentUser} from "../../../../common/js/utils";
+  import {getCurrentUser, listenGoBack, removeGoBackListener} from "../../../../common/js/utils";
   import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
 
   export default {
@@ -154,9 +154,11 @@
       edit(row) {
         this.updateVisible = true;
         this.form = Object.assign({}, row);
+        listenGoBack(this.handleClose);
       },
       editPassword(row) {
         this.editPasswordVisible = true;
+        listenGoBack(this.handleClose);
       },
       cancel(){
         this.editPasswordVisible = false;
@@ -209,6 +211,9 @@
       handleClose() {
         this.form = {};
         this.ruleForm = {};
+        removeGoBackListener(this.handleClose);
+        this.editPasswordVisible = false;
+        this.updateVisible = false;
       }
     }
   }

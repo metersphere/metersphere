@@ -24,7 +24,7 @@
                            :total="total"/>
     </el-card>
 
-    <el-dialog :title="$t('workspace.create')" :visible.sync="dialogWsAddVisible" width="30%">
+    <el-dialog :title="$t('workspace.create')" :visible.sync="dialogWsAddVisible" width="30%" @close="close">
       <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="100px" size="small">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
@@ -56,7 +56,7 @@
     </el-dialog>
 
     <!-- dialog of workspace member -->
-    <el-dialog :visible.sync="dialogWsMemberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc"
+    <el-dialog :visible.sync="dialogWsMemberVisible" width="70%" :destroy-on-close="true" @close="close"
                class="dialog-css">
       <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="dialogSearch"
                        :create-tip="$t('member.create')" :title="$t('commons.member')"/>
@@ -178,8 +178,8 @@
   import {
     getCurrentOrganizationId,
     getCurrentUser,
-    getCurrentWorkspaceId,
-    refreshSessionAndCookies
+    getCurrentWorkspaceId, listenGoBack,
+    refreshSessionAndCookies, removeGoBackListener
   } from "../../../../common/js/utils";
   import MsDeleteConfirm from "../../common/components/MsDeleteConfirm";
 
@@ -299,6 +299,7 @@
         this.result = this.$get('/role/list/test', response => {
           this.$set(this.memberForm, "roles", response.data);
         })
+        listenGoBack(this.close);
       },
       cellClick(row) {
         // 保存当前点击的组织信息到currentRow
@@ -346,10 +347,6 @@
       closeFunc() {
         this.form = {};
       },
-      closeMemberFunc() {
-        this.memberLineData = [];
-        this.list();
-      },
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
@@ -388,6 +385,7 @@
         })
         // 编辑时填充角色信息
         this.$set(this.memberForm, 'roleIds', roleIds);
+        listenGoBack(this.close);
       },
       delMember(row) {
         this.$confirm(this.$t('member.remove_member'), '', {
@@ -421,6 +419,13 @@
             });
           }
         })
+      },
+      close: function () {
+        removeGoBackListener(this.close);
+        this.dialogWsMemberUpdateVisible = false;
+        this.dialogWsMemberAddVisible = false;
+        this.memberLineData = [];
+        this.list();
       },
       buildPagePath(path) {
         return path + "/" + this.dialogCurrentPage + "/" + this.dialogPageSize;

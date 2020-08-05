@@ -296,7 +296,7 @@
   import MsTableOperator from "../../common/components/MsTableOperator";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
   import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
-  import {getCurrentUser} from "../../../../common/js/utils";
+  import {getCurrentUser, listenGoBack, removeGoBackListener} from "../../../../common/js/utils";
   import MsRolesTag from "../../common/components/MsRolesTag";
 
   export default {
@@ -404,6 +404,7 @@
         this.createVisible = true;
         this.getOrgList();
         this.getWsList();
+        listenGoBack(this.handleClose);
       },
       edit(row) {
         this.updateVisible = true;
@@ -418,10 +419,12 @@
           let data = response.data;
           this.$set(this.form, "roles", data);
         });
+        listenGoBack(this.handleClose);
       },
       editPassword(row) {
         this.editPasswordVisible = true;
         this.ruleForm = Object.assign({}, row);
+        listenGoBack(this.handleClose);
       },
       del(row) {
         this.$confirm(this.$t('user.delete_confirm'), '', {
@@ -497,6 +500,10 @@
       handleClose() {
         this.form = {roles: [{id: ''}]};
         this.btnAddRole = false;
+        removeGoBackListener(this.handleClose);
+        this.editPasswordVisible =  false;
+        this.createVisible =  false;
+        this.updateVisible =  false;
       },
       changeSwitch(row) {
         this.$post('/user/special/update_status', row, () => {
