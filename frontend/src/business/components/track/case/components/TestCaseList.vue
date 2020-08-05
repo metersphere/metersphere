@@ -120,7 +120,7 @@
 
     </el-card>
 
-    <batch-edit ref="batchEdit"/>
+    <batch-edit ref="batchEdit" @batchEdit="batchEdit"/>
   </div>
 </template>
 
@@ -196,7 +196,7 @@
           }, {
             name: '批量移动用例', stop: this.handleClickStop
           }, {
-            name: '批量删除用例', stop: this.handleClickStop
+            name: '批量删除用例', stop: this.handleDeleteBatch
           }
         ]
       }
@@ -333,17 +333,19 @@
           this.$set(row, "showMore", false);
           this.selectRows.delete(row);
         } else {
+          this.$set(row, "showMore", true);
           this.selectRows.add(row);
         }
 
-        // todo
-        if (this.selectRows.size > 1) {
-          Array.from(this.selectRows).forEach(row => {
+        let arr = Array.from(this.selectRows);
+
+        // 选中1个以上的用例时显示更多操作
+        if (this.selectRows.size === 1) {
+          this.$set(arr[0], "showMore", false);
+        } else if (this.selectRows.size === 2) {
+          arr.forEach(row => {
             this.$set(row, "showMore", true);
           })
-        } else if (this.selectRows.size === 1) {
-          let arr = Array.from(this.selectRows);
-          this.$set(arr[0], "showMore", false);
         }
       },
       importTestCase() {
@@ -389,6 +391,41 @@
           this.handleDeleteBatch();
         } else {
           this.exportTestCase();
+        }
+      },
+      batchEdit(form) {
+        let sign = false;
+        let arr = Array.from(this.selectRows);
+        // 功能测试的测试方式不能设置为自动
+        if (form.type === 'method' && form.value === 'auto') {
+          arr.forEach(row => {
+            if (row.type === 'functional') {
+              sign = true;
+              return;
+            }
+          });
+        }
+
+        if (form.type === 'type' && form.value === 'functional') {
+          arr.forEach(row => {
+            if (row.method === 'auto') {
+              sign = true;
+              return;
+            }
+          });
+        }
+
+        let ids = arr.map(row => row.id);
+        let param = {};
+        param[form.type] = form.value;
+        param.ids = ids;
+        if (!sign) {
+          this.$post('/test/case/batch/edit' , param, () => {
+            this.$success(this.$t('commons.save_success'));
+            this.refresh();
+          });
+        } else {
+          this.$warning("功能测试的测试方式不能设置为自动！");
         }
       },
       filter(filters) {

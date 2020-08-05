@@ -10,7 +10,7 @@
     >
       <el-form :model="form" label-position="right" label-width="150px" size="medium" ref="form" :rules="rules">
         <el-form-item :label="$t('test_track.case.batch_update', [size])" prop="type">
-          <el-select v-model="form.type" style="width: 80%">
+          <el-select v-model="form.type" style="width: 80%" @change="changeType">
             <el-option label="用例等级" value="priority"/>
             <el-option label="类型" value="type"/>
             <el-option label="测试方式" value="method"/>
@@ -18,9 +18,9 @@
           </el-select>
         </el-form-item>
         <el-form-item label="更新后属性值为" prop="value">
-          <el-select v-model="form.value" style="width: 80%">
-            <el-option label="值1" value="value1"/>
-            <el-option label="值2" value="value2"/>
+          <el-select v-model="form.value" style="width: 80%" :filterable="filterable">
+            <el-option v-for="(option, index) in options" :key="index" :value="option.id" :label="option.name">
+            </el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -35,11 +35,15 @@
 
 <script>
   import MsDialogFooter from "../../../common/components/MsDialogFooter";
+  import {WORKSPACE_ID} from "../../../../../common/js/constants";
 
   export default {
     name: "BatchEdit",
     components: {
       MsDialogFooter
+    },
+    created() {
+      this.getMaintainerOptions();
     },
     data() {
       return {
@@ -50,13 +54,32 @@
           type: {required: true, message: "请选择属性", trigger: ['blur','change']},
           value: {required: true, message: "请选择属性对应的值", trigger: ['blur','change']}
         },
+        options: [],
+        priorities: [
+          {name: 'P0', id: 'P0'},
+          {name: 'P1', id: 'P1'},
+          {name: 'P2', id: 'P2'},
+          {name: 'P3', id: 'P3'}
+        ],
+        types: [
+          {name: this.$t('commons.functional'), id: 'functional'},
+          {name: this.$t('commons.performance'), id: 'performance'},
+          {name: this.$t('commons.api'), id: 'api'}
+        ],
+        methods: [
+          {name: this.$t('test_track.case.manual'), id: 'manual'},
+          {name: this.$t('test_track.case.auto'), id: 'auto'}
+        ],
+        maintainers: [],
+        filterable: false,
       }
     },
     methods: {
       submit(form) {
         this.$refs[form].validate((valid) => {
           if (valid) {
-            this.$emit("submit", this.form);
+            this.$emit("batchEdit", this.form);
+            this.dialogVisible = false;
           } else {
             return false;
           }
@@ -68,6 +91,32 @@
       },
       handleClose() {
         this.form = {};
+      },
+      changeType(val) {
+        this.$set(this.form, "value", "");
+        this.filterable = val === "maintainer";
+        switch (val) {
+          case "priority":
+            this.options = this.priorities;
+            break;
+          case "type":
+            this.options = this.types;
+            break;
+          case "method":
+            this.options = this.methods;
+            break;
+          case "maintainer":
+            this.options = this.maintainers;
+            break;
+          default:
+            this.options = [];
+        }
+      },
+      getMaintainerOptions() {
+        let workspaceId = localStorage.getItem(WORKSPACE_ID);
+        this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+          this.maintainers = response.data;
+        });
       }
     }
   }
