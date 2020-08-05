@@ -1,9 +1,9 @@
 <template>
   <el-aside :width="width" class="ms-aside-container"
-            :style="{'margin-left': asideHidden ? '0' : '-' + width}">
-    <div v-if="enableAsideHidden" class="hiddenBottom" @click="asideHidden = !asideHidden" :style="{'left': width}">
-      <i v-if="asideHidden" class="el-icon-arrow-left"/>
-      <i v-if="!asideHidden" class="el-icon-arrow-right"/>
+            :style="{'margin-left': !asideHidden ? 0 : '-' + width}">
+    <div v-if="enableAsideHidden" class="hiddenBottom" @click="asideHidden = !asideHidden" :style="{'left': asideHidden ? 0 : width}">
+      <i v-if="!asideHidden" class="el-icon-arrow-left"/>
+      <i v-if="asideHidden" class="el-icon-arrow-right"/>
     </div>
     <slot></slot>
   </el-aside>
@@ -24,7 +24,7 @@
       },
       data() {
         return {
-          asideHidden: true
+          asideHidden: false
         }
       }
     }
@@ -39,12 +39,9 @@
     box-sizing: border-box;
     background-color: #FFF;
     height: calc(100vh - 80px);
-    position: relative;
-    overflow: inherit;
   }
 
   .hiddenBottom {
-    z-index: 199;
     width: 8px;
     height: 50px;
     top: calc((100vh - 80px)/3);
@@ -56,6 +53,7 @@
     cursor: pointer;
     opacity: 0.2;
     font-size: 2px;
+    margin-left: 1px;
   }
 
   .hiddenBottom i {
