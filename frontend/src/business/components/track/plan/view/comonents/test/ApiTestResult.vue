@@ -71,7 +71,7 @@
           let url = "/api/report/get/" + this.reportId;
           this.$get(url, response => {
             this.report = response.data || {};
-            if (this.report.status == 'Completed') {
+            if (this.report.status == 'Completed' || this.report.status == 'Success' || this.report.status == 'Error') {
               this.content = JSON.parse(this.report.content);
               this.getFails();
               this.loading = false;
