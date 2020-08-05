@@ -22,7 +22,7 @@
     },
     methods: {
       click() {
-        console.log("click");
+        // console.log("click");
       },
       clickStop(btn) {
         if (btn.stop instanceof Function) {

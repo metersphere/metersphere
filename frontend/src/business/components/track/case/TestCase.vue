@@ -29,6 +29,7 @@
         @testCaseEdit="editTestCase"
         @testCaseCopy="copyTestCase"
         @testCaseDetail="showTestCaseDetail"
+        @batchMove="batchMove"
         @refresh="refresh"
         @moveToNode="moveToNode"
         ref="testCaseList">
@@ -46,6 +47,8 @@
 
     <test-case-move @refresh="refresh" ref="testCaseMove"/>
 
+    <batch-move @refresh="refresh" ref="testBatchMove"/>
+
   </ms-container>
 
 </template>
@@ -62,12 +65,13 @@
   import MsAsideContainer from "../../common/components/MsAsideContainer";
   import MsMainContainer from "../../common/components/MsMainContainer";
   import {checkoutTestManagerOrTestUser, hasRoles} from "../../../../common/js/utils";
+  import BatchMove from "./components/BatchMove";
 
   export default {
     name: "TestCase",
     components: {
       MsMainContainer,
-      MsAsideContainer, MsContainer, TestCaseMove, TestCaseList, NodeTree, TestCaseEdit, SelectMenu},
+      MsAsideContainer, MsContainer, TestCaseMove, TestCaseList, NodeTree, TestCaseEdit, SelectMenu, BatchMove},
     comments: {},
     data() {
       return {
@@ -236,6 +240,9 @@
         }
         this.$refs.testCaseEditDialog.getModuleOptions();
         this.$refs.testCaseMove.open(this.$refs.testCaseEditDialog.moduleOptions, selectIds);
+      },
+      batchMove(selectIds) {
+        this.$refs.testBatchMove.open(this.treeNodes, selectIds,this.$refs.testCaseEditDialog.moduleOptions);
       }
     }
   }

@@ -193,7 +193,7 @@
           {
             name: '批量编辑用例', stop: this.handleClickStop
           }, {
-            name: '批量移动用例', stop: this.handleClickStop
+            name: '批量移动用例', stop: this.handleMove
           }, {
             name: '批量删除用例', stop: this.handleDeleteBatch
           }
@@ -430,6 +430,9 @@
       },
       handleClickStop() {
         this.$refs.batchEdit.open();
+      },
+      handleMove() {
+        this.$emit("batchMove", Array.from(this.selectRows).map(row => row.id));
       }
     }
   }
