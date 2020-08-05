@@ -356,6 +356,7 @@
         this.$nextTick(() => {
           if (this.testCase.method == 'auto') {
             if (this.$refs.apiTestDetail && this.testCase.type == 'api') {
+
               this.$refs.apiTestDetail.init();
             } else if (this.testCase.type == 'performance') {
               this.$refs.performanceTestDetail.init();
@@ -422,9 +423,12 @@
         this.$post('/test/plan/edit/status/' + planId);
       },
       stepResultChange() {
-        this.isFailure = this.testCase.steptResults.filter(s => {
-          return !s.executeResult || s.executeResult === 'Failure' || s.executeResult === 'Blocking';
-        }).length > 0;
+        if (this.testCase.method == 'manual') {
+          this.isFailure = this.testCase.steptResults.filter(s => {
+            return !s.executeResult || s.executeResult === 'Failure' || s.executeResult === 'Blocking';
+          }).length > 0;
+        }
+
       }
     }
   }

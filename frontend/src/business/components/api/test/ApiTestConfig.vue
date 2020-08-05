@@ -157,13 +157,9 @@
       saveTest() {
         this.save(() => {
           this.$success(this.$t('commons.save_success'));
-          if (this.create) {
-            this.$router.push({
-              path: '/api/test/edit?id=' + this.test.id
-            })
-          } else {
-            this.$router.push({path: '/api/test/list/all'})
-          }
+          this.$router.push({
+            path: '/api/test/edit?id=' + this.test.id
+          })
         })
       },
       runTest() {
@@ -183,7 +179,6 @@
         })
       },
       cancel() {
-        // console.log(this.test.toJMX().xml)
         this.$router.push('/api/test/list/all');
       },
       getOptions(url) {
