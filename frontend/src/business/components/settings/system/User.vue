@@ -369,7 +369,7 @@
             {required: true, message: this.$t('user.input_email'), trigger: 'blur'},
             {
               required: true,
-              pattern: /^([A-Za-z0-9_\-.])+@([A-Za-z0-9]+\.)+[A-Za-z]{2,6}$/,
+              pattern: /^[a-zA-Z0-9_._-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/,
               message: this.$t('user.email_format_is_incorrect'),
               trigger: 'blur'
             }
