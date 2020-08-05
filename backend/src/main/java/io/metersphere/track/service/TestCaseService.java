@@ -9,6 +9,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.BeanUtils;
@@ -309,8 +310,8 @@ public class TestCaseService {
     private List<TestCaseExcelData> generateExportTemplate() {
         List<TestCaseExcelData> list = new ArrayList<>();
         StringBuilder path = new StringBuilder("");
-        List<String> types = Arrays.asList("functional", "performance", "api");
-        List<String> methods = Arrays.asList("manual", "auto");
+        List<String> types = TestCaseConstants.Type.getValues();
+        List<String> methods = TestCaseConstants.Method.getValues();
         SessionUser user = SessionUtils.getUser();
         for (int i = 1; i <= 5; i++) {
             TestCaseExcelData data = new TestCaseExcelData();
@@ -318,8 +319,13 @@ public class TestCaseService {
             path.append("/" + Translator.get("module") + i);
             data.setNodePath(path.toString());
             data.setPriority("P" + i % 4);
-            data.setType(types.get(i % 3));
-            data.setMethod(methods.get(i % 2));
+            String type = types.get(i % 3);
+            data.setType(type);
+            if (StringUtils.equals(TestCaseConstants.Type.Functional.getValue(), type)) {
+                data.setMethod(TestCaseConstants.Method.Manual.getValue());
+            } else {
+                data.setMethod(methods.get(i % 2));
+            }
             data.setPrerequisite(Translator.get("preconditions_optional"));
             data.setStepDesc("1. " + Translator.get("step_tip_separate") +
                     "\n2. " + Translator.get("step_tip_order") + "\n3. " + Translator.get("step_tip_optional"));

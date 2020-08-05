@@ -41,14 +41,18 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
             String[] nodes = nodePath.split("/");
             if (nodes.length > TestCaseConstants.MAX_NODE_DEPTH + 1) {
                 stringBuilder.append(Translator.get("test_case_node_level_tip") +
-                        TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level"));
+                        TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level") + "; ");
             }
             for (int i = 0; i < nodes.length; i++) {
                 if (i != 0 && StringUtils.equals(nodes[i].trim(), "")) {
-                    stringBuilder.append(Translator.get("module_not_null"));
+                    stringBuilder.append(Translator.get("module_not_null") + "; ");
                     break;
                 }
             }
+        }
+
+        if (StringUtils.equals(data.getType(), TestCaseConstants.Type.Functional.getValue()) && StringUtils.equals(data.getMethod(), TestCaseConstants.Method.Auto.getValue())) {
+            stringBuilder.append(Translator.get("functional_method_tip") + "; ");
         }
 
         if (!userIds.contains(data.getMaintainer())) {
