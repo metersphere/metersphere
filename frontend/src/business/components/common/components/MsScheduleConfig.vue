@@ -1,11 +1,11 @@
 <template>
     <div class="schedule-config">
       <div>
-        <span class="cron-ico">
+        <span class="cron-ico" @click="scheduleEdit">
           <i class="el-icon-date" size="small"></i>
-          <span class="character" @click="scheduleEdit">SCHEDULER</span>
+          <span class="character">SCHEDULER</span>
         </span>
-        <el-switch :disabled="!schedule.value && isReadOnly" v-model="schedule.enable" @change="scheduleChange"/>
+        <el-switch :disabled="!schedule.value || isReadOnly" v-model="schedule.enable" @change="scheduleChange"/>
         <ms-schedule-edit :is-read-only="isReadOnly" :schedule="schedule" :save="save" :custom-validate="customValidate" ref="scheduleEdit"/>
         <crontab-result v-show="false" :ex="schedule.value" ref="crontabResult" @resultListChange="resultListChange"/>
       </div>

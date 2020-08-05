@@ -415,7 +415,7 @@ public class TestCaseNodeService {
 
         List<TestCaseNode> updateNodes = new ArrayList<>();
 
-        buildUpdateTestCase(nodeTree, testCases, updateNodes, "/", null, 1);
+        buildUpdateTestCase(nodeTree, testCases, updateNodes, "/", "0", 1);
 
         updateNodes = updateNodes.stream()
                 .filter(item -> nodeIds.contains(item.getId()))

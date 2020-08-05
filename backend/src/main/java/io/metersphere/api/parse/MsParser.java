@@ -44,18 +44,7 @@ public class MsParser extends ApiImportAbstractParser {
 
                     requestTmpObject.keySet().forEach(key -> requestObject.put(key, requestTmpObject.get(key)));
                     requestObject.put("name", requestName);
-                    JSONArray bodies = requestObject.getJSONArray("body");
-                    if (StringUtils.equalsIgnoreCase(requestObject.getString("method"), HttpMethod.POST.name()) && bodies != null) {
-                        StringBuilder bodyStr = new StringBuilder();
-                        for (int i = 0; i < bodies.size(); i++) {
-                            String body = bodies.getString(i);
-                            bodyStr.append(body);
-                        }
-                        JSONObject bodyObject = new JSONObject();
-                        bodyObject.put("raw", bodyStr);
-                        bodyObject.put("type", MsRequestBodyType.RAW.value());
-                        requestObject.put("body", bodyObject);
-                    }
+                    parseBody(requestObject);
                     requestsObjects.add(requestObject);
                 });
                 scenario.put("requests", requestsObjects);
@@ -64,6 +53,41 @@ public class MsParser extends ApiImportAbstractParser {
             JSONObject result = new JSONObject();
             result.put("scenarios", scenarios);
             return result.toJSONString();
+        }
+    }
+
+    private void parseBody(JSONObject requestObject) {
+        if (requestObject.containsKey("body")) {
+            Object body = requestObject.get("body");
+            if (body instanceof JSONArray) {
+                JSONArray bodies = requestObject.getJSONArray("body");
+                if (StringUtils.equalsIgnoreCase(requestObject.getString("method"), HttpMethod.POST.name()) && bodies != null) {
+                    StringBuilder bodyStr = new StringBuilder();
+                    for (int i = 0; i < bodies.size(); i++) {
+                        String tmp = bodies.getString(i);
+                        bodyStr.append(tmp);
+                    }
+                    JSONObject bodyObject = new JSONObject();
+                    bodyObject.put("raw", bodyStr);
+                    bodyObject.put("type", MsRequestBodyType.RAW.value());
+                    requestObject.put("body", bodyObject);
+                }
+            } else if (body instanceof JSONObject) {
+                JSONObject bodyObj = requestObject.getJSONObject("body");
+                if (StringUtils.equalsIgnoreCase(requestObject.getString("method"), HttpMethod.POST.name()) && bodyObj != null) {
+                    JSONArray kvs = new JSONArray();
+                    bodyObj.keySet().forEach(key -> {
+                        JSONObject kv = new JSONObject();
+                        kv.put("name", key);
+                        kv.put("value", bodyObj.getString(key));
+                        kvs.add(kv);
+                    });
+                    JSONObject bodyRes = new JSONObject();
+                    bodyRes.put("kvs", kvs);
+                    bodyRes.put("type", MsRequestBodyType.KV.value());
+                    requestObject.put("body", bodyRes);
+                }
+            }
         }
     }
 }
