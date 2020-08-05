@@ -196,7 +196,7 @@
           }, {
             name: '批量移动用例', stop: this.handleClickStop
           }, {
-            name: '批量删除用例', stop: this.handleClickStop
+            name: '批量删除用例', stop: this.handleDeleteBatch
           }
         ]
       }
@@ -394,16 +394,39 @@
         }
       },
       batchEdit(form) {
-        let ids = Array.from(this.selectRows).map(row => row.id);
+        let sign = false;
+        let arr = Array.from(this.selectRows);
+        // 功能测试的测试方式不能设置为自动
+        if (form.type === 'method' && form.value === 'auto') {
+          arr.forEach(row => {
+            if (row.type === 'functional') {
+              sign = true;
+              return;
+            }
+          });
+        }
+
+        if (form.type === 'type' && form.value === 'functional') {
+          arr.forEach(row => {
+            if (row.method === 'auto') {
+              sign = true;
+              return;
+            }
+          });
+        }
+
+        let ids = arr.map(row => row.id);
         let param = {};
         param[form.type] = form.value;
         param.ids = ids;
-        // todo 功能测试 的测试方式修改为 自动 时不通过
-        // 测试类型为自动时不能修改为 功能测试
-        this.$post('/test/case/batch/edit' , param, () => {
-          this.$success(this.$t('commons.save_success'));
-          this.refresh();
-        });
+        if (!sign) {
+          this.$post('/test/case/batch/edit' , param, () => {
+            this.$success(this.$t('commons.save_success'));
+            this.refresh();
+          });
+        } else {
+          this.$warning("功能测试的测试方式不能设置为自动！");
+        }
       },
       filter(filters) {
         _filter(filters, this.condition);

@@ -20,10 +20,6 @@
         <el-form-item label="更新后属性值为" prop="value">
           <el-select v-model="form.value" style="width: 80%" :filterable="filterable">
             <el-option v-for="(option, index) in options" :key="index" :value="option.id" :label="option.name">
-<!--              <div v-if="option.email">-->
-<!--                <span style="float: left">{{ option.name }}</span>-->
-<!--                <span style="float: right;color: #8492a6;">{{ option.email }}</span>-->
-<!--              </div>-->
             </el-option>
           </el-select>
         </el-form-item>
@@ -110,7 +106,6 @@
             this.options = this.methods;
             break;
           case "maintainer":
-
             this.options = this.maintainers;
             break;
           default:
