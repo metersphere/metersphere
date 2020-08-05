@@ -318,11 +318,13 @@ public class APITestService {
         List<String> resourceIds = schedules.stream()
                 .map(Schedule::getResourceId)
                 .collect(Collectors.toList());
-        ApiTestExample example = new ApiTestExample();
-        example.createCriteria().andIdIn(resourceIds);
-        List<ApiTest> apiTests = apiTestMapper.selectByExample(example);
-        Map<String, String> apiTestMap = apiTests.stream().collect(Collectors.toMap(ApiTest::getId, ApiTest::getName));
-        scheduleService.build(apiTestMap, schedules);
+        if (!resourceIds.isEmpty()) {
+            ApiTestExample example = new ApiTestExample();
+            example.createCriteria().andIdIn(resourceIds);
+            List<ApiTest> apiTests = apiTestMapper.selectByExample(example);
+            Map<String, String> apiTestMap = apiTests.stream().collect(Collectors.toMap(ApiTest::getId, ApiTest::getName));
+            scheduleService.build(apiTestMap, schedules);
+        }
         return schedules;
     }
 }
