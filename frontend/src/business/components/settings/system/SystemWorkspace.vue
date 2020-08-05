@@ -28,7 +28,7 @@
     </el-card>
 
     <!-- add workspace dialog -->
-    <el-dialog :title="$t('workspace.create')" :visible.sync="dialogWsAddVisible" width="30%">
+    <el-dialog :title="$t('workspace.create')" :visible.sync="dialogWsAddVisible" width="30%" @close="close">
       <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="100px" size="small">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
@@ -56,7 +56,7 @@
     </el-dialog>
 
     <!-- update workspace dialog -->
-    <el-dialog :title="$t('workspace.update')" :visible.sync="dialogWsUpdateVisible" width="30%">
+    <el-dialog :title="$t('workspace.update')" :visible.sync="dialogWsUpdateVisible" width="30%" @close="close">
       <el-form :model="form" :rules="rules" ref="updateForm" label-position="right" label-width="100px" size="small">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
@@ -202,8 +202,8 @@
   import {
     getCurrentOrganizationId,
     getCurrentUser,
-    getCurrentWorkspaceId,
-    refreshSessionAndCookies
+    getCurrentWorkspaceId, listenGoBack,
+    refreshSessionAndCookies, removeGoBackListener
   } from "../../../../common/js/utils";
   import {DEFAULT, WORKSPACE} from "../../../../common/js/constants";
   import MsDeleteConfirm from "../../common/components/MsDeleteConfirm";
@@ -230,6 +230,7 @@
         this.$get("/organization/list", response => {
           this.$set(this.form, "orgList", response.data);
         })
+        listenGoBack(this.close);
       },
       submit(formName) {
         this.$refs[formName].validate((valid) => {
@@ -255,7 +256,8 @@
         });
         this.result = this.$get('/role/list/test', response => {
           this.$set(this.memberForm, "roles", response.data);
-        })
+        });
+        listenGoBack(this.handleClose);
       },
       cellClick(row) {
         // 保存当前点击的组织信息到currentRow
@@ -279,6 +281,7 @@
           }
           this.dialogTotal = data.itemCount;
         });
+        listenGoBack(this.closeWsMemberDialog);
       },
       dialogSearch() {
         let row = this.currentWorkspaceRow;
@@ -307,6 +310,12 @@
         this.$get("/organization/list", response => {
           this.$set(this.form, "orgList1", response.data);
         })
+        listenGoBack(this.close);
+      },
+      close() {
+        this.dialogWsAddVisible = false;
+        this.dialogWsUpdateVisible = false;
+        removeGoBackListener(this.close);
       },
       updateWorkspace(updateForm) {
         this.$refs[updateForm].validate(valid => {
@@ -323,10 +332,15 @@
       },
       handleClose() {
         this.memberForm = {};
+        this.dialogWsMemberAddVisible = false;
+        this.dialogWsMemberUpdateVisible = false;
+        removeGoBackListener(this.handleClose);
       },
       closeWsMemberDialog() {
         this.memberLineData = [];
         this.list();
+        removeGoBackListener(this.closeWsMemberDialog);
+        this.dialogWsMemberVisible = false;
       },
       list() {
         let url = '/workspace/list/all/' + this.currentPage + '/' + this.pageSize;
@@ -373,6 +387,7 @@
         })
         // 编辑时填充角色信息
         this.$set(this.memberForm, 'roleIds', roleIds);
+        listenGoBack(this.handleClose);
       },
       handleDelete(workspace) {
         this.$refs.deleteConfirm.open(workspace);

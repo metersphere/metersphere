@@ -4,6 +4,7 @@
 
     <el-dialog :title="operationType == 'edit' ? $t('test_track.plan.edit_plan') : $t('test_track.plan.create_plan')"
                :visible.sync="dialogFormVisible"
+               @close="close"
                width="65%">
 
       <el-form :model="form" :rules="rules" ref="planFrom">
@@ -111,6 +112,7 @@
 
   import {WORKSPACE_ID} from '../../../../../common/js/constants';
   import TestPlanStatusButton from "../common/TestPlanStatusButton";
+  import {listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
 
   export default {
       name: "TestPlanEdit",
@@ -154,6 +156,7 @@
             Object.assign(tmp, testPlan);
             Object.assign(this.form, tmp);
           }
+          listenGoBack(this.close);
           this.dialogFormVisible = true;
         },
         savePlan(){
@@ -195,6 +198,10 @@
         statusChange(status) {
           this.form.status = status;
           this.$forceUpdate();
+        },
+        close() {
+          removeGoBackListener(this.close);
+          this.dialogFormVisible = false;
         },
         resetForm() {
           //防止点击修改后，点击新建触发校验

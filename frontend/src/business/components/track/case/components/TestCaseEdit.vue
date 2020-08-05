@@ -224,6 +224,7 @@
 
   import {WORKSPACE_ID, TokenKey} from '../../../../../common/js/constants';
   import MsDialogFooter from '../../../common/components/MsDialogFooter'
+  import {listenGoBack, removeGoBackListener, removeListenGoBack} from "../../../../../common/js/utils";
 
   export default {
     name: "TestCaseEdit",
@@ -302,7 +303,12 @@
     methods: {
       open(testCase) {
         this.resetForm();
-        this.listenGoBack();
+
+        if (window.history && window.history.pushState) {
+          history.pushState(null, null, document.URL);
+          window.addEventListener('popstate', this.close);
+        }
+        listenGoBack(this.close);
         this.operationType = 'add';
         if (testCase) {
           //修改
@@ -354,16 +360,9 @@
           }
         });
       },
-      listenGoBack() {
-        //监听浏览器返回操作，关闭该对话框
-        if (window.history && window.history.pushState) {
-          history.pushState(null, null, document.URL);
-          window.addEventListener('popstate', this.close, false);
-        }
-      },
       close() {
         //移除监听，防止监听其他页面
-        window.removeEventListener('popstate', this.goBack, false);
+        removeGoBackListener(this.close);
         this.dialogFormVisible = false;
       },
       saveCase() {

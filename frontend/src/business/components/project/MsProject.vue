@@ -48,7 +48,7 @@
       </el-card>
     </ms-main-container>
 
-    <el-dialog :title="title" :visible.sync="createVisible" destroy-on-close>
+    <el-dialog :title="title" :visible.sync="createVisible" destroy-on-close @close="handleClose">
       <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="100px" size="small">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"></el-input>
@@ -80,7 +80,7 @@
   import MsTableHeader from "../common/components/MsTableHeader";
   import MsTableOperator from "../common/components/MsTableOperator";
   import MsDialogFooter from "../common/components/MsDialogFooter";
-  import {_sort, getCurrentUser} from "../../../common/js/utils";
+  import {_sort, getCurrentUser, listenGoBack, removeGoBackListener} from "../../../common/js/utils";
   import MsContainer from "../common/components/MsContainer";
   import MsMainContainer from "../common/components/MsMainContainer";
   import MsDeleteConfirm from "../common/components/MsDeleteConfirm";
@@ -162,12 +162,14 @@
           return false;
         }
         this.title = this.$t('project.create');
+        listenGoBack(this.handleClose);
         this.createVisible = true;
         this.form = {};
       },
       edit(row) {
         this.title = this.$t('project.edit');
         this.createVisible = true;
+        listenGoBack(this.handleClose);
         this.form = Object.assign({}, row);
       },
       submit(formName) {
@@ -206,6 +208,10 @@
             message: this.$t('commons.delete_cancelled')
           });
         });
+      },
+      handleClose() {
+        removeGoBackListener(this.handleClose);
+        this.createVisible = false;
       },
       search() {
         this.list();

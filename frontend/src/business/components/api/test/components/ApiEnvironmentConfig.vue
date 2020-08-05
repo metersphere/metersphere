@@ -18,6 +18,7 @@
     import MsMainContainer from "../../../common/components/MsMainContainer";
     import MsAsideItem from "../../../common/components/MsAsideItem";
     import EnvironmentEdit from "./environment/EnvironmentEdit";
+    import {listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
 
     export default {
       name: "ApiEnvironmentConfig",
@@ -45,10 +46,11 @@
         }
       },
       methods: {
-        open(projectId) {
+        open: function (projectId) {
           this.visible = true;
           this.projectId = projectId;
           this.getEnvironments();
+          listenGoBack(this.close);
         },
         deleteEnvironment(environment, index) {
           if (environment.id) {
@@ -134,6 +136,7 @@
           this.$emit('close');
           this.visible = false;
           this.$refs.environmentEdit.clearValidate();
+          removeGoBackListener(this.close);
         }
       }
     }

@@ -1,6 +1,6 @@
 <template>
     <el-dialog class="testcase-import" :title="$t('test_track.case.import.case_import')" :visible.sync="dialogVisible"
-               @close="init">
+               @close="close">
 
       <el-row>
         <el-link type="primary" class="download-template"
@@ -44,6 +44,7 @@
 <script>
     import ElUploadList from "element-ui/packages/upload/src/upload-list";
     import MsTableButton from '../../../../components/common/components/MsTableButton';
+    import {listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
 
     export default {
       name: "TestCaseImport",
@@ -85,12 +86,15 @@
           this.isLoading = false;
           this.$error(err.message);
         },
-        init() {
+        open() {
+          listenGoBack(this.close);
+          this.dialogVisible = true;
+        },
+        close() {
+          removeGoBackListener(this.close);
+          this.dialogVisible = false;
           this.fileList = [];
           this.errList = [];
-        },
-        open() {
-          this.dialogVisible = true;
         },
         downloadTemplate() {
           this.$fileDownload('/test/case/export/template');

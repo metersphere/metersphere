@@ -27,7 +27,7 @@
     </el-card>
 
     <!-- dialog of organization member -->
-    <el-dialog :visible.sync="dialogOrgMemberVisible" width="70%" :destroy-on-close="true" @close="closeMemberFunc" class="dialog-css">
+    <el-dialog :visible.sync="dialogOrgMemberVisible" width="70%" :destroy-on-close="true" @close="closeFunc" class="dialog-css">
       <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="dialogSearch"
                        :create-tip="$t('member.create')" :title="$t('commons.member')"/>
       <!-- organization member table -->
@@ -178,7 +178,12 @@
   import MsTableOperator from "../../common/components/MsTableOperator";
   import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
-  import {getCurrentOrganizationId, getCurrentUser, refreshSessionAndCookies} from "../../../../common/js/utils";
+  import {
+    getCurrentOrganizationId,
+    getCurrentUser, listenGoBack,
+    refreshSessionAndCookies,
+    removeGoBackListener
+  } from "../../../../common/js/utils";
   import {DEFAULT, ORGANIZATION} from "../../../../common/js/constants";
   import MsDeleteConfirm from "../../common/components/MsDeleteConfirm";
 
@@ -251,6 +256,7 @@
     methods: {
       create() {
         this.dialogOrgAddVisible = true;
+        listenGoBack(this.closeFunc);
       },
       addMember() {
         this.dialogOrgMemberAddVisible = true;
@@ -265,6 +271,7 @@
       edit(row) {
         this.dialogOrgUpdateVisible = true;
         this.form = Object.assign({}, row);
+        listenGoBack(this.closeFunc);
       },
       editMember(row) {
         this.dialogOrgMemberUpdateVisible = true;
@@ -275,6 +282,7 @@
         })
         // 编辑时填充角色信息
         this.$set(this.memberForm, 'roleIds', roleIds);
+        listenGoBack(this.closeFunc);
       },
       cellClick(row) {
         // 保存当前点击的组织信息到currentRow
@@ -297,6 +305,7 @@
           }
           this.dialogTotal = data.itemCount;
         });
+        listenGoBack(this.closeFunc);
       },
       dialogSearch() {
         let row = this.currentRow;
@@ -409,11 +418,15 @@
         })
       },
       closeFunc() {
-        this.form = {};
-      },
-      closeMemberFunc() {
         this.memberLineData = [];
         this.initTableData();
+        this.form = {};
+        removeGoBackListener(this.closeFunc);
+        this.dialogOrgAddVisible = false;
+        this.dialogOrgUpdateVisible = false;
+        this.dialogOrgMemberVisible = false;
+        this.dialogOrgMemberAddVisible = false;
+        this.dialogOrgMemberUpdateVisible = false;
       },
       handleSelectionChange(val) {
         this.multipleSelection = val;

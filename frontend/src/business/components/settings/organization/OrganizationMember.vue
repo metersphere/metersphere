@@ -116,7 +116,7 @@
   import MsRolesTag from "../../common/components/MsRolesTag";
   import MsTableOperator from "../../common/components/MsTableOperator";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
-  import {getCurrentUser} from "../../../../common/js/utils";
+  import {getCurrentUser, listenGoBack, removeGoBackListener} from "../../../../common/js/utils";
 
   export default {
     name: "MsOrganizationMember",
@@ -177,6 +177,9 @@
       handleClose() {
         this.form = {};
         this.options = [];
+        removeGoBackListener(this.handleClose);
+        this.updateVisible = false;
+        this.createVisible = false;
       },
       edit(row) {
         this.updateVisible = true;
@@ -187,6 +190,7 @@
         });
         // 编辑使填充角色信息
         this.$set(this.form, 'roleIds', roleIds);
+        listenGoBack(this.handleClose);
       },
       updateOrgMember(formName) {
         let param = {
@@ -231,7 +235,8 @@
         this.createVisible = true;
         this.result = this.$get('/role/list/org', response => {
           this.$set(this.form, "roles", response.data);
-        })
+        });
+        listenGoBack(this.handleClose);
       },
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {

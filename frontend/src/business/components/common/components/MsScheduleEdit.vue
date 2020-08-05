@@ -25,6 +25,7 @@
     import Crontab from "../cron/Crontab";
     import CrontabResult from "../cron/CrontabResult";
     import {cronValidate} from "../../../../common/js/cron";
+    import {listenGoBack, removeGoBackListener} from "../../../../common/js/utils";
 
     function defaultCustomValidate() {return {pass: true};}
 
@@ -80,6 +81,7 @@
         open() {
           this.dialogVisible = true;
           this.form.cronValue = this.schedule.value;
+          listenGoBack(this.close);
         },
         crontabFill(value, resultList) {
           //确定后回传的值
@@ -108,6 +110,7 @@
           if (!this.schedule.value) {
             this.$refs.crontabResult.resultList = [];
           }
+          removeGoBackListener(this.close);
         },
         intervalShortValidate() {
           if (this.getIntervalTime() < 3*60*1000) {

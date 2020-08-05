@@ -108,7 +108,7 @@
   import MsRolesTag from "../../common/components/MsRolesTag";
   import MsTableOperator from "../../common/components/MsTableOperator";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
-  import {getCurrentUser} from "../../../../common/js/utils";
+  import {getCurrentUser, listenGoBack, removeGoBackListener} from "../../../../common/js/utils";
 
   export default {
     name: "MsMember",
@@ -173,6 +173,9 @@
       },
       handleClose() {
         this.form = {};
+        this.createVisible = false;
+        this.updateVisible = false;
+        removeGoBackListener(this.handleClose);
       },
       del(row) {
         this.$confirm(this.$t('member.remove_member'), '', {
@@ -197,6 +200,7 @@
         })
         // 编辑使填充角色信息
         this.$set(this.form, 'roleIds', roleIds);
+        listenGoBack(this.handleClose);
       },
       updateWorkspaceMember(formName) {
         let param = {
@@ -239,6 +243,7 @@
         this.result = this.$get('/role/list/test', response => {
           this.$set(this.form, "roles", response.data);
         })
+        listenGoBack(this.handleClose);
       },
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {

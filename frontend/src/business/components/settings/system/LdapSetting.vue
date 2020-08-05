@@ -38,7 +38,7 @@
       </div>
 
       <el-dialog :title="$t('ldap.test_login')" :visible.sync="loginVisible" width="30%" destroy-on-close
-                 v-loading="result.loading">
+                 v-loading="result.loading" @close="close">
         <el-form :model="loginForm" :rules="loginFormRules" ref="loginForm" label-width="90px">
           <el-form-item :label="$t('commons.username')" prop="username">
             <el-input v-model="loginForm.username" autocomplete="off" :placeholder="$t('ldap.input_username')"/>
@@ -61,6 +61,7 @@
 
 <script>
   import MsDialogFooter from "../../common/components/MsDialogFooter";
+  import {listenGoBack, removeGoBackListener} from "../../../../common/js/utils";
 
   export default {
     name: "LdapSetting",
@@ -118,6 +119,10 @@
         this.show = true;
         this.init();
       },
+      close() {
+        removeGoBackListener(this.close);
+        this.loginVisible =  false;
+      },
       testConnection() {
         if (!this.checkParam()) {
           return false;
@@ -151,6 +156,7 @@
 
         this.loginForm = {};
         this.loginVisible = true;
+        listenGoBack(this.close);
       },
       checkParam() {
         if (!this.form.url) {

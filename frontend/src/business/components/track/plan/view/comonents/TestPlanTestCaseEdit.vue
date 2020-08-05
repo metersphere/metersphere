@@ -225,6 +225,7 @@
   import ApiTestResult from "./test/ApiTestResult";
   import PerformanceTestDetail from "./test/PerformanceTestDetail";
   import PerformanceTestResult from "./test/PerformanceTestResult";
+  import {listenGoBack, removeGoBackListener} from "../../../../../../common/js/utils";
 
   export default {
     name: "TestPlanTestCaseEdit",
@@ -265,19 +266,8 @@
       }
     },
     methods: {
-      listenGoBack() {
-        //监听浏览器返回操作，关闭该对话框
-        if (window.history && window.history.pushState) {
-          history.pushState(null, null, document.URL);
-          window.addEventListener('popstate', this.goBack, false);
-        }
-      },
-      goBack() {
-        this.handleClose();
-      },
       handleClose() {
-        //移除监听，防止监听其他页面
-        window.removeEventListener('popstate', this.goBack, false);
+        removeGoBackListener(this.handleClose);
         this.showDialog = false;
       },
       cancel() {
@@ -359,7 +349,7 @@
       openTestCaseEdit(testCase) {
         this.showDialog = true;
         this.activeTab = 'detail';
-        this.listenGoBack();
+        listenGoBack(this.handleClose);
         this.initData(testCase);
       },
       initTest() {
