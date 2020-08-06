@@ -30,8 +30,10 @@
         </ms-table-header>
       </template>
 
-      <executor-edit ref="executorEdit" :select-ids="selectIds" @refresh="initTableData"/>
-      <status-edit ref="statusEdit" :plan-id="planId" :select-ids="selectIds" @refresh="initTableData"/>
+      <executor-edit ref="executorEdit" :select-ids="new Set(Array.from(this.selectRows).map(row => row.id))"
+                     @refresh="initTableData"/>
+      <status-edit ref="statusEdit" :plan-id="planId"
+                   :select-ids="new Set(Array.from(this.selectRows).map(row => row.id))" @refresh="initTableData"/>
 
       <el-table
         class="adjust-table"
@@ -45,7 +47,12 @@
         :data="tableData">
 
         <el-table-column
-          type="selection"></el-table-column>
+          type="selection"/>
+        <el-table-column width="40" :resizable="false" align="center">
+          <template v-slot:default="scope">
+            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>
+          </template>
+        </el-table-column>
         <el-table-column
           prop="num"
           :label="$t('commons.id')"
@@ -163,8 +170,9 @@
 
       <test-report-template-list @openReport="openReport" ref="testReportTemplateList"/>
       <test-case-report-view @refresh="initTableData" ref="testCaseReportView"/>
-
     </el-card>
+    <batch-edit ref="batchEdit" @batchEdit="batchEdit"
+                :type-arr="typeArr" :value-arr="valueArr" dialog-title="批量更改测试计划"/>
   </div>
 </template>
 
@@ -178,7 +186,7 @@
   import MsTableButton from '../../../../common/components/MsTableButton';
   import NodeBreadcrumb from '../../../common/NodeBreadcrumb';
 
-  import {ROLE_TEST_MANAGER, ROLE_TEST_USER, TokenKey} from '../../../../../../common/js/constants';
+  import {ROLE_TEST_MANAGER, ROLE_TEST_USER, TokenKey, WORKSPACE_ID} from '../../../../../../common/js/constants';
   import {_filter, _sort, checkoutTestManagerOrTestUser, hasRoles} from '../../../../../../common/js/utils';
   import PriorityTableItem from "../../../common/tableItems/planview/PriorityTableItem";
   import StatusTableItem from "../../../common/tableItems/planview/StatusTableItem";
@@ -189,6 +197,8 @@
   import TestReportTemplateList from "./TestReportTemplateList";
   import TestCaseReportView from "./report/TestCaseReportView";
   import {TEST_CASE_CONFIGS} from "../../../../common/components/search/search-components";
+  import ShowMoreBtn from "../../../case/components/ShowMoreBtn";
+  import BatchEdit from "../../../case/components/BatchEdit";
 
   export default {
     name: "TestPlanTestCaseList",
@@ -201,7 +211,8 @@
       TypeTableItem,
       StatusTableItem,
       PriorityTableItem, StatusEdit, ExecutorEdit, MsTipButton, MsTablePagination,
-      TestPlanTestCaseEdit, MsTableHeader, NodeBreadcrumb, MsTableButton
+      TestPlanTestCaseEdit, MsTableHeader, NodeBreadcrumb, MsTableButton, ShowMoreBtn,
+      BatchEdit
     },
     data() {
       return {
@@ -215,7 +226,8 @@
         currentPage: 1,
         pageSize: 10,
         total: 0,
-        selectIds: new Set(),
+        // selectIds: new Set(),
+        selectRows: new Set(),
         testPlan: {},
         isReadOnly: false,
         isTestManagerOrTestUser: false,
@@ -241,7 +253,29 @@
           {text: this.$t('test_track.plan_view.blocking'), value: 'Blocking'},
           {text: this.$t('test_track.plan_view.skip'), value: 'Skip'},
           {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
-        ]
+        ],
+        showMore: false,
+        buttons: [
+          {
+            name: '批量更改测试计划', handleClick: this.handleBatchEdit
+          },
+          {
+            name: '批量取消用例关联', handleClick: this.handleDeleteBatch
+          }
+        ],
+        typeArr: [
+          {id: 'status', name: '执行结果'},
+          {id: 'executor', name: '执行人'},
+        ],
+        valueArr: {
+          executor: [],
+          status: [
+            {name: this.$t('test_track.plan_view.pass'), id: 'Pass'},
+            {name: this.$t('test_track.plan_view.failure'), id: 'Failure'},
+            {name: this.$t('test_track.plan_view.blocking'), id: 'Blocking'},
+            {name: this.$t('test_track.plan_view.skip'), id: 'Skip'}
+          ]
+        }
       }
     },
     props: {
@@ -282,7 +316,8 @@
             let data = response.data;
             this.total = data.itemCount;
             this.tableData = data.listObject;
-            this.selectIds.clear();
+            // this.selectIds.clear();
+            this.selectRows.clear();
           });
         }
       },
@@ -292,7 +327,8 @@
       },
       refresh() {
         this.condition = {components: TEST_CASE_CONFIGS};
-        this.selectIds.clear();
+        // this.selectIds.clear();
+        this.selectRows.clear();
         this.$emit('refresh');
       },
       refreshTableAndPlan() {
@@ -335,8 +371,10 @@
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              this.$post('/test/plan/case/batch/delete', {ids: [...this.selectIds]}, () => {
-                this.selectIds.clear();
+              let ids = Array.from(this.selectRows).map(row => row.id);
+              this.$post('/test/plan/case/batch/delete', {ids: ids}, () => {
+                // this.selectIds.clear();
+                this.selectRows.clear();
                 this.$emit("refresh");
                 this.$success(this.$t('commons.delete_success'));
               });
@@ -352,23 +390,56 @@
         });
       },
       handleSelectAll(selection) {
+        // if (selection.length > 0) {
+        //   this.tableData.forEach(item => {
+        //     this.selectIds.add(item.id);
+        //   });
+        // } else {
+        //   this.selectIds.clear();
+        // }
         if (selection.length > 0) {
-          this.tableData.forEach(item => {
-            this.selectIds.add(item.id);
-          });
+          if (selection.length === 1) {
+            this.selectRows.add(selection[0]);
+          } else {
+            this.tableData.forEach(item => {
+              this.$set(item, "showMore", true);
+              this.selectRows.add(item);
+            });
+          }
         } else {
-          this.selectIds.clear();
+          this.selectRows.clear();
+          this.tableData.forEach(row => {
+            this.$set(row, "showMore", false);
+          })
         }
       },
       handleSelectionChange(selection, row) {
-        if (this.selectIds.has(row.id)) {
-          this.selectIds.delete(row.id);
+        // if (this.selectIds.has(row.id)) {
+        //   this.selectIds.delete(row.id);
+        // } else {
+        //   this.selectIds.add(row.id);
+        // }
+        if (this.selectRows.has(row)) {
+          this.$set(row, "showMore", false);
+          this.selectRows.delete(row);
         } else {
-          this.selectIds.add(row.id);
+          this.$set(row, "showMore", true);
+          this.selectRows.add(row);
+        }
+
+        let arr = Array.from(this.selectRows);
+
+        // 选中1个以上的用例时显示更多操作
+        if (this.selectRows.size === 1) {
+          this.$set(arr[0], "showMore", false);
+        } else if (this.selectRows.size === 2) {
+          arr.forEach(row => {
+            this.$set(row, "showMore", true);
+          })
         }
       },
       handleBatch(type) {
-        if (this.selectIds.size < 1) {
+        if (this.selectRows.size < 1) {
           this.$warning(this.$t('test_track.plan_view.select_manipulate'));
           return;
         }
@@ -428,6 +499,28 @@
       sort(column) {
         _sort(column, this.condition);
         this.initTableData();
+      },
+      batchEdit(form) {
+        let param = {};
+        param[form.type] = form.value;
+        param.ids = Array.from(this.selectRows).map(row => row.id);
+        this.$post('/test/plan/case/batch/edit', param, () => {
+          this.selectRows.clear();
+          this.status = '';
+          this.$post('/test/plan/edit/status/' + this.planId);
+          this.$success(this.$t('commons.save_success'));
+          this.$emit('refresh');
+        });
+      },
+      handleBatchEdit() {
+        this.getMaintainerOptions();
+        this.$refs.batchEdit.open();
+      },
+      getMaintainerOptions() {
+        let workspaceId = localStorage.getItem(WORKSPACE_ID);
+        this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+          this.valueArr.executor = response.data;
+        });
       }
     }
   }
