@@ -191,11 +191,11 @@
         showMore: false,
         buttons: [
           {
-            name: '批量编辑用例', stop: this.handleClickStop
+            name: '批量编辑用例', handleClick: this.handleBatchEdit
           }, {
-            name: '批量移动用例', stop: this.handleMove
+            name: '批量移动用例', handleClick: this.handleBatchMove
           }, {
-            name: '批量删除用例', stop: this.handleDeleteBatch
+            name: '批量删除用例', handleClick: this.handleDeleteBatch
           }
         ]
       }
@@ -428,10 +428,10 @@
         _sort(column, this.condition);
         this.initTableData();
       },
-      handleClickStop() {
+      handleBatchEdit() {
         this.$refs.batchEdit.open();
       },
-      handleMove() {
+      handleBatchMove() {
         this.$emit("batchMove", Array.from(this.selectRows).map(row => row.id));
       }
     }

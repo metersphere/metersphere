@@ -1,12 +1,12 @@
 <template>
   <div v-if="isShow">
     <el-dropdown placement="bottom" trigger="click" size="medium">
-      <div @click.stop="click" class="show-more-btn">
+      <div @click.stop class="show-more-btn">
         <i class="el-icon-more ms-icon-more"/>
       </div>
       <el-dropdown-menu slot="dropdown" class="dropdown-menu-class">
         <div class="show-more-btn-title">{{$t('test_track.case.batch_handle', [size])}}</div>
-        <el-dropdown-item v-for="(btn,index) in buttons" :key="index" @click.native.stop="clickStop(btn)">
+        <el-dropdown-item v-for="(btn,index) in buttons" :key="index" @click.native.stop="click(btn)">
           {{btn.name}}
         </el-dropdown-item>
       </el-dropdown-menu>
@@ -17,19 +17,6 @@
 <script>
   export default {
     name: "ShowMoreBtn",
-    data() {
-      return {}
-    },
-    methods: {
-      click() {
-        // console.log("click");
-      },
-      clickStop(btn) {
-        if (btn.stop instanceof Function) {
-          btn.stop();
-        }
-      }
-    },
     props: {
       isShow: {
         type: Boolean,
@@ -38,6 +25,13 @@
       buttons: Array,
       row: Object,
       size: Number
+    },
+    methods: {
+      click(btn) {
+        if (btn.handleClick instanceof Function) {
+          btn.handleClick();
+        }
+      }
     }
   }
 </script>
