@@ -297,8 +297,8 @@ public class APITestService {
             if (info.length > 1) {
                 provider.setVersion(info[1]);
             }
-            provider.setService(info[0]);
-            provider.setServiceInterface(p);
+            provider.setService(p);
+            provider.setServiceInterface(info[0]);
             Map<String, URL> services = providerService.findByService(p);
             if (services != null && !services.isEmpty()) {
                 String[] methods = services.values().stream().findFirst().get().getParameter(CommonConstants.METHODS_KEY).split(",");
