@@ -47,8 +47,11 @@
       </el-form>
       <div>
         <el-row type="flex" align="middle">
-          <el-col :span="3">
-            <el-button class="save-button" type="success" plain @click="showPreview(itemValue)">
+          <el-col :span="6">
+            <el-button size="small" type="primary" plain @click="saveAdvanced()">
+              {{ $t('commons.save') }}
+            </el-button>
+            <el-button size="small" type="success" plain @click="showPreview(itemValue)">
               {{ $t('api_test.request.parameters_preview') }}
             </el-button>
           </el-col>
@@ -171,24 +174,27 @@ export default {
       if (!itemValue) {
         return;
       }
-      let funcs = itemValue.split("|");
-      let value = Mock.mock(funcs[0].trim());
-      if (funcs.length === 1) {
+      try {
+        let funcs = itemValue.split("|");
+        let value = Mock.mock(funcs[0].trim());
+        if (funcs.length === 1) {
+          this.itemValuePreview = value;
+          return value;
+        }
+        for (let i = 1; i < funcs.length; i++) {
+          let func = funcs[i].trim();
+          let args = func.split(":");
+          let strings = [];
+          if (args[1]) {
+            strings = args[1].split(",");
+          }
+          value = funcFilters[args[0].trim()](value, ...strings);
+        }
         this.itemValuePreview = value;
         return value;
+      } catch (e) {
+        this.itemValuePreview = itemValue;
       }
-
-      for (let i = 1; i < funcs.length; i++) {
-        let func = funcs[i].trim();
-        let args = func.split(":");
-        let strings = [];
-        if (args[1]) {
-          strings = args[1].split(",");
-        }
-        value = funcFilters[args[0].trim()](value, ...strings);
-      }
-      this.itemValuePreview = value;
-      return value;
     },
     appendFunc(func) {
       if (this.itemValue) {
@@ -198,9 +204,14 @@ export default {
       }
     },
     advanced(item) {
+      this.currentItem = item;
       this.itemValueVisible = true;
       this.itemValue = item.value;
     },
+    saveAdvanced() {
+      this.currentItem.value = this.itemValue;
+      this.itemValueVisible = false;
+    }
   },
   created() {
     if (this.items.length === 0) {
