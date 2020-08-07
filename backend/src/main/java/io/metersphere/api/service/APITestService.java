@@ -37,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -327,5 +328,30 @@ public class APITestService {
             scheduleService.build(apiTestMap, schedules);
         }
         return schedules;
+    }
+
+    public String runIndependent(SaveAPITestRequest request, List<MultipartFile> files) {
+        if (files == null || files.isEmpty()) {
+            throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
+        }
+//        ApiTest test = createTest(request);
+//        saveFile(test.getId(), files);
+        MultipartFile file = files.get(0);
+        InputStream is = null;
+        try {
+            is = new ByteArrayInputStream(file.getBytes());
+        } catch (IOException e) {
+            LogUtil.error(e);
+        }
+
+        APITestResult apiTest = get(request.getId());
+        if (SessionUtils.getUser() == null) {
+            apiTest.setUserId(request.getUserId());
+        }
+        String reportId = apiReportService.create(apiTest, request.getTriggerMode());
+        changeStatus(request.getId(), APITestStatus.Running);
+
+        jMeterService.run(request.getId(), is);
+        return reportId;
     }
 }

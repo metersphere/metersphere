@@ -49,7 +49,6 @@ public class APITestController {
         return apiTestService.getApiTestByProjectId(projectId);
     }
 
-
     @PostMapping(value = "/schedule/update")
     public void updateSchedule(@RequestBody Schedule request) {
         apiTestService.updateSchedule(request);
@@ -88,6 +87,11 @@ public class APITestController {
     @PostMapping(value = "/run")
     public String run(@RequestBody SaveAPITestRequest request) {
         return apiTestService.run(request);
+    }
+
+    @PostMapping(value = "/run/independent", consumes = {"multipart/form-data"})
+    public String runIndependent(@RequestBody SaveAPITestRequest request,  @RequestPart(value = "files") List<MultipartFile> files) {
+        return apiTestService.runIndependent(request, files);
     }
 
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
