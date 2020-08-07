@@ -13,7 +13,7 @@
             <template v-slot:title>{{$t('commons.project')}}</template>
             <ms-recent-list :options="projectRecent"/>
             <el-divider/>
-            <ms-show-all :index="'/track/project'"/>
+            <ms-show-all :index="'/track/project/all'"/>
             <ms-create-button v-permission="['test_manager','test_user']" :index="'/track/project/create'" :title="$t('project.create')"/>
           </el-submenu>
 
@@ -22,7 +22,7 @@
             <template v-slot:title>{{$t('test_track.case.test_case')}}</template>
             <ms-recent-list :options="caseRecent"/>
             <el-divider/>
-            <ms-show-all :index="'/track/case'"/>
+            <ms-show-all :index="'/track/case/all'"/>
             <el-menu-item :index="testCaseEditPath" class="blank_item"></el-menu-item>
             <el-menu-item :index="testCaseProjectPath" class="blank_item"></el-menu-item>
             <ms-create-button v-permission="['test_manager','test_user']" :index="'/track/case/create'" :title="$t('test_track.case.create_case')"/>
@@ -32,7 +32,7 @@
             <template v-slot:title>{{$t('test_track.plan.test_plan')}}</template>
             <ms-recent-list :options="planRecent"/>
             <el-divider/>
-            <ms-show-all :index="'/track/plan'"/>
+            <ms-show-all :index="'/track/plan/all'"/>
             <el-menu-item :index="testPlanViewPath" class="blank_item"></el-menu-item>
             <ms-create-button v-permission="['test_manager','test_user']" :index="'/track/plan/create'" :title="$t('test_track.plan.create_plan')"/>
           </el-submenu>
