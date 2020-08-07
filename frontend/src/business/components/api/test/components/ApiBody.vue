@@ -14,7 +14,7 @@
     <ms-api-key-value :is-read-only="isReadOnly" :items="body.kvs" v-if="body.isKV()"/>
 
     <div class="body-raw" v-if="body.type == 'Raw'">
-      <ms-code-edit :mode="body.format" :read-only="isReadOnly" :data.sync="body.raw" :modes="modes" ref="codeEdit"/>
+      <ms-code-edit :mode="bodyFormat" :read-only="isReadOnly" :data.sync="body.raw" :modes="modes" ref="codeEdit"/>
     </div>
 
   </div>
@@ -40,13 +40,23 @@
     data() {
       return {
         type: BODY_TYPE,
-        modes: ['text', 'json', 'xml', 'html']
+        modes: ['text', 'json', 'xml', 'html'],
+        bodyFormat: 'text'
       };
     },
 
     methods: {
       modeChange(mode) {
-        this.body.format = mode;
+        this.$nextTick(() => {
+          this.body.format = mode;
+          this.bodyFormat = mode;
+        });
+      }
+    },
+
+    watch: {
+      'body.format'() {
+        this.bodyFormat = this.body.format;
       }
     },
 
@@ -57,6 +67,7 @@
       if (!this.body.format) {
         this.body.format = BODY_FORMAT.TEXT;
       }
+      this.bodyFormat = this.body.format;
     }
   }
 </script>
