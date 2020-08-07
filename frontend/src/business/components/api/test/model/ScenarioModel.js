@@ -674,13 +674,15 @@ class JMXHttpRequest {
 
   getPostQueryParameters(request, path) {
     if (this.method.toUpperCase() !== "GET") {
-      path += '?';
       let parameters = [];
       request.parameters.forEach(parameter => {
         if (parameter.name && parameter.value) {
           parameters.push(parameter);
         }
       });
+      if (parameters.length > 0) {
+        path += '?';
+      }
       for (let i = 0; i < parameters.length; i++) {
         let parameter = parameters[i];
         path += (parameter.name + '=' + parameter.value);
