@@ -1,5 +1,6 @@
 import {
-  Arguments, CookieManager,
+  Arguments,
+  CookieManager,
   DubboSample,
   DurationAssertion,
   Element,
@@ -18,6 +19,8 @@ import {
   ThreadGroup,
   XPath2Extractor,
 } from "./JMX";
+import Mock from "mockjs";
+import {funcFilters} from "@/common/js/func-filter";
 
 export const uuid = function () {
   let d = new Date().getTime()
@@ -33,6 +36,31 @@ export const uuid = function () {
     }
     return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
   });
+}
+
+export const calculate = function (itemValue) {
+  if (!itemValue) {
+    return;
+  }
+  try {
+    let funcs = itemValue.split("|");
+    let value = Mock.mock(funcs[0].trim());
+    if (funcs.length === 1) {
+      return value;
+    }
+    for (let i = 1; i < funcs.length; i++) {
+      let func = funcs[i].trim();
+      let args = func.split(":");
+      let strings = [];
+      if (args[1]) {
+        strings = args[1].split(",");
+      }
+      value = funcFilters[args[0].trim()](value, ...strings);
+    }
+    return value;
+  } catch (e) {
+    return itemValue;
+  }
 }
 
 export const BODY_TYPE = {
@@ -885,6 +913,9 @@ class JMXGenerator {
 
   addRequestArguments(httpSamplerProxy, request) {
     let args = this.filterKV(request.parameters);
+    args.forEach(arg => {
+      arg.value = calculate(arg.value);
+    });
     if (args.length > 0) {
       httpSamplerProxy.add(new HTTPSamplerArguments(args));
     }

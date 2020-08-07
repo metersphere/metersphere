@@ -85,8 +85,7 @@
 <script>
 import {KeyValue} from "../model/ScenarioModel";
 import {MOCKJS_FUNC} from "@/common/js/constants";
-import Mock from "mockjs";
-import {funcFilters} from "@/common/js/func-filter";
+import {calculate} from "@/business/components/api/test/model/ScenarioModel";
 
 export default {
   name: "MsApiKeyValue",
@@ -171,30 +170,7 @@ export default {
       };
     },
     showPreview(itemValue) {
-      if (!itemValue) {
-        return;
-      }
-      try {
-        let funcs = itemValue.split("|");
-        let value = Mock.mock(funcs[0].trim());
-        if (funcs.length === 1) {
-          this.itemValuePreview = value;
-          return value;
-        }
-        for (let i = 1; i < funcs.length; i++) {
-          let func = funcs[i].trim();
-          let args = func.split(":");
-          let strings = [];
-          if (args[1]) {
-            strings = args[1].split(",");
-          }
-          value = funcFilters[args[0].trim()](value, ...strings);
-        }
-        this.itemValuePreview = value;
-        return value;
-      } catch (e) {
-        this.itemValuePreview = itemValue;
-      }
+      this.itemValuePreview = calculate(itemValue);
     },
     appendFunc(func) {
       if (this.itemValue) {
