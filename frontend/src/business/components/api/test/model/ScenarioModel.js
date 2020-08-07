@@ -1,5 +1,5 @@
 import {
-  Arguments,
+  Arguments, CookieManager,
   DubboSample,
   DurationAssertion,
   Element,
@@ -174,6 +174,7 @@ export class Scenario extends BaseConfig {
     this.environmentId = undefined;
     this.dubboConfig = undefined;
     this.environment = undefined;
+    this.enableCookieShare = false;
 
     this.set(options);
     this.sets({variables: KeyValue, headers: KeyValue, requests: RequestFactory}, options);
@@ -765,6 +766,8 @@ class JMXGenerator {
 
       this.addScenarioHeaders(threadGroup, scenario);
 
+      this.addScenarioCookieManager(threadGroup, scenario);
+
       scenario.requests.forEach(request => {
         if (!request.isValid()) return;
         let sampler;
@@ -819,6 +822,12 @@ class JMXGenerator {
     if (args.length > 0) {
       let name = scenario.name + " Variables"
       threadGroup.put(new Arguments(name, args));
+    }
+  }
+
+  addScenarioCookieManager(threadGroup, scenario) {
+    if (scenario.enableCookieShare) {
+      threadGroup.put(new CookieManager(scenario.name));
     }
   }
 
