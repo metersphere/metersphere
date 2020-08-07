@@ -182,18 +182,3 @@ function handleSegment(str, index) {
     args
   };
 }
-
-
-// module.exports = {
-//   utils: stringHandles,
-//   PowerString,
-//   /**
-//    * 类似于 angularJs的 filter 功能
-//    * @params string
-//    * @params fn 处理参数值函数，默认是一个返回原有参数值函数
-//    *
-//    * @expamle
-//    * filter('string | substr: 1, 10 | md5 | concat: hello ')
-//    */
-//   filter: handleOriginStr
-// };
