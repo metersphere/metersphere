@@ -120,7 +120,8 @@
 
     </el-card>
 
-    <batch-edit ref="batchEdit" @batchEdit="batchEdit"/>
+    <batch-edit ref="batchEdit" @batchEdit="batchEdit"
+                :typeArr="typeArr" :value-arr="valueArr" dialog-title="批量编辑用例"/>
   </div>
 </template>
 
@@ -142,6 +143,7 @@
   import {TEST_CASE_CONFIGS} from "../../../common/components/search/search-components";
   import ShowMoreBtn from "./ShowMoreBtn";
   import BatchEdit from "./BatchEdit";
+  import {WORKSPACE_ID} from "../../../../../common/js/constants";
 
   export default {
     name: "TestCaseList",
@@ -191,13 +193,37 @@
         showMore: false,
         buttons: [
           {
-            name: '批量编辑用例', stop: this.handleClickStop
+            name: '批量编辑用例', handleClick: this.handleBatchEdit
           }, {
-            name: '批量移动用例', stop: this.handleMove
+            name: '批量移动用例', handleClick: this.handleBatchMove
           }, {
-            name: '批量删除用例', stop: this.handleDeleteBatch
+            name: '批量删除用例', handleClick: this.handleDeleteBatch
           }
-        ]
+        ],
+        typeArr: [
+          {id: 'priority', name: '用例等级'},
+          {id: 'type', name: '类型'},
+          {id: 'method', name: '测试方式'},
+          {id: 'maintainer', name: '维护人'},
+        ],
+        valueArr: {
+          priority: [
+            {name: 'P0', id: 'P0'},
+            {name: 'P1', id: 'P1'},
+            {name: 'P2', id: 'P2'},
+            {name: 'P3', id: 'P3'}
+          ],
+          type: [
+            {name: this.$t('commons.functional'), id: 'functional'},
+            {name: this.$t('commons.performance'), id: 'performance'},
+            {name: this.$t('commons.api'), id: 'api'}
+          ],
+          method: [
+            {name: this.$t('test_track.case.manual'), id: 'manual'},
+            {name: this.$t('test_track.case.auto'), id: 'auto'}
+          ],
+          maintainer: [],
+        }
       }
     },
     props: {
@@ -428,11 +454,18 @@
         _sort(column, this.condition);
         this.initTableData();
       },
-      handleClickStop() {
+      handleBatchEdit() {
+        this.getMaintainerOptions();
         this.$refs.batchEdit.open();
       },
-      handleMove() {
+      handleBatchMove() {
         this.$emit("batchMove", Array.from(this.selectRows).map(row => row.id));
+      },
+      getMaintainerOptions() {
+        let workspaceId = localStorage.getItem(WORKSPACE_ID);
+        this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+          this.valueArr.maintainer = response.data;
+        });
       }
     }
   }

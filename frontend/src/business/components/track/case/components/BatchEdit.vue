@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-dialog
-      title="批量编辑用例"
+      :title="dialogTitle"
       :visible.sync="dialogVisible"
       width="25%"
       class="batch-edit-dialog"
@@ -11,15 +11,15 @@
       <el-form :model="form" label-position="right" label-width="150px" size="medium" ref="form" :rules="rules">
         <el-form-item :label="$t('test_track.case.batch_update', [size])" prop="type">
           <el-select v-model="form.type" style="width: 80%" @change="changeType">
-            <el-option label="用例等级" value="priority"/>
-            <el-option label="类型" value="type"/>
-            <el-option label="测试方式" value="method"/>
-            <el-option label="维护人" value="maintainer"/>
+            <el-option v-for="(type, index) in typeArr" :key="index" :value="type.id" :label="type.name"/>
           </el-select>
         </el-form-item>
         <el-form-item label="更新后属性值为" prop="value">
           <el-select v-model="form.value" style="width: 80%" :filterable="filterable">
             <el-option v-for="(option, index) in options" :key="index" :value="option.id" :label="option.name">
+              <div v-if="option.email">
+                <span>{{option.id}}({{option.name}})</span>
+              </div>
             </el-option>
           </el-select>
         </el-form-item>
@@ -35,7 +35,6 @@
 
 <script>
   import MsDialogFooter from "../../../common/components/MsDialogFooter";
-  import {WORKSPACE_ID} from "../../../../../common/js/constants";
   import {listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
 
   export default {
@@ -43,8 +42,13 @@
     components: {
       MsDialogFooter
     },
-    created() {
-      this.getMaintainerOptions();
+    props: {
+      typeArr: Array,
+      valueArr: Object,
+      dialogTitle: {
+        type: String,
+        default: "批量操作"
+      }
     },
     data() {
       return {
@@ -56,22 +60,6 @@
           value: {required: true, message: "请选择属性对应的值", trigger: ['blur','change']}
         },
         options: [],
-        priorities: [
-          {name: 'P0', id: 'P0'},
-          {name: 'P1', id: 'P1'},
-          {name: 'P2', id: 'P2'},
-          {name: 'P3', id: 'P3'}
-        ],
-        types: [
-          {name: this.$t('commons.functional'), id: 'functional'},
-          {name: this.$t('commons.performance'), id: 'performance'},
-          {name: this.$t('commons.api'), id: 'api'}
-        ],
-        methods: [
-          {name: this.$t('test_track.case.manual'), id: 'manual'},
-          {name: this.$t('test_track.case.auto'), id: 'auto'}
-        ],
-        maintainers: [],
         filterable: false,
       }
     },
@@ -93,33 +81,13 @@
       },
       handleClose() {
         this.form = {};
+        this.options = [];
         removeGoBackListener(this.handleClose);
       },
       changeType(val) {
         this.$set(this.form, "value", "");
-        this.filterable = val === "maintainer";
-        switch (val) {
-          case "priority":
-            this.options = this.priorities;
-            break;
-          case "type":
-            this.options = this.types;
-            break;
-          case "method":
-            this.options = this.methods;
-            break;
-          case "maintainer":
-            this.options = this.maintainers;
-            break;
-          default:
-            this.options = [];
-        }
-      },
-      getMaintainerOptions() {
-        let workspaceId = localStorage.getItem(WORKSPACE_ID);
-        this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
-          this.maintainers = response.data;
-        });
+        this.filterable = val === "maintainer" || val === "executor";
+        this.options = this.valueArr[val];
       }
     }
   }
