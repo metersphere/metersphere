@@ -261,7 +261,7 @@
         },
         test: {},
         activeTab: 'detail',
-        isFailure: false,
+        isFailure: true,
       };
     },
     props: {
@@ -447,7 +447,7 @@
       stepResultChange() {
         if (this.testCase.method == 'manual') {
           this.isFailure = this.testCase.steptResults.filter(s => {
-            return !s.executeResult || s.executeResult === 'Failure' || s.executeResult === 'Blocking';
+            return s.executeResult === 'Failure' || s.executeResult === 'Blocking';
           }).length > 0;
         }
 
