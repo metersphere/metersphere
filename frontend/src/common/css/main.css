@@ -75,3 +75,22 @@ body {
   background-color: #EBEEF5;
 }
 /* 表格拖拽表头调整宽度 --> */
+
+/* <-- 表格 input 编辑效果*/
+.table-edit-input .el-textarea__inner {
+  border-style: hidden;
+}
+.table-edit-input.is-disabled .el-textarea__inner {
+  background-color: white;
+  color: #606266;
+}
+
+.el-table .current-row .table-edit-input {
+  border: 1px solid #DCDFE6;
+  border-radius: 5px;
+}
+
+.table-edit-input .el-textarea__inner:focus {
+  border: 1px solid #409EFF;
+}
+/* 表格 input 编辑效果 --> */

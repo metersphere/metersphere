@@ -128,17 +128,30 @@
 
                   <el-table-column :label="$t('test_track.case.step_desc')" prop="desc" min-width="21%">
                     <template v-slot:default="scope">
-                      <pre>{{scope.row.desc}}</pre>
+                      <el-input
+                        size="mini"
+                        class="border-hidden"
+                        type="textarea"
+                        :autosize="{ minRows: 1, maxRows: 4}"
+                        :disabled="true"
+                        v-model="scope.row.desc"/>
                     </template>
                   </el-table-column>
                   <el-table-column :label="$t('test_track.case.expected_results')" prop="result" min-width="21%">
                     <template v-slot:default="scope">
-                      <pre>{{scope.row.result}}</pre>
+                      <el-input
+                        size="mini"
+                        class="border-hidden"
+                        type="textarea"
+                        :autosize="{ minRows: 1, maxRows: 4}"
+                        :disabled="true"
+                        v-model="scope.row.result"/>
                     </template>
                   </el-table-column>
                   <el-table-column :label="$t('test_track.plan_view.actual_result')" min-width="21%">
                     <template v-slot:default="scope">
                       <el-input
+                        class="table-edit-input"
                         size="mini"
                         type="textarea"
                         :autosize="{ minRows: 2, maxRows: 4}"
@@ -146,8 +159,7 @@
                         :disabled="isReadOnly"
                         v-model="scope.row.actualResult"
                         :placeholder="$t('commons.input_content')"
-                        clearable></el-input>
-                      <pre>{{scope.row.actualResult}}</pre>
+                        clearable/>
                     </template>
                   </el-table-column>
                   <el-table-column :label="$t('test_track.plan_view.step_result')" min-width="12%">
@@ -446,17 +458,10 @@
 
 <style scoped>
 
-
-  .tb-edit .el-textarea {
-    display: none;
-  }
-
-  .tb-edit .current-row .el-textarea {
-    display: block;
-  }
-
-  .tb-edit .current-row .el-textarea + pre {
-    display: none;
+  .border-hidden >>> .el-textarea__inner {
+    border-style: hidden;
+    background-color: white;
+    color: #606266;
   }
 
   .cast_label {

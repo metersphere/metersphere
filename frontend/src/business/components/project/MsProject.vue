@@ -251,4 +251,8 @@
     cursor:pointer;
   }
 
+  pre {
+    margin: 0 0;
+  }
+
 </style>
