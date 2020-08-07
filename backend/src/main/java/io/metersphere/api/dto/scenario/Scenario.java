@@ -10,6 +10,7 @@ public class Scenario {
     private String name;
     private String url;
     private String environmentId;
+    private Boolean enableCookieShare;
     private List<KeyValue> variables;
     private List<KeyValue> headers;
     private List<Request> requests;

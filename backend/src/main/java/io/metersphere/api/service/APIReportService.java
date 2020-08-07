@@ -101,7 +101,12 @@ public class APIReportService {
         if (running != null) {
             return running.getId();
         }
+        ApiTestReport report = buildReport(test, triggerMode, APITestStatus.Running.name());
+        apiTestReportMapper.insert(report);
+        return report.getId();
+    }
 
+    public ApiTestReport buildReport(ApiTest test, String triggerMode, String status) {
         ApiTestReport report = new ApiTestReport();
         report.setId(UUID.randomUUID().toString());
         report.setTestId(test.getId());
@@ -110,11 +115,9 @@ public class APIReportService {
         report.setDescription(test.getDescription());
         report.setCreateTime(System.currentTimeMillis());
         report.setUpdateTime(System.currentTimeMillis());
-        report.setStatus(APITestStatus.Running.name());
+        report.setStatus(status);
         report.setUserId(test.getUserId());
-        apiTestReportMapper.insert(report);
-
-        return report.getId();
+        return report;
     }
 
     public ApiTestReport getRunningReport(String testId) {

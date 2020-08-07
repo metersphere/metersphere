@@ -328,6 +328,15 @@ export class HTTPSamplerArguments extends Element {
   }
 }
 
+export class CookieManager extends DefaultTestElement {
+  constructor(testName) {
+    super('CookieManager', 'CookiePanel', 'CookieManager', testName);
+    this.collectionProp('CookieManager.cookies');
+    this.boolProp('CookieManager.clearEachIteration', false, false);
+    this.boolProp('CookieManager.controlledByThreadGroup', false, false);
+  }
+}
+
 export class DurationAssertion extends DefaultTestElement {
   constructor(testName, duration) {
     super('DurationAssertion', 'DurationAssertionGui', 'DurationAssertion', testName);

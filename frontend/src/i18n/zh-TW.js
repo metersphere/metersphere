@@ -715,6 +715,7 @@ export default {
     test_name: '測試名稱',
     running_rule: '運行規則',
     job_status: '任務狀態',
+    running_task: '運行中的任務',
     please_input_cron_expression: "請輸入 Cron 表達式",
     generate_expression: "生成表達式",
     cron_expression_format_error: "Cron 表達式格式錯誤",
