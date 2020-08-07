@@ -183,6 +183,7 @@ export default {
       this.currentItem = item;
       this.itemValueVisible = true;
       this.itemValue = item.value;
+      this.itemValuePreview = null;
     },
     saveAdvanced() {
       this.currentItem.value = this.itemValue;
