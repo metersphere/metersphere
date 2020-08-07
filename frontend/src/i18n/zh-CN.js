@@ -710,6 +710,7 @@ export default {
     test_name: '测试名称',
     running_rule: '运行规则',
     job_status: '任务状态',
+    running_task: '运行中的任务',
     next_execution_time: "下次执行时间",
     edit_timer_task: "编辑定时任务",
     please_input_cron_expression: "请输入 Cron 表达式",

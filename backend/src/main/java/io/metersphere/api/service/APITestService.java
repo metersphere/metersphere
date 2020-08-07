@@ -314,6 +314,7 @@ public class APITestService {
     }
 
     public List<ScheduleDao> listSchedule(QueryScheduleRequest request) {
+        request.setEnable(true);
         List<ScheduleDao> schedules = scheduleService.list(request);
         List<String> resourceIds = schedules.stream()
                 .map(Schedule::getResourceId)

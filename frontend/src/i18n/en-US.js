@@ -713,6 +713,7 @@ export default {
     test_name: 'Test Name',
     running_rule: 'Rule',
     job_status: 'Status',
+    running_task: 'Running Task',
     please_input_cron_expression: "Please Input Cron Expression",
     generate_expression: "Generate Expression",
     cron_expression_format_error: "Cron Expression Format Error",

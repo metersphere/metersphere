@@ -1,7 +1,7 @@
 <template>
   <el-card class="table-card" v-loading="result.loading">
     <template v-slot:header>
-      <span class="title">{{$t('commons.trigger_mode.schedule')}}</span>
+      <span class="title">{{$t('schedule.running_task')}}</span>
     </template>
     <el-table height="289" border :data="tableData" class="adjust-table table-content" @row-click="link">
       <el-table-column prop="resourceName" :label="$t('schedule.test_name')" width="150" show-overflow-tooltip/>
@@ -32,7 +32,7 @@
   import {SCHEDULE_TYPE} from "../../../../common/js/constants";
 
   export default {
-    name: "MsApiTestScheduleList",
+    name: "MsScheduleList",
     components: {CrontabResult},
     data() {
       return {
