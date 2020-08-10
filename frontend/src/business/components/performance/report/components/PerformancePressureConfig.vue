@@ -151,20 +151,27 @@ export default {
       this.calculateChart();
     },
     getLoadConfig() {
-      if (!this.report.loadConfiguration) {
-        if (!this.report.testId) {
-          return;
-        }
-        this.$get('/performance/get-load-config/' + this.report.testId, (response) => {
-          if (response.data) {
-            let data = JSON.parse(response.data);
-            this.calculateLoadConfiguration(data);
-          }
-        });
-      } else {
-        let data = JSON.parse(this.report.loadConfiguration);
-        this.calculateLoadConfiguration(data);
+      if (!this.report.id) {
+        return;
       }
+      this.$get("/performance/report/" + this.report.id, res => {
+        let data = res.data;
+        if (data) {
+          if (data.loadConfiguration) {
+            let d = JSON.parse(data.loadConfiguration);
+            this.calculateLoadConfiguration(d);
+          } else {
+            this.$get('/performance/get-load-config/' + this.report.testId, (response) => {
+              if (response.data) {
+                let data = JSON.parse(response.data);
+                this.calculateLoadConfiguration(data);
+              }
+            });
+          }
+        } else {
+          this.$error(this.$t('report.not_exist'))
+        }
+      });
     },
     calculateChart() {
       if (this.duration < this.rampUpTime) {
