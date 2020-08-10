@@ -32,7 +32,7 @@
     components: {MsScenarioResult},
 
     props: {
-      scenarios: Array
+      scenarios: Array,
     }
 
   }

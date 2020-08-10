@@ -1,7 +1,7 @@
 <template>
   <div>
-    <component :is="component" :is-read-only="isReadOnly" :request="request"/>
-<!--    <ms-scenario-results :scenarios="content.scenarios"/>-->
+    <component @runDebug="runDebug" :is="component" :is-read-only="isReadOnly" :request="request"/>
+    <ms-scenario-results v-loading="debugReportLoading" v-if="isCompleted" :scenarios="isCompleted ? request.debugReport.scenarios : []"/>
   </div>
 </template>
 
@@ -19,12 +19,15 @@
       isReadOnly: {
         type: Boolean,
         default: false
-      }
+      },
+      debugReportId: String
     },
     data() {
       return {
         reportId: "",
-        content:{}
+        content: {scenarios:[]},
+        debugReportLoading: false,
+        showDebugReport: false
       }
     },
     computed: {
@@ -38,38 +41,51 @@
             name = "MsApiHttpRequestForm";
         }
         return name;
+      },
+      isCompleted() {
+        return !!this.request.debugReport;
       }
     },
-    created() {
-      this.getReport();
+    watch: {
+      debugReportId() {
+        this.getReport();
+      }
     },
     methods: {
       getReport() {
-        // // this.reportId = "00143d36-a58a-477e-a05a-556c1d48046c";
-        // if (this.reportId) {
-        //   let url = "/api/report/get/" + this.reportId;
-        //   this.$get(url, response => {
-        //     let report = response.data || {};
-        //     if (response.data) {
-        //       // if (this.isNotRunning) {
-        //         try {
-        //           this.content = JSON.parse(report.content);
-        //         } catch (e) {
-        //           console.log(report.content)
-        //           throw e;
-        //         }
-        //         // this.getFails();
-        //         // this.loading = false;
-        //       // }
-        //       // else {
-        //       //   setTimeout(this.getReport, 2000)
-        //       // }
-        //     } else {
-        //       this.loading = false;
-        //       this.$error(this.$t('api_report.not_exist'));
-        //     }
-        //   });
-        // }
+        if (this.debugReportId) {
+          this.debugReportLoading = true;
+          this.showDebugReport = true;
+          this.request.debugReport = {};
+          let url = "/api/report/get/" + this.debugReportId;
+          this.$get(url, response => {
+            let report = response.data || {};
+            let res = {};
+            if (response.data) {
+              try {
+                res = JSON.parse(report.content);
+              } catch (e) {
+                console.log(report.content)
+                throw e;
+              }
+              if (res) {
+                this.debugReportLoading = false;
+                this.request.debugReport = res;
+                this.deleteReport(this.debugReportId)
+              } else {
+                setTimeout(this.getReport, 2000)
+              }
+            } else {
+              this.debugReportLoading = false;
+            }
+          });
+        }
+      },
+      deleteReport(reportId) {
+        this.$post('/api/report/delete', {id: reportId});
+      },
+      runDebug() {
+        this.$emit('runDebug', this.request);
       }
     }
   }
@@ -78,7 +94,7 @@
 <style scoped>
 
   .scenario-results {
-    margin-top: 15px;
+    margin-top: 20px;
   }
 
 </style>

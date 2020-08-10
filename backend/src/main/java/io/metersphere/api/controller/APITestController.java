@@ -60,13 +60,13 @@ public class APITestController {
     }
 
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
-    public void create(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "files") List<MultipartFile> files) {
-        apiTestService.create(request, files);
+    public void create(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "file") MultipartFile file) {
+        apiTestService.create(request, file);
     }
 
     @PostMapping(value = "/update", consumes = {"multipart/form-data"})
-    public void update(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "files") List<MultipartFile> files) {
-        apiTestService.update(request, files);
+    public void update(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "file") MultipartFile file) {
+        apiTestService.update(request, file);
     }
 
     @PostMapping(value = "/copy")
@@ -89,9 +89,9 @@ public class APITestController {
         return apiTestService.run(request);
     }
 
-    @PostMapping(value = "/run/independent", consumes = {"multipart/form-data"})
-    public String runIndependent(@RequestBody SaveAPITestRequest request,  @RequestPart(value = "files") List<MultipartFile> files) {
-        return apiTestService.runIndependent(request, files);
+    @PostMapping(value = "/run/debug", consumes = {"multipart/form-data"})
+    public String runDebug(@RequestPart("request")  SaveAPITestRequest request,  @RequestPart(value = "file") MultipartFile file) {
+        return apiTestService.runDebug(request, file);
     }
 
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})

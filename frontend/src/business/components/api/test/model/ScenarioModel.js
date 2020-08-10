@@ -297,6 +297,7 @@ export class HttpRequest extends Request {
     this.extract = undefined;
     this.environment = undefined;
     this.useEnvironment = undefined;
+    this.debugReport = undefined;
 
     this.set(options);
     this.sets({parameters: KeyValue, headers: KeyValue}, options);
@@ -370,6 +371,7 @@ export class DubboRequest extends Request {
     this.extract = new Extract(options.extract);
     // Scenario.dubboConfig
     this.dubboConfig = undefined;
+    this.debugReport = undefined;
 
     this.sets({args: KeyValue, attachmentArgs: KeyValue}, options);
   }
@@ -683,7 +685,7 @@ const JMX_ASSERTION_CONDITION = {
 
 class JMXHttpRequest {
   constructor(request, environment) {
-    if (request && request instanceof HttpRequest && (request.url || request.path)) {
+    if (request && request instanceof HttpRequest) {
       this.useEnvironment = request.useEnvironment;
       this.method = request.method;
       if (!request.useEnvironment) {

@@ -39,6 +39,8 @@
       </el-switch>
     </el-form-item>
 
+    <el-button class="debug-button" size="small" type="primary" @click="runDebug">{{$t('load_test.save_and_run')}}</el-button>
+
     <el-tabs v-model="activeName">
       <el-tab-pane :label="$t('api_test.request.parameters')" name="parameters">
         <ms-api-key-value :is-read-only="isReadOnly" :items="request.parameters"
@@ -154,6 +156,9 @@
           }
         }
         return url;
+      },
+      runDebug() {
+        this.$emit('runDebug');
       }
     },
 
@@ -190,6 +195,14 @@
 
   .environment-url-tip {
     color: #F56C6C;
+  }
+
+  .debug-button {
+    margin-left: auto;
+    display: block;
+    /*margin-bottom: -30px;*/
+    margin-right: 10px;
+    z-index: 1999;
   }
 
 </style>
