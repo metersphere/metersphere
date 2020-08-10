@@ -226,8 +226,6 @@ public class PerformanceTestService {
 
         startEngine(loadTest, engine, request.getTriggerMode());
 
-        // todo：通过调用stop方法能够停止正在运行的engine，但是如果部署了多个backend实例，页面发送的停止请求如何定位到具体的engine
-
         return engine.getReportId();
     }
 
@@ -257,7 +255,7 @@ public class PerformanceTestService {
     }
 
     private void startEngine(LoadTestWithBLOBs loadTest, Engine engine, String triggerMode) {
-        LoadTestReport testReport = new LoadTestReport();
+        LoadTestReportWithBLOBs testReport = new LoadTestReportWithBLOBs();
         testReport.setId(engine.getReportId());
         testReport.setCreateTime(engine.getStartTime());
         testReport.setUpdateTime(engine.getStartTime());
@@ -277,6 +275,7 @@ public class PerformanceTestService {
             loadTest.setStatus(PerformanceTestStatus.Starting.name());
             loadTestMapper.updateByPrimaryKeySelective(loadTest);
             // 启动正常插入 report
+            testReport.setLoadConfiguration(loadTest.getLoadConfiguration());
             testReport.setStatus(PerformanceTestStatus.Starting.name());
             loadTestReportMapper.insertSelective(testReport);
 

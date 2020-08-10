@@ -43,6 +43,10 @@ export const calculate = function (itemValue) {
     return;
   }
   try {
+    if (itemValue.trim().startsWith("${")) {
+      // jmeter 内置函数不做处理
+      return itemValue;
+    }
     let funcs = itemValue.split("|");
     let value = Mock.mock(funcs[0].trim());
     if (funcs.length === 1) {
@@ -693,14 +697,14 @@ class JMXHttpRequest {
           request.url = 'http://' + request.url;
         }
         let url = new URL(request.url);
-        this.hostname = decodeURIComponent(url.hostname);
+        this.domain = decodeURIComponent(url.hostname);
         this.port = url.port;
         this.protocol = url.protocol.split(":")[0];
-        this.pathname = this.getPostQueryParameters(request, decodeURIComponent(url.pathname));
+        this.path = this.getPostQueryParameters(request, decodeURIComponent(url.pathname));
       } else {
+        this.domain = environment.domain;
         this.port = environment.port;
         this.protocol = environment.protocol;
-        this.domain = environment.domain;
         let url = new URL(environment.protocol + "://" + environment.socket);
         this.path = this.getPostQueryParameters(request, decodeURIComponent(url.pathname + (request.path ? request.path : '')));
       }
@@ -719,7 +723,7 @@ class JMXHttpRequest {
       for (let i = 0; i < parameters.length; i++) {
         let parameter = parameters[i];
         path += (parameter.name + '=' + parameter.value);
-        if (i != parameters.length - 1) {
+        if (i !== parameters.length - 1) {
           path += '&';
         }
       }
