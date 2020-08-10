@@ -115,6 +115,9 @@ export default {
       orgOptions: {},
     }
   },
+  mounted() {
+    this.getLoadConfig();
+  },
   methods: {
     calculateLoadConfiguration: function (data) {
       data.forEach(d => {
