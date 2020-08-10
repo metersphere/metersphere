@@ -21,6 +21,8 @@
       </el-menu-item>
       <el-menu-item index="/setting/organizationworkspace" v-permission="['org_admin']">{{$t('commons.workspace')}}
       </el-menu-item>
+      <el-menu-item index="/setting/serviceintegration" v-permission="['org_admin']">服务集成
+      </el-menu-item>
     </el-submenu>
 
     <el-submenu index="3" v-permission="['test_manager']" v-if="isCurrentWorkspaceUser">

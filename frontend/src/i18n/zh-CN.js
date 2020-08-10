@@ -387,6 +387,7 @@ export default {
       parameters_filter: "内置函数",
       parameters_filter_desc: "使用方法",
       parameters_filter_example: "示例",
+      parameters_filter_tips: "只支持 MockJs 函数结果预览",
       parameters_advance: "高级参数设置",
       parameters_preview: "预览",
       parameters_preview_warning: "请先输入模版",

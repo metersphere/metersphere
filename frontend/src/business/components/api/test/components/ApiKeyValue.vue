@@ -76,6 +76,7 @@
           </span>
           <p>{{ $t('api_test.request.parameters_filter_example') }}：@string(10) | md5 | substr: 1, 3</p>
           <p>{{ $t('api_test.request.parameters_filter_example') }}：@integer(1, 5) | concat:_metersphere</p>
+          <p><strong>{{ $t('api_test.request.parameters_filter_tips') }}</strong></p>
         </div>
       </div>
     </el-dialog>
@@ -84,7 +85,7 @@
 
 <script>
 import {KeyValue} from "../model/ScenarioModel";
-import {MOCKJS_FUNC} from "@/common/js/constants";
+import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
 import {calculate} from "@/business/components/api/test/model/ScenarioModel";
 
 export default {
@@ -159,7 +160,7 @@ export default {
       };
     },
     funcSearch(queryString, cb) {
-      let funcs = MOCKJS_FUNC;
+      let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
       let results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
       // 调用 callback 返回建议列表的数据
       cb(results);
