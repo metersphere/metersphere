@@ -33,6 +33,7 @@ import TestTrack from "../../track/TestTrack";
 import ApiReportList from "../../api/report/ApiReportList";
 import axios from "axios";
 import ApiKeys from "../../settings/personal/ApiKeys";
+import ServiceIntegration from "../../settings/organization/ServiceIntegration";
 
 const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/)
 
@@ -69,6 +70,10 @@ const router = new VueRouter({
         {
           path: 'organizationworkspace',
           component: OrganizationWorkspace,
+        },
+        {
+          path: 'serviceintegration',
+          component: ServiceIntegration,
         },
         {
           path: 'personsetting',
