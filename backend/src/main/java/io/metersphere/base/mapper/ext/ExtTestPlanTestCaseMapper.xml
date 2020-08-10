@@ -126,7 +126,7 @@
                 </include>
             </if>
             <if test="request.name != null">
-                and test_case.name like CONCAT('%', #{request.name},'%')
+                and (test_case.name like CONCAT('%', #{request.name},'%') or test_case.num like CONCAT('%', #{request.name},'%'))
             </if>
             <if test="request.id != null">
                 and test_case.id = #{request.id}
