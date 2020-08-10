@@ -21,7 +21,7 @@
       </el-menu-item>
       <el-menu-item index="/setting/organizationworkspace" v-permission="['org_admin']">{{$t('commons.workspace')}}
       </el-menu-item>
-      <el-menu-item index="/setting/serviceintegration" v-permission="['org_admin']">服务集成
+      <el-menu-item index="/setting/serviceintegration" v-permission="['org_admin']">{{$t('organization.service_integration')}}
       </el-menu-item>
     </el-submenu>
 

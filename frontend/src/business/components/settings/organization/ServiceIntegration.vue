@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-tabs class="system-setting" v-model="activeName">
-      <el-tab-pane label="缺陷管理平台" name="defect">
+      <el-tab-pane :label="$t('organization.defect_manage')" name="defect">
         <defect-management/>
       </el-tab-pane>
     </el-tabs>

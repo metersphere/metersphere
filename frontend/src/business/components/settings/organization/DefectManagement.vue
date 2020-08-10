@@ -1,7 +1,7 @@
 <template>
   <el-card class="header-title">
     <div>
-      <div>请选择要集成的缺陷管理平台：</div>
+      <div>{{$t('organization.select_defect_platform')}}</div>
       <el-radio-group v-model="platform" style="margin-top: 10px">
         <el-radio v-for="(item, index) in platforms" :key="index" :label="item.value" size="small">
           {{item.name}}
@@ -10,30 +10,30 @@
     </div>
 
     <div style="width: 500px">
-      <div style="margin-top: 20px;margin-bottom: 10px">Basic Auth账号信息：</div>
+      <div style="margin-top: 20px;margin-bottom: 10px">{{$t('organization.basic_auth_info')}}</div>
       <el-form :model="form" ref="form" label-width="100px" size="small">
-        <el-form-item label="API 账号" prop="account">
-          <el-input v-model="form.account" placeholder="请输入账号"/>
+        <el-form-item :label="$t('organization.api_account')" prop="account">
+          <el-input v-model="form.account" :placeholder="$t('organization.input_api_account')"/>
         </el-form-item>
-        <el-form-item label="API 口令" prop="password">
-          <el-input v-model="form.password" auto-complete="new-password" placeholder="请输入口令" show-password/>
+        <el-form-item :label="$t('organization.api_password')" prop="password">
+          <el-input v-model="form.password" auto-complete="new-password" :placeholder="$t('organization.input_api_password')" show-password/>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" size="small" @click="submit('form')" style="width: 400px">
-            保存
+            {{$t('commons.save')}}
           </el-button>
         </el-form-item>
       </el-form>
     </div>
 
     <div class="defect-tip">
-      <div>使用指引：</div>
+      <div>{{$t('organization.use_tip')}}</div>
       <div>
-        1. Basic Auth 账号信息在"公司管理-安全与集成-开放平台"中查询
+        1. {{$t('organization.use_tip_one')}}
       </div>
       <div>
-        2. 保存 Basic Auth 账号信息后，需要在 Metersphere 项目中手动关联 ID/key
-        <router-link to="/track/project/all" style="margin-left: 5px">马上关联项目</router-link>
+        2. {{$t('organization.use_tip_two')}}
+        <router-link to="/track/project/all" style="margin-left: 5px">{{$t('organization.link_the_project_now')}}</router-link>
       </div>
     </div>
   </el-card>
@@ -57,8 +57,8 @@
           }
         ],
         rules: {
-          account: {required: true, message: "请输入账号", trigger: ['change', 'blur']},
-          password: {required: true, message: "请输入密码", trigger: ['change', 'blur']}
+          account: {required: true, message: this.$t('organization.input_api_account'), trigger: ['change', 'blur']},
+          password: {required: true, message: this.$t('organization.input_api_password'), trigger: ['change', 'blur']}
         },
       }
     },
