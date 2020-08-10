@@ -43,6 +43,10 @@ export const calculate = function (itemValue) {
     return;
   }
   try {
+    if (itemValue.trim().startsWith("${")) {
+      // jmeter 内置函数不做处理
+      return itemValue;
+    }
     let funcs = itemValue.split("|");
     let value = Mock.mock(funcs[0].trim());
     if (funcs.length === 1) {
