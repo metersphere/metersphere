@@ -125,13 +125,6 @@
         where ltr.id = #{id}
     </select>
 
-    <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
-        SELECT
-        <include refid="Base_Column_List"/>
-        FROM load_test_report
-        WHERE id = #{id,jdbcType=VARCHAR}
-    </select>
-
     <select id="selectDashboardTests" resultType="io.metersphere.dto.DashboardTestDTO">
         SELECT create_time AS date, count(load_test_report.id) AS count,
         date_format(from_unixtime(create_time / 1000), '%Y-%m-%d') AS x

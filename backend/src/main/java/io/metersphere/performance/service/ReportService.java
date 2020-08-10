@@ -169,8 +169,8 @@ public class ReportService {
         }
     }
 
-    public LoadTestReport getLoadTestReport(String id) {
-        return extLoadTestReportMapper.selectByPrimaryKey(id);
+    public LoadTestReportWithBLOBs getLoadTestReport(String id) {
+        return loadTestReportMapper.selectByPrimaryKey(id);
     }
 
     public List<LogDetailDTO> getReportLogResource(String reportId) {
@@ -241,7 +241,7 @@ public class ReportService {
     }
 
     public void updateStatus(String reportId, String status) {
-        LoadTestReport report = new LoadTestReport();
+        LoadTestReportWithBLOBs report = new LoadTestReportWithBLOBs();
         report.setId(reportId);
         report.setStatus(status);
         loadTestReportMapper.updateByPrimaryKeySelective(report);
