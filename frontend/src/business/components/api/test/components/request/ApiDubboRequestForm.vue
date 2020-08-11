@@ -11,6 +11,8 @@
       </el-select>
     </el-form-item>
 
+    <el-button class="debug-button" size="small" type="primary" @click="runDebug">{{$t('load_test.save_and_run')}}</el-button>
+
     <el-tabs v-model="activeName">
       <el-tab-pane label="Interface" name="interface">
         <ms-dubbo-interface :request="request" :is-read-only="isReadOnly"/>
@@ -94,6 +96,9 @@
           this.request.useEnvironment = false;
         }
         this.$refs["request"].clearValidate();
+      },
+      runDebug() {
+        this.$emit('runDebug');
       }
     },
 

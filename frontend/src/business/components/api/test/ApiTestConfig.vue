@@ -33,7 +33,7 @@
               <el-dropdown trigger="click" @command="handleCommand">
                 <el-button class="el-dropdown-link more" icon="el-icon-more" plain/>
                 <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item command="report" :disabled="test.status !== 'Completed'">
+                  <el-dropdown-item command="report">
                     {{$t('api_report.title')}}
                   </el-dropdown-item>
                   <el-dropdown-item command="performance" :disabled="create || isReadOnly">
@@ -55,7 +55,7 @@
               <ms-schedule-config :schedule="test.schedule" :is-read-only="isReadOnly"  :save="saveCronExpression" @scheduleChange="saveSchedule" :check-open="checkScheduleEdit"/>
             </el-row>
           </el-header>
-          <ms-api-scenario-config :is-read-only="isReadOnly" :scenarios="test.scenarioDefinition" :project-id="test.projectId" ref="config"/>
+          <ms-api-scenario-config :debug-report-id="debugReportId" @runDebug="runDebug" :is-read-only="isReadOnly" :scenarios="test.scenarioDefinition" :project-id="test.projectId" ref="config"/>
         </el-container>
       </el-card>
     </div>
@@ -86,7 +86,8 @@
         projects: [],
         change: false,
         test: new Test(),
-        isReadOnly: false
+        isReadOnly: false,
+        debugReportId: ''
       }
     },
 
@@ -149,17 +150,22 @@
         }
         this.change = false;
         let url = this.create ? "/api/create" : "/api/update";
-        this.result = this.$request(this.getOptions(url), () => {
-          this.create = false;
+        let jmx = this.test.toJMX();
+        let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
+        let file = new File([blob], jmx.name);
+        this.result = this.$fileUpload(url, file, this.test,response => {
           if (callback) callback();
+          this.create = false;
         });
       },
       saveTest() {
         this.save(() => {
           this.$success(this.$t('commons.save_success'));
-          this.$router.push({
-            path: '/api/test/edit?id=' + this.test.id
-          })
+          if (this.create) {
+            this.$router.push({
+              path: '/api/test/edit?id=' + this.test.id
+            })
+          }
         })
       },
       runTest() {
@@ -180,26 +186,6 @@
       },
       cancel() {
         this.$router.push('/api/test/list/all');
-      },
-      getOptions(url) {
-        let formData = new FormData();
-        let requestJson = JSON.stringify(this.test);
-
-        formData.append('request', new Blob([requestJson], {
-          type: "application/json"
-        }));
-        let jmx = this.test.toJMX();
-        let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
-        formData.append("files", new File([blob], jmx.name));
-
-        return {
-          method: 'POST',
-          url: url,
-          data: formData,
-          headers: {
-            'Content-Type': undefined
-          }
-        };
       },
       handleCommand(command) {
         switch (command) {
@@ -249,6 +235,30 @@
           return false;
         }
         return true;
+      },
+      runDebug(scenario) {
+        if (this.create) {
+          this.$warning(this.$t('api_test.environment.please_save_test'));
+          return;
+        }
+
+        let url = "/api/run/debug";
+        let runningTest = new Test();
+        Object.assign(runningTest, this.test);
+        runningTest.scenarioDefinition = [];
+        runningTest.scenarioDefinition.push(scenario);
+        let validator = runningTest.isValid();
+        if (!validator.isValid) {
+          this.$warning(this.$t(validator.info));
+          return;
+        }
+
+        let jmx = runningTest.toJMX();
+        let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
+        let file = new File([blob], jmx.name);
+        this.$fileUpload(url, file, this.test,response => {
+          this.debugReportId = response.data;
+        });
       }
     },
 

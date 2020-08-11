@@ -2,8 +2,8 @@ package io.metersphere.performance.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.base.domain.LoadTestReport;
 import io.metersphere.base.domain.LoadTestReportLog;
+import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -94,7 +94,7 @@ public class PerformanceReportController {
     }
 
     @GetMapping("/{reportId}")
-    public LoadTestReport getLoadTestReport(@PathVariable String reportId) {
+    public LoadTestReportWithBLOBs getLoadTestReport(@PathVariable String reportId) {
         return reportService.getLoadTestReport(reportId);
     }
 

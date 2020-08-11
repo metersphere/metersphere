@@ -14,7 +14,7 @@
     methods: {
       changeRoute() {
         // 解决在列表页面点击 显示全部 无效的问题（点击显示全部后改变路由）
-        this.$router.push(this.index + '/all');
+        this.$router.replace({path: this.index, query: {type: 'all'}});
         window.location.reload();
       }
     }

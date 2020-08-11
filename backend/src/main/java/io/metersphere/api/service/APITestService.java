@@ -12,10 +12,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiTestFileMapper;
 import io.metersphere.base.mapper.ApiTestMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestMapper;
-import io.metersphere.commons.constants.APITestStatus;
-import io.metersphere.commons.constants.FileType;
-import io.metersphere.commons.constants.ScheduleGroup;
-import io.metersphere.commons.constants.ScheduleType;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.LogUtil;
@@ -37,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -72,21 +70,21 @@ public class APITestService {
         return extApiTestMapper.list(request);
     }
 
-    public void create(SaveAPITestRequest request, List<MultipartFile> files) {
-        if (files == null || files.isEmpty()) {
+    public void create(SaveAPITestRequest request, MultipartFile file) {
+        if (file == null) {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
         }
         ApiTest test = createTest(request);
-        saveFile(test.getId(), files);
+        saveFile(test.getId(), file);
     }
 
-    public void update(SaveAPITestRequest request, List<MultipartFile> files) {
-        if (files == null || files.isEmpty()) {
+    public void update(SaveAPITestRequest request, MultipartFile file) {
+        if (file == null) {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
         }
         deleteFileByTestId(request.getId());
         ApiTest test = updateTest(request);
-        saveFile(test.getId(), files);
+        saveFile(test.getId(), file);
     }
 
     public void copy(SaveAPITestRequest request) {
@@ -156,7 +154,7 @@ public class APITestService {
         String reportId = apiReportService.create(apiTest, request.getTriggerMode());
         changeStatus(request.getId(), APITestStatus.Running);
 
-        jMeterService.run(request.getId(), is);
+        jMeterService.run(request.getId(), null, is);
         return reportId;
     }
 
@@ -203,14 +201,12 @@ public class APITestService {
         return test;
     }
 
-    private void saveFile(String testId, List<MultipartFile> files) {
-        files.forEach(file -> {
-            final FileMetadata fileMetadata = fileService.saveFile(file);
-            ApiTestFile apiTestFile = new ApiTestFile();
-            apiTestFile.setTestId(testId);
-            apiTestFile.setFileId(fileMetadata.getId());
-            apiTestFileMapper.insert(apiTestFile);
-        });
+    private void saveFile(String testId, MultipartFile file) {
+        final FileMetadata fileMetadata = fileService.saveFile(file);
+        ApiTestFile apiTestFile = new ApiTestFile();
+        apiTestFile.setTestId(testId);
+        apiTestFile.setFileId(fileMetadata.getId());
+        apiTestFileMapper.insert(apiTestFile);
     }
 
     private void deleteFileByTestId(String testId) {
@@ -299,8 +295,8 @@ public class APITestService {
             if (info.length > 1) {
                 provider.setVersion(info[1]);
             }
-            provider.setService(info[0]);
-            provider.setServiceInterface(p);
+            provider.setService(p);
+            provider.setServiceInterface(info[0]);
             Map<String, URL> services = providerService.findByService(p);
             if (services != null && !services.isEmpty()) {
                 String[] methods = services.values().stream().findFirst().get().getParameter(CommonConstants.METHODS_KEY).split(",");
@@ -314,6 +310,7 @@ public class APITestService {
     }
 
     public List<ScheduleDao> listSchedule(QueryScheduleRequest request) {
+        request.setEnable(true);
         List<ScheduleDao> schedules = scheduleService.list(request);
         List<String> resourceIds = schedules.stream()
                 .map(Schedule::getResourceId)
@@ -326,5 +323,27 @@ public class APITestService {
             scheduleService.build(apiTestMap, schedules);
         }
         return schedules;
+    }
+
+    public String runDebug(SaveAPITestRequest request, MultipartFile file) {
+        if (file == null) {
+            throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
+        }
+        updateTest(request);
+        APITestResult apiTest = get(request.getId());
+        if (SessionUtils.getUser() == null) {
+            apiTest.setUserId(request.getUserId());
+        }
+        String reportId = apiReportService.createDebugReport(apiTest);
+
+        InputStream is = null;
+        try {
+            is = new ByteArrayInputStream(file.getBytes());
+        } catch (IOException e) {
+            LogUtil.error(e);
+        }
+
+        jMeterService.run(request.getId(), reportId, is);
+        return reportId;
     }
 }

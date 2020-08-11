@@ -112,7 +112,7 @@
         }
         request.dubboConfig = this.scenario.dubboConfig;
         this.selected = request;
-        this.$emit("select", request);
+        this.$emit("select", request, this.scenario);
       }
     },
 

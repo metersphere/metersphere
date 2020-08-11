@@ -11,7 +11,7 @@
             <template v-slot:title>{{$t('commons.project')}}</template>
             <ms-recent-list :options="projectRecent"/>
             <el-divider class="menu-divider"/>
-            <ms-show-all :index="'/api/project'"/>
+            <ms-show-all :index="'/api/project/all'"/>
             <ms-create-button v-permission="['test_manager','test_user']" :index="'/api/project/create'"
                               :title="$t('project.create')"/>
           </el-submenu>
@@ -20,7 +20,7 @@
             <template v-slot:title>{{$t('commons.test')}}</template>
             <ms-recent-list :options="testRecent"/>
             <el-divider class="menu-divider"/>
-            <ms-show-all :index="'/api/test/list'"/>
+            <ms-show-all :index="'/api/test/list/all'"/>
             <ms-create-button v-permission="['test_manager','test_user']" :index="'/api/test/create'"
                               :title="$t('load_test.create')"/>
           </el-submenu>
@@ -29,7 +29,7 @@
             <template v-slot:title>{{$t('commons.report')}}</template>
             <ms-recent-list :options="reportRecent"/>
             <el-divider class="menu-divider"/>
-            <ms-show-all :index="'/api/report/list'"/>
+            <ms-show-all :index="'/api/report/list/all'"/>
           </el-submenu>
         </el-menu>
       </el-col>
@@ -60,7 +60,7 @@
           title: this.$t('project.recent'),
           url: "/project/recent/5",
           index: function (item) {
-            return '/api/' + item.id;
+            return '/api/test/list/' + item.id;
           },
           router: function (item) {
             return {name: 'ApiTestList', params: {projectId: item.id, projectName: item.name}}

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <span>
     <span v-if="enableSimpleMode">{{resultList && resultList.length > 0 ? resultList[0] : ''}}</span>
     <div v-if="!enableSimpleMode" class="popup-result">
       <p class="title">{{$t('schedule.cron.recent_run_time')}}</p>
@@ -9,7 +9,7 @@
         </template>
       </ul>
     </div>
-  </div>
+  </span>
 </template>
 
 <script>

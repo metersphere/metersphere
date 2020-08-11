@@ -49,7 +49,6 @@ public class APITestController {
         return apiTestService.getApiTestByProjectId(projectId);
     }
 
-
     @PostMapping(value = "/schedule/update")
     public void updateSchedule(@RequestBody Schedule request) {
         apiTestService.updateSchedule(request);
@@ -61,13 +60,13 @@ public class APITestController {
     }
 
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
-    public void create(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "files") List<MultipartFile> files) {
-        apiTestService.create(request, files);
+    public void create(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "file") MultipartFile file) {
+        apiTestService.create(request, file);
     }
 
     @PostMapping(value = "/update", consumes = {"multipart/form-data"})
-    public void update(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "files") List<MultipartFile> files) {
-        apiTestService.update(request, files);
+    public void update(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "file") MultipartFile file) {
+        apiTestService.update(request, file);
     }
 
     @PostMapping(value = "/copy")
@@ -89,6 +88,11 @@ public class APITestController {
     @PostMapping(value = "/run")
     public String run(@RequestBody SaveAPITestRequest request) {
         return apiTestService.run(request);
+    }
+
+    @PostMapping(value = "/run/debug", consumes = {"multipart/form-data"})
+    public String runDebug(@RequestPart("request")  SaveAPITestRequest request,  @RequestPart(value = "file") MultipartFile file) {
+        return apiTestService.runDebug(request, file);
     }
 
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})

@@ -1,5 +1,6 @@
 import {
   Arguments,
+  CookieManager,
   DubboSample,
   DurationAssertion,
   Element,
@@ -18,6 +19,8 @@ import {
   ThreadGroup,
   XPath2Extractor,
 } from "./JMX";
+import Mock from "mockjs";
+import {funcFilters} from "@/common/js/func-filter";
 
 export const uuid = function () {
   let d = new Date().getTime()
@@ -33,6 +36,35 @@ export const uuid = function () {
     }
     return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
   });
+}
+
+export const calculate = function (itemValue) {
+  if (!itemValue) {
+    return;
+  }
+  try {
+    if (itemValue.trim().startsWith("${")) {
+      // jmeter 内置函数不做处理
+      return itemValue;
+    }
+    let funcs = itemValue.split("|");
+    let value = Mock.mock(funcs[0].trim());
+    if (funcs.length === 1) {
+      return value;
+    }
+    for (let i = 1; i < funcs.length; i++) {
+      let func = funcs[i].trim();
+      let args = func.split(":");
+      let strings = [];
+      if (args[1]) {
+        strings = args[1].split(",");
+      }
+      value = funcFilters[args[0].trim()](value, ...strings);
+    }
+    return value;
+  } catch (e) {
+    return itemValue;
+  }
 }
 
 export const BODY_TYPE = {
@@ -174,6 +206,7 @@ export class Scenario extends BaseConfig {
     this.environmentId = undefined;
     this.dubboConfig = undefined;
     this.environment = undefined;
+    this.enableCookieShare = false;
 
     this.set(options);
     this.sets({variables: KeyValue, headers: KeyValue, requests: RequestFactory}, options);
@@ -268,6 +301,7 @@ export class HttpRequest extends Request {
     this.extract = undefined;
     this.environment = undefined;
     this.useEnvironment = undefined;
+    this.debugReport = undefined;
 
     this.set(options);
     this.sets({parameters: KeyValue, headers: KeyValue}, options);
@@ -341,6 +375,7 @@ export class DubboRequest extends Request {
     this.extract = new Extract(options.extract);
     // Scenario.dubboConfig
     this.dubboConfig = undefined;
+    this.debugReport = undefined;
 
     this.sets({args: KeyValue, attachmentArgs: KeyValue}, options);
   }
@@ -654,7 +689,7 @@ const JMX_ASSERTION_CONDITION = {
 
 class JMXHttpRequest {
   constructor(request, environment) {
-    if (request && request instanceof HttpRequest && (request.url || request.path)) {
+    if (request && request instanceof HttpRequest) {
       this.useEnvironment = request.useEnvironment;
       this.method = request.method;
       if (!request.useEnvironment) {
@@ -662,14 +697,14 @@ class JMXHttpRequest {
           request.url = 'http://' + request.url;
         }
         let url = new URL(request.url);
-        this.hostname = decodeURIComponent(url.hostname);
+        this.domain = decodeURIComponent(url.hostname);
         this.port = url.port;
         this.protocol = url.protocol.split(":")[0];
-        this.pathname = this.getPostQueryParameters(request, decodeURIComponent(url.pathname));
+        this.path = this.getPostQueryParameters(request, decodeURIComponent(url.pathname));
       } else {
+        this.domain = environment.domain;
         this.port = environment.port;
         this.protocol = environment.protocol;
-        this.domain = environment.domain;
         let url = new URL(environment.protocol + "://" + environment.socket);
         this.path = this.getPostQueryParameters(request, decodeURIComponent(url.pathname + (request.path ? request.path : '')));
       }
@@ -688,7 +723,7 @@ class JMXHttpRequest {
       for (let i = 0; i < parameters.length; i++) {
         let parameter = parameters[i];
         path += (parameter.name + '=' + parameter.value);
-        if (i != parameters.length - 1) {
+        if (i !== parameters.length - 1) {
           path += '&';
         }
       }
@@ -765,6 +800,8 @@ class JMXGenerator {
 
       this.addScenarioHeaders(threadGroup, scenario);
 
+      this.addScenarioCookieManager(threadGroup, scenario);
+
       scenario.requests.forEach(request => {
         if (!request.isValid()) return;
         let sampler;
@@ -822,12 +859,21 @@ class JMXGenerator {
     }
   }
 
+  addScenarioCookieManager(threadGroup, scenario) {
+    if (scenario.enableCookieShare) {
+      threadGroup.put(new CookieManager(scenario.name));
+    }
+  }
+
   addScenarioHeaders(threadGroup, scenario) {
     let environment = scenario.environment;
     if (environment) {
       this.addEnvironments(environment.headers, scenario.headers)
     }
     let headers = this.filterKV(scenario.headers);
+    headers.forEach(h => {
+      h.value = calculate(h.value);
+    });
     if (headers.length > 0) {
       let name = scenario.name + " Headers"
       threadGroup.put(new HeaderManager(name, headers));
@@ -838,6 +884,9 @@ class JMXGenerator {
     let name = request.name + " Headers";
     this.addBodyFormat(request);
     let headers = this.filterKV(request.headers);
+    headers.forEach(h => {
+      h.value = calculate(h.value);
+    });
     if (headers.length > 0) {
       httpSamplerProxy.put(new HeaderManager(name, headers));
     }
@@ -876,6 +925,9 @@ class JMXGenerator {
 
   addRequestArguments(httpSamplerProxy, request) {
     let args = this.filterKV(request.parameters);
+    args.forEach(arg => {
+      arg.value = calculate(arg.value);
+    });
     if (args.length > 0) {
       httpSamplerProxy.add(new HTTPSamplerArguments(args));
     }
@@ -885,6 +937,9 @@ class JMXGenerator {
     let body = [];
     if (request.body.isKV()) {
       body = this.filterKV(request.body.kvs);
+      body.forEach(arg => {
+        arg.value = calculate(arg.value);
+      });
     } else {
       httpSamplerProxy.boolProp('HTTPSampler.postBodyRaw', true);
       body.push({name: '', value: request.body.raw, encode: false});

@@ -21,6 +21,9 @@
           </div>
         </template>
       </el-select>
+      <el-form-item class="cookie-item">
+        <el-checkbox v-model="scenario.enableCookieShare">{{'共享 Cookie'}}</el-checkbox>
+      </el-form-item>
     </el-form-item>
 
     <el-tabs v-model="activeName">
@@ -166,6 +169,10 @@
     margin-bottom: 10px;
     font-size: 15px;
     font-weight: 600;
+  }
+
+  .cookie-item {
+    margin-top: 15px;
   }
 
 </style>

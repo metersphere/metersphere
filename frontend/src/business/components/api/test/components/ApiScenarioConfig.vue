@@ -36,7 +36,7 @@
     <el-main class="scenario-main">
       <div class="scenario-form">
         <ms-api-scenario-form :is-read-only="isReadOnly" :scenario="selected" :project-id="projectId" v-if="isScenario"/>
-        <ms-api-request-form :is-read-only="isReadOnly" :request="selected" v-if="isRequest"/>
+        <ms-api-request-form :debug-report-id="debugReportId" @runDebug="runDebug" :is-read-only="isReadOnly" :request="selected" v-if="isRequest"/>
       </div>
     </el-main>
   </el-container>
@@ -70,13 +70,15 @@
       isReadOnly: {
         type: Boolean,
         default: false
-      }
+      },
+      debugReportId: String
     },
 
     data() {
       return {
         activeName: 0,
-        selected: [Scenario, Request]
+        selected: [Scenario, Request],
+        currentScenario: {}
       }
     },
 
@@ -118,9 +120,14 @@
             break;
         }
       },
-      select: function (obj) {
+      select: function (obj, scenario) {
         this.selected = null;
         this.$nextTick(function () {
+          if (obj instanceof Scenario) {
+            this.currentScenario = obj;
+          } else {
+            this.currentScenario = scenario;
+          }
           this.selected = obj;
         });
       },
@@ -145,6 +152,13 @@
             });
           });
         }
+      },
+      runDebug(request) {
+        let scenario =  new Scenario();
+        Object.assign(scenario, this.currentScenario);
+        scenario.requests = [];
+        scenario.requests.push(request);
+        this.$emit('runDebug', scenario);
       }
     },
 

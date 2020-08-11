@@ -275,29 +275,23 @@ export class DubboSample extends DefaultTestElement {
 }
 
 export class HTTPSamplerProxy extends DefaultTestElement {
-  constructor(testName, request) {
+  constructor(testName, options = {}) {
     super('HTTPSamplerProxy', 'HttpTestSampleGui', 'HTTPSamplerProxy', testName);
-    this.request = request || {};
 
-    if (request.useEnvironment) {
-      this.stringProp("HTTPSampler.domain", request.domain);
-      this.stringProp("HTTPSampler.protocol", request.protocol);
-      this.stringProp("HTTPSampler.path", this.request.path);
-    } else {
-      this.stringProp("HTTPSampler.domain", this.request.hostname);
-      this.stringProp("HTTPSampler.protocol", this.request.protocol.split(":")[0]);
-      this.stringProp("HTTPSampler.path", this.request.pathname);
-    }
-    this.stringProp("HTTPSampler.method", this.request.method);
-    this.stringProp("HTTPSampler.contentEncoding", this.request.encoding, "UTF-8");
-    if (!this.request.port) {
+    this.stringProp("HTTPSampler.domain", options.domain);
+    this.stringProp("HTTPSampler.protocol", options.protocol);
+    this.stringProp("HTTPSampler.path", options.path);
+
+    this.stringProp("HTTPSampler.method", options.method);
+    this.stringProp("HTTPSampler.contentEncoding", options.encoding, "UTF-8");
+    if (!options.port) {
       this.stringProp("HTTPSampler.port", "");
     } else {
-      this.stringProp("HTTPSampler.port", this.request.port);
+      this.stringProp("HTTPSampler.port", options.port);
     }
 
-    this.boolProp("HTTPSampler.follow_redirects", this.request.follow, true);
-    this.boolProp("HTTPSampler.use_keepalive", this.request.keepalive, true);
+    this.boolProp("HTTPSampler.follow_redirects", options.follow, true);
+    this.boolProp("HTTPSampler.use_keepalive", options.keepalive, true);
   }
 }
 
@@ -325,6 +319,15 @@ export class HTTPSamplerArguments extends Element {
       elementProp.stringProp('Argument.value', arg.value);
       elementProp.stringProp('Argument.metadata', arg.metadata || "=");
     });
+  }
+}
+
+export class CookieManager extends DefaultTestElement {
+  constructor(testName) {
+    super('CookieManager', 'CookiePanel', 'CookieManager', testName);
+    this.collectionProp('CookieManager.cookies');
+    this.boolProp('CookieManager.clearEachIteration', false, false);
+    this.boolProp('CookieManager.controlledByThreadGroup', false, false);
   }
 }
 

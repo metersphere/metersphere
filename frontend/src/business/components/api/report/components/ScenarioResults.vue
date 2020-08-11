@@ -1,6 +1,5 @@
 <template>
-
-  <el-card>
+  <el-card class="scenario-results">
     <div class="scenario-header">
       <el-row :gutter="10">
         <el-col :span="16">
