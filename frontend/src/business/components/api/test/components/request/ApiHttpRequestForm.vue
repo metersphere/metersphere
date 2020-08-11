@@ -197,12 +197,4 @@
     color: #F56C6C;
   }
 
-  .debug-button {
-    margin-left: auto;
-    display: block;
-    /*margin-bottom: -30px;*/
-    margin-right: 10px;
-    z-index: 1999;
-  }
-
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="request-form">
     <component @runDebug="runDebug" :is="component" :is-read-only="isReadOnly" :request="request"/>
     <ms-scenario-results v-loading="debugReportLoading" v-if="isCompleted" :scenarios="isCompleted ? request.debugReport.scenarios : []"/>
   </div>
@@ -95,6 +95,12 @@
 
   .scenario-results {
     margin-top: 20px;
+  }
+
+  .request-form >>> .debug-button {
+    margin-left: auto;
+    display: block;
+    margin-right: 10px;
   }
 
 </style>

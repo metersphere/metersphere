@@ -33,7 +33,7 @@
               <el-dropdown trigger="click" @command="handleCommand">
                 <el-button class="el-dropdown-link more" icon="el-icon-more" plain/>
                 <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item command="report" :disabled="test.status !== 'Completed'">
+                  <el-dropdown-item command="report">
                     {{$t('api_report.title')}}
                   </el-dropdown-item>
                   <el-dropdown-item command="performance" :disabled="create || isReadOnly">
