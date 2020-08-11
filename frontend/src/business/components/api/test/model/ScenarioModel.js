@@ -937,6 +937,9 @@ class JMXGenerator {
     let body = [];
     if (request.body.isKV()) {
       body = this.filterKV(request.body.kvs);
+      body.forEach(arg => {
+        arg.value = calculate(arg.value);
+      });
     } else {
       httpSamplerProxy.boolProp('HTTPSampler.postBodyRaw', true);
       body.push({name: '', value: request.body.raw, encode: false});
