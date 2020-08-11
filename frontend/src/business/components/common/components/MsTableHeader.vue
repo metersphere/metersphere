@@ -10,6 +10,10 @@
       <span class="operate-button">
         <ms-table-button :is-tester-permission="isTesterPermission" v-if="showCreate" icon="el-icon-circle-plus-outline"
                          :content="createTip" @click="create"/>
+        <ms-table-button :is-tester-permission="isTesterPermission" v-if="showRun" icon="el-icon-video-play"
+                         type="primary"
+                         :content="runTip" @click="runTest"/>
+
         <slot name="button"></slot>
       </span>
       <span>
@@ -40,6 +44,10 @@
         type: Boolean,
         default: true
       },
+      showRun: {
+        type: Boolean,
+        default: false
+      },
       condition: {
         type: Object
       },
@@ -49,6 +57,11 @@
           return this.$t('commons.create');
         }
       },
+      runTip: {
+        type: String,
+
+      },
+
       isTesterPermission: {
         type: Boolean,
         default: false
@@ -61,6 +74,9 @@
       },
       create() {
         this.$emit('create');
+      },
+      runTest() {
+        this.$emit('runTest')
       }
     },
     computed: {

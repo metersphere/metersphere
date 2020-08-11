@@ -269,6 +269,8 @@ export default {
     not_exist: "Test report does not exist",
   },
   load_test: {
+    same_project_test: 'Only tests within the same project can be run',
+    run: 'One click operation',
     operating: 'Operating',
     pressure_prediction_chart: 'Pressure Prediction Chart',
     recent: 'Recent Tests',

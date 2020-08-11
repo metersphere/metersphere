@@ -267,6 +267,8 @@ export default {
     not_exist: "测试报告不存在",
   },
   load_test: {
+    same_project_test: '只能运行同一项目内的测试',
+    already_exists: '测试名称不能重复',
     operating: '操作',
     recent: '最近的测试',
     search_by_name: '根据名称搜索',
@@ -319,6 +321,7 @@ export default {
     custom_http_code: '自定义 HTTP 响应成功状态码',
     separated_by_commas: '按逗号分隔',
     create: '创建测试',
+    run: '一键运行',
     select_resource_pool: '请选择资源池',
     resource_pool_is_null: '资源池为空',
     download_log_file: '下载完整日志文件',

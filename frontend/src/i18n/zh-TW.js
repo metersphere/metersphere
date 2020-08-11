@@ -267,6 +267,8 @@ export default {
     not_exist: "測試報告不存在",
   },
   load_test: {
+    same_project_test: '只能運行同一項目內的測試',
+    run: '一鍵運行',
     operating: '操作',
     recent: '最近的測試',
     search_by_name: '根據名稱搜索',

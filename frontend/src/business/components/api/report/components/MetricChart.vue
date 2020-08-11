@@ -3,6 +3,9 @@
     <el-row type="flex" align="middle">
       <div style="width: 50%">
         <el-row type="flex" justify="center" align="middle">
+          <div class="metric-time">
+            <div class="value" style="margin-left: -150px">{{this.minutes}}min{{this.seconds}}s</div>
+          </div>
           <chart id="chart" ref="chart" :options="options" :autoresize="true"></chart>
           <el-row type="flex" justify="center" align="middle">
             <i class="circle success"/>
@@ -48,9 +51,15 @@
     name: "MsMetricChart",
 
     props: {
-      content: Object
+      content: Object,
+      totalTime: Number
     },
-
+    data() {
+      return {
+        minutes: Math.floor(this.totalTime / 60),
+        seconds: this.totalTime % 60,
+      }
+    },
     computed: {
       options() {
         return {
@@ -157,6 +166,12 @@
   .metric-box .value {
     font-size: 32px;
     font-weight: 600;
+    letter-spacing: -.5px;
+  }
+
+  .metric-time .value {
+    font-size: 25px;
+    font-weight: 400;
     letter-spacing: -.5px;
   }
 
