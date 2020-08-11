@@ -56,8 +56,8 @@
     },
     data() {
       return {
-        minutes: Math.floor(this.totalTime / 60),
-        seconds: this.totalTime % 60,
+        minutes: Math.floor((this.totalTime % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.round((this.totalTime % (1000 * 60)) / 1000),
       }
     },
     computed: {
