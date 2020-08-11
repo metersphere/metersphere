@@ -871,6 +871,9 @@ class JMXGenerator {
       this.addEnvironments(environment.headers, scenario.headers)
     }
     let headers = this.filterKV(scenario.headers);
+    headers.forEach(h => {
+      h.value = calculate(h.value);
+    });
     if (headers.length > 0) {
       let name = scenario.name + " Headers"
       threadGroup.put(new HeaderManager(name, headers));
@@ -881,6 +884,9 @@ class JMXGenerator {
     let name = request.name + " Headers";
     this.addBodyFormat(request);
     let headers = this.filterKV(request.headers);
+    headers.forEach(h => {
+      h.value = calculate(h.value);
+    });
     if (headers.length > 0) {
       httpSamplerProxy.put(new HeaderManager(name, headers));
     }
