@@ -43,14 +43,12 @@
 
     <el-tabs v-model="activeName">
       <el-tab-pane :label="$t('api_test.request.parameters')" name="parameters">
-        <ms-api-key-value :is-read-only="isReadOnly" :items="request.parameters"
+        <ms-api-body v-if="isNotGet" :is-read-only="isReadOnly" :body="request.body"/>
+        <ms-api-key-value v-else :is-read-only="isReadOnly" :items="request.parameters"
                           :description="$t('api_test.request.parameters_desc')"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.headers')" name="headers">
         <ms-api-key-value :is-read-only="isReadOnly" :suggestions="headerSuggestions" :items="request.headers"/>
-      </el-tab-pane>
-      <el-tab-pane :label="$t('api_test.request.body')" name="body" v-if="isNotGet">
-        <ms-api-body :is-read-only="isReadOnly" :body="request.body"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.assertions.label')" name="assertions">
         <ms-api-assertions :is-read-only="isReadOnly" :assertions="request.assertions"/>
@@ -63,25 +61,24 @@
 </template>
 
 <script>
-  import MsApiKeyValue from "../ApiKeyValue";
-  import MsApiBody from "../ApiBody";
-  import MsApiAssertions from "../assertion/ApiAssertions";
-  import {KeyValue} from "../../model/ScenarioModel";
-  import MsApiExtract from "../extract/ApiExtract";
-  import ApiRequestMethodSelect from "../collapse/ApiRequestMethodSelect";
-  import {REQUEST_HEADERS} from "@/common/js/constants";
-  import {HttpRequest} from "../../model/ScenarioModel";
+import MsApiKeyValue from "../ApiKeyValue";
+import MsApiBody from "../ApiBody";
+import MsApiAssertions from "../assertion/ApiAssertions";
+import {HttpRequest, KeyValue} from "../../model/ScenarioModel";
+import MsApiExtract from "../extract/ApiExtract";
+import ApiRequestMethodSelect from "../collapse/ApiRequestMethodSelect";
+import {REQUEST_HEADERS} from "@/common/js/constants";
 
-  export default {
-    name: "MsApiHttpRequestForm",
-    components: {ApiRequestMethodSelect, MsApiExtract, MsApiAssertions, MsApiBody, MsApiKeyValue},
-    props: {
-      request: HttpRequest,
-      isReadOnly: {
-        type: Boolean,
-        default: false
-      }
-    },
+export default {
+  name: "MsApiHttpRequestForm",
+  components: {ApiRequestMethodSelect, MsApiExtract, MsApiAssertions, MsApiBody, MsApiKeyValue},
+  props: {
+    request: HttpRequest,
+    isReadOnly: {
+      type: Boolean,
+      default: false
+    }
+  },
 
     data() {
       let validateURL = (rule, value, callback) => {
