@@ -650,7 +650,7 @@ const JMX_ASSERTION_CONDITION = {
 
 class JMXHttpRequest {
   constructor(request, environment) {
-    if (request && request instanceof HttpRequest && (request.url || request.path)) {
+    if (request && request instanceof HttpRequest) {
       this.useEnvironment = request.useEnvironment;
       this.method = request.method;
       if (!request.useEnvironment) {
@@ -843,7 +843,7 @@ class JMXGenerator {
 
   addBodyFormat(request) {
     let bodyFormat = request.body.format;
-    if (bodyFormat) {
+    if (!request.body.isKV() && bodyFormat) {
       switch (bodyFormat) {
         case BODY_FORMAT.JSON:
           this.addContentType(request, 'application/json');
