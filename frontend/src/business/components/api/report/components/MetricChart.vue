@@ -4,7 +4,7 @@
       <div style="width: 50%">
         <el-row type="flex" justify="center" align="middle">
           <div class="metric-time">
-            <div class="value" style="margin-left: -150px">{{this.minutes}}min{{this.seconds}}s</div>
+            <div class="value" style="margin-left: -150px">{{time}}</div>
           </div>
           <chart id="chart" ref="chart" :options="options" :autoresize="true"></chart>
           <el-row type="flex" justify="center" align="middle">
@@ -52,13 +52,35 @@
 
     props: {
       content: Object,
-      totalTime: Number
+      totalTime: String
     },
     data() {
       return {
-        minutes: Math.floor(this.totalTime / 60),
-        seconds: this.totalTime % 60,
+        hour:0,
+        minutes: 0,
+        seconds: 0,
+        time: 0
       }
+    },
+    created() {
+      this.initTime()
+    },
+    methods: {
+      initTime() {
+        this.time=this.totalTime
+        this.seconds = Math.floor(this.time / 1000);
+        if (this.seconds > 60) {
+          this.minutes = Math.floor(this.time/60)
+          this.seconds=Math.floor(this.time%60)
+          this.time=this.minutes+"min"+this.seconds+"s"
+        }
+        if(this.minutes>60){
+          this.hour=Math.floor(this.minutes/60)
+          this.minutes = Math.floor(this.minutes%60)
+          this.time=this.hour+"hour"+this.minutes+"min"+this.seconds+"s"
+        }
+        this.time=this.seconds+"s"
+      },
     },
     computed: {
       options() {

@@ -56,6 +56,12 @@
         <el-form-item :label="$t('commons.description')" prop="description">
           <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.description"></el-input>
         </el-form-item>
+        <el-form-item label="TAPD项目ID" v-if="tapd">
+          <el-input v-model="form.tapdId" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="JIRA项目key" v-if="jira">
+          <el-input v-model="form.jiraKey" autocomplete="off"></el-input>
+        </el-form-item>
       </el-form>
       <template v-slot:footer>
         <div class="dialog-footer">
@@ -86,10 +92,12 @@
   import MsDeleteConfirm from "../common/components/MsDeleteConfirm";
   import MsTableOperatorButton from "../common/components/MsTableOperatorButton";
   import ApiEnvironmentConfig from "../api/test/components/ApiEnvironmentConfig";
+  import TemplateComponent from "../track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
 
   export default {
     name: "MsProject",
     components: {
+      TemplateComponent,
       ApiEnvironmentConfig,
       MsTableOperatorButton,
       MsDeleteConfirm,
@@ -103,6 +111,8 @@
         title: this.$t('project.create'),
         condition: {},
         items: [],
+        tapd: false,
+        jira: false,
         form: {},
         currentPage: 1,
         pageSize: 5,
@@ -171,6 +181,18 @@
         this.createVisible = true;
         listenGoBack(this.handleClose);
         this.form = Object.assign({}, row);
+        if (this.baseUrl === 'track') {
+          this.$get("/service/integration/all/" + getCurrentUser().lastOrganizationId, response => {
+            let data = response.data;
+            let platforms = data.map(d => d.platform);
+            if (platforms.indexOf("Tapd") !== -1) {
+              this.tapd = true;
+            }
+            if (platforms.indexOf("Jira") !== -1) {
+              this.jira = true;
+            }
+          });
+        }
       },
       submit(formName) {
         this.$refs[formName].validate((valid) => {

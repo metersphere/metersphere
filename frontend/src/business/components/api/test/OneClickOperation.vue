@@ -87,7 +87,10 @@
               schedule: {},
             });
             this.test = this.test || test;
-            this.test.scenarioDefinition = this.test.scenarioDefinition.concat(test.scenarioDefinition);
+            if (this.tests.length > 1) {
+              this.test.scenarioDefinition = this.test.scenarioDefinition.concat(test.scenarioDefinition);
+
+            }
             if (this.tests.length === this.selectIds.size) {
               this.tests = [];
               this.saveRunTest();
@@ -127,7 +130,7 @@
         }));
         let jmx = this.test.toJMX();
         let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
-        formData.append("files", new File([blob], jmx.name));
+        formData.append("file", new File([blob], jmx.name));
         return {
           method: 'POST',
           url: url,
