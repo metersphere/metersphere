@@ -722,6 +722,8 @@ class JMXHttpRequest {
       });
       for (let i = 0; i < parameters.length; i++) {
         let parameter = parameters[i];
+        // 非 GET 请求中出现了 url 参数
+        parameter.value = calculate(parameter.value);
         path += (parameter.name + '=' + parameter.value);
         if (i !== parameters.length - 1) {
           path += '&';
