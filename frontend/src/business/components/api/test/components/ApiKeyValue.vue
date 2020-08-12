@@ -39,48 +39,8 @@
                :visible.sync="itemValueVisible"
                class="advanced-item-value"
                width="70%">
-      <!--      <el-form>
-              <el-form-item>
-                <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" :placeholder="valueText"
-                          v-model="itemValue"/>
-              </el-form-item>
-            </el-form>
-            <div>
-              <el-row type="flex" align="middle">
-                <el-col :span="6">
-                  <el-button size="small" type="primary" plain @click="saveAdvanced()">
-                    {{ $t('commons.save') }}
-                  </el-button>
-                  <el-button size="small" type="success" plain @click="showPreview(itemValue)">
-                    {{ $t('api_test.request.parameters_preview') }}
-                  </el-button>
-                </el-col>
-                <el-col>
-                  <div> {{ itemValuePreview }}</div>
-                </el-col>
-              </el-row>
-            </div>
-
-            <div class="format-tip">
-              <div>
-                <p>{{ $t('api_test.request.parameters_filter') }}：
-                  <el-tag size="mini" v-for="func in funcs" :key="func" @click="appendFunc(func)"
-                          style="margin-left: 2px;cursor: pointer;">
-                    <span>{{ func }}</span>
-                  </el-tag>
-                </p>
-              </div>
-              <div>
-                <span>{{ $t('api_test.request.parameters_filter_desc') }}：
-                  <el-link href="http://mockjs.com/examples.html" target="_blank">http://mockjs.com/examples.html</el-link>
-                </span>
-                <p>{{ $t('api_test.request.parameters_filter_example') }}：@string(10) | md5 | substr: 1, 3</p>
-                <p>{{ $t('api_test.request.parameters_filter_example') }}：@integer(1, 5) | concat:_metersphere</p>
-                <p><strong>{{ $t('api_test.request.parameters_filter_tips') }}</strong></p>
-              </div>
-            </div>-->
       <el-tabs tab-position="left" style="height: 40vh;">
-        <el-tab-pane label="Mock 数据">
+        <el-tab-pane :label="$t('api_test.request.parameters_advance_mock')">
           <el-row type="flex" :gutter="20" style="overflow-x: auto;">
             <el-col :span="6">
               <el-autocomplete
@@ -95,23 +55,22 @@
                 @select="change">
               </el-autocomplete>
             </el-col>
-            <el-col :span="6" v-for="(f, index) in itemFuncs" :key="index">
-              <el-select size="small" clearable placeholder="请选择">
-                <el-option
-                  v-for="(func, index) in funcs"
-                  :key="index"
-                  :label="func.name"
-                  :value="func.name">
-                </el-option>
-              </el-select>
+            <el-col :span="6" v-for="(itemFunc, itemIndex) in itemFuncs" :key="itemIndex">
+              <div v-for="(func, funcIndex) in funcs"
+                   :key="`${itemIndex}-${funcIndex}`">
+                <el-row>
+                  <el-col :span="12">
+                    <el-radio size="mini" v-model="itemFunc.name" :label="func.name"
+                              @change="methodChange(itemFunc, func)"/>
+                  </el-col>
+                  <el-col :span="12" v-if="itemFunc.name === func.name">
+                    <div v-for="(p, pIndex) in itemFunc.params" :key="`${itemIndex}-${funcIndex}-${pIndex}`">
+                      <el-input :placeholder="p.name" size="mini" v-model="p.value" @change="showPreview"/>
+                    </div>
+                  </el-col>
+                </el-row>
+              </div>
             </el-col>
-            <!--<el-col v-for="(f, index) in itemFuncs" :key="index">
-              <el-menu>
-                <el-menu-item v-for="(func, index) in funcs.slice(0, 5)" :key="index" @click="addFunc(func)">
-                  {{ func.func }}
-                </el-menu-item>
-              </el-menu>
-            </el-col>-->
           </el-row>
         </el-tab-pane>
         <el-tab-pane label="变量"></el-tab-pane>
@@ -119,11 +78,14 @@
 
       <div style="padding-top: 10px;">
         <el-row type="flex" align="middle">
-          <el-col :span="6">
+          <el-col :span="12">
             <el-button size="small" type="primary" plain @click="saveAdvanced()">
               {{ $t('commons.save') }}
             </el-button>
-            <el-button size="small" type="success" plain @click="showPreview(itemValue)">
+            <el-button size="small" type="info" plain @click="addFunc()">
+              {{ $t('api_test.request.parameters_advance_add_func') }}
+            </el-button>
+            <el-button size="small" type="success" plain @click="showPreview()">
               {{ $t('api_test.request.parameters_preview') }}
             </el-button>
           </el-col>
@@ -246,28 +208,68 @@ export default {
         return (func.name.toLowerCase().indexOf(queryString.toLowerCase()) > -1);
       };
     },
-    showPreview(itemValue) {
-      this.itemValuePreview = calculate(itemValue);
-    },
-    addFunc(func) {
-      this.itemFuncs.push(func);
-    },
-    appendFunc(func) {
-      if (this.itemValue) {
-        this.itemValue += " | " + func;
-      } else {
-        this.$warning(this.$t("api_test.request.parameters_preview_warning"));
+    showPreview() {
+      // 找到变量本身
+      if (!this.itemValue) {
+        return;
       }
+      let index = this.itemValue.indexOf("|");
+      if (index > -1) {
+        this.itemValue = this.itemValue.substring(0, index).trim();
+      }
+
+      this.itemFuncs.forEach(f => {
+        if (!f.name) {
+          return;
+        }
+        this.itemValue += "|" + f.name;
+        if (f.params) {
+          this.itemValue += ":" + f.params.map(p => p.value).join(",");
+        }
+      });
+
+      this.itemValuePreview = calculate(this.itemValue);
+    },
+    methodChange(itemFunc, func) {
+      let index = this.itemFuncs.indexOf(itemFunc);
+      this.itemFuncs = this.itemFuncs.slice(0, index);
+      // 这里要用 deep copy
+      this.itemFuncs.push(JSON.parse(JSON.stringify(func)));
+      this.showPreview();
+    },
+    addFunc() {
+      if (this.itemFuncs.length > 4) {
+        this.$info(this.$t('api_test.request.parameters_advance_add_func_limit'));
+        return;
+      }
+      if (this.itemFuncs.length > 0) {
+        let func = this.itemFuncs[this.itemFuncs.length - 1];
+        if (!func.name) {
+          this.$warning(this.$t('api_test.request.parameters_advance_add_func_error'));
+          return;
+        }
+        if (func.params) {
+          for (let j = 0; j < func.params.length; j++) {
+            if (!func.params[j].value) {
+              this.$warning(this.$t('api_test.request.parameters_advance_add_param_error'));
+              return;
+            }
+          }
+        }
+      }
+      this.itemFuncs.push({name: '', params: []});
     },
     advanced(item) {
       this.currentItem = item;
       this.itemValueVisible = true;
-      this.itemValue = item.value;
+      this.itemValue = '';
       this.itemValuePreview = null;
+      this.itemFuncs = [];
     },
     saveAdvanced() {
       this.currentItem.value = this.itemValue;
       this.itemValueVisible = false;
+      this.itemFuncs = [];
     }
   },
   created() {
@@ -299,19 +301,8 @@ export default {
   padding: 15px 25px;
 }
 
-.format-tip {
-  background: #EDEDED;
-}
-
-.format-tip {
-  border: solid #E1E1E1 1px;
-  margin: 10px 0;
-  padding: 10px;
-  border-radius: 3px;
-}
-
-.func-background {
-  background: #2395f1;
+.el-row {
+  margin-bottom: 5px;
 }
 
 </style>

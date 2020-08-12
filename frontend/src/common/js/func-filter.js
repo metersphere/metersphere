@@ -73,7 +73,7 @@ export const funcFilters = {
 
   lconcat: function (str, ...args) {
     args.forEach(item => {
-      str = item + this._string;
+      str = item + str;
     });
     return str;
   },
