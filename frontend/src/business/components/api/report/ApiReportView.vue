@@ -115,8 +115,9 @@
       getFails() {
         if (this.isNotRunning) {
           this.fails = [];
+
           this.content.scenarios.forEach((scenario) => {
-            this.totalTime = scenario.responseTime + scenario.responseTime
+            this.totalTime = this.totalTime + scenario.responseTime
             let failScenario = Object.assign({}, scenario);
             if (scenario.error > 0) {
               this.fails.push(failScenario);
