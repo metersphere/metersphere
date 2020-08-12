@@ -180,13 +180,27 @@
                   @change="issuesChange"
                   :active-text="$t('test_track.plan_view.submit_issues')">
                 </el-switch>
+                <el-tooltip class="item" effect="dark"
+                            content="在系统设置-组织-服务集成中集成缺陷管理平台可以自动提交缺陷到指定缺陷管理平台"
+                            placement="right">
+                  <i class="el-icon-info"/>
+                </el-tooltip>
               </el-col>
             </el-row>
 
             <el-row v-if="testCase.issues && testCase.issues.hasIssues">
               <el-col :span="20" :offset="1" class="issues-edit">
+                <el-input
+                  type="text"
+                  placeholder="请输入标题"
+                  v-model="testCase.issues.title"
+                  maxlength="100"
+                  show-word-limit
+                />
                 <ckeditor :editor="editor" :disabled="isReadOnly" :config="editorConfig"
                           v-model="testCase.issues.content"/>
+                <el-button type="primary" size="small">{{$t('commons.save')}}</el-button>
+                <el-button size="small" @click="cancel">{{$t('commons.cancel')}}</el-button>
               </el-col>
             </el-row>
 
