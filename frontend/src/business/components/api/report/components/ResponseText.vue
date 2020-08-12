@@ -7,7 +7,10 @@
     <el-collapse-transition>
       <el-tabs v-model="activeName" v-show="isActive">
         <el-tab-pane label="Body" name="body" class="pane">
-          <ms-code-edit :mode="mode" :read-only="true" :data="response.body" :modes="modes" ref="codeEdit"/>
+          <!--
+                    <ms-code-edit :mode="mode" :read-only="true" :data="response.body" :modes="modes" ref="codeEdit"/>
+          -->
+          <pre>{{response.body}}</pre>
         </el-tab-pane>
         <el-tab-pane label="Headers" name="headers" class="pane">
           <pre>{{response.headers}}</pre>
@@ -48,7 +51,7 @@
 
     data() {
       return {
-        isActive: false,
+        isActive: true,
         activeName: "body",
         modes: ['text', 'json', 'xml', 'html'],
         mode: BODY_FORMAT.TEXT

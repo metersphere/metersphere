@@ -10,27 +10,9 @@
           </header>
           <main v-if="this.isNotRunning">
             <ms-metric-chart :content="content" :totalTime="totalTime"/>
-            <!--<el-container>
-              <el-aside width="900px">
-                <el-tabs v-model="activeName">
-                  <el-tab-pane :label="$t('api_report.total')" name="total">
-                    <ms-scenario-results :scenarios="content.scenarios"/>
-                  </el-tab-pane>
-                  <el-tab-pane name="fail">
-                    <template slot="label">
-                      <span class="fail">{{ $t('api_report.fail') }}</span>
-                    </template>
-                    <ms-scenario-results :scenarios="fails"/>
-                  </el-tab-pane>
-                </el-tabs>
-              </el-aside>
-              <el-main style="margin-top: 20px">
-
-              </el-main>
-            </el-container>-->
             <el-row :gutter="20">
               <el-col :span="8">
-                <el-tabs v-model="activeName">
+                <el-tabs v-model="activeName" @tab-click="handleClick">
                   <el-tab-pane :label="$t('api_report.total')" name="total">
                     <ms-scenario-results :scenarios="content.scenarios" v-on:requestResult="requestResult"/>
                   </el-tab-pane>
@@ -84,6 +66,9 @@
         this.report = {};
         this.content = {};
         this.fails = [];
+      },
+      handleClick(tab, event) {
+        this.isRequestResult = false
       },
       getReport() {
         this.init();
