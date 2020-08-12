@@ -38,7 +38,7 @@
     <el-dialog :title="$t('api_test.request.parameters_advance')"
                :visible.sync="itemValueVisible"
                class="advanced-item-value"
-               width="50%">
+               width="70%">
       <!--      <el-form>
               <el-form-item>
                 <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" :placeholder="valueText"
@@ -79,7 +79,7 @@
                 <p><strong>{{ $t('api_test.request.parameters_filter_tips') }}</strong></p>
               </div>
             </div>-->
-      <el-tabs tab-position="left" style="height: 60vh;">
+      <el-tabs tab-position="left" style="height: 40vh;">
         <el-tab-pane label="Mock 数据">
           <el-row type="flex" :gutter="20" style="overflow-x: auto;">
             <el-col :span="6">
@@ -95,18 +95,15 @@
                 @select="change">
               </el-autocomplete>
             </el-col>
-            <el-col :span="6">
-              <el-row v-for="(func, index) in funcs" :key="index">
-                <div @click="addFunc(func)" style="padding-top: 5px;">
-                  <el-col :span="12">
-                    <el-radio v-model="currentFunc" :label="func.name">{{ func.name }}</el-radio>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-input size="mini" :placeholder="param.name" v-model="param.value"
-                              v-for="(param, index) in func.params" :key="index"/>
-                  </el-col>
-                </div>
-              </el-row>
+            <el-col :span="6" v-for="(f, index) in itemFuncs" :key="index">
+              <el-select size="small" clearable placeholder="请选择">
+                <el-option
+                  v-for="(func, index) in funcs"
+                  :key="index"
+                  :label="func.name"
+                  :value="func.name">
+                </el-option>
+              </el-select>
             </el-col>
             <!--<el-col v-for="(f, index) in itemFuncs" :key="index">
               <el-menu>
