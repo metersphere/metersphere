@@ -1,27 +1,28 @@
 <template>
   <div class="request-form">
-    <component @runDebug="runDebug" :is="component" :is-read-only="isReadOnly" :request="request"/>
+    <component @runDebug="runDebug" :is="component" :is-read-only="isReadOnly" :request="request" :scenario="scenario"/>
     <ms-scenario-results v-loading="debugReportLoading" v-if="isCompleted" :scenarios="isCompleted ? request.debugReport.scenarios : []"/>
   </div>
 </template>
 
 <script>
-  import {Request, RequestFactory} from "../../model/ScenarioModel";
-  import MsApiHttpRequestForm from "./ApiHttpRequestForm";
-  import MsApiDubboRequestForm from "./ApiDubboRequestForm";
-  import MsScenarioResults from "../../../report/components/ScenarioResults";
+import {Request, RequestFactory, Scenario} from "../../model/ScenarioModel";
+import MsApiHttpRequestForm from "./ApiHttpRequestForm";
+import MsApiDubboRequestForm from "./ApiDubboRequestForm";
+import MsScenarioResults from "../../../report/components/ScenarioResults";
 
-  export default {
-    name: "MsApiRequestForm",
-    components: {MsScenarioResults, MsApiDubboRequestForm, MsApiHttpRequestForm},
-    props: {
-      request: Request,
-      isReadOnly: {
-        type: Boolean,
-        default: false
-      },
-      debugReportId: String
+export default {
+  name: "MsApiRequestForm",
+  components: {MsScenarioResults, MsApiDubboRequestForm, MsApiHttpRequestForm},
+  props: {
+    scenario: Scenario,
+    request: Request,
+    isReadOnly: {
+      type: Boolean,
+      default: false
     },
+    debugReportId: String
+  },
     data() {
       return {
         reportId: "",

@@ -1,5 +1,5 @@
 package io.metersphere.commons.constants;
 
-public enum DedectManagePlatform {
+public enum IssuesManagePlatform {
     Tapd, Jira
 }
