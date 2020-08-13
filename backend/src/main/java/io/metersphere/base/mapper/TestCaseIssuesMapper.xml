@@ -5,6 +5,7 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="test_case_id" jdbcType="VARCHAR" property="testCaseId" />
     <result column="issues_id" jdbcType="VARCHAR" property="issuesId" />
+    <result column="platform" jdbcType="VARCHAR" property="platform" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -65,7 +66,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, test_case_id, issues_id
+    id, test_case_id, issues_id, platform
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.TestCaseIssuesExample" resultMap="BaseResultMap">
     select
@@ -98,10 +99,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseIssues">
-    insert into test_case_issues (id, test_case_id, issues_id
-      )
-    values (#{id,jdbcType=VARCHAR}, #{testCaseId,jdbcType=VARCHAR}, #{issuesId,jdbcType=VARCHAR}
-      )
+    insert into test_case_issues (id, test_case_id, issues_id, 
+      platform)
+    values (#{id,jdbcType=VARCHAR}, #{testCaseId,jdbcType=VARCHAR}, #{issuesId,jdbcType=VARCHAR}, 
+      #{platform,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseIssues">
     insert into test_case_issues
@@ -115,6 +116,9 @@
       <if test="issuesId != null">
         issues_id,
       </if>
+      <if test="platform != null">
+        platform,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -125,6 +129,9 @@
       </if>
       <if test="issuesId != null">
         #{issuesId,jdbcType=VARCHAR},
+      </if>
+      <if test="platform != null">
+        #{platform,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -146,6 +153,9 @@
       <if test="record.issuesId != null">
         issues_id = #{record.issuesId,jdbcType=VARCHAR},
       </if>
+      <if test="record.platform != null">
+        platform = #{record.platform,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -155,7 +165,8 @@
     update test_case_issues
     set id = #{record.id,jdbcType=VARCHAR},
       test_case_id = #{record.testCaseId,jdbcType=VARCHAR},
-      issues_id = #{record.issuesId,jdbcType=VARCHAR}
+      issues_id = #{record.issuesId,jdbcType=VARCHAR},
+      platform = #{record.platform,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -169,13 +180,17 @@
       <if test="issuesId != null">
         issues_id = #{issuesId,jdbcType=VARCHAR},
       </if>
+      <if test="platform != null">
+        platform = #{platform,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestCaseIssues">
     update test_case_issues
     set test_case_id = #{testCaseId,jdbcType=VARCHAR},
-      issues_id = #{issuesId,jdbcType=VARCHAR}
+      issues_id = #{issuesId,jdbcType=VARCHAR},
+      platform = #{platform,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

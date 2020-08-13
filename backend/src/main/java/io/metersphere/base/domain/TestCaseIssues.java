@@ -11,5 +11,7 @@ public class TestCaseIssues implements Serializable {
 
     private String issuesId;
 
+    private String platform;
+
     private static final long serialVersionUID = 1L;
 }
