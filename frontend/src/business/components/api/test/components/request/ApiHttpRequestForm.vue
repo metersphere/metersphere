@@ -45,9 +45,11 @@
 
     <el-tabs v-model="activeName">
       <el-tab-pane :label="$t('api_test.request.parameters')" name="parameters">
-        <ms-api-variable :is-read-only="isReadOnly" :items="request.parameters"
+        <ms-api-variable :is-read-only="isReadOnly"
+                         :request="request"
                          :environment="request.environment"
                          :scenario="scenario"
+                         :extract="request.extract"
                          :description="$t('api_test.request.parameters_desc')"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.headers')" name="headers">

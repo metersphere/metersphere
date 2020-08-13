@@ -369,6 +369,7 @@ export default {
       please_save_test: "请先保存测试",
     },
     scenario: {
+      scenario: "场景",
       dubbo: "Dubbo配置",
       config: "场景配置",
       input_name: "请输入场景名称",
@@ -405,7 +406,8 @@ export default {
       parameters_filter_tips: "只支持 MockJs 函数结果预览",
       parameters_advance: "高级参数设置",
       parameters_preview: "预览",
-      parameters_preview_warning: "请先输入模版",
+      parameters_mock_filter_tips: "请输入关键字进行过滤",
+      parameters_pre_request: "前置请求提取",
       parameters_advance_mock: "Mock 数据",
       parameters_advance_add_func: "添加函数",
       parameters_advance_add_func_limit: "最多支持5个函数",
