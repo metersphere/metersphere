@@ -5,7 +5,7 @@
         <el-row type="flex" justify="center" align="middle">
           <el-row>
             <div class="metric-time">
-              <div class="value" style="margin-right: 10px">{{time}}</div>
+              <div class="value" style="margin-right: 50px">{{time}}</div>
             </div>
           </el-row>
 
