@@ -43,12 +43,14 @@
 
     <el-tabs v-model="activeName">
       <el-tab-pane :label="$t('api_test.request.parameters')" name="parameters">
-        <ms-api-body v-if="isNotGet" :is-read-only="isReadOnly" :body="request.body"/>
-        <ms-api-key-value v-else :is-read-only="isReadOnly" :items="request.parameters"
+        <ms-api-key-value :is-read-only="isReadOnly" :items="request.parameters"
                           :description="$t('api_test.request.parameters_desc')"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.headers')" name="headers">
         <ms-api-key-value :is-read-only="isReadOnly" :suggestions="headerSuggestions" :items="request.headers"/>
+      </el-tab-pane>
+      <el-tab-pane :label="$t('api_test.request.body')" name="body" v-if="isNotGet">
+        <ms-api-body :is-read-only="isReadOnly" :body="request.body"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.assertions.label')" name="assertions">
         <ms-api-assertions :is-read-only="isReadOnly" :assertions="request.assertions"/>
@@ -80,15 +82,15 @@ export default {
     }
   },
 
-    data() {
-      let validateURL = (rule, value, callback) => {
-        try {
-          new URL(this.addProtocol(this.request.url));
-        } catch (e) {
-          callback(this.$t('api_test.request.url_invalid'));
-        }
-      };
-      return {
+  data() {
+    let validateURL = (rule, value, callback) => {
+      try {
+        new URL(this.addProtocol(this.request.url));
+      } catch (e) {
+        callback(this.$t('api_test.request.url_invalid'));
+      }
+    };
+    return {
         activeName: "parameters",
         rules: {
           name: [
