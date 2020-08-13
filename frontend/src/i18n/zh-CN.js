@@ -606,6 +606,7 @@ export default {
       delete_confirm: "确认删除模块: ",
       delete_all_resource: "以及模块下所有子模块和测试用例",
       module: "模块",
+      title:"标题",
     },
     home: {
       recent_test: "最近测试",
@@ -644,6 +645,7 @@ export default {
       test_result: "测试结果",
       result_distribution: "测试结果分布",
       custom_component: "自定义模块",
+      defect_list:"缺陷列表",
       create_report: "创建测试报告",
       view_report: "查看测试报告",
       component_library: "组件库",
