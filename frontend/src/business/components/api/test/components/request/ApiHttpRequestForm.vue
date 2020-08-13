@@ -47,6 +47,7 @@
       <el-tab-pane :label="$t('api_test.request.parameters')" name="parameters">
         <ms-api-variable :is-read-only="isReadOnly" :items="request.parameters"
                          :environment="request.environment"
+                         :scenario="scenario"
                          :description="$t('api_test.request.parameters_desc')"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.headers')" name="headers">
@@ -69,7 +70,7 @@
 import MsApiKeyValue from "../ApiKeyValue";
 import MsApiBody from "../ApiBody";
 import MsApiAssertions from "../assertion/ApiAssertions";
-import {HttpRequest, KeyValue} from "../../model/ScenarioModel";
+import {HttpRequest, KeyValue, Scenario} from "../../model/ScenarioModel";
 import MsApiExtract from "../extract/ApiExtract";
 import ApiRequestMethodSelect from "../collapse/ApiRequestMethodSelect";
 import {REQUEST_HEADERS} from "@/common/js/constants";
@@ -80,6 +81,7 @@ export default {
   components: {MsApiVariable, ApiRequestMethodSelect, MsApiExtract, MsApiAssertions, MsApiBody, MsApiKeyValue},
   props: {
     request: HttpRequest,
+    scenario: Scenario,
     isReadOnly: {
       type: Boolean,
       default: false

@@ -79,8 +79,9 @@
               <div v-if="environment">
                 <el-tree :data="environmentParams" :props="{ children: 'children', label: 'name'}"></el-tree>
               </div>
-              场景
-              请求1
+              <div v-if="scenario">
+                <el-tree :data="scenarioParams" :props="{ children: 'children', label: 'name'}"></el-tree>
+              </div>
             </el-col>
           </el-row>
         </el-tab-pane>
@@ -109,7 +110,7 @@
 </template>
 
 <script>
-import {KeyValue} from "../model/ScenarioModel";
+import {KeyValue, Scenario} from "../model/ScenarioModel";
 import {MOCKJS_FUNC} from "@/common/js/constants";
 import {calculate} from "@/business/components/api/test/model/ScenarioModel";
 
@@ -122,6 +123,7 @@ export default {
     description: String,
     items: Array,
     environment: Object,
+    scenario: Scenario,
     isReadOnly: {
       type: Boolean,
       default: false
@@ -129,24 +131,23 @@ export default {
     suggestions: Array
   },
   mounted() {
+    if (this.scenario) {
+      let variables = this.scenario.variables;
+      this.scenarioParams = [
+        {
+          name: this.scenario.name,
+          children: variables.filter(v => v.name),
+        }
+      ];
+    }
     if (this.environment) {
       let variables = JSON.parse(this.environment.variables);
-      let headers = JSON.parse(this.environment.headers);
       this.environmentParams = [
         {
           name: this.environment.name,
-          children: [
-            {
-              name: 'variables',
-              children: variables.filter(v => v.name)
-            },
-            {
-              name: 'headers',
-              children: headers.filter(v => v.name)
-            }
-          ],
+          children: variables.filter(v => v.name),
         }
-      ]
+      ];
     }
   },
   data() {
@@ -181,6 +182,7 @@ export default {
       currentFunc: "",
       mockFuncs: MOCKJS_FUNC,
       environmentParams: [],
+      scenarioParams: [],
     }
   },
 
