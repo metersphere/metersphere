@@ -39,7 +39,7 @@
                :visible.sync="itemValueVisible"
                class="advanced-item-value"
                width="70%">
-      <el-tabs tab-position="left" style="height: 40vh;">
+      <el-tabs tab-position="top" style="height: 50vh;">
         <el-tab-pane :label="$t('api_test.request.parameters_advance_mock')">
           <el-row type="flex" :gutter="20" style="overflow-x: auto;">
             <el-col :span="6">
@@ -73,7 +73,15 @@
             </el-col>
           </el-row>
         </el-tab-pane>
-        <el-tab-pane label="变量"></el-tab-pane>
+        <el-tab-pane label="变量">
+          <el-row>
+            <el-col :span="6">
+              环境
+              场景
+              请求1
+            </el-col>
+          </el-row>
+        </el-tab-pane>
       </el-tabs>
 
       <div style="padding-top: 10px;">
@@ -128,7 +136,7 @@ export default {
         {name: "unbase64"},
         {
           name: "substr",
-          params: [{name: "start"}, {name: "end"}]
+          params: [{name: "start"}, {name: "length"}]
         },
         {
           name: "concat",
@@ -147,7 +155,8 @@ export default {
       ],
       itemValuePreview: null,
       itemFuncs: [],
-      currentFunc: ""
+      currentFunc: "",
+      mockFuncs: MOCKJS_FUNC,
     }
   },
 
