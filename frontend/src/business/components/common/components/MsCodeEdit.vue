@@ -1,7 +1,5 @@
 <template>
-  <div>
     <editor v-model="formatData" :lang="mode" @init="editorInit" theme="chrome"/>
-  </div>
 </template>
 
 <script>
@@ -65,7 +63,7 @@
             this.init(editor);
           }
         },
-        /*format() {
+        format() {
           if (this.mode === 'json') {
             try {
               this.formatData = JSON.stringify(JSON.parse(this.data), null, '\t');
@@ -79,7 +77,7 @@
               this.formatData = this.data;
             }
           }
-        }*/
+        }
       }
     }
 </script>

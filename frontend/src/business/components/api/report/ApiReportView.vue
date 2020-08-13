@@ -42,6 +42,7 @@
   import MsScenarioResult from "./components/ScenarioResult";
   import MsMetricChart from "./components/MetricChart";
   import MsScenarioResults from "./components/ScenarioResults";
+  import {Scenario} from "../test/model/ScenarioModel";
 
   export default {
     name: "MsApiReportView",
@@ -119,9 +120,12 @@
         }
       },
       requestResult(requestResult) {
-        this.isRequestResult = true;
-        this.request = requestResult.request;
-        this.scenarioName = requestResult.scenarioName;
+        this.isRequestResult = false;
+        this.$nextTick(function () {
+          this.isRequestResult = true;
+          this.request = requestResult.request;
+          this.scenarioName = requestResult.scenarioName;
+        });
       }
     },
 
