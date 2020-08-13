@@ -11,7 +11,7 @@
 
     <ms-dropdown :default-command="body.format" v-if="body.type == 'Raw'" :commands="modes" @command="modeChange"/>
 
-    <ms-api-key-value :is-read-only="isReadOnly" :items="body.kvs" v-if="body.isKV()"/>
+    <ms-api-variable :is-read-only="isReadOnly" :items="body.kvs" v-if="body.isKV()"/>
 
     <div class="body-raw" v-if="body.type == 'Raw'">
       <ms-code-edit :mode="body.format" :read-only="isReadOnly" :data.sync="body.raw" :modes="modes" ref="codeEdit"/>
@@ -21,24 +21,25 @@
 </template>
 
 <script>
-  import MsApiKeyValue from "./ApiKeyValue";
-  import {Body, BODY_FORMAT, BODY_TYPE} from "../model/ScenarioModel";
-  import MsCodeEdit from "../../../common/components/MsCodeEdit";
-  import MsDropdown from "../../../common/components/MsDropdown";
+import MsApiKeyValue from "./ApiKeyValue";
+import {Body, BODY_FORMAT, BODY_TYPE} from "../model/ScenarioModel";
+import MsCodeEdit from "../../../common/components/MsCodeEdit";
+import MsDropdown from "../../../common/components/MsDropdown";
+import MsApiVariable from "@/business/components/api/test/components/ApiVariable";
 
-  export default {
-    name: "MsApiBody",
-    components: {MsDropdown, MsCodeEdit, MsApiKeyValue},
-    props: {
-      body: Body,
-      isReadOnly: {
-        type: Boolean,
-        default: false
-      }
-    },
+export default {
+  name: "MsApiBody",
+  components: {MsApiVariable, MsDropdown, MsCodeEdit, MsApiKeyValue},
+  props: {
+    body: Body,
+    isReadOnly: {
+      type: Boolean,
+      default: false
+    }
+  },
 
-    data() {
-      return {
+  data() {
+    return {
         type: BODY_TYPE,
         modes: ['text', 'json', 'xml', 'html']
       };

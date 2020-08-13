@@ -36,7 +36,8 @@
     <el-main class="scenario-main">
       <div class="scenario-form">
         <ms-api-scenario-form :is-read-only="isReadOnly" :scenario="selected" :project-id="projectId" v-if="isScenario"/>
-        <ms-api-request-form :debug-report-id="debugReportId" @runDebug="runDebug" :is-read-only="isReadOnly" :request="selected" v-if="isRequest"/>
+        <ms-api-request-form :debug-report-id="debugReportId" @runDebug="runDebug" :is-read-only="isReadOnly"
+                             :request="selected" :scenario="currentScenario" v-if="isRequest"/>
       </div>
     </el-main>
   </el-container>
@@ -44,25 +45,25 @@
 
 <script>
 
-  import MsApiCollapseItem from "./collapse/ApiCollapseItem";
-  import MsApiCollapse from "./collapse/ApiCollapse";
-  import MsApiRequestConfig from "./request/ApiRequestConfig";
-  import MsApiRequestForm from "./request/ApiRequestForm";
-  import MsApiScenarioForm from "./ApiScenarioForm";
-  import {Scenario, Request} from "../model/ScenarioModel";
-  import draggable from 'vuedraggable';
+import MsApiCollapseItem from "./collapse/ApiCollapseItem";
+import MsApiCollapse from "./collapse/ApiCollapse";
+import MsApiRequestConfig from "./request/ApiRequestConfig";
+import MsApiRequestForm from "./request/ApiRequestForm";
+import MsApiScenarioForm from "./ApiScenarioForm";
+import {Request, Scenario} from "../model/ScenarioModel";
+import draggable from 'vuedraggable';
 
-  export default {
-    name: "MsApiScenarioConfig",
+export default {
+  name: "MsApiScenarioConfig",
 
-    components: {
-      MsApiRequestConfig,
-      MsApiScenarioForm,
-      MsApiRequestForm,
-      MsApiCollapse,
-      MsApiCollapseItem,
-      draggable
-    },
+  components: {
+    MsApiRequestConfig,
+    MsApiScenarioForm,
+    MsApiRequestForm,
+    MsApiCollapse,
+    MsApiCollapseItem,
+    draggable
+  },
 
     props: {
       scenarios: Array,
