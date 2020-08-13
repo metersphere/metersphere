@@ -172,11 +172,11 @@
               </el-col>
             </el-row>
 
-            <el-row v-if="testCase.issues">
+            <el-row>
               <el-col :span="5" :offset="1">
                 <el-switch
                   :disabled="isReadOnly"
-                  v-model="testCase.issues.hasIssues"
+                  v-model="issuesSwitch"
                   @change="issuesChange"
                   :active-text="$t('test_track.plan_view.submit_issues')">
                 </el-switch>
@@ -188,7 +188,7 @@
               </el-col>
             </el-row>
 
-            <el-row v-if="testCase.issues && testCase.issues.hasIssues">
+            <el-row v-if="issuesSwitch">
               <el-col :span="20" :offset="1" class="issues-edit">
                 <el-input
                   type="text"
@@ -199,8 +199,19 @@
                 />
                 <ckeditor :editor="editor" :disabled="isReadOnly" :config="editorConfig"
                           v-model="testCase.issues.content"/>
-                <el-button type="primary" size="small">{{$t('commons.save')}}</el-button>
-                <el-button size="small" @click="cancel">{{$t('commons.cancel')}}</el-button>
+                <el-button type="primary" size="small" @click="saveIssues">{{$t('commons.save')}}</el-button>
+                <el-button size="small" @click="issuesSwitch=false">{{$t('commons.cancel')}}</el-button>
+              </el-col>
+            </el-row>
+
+            <el-row>
+              <el-col :span="20" :offset="1" class="issues-edit">
+                <el-table border class="adjust-table" :data="issues" style="width: 100%">
+                  <el-table-column prop="id" label="缺陷ID"/>
+                  <el-table-column prop="title" label="缺陷标题"/>
+                  <el-table-column prop="status" label="缺陷状态"/>
+                  <el-table-column prop="description" label="缺陷描述" show-overflow-tooltip/>
+                </el-table>
               </el-col>
             </el-row>
 
@@ -240,6 +251,7 @@
   import PerformanceTestDetail from "./test/PerformanceTestDetail";
   import PerformanceTestResult from "./test/PerformanceTestResult";
   import {listenGoBack, removeGoBackListener} from "../../../../../../common/js/utils";
+  import {CURRENT_PROJECT} from "../../../../../../common/js/constants";
 
   export default {
     name: "TestPlanTestCaseEdit",
@@ -256,7 +268,9 @@
         showDialog: false,
         testCase: {},
         index: 0,
+        issuesSwitch: false,
         testCases: [],
+        issues: [],
         editor: ClassicEditor,
         editorConfig: {
           // 'increaseIndent','decreaseIndent'
@@ -365,6 +379,7 @@
         this.activeTab = 'detail';
         listenGoBack(this.handleClose);
         this.initData(testCase);
+        this.getIssues(testCase.caseId);
       },
       initTest() {
         this.$nextTick(() => {
@@ -417,18 +432,18 @@
         }
       },
       issuesChange() {
-        if (this.testCase.issues.hasIssues) {
-          let desc = this.addPLabel('[' + this.$t('test_track.plan_view.operate_step') + ']');
-          let result = this.addPLabel('[' + this.$t('test_track.case.expected_results') + ']');
-          let executeResult = this.addPLabel('[' + this.$t('test_track.plan_view.actual_result') + ']');
-          this.testCase.steps.forEach(step => {
-            let stepPrefix = this.$t('test_track.plan_view.step') + step.num + ':';
-            desc += this.addPLabel(stepPrefix + (step.desc == undefined ? '' : step.desc));
-            result += this.addPLabel(stepPrefix + (step.result == undefined ? '' : step.result));
-            executeResult += this.addPLabel(stepPrefix + (step.executeResult == undefined ? '' : step.executeResult));
-          });
-          this.testCase.issues.content = desc + this.addPLabel('') + result + this.addPLabel('') + executeResult + this.addPLabel('');
-        }
+        // if (this.testCase.issues.hasIssues) {
+        //   let desc = this.addPLabel('[' + this.$t('test_track.plan_view.operate_step') + ']');
+        //   let result = this.addPLabel('[' + this.$t('test_track.case.expected_results') + ']');
+        //   let executeResult = this.addPLabel('[' + this.$t('test_track.plan_view.actual_result') + ']');
+        //   this.testCase.steps.forEach(step => {
+        //     let stepPrefix = this.$t('test_track.plan_view.step') + step.num + ':';
+        //     desc += this.addPLabel(stepPrefix + (step.desc == undefined ? '' : step.desc));
+        //     result += this.addPLabel(stepPrefix + (step.result == undefined ? '' : step.result));
+        //     executeResult += this.addPLabel(stepPrefix + (step.executeResult == undefined ? '' : step.executeResult));
+        //   });
+        //   this.testCase.issues.content = desc + this.addPLabel('') + result + this.addPLabel('') + executeResult + this.addPLabel('');
+        // }
       },
       addPLabel(str) {
         return "<p>" + str + "</p>";
@@ -443,6 +458,27 @@
           }).length > 0;
         }
 
+      },
+      saveIssues() {
+        if (!this.testCase.issues.title || !this.testCase.issues.content) {
+          this.$warning("标题和描述必填");
+          return;
+        }
+        let param = {};
+        param.title = this.testCase.issues.title;
+        param.content = this.testCase.issues.content;
+        param.testCaseId = this.testCase.caseId;
+        this.result = this.$post("/issues/add", param, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.getIssues(param.testCaseId);
+        })
+      },
+      getIssues(caseId) {
+        this.result = this.$get("/issues/get/"+caseId,response => {
+          let data = response.data;
+          this.issues = data;
+          console.log(data);
+        })
       }
     }
   }
