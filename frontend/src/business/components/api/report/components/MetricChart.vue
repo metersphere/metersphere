@@ -3,9 +3,12 @@
     <el-row type="flex" align="middle">
       <div style="width: 50%">
         <el-row type="flex" justify="center" align="middle">
-          <div class="metric-time">
-            <div class="value" style="margin-left: -150px">{{time}}</div>
-          </div>
+          <el-row>
+            <div class="metric-time">
+              <div class="value" style="margin-right: 50px">{{time}}</div>
+            </div>
+          </el-row>
+
           <chart id="chart" ref="chart" :options="options" :autoresize="true"></chart>
           <el-row type="flex" justify="center" align="middle">
             <i class="circle success"/>
