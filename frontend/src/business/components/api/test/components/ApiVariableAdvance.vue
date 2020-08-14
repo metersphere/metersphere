@@ -33,7 +33,7 @@
           </el-col>
         </el-row>
       </el-tab-pane>
-      <el-tab-pane label="变量">
+      <el-tab-pane :label="$t('api_test.variable')">
         <el-row>
           <el-col :span="6" class="col-height">
             <div v-if="environment">
@@ -49,15 +49,14 @@
               <el-tree :data="preRequestParams" :props="treeProps" @node-click="selectVariable"></el-tree>
             </div>
           </el-col>
-          <el-col :span="6" v-for="(itemFunc, itemIndex) in jmeterVariableFuncs" :key="itemIndex" class="col-height">
+          <el-col :span="18" class="col-height">
             <div>
-              <div v-for="(func, funcIndex) in jmeterFuncs"
-                   :key="`${itemIndex}-${funcIndex}`">
-                <el-row>
-                  <el-radio size="mini" v-model="itemFunc.name" :label="func.name"
-                            @change="methodChange(itemFunc, func)"/>
-                </el-row>
-              </div>
+              <h1>Jmeter 内置函数</h1>
+              <el-table border :data="jmeterFuncs" class="adjust-table table-content" height="400">
+                <el-table-column prop="type" label="Type" width="150"/>
+                <el-table-column prop="name" label="Functions" width="250"/>
+                <el-table-column prop="description" label="Description"/>
+              </el-table>
             </div>
           </el-col>
         </el-row>
