@@ -3,7 +3,7 @@
     <span class="kv-description" v-if="description">
       {{ description }}
     </span>
-    <div class="kv-row" v-for="(item, index) in items" :key="index">
+    <div class="kv-row" v-for="(item, index) in parameters" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <el-col>
           <el-input v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="200"
@@ -34,94 +34,24 @@
         </el-col>
       </el-row>
     </div>
-
-    <el-dialog :title="$t('api_test.request.parameters_advance')"
-               :visible.sync="itemValueVisible"
-               class="advanced-item-value"
-               width="70%">
-      <el-tabs tab-position="top" style="height: 50vh;">
-        <el-tab-pane :label="$t('api_test.request.parameters_advance_mock')">
-          <el-row type="flex" :gutter="20" style="overflow-x: auto;">
-            <el-col :span="6">
-              <el-autocomplete
-                :disabled="isReadOnly"
-                size="small"
-                class="input-with-autocomplete"
-                v-model="itemValue"
-                :fetch-suggestions="funcSearch"
-                :placeholder="valueText"
-                value-key="name"
-                highlight-first-item
-                @select="change">
-              </el-autocomplete>
-            </el-col>
-            <el-col :span="6" v-for="(itemFunc, itemIndex) in itemFuncs" :key="itemIndex">
-              <div v-for="(func, funcIndex) in funcs"
-                   :key="`${itemIndex}-${funcIndex}`">
-                <el-row>
-                  <el-col :span="12">
-                    <el-radio size="mini" v-model="itemFunc.name" :label="func.name"
-                              @change="methodChange(itemFunc, func)"/>
-                  </el-col>
-                  <el-col :span="12" v-if="itemFunc.name === func.name">
-                    <div v-for="(p, pIndex) in itemFunc.params" :key="`${itemIndex}-${funcIndex}-${pIndex}`">
-                      <el-input :placeholder="p.name" size="mini" v-model="p.value" @change="showPreview"/>
-                    </div>
-                  </el-col>
-                </el-row>
-              </div>
-            </el-col>
-          </el-row>
-        </el-tab-pane>
-        <el-tab-pane label="变量">
-          <el-row>
-            <el-col :span="6">
-              <div v-if="environment">
-                <el-tree :data="environmentParams" :props="{ children: 'children', label: 'name'}"></el-tree>
-              </div>
-              <div v-if="scenario">
-                <el-tree :data="scenarioParams" :props="{ children: 'children', label: 'name'}"></el-tree>
-              </div>
-            </el-col>
-          </el-row>
-        </el-tab-pane>
-      </el-tabs>
-
-      <div style="padding-top: 10px;">
-        <el-row type="flex" align="middle">
-          <el-col :span="12">
-            <el-button size="small" type="primary" plain @click="saveAdvanced()">
-              {{ $t('commons.save') }}
-            </el-button>
-            <el-button size="small" type="info" plain @click="addFunc()">
-              {{ $t('api_test.request.parameters_advance_add_func') }}
-            </el-button>
-            <el-button size="small" type="success" plain @click="showPreview()">
-              {{ $t('api_test.request.parameters_preview') }}
-            </el-button>
-          </el-col>
-          <el-col>
-            <div> {{ itemValuePreview }}</div>
-          </el-col>
-        </el-row>
-      </div>
-    </el-dialog>
+    <ms-api-variable-advance ref="variableAdvance" :environment="environment" :scenario="scenario" :request="request"
+                             :current-item="currentItem"/>
   </div>
 </template>
 
 <script>
-import {KeyValue, Scenario} from "../model/ScenarioModel";
+import {HttpRequest, KeyValue, Scenario} from "../model/ScenarioModel";
 import {MOCKJS_FUNC} from "@/common/js/constants";
-import {calculate} from "@/business/components/api/test/model/ScenarioModel";
+import MsApiVariableAdvance from "@/business/components/api/test/components/ApiVariableAdvance";
 
 export default {
   name: "MsApiVariable",
-
+  components: {MsApiVariableAdvance},
   props: {
     keyPlaceholder: String,
     valuePlaceholder: String,
     description: String,
-    items: Array,
+    request: HttpRequest,
     environment: Object,
     scenario: Scenario,
     isReadOnly: {
@@ -130,62 +60,12 @@ export default {
     },
     suggestions: Array
   },
-  mounted() {
-    if (this.scenario) {
-      let variables = this.scenario.variables;
-      this.scenarioParams = [
-        {
-          name: this.scenario.name,
-          children: variables.filter(v => v.name),
-        }
-      ];
-    }
-    if (this.environment) {
-      let variables = JSON.parse(this.environment.variables);
-      this.environmentParams = [
-        {
-          name: this.environment.name,
-          children: variables.filter(v => v.name),
-        }
-      ];
-    }
-  },
   data() {
     return {
-      itemValueVisible: false,
-      itemValue: null,
-      funcs: [
-        {name: "md5"},
-        {name: "base64"},
-        {name: "unbase64"},
-        {
-          name: "substr",
-          params: [{name: "start"}, {name: "length"}]
-        },
-        {
-          name: "concat",
-          params: [{name: "suffix"}]
-        },
-        {name: "lconcat", params: [{name: "prefix"}]},
-        {name: "sha1"},
-        {name: "sha224"},
-        {name: "sha256"},
-        {name: "sha384"},
-        {name: "sha512"},
-        {name: "lower"},
-        {name: "upper"},
-        {name: "length"},
-        {name: "number"}
-      ],
-      itemValuePreview: null,
-      itemFuncs: [],
-      currentFunc: "",
-      mockFuncs: MOCKJS_FUNC,
-      environmentParams: [],
-      scenarioParams: [],
+      currentItem: null,
+      parameters: [],
     }
   },
-
   computed: {
     keyText() {
       return this.keyPlaceholder || this.$t("api_test.key");
@@ -194,19 +74,18 @@ export default {
       return this.valuePlaceholder || this.$t("api_test.value");
     }
   },
-
   methods: {
     remove: function (index) {
-      this.items.splice(index, 1);
-      this.$emit('change', this.items);
+      this.parameters.splice(index, 1);
+      this.$emit('change', this.parameters);
     },
     change: function () {
       let isNeedCreate = true;
       let removeIndex = -1;
-      this.items.forEach((item, index) => {
+      this.parameters.forEach((item, index) => {
         if (!item.name && !item.value) {
           // 多余的空行
-          if (index !== this.items.length - 1) {
+          if (index !== this.parameters.length - 1) {
             removeIndex = index;
           }
           // 没有空行，需要创建空行
@@ -214,13 +93,13 @@ export default {
         }
       });
       if (isNeedCreate) {
-        this.items.push(new KeyValue());
+        this.parameters.push(new KeyValue());
       }
-      this.$emit('change', this.items);
+      this.$emit('change', this.parameters);
       // TODO 检查key重复
     },
     isDisable: function (index) {
-      return this.items.length - 1 === index;
+      return this.parameters.length - 1 === index;
     },
     querySearch(queryString, cb) {
       let suggestions = this.suggestions;
@@ -243,73 +122,18 @@ export default {
         return (func.name.toLowerCase().indexOf(queryString.toLowerCase()) > -1);
       };
     },
-    showPreview() {
-      // 找到变量本身
-      if (!this.itemValue) {
-        return;
-      }
-      let index = this.itemValue.indexOf("|");
-      if (index > -1) {
-        this.itemValue = this.itemValue.substring(0, index).trim();
-      }
 
-      this.itemFuncs.forEach(f => {
-        if (!f.name) {
-          return;
-        }
-        this.itemValue += "|" + f.name;
-        if (f.params) {
-          this.itemValue += ":" + f.params.map(p => p.value).join(",");
-        }
-      });
-
-      this.itemValuePreview = calculate(this.itemValue);
-    },
-    methodChange(itemFunc, func) {
-      let index = this.itemFuncs.indexOf(itemFunc);
-      this.itemFuncs = this.itemFuncs.slice(0, index);
-      // 这里要用 deep copy
-      this.itemFuncs.push(JSON.parse(JSON.stringify(func)));
-      this.showPreview();
-    },
-    addFunc() {
-      if (this.itemFuncs.length > 4) {
-        this.$info(this.$t('api_test.request.parameters_advance_add_func_limit'));
-        return;
-      }
-      if (this.itemFuncs.length > 0) {
-        let func = this.itemFuncs[this.itemFuncs.length - 1];
-        if (!func.name) {
-          this.$warning(this.$t('api_test.request.parameters_advance_add_func_error'));
-          return;
-        }
-        if (func.params) {
-          for (let j = 0; j < func.params.length; j++) {
-            if (!func.params[j].value) {
-              this.$warning(this.$t('api_test.request.parameters_advance_add_param_error'));
-              return;
-            }
-          }
-        }
-      }
-      this.itemFuncs.push({name: '', params: []});
-    },
     advanced(item) {
+      this.$refs.variableAdvance.open();
       this.currentItem = item;
-      this.itemValueVisible = true;
       this.itemValue = '';
-      this.itemValuePreview = null;
-      this.itemFuncs = [];
+      this.mockVariableFuncs = [];
     },
-    saveAdvanced() {
-      this.currentItem.value = this.itemValue;
-      this.itemValueVisible = false;
-      this.itemFuncs = [];
-    }
+
   },
   created() {
-    if (this.items.length === 0) {
-      this.items.push(new KeyValue());
+    if (this.parameters.length === 0) {
+      this.parameters.push(new KeyValue());
     }
   }
 }

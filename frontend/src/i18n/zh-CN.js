@@ -36,6 +36,8 @@ export default {
     phone: '电话',
     role: '角色',
     personal_info: '个人信息',
+    api_keys: 'API Keys',
+    quota: '配额管理',
     status: '状态',
     show_all: '显示全部',
     show: '显示',
@@ -369,6 +371,7 @@ export default {
       please_save_test: "请先保存测试",
     },
     scenario: {
+      scenario: "场景",
       dubbo: "Dubbo配置",
       config: "场景配置",
       input_name: "请输入场景名称",
@@ -405,7 +408,8 @@ export default {
       parameters_filter_tips: "只支持 MockJs 函数结果预览",
       parameters_advance: "高级参数设置",
       parameters_preview: "预览",
-      parameters_preview_warning: "请先输入模版",
+      parameters_mock_filter_tips: "请输入关键字进行过滤",
+      parameters_pre_request: "前置请求提取",
       parameters_advance_mock: "Mock 数据",
       parameters_advance_add_func: "添加函数",
       parameters_advance_add_func_limit: "最多支持5个函数",
@@ -783,4 +787,23 @@ export default {
       no_qualifying_results: "没有达到条件的结果",
     }
   },
+  quota: {
+    default: {
+      organization: "组织默认配额",
+      workspace: "工作空间默认配额",
+    },
+    api: "接口测试数量",
+    performance: "性能测试数量",
+    resource_pool: "可用测试资源池",
+    max_threads: "最大并发数",
+    duration: "压测时长",
+    use_default: "使用默认配额",
+    yes: "是",
+    no: "否",
+    edit: "编辑",
+    list: "配额列表",
+    modify: "修改配额",
+    edit_quota_title: "{0}的配额",
+    workspace_quota_list: "{0}的工作空间配额列表",
+  }
 };

@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Properties;
 
 @Configuration
-@MapperScan(basePackages = "io.metersphere.base.mapper", sqlSessionFactoryRef = "sqlSessionFactory")
+@MapperScan(basePackages = {"io.metersphere.base.mapper", "io.metersphere.xpack.mapper"}, sqlSessionFactoryRef = "sqlSessionFactory")
 @EnableTransactionManagement
 public class MybatisConfig {
 

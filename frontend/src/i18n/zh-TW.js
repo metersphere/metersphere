@@ -43,6 +43,8 @@ export default {
     user: '用戶',
     system: '系統',
     personal_setting: '個人設置',
+    api_keys: 'API Keys',
+    quota: '配額管理',
     test_resource_pool: '測試資源池',
     system_setting: '系統設置',
     api: '接口測試',
@@ -367,6 +369,7 @@ export default {
       please_save_test: "請先保存測試",
     },
     scenario: {
+      scenario: "場景",
       dubbo: "Dubbo配寘",
       creator: "創建人",
       config: "場景配寘",
@@ -402,7 +405,8 @@ export default {
       parameters_filter_tips: "只支持MockJs函數結果預覽",
       parameters_advance: "高級參數設置",
       parameters_preview: "預覽",
-      parameters_preview_warning: "請先輸入模版",
+      parameters_mock_filter_tips: "請輸入關鍵字進行過濾",
+      parameters_pre_request: "前置請求提取",
       parameters_advance_mock: "Mock 數據",
       parameters_advance_add_func: "添加函數",
       parameters_advance_add_func_limit: "最多支持5個函數",
@@ -778,4 +782,23 @@ export default {
       no_qualifying_results: "沒有達到條件的結果",
     }
   },
+  quota: {
+    default: {
+      organization: "組織默認配額",
+      workspace: "工作空間默認配額",
+    },
+    api: "接口測試數量",
+    performance: "性能測試數量",
+    resource_pool: "可用測試資源池",
+    max_threads: "最大並發數",
+    duration: "壓測時長",
+    use_default: "使用默認配額",
+    yes: "是",
+    no: "否",
+    edit: "編輯",
+    list: "配額列表",
+    modify: "修改配額",
+    edit_quota_title: "{0}的配額",
+    workspace_quota_list: "{0}的工作空間配額列表",
+  }
 };

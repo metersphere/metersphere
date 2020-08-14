@@ -43,6 +43,8 @@ export default {
     user: 'User',
     system: 'System',
     personal_setting: 'Personal Setting',
+    api_keys: 'API Keys',
+    quota: 'Quota',
     test_resource_pool: 'Resource Pool',
     system_setting: 'Settings',
     api: 'API',
@@ -368,6 +370,7 @@ export default {
       please_save_test: "Please Save Test First",
     },
     scenario: {
+      scenario: "Scenario",
       dubbo: "Dubbo Config",
       config: "Scenario Config",
       input_name: "Please enter the scenario name",
@@ -402,7 +405,8 @@ export default {
       parameters_filter_tips: "Only support MockJs function result preview",
       parameters_advance: "Advanced parameter settings",
       parameters_preview: "Preview",
-      parameters_preview_warning: "Please enter the template first",
+      parameters_mock_filter_tips: "Please enter keywords to filter",
+      parameters_pre_request: "Pre-request extraction",
       parameters_advance_mock: "Mock Data",
       parameters_advance_add_func: "Add Function",
       parameters_advance_add_func_limit: "Support up to 5 functions",
@@ -779,4 +783,23 @@ export default {
       no_qualifying_results: "No Qualifying Results",
     }
   },
+  quota: {
+    default: {
+      organization: "Organization Default Quota",
+      workspace: "Workspace Default Quota",
+    },
+    api: "Number of interface tests",
+    performance: "Number of performance tests",
+    resource_pool: "Available test resource pool",
+    max_threads: "Maximum Concurrency",
+    duration: "Stress test duration",
+    use_default: "Use default quota",
+    yes: "Yes",
+    no: "No",
+    edit: "Edit",
+    list: "Quota List",
+    modify: "Modify Quota",
+    edit_quota_title: "{0} quota",
+    workspace_quota_list: "Workspace quota list of {0}",
+  }
 };
