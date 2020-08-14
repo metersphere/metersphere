@@ -167,7 +167,6 @@
         getMetric() {
           this.result = this.$get('/test/plan/get/metric/' + this.planId, response => {
             this.metric = response.data;
-            console.log(this.metric)
             if (!this.metric.failureTestCases) {
               this.metric.failureTestCases = [];
             }
@@ -177,6 +176,9 @@
             if (!this.metric.moduleExecuteResult) {
               this.metric.moduleExecuteResult = [];
             }
+            /*缺陷列表*/
+            this.metric.defectList = [];
+
             if (this.report.startTime) {
               this.metric.startTime = new Date(this.report.startTime);
             }

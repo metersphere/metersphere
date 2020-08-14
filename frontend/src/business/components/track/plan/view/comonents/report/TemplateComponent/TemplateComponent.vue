@@ -17,7 +17,7 @@
       <test-result-component :test-results="metric.moduleExecuteResult" v-if="preview.id == 2"/>
       <test-result-chart-component :execute-result="metric.executeResult" v-if="preview.id == 3"/>
       <failure-result-component :failure-test-cases="metric.failureTestCases" v-if="preview.id == 4"/>
-      <defect-list-component :failure-test-cases="metric.failureTestCases" v-if="preview.id == 5"/>
+      <defect-list-component :defect-list="metric.defectList" v-if="preview.id == 5"/>
       <rich-text-component :is-report-view="isReportView" :preview="preview" v-if="preview.type != 'system'"/>
     </div>
 

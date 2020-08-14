@@ -606,7 +606,11 @@ export default {
       delete_confirm: "確認刪除模塊: ",
       delete_all_resource: "以及模塊下所有子模塊和測試用例",
       module: "模塊",
-      title:"標題",
+      title: "標題",
+      status: "狀態",
+      describe: "描述",
+      current_owner: "處理人",
+      creation_time: "創建時間"
     },
     home: {
       recent_test: "最近測試",

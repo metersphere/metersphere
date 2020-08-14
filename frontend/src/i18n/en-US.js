@@ -606,7 +606,11 @@ export default {
       delete_confirm: "Confirm delete module:",
       delete_all_resource: "and all submodules and test cases under the module",
       module: "Module",
-      title:"Title"
+      title: "Title",
+      describe: "Describe",
+      status: "Status",
+      current_owner: "Current Owner",
+      creation_time: "Creation time"
     },
     home: {
       recent_test: "Recent test",
