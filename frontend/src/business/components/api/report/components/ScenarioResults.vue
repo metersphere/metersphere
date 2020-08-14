@@ -5,21 +5,10 @@
         <el-col :span="16">
           {{$t('api_report.scenario_name')}}
         </el-col>
-        <el-col :span="2">
-          {{$t('api_report.response_time')}}
-        </el-col>
-        <el-col :span="2">
-          {{$t('api_report.error')}}
-        </el-col>
-        <el-col :span="2">
-          {{$t('api_report.assertions')}}
-        </el-col>
-        <el-col :span="2">
-          {{$t('api_report.result')}}
-        </el-col>
       </el-row>
     </div>
-    <ms-scenario-result v-for="(scenario, index) in scenarios" :key="index" :scenario="scenario"/>
+    <ms-scenario-result v-for="(scenario, index) in scenarios" :key="index" :scenario="scenario"
+                        v-on:requestResult="requestResult"/>
   </el-card>
 </template>
 
@@ -32,9 +21,13 @@
     components: {MsScenarioResult},
 
     props: {
-      scenarios: Array,
+      scenarios: Array
+    },
+    methods: {
+      requestResult(requestResult) {
+        this.$emit("requestResult", requestResult);
+      }
     }
-
   }
 </script>
 

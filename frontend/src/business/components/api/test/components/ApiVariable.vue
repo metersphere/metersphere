@@ -3,7 +3,7 @@
     <span class="kv-description" v-if="description">
       {{ description }}
     </span>
-    <div class="kv-row" v-for="(item, index) in items" :key="index">
+    <div class="kv-row" v-for="(item, index) in parameters" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <el-col>
           <el-input v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="200"
@@ -15,8 +15,18 @@
 
         </el-col>
         <el-col>
-          <el-input :disabled="isReadOnly" v-model="item.value" size="small" @change="change"
-                    :placeholder="valueText" show-word-limit/>
+          <el-autocomplete
+            :disabled="isReadOnly"
+            size="small"
+            class="input-with-autocomplete"
+            v-model="item.value"
+            :fetch-suggestions="funcSearch"
+            :placeholder="valueText"
+            value-key="name"
+            highlight-first-item
+            @select="change">
+            <i slot="suffix" class="el-input__icon el-icon-edit" style="cursor: pointer;" @click="advanced(item)"></i>
+          </el-autocomplete>
         </el-col>
         <el-col class="kv-delete">
           <el-button size="mini" class="el-icon-delete-solid" circle @click="remove(index)"
@@ -24,27 +34,38 @@
         </el-col>
       </el-row>
     </div>
+    <ms-api-variable-advance ref="variableAdvance" :environment="environment" :scenario="scenario" :request="request"
+                             :current-item="currentItem"/>
   </div>
 </template>
 
 <script>
-import {KeyValue} from "../model/ScenarioModel";
+import {HttpRequest, KeyValue, Scenario} from "../model/ScenarioModel";
+import {MOCKJS_FUNC} from "@/common/js/constants";
+import MsApiVariableAdvance from "@/business/components/api/test/components/ApiVariableAdvance";
 
 export default {
-  name: "MsApiKeyValue",
-
+  name: "MsApiVariable",
+  components: {MsApiVariableAdvance},
   props: {
     keyPlaceholder: String,
     valuePlaceholder: String,
     description: String,
-    items: Array,
+    request: HttpRequest,
+    environment: Object,
+    scenario: Scenario,
     isReadOnly: {
       type: Boolean,
       default: false
     },
     suggestions: Array
   },
-
+  data() {
+    return {
+      currentItem: null,
+      parameters: [],
+    }
+  },
   computed: {
     keyText() {
       return this.keyPlaceholder || this.$t("api_test.key");
@@ -53,19 +74,18 @@ export default {
       return this.valuePlaceholder || this.$t("api_test.value");
     }
   },
-
   methods: {
     remove: function (index) {
-      this.items.splice(index, 1);
-      this.$emit('change', this.items);
+      this.parameters.splice(index, 1);
+      this.$emit('change', this.parameters);
     },
     change: function () {
       let isNeedCreate = true;
       let removeIndex = -1;
-      this.items.forEach((item, index) => {
+      this.parameters.forEach((item, index) => {
         if (!item.name && !item.value) {
           // 多余的空行
-          if (index !== this.items.length - 1) {
+          if (index !== this.parameters.length - 1) {
             removeIndex = index;
           }
           // 没有空行，需要创建空行
@@ -73,13 +93,13 @@ export default {
         }
       });
       if (isNeedCreate) {
-        this.items.push(new KeyValue());
+        this.parameters.push(new KeyValue());
       }
-      this.$emit('change', this.items);
+      this.$emit('change', this.parameters);
       // TODO 检查key重复
     },
     isDisable: function (index) {
-      return this.items.length - 1 === index;
+      return this.parameters.length - 1 === index;
     },
     querySearch(queryString, cb) {
       let suggestions = this.suggestions;
@@ -91,10 +111,29 @@ export default {
         return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
       };
     },
+    funcSearch(queryString, cb) {
+      let funcs = MOCKJS_FUNC;
+      let results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
+      // 调用 callback 返回建议列表的数据
+      cb(results);
+    },
+    funcFilter(queryString) {
+      return (func) => {
+        return (func.name.toLowerCase().indexOf(queryString.toLowerCase()) > -1);
+      };
+    },
+
+    advanced(item) {
+      this.$refs.variableAdvance.open();
+      this.currentItem = item;
+      this.itemValue = '';
+      this.mockVariableFuncs = [];
+    },
+
   },
   created() {
-    if (this.items.length === 0) {
-      this.items.push(new KeyValue());
+    if (this.parameters.length === 0) {
+      this.parameters.push(new KeyValue());
     }
   }
 }
@@ -116,4 +155,13 @@ export default {
 .el-autocomplete {
   width: 100%;
 }
+
+.advanced-item-value >>> .el-dialog__body {
+  padding: 15px 25px;
+}
+
+.el-row {
+  margin-bottom: 5px;
+}
+
 </style>

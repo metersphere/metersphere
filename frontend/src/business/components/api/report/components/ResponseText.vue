@@ -48,7 +48,7 @@
 
     data() {
       return {
-        isActive: false,
+        isActive: true,
         activeName: "body",
         modes: ['text', 'json', 'xml', 'html'],
         mode: BODY_FORMAT.TEXT

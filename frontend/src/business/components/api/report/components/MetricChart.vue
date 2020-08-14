@@ -3,6 +3,12 @@
     <el-row type="flex" align="middle">
       <div style="width: 50%">
         <el-row type="flex" justify="center" align="middle">
+          <el-row>
+            <div class="metric-time">
+              <div class="value" style="margin-right: 50px">{{time}}</div>
+            </div>
+          </el-row>
+
           <chart id="chart" ref="chart" :options="options" :autoresize="true"></chart>
           <el-row type="flex" justify="center" align="middle">
             <i class="circle success"/>
@@ -48,9 +54,37 @@
     name: "MsMetricChart",
 
     props: {
-      content: Object
+      content: Object,
+      totalTime: String
     },
-
+    data() {
+      return {
+        hour:0,
+        minutes: 0,
+        seconds: 0,
+        time: 0
+      }
+    },
+    created() {
+      this.initTime()
+    },
+    methods: {
+      initTime() {
+        this.time=this.totalTime
+        this.seconds = Math.floor(this.time / 1000);
+        if (this.seconds > 60) {
+          this.minutes = Math.floor(this.time/60)
+          this.seconds=Math.floor(this.time%60)
+          this.time=this.minutes+"min"+this.seconds+"s"
+        }
+        if(this.minutes>60){
+          this.hour=Math.floor(this.minutes/60)
+          this.minutes = Math.floor(this.minutes%60)
+          this.time=this.hour+"hour"+this.minutes+"min"+this.seconds+"s"
+        }
+        this.time=this.seconds+"s"
+      },
+    },
     computed: {
       options() {
         return {
@@ -157,6 +191,12 @@
   .metric-box .value {
     font-size: 32px;
     font-weight: 600;
+    letter-spacing: -.5px;
+  }
+
+  .metric-time .value {
+    font-size: 25px;
+    font-weight: 400;
     letter-spacing: -.5px;
   }
 

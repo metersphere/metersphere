@@ -5,10 +5,20 @@
         <template v-slot:header>
           <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search"
                            :title="$t('commons.test')"
-                           @create="create" :createTip="$t('load_test.create')"/>
+                           @create="create" :createTip="$t('load_test.create')" :runTip="$t('load_test.run')"
+                           :show-run="true"
+                           @runTest="runTest"/>
+
         </template>
-        <el-table border :data="tableData" class="adjust-table table-content" @sort-change="sort" @row-click="handleView"
-                  @filter-change="filter">
+
+        <one-click-operation ref="OneClickOperation" :select-ids="selectIds" :select-names="selectNames"
+                             :select-project-names="selectProjectNames"></one-click-operation>
+
+        <el-table border :data="tableData" class="adjust-table table-content" @sort-change="sort"
+                  @row-click="handleView"
+                  @filter-change="filter" @select-all="handleSelectAll" @select="selectionChange">
+          <el-table-column
+            type="selection"></el-table-column>
           <el-table-column prop="name" :label="$t('commons.name')" width="250" show-overflow-tooltip>
           </el-table-column>
           <el-table-column prop="projectName" :label="$t('load_test.project_name')" width="200" show-overflow-tooltip/>
@@ -46,6 +56,7 @@
 </template>
 
 <script>
+  import OneClickOperation from './OneClickOperation';
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableHeader from "../../common/components/MsTableHeader";
   import MsTableOperator from "../../common/components/MsTableOperator";
@@ -58,6 +69,7 @@
 
   export default {
     components: {
+      OneClickOperation,
       MsTableOperators,
       MsApiTestStatus, MsMainContainer, MsContainer, MsTableHeader, MsTablePagination, MsTableOperator
     },
@@ -74,6 +86,9 @@
         pageSize: 5,
         total: 0,
         loading: false,
+        selectIds: new Set(),
+        selectNames: new Set(),
+        selectProjectNames: new Set(),
         buttons: [
           {
             tip: this.$t('commons.edit'), icon: "el-icon-edit",
@@ -105,16 +120,46 @@
       create() {
         this.$router.push('/api/test/create');
       },
+
+      handleSelectAll(selection) {
+        if (selection.length > 0) {
+          this.tableData.forEach(item => {
+            this.selectIds.add(item.id);
+            this.selectProjectNames.add(item.projectName)
+          });
+        } else {
+          this.selectIds.clear()
+          this.selectProjectNames.clear()
+        }
+      },
+      selectionChange(selection, row) {
+        if (this.selectIds.has(row.id)) {
+          this.selectIds.delete(row.id);
+          this.selectProjectNames.delete(row.projectName)
+        } else {
+          this.selectIds.add(row.id);
+          this.selectProjectNames.add(row.projectName)
+        }
+      },
+      runTest() {
+        if (this.selectIds.size < 1) {
+          this.$warning(this.$t('test_track.plan_view.select_manipulate'));
+        } else {
+          this.$refs.OneClickOperation.openOneClickOperation();
+        }
+      },
       search() {
         if (this.projectId !== 'all') {
           this.condition.projectId = this.projectId;
         }
-
         let url = "/api/list/" + this.currentPage + "/" + this.pageSize;
         this.result = this.$post(url, this.condition, response => {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
+          this.tableData.forEach(item => {
+            this.selectNames.add(item.name)
+          })
         });
       },
       handleSelectionChange(val) {

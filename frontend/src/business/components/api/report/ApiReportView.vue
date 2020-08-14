@@ -9,18 +9,25 @@
             <span class="time">{{ report.createTime | timestampFormatDate }}</span>
           </header>
           <main v-if="this.isNotRunning">
-            <ms-metric-chart :content="content"/>
-            <el-tabs v-model="activeName">
-              <el-tab-pane :label="$t('api_report.total')" name="total">
-                <ms-scenario-results :scenarios="content.scenarios"/>
-              </el-tab-pane>
-              <el-tab-pane name="fail">
-                <template slot="label">
-                  <span class="fail">{{ $t('api_report.fail') }}</span>
-                </template>
-                <ms-scenario-results :scenarios="fails"/>
-              </el-tab-pane>
-            </el-tabs>
+            <ms-metric-chart :content="content" :totalTime="totalTime"/>
+            <el-row :gutter="20">
+              <el-col :span="8">
+                <el-tabs v-model="activeName" @tab-click="handleClick">
+                  <el-tab-pane :label="$t('api_report.total')" name="total">
+                    <ms-scenario-results :scenarios="content.scenarios" v-on:requestResult="requestResult"/>
+                  </el-tab-pane>
+                  <el-tab-pane name="fail">
+                    <template slot="label">
+                      <span class="fail">{{ $t('api_report.fail') }}</span>
+                    </template>
+                    <ms-scenario-results v-on:requestResult="requestResult" :scenarios="fails"/>
+                  </el-tab-pane>
+                </el-tabs>
+              </el-col>
+              <el-col :span="16" style="margin-top: 40px;">
+                <ms-request-result-tail v-if="isRequestResult" :request="request" :scenario-name="scenarioName"/>
+              </el-col>
+            </el-row>
           </main>
         </section>
       </el-card>
@@ -30,131 +37,150 @@
 
 <script>
 
-import MsRequestResult from "./components/RequestResult";
-import MsScenarioResult from "./components/ScenarioResult";
-import MsMetricChart from "./components/MetricChart";
-import MsScenarioResults from "./components/ScenarioResults";
+  import MsRequestResult from "./components/RequestResult";
+  import MsRequestResultTail from "./components/RequestResultTail";
+  import MsScenarioResult from "./components/ScenarioResult";
+  import MsMetricChart from "./components/MetricChart";
+  import MsScenarioResults from "./components/ScenarioResults";
+  import {Scenario} from "../test/model/ScenarioModel";
 
-export default {
-  name: "MsApiReportView",
-  components: {MsScenarioResults, MsMetricChart, MsScenarioResult, MsRequestResult},
-  data() {
-    return {
-      activeName: "total",
-      content: {},
-      report: {},
-      loading: true,
-      fails: []
-    }
-  },
-
-  methods: {
-    init() {
-      this.loading = true;
-      this.report = {};
-      this.content = {};
-      this.fails = [];
+  export default {
+    name: "MsApiReportView",
+    components: {MsScenarioResults, MsRequestResultTail, MsMetricChart, MsScenarioResult, MsRequestResult},
+    data() {
+      return {
+        activeName: "total",
+        content: {},
+        report: {},
+        loading: true,
+        fails: [],
+        totalTime: "",
+        isRequestResult: false,
+        request: {},
+        scenarioName: null,
+      }
     },
-    getReport() {
-      this.init();
 
-      if (this.reportId) {
-        let url = "/api/report/get/" + this.reportId;
-        this.$get(url, response => {
-          this.report = response.data || {};
-          if (response.data) {
-            if (this.isNotRunning) {
-              try {
-                this.content = JSON.parse(this.report.content);
-              } catch (e) {
-                console.log(this.report.content)
-                throw e;
+    methods: {
+      init() {
+        this.loading = true;
+        this.report = {};
+        this.content = {};
+        this.fails = [];
+      },
+      handleClick(tab, event) {
+        this.isRequestResult = false
+      },
+      getReport() {
+        this.init();
+
+        if (this.reportId) {
+          let url = "/api/report/get/" + this.reportId;
+          this.$get(url, response => {
+            this.report = response.data || {};
+            if (response.data) {
+              if (this.isNotRunning) {
+                try {
+                  this.content = JSON.parse(this.report.content);
+                } catch (e) {
+                  console.log(this.report.content)
+                  throw e;
+                }
+                this.getFails();
+                this.loading = false;
+              } else {
+                setTimeout(this.getReport, 2000)
               }
-              this.getFails();
-              this.loading = false;
             } else {
-              setTimeout(this.getReport, 2000)
+              this.loading = false;
+              this.$error(this.$t('api_report.not_exist'));
             }
-          } else {
-            this.loading = false;
-            this.$error(this.$t('api_report.not_exist'));
-          }
+          });
+        }
+      },
+      getFails() {
+        if (this.isNotRunning) {
+          this.fails = [];
+
+          this.content.scenarios.forEach((scenario) => {
+            this.totalTime = this.totalTime + scenario.responseTime
+            let failScenario = Object.assign({}, scenario);
+            if (scenario.error > 0) {
+              this.fails.push(failScenario);
+              failScenario.requestResults = [];
+              scenario.requestResults.forEach((request) => {
+                if (!request.success) {
+                  let failRequest = Object.assign({}, request);
+                  failScenario.requestResults.push(failRequest);
+                }
+              })
+
+            }
+          })
+        }
+      },
+      requestResult(requestResult) {
+        this.isRequestResult = false;
+        this.$nextTick(function () {
+          this.isRequestResult = true;
+          this.request = requestResult.request;
+          this.scenarioName = requestResult.scenarioName;
         });
       }
     },
-    getFails() {
-      if (this.isNotRunning) {
-        this.fails = [];
-        this.content.scenarios.forEach((scenario) => {
-          let failScenario = Object.assign({}, scenario);
-          if (scenario.error > 0) {
-            this.fails.push(failScenario);
-            failScenario.requestResults = [];
-            scenario.requestResults.forEach((request) => {
-              if (!request.success) {
-                let failRequest = Object.assign({}, request);
-                failScenario.requestResults.push(failRequest);
-              }
-            })
 
-          }
-        })
+    watch: {
+      '$route': 'getReport',
+    },
+
+    created() {
+      this.getReport();
+    },
+
+    computed: {
+      reportId: function () {
+        return this.$route.params.reportId;
+      },
+      path() {
+        return "/api/test/edit?id=" + this.report.testId;
+      },
+      isNotRunning() {
+        return "Running" !== this.report.status;
       }
     }
-  },
-
-  watch: {
-    '$route': 'getReport',
-  },
-
-  created() {
-    this.getReport();
-  },
-
-  computed: {
-    reportId: function () {
-      return this.$route.params.reportId;
-    },
-    path() {
-      return "/api/test/edit?id=" + this.report.testId;
-    },
-    isNotRunning() {
-      return "Running" !== this.report.status;
-    }
   }
-}
 </script>
 <style>
-.report-container .el-tabs__header {
-  margin-bottom: 1px;
-}
+  .report-container .el-tabs__header {
+    margin-bottom: 1px;
+  }
 </style>
 
 <style scoped>
-.report-container {
-  height: calc(100vh - 150px);
-  min-height: 600px;
-  overflow-y: auto;
-}
+  .report-container {
+    height: calc(100vh - 150px);
+    min-height: 600px;
+    overflow-y: auto;
+  }
 
-.report-header {
-  font-size: 15px;
-}
+  .report-header {
+    font-size: 15px;
+  }
 
-.report-header a {
-  text-decoration: none;
-}
+  .report-header a {
+    text-decoration: none;
+  }
 
-.report-header .time {
-  color: #909399;
-  margin-left: 10px;
-}
+  .report-header .time {
+    color: #909399;
+    margin-left: 10px;
+  }
 
-.report-container .fail {
-  color: #F56C6C;
-}
+  .report-container .fail {
+    color: #F56C6C;
+  }
 
-.report-container .is-active .fail {
-  color: inherit;
-}
+  .report-container .is-active .fail {
+    color: inherit;
+  }
 </style>

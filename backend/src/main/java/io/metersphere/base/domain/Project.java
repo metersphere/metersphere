@@ -1,8 +1,7 @@
 package io.metersphere.base.domain;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class Project implements Serializable {
@@ -17,6 +16,10 @@ public class Project implements Serializable {
     private Long createTime;
 
     private Long updateTime;
+
+    private String tapdId;
+
+    private String jiraKey;
 
     private static final long serialVersionUID = 1L;
 }

@@ -245,72 +245,72 @@ public class ProjectExample {
         }
 
         public Criteria andNameIsNull() {
-            addCriterion("name is null");
+            addCriterion("`name` is null");
             return (Criteria) this;
         }
 
         public Criteria andNameIsNotNull() {
-            addCriterion("name is not null");
+            addCriterion("`name` is not null");
             return (Criteria) this;
         }
 
         public Criteria andNameEqualTo(String value) {
-            addCriterion("name =", value, "name");
+            addCriterion("`name` =", value, "name");
             return (Criteria) this;
         }
 
         public Criteria andNameNotEqualTo(String value) {
-            addCriterion("name <>", value, "name");
+            addCriterion("`name` <>", value, "name");
             return (Criteria) this;
         }
 
         public Criteria andNameGreaterThan(String value) {
-            addCriterion("name >", value, "name");
+            addCriterion("`name` >", value, "name");
             return (Criteria) this;
         }
 
         public Criteria andNameGreaterThanOrEqualTo(String value) {
-            addCriterion("name >=", value, "name");
+            addCriterion("`name` >=", value, "name");
             return (Criteria) this;
         }
 
         public Criteria andNameLessThan(String value) {
-            addCriterion("name <", value, "name");
+            addCriterion("`name` <", value, "name");
             return (Criteria) this;
         }
 
         public Criteria andNameLessThanOrEqualTo(String value) {
-            addCriterion("name <=", value, "name");
+            addCriterion("`name` <=", value, "name");
             return (Criteria) this;
         }
 
         public Criteria andNameLike(String value) {
-            addCriterion("name like", value, "name");
+            addCriterion("`name` like", value, "name");
             return (Criteria) this;
         }
 
         public Criteria andNameNotLike(String value) {
-            addCriterion("name not like", value, "name");
+            addCriterion("`name` not like", value, "name");
             return (Criteria) this;
         }
 
         public Criteria andNameIn(List<String> values) {
-            addCriterion("name in", values, "name");
+            addCriterion("`name` in", values, "name");
             return (Criteria) this;
         }
 
         public Criteria andNameNotIn(List<String> values) {
-            addCriterion("name not in", values, "name");
+            addCriterion("`name` not in", values, "name");
             return (Criteria) this;
         }
 
         public Criteria andNameBetween(String value1, String value2) {
-            addCriterion("name between", value1, value2, "name");
+            addCriterion("`name` between", value1, value2, "name");
             return (Criteria) this;
         }
 
         public Criteria andNameNotBetween(String value1, String value2) {
-            addCriterion("name not between", value1, value2, "name");
+            addCriterion("`name` not between", value1, value2, "name");
             return (Criteria) this;
         }
 
@@ -501,6 +501,146 @@ public class ProjectExample {
 
         public Criteria andUpdateTimeNotBetween(Long value1, Long value2) {
             addCriterion("update_time not between", value1, value2, "updateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andTapdIdIsNull() {
+            addCriterion("tapd_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTapdIdIsNotNull() {
+            addCriterion("tapd_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTapdIdEqualTo(String value) {
+            addCriterion("tapd_id =", value, "tapdId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTapdIdNotEqualTo(String value) {
+            addCriterion("tapd_id <>", value, "tapdId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTapdIdGreaterThan(String value) {
+            addCriterion("tapd_id >", value, "tapdId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTapdIdGreaterThanOrEqualTo(String value) {
+            addCriterion("tapd_id >=", value, "tapdId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTapdIdLessThan(String value) {
+            addCriterion("tapd_id <", value, "tapdId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTapdIdLessThanOrEqualTo(String value) {
+            addCriterion("tapd_id <=", value, "tapdId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTapdIdLike(String value) {
+            addCriterion("tapd_id like", value, "tapdId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTapdIdNotLike(String value) {
+            addCriterion("tapd_id not like", value, "tapdId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTapdIdIn(List<String> values) {
+            addCriterion("tapd_id in", values, "tapdId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTapdIdNotIn(List<String> values) {
+            addCriterion("tapd_id not in", values, "tapdId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTapdIdBetween(String value1, String value2) {
+            addCriterion("tapd_id between", value1, value2, "tapdId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTapdIdNotBetween(String value1, String value2) {
+            addCriterion("tapd_id not between", value1, value2, "tapdId");
+            return (Criteria) this;
+        }
+
+        public Criteria andJiraKeyIsNull() {
+            addCriterion("jira_key is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andJiraKeyIsNotNull() {
+            addCriterion("jira_key is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andJiraKeyEqualTo(String value) {
+            addCriterion("jira_key =", value, "jiraKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andJiraKeyNotEqualTo(String value) {
+            addCriterion("jira_key <>", value, "jiraKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andJiraKeyGreaterThan(String value) {
+            addCriterion("jira_key >", value, "jiraKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andJiraKeyGreaterThanOrEqualTo(String value) {
+            addCriterion("jira_key >=", value, "jiraKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andJiraKeyLessThan(String value) {
+            addCriterion("jira_key <", value, "jiraKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andJiraKeyLessThanOrEqualTo(String value) {
+            addCriterion("jira_key <=", value, "jiraKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andJiraKeyLike(String value) {
+            addCriterion("jira_key like", value, "jiraKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andJiraKeyNotLike(String value) {
+            addCriterion("jira_key not like", value, "jiraKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andJiraKeyIn(List<String> values) {
+            addCriterion("jira_key in", values, "jiraKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andJiraKeyNotIn(List<String> values) {
+            addCriterion("jira_key not in", values, "jiraKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andJiraKeyBetween(String value1, String value2) {
+            addCriterion("jira_key between", value1, value2, "jiraKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andJiraKeyNotBetween(String value1, String value2) {
+            addCriterion("jira_key not between", value1, value2, "jiraKey");
             return (Criteria) this;
         }
     }

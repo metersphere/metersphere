@@ -6,28 +6,13 @@
           <i class="icon el-icon-arrow-right" :class="{'is-active': isActive}"/>
           {{scenario.name}}
         </el-col>
-        <el-col :span="2">
-          {{scenario.responseTime}}
-        </el-col>
-        <el-col :span="2">
-          {{scenario.error}}
-        </el-col>
-        <el-col :span="2">
-          {{assertion}}
-        </el-col>
-        <el-col :span="2">
-          <el-tag size="mini" type="success" v-if="success">
-            {{$t('api_report.success')}}
-          </el-tag>
-          <el-tag size="mini" type="danger" v-else>
-            {{$t('api_report.fail')}}
-          </el-tag>
-        </el-col>
       </el-row>
     </div>
     <el-collapse-transition>
       <div v-show="isActive">
-        <ms-request-result v-for="(request, index) in scenario.requestResults" :key="index" :request="request"/>
+        <ms-request-result v-for="(request, index) in scenario.requestResults" :key="index" :request="request"
+                           v-on:requestResult="requestResult"
+                           :scenarioName="scenario.name"/>
       </div>
     </el-collapse-transition>
   </div>
@@ -54,6 +39,9 @@
     methods: {
       active() {
         this.isActive = !this.isActive;
+      },
+      requestResult(requestResult) {
+        this.$emit("requestResult", requestResult);
       }
     },
 
