@@ -367,6 +367,7 @@ export default {
       please_save_test: "請先保存測試",
     },
     scenario: {
+      scenario: "場景",
       dubbo: "Dubbo配寘",
       creator: "創建人",
       config: "場景配寘",
@@ -402,7 +403,8 @@ export default {
       parameters_filter_tips: "只支持MockJs函數結果預覽",
       parameters_advance: "高級參數設置",
       parameters_preview: "預覽",
-      parameters_preview_warning: "請先輸入模版",
+      parameters_mock_filter_tips: "請輸入關鍵字進行過濾",
+      parameters_pre_request: "前置請求提取",
       parameters_advance_mock: "Mock 數據",
       parameters_advance_add_func: "添加函數",
       parameters_advance_add_func_limit: "最多支持5個函數",
