@@ -211,6 +211,7 @@
                   <el-table-column prop="title" label="缺陷标题"/>
                   <el-table-column prop="status" label="缺陷状态"/>
                   <el-table-column prop="description" label="缺陷描述" show-overflow-tooltip/>
+                  <el-table-column prop="platform" label="平台"/>
                 </el-table>
               </el-col>
             </el-row>
