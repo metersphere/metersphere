@@ -46,7 +46,7 @@
     <el-tabs v-model="activeName">
       <el-tab-pane :label="$t('api_test.request.parameters')" name="parameters">
         <ms-api-variable :is-read-only="isReadOnly"
-                         :request="request"
+                         :parameters="request.parameters"
                          :environment="request.environment"
                          :scenario="scenario"
                          :extract="request.extract"
@@ -56,7 +56,11 @@
         <ms-api-key-value :is-read-only="isReadOnly" :suggestions="headerSuggestions" :items="request.headers"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.body')" name="body" v-if="isNotGet">
-        <ms-api-body :is-read-only="isReadOnly" :body="request.body"/>
+        <ms-api-body :is-read-only="isReadOnly"
+                     :body="request.body"
+                     :scenario="scenario"
+                     :extract="request.extract"
+                     :environment="request.environment"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.assertions.label')" name="assertions">
         <ms-api-assertions :is-read-only="isReadOnly" :assertions="request.assertions"/>

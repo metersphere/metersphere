@@ -8,11 +8,15 @@ import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.api.parse.ApiImportParserFactory;
+import io.metersphere.api.parse.JmxDocumentParser;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiTestFileMapper;
 import io.metersphere.base.mapper.ApiTestMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestMapper;
-import io.metersphere.commons.constants.*;
+import io.metersphere.commons.constants.APITestStatus;
+import io.metersphere.commons.constants.FileType;
+import io.metersphere.commons.constants.ScheduleGroup;
+import io.metersphere.commons.constants.ScheduleType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.LogUtil;
@@ -145,6 +149,8 @@ public class APITestService {
             MSException.throwException(Translator.get("file_cannot_be_null"));
         }
         byte[] bytes = fileService.loadFileAsBytes(file.getFileId());
+        // 解析 xml 处理 mock 数据
+        bytes = JmxDocumentParser.parse(bytes);
         InputStream is = new ByteArrayInputStream(bytes);
 
         APITestResult apiTest = get(request.getId());

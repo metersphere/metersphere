@@ -722,8 +722,6 @@ class JMXHttpRequest {
       });
       for (let i = 0; i < parameters.length; i++) {
         let parameter = parameters[i];
-        // 非 GET 请求中出现了 url 参数
-        parameter.value = calculate(parameter.value);
         path += (parameter.name + '=' + parameter.value);
         if (i !== parameters.length - 1) {
           path += '&';
@@ -921,9 +919,6 @@ class JMXGenerator {
 
   addRequestArguments(httpSamplerProxy, request) {
     let args = this.filterKV(request.parameters);
-    args.forEach(arg => {
-      arg.value = calculate(arg.value);
-    });
     if (args.length > 0) {
       httpSamplerProxy.add(new HTTPSamplerArguments(args));
     }
@@ -933,9 +928,6 @@ class JMXGenerator {
     let body = [];
     if (request.body.isKV()) {
       body = this.filterKV(request.body.kvs);
-      body.forEach(arg => {
-        arg.value = calculate(arg.value);
-      });
     } else {
       httpSamplerProxy.boolProp('HTTPSampler.postBodyRaw', true);
       body.push({name: '', value: request.body.raw, encode: false});

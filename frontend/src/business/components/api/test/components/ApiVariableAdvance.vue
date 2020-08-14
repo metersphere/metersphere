@@ -90,13 +90,13 @@
 </template>
 
 <script>
-import {calculate, HttpRequest, Scenario} from "@/business/components/api/test/model/ScenarioModel";
+import {calculate, Scenario} from "@/business/components/api/test/model/ScenarioModel";
 import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
 
 export default {
   name: "MsApiVariableAdvance",
   props: {
-    request: HttpRequest,
+    parameters: Array,
     environment: Object,
     scenario: Scenario,
     currentItem: Object,
@@ -162,9 +162,6 @@ export default {
       this.itemValueVisible = true;
     },
     prepareData() {
-      if (this.request) {
-        this.parameters = this.request.parameters;
-      }
       if (this.scenario) {
         let variables = this.scenario.variables;
         this.scenarioParams = [
