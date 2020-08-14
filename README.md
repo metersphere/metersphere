@@ -189,9 +189,9 @@ v1.1.0 是 v1.0.0 之后的功能版本。
 
 ## 致谢
 
-- [BlazeMeter](https://www.blazemeter.com/)：感谢 BlazeMeter 提供的设计思路
-- [JMeter](https://jmeter.apache.org/)：MeterSphere 使用了 JMeter 作为测试引擎
-- [Element](https://element.eleme.cn/#/)：感谢 Element 提供的优秀组件库
+-  [BlazeMeter](https://www.blazemeter.com/)：感谢 BlazeMeter 提供的设计思路
+-  [JMeter](https://jmeter.apache.org/)：MeterSphere 使用了 JMeter 作为测试引擎
+-  [Element](https://element.eleme.cn/#/)：感谢 Element 提供的优秀组件库
 
 ## 加入 MeterSphere 团队
 
