@@ -51,7 +51,7 @@
           </el-col>
           <el-col :span="18" class="col-height">
             <div>
-              <h1>Jmeter 内置函数</h1>
+              <h1>{{ $t('api_test.request.jmeter_func') }}</h1>
               <el-table border :data="jmeterFuncs" class="adjust-table table-content" height="400">
                 <el-table-column prop="type" label="Type" width="150"/>
                 <el-table-column prop="name" label="Functions" width="250"/>
