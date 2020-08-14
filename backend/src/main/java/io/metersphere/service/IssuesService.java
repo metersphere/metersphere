@@ -3,7 +3,9 @@ package io.metersphere.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.IssuesMapper;
 import io.metersphere.base.mapper.TestCaseIssuesMapper;
+import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
@@ -12,7 +14,6 @@ import io.metersphere.commons.utils.RestTemplateUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.IntegrationRequest;
-import io.metersphere.track.dto.IssuesDTO;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.service.TestCaseService;
 import org.springframework.http.HttpHeaders;
@@ -41,40 +42,16 @@ public class IssuesService {
     private ProjectService projectService;
     @Resource
     private TestCaseService testCaseService;
+    @Resource
+    private IssuesMapper issuesMapper;
+    @Resource
+    private ExtIssuesMapper extIssuesMapper;
 
 
     public void testAuth() {
         String url = "https://api.tapd.cn/quickstart/testauth";
         ResultHolder call = call(url);
         System.out.println(call.getData());
-    }
-
-    public void addIssues(IssuesRequest issuesRequest) {
-        String url = "https://api.tapd.cn/bugs";
-        String testCaseId = issuesRequest.getTestCaseId();
-        String tapdId = getTapdProjectId(testCaseId);
-
-        if (StringUtils.isBlank(tapdId)) {
-            MSException.throwException("未关联Tapd 项目ID");
-        }
-
-        MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
-        paramMap.add("title", issuesRequest.getTitle());
-        paramMap.add("workspace_id", tapdId);
-        paramMap.add("description", issuesRequest.getContent());
-
-        ResultHolder result = call(url, HttpMethod.POST, paramMap);
-
-        String listJson = JSON.toJSONString(result.getData());
-        JSONObject jsonObject = JSONObject.parseObject(listJson);
-        String issuesId = jsonObject.getObject("Bug", IssuesDTO.class).getId();
-
-        // 用例与第三方缺陷平台中的缺陷关联
-        TestCaseIssues issues = new TestCaseIssues();
-        issues.setId(UUID.randomUUID().toString());
-        issues.setIssuesId(issuesId);
-        issues.setTestCaseId(testCaseId);
-        testCaseIssuesMapper.insert(issues);
     }
 
     private ResultHolder call(String url) {
@@ -133,28 +110,142 @@ public class IssuesService {
         return headers;
     }
 
-    public IssuesDTO getTapdIssues(String projectId, String issuesId) {
+    public void addIssues(IssuesRequest issuesRequest) {
+        SessionUser user = SessionUtils.getUser();
+        String orgId = user.getLastOrganizationId();
+
+        boolean tapd = isIntegratedPlatform(orgId, IssuesManagePlatform.Tapd.toString());
+        boolean jira = isIntegratedPlatform(orgId, IssuesManagePlatform.Jira.toString());
+
+        String tapdId = getTapdProjectId(issuesRequest.getTestCaseId());
+        String jiraId = "";
+
+        if (tapd || jira) {
+            if (StringUtils.isBlank(tapdId) && StringUtils.isBlank(jiraId)) {
+                MSException.throwException("集成了缺陷管理平台，但未进行项目关联！");
+            }
+        }
+
+        if (tapd) {
+            // 是否关联了项目
+            if (StringUtils.isNotBlank(tapdId)) {
+                addTapdIssues(issuesRequest);
+            }
+        }
+
+        if (jira) {
+            // addJiraIssues(issuesRequest);
+        }
+
+        if (!tapd && !jira) {
+            addLocalIssues(issuesRequest);
+        }
+
+    }
+
+    public void addTapdIssues(IssuesRequest issuesRequest) {
+        String url = "https://api.tapd.cn/bugs";
+        String testCaseId = issuesRequest.getTestCaseId();
+        String tapdId = getTapdProjectId(testCaseId);
+
+        if (StringUtils.isBlank(tapdId)) {
+            MSException.throwException("未关联Tapd 项目ID");
+        }
+
+        MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("title", issuesRequest.getTitle());
+        paramMap.add("workspace_id", tapdId);
+        paramMap.add("description", issuesRequest.getContent());
+
+        ResultHolder result = call(url, HttpMethod.POST, paramMap);
+
+        String listJson = JSON.toJSONString(result.getData());
+        JSONObject jsonObject = JSONObject.parseObject(listJson);
+        String issuesId = jsonObject.getObject("Bug", Issues.class).getId();
+
+        // 用例与第三方缺陷平台中的缺陷关联
+        TestCaseIssues testCaseIssues = new TestCaseIssues();
+        testCaseIssues.setId(UUID.randomUUID().toString());
+        testCaseIssues.setIssuesId(issuesId);
+        testCaseIssues.setTestCaseId(testCaseId);
+        testCaseIssuesMapper.insert(testCaseIssues);
+
+        // 插入缺陷表
+        Issues issues = new Issues();
+        issues.setId(issuesId);
+        issues.setPlatform(IssuesManagePlatform.Tapd.toString());
+        issuesMapper.insert(issues);
+    }
+
+    public void addLocalIssues(IssuesRequest request) {
+        SessionUser user = SessionUtils.getUser();
+        String id = UUID.randomUUID().toString();
+        Issues issues = new Issues();
+        issues.setId(id);
+        issues.setStatus("new");
+        issues.setReporter(user.getId());
+        issues.setTitle(request.getTitle());
+        issues.setDescription(request.getContent());
+        issues.setCreateTime(System.currentTimeMillis());
+        issues.setUpdateTime(System.currentTimeMillis());
+        issues.setPlatform(IssuesManagePlatform.Local.toString());
+        issuesMapper.insert(issues);
+
+        TestCaseIssues testCaseIssues = new TestCaseIssues();
+        testCaseIssues.setId(UUID.randomUUID().toString());
+        testCaseIssues.setIssuesId(id);
+        testCaseIssues.setTestCaseId(request.getTestCaseId());
+        testCaseIssuesMapper.insert(testCaseIssues);
+    }
+
+    public Issues getTapdIssues(String projectId, String issuesId) {
         String url = "https://api.tapd.cn/bugs?workspace_id=" + projectId + "&id=" + issuesId;
         ResultHolder call = call(url);
         String listJson = JSON.toJSONString(call.getData());
         if (StringUtils.equals(Boolean.FALSE.toString(), listJson)) {
-            return new IssuesDTO();
+            return new Issues();
         }
         JSONObject jsonObject = JSONObject.parseObject(listJson);
-        return jsonObject.getObject("Bug", IssuesDTO.class);
+        return jsonObject.getObject("Bug", Issues.class);
     }
 
-    public List<IssuesDTO> getIssues(String caseId) {
-        List<IssuesDTO> list = new ArrayList<>();
+    public List<Issues> getIssues(String caseId) {
+        List<Issues> list = new ArrayList<>();
+        SessionUser user = SessionUtils.getUser();
+        String orgId = user.getLastOrganizationId();
+
+        boolean tapd = isIntegratedPlatform(orgId, IssuesManagePlatform.Tapd.toString());
+        boolean jira = isIntegratedPlatform(orgId, IssuesManagePlatform.Jira.toString());
+
+        if (tapd) {
+            // 是否关联了项目
+            String tapdId = getTapdProjectId(caseId);
+            if (StringUtils.isNotBlank(tapdId)) {
+                list.addAll(getTapdIssues(caseId));
+            }
+
+        }
+
+        if (jira) {
+            // getJiraIssues(caseId);
+        }
+
+        list.addAll(getLocalIssues(caseId));
+        return list;
+    }
+
+    public List<Issues> getTapdIssues(String caseId) {
+        List<Issues> list = new ArrayList<>();
         String tapdId = getTapdProjectId(caseId);
 
         TestCaseIssuesExample example = new TestCaseIssuesExample();
         example.createCriteria().andTestCaseIdEqualTo(caseId);
 
-        List<TestCaseIssues> issues = testCaseIssuesMapper.selectByExample(example);
-        List<String> issuesIds = issues.stream().map(issue -> issue.getIssuesId()).collect(Collectors.toList());
+        List<Issues> issues = extIssuesMapper.getIssues(caseId, IssuesManagePlatform.Tapd.toString());
+
+        List<String> issuesIds = issues.stream().map(issue -> issue.getId()).collect(Collectors.toList());
         issuesIds.forEach(issuesId -> {
-            IssuesDTO dto = getTapdIssues(tapdId, issuesId);
+            Issues dto = getTapdIssues(tapdId, issuesId);
             if (StringUtils.isBlank(dto.getId())) {
                 // 缺陷不存在，解除用例和缺陷的关联
                 TestCaseIssuesExample issuesExample = new TestCaseIssuesExample();
@@ -163,10 +254,18 @@ public class IssuesService {
                         .andIssuesIdEqualTo(issuesId);
                 testCaseIssuesMapper.deleteByExample(issuesExample);
             } else {
-                list.add(dto);
+                dto.setPlatform(IssuesManagePlatform.Tapd.toString());
+                // 缺陷状态为 关闭，则不显示
+                if (!StringUtils.equals("closed", dto.getStatus())) {
+                    list.add(dto);
+                }
             }
         });
         return list;
+    }
+
+    public List<Issues> getLocalIssues(String caseId) {
+        return extIssuesMapper.getIssues(caseId, IssuesManagePlatform.Local.toString());
     }
 
     public String getTapdProjectId(String testCaseId) {
@@ -174,4 +273,16 @@ public class IssuesService {
         Project project = projectService.getProjectById(testCase.getProjectId());
         return project.getTapdId();
     }
+
+    /**
+     * 是否关联平台
+     */
+    public boolean isIntegratedPlatform(String orgId, String platform) {
+        IntegrationRequest request = new IntegrationRequest();
+        request.setPlatform(platform);
+        request.setOrgId(orgId);
+        ServiceIntegration integration = integrationService.get(request);
+        return StringUtils.isNotBlank(integration.getId());
+    }
+
 }
