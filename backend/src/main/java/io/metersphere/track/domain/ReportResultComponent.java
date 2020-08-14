@@ -86,11 +86,31 @@ public class ReportResultComponent extends ReportComponent {
                     moduleResult.setCaseCount(0);
                     moduleResult.setPassCount(0);
                     moduleResult.setIssuesCount(0);
+                    moduleResult.setFailureCount(0);
+                    moduleResult.setBlockingCount(0);
+                    moduleResult.setPrepareCount(0);
+                    moduleResult.setSkipCount(0);
+                    moduleResult.setUnderwayCount(0);
                     moduleResult.setModuleId(rootNodeId);
                 }
                 moduleResult.setCaseCount(moduleResult.getCaseCount() + 1);
                 if (StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Pass.name())) {
                     moduleResult.setPassCount(moduleResult.getPassCount() + 1);
+                }
+                if (StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Prepare.name())) {
+                    moduleResult.setPrepareCount(moduleResult.getPrepareCount() + 1);
+                }
+                if (StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Underway.name())) {
+                    moduleResult.setUnderwayCount(moduleResult.getUnderwayCount() + 1);
+                }
+                if (StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Failure.name())) {
+                    moduleResult.setFailureCount(moduleResult.getFailureCount() + 1);
+                }
+                if (StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Skip.name())) {
+                    moduleResult.setSkipCount(moduleResult.getSkipCount() + 1);
+                }
+                if (StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Blocking.name())) {
+                    moduleResult.setBlockingCount(moduleResult.getBlockingCount() + 1);
                 }
                 if (StringUtils.isNotBlank(testCase.getIssues())) {
                     if (JSON.parseObject(testCase.getIssues()).getBoolean("hasIssues")) {

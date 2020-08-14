@@ -43,6 +43,8 @@ export default {
     user: '用戶',
     system: '系統',
     personal_setting: '個人設置',
+    api_keys: 'API Keys',
+    quota: '配額管理',
     test_resource_pool: '測試資源池',
     system_setting: '系統設置',
     api: '接口測試',
@@ -608,6 +610,11 @@ export default {
       delete_confirm: "確認刪除模塊: ",
       delete_all_resource: "以及模塊下所有子模塊和測試用例",
       module: "模塊",
+      title: "標題",
+      status: "狀態",
+      describe: "描述",
+      current_owner: "處理人",
+      creation_time: "創建時間"
     },
     home: {
       recent_test: "最近測試",
@@ -647,6 +654,7 @@ export default {
       result_distribution: "測試結果分布",
       custom_component: "自定義模塊",
       create_report: "創建測試報告",
+      defect_list:"缺陷清單",
       view_report: "查看測試報告",
       component_library: "組件庫",
       component_library_tip: "拖拽組件庫中組件,添加至右側,預覽報告效果,每個系統組件只能添加壹個。",
@@ -774,4 +782,23 @@ export default {
       no_qualifying_results: "沒有達到條件的結果",
     }
   },
+  quota: {
+    default: {
+      organization: "組織默認配額",
+      workspace: "工作空間默認配額",
+    },
+    api: "接口測試數量",
+    performance: "性能測試數量",
+    resource_pool: "可用測試資源池",
+    max_threads: "最大並發數",
+    duration: "壓測時長",
+    use_default: "使用默認配額",
+    yes: "是",
+    no: "否",
+    edit: "編輯",
+    list: "配額列表",
+    modify: "修改配額",
+    edit_quota_title: "{0}的配額",
+    workspace_quota_list: "{0}的工作空間配額列表",
+  }
 };

@@ -2,18 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.base.mapper.ScheduleMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.Schedule">
-    <id column="id" jdbcType="VARCHAR" property="id"/>
-    <result column="key" jdbcType="VARCHAR" property="key"/>
-    <result column="type" jdbcType="VARCHAR" property="type"/>
-    <result column="value" jdbcType="VARCHAR" property="value"/>
-    <result column="group" jdbcType="VARCHAR" property="group"/>
-    <result column="job" jdbcType="VARCHAR" property="job"/>
-    <result column="enable" jdbcType="BIT" property="enable"/>
-    <result column="resource_id" jdbcType="VARCHAR" property="resourceId"/>
-    <result column="user_id" jdbcType="VARCHAR" property="userId"/>
-    <result column="workspace_id" jdbcType="VARCHAR" property="workspaceId"/>
-    <result column="create_time" jdbcType="BIGINT" property="createTime"/>
-    <result column="update_time" jdbcType="BIGINT" property="updateTime"/>
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="key" jdbcType="VARCHAR" property="key" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="value" jdbcType="VARCHAR" property="value" />
+    <result column="group" jdbcType="VARCHAR" property="group" />
+    <result column="job" jdbcType="VARCHAR" property="job" />
+    <result column="enable" jdbcType="BIT" property="enable" />
+    <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="workspace_id" jdbcType="VARCHAR" property="workspaceId" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="update_time" jdbcType="BIGINT" property="updateTime" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.Schedule">
     <result column="custom_data" jdbcType="LONGVARCHAR" property="customData" />
@@ -284,18 +284,18 @@
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update schedule
     set id = #{record.id,jdbcType=VARCHAR},
-    `key` = #{record.key,jdbcType=VARCHAR},
-    `type` = #{record.type,jdbcType=VARCHAR},
-    `value` = #{record.value,jdbcType=VARCHAR},
-    `group` = #{record.group,jdbcType=VARCHAR},
-    job = #{record.job,jdbcType=VARCHAR},
-    `enable` = #{record.enable,jdbcType=BIT},
-    resource_id = #{record.resourceId,jdbcType=VARCHAR},
-    user_id = #{record.userId,jdbcType=VARCHAR},
-    workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
-    create_time = #{record.createTime,jdbcType=BIGINT},
-    update_time = #{record.updateTime,jdbcType=BIGINT},
-    custom_data = #{record.customData,jdbcType=LONGVARCHAR}
+      `key` = #{record.key,jdbcType=VARCHAR},
+      `type` = #{record.type,jdbcType=VARCHAR},
+      `value` = #{record.value,jdbcType=VARCHAR},
+      `group` = #{record.group,jdbcType=VARCHAR},
+      job = #{record.job,jdbcType=VARCHAR},
+      `enable` = #{record.enable,jdbcType=BIT},
+      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      user_id = #{record.userId,jdbcType=VARCHAR},
+      workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      custom_data = #{record.customData,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -303,17 +303,17 @@
   <update id="updateByExample" parameterType="map">
     update schedule
     set id = #{record.id,jdbcType=VARCHAR},
-    `key` = #{record.key,jdbcType=VARCHAR},
-    `type` = #{record.type,jdbcType=VARCHAR},
-    `value` = #{record.value,jdbcType=VARCHAR},
-    `group` = #{record.group,jdbcType=VARCHAR},
-    job = #{record.job,jdbcType=VARCHAR},
-    `enable` = #{record.enable,jdbcType=BIT},
-    resource_id = #{record.resourceId,jdbcType=VARCHAR},
-    user_id = #{record.userId,jdbcType=VARCHAR},
-    workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
-    create_time = #{record.createTime,jdbcType=BIGINT},
-    update_time = #{record.updateTime,jdbcType=BIGINT}
+      `key` = #{record.key,jdbcType=VARCHAR},
+      `type` = #{record.type,jdbcType=VARCHAR},
+      `value` = #{record.value,jdbcType=VARCHAR},
+      `group` = #{record.group,jdbcType=VARCHAR},
+      job = #{record.job,jdbcType=VARCHAR},
+      `enable` = #{record.enable,jdbcType=BIT},
+      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      user_id = #{record.userId,jdbcType=VARCHAR},
+      workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>

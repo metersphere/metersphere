@@ -12,4 +12,9 @@ public class TestCaseReportModuleResultDTO {
     private Integer passCount;
     private Double passRate;
     private Integer issuesCount;
+    private Integer prepareCount;
+    private Integer skipCount;
+    private Integer failureCount;
+    private Integer blockingCount;
+    private Integer underwayCount;
 }

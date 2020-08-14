@@ -173,7 +173,7 @@
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
         <el-form-item :label="$t('commons.email')" prop="email">
-          <el-input v-model="form.email" autocomplete="off" :disabled="form.source === 'LDAP' ? true : false"/>
+          <el-input v-model="form.email" autocomplete="off" :disabled="form.source === 'LDAP'"/>
         </el-form-item>
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off"/>
@@ -296,7 +296,7 @@
   import MsTableOperator from "../../common/components/MsTableOperator";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
   import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
-  import {getCurrentUser, listenGoBack, removeGoBackListener} from "../../../../common/js/utils";
+  import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
   import MsRolesTag from "../../common/components/MsRolesTag";
 
   export default {
@@ -469,7 +469,7 @@
       editUserPassword(editPasswordForm) {
         this.$refs[editPasswordForm].validate(valid => {
           if (valid) {
-            this.result = this.$post(this.editPasswordPath, this.ruleForm, response => {
+            this.result = this.$post(this.editPasswordPath, this.ruleForm, () => {
               this.$success(this.$t('commons.modify_success'));
               this.editPasswordVisible = false;
               this.search();
@@ -492,7 +492,7 @@
               let roles = data.roles;
               // let userRoles = result.userRoles;
               this.$set(this.tableData[i], "roles", roles);
-              this.$set(this.tableData[i], "isLdapUser", this.tableData[i].source === 'LDAP' ? true : false);
+              this.$set(this.tableData[i], "isLdapUser", this.tableData[i].source === 'LDAP');
             });
           }
         })

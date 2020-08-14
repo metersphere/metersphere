@@ -43,6 +43,8 @@ export default {
     user: 'User',
     system: 'System',
     personal_setting: 'Personal Setting',
+    api_keys: 'API Keys',
+    quota: 'Quota',
     test_resource_pool: 'Resource Pool',
     system_setting: 'Settings',
     api: 'API',
@@ -608,6 +610,11 @@ export default {
       delete_confirm: "Confirm delete module:",
       delete_all_resource: "and all submodules and test cases under the module",
       module: "Module",
+      title: "Title",
+      describe: "Describe",
+      status: "Status",
+      current_owner: "Current Owner",
+      creation_time: "Creation time"
     },
     home: {
       recent_test: "Recent test",
@@ -647,6 +654,7 @@ export default {
       result_distribution: "Result distribution",
       custom_component: "Custom",
       create_report: "Create report",
+      defect_list:"Defect list",
       view_report: "View report",
       component_library: "Component library",
       component_library_tip: "Drag and drop the component from the component library, add to the right, preview the report effect, only one can be added per system component.",
@@ -775,4 +783,23 @@ export default {
       no_qualifying_results: "No Qualifying Results",
     }
   },
+  quota: {
+    default: {
+      organization: "Organization Default Quota",
+      workspace: "Workspace Default Quota",
+    },
+    api: "Number of interface tests",
+    performance: "Number of performance tests",
+    resource_pool: "Available test resource pool",
+    max_threads: "Maximum Concurrency",
+    duration: "Stress test duration",
+    use_default: "Use default quota",
+    yes: "Yes",
+    no: "No",
+    edit: "Edit",
+    list: "Quota List",
+    modify: "Modify Quota",
+    edit_quota_title: "{0} quota",
+    workspace_quota_list: "Workspace quota list of {0}",
+  }
 };

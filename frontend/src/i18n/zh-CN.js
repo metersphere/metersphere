@@ -36,6 +36,8 @@ export default {
     phone: '电话',
     role: '角色',
     personal_info: '个人信息',
+    api_keys: 'API Keys',
+    quota: '配额管理',
     status: '状态',
     show_all: '显示全部',
     show: '显示',
@@ -613,6 +615,11 @@ export default {
       delete_confirm: "确认删除模块: ",
       delete_all_resource: "以及模块下所有子模块和测试用例",
       module: "模块",
+      title: "标题",
+      status: "状态",
+      describe: "描述",
+      current_owner: "处理人",
+      creation_time: "创建时间"
     },
     home: {
       recent_test: "最近测试",
@@ -651,6 +658,7 @@ export default {
       test_result: "测试结果",
       result_distribution: "测试结果分布",
       custom_component: "自定义模块",
+      defect_list:"缺陷列表",
       create_report: "创建测试报告",
       view_report: "查看测试报告",
       component_library: "组件库",
@@ -779,4 +787,23 @@ export default {
       no_qualifying_results: "没有达到条件的结果",
     }
   },
+  quota: {
+    default: {
+      organization: "组织默认配额",
+      workspace: "工作空间默认配额",
+    },
+    api: "接口测试数量",
+    performance: "性能测试数量",
+    resource_pool: "可用测试资源池",
+    max_threads: "最大并发数",
+    duration: "压测时长",
+    use_default: "使用默认配额",
+    yes: "是",
+    no: "否",
+    edit: "编辑",
+    list: "配额列表",
+    modify: "修改配额",
+    edit_quota_title: "{0}的配额",
+    workspace_quota_list: "{0}的工作空间配额列表",
+  }
 };

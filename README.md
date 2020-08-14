@@ -187,6 +187,12 @@ v1.1.0 是 v1.0.0 之后的功能版本。
 - 基础设施: [Docker](https://www.docker.com/), [Kubernetes](https://kubernetes.io/)
 - 测试引擎: [JMeter](https://jmeter.apache.org/)
 
+## 致谢
+
+-  [BlazeMeter](https://www.blazemeter.com/)：感谢 BlazeMeter 提供的设计思路
+-  [JMeter](https://jmeter.apache.org/)：MeterSphere 使用了 JMeter 作为测试引擎
+-  [Element](https://element.eleme.cn/#/)：感谢 Element 提供的优秀组件库
+
 ## 加入 MeterSphere 团队
 
 我们正在招聘 MeterSphere 技术布道师，一起打造开源明星项目，请发简历到 metersphere@fit2cloud.com
