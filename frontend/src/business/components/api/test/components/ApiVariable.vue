@@ -309,6 +309,7 @@ export default {
     selectTab(tab) {
       this.currentTab = +tab.index;
       this.itemValue = null;
+      this.itemValuePreview = null;
     },
     showPreview() {
       // 找到变量本身
