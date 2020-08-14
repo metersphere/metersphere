@@ -36,6 +36,8 @@ export default {
     phone: '电话',
     role: '角色',
     personal_info: '个人信息',
+    api_keys: 'API Keys',
+    quota: '配额管理',
     status: '状态',
     show_all: '显示全部',
     show: '显示',
@@ -769,4 +771,23 @@ export default {
       no_qualifying_results: "没有达到条件的结果",
     }
   },
+  quota: {
+    default: {
+      organization: "组织默认配额",
+      workspace: "工作空间默认配额",
+    },
+    api: "接口测试数量",
+    performance: "性能测试数量",
+    resource_pool: "可用测试资源池",
+    max_threads: "最大并发数",
+    duration: "压测时长",
+    use_default: "使用默认配额",
+    yes: "是",
+    no: "否",
+    edit: "编辑",
+    list: "配额列表",
+    modify: "修改配额",
+    edit_quota_title: "{0}的配额",
+    workspace_quota_list: "{0}的工作空间配额列表",
+  }
 };

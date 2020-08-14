@@ -91,7 +91,7 @@
         </if>
     </sql>
 
-    <select id="list" resultMap="BaseResultMap" parameterType="io.metersphere.api.dto.APITestResult">
+    <select id="list" resultMap="BaseResultMap">
         select api_test.*, project.name as project_name, user.name as user_name
         from api_test
         left join project on api_test.project_id = project.id

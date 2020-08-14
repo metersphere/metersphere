@@ -43,6 +43,8 @@ export default {
     user: 'User',
     system: 'System',
     personal_setting: 'Personal Setting',
+    api_keys: 'API Keys',
+    quota: 'Quota',
     test_resource_pool: 'Resource Pool',
     system_setting: 'Settings',
     api: 'API',
@@ -766,4 +768,23 @@ export default {
       no_qualifying_results: "No Qualifying Results",
     }
   },
+  quota: {
+    default: {
+      organization: "Organization Default Quota",
+      workspace: "Workspace Default Quota",
+    },
+    api: "Number of interface tests",
+    performance: "Number of performance tests",
+    resource_pool: "Available test resource pool",
+    max_threads: "Maximum Concurrency",
+    duration: "Stress test duration",
+    use_default: "Use default quota",
+    yes: "Yes",
+    no: "No",
+    edit: "Edit",
+    list: "Quota List",
+    modify: "Modify Quota",
+    edit_quota_title: "{0} quota",
+    workspace_quota_list: "Workspace quota list of {0}",
+  }
 };
