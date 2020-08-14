@@ -610,6 +610,11 @@ export default {
       delete_confirm: "確認刪除模塊: ",
       delete_all_resource: "以及模塊下所有子模塊和測試用例",
       module: "模塊",
+      title: "標題",
+      status: "狀態",
+      describe: "描述",
+      current_owner: "處理人",
+      creation_time: "創建時間"
     },
     home: {
       recent_test: "最近測試",
@@ -649,6 +654,7 @@ export default {
       result_distribution: "測試結果分布",
       custom_component: "自定義模塊",
       create_report: "創建測試報告",
+      defect_list:"缺陷清單",
       view_report: "查看測試報告",
       component_library: "組件庫",
       component_library_tip: "拖拽組件庫中組件,添加至右側,預覽報告效果,每個系統組件只能添加壹個。",
