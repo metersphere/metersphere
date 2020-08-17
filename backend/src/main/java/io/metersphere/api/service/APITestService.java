@@ -8,7 +8,7 @@ import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.api.parse.ApiImportParserFactory;
-import io.metersphere.api.parse.JmxDocumentParser;
+import io.metersphere.api.parse.JmeterDocumentParser;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiTestFileMapper;
 import io.metersphere.base.mapper.ApiTestMapper;
@@ -150,7 +150,7 @@ public class APITestService {
         }
         byte[] bytes = fileService.loadFileAsBytes(file.getFileId());
         // 解析 xml 处理 mock 数据
-        bytes = JmxDocumentParser.parse(bytes);
+        bytes = JmeterDocumentParser.parse(bytes);
         InputStream is = new ByteArrayInputStream(bytes);
 
         APITestResult apiTest = get(request.getId());
