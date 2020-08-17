@@ -30,11 +30,12 @@ public class JmeterDocumentParser {
     private final static String ELEMENT_PROP = "elementProp";
 
     public static byte[] parse(byte[] source) {
-        final InputSource inputSource = new InputSource(new ByteArrayInputStream(source));
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        try {
-
+        try (
+                ByteArrayInputStream byteStream = new ByteArrayInputStream(source)
+        ) {
+            InputSource inputSource = new InputSource(byteStream);
             DocumentBuilder docBuilder = factory.newDocumentBuilder();
             final Document document = docBuilder.parse(inputSource);
             final Element jmeterTestPlan = document.getDocumentElement();
@@ -157,7 +158,6 @@ public class JmeterDocumentParser {
                 break;
             case "Argument.value":
                 String textContent = ele.getTextContent();
-                System.out.println(textContent);
                 ele.setTextContent(ScriptEngineUtils.calculate(textContent));
                 break;
             default:

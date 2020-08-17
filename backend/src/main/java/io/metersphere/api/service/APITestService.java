@@ -344,7 +344,10 @@ public class APITestService {
 
         InputStream is = null;
         try {
-            is = new ByteArrayInputStream(file.getBytes());
+            byte[] bytes = file.getBytes();
+            // 解析 xml 处理 mock 数据
+            bytes = JmeterDocumentParser.parse(bytes);
+            is = new ByteArrayInputStream(bytes);
         } catch (IOException e) {
             LogUtil.error(e);
         }
