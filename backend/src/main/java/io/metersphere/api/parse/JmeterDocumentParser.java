@@ -215,8 +215,6 @@ public class JmeterDocumentParser {
 
                     strUrlParas.put(key, value);
                 }
-            } else {
-                strUrlParas.put("errorParam", p);
             }
         }
         return strUrlParas;
