@@ -10,24 +10,26 @@ import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.EncryptUtils;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.RestTemplateUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.IntegrationRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.service.TestCaseService;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -48,10 +50,42 @@ public class IssuesService {
     private ExtIssuesMapper extIssuesMapper;
 
 
-    public void testAuth() {
-        String url = "https://api.tapd.cn/quickstart/testauth";
-        ResultHolder call = call(url);
-        System.out.println(call.getData());
+    public void testAuth(String platform) {
+        if (StringUtils.equals(platform, IssuesManagePlatform.Tapd.toString())) {
+
+            try {
+                String tapdConfig = platformConfig(IssuesManagePlatform.Tapd.toString());
+                JSONObject object = JSON.parseObject(tapdConfig);
+                String account = object.getString("account");
+                String password = object.getString("password");
+                HttpHeaders headers = auth(account, password);
+                HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(headers);
+                RestTemplate restTemplate = new RestTemplate();
+                restTemplate.exchange("https://api.tapd.cn/quickstart/testauth", HttpMethod.GET, requestEntity, String.class);
+            } catch (Exception e) {
+                System.out.println(e);
+                LogUtil.error(e.getMessage(), e);
+                MSException.throwException("验证失败！");
+            }
+
+        } else {
+
+            try {
+                String config = platformConfig(IssuesManagePlatform.Jira.toString());
+                JSONObject object = JSON.parseObject(config);
+                String account = object.getString("account");
+                String password = object.getString("password");
+                String url = object.getString("url");
+                HttpHeaders headers = auth(account, password);
+                HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(headers);
+                RestTemplate restTemplate = new RestTemplate();
+                restTemplate.exchange(url + "rest/api/2/issue/createmeta", HttpMethod.GET, requestEntity, String.class);
+            } catch (Exception e) {
+                LogUtil.error(e.getMessage(), e);
+                MSException.throwException("验证失败！");
+            }
+        }
+
     }
 
     private ResultHolder call(String url) {
@@ -61,7 +95,7 @@ public class IssuesService {
     private ResultHolder call(String url, HttpMethod httpMethod, Object params) {
         String responseJson;
 
-        String config = tapdConfig();
+        String config = platformConfig(IssuesManagePlatform.Tapd.toString());
         JSONObject object = JSON.parseObject(config);
 
         if (object == null) {
@@ -71,7 +105,7 @@ public class IssuesService {
         String account = object.getString("account");
         String password = object.getString("password");
 
-        HttpHeaders header = tapdAuth(account, password);
+        HttpHeaders header = auth(account, password);
 
         if (httpMethod.equals(HttpMethod.GET)) {
             responseJson = RestTemplateUtils.get(url, header);
@@ -88,7 +122,7 @@ public class IssuesService {
 
     }
 
-    private String tapdConfig() {
+    private String platformConfig(String platform) {
         SessionUser user = SessionUtils.getUser();
         String orgId = user.getLastOrganizationId();
 
@@ -97,13 +131,13 @@ public class IssuesService {
             MSException.throwException("organization id is null");
         }
         request.setOrgId(orgId);
-        request.setPlatform(IssuesManagePlatform.Tapd.toString());
+        request.setPlatform(platform);
 
         ServiceIntegration integration = integrationService.get(request);
         return integration.getConfiguration();
     }
 
-    private HttpHeaders tapdAuth(String apiUser, String password) {
+    private HttpHeaders auth(String apiUser, String password) {
         String authKey = EncryptUtils.base64Encoding(apiUser + ":" + password);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Basic " + authKey);
@@ -118,10 +152,10 @@ public class IssuesService {
         boolean jira = isIntegratedPlatform(orgId, IssuesManagePlatform.Jira.toString());
 
         String tapdId = getTapdProjectId(issuesRequest.getTestCaseId());
-        String jiraId = "";
+        String jiraKey = getJiraProjectKey(issuesRequest.getTestCaseId());
 
         if (tapd || jira) {
-            if (StringUtils.isBlank(tapdId) && StringUtils.isBlank(jiraId)) {
+            if (StringUtils.isBlank(tapdId) && StringUtils.isBlank(jiraKey)) {
                 MSException.throwException("集成了缺陷管理平台，但未进行项目关联！");
             }
         }
@@ -134,7 +168,9 @@ public class IssuesService {
         }
 
         if (jira) {
-            // addJiraIssues(issuesRequest);
+            if (StringUtils.isNotBlank(jiraKey)) {
+                addJiraIssues(issuesRequest);
+            }
         }
 
         if (!tapd && !jira) {
@@ -177,6 +213,72 @@ public class IssuesService {
         issuesMapper.insert(issues);
     }
 
+    public void addJiraIssues(IssuesRequest issuesRequest) {
+        String config = platformConfig(IssuesManagePlatform.Jira.toString());
+        JSONObject object = JSON.parseObject(config);
+
+        if (object == null) {
+            MSException.throwException("jira config is null");
+        }
+
+        String account = object.getString("account");
+        String password = object.getString("password");
+        String url = object.getString("url");
+        String auth = EncryptUtils.base64Encoding(account + ":" + password);
+
+        String testCaseId = issuesRequest.getTestCaseId();
+        String jiraKey = getJiraProjectKey(testCaseId);
+
+
+        if (StringUtils.isBlank(jiraKey)) {
+            MSException.throwException("未关联Jira 项目Key");
+        }
+
+        String json = "{\n" +
+                "    \"fields\":{\n" +
+                "        \"project\":{\n" +
+                "            \"key\":\"" + jiraKey + "\"\n" +
+                "        },\n" +
+                "        \"summary\":\"" + issuesRequest.getTitle() + "\",\n" +
+                "        \"description\":\"" + issuesRequest.getContent() + "\",\n" +
+                "        \"issuetype\":{\n" +
+                "            \"id\":\"10009\",\n" +
+                "            \"name\":\"Defect\"\n" +
+                "        }\n" +
+                "    }\n" +
+                "}";
+
+        String result = addJiraIssue(url, auth, json);
+
+        JSONObject jsonObject = JSON.parseObject(result);
+        String id = jsonObject.getString("id");
+
+        // 用例与第三方缺陷平台中的缺陷关联
+        TestCaseIssues testCaseIssues = new TestCaseIssues();
+        testCaseIssues.setId(UUID.randomUUID().toString());
+        testCaseIssues.setIssuesId(id);
+        testCaseIssues.setTestCaseId(testCaseId);
+        testCaseIssuesMapper.insert(testCaseIssues);
+
+        // 插入缺陷表
+        Issues issues = new Issues();
+        issues.setId(id);
+        issues.setPlatform(IssuesManagePlatform.Jira.toString());
+        issuesMapper.insert(issues);
+    }
+
+    private String addJiraIssue(String url, String auth, String json) {
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.add("Authorization", "Basic " + auth);
+        requestHeaders.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+        //HttpEntity
+        HttpEntity<String> requestEntity = new HttpEntity<>(json, requestHeaders);
+        RestTemplate restTemplate = new RestTemplate();
+        //post
+        ResponseEntity<String> responseEntity = restTemplate.exchange(url + "/rest/api/2/issue", HttpMethod.POST, requestEntity, String.class);
+        return responseEntity.getBody();
+    }
+
     public void addLocalIssues(IssuesRequest request) {
         SessionUser user = SessionUtils.getUser();
         String id = UUID.randomUUID().toString();
@@ -209,6 +311,39 @@ public class IssuesService {
         return jsonObject.getObject("Bug", Issues.class);
     }
 
+    public Issues getJiraIssues(HttpHeaders headers, String url, String issuesId) {
+        HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(headers);
+        RestTemplate restTemplate = new RestTemplate();
+        //post
+        ResponseEntity<String> responseEntity = null;
+        Issues issues = new Issues();
+        try {
+            responseEntity = restTemplate.exchange(url + "/rest/api/2/issue/" + issuesId, HttpMethod.GET, requestEntity, String.class);
+            String body = responseEntity.getBody();
+
+            JSONObject obj = JSONObject.parseObject(body);
+            JSONObject fields = (JSONObject) obj.get("fields");
+            JSONObject statusObj = (JSONObject) fields.get("status");
+            JSONObject statusCategory = (JSONObject) statusObj.get("statusCategory");
+
+            String id = obj.getString("id");
+            String title = fields.getString("summary");
+            String description = fields.getString("description");
+            String status = statusCategory.getString("key");
+
+            issues.setId(id);
+            issues.setTitle(title);
+            issues.setDescription(description);
+            issues.setStatus(status);
+            issues.setPlatform(IssuesManagePlatform.Jira.toString());
+        } catch (Exception e) {
+            return new Issues();
+        }
+
+        return issues;
+
+    }
+
     public List<Issues> getIssues(String caseId) {
         List<Issues> list = new ArrayList<>();
         SessionUser user = SessionUtils.getUser();
@@ -227,7 +362,10 @@ public class IssuesService {
         }
 
         if (jira) {
-            // getJiraIssues(caseId);
+            String jiraKey = getJiraProjectKey(caseId);
+            if (StringUtils.isNotBlank(jiraKey)) {
+                list.addAll(getJiraIssues(caseId));
+            }
         }
 
         list.addAll(getLocalIssues(caseId));
@@ -253,10 +391,52 @@ public class IssuesService {
                         .andTestCaseIdEqualTo(caseId)
                         .andIssuesIdEqualTo(issuesId);
                 testCaseIssuesMapper.deleteByExample(issuesExample);
+                issuesMapper.deleteByPrimaryKey(issuesId);
             } else {
                 dto.setPlatform(IssuesManagePlatform.Tapd.toString());
                 // 缺陷状态为 关闭，则不显示
                 if (!StringUtils.equals("closed", dto.getStatus())) {
+                    list.add(dto);
+                }
+            }
+        });
+        return list;
+    }
+
+    public List<Issues> getJiraIssues(String caseId) {
+        List<Issues> list = new ArrayList<>();
+
+        String config = platformConfig(IssuesManagePlatform.Jira.toString());
+        JSONObject object = JSON.parseObject(config);
+
+        if (object == null) {
+            MSException.throwException("tapd config is null");
+        }
+
+        String account = object.getString("account");
+        String password = object.getString("password");
+        String url = object.getString("url");
+        HttpHeaders headers = auth(account, password);
+
+        TestCaseIssuesExample example = new TestCaseIssuesExample();
+        example.createCriteria().andTestCaseIdEqualTo(caseId);
+
+        List<Issues> issues = extIssuesMapper.getIssues(caseId, IssuesManagePlatform.Jira.toString());
+
+        List<String> issuesIds = issues.stream().map(issue -> issue.getId()).collect(Collectors.toList());
+        issuesIds.forEach(issuesId -> {
+            Issues dto = getJiraIssues(headers, url, issuesId);
+            if (StringUtils.isBlank(dto.getId())) {
+                // 缺陷不存在，解除用例和缺陷的关联
+                TestCaseIssuesExample issuesExample = new TestCaseIssuesExample();
+                issuesExample.createCriteria()
+                        .andTestCaseIdEqualTo(caseId)
+                        .andIssuesIdEqualTo(issuesId);
+                testCaseIssuesMapper.deleteByExample(issuesExample);
+                issuesMapper.deleteByPrimaryKey(issuesId);
+            } else {
+                // 缺陷状态为 完成，则不显示
+                if (!StringUtils.equals("done", dto.getStatus())) {
                     list.add(dto);
                 }
             }
@@ -272,6 +452,12 @@ public class IssuesService {
         TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
         Project project = projectService.getProjectById(testCase.getProjectId());
         return project.getTapdId();
+    }
+
+    public String getJiraProjectKey(String testCaseId) {
+        TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
+        Project project = projectService.getProjectById(testCase.getProjectId());
+        return project.getJiraKey();
     }
 
     /**

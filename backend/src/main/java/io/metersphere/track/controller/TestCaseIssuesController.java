@@ -24,4 +24,10 @@ public class TestCaseIssuesController {
     public List<Issues> getIssues(@PathVariable String id) {
         return issuesService.getIssues(id);
     }
+
+    @GetMapping("/auth/{platform}")
+    public void testAuth(@PathVariable String platform) {
+        issuesService.testAuth(platform);
+    }
+
 }
