@@ -24,7 +24,7 @@ public class ScriptEngineUtils {
 
     public static String calculate(String input) {
         try {
-            return engine.eval(input).toString();
+            return engine.eval("calculate('" + input + "')").toString();
         } catch (ScriptException e) {
             LogUtil.error(e);
             return input;
