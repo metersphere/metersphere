@@ -49,15 +49,16 @@ public class ShiroDBRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
+        String userId = (String) principals.getPrimaryPrincipal();
+        return getAuthorizationInfo(userId, userService);
+    }
 
-        String userName = (String) principals.getPrimaryPrincipal();
+    public static AuthorizationInfo getAuthorizationInfo(String userId, UserService userService) {
         SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
-
         // roles 内容填充
-        UserDTO userDTO = userService.getUserDTO(userName);
+        UserDTO userDTO = userService.getUserDTO(userId);
         Set<String> roles = userDTO.getRoles().stream().map(Role::getId).collect(Collectors.toSet());
         authorizationInfo.setRoles(roles);
-
         return authorizationInfo;
     }
 
@@ -148,7 +149,6 @@ public class ShiroDBRealm extends AuthorizingRealm {
         if (!userService.checkUserPassword(userId, password)) {
             throw new IncorrectCredentialsException(Translator.get("password_is_incorrect"));
         }
-        //
         SessionUser sessionUser = SessionUser.fromUser(user);
         SessionUtils.putUser(sessionUser);
         return new SimpleAuthenticationInfo(userId, password, getName());
