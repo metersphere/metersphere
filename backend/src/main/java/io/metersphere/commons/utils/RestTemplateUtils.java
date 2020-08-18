@@ -23,7 +23,8 @@ public class RestTemplateUtils {
             ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
             return responseEntity.getBody();
         } catch (Exception e) {
-            MSException.throwException("接口调用失败：" + e.getMessage());
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException("Tapd接口调用失败：" + e.getMessage());
             return null;
         }
     }
@@ -36,7 +37,8 @@ public class RestTemplateUtils {
             ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
             return responseEntity.getBody();
         } catch (Exception e) {
-            MSException.throwException("接口调用失败：" + e.getMessage());
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException("Tapd接口调用失败：" + e.getMessage());
             return null;
         }
 

@@ -103,6 +103,28 @@
         </el-table-column>
 
         <el-table-column
+          prop="nodePath"
+          label="缺陷"
+          show-overflow-tooltip>
+          <template v-slot:default="scope">
+            <el-popover
+              placement="right"
+              width="400"
+              trigger="hover">
+              <el-table border class="adjust-table" :data="scope.row.issuesContent" style="width: 100%">
+<!--                <el-table-column prop="id" label="缺陷ID" show-overflow-tooltip/>-->
+                <el-table-column prop="title" label="缺陷标题"/>
+                <el-table-column prop="description" label="缺陷描述" show-overflow-tooltip/>
+<!--                <el-table-column prop="status" label="缺陷状态"/>-->
+                <el-table-column prop="platform" label="平台"/>
+              </el-table>
+              <el-button slot="reference" type="text">{{scope.row.issuesSize}}</el-button>
+            </el-popover>
+          </template>
+        </el-table-column>
+
+
+        <el-table-column
           prop="executorName"
           :label="$t('test_track.plan_view.executor')">
         </el-table-column>
@@ -317,6 +339,14 @@
             let data = response.data;
             this.total = data.itemCount;
             this.tableData = data.listObject;
+            for (let i = 0; i < this.tableData.length; i++) {
+              this.$set(this.tableData[i], "issuesSize", 0);
+              this.$get("/issues/get/" + this.tableData[i].caseId, response => {
+                let issues = response.data;
+                this.$set(this.tableData[i], "issuesSize", issues.length);
+                this.$set(this.tableData[i], "issuesContent", issues);
+              })
+            }
             // this.selectIds.clear();
             this.selectRows.clear();
           });

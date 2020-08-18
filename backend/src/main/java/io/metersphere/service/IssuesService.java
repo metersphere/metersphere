@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
@@ -63,7 +64,6 @@ public class IssuesService {
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.exchange("https://api.tapd.cn/quickstart/testauth", HttpMethod.GET, requestEntity, String.class);
             } catch (Exception e) {
-                System.out.println(e);
                 LogUtil.error(e.getMessage(), e);
                 MSException.throwException("验证失败！");
             }
@@ -275,7 +275,14 @@ public class IssuesService {
         HttpEntity<String> requestEntity = new HttpEntity<>(json, requestHeaders);
         RestTemplate restTemplate = new RestTemplate();
         //post
-        ResponseEntity<String> responseEntity = restTemplate.exchange(url + "/rest/api/2/issue", HttpMethod.POST, requestEntity, String.class);
+        ResponseEntity<String> responseEntity = null;
+        try {
+            responseEntity = restTemplate.exchange(url + "/rest/api/2/issue", HttpMethod.POST, requestEntity, String.class);
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException("调用Jira接口创建缺陷失败");
+        }
+
         return responseEntity.getBody();
     }
 
@@ -336,8 +343,15 @@ public class IssuesService {
             issues.setDescription(description);
             issues.setStatus(status);
             issues.setPlatform(IssuesManagePlatform.Jira.toString());
-        } catch (Exception e) {
+        } catch (HttpClientErrorException.NotFound e) {
+            LogUtil.error(e.getStackTrace(), e);
             return new Issues();
+        } catch (HttpClientErrorException.Unauthorized e) {
+            LogUtil.error(e.getStackTrace(), e);
+            MSException.throwException("获取Jira缺陷失败，检查Jira配置信息");
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException("调用Jira接口获取缺陷失败");
         }
 
         return issues;
@@ -445,7 +459,11 @@ public class IssuesService {
     }
 
     public List<Issues> getLocalIssues(String caseId) {
-        return extIssuesMapper.getIssues(caseId, IssuesManagePlatform.Local.toString());
+        List<Issues> list = extIssuesMapper.getIssues(caseId, IssuesManagePlatform.Local.toString());
+        List<Issues> issues = list.stream()
+                .filter(l -> !StringUtils.equals(l.getStatus(), "closed"))
+                .collect(Collectors.toList());
+        return issues;
     }
 
     public String getTapdProjectId(String testCaseId) {
@@ -469,6 +487,13 @@ public class IssuesService {
         request.setOrgId(orgId);
         ServiceIntegration integration = integrationService.get(request);
         return StringUtils.isNotBlank(integration.getId());
+    }
+
+    public void closeLocalIssue(String issueId) {
+        Issues issues = new Issues();
+        issues.setId(issueId);
+        issues.setStatus("closed");
+        issuesMapper.updateByPrimaryKeySelective(issues);
     }
 
 }

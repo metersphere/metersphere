@@ -30,4 +30,9 @@ public class TestCaseIssuesController {
         issuesService.testAuth(platform);
     }
 
+    @GetMapping("/close/{id}")
+    public void closeLocalIssue(@PathVariable String id) {
+        issuesService.closeLocalIssue(id);
+    }
+
 }
