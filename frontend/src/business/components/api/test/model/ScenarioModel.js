@@ -1,5 +1,5 @@
 import {
-  Arguments, BeanShellPreProcessor,
+  Arguments, BeanShellPostProcessor, BeanShellPreProcessor,
   CookieManager,
   DubboSample,
   DurationAssertion,
@@ -906,7 +906,7 @@ class JMXGenerator {
       httpSamplerProxy.put(new BeanShellPreProcessor(name, request.beanShellPreProcessor));
     }
     if (request.beanShellPostProcessor && request.beanShellPostProcessor.script) {
-      httpSamplerProxy.put(new BeanShellPreProcessor(name, request.beanShellPostProcessor));
+      httpSamplerProxy.put(new BeanShellPostProcessor(name, request.beanShellPostProcessor));
     }
   }
 

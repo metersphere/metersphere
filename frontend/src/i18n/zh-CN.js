@@ -107,6 +107,7 @@ export default {
     please_upload: '请上传文件',
     formatErr: '格式错误',
     please_save: '请先保存',
+    reference_documentation: "参考文档",
     id: 'ID',
     date: {
       select_date: '选择日期',
@@ -446,6 +447,17 @@ export default {
         regex_expression: "Perl型正则表达式",
         json_path_expression: "JSONPath表达式",
         xpath_expression: "XPath表达式",
+      },
+      processor: {
+        pre_exec_script : "预执行脚本",
+        post_exec_script: "后执行脚本",
+        code_template: "代码模版",
+        bean_shell_processor_tip: "仅支持 BeanShell 脚本",
+        code_template_get_variable: "获取变量",
+        code_template_set_variable: "设置变量",
+        code_template_get_response_header: "获取响应头",
+        code_template_get_response_code: "获取响应码",
+        code_template_get_response_result: "获取响应结果"
       },
       dubbo: {
         protocol: "协议",
