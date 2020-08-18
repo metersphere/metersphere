@@ -1,5 +1,5 @@
 import {
-  Arguments,
+  Arguments, BeanShellPreProcessor,
   CookieManager,
   DubboSample,
   DurationAssertion,
@@ -302,6 +302,8 @@ export class HttpRequest extends Request {
     this.environment = undefined;
     this.useEnvironment = undefined;
     this.debugReport = undefined;
+    this.beanShellPreProcessor = undefined;
+    this.beanShellPostProcessor = undefined;
 
     this.set(options);
     this.sets({parameters: KeyValue, headers: KeyValue}, options);
@@ -313,6 +315,8 @@ export class HttpRequest extends Request {
     options.body = new Body(options.body);
     options.assertions = new Assertions(options.assertions);
     options.extract = new Extract(options.extract);
+    options.beanShellPreProcessor = new BeanShellProcessor(options.beanShellPreProcessor);
+    options.beanShellPostProcessor = new BeanShellProcessor(options.beanShellPostProcessor);
     return options;
   }
 
@@ -352,6 +356,7 @@ export class HttpRequest extends Request {
   showMethod() {
     return this.method.toUpperCase();
   }
+
 }
 
 export class DubboRequest extends Request {
@@ -561,6 +566,14 @@ export class AssertionType extends BaseConfig {
   constructor(type) {
     super();
     this.type = type;
+  }
+}
+
+export class BeanShellProcessor extends BaseConfig {
+  constructor(options) {
+    super();
+    this.script = undefined;
+    this.set(options);
   }
 }
 
@@ -818,6 +831,7 @@ class JMXGenerator {
           } else {
             this.addRequestBody(sampler, request);
           }
+          this.addBeanShellProcessor(sampler, request);
         }
 
         this.addRequestAssertion(sampler, request);
@@ -883,6 +897,16 @@ class JMXGenerator {
     let headers = this.filterKV(request.headers);
     if (headers.length > 0) {
       httpSamplerProxy.put(new HeaderManager(name, headers));
+    }
+  }
+
+  addBeanShellProcessor(httpSamplerProxy, request) {
+    let name = request.name;
+    if (request.beanShellPreProcessor && request.beanShellPreProcessor.script) {
+      httpSamplerProxy.put(new BeanShellPreProcessor(name, request.beanShellPreProcessor));
+    }
+    if (request.beanShellPostProcessor && request.beanShellPostProcessor.script) {
+      httpSamplerProxy.put(new BeanShellPreProcessor(name, request.beanShellPostProcessor));
     }
   }
 

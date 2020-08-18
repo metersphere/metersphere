@@ -405,12 +405,40 @@ export class ResponseHeadersAssertion extends ResponseAssertion {
   }
 }
 
+export class BeanShellProcessor extends DefaultTestElement {
+  constructor(tag, guiclass, testclass, testname, processor) {
+    super(tag, guiclass, testclass, testname);
+    this.processor = processor || {};
+    this.boolProp('resetInterpreter', false);
+    this.stringProp('parameters');
+    this.stringProp('filename');
+    this.stringProp('script', processor.script);
+  }
+}
+
+export class BeanShellPreProcessor extends BeanShellProcessor {
+  constructor(testName, processor) {
+    super('BeanShellPreProcessor', 'TestBeanGUI', 'BeanShellPreProcessor', testName, processor)
+  }
+}
+
+export class BeanShellPostProcessor extends BeanShellProcessor {
+  constructor(testName, script) {
+    let processor = {
+      script: script,
+    };
+    super('BeanShellPostProcessor', 'TestBeanGUI', 'BeanShellPostProcessor', testName, processor)
+  }
+}
+
 export class HeaderManager extends DefaultTestElement {
   constructor(testName, headers) {
     super('HeaderManager', 'HeaderPanel', 'HeaderManager', testName);
     this.headers = headers || [];
 
     let collectionProp = this.collectionProp('HeaderManager.headers');
+
+
     this.headers.forEach(header => {
       let elementProp = collectionProp.elementProp('', 'Header');
       elementProp.stringProp('Header.name', header.name);
