@@ -108,6 +108,7 @@ export default {
     formatErr: 'Format Error',
     id: 'ID',
     please_upload: 'Please upload file',
+    reference_documentation: "Reference documentation",
     date: {
       select_date: 'Select date',
       start_date: 'Start date',
@@ -458,6 +459,17 @@ export default {
         regex_expression: "Regular expression",
         json_path_expression: "JSONPath expression",
         xpath_expression: "XPath expression",
+      },
+      processor: {
+        pre_exec_script : "PreProcessor",
+        post_exec_script: "PostProcessor",
+        code_template: "Code template",
+        bean_shell_processor_tip: "Currently only BeanShell scripts are supported",
+        code_template_get_variable: "Get variable",
+        code_template_set_variable: "Set variable",
+        code_template_get_response_header: "Get response header",
+        code_template_get_response_code: "Get response code",
+        code_template_get_response_result: "Get response result"
       },
       dubbo: {
         protocol: "protocol",
@@ -816,5 +828,7 @@ export default {
     modify: "Modify Quota",
     edit_quota_title: "{0} quota",
     workspace_quota_list: "Workspace quota list of {0}",
+    unlimited: "Unlimited",
+    clean: "Clean"
   }
 };

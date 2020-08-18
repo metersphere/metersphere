@@ -423,10 +423,7 @@ export class BeanShellPreProcessor extends BeanShellProcessor {
 }
 
 export class BeanShellPostProcessor extends BeanShellProcessor {
-  constructor(testName, script) {
-    let processor = {
-      script: script,
-    };
+  constructor(testName, processor) {
     super('BeanShellPostProcessor', 'TestBeanGUI', 'BeanShellPostProcessor', testName, processor)
   }
 }

@@ -105,6 +105,7 @@ export default {
     formatErr: '格式錯誤',
     please_save: '請先保存',
     id: 'ID',
+    reference_documentation: "參考文檔",
     please_upload: '請上傳文件',
     date: {
       select_date: '選擇日期',
@@ -458,6 +459,17 @@ export default {
         regex_expression: "Perl型規則運算式",
         json_path_expression: "JSONPath運算式",
         xpath_expression: "XPath運算式",
+      },
+      processor: {
+        pre_exec_script : "預執行腳本",
+        post_exec_script: "後執行腳本",
+        code_template: "代碼模版",
+        bean_shell_processor_tip: "僅支持 BeanShell 腳本",
+        code_template_get_variable: "獲取變量",
+        code_template_set_variable: "設置變量",
+        code_template_get_response_header: "獲取響應頭",
+        code_template_get_response_code: "獲取響應碼",
+        code_template_get_response_result: "獲取響應結果"
       },
       dubbo: {
         protocol: "協定",
@@ -815,5 +827,7 @@ export default {
     modify: "修改配額",
     edit_quota_title: "{0}的配額",
     workspace_quota_list: "{0}的工作空間配額列表",
+    unlimited: "無限制",
+    clean: "清空"
   }
 };
