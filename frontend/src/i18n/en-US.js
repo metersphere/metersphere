@@ -219,6 +219,8 @@ export default {
     password_format_is_incorrect: 'Valid password: 8-30 digits, English upper and lower case letters + numbers + special characters (optional)',
     old_password: 'Old Password',
     new_password: 'New Password',
+    repeat_password: 'Repeat',
+    inconsistent_passwords: 'The two passwords entered are inconsistent',
     remove_member: 'Are you sure you want to remove this member',
     input_id_or_email: 'Please enter user ID, or user Email',
     no_such_user: 'Without this user information, please enter the correct user ID or user Email!',

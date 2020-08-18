@@ -217,6 +217,8 @@ export default {
     password_format_is_incorrect: '有效密碼：8-30 位，英文大小寫字母+數位+特殊字元（可選）',
     old_password: '舊密碼',
     new_password: '新密碼',
+    repeat_password: '確認密碼',
+    inconsistent_passwords: '兩次輸入的密碼不一致',
     remove_member: '確定要移除該成員嗎',
     input_id_or_email: '請輸入用戶 ID, 或者 用戶郵箱',
     no_such_user: '無此用戶信息, 請輸入正確的用戶 ID 或者 用戶郵箱！',

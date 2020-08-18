@@ -66,6 +66,9 @@
         <el-form-item :label="$t('member.new_password')" prop="newpassword">
           <el-input v-model="ruleForm.newpassword" autocomplete="off" show-password/>
         </el-form-item>
+        <el-form-item :label="$t('member.repeat_password')" prop="repeatPassword">
+          <el-input v-model="ruleForm.repeatPassword" autocomplete="off" show-password/>
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
            <ms-dialog-footer
@@ -139,6 +142,15 @@
               message: this.$t('member.password_format_is_incorrect'),
               trigger: 'blur'
             },
+          ],
+          repeatPassword: [
+            {required: true, message: this.$t('user.input_password'), trigger: 'blur'},
+            {
+              required: true,
+              pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,30}$/,
+              message: this.$t('member.password_format_is_incorrect'),
+              trigger: 'blur'
+            },
           ]
         }
       }
@@ -188,6 +200,10 @@
       updatePassword(editPasswordForm) {
         this.$refs[editPasswordForm].validate(valid => {
           if (valid) {
+            if (this.ruleForm.newpassword !== this.ruleForm.repeatPassword) {
+              this.$warning(this.$t('member.inconsistent_passwords'));
+              return;
+            }
             this.result = this.$post(this.updatePasswordPath, this.ruleForm, response => {
               this.$success(this.$t('commons.modify_success'));
               this.editPasswordVisible = false;

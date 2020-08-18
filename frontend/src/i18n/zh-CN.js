@@ -219,6 +219,8 @@ export default {
     password_format_is_incorrect: '有效密码：8-30位，英文大小写字母+数字+特殊字符（可选）',
     old_password: '旧密码',
     new_password: '新密码',
+    repeat_password: '确认密码',
+    inconsistent_passwords: '两次输入的密码不一致',
     remove_member: '确定要移除该成员吗',
     input_id_or_email: '请输入用户 ID, 或者 用户邮箱',
     no_such_user: '无此用户信息, 请输入正确的用户 ID 或者 用户邮箱！',
