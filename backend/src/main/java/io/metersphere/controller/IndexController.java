@@ -24,12 +24,12 @@ public class IndexController {
         }
     }
 
-    @GetMapping(value = "/oss/login")
+    @GetMapping(value = "/sso/login")
     public String ossLogin() {
         return "redirect:/";
     }
 
-    @GetMapping(value = "/oss/logout")
+    @GetMapping(value = "/sso/logout")
     public void ossLogout() {
         SecurityUtils.getSubject().logout();
     }

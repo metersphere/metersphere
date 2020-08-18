@@ -41,9 +41,9 @@
                 localStorage.clear();
                 window.location.href = "/login";
               } else {
-                if (response.data.message === 'oss') {
+                if (response.data.message === 'sso') {
                   localStorage.clear();
-                  window.location.href = "/oss/logout"
+                  window.location.href = "/sso/logout"
                 }
               }
             }).catch(error => {

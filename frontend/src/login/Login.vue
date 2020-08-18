@@ -88,8 +88,8 @@
     beforeCreate() {
       this.$get("/isLogin").then(response => {
         if (!response.data.success) {
-          if (response.data.message === 'oss') {
-            window.location.href = "/oss/login"
+          if (response.data.message === 'sso') {
+            window.location.href = "/sso/login"
           } else {
             this.ready = true;
           }

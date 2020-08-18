@@ -1,6 +1,6 @@
 package io.metersphere.controller;
 
-import io.metersphere.commons.constants.OssMode;
+import io.metersphere.commons.constants.SsoMode;
 import io.metersphere.commons.constants.UserSource;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.SessionUtils;
@@ -32,9 +32,9 @@ public class LoginController {
             }
             return ResultHolder.success(user);
         }
-        String ossMode = env.getProperty("oss.mode");
-        if (ossMode != null && StringUtils.equalsIgnoreCase(OssMode.CAS.name(), ossMode)) {
-            return ResultHolder.error("oss");
+        String ssoMode = env.getProperty("sso.mode");
+        if (ssoMode != null && StringUtils.equalsIgnoreCase(SsoMode.CAS.name(), ssoMode)) {
+            return ResultHolder.error("sso");
         }
         return ResultHolder.error("");
     }
@@ -52,9 +52,9 @@ public class LoginController {
 
     @GetMapping(value = "/signout")
     public ResultHolder logout() {
-        String ossMode = env.getProperty("oss.mode");
-        if (ossMode != null && StringUtils.equalsIgnoreCase(OssMode.CAS.name(), ossMode)) {
-            return ResultHolder.error("oss");
+        String ssoMode = env.getProperty("sso.mode");
+        if (ssoMode != null && StringUtils.equalsIgnoreCase(SsoMode.CAS.name(), ssoMode)) {
+            return ResultHolder.error("sso");
         } else {
             SecurityUtils.getSubject().logout();
         }
