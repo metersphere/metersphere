@@ -381,6 +381,8 @@ export class DubboRequest extends Request {
     // Scenario.dubboConfig
     this.dubboConfig = undefined;
     this.debugReport = undefined;
+    this.beanShellPreProcessor = new BeanShellProcessor(options.beanShellPreProcessor);
+    this.beanShellPostProcessor = new BeanShellProcessor(options.beanShellPostProcessor);
 
     this.sets({args: KeyValue, attachmentArgs: KeyValue}, options);
   }
@@ -831,8 +833,9 @@ class JMXGenerator {
           } else {
             this.addRequestBody(sampler, request);
           }
-          this.addBeanShellProcessor(sampler, request);
         }
+
+        this.addBeanShellProcessor(sampler, request);
 
         this.addRequestAssertion(sampler, request);
 
@@ -900,13 +903,13 @@ class JMXGenerator {
     }
   }
 
-  addBeanShellProcessor(httpSamplerProxy, request) {
+  addBeanShellProcessor(sampler, request) {
     let name = request.name;
     if (request.beanShellPreProcessor && request.beanShellPreProcessor.script) {
-      httpSamplerProxy.put(new BeanShellPreProcessor(name, request.beanShellPreProcessor));
+      sampler.put(new BeanShellPreProcessor(name, request.beanShellPreProcessor));
     }
     if (request.beanShellPostProcessor && request.beanShellPostProcessor.script) {
-      httpSamplerProxy.put(new BeanShellPostProcessor(name, request.beanShellPostProcessor));
+      sampler.put(new BeanShellPostProcessor(name, request.beanShellPostProcessor));
     }
   }
 
