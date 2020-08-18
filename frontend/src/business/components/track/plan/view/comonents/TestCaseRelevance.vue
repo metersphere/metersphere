@@ -61,6 +61,7 @@
                 </template>
               </el-table-column>
             </el-table>
+            <div style="text-align: center">共 {{testCases.length}} 条</div>
           </el-main>
         </el-container>
       </el-container>
@@ -161,6 +162,8 @@
         if (this.selectNodeIds && this.selectNodeIds.length > 0) {
           // param.nodeIds = this.selectNodeIds;
           this.condition.nodeIds = this.selectNodeIds;
+        } else {
+          this.condition.nodeIds = [];
         }
         this.result = this.$post('/test/case/name', this.condition, response => {
           this.testCases = response.data;

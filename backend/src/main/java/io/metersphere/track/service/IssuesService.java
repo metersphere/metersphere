@@ -1,4 +1,4 @@
-package io.metersphere.service;
+package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -15,8 +15,9 @@ import io.metersphere.commons.utils.RestTemplateUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.IntegrationRequest;
+import io.metersphere.service.IntegrationService;
+import io.metersphere.service.ProjectService;
 import io.metersphere.track.request.testcase.IssuesRequest;
-import io.metersphere.track.service.TestCaseService;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
@@ -63,7 +65,6 @@ public class IssuesService {
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.exchange("https://api.tapd.cn/quickstart/testauth", HttpMethod.GET, requestEntity, String.class);
             } catch (Exception e) {
-                System.out.println(e);
                 LogUtil.error(e.getMessage(), e);
                 MSException.throwException("验证失败！");
             }
@@ -154,12 +155,6 @@ public class IssuesService {
         String tapdId = getTapdProjectId(issuesRequest.getTestCaseId());
         String jiraKey = getJiraProjectKey(issuesRequest.getTestCaseId());
 
-        if (tapd || jira) {
-            if (StringUtils.isBlank(tapdId) && StringUtils.isBlank(jiraKey)) {
-                MSException.throwException("集成了缺陷管理平台，但未进行项目关联！");
-            }
-        }
-
         if (tapd) {
             // 是否关联了项目
             if (StringUtils.isNotBlank(tapdId)) {
@@ -173,7 +168,7 @@ public class IssuesService {
             }
         }
 
-        if (!tapd && !jira) {
+        if (StringUtils.isBlank(tapdId) && StringUtils.isBlank(jiraKey)) {
             addLocalIssues(issuesRequest);
         }
 
@@ -275,7 +270,14 @@ public class IssuesService {
         HttpEntity<String> requestEntity = new HttpEntity<>(json, requestHeaders);
         RestTemplate restTemplate = new RestTemplate();
         //post
-        ResponseEntity<String> responseEntity = restTemplate.exchange(url + "/rest/api/2/issue", HttpMethod.POST, requestEntity, String.class);
+        ResponseEntity<String> responseEntity = null;
+        try {
+            responseEntity = restTemplate.exchange(url + "/rest/api/2/issue", HttpMethod.POST, requestEntity, String.class);
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException("调用Jira接口创建缺陷失败");
+        }
+
         return responseEntity.getBody();
     }
 
@@ -315,7 +317,7 @@ public class IssuesService {
         HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(headers);
         RestTemplate restTemplate = new RestTemplate();
         //post
-        ResponseEntity<String> responseEntity = null;
+        ResponseEntity<String> responseEntity;
         Issues issues = new Issues();
         try {
             responseEntity = restTemplate.exchange(url + "/rest/api/2/issue/" + issuesId, HttpMethod.GET, requestEntity, String.class);
@@ -336,8 +338,15 @@ public class IssuesService {
             issues.setDescription(description);
             issues.setStatus(status);
             issues.setPlatform(IssuesManagePlatform.Jira.toString());
-        } catch (Exception e) {
+        } catch (HttpClientErrorException.NotFound e) {
+            LogUtil.error(e.getStackTrace(), e);
             return new Issues();
+        } catch (HttpClientErrorException.Unauthorized e) {
+            LogUtil.error(e.getStackTrace(), e);
+            MSException.throwException("获取Jira缺陷失败，检查Jira配置信息");
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException("调用Jira接口获取缺陷失败");
         }
 
         return issues;
@@ -381,7 +390,7 @@ public class IssuesService {
 
         List<Issues> issues = extIssuesMapper.getIssues(caseId, IssuesManagePlatform.Tapd.toString());
 
-        List<String> issuesIds = issues.stream().map(issue -> issue.getId()).collect(Collectors.toList());
+        List<String> issuesIds = issues.stream().map(Issues::getId).collect(Collectors.toList());
         issuesIds.forEach(issuesId -> {
             Issues dto = getTapdIssues(tapdId, issuesId);
             if (StringUtils.isBlank(dto.getId())) {
@@ -423,7 +432,7 @@ public class IssuesService {
 
         List<Issues> issues = extIssuesMapper.getIssues(caseId, IssuesManagePlatform.Jira.toString());
 
-        List<String> issuesIds = issues.stream().map(issue -> issue.getId()).collect(Collectors.toList());
+        List<String> issuesIds = issues.stream().map(Issues::getId).collect(Collectors.toList());
         issuesIds.forEach(issuesId -> {
             Issues dto = getJiraIssues(headers, url, issuesId);
             if (StringUtils.isBlank(dto.getId())) {
@@ -445,7 +454,11 @@ public class IssuesService {
     }
 
     public List<Issues> getLocalIssues(String caseId) {
-        return extIssuesMapper.getIssues(caseId, IssuesManagePlatform.Local.toString());
+        List<Issues> list = extIssuesMapper.getIssues(caseId, IssuesManagePlatform.Local.toString());
+        List<Issues> issues = list.stream()
+                .filter(l -> !StringUtils.equals(l.getStatus(), "closed"))
+                .collect(Collectors.toList());
+        return issues;
     }
 
     public String getTapdProjectId(String testCaseId) {
@@ -469,6 +482,13 @@ public class IssuesService {
         request.setOrgId(orgId);
         ServiceIntegration integration = integrationService.get(request);
         return StringUtils.isNotBlank(integration.getId());
+    }
+
+    public void closeLocalIssue(String issueId) {
+        Issues issues = new Issues();
+        issues.setId(issueId);
+        issues.setStatus("closed");
+        issuesMapper.updateByPrimaryKeySelective(issues);
     }
 
 }

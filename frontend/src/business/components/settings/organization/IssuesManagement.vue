@@ -1,6 +1,6 @@
 <template>
-  <el-card class="header-title">
-    <div v-loading="result.loading">
+  <el-card class="header-title" v-loading="result.loading">
+    <div>
       <div>{{$t('organization.select_defect_platform')}}</div>
       <el-radio-group v-model="platform" style="margin-top: 10px" @change="change">
         <el-radio v-for="(item, index) in platforms" :key="index" :label="item.value" size="small">
@@ -26,12 +26,12 @@
     </div>
 
     <div style="margin-left: 100px">
-      <el-button type="primary" size="small" :disabled="!show" @click="testConnection">{{$t('ldap.test_connect')}}
+      <el-button type="primary" size="mini" :disabled="!show" @click="testConnection">{{$t('ldap.test_connect')}}
       </el-button>
-      <el-button v-if="showEdit" size="small" @click="edit">{{$t('commons.edit')}}</el-button>
-      <el-button type="primary" v-if="showSave" size="small" @click="save('form')">{{$t('commons.save')}}</el-button>
-      <el-button v-if="showCancel" size="small" @click="cancelEdit">取消编辑</el-button>
-      <el-button type="info" size="small" @click="cancelIntegration('form')" :disabled="!show">
+      <el-button v-if="showEdit" size="mini" @click="edit">{{$t('commons.edit')}}</el-button>
+      <el-button type="primary" v-if="showSave" size="mini" @click="save('form')">{{$t('commons.save')}}</el-button>
+      <el-button v-if="showCancel" size="mini" @click="cancelEdit">取消编辑</el-button>
+      <el-button type="info" size="mini" @click="cancelIntegration('form')" :disabled="!show">
         取消集成
       </el-button>
     </div>
@@ -54,7 +54,7 @@
   import {getCurrentUser} from "../../../../common/js/utils";
 
   export default {
-    name: "DefectManagement",
+    name: "IssuesManagement",
     data() {
       return {
         form: {},
@@ -195,7 +195,7 @@
         });
       },
       testConnection() {
-        this.$get("issues/auth/" + this.platform, () => {
+        this.result = this.$get("issues/auth/" + this.platform, () => {
           this.$success("验证通过！");
         });
       }

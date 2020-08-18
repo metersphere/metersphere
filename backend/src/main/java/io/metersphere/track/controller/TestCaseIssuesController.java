@@ -1,7 +1,7 @@
 package io.metersphere.track.controller;
 
 import io.metersphere.base.domain.Issues;
-import io.metersphere.service.IssuesService;
+import io.metersphere.track.service.IssuesService;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +28,11 @@ public class TestCaseIssuesController {
     @GetMapping("/auth/{platform}")
     public void testAuth(@PathVariable String platform) {
         issuesService.testAuth(platform);
+    }
+
+    @GetMapping("/close/{id}")
+    public void closeLocalIssue(@PathVariable String id) {
+        issuesService.closeLocalIssue(id);
     }
 
 }
