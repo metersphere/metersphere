@@ -4,9 +4,9 @@
 
     <select id="getProjectWithWorkspace" resultType="io.metersphere.dto.ProjectDTO">
         select p.id, p.workspace_id, p.name, p.description, p.update_time,
-               p.create_time, w.id as workspaceId, w.name as workspaceName, p.tapd_id, p.jira_key
-          from project p
-          join workspace w on p.workspace_id = w.id
+        p.create_time, w.id as workspaceId, w.name as workspaceName, p.tapd_id, p.jira_key
+        from project p
+        join workspace w on p.workspace_id = w.id
         <where>
             <if test="proRequest.name != null and proRequest.name != ''">
                 and p.name like #{proRequest.name, jdbcType=VARCHAR}
@@ -27,5 +27,23 @@
           from project
           where workspace_id = #{workspaceId}
     </select>
+
+    <update id="removeIssuePlatform">
+        update project
+        <set>
+            <if test="platform == 'Jira'">
+                jira_key = null
+            </if>
+            <if test="platform == 'Tapd'">
+                tapd_id = null
+            </if>
+        </set>
+        where project.id in (select id from (select id
+                             from project
+                             where workspace_id in
+                                   (select workspace.id
+                                    from workspace
+                                    where organization_id = #{orgId})) as a)
+    </update>
 
 </mapper>

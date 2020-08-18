@@ -3,6 +3,7 @@ package io.metersphere.service;
 import io.metersphere.base.domain.ServiceIntegration;
 import io.metersphere.base.domain.ServiceIntegrationExample;
 import io.metersphere.base.mapper.ServiceIntegrationMapper;
+import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.controller.request.IntegrationRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,8 @@ public class IntegrationService {
 
     @Resource
     private ServiceIntegrationMapper serviceIntegrationMapper;
+    @Resource
+    private ExtProjectMapper extProjectMapper;
 
     public ServiceIntegration save(ServiceIntegration service) {
         ServiceIntegrationExample example = new ServiceIntegrationExample();
@@ -63,6 +66,8 @@ public class IntegrationService {
                 .andOrganizationIdEqualTo(orgId)
                 .andPlatformEqualTo(platform);
         serviceIntegrationMapper.deleteByExample(example);
+        // 删除项目关联的id/key
+        extProjectMapper.removeIssuePlatform(platform, orgId);
     }
 
     public List<ServiceIntegration> getAll(String orgId) {

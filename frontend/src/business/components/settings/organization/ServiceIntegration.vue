@@ -10,7 +10,7 @@
 
 <script>
 
-  import DefectManagement from "./DefectManagement";
+  import DefectManagement from "./IssuesManagement";
 
   export default {
     name: "ServiceIntegration",

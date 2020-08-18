@@ -1,5 +1,5 @@
 import {
-  Arguments,
+  Arguments, BeanShellPreProcessor,
   CookieManager,
   DubboSample,
   DurationAssertion,
@@ -302,6 +302,8 @@ export class HttpRequest extends Request {
     this.environment = undefined;
     this.useEnvironment = undefined;
     this.debugReport = undefined;
+    this.beanShellPreProcessor = undefined;
+    this.beanShellPostProcessor = undefined;
 
     this.set(options);
     this.sets({parameters: KeyValue, headers: KeyValue}, options);
@@ -313,6 +315,8 @@ export class HttpRequest extends Request {
     options.body = new Body(options.body);
     options.assertions = new Assertions(options.assertions);
     options.extract = new Extract(options.extract);
+    options.beanShellPreProcessor = new BeanShellProcessor(options.beanShellPreProcessor);
+    options.beanShellPostProcessor = new BeanShellProcessor(options.beanShellPostProcessor);
     return options;
   }
 
@@ -352,6 +356,7 @@ export class HttpRequest extends Request {
   showMethod() {
     return this.method.toUpperCase();
   }
+
 }
 
 export class DubboRequest extends Request {
@@ -564,6 +569,14 @@ export class AssertionType extends BaseConfig {
   }
 }
 
+export class BeanShellProcessor extends BaseConfig {
+  constructor(options) {
+    super();
+    this.script = undefined;
+    this.set(options);
+  }
+}
+
 export class Text extends AssertionType {
   constructor(options) {
     super(ASSERTION_TYPE.TEXT);
@@ -722,8 +735,6 @@ class JMXHttpRequest {
       });
       for (let i = 0; i < parameters.length; i++) {
         let parameter = parameters[i];
-        // 非 GET 请求中出现了 url 参数
-        parameter.value = calculate(parameter.value);
         path += (parameter.name + '=' + parameter.value);
         if (i !== parameters.length - 1) {
           path += '&';
@@ -820,6 +831,7 @@ class JMXGenerator {
           } else {
             this.addRequestBody(sampler, request);
           }
+          this.addBeanShellProcessor(sampler, request);
         }
 
         this.addRequestAssertion(sampler, request);
@@ -888,6 +900,16 @@ class JMXGenerator {
     }
   }
 
+  addBeanShellProcessor(httpSamplerProxy, request) {
+    let name = request.name;
+    if (request.beanShellPreProcessor && request.beanShellPreProcessor.script) {
+      httpSamplerProxy.put(new BeanShellPreProcessor(name, request.beanShellPreProcessor));
+    }
+    if (request.beanShellPostProcessor && request.beanShellPostProcessor.script) {
+      httpSamplerProxy.put(new BeanShellPreProcessor(name, request.beanShellPostProcessor));
+    }
+  }
+
   addBodyFormat(request) {
     let bodyFormat = request.body.format;
     if (bodyFormat) {
@@ -921,9 +943,6 @@ class JMXGenerator {
 
   addRequestArguments(httpSamplerProxy, request) {
     let args = this.filterKV(request.parameters);
-    args.forEach(arg => {
-      arg.value = calculate(arg.value);
-    });
     if (args.length > 0) {
       httpSamplerProxy.add(new HTTPSamplerArguments(args));
     }
@@ -933,9 +952,6 @@ class JMXGenerator {
     let body = [];
     if (request.body.isKV()) {
       body = this.filterKV(request.body.kvs);
-      body.forEach(arg => {
-        arg.value = calculate(arg.value);
-      });
     } else {
       httpSamplerProxy.boolProp('HTTPSampler.postBodyRaw', true);
       body.push({name: '', value: request.body.raw, encode: false});

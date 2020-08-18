@@ -207,10 +207,22 @@
             <el-row>
               <el-col :span="20" :offset="1" class="issues-edit">
                 <el-table border class="adjust-table" :data="issues" style="width: 100%">
-                  <el-table-column prop="id" label="缺陷ID"/>
+                  <el-table-column prop="id" label="缺陷ID" show-overflow-tooltip/>
                   <el-table-column prop="title" label="缺陷标题"/>
-                  <el-table-column prop="status" label="缺陷状态"/>
                   <el-table-column prop="description" label="缺陷描述" show-overflow-tooltip/>
+                  <el-table-column prop="status" label="缺陷状态"/>
+                  <el-table-column prop="platform" label="平台"/>
+                  <el-table-column label="操作">
+                    <template v-slot:default="scope">
+                      <el-tooltip content="关闭缺陷"
+                                  placement="right">
+                        <el-button type="danger" icon="el-icon-circle-close" size="mini"
+                                   circle v-if="scope.row.platform === 'Local'"
+                                   @click="closeIssue(scope.row)"
+                        />
+                      </el-tooltip>
+                    </template>
+                  </el-table-column>
                 </el-table>
               </el-col>
             </el-row>
@@ -474,11 +486,16 @@
         })
       },
       getIssues(caseId) {
-        this.result = this.$get("/issues/get/"+caseId,response => {
+        this.result = this.$get("/issues/get/" + caseId, response => {
           let data = response.data;
           this.issues = data;
-          console.log(data);
         })
+      },
+      closeIssue(row) {
+        this.result = this.$get("/issues/close/" + row.id, () => {
+          this.getIssues(this.testCase.caseId);
+          this.$success("关闭成功");
+        });
       }
     }
   }

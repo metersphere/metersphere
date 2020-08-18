@@ -14,6 +14,7 @@ import org.apache.jorphan.collections.HashTree;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 
@@ -24,20 +25,35 @@ public class JMeterService {
     private JmeterProperties jmeterProperties;
 
     public void run(String testId, String debugReportId, InputStream is) {
-        String JMETER_HOME = jmeterProperties.getHome();
+        String JMETER_HOME = getJmeterHome();
+
         String JMETER_PROPERTIES = JMETER_HOME + "/bin/jmeter.properties";
         JMeterUtils.loadJMeterProperties(JMETER_PROPERTIES);
         JMeterUtils.setJMeterHome(JMETER_HOME);
         try {
             Object scriptWrapper = SaveService.loadElement(is);
             HashTree testPlan = getHashTree(scriptWrapper);
-            addBackendListener(testId, debugReportId,  testPlan);
+            addBackendListener(testId, debugReportId, testPlan);
 
             LocalRunner runner = new LocalRunner(testPlan);
             runner.run();
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(Translator.get("api_load_script_error"));
+        }
+    }
+
+    private String getJmeterHome() {
+        String home = getClass().getResource("/").getPath() + "jmeter";
+        try {
+            File file = new File(home);
+            if (file.exists()) {
+                return home;
+            } else {
+                return jmeterProperties.getHome();
+            }
+        } catch (Exception e) {
+            return jmeterProperties.getHome();
         }
     }
 
