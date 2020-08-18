@@ -1,5 +1,5 @@
 package io.metersphere.commons.constants;
 
-public enum OssMode {
+public enum SsoMode {
     CAS,LOCAL
 }

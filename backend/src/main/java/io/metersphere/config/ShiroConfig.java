@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Configuration
-@ConditionalOnProperty(prefix="oss",name = "mode", havingValue = "local", matchIfMissing = true)
+@ConditionalOnProperty(prefix="sso",name = "mode", havingValue = "local", matchIfMissing = true)
 public class ShiroConfig implements EnvironmentAware {
     private Environment env;
 
