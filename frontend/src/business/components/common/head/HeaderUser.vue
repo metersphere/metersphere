@@ -18,6 +18,7 @@
 <script>
   import {getCurrentUser} from "../../../../common/js/utils";
   import AboutUs from "./AboutUs";
+  import axios from "axios";
 
   export default {
     name: "MsUser",
@@ -35,7 +36,17 @@
             this.$router.push('/setting/personsetting').catch(error => error);
             break;
           case "logout":
-            this.$get("/signout", function () {
+            axios.get("/signout").then(response => {
+              if (response.data.success) {
+                localStorage.clear();
+                window.location.href = "/login";
+              } else {
+                if (response.data.message === 'sso') {
+                  localStorage.clear();
+                  window.location.href = "/sso/logout"
+                }
+              }
+            }).catch(error => {
               localStorage.clear();
               window.location.href = "/login";
             });

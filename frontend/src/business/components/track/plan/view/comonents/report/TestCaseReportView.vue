@@ -69,7 +69,8 @@
               [2, { name: this.$t('test_track.plan_view.test_result'), id: 2 , type: 'system'}],
               [3, { name: this.$t('test_track.plan_view.result_distribution'), id: 3 ,type: 'system'}],
               [4, { name: this.$t('test_track.plan_view.failure_case'), id: 4 ,type: 'system'}],
-              [5, { name: this.$t('test_track.plan_view.custom_component'), id: 5 ,type: 'custom'}]
+              [5, { name: this.$t('test_track.plan_view.defect_list'), id: 5 ,type: 'system'}],
+              [6, { name: this.$t('test_track.plan_view.custom_component'), id: 6 ,type: 'custom'}]
             ]
           ),
           isTestManagerOrTestUser: false
@@ -175,6 +176,9 @@
             if (!this.metric.moduleExecuteResult) {
               this.metric.moduleExecuteResult = [];
             }
+            /*缺陷列表*/
+            this.metric.defectList = [];
+
             if (this.report.startTime) {
               this.metric.startTime = new Date(this.report.startTime);
             }

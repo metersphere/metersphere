@@ -34,13 +34,14 @@
         </el-col>
       </el-row>
     </div>
-    <ms-api-variable-advance ref="variableAdvance" :environment="environment" :scenario="scenario" :request="request"
+    <ms-api-variable-advance ref="variableAdvance" :environment="environment" :scenario="scenario"
+                             :parameters="parameters"
                              :current-item="currentItem"/>
   </div>
 </template>
 
 <script>
-import {HttpRequest, KeyValue, Scenario} from "../model/ScenarioModel";
+import {KeyValue, Scenario} from "../model/ScenarioModel";
 import {MOCKJS_FUNC} from "@/common/js/constants";
 import MsApiVariableAdvance from "@/business/components/api/test/components/ApiVariableAdvance";
 
@@ -51,7 +52,7 @@ export default {
     keyPlaceholder: String,
     valuePlaceholder: String,
     description: String,
-    request: HttpRequest,
+    parameters: Array,
     environment: Object,
     scenario: Scenario,
     isReadOnly: {
@@ -63,7 +64,6 @@ export default {
   data() {
     return {
       currentItem: null,
-      parameters: [],
     }
   },
   computed: {

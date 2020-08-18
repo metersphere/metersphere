@@ -19,6 +19,36 @@
           width="180">
         </el-table-column>
         <el-table-column
+          prop="passCount"
+          :label="$t('test_track.plan_view.pass')"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="failureCount"
+          :label="$t('test_track.plan_view.failure')"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="blockingCount"
+          :label="$t('test_track.plan_view.blocking')"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="skipCount"
+          :label="$t('test_track.plan_view.skip')"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="underwayCount"
+          :label="$t('test_track.plan.plan_status_running')"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="prepareCount"
+          :label="$t('test_track.plan.plan_status_prepare')"
+          width="180">
+        </el-table-column>
+        <el-table-column
           prop="passRate"
           :label="$t('test_track.pass_rate')">
           <template v-slot:default="scope">
@@ -50,19 +80,37 @@
                 moduleName: this.$t('test_track.module.module') + '1',
                 caseCount: '14',
                 passRate: 10.8,
-                issuesCount: 3
+                issuesCount: 3,
+                passCount:0,
+                failureCount:0,
+                blockingCount:0,
+                skipCount:0,
+                underwayCount:0,
+                prepareCount:0
               },
               {
-                moduleName: this.$t('test_track.module.module') + '2',
-                caseCount: '24',
-                passRate: 40,
-                issuesCount: 6
+                moduleName: this.$t('test_track.module.module') + '1',
+                caseCount: '14',
+                passRate: 10.8,
+                issuesCount: 3,
+                passCount:0,
+                failureCount:0,
+                blockingCount:0,
+                skipCount:0,
+                underwayCount:0,
+                prepareCount:0
               },
               {
-                moduleName: this.$t('test_track.module.module') + '3',
-                caseCount: '50',
-                passRate: 76.9,
-                issuesCount: 8
+                moduleName: this.$t('test_track.module.module') + '1',
+                caseCount: '14',
+                passRate: 10.8,
+                issuesCount: 3,
+                passCount:0,
+                failureCount:0,
+                blockingCount:0,
+                skipCount:0,
+                underwayCount:0,
+                prepareCount:0
               }
             ]
           }

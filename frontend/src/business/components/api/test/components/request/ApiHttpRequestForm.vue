@@ -46,7 +46,7 @@
     <el-tabs v-model="activeName">
       <el-tab-pane :label="$t('api_test.request.parameters')" name="parameters">
         <ms-api-variable :is-read-only="isReadOnly"
-                         :request="request"
+                         :parameters="request.parameters"
                          :environment="request.environment"
                          :scenario="scenario"
                          :extract="request.extract"
@@ -56,13 +56,23 @@
         <ms-api-key-value :is-read-only="isReadOnly" :suggestions="headerSuggestions" :items="request.headers"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.body')" name="body" v-if="isNotGet">
-        <ms-api-body :is-read-only="isReadOnly" :body="request.body"/>
+        <ms-api-body :is-read-only="isReadOnly"
+                     :body="request.body"
+                     :scenario="scenario"
+                     :extract="request.extract"
+                     :environment="request.environment"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.assertions.label')" name="assertions">
         <ms-api-assertions :is-read-only="isReadOnly" :assertions="request.assertions"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.extract.label')" name="extract">
         <ms-api-extract :is-read-only="isReadOnly" :extract="request.extract"/>
+      </el-tab-pane>
+      <el-tab-pane :label="'预执行脚本'" name="beanShellPreProcessor">
+        <ms-bean-shell-processor :is-read-only="isReadOnly" :bean-shell-processor="request.beanShellPreProcessor"/>
+      </el-tab-pane>
+      <el-tab-pane :label="'后执行脚本'" name="beanShellPostProcessor">
+        <ms-bean-shell-processor :is-read-only="isReadOnly" :bean-shell-processor="request.beanShellPostProcessor"/>
       </el-tab-pane>
     </el-tabs>
   </el-form>
@@ -77,10 +87,13 @@ import MsApiExtract from "../extract/ApiExtract";
 import ApiRequestMethodSelect from "../collapse/ApiRequestMethodSelect";
 import {REQUEST_HEADERS} from "@/common/js/constants";
 import MsApiVariable from "@/business/components/api/test/components/ApiVariable";
+import MsBeanShellProcessor from "../processor/BeanShellProcessor";
 
 export default {
   name: "MsApiHttpRequestForm",
-  components: {MsApiVariable, ApiRequestMethodSelect, MsApiExtract, MsApiAssertions, MsApiBody, MsApiKeyValue},
+  components: {
+    MsBeanShellProcessor,
+    MsApiVariable, ApiRequestMethodSelect, MsApiExtract, MsApiAssertions, MsApiBody, MsApiKeyValue},
   props: {
     request: HttpRequest,
     scenario: Scenario,
