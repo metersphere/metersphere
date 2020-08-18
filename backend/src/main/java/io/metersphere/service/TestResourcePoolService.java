@@ -5,7 +5,6 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.TestResourceMapper;
 import io.metersphere.base.mapper.TestResourcePoolMapper;
-import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
@@ -25,7 +24,6 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -70,11 +68,9 @@ public class TestResourcePoolService {
     }
 
     public void checkTestStatus(String testResourcePoolId) {
-        List list = Arrays.asList(PerformanceTestStatus.Running, PerformanceTestStatus.Starting, PerformanceTestStatus.Error);
         LoadTestExample example = new LoadTestExample();
         example.createCriteria()
-                .andTestResourcePoolIdEqualTo(testResourcePoolId)
-                .andStatusIn(list);
+                .andTestResourcePoolIdEqualTo(testResourcePoolId);
         if (loadTestMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("test_resource_pool_is_use"));
         }
