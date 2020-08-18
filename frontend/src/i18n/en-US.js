@@ -795,5 +795,7 @@ export default {
     modify: "Modify Quota",
     edit_quota_title: "{0} quota",
     workspace_quota_list: "Workspace quota list of {0}",
+    unlimited: "Unlimited",
+    clean: "Clean"
   }
 };

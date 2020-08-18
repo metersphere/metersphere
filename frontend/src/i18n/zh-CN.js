@@ -799,5 +799,7 @@ export default {
     modify: "修改配额",
     edit_quota_title: "{0}的配额",
     workspace_quota_list: "{0}的工作空间配额列表",
+    unlimited: "无限制",
+    clean: "清空"
   }
 };
