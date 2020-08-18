@@ -43,7 +43,8 @@
               type: 'pie',
               radius: ['40%', '70%'],
               // roseType: 'angle',
-              data: this.data
+              data: this.data,
+              animation: false
             }
           ]
         },

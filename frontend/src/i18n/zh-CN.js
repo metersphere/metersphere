@@ -674,6 +674,7 @@ export default {
       report_template: "测试报告模版",
       test_detail: "测试详情",
       failure_case: "失败用例",
+      export_report: "导出报告"
     }
   },
   test_resource_pool: {

@@ -4,9 +4,17 @@
       <el-card>
         <section class="report-container" v-if="this.report.testId">
           <header class="report-header">
-            <span>{{ report.projectName }} / </span>
-            <router-link :to="path">{{ report.testName }}</router-link>
-            <span class="time">{{ report.createTime | timestampFormatDate }}</span>
+            <el-row>
+              <el-col>
+                <span>{{ report.projectName }} / </span>
+                <router-link :to="path">{{ report.testName }}</router-link>
+                <span class="time">{{ report.createTime | timestampFormatDate }}</span>
+                <el-button plain type="primary" size="mini" @click="handleExport(report.name)"
+                           style="margin-left: 1200px">
+                  {{$t('test_track.plan_view.export_report')}}
+                </el-button>
+              </el-col>
+            </el-row>
           </header>
           <main v-if="this.isNotRunning">
             <ms-metric-chart :content="content" :totalTime="totalTime"/>
@@ -43,6 +51,8 @@
   import MsMetricChart from "./components/MetricChart";
   import MsScenarioResults from "./components/ScenarioResults";
   import {Scenario} from "../test/model/ScenarioModel";
+  import writer from "file-writer";
+  import ResumeCss from "../../../../common/css/main.css";
 
   export default {
     name: "MsApiReportView",
@@ -62,6 +72,29 @@
     },
 
     methods: {
+      handleExport(name) {
+        let html = this.getHtml();
+        writer(`${name}.html`, html, 'utf-8');
+      },
+      getHtml() {
+        const template = this.$refs.resume.innerHTML
+        let html = `<!DOCTYPE html>
+                 <html>
+                 <head>
+                 <meta charset="utf-8">
+                 <meta name="viewport" content="width=device-width,initial-scale=1.0">
+                 <title>html</title>
+                <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+                <style>${ResumeCss}</style>
+                </head>
+                <body>
+                <div style="margin:0 auto;width:1200px">
+                     ${template}
+                </div>
+                </body>
+                </html>`
+        return html
+      },
       init() {
         this.loading = true;
         this.report = {};

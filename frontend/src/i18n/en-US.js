@@ -669,6 +669,7 @@ export default {
       report_template: "Report template",
       test_detail: "Test detail",
       failure_case: "Failure case",
+      export_report: "Export Report"
     }
   },
   test_resource_pool: {

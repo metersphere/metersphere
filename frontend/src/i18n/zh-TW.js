@@ -669,6 +669,7 @@ export default {
       report_template: "測試報告模版",
       test_detail: "測試詳情",
       failure_case: "失敗用例",
+      export_report: "匯出報告"
     }
   },
   test_resource_pool: {
