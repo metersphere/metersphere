@@ -299,9 +299,6 @@
             </resource>
             <resource>
                 <directory>src/main/resources</directory>
-                <excludes>
-                    <exclude>jmeter/lib/ext/*</exclude>
-                </excludes>
                 <includes>
                     <include>**/*.*</include>
                 </includes>
@@ -374,8 +371,17 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/jmeter/lib/**/*.jar</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <id>main-class-placement</id>
