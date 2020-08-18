@@ -23,9 +23,6 @@
         },
         beanShellProcessor: {
           type: Object,
-          default() {
-            return {}
-          }
         }
       },
     }
