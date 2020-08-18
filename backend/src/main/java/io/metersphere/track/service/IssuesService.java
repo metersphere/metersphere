@@ -1,4 +1,4 @@
-package io.metersphere.service;
+package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -15,8 +15,9 @@ import io.metersphere.commons.utils.RestTemplateUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.IntegrationRequest;
+import io.metersphere.service.IntegrationService;
+import io.metersphere.service.ProjectService;
 import io.metersphere.track.request.testcase.IssuesRequest;
-import io.metersphere.track.service.TestCaseService;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -154,12 +155,6 @@ public class IssuesService {
         String tapdId = getTapdProjectId(issuesRequest.getTestCaseId());
         String jiraKey = getJiraProjectKey(issuesRequest.getTestCaseId());
 
-        if (tapd || jira) {
-            if (StringUtils.isBlank(tapdId) && StringUtils.isBlank(jiraKey)) {
-                MSException.throwException("集成了缺陷管理平台，但未进行项目关联！");
-            }
-        }
-
         if (tapd) {
             // 是否关联了项目
             if (StringUtils.isNotBlank(tapdId)) {
@@ -173,7 +168,7 @@ public class IssuesService {
             }
         }
 
-        if (!tapd && !jira) {
+        if (StringUtils.isBlank(tapdId) && StringUtils.isBlank(jiraKey)) {
             addLocalIssues(issuesRequest);
         }
 
@@ -322,7 +317,7 @@ public class IssuesService {
         HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(headers);
         RestTemplate restTemplate = new RestTemplate();
         //post
-        ResponseEntity<String> responseEntity = null;
+        ResponseEntity<String> responseEntity;
         Issues issues = new Issues();
         try {
             responseEntity = restTemplate.exchange(url + "/rest/api/2/issue/" + issuesId, HttpMethod.GET, requestEntity, String.class);
@@ -395,7 +390,7 @@ public class IssuesService {
 
         List<Issues> issues = extIssuesMapper.getIssues(caseId, IssuesManagePlatform.Tapd.toString());
 
-        List<String> issuesIds = issues.stream().map(issue -> issue.getId()).collect(Collectors.toList());
+        List<String> issuesIds = issues.stream().map(Issues::getId).collect(Collectors.toList());
         issuesIds.forEach(issuesId -> {
             Issues dto = getTapdIssues(tapdId, issuesId);
             if (StringUtils.isBlank(dto.getId())) {
@@ -437,7 +432,7 @@ public class IssuesService {
 
         List<Issues> issues = extIssuesMapper.getIssues(caseId, IssuesManagePlatform.Jira.toString());
 
-        List<String> issuesIds = issues.stream().map(issue -> issue.getId()).collect(Collectors.toList());
+        List<String> issuesIds = issues.stream().map(Issues::getId).collect(Collectors.toList());
         issuesIds.forEach(issuesId -> {
             Issues dto = getJiraIssues(headers, url, issuesId);
             if (StringUtils.isBlank(dto.getId())) {
