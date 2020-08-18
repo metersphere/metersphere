@@ -44,7 +44,7 @@ public class JMeterService {
     }
 
     private String getJmeterHome() {
-        String home = getClass().getResource("/").getPath() + "/jmeter";
+        String home = getClass().getResource("/").getPath() + "jmeter";
         try {
             File file = new File(home);
             if (file.exists()) {
