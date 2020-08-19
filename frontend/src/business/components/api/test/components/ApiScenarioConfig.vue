@@ -5,13 +5,13 @@
         <ms-api-collapse v-model="activeName" @change="handleChange" accordion>
           <draggable :list="scenarios" group="Scenario" class="scenario-draggable" ghost-class="scenario-ghost">
             <ms-api-collapse-item v-for="(scenario, index) in scenarios" :key="index"
-                                  :title="scenario.name" :name="index">
+                                  :title="scenario.name" :name="index" :class="{'disable-scenario': !scenario.enable}">
               <template slot="title">
                 <div class="scenario-name">
                   {{scenario.name}}
                   <span id="hint" v-if="!scenario.name">
-                  {{$t('api_test.scenario.config')}}
-                </span>
+                    {{$t('api_test.scenario.config')}}
+                  </span>
                 </div>
                 <el-dropdown trigger="click" @command="handleCommand">
                   <span class="el-dropdown-link el-icon-more scenario-btn"/>
@@ -21,6 +21,12 @@
                     </el-dropdown-item>
                     <el-dropdown-item :disabled="isReadOnly" :command="{type:'delete', index:index}">
                       {{$t('api_test.scenario.delete')}}
+                    </el-dropdown-item>
+                    <el-dropdown-item v-if="scenario.enable" :disabled="isReadOnly" :command="{type:'disable', index:index}">
+                      {{$t('api_test.scenario.disable')}}
+                    </el-dropdown-item>
+                    <el-dropdown-item v-if="!scenario.enable" :disabled="isReadOnly" :command="{type:'enable', index:index}">
+                      {{$t('api_test.scenario.enable')}}
                     </el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
@@ -108,6 +114,12 @@ export default {
           this.select(this.scenarios[0]);
         }
       },
+      disableScenario: function (index) {
+        this.scenarios[index].enable = false;
+      },
+      enableScenario: function (index) {
+        this.scenarios[index].enable = true;
+      },
       handleChange: function (index) {
         this.select(this.scenarios[index]);
       },
@@ -118,6 +130,12 @@ export default {
             break;
           case "delete":
             this.deleteScenario(command.index);
+            break;
+          case "disable":
+            this.disableScenario(command.index);
+            break;
+          case "enable":
+            this.enableScenario(command.index);
             break;
         }
       },
@@ -203,9 +221,9 @@ export default {
     width: 100%;
   }
 
-  .scenario-name > #hint {
-    color: #8a8b8d;
-  }
+  /*.scenario-name > #hint {*/
+    /*color: #8a8b8d;*/
+  /*}*/
 
   .scenario-btn {
     text-align: center;
@@ -240,5 +258,10 @@ export default {
 
   .scenario-draggable {
     background-color: #909399;
+  }
+
+  .disable-scenario >>> .el-collapse-item__header {
+    border-right: 2px solid #909399;
+    color: #8a8b8d;
   }
 </style>

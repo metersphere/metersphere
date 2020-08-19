@@ -2,7 +2,7 @@
   <div class="request-container">
     <draggable :list="this.scenario.requests" group="Request" class="request-draggable" ghost-class="request-ghost">
       <div class="request-item" v-for="(request, index) in this.scenario.requests" :key="index" @click="select(request)"
-           :class="{'selected': isSelected(request)}">
+           :class="{'selected': isSelected(request), 'disable-request': !request.enable}">
         <el-row type="flex" align="middle">
           <div class="request-type">
             {{request.showType()}}
@@ -22,6 +22,12 @@
                 </el-dropdown-item>
                 <el-dropdown-item :disabled="isReadOnly" :command="{type: 'delete', index: index}">
                   {{$t('api_test.request.delete')}}
+                </el-dropdown-item>
+                <el-dropdown-item v-if="request.enable" :disabled="isReadOnly" :command="{type: 'disable', index: index}">
+                  {{$t('api_test.scenario.disable')}}
+                </el-dropdown-item>
+                <el-dropdown-item v-if="!request.enable" :disabled="isReadOnly" :command="{type: 'enable', index: index}">
+                  {{$t('api_test.scenario.enable')}}
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
@@ -70,7 +76,7 @@
     computed: {
       isSelected() {
         return function (request) {
-          return this.selected.id === request.id;
+          return this.selected === request;
         }
       }
     },
@@ -89,6 +95,12 @@
         let request = this.scenario.requests[index];
         this.scenario.requests.push(new RequestFactory(request));
       },
+      disableRequest: function (index) {
+        this.scenario.requests[index].enable = false;
+      },
+      enableRequest: function (index) {
+        this.scenario.requests[index].enable = true;
+      },
       deleteRequest: function (index) {
         this.scenario.requests.splice(index, 1);
         if (this.scenario.requests.length === 0) {
@@ -102,6 +114,12 @@
             break;
           case "delete":
             this.deleteRequest(command.index);
+            break;
+          case "disable":
+            this.disableRequest(command.index);
+            break;
+          case "enable":
+            this.enableRequest(command.index);
             break;
         }
       },
@@ -186,4 +204,17 @@
     opacity: 0.5;
     background-color: #909399;
   }
+
+  .request-item.disable-request {
+    border-left-color: #909399;
+  }
+
+  .disable-request .request-type {
+    background-color: #909399;
+  }
+
+  .disable-request .request-method {
+    color: #909399;
+  }
+
 </style>

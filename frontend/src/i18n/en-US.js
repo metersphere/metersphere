@@ -397,7 +397,9 @@ export default {
       headers: "Headers",
       kv_description: "Variables are available for all requests",
       copy: "Copy scenario",
-      delete: "Delete scenario"
+      delete: "Delete scenario",
+      disable: "Disable",
+      enable: "Enable"
     },
     request: {
       copy: "Copy request",

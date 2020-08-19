@@ -113,6 +113,7 @@
 <style scoped>
   .el-collapse-item__header {
     padding-left: 7px;
+    border-right: 2px solid #409eff;
   }
 
   .el-collapse-item__header.is-active {
@@ -122,4 +123,5 @@
   .el-collapse-item__content {
     padding-bottom: 0;
   }
+
 </style>

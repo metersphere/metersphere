@@ -396,7 +396,9 @@ export default {
       headers: "請求頭",
       kv_description: "所有請求可以使用自定義變數",
       copy: "複製場景",
-      delete: "删除場景"
+      delete: "删除場景",
+      disable: "禁用",
+      enable: "啟用"
     },
     request: {
       copy: "複製請求",
