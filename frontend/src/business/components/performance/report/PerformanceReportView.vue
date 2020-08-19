@@ -129,29 +129,6 @@
       }
     },
     methods: {
-      exports(name) {
-        let html = this.getHtml();
-        writer(`${name}.html`, html, 'utf-8');
-      },
-      getHtml() {
-        const template = this.$refs.resume.innerHTML
-        let html = `<!DOCTYPE html>
-                 <html>
-                 <head>
-                 <meta charset="utf-8">
-                 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-                 <title>html</title>
-                <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
-                <style></style>
-                </head>
-                <body>
-                <div style="margin:0 auto;width:1200px">
-                     ${template}
-                </div>
-                </body>
-                </html>`
-        return html
-      },
       initBreadcrumb() {
         if (this.reportId) {
           this.result = this.$get("/performance/report/test/pro/info/" + this.reportId, res => {
