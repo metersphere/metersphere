@@ -104,7 +104,7 @@
 
         <el-table-column
           prop="nodePath"
-          label="缺陷"
+          :label="$t('test_track.issue.issue')"
           show-overflow-tooltip>
           <template v-slot:default="scope">
             <el-popover
@@ -113,10 +113,10 @@
               trigger="hover">
               <el-table border class="adjust-table" :data="scope.row.issuesContent" style="width: 100%">
 <!--                <el-table-column prop="id" label="缺陷ID" show-overflow-tooltip/>-->
-                <el-table-column prop="title" label="缺陷标题"/>
-                <el-table-column prop="description" label="缺陷描述" show-overflow-tooltip/>
+                <el-table-column prop="title" :label="$t('test_track.issue.title')"/>
+                <el-table-column prop="description" :label="$t('test_track.issue.description')" show-overflow-tooltip/>
 <!--                <el-table-column prop="status" label="缺陷状态"/>-->
-                <el-table-column prop="platform" label="平台"/>
+                <el-table-column prop="platform" :label="$t('test_track.issue.platform')"/>
               </el-table>
               <el-button slot="reference" type="text">{{scope.row.issuesSize}}</el-button>
             </el-popover>
@@ -195,7 +195,7 @@
       <test-case-report-view @refresh="initTableData" ref="testCaseReportView"/>
     </el-card>
     <batch-edit ref="batchEdit" @batchEdit="batchEdit"
-                :type-arr="typeArr" :value-arr="valueArr" dialog-title="批量更改测试计划"/>
+                :type-arr="typeArr" :value-arr="valueArr" :dialog-title="$t('test_track.case.batch_edit_plan')"/>
   </div>
 </template>
 
@@ -280,15 +280,15 @@
         showMore: false,
         buttons: [
           {
-            name: '批量更改测试计划', handleClick: this.handleBatchEdit
+            name: this.$t('test_track.case.batch_edit_plan'), handleClick: this.handleBatchEdit
           },
           {
-            name: '批量取消用例关联', handleClick: this.handleDeleteBatch
+            name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch
           }
         ],
         typeArr: [
-          {id: 'status', name: '执行结果'},
-          {id: 'executor', name: '执行人'},
+          {id: 'status', name: this.$t('test_track.plan_view.execute_result')},
+          {id: 'executor', name: this.$t('test_track.plan_view.executor')},
         ],
         valueArr: {
           executor: [],
