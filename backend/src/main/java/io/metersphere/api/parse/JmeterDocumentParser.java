@@ -151,9 +151,7 @@ public class JmeterDocumentParser {
                 String url = parser.get("URL");
                 String params = parser.keySet().stream().filter(k -> !"URL".equals(k)).reduce("?", (u, k) -> {
                     String v = parser.get(k);
-                    if ("?".equals(u)) {
-                        u += "";
-                    } else {
+                    if (!StringUtils.equals("?", u)) {
                         u += "&";
                     }
                     u += k + "=" + ScriptEngineUtils.calculate(v);
