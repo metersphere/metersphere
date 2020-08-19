@@ -15,6 +15,7 @@ import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.MathUtils;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
@@ -43,7 +44,6 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TestPlanService {
-
     @Resource
     TestPlanMapper testPlanMapper;
 
@@ -252,7 +252,7 @@ public class TestPlanService {
     }
 
     public TestCaseReportMetricDTO getMetric(String planId) {
-
+        IssuesService issuesService = (IssuesService) CommonBeanFactory.getBean("issuesService");
         QueryTestPlanRequest queryTestPlanRequest = new QueryTestPlanRequest();
         queryTestPlanRequest.setId(planId);
 
@@ -264,16 +264,25 @@ public class TestPlanService {
         List<ReportComponent> components = ReportComponentFactory.createComponents(componentIds.toJavaList(String.class), testPlan);
 
         List<TestPlanCaseDTO> testPlanTestCases = listTestCaseByPlanId(planId);
+        List<Issues> issues = new ArrayList<>();
         for (TestPlanCaseDTO testCase : testPlanTestCases) {
+            List<Issues> issue = issuesService.getIssues(testCase.getCaseId());
+            if (issue.size() > 0) {
+                for (Issues i : issue) {
+                    i.setModel(testCase.getModel());
+                }
+                issues.addAll(issue);
+            }
+
             components.forEach(component -> {
                 component.readRecord(testCase);
             });
         }
-
         TestCaseReportMetricDTO testCaseReportMetricDTO = new TestCaseReportMetricDTO();
         components.forEach(component -> {
             component.afterBuild(testCaseReportMetricDTO);
         });
+        testCaseReportMetricDTO.setIssues(issues);
         return testCaseReportMetricDTO;
     }
 

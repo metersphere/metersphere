@@ -1,7 +1,10 @@
 package io.metersphere.track.dto;
 
+import io.metersphere.base.domain.Issues;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Setter
