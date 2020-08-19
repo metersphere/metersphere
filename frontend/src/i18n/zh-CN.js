@@ -397,7 +397,9 @@ export default {
       headers: "请求头",
       kv_description: "所有请求可以使用自定义变量",
       copy: "复制场景",
-      delete: "删除场景"
+      delete: "删除场景",
+      disable: "禁用",
+      enable: "启用"
     },
     request: {
       copy: "复制请求",
