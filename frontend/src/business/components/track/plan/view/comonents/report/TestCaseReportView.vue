@@ -146,7 +146,7 @@
         this.$refs.templateEdit.open(this.reportId, true);
       },
       /*导出报告*/
-      handleExport(name) {
+      /*handleExport(name) {
         let html = this.getHtml();
         writer(`${name}.html`, html, 'utf-8');
       },
@@ -169,7 +169,7 @@
                 </body>
                 </html>`
         return html
-      },
+      },*/
       handleSave() {
         let param = {};
         this.buildParam(param);
