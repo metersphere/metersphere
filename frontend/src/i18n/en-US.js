@@ -108,6 +108,7 @@ export default {
     formatErr: 'Format Error',
     id: 'ID',
     please_upload: 'Please upload file',
+    reference_documentation: "Reference documentation",
     date: {
       select_date: 'Select date',
       start_date: 'Start date',
@@ -177,16 +178,27 @@ export default {
     select: 'Select Organization',
     service_integration: 'Service integration',
     defect_manage: 'Defect management platform',
-    select_defect_platform: 'Please select the defect management platform to be integrated:',
-    basic_auth_info: 'Basic Auth account information:',
-    api_account: 'API account',
-    api_password: 'API password',
-    input_api_account: 'please enter account',
-    input_api_password: 'Please enter password',
-    use_tip: 'Usage guidelines:',
-    use_tip_one: 'Basic Auth account information is queried in "Company Management-Security and Integration-Open Platform"',
-    use_tip_two: 'After saving the Basic Auth account information, you need to manually associate the ID/key in the Metersphere project',
-    link_the_project_now: 'Link the project now',
+    integration: {
+      select_defect_platform: 'Please select the defect management platform to be integrated:',
+      basic_auth_info: 'Basic Auth account information:',
+      api_account: 'API account',
+      api_password: 'API password',
+      jira_url: 'JIRA url',
+      input_api_account: 'please enter account',
+      input_api_password: 'Please enter password',
+      input_jira_url: 'Please enter Jira address, for example: https://metersphere.atlassian.net/',
+      use_tip: 'Usage guidelines:',
+      use_tip_one: 'Basic Auth account information is queried in "Company Management-Security and Integration-Open Platform"',
+      use_tip_two: 'After saving the Basic Auth account information, you need to manually associate the ID/key in the Metersphere project',
+      link_the_project_now: 'Link the project now',
+      cancel_edit: 'Cancel edit',
+      cancel_integration: 'Cancel integration',
+      cancel_confirm: 'Confirm cancellation of integration ',
+      successful_operation: 'Successful operation',
+      not_integrated: 'The platform is not integrated',
+      choose_platform: 'Please choose an integrated platform',
+      verified: 'Verified'
+    }
   },
   project: {
     name: 'Project name',
@@ -219,6 +231,8 @@ export default {
     password_format_is_incorrect: 'Valid password: 8-30 digits, English upper and lower case letters + numbers + special characters (optional)',
     old_password: 'Old Password',
     new_password: 'New Password',
+    repeat_password: 'Repeat',
+    inconsistent_passwords: 'The two passwords entered are inconsistent',
     remove_member: 'Are you sure you want to remove this member',
     input_id_or_email: 'Please enter user ID, or user Email',
     no_such_user: 'Without this user information, please enter the correct user ID or user Email!',
@@ -445,6 +459,17 @@ export default {
         regex_expression: "Regular expression",
         json_path_expression: "JSONPath expression",
         xpath_expression: "XPath expression",
+      },
+      processor: {
+        pre_exec_script : "PreProcessor",
+        post_exec_script: "PostProcessor",
+        code_template: "Code template",
+        bean_shell_processor_tip: "Currently only BeanShell scripts are supported",
+        code_template_get_variable: "Get variable",
+        code_template_set_variable: "Set variable",
+        code_template_get_response_header: "Get response header",
+        code_template_get_response_code: "Get response code",
+        code_template_get_response_result: "Get response result"
       },
       dubbo: {
         protocol: "protocol",
@@ -804,5 +829,7 @@ export default {
     modify: "Modify Quota",
     edit_quota_title: "{0} quota",
     workspace_quota_list: "Workspace quota list of {0}",
+    unlimited: "Unlimited",
+    clean: "Clean"
   }
 };

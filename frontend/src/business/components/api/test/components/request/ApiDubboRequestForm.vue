@@ -44,6 +44,12 @@
       <el-tab-pane :label="$t('api_test.request.extract.label')" name="extract">
         <ms-api-extract :is-read-only="isReadOnly" :extract="request.extract"/>
       </el-tab-pane>
+      <el-tab-pane :label="$t('api_test.request.processor.pre_exec_script')" name="beanShellPreProcessor">
+        <ms-bean-shell-processor :is-read-only="isReadOnly" :bean-shell-processor="request.beanShellPreProcessor"/>
+      </el-tab-pane>
+      <el-tab-pane :label="$t('api_test.request.processor.post_exec_script')" name="beanShellPostProcessor">
+        <ms-bean-shell-processor :is-read-only="isReadOnly" :bean-shell-processor="request.beanShellPostProcessor"/>
+      </el-tab-pane>
     </el-tabs>
   </el-form>
 </template>
@@ -59,10 +65,12 @@
   import MsDubboRegistryCenter from "@/business/components/api/test/components/request/dubbo/RegistryCenter";
   import MsDubboConfigCenter from "@/business/components/api/test/components/request/dubbo/ConfigCenter";
   import MsDubboConsumerService from "@/business/components/api/test/components/request/dubbo/ConsumerAndService";
+  import MsBeanShellProcessor from "../processor/BeanShellProcessor";
 
   export default {
     name: "MsApiDubboRequestForm",
     components: {
+      MsBeanShellProcessor,
       MsDubboConsumerService,
       MsDubboConfigCenter,
       MsDubboRegistryCenter,
@@ -133,5 +141,7 @@
   .environment-url-tip {
     color: #F56C6C;
   }
+
+
 
 </style>

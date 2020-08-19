@@ -105,6 +105,7 @@ export default {
     formatErr: '格式錯誤',
     please_save: '請先保存',
     id: 'ID',
+    reference_documentation: "參考文檔",
     please_upload: '請上傳文件',
     date: {
       select_date: '選擇日期',
@@ -176,16 +177,27 @@ export default {
     delete_warning: '删除该组织将同步删除该组织下所有相关工作空间和相关工作空间下的所有项目，以及项目中的所有用例、接口测试、性能测试等,确定要删除吗?',
     service_integration: '服務集成',
     defect_manage: '缺陷管理平台',
-    select_defect_platform: '請選擇要集成的缺陷管理平台：',
-    basic_auth_info: 'Basic Auth 賬號信息：',
-    api_account: 'API 賬號',
-    api_password: 'API 口令',
-    input_api_account: '請輸入賬號',
-    input_api_password: '請輸入口令',
-    use_tip: '使用指引：',
-    use_tip_one: 'Basic Auth 賬號信息在"公司管理-安全與集成-開放平台"中查詢',
-    use_tip_two: '保存 Basic Auth 賬號信息後，需要在 Metersphere 項目中手動關聯 ID/key',
-    link_the_project_now: '馬上關聯項目',
+    integration: {
+      select_defect_platform: '請選擇要集成的缺陷管理平台：',
+      basic_auth_info: 'Basic Auth 賬號信息：',
+      api_account: 'API 賬號',
+      api_password: 'API 口令',
+      jira_url: 'JIRA 地址',
+      input_api_account: '請輸入賬號',
+      input_api_password: '請輸入口令',
+      input_jira_url: '請輸入Jira地址，例：https://metersphere.atlassian.net/',
+      use_tip: '使用指引：',
+      use_tip_one: 'Basic Auth 賬號信息在"公司管理-安全與集成-開放平台"中查詢',
+      use_tip_two: '保存 Basic Auth 賬號信息後，需要在 Metersphere 項目中手動關聯 ID/key',
+      link_the_project_now: '馬上關聯項目',
+      cancel_edit: '取消編輯',
+      cancel_integration: '取消集成',
+      cancel_confirm: '確認取消集成 ',
+      successful_operation: '操作成功',
+      not_integrated: '未集成該平台',
+      choose_platform: '請選擇集成的平台',
+      verified: '驗證通過'
+    }
   },
   project: {
     recent: '最近的項目',
@@ -217,6 +229,8 @@ export default {
     password_format_is_incorrect: '有效密碼：8-30 位，英文大小寫字母+數位+特殊字元（可選）',
     old_password: '舊密碼',
     new_password: '新密碼',
+    repeat_password: '確認密碼',
+    inconsistent_passwords: '兩次輸入的密碼不一致',
     remove_member: '確定要移除該成員嗎',
     input_id_or_email: '請輸入用戶 ID, 或者 用戶郵箱',
     no_such_user: '無此用戶信息, 請輸入正確的用戶 ID 或者 用戶郵箱！',
@@ -445,6 +459,17 @@ export default {
         regex_expression: "Perl型規則運算式",
         json_path_expression: "JSONPath運算式",
         xpath_expression: "XPath運算式",
+      },
+      processor: {
+        pre_exec_script : "預執行腳本",
+        post_exec_script: "後執行腳本",
+        code_template: "代碼模版",
+        bean_shell_processor_tip: "僅支持 BeanShell 腳本",
+        code_template_get_variable: "獲取變量",
+        code_template_set_variable: "設置變量",
+        code_template_get_response_header: "獲取響應頭",
+        code_template_get_response_code: "獲取響應碼",
+        code_template_get_response_result: "獲取響應結果"
       },
       dubbo: {
         protocol: "協定",
@@ -803,5 +828,7 @@ export default {
     modify: "修改配額",
     edit_quota_title: "{0}的配額",
     workspace_quota_list: "{0}的工作空間配額列表",
+    unlimited: "無限制",
+    clean: "清空"
   }
 };
