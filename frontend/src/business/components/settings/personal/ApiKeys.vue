@@ -23,7 +23,7 @@
               <div>
                 <el-tooltip :content="$t('api_test.copied')" manual v-model="scope.row.visible" placement="top"
                             :visible-arrow="false">
-                  <i class="el-icon-copy-document copy" @click="copy(scope.row, 'accessKey')"/>
+                  <i class="el-icon-copy-document copy" @click="copy(scope.row, 'accessKey', 'visible')"/>
                 </el-tooltip>
               </div>
             </div>
@@ -63,7 +63,7 @@
         {{ currentRow.secretKey }}
         <el-tooltip :content="$t('api_test.copied')" manual v-model="currentRow.visible2" placement="top"
                     :visible-arrow="false">
-          <i class="el-icon-copy-document copy" @click="copy(currentRow, 'secretKey')"/>
+          <i class="el-icon-copy-document copy" @click="copy(currentRow, 'secretKey', 'visible2')"/>
         </el-tooltip>
       </div>
     </el-dialog>
@@ -145,7 +145,7 @@ export default {
       this.apiKeysVisible = true;
       this.currentRow = row;
     },
-    copy(row, key) {
+    copy(row, key, visible) {
       let input = document.createElement("input");
       document.body.appendChild(input);
       input.value = row[key];
@@ -155,9 +155,9 @@ export default {
       }
       document.execCommand("copy");
       document.body.removeChild(input);
-      row.visible = true;
+      row[visible] = true;
       setTimeout(() => {
-        row.visible = false;
+        row[visible] = false;
       }, 1000);
     },
   }
