@@ -213,6 +213,8 @@ export default {
     owning_workspace: '所属工作空间',
     please_choose_workspace: '请选择工作空间',
     special_characters_are_not_supported: '格式错误(不支持特殊字符，且不能以\'-\'开头结尾)',
+    tapd_id: 'TAPD项目ID',
+    jira_key: 'JIRA项目key',
   },
   member: {
     create: '添加成员',
@@ -397,7 +399,9 @@ export default {
       headers: "请求头",
       kv_description: "所有请求可以使用自定义变量",
       copy: "复制场景",
-      delete: "删除场景"
+      delete: "删除场景",
+      disable: "禁用",
+      enable: "启用"
     },
     request: {
       copy: "复制请求",

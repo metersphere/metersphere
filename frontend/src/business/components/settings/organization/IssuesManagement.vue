@@ -1,5 +1,5 @@
 <template>
-  <el-card class="header-title" v-loading="result.loading">
+  <div class="header-title" v-loading="result.loading">
     <div>
       <div>{{$t('organization.integration.select_defect_platform')}}</div>
       <el-radio-group v-model="platform" style="margin-top: 10px" @change="change">
@@ -33,7 +33,8 @@
       </el-button>
       <el-button v-if="showEdit" size="mini" @click="edit">{{$t('commons.edit')}}</el-button>
       <el-button type="primary" v-if="showSave" size="mini" @click="save('form')">{{$t('commons.save')}}</el-button>
-      <el-button v-if="showCancel" size="mini" @click="cancelEdit">{{$t('organization.integration.cancel_edit')}}</el-button>
+      <el-button v-if="showCancel" size="mini" @click="cancelEdit">{{$t('organization.integration.cancel_edit')}}
+      </el-button>
       <el-button type="info" size="mini" @click="cancelIntegration('form')" :disabled="!show">
         {{$t('organization.integration.cancel_integration')}}
       </el-button>
@@ -46,11 +47,12 @@
       </div>
       <div>
         2. {{$t('organization.integration.use_tip_two')}}
-        <router-link to="/track/project/all" style="margin-left: 5px">{{$t('organization.integration.link_the_project_now')}}
+        <router-link to="/track/project/all" style="margin-left: 5px">
+          {{$t('organization.integration.link_the_project_now')}}
         </router-link>
       </div>
     </div>
-  </el-card>
+  </div>
 </template>
 
 <script>
@@ -69,9 +71,21 @@
         showSave: false,
         showCancel: false,
         rules: {
-          account: {required: true, message: this.$t('organization.integration.input_api_account'), trigger: ['change', 'blur']},
-          password: {required: true, message: this.$t('organization.integration.input_api_password'), trigger: ['change', 'blur']},
-          url: {required: true, message: this.$t('organization.integration.input_jira_url'), trigger: ['change', 'blur']}
+          account: {
+            required: true,
+            message: this.$t('organization.integration.input_api_account'),
+            trigger: ['change', 'blur']
+          },
+          password: {
+            required: true,
+            message: this.$t('organization.integration.input_api_password'),
+            trigger: ['change', 'blur']
+          },
+          url: {
+            required: true,
+            message: this.$t('organization.integration.input_jira_url'),
+            trigger: ['change', 'blur']
+          }
         },
       }
     },
@@ -126,7 +140,7 @@
               }
             }
           });
-        } else  {
+        } else {
           this.$warning(this.$t('organization.integration.not_integrated'));
         }
       },
@@ -188,9 +202,14 @@
         });
       },
       testConnection() {
-        this.result = this.$get("issues/auth/" + this.platform, () => {
-          this.$success(this.$t('organization.integration.verified'));
-        });
+        if (this.form.account && this.form.password && this.platform) {
+          this.result = this.$get("issues/auth/" + this.platform, () => {
+            this.$success(this.$t('organization.integration.verified'));
+          });
+        } else {
+          this.$warning(this.$t('organization.integration.not_integrated'));
+          return false;
+        }
       }
     }
   }
