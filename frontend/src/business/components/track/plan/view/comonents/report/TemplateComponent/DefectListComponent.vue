@@ -11,7 +11,7 @@
           show-overflow-tooltip>
         </el-table-column>
         <el-table-column
-          prop="module"
+          prop="model"
           :label="$t('test_track.module.module')"
           show-overflow-tooltip>
         </el-table-column>
@@ -32,13 +32,13 @@
                 show-overflow-tooltip>
         </el-table-column>
         <el-table-column
-                prop="currentOwner"
+                prop="reporter"
                 :label="$t('test_track.module.current_owner')"
                 show-overflow-tooltip>
         </el-table-column>
 
         <el-table-column
-                prop="created"
+                prop="createTime"
                 :label="$t('test_track.module.creation_time')">
         </el-table-column>
       </el-table>
@@ -67,8 +67,8 @@
                 title: 'testCase1',
                 description: "第一个模块测试",
                 status: "接受/处理",
-                currentOwner: "Andy",
-                created: "2010.3.3",
+                reporter: "Andy",
+                createTime: "2010.3.3",
               },
             ]
           }
