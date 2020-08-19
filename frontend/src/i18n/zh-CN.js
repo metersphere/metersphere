@@ -592,6 +592,16 @@ export default {
       relate_test_not_find: '关联的测试不存在,请检查用例',
       batch_handle: '批量处理 (选中{0}项)',
       batch_update: '更新{0}个用例的属性',
+      select_catalog: '请选择用例目录',
+      updated_attr_value: '更新后属性值为',
+      batch_operate: '批量操作',
+      please_select_attr: '请选择属性',
+      please_select_attr_value: '请选择属性对应的值',
+      batch_edit_plan: '批量更改测试计划',
+      batch_edit_case: '批量编辑用例',
+      batch_move_case: '批量移动用例',
+      batch_delete_case: '批量删除用例',
+      batch_unlink: '批量取消用例关联',
       import: {
         import: "导入用例",
         case_import: "导入测试用例",
@@ -701,6 +711,21 @@ export default {
       report_template: "测试报告模版",
       test_detail: "测试详情",
       failure_case: "失败用例",
+      export_report: "导出报告"
+    },
+    issue: {
+      issue: "缺陷",
+      platform_tip: "在系统设置-组织-服务集成中集成缺陷管理平台可以自动提交缺陷到指定缺陷管理平台",
+      input_title: "请输入标题",
+      id: "缺陷ID",
+      title: "缺陷标题",
+      description: "缺陷描述",
+      status: "缺陷状态",
+      platform: "平台",
+      operate: "操作",
+      close: "关闭缺陷",
+      title_description_required: "标题和描述必填",
+      close_success: "关闭成功",
     }
   },
   test_resource_pool: {

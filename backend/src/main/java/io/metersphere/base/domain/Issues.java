@@ -1,6 +1,7 @@
 package io.metersphere.base.domain;
 
 import java.io.Serializable;
+
 import lombok.Data;
 
 @Data
@@ -22,6 +23,8 @@ public class Issues implements Serializable {
     private String platform;
 
     private String description;
+
+    private String model;
 
     private static final long serialVersionUID = 1L;
 }

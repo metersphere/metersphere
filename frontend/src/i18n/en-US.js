@@ -589,6 +589,16 @@ export default {
       relate_test_not_find: 'The associated test does not exist, please check the test case',
       batch_handle: 'Batch processing (select {0} item)',
       batch_update: 'Update the attributes of {0} cases',
+      select_catalog: 'Please select use case catalog',
+      updated_attr_value: 'The updated attribute value',
+      batch_operate: 'Batch operation',
+      please_select_attr: 'Please select attributes',
+      please_select_attr_value: 'Please select the value corresponding to the attribute',
+      batch_edit_plan: 'Batch change test plan',
+      batch_edit_case: 'Batch editing test cases',
+      batch_move_case: 'Batch move',
+      batch_delete_case: 'Batch delete',
+      batch_unlink: 'Batch Unlink',
       import: {
         import: "Import test case",
         case_import: "Import test case",
@@ -698,6 +708,21 @@ export default {
       report_template: "Report template",
       test_detail: "Test detail",
       failure_case: "Failure case",
+      export_report: "Export Report"
+    },
+    issue: {
+      issue: "Issue",
+      platform_tip: "Integrated defect management platform in the system setting-organization-service integration can automatically submit defects to the designated defect management platform",
+      input_title: "Please enter title",
+      id: "Issue ID",
+      title: "Issue Title",
+      description: "Issue Description",
+      status: "Issue Status",
+      platform: "Platform",
+      operate: "Operate",
+      close: "Close",
+      title_description_required: "Title and description are required",
+      close_success: "Closed successfully",
     }
   },
   test_resource_pool: {

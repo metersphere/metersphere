@@ -121,7 +121,7 @@
     </el-card>
 
     <batch-edit ref="batchEdit" @batchEdit="batchEdit"
-                :typeArr="typeArr" :value-arr="valueArr" dialog-title="批量编辑用例"/>
+                :typeArr="typeArr" :value-arr="valueArr" :dialog-title="$t('test_track.case.batch_edit_case')"/>
   </div>
 </template>
 
@@ -193,18 +193,18 @@
         showMore: false,
         buttons: [
           {
-            name: '批量编辑用例', handleClick: this.handleBatchEdit
+            name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit
           }, {
-            name: '批量移动用例', handleClick: this.handleBatchMove
+            name: this.$t('test_track.case.batch_move_case'), handleClick: this.handleBatchMove
           }, {
-            name: '批量删除用例', handleClick: this.handleDeleteBatch
+            name: this.$t('test_track.case.batch_delete_case'), handleClick: this.handleDeleteBatch
           }
         ],
         typeArr: [
-          {id: 'priority', name: '用例等级'},
-          {id: 'type', name: '类型'},
-          {id: 'method', name: '测试方式'},
-          {id: 'maintainer', name: '维护人'},
+          {id: 'priority', name: this.$t('test_track.case.priority')},
+          {id: 'type', name: this.$t('test_track.case.type')},
+          {id: 'method', name: this.$t('test_track.case.method')},
+          {id: 'maintainer', name: this.$t('test_track.case.maintainer')},
         ],
         valueArr: {
           priority: [
