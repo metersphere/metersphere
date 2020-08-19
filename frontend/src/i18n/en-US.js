@@ -213,6 +213,8 @@ export default {
     owning_workspace: 'Owning Workspace',
     please_choose_workspace: 'Please select Workspace',
     special_characters_are_not_supported: 'Incorrect format (special characters are not supported and cannot end with \'-\')',
+    tapd_id: 'TAPD Project ID',
+    jira_key: 'JIRA Project key',
   },
   member: {
     create: 'Create',

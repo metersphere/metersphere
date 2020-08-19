@@ -57,10 +57,10 @@
         <el-form-item :label="$t('commons.description')" prop="description">
           <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.description"></el-input>
         </el-form-item>
-        <el-form-item label="TAPD项目ID" v-if="tapd">
+        <el-form-item :label="$t('project.tapd_id')" v-if="tapd">
           <el-input v-model="form.tapdId" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="JIRA项目key" v-if="jira">
+        <el-form-item :label="$t('project.jira_key')" v-if="jira">
           <el-input v-model="form.jiraKey" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>

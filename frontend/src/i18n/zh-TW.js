@@ -211,6 +211,8 @@ export default {
     owning_workspace: '所屬工作空間',
     please_choose_workspace: '請選擇工作空間',
     special_characters_are_not_supported: '格式錯誤(不支持特殊字符，且不能以\'-\'開頭結尾)',
+    tapd_id: 'TAPD項目ID',
+    jira_key: 'JIRA項目key',
   },
   member: {
     create: '添加成員',

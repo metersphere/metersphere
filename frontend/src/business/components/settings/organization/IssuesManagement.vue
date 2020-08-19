@@ -202,9 +202,14 @@
         });
       },
       testConnection() {
-        this.result = this.$get("issues/auth/" + this.platform, () => {
-          this.$success(this.$t('organization.integration.verified'));
-        });
+        if (this.form.account && this.form.password && this.platform) {
+          this.result = this.$get("issues/auth/" + this.platform, () => {
+            this.$success(this.$t('organization.integration.verified'));
+          });
+        } else {
+          this.$warning(this.$t('organization.integration.not_integrated'));
+          return false;
+        }
       }
     }
   }
