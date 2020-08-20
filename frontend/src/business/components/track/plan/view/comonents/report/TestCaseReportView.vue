@@ -25,9 +25,9 @@
             <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleEdit">
               {{$t('test_track.plan_view.edit_component')}}
             </el-button>
-            <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExport(report.name)">
+            <!--<el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExport(report.name)">
               {{$t('test_track.plan_view.export_report')}}
-            </el-button>
+            </el-button>-->
           </el-col>
         </el-row>
 
