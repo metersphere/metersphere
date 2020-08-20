@@ -209,7 +209,21 @@
                 <el-table border class="adjust-table" :data="issues" style="width: 100%">
                   <el-table-column prop="id" :label="$t('test_track.issue.id')" show-overflow-tooltip/>
                   <el-table-column prop="title" :label="$t('test_track.issue.title')"/>
-                  <el-table-column prop="description" :label="$t('test_track.issue.description')" show-overflow-tooltip/>
+                  <el-table-column prop="description" :label="$t('test_track.issue.description')">
+                    <template v-slot:default="scope">
+                      <el-popover
+                        placement="left"
+                        width="400"
+                        trigger="hover"
+                        >
+                        <ckeditor :editor="editor" disabled
+                                  v-model="scope.row.description"/>
+<!--                        <span v-html="scope.row.description"/>-->
+<!--                        <span slot="reference">{{scope.row.description}}</span>-->
+                        <el-button slot="reference" type="text">预览</el-button>
+                      </el-popover>
+                    </template>
+                  </el-table-column>
                   <el-table-column prop="status" :label="$t('test_track.issue.status')"/>
                   <el-table-column prop="platform" :label="$t('test_track.issue.platform')"/>
                   <el-table-column :label="$t('test_track.issue.operate')">
