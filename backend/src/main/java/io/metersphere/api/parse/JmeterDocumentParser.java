@@ -149,9 +149,12 @@ public class JmeterDocumentParser {
                 String path = ele.getTextContent();
                 Map<String, String> parser = parserUrl(path);
                 String url = parser.get("URL");
-                String params = parser.keySet().stream().filter(k -> !"URL".equals(k)).reduce("", (u, k) -> {
+                String params = parser.keySet().stream().filter(k -> !"URL".equals(k)).reduce("?", (u, k) -> {
                     String v = parser.get(k);
-                    u += "&" + k + "=" + ScriptEngineUtils.calculate(v);
+                    if (!StringUtils.equals("?", u)) {
+                        u += "&";
+                    }
+                    u += k + "=" + ScriptEngineUtils.calculate(v);
                     return u;
                 });
                 ele.setTextContent(url + params);

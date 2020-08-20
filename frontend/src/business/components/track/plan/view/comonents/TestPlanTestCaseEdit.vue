@@ -181,7 +181,7 @@
                   :active-text="$t('test_track.plan_view.submit_issues')">
                 </el-switch>
                 <el-tooltip class="item" effect="dark"
-                            content="在系统设置-组织-服务集成中集成缺陷管理平台可以自动提交缺陷到指定缺陷管理平台"
+                            :content="$t('test_track.issue.platform_tip')"
                             placement="right">
                   <i class="el-icon-info"/>
                 </el-tooltip>
@@ -192,7 +192,7 @@
               <el-col :span="20" :offset="1" class="issues-edit">
                 <el-input
                   type="text"
-                  placeholder="请输入标题"
+                  :placeholder="$t('test_track.issue.input_title')"
                   v-model="testCase.issues.title"
                   maxlength="100"
                   show-word-limit
@@ -207,14 +207,28 @@
             <el-row>
               <el-col :span="20" :offset="1" class="issues-edit">
                 <el-table border class="adjust-table" :data="issues" style="width: 100%">
-                  <el-table-column prop="id" label="缺陷ID" show-overflow-tooltip/>
-                  <el-table-column prop="title" label="缺陷标题"/>
-                  <el-table-column prop="description" label="缺陷描述" show-overflow-tooltip/>
-                  <el-table-column prop="status" label="缺陷状态"/>
-                  <el-table-column prop="platform" label="平台"/>
-                  <el-table-column label="操作">
+                  <el-table-column prop="id" :label="$t('test_track.issue.id')" show-overflow-tooltip/>
+                  <el-table-column prop="title" :label="$t('test_track.issue.title')"/>
+                  <el-table-column prop="description" :label="$t('test_track.issue.description')">
                     <template v-slot:default="scope">
-                      <el-tooltip content="关闭缺陷"
+                      <el-popover
+                        placement="left"
+                        width="400"
+                        trigger="hover"
+                        >
+                        <ckeditor :editor="editor" disabled
+                                  v-model="scope.row.description"/>
+<!--                        <span v-html="scope.row.description"/>-->
+<!--                        <span slot="reference">{{scope.row.description}}</span>-->
+                        <el-button slot="reference" type="text">预览</el-button>
+                      </el-popover>
+                    </template>
+                  </el-table-column>
+                  <el-table-column prop="status" :label="$t('test_track.issue.status')"/>
+                  <el-table-column prop="platform" :label="$t('test_track.issue.platform')"/>
+                  <el-table-column :label="$t('test_track.issue.operate')">
+                    <template v-slot:default="scope">
+                      <el-tooltip :content="$t('test_track.issue.close')"
                                   placement="right">
                         <el-button type="danger" icon="el-icon-circle-close" size="mini"
                                    circle v-if="scope.row.platform === 'Local'"
@@ -473,7 +487,7 @@
       },
       saveIssues() {
         if (!this.testCase.issues.title || !this.testCase.issues.content) {
-          this.$warning("标题和描述必填");
+          this.$warning(this.$t('test_track.issue.title_description_required'));
           return;
         }
         let param = {};
@@ -494,7 +508,7 @@
       closeIssue(row) {
         this.result = this.$get("/issues/close/" + row.id, () => {
           this.getIssues(this.testCase.caseId);
-          this.$success("关闭成功");
+          this.$success(this.$t('test_track.issue.close_success'));
         });
       }
     }

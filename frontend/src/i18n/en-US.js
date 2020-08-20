@@ -107,6 +107,7 @@ export default {
     please_save: 'Please save first',
     formatErr: 'Format Error',
     id: 'ID',
+    millisecond: 'ms',
     please_upload: 'Please upload file',
     reference_documentation: "Reference documentation",
     date: {
@@ -213,6 +214,8 @@ export default {
     owning_workspace: 'Owning Workspace',
     please_choose_workspace: 'Please select Workspace',
     special_characters_are_not_supported: 'Incorrect format (special characters are not supported and cannot end with \'-\')',
+    tapd_id: 'TAPD Project ID',
+    jira_key: 'JIRA Project key',
   },
   member: {
     create: 'Create',
@@ -397,7 +400,9 @@ export default {
       headers: "Headers",
       kv_description: "Variables are available for all requests",
       copy: "Copy scenario",
-      delete: "Delete scenario"
+      delete: "Delete scenario",
+      disable: "Disable",
+      enable: "Enable"
     },
     request: {
       copy: "Copy request",
@@ -433,6 +438,9 @@ export default {
       body: "Body",
       body_kv: "Key Value",
       body_text: "Raw",
+      timeout_config: "Timeout Config",
+      connect_timeout: "Connect Timeout",
+      response_timeout: "Response Timeout",
       assertions: {
         label: "Assertion",
         text: "Text",
@@ -587,6 +595,16 @@ export default {
       relate_test_not_find: 'The associated test does not exist, please check the test case',
       batch_handle: 'Batch processing (select {0} item)',
       batch_update: 'Update the attributes of {0} cases',
+      select_catalog: 'Please select use case catalog',
+      updated_attr_value: 'The updated attribute value',
+      batch_operate: 'Batch operation',
+      please_select_attr: 'Please select attributes',
+      please_select_attr_value: 'Please select the value corresponding to the attribute',
+      batch_edit_plan: 'Batch change test plan',
+      batch_edit_case: 'Batch editing test cases',
+      batch_move_case: 'Batch move',
+      batch_delete_case: 'Batch delete',
+      batch_unlink: 'Batch Unlink',
       import: {
         import: "Import test case",
         case_import: "Import test case",
@@ -697,6 +715,20 @@ export default {
       test_detail: "Test detail",
       failure_case: "Failure case",
       export_report: "Export Report"
+    },
+    issue: {
+      issue: "Issue",
+      platform_tip: "Integrated defect management platform in the system setting-organization-service integration can automatically submit defects to the designated defect management platform",
+      input_title: "Please enter title",
+      id: "Issue ID",
+      title: "Issue Title",
+      description: "Issue Description",
+      status: "Issue Status",
+      platform: "Platform",
+      operate: "Operate",
+      close: "Close",
+      title_description_required: "Title and description are required",
+      close_success: "Closed successfully",
     }
   },
   test_resource_pool: {

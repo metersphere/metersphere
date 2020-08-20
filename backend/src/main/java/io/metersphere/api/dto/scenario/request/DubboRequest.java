@@ -49,4 +49,6 @@ public class DubboRequest implements Request {
     private BeanShellPreProcessor beanShellPreProcessor;
     @JSONField(ordinal = 13)
     private BeanShellPostProcessor beanShellPostProcessor;
+    @JSONField(ordinal = 14)
+    private Boolean enable;
 }

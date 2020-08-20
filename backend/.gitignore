@@ -32,4 +32,4 @@ target
 .project
 .classpath
 .factorypath
-*.jar
+src/main/resources/jmeter/lib/

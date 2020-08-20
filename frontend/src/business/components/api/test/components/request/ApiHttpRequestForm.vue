@@ -40,8 +40,7 @@
       </el-switch>
     </el-form-item>
 
-    <el-button class="debug-button" size="small" type="primary" @click="runDebug">{{ $t('load_test.save_and_run') }}
-    </el-button>
+    <el-button :disabled="!request.enable || !scenario.enable || isReadOnly" class="debug-button" size="small" type="primary" @click="runDebug">{{ $t('load_test.save_and_run') }}</el-button>
 
     <el-tabs v-model="activeName">
       <el-tab-pane :label="$t('api_test.request.parameters')" name="parameters">
@@ -74,6 +73,9 @@
       <el-tab-pane :label="$t('api_test.request.processor.post_exec_script')" name="beanShellPostProcessor">
         <ms-bean-shell-processor :is-read-only="isReadOnly" :bean-shell-processor="request.beanShellPostProcessor"/>
       </el-tab-pane>
+      <el-tab-pane :label="$t('api_test.request.timeout_config')" name="advancedConfig">
+        <ms-api-advanced-config :is-read-only="isReadOnly" :request="request"/>
+      </el-tab-pane>
     </el-tabs>
   </el-form>
 </template>
@@ -88,10 +90,12 @@ import ApiRequestMethodSelect from "../collapse/ApiRequestMethodSelect";
 import {REQUEST_HEADERS} from "@/common/js/constants";
 import MsApiVariable from "@/business/components/api/test/components/ApiVariable";
 import MsBeanShellProcessor from "../processor/BeanShellProcessor";
+import MsApiAdvancedConfig from "../ApiAdvancedConfig";
 
 export default {
   name: "MsApiHttpRequestForm",
   components: {
+    MsApiAdvancedConfig,
     MsBeanShellProcessor,
     MsApiVariable, ApiRequestMethodSelect, MsApiExtract, MsApiAssertions, MsApiBody, MsApiKeyValue},
   props: {

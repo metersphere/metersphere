@@ -105,6 +105,7 @@ export default {
     formatErr: '格式錯誤',
     please_save: '請先保存',
     id: 'ID',
+    millisecond: '毫秒',
     reference_documentation: "參考文檔",
     please_upload: '請上傳文件',
     date: {
@@ -211,6 +212,8 @@ export default {
     owning_workspace: '所屬工作空間',
     please_choose_workspace: '請選擇工作空間',
     special_characters_are_not_supported: '格式錯誤(不支持特殊字符，且不能以\'-\'開頭結尾)',
+    tapd_id: 'TAPD項目ID',
+    jira_key: 'JIRA項目key',
   },
   member: {
     create: '添加成員',
@@ -396,7 +399,9 @@ export default {
       headers: "請求頭",
       kv_description: "所有請求可以使用自定義變數",
       copy: "複製場景",
-      delete: "删除場景"
+      delete: "删除場景",
+      disable: "禁用",
+      enable: "啟用"
     },
     request: {
       copy: "複製請求",
@@ -433,6 +438,9 @@ export default {
       body: "請求內容",
       body_kv: "鍵值對",
       body_text: "文字",
+      timeout_config: "超時設置",
+      connect_timeout: "連接超時",
+      response_timeout: "響應超時",
       assertions: {
         label: "斷言",
         text: "文字",
@@ -587,6 +595,16 @@ export default {
       relate_test_not_find: '關聯的測試不存在,請檢查用例',
       batch_handle: '批量處理 (選中{0}項)',
       batch_update: '更新{0}個用例的屬性',
+      select_catalog: '請選擇用例目錄',
+      updated_attr_value: '更新後屬性值為',
+      batch_operate: '批量操作',
+      please_select_attr: '請選擇屬性',
+      please_select_attr_value: '請選擇屬性對應的值',
+      batch_edit_plan: '批量更改測試計劃',
+      batch_edit_case: '批量編輯用例',
+      batch_move_case: '批量移動用例',
+      batch_delete_case: '批量刪除用例',
+      batch_unlink: '批量取消用例關聯',
       import: {
         import: "導入用例",
         case_import: "導入測試用例",
@@ -697,6 +715,20 @@ export default {
       test_detail: "測試詳情",
       failure_case: "失敗用例",
       export_report: "匯出報告"
+    },
+    issue: {
+      issue: "缺陷",
+      platform_tip: "在系統設置-組織-服務集成中集成缺陷管理平台可以自動提交缺陷到指定缺陷管理平台",
+      input_title: "請輸入標題",
+      id: "缺陷ID",
+      title: "缺陷標題",
+      description: "缺陷描述",
+      status: "缺陷狀態",
+      platform: "平台",
+      operate: "操作",
+      close: "關閉缺陷",
+      title_description_required: "標題和描述必填",
+      close_success: "關閉成功",
     }
   },
   test_resource_pool: {

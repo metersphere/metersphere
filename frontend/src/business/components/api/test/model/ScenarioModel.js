@@ -207,6 +207,7 @@ export class Scenario extends BaseConfig {
     this.dubboConfig = undefined;
     this.environment = undefined;
     this.enableCookieShare = false;
+    this.enable = true;
 
     this.set(options);
     this.sets({variables: KeyValue, headers: KeyValue, requests: RequestFactory}, options);
@@ -304,6 +305,9 @@ export class HttpRequest extends Request {
     this.debugReport = undefined;
     this.beanShellPreProcessor = undefined;
     this.beanShellPostProcessor = undefined;
+    this.enable = true;
+    this.connectTimeout = 60*1000;
+    this.responseTimeout = undefined;
 
     this.set(options);
     this.sets({parameters: KeyValue, headers: KeyValue}, options);
@@ -383,6 +387,7 @@ export class DubboRequest extends Request {
     this.debugReport = undefined;
     this.beanShellPreProcessor = new BeanShellProcessor(options.beanShellPreProcessor);
     this.beanShellPostProcessor = new BeanShellProcessor(options.beanShellPostProcessor);
+    this.enable = true;
 
     this.sets({args: KeyValue, attachmentArgs: KeyValue}, options);
   }
@@ -723,6 +728,9 @@ class JMXHttpRequest {
         let url = new URL(environment.protocol + "://" + environment.socket);
         this.path = this.getPostQueryParameters(request, decodeURIComponent(url.pathname + (request.path ? request.path : '')));
       }
+      this.connectTimeout = request.connectTimeout;
+      this.responseTimeout = request.responseTimeout;
+
     }
   }
 
@@ -807,44 +815,50 @@ class JMXGenerator {
 
   addScenarios(testPlan, scenarios) {
     scenarios.forEach(s => {
-      let scenario = s.clone();
 
-      let threadGroup = new ThreadGroup(scenario.name || "");
+      if (s.enable) {
+        let scenario = s.clone();
 
-      this.addScenarioVariables(threadGroup, scenario);
+        let threadGroup = new ThreadGroup(scenario.name || "");
 
-      this.addScenarioHeaders(threadGroup, scenario);
+        this.addScenarioVariables(threadGroup, scenario);
 
-      this.addScenarioCookieManager(threadGroup, scenario);
+        this.addScenarioHeaders(threadGroup, scenario);
 
-      scenario.requests.forEach(request => {
-        if (!request.isValid()) return;
-        let sampler;
+        this.addScenarioCookieManager(threadGroup, scenario);
 
-        if (request instanceof DubboRequest) {
-          sampler = new DubboSample(request.name || "", new JMXDubboRequest(request, scenario.dubboConfig));
-        }
+        scenario.requests.forEach(request => {
+          if (request.enable) {
+            if (!request.isValid()) return;
+            let sampler;
 
-        if (request instanceof HttpRequest) {
-          sampler = new HTTPSamplerProxy(request.name || "", new JMXHttpRequest(request, scenario.environment));
-          this.addRequestHeader(sampler, request);
-          if (request.method.toUpperCase() === 'GET') {
-            this.addRequestArguments(sampler, request);
-          } else {
-            this.addRequestBody(sampler, request);
+            if (request instanceof DubboRequest) {
+              sampler = new DubboSample(request.name || "", new JMXDubboRequest(request, scenario.dubboConfig));
+            }
+
+            if (request instanceof HttpRequest) {
+              sampler = new HTTPSamplerProxy(request.name || "", new JMXHttpRequest(request, scenario.environment));
+              this.addRequestHeader(sampler, request);
+              if (request.method.toUpperCase() === 'GET') {
+                this.addRequestArguments(sampler, request);
+              } else {
+                this.addRequestBody(sampler, request);
+              }
+            }
+
+            this.addBeanShellProcessor(sampler, request);
+
+            this.addRequestAssertion(sampler, request);
+
+            this.addRequestExtractor(sampler, request);
+
+            threadGroup.put(sampler);
           }
-        }
+        })
 
-        this.addBeanShellProcessor(sampler, request);
+        testPlan.put(threadGroup);
+      }
 
-        this.addRequestAssertion(sampler, request);
-
-        this.addRequestExtractor(sampler, request);
-
-        threadGroup.put(sampler);
-      })
-
-      testPlan.put(threadGroup);
     })
   }
 

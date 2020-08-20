@@ -1,7 +1,8 @@
 <template>
   <div class="request-form">
     <component @runDebug="runDebug" :is="component" :is-read-only="isReadOnly" :request="request" :scenario="scenario"/>
-    <ms-request-result-tail v-loading="debugReportLoading" v-if="isCompleted" :request="request.debugRequestResult ? request.debugRequestResult : {responseResult: {}, subRequestResults: []}" :scenario-name="request.debugScenario ? request.debugScenario.name : ''"/>
+    <ms-request-result-tail v-loading="debugReportLoading" v-if="isCompleted" :request="request.debugRequestResult ? request.debugRequestResult : {responseResult: {}, subRequestResults: []}"
+                            :scenario-name="request.debugScenario ? request.debugScenario.name : ''" ref="msDebugResult"/>
   </div>
 </template>
 
@@ -72,9 +73,15 @@ export default {
               if (res) {
                 this.debugReportLoading = false;
                 this.request.debugReport = res;
-                this.request.debugScenario = res.scenarios[0];
-                this.request.debugRequestResult = this.request.debugScenario.requestResults[0];
-                this.deleteReport(this.debugReportId)
+                if (res.scenarios && res.scenarios.length > 0) {
+                  this.request.debugScenario = res.scenarios[0];
+                  this.request.debugRequestResult = this.request.debugScenario.requestResults[0];
+                  this.deleteReport(this.debugReportId);
+                } else {
+                  this.request.debugScenario = new Scenario();
+                  this.request.debugRequestResult = {responseResult: {}, subRequestResults: []};
+                }
+                this.$refs.msDebugResult.reload();
               } else {
                 setTimeout(this.getReport, 2000)
               }
