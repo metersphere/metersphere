@@ -163,7 +163,7 @@
           this.tableData = data.listObject;
           let url = "/userrole/list/org/" + this.currentUser().lastOrganizationId;
           for (let i = 0; i < this.tableData.length; i++) {
-            this.$get(url + "/" + this.tableData[i].id, response => {
+            this.$get(url + "/" + encodeURIComponent(this.tableData[i].id), response => {
               let roles = response.data;
               this.$set(this.tableData[i], "roles", roles);
             })
@@ -217,7 +217,7 @@
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
-          this.result = this.$get('/user/org/member/delete/' + this.currentUser().lastOrganizationId + '/' + row.id, () => {
+          this.result = this.$get('/user/org/member/delete/' + this.currentUser().lastOrganizationId + '/' + encodeURIComponent(row.id), () => {
             this.$success(this.$t('commons.remove_success'));
             this.initTableData();
           });

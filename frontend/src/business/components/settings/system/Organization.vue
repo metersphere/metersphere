@@ -298,7 +298,7 @@
           this.memberLineData = data.listObject;
           let url = "/userrole/list/org/" + row.id;
           for (let i = 0; i < this.memberLineData.length; i++) {
-            this.$get(url + "/" + this.memberLineData[i].id, response => {
+            this.$get(url + "/" + encodeURIComponent(this.memberLineData[i].id), response => {
               let roles = response.data;
               this.$set(this.memberLineData[i], "roles", roles);
             })
@@ -318,7 +318,7 @@
           this.memberLineData = data.listObject;
           let url = "/userrole/list/org/" + row.id;
           for (let i = 0; i < this.memberLineData.length; i++) {
-            this.$get(url + "/" + this.memberLineData[i].id, response => {
+            this.$get(url + "/" + encodeURIComponent(this.memberLineData[i].id), response => {
               let roles = response.data;
               this.$set(this.memberLineData[i], "roles", roles);
             })
@@ -358,7 +358,7 @@
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
-          this.result = this.$get('/user/special/org/member/delete/' + this.currentRow.id + '/' + row.id, () => {
+          this.result = this.$get('/user/special/org/member/delete/' + this.currentRow.id + '/' +  encodeURIComponent(row.id), () => {
             let sourceId = this.currentRow.id;
             let currentUser = getCurrentUser();
             let userId = row.id;
