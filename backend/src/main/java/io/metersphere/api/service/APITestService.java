@@ -77,6 +77,7 @@ public class APITestService {
         if (file == null) {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
         }
+        checkQuota();
         ApiTest test = createTest(request);
         saveFile(test.getId(), file);
     }
@@ -359,7 +360,7 @@ public class APITestService {
     private void checkQuota() {
         QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
         if (quotaService != null) {
-            quotaService.checkAPIQuota();
+            quotaService.checkAPITestQuota();
         }
     }
 }

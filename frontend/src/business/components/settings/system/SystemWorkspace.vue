@@ -274,7 +274,7 @@
           let url = "/userrole/list/ws/" + row.id;
           // 填充角色信息
           for (let i = 0; i < this.memberLineData.length; i++) {
-            this.$get(url + "/" + this.memberLineData[i].id, response => {
+            this.$get(url + "/" + encodeURIComponent(this.memberLineData[i].id), response => {
               let roles = response.data;
               this.$set(this.memberLineData[i], "roles", roles);
             })
@@ -295,7 +295,7 @@
           let url = "/userrole/list/ws/" + row.id;
           // 填充角色信息
           for (let i = 0; i < this.memberLineData.length; i++) {
-            this.$get(url + "/" + this.memberLineData[i].id, response => {
+            this.$get(url + "/" + encodeURIComponent(this.memberLineData[i].id), response => {
               let roles = response.data;
               this.$set(this.memberLineData[i], "roles", roles);
             })
@@ -421,7 +421,7 @@
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
-          this.result = this.$get('/user/special/ws/member/delete/' + this.currentWorkspaceRow.id + '/' + row.id, () => {
+          this.result = this.$get('/user/special/ws/member/delete/' + this.currentWorkspaceRow.id + '/' + encodeURIComponent(row.id), () => {
             let sourceId = this.currentWorkspaceRow.id;
             let userId = row.id;
             let user = getCurrentUser();
