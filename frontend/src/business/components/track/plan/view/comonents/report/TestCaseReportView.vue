@@ -31,7 +31,7 @@
           </el-col>
         </el-row>
 
-        <div class="container" ref="resume">
+        <div class="container" ref="resume" id="app">
           <el-main>
             <div class="preview" v-for="item in previews" :key="item.id">
               <template-component :isReportView="true" :metric="metric" :preview="item"/>
@@ -40,9 +40,10 @@
         </div>
       </template>
     </el-drawer>
-
     <test-case-report-template-edit :metric="metric" ref="templateEdit" @refresh="getReport"/>
+    <!-- <script>
 
+     </script>-->
   </div>
 </template>
 
@@ -55,12 +56,12 @@
   import TestCaseReportTemplateEdit from "./TestCaseReportTemplateEdit";
   import TemplateComponent from "./TemplateComponent/TemplateComponent";
   import writer from 'file-writer'
-  import ResumeCss from "../../../../../../../common/css/main.css";
+  import ReportStyle from "../../../../../../../common/css/report.css.js";
 
   export default {
     name: "TestCaseReportView",
     components: {
-      TemplateComponent, ResumeCss,
+      TemplateComponent,
       TestCaseReportTemplateEdit,
       RichTextComponent, TestResultComponent, TestResultChartComponent, BaseInfoComponent
     },
@@ -145,31 +146,6 @@
       handleEdit() {
         this.$refs.templateEdit.open(this.reportId, true);
       },
-      /*导出报告*/
-      /*handleExport(name) {
-        let html = this.getHtml();
-        writer(`${name}.html`, html, 'utf-8');
-      },
-      getHtml() {
-        const template = this.$refs.resume.innerHTML
-        let html = `<!DOCTYPE html>
-                 <html>
-                 <head>
-                 <meta charset="utf-8">
-                 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-                 <title>html</title>
-                <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
-                <style>${ResumeCss}</style>
-                </head>
-                <body>
-                <div style="margin:0 auto;width:1200px">
-                   <img id ='div' :src = "imgUrl" :style=" {width: '1000px', height: '500px'}" />
-                     ${template}
-                </div>
-                </body>
-                </html>`
-        return html
-      },*/
       handleSave() {
         let param = {};
         this.buildParam(param);
@@ -226,6 +202,32 @@
             this.metric.endTime = new Date(this.report.endTime);
           }
         });
+      },
+      /*导出报告*/
+      handleExport(name) {
+        let html = this.getHtml();
+        writer(`${name}.html`, html, 'utf-8');
+        console.log(html)
+      },
+      getHtml() {
+        let template = this.$refs.resume.innerHTML;
+        let html = `<!DOCTYPE html>
+                 <html>
+                 <head>
+                 <meta charset="utf-8">
+                 <meta name="viewport" content="width=device-width,initial-scale=1.0">
+                 <title>html</title>
+                <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+                <style>${ReportStyle}</style>
+                </head>
+                <body>
+                <div style="margin:0 auto;width:1200px">
+                     ${template}
+                </div>
+                <script src="https://cdn.bootcss.com/element-ui/2.4.11/index.js"/>
+                </body>
+                </html>`
+        return html
       },
 
     }
