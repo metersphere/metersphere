@@ -73,6 +73,9 @@ public class TestCaseService {
     @Resource
     UserRoleMapper userRoleMapper;
 
+    @Resource
+    TestCaseIssueService testCaseIssueService;
+
     public void addTestCase(TestCaseWithBLOBs testCase) {
         testCase.setName(testCase.getName());
         checkTestCaseExist(testCase);
@@ -149,6 +152,7 @@ public class TestCaseService {
         TestPlanTestCaseExample example = new TestPlanTestCaseExample();
         example.createCriteria().andCaseIdEqualTo(testCaseId);
         testPlanTestCaseMapper.deleteByExample(example);
+        testCaseIssueService.delTestCaseIssues(testCaseId);
         return testCaseMapper.deleteByPrimaryKey(testCaseId);
     }
 
