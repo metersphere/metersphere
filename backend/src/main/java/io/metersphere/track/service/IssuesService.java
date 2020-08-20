@@ -235,7 +235,7 @@ public class IssuesService {
                 "            \"key\":\"" + jiraKey + "\"\n" +
                 "        },\n" +
                 "        \"summary\":\"" + issuesRequest.getTitle() + "\",\n" +
-                "        \"description\":\"" + issuesRequest.getContent() + "\",\n" +
+                "        \"description\": " + JSON.toJSONString(issuesRequest.getContent()) + ",\n" +
                 "        \"issuetype\":{\n" +
                 "            \"id\":\"10009\",\n" +
                 "            \"name\":\"Defect\"\n" +

@@ -43,4 +43,8 @@ public class HttpRequest implements Request {
     private BeanShellPostProcessor beanShellPostProcessor;
     @JSONField(ordinal = 13)
     private Boolean enable;
+    @JSONField(ordinal = 14)
+    private Integer connectTimeout;
+    @JSONField(ordinal = 15)
+    private Integer responseTimeout;
 }

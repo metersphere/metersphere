@@ -2,7 +2,7 @@
   <div class="request-container">
     <draggable :list="this.scenario.requests" group="Request" class="request-draggable" ghost-class="request-ghost">
       <div class="request-item" v-for="(request, index) in this.scenario.requests" :key="index" @click="select(request)"
-           :class="{'selected': isSelected(request), 'disable-request': !request.enable}">
+           :class="{'selected': isSelected(request), 'disable-request': !request.enable || !scenario.enable}">
         <el-row type="flex" align="middle">
           <div class="request-type">
             {{request.showType()}}

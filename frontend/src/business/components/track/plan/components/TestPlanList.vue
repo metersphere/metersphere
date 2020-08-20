@@ -92,7 +92,7 @@
           <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)"
                              @deleteClick="handleDelete(scope.row)">
             <template v-slot:middle>
-              <ms-table-operator-button type="success" v-if="!scope.row.reportId"
+              <ms-table-operator-button :isTesterPermission="true" type="success" v-if="!scope.row.reportId"
                                         :tip="$t('test_track.plan_view.create_report')" icon="el-icon-document"
                                         @exec="openTestReportTemplate(scope.row)"/>
               <ms-table-operator-button type="success" v-if="scope.row.reportId"
