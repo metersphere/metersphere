@@ -342,7 +342,6 @@
             {min: 2, max: 50, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'},
             {
               required: true,
-              pattern: /^[a-zA-Z0-9]+$/,
               message: this.$t('user.special_characters_are_not_supported'),
               trigger: 'blur'
             }
@@ -352,7 +351,6 @@
             {min: 2, max: 50, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'},
             {
               required: true,
-              pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/,
               message: this.$t('user.special_characters_are_not_supported'),
               trigger: 'blur'
             }
@@ -415,10 +413,12 @@
         this.$get("/workspace/list", response => {
           this.$set(this.form, "wsList", response.data);
         });
-        this.$get('/userrole/all/' + row.id, response => {
-          let data = response.data;
-          this.$set(this.form, "roles", data);
-        });
+        if (row.id) {
+          this.$get('/userrole/all/' + encodeURIComponent(row.id), response => {
+            let data = response.data;
+            this.$set(this.form, "roles", data);
+          });
+        }
         listenGoBack(this.handleClose);
       },
       editPassword(row) {
@@ -432,7 +432,7 @@
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
-          this.result = this.$get(this.deletePath + row.id, () => {
+          this.result = this.$get(this.deletePath + encodeURIComponent(row.id), () => {
             this.$success(this.$t('commons.delete_success'));
             this.search();
           });
@@ -487,13 +487,15 @@
           this.tableData = data.listObject;
           let url = "/user/special/user/role";
           for (let i = 0; i < this.tableData.length; i++) {
-            this.$get(url + '/' + this.tableData[i].id, result => {
-              let data = result.data;
-              let roles = data.roles;
-              // let userRoles = result.userRoles;
-              this.$set(this.tableData[i], "roles", roles);
-              this.$set(this.tableData[i], "isLdapUser", this.tableData[i].source === 'LDAP');
-            });
+            if (this.tableData[i].id) {
+              this.$get(url + '/' + encodeURIComponent(this.tableData[i].id), result => {
+                let data = result.data;
+                let roles = data.roles;
+                // let userRoles = result.userRoles;
+                this.$set(this.tableData[i], "roles", roles);
+                this.$set(this.tableData[i], "isLdapUser", this.tableData[i].source === 'LDAP');
+              });
+            }
           }
         })
       },

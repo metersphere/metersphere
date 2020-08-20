@@ -216,7 +216,7 @@
         })
       },
       initTableData() {
-        this.result = this.$get("/user/info/" + this.currentUser().id, response => {
+        this.result = this.$get("/user/info/" + encodeURIComponent(this.currentUser().id), response => {
           let data = response.data;
           this.isLdapUser = response.data.source === 'LDAP' ? true : false;
           let dataList = [];

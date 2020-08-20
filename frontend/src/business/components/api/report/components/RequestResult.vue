@@ -39,18 +39,8 @@
     methods: {
       active() {
         this.$emit("requestResult", {request: this.request, scenarioName: this.scenarioName});
-
       }
     },
-
-    /*  computed: {
-        assertion() {
-          return this.request.passAssertions + " / " + this.request.totalAssertions;
-        },
-        hasSub() {
-          return this.request.subRequestResults.length > 0;
-        }
-      }*/
   }
 </script>
 

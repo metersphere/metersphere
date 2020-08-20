@@ -64,13 +64,15 @@
         report: {},
         loading: true,
         fails: [],
-        totalTime: "",
+        totalTime: 0,
         isRequestResult: false,
         request: {},
         scenarioName: null,
       }
     },
-
+    activated() {
+      this.isRequestResult = false
+    },
     methods: {
       init() {
         this.loading = true;
@@ -83,7 +85,6 @@
       },
       getReport() {
         this.init();
-
         if (this.reportId) {
           let url = "/api/report/get/" + this.reportId;
           this.$get(url, response => {
@@ -111,9 +112,11 @@
       getFails() {
         if (this.isNotRunning) {
           this.fails = [];
-
+          this.totalTime = 0
           this.content.scenarios.forEach((scenario) => {
-            this.totalTime = this.totalTime + scenario.responseTime
+            console.log(scenario.responseTime)
+            this.totalTime = this.totalTime + Number(scenario.responseTime)
+            console.log(this.totalTime)
             let failScenario = Object.assign({}, scenario);
             if (scenario.error > 0) {
               this.fails.push(failScenario);
