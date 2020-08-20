@@ -430,6 +430,7 @@ public class TestCaseService {
 
         TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
         BeanUtils.copyBean(testCase, request);
+        testCase.setUpdateTime(System.currentTimeMillis());
         testCaseMapper.updateByExampleSelective(
                 testCase,
                 testCaseExample);
