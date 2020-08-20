@@ -38,8 +38,12 @@
         </el-table-column>
 
         <el-table-column
-                prop="createTime"
-                :label="$t('test_track.module.creation_time')">
+          prop="createTime"
+          :label="$t('test_track.module.creation_time')"
+          show-overflow-tooltip>
+          <template v-slot:default="scope">
+            <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+          </template>
         </el-table-column>
       </el-table>
     </template>
