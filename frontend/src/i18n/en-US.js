@@ -107,6 +107,7 @@ export default {
     please_save: 'Please save first',
     formatErr: 'Format Error',
     id: 'ID',
+    millisecond: 'ms',
     please_upload: 'Please upload file',
     reference_documentation: "Reference documentation",
     date: {
@@ -437,6 +438,9 @@ export default {
       body: "Body",
       body_kv: "Key Value",
       body_text: "Raw",
+      timeout_config: "Timeout Config",
+      connect_timeout: "Connect Timeout",
+      response_timeout: "Response Timeout",
       assertions: {
         label: "Assertion",
         text: "Text",

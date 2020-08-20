@@ -289,6 +289,12 @@ export class HTTPSamplerProxy extends DefaultTestElement {
     } else {
       this.stringProp("HTTPSampler.port", options.port);
     }
+    if (options.connectTimeout) {
+      this.stringProp('HTTPSampler.connect_timeout', options.connectTimeout);
+    }
+    if (options.responseTimeout) {
+      this.stringProp('HTTPSampler.response_timeout', options.responseTimeout);
+    }
 
     this.boolProp("HTTPSampler.follow_redirects", options.follow, true);
     this.boolProp("HTTPSampler.use_keepalive", options.keepalive, true);

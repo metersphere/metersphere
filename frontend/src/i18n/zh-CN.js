@@ -109,6 +109,7 @@ export default {
     please_save: '请先保存',
     reference_documentation: "参考文档",
     id: 'ID',
+    millisecond: '毫秒',
     date: {
       select_date: '选择日期',
       start_date: '开始日期',
@@ -438,6 +439,9 @@ export default {
       body: "请求内容",
       body_kv: "键值对",
       body_text: "文本",
+      timeout_config: "超时设置",
+      connect_timeout: "连接超时",
+      response_timeout: "响应超时",
       assertions: {
         label: "断言",
         text: "文本",

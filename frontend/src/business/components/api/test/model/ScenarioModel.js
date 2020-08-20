@@ -306,6 +306,8 @@ export class HttpRequest extends Request {
     this.beanShellPreProcessor = undefined;
     this.beanShellPostProcessor = undefined;
     this.enable = true;
+    this.connectTimeout = 60*1000;
+    this.responseTimeout = undefined;
 
     this.set(options);
     this.sets({parameters: KeyValue, headers: KeyValue}, options);
@@ -726,6 +728,9 @@ class JMXHttpRequest {
         let url = new URL(environment.protocol + "://" + environment.socket);
         this.path = this.getPostQueryParameters(request, decodeURIComponent(url.pathname + (request.path ? request.path : '')));
       }
+      this.connectTimeout = request.connectTimeout;
+      this.responseTimeout = request.responseTimeout;
+
     }
   }
 

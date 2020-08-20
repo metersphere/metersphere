@@ -105,6 +105,7 @@ export default {
     formatErr: '格式錯誤',
     please_save: '請先保存',
     id: 'ID',
+    millisecond: '毫秒',
     reference_documentation: "參考文檔",
     please_upload: '請上傳文件',
     date: {
@@ -437,6 +438,9 @@ export default {
       body: "請求內容",
       body_kv: "鍵值對",
       body_text: "文字",
+      timeout_config: "超時設置",
+      connect_timeout: "連接超時",
+      response_timeout: "響應超時",
       assertions: {
         label: "斷言",
         text: "文字",
