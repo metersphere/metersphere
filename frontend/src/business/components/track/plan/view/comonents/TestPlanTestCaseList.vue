@@ -114,7 +114,21 @@
               <el-table border class="adjust-table" :data="scope.row.issuesContent" style="width: 100%">
 <!--                <el-table-column prop="id" label="缺陷ID" show-overflow-tooltip/>-->
                 <el-table-column prop="title" :label="$t('test_track.issue.title')"/>
-                <el-table-column prop="description" :label="$t('test_track.issue.description')" show-overflow-tooltip/>
+                <el-table-column prop="description" :label="$t('test_track.issue.description')">
+                  <template v-slot:default="scope">
+                    <el-popover
+                      placement="left"
+                      width="400"
+                      trigger="hover"
+                    >
+                      <ckeditor :editor="editor" disabled
+                                v-model="scope.row.description"/>
+                      <!--                        <span v-html="scope.row.description"/>-->
+                      <!--                        <span slot="reference">{{scope.row.description}}</span>-->
+                      <el-button slot="reference" type="text">预览</el-button>
+                    </el-popover>
+                  </template>
+                </el-table-column>
 <!--                <el-table-column prop="status" label="缺陷状态"/>-->
                 <el-table-column prop="platform" :label="$t('test_track.issue.platform')"/>
               </el-table>
@@ -222,6 +236,7 @@
   import {TEST_CASE_CONFIGS} from "../../../../common/components/search/search-components";
   import ShowMoreBtn from "../../../case/components/ShowMoreBtn";
   import BatchEdit from "../../../case/components/BatchEdit";
+  import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
   export default {
     name: "TestPlanTestCaseList",
@@ -298,7 +313,8 @@
             {name: this.$t('test_track.plan_view.blocking'), id: 'Blocking'},
             {name: this.$t('test_track.plan_view.skip'), id: 'Skip'}
           ]
-        }
+        },
+        editor: ClassicEditor,
       }
     },
     props: {
