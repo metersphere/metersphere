@@ -14,6 +14,7 @@ import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+
 import java.util.List;
 
 @RequestMapping("testresourcepool")
@@ -54,6 +55,12 @@ public class TestResourcePoolController {
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
     public List<TestResourcePool> listValidResourcePools() {
         return testResourcePoolService.listValidResourcePools();
+    }
+
+    @GetMapping("list/quota/valid")
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
+    public List<TestResourcePool> listValidQuotaResourcePools() {
+        return testResourcePoolService.listValidQuotaResourcePools();
     }
 
 
