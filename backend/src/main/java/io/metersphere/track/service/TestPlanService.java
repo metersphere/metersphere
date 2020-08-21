@@ -270,6 +270,8 @@ public class TestPlanService {
             if (issue.size() > 0) {
                 for (Issues i : issue) {
                     i.setModel(testCase.getModel());
+                    String des = i.getDescription().replaceAll("<p>", "").replaceAll("</p>", "");
+                    i.setDescription(des);
                 }
                 issues.addAll(issue);
             }
