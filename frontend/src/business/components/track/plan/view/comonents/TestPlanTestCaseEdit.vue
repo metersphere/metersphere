@@ -445,7 +445,7 @@
         });
       },
       getRelatedTest() {
-        if (this.testCase.method == 'auto' && this.testCase.testId) {
+        if (this.testCase.method == 'auto' && this.testCase.testId && this.testCase.testId != 'other') {
           this.$get('/' + this.testCase.type + '/get/' + this.testCase.testId, response => {
             let data = response.data;
             if (data) {
@@ -455,6 +455,8 @@
               this.$warning(this.$t("test_track.case.relate_test_not_find"));
             }
           });
+        } else if (this.testCase.testId === 'other') {
+          this.$warning(this.$t("test_track.case.other_relate_test_not_find"));
         }
       },
       issuesChange() {

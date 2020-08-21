@@ -63,11 +63,13 @@
         this.oneClickOperationVisible = true;
       },
       checkedSaveAndRunTest() {
-        if (this.selectNames.has(this.testName)) {
+        if (this.selectNames.has(this.ruleForm.testName)) {
           this.$warning(this.$t('load_test.already_exists'));
+          this.oneClickOperationVisible = false;
         } else {
           if (this.selectProjectNames.size > 1) {
             this.$warning(this.$t('load_test.same_project_test'));
+            this.oneClickOperationVisible = false;
           } else {
             for (let x of this.selectIds) {
               this.getTest(x)

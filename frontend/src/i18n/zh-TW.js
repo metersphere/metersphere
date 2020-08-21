@@ -593,6 +593,7 @@ export default {
       create_module_first: "請先新建模塊",
       relate_test: "關聯測試",
       relate_test_not_find: '關聯的測試不存在,請檢查用例',
+      other_relate_test_not_find: '關聯的測試名，請前往協力廠商平臺執行',
       batch_handle: '批量處理 (選中{0}項)',
       batch_update: '更新{0}個用例的屬性',
       select_catalog: '請選擇用例目錄',

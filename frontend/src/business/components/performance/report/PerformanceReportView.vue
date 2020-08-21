@@ -22,9 +22,9 @@
                          @click="rerun(testId)">
                 {{ $t('report.test_execute_again') }}
               </el-button>
-              <el-button :disabled="isReadOnly" type="info" plain size="mini" @click="exports(reportName)">
+             <!-- <el-button :disabled="isReadOnly" type="info" plain size="mini" @click="exports(reportName)">
                 {{$t('report.export')}}
-              </el-button>
+              </el-button>-->
               <!--
               <el-button :disabled="isReadOnly" type="warning" plain size="mini">
                 {{$t('report.compare')}}
