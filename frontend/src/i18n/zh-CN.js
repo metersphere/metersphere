@@ -733,6 +733,7 @@ export default {
       close: "关闭缺陷",
       title_description_required: "标题和描述必填",
       close_success: "关闭成功",
+      preview: "预览"
     }
   },
   test_resource_pool: {

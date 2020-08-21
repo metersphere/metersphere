@@ -730,6 +730,7 @@ export default {
       close: "Close",
       title_description_required: "Title and description are required",
       close_success: "Closed successfully",
+      preview: "Preview"
     }
   },
   test_resource_pool: {
