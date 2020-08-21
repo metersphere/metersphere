@@ -208,7 +208,7 @@
               <el-col :span="20" :offset="1" class="issues-edit">
                 <el-table border class="adjust-table" :data="issues" style="width: 100%">
                   <el-table-column prop="id" :label="$t('test_track.issue.id')" show-overflow-tooltip/>
-                  <el-table-column prop="title" :label="$t('test_track.issue.title')"/>
+                  <el-table-column prop="title" :label="$t('test_track.issue.title')" show-overflow-tooltip/>
                   <el-table-column prop="description" :label="$t('test_track.issue.description')">
                     <template v-slot:default="scope">
                       <el-popover
@@ -218,9 +218,7 @@
                         >
                         <ckeditor :editor="editor" disabled
                                   v-model="scope.row.description"/>
-<!--                        <span v-html="scope.row.description"/>-->
-<!--                        <span slot="reference">{{scope.row.description}}</span>-->
-                        <el-button slot="reference" type="text">预览</el-button>
+                        <el-button slot="reference" type="text">{{$t('test_track.issue.preview')}}</el-button>
                       </el-popover>
                     </template>
                   </el-table-column>
