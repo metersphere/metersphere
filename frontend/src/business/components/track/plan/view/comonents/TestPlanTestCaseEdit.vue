@@ -396,6 +396,7 @@
         }
         this.testCase = item;
         this.initTest();
+        this.getIssues(testCase.caseId);
         this.stepResultChange();
       },
       openTestCaseEdit(testCase) {
