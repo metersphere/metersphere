@@ -60,6 +60,7 @@ export default {
     not_filled: 'Not filled',
     please_select: 'Please select',
     search_by_name: 'Search by name',
+    search_by_name_or_id: 'Search by name or id',
     personal_information: 'Personal Information',
     exit_system: 'Exit System',
     verification: 'Verification',

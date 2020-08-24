@@ -17,7 +17,7 @@
         <slot name="button"></slot>
       </span>
       <span>
-        <ms-table-search-bar :condition.sync="condition" @change="search" class="search-bar"/>
+        <ms-table-search-bar :condition.sync="condition" @change="search" class="search-bar" :tip="tip"/>
         <ms-table-adv-search-bar :condition.sync="condition" @search="search" v-if="isCombine"/>
       </span>
     </el-row>
@@ -65,6 +65,12 @@
       isTesterPermission: {
         type: Boolean,
         default: false
+      },
+      tip: {
+        String,
+        default() {
+          return this.$t('commons.search_by_name');
+        }
       }
     },
     methods: {
