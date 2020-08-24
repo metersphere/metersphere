@@ -497,7 +497,10 @@
         this.result = this.$post("/issues/add", param, () => {
           this.$success(this.$t('commons.save_success'));
           this.getIssues(param.testCaseId);
-        })
+        });
+        this.issuesSwitch = false;
+        this.testCase.issues.title = "";
+        this.testCase.issues.content = "";
       },
       getIssues(caseId) {
         this.result = this.$get("/issues/get/" + caseId, response => {
