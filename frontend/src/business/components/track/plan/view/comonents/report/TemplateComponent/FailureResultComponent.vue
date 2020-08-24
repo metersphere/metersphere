@@ -51,7 +51,7 @@
         </el-table-column>
 
         <el-table-column
-          prop="current_owner"
+          prop="executorName"
           :label="$t('test_track.plan_view.executor')">
         </el-table-column>
 
