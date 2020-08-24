@@ -272,8 +272,14 @@ public class TestPlanService {
                     i.setModel(testCase.getNodePath());
                     String des = i.getDescription().replaceAll("<p>", "").replaceAll("</p>", "");
                     i.setDescription(des);
+                    if (i.getLastmodify() == null || i.getLastmodify() == "") {
+                        if (i.getReporter() != null || i.getReporter() != "") {
+                            i.setLastmodify(i.getReporter());
+                        }
+                    }
                 }
                 issues.addAll(issue);
+                Collections.sort(issues, Comparator.comparing(Issues::getCreateTime, (t1, t2) -> t2.compareTo(t1)));
             }
 
             components.forEach(component -> {
