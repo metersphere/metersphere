@@ -1,86 +1,72 @@
-import Setting from "@/business/components/settings/Setting";
-import User from "@/business/components/settings/system/User";
-import Organization from "@/business/components/settings/system/Organization";
-import OrganizationMember from "@/business/components/settings/organization/OrganizationMember";
-import OrganizationWorkspace from "@/business/components/settings/organization/OrganizationWorkspace";
-import ServiceIntegration from "@/business/components/settings/organization/ServiceIntegration";
-import PersonSetting from "@/business/components/settings/personal/PersonSetting";
-import ApiKeys from "@/business/components/settings/personal/ApiKeys";
-import Member from "@/business/components/settings/workspace/WorkspaceMember";
-import SystemWorkspace from "@/business/components/settings/system/SystemWorkspace";
-import TestResourcePool from "@/business/components/settings/system/TestResourcePool";
-import SystemParameterSetting from "@/business/components/settings/system/SystemParameterSetting";
-import TestCaseReportTemplate from "@/business/components/settings/workspace/TestCaseReportTemplate";
-
 const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/)
 
 export default {
   path: "/setting",
   name: "Setting",
   components: {
-    content: Setting
+    content: () => import(/* webpackChunkName: "setting" */ '@/business/components/settings/Setting')
   },
   children: [
     {
       path: 'user',
-      component: User,
+      component: () => import(/* webpackChunkName: "setting" */ '@/business/components/settings/system/User'),
       meta: {system: true, title: 'commons.user'}
     },
     {
       path: 'organization',
-      component: Organization,
+      component: () => import(/* webpackChunkName: "setting" */ '@/business/components/settings/system/Organization'),
       meta: {system: true, title: 'commons.organization'}
     },
     {
       path: 'systemworkspace',
-      component: SystemWorkspace,
+      component: () => import(/* webpackChunkName: "setting" */ '@/business/components/settings/system/SystemWorkspace'),
       meta: {system: true, title: 'commons.workspace'}
     },
     {
       path: 'testresourcepool',
-      component: TestResourcePool,
+      component: () => import(/* webpackChunkName: "setting" */ '@/business/components/settings/system/TestResourcePool'),
       meta: {system: true, title: 'commons.test_resource_pool'}
     },
     {
       path: 'systemparametersetting',
-      component: SystemParameterSetting,
+      component: () => import(/* webpackChunkName: "setting" */ '@/business/components/settings/system/SystemParameterSetting'),
       meta: {system: true, title: 'commons.system_parameter_setting'}
     },
     ...requireContext.keys().map(key => requireContext(key).system),
     {
       path: 'organizationmember',
-      component: OrganizationMember,
+      component: () => import(/* webpackChunkName: "setting" */ '@/business/components/settings/organization/OrganizationMember'),
       meta: {organization: true, title: 'commons.member'}
     },
     {
       path: 'organizationworkspace',
-      component: OrganizationWorkspace,
+      component: () => import(/* webpackChunkName: "setting" */ '@/business/components/settings/organization/OrganizationWorkspace'),
       meta: {organization: true, title: 'commons.workspace'}
     },
     {
       path: 'serviceintegration',
-      component: ServiceIntegration,
+      component: () => import(/* webpackChunkName: "setting" */ '@/business/components/settings/organization/ServiceIntegration'),
       meta: {organization: true, title: 'organization.service_integration'}
     },
     {
       path: 'member',
-      component: Member,
+      component: () => import(/* webpackChunkName: "setting" */ '@/business/components/settings/workspace/WorkspaceMember'),
       meta: {workspace: true, title: 'commons.member'}
     },
     {
       path: 'testcase/report/template',
       name: 'testCaseReportTemplate',
-      component: TestCaseReportTemplate,
+      component: () => import(/* webpackChunkName: "setting" */ '@/business/components/settings/workspace/TestCaseReportTemplate'),
       meta: {workspace: true, title: 'test_track.plan_view.report_template'}
     },
     {
       path: 'personsetting',
-      component: PersonSetting,
+      component: () => import(/* webpackChunkName: "setting" */ '@/business/components/settings/personal/PersonSetting'),
       meta: {person: true, title: 'commons.personal_setting'}
     },
     {
       path: 'apikeys',
-      component: ApiKeys,
+      component: () => import(/* webpackChunkName: "setting" */ '@/business/components/settings/personal/ApiKeys'),
       meta: {person: true, title: 'commons.api_keys'}
     },
 
