@@ -201,7 +201,7 @@ v1.1.0 是 v1.0.0 之后的功能版本。
 
 ## 微信群
 
-![wechat-group]()
+![wechat-group](https://metersphere.io/images/contact/wechat-group.png)
 
 ## License & Copyright
 
