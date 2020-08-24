@@ -310,7 +310,11 @@ public class IssuesService {
             return new Issues();
         }
         JSONObject jsonObject = JSONObject.parseObject(listJson);
-        return jsonObject.getObject("Bug", Issues.class);
+        JSONObject bug = jsonObject.getJSONObject("Bug");
+        Long created = bug.getLong("created");
+        Issues issues = jsonObject.getObject("Bug", Issues.class);
+        issues.setCreateTime(created);
+        return issues;
     }
 
     public Issues getJiraIssues(HttpHeaders headers, String url, String issuesId) {
@@ -326,15 +330,23 @@ public class IssuesService {
             JSONObject obj = JSONObject.parseObject(body);
             JSONObject fields = (JSONObject) obj.get("fields");
             JSONObject statusObj = (JSONObject) fields.get("status");
+            JSONObject assignee = (JSONObject) fields.get("assignee");
             JSONObject statusCategory = (JSONObject) statusObj.get("statusCategory");
 
             String id = obj.getString("id");
             String title = fields.getString("summary");
             String description = fields.getString("description");
             String status = statusCategory.getString("key");
+            Long createTime = fields.getLong("created");
+            String lastmodify = "";
+            if (assignee != null) {
+                lastmodify = assignee.getString("displayName");
+            }
 
             issues.setId(id);
             issues.setTitle(title);
+            issues.setCreateTime(createTime);
+            issues.setLastmodify(lastmodify);
             issues.setDescription(description);
             issues.setStatus(status);
             issues.setPlatform(IssuesManagePlatform.Jira.toString());

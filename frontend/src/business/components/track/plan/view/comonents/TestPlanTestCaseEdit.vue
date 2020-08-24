@@ -404,7 +404,6 @@
         this.activeTab = 'detail';
         listenGoBack(this.handleClose);
         this.initData(testCase);
-        this.getIssues(testCase.caseId);
       },
       initTest() {
         this.$nextTick(() => {
