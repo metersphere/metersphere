@@ -194,7 +194,7 @@
                   type="text"
                   :placeholder="$t('test_track.issue.input_title')"
                   v-model="testCase.issues.title"
-                  maxlength="100"
+                  maxlength="60"
                   show-word-limit
                 />
                 <ckeditor :editor="editor" :disabled="isReadOnly" :config="editorConfig"
