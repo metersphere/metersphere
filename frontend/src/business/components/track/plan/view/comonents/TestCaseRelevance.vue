@@ -137,6 +137,9 @@
         this.getCaseNames();
       }
     },
+    updated() {
+      this.toggleSelection(this.testCases);
+    },
     methods: {
       openTestCaseRelevanceDialog() {
         this.initData();
@@ -178,7 +181,12 @@
             this.selectIds.add(item.id);
           });
         } else {
-          this.selectIds.clear();
+          // this.selectIds.clear();
+          this.testCases.forEach(item => {
+            if (this.selectIds.has(item.id)) {
+              this.selectIds.delete(item.id);
+            }
+          });
         }
       },
       handleSelectionChange(selection, row) {
@@ -214,6 +222,16 @@
       filter(filters) {
         _filter(filters, this.condition);
         this.initData();
+      },
+      toggleSelection(rows) {
+        rows.forEach(row => {
+          this.selectIds.forEach(id => {
+            if (row.id === id) {
+              // true 是为选中
+              this.$refs.table.toggleRowSelection(row, true)
+            }
+          })
+        })
       },
     }
   }

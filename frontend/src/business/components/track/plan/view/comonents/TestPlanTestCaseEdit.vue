@@ -194,7 +194,7 @@
                   type="text"
                   :placeholder="$t('test_track.issue.input_title')"
                   v-model="testCase.issues.title"
-                  maxlength="100"
+                  maxlength="60"
                   show-word-limit
                 />
                 <ckeditor :editor="editor" :disabled="isReadOnly" :config="editorConfig"
@@ -404,7 +404,6 @@
         this.activeTab = 'detail';
         listenGoBack(this.handleClose);
         this.initData(testCase);
-        this.getIssues(testCase.caseId);
       },
       initTest() {
         this.$nextTick(() => {
@@ -498,7 +497,10 @@
         this.result = this.$post("/issues/add", param, () => {
           this.$success(this.$t('commons.save_success'));
           this.getIssues(param.testCaseId);
-        })
+        });
+        this.issuesSwitch = false;
+        this.testCase.issues.title = "";
+        this.testCase.issues.content = "";
       },
       getIssues(caseId) {
         this.result = this.$get("/issues/get/" + caseId, response => {

@@ -4,7 +4,7 @@
     <el-card class="card-content" v-loading="result.loading">
       <template v-slot:header>
 
-        <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
+        <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData" :tip="$t('commons.search_by_name_or_id')"
                          :create-tip="$t('test_track.case.create')" @create="testCaseCreate">
           <template v-slot:title>
             <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="refresh"/>

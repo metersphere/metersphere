@@ -4,7 +4,7 @@
       class="search"
       type="text"
       size="small"
-      :placeholder="$t('commons.search_by_name')"
+      :placeholder="tip"
       prefix-icon="el-icon-search"
       @change="search"
       maxlength="60"
@@ -18,6 +18,12 @@
       props: {
         condition: {
           type: Object
+        },
+        tip: {
+          String,
+          default() {
+            return this.$t('commons.search_by_name');
+          }
         }
       },
       methods: {

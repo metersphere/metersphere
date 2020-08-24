@@ -60,6 +60,7 @@ export default {
     not_filled: '未填寫',
     please_select: '請選擇',
     search_by_name: '根據名稱搜索',
+    search_by_name_or_id: '根據ID或名稱搜索',
     personal_information: '個人信息',
     exit_system: '退出系統',
     verification: '驗證',

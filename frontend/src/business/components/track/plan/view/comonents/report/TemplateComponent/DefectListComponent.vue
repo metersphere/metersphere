@@ -32,9 +32,9 @@
                 show-overflow-tooltip>
         </el-table-column>
         <el-table-column
-                prop="reporter"
-                :label="$t('test_track.module.current_owner')"
-                show-overflow-tooltip>
+          prop="lastmodify"
+          :label="$t('test_track.module.current_owner')"
+          show-overflow-tooltip>
         </el-table-column>
 
         <el-table-column
