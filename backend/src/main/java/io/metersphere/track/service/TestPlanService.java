@@ -269,7 +269,7 @@ public class TestPlanService {
             List<Issues> issue = issuesService.getIssues(testCase.getCaseId());
             if (issue.size() > 0) {
                 for (Issues i : issue) {
-                    i.setModel(testCase.getModel());
+                    i.setModel(testCase.getNodePath());
                     String des = i.getDescription().replaceAll("<p>", "").replaceAll("</p>", "");
                     i.setDescription(des);
                 }

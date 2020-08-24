@@ -8,5 +8,6 @@
          where test_case_issues.issues_id = issues.id
            and test_case_issues.test_case_id = #{caseId}
            and issues.platform = #{platform};
+          order by test_case_issues.create_time DESC
     </select>
 </mapper>
