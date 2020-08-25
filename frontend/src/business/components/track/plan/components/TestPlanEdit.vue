@@ -92,12 +92,12 @@
         <div class="dialog-footer">
           <el-button
             @click="dialogFormVisible = false">
-            {{$t('test_track.cancel')}}
+            {{ $t('test_track.cancel') }}
           </el-button>
           <el-button
             type="primary"
             @click="savePlan">
-            {{$t('test_track.confirm')}}
+            {{ $t('test_track.confirm') }}
           </el-button>
         </div>
       </template>
@@ -110,116 +110,119 @@
 
 <script>
 
-  import {WORKSPACE_ID} from '../../../../../common/js/constants';
-  import TestPlanStatusButton from "../common/TestPlanStatusButton";
-  import {listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
+import {WORKSPACE_ID} from '../../../../../common/js/constants';
+import TestPlanStatusButton from "../common/TestPlanStatusButton";
+import {listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
+import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
 
-  export default {
-      name: "TestPlanEdit",
-    components: {TestPlanStatusButton},
-    data() {
-        return {
-          dialogFormVisible: false,
-          form: {
-            name: '',
-            projectId: '',
-            principal: '',
-            stage: '',
-            description: ''
-          },
-          rules:{
-            name :[
-              {required: true, message: this.$t('test_track.plan.input_plan_name'), trigger: 'blur'},
-              { max: 30, message: this.$t('test_track.length_less_than') + '30', trigger: 'blur' }
-            ],
-            projectId :[{required: true, message: this.$t('test_track.plan.input_plan_project'), trigger: 'change'}],
-            principal :[{required: true, message: this.$t('test_track.plan.input_plan_principal'), trigger: 'change'}],
-            stage :[{required: true, message: this.$t('test_track.plan.input_plan_stage'), trigger: 'change'}],
-            description :[{ max: 200, message: this.$t('test_track.length_less_than') + '200', trigger: 'blur'}]
-          },
-          formLabelWidth: "120px",
-          operationType: '',
-          projects: [],
-          principalOptions: []
-        };
+export default {
+  name: "TestPlanEdit",
+  components: {TestPlanStatusButton},
+  data() {
+    return {
+      dialogFormVisible: false,
+      form: {
+        name: '',
+        projectId: '',
+        principal: '',
+        stage: '',
+        description: ''
       },
-    methods: {
-        openTestPlanEditDialog(testPlan) {
-          this.resetForm();
-          this.getProjects();
-          this.setPrincipalOptions();
-          this.operationType = 'add';
-          if(testPlan){
-            //修改
-            this.operationType = 'edit';
-            let tmp = {};
-            Object.assign(tmp, testPlan);
-            Object.assign(this.form, tmp);
+      rules: {
+        name: [
+          {required: true, message: this.$t('test_track.plan.input_plan_name'), trigger: 'blur'},
+          {max: 30, message: this.$t('test_track.length_less_than') + '30', trigger: 'blur'}
+        ],
+        projectId: [{required: true, message: this.$t('test_track.plan.input_plan_project'), trigger: 'change'}],
+        principal: [{required: true, message: this.$t('test_track.plan.input_plan_principal'), trigger: 'change'}],
+        stage: [{required: true, message: this.$t('test_track.plan.input_plan_stage'), trigger: 'change'}],
+        description: [{max: 200, message: this.$t('test_track.length_less_than') + '200', trigger: 'blur'}]
+      },
+      formLabelWidth: "120px",
+      operationType: '',
+      projects: [],
+      principalOptions: []
+    };
+  },
+  methods: {
+    openTestPlanEditDialog(testPlan) {
+      this.resetForm();
+      this.getProjects();
+      this.setPrincipalOptions();
+      this.operationType = 'add';
+      if (testPlan) {
+        //修改
+        this.operationType = 'edit';
+        let tmp = {};
+        Object.assign(tmp, testPlan);
+        Object.assign(this.form, tmp);
+      }
+      listenGoBack(this.close);
+      this.dialogFormVisible = true;
+    },
+    savePlan() {
+      this.$refs['planFrom'].validate((valid) => {
+        if (valid) {
+          let param = {};
+          Object.assign(param, this.form);
+          param.name = param.name.trim();
+          if (param.name == '') {
+            this.$warning(this.$t('test_track.plan.input_plan_name'));
+            return;
           }
-          listenGoBack(this.close);
-          this.dialogFormVisible = true;
-        },
-        savePlan(){
-          this.$refs['planFrom'].validate((valid) => {
-            if (valid) {
-              let param = {};
-              Object.assign(param, this.form);
-              param.name = param.name.trim();
-              if (param.name == '') {
-                this.$warning(this.$t('test_track.plan.input_plan_name'));
-                return;
-              }
-              param.workspaceId = localStorage.getItem(WORKSPACE_ID);
-              this.$post('/test/plan/' + this.operationType, param, () => {
-                this.$success(this.$t('commons.save_success'));
-                this.dialogFormVisible = false;
-                this.$emit("refresh");
-              });
-            } else {
-              return false;
-            }
+          param.workspaceId = localStorage.getItem(WORKSPACE_ID);
+          this.$post('/test/plan/' + this.operationType, param, () => {
+            this.$success(this.$t('commons.save_success'));
+            this.dialogFormVisible = false;
+            this.$emit("refresh");
+            // 发送广播，刷新 head 上的最新列表
+            TrackEvent.$emit(LIST_CHANGE);
           });
-        },
-        getProjects() {
-          this.$get("/project/listAll", (response) => {
-            if (response.success) {
-              this.projects = response.data;
-            } else {
-              this.$warning()(response.message);
-            }
-          });
-        },
-        setPrincipalOptions() {
-          let workspaceId = localStorage.getItem(WORKSPACE_ID);
-          this.$post('/user/ws/member/tester/list', {workspaceId:workspaceId}, response => {
-            this.principalOptions = response.data;
-          });
-        },
-        statusChange(status) {
-          this.form.status = status;
-          this.$forceUpdate();
-        },
-        close() {
-          removeGoBackListener(this.close);
-          this.dialogFormVisible = false;
-        },
-        resetForm() {
-          //防止点击修改后，点击新建触发校验
-          if (this.$refs['planFrom']) {
-            this.$refs['planFrom'].validate((valid) => {
-              this.$refs['planFrom'].resetFields();
-              this.form.name = '';
-              this.form.projectId = '';
-              this.form.principal = '';
-              this.form.stage = '';
-              this.form.description = '';
-              this.form.status = null;
-              return true;
-            });
-          }
+        } else {
+          return false;
         }
+      });
+    },
+    getProjects() {
+      this.$get("/project/listAll", (response) => {
+        if (response.success) {
+          this.projects = response.data;
+        } else {
+          this.$warning()(response.message);
+        }
+      });
+    },
+    setPrincipalOptions() {
+      let workspaceId = localStorage.getItem(WORKSPACE_ID);
+      this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+        this.principalOptions = response.data;
+      });
+    },
+    statusChange(status) {
+      this.form.status = status;
+      this.$forceUpdate();
+    },
+    close() {
+      removeGoBackListener(this.close);
+      this.dialogFormVisible = false;
+    },
+    resetForm() {
+      //防止点击修改后，点击新建触发校验
+      if (this.$refs['planFrom']) {
+        this.$refs['planFrom'].validate((valid) => {
+          this.$refs['planFrom'].resetFields();
+          this.form.name = '';
+          this.form.projectId = '';
+          this.form.principal = '';
+          this.form.stage = '';
+          this.form.description = '';
+          this.form.status = null;
+          return true;
+        });
       }
     }
+  }
+}
 </script>
 
 <style scoped>
