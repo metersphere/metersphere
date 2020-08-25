@@ -7,7 +7,7 @@
       <el-col :span="4" class="script-index">
         <div class="template-title">{{$t('api_test.request.processor.code_template')}}</div>
         <div v-for="(template, index) in codeTemplates" :key="index" class="code-template">
-          <el-link @click="addTemplate(template)">{{template.title}}</el-link>
+          <el-link :disabled="template.disabled" @click="addTemplate(template)">{{template.title}}</el-link>
         </div>
         <div class="document-url">
           <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor" type="primary">{{$t('commons.reference_documentation')}}</el-link>
@@ -29,23 +29,26 @@
           codeTemplates: [
             {
               title: this.$t('api_test.request.processor.code_template_get_variable'),
-              value: 'vars.get("variable_name");'
+              value: 'vars.get("variable_name");',
             },
             {
               title: this.$t('api_test.request.processor.code_template_set_variable'),
-              value: 'vars.put("variable_name", "variable_value");'
+              value: 'vars.put("variable_name", "variable_value");',
             },
             {
               title: this.$t('api_test.request.processor.code_template_get_response_header'),
-              value: 'prev.getResponseHeaders();'
+              value: 'prev.getResponseHeaders();',
+              disabled: this.isPreProcessor
             },
             {
               title: this.$t('api_test.request.processor.code_template_get_response_code'),
-              value: 'prev.getResponseCode();'
+              value: 'prev.getResponseCode();',
+              disabled: this.isPreProcessor
             },
             {
               title: this.$t('api_test.request.processor.code_template_get_response_result'),
-              value: 'prev.getResponseDataAsString();'
+              value: 'prev.getResponseDataAsString();',
+              disabled: this.isPreProcessor
             }
           ],
           isCodeEditAlive: true
@@ -61,6 +64,10 @@
         },
         beanShellProcessor: {
           type: Object,
+        },
+        isPreProcessor: {
+          type: Boolean,
+          default: false
         }
       },
       methods: {
