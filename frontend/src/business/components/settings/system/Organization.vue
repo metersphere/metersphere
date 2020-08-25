@@ -31,7 +31,7 @@
       <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="dialogSearch"
                        :create-tip="$t('member.create')" :title="$t('commons.member')"/>
       <!-- organization member table -->
-      <el-table :border="true" :data="memberLineData" style="width: 100%;margin-top:5px;">
+      <el-table :border="true" class="adjust-table" :data="memberLineData" style="width: 100%;margin-top:5px;">
         <el-table-column prop="id" label="ID"/>
         <el-table-column prop="name" :label="$t('commons.username')"/>
         <el-table-column prop="email" :label="$t('commons.email')"/>
