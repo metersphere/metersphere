@@ -358,12 +358,16 @@
             this.total = data.itemCount;
             this.tableData = data.listObject;
             for (let i = 0; i < this.tableData.length; i++) {
-              this.$set(this.tableData[i], "issuesSize", 0);
-              this.$get("/issues/get/" + this.tableData[i].caseId, response => {
-                let issues = response.data;
-                this.$set(this.tableData[i], "issuesSize", issues.length);
-                this.$set(this.tableData[i], "issuesContent", issues);
-              })
+              if (this.tableData[i]) {
+                this.$set(this.tableData[i], "issuesSize", 0);
+                this.$get("/issues/get/" + this.tableData[i].caseId, response => {
+                  let issues = response.data;
+                  if (this.tableData[i]) {
+                    this.$set(this.tableData[i], "issuesSize", issues.length);
+                    this.$set(this.tableData[i], "issuesContent", issues);
+                  }
+                })
+              }
             }
             // this.selectIds.clear();
             this.selectRows.clear();
