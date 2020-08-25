@@ -216,7 +216,7 @@
                         width="400"
                         trigger="hover"
                         >
-                        <ckeditor :editor="editor" disabled
+                        <ckeditor :editor="editor" disabled :config="readConfig"
                                   v-model="scope.row.description"/>
                         <el-button slot="reference" type="text">{{$t('test_track.issue.preview')}}</el-button>
                       </el-popover>
@@ -300,6 +300,7 @@
           // 'increaseIndent','decreaseIndent'
           toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'insertTable', '|', 'undo', 'redo'],
         },
+        readConfig: {toolbar: []},
         test: {},
         activeTab: 'detail',
         isFailure: false,
