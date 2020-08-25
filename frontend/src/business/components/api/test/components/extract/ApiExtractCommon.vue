@@ -74,6 +74,7 @@
 
     methods: {
       add() {
+        this.common.type = this.extractType;
         this.list.push(new ExtractCommon(this.extractType, this.common));
         this.clear();
         this.callback();

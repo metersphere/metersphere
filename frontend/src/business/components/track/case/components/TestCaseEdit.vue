@@ -141,29 +141,29 @@
               <el-table-column :label="$t('test_track.case.step_desc')" prop="desc" min-width="35%">
                 <template v-slot:default="scope">
                   <el-input
+                    class="table-edit-input"
                     size="mini"
-                    v-if="!readOnly"
+                    :disabled="readOnly"
                     type="textarea"
                     :autosize="{ minRows: 2, maxRows: 4}"
                     :rows="2"
                     v-model="scope.row.desc"
                     :placeholder="$t('commons.input_content')"
-                    clearable></el-input>
-                  <pre>{{scope.row.desc}}</pre>
+                    clearable/>
                 </template>
               </el-table-column>
               <el-table-column :label="$t('test_track.case.expected_results')" prop="result" min-width="35%">
                 <template v-slot:default="scope">
                   <el-input
+                    class="table-edit-input"
                     size="mini"
-                    v-if="!readOnly"
+                    :disabled="readOnly"
                     type="textarea"
                     :autosize="{ minRows: 2, maxRows: 4}"
                     :rows="2"
                     v-model="scope.row.result"
                     :placeholder="$t('commons.input_content')"
-                    clearable></el-input>
-                  <pre>{{scope.row.result}}</pre>
+                    clearable/>
                 </template>
               </el-table-column>
               <el-table-column :label="$t('commons.input_content')" min-width="15%">
@@ -511,18 +511,6 @@
 </script>
 
 <style scoped>
-
-  .tb-edit .el-textarea {
-    display: none;
-  }
-
-  .tb-edit .current-row .el-textarea {
-    display: block;
-  }
-
-  .tb-edit .current-row .el-textarea + pre {
-    display: none;
-  }
 
   .el-switch {
     margin-bottom: 10px;
