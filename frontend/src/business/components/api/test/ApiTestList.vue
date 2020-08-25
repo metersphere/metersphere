@@ -12,7 +12,7 @@
         </template>
 
         <one-click-operation ref="OneClickOperation" :select-ids="selectIds" :select-names="selectNames"
-                             :select-project-names="selectProjectNames"></one-click-operation>
+                             :select-project-names="selectProjectNames" @refresh="init()"></one-click-operation>
 
         <el-table border :data="tableData" class="adjust-table table-content" @sort-change="sort"
                   @row-click="handleView"

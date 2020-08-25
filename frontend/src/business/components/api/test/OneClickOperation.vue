@@ -21,130 +21,163 @@
 </template>
 
 <script>
-import MsDialogFooter from '../../common/components/MsDialogFooter'
-import {Test} from "./model/ScenarioModel";
-import MsApiScenarioConfig from "./components/ApiScenarioConfig";
-import MsApiReportStatus from "../report/ApiReportStatus";
-import MsApiReportDialog from "./ApiReportDialog";
-
-export default {
-  name: "OneClickOperation",
-  components: {
-    MsApiReportDialog, MsApiReportStatus, MsApiScenarioConfig, MsDialogFooter
-  },
-  data() {
-    return {
-      oneClickOperationVisible: false,
-      test: null,
-      tests: [],
-      ruleForm: {},
-      rule: {
-        testName: [
-          {required: true, message: this.$t('api_test.input_name'), trigger: 'blur'},
-        ],
-      }
-    };
-  },
-  props: {
-    selectIds: {
-      type: Set
-    },
-    selectNames: {
-      type: Set
-    },
-    selectProjectNames: {
-      type: Set
-    }
-  },
-  methods: {
-    openOneClickOperation() {
-      this.oneClickOperationVisible = true;
-    },
-    checkedSaveAndRunTest() {
-      if (this.selectNames.has(this.ruleForm.testName)) {
-        this.$warning(this.$t('load_test.already_exists'));
-        this.oneClickOperationVisible = false;
-      } else {
-        if (this.selectProjectNames.size > 1) {
-          this.$warning(this.$t('load_test.same_project_test'));
-          this.oneClickOperationVisible = false;
-        } else {
-          for (let x of this.selectIds) {
-            this.getTest(x)
-          }
-        }
-      }
-    },
-    getTest(id) {
-      this.result = this.$get("/api/get/" + id, response => {
-        if (response.data) {
-          let item = response.data;
-          this.tests.push(item);
-          let test = new Test({
-            projectId: item.projectId,
-            name: this.ruleForm.testName,
-            scenarioDefinition: JSON.parse(item.scenarioDefinition),
-            schedule: {},
-          });
-          this.test = this.test || test;
-          if (this.tests.length > 1) {
-            this.test.scenarioDefinition = this.test.scenarioDefinition.concat(test.scenarioDefinition);
-
-          }
-          if (this.tests.length === this.selectIds.size) {
-            this.tests = [];
-            this.saveRunTest();
-            this.oneClickOperationVisible = false;
+  import MsDialogFooter from '../../common/components/MsDialogFooter'
+  import {Test} from "./model/ScenarioModel"
+  import MsApiScenarioConfig from "./components/ApiScenarioConfig";
+  import MsApiReportStatus from "../report/ApiReportStatus";
+  import MsApiReportDialog from "./ApiReportDialog";
 
 
-          }
-        }
-      });
+  export default {
+    name: "OneClickOperation",
+    components: {
+      MsApiReportDialog, MsApiReportStatus, MsApiScenarioConfig, MsDialogFooter
     },
-    saveRunTest() {
-      this.save(() => {
-        this.$success(this.$t('commons.save_success'));
-        this.runTest();
-      })
-    },
-    save(callback) {
-      let url = "/api/create";
-      this.result = this.$request(this.getOptions(url), () => {
-        this.create = false;
-        if (callback) callback();
-      });
-    },
-    runTest() {
-      this.result = this.$post("/api/run", {id: this.test.id, triggerMode: 'MANUAL'}, (response) => {
-        this.$success(this.$t('api_test.running'));
-        this.$router.push({
-          path: '/api/report/view/' + response.data
-        })
-      });
-    },
-    getOptions(url) {
-      let formData = new FormData();
-      let requestJson = JSON.stringify(this.test);
-      formData.append('request', new Blob([requestJson], {
-        type: "application/json"
-      }));
-      let jmx = this.test.toJMX();
-      let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
-      formData.append("file", new File([blob], jmx.name));
+    data() {
       return {
-        method: 'POST',
-        url: url,
-        data: formData,
-        headers: {
-          'Content-Type': undefined
+        oneClickOperationVisible: false,
+        test: null,
+        tests: [],
+        ruleForm: {},
+        change: false,
+        rule: {
+          testName: [
+            {required: true, message: this.$t('api_test.input_name'), trigger: 'blur'},
+          ],
         }
       };
     },
-    handleClose() {
-      this.ruleForm = {}
+    watch: {
+
+      test: {
+        handler: function () {
+          this.change = true;
+        },
+        deep: true
+      }
     },
+    props: {
+      selectIds: {
+        type: Set
+      },
+      selectNames: {
+        type: Set
+      },
+      selectProjectNames: {
+        type: Set
+      }
+    },
+    methods: {
+      openOneClickOperation() {
+        this.oneClickOperationVisible = true;
+      },
+      checkedSaveAndRunTest() {
+        if (this.selectNames.has(this.ruleForm.testName)) {
+          this.selectIds.clear()
+          this.$warning(this.$t('load_test.already_exists'));
+          this.oneClickOperationVisible = false;
+          this.$emit('refresh')
+        } else {
+          if (this.selectProjectNames.size > 1) {
+            this.selectIds.clear()
+            this.$warning(this.$t('load_test.same_project_test'));
+            this.oneClickOperationVisible = false;
+            this.$emit('refresh')
+          } else {
+            for (let x of this.selectIds) {
+              this.getTest(x)
+            }
+          }
+        }
+      },
+      _getEnvironmentAndRunTest: function (item) {
+        let count = 0;
+        this.result = this.$get('/api/environment/list/' + item.projectId, response => {
+          let environments = response.data;
+          let environmentMap = new Map();
+          environments.forEach(environment => {
+            environmentMap.set(environment.id, environment);
+          });
+          this.test.scenarioDefinition.forEach(scenario => {
+              if (scenario.environmentId) {
+                scenario.environment = environmentMap.get(scenario.environmentId);
+              }
+            }
+          )
+          this.tests = [];
+          this.saveRunTest();
+          this.oneClickOperationVisible = false;
+          this.$emit('refresh')
+        });
+      },
+      getTest(id) {
+        this.result = this.$get("/api/get/" + id, response => {
+          if (response.data) {
+            let item = response.data;
+            this.tests.push(item);
+            let test = new Test({
+              id: item.id,
+              projectId: item.projectId,
+              name: this.ruleForm.testName,
+              scenarioDefinition: JSON.parse(item.scenarioDefinition),
+              schedule: {},
+            });
+            this.test = this.test || test;
+            if (this.tests.length > 1) {
+              this.test.scenarioDefinition = this.test.scenarioDefinition.concat(test.scenarioDefinition);
+            }
+            if (this.tests.length === this.selectIds.size) {
+              this._getEnvironmentAndRunTest(item);
+            }
+          }
+        });
+      },
+      saveRunTest() {
+        this.change = false;
+        this.save(() => {
+          this.$success(this.$t('commons.save_success'));
+          this.runTest();
+        })
+      },
+      save(callback) {
+        this.change = false;
+        let url = "/api/create";
+        this.result = this.$request(this.getOptions(url), () => {
+          if (callback) callback();
+        });
+      },
+      runTest() {
+        this.result = this.$post("/api/run", {id: this.test.id, triggerMode: 'MANUAL'}, (response) => {
+          this.$success(this.$t('api_test.running'));
+          this.$router.push({
+            path: '/api/report/view/' + response.data
+          })
+          this.test = ""
+        });
+      },
+      getOptions(url) {
+        let formData = new FormData();
+        let requestJson = JSON.stringify(this.test);
+        formData.append('request', new Blob([requestJson], {
+          type: "application/json"
+        }));
+        let jmx = this.test.toJMX();
+        let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
+        formData.append("file", new File([blob], jmx.name));
+        return {
+          method: 'POST',
+          url: url,
+          data: formData,
+          headers: {
+            'Content-Type': undefined
+          }
+        };
+      },
+      handleClose() {
+        this.ruleForm = {}
+      },
+    }
   }
-}
 </script>
 
 <style scoped>
