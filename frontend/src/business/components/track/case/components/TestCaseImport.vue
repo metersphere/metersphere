@@ -102,7 +102,7 @@
         upload(file) {
           this.isLoading = false;
           this.fileList.push(file.file);
-          this.result = this.$fileUpload('/test/case/import/' + this.projectId, file.file, {}, response => {
+          this.result = this.$fileUpload('/test/case/import/' + this.projectId, file.file, null, {}, response => {
             let res = response.data;
             if (res.success) {
               this.$success(this.$t('test_track.case.import.success'));

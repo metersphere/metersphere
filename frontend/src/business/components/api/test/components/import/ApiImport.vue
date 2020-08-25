@@ -237,7 +237,7 @@
               if (!this.swaggerUrlEable) {
                 param.swaggerUrl = undefined;
               }
-              this.result = this.$fileUpload('/api/import', param.file, param,response => {
+              this.result = this.$fileUpload('/api/import', param.file, null, param,response => {
                 let res = response.data;
                 this.$success(this.$t('test_track.case.import.success'));
                 this.visible = false;

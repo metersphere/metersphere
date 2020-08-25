@@ -6,7 +6,7 @@ import {
   Element,
   HashTree,
   HeaderManager,
-  HTTPSamplerArguments,
+  HTTPSamplerArguments, HTTPsamplerFiles,
   HTTPSamplerProxy,
   JSONPathAssertion,
   JSONPostProcessor,
@@ -37,6 +37,8 @@ export const uuid = function () {
     return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
   });
 }
+
+export const BODY_FILE_DIR = "/opt/metersphere/data/body"; //存放body文件上传目录
 
 export const calculate = function (itemValue) {
   if (!itemValue) {
@@ -528,7 +530,7 @@ export class Body extends BaseConfig {
 
 export class KeyValue extends BaseConfig {
   constructor() {
-    let options, key, value;
+    let options, key, value, type;
     if (arguments.length === 1) {
       options = arguments[0];
     }
@@ -537,16 +539,27 @@ export class KeyValue extends BaseConfig {
       key = arguments[0];
       value = arguments[1];
     }
+    if (arguments.length === 3) {
+      key = arguments[0];
+      value = arguments[1];
+      type = arguments[2];
+    }
 
     super();
     this.name = key;
     this.value = value;
+    this.type = type;
+    this.files = undefined;
 
     this.set(options);
   }
 
   isValid() {
-    return !!this.name || !!this.value;
+    return (!!this.name || !!this.value) && this.type !== 'file';
+  }
+
+  isFile() {
+    return (!!this.name || !!this.value) && this.type === 'file';
   }
 }
 
@@ -807,13 +820,13 @@ class JMXGenerator {
     if (!test || !test.id || !(test instanceof Test)) return undefined;
 
     let testPlan = new TestPlan(test.name);
-    this.addScenarios(testPlan, test.scenarioDefinition);
+    this.addScenarios(testPlan, test.id, test.scenarioDefinition);
 
     this.jmeterTestPlan = new JMeterTestPlan();
     this.jmeterTestPlan.put(testPlan);
   }
 
-  addScenarios(testPlan, scenarios) {
+  addScenarios(testPlan, testId, scenarios) {
     scenarios.forEach(s => {
 
       if (s.enable) {
@@ -842,7 +855,7 @@ class JMXGenerator {
               if (request.method.toUpperCase() === 'GET') {
                 this.addRequestArguments(sampler, request);
               } else {
-                this.addRequestBody(sampler, request);
+                this.addRequestBody(sampler, request, testId);
               }
             }
 
@@ -965,16 +978,33 @@ class JMXGenerator {
     }
   }
 
-  addRequestBody(httpSamplerProxy, request) {
+  addRequestBody(httpSamplerProxy, request, testId) {
     let body = [];
     if (request.body.isKV()) {
       body = this.filterKV(request.body.kvs);
+      this.addRequestBodyFile(httpSamplerProxy, request, testId);
     } else {
       httpSamplerProxy.boolProp('HTTPSampler.postBodyRaw', true);
       body.push({name: '', value: request.body.raw, encode: false});
     }
 
     httpSamplerProxy.add(new HTTPSamplerArguments(body));
+  }
+
+  addRequestBodyFile(httpSamplerProxy, request, testId) {
+    let files = [];
+    let kvs = this.filterKVFile(request.body.kvs);
+    kvs.forEach(kv => {
+      if (kv.files) {
+        kv.files.forEach(file => {
+          let arg = {};
+          arg.name = kv.name;
+          arg.value = BODY_FILE_DIR + '/' + testId + '/' + file.id + '_' + file.name;
+          files.push(arg);
+        });
+      }
+    });
+    httpSamplerProxy.add(new HTTPsamplerFiles(files));
   }
 
   addRequestAssertion(httpSamplerProxy, request) {
@@ -1064,6 +1094,12 @@ class JMXGenerator {
 
   filterKV(kvs) {
     return kvs.filter(this.filter);
+  }
+
+  filterKVFile(kvs) {
+    return kvs.filter(kv => {
+      return kv.isFile();
+    });
   }
 
   toXML() {

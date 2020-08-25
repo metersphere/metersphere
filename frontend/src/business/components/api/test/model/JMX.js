@@ -328,6 +328,25 @@ export class HTTPSamplerArguments extends Element {
   }
 }
 
+export class HTTPsamplerFiles extends Element {
+  constructor(args) {
+    super('elementProp', {
+      name: "HTTPsampler.Files",
+      elementType: "HTTPFileArgs",
+    });
+
+    this.args = args || {};
+
+    let collectionProp = this.collectionProp('HTTPFileArgs.files');
+    this.args.forEach(arg => {
+      let elementProp = collectionProp.elementProp(arg.value, 'HTTPFileArg');
+      elementProp.stringProp('File.path', arg.value);
+      elementProp.stringProp('File.paramname', arg.name);
+      elementProp.stringProp('File.mimetype', arg.metadata || "application/octet-stream");
+    });
+  }
+}
+
 export class CookieManager extends DefaultTestElement {
   constructor(testName) {
     super('CookieManager', 'CookiePanel', 'CookieManager', testName);

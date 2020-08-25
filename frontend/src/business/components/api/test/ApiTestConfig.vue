@@ -70,6 +70,7 @@
   import {checkoutTestManagerOrTestUser, downloadFile} from "@/common/js/utils";
   import MsScheduleConfig from "../../common/components/MsScheduleConfig";
   import ApiImport from "./components/import/ApiImport";
+  import {getUUID} from "../../../../common/js/utils";
 
   export default {
     name: "MsApiTestConfig",
@@ -149,13 +150,15 @@
           return;
         }
         this.change = false;
+        let bodyFiles = this.getBodyUploadFiles();
         let url = this.create ? "/api/create" : "/api/update";
         let jmx = this.test.toJMX();
         let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
         let file = new File([blob], jmx.name);
-        this.result = this.$fileUpload(url, file, this.test,response => {
+        this.result = this.$fileUpload(url, file, bodyFiles, this.test,response => {
           if (callback) callback();
           this.create = false;
+          this.resetBodyFile();
         });
       },
       saveTest() {
@@ -183,6 +186,49 @@
           this.$success(this.$t('commons.save_success'));
           this.runTest();
         })
+      },
+      getBodyUploadFiles() {
+        let bodyUploadFiles = [];
+        this.test.bodyUploadIds = [];
+        this.test.scenarioDefinition.forEach(scenario => {
+          scenario.requests.forEach(request => {
+            if (request.body) {
+              request.body.kvs.forEach( param => {
+                if (param.files) {
+                  param.files.forEach(item => {
+                    if (item.file) {
+                      let fileId = getUUID().substring(0, 8);
+                      item.name = item.file.name;
+                      item.id = fileId;
+                      this.test.bodyUploadIds.push(fileId);
+                      bodyUploadFiles.push(item.file);
+                      // item.file = undefined;
+                    }
+                  });
+                }
+              });
+            }
+          });
+        });
+        return bodyUploadFiles;
+      },
+      resetBodyFile() {
+        //下次保存不再上传已传文件
+        this.test.scenarioDefinition.forEach(scenario => {
+          scenario.requests.forEach(request => {
+            if (request.body) {
+              request.body.kvs.forEach( param => {
+                if (param.files) {
+                  param.files.forEach(item => {
+                    if (item.file) {
+                      item.file = undefined;
+                    }
+                  });
+                }
+              });
+            }
+          });
+        });
       },
       cancel() {
         this.$router.push('/api/test/list/all');
@@ -256,7 +302,7 @@
         let jmx = runningTest.toJMX();
         let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
         let file = new File([blob], jmx.name);
-        this.$fileUpload(url, file, this.test,response => {
+        this.$fileUpload(url, file, null, this.test,response => {
           this.debugReportId = response.data;
         });
       }
