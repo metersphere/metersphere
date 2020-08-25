@@ -26,6 +26,7 @@
   import MsApiScenarioConfig from "./components/ApiScenarioConfig";
   import MsApiReportStatus from "../report/ApiReportStatus";
   import MsApiReportDialog from "./ApiReportDialog";
+  import {getUUID} from "../../../../common/js/utils";
 
 
   export default {
@@ -116,7 +117,6 @@
             let item = response.data;
             this.tests.push(item);
             let test = new Test({
-              id: item.id,
               projectId: item.projectId,
               name: this.ruleForm.testName,
               scenarioDefinition: JSON.parse(item.scenarioDefinition),
@@ -142,9 +142,35 @@
       save(callback) {
         this.change = false;
         let url = "/api/create";
-        this.result = this.$request(this.getOptions(url), () => {
+        let bodyFiles = this.getBodyUploadFiles();
+        this.result = this.$request(this.getOptions(url, bodyFiles), () => {
           if (callback) callback();
         });
+      },
+      getBodyUploadFiles() {
+        let bodyUploadFiles = [];
+        this.test.bodyUploadIds = [];
+        this.test.scenarioDefinition.forEach(scenario => {
+          scenario.requests.forEach(request => {
+            if (request.body) {
+              request.body.kvs.forEach(param => {
+                if (param.files) {
+                  param.files.forEach(item => {
+                    if (item.file) {
+                      let fileId = getUUID().substring(0, 8);
+                      item.name = item.file.name;
+                      item.id = fileId;
+                      this.test.bodyUploadIds.push(fileId);
+                      bodyUploadFiles.push(item.file);
+                      // item.file = undefined;
+                    }
+                  });
+                }
+              });
+            }
+          });
+        });
+        return bodyUploadFiles;
       },
       runTest() {
         this.result = this.$post("/api/run", {id: this.test.id, triggerMode: 'MANUAL'}, (response) => {
@@ -155,12 +181,19 @@
           this.test = ""
         });
       },
-      getOptions(url) {
+      getOptions(url, bodyFiles) {
+
         let formData = new FormData();
+        if (bodyFiles) {
+          bodyFiles.forEach(f => {
+            formData.append("files", f);
+          })
+        }
         let requestJson = JSON.stringify(this.test);
         formData.append('request', new Blob([requestJson], {
           type: "application/json"
         }));
+
         let jmx = this.test.toJMX();
         let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
         formData.append("file", new File([blob], jmx.name));
