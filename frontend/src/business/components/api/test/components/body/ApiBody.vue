@@ -16,6 +16,7 @@
                      :environment="environment"
                      :scenario="scenario"
                      :extract="extract"
+                     type="body"
                      :description="$t('api_test.request.parameters_desc')"
                      v-if="body.isKV()"/>
     <div class="body-raw" v-if="body.type == 'Raw'">
@@ -26,10 +27,10 @@
 </template>
 
 <script>
-import MsApiKeyValue from "./ApiKeyValue";
-import {Body, BODY_FORMAT, BODY_TYPE, Scenario} from "../model/ScenarioModel";
-import MsCodeEdit from "../../../common/components/MsCodeEdit";
-import MsDropdown from "../../../common/components/MsDropdown";
+import MsApiKeyValue from "../ApiKeyValue";
+import {Body, BODY_FORMAT, BODY_TYPE, Scenario} from "../../model/ScenarioModel";
+import MsCodeEdit from "../../../../common/components/MsCodeEdit";
+import MsDropdown from "../../../../common/components/MsDropdown";
 import MsApiVariable from "@/business/components/api/test/components/ApiVariable";
 
 export default {
@@ -66,6 +67,11 @@ export default {
     if (!this.body.format) {
       this.body.format = BODY_FORMAT.TEXT;
     }
+    this.body.kvs.forEach(param => {
+      if (!param.type) {
+        param.type = 'text';
+      }
+    });
   }
 }
 </script>

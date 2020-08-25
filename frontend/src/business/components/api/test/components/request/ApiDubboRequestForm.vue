@@ -56,7 +56,7 @@
 
 <script>
   import MsApiKeyValue from "../ApiKeyValue";
-  import MsApiBody from "../ApiBody";
+  import MsApiBody from "../body/ApiBody";
   import MsApiAssertions from "../assertion/ApiAssertions";
   import {DubboRequest, Scenario} from "../../model/ScenarioModel";
   import MsApiExtract from "../extract/ApiExtract";

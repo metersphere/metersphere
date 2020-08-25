@@ -6,15 +6,21 @@
     <div class="kv-row" v-for="(item, index) in parameters" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <el-col>
-          <el-input v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="200"
-                    @change="change"
-                    :placeholder="keyText" show-word-limit/>
+
+          <el-input v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="200" @change="change" :placeholder="keyText" show-word-limit>
+            <template v-slot:prepend>
+              <el-select  v-if="type === 'body'" :disabled="isReadOnly" class="kv-type" v-model="item.type">
+                <el-option value="text" />
+                <el-option value="file"/>
+              </el-select>
+            </template>
+          </el-input>
+
           <el-autocomplete :disabled="isReadOnly" :maxlength="200" v-if="suggestions" v-model="item.name" size="small"
-                           :fetch-suggestions="querySearch" @change="change" :placeholder="keyText"
-                           show-word-limit/>
+                           :fetch-suggestions="querySearch" @change="change" :placeholder="keyText" show-word-limit/>
 
         </el-col>
-        <el-col>
+        <el-col v-if="item.type !== 'file'">
           <el-autocomplete
             :disabled="isReadOnly"
             size="small"
@@ -27,6 +33,10 @@
             @select="change">
             <i slot="suffix" class="el-input__icon el-icon-edit" style="cursor: pointer;" @click="advanced(item)"></i>
           </el-autocomplete>
+        </el-col>
+
+        <el-col v-if="item.type === 'file'">
+            <ms-api-body-file-upload :parameter="item"/>
         </el-col>
         <el-col class="kv-delete">
           <el-button size="mini" class="el-icon-delete-solid" circle @click="remove(index)"
@@ -44,10 +54,11 @@
 import {KeyValue, Scenario} from "../model/ScenarioModel";
 import {MOCKJS_FUNC} from "@/common/js/constants";
 import MsApiVariableAdvance from "@/business/components/api/test/components/ApiVariableAdvance";
+import MsApiBodyFileUpload from "./body/ApiBodyFileUpload";
 
 export default {
   name: "MsApiVariable",
-  components: {MsApiVariableAdvance},
+  components: {MsApiBodyFileUpload, MsApiVariableAdvance},
   props: {
     keyPlaceholder: String,
     valuePlaceholder: String,
@@ -55,6 +66,10 @@ export default {
     parameters: Array,
     environment: Object,
     scenario: Scenario,
+    type: {
+      type: String,
+      default: ''
+    },
     isReadOnly: {
       type: Boolean,
       default: false
@@ -93,7 +108,7 @@ export default {
         }
       });
       if (isNeedCreate) {
-        this.parameters.push(new KeyValue());
+        this.parameters.push(new KeyValue(null, null, 'text'));
       }
       this.$emit('change', this.parameters);
       // TODO 检查key重复
@@ -133,35 +148,38 @@ export default {
   },
   created() {
     if (this.parameters.length === 0) {
-      this.parameters.push(new KeyValue());
+      this.parameters.push(new KeyValue(null, null, 'text'));
     }
   }
 }
 </script>
 
 <style scoped>
-.kv-description {
-  font-size: 13px;
-}
+  .kv-description {
+    font-size: 13px;
+  }
 
-.kv-row {
-  margin-top: 10px;
-}
+  .kv-row {
+    margin-top: 10px;
+  }
 
-.kv-delete {
-  width: 60px;
-}
+  .kv-delete {
+    width: 60px;
+  }
 
-.el-autocomplete {
-  width: 100%;
-}
+  .el-autocomplete {
+    width: 100%;
+  }
 
-.advanced-item-value >>> .el-dialog__body {
-  padding: 15px 25px;
-}
+  .advanced-item-value >>> .el-dialog__body {
+    padding: 15px 25px;
+  }
 
-.el-row {
-  margin-bottom: 5px;
-}
+  .el-row {
+    margin-bottom: 5px;
+  }
 
+  .kv-type {
+    width: 70px;
+  }
 </style>

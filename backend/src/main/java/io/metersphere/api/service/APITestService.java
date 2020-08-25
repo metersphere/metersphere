@@ -29,6 +29,7 @@ import io.metersphere.service.ScheduleService;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.constants.CommonConstants;
+import org.aspectj.util.FileUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -36,9 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -63,6 +62,8 @@ public class APITestService {
     @Resource
     private TestCaseService testCaseService;
 
+    private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
+
     public List<APITestResult> list(QueryAPITestRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         return extApiTestMapper.list(request);
@@ -73,22 +74,61 @@ public class APITestService {
         return extApiTestMapper.list(request);
     }
 
-    public void create(SaveAPITestRequest request, MultipartFile file) {
+    public void create(SaveAPITestRequest request, MultipartFile file, List<MultipartFile> bodyFiles) {
         if (file == null) {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
         }
         checkQuota();
+        List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds()) ;
+        request.setBodyUploadIds(null);
         ApiTest test = createTest(request);
+        createBodyFiles(test, bodyUploadIds, bodyFiles);
         saveFile(test.getId(), file);
     }
 
-    public void update(SaveAPITestRequest request, MultipartFile file) {
+    public void update(SaveAPITestRequest request, MultipartFile file, List<MultipartFile> bodyFiles) {
         if (file == null) {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
         }
         deleteFileByTestId(request.getId());
+
+        List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds()) ;
+        request.setBodyUploadIds(null);
         ApiTest test = updateTest(request);
+        createBodyFiles(test, bodyUploadIds, bodyFiles);
         saveFile(test.getId(), file);
+    }
+
+    private void createBodyFiles(ApiTest test, List<String> bodyUploadIds, List<MultipartFile> bodyFiles) {
+        if (bodyFiles == null || bodyFiles.isEmpty()) {
+
+        }
+        String dir = BODY_FILE_DIR + "/" + test.getId();
+        File testDir = new File(dir);
+        if (!testDir.exists()) {
+            testDir.mkdirs();
+        }
+        for (int i = 0; i < bodyUploadIds.size(); i++) {
+            MultipartFile item = bodyFiles.get(i);
+            File file = new File(testDir + "/" + bodyUploadIds.get(i) + "_" + item.getOriginalFilename());
+            InputStream in = null;
+            OutputStream out = null;
+            try {
+                file.createNewFile();
+                in = item.getInputStream();
+                out = new FileOutputStream(file);
+                FileUtil.copyStream(in, out);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    in.close();
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public void copy(SaveAPITestRequest request) {
@@ -117,6 +157,20 @@ public class APITestService {
             apiTestFile.setFileId(fileMetadata.getId());
             apiTestFileMapper.insert(apiTestFile);
         }
+        copyBodyFiles(copy.getId(), request.getId());
+    }
+
+    public void copyBodyFiles(String target, String source) {
+        String sourceDir = BODY_FILE_DIR + "/" + source;
+        String targetDir = BODY_FILE_DIR + "/" + target;
+        File sourceFile = new File(sourceDir);
+        if (sourceFile.exists()) {
+            try {
+                FileUtil.copyDir(sourceFile, new File(targetDir));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public APITestResult get(String id) {
@@ -142,6 +196,15 @@ public class APITestService {
         apiReportService.deleteByTestId(testId);
         scheduleService.deleteByResourceId(testId);
         apiTestMapper.deleteByPrimaryKey(testId);
+        deleteBodyFiles(testId);
+    }
+
+    public void deleteBodyFiles(String testId) {
+        File file = new File(BODY_FILE_DIR + "/" + testId);
+        FileUtil.deleteContents(file);
+        if (file.exists()) {
+            file.delete();
+        }
     }
 
     public String run(SaveAPITestRequest request) {

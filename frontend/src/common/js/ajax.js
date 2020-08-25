@@ -142,9 +142,16 @@ export default {
         });
     };
 
-    Vue.prototype.$fileUpload = function (url, file, param, success, failure) {
+    Vue.prototype.$fileUpload = function (url, file, files, param, success, failure) {
       let formData = new FormData();
-      formData.append("file", file);
+      if (file) {
+        formData.append("file", file);
+      }
+      if (files) {
+        files.forEach(f => {
+          formData.append("files", f);
+        })
+      }
       formData.append('request', new Blob([JSON.stringify(param)], {type: "application/json"}));
       let axiosRequestConfig = {
         method: 'POST',
