@@ -126,7 +126,7 @@
     </select>
 
     <select id="selectDashboardTests" resultType="io.metersphere.dto.DashboardTestDTO">
-        SELECT create_time AS date, count(load_test_report.id) AS count,
+        SELECT min(create_time) AS date, count(load_test_report.id) AS count,
         date_format(from_unixtime(create_time / 1000), '%Y-%m-%d') AS x
         FROM load_test_report
         WHERE test_id IN (SELECT load_test.id
