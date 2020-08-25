@@ -60,6 +60,7 @@ import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 import {checkoutTestManagerOrTestUser} from "../../../../common/js/utils";
 import MsScheduleConfig from "../../common/components/MsScheduleConfig";
+import {LIST_CHANGE, PerformanceEvent} from "@/business/components/common/head/ListEvent";
 
 export default {
   name: "EditPerformanceTestPlan",
@@ -172,6 +173,8 @@ export default {
         this.$success(this.$t('commons.save_success'));
         this.$refs.advancedConfig.cancelAllEdit();
         this.$router.push({path: '/performance/test/all'})
+        // 发送广播，刷新 head 上的最新列表
+        PerformanceEvent.$emit(LIST_CHANGE);
       });
     },
     saveAndRun() {
@@ -187,6 +190,8 @@ export default {
         this.result = this.$post(this.runPath, {id: this.testPlan.id, triggerMode: 'MANUAL'}, (response) => {
           let reportId = response.data;
           this.$router.push({path: '/performance/report/view/' + reportId})
+          // 发送广播，刷新 head 上的最新列表
+          PerformanceEvent.$emit(LIST_CHANGE);
         })
       });
     },

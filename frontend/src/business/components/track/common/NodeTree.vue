@@ -108,7 +108,6 @@ export default {
   methods: {
     handleDragEnd(draggingNode, dropNode, dropType, ev) {
       let param = this.buildParam(draggingNode, dropNode, dropType);
-      console.log(this.treeNodes);
       this.$post("/case/node/drag", param, () => {
         draggingNode.data.level = param.level;
         this.refreshTable();
