@@ -1,10 +1,10 @@
 <template>
   <div >
     <el-row>
-      <el-col :span="22" class="script-content">
+      <el-col :span="20" class="script-content">
         <ms-code-edit v-if="isCodeEditAlive" mode="java" :read-only="isReadOnly" :data.sync="beanShellProcessor.script" theme="eclipse" :modes="['java']" ref="codeEdit"/>
       </el-col>
-      <el-col :span="2" class="script-index">
+      <el-col :span="4" class="script-index">
         <div class="template-title">{{$t('api_test.request.processor.code_template')}}</div>
         <div v-for="(template, index) in codeTemplates" :key="index" class="code-template">
           <el-link @click="addTemplate(template)">{{template.title}}</el-link>
