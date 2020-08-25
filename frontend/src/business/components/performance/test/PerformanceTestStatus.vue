@@ -17,7 +17,7 @@
     </el-tag>
     <el-tooltip placement="top" v-else-if="row.status === 'Error'" effect="light">
       <template v-slot:content>
-        <div>{{row.description}}</div>
+        <div>{{ row.description }}</div>
       </template>
       <el-tag size="mini" type="danger">
         {{ row.status }}
@@ -30,13 +30,13 @@
 </template>
 
 <script>
-  export default {
-    name: "MsPerformanceTestStatus",
+export default {
+  name: "MsPerformanceTestStatus",
 
-    props: {
-      row: Object
-    }
+  props: {
+    row: Object
   }
+}
 </script>
 
 <style scoped>
