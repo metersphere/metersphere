@@ -68,7 +68,7 @@
         <ms-api-extract :is-read-only="isReadOnly" :extract="request.extract"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.processor.pre_exec_script')" name="beanShellPreProcessor">
-        <ms-bean-shell-processor :is-read-only="isReadOnly" :bean-shell-processor="request.beanShellPreProcessor"/>
+        <ms-bean-shell-processor :is-pre-processor="true" :is-read-only="isReadOnly" :bean-shell-processor="request.beanShellPreProcessor"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.processor.post_exec_script')" name="beanShellPostProcessor">
         <ms-bean-shell-processor :is-read-only="isReadOnly" :bean-shell-processor="request.beanShellPostProcessor"/>
