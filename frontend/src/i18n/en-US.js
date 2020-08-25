@@ -60,6 +60,7 @@ export default {
     not_filled: 'Not filled',
     please_select: 'Please select',
     search_by_name: 'Search by name',
+    search_by_name_or_id: 'Search by name or id',
     personal_information: 'Personal Information',
     exit_system: 'Exit System',
     verification: 'Verification',
@@ -593,6 +594,7 @@ export default {
       create_module_first: "Please create module first",
       relate_test: "Relate test",
       relate_test_not_find: 'The associated test does not exist, please check the test case',
+      other_relate_test_not_find: 'Associated test name, please go to the third party platform to execute',
       batch_handle: 'Batch processing (select {0} item)',
       batch_update: 'Update the attributes of {0} cases',
       select_catalog: 'Please select use case catalog',
@@ -729,6 +731,7 @@ export default {
       close: "Close",
       title_description_required: "Title and description are required",
       close_success: "Closed successfully",
+      preview: "Preview"
     }
   },
   test_resource_pool: {

@@ -34,8 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
-
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -43,6 +41,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -131,7 +131,7 @@ public class PerformanceTestService {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
         }
 
-        checkQuota(request);
+        checkQuota(request, true);
 
         final LoadTestWithBLOBs loadTest = saveLoadTest(request);
         files.forEach(file -> {
@@ -168,6 +168,7 @@ public class PerformanceTestService {
     }
 
     public String edit(EditTestPlanRequest request, List<MultipartFile> files) {
+        checkQuota(request, false);
         //
         LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(request.getId());
         if (loadTest == null) {
@@ -363,7 +364,7 @@ public class PerformanceTestService {
     }
 
     public void copy(SaveTestPlanRequest request) {
-        checkQuota(request);
+        checkQuota(request, true);
         // copy test
         LoadTestWithBLOBs copy = loadTestMapper.selectByPrimaryKey(request.getId());
         copy.setId(UUID.randomUUID().toString());
@@ -441,10 +442,10 @@ public class PerformanceTestService {
         return schedules;
     }
 
-    private void checkQuota(SaveTestPlanRequest request) {
+    private void checkQuota(TestPlanRequest request, boolean create) {
         QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
         if (quotaService != null) {
-            quotaService.checkLoadTestQuota(request);
+            quotaService.checkLoadTestQuota(request, create);
         }
     }
 }

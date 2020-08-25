@@ -60,6 +60,7 @@ export default {
     not_filled: '未填写',
     please_select: '请选择',
     search_by_name: '根据名称搜索',
+    search_by_name_or_id: '根据ID或名称搜索',
     personal_information: '个人信息',
     exit_system: '退出系统',
     verification: '验证',
@@ -596,6 +597,7 @@ export default {
       create_module_first: "请先新建模块",
       relate_test: "关联测试",
       relate_test_not_find: '关联的测试不存在,请检查用例',
+      other_relate_test_not_find: '关联的测试名，请前往第三方平台执行',
       batch_handle: '批量处理 (选中{0}项)',
       batch_update: '更新{0}个用例的属性',
       select_catalog: '请选择用例目录',
@@ -732,6 +734,7 @@ export default {
       close: "关闭缺陷",
       title_description_required: "标题和描述必填",
       close_success: "关闭成功",
+      preview: "预览"
     }
   },
   test_resource_pool: {

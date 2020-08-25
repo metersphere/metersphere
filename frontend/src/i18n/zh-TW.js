@@ -60,6 +60,7 @@ export default {
     not_filled: '未填寫',
     please_select: '請選擇',
     search_by_name: '根據名稱搜索',
+    search_by_name_or_id: '根據ID或名稱搜索',
     personal_information: '個人信息',
     exit_system: '退出系統',
     verification: '驗證',
@@ -593,6 +594,7 @@ export default {
       create_module_first: "請先新建模塊",
       relate_test: "關聯測試",
       relate_test_not_find: '關聯的測試不存在,請檢查用例',
+      other_relate_test_not_find: '關聯的測試名，請前往協力廠商平臺執行',
       batch_handle: '批量處理 (選中{0}項)',
       batch_update: '更新{0}個用例的屬性',
       select_catalog: '請選擇用例目錄',
@@ -729,6 +731,7 @@ export default {
       close: "關閉缺陷",
       title_description_required: "標題和描述必填",
       close_success: "關閉成功",
+      preview: "預覽"
     }
   },
   test_resource_pool: {

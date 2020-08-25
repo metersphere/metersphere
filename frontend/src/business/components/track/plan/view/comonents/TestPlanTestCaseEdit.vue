@@ -194,7 +194,7 @@
                   type="text"
                   :placeholder="$t('test_track.issue.input_title')"
                   v-model="testCase.issues.title"
-                  maxlength="100"
+                  maxlength="60"
                   show-word-limit
                 />
                 <ckeditor :editor="editor" :disabled="isReadOnly" :config="editorConfig"
@@ -208,7 +208,7 @@
               <el-col :span="20" :offset="1" class="issues-edit">
                 <el-table border class="adjust-table" :data="issues" style="width: 100%">
                   <el-table-column prop="id" :label="$t('test_track.issue.id')" show-overflow-tooltip/>
-                  <el-table-column prop="title" :label="$t('test_track.issue.title')"/>
+                  <el-table-column prop="title" :label="$t('test_track.issue.title')" show-overflow-tooltip/>
                   <el-table-column prop="description" :label="$t('test_track.issue.description')">
                     <template v-slot:default="scope">
                       <el-popover
@@ -218,9 +218,7 @@
                         >
                         <ckeditor :editor="editor" disabled
                                   v-model="scope.row.description"/>
-<!--                        <span v-html="scope.row.description"/>-->
-<!--                        <span slot="reference">{{scope.row.description}}</span>-->
-                        <el-button slot="reference" type="text">预览</el-button>
+                        <el-button slot="reference" type="text">{{$t('test_track.issue.preview')}}</el-button>
                       </el-popover>
                     </template>
                   </el-table-column>
@@ -398,6 +396,7 @@
         }
         this.testCase = item;
         this.initTest();
+        this.getIssues(testCase.caseId);
         this.stepResultChange();
       },
       openTestCaseEdit(testCase) {
@@ -405,7 +404,6 @@
         this.activeTab = 'detail';
         listenGoBack(this.handleClose);
         this.initData(testCase);
-        this.getIssues(testCase.caseId);
       },
       initTest() {
         this.$nextTick(() => {
@@ -445,7 +443,7 @@
         });
       },
       getRelatedTest() {
-        if (this.testCase.method == 'auto' && this.testCase.testId) {
+        if (this.testCase.method == 'auto' && this.testCase.testId && this.testCase.testId != 'other') {
           this.$get('/' + this.testCase.type + '/get/' + this.testCase.testId, response => {
             let data = response.data;
             if (data) {
@@ -455,6 +453,8 @@
               this.$warning(this.$t("test_track.case.relate_test_not_find"));
             }
           });
+        } else if (this.testCase.testId === 'other') {
+          this.$warning(this.$t("test_track.case.other_relate_test_not_find"));
         }
       },
       issuesChange() {
@@ -497,7 +497,10 @@
         this.result = this.$post("/issues/add", param, () => {
           this.$success(this.$t('commons.save_success'));
           this.getIssues(param.testCaseId);
-        })
+        });
+        this.issuesSwitch = false;
+        this.testCase.issues.title = "";
+        this.testCase.issues.content = "";
       },
       getIssues(caseId) {
         this.result = this.$get("/issues/get/" + caseId, response => {

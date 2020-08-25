@@ -9,10 +9,10 @@
                 <span>{{ report.projectName }} / </span>
                 <router-link :to="path">{{ report.testName }}</router-link>
                 <span class="time">{{ report.createTime | timestampFormatDate }}</span>
-                <el-button plain type="primary" size="mini" @click="handleExport(report.name)"
+                <!--<el-button plain type="primary" size="mini" @click="handleExport(report.name)"
                            style="margin-left: 1200px">
                   {{$t('test_track.plan_view.export_report')}}
-                </el-button>
+                </el-button>-->
               </el-col>
             </el-row>
           </header>
@@ -114,9 +114,7 @@
           this.fails = [];
           this.totalTime = 0
           this.content.scenarios.forEach((scenario) => {
-            console.log(scenario.responseTime)
             this.totalTime = this.totalTime + Number(scenario.responseTime)
-            console.log(this.totalTime)
             let failScenario = Object.assign({}, scenario);
             if (scenario.error > 0) {
               this.fails.push(failScenario);

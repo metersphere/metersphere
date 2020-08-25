@@ -1,5 +1,8 @@
 package io.metersphere.service;
 
+import static io.metersphere.commons.constants.ResourceStatusEnum.INVALID;
+import static io.metersphere.commons.constants.ResourceStatusEnum.VALID;
+
 import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.LoadTestMapper;
@@ -7,6 +10,7 @@ import io.metersphere.base.mapper.TestResourceMapper;
 import io.metersphere.base.mapper.TestResourcePoolMapper;
 import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.controller.request.resourcepool.QueryResourcePoolRequest;
 import io.metersphere.dto.NodeDTO;
@@ -21,15 +25,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.metersphere.commons.constants.ResourceStatusEnum.INVALID;
-import static io.metersphere.commons.constants.ResourceStatusEnum.VALID;
+import javax.annotation.Resource;
 
 /**
  * @author dongbin
@@ -241,6 +244,21 @@ public class TestResourcePoolService {
         TestResourcePoolExample example = new TestResourcePoolExample();
         example.createCriteria().andStatusEqualTo(ResourceStatusEnum.VALID.name());
         return testResourcePoolMapper.selectByExample(example);
+    }
+
+    public List<TestResourcePool> listValidQuotaResourcePools() {
+        return filterQuota(listValidResourcePools());
+    }
+
+    private List<TestResourcePool> filterQuota(List<TestResourcePool> list) {
+        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
+        if (quotaService != null) {
+            Set<String> pools = quotaService.getQuotaResourcePools();
+            if (!pools.isEmpty()) {
+                return list.stream().filter(pool -> pools.contains(pool.getId())).collect(Collectors.toList());
+            }
+        }
+        return list;
     }
 
 }

@@ -32,14 +32,18 @@
                 show-overflow-tooltip>
         </el-table-column>
         <el-table-column
-                prop="reporter"
-                :label="$t('test_track.module.current_owner')"
-                show-overflow-tooltip>
+          prop="lastmodify"
+          :label="$t('test_track.module.current_owner')"
+          show-overflow-tooltip>
         </el-table-column>
 
         <el-table-column
-                prop="createTime"
-                :label="$t('test_track.module.creation_time')">
+          prop="createTime"
+          :label="$t('test_track.module.creation_time')"
+          show-overflow-tooltip>
+          <template v-slot:default="scope">
+            <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+          </template>
         </el-table-column>
       </el-table>
     </template>

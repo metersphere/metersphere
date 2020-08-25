@@ -52,7 +52,7 @@
 
 <script>
 import {KeyValue, Scenario} from "../model/ScenarioModel";
-import {MOCKJS_FUNC} from "@/common/js/constants";
+import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
 import MsApiVariableAdvance from "@/business/components/api/test/components/ApiVariableAdvance";
 import MsApiBodyFileUpload from "./body/ApiBodyFileUpload";
 
@@ -127,7 +127,7 @@ export default {
       };
     },
     funcSearch(queryString, cb) {
-      let funcs = MOCKJS_FUNC;
+      let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
       let results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
       // 调用 callback 返回建议列表的数据
       cb(results);

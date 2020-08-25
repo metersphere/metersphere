@@ -20,7 +20,7 @@ create table if not exists issues
 (
 	id varchar(50) not null
 		primary key,
-	title varchar(50) null,
+	title varchar(64) null,
 	description text null,
 	status varchar(50) null,
 	create_time bigint(13) null,
