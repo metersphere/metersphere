@@ -21,9 +21,20 @@
           show-overflow-tooltip>
         </el-table-column>
         <el-table-column
-                prop="description"
-                :label="$t('test_track.module.describe')"
-                show-overflow-tooltip>
+          prop="description"
+          :label="$t('test_track.module.describe')"
+          show-overflow-tooltip>
+          <template v-slot:default="scope">
+            <el-popover
+              placement="left"
+              width="400"
+              trigger="hover"
+            >
+              <ckeditor :editor="editor" disabled :config="readConfig"
+                        v-model="scope.row.description"/>
+              <el-button slot="reference" type="text">{{$t('test_track.issue.preview')}}</el-button>
+            </el-popover>
+          </template>
         </el-table-column>
 
         <el-table-column
@@ -57,6 +68,7 @@
   import TypeTableItem from "../../../../../common/tableItems/planview/TypeTableItem";
   import MethodTableItem from "../../../../../common/tableItems/planview/MethodTableItem";
   import StatusTableItem from "../../../../../common/tableItems/planview/StatusTableItem";
+  import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
     export default {
       name: "DefectListComponent",
       components: {StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem, CommonComponent},
@@ -76,6 +88,13 @@
               },
             ]
           }
+        }
+      },
+      data() {
+        return {
+          editor: ClassicEditor,
+          readConfig: {toolbar: []},
+
         }
       }
     }
