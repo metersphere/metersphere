@@ -603,7 +603,6 @@ export default {
       batch_operate: 'Batch operation',
       please_select_attr: 'Please select attributes',
       please_select_attr_value: 'Please select the value corresponding to the attribute',
-      batch_edit_plan: 'Batch change test plan',
       batch_edit_case: 'Batch editing test cases',
       batch_move_case: 'Batch move',
       batch_delete_case: 'Batch delete',

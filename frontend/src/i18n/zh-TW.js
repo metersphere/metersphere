@@ -603,11 +603,10 @@ export default {
       batch_operate: '批量操作',
       please_select_attr: '請選擇屬性',
       please_select_attr_value: '請選擇屬性對應的值',
-      batch_edit_plan: '批量更改測試計劃',
       batch_edit_case: '批量編輯用例',
       batch_move_case: '批量移動用例',
       batch_delete_case: '批量刪除用例',
-      batch_unlink: '批量取消用例關聯',
+      batch_unlink: '批量取消關聯',
       import: {
         import: "導入用例",
         case_import: "導入測試用例",

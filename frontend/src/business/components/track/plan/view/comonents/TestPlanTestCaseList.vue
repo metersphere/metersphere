@@ -207,7 +207,7 @@
       <test-case-report-view @refresh="initTableData" ref="testCaseReportView"/>
     </el-card>
     <batch-edit ref="batchEdit" @batchEdit="batchEdit"
-                :type-arr="typeArr" :value-arr="valueArr" :dialog-title="$t('test_track.case.batch_edit_plan')"/>
+                :type-arr="typeArr" :value-arr="valueArr" :dialog-title="$t('test_track.case.batch_edit_case')"/>
   </div>
 </template>
 
@@ -293,7 +293,7 @@
         showMore: false,
         buttons: [
           {
-            name: this.$t('test_track.case.batch_edit_plan'), handleClick: this.handleBatchEdit
+            name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit
           },
           {
             name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch

@@ -606,11 +606,10 @@ export default {
       batch_operate: '批量操作',
       please_select_attr: '请选择属性',
       please_select_attr_value: '请选择属性对应的值',
-      batch_edit_plan: '批量更改测试计划',
       batch_edit_case: '批量编辑用例',
       batch_move_case: '批量移动用例',
       batch_delete_case: '批量删除用例',
-      batch_unlink: '批量取消用例关联',
+      batch_unlink: '批量取消关联',
       import: {
         import: "导入用例",
         case_import: "导入测试用例",
