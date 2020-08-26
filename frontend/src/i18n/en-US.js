@@ -377,6 +377,7 @@ export default {
     value: "Value",
     create_performance_test: "Create Performance Test",
     export_config: "Export",
+    enable_validate_tip: "No request available",
     environment: {
       name: "Environment Name",
       socket: "Socket",
@@ -443,6 +444,7 @@ export default {
       timeout_config: "Timeout Config",
       connect_timeout: "Connect Timeout",
       response_timeout: "Response Timeout",
+      body_upload_limit_size: "The file size does not exceed 500 MB",
       assertions: {
         label: "Assertion",
         text: "Text",

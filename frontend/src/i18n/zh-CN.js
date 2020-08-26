@@ -378,6 +378,7 @@ export default {
     value: "值",
     create_performance_test: "创建性能测试",
     export_config: "导出",
+    enable_validate_tip: "没有可用请求",
     environment: {
       name: "环境名称",
       socket: "环境域名",
@@ -444,6 +445,7 @@ export default {
       timeout_config: "超时设置",
       connect_timeout: "连接超时",
       response_timeout: "响应超时",
+      body_upload_limit_size: "上传文件大小不能超过 500 MB!",
       assertions: {
         label: "断言",
         text: "文本",

@@ -84,7 +84,7 @@
       </el-col>
       <el-col :span="14">
         <div class="title">{{ $t('load_test.pressure_prediction_chart') }}</div>
-        <chart class="chart-container" ref="chart1" :options="orgOptions" :autoresize="true"></chart>
+        <ms-chart class="chart-container" ref="chart1" :options="orgOptions" :autoresize="true"></ms-chart>
       </el-col>
     </el-row>
   </div>
@@ -92,6 +92,7 @@
 
 <script>
 import echarts from "echarts";
+import MsChart from "@/business/components/common/chart/MsChart";
 
 const TARGET_LEVEL = "TargetLevel";
 const RAMP_UP = "RampUp";
@@ -102,6 +103,7 @@ const RPS_LIMIT_ENABLE = "rpsLimitEnable";
 
 export default {
   name: "MsPerformancePressureConfig",
+  components: {MsChart},
   props: ['report'],
   data() {
     return {

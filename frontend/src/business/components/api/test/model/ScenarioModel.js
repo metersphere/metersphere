@@ -327,26 +327,28 @@ export class HttpRequest extends Request {
   }
 
   isValid(environmentId) {
-    if (this.useEnvironment) {
-      if (!environmentId) {
-        return {
-          isValid: false,
-          info: 'api_test.request.please_configure_environment_in_scenario'
+    if (this.enable) {
+      if (this.useEnvironment) {
+        if (!environmentId) {
+          return {
+            isValid: false,
+            info: 'api_test.request.please_configure_environment_in_scenario'
+          }
         }
-      }
-    } else {
-      if (!this.url) {
-        return {
-          isValid: false,
-          info: 'api_test.request.input_url'
+      } else {
+        if (!this.url) {
+          return {
+            isValid: false,
+            info: 'api_test.request.input_url'
+          }
         }
-      }
-      try {
-        new URL(this.url)
-      } catch (e) {
-        return {
-          isValid: false,
-          info: 'api_test.request.url_invalid'
+        try {
+          new URL(this.url)
+        } catch (e) {
+          return {
+            isValid: false,
+            info: 'api_test.request.url_invalid'
+          }
         }
       }
     }
@@ -395,28 +397,30 @@ export class DubboRequest extends Request {
   }
 
   isValid() {
-    if (!this.interface) {
-      return {
-        isValid: false,
-        info: 'api_test.request.dubbo.input_interface'
+    if (this.enable) {
+      if (!this.interface) {
+        return {
+          isValid: false,
+          info: 'api_test.request.dubbo.input_interface'
+        }
       }
-    }
-    if (!this.method) {
-      return {
-        isValid: false,
-        info: 'api_test.request.dubbo.input_method'
+      if (!this.method) {
+        return {
+          isValid: false,
+          info: 'api_test.request.dubbo.input_method'
+        }
       }
-    }
-    if (!this.registryCenter.isValid()) {
-      return {
-        isValid: false,
-        info: 'api_test.request.dubbo.input_registry_center'
+      if (!this.registryCenter.isValid()) {
+        return {
+          isValid: false,
+          info: 'api_test.request.dubbo.input_registry_center'
+        }
       }
-    }
-    if (!this.consumerAndService.isValid()) {
-      return {
-        isValid: false,
-        info: 'api_test.request.dubbo.input_consumer_service'
+      if (!this.consumerAndService.isValid()) {
+        return {
+          isValid: false,
+          info: 'api_test.request.dubbo.input_consumer_service'
+        }
       }
     }
     return {

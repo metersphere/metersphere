@@ -18,6 +18,9 @@ import io.metersphere.controller.request.IntegrationRequest;
 import io.metersphere.service.IntegrationService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.track.request.testcase.IssuesRequest;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.safety.Whitelist;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -29,7 +32,9 @@ import org.springframework.util.MultiValueMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-
+import org.commonmark.node.*;
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -229,13 +234,23 @@ public class IssuesService {
             MSException.throwException("未关联Jira 项目Key");
         }
 
+        String content = issuesRequest.getContent();
+
+        Document document = Jsoup.parse(content);
+        document.outputSettings(new Document.OutputSettings().prettyPrint(false));
+        document.select("br").append("\\n");
+        document.select("p").prepend("\\n\\n");
+        String s = document.html().replaceAll("\\\\n", "\n");
+        String desc = Jsoup.clean(s, "", Whitelist.none(), new Document.OutputSettings().prettyPrint(false));
+        desc = desc.replace("&nbsp;", "");
+
         String json = "{\n" +
                 "    \"fields\":{\n" +
                 "        \"project\":{\n" +
                 "            \"key\":\"" + jiraKey + "\"\n" +
                 "        },\n" +
                 "        \"summary\":\"" + issuesRequest.getTitle() + "\",\n" +
-                "        \"description\": " + JSON.toJSONString(issuesRequest.getContent()) + ",\n" +
+                "        \"description\": " + JSON.toJSONString(desc) + ",\n" +
                 "        \"issuetype\":{\n" +
                 "            \"id\":\"10009\",\n" +
                 "            \"name\":\"Defect\"\n" +
@@ -336,6 +351,12 @@ public class IssuesService {
             String id = obj.getString("id");
             String title = fields.getString("summary");
             String description = fields.getString("description");
+
+            Parser parser = Parser.builder().build();
+            Node document = parser.parse(description);
+            HtmlRenderer renderer = HtmlRenderer.builder().build();
+            description = renderer.render(document);
+
             String status = statusCategory.getString("key");
             Long createTime = fields.getLong("created");
             String lastmodify = "";
