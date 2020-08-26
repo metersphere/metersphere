@@ -67,7 +67,11 @@ export default {
     {
       path: 'apikeys',
       component: () => import(/* webpackChunkName: "setting" */ '@/business/components/settings/personal/ApiKeys'),
-      meta: {person: true, title: 'commons.api_keys'}
+      meta: {
+        person: true,
+        title: 'commons.api_keys',
+        roles: ['test_manager', 'test_user', 'test_viewer', 'org_admin', 'admin']
+      }
     },
 
   ]
