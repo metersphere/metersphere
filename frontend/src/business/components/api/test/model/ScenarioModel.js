@@ -227,10 +227,12 @@ export class Scenario extends BaseConfig {
   }
 
   isValid() {
-    for (let i = 0; i < this.requests.length; i++) {
-      let validator = this.requests[i].isValid(this.environmentId);
-      if (!validator.isValid) {
-        return validator;
+    if (this.enable) {
+      for (let i = 0; i < this.requests.length; i++) {
+        let validator = this.requests[i].isValid(this.environmentId);
+        if (!validator.isValid) {
+          return validator;
+        }
       }
     }
     return {isValid: true};
