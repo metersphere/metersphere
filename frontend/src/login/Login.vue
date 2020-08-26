@@ -95,7 +95,7 @@
           }
         } else {
           let user = response.data.data;
-          saveLocalStorage(user);
+          saveLocalStorage(response.data);
           this.getLanguage(user.language);
           window.location.href = "/"
         }
