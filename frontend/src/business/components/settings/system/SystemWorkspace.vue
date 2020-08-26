@@ -12,9 +12,9 @@
         <el-table-column prop="organizationName" :label="$t('workspace.organization_name')"/>
         <el-table-column :label="$t('commons.member')">
           <template v-slot:default="scope">
-            <el-button type="text" class="member-size" @click="cellClick(scope.row)">
+            <el-link type="primary" class="member-size" @click="cellClick(scope.row)">
               {{scope.row.memberSize}}
-            </el-button>
+            </el-link>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
@@ -200,12 +200,11 @@
   import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
   import {
-    getCurrentOrganizationId,
     getCurrentUser,
     getCurrentWorkspaceId, listenGoBack,
     refreshSessionAndCookies, removeGoBackListener
-  } from "../../../../common/js/utils";
-  import {DEFAULT, WORKSPACE} from "../../../../common/js/constants";
+  } from "@/common/js/utils";
+  import {DEFAULT, WORKSPACE} from "@/common/js/constants";
   import MsDeleteConfirm from "../../common/components/MsDeleteConfirm";
 
   export default {
@@ -537,7 +536,7 @@
   }
 
   .dialog-css >>> .el-dialog__header {
-    padding: 0px;
+    padding: 0;
   }
 
 </style>
