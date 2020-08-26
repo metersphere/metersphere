@@ -11,37 +11,37 @@
         <el-table-column
           prop="moduleName"
           :label="$t('test_track.module.module')"
-          width="102">
+         >
         </el-table-column>
         <el-table-column
           prop="caseCount"
           :label="$t('test_track.plan_view.case_count')"
-          width="102">
+        >
         </el-table-column>
         <el-table-column
           prop="passCount"
           :label="$t('test_track.plan_view.pass')"
-          width="102">
+        >
         </el-table-column>
         <el-table-column
           prop="failureCount"
           :label="$t('test_track.plan_view.failure')"
-          width="102">
+        >
         </el-table-column>
         <el-table-column
           prop="blockingCount"
           :label="$t('test_track.plan_view.blocking')"
-          width="102">
+        >
         </el-table-column>
         <el-table-column
           prop="skipCount"
           :label="$t('test_track.plan_view.skip')"
-          width="102">
+        >
         </el-table-column>
         <el-table-column
           prop="underwayCount"
           :label="$t('test_track.plan.plan_status_running')"
-          width="102">
+        >
         </el-table-column>
         <el-table-column
           prop="prepareCount"
@@ -51,7 +51,7 @@
         <el-table-column
           prop="passRate"
           :label="$t('test_track.pass_rate')"
-          width="102">
+        >
           <template v-slot:default="scope">
             {{scope.row.passRate}}%
           </template>
@@ -59,7 +59,7 @@
         <el-table-column
           prop="issuesCount"
           :label="$t('test_track.plan_view.issues_count')"
-          width="102">
+        >
         </el-table-column>
       </el-table>
     </template>
