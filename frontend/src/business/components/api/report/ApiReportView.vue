@@ -1,6 +1,6 @@
 <template>
-  <div class="container" v-loading="loading" :element-loading-text="$t('api_report.running')">
-    <div class="main-content">
+  <ms-container v-loading="loading" :element-loading-text="$t('api_report.running')">
+    <ms-main-container>
       <el-card>
         <section class="report-container" v-if="this.report.testId">
           <header class="report-header">
@@ -39,159 +39,161 @@
           </main>
         </section>
       </el-card>
-    </div>
-  </div>
+    </ms-main-container>
+  </ms-container>
 </template>
 
 <script>
 
-  import MsRequestResult from "./components/RequestResult";
-  import MsRequestResultTail from "./components/RequestResultTail";
-  import MsScenarioResult from "./components/ScenarioResult";
-  import MsMetricChart from "./components/MetricChart";
-  import MsScenarioResults from "./components/ScenarioResults";
-  import {Scenario} from "../test/model/ScenarioModel";
-  import writer from "file-writer";
-  import ResumeCss from "../../../../common/css/main.css";
+import MsRequestResult from "./components/RequestResult";
+import MsRequestResultTail from "./components/RequestResultTail";
+import MsScenarioResult from "./components/ScenarioResult";
+import MsMetricChart from "./components/MetricChart";
+import MsScenarioResults from "./components/ScenarioResults";
+import MsContainer from "@/business/components/common/components/MsContainer";
+import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 
-  export default {
-    name: "MsApiReportView",
-    components: {MsScenarioResults, MsRequestResultTail, MsMetricChart, MsScenarioResult, MsRequestResult},
-    data() {
-      return {
-        activeName: "total",
-        content: {},
-        report: {},
-        loading: true,
-        fails: [],
-        totalTime: 0,
-        isRequestResult: false,
-        request: {},
-        scenarioName: null,
-      }
+export default {
+  name: "MsApiReportView",
+  components: {
+    MsMainContainer,
+    MsContainer, MsScenarioResults, MsRequestResultTail, MsMetricChart, MsScenarioResult, MsRequestResult
+  },
+  data() {
+    return {
+      activeName: "total",
+      content: {},
+      report: {},
+      loading: true,
+      fails: [],
+      totalTime: 0,
+      isRequestResult: false,
+      request: {},
+      scenarioName: null,
+    }
+  },
+  activated() {
+    this.isRequestResult = false
+  },
+  methods: {
+    init() {
+      this.loading = true;
+      this.report = {};
+      this.content = {};
+      this.fails = [];
     },
-    activated() {
+    handleClick(tab, event) {
       this.isRequestResult = false
     },
-    methods: {
-      init() {
-        this.loading = true;
-        this.report = {};
-        this.content = {};
-        this.fails = [];
-      },
-      handleClick(tab, event) {
-        this.isRequestResult = false
-      },
-      getReport() {
-        this.init();
-        if (this.reportId) {
-          let url = "/api/report/get/" + this.reportId;
-          this.$get(url, response => {
-            this.report = response.data || {};
-            if (response.data) {
-              if (this.isNotRunning) {
-                try {
-                  this.content = JSON.parse(this.report.content);
-                } catch (e) {
-                  console.log(this.report.content)
-                  throw e;
-                }
-                this.getFails();
-                this.loading = false;
-              } else {
-                setTimeout(this.getReport, 2000)
+    getReport() {
+      this.init();
+      if (this.reportId) {
+        let url = "/api/report/get/" + this.reportId;
+        this.$get(url, response => {
+          this.report = response.data || {};
+          if (response.data) {
+            if (this.isNotRunning) {
+              try {
+                this.content = JSON.parse(this.report.content);
+              } catch (e) {
+                console.log(this.report.content)
+                throw e;
               }
-            } else {
+              this.getFails();
               this.loading = false;
-              this.$error(this.$t('api_report.not_exist'));
+            } else {
+              setTimeout(this.getReport, 2000)
             }
-          });
-        }
-      },
-      getFails() {
-        if (this.isNotRunning) {
-          this.fails = [];
-          this.totalTime = 0
-          this.content.scenarios.forEach((scenario) => {
-            this.totalTime = this.totalTime + Number(scenario.responseTime)
-            let failScenario = Object.assign({}, scenario);
-            if (scenario.error > 0) {
-              this.fails.push(failScenario);
-              failScenario.requestResults = [];
-              scenario.requestResults.forEach((request) => {
-                if (!request.success) {
-                  let failRequest = Object.assign({}, request);
-                  failScenario.requestResults.push(failRequest);
-                }
-              })
-
-            }
-          })
-        }
-      },
-      requestResult(requestResult) {
-        this.isRequestResult = false;
-        this.$nextTick(function () {
-          this.isRequestResult = true;
-          this.request = requestResult.request;
-          this.scenarioName = requestResult.scenarioName;
+          } else {
+            this.loading = false;
+            this.$error(this.$t('api_report.not_exist'));
+          }
         });
       }
     },
+    getFails() {
+      if (this.isNotRunning) {
+        this.fails = [];
+        this.totalTime = 0
+        this.content.scenarios.forEach((scenario) => {
+          this.totalTime = this.totalTime + Number(scenario.responseTime)
+          let failScenario = Object.assign({}, scenario);
+          if (scenario.error > 0) {
+            this.fails.push(failScenario);
+            failScenario.requestResults = [];
+            scenario.requestResults.forEach((request) => {
+              if (!request.success) {
+                let failRequest = Object.assign({}, request);
+                failScenario.requestResults.push(failRequest);
+              }
+            })
 
-    watch: {
-      '$route': 'getReport',
-    },
-
-    created() {
-      this.getReport();
-    },
-
-    computed: {
-      reportId: function () {
-        return this.$route.params.reportId;
-      },
-      path() {
-        return "/api/test/edit?id=" + this.report.testId;
-      },
-      isNotRunning() {
-        return "Running" !== this.report.status;
+          }
+        })
       }
+    },
+    requestResult(requestResult) {
+      this.isRequestResult = false;
+      this.$nextTick(function () {
+        this.isRequestResult = true;
+        this.request = requestResult.request;
+        this.scenarioName = requestResult.scenarioName;
+      });
+    }
+  },
+
+  watch: {
+    '$route': 'getReport',
+  },
+
+  created() {
+    this.getReport();
+  },
+
+  computed: {
+    reportId: function () {
+      return this.$route.params.reportId;
+    },
+    path() {
+      return "/api/test/edit?id=" + this.report.testId;
+    },
+    isNotRunning() {
+      return "Running" !== this.report.status;
     }
   }
+}
 </script>
 <style>
-  .report-container .el-tabs__header {
-    margin-bottom: 1px;
-  }
+.report-container .el-tabs__header {
+  margin-bottom: 1px;
+}
 </style>
 
 <style scoped>
-  .report-container {
-    height: calc(100vh - 150px);
-    min-height: 600px;
-    overflow-y: auto;
-  }
+.report-container {
+  height: calc(100vh - 150px);
+  min-height: 600px;
+  overflow-y: auto;
+}
 
-  .report-header {
-    font-size: 15px;
-  }
+.report-header {
+  font-size: 15px;
+}
 
-  .report-header a {
-    text-decoration: none;
-  }
+.report-header a {
+  text-decoration: none;
+}
 
-  .report-header .time {
-    color: #909399;
-    margin-left: 10px;
-  }
+.report-header .time {
+  color: #909399;
+  margin-left: 10px;
+}
 
-  .report-container .fail {
-    color: #F56C6C;
-  }
+.report-container .fail {
+  color: #F56C6C;
+}
 
-  .report-container .is-active .fail {
-    color: inherit;
-  }
+.report-container .is-active .fail {
+  color: inherit;
+}
 </style>
