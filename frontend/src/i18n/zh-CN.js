@@ -444,6 +444,7 @@ export default {
       timeout_config: "超时设置",
       connect_timeout: "连接超时",
       response_timeout: "响应超时",
+      body_upload_limit_size: "上传文件大小不能超过 500 MB!",
       assertions: {
         label: "断言",
         text: "文本",

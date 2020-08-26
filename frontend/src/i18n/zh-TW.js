@@ -443,6 +443,7 @@ export default {
       timeout_config: "超時設置",
       connect_timeout: "連接超時",
       response_timeout: "響應超時",
+      body_upload_limit_size: "上傳文件大小不能超過 500 MB!",
       assertions: {
         label: "斷言",
         text: "文字",
