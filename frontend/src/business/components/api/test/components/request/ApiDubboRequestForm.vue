@@ -11,7 +11,7 @@
       </el-select>
     </el-form-item>
 
-    <el-button :disabled="!request.enable || !scenario.enable || isReadOnly" class="debug-button" size="small" type="primary" @click="runDebug">{{$t('load_test.save_and_run')}}</el-button>
+    <el-button :disabled="!request.enable || !scenario.enable || isReadOnly" class="debug-button" size="small" type="primary" @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
 
     <el-tabs v-model="activeName">
       <el-tab-pane label="Interface" name="interface">

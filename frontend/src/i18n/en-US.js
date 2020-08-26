@@ -406,6 +406,7 @@ export default {
       enable: "Enable"
     },
     request: {
+      debug: "Debug",
       copy: "Copy request",
       delete: "Delete request",
       input_name: "Please enter the request name",

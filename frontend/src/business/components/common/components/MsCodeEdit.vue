@@ -72,8 +72,8 @@
         format() {
           if (this.mode === 'json') {
             try {
-              var JSONbigString = require('json-bigint')({"storeAsString": true});
-              this.formatData = JSON.stringify(JSONbigString.parse(this.data), null, '\t');
+              var JSONbig = require('json-bigint')({"storeAsString": false});
+              this.formatData = JSON.stringify(JSONbig.parse(this.data), null, '\t');
             } catch (e) {
               if (this.data) {
                 this.formatData = this.data;

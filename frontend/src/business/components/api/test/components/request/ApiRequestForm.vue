@@ -1,6 +1,7 @@
 <template>
   <div class="request-form">
     <component @runDebug="runDebug" :is="component" :is-read-only="isReadOnly" :request="request" :scenario="scenario"/>
+    <el-divider v-if="isCompleted"></el-divider>
     <ms-request-result-tail v-loading="debugReportLoading" v-if="isCompleted" :request="request.debugRequestResult ? request.debugRequestResult : {responseResult: {}, subRequestResults: []}"
                             :scenario-name="request.debugScenario ? request.debugScenario.name : ''" ref="msDebugResult"/>
   </div>

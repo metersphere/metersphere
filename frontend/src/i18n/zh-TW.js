@@ -405,6 +405,7 @@ export default {
       enable: "啟用"
     },
     request: {
+      debug: "調試",
       copy: "複製請求",
       delete: "删除請求",
       input_name: "請輸入請求名稱",

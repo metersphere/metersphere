@@ -406,6 +406,7 @@ export default {
       enable: "启用"
     },
     request: {
+      debug: "调试",
       copy: "复制请求",
       delete: "删除请求",
       input_name: "请输入请求名称",
