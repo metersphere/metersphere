@@ -91,8 +91,8 @@ public class APITestController {
     }
 
     @PostMapping(value = "/run/debug", consumes = {"multipart/form-data"})
-    public String runDebug(@RequestPart("request")  SaveAPITestRequest request,  @RequestPart(value = "file") MultipartFile file) {
-        return apiTestService.runDebug(request, file);
+    public String runDebug(@RequestPart("request")  SaveAPITestRequest request,  @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
+        return apiTestService.runDebug(request, file, bodyFiles);
     }
 
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})

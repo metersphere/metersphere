@@ -395,12 +395,15 @@ public class APITestService {
         return schedules;
     }
 
-    public String runDebug(SaveAPITestRequest request, MultipartFile file) {
+    public String runDebug(SaveAPITestRequest request, MultipartFile file, List<MultipartFile> bodyFiles) {
         if (file == null) {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
         }
         updateTest(request);
         APITestResult apiTest = get(request.getId());
+        List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds()) ;
+        request.setBodyUploadIds(null);
+        createBodyFiles(apiTest, bodyUploadIds, bodyFiles);
         if (SessionUtils.getUser() == null) {
             apiTest.setUserId(request.getUserId());
         }

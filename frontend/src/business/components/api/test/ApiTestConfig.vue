@@ -303,6 +303,7 @@ export default {
       let url = "/api/run/debug";
       let runningTest = new Test();
       Object.assign(runningTest, this.test);
+      let bodyFiles = this.getBodyUploadFiles();
       runningTest.scenarioDefinition = [];
       runningTest.scenarioDefinition.push(scenario);
       let validator = runningTest.isValid();
@@ -314,8 +315,9 @@ export default {
       let jmx = runningTest.toJMX();
       let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
       let file = new File([blob], jmx.name);
-      this.$fileUpload(url, file, null, this.test, response => {
+      this.$fileUpload(url, file, bodyFiles, this.test, response => {
         this.debugReportId = response.data;
+        this.resetBodyFile();
       });
     }
   },
