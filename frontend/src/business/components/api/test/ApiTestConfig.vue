@@ -1,6 +1,6 @@
 <template>
-  <div class="container">
-    <div class="main-content">
+  <ms-container>
+    <ms-main-container>
       <el-card>
         <el-container class="test-container" v-loading="result.loading">
           <el-header>
@@ -60,8 +60,8 @@
                                   :scenarios="test.scenarioDefinition" :project-id="test.projectId" ref="config"/>
         </el-container>
       </el-card>
-    </div>
-  </div>
+    </ms-main-container>
+  </ms-container>
 </template>
 
 <script>
@@ -74,11 +74,16 @@ import MsScheduleConfig from "../../common/components/MsScheduleConfig";
 import ApiImport from "./components/import/ApiImport";
 import {getUUID} from "../../../../common/js/utils";
 import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
+import MsContainer from "@/business/components/common/components/MsContainer";
+import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 
 export default {
   name: "MsApiTestConfig",
 
-  components: {ApiImport, MsScheduleConfig, MsApiReportDialog, MsApiReportStatus, MsApiScenarioConfig},
+  components: {
+    MsMainContainer,
+    MsContainer, ApiImport, MsScheduleConfig, MsApiReportDialog, MsApiReportStatus, MsApiScenarioConfig
+  },
 
   props: ["id"],
 
