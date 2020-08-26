@@ -51,6 +51,9 @@
         <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
                              :total="total"/>
       </el-card>
+
+      <api-copy-dialog ref="apiCopy" @refresh="search"/>
+
     </ms-main-container>
   </ms-container>
 </template>
@@ -67,9 +70,11 @@ import MsTableOperators from "../../common/components/MsTableOperators";
 import {_filter, _sort} from "@/common/js/utils";
 import {TEST_CONFIGS} from "../../common/components/search/search-components";
 import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
+import ApiCopyDialog from "./components/ApiCopyDialog";
 
 export default {
   components: {
+    ApiCopyDialog,
     OneClickOperation,
     MsTableOperators,
     MsApiTestStatus, MsMainContainer, MsContainer, MsTableHeader, MsTablePagination, MsTableOperator
@@ -192,10 +197,7 @@ export default {
       });
     },
     handleCopy(test) {
-      this.result = this.$post("/api/copy", {projectId: test.projectId, id: test.id, name: test.name}, () => {
-        this.$success(this.$t('commons.copy_success'));
-        this.search();
-      });
+      this.$refs.apiCopy.open(test);
     },
     init() {
       this.projectId = this.$route.params.projectId;

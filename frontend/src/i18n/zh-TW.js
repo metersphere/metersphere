@@ -377,6 +377,7 @@ export default {
     create_performance_test: "創建性能測試",
     export_config: "匯出",
     enable_validate_tip: "沒有可用請求",
+    copy: "復制測試",
     environment: {
       name: "環境名稱",
       socket: "環境域名",

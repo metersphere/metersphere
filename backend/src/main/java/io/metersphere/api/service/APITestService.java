@@ -133,12 +133,7 @@ public class APITestService {
 
     public void copy(SaveAPITestRequest request) {
         checkQuota();
-        request.setName(request.getName() + " Copy");
-        try {
-            checkNameExist(request);
-        } catch (Exception e) {
-            request.setName(request.getName() + " " + new Random().nextInt(1000));
-        }
+        checkNameExist(request);
 
         // copy test
         ApiTest copy = get(request.getId());
