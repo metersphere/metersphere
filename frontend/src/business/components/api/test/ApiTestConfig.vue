@@ -157,6 +157,10 @@ export default {
         this.$warning(this.$t(validator.info));
         return;
       }
+      if (!this.validateEnableTest()) {
+        this.$warning(this.$t('api_test.enable_validate_tip'));
+        return;
+      }
       this.change = false;
       let bodyFiles = this.getBodyUploadFiles();
       let url = this.create ? "/api/create" : "/api/update";
@@ -214,7 +218,6 @@ export default {
                     item.id = fileId;
                     this.test.bodyUploadIds.push(fileId);
                     bodyUploadFiles.push(item.file);
-                    // item.file = undefined;
                   }
                 });
               }
@@ -223,6 +226,18 @@ export default {
         });
       });
       return bodyUploadFiles;
+    },
+    validateEnableTest() {
+      for (let scenario of this.test.scenarioDefinition) {
+        if (scenario.enable) {
+          for (let request of scenario.requests) {
+            if (request.enable) {
+              return true;
+            }
+          }
+        }
+      }
+      return false;
     },
     resetBodyFile() {
       //下次保存不再上传已传文件
