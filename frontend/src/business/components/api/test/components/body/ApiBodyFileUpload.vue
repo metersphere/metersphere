@@ -57,10 +57,10 @@
           this.parameter.files.push(file);
         },
         uploadValidate(file) {
-          // if (file.size / 1024 / 1024 > 20) {
-          //   this.$warning(this.$t('test_track.case.import.upload_limit_size'));
-          //   return false;
-          // }
+          if (file.size / 1024 / 1024 > 500) {
+            this.$warning(this.$t('api_test.request.body_upload_limit_size'));
+            return false;
+          }
           return true;
         },
       },
