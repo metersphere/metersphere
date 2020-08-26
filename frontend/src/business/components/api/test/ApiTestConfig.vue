@@ -157,10 +157,6 @@ export default {
         this.$warning(this.$t(validator.info));
         return;
       }
-      if (!this.validateEnableTest()) {
-        this.$warning(this.$t('api_test.enable_validate_tip'));
-        return;
-      }
       this.change = false;
       let bodyFiles = this.getBodyUploadFiles();
       let url = this.create ? "/api/create" : "/api/update";
@@ -195,7 +191,10 @@ export default {
     },
     saveRunTest() {
       this.change = false;
-
+      if (!this.validateEnableTest()) {
+        this.$warning(this.$t('api_test.enable_validate_tip'));
+        return;
+      }
       this.save(() => {
         this.$success(this.$t('commons.save_success'));
         this.runTest();
