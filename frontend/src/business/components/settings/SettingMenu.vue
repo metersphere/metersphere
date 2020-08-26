@@ -35,7 +35,8 @@
         <font-awesome-icon class="icon" :icon="['far', 'user']" size="lg"/>
         <span>{{ $t('commons.personal_info') }}</span>
       </template>
-      <el-menu-item v-for="menu in persons" :key="menu.index" :index="menu.index" class="setting-item">
+      <el-menu-item v-for="menu in persons" :key="menu.index" :index="menu.index" class="setting-item"
+                    v-permission="menu.roles">
         {{ $t(menu.title) }}
       </el-menu-item>
     </el-submenu>
@@ -56,6 +57,7 @@ export default {
         if (child.meta[group] === true) {
           let menu = {index: Setting.path + "/" + child.path}
           menu.title = child.meta.title;
+          menu.roles = child.meta.roles;
           menus.push(menu);
         }
       })
