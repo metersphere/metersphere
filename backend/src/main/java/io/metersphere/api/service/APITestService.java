@@ -133,7 +133,12 @@ public class APITestService {
 
     public void copy(SaveAPITestRequest request) {
         checkQuota();
-        checkNameExist(request);
+
+        ApiTestExample example = new ApiTestExample();
+        example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId());
+        if (apiTestMapper.countByExample(example) > 0) {
+            MSException.throwException(Translator.get("load_test_already_exists"));
+        }
 
         // copy test
         ApiTest copy = get(request.getId());
