@@ -377,6 +377,7 @@ export default {
     value: "Value",
     create_performance_test: "Create Performance Test",
     export_config: "Export",
+    enable_validate_tip: "No request available",
     environment: {
       name: "Environment Name",
       socket: "Socket",
