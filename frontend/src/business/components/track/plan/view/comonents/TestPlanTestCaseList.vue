@@ -15,13 +15,13 @@
             <ms-table-button :is-tester-permission="true" icon="el-icon-connection"
                              :content="$t('test_track.plan_view.relevance_test_case')"
                              @click="$emit('openTestCaseRelevanceDialog')"/>
-            <ms-table-button :is-tester-permission="true" icon="el-icon-unlock"
-                             :content="$t('test_track.plan_view.cancel_relevance')" @click="handleBatch('delete')"/>
-            <ms-table-button :is-tester-permission="true" icon="el-icon-edit-outline"
-                             :content="$t('test_track.plan_view.change_execution_results')"
-                             @click="handleBatch('status')"/>
-            <ms-table-button :is-tester-permission="true" icon="el-icon-user"
-                             :content="$t('test_track.plan_view.change_executor')" @click="handleBatch('executor')"/>
+<!--            <ms-table-button :is-tester-permission="true" icon="el-icon-unlock"-->
+<!--                             :content="$t('test_track.plan_view.cancel_relevance')" @click="handleBatch('delete')"/>-->
+<!--            <ms-table-button :is-tester-permission="true" icon="el-icon-edit-outline"-->
+<!--                             :content="$t('test_track.plan_view.change_execution_results')"-->
+<!--                             @click="handleBatch('status')"/>-->
+<!--            <ms-table-button :is-tester-permission="true" icon="el-icon-user"-->
+<!--                             :content="$t('test_track.plan_view.change_executor')" @click="handleBatch('executor')"/>-->
             <ms-table-button :is-tester-permission="true" v-if="!testPlan.reportId" icon="el-icon-document"
                              :content="$t('test_track.plan_view.create_report')" @click="openTestReport"/>
             <ms-table-button :is-tester-permission="true" v-if="testPlan.reportId" icon="el-icon-document"
