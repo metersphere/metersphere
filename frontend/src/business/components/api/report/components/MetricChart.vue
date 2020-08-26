@@ -106,7 +106,8 @@ export default {
           formatter: '{b}: {c} ({d}%)'
         },
         title: [{
-          text: '{value|' + this.content.total + '}\n{name|' + this.$t('api_report.request') + '}',
+          text: this.content.total,
+          subtext: this.$t('api_report.request'),
           top: 'center',
           left: 'center',
           textStyle: {
