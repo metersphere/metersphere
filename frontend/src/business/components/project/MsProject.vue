@@ -87,7 +87,7 @@ import MsTablePagination from "../common/pagination/TablePagination";
 import MsTableHeader from "../common/components/MsTableHeader";
 import MsTableOperator from "../common/components/MsTableOperator";
 import MsDialogFooter from "../common/components/MsDialogFooter";
-import {_sort, getCurrentUser, listenGoBack, removeGoBackListener} from "../../../common/js/utils";
+import {_sort, getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import MsContainer from "../common/components/MsContainer";
 import MsMainContainer from "../common/components/MsMainContainer";
 import MsDeleteConfirm from "../common/components/MsDeleteConfirm";
