@@ -59,28 +59,31 @@
 
     <el-row>
       <el-col :span="12">
-        <chart ref="chart1" :options="loadOption" class="chart-config" :autoresize="true"></chart>
+        <ms-chart ref="chart1" :options="loadOption" class="chart-config" :autoresize="true"></ms-chart>
       </el-col>
       <el-col :span="12">
-        <chart ref="chart2" :options="resOption" class="chart-config" :autoresize="true"></chart>
+        <ms-chart ref="chart2" :options="resOption" class="chart-config" :autoresize="true"></ms-chart>
       </el-col>
     </el-row>
   </div>
 </template>
 
 <script>
-  export default {
-    name: "TestOverview",
-    data() {
-      return {
-        maxUsers: "0",
-        avgThroughput: "0",
-        errors: "0",
-        avgResponseTime: "0",
-        responseTime90: "0",
-        avgBandwidth: "0",
-        loadOption: {},
-        resOption: {},
+import MsChart from "@/business/components/common/chart/MsChart";
+
+export default {
+  name: "TestOverview",
+  components: {MsChart},
+  data() {
+    return {
+      maxUsers: "0",
+      avgThroughput: "0",
+      errors: "0",
+      avgResponseTime: "0",
+      responseTime90: "0",
+      avgBandwidth: "0",
+      loadOption: {},
+      resOption: {},
         id: ''
       }
     },
