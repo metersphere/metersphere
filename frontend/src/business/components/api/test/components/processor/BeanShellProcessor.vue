@@ -72,6 +72,9 @@
       },
       methods: {
         addTemplate(template) {
+          if (!this.beanShellProcessor.script) {
+            this.beanShellProcessor.script = "";
+          }
           this.beanShellProcessor.script += template.value;
           this.reload();
         },
