@@ -44,7 +44,7 @@ public class HttpRequest implements Request {
     @JSONField(ordinal = 13)
     private Boolean enable;
     @JSONField(ordinal = 14)
-    private Integer connectTimeout;
+    private Long connectTimeout;
     @JSONField(ordinal = 15)
-    private Integer responseTimeout;
+    private Long responseTimeout;
 }
