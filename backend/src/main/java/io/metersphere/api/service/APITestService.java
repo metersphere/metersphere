@@ -119,13 +119,15 @@ public class APITestService {
                 out = new FileOutputStream(file);
                 FileUtil.copyStream(in, out);
             } catch (IOException e) {
-                e.printStackTrace();
+                LogUtil.error(e);
+                MSException.throwException(Translator.get("upload_fail"));
             } finally {
                 try {
                     in.close();
                     out.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LogUtil.error(e);
+                    MSException.throwException(Translator.get("upload_fail"));
                 }
             }
         }
@@ -168,7 +170,8 @@ public class APITestService {
             try {
                 FileUtil.copyDir(sourceFile, new File(targetDir));
             } catch (IOException e) {
-                e.printStackTrace();
+                LogUtil.error(e);
+                MSException.throwException(Translator.get("upload_fail"));
             }
         }
     }
