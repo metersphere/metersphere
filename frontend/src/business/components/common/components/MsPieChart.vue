@@ -32,7 +32,7 @@ export default {
           },
           tooltip: {
             trigger: 'item',
-            formatter: '{a} <br/>{b} : {c} ({d}%)'
+            formatter: '{a} <br/>({d}%)'
           },
           legend: {
             orient: 'vertical',
@@ -46,7 +46,15 @@ export default {
               radius: ['40%', '70%'],
               // roseType: 'angle',
               data: this.data,
-              animation: false
+              animation: false,
+              label: {
+                normal: {
+                  show: true,
+                  position: 'outside',
+                  formatter: '{b}:{c}'
+
+                }
+              }
             }
           ]
         },
