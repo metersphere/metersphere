@@ -75,12 +75,16 @@
       checkedSaveAndRunTest() {
         if (this.selectNames.has(this.ruleForm.testName)) {
           this.selectIds.clear()
+          this.selectProjectNames.clear()
+          this.selectNames.clear()
           this.$warning(this.$t('load_test.already_exists'));
           this.oneClickOperationVisible = false;
           this.$emit('refresh')
         } else {
           if (this.selectProjectNames.size > 1) {
             this.selectIds.clear()
+            this.selectProjectNames.clear()
+            this.selectNames.clear()
             this.$warning(this.$t('load_test.same_project_test'));
             this.oneClickOperationVisible = false;
             this.$emit('refresh')
