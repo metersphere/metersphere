@@ -128,23 +128,25 @@ export default {
     },
 
     handleSelectAll(selection) {
+      this.selectIds.clear()
+      this.selectProjectNames.clear()
+      this.selectNames.clear()
       if (selection.length > 0) {
-        this.tableData.forEach(item => {
-          this.selectIds.add(item.id);
-          this.selectProjectNames.add(item.projectName)
-        });
-      } else {
-        this.selectIds.clear()
-        this.selectProjectNames.clear()
+        selection.forEach(s => {
+          this.selectIds.add(s.id)
+          this.selectProjectNames.add(s.projectName)
+        })
       }
     },
-    selectionChange(selection, row) {
-      if (this.selectIds.has(row.id)) {
-        this.selectIds.delete(row.id);
-        this.selectProjectNames.delete(row.projectName)
-      } else {
-        this.selectIds.add(row.id);
-        this.selectProjectNames.add(row.projectName)
+    selectionChange(selection) {
+      this.selectIds.clear()
+      this.selectProjectNames.clear()
+      this.selectNames.clear()
+      if (selection.length > 0) {
+        selection.forEach(s => {
+          this.selectIds.add(s.id)
+          this.selectProjectNames.add(s.projectName)
+        })
       }
     },
     runTest() {
@@ -200,6 +202,9 @@ export default {
       this.$refs.apiCopy.open(test);
     },
     init() {
+      this.selectIds.clear()
+      this.selectProjectNames.clear()
+      this.selectNames.clear()
       this.projectId = this.$route.params.projectId;
       if (this.projectId && this.projectId !== "all") {
         this.$store.commit('setProjectId', this.projectId);
