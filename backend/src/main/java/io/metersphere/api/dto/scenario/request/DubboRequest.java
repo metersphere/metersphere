@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.assertions.Assertions;
 import io.metersphere.api.dto.scenario.extract.Extract;
+import io.metersphere.api.dto.scenario.processor.BeanShellPostProcessor;
+import io.metersphere.api.dto.scenario.processor.BeanShellPreProcessor;
 import io.metersphere.api.dto.scenario.request.dubbo.ConfigCenter;
 import io.metersphere.api.dto.scenario.request.dubbo.ConsumerAndService;
 import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
@@ -43,4 +45,10 @@ public class DubboRequest implements Request {
     private Assertions assertions;
     @JSONField(ordinal = 11)
     private Extract extract;
+    @JSONField(ordinal = 12)
+    private BeanShellPreProcessor beanShellPreProcessor;
+    @JSONField(ordinal = 13)
+    private BeanShellPostProcessor beanShellPostProcessor;
+    @JSONField(ordinal = 14)
+    private Boolean enable;
 }

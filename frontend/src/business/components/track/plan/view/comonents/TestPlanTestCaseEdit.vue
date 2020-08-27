@@ -128,17 +128,30 @@
 
                   <el-table-column :label="$t('test_track.case.step_desc')" prop="desc" min-width="21%">
                     <template v-slot:default="scope">
-                      <pre>{{scope.row.desc}}</pre>
+                      <el-input
+                        size="mini"
+                        class="border-hidden"
+                        type="textarea"
+                        :autosize="{ minRows: 1, maxRows: 4}"
+                        :disabled="true"
+                        v-model="scope.row.desc"/>
                     </template>
                   </el-table-column>
                   <el-table-column :label="$t('test_track.case.expected_results')" prop="result" min-width="21%">
                     <template v-slot:default="scope">
-                      <pre>{{scope.row.result}}</pre>
+                      <el-input
+                        size="mini"
+                        class="border-hidden"
+                        type="textarea"
+                        :autosize="{ minRows: 1, maxRows: 4}"
+                        :disabled="true"
+                        v-model="scope.row.result"/>
                     </template>
                   </el-table-column>
                   <el-table-column :label="$t('test_track.plan_view.actual_result')" min-width="21%">
                     <template v-slot:default="scope">
                       <el-input
+                        class="table-edit-input"
                         size="mini"
                         type="textarea"
                         :autosize="{ minRows: 2, maxRows: 4}"
@@ -146,8 +159,7 @@
                         :disabled="isReadOnly"
                         v-model="scope.row.actualResult"
                         :placeholder="$t('commons.input_content')"
-                        clearable></el-input>
-                      <pre>{{scope.row.actualResult}}</pre>
+                        clearable/>
                     </template>
                   </el-table-column>
                   <el-table-column :label="$t('test_track.plan_view.step_result')" min-width="12%">
@@ -172,21 +184,70 @@
               </el-col>
             </el-row>
 
-            <el-row v-if="testCase.issues">
+            <el-row>
               <el-col :span="5" :offset="1">
                 <el-switch
                   :disabled="isReadOnly"
-                  v-model="testCase.issues.hasIssues"
+                  v-model="issuesSwitch"
                   @change="issuesChange"
                   :active-text="$t('test_track.plan_view.submit_issues')">
                 </el-switch>
+                <el-tooltip class="item" effect="dark"
+                            :content="$t('test_track.issue.platform_tip')"
+                            placement="right">
+                  <i class="el-icon-info"/>
+                </el-tooltip>
               </el-col>
             </el-row>
 
-            <el-row v-if="testCase.issues && testCase.issues.hasIssues">
+            <el-row v-if="issuesSwitch">
               <el-col :span="20" :offset="1" class="issues-edit">
+                <el-input
+                  type="text"
+                  :placeholder="$t('test_track.issue.input_title')"
+                  v-model="testCase.issues.title"
+                  maxlength="60"
+                  show-word-limit
+                />
                 <ckeditor :editor="editor" :disabled="isReadOnly" :config="editorConfig"
                           v-model="testCase.issues.content"/>
+                <el-button type="primary" size="small" @click="saveIssues">{{$t('commons.save')}}</el-button>
+                <el-button size="small" @click="issuesSwitch=false">{{$t('commons.cancel')}}</el-button>
+              </el-col>
+            </el-row>
+
+            <el-row>
+              <el-col :span="20" :offset="1" class="issues-edit">
+                <el-table border class="adjust-table" :data="issues" style="width: 100%">
+                  <el-table-column prop="id" :label="$t('test_track.issue.id')" show-overflow-tooltip/>
+                  <el-table-column prop="title" :label="$t('test_track.issue.title')" show-overflow-tooltip/>
+                  <el-table-column prop="description" :label="$t('test_track.issue.description')">
+                    <template v-slot:default="scope">
+                      <el-popover
+                        placement="left"
+                        width="400"
+                        trigger="hover"
+                        >
+                        <ckeditor :editor="editor" disabled :config="readConfig"
+                                  v-model="scope.row.description"/>
+                        <el-button slot="reference" type="text">{{$t('test_track.issue.preview')}}</el-button>
+                      </el-popover>
+                    </template>
+                  </el-table-column>
+                  <el-table-column prop="status" :label="$t('test_track.issue.status')"/>
+                  <el-table-column prop="platform" :label="$t('test_track.issue.platform')"/>
+                  <el-table-column :label="$t('test_track.issue.operate')">
+                    <template v-slot:default="scope">
+                      <el-tooltip :content="$t('test_track.issue.close')"
+                                  placement="right">
+                        <el-button type="danger" icon="el-icon-circle-close" size="mini"
+                                   circle v-if="scope.row.platform === 'Local'"
+                                   @click="closeIssue(scope.row)"
+                        />
+                      </el-tooltip>
+                    </template>
+                  </el-table-column>
+                </el-table>
               </el-col>
             </el-row>
 
@@ -226,6 +287,7 @@
   import PerformanceTestDetail from "./test/PerformanceTestDetail";
   import PerformanceTestResult from "./test/PerformanceTestResult";
   import {listenGoBack, removeGoBackListener} from "../../../../../../common/js/utils";
+  import {CURRENT_PROJECT} from "../../../../../../common/js/constants";
 
   export default {
     name: "TestPlanTestCaseEdit",
@@ -242,15 +304,18 @@
         showDialog: false,
         testCase: {},
         index: 0,
+        issuesSwitch: false,
         testCases: [],
+        issues: [],
         editor: ClassicEditor,
         editorConfig: {
           // 'increaseIndent','decreaseIndent'
           toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'insertTable', '|', 'undo', 'redo'],
         },
+        readConfig: {toolbar: []},
         test: {},
         activeTab: 'detail',
-        isFailure: false,
+        isFailure: true,
       };
     },
     props: {
@@ -344,10 +409,12 @@
         }
         this.testCase = item;
         this.initTest();
+        this.getIssues(testCase.caseId);
         this.stepResultChange();
       },
       openTestCaseEdit(testCase) {
         this.showDialog = true;
+        this.issuesSwitch = false;
         this.activeTab = 'detail';
         listenGoBack(this.handleClose);
         this.initData(testCase);
@@ -390,7 +457,7 @@
         });
       },
       getRelatedTest() {
-        if (this.testCase.method == 'auto' && this.testCase.testId) {
+        if (this.testCase.method == 'auto' && this.testCase.testId && this.testCase.testId != 'other') {
           this.$get('/' + this.testCase.type + '/get/' + this.testCase.testId, response => {
             let data = response.data;
             if (data) {
@@ -400,10 +467,12 @@
               this.$warning(this.$t("test_track.case.relate_test_not_find"));
             }
           });
+        } else if (this.testCase.testId === 'other') {
+          this.$warning(this.$t("test_track.case.other_relate_test_not_find"));
         }
       },
       issuesChange() {
-        if (this.testCase.issues.hasIssues) {
+        if (this.issuesSwitch) {
           let desc = this.addPLabel('[' + this.$t('test_track.plan_view.operate_step') + ']');
           let result = this.addPLabel('[' + this.$t('test_track.case.expected_results') + ']');
           let executeResult = this.addPLabel('[' + this.$t('test_track.plan_view.actual_result') + ']');
@@ -425,10 +494,39 @@
       stepResultChange() {
         if (this.testCase.method == 'manual') {
           this.isFailure = this.testCase.steptResults.filter(s => {
-            return !s.executeResult || s.executeResult === 'Failure' || s.executeResult === 'Blocking';
+            return s.executeResult === 'Failure' || s.executeResult === 'Blocking';
           }).length > 0;
         }
 
+      },
+      saveIssues() {
+        if (!this.testCase.issues.title || !this.testCase.issues.content) {
+          this.$warning(this.$t('test_track.issue.title_description_required'));
+          return;
+        }
+        let param = {};
+        param.title = this.testCase.issues.title;
+        param.content = this.testCase.issues.content;
+        param.testCaseId = this.testCase.caseId;
+        this.result = this.$post("/issues/add", param, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.getIssues(param.testCaseId);
+        });
+        this.issuesSwitch = false;
+        this.testCase.issues.title = "";
+        this.testCase.issues.content = "";
+      },
+      getIssues(caseId) {
+        this.result = this.$get("/issues/get/" + caseId, response => {
+          let data = response.data;
+          this.issues = data;
+        })
+      },
+      closeIssue(row) {
+        this.result = this.$get("/issues/close/" + row.id, () => {
+          this.getIssues(this.testCase.caseId);
+          this.$success(this.$t('test_track.issue.close_success'));
+        });
       }
     }
   }
@@ -436,17 +534,10 @@
 
 <style scoped>
 
-
-  .tb-edit .el-textarea {
-    display: none;
-  }
-
-  .tb-edit .current-row .el-textarea {
-    display: block;
-  }
-
-  .tb-edit .current-row .el-textarea + pre {
-    display: none;
+  .border-hidden >>> .el-textarea__inner {
+    border-style: hidden;
+    background-color: white;
+    color: #606266;
   }
 
   .cast_label {

@@ -132,13 +132,12 @@
         LEFT JOIN user ON user.id = r.user_id
         <where>
             r.id = #{id}
-            AND r.status != 'Debug'
         </where>
         ORDER BY r.update_time DESC
     </select>
 
     <select id="selectDashboardTests" resultType="io.metersphere.dto.DashboardTestDTO">
-        SELECT create_time AS date, count(api_test_report.id) AS count,
+        SELECT min(create_time) AS date, count(api_test_report.id) AS count,
         date_format(from_unixtime(create_time / 1000), '%Y-%m-%d') AS x
         FROM api_test_report
         WHERE test_id IN (SELECT api_test.id

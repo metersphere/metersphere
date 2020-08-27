@@ -75,13 +75,13 @@
               </el-col>
               <el-col :span="6">
                 <el-form-item prop="port" label="Port" style="padding-left: 20px">
-                  <el-input-number v-model="item.port" :min="1" :max="9999"></el-input-number>
+                  <el-input-number v-model="item.port" :min="1" :max="65535"></el-input-number>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
                 <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"
                               style="padding-left: 20px">
-                  <el-input-number v-model="item.maxConcurrency" :min="1" :max="9999"></el-input-number>
+                  <el-input-number v-model="item.maxConcurrency" :min="1" :max="1000000000"></el-input-number>
                 </el-form-item>
               </el-col>
               <el-col :offset="2" :span="2">
@@ -137,13 +137,13 @@
               </el-col>
               <el-col :span="6">
                 <el-form-item prop="port" label="Port" style="padding-left: 20px">
-                  <el-input-number v-model="item.port" :min="1" :max="9999"></el-input-number>
+                  <el-input-number v-model="item.port" :min="1" :max="65535"></el-input-number>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
                 <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"
                               style="padding-left: 20px">
-                  <el-input-number v-model="item.maxConcurrency" :min="1" :max="9999"></el-input-number>
+                  <el-input-number v-model="item.maxConcurrency" :min="1" :max="1000000000"></el-input-number>
                 </el-form-item>
               </el-col>
               <el-col :offset="2" :span="2">

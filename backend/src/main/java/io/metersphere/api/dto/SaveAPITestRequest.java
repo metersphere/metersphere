@@ -24,4 +24,6 @@ public class SaveAPITestRequest {
     private Schedule schedule;
 
     private String triggerMode;
+
+    private List<String> bodyUploadIds;
 }

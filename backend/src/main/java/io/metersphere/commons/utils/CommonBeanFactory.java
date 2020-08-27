@@ -16,11 +16,19 @@ public class CommonBeanFactory implements ApplicationContextAware {
     }
 
     public static Object getBean(String beanName) {
-        return context != null && !StringUtils.isBlank(beanName) ? context.getBean(beanName) : null;
+        try {
+            return context != null && !StringUtils.isBlank(beanName) ? context.getBean(beanName) : null;
+        } catch (BeansException e) {
+            return null;
+        }
     }
 
     public static <T> T getBean(Class<T> className) {
-        return context != null && className != null ? context.getBean(className) : null;
+        try {
+            return context != null && className != null ? context.getBean(className) : null;
+        } catch (BeansException e) {
+            return null;
+        }
     }
 }
 

@@ -88,8 +88,15 @@
     beforeCreate() {
       this.$get("/isLogin").then(response => {
         if (!response.data.success) {
-          this.ready = true;
+          if (response.data.message === 'sso') {
+            window.location.href = "/sso/login"
+          } else {
+            this.ready = true;
+          }
         } else {
+          let user = response.data.data;
+          saveLocalStorage(response.data);
+          this.getLanguage(user.language);
           window.location.href = "/"
         }
       });

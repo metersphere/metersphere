@@ -115,9 +115,10 @@
     </select>
 
     <select id="list" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
-        select test_plan_test_case.*, test_case.*
+        select test_case.remark, test_plan_test_case.id as id, test_plan_test_case.*,test_case.*,test_case_node.name as model
         from test_plan_test_case
-        inner join test_case on test_plan_test_case.case_id = test_case.id
+        inner join test_case on test_plan_test_case.case_id = test_case.id left join test_case_node on
+        test_case_node.id=test_case.node_id
         <where>
             <if test="request.combine != null">
                 <include refid="combine">

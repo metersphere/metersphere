@@ -173,7 +173,7 @@
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
         <el-form-item :label="$t('commons.email')" prop="email">
-          <el-input v-model="form.email" autocomplete="off" :disabled="form.source === 'LDAP' ? true : false"/>
+          <el-input v-model="form.email" autocomplete="off" :disabled="form.source === 'LDAP'"/>
         </el-form-item>
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off"/>
@@ -296,7 +296,7 @@
   import MsTableOperator from "../../common/components/MsTableOperator";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
   import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
-  import {getCurrentUser, listenGoBack, removeGoBackListener} from "../../../../common/js/utils";
+  import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
   import MsRolesTag from "../../common/components/MsRolesTag";
 
   export default {
@@ -342,7 +342,6 @@
             {min: 2, max: 50, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'},
             {
               required: true,
-              pattern: /^[a-zA-Z0-9]+$/,
               message: this.$t('user.special_characters_are_not_supported'),
               trigger: 'blur'
             }
@@ -352,7 +351,6 @@
             {min: 2, max: 50, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'},
             {
               required: true,
-              pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/,
               message: this.$t('user.special_characters_are_not_supported'),
               trigger: 'blur'
             }
@@ -415,10 +413,12 @@
         this.$get("/workspace/list", response => {
           this.$set(this.form, "wsList", response.data);
         });
-        this.$get('/userrole/all/' + row.id, response => {
-          let data = response.data;
-          this.$set(this.form, "roles", data);
-        });
+        if (row.id) {
+          this.$get('/userrole/all/' + encodeURIComponent(row.id), response => {
+            let data = response.data;
+            this.$set(this.form, "roles", data);
+          });
+        }
         listenGoBack(this.handleClose);
       },
       editPassword(row) {
@@ -432,7 +432,7 @@
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
-          this.result = this.$get(this.deletePath + row.id, () => {
+          this.result = this.$get(this.deletePath + encodeURIComponent(row.id), () => {
             this.$success(this.$t('commons.delete_success'));
             this.search();
           });
@@ -469,7 +469,7 @@
       editUserPassword(editPasswordForm) {
         this.$refs[editPasswordForm].validate(valid => {
           if (valid) {
-            this.result = this.$post(this.editPasswordPath, this.ruleForm, response => {
+            this.result = this.$post(this.editPasswordPath, this.ruleForm, () => {
               this.$success(this.$t('commons.modify_success'));
               this.editPasswordVisible = false;
               this.search();
@@ -487,13 +487,15 @@
           this.tableData = data.listObject;
           let url = "/user/special/user/role";
           for (let i = 0; i < this.tableData.length; i++) {
-            this.$get(url + '/' + this.tableData[i].id, result => {
-              let data = result.data;
-              let roles = data.roles;
-              // let userRoles = result.userRoles;
-              this.$set(this.tableData[i], "roles", roles);
-              this.$set(this.tableData[i], "isLdapUser", this.tableData[i].source === 'LDAP' ? true : false);
-            });
+            if (this.tableData[i].id) {
+              this.$get(url + '/' + encodeURIComponent(this.tableData[i].id), result => {
+                let data = result.data;
+                let roles = data.roles;
+                // let userRoles = result.userRoles;
+                this.$set(this.tableData[i], "roles", roles);
+                this.$set(this.tableData[i], "isLdapUser", this.tableData[i].source === 'LDAP');
+              });
+            }
           }
         })
       },

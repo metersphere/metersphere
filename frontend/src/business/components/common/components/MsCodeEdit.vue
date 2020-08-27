@@ -1,5 +1,5 @@
 <template>
-  <editor v-model="formatData" :lang="mode" @init="editorInit" theme="chrome"/>
+    <editor v-model="formatData" :lang="mode" @init="editorInit" :theme="theme"/>
 </template>
 
 <script>
@@ -14,6 +14,12 @@
       props: {
         data: {
           type: String
+        },
+        theme: {
+          type: String,
+          default() {
+            return 'chrome'
+          }
         },
         init: {
           type: Function
@@ -54,7 +60,7 @@
           this.modes.forEach(mode => {
             require('brace/mode/' + mode); //language
           });
-          require('brace/theme/chrome')
+          require('brace/theme/' + this.theme)
           require('brace/snippets/javascript') //snippet
           if (this.readOnly) {
             editor.setReadOnly(true);
@@ -66,7 +72,8 @@
         format() {
           if (this.mode === 'json') {
             try {
-              this.formatData = JSON.stringify(JSON.parse(this.data), null, '\t');
+              var JSONbig = require('json-bigint')({"storeAsString": false});
+              this.formatData = JSON.stringify(JSONbig.parse(this.data), null, '\t');
             } catch (e) {
               if (this.data) {
                 this.formatData = this.data;

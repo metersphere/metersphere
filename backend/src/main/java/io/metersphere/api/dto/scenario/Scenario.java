@@ -15,4 +15,5 @@ public class Scenario {
     private List<KeyValue> headers;
     private List<Request> requests;
     private DubboConfig dubboConfig;
+    private Boolean enable;
 }

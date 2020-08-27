@@ -14,7 +14,7 @@
             <el-option v-for="(type, index) in typeArr" :key="index" :value="type.id" :label="type.name"/>
           </el-select>
         </el-form-item>
-        <el-form-item label="更新后属性值为" prop="value">
+        <el-form-item :label="$t('test_track.case.updated_attr_value')" prop="value">
           <el-select v-model="form.value" style="width: 80%" :filterable="filterable">
             <el-option v-for="(option, index) in options" :key="index" :value="option.id" :label="option.name">
               <div v-if="option.email">
@@ -47,7 +47,9 @@
       valueArr: Object,
       dialogTitle: {
         type: String,
-        default: "批量操作"
+        default() {
+          return this.$t('test_track.case.batch_operate')
+        }
       }
     },
     data() {
@@ -56,8 +58,8 @@
         form: {},
         size: 0,
         rules: {
-          type: {required: true, message: "请选择属性", trigger: ['blur','change']},
-          value: {required: true, message: "请选择属性对应的值", trigger: ['blur','change']}
+          type: {required: true, message: this.$t('test_track.case.please_select_attr'), trigger: ['blur','change']},
+          value: {required: true, message: this.$t('test_track.case.please_select_attr_value'), trigger: ['blur','change']}
         },
         options: [],
         filterable: false,

@@ -163,6 +163,17 @@ public class UserService {
         userMapper.insertSelective(user);
     }
 
+    public void createOssUser(User user) {
+        user.setCreateTime(System.currentTimeMillis());
+        user.setUpdateTime(System.currentTimeMillis());
+        user.setStatus(UserStatus.NORMAL);
+        if (StringUtils.isBlank(user.getEmail())) {
+            user.setEmail(user.getId() + "@metershpere.io");
+        }
+        userMapper.insertSelective(user);
+    }
+
+
     private void checkEmailIsExist(String email) {
         UserExample userExample = new UserExample();
         UserExample.Criteria criteria = userExample.createCriteria();

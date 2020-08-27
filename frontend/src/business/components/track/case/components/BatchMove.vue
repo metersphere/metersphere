@@ -1,6 +1,6 @@
 <template>
   <div v-loading="result.loading">
-    <el-dialog title="选择用例目录"
+    <el-dialog :title="this.$t('test_track.case.select_catalog')"
                :visible.sync="dialogVisible"
                :before-close="close"
                :destroy-on-close="true"

@@ -140,11 +140,6 @@
         </dependency>
 
         <!-- jmeter -->
-        <!--        <dependency>-->
-        <!--            <groupId>org.apache.jmeter</groupId>-->
-        <!--            <artifactId>ApacheJMeter_core</artifactId>-->
-        <!--            <version>${jmeter.version}</version>-->
-        <!--        </dependency>-->
 
         <dependency>
             <groupId>org.apache.jmeter</groupId>
@@ -224,7 +219,7 @@
         <dependency>
             <groupId>io.metersphere</groupId>
             <artifactId>jmeter-plugins-dubbo</artifactId>
-            <version>2.7.9</version>
+            <version>2.7.10</version>
         </dependency>
 
         <!-- LDAP Module -->
@@ -270,6 +265,36 @@
             <artifactId>chromeinspector</artifactId>
             <version>${graalvm.version}</version>
             <scope>runtime</scope>
+        </dependency>
+
+        <!--  buji-pac4j  -->
+        <dependency>
+            <groupId>org.pac4j</groupId>
+            <artifactId>pac4j-cas</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>io.buji</groupId>
+            <artifactId>buji-pac4j</artifactId>
+            <version>4.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>shiro-web</artifactId>
+                    <groupId>org.apache.shiro</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.10.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.atlassian.commonmark</groupId>
+            <artifactId>commonmark</artifactId>
+            <version>0.15.2</version>
         </dependency>
 
     </dependencies>
@@ -358,6 +383,16 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/jmeter/lib/**/*.jar</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
@@ -382,6 +417,35 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <artifactItems>
+                        <artifactItem>
+                            <groupId>org.apache.jmeter</groupId>
+                            <artifactId>ApacheJMeter_functions</artifactId>
+                            <version>${jmeter.version}</version>
+                            <type>jar</type>
+                            <overWrite>true</overWrite>
+                            <outputDirectory>src/main/resources/jmeter/lib/ext</outputDirectory>
+                            <destFileName>ApacheJMeter_functions.jar</destFileName>
+                        </artifactItem>
+                    </artifactItems>
+                    <outputDirectory>${project.build.directory}/wars</outputDirectory>
+                    <overWriteReleases>false</overWriteReleases>
+                    <overWriteSnapshots>true</overWriteSnapshots>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.mybatis.generator</groupId>

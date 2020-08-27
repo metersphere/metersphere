@@ -29,7 +29,8 @@
     "mockjs": "^1.1.0",
     "md5": "^2.3.0",
     "sha.js": "^2.4.11",
-    "js-base64": "^3.4.4"
+    "js-base64": "^3.4.4",
+    "json-bigint": "^1.0.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.1.0",
@@ -38,6 +39,7 @@
     "babel-eslint": "^10.0.3",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
+    "file-writer": "^1.0.2",
     "vue-template-compiler": "^2.6.10",
     "vue2-ace-editor": "0.0.15"
   },

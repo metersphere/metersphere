@@ -289,6 +289,12 @@ export class HTTPSamplerProxy extends DefaultTestElement {
     } else {
       this.stringProp("HTTPSampler.port", options.port);
     }
+    if (options.connectTimeout) {
+      this.stringProp('HTTPSampler.connect_timeout', options.connectTimeout);
+    }
+    if (options.responseTimeout) {
+      this.stringProp('HTTPSampler.response_timeout', options.responseTimeout);
+    }
 
     this.boolProp("HTTPSampler.follow_redirects", options.follow, true);
     this.boolProp("HTTPSampler.use_keepalive", options.keepalive, true);
@@ -318,6 +324,25 @@ export class HTTPSamplerArguments extends Element {
       }
       elementProp.stringProp('Argument.value', arg.value);
       elementProp.stringProp('Argument.metadata', arg.metadata || "=");
+    });
+  }
+}
+
+export class HTTPsamplerFiles extends Element {
+  constructor(args) {
+    super('elementProp', {
+      name: "HTTPsampler.Files",
+      elementType: "HTTPFileArgs",
+    });
+
+    this.args = args || {};
+
+    let collectionProp = this.collectionProp('HTTPFileArgs.files');
+    this.args.forEach(arg => {
+      let elementProp = collectionProp.elementProp(arg.value, 'HTTPFileArg');
+      elementProp.stringProp('File.path', arg.value);
+      elementProp.stringProp('File.paramname', arg.name);
+      elementProp.stringProp('File.mimetype', arg.metadata || "application/octet-stream");
     });
   }
 }
@@ -405,12 +430,37 @@ export class ResponseHeadersAssertion extends ResponseAssertion {
   }
 }
 
+export class BeanShellProcessor extends DefaultTestElement {
+  constructor(tag, guiclass, testclass, testname, processor) {
+    super(tag, guiclass, testclass, testname);
+    this.processor = processor || {};
+    this.boolProp('resetInterpreter', false);
+    this.stringProp('parameters');
+    this.stringProp('filename');
+    this.stringProp('script', processor.script);
+  }
+}
+
+export class BeanShellPreProcessor extends BeanShellProcessor {
+  constructor(testName, processor) {
+    super('BeanShellPreProcessor', 'TestBeanGUI', 'BeanShellPreProcessor', testName, processor)
+  }
+}
+
+export class BeanShellPostProcessor extends BeanShellProcessor {
+  constructor(testName, processor) {
+    super('BeanShellPostProcessor', 'TestBeanGUI', 'BeanShellPostProcessor', testName, processor)
+  }
+}
+
 export class HeaderManager extends DefaultTestElement {
   constructor(testName, headers) {
     super('HeaderManager', 'HeaderPanel', 'HeaderManager', testName);
     this.headers = headers || [];
 
     let collectionProp = this.collectionProp('HeaderManager.headers');
+
+
     this.headers.forEach(header => {
       let elementProp = collectionProp.elementProp('', 'Header');
       elementProp.stringProp('Header.name', header.name);

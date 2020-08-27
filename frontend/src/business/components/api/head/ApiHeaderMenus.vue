@@ -8,8 +8,8 @@
           </el-menu-item>
 
           <el-submenu v-permission="['test_manager','test_user','test_viewer']" index="3">
-            <template v-slot:title>{{$t('commons.project')}}</template>
-            <ms-recent-list :options="projectRecent"/>
+            <template v-slot:title>{{ $t('commons.project') }}</template>
+            <ms-recent-list ref="projectRecent" :options="projectRecent"/>
             <el-divider class="menu-divider"/>
             <ms-show-all :index="'/api/project/all'"/>
             <ms-create-button v-permission="['test_manager','test_user']" :index="'/api/project/create'"
@@ -17,8 +17,8 @@
           </el-submenu>
 
           <el-submenu v-permission="['test_manager','test_user','test_viewer']" index="4">
-            <template v-slot:title>{{$t('commons.test')}}</template>
-            <ms-recent-list :options="testRecent"/>
+            <template v-slot:title>{{ $t('commons.test') }}</template>
+            <ms-recent-list ref="testRecent" :options="testRecent"/>
             <el-divider class="menu-divider"/>
             <ms-show-all :index="'/api/test/list/all'"/>
             <ms-create-button v-permission="['test_manager','test_user']" :index="'/api/test/create'"
@@ -26,8 +26,8 @@
           </el-submenu>
 
           <el-submenu v-permission="['test_manager','test_user','test_viewer']" index="5">
-            <template v-slot:title>{{$t('commons.report')}}</template>
-            <ms-recent-list :options="reportRecent"/>
+            <template v-slot:title>{{ $t('commons.report') }}</template>
+            <ms-recent-list ref="reportRecent" :options="reportRecent"/>
             <el-divider class="menu-divider"/>
             <ms-show-all :index="'/api/report/list/all'"/>
           </el-submenu>
@@ -46,57 +46,66 @@
 
 <script>
 
-  import MsRecentList from "../../common/head/RecentList";
-  import MsShowAll from "../../common/head/ShowAll";
-  import MsCreateButton from "../../common/head/CreateButton";
-  import MsCreateTest from "../../common/head/CreateTest";
+import MsRecentList from "../../common/head/RecentList";
+import MsShowAll from "../../common/head/ShowAll";
+import MsCreateButton from "../../common/head/CreateButton";
+import MsCreateTest from "../../common/head/CreateTest";
+import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
 
-  export default {
-    name: "MsApiHeaderMenus",
-    components: {MsCreateTest, MsCreateButton, MsShowAll, MsRecentList},
-    data() {
-      return {
-        projectRecent: {
-          title: this.$t('project.recent'),
-          url: "/project/recent/5",
-          index: function (item) {
-            return '/api/test/list/' + item.id;
-          },
-          router: function (item) {
-            return {name: 'ApiTestList', params: {projectId: item.id, projectName: item.name}}
-          }
+export default {
+  name: "MsApiHeaderMenus",
+  components: {MsCreateTest, MsCreateButton, MsShowAll, MsRecentList},
+  data() {
+    return {
+      projectRecent: {
+        title: this.$t('project.recent'),
+        url: "/project/recent/5",
+        index: function (item) {
+          return '/api/test/list/' + item.id;
         },
-        testRecent: {
-          title: this.$t('load_test.recent'),
-          url: "/api/recent/5",
-          index: function (item) {
-            return '/api/test/edit/' + item.id;
-          },
-          router: function (item) {
-            return {path: '/api/test/edit', query: {id: item.id}}
-          }
+        router: function (item) {
+          return {name: 'ApiTestList', params: {projectId: item.id, projectName: item.name}}
+        }
+      },
+      testRecent: {
+        title: this.$t('load_test.recent'),
+        url: "/api/recent/5",
+        index: function (item) {
+          return '/api/test/edit/' + item.id;
         },
-        reportRecent: {
-          title: this.$t('report.recent'),
-          showTime: true,
-          url: "/api/report/recent/5",
-          index: function (item) {
-            return '/api/report/view/' + item.id;
-          }
+        router: function (item) {
+          return {path: '/api/test/edit', query: {id: item.id}}
+        }
+      },
+      reportRecent: {
+        title: this.$t('report.recent'),
+        showTime: true,
+        url: "/api/report/recent/5",
+        index: function (item) {
+          return '/api/report/view/' + item.id;
         }
       }
     }
+  },
+  mounted() {
+    let self = this;
+    ApiEvent.$on(LIST_CHANGE, () => {
+      self.$refs.projectRecent.recent();
+      self.$refs.testRecent.recent();
+      self.$refs.reportRecent.recent();
+    });
   }
+}
 
 </script>
 
 <style scoped>
-  #menu-bar {
-    border-bottom: 1px solid #E6E6E6;
-    background-color: #FFF;
-  }
+#menu-bar {
+  border-bottom: 1px solid #E6E6E6;
+  background-color: #FFF;
+}
 
-  .menu-divider {
-    margin: 0;
-  }
+.menu-divider {
+  margin: 0;
+}
 </style>

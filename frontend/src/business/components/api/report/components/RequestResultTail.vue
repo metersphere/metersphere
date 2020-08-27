@@ -61,16 +61,16 @@
           </el-tab-pane>
           <el-tab-pane :label="$t('api_report.request_result')" name="result">
             <ms-request-metric :request="request"/>
-            <ms-request-text :request="request"/>
+            <ms-request-text  :request="request"/>
             <br>
             <ms-response-text :response="request.responseResult"/>
           </el-tab-pane>
         </el-tabs>
         <div v-else>
           <ms-request-metric :request="request"/>
-          <ms-request-text :request="request"/>
+          <ms-request-text v-if="isCodeEditAlive" :request="request"/>
           <br>
-          <ms-response-text :response="request.responseResult"/>
+          <ms-response-text v-if="isCodeEditAlive" :response="request.responseResult"/>
         </div>
       </div>
     </el-collapse-transition>
@@ -94,14 +94,19 @@
 
     data() {
       return {
-        isActive: false,
+        isActive: true,
         activeName: "sub",
+        isCodeEditAlive: true
       }
     },
 
     methods: {
       active() {
         this.isActive = !this.isActive;
+      },
+      reload() {
+        this.isCodeEditAlive = false;
+        this.$nextTick(() => (this.isCodeEditAlive = true));
       }
     },
 
@@ -111,7 +116,7 @@
       },
       hasSub() {
         return this.request.subRequestResults.length > 0;
-      }
+      },
     }
   }
 </script>

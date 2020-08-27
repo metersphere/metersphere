@@ -64,6 +64,20 @@ export default {
       }
     }
 
+    Vue.prototype.$$get = function (url, data, success) {
+      let result = {loading: true};
+      if (!success) {
+        return axios.get(url, {params: data});
+      } else {
+        axios.get(url, {params: data}).then(response => {
+          then(success, response, result);
+        }).catch(error => {
+          exception(error, result);
+        });
+        return result;
+      }
+    };
+
     Vue.prototype.$get = function (url, success) {
       let result = {loading: true};
       if (!success) {
@@ -117,7 +131,7 @@ export default {
       axios.all(array).then(axios.spread(callback));
     };
 
-    Vue.prototype.$fileDownload = function(url) {
+    Vue.prototype.$fileDownload = function (url) {
       axios.get(url, {responseType: 'blob'})
         .then(response => {
           let fileName = window.decodeURI(response.headers['content-disposition'].split('=')[1]);
@@ -128,11 +142,18 @@ export default {
         });
     };
 
-    Vue.prototype.$fileUpload = function(url, file, param, success, failure) {
+    Vue.prototype.$fileUpload = function (url, file, files, param, success, failure) {
       let formData = new FormData();
-      formData.append("file", file);
+      if (file) {
+        formData.append("file", file);
+      }
+      if (files) {
+        files.forEach(f => {
+          formData.append("files", f);
+        })
+      }
       formData.append('request', new Blob([JSON.stringify(param)], {type: "application/json"}));
-      let axiosRequestConfig =  {
+      let axiosRequestConfig = {
         method: 'POST',
         url: url,
         data: formData,
@@ -140,7 +161,7 @@ export default {
           'Content-Type': undefined
         }
       };
-      return  Vue.prototype.$request(axiosRequestConfig, success, failure);
+      return Vue.prototype.$request(axiosRequestConfig, success, failure);
     }
 
   }

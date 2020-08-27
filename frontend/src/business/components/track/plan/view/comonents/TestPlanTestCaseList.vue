@@ -3,7 +3,7 @@
     <el-card class="card-content" v-loading="result.loading">
       <template v-slot:header>
         <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
-                         :show-create="false">
+                         :show-create="false" :tip="$t('commons.search_by_name_or_id')">
           <template v-slot:title>
             <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="refresh"/>
           </template>
@@ -15,13 +15,13 @@
             <ms-table-button :is-tester-permission="true" icon="el-icon-connection"
                              :content="$t('test_track.plan_view.relevance_test_case')"
                              @click="$emit('openTestCaseRelevanceDialog')"/>
-            <ms-table-button :is-tester-permission="true" icon="el-icon-unlock"
-                             :content="$t('test_track.plan_view.cancel_relevance')" @click="handleBatch('delete')"/>
-            <ms-table-button :is-tester-permission="true" icon="el-icon-edit-outline"
-                             :content="$t('test_track.plan_view.change_execution_results')"
-                             @click="handleBatch('status')"/>
-            <ms-table-button :is-tester-permission="true" icon="el-icon-user"
-                             :content="$t('test_track.plan_view.change_executor')" @click="handleBatch('executor')"/>
+<!--            <ms-table-button :is-tester-permission="true" icon="el-icon-unlock"-->
+<!--                             :content="$t('test_track.plan_view.cancel_relevance')" @click="handleBatch('delete')"/>-->
+<!--            <ms-table-button :is-tester-permission="true" icon="el-icon-edit-outline"-->
+<!--                             :content="$t('test_track.plan_view.change_execution_results')"-->
+<!--                             @click="handleBatch('status')"/>-->
+<!--            <ms-table-button :is-tester-permission="true" icon="el-icon-user"-->
+<!--                             :content="$t('test_track.plan_view.change_executor')" @click="handleBatch('executor')"/>-->
             <ms-table-button :is-tester-permission="true" v-if="!testPlan.reportId" icon="el-icon-document"
                              :content="$t('test_track.plan_view.create_report')" @click="openTestReport"/>
             <ms-table-button :is-tester-permission="true" v-if="testPlan.reportId" icon="el-icon-document"
@@ -103,6 +103,40 @@
         </el-table-column>
 
         <el-table-column
+          prop="nodePath"
+          :label="$t('test_track.issue.issue')"
+          show-overflow-tooltip>
+          <template v-slot:default="scope">
+            <el-popover
+              placement="right"
+              width="400"
+              trigger="hover">
+              <el-table border class="adjust-table" :data="scope.row.issuesContent" style="width: 100%">
+<!--                <el-table-column prop="id" label="缺陷ID" show-overflow-tooltip/>-->
+                <el-table-column prop="title" :label="$t('test_track.issue.title')" show-overflow-tooltip/>
+                <el-table-column prop="description" :label="$t('test_track.issue.description')">
+                  <template v-slot:default="scope">
+                    <el-popover
+                      placement="left"
+                      width="400"
+                      trigger="hover"
+                    >
+                      <ckeditor :editor="editor" disabled :config="editorConfig"
+                                v-model="scope.row.description"/>
+                      <el-button slot="reference" type="text">{{$t('test_track.issue.preview')}}</el-button>
+                    </el-popover>
+                  </template>
+                </el-table-column>
+<!--                <el-table-column prop="status" label="缺陷状态"/>-->
+                <el-table-column prop="platform" :label="$t('test_track.issue.platform')"/>
+              </el-table>
+              <el-button slot="reference" type="text">{{scope.row.issuesSize}}</el-button>
+            </el-popover>
+          </template>
+        </el-table-column>
+
+
+        <el-table-column
           prop="executorName"
           :label="$t('test_track.plan_view.executor')">
         </el-table-column>
@@ -173,7 +207,7 @@
       <test-case-report-view @refresh="initTableData" ref="testCaseReportView"/>
     </el-card>
     <batch-edit ref="batchEdit" @batchEdit="batchEdit"
-                :type-arr="typeArr" :value-arr="valueArr" dialog-title="批量更改测试计划"/>
+                :type-arr="typeArr" :value-arr="valueArr" :dialog-title="$t('test_track.case.batch_edit_case')"/>
   </div>
 </template>
 
@@ -200,6 +234,7 @@
   import {TEST_CASE_CONFIGS} from "../../../../common/components/search/search-components";
   import ShowMoreBtn from "../../../case/components/ShowMoreBtn";
   import BatchEdit from "../../../case/components/BatchEdit";
+  import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
   export default {
     name: "TestPlanTestCaseList",
@@ -258,15 +293,15 @@
         showMore: false,
         buttons: [
           {
-            name: '批量更改测试计划', handleClick: this.handleBatchEdit
+            name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit
           },
           {
-            name: '批量取消用例关联', handleClick: this.handleDeleteBatch
+            name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch
           }
         ],
         typeArr: [
-          {id: 'status', name: '执行结果'},
-          {id: 'executor', name: '执行人'},
+          {id: 'status', name: this.$t('test_track.plan_view.execute_result')},
+          {id: 'executor', name: this.$t('test_track.plan_view.executor')},
         ],
         valueArr: {
           executor: [],
@@ -276,7 +311,12 @@
             {name: this.$t('test_track.plan_view.blocking'), id: 'Blocking'},
             {name: this.$t('test_track.plan_view.skip'), id: 'Skip'}
           ]
-        }
+        },
+        editor: ClassicEditor,
+        editorConfig: {
+          // 'increaseIndent','decreaseIndent'
+          toolbar: [],
+        },
       }
     },
     props: {
@@ -317,6 +357,18 @@
             let data = response.data;
             this.total = data.itemCount;
             this.tableData = data.listObject;
+            for (let i = 0; i < this.tableData.length; i++) {
+              if (this.tableData[i]) {
+                this.$set(this.tableData[i], "issuesSize", 0);
+                this.$get("/issues/get/" + this.tableData[i].caseId, response => {
+                  let issues = response.data;
+                  if (this.tableData[i]) {
+                    this.$set(this.tableData[i], "issuesSize", issues.length);
+                    this.$set(this.tableData[i], "issuesContent", issues);
+                  }
+                })
+              }
+            }
             // this.selectIds.clear();
             this.selectRows.clear();
           });

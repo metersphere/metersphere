@@ -15,18 +15,8 @@
 
         </el-col>
         <el-col>
-          <el-autocomplete
-            :disabled="isReadOnly"
-            size="small"
-            class="input-with-autocomplete"
-            v-model="item.value"
-            :fetch-suggestions="funcSearch"
-            :placeholder="valueText"
-            value-key="name"
-            highlight-first-item
-            @select="change">
-            <i slot="suffix" class="el-input__icon el-icon-edit" style="cursor: pointer;" @click="advanced(item)"></i>
-          </el-autocomplete>
+          <el-input :disabled="isReadOnly" v-model="item.value" size="small" @change="change"
+                    :placeholder="valueText" show-word-limit/>
         </el-col>
         <el-col class="kv-delete">
           <el-button size="mini" class="el-icon-delete-solid" circle @click="remove(index)"
@@ -34,59 +24,11 @@
         </el-col>
       </el-row>
     </div>
-
-    <el-dialog :title="$t('api_test.request.parameters_advance')"
-               :visible.sync="itemValueVisible"
-               class="advanced-item-value"
-               width="50%">
-      <el-form>
-        <el-form-item>
-          <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" :placeholder="valueText"
-                    v-model="itemValue"/>
-        </el-form-item>
-      </el-form>
-      <div>
-        <el-row type="flex" align="middle">
-          <el-col :span="6">
-            <el-button size="small" type="primary" plain @click="saveAdvanced()">
-              {{ $t('commons.save') }}
-            </el-button>
-            <el-button size="small" type="success" plain @click="showPreview(itemValue)">
-              {{ $t('api_test.request.parameters_preview') }}
-            </el-button>
-          </el-col>
-          <el-col>
-            <div> {{ itemValuePreview }}</div>
-          </el-col>
-        </el-row>
-      </div>
-
-      <div class="format-tip">
-        <div>
-          <p>{{ $t('api_test.request.parameters_filter') }}：
-            <el-tag size="mini" v-for="func in funcs" :key="func" @click="appendFunc(func)"
-                    style="margin-left: 2px;cursor: pointer;">
-              <span>{{ func }}</span>
-            </el-tag>
-          </p>
-        </div>
-        <div>
-          <span>{{ $t('api_test.request.parameters_filter_desc') }}：
-            <el-link href="http://mockjs.com/examples.html" target="_blank">http://mockjs.com/examples.html</el-link>
-          </span>
-          <p>{{ $t('api_test.request.parameters_filter_example') }}：@string(10) | md5 | substr: 1, 3</p>
-          <p>{{ $t('api_test.request.parameters_filter_example') }}：@integer(1, 5) | concat:_metersphere</p>
-          <p><strong>{{ $t('api_test.request.parameters_filter_tips') }}</strong></p>
-        </div>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
 <script>
 import {KeyValue} from "../model/ScenarioModel";
-import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
-import {calculate} from "@/business/components/api/test/model/ScenarioModel";
 
 export default {
   name: "MsApiKeyValue",
@@ -101,16 +43,6 @@ export default {
       default: false
     },
     suggestions: Array
-  },
-
-  data() {
-    return {
-      itemValueVisible: false,
-      itemValue: null,
-      funcs: ["md5", "sha1", "sha224", "sha256", "sha384", "sha512", "base64",
-        "unbase64", "substr", "concat", "lconcat", "lower", "upper", "length", "number"],
-      itemValuePreview: null
-    }
   },
 
   computed: {
@@ -159,37 +91,6 @@ export default {
         return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
       };
     },
-    funcSearch(queryString, cb) {
-      let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
-      let results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
-      // 调用 callback 返回建议列表的数据
-      cb(results);
-    },
-    funcFilter(queryString) {
-      return (func) => {
-        return (func.name.toLowerCase().indexOf(queryString.toLowerCase()) > -1);
-      };
-    },
-    showPreview(itemValue) {
-      this.itemValuePreview = calculate(itemValue);
-    },
-    appendFunc(func) {
-      if (this.itemValue) {
-        this.itemValue += " | " + func;
-      } else {
-        this.$warning(this.$t("api_test.request.parameters_preview_warning"));
-      }
-    },
-    advanced(item) {
-      this.currentItem = item;
-      this.itemValueVisible = true;
-      this.itemValue = item.value;
-      this.itemValuePreview = null;
-    },
-    saveAdvanced() {
-      this.currentItem.value = this.itemValue;
-      this.itemValueVisible = false;
-    }
   },
   created() {
     if (this.items.length === 0) {
@@ -214,20 +115,5 @@ export default {
 
 .el-autocomplete {
   width: 100%;
-}
-
-.advanced-item-value >>> .el-dialog__body {
-  padding: 15px 25px;
-}
-
-.format-tip {
-  background: #EDEDED;
-}
-
-.format-tip {
-  border: solid #E1E1E1 1px;
-  margin: 10px 0;
-  padding: 10px;
-  border-radius: 3px;
 }
 </style>

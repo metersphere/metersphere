@@ -64,7 +64,7 @@
     methods: {
       initMenuData() {
         if (hasRoles(ROLE_ORG_ADMIN, ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
-          this.$get("/organization/list/userorg/" + this.currentUserId, response => {
+          this.$get("/organization/list/userorg/" + encodeURIComponent(this.currentUserId), response => {
             let data = response.data;
             this.organizationList = data;
             let org = data.filter(r => r.id === this.currentUser.lastOrganizationId);
@@ -93,7 +93,7 @@
         }
       },
       getCurrentUserInfo() {
-        this.$get("/user/info/" + this.currentUserId, response => {
+        this.$get("/user/info/" + encodeURIComponent(this.currentUserId), response => {
           this.currentUserInfo = response.data;
         })
       },

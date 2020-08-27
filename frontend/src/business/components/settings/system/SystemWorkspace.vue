@@ -12,9 +12,9 @@
         <el-table-column prop="organizationName" :label="$t('workspace.organization_name')"/>
         <el-table-column :label="$t('commons.member')">
           <template v-slot:default="scope">
-            <el-button type="text" class="member-size" @click="cellClick(scope.row)">
+            <el-link type="primary" class="member-size" @click="cellClick(scope.row)">
               {{scope.row.memberSize}}
-            </el-button>
+            </el-link>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
@@ -200,12 +200,11 @@
   import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
   import {
-    getCurrentOrganizationId,
     getCurrentUser,
     getCurrentWorkspaceId, listenGoBack,
     refreshSessionAndCookies, removeGoBackListener
-  } from "../../../../common/js/utils";
-  import {DEFAULT, WORKSPACE} from "../../../../common/js/constants";
+  } from "@/common/js/utils";
+  import {DEFAULT, WORKSPACE} from "@/common/js/constants";
   import MsDeleteConfirm from "../../common/components/MsDeleteConfirm";
 
   export default {
@@ -274,7 +273,7 @@
           let url = "/userrole/list/ws/" + row.id;
           // 填充角色信息
           for (let i = 0; i < this.memberLineData.length; i++) {
-            this.$get(url + "/" + this.memberLineData[i].id, response => {
+            this.$get(url + "/" + encodeURIComponent(this.memberLineData[i].id), response => {
               let roles = response.data;
               this.$set(this.memberLineData[i], "roles", roles);
             })
@@ -295,7 +294,7 @@
           let url = "/userrole/list/ws/" + row.id;
           // 填充角色信息
           for (let i = 0; i < this.memberLineData.length; i++) {
-            this.$get(url + "/" + this.memberLineData[i].id, response => {
+            this.$get(url + "/" + encodeURIComponent(this.memberLineData[i].id), response => {
               let roles = response.data;
               this.$set(this.memberLineData[i], "roles", roles);
             })
@@ -421,7 +420,7 @@
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
-          this.result = this.$get('/user/special/ws/member/delete/' + this.currentWorkspaceRow.id + '/' + row.id, () => {
+          this.result = this.$get('/user/special/ws/member/delete/' + this.currentWorkspaceRow.id + '/' + encodeURIComponent(row.id), () => {
             let sourceId = this.currentWorkspaceRow.id;
             let userId = row.id;
             let user = getCurrentUser();
@@ -537,7 +536,7 @@
   }
 
   .dialog-css >>> .el-dialog__header {
-    padding: 0px;
+    padding: 0;
   }
 
 </style>
