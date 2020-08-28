@@ -26,7 +26,7 @@
   import MsApiScenarioConfig from "./components/ApiScenarioConfig";
   import MsApiReportStatus from "../report/ApiReportStatus";
   import MsApiReportDialog from "./ApiReportDialog";
-  import {getUUID} from "../../../../common/js/utils";
+  import {getUUID} from "@/common/js/utils";
 
 
   export default {
@@ -41,6 +41,7 @@
         tests: [],
         ruleForm: {},
         change: false,
+        projectId: "",
         rule: {
           testName: [
             {required: true, message: this.$t('api_test.input_name'), trigger: 'blur'},
@@ -61,10 +62,10 @@
       selectIds: {
         type: Set
       },
-      selectNames: {
+      selectProjectNames: {
         type: Set
       },
-      selectProjectNames: {
+      selectProjectId: {
         type: Set
       }
     },
@@ -73,26 +74,33 @@
         this.oneClickOperationVisible = true;
       },
       checkedSaveAndRunTest() {
-        if (this.selectNames.has(this.ruleForm.testName)) {
-          this.selectIds.clear()
-          this.$warning(this.$t('load_test.already_exists'));
-          this.oneClickOperationVisible = false;
-          this.$emit('refresh')
-        } else {
+        if (this.ruleForm.testName) {
           if (this.selectProjectNames.size > 1) {
-            this.selectIds.clear()
             this.$warning(this.$t('load_test.same_project_test'));
             this.oneClickOperationVisible = false;
             this.$emit('refresh')
           } else {
-            for (let x of this.selectIds) {
-              this.getTest(x)
-            }
+            this.checkNameResult(this.ruleForm.testName)
           }
+        } else {
+          this.$warning(this.$t('api_test.input_name'))
+        }
+      },
+      checkNameResult() {
+        this.checkName(() => {
+          for (let x of this.selectIds) {
+            this.getTest(x)
+          }
+        })
+      },
+      checkName(callback) {
+        for (let i of this.selectProjectId) {
+          this.result = this.$post('/api/checkName', {name: this.ruleForm.testName, projectId: i}, () => {
+            if (callback) callback();
+          })
         }
       },
       _getEnvironmentAndRunTest: function (item) {
-        let count = 0;
         this.result = this.$get('/api/environment/list/' + item.projectId, response => {
           let environments = response.data;
           let environmentMap = new Map();

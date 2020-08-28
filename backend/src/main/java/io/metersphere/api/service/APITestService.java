@@ -245,6 +245,13 @@ public class APITestService {
             MSException.throwException(Translator.get("load_test_already_exists"));
         }
     }
+    public void checkName(SaveAPITestRequest request) {
+        ApiTestExample example = new ApiTestExample();
+        example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId());
+        if (apiTestMapper.countByExample(example) > 0) {
+            MSException.throwException(Translator.get("load_test_already_exists"));
+        }
+    }
 
     private ApiTest updateTest(SaveAPITestRequest request) {
         checkNameExist(request);

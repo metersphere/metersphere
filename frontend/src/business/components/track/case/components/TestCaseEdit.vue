@@ -352,8 +352,8 @@ export default {
     handleAddStep(index, data) {
       let step = {};
       step.num = data.num + 1;
-      step.desc = null;
-      step.result = null;
+      step.desc = "";
+      step.result = "";
       this.form.steps.forEach(step => {
         if (step.num > data.num) {
           step.num++;
