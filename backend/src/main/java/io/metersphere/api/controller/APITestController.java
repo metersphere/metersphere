@@ -94,6 +94,10 @@ public class APITestController {
     public String runDebug(@RequestPart("request")  SaveAPITestRequest request,  @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         return apiTestService.runDebug(request, file, bodyFiles);
     }
+    @PostMapping(value = "/checkName")
+    public void checkName(@RequestBody SaveAPITestRequest request) {
+        apiTestService.checkName(request);
+    }
 
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
