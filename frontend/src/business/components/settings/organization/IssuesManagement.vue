@@ -25,6 +25,9 @@
         <el-form-item :label="$t('organization.integration.jira_url')" prop="url" v-if="platform === 'Jira'">
           <el-input v-model="form.url" :placeholder="$t('organization.integration.input_jira_url')"/>
         </el-form-item>
+        <el-form-item :label="$t('organization.integration.jira_issuetype')" prop="issuetype" v-if="platform === 'Jira'">
+          <el-input v-model="form.issuetype" :placeholder="$t('organization.integration.input_jira_issuetype')"/>
+        </el-form-item>
       </el-form>
     </div>
 
@@ -43,10 +46,13 @@
     <div class="defect-tip">
       <div>{{$t('organization.integration.use_tip')}}</div>
       <div>
-        1. {{$t('organization.integration.use_tip_one')}}
+        1. {{$t('organization.integration.use_tip_tapd')}}
       </div>
       <div>
-        2. {{$t('organization.integration.use_tip_two')}}
+        2. {{$t('organization.integration.use_tip_jira')}}
+      </div>
+      <div>
+        3. {{$t('organization.integration.use_tip_two')}}
         <router-link to="/track/project/all" style="margin-left: 5px">
           {{$t('organization.integration.link_the_project_now')}}
         </router-link>
@@ -85,6 +91,11 @@
             required: true,
             message: this.$t('organization.integration.input_jira_url'),
             trigger: ['change', 'blur']
+          },
+          issuetype: {
+            required: true,
+            message: this.$t('organization.integration.input_jira_issuetype'),
+            trigger: ['change', 'blur']
           }
         },
       }
@@ -105,6 +116,7 @@
             this.$set(this.form, 'account', config.account);
             this.$set(this.form, 'password', config.password);
             this.$set(this.form, 'url', config.url);
+            this.$set(this.form, 'issuetype', config.issuetype);
           } else {
             this.clear();
           }
@@ -153,7 +165,8 @@
         let auth = {
           account: this.form.account,
           password: this.form.password,
-          url: this.form.url
+          url: this.form.url,
+          issuetype: this.form.issuetype
         };
         param.organizationId = getCurrentUser().lastOrganizationId;
         param.platform = this.platform;
@@ -188,6 +201,7 @@
             this.$set(this.form, 'account', config.account);
             this.$set(this.form, 'password', config.password);
             this.$set(this.form, 'url', config.url);
+            this.$set(this.form, 'issuetype', config.issuetype);
           } else {
             this.clear();
           }
@@ -197,6 +211,7 @@
         this.$set(this.form, 'account', '');
         this.$set(this.form, 'password', '');
         this.$set(this.form, 'url', '');
+        this.$set(this.form, 'issuetype', '');
         this.$nextTick(() => {
           this.$refs.form.clearValidate();
         });
