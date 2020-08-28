@@ -45,6 +45,7 @@
     </el-card>
 
     <el-dialog
+      :close-on-click-modal="false"
       :title="$t('test_resource_pool.create_resource_pool')"
       :visible.sync="createVisible" width="70%"
       @closed="closeFunc"
@@ -109,6 +110,7 @@
     </el-dialog>
 
     <el-dialog
+      :close-on-click-modal="false"
       v-loading="result.loading"
       :title="$t('test_resource_pool.update_resource_pool')" :visible.sync="updateVisible" width="70%"
       :destroy-on-close="true"

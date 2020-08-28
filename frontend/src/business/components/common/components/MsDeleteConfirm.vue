@@ -1,5 +1,6 @@
 <template>
-  <el-dialog :title="title"
+  <el-dialog :close-on-click-modal="false"
+             :title="title"
              :visible.sync="dialogVisible"
              class="delete-confirm" >
 

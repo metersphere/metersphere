@@ -1,5 +1,5 @@
 <template>
-  <el-dialog width="35%" class="schedule-edit" :title="$t('schedule.edit_timer_task')" :visible.sync="dialogVisible"  @close="close">
+  <el-dialog :close-on-click-modal="false" width="35%" class="schedule-edit" :title="$t('schedule.edit_timer_task')" :visible.sync="dialogVisible"  @close="close">
     <div id="app">
       <el-form :model="form" :rules="rules" ref="from">
         <el-form-item

@@ -2,7 +2,8 @@
 
   <div>
 
-    <el-dialog @close="close"
+    <el-dialog :close-on-click-modal="false"
+               @close="close"
                :title="operationType == 'edit' ? ( readOnly ? $t('test_track.case.view_case') : $t('test_track.case.edit_case')) : $t('test_track.case.create')"
                :visible.sync="dialogFormVisible" width="65%">
 
