@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :title="$t('api_test.api_import.title')" :visible.sync="visible" class="api-import" v-loading="result.loading" @close="close">
+  <el-dialog :close-on-click-modal="false" :title="$t('api_test.api_import.title')" :visible.sync="visible" class="api-import" v-loading="result.loading" @close="close">
 
     <div class="header-bar">
       <div>{{$t('api_test.api_import.data_format')}}</div>

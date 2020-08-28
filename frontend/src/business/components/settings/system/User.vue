@@ -50,7 +50,7 @@
     </el-card>
 
     <!--Create user-->
-    <el-dialog :title="$t('user.create')" :visible.sync="createVisible" width="35%" @closed="handleClose"
+    <el-dialog :close-on-click-modal="false" :title="$t('user.create')" :visible.sync="createVisible" width="35%" @closed="handleClose"
                :destroy-on-close="true">
       <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule" ref="createUserForm">
         <el-form-item label="ID" prop="id">
@@ -163,7 +163,7 @@
     </el-dialog>
 
     <!--Modify user information in system settings-->
-    <el-dialog :title="$t('user.modify')" :visible.sync="updateVisible" width="35%" :destroy-on-close="true"
+    <el-dialog :close-on-click-modal="false" :title="$t('user.modify')" :visible.sync="updateVisible" width="35%" :destroy-on-close="true"
                @close="handleClose" v-loading="result.loading">
       <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
@@ -268,7 +268,7 @@
       </template>
     </el-dialog>
     <!--Changing user password in system settings-->
-    <el-dialog :title="$t('member.edit_password')" :visible.sync="editPasswordVisible" width="30%"
+    <el-dialog :close-on-click-modal="false" :title="$t('member.edit_password')" :visible.sync="editPasswordVisible" width="30%"
                :destroy-on-close="true" @close="handleClose" left>
       <el-form :model="ruleForm" label-position="right" label-width="120px" size="small" :rules="rule"
                ref="editPasswordForm" class="demo-ruleForm">
