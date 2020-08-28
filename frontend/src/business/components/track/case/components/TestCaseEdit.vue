@@ -4,7 +4,7 @@
 
     <el-dialog @close="close"
                :title="operationType == 'edit' ? ( readOnly ? $t('test_track.case.view_case') : $t('test_track.case.edit_case')) : $t('test_track.case.create')"
-               :visible.sync="dialogFormVisible" width="65%">
+               :visible.sync="dialogFormVisible" width="65%" :close-on-click-modal="false">
 
       <el-form :model="form" :rules="rules" ref="caseFrom" v-loading="result.loading">
 

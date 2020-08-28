@@ -41,6 +41,7 @@
         tests: [],
         ruleForm: {},
         change: false,
+        projectId: "",
         rule: {
           testName: [
             {required: true, message: this.$t('api_test.input_name'), trigger: 'blur'},
@@ -61,10 +62,10 @@
       selectIds: {
         type: Set
       },
-      selectNames: {
+      selectProjectNames: {
         type: Set
       },
-      selectProjectNames: {
+      selectProjectId: {
         type: Set
       }
     },
@@ -73,22 +74,30 @@
         this.oneClickOperationVisible = true;
       },
       checkedSaveAndRunTest() {
-        if (this.selectNames.has(this.ruleForm.testName)) {
-          this.selectIds.clear()
-          this.$warning(this.$t('load_test.already_exists'));
-          this.oneClickOperationVisible = false;
-          this.$emit('refresh')
-        } else {
+        if (this.ruleForm.testName) {
           if (this.selectProjectNames.size > 1) {
-            this.selectIds.clear()
             this.$warning(this.$t('load_test.same_project_test'));
             this.oneClickOperationVisible = false;
             this.$emit('refresh')
           } else {
-            for (let x of this.selectIds) {
-              this.getTest(x)
-            }
+            this.checkNameResult(this.ruleForm.testName)
           }
+        } else {
+          this.$warning(this.$t('api_test.input_name'))
+        }
+      },
+      checkNameResult() {
+        this.checkName(() => {
+          for (let x of this.selectIds) {
+            this.getTest(x)
+          }
+        })
+      },
+      checkName(callback) {
+        for (let i of this.selectProjectId) {
+          this.result = this.$post('/api/checkName', {name: this.ruleForm.testName, projectId: i}, response => {
+            if (callback) callback();
+          })
         }
       },
       _getEnvironmentAndRunTest: function (item) {
@@ -122,6 +131,7 @@
               scenarioDefinition: JSON.parse(item.scenarioDefinition),
               schedule: {},
             });
+            console.log(test)
             this.test = this.test || test;
             if (this.tests.length > 1) {
               this.test.scenarioDefinition = this.test.scenarioDefinition.concat(test.scenarioDefinition);
