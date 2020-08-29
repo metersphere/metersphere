@@ -17,7 +17,7 @@
 
         <el-table border :data="tableData" class="adjust-table table-content" @sort-change="sort"
                   @row-click="handleView"
-                  @filter-change="filter" @select-all="handleSelectAll" @select="selectionChange">
+                  @filter-change="filter" @select-all="select" @select="select">
           <el-table-column
             type="selection"></el-table-column>
           <el-table-column prop="name" :label="$t('commons.name')" width="250" show-overflow-tooltip>
@@ -127,18 +127,7 @@
       create() {
         this.$router.push('/api/test/create');
       },
-
-      handleSelectAll(selection) {
-        this.selectIds.clear()
-        this.selectProjectNames.clear()
-        this.selectProjectId.clear()
-        selection.forEach(s => {
-          this.selectIds.add(s.id)
-          this.selectProjectNames.add(s.projectName)
-          this.selectProjectId.add(s.projectId)
-        })
-      },
-      selectionChange(selection) {
+      select(selection) {
         this.selectIds.clear()
         this.selectProjectNames.clear()
         this.selectProjectId.clear()

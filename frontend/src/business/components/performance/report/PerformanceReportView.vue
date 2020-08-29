@@ -142,6 +142,10 @@ export default {
       }
     },
     initReportTimeInfo() {
+      if (this.status === 'Starting') {
+        this.clearData();
+        return;
+      }
       if (this.reportId) {
         this.result = this.$get("/performance/report/content/report_time/" + this.reportId)
           .then(res => {
@@ -155,7 +159,7 @@ export default {
             }
           }).catch(() => {
             this.clearData();
-          })
+          });
       }
     },
     initWebSocket() {
@@ -226,10 +230,15 @@ export default {
     onMessage(e) {
       this.$set(this.report, "refresh", e.data); // 触发刷新
       this.$set(this.report, "status", 'Running');
+      this.status = 'Running';
       this.initReportTimeInfo();
       window.console.log('receive a message:', e.data);
     },
     onClose(e) {
+      if (e.code === 1005) {
+        // 强制删除之后关闭socket，不用刷新report
+        return;
+      }
       this.$set(this.report, "refresh", Math.random()); // 触发刷新
       this.$set(this.report, "status", 'Completed');
       this.initReportTimeInfo();
@@ -262,9 +271,6 @@ export default {
     });
 
   },
-  beforeDestroy() {
-    this.websocket.close() //离开路由之后断开websocket连接
-  },
   watch: {
     '$route'(to) {
       if (to.name === "perReportView") {
@@ -295,6 +301,9 @@ export default {
           });
 
         }
+      } else {
+        console.log("close socket.");
+        this.websocket.close() //离开路由之后断开websocket连接
       }
     }
   }
