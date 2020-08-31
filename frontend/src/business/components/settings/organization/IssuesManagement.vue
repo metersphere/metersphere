@@ -161,18 +161,26 @@
           this.$warning(this.$t('organization.integration.choose_platform'));
           return;
         }
-        let param = {};
-        let auth = {
-          account: this.form.account,
-          password: this.form.password,
-          url: this.form.url,
-          issuetype: this.form.issuetype
-        };
-        param.organizationId = getCurrentUser().lastOrganizationId;
-        param.platform = this.platform;
-        param.configuration = JSON.stringify(auth);
+
         this.$refs[form].validate(valid => {
           if (valid) {
+
+            let formatUrl = this.form.url;
+            if (!formatUrl.endsWith('/')) {
+              formatUrl = formatUrl + '/';
+            }
+
+            let param = {};
+            let auth = {
+              account: this.form.account,
+              password: this.form.password,
+              url: formatUrl,
+              issuetype: this.form.issuetype
+            };
+            param.organizationId = getCurrentUser().lastOrganizationId;
+            param.platform = this.platform;
+            param.configuration = JSON.stringify(auth);
+
             this.result = this.$post("service/integration/save", param, () => {
               this.show = true;
               this.showEdit = true;
