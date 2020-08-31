@@ -62,5 +62,10 @@ public class APIReportController {
         return apiReportService.dashboardTests(SessionUtils.getCurrentWorkspaceId());
     }
 
+    @PostMapping("/batch/delete")
+    public void deleteAPIReportBatch(@RequestBody DeleteAPIReportRequest reportRequest) {
+        apiReportService.deleteAPIReportBatch(reportRequest);
+    }
+
 
 }

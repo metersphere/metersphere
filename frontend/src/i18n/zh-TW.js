@@ -1,5 +1,6 @@
 export default {
   commons: {
+    help_documentation: '幫助文檔',
     delete_cancelled: '已取消删除',
     workspace: '工作空間',
     organization: '組織',
@@ -520,6 +521,7 @@ export default {
     request_cookie: "Cookie",
     response: "響應",
     delete_confirm: '確認删除報告：',
+    delete_batch_confirm: '確認批量刪除報告',
     scenario_name: "場景名稱",
     response_time: "回應時間（ms）",
     latency: "網路延遲",
@@ -542,6 +544,7 @@ export default {
     sub_result: "子請求",
     detail: "報告詳情",
     delete: "刪除報告",
+    batch_delete: "批量刪除報告",
     running: "測試執行中",
     not_exist: "測試報告不存在",
   },
@@ -804,6 +807,12 @@ export default {
     mapping_cannot_be_empty: 'LDAP 用戶屬性映射不能為空',
   },
   schedule: {
+    input_email: "請輸入郵箱帳號",
+    event: "事件",
+    receiving_mode: "接收管道",
+    receiver: "接收人",
+    operation: "操作",
+    task_notification: "任務通知",
     not_set: "未設置",
     next_execution_time: "下次執行時間",
     edit_timer_task: "編輯定時任務",

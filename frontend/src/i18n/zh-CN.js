@@ -1,5 +1,6 @@
 export default {
   commons: {
+    help_documentation: '帮助文档',
     delete_cancelled: '已取消删除',
     workspace: '工作空间',
     organization: '组织',
@@ -522,6 +523,7 @@ export default {
     request_cookie: "Cookie",
     response: "响应",
     delete_confirm: '确认删除报告: ',
+    delete_batch_confirm: '确认批量删除报告',
     scenario_name: "场景名称",
     response_time: "响应时间(ms)",
     latency: "网络延迟",
@@ -544,6 +546,7 @@ export default {
     sub_result: "子请求",
     detail: "报告详情",
     delete: "删除报告",
+    batch_delete: "批量删除报告",
     running: "测试执行中",
     not_exist: "测试报告不存在",
   },
@@ -807,6 +810,12 @@ export default {
     password_cannot_be_empty: 'LDAP 密码不能为空',
   },
   schedule: {
+    input_email: "请输入邮箱账号",
+    event: "事件",
+    receiving_mode: "接收方式",
+    receiver: "接收人",
+    operation: "操作",
+    task_notification: "任务通知",
     not_set: "未设置",
     test_name: '测试名称',
     running_rule: '运行规则',
