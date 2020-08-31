@@ -1,5 +1,6 @@
 export default {
   commons: {
+    help_documentation: '帮助文档',
     delete_cancelled: '已取消删除',
     workspace: '工作空间',
     organization: '组织',
@@ -807,6 +808,12 @@ export default {
     password_cannot_be_empty: 'LDAP 密码不能为空',
   },
   schedule: {
+    input_email: "请输入邮箱账号",
+    event: "事件",
+    receiving_mode: "接收方式",
+    receiver: "接收人",
+    operation: "操作",
+    task_notification: "任务通知",
     not_set: "未设置",
     test_name: '测试名称',
     running_rule: '运行规则',

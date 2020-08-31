@@ -1,5 +1,6 @@
 export default {
   commons: {
+    help_documentation: 'Help documentation',
     delete_cancelled: 'Delete cancelled',
     workspace: 'Workspace',
     organization: 'Organization',
@@ -805,6 +806,12 @@ export default {
     mapping_cannot_be_empty: 'LDAP mapping cannot be empty',
   },
   schedule: {
+    input_email: "Please input email account",
+    event: "event",
+    receiving_mode: "Receiving mode",
+    receiver: "Receiver",
+    operation: "operation",
+    task_notification: "Task notification",
     not_set: "Not Set",
     next_execution_time: "Next Execution Time",
     edit_timer_task: "Edit Timer Task",
