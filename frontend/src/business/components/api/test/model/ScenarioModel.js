@@ -869,11 +869,11 @@ class JMXGenerator {
               }
             }
 
-            this.addBeanShellProcessor(sampler, request);
+            this.addRequestExtractor(sampler, request);
 
             this.addRequestAssertion(sampler, request);
 
-            this.addRequestExtractor(sampler, request);
+            this.addBeanShellProcessor(sampler, request);
 
             threadGroup.put(sampler);
           }
