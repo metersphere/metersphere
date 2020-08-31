@@ -295,8 +295,10 @@ export class HTTPSamplerProxy extends DefaultTestElement {
     if (options.responseTimeout) {
       this.stringProp('HTTPSampler.response_timeout', options.responseTimeout);
     }
+    if (options.followRedirects) {
+      this.boolProp('HTTPSampler.follow_redirects', options.followRedirects, true);
+    }
 
-    this.boolProp("HTTPSampler.follow_redirects", options.follow, true);
     this.boolProp("HTTPSampler.use_keepalive", options.keepalive, true);
   }
 }

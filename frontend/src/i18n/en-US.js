@@ -448,6 +448,7 @@ export default {
       timeout_config: "Timeout Config",
       connect_timeout: "Connect Timeout",
       response_timeout: "Response Timeout",
+      follow_redirects: "Follow Redirects",
       body_upload_limit_size: "The file size does not exceed 500 MB",
       assertions: {
         label: "Assertion",
