@@ -147,4 +147,13 @@ public class APIReportService {
     }
 
 
+    public void deleteAPIReportBatch(DeleteAPIReportRequest reportRequest) {
+        ApiTestReportDetailExample apiTestReportDetailExample = new ApiTestReportDetailExample();
+        apiTestReportDetailExample.createCriteria().andReportIdIn(reportRequest.getIds());
+        apiTestReportDetailMapper.deleteByExample(apiTestReportDetailExample);
+
+        ApiTestReportExample apiTestReportExample = new ApiTestReportExample();
+        apiTestReportExample.createCriteria().andIdIn(reportRequest.getIds());
+        apiTestReportMapper.deleteByExample(apiTestReportExample);
+    }
 }
