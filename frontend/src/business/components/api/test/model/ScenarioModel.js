@@ -312,6 +312,7 @@ export class HttpRequest extends Request {
     this.enable = true;
     this.connectTimeout = 60*1000;
     this.responseTimeout = undefined;
+    this.followRedirects = true;
 
     this.set(options);
     this.sets({parameters: KeyValue, headers: KeyValue}, options);
@@ -749,6 +750,7 @@ class JMXHttpRequest {
       }
       this.connectTimeout = request.connectTimeout;
       this.responseTimeout = request.responseTimeout;
+      this.followRedirects = request.followRedirects;
 
     }
   }
@@ -867,11 +869,11 @@ class JMXGenerator {
               }
             }
 
-            this.addBeanShellProcessor(sampler, request);
+            this.addRequestExtractor(sampler, request);
 
             this.addRequestAssertion(sampler, request);
 
-            this.addRequestExtractor(sampler, request);
+            this.addBeanShellProcessor(sampler, request);
 
             threadGroup.put(sampler);
           }

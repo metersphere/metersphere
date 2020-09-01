@@ -47,4 +47,6 @@ public class HttpRequest implements Request {
     private Long connectTimeout;
     @JSONField(ordinal = 15)
     private Long responseTimeout;
+    @JSONField(ordinal = 16)
+    private Boolean followRedirects;;
 }
