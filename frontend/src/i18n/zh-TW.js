@@ -297,6 +297,8 @@ export default {
     force_stop_btn: '強制停止',
     stop_btn: '停止',
     not_exist: "測試報告不存在",
+    batch_delete: "批量刪除報告",
+    delete_batch_confirm: '確認批量刪除報告',
   },
   load_test: {
     same_project_test: '只能運行同一項目內的測試',

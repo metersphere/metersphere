@@ -298,6 +298,8 @@ export default {
     force_stop_btn: '强制停止',
     stop_btn: '停止',
     not_exist: "测试报告不存在",
+    batch_delete: "批量删除报告",
+    delete_batch_confirm: '确认批量删除报告',
   },
   load_test: {
     same_project_test: '只能运行同一项目内的测试',
