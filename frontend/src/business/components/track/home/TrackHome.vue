@@ -1,7 +1,7 @@
 <template>
   <ms-container>
     <ms-main-container>
-      <el-row>
+      <el-row :gutter="20">
         <el-col :span="15">
           <related-test-plan-list ref="relatedTestPlanList"/>
         </el-col>
@@ -14,33 +14,34 @@
 </template>
 
 <script>
-    import RelatedTestPlanList from "./components/RelatedTestPlanList";
-    import TestCaseSideList from "./components/TestCaseSideList";
-    import MsContainer from "../../common/components/MsContainer";
-    import MsMainContainer from "../../common/components/MsMainContainer";
-    export default {
-      name: "TrackHome",
-      components: {MsMainContainer, MsContainer, TestCaseSideList, RelatedTestPlanList},
-      watch: {
-        '$route'(to,from) {
-          if (to.path.indexOf('/track/home') > -1) {
-            this.innitData();
-          }
-        }
-      },
-      methods: {
-        innitData() {
-          this.$refs.relatedTestPlanList.initTableData();
-          this.$refs.testCaseRecentList.initTableData();
-        }
+import RelatedTestPlanList from "./components/RelatedTestPlanList";
+import TestCaseSideList from "./components/TestCaseSideList";
+import MsContainer from "../../common/components/MsContainer";
+import MsMainContainer from "../../common/components/MsMainContainer";
+
+export default {
+  name: "TrackHome",
+  components: {MsMainContainer, MsContainer, TestCaseSideList, RelatedTestPlanList},
+  watch: {
+    '$route'(to, from) {
+      if (to.path.indexOf('/track/home') > -1) {
+        this.innitData();
       }
     }
+  },
+  methods: {
+    innitData() {
+      this.$refs.relatedTestPlanList.initTableData();
+      this.$refs.testCaseRecentList.initTableData();
+    }
+  }
+}
 </script>
 
 <style scoped>
 
-  .ms-main-container >>> .el-table {
-    cursor:pointer;
-  }
+.ms-main-container >>> .el-table {
+  cursor: pointer;
+}
 
 </style>

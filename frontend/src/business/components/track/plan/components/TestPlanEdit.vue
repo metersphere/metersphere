@@ -2,7 +2,8 @@
 
   <div>
 
-    <el-dialog :title="operationType == 'edit' ? $t('test_track.plan.edit_plan') : $t('test_track.plan.create_plan')"
+    <el-dialog :close-on-click-modal="false"
+               :title="operationType == 'edit' ? $t('test_track.plan.edit_plan') : $t('test_track.plan.create_plan')"
                :visible.sync="dialogFormVisible"
                @close="close"
                width="65%">
