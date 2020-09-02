@@ -68,11 +68,11 @@
       <el-tab-pane :label="$t('api_test.request.extract.label')" name="extract">
         <ms-api-extract :is-read-only="isReadOnly" :extract="request.extract"/>
       </el-tab-pane>
-      <el-tab-pane :label="$t('api_test.request.processor.pre_exec_script')" name="beanShellPreProcessor">
-        <ms-bean-shell-processor :is-pre-processor="true" :is-read-only="isReadOnly" :bean-shell-processor="request.beanShellPreProcessor"/>
+      <el-tab-pane :label="$t('api_test.request.processor.pre_exec_script')" name="jsr223PreProcessor">
+        <ms-jsr233-processor :is-read-only="isReadOnly" :jsr223-processor="request.jsr223PreProcessor"/>
       </el-tab-pane>
-      <el-tab-pane :label="$t('api_test.request.processor.post_exec_script')" name="beanShellPostProcessor">
-        <ms-bean-shell-processor :is-read-only="isReadOnly" :bean-shell-processor="request.beanShellPostProcessor"/>
+      <el-tab-pane :label="$t('api_test.request.processor.post_exec_script')" name="jsr223PostProcessor">
+        <ms-jsr233-processor :is-read-only="isReadOnly" :jsr223-processor="request.jsr223PostProcessor"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.timeout_config')" name="advancedConfig">
         <ms-api-advanced-config :is-read-only="isReadOnly" :request="request"/>
@@ -90,14 +90,14 @@ import MsApiExtract from "../extract/ApiExtract";
 import ApiRequestMethodSelect from "../collapse/ApiRequestMethodSelect";
 import {REQUEST_HEADERS} from "@/common/js/constants";
 import MsApiVariable from "@/business/components/api/test/components/ApiVariable";
-import MsBeanShellProcessor from "../processor/BeanShellProcessor";
+import MsJsr233Processor from "../processor/Jsr233Processor";
 import MsApiAdvancedConfig from "../ApiAdvancedConfig";
 
 export default {
   name: "MsApiHttpRequestForm",
   components: {
+    MsJsr233Processor,
     MsApiAdvancedConfig,
-    MsBeanShellProcessor,
     MsApiVariable, ApiRequestMethodSelect, MsApiExtract, MsApiAssertions, MsApiBody, MsApiKeyValue},
   props: {
     request: HttpRequest,

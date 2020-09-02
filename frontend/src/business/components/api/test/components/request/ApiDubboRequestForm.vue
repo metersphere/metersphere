@@ -45,10 +45,10 @@
         <ms-api-extract :is-read-only="isReadOnly" :extract="request.extract"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.processor.pre_exec_script')" name="beanShellPreProcessor">
-        <ms-bean-shell-processor :is-read-only="isReadOnly" :bean-shell-processor="request.beanShellPreProcessor"/>
+        <ms-jsr233-processor :is-read-only="isReadOnly" :jsr223-processor="request.jsr223PreProcessor"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.processor.post_exec_script')" name="beanShellPostProcessor">
-        <ms-bean-shell-processor :is-read-only="isReadOnly" :bean-shell-processor="request.beanShellPostProcessor"/>
+        <ms-jsr233-processor :is-read-only="isReadOnly" :jsr223-processor="request.jsr223PostProcessor"/>
       </el-tab-pane>
     </el-tabs>
   </el-form>
@@ -65,12 +65,12 @@
   import MsDubboRegistryCenter from "@/business/components/api/test/components/request/dubbo/RegistryCenter";
   import MsDubboConfigCenter from "@/business/components/api/test/components/request/dubbo/ConfigCenter";
   import MsDubboConsumerService from "@/business/components/api/test/components/request/dubbo/ConsumerAndService";
-  import MsBeanShellProcessor from "../processor/BeanShellProcessor";
+  import MsJsr233Processor from "../processor/Jsr233Processor";
 
   export default {
     name: "MsApiDubboRequestForm",
     components: {
-      MsBeanShellProcessor,
+      MsJsr233Processor,
       MsDubboConsumerService,
       MsDubboConfigCenter,
       MsDubboRegistryCenter,
