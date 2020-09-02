@@ -396,7 +396,7 @@ export class DubboRequest extends Request {
     this.debugReport = undefined;
     this.beanShellPreProcessor = new BeanShellProcessor(options.beanShellPreProcessor);
     this.beanShellPostProcessor = new BeanShellProcessor(options.beanShellPostProcessor);
-    this.enable = true;
+    this.enable = options.enable == undefined ? true : options.enable;
     this.jsr223PreProcessor = new JSR223Processor(options.jsr223PreProcessor);
     this.jsr223PostProcessor = new JSR223Processor(options.jsr223PostProcessor);
 
@@ -956,8 +956,6 @@ class JMXGenerator {
 
   addJSR223PreProcessor(sampler, request) {
     let name = request.name;
-    let processor = {};
-    Object.assign(processor, )
     if (request.jsr223PreProcessor && request.jsr223PreProcessor.script) {
       sampler.put(new JSR223PreProcessor(name, request.jsr223PreProcessor));
     }
