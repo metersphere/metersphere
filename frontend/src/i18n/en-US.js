@@ -301,6 +301,8 @@ export default {
     force_stop_btn: 'Terminating',
     stop_btn: 'Graceful shutdown',
     not_exist: "Test report does not exist",
+    batch_delete: "Delete reports in bulk",
+    delete_batch_confirm: 'Confirm batch delete report',
   },
   load_test: {
     same_project_test: 'Only tests within the same project can be run',

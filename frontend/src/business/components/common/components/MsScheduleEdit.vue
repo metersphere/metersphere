@@ -92,147 +92,147 @@
 
 <script>
 
-  import Crontab from "../cron/Crontab";
-  import CrontabResult from "../cron/CrontabResult";
-  import {cronValidate} from "../../../../common/js/cron";
-  import {listenGoBack, removeGoBackListener} from "../../../../common/js/utils";
+import Crontab from "../cron/Crontab";
+import CrontabResult from "../cron/CrontabResult";
+import {cronValidate} from "@/common/js/cron";
+import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
 
-  function defaultCustomValidate() {
-    return {pass: true};
-  }
+function defaultCustomValidate() {
+  return {pass: true};
+}
 
-  export default {
-    name: "MsScheduleEdit",
-    components: {CrontabResult, Crontab},
-    props: {
-      save: Function,
-      schedule: {},
-      customValidate: {
-        type: Function,
-        default: defaultCustomValidate
-      },
-      isReadOnly: {
-        type: Boolean,
-        default: false
-      }
+export default {
+  name: "MsScheduleEdit",
+  components: {CrontabResult, Crontab},
+  props: {
+    save: Function,
+    schedule: {},
+    customValidate: {
+      type: Function,
+      default: defaultCustomValidate
     },
-    watch: {
-      'schedule.value'() {
-        this.form.cronValue = this.schedule.value;
+    isReadOnly: {
+      type: Boolean,
+      default: false
+    }
+  },
+  watch: {
+    'schedule.value'() {
+      this.form.cronValue = this.schedule.value;
+    }
+  },
+  data() {
+    const validateCron = (rule, cronValue, callback) => {
+      let customValidate = this.customValidate(this.getIntervalTime());
+      if (!cronValue) {
+        callback(new Error(this.$t('commons.input_content')));
+      } else if (!cronValidate(cronValue)) {
+        callback(new Error(this.$t('schedule.cron_expression_format_error')));
       }
-    },
-    data() {
-      const validateCron = (rule, cronValue, callback) => {
-        let customValidate = this.customValidate(this.getIntervalTime());
-        if (!cronValue) {
-          callback(new Error(this.$t('commons.input_content')));
-        } else if (!cronValidate(cronValue)) {
-          callback(new Error(this.$t('schedule.cron_expression_format_error')));
-        }
-          // else if(!this.intervalShortValidate()) {
-          //   callback(new Error(this.$t('schedule.cron_expression_interval_short_error')));
-        // }
-        else if (!customValidate.pass) {
-          callback(new Error(customValidate.info));
-        } else {
-          callback();
-        }
-      };
-      return {
-        operation: true,
-        dialogVisible: false,
-        showCron: false,
-        form: {
-          cronValue: ""
-        },
-        tableData: [
-          {
-            event: '执行成功',
-            receiver: '',
-            email: '',
-            operation: 1
-          }, {
-            event: '执行成功',
-            receiver: '',
-            email: '',
-            operation: 2
-          }
-        ],
-        email: "",
-        enable: true,
-        activeName: 'first',
-        rules: {
-          cronValue: [{required: true, validator: validateCron, trigger: 'blur'}],
-        }
+        // else if(!this.intervalShortValidate()) {
+        //   callback(new Error(this.$t('schedule.cron_expression_interval_short_error')));
+      // }
+      else if (!customValidate.pass) {
+        callback(new Error(customValidate.info));
+      } else {
+        callback();
       }
-    },
-    methods: {
-      handleClick() {
-
+    };
+    return {
+      operation: true,
+      dialogVisible: false,
+      showCron: false,
+      form: {
+        cronValue: ""
       },
-      open() {
-        this.dialogVisible = true;
-        this.form.cronValue = this.schedule.value;
-        listenGoBack(this.close);
-      },
-      crontabFill(value, resultList) {
-        //确定后回传的值
-        this.form.cronValue = value;
-        this.$refs.crontabResult.resultList = resultList;
-        this.$refs['from'].validate();
-      },
-      showCronDialog() {
-        this.showCron = true;
-      },
-      saveCron() {
-        this.$refs['from'].validate((valid) => {
-          if (valid) {
-            this.intervalShortValidate();
-            this.save(this.form.cronValue);
-            this.dialogVisible = false;
-          } else {
-            return false;
-          }
-        });
-      },
-      close() {
-        this.dialogVisible = false;
-        this.form.cronValue = '';
-        this.$refs['from'].resetFields();
-        if (!this.schedule.value) {
-          this.$refs.crontabResult.resultList = [];
+      tableData: [
+        {
+          event: '执行成功',
+          receiver: '',
+          email: '',
+          operation: 1
+        }, {
+          event: '执行成功',
+          receiver: '',
+          email: '',
+          operation: 2
         }
-        removeGoBackListener(this.close);
-      },
-      intervalShortValidate() {
-        if (this.getIntervalTime() < 3 * 60 * 1000) {
-          // return false;
-          this.$info(this.$t('schedule.cron_expression_interval_short_error'));
-        }
-        return true;
-      },
-      resultListChange() {
-        this.$refs['from'].validate();
-      },
-      getIntervalTime() {
-        let resultList = this.$refs.crontabResult.resultList;
-        let time1 = new Date(resultList[0]);
-        let time2 = new Date(resultList[1]);
-        return time2 - time1;
+      ],
+      email: "",
+      enable: true,
+      activeName: 'first',
+      rules: {
+        cronValue: [{required: true, validator: validateCron, trigger: 'blur'}],
       }
     }
+  },
+  methods: {
+    handleClick() {
+
+    },
+    open() {
+      this.dialogVisible = true;
+      this.form.cronValue = this.schedule.value;
+      listenGoBack(this.close);
+    },
+    crontabFill(value, resultList) {
+      //确定后回传的值
+      this.form.cronValue = value;
+      this.$refs.crontabResult.resultList = resultList;
+      this.$refs['from'].validate();
+    },
+    showCronDialog() {
+      this.showCron = true;
+    },
+    saveCron() {
+      this.$refs['from'].validate((valid) => {
+        if (valid) {
+          this.intervalShortValidate();
+          this.save(this.form.cronValue);
+          this.dialogVisible = false;
+        } else {
+          return false;
+        }
+      });
+    },
+    close() {
+      this.dialogVisible = false;
+      this.form.cronValue = '';
+      this.$refs['from'].resetFields();
+      if (!this.schedule.value) {
+        this.$refs.crontabResult.resultList = [];
+      }
+      removeGoBackListener(this.close);
+    },
+    intervalShortValidate() {
+      if (this.getIntervalTime() < 3 * 60 * 1000) {
+        // return false;
+        this.$info(this.$t('schedule.cron_expression_interval_short_error'));
+      }
+      return true;
+    },
+    resultListChange() {
+      this.$refs['from'].validate();
+    },
+    getIntervalTime() {
+      let resultList = this.$refs.crontabResult.resultList;
+      let time1 = new Date(resultList[0]);
+      let time2 = new Date(resultList[1]);
+      return time2 - time1;
+    }
   }
+}
 </script>
 
 <style scoped>
 
-  .inp {
-    width: 50%;
-    margin-right: 20px;
-  }
+.inp {
+  width: 50%;
+  margin-right: 20px;
+}
 
-  .el-form-item {
-    margin-bottom: 10px;
-  }
+.el-form-item {
+  margin-bottom: 10px;
+}
 
 </style>
