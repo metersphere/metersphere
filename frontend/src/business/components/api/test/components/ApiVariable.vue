@@ -7,10 +7,11 @@
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <el-col>
 
-          <el-input v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="200" @change="change" :placeholder="keyText" show-word-limit>
+          <el-input v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="200"
+                    @change="change" :placeholder="keyText" show-word-limit>
             <template v-slot:prepend>
-              <el-select  v-if="type === 'body'" :disabled="isReadOnly" class="kv-type" v-model="item.type">
-                <el-option value="text" />
+              <el-select v-if="type === 'body'" :disabled="isReadOnly" class="kv-type" v-model="item.type">
+                <el-option value="text"/>
                 <el-option value="file"/>
               </el-select>
             </template>
@@ -31,12 +32,12 @@
             value-key="name"
             highlight-first-item
             @select="change">
-            <i slot="suffix" class="el-input__icon el-icon-edit" style="cursor: pointer;" @click="advanced(item)"></i>
+            <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(item)"></i>
           </el-autocomplete>
         </el-col>
 
         <el-col v-if="item.type === 'file'">
-            <ms-api-body-file-upload :parameter="item"/>
+          <ms-api-body-file-upload :parameter="item"/>
         </el-col>
         <el-col class="kv-delete">
           <el-button size="mini" class="el-icon-delete-solid" circle @click="remove(index)"
@@ -155,31 +156,36 @@ export default {
 </script>
 
 <style scoped>
-  .kv-description {
-    font-size: 13px;
-  }
+.kv-description {
+  font-size: 13px;
+}
 
-  .kv-row {
-    margin-top: 10px;
-  }
+.kv-row {
+  margin-top: 10px;
+}
 
-  .kv-delete {
-    width: 60px;
-  }
+.kv-delete {
+  width: 60px;
+}
 
-  .el-autocomplete {
-    width: 100%;
-  }
+.el-autocomplete {
+  width: 100%;
+}
 
-  .advanced-item-value >>> .el-dialog__body {
-    padding: 15px 25px;
-  }
+.advanced-item-value >>> .el-dialog__body {
+  padding: 15px 25px;
+}
 
-  .el-row {
-    margin-bottom: 5px;
-  }
+.el-row {
+  margin-bottom: 5px;
+}
 
-  .kv-type {
-    width: 70px;
-  }
+.kv-type {
+  width: 70px;
+}
+
+.pointer {
+  cursor: pointer;
+  color: #1E90FF;
+}
 </style>
