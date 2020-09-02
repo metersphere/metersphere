@@ -127,7 +127,7 @@ export default {
     }
   },
   methods: {
-    initBreadcrumb() {
+    initBreadcrumb(callback) {
       if (this.reportId) {
         this.result = this.$get("/performance/report/test/pro/info/" + this.reportId, res => {
           let data = res.data;
@@ -137,6 +137,10 @@ export default {
             this.testName = data.testName;
             this.projectId = data.projectId;
             this.projectName = data.projectName;
+            //
+            if (callback) callback(res);
+          } else {
+            this.$error(this.$t('report.not_exist'));
           }
         })
       }
@@ -280,27 +284,16 @@ export default {
         }
         let reportId = to.path.split('/')[4];
         this.reportId = reportId;
-        if (reportId) {
-          this.$get("/performance/report/test/pro/info/" + reportId, response => {
-            let data = response.data;
-            if (data) {
-              this.status = data.status;
-              this.reportName = data.name;
-              this.testName = data.testName;
-              this.testId = data.testId;
-              this.projectName = data.projectName;
+        this.initBreadcrumb((response) => {
+          let data = response.data;
 
-              this.$set(this.report, "id", reportId);
-              this.$set(this.report, "status", data.status);
+          this.$set(this.report, "id", reportId);
+          this.$set(this.report, "status", data.status);
 
-              this.checkReportStatus(data.status);
-              this.initReportTimeInfo();
-            } else {
-              this.$error(this.$t('report.not_exist'));
-            }
-          });
-
-        }
+          this.checkReportStatus(data.status);
+          this.initReportTimeInfo();
+        });
+        this.initWebSocket();
       } else {
         console.log("close socket.");
         this.websocket.close() //离开路由之后断开websocket连接
