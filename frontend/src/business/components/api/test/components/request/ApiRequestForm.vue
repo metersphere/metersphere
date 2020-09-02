@@ -55,6 +55,15 @@ export default {
         this.getReport();
       }
     },
+    mounted() {
+      //兼容旧版本 beanshell
+      if (!this.request.jsr223PreProcessor.script && this.request.beanShellPreProcessor) {
+        this.request.jsr223PreProcessor = this.request.beanShellPreProcessor;
+      }
+      if (!this.request.jsr223PostProcessor.script && this.request.beanShellPostProcessor) {
+        this.request.jsr223PostProcessor = this.request.beanShellPostProcessor;
+      }
+    },
     methods: {
       getReport() {
         if (this.debugReportId) {

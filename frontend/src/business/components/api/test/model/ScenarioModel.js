@@ -9,7 +9,7 @@ import {
   HTTPSamplerArguments, HTTPsamplerFiles,
   HTTPSamplerProxy,
   JSONPathAssertion,
-  JSONPostProcessor,
+  JSONPostProcessor, JSR223PostProcessor, JSR223PreProcessor,
   RegexExtractor,
   ResponseCodeAssertion,
   ResponseDataAssertion,
@@ -309,9 +309,12 @@ export class HttpRequest extends Request {
     this.debugReport = undefined;
     this.beanShellPreProcessor = undefined;
     this.beanShellPostProcessor = undefined;
+    this.jsr223PreProcessor = undefined;
+    this.jsr223PostProcessor = undefined;
     this.enable = true;
     this.connectTimeout = 60*1000;
     this.responseTimeout = undefined;
+    this.followRedirects = true;
 
     this.set(options);
     this.sets({parameters: KeyValue, headers: KeyValue}, options);
@@ -323,8 +326,8 @@ export class HttpRequest extends Request {
     options.body = new Body(options.body);
     options.assertions = new Assertions(options.assertions);
     options.extract = new Extract(options.extract);
-    options.beanShellPreProcessor = new BeanShellProcessor(options.beanShellPreProcessor);
-    options.beanShellPostProcessor = new BeanShellProcessor(options.beanShellPostProcessor);
+    options.jsr223PreProcessor = new JSR223Processor(options.jsr223PreProcessor);
+    options.jsr223PostProcessor = new JSR223Processor(options.jsr223PostProcessor);
     return options;
   }
 
@@ -393,7 +396,9 @@ export class DubboRequest extends Request {
     this.debugReport = undefined;
     this.beanShellPreProcessor = new BeanShellProcessor(options.beanShellPreProcessor);
     this.beanShellPostProcessor = new BeanShellProcessor(options.beanShellPostProcessor);
-    this.enable = true;
+    this.enable = options.enable == undefined ? true : options.enable;
+    this.jsr223PreProcessor = new JSR223Processor(options.jsr223PreProcessor);
+    this.jsr223PostProcessor = new JSR223Processor(options.jsr223PostProcessor);
 
     this.sets({args: KeyValue, attachmentArgs: KeyValue}, options);
   }
@@ -603,6 +608,16 @@ export class BeanShellProcessor extends BaseConfig {
   }
 }
 
+
+export class JSR223Processor extends BaseConfig {
+  constructor(options) {
+    super();
+    this.script = undefined;
+    this.language = "beanshell";
+    this.set(options);
+  }
+}
+
 export class Text extends AssertionType {
   constructor(options) {
     super(ASSERTION_TYPE.TEXT);
@@ -749,6 +764,7 @@ class JMXHttpRequest {
       }
       this.connectTimeout = request.connectTimeout;
       this.responseTimeout = request.responseTimeout;
+      this.followRedirects = request.followRedirects;
 
     }
   }
@@ -867,11 +883,11 @@ class JMXGenerator {
               }
             }
 
-            this.addBeanShellProcessor(sampler, request);
+            this.addRequestExtractor(sampler, request);
 
             this.addRequestAssertion(sampler, request);
 
-            this.addRequestExtractor(sampler, request);
+            this.addJSR223PreProcessor(sampler, request);
 
             threadGroup.put(sampler);
           }
@@ -938,13 +954,13 @@ class JMXGenerator {
     }
   }
 
-  addBeanShellProcessor(sampler, request) {
+  addJSR223PreProcessor(sampler, request) {
     let name = request.name;
-    if (request.beanShellPreProcessor && request.beanShellPreProcessor.script) {
-      sampler.put(new BeanShellPreProcessor(name, request.beanShellPreProcessor));
+    if (request.jsr223PreProcessor && request.jsr223PreProcessor.script) {
+      sampler.put(new JSR223PreProcessor(name, request.jsr223PreProcessor));
     }
-    if (request.beanShellPostProcessor && request.beanShellPostProcessor.script) {
-      sampler.put(new BeanShellPostProcessor(name, request.beanShellPostProcessor));
+    if (request.jsr223PostProcessor && request.jsr223PostProcessor.script) {
+      sampler.put(new JSR223PostProcessor(name, request.jsr223PostProcessor));
     }
   }
 

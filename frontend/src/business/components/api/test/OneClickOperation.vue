@@ -26,7 +26,7 @@
   import MsApiScenarioConfig from "./components/ApiScenarioConfig";
   import MsApiReportStatus from "../report/ApiReportStatus";
   import MsApiReportDialog from "./ApiReportDialog";
-  import {getUUID} from "../../../../common/js/utils";
+  import {getUUID} from "@/common/js/utils";
 
 
   export default {
@@ -95,13 +95,12 @@
       },
       checkName(callback) {
         for (let i of this.selectProjectId) {
-          this.result = this.$post('/api/checkName', {name: this.ruleForm.testName, projectId: i}, response => {
+          this.result = this.$post('/api/checkName', {name: this.ruleForm.testName, projectId: i}, () => {
             if (callback) callback();
           })
         }
       },
       _getEnvironmentAndRunTest: function (item) {
-        let count = 0;
         this.result = this.$get('/api/environment/list/' + item.projectId, response => {
           let environments = response.data;
           let environmentMap = new Map();
@@ -131,7 +130,6 @@
               scenarioDefinition: JSON.parse(item.scenarioDefinition),
               schedule: {},
             });
-            console.log(test)
             this.test = this.test || test;
             if (this.tests.length > 1) {
               this.test.scenarioDefinition = this.test.scenarioDefinition.concat(test.scenarioDefinition);

@@ -295,8 +295,10 @@ export class HTTPSamplerProxy extends DefaultTestElement {
     if (options.responseTimeout) {
       this.stringProp('HTTPSampler.response_timeout', options.responseTimeout);
     }
+    if (options.followRedirects) {
+      this.boolProp('HTTPSampler.follow_redirects', options.followRedirects, true);
+    }
 
-    this.boolProp("HTTPSampler.follow_redirects", options.follow, true);
     this.boolProp("HTTPSampler.use_keepalive", options.keepalive, true);
   }
 }
@@ -438,6 +440,30 @@ export class BeanShellProcessor extends DefaultTestElement {
     this.stringProp('parameters');
     this.stringProp('filename');
     this.stringProp('script', processor.script);
+  }
+}
+
+export class JSR223Processor extends DefaultTestElement {
+  constructor(tag, guiclass, testclass, testname, processor) {
+    super(tag, guiclass, testclass, testname);
+    this.processor = processor || {};
+    this.stringProp('cacheKey', 'true');
+    this.stringProp('filename');
+    this.stringProp('parameters');
+    this.stringProp('script', this.processor.script);
+    this.stringProp('scriptLanguage', this.processor.language);
+  }
+}
+
+export class JSR223PreProcessor extends JSR223Processor {
+  constructor(testName, processor) {
+    super('JSR223PreProcessor', 'TestBeanGUI', 'JSR223PreProcessor', testName, processor)
+  }
+}
+
+export class JSR223PostProcessor extends JSR223Processor {
+  constructor(testName, processor) {
+    super('JSR223PostProcessor', 'TestBeanGUI', 'JSR223PostProcessor', testName, processor)
   }
 }
 

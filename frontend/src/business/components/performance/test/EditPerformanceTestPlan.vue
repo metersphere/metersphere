@@ -58,7 +58,7 @@ import PerformancePressureConfig from "./components/PerformancePressureConfig";
 import PerformanceAdvancedConfig from "./components/PerformanceAdvancedConfig";
 import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
-import {checkoutTestManagerOrTestUser} from "../../../../common/js/utils";
+import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
 import MsScheduleConfig from "../../common/components/MsScheduleConfig";
 import {LIST_CHANGE, PerformanceEvent} from "@/business/components/common/head/ListEvent";
 

@@ -344,7 +344,7 @@ export default {
 
 <style scoped>
 .test-container {
-  height: calc(100vh - 150px);
+  height: calc(100vh - 155px);
   min-height: 600px;
 }
 

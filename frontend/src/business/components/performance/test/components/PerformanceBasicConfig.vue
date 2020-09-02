@@ -4,7 +4,7 @@
       accept=".jmx,.csv"
       drag
       action=""
-      :limit="2"
+      :limit="5"
       multiple
       :show-file-list="false"
       :before-upload="beforeUpload"
