@@ -1,5 +1,6 @@
 <template>
   <el-dialog :close-on-click-modal="false" width="50%" class="schedule-edit" :visible.sync="dialogVisible"
+  <el-dialog :close-on-click-modal="false" width="70%" class="schedule-edit" :visible.sync="dialogVisible"
              @close="close">
     <template>
       <div>
@@ -111,14 +112,14 @@
 
 <script>
 
-  import Crontab from "../cron/Crontab";
-  import CrontabResult from "../cron/CrontabResult";
-  import {cronValidate} from "../../../../common/js/cron";
-  import {listenGoBack, removeGoBackListener} from "../../../../common/js/utils";
+import Crontab from "../cron/Crontab";
+import CrontabResult from "../cron/CrontabResult";
+import {cronValidate} from "@/common/js/cron";
+import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
 
-  function defaultCustomValidate() {
-    return {pass: true};
-  }
+function defaultCustomValidate() {
+  return {pass: true};
+}
 
   export default {
     name: "MsScheduleEdit",
@@ -271,13 +272,13 @@
 
 <style scoped>
 
-  .inp {
-    width: 50%;
-    margin-right: 20px;
-  }
+.inp {
+  width: 50%;
+  margin-right: 20px;
+}
 
-  .el-form-item {
-    margin-bottom: 10px;
-  }
+.el-form-item {
+  margin-bottom: 10px;
+}
 
 </style>

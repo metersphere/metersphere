@@ -38,6 +38,7 @@
         v-model="request.useEnvironment"
         :active-text="$t('api_test.request.refer_to_environment')" @change="useEnvironmentChange">
       </el-switch>
+      <el-checkbox class="follow-redirects-item" v-model="request.followRedirects">{{$t('api_test.request.follow_redirects')}}</el-checkbox>
     </el-form-item>
 
     <el-button :disabled="!request.enable || !scenario.enable || isReadOnly" class="debug-button" size="small" type="primary" @click="runDebug">{{ $t('api_test.request.debug') }}</el-button>
@@ -219,6 +220,10 @@ export default {
 
 .environment-url-tip {
   color: #F56C6C;
+}
+
+.follow-redirects-item {
+  margin-left: 30px;
 }
 
 </style>

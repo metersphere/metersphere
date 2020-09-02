@@ -20,7 +20,7 @@ MeterSphere 是一站式的开源企业级持续测试平台，涵盖测试跟�
 
 ## UI 展示
 
-![UI](https://metersphere.io/images/screenshot/ss07.png)
+![UI](https://metersphere.io/images/screenshot/ss01.png)
 
 ## 在线体验
 - 环境地址：https://demo.metersphere.com/
@@ -48,6 +48,9 @@ curl -sSL https://github.com/metersphere/metersphere/releases/latest/download/qu
 
 - [完整文档](https://metersphere.io/docs/)
 - [演示视频](http://video.fit2cloud.com/%E3%80%90%E6%BC%94%E7%A4%BA%E8%A7%86%E9%A2%91%E3%80%91202006%20MeterSphere%20v1.0%20%E5%8A%9F%E8%83%BD%E6%BC%94%E7%A4%BA.mp4)
+
+## MeterSphere 企业版
+[申请企业版使用](https://jinshuju.net/f/CzzAOe)
 
 ## 相关工具
 

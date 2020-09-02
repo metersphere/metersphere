@@ -25,7 +25,7 @@
                            :total="total"/>
     </el-card>
 
-    <el-dialog :title="$t('member.create')" :visible.sync="createVisible" width="30%" :destroy-on-close="true"
+    <el-dialog :close-on-click-modal="false" :title="$t('member.create')" :visible.sync="createVisible" width="30%" :destroy-on-close="true"
                @close="handleClose">
       <el-form :model="form" ref="form" :rules="rules" label-position="right" label-width="100px" size="small">
         <el-form-item :label="$t('commons.member')" prop="ids"
@@ -73,7 +73,7 @@
       </template>
     </el-dialog>
 
-    <el-dialog :title="$t('member.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true"
+    <el-dialog :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true"
                @close="handleClose">
       <el-form :model="form" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
