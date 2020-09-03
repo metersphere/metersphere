@@ -5,7 +5,7 @@ spring:
   mail:
     host: smtp.qq.com
     username: 2363807763@qq.com
-    password: rvadbyjyqfbtdifb
+    password: rerdbyjyqfbtdifb
   resources:
     static-locations: classpath:/resources/, classpath:/static/ ,classpath:/templates/
 

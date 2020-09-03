@@ -1,6 +1,5 @@
 <template>
   <el-dialog :close-on-click-modal="false" width="50%" class="schedule-edit" :visible.sync="dialogVisible"
-  <el-dialog :close-on-click-modal="false" width="70%" class="schedule-edit" :visible.sync="dialogVisible"
              @close="close">
     <template>
       <div>
@@ -78,9 +77,9 @@
                   >
                   <template slot-scope="scope">
                     <el-switch
-                      v-model="scope.row.status"
-                      :active-value="1"
-                      :inactive-value="2"
+                      v-model="scope.row.enable"
+                      :active-value="true"
+                      :inactive-value="false"
                       active-color="#13ce66"
                       inactive-color="#ff4949"
                     />
@@ -92,12 +91,12 @@
                       type="primary"
                       icon="el-icon-plus"
                       circle size="mini"
-                      @click="handleAddStep(scope.$index, scope.row)"></el-button>
+                      @click="handleAddStep(scope.$index)"></el-button>
                     <el-button
                       type="danger"
                       icon="el-icon-delete"
                       circle size="mini"
-                      @click="handleDeleteStep(scope.$index, scope.row)"></el-button>
+                      @click="handleDeleteStep(scope.$index)"></el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -178,13 +177,13 @@ function defaultCustomValidate() {
         value: '',
         tableData: [
           {
-            receiver:"",
-            mail:"",
-            enable:""
+            receiver: "",
+            email: "",
+            enable: false
           }
         ],
+        enable: false,
         email: "",
-        enable: true,
         activeName: 'first',
         rules: {
           cronValue: [{required: true, validator: validateCron, trigger: 'blur'}],
@@ -197,23 +196,26 @@ function defaultCustomValidate() {
       },
       saveNotice(){
         let param = this.buildParam();
-       this.result=this.$post(()=>{
+        /* this.result=this.$post("notice/save",param,()=>{
 
-        })
+          })*/
 
       },
       buildParam() {
         let param = {};
+        param.form = this.tableData
+        param.testId = ""
+        param.event = this.value
         return param;
       },
-      handleAddStep(index, data) {
-        let step = {};
-        step.num = data.num + 1;
-        step.desc = null;
-        step.result = null;
-        this.tableData.splice(index + 1, 0, step);
+      handleAddStep(index) {
+        let form = {}
+        form.receiver = null;
+        form.email = null;
+        form.enable = null
+        this.tableData.splice(index + 1, 0, form);
       },
-      handleDeleteStep(index, data) {
+      handleDeleteStep(index) {
         this.tableData.splice(index, 1);
       },
       open() {

@@ -1,4 +1,4 @@
-package io.metersphere.mail;
+package io.metersphere.notice.domain;
 
 import lombok.Data;
 

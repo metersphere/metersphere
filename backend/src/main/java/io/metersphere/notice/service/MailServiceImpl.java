@@ -1,5 +1,6 @@
-package io.metersphere.mail;
+package io.metersphere.notice.service;
 
+import io.metersphere.notice.service.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
