@@ -12,7 +12,7 @@ public class KeyValue {
     private String type;
     private List<BodyFile> files;
     private String description;
-
+    private boolean checked;
     public KeyValue() {
     }
 

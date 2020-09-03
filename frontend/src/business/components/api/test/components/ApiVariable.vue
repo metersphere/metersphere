@@ -5,8 +5,11 @@
     </span>
     <div class="kv-row" v-for="(item, index) in parameters" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
-        <el-col>
 
+        <el-col class="kv-checkbox">
+          <input type="checkbox" v-if="!isDisable(index)" @change="change" :value="item.uuid" v-model="checkedValues"  :disabled="isDisable(index) || isReadOnly"/>
+        </el-col>
+        <el-col>
           <el-input v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="200" @change="change" :placeholder="keyText" show-word-limit>
             <template v-slot:prepend>
               <el-select  v-if="type === 'body'" :disabled="isReadOnly" class="kv-type" v-model="item.type">
@@ -79,6 +82,7 @@ export default {
   data() {
     return {
       currentItem: null,
+      checkedValues:[]
     }
   },
   computed: {
@@ -91,6 +95,10 @@ export default {
   },
   methods: {
     remove: function (index) {
+      // 移除勾选内容
+      let checkIndex = this.checkedValues.indexOf(this.parameters[index].uuid);
+      checkIndex != -1 ? this.checkedValues.splice(checkIndex,1): this.checkedValues;
+      // 移除整行输入控件及内容
       this.parameters.splice(index, 1);
       this.$emit('change', this.parameters);
     },
@@ -98,6 +106,9 @@ export default {
       let isNeedCreate = true;
       let removeIndex = -1;
       this.parameters.forEach((item, index) => {
+        // 启用行赋值
+        item.checked=this.checkedValues.indexOf(item.uuid) != -1 ? true:false;
+
         if (!item.name && !item.value) {
           // 多余的空行
           if (index !== this.parameters.length - 1) {
@@ -108,7 +119,11 @@ export default {
         }
       });
       if (isNeedCreate) {
-        this.parameters.push(new KeyValue(null, null, 'text'));
+        // 往后台送入的复选框值布尔值
+        this.parameters[this.parameters.length-1].checked = true;
+        // v-model 选中状态
+        this.checkedValues.push(this.parameters[this.parameters.length-1].uuid);
+        this.parameters.push(new KeyValue(null, null, 'text',false,this.uuid()));
       }
       this.$emit('change', this.parameters);
       // TODO 检查key重复
@@ -137,7 +152,9 @@ export default {
         return (func.name.toLowerCase().indexOf(queryString.toLowerCase()) > -1);
       };
     },
-
+    uuid: function () {
+      return (((1+Math.random())*0x100000)|0).toString(16).substring(1);
+    },
     advanced(item) {
       this.$refs.variableAdvance.open();
       this.currentItem = item;
@@ -148,7 +165,15 @@ export default {
   },
   created() {
     if (this.parameters.length === 0) {
-      this.parameters.push(new KeyValue(null, null, 'text'));
+      this.parameters.push(new KeyValue(null, null, 'text',false,this.uuid()));
+    }else{
+      this.parameters.forEach((item, index) => {
+        let uuid = this.uuid();
+        item.uuid = uuid;
+        if(item.checked){
+          this.checkedValues.push(uuid);
+        }
+      })
     }
   }
 }
@@ -166,7 +191,10 @@ export default {
   .kv-delete {
     width: 60px;
   }
-
+  .kv-checkbox {
+    width: 20px;
+    margin-right: 10px;
+  }
   .el-autocomplete {
     width: 100%;
   }

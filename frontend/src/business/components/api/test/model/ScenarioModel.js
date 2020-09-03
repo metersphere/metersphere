@@ -537,7 +537,7 @@ export class Body extends BaseConfig {
 
 export class KeyValue extends BaseConfig {
   constructor() {
-    let options, key, value, type;
+    let options, key, value, type,checked,uuid;
     if (arguments.length === 1) {
       options = arguments[0];
     }
@@ -551,13 +551,20 @@ export class KeyValue extends BaseConfig {
       value = arguments[1];
       type = arguments[2];
     }
-
+    if (arguments.length === 5) {
+      key = arguments[0];
+      value = arguments[1];
+      type = arguments[2];
+      checked = arguments[3];
+      uuid = arguments[4];
+    }
     super();
     this.name = key;
     this.value = value;
     this.type = type;
     this.files = undefined;
-
+    this.checked = checked;
+    this.uuid = uuid;
     this.set(options);
   }
 
@@ -759,7 +766,7 @@ class JMXHttpRequest {
     if (this.method.toUpperCase() !== "GET") {
       let parameters = [];
       request.parameters.forEach(parameter => {
-        if (parameter.name && parameter.value) {
+        if (parameter.name && parameter.value && parameter.checked) {
           parameters.push(parameter);
         }
       });

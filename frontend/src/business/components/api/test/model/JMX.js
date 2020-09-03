@@ -318,14 +318,16 @@ export class HTTPSamplerArguments extends Element {
 
     let collectionProp = this.collectionProp('Arguments.arguments');
     this.args.forEach(arg => {
-      let elementProp = collectionProp.elementProp(arg.name, 'HTTPArgument');
-      elementProp.boolProp('HTTPArgument.always_encode', arg.encode, true);
-      elementProp.boolProp('HTTPArgument.use_equals', arg.equals, true);
-      if (arg.name) {
-        elementProp.stringProp('Argument.name', arg.name);
+      if(arg.checked) { // 非禁用的条件加入执行
+        let elementProp = collectionProp.elementProp(arg.name, 'HTTPArgument');
+        elementProp.boolProp('HTTPArgument.always_encode', arg.encode, true);
+        elementProp.boolProp('HTTPArgument.use_equals', arg.equals, true);
+        if (arg.name) {
+          elementProp.stringProp('Argument.name', arg.name);
+        }
+        elementProp.stringProp('Argument.value', arg.value);
+        elementProp.stringProp('Argument.metadata', arg.metadata || "=");
       }
-      elementProp.stringProp('Argument.value', arg.value);
-      elementProp.stringProp('Argument.metadata', arg.metadata || "=");
     });
   }
 }
@@ -462,11 +464,12 @@ export class HeaderManager extends DefaultTestElement {
 
     let collectionProp = this.collectionProp('HeaderManager.headers');
 
-
     this.headers.forEach(header => {
       let elementProp = collectionProp.elementProp('', 'Header');
-      elementProp.stringProp('Header.name', header.name);
-      elementProp.stringProp('Header.value', header.value);
+      if(header.checked) {
+        elementProp.stringProp('Header.name', header.name);
+        elementProp.stringProp('Header.value', header.value);
+      }
     });
   }
 }
@@ -477,12 +480,15 @@ export class Arguments extends DefaultTestElement {
     this.args = args || [];
 
     let collectionProp = this.collectionProp('Arguments.arguments');
+
     this.args.forEach(arg => {
-      let elementProp = collectionProp.elementProp(arg.name, 'Argument');
-      elementProp.stringProp('Argument.name', arg.name);
-      elementProp.stringProp('Argument.value', arg.value);
-      elementProp.stringProp('Argument.desc', arg.desc);
-      elementProp.stringProp('Argument.metadata', arg.metadata, "=");
+      if(arg.checked) { // 非禁用的条件加入执行
+        let elementProp = collectionProp.elementProp(arg.name, 'Argument');
+        elementProp.stringProp('Argument.name', arg.name);
+        elementProp.stringProp('Argument.value', arg.value);
+        elementProp.stringProp('Argument.desc', arg.desc);
+        elementProp.stringProp('Argument.metadata', arg.metadata, "=");
+      }
     });
   }
 }
@@ -501,10 +507,12 @@ export class ElementArguments extends Element {
     let collectionProp = this.collectionProp('Arguments.arguments');
     if (args) {
       args.forEach(arg => {
-        let elementProp = collectionProp.elementProp(arg.name, 'Argument');
-        elementProp.stringProp('Argument.name', arg.name);
-        elementProp.stringProp('Argument.value', arg.value);
-        elementProp.stringProp('Argument.metadata', arg.metadata, "=");
+        if(arg.checked) { // 非禁用的条件加入执行
+          let elementProp = collectionProp.elementProp(arg.name, 'Argument');
+          elementProp.stringProp('Argument.name', arg.name);
+          elementProp.stringProp('Argument.value', arg.value);
+          elementProp.stringProp('Argument.metadata', arg.metadata, "=");
+        }
       });
     }
   }
