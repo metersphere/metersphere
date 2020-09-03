@@ -65,6 +65,7 @@
         <!--要生成的数据库表 -->
 
         <table tableName="schedule"/>
+        <table tableName="notice"/>
 
 
     </context>

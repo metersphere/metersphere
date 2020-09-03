@@ -814,7 +814,7 @@ export default {
   schedule: {
     input_email: "請輸入郵箱帳號",
     event: "事件",
-    receiving_mode: "接收管道",
+    receiving_mode: "郵箱",
     receiver: "接收人",
     operation: "操作",
     task_notification: "任務通知",

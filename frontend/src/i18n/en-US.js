@@ -816,7 +816,7 @@ export default {
   schedule: {
     input_email: "Please input email account",
     event: "event",
-    receiving_mode: "Receiving mode",
+    receiving_mode: "mailbox",
     receiver: "Receiver",
     operation: "operation",
     task_notification: "Task notification",

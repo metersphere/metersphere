@@ -2,9 +2,10 @@
   <div >
     <el-row>
       <el-col :span="20" class="script-content">
-        <ms-code-edit v-if="isCodeEditAlive" mode="java" :read-only="isReadOnly" :data.sync="beanShellProcessor.script" theme="eclipse" :modes="['java']" ref="codeEdit"/>
+        <ms-code-edit v-if="isCodeEditAlive" :mode="codeEditModeMap[jsr223Processor.language]" :read-only="isReadOnly" :data.sync="jsr223Processor.script" theme="eclipse" :modes="['java','python']" ref="codeEdit"/>
       </el-col>
       <el-col :span="4" class="script-index">
+        <ms-dropdown :default-command="jsr223Processor.language" :commands="languages" @command="languageChange"/>
         <div class="template-title">{{$t('api_test.request.processor.code_template')}}</div>
         <div v-for="(template, index) in codeTemplates" :key="index" class="code-template">
           <el-link :disabled="template.disabled" @click="addTemplate(template)">{{template.title}}</el-link>
@@ -21,9 +22,13 @@
 <script>
     import MsCodeEdit from "../../../../common/components/MsCodeEdit";
     import MsInstructionsIcon from "../../../../common/components/MsInstructionsIcon";
+    import MsDropdown from "../../../../common/components/MsDropdown";
+
+
+
     export default {
-      name: "MsBeanShellProcessor",
-      components: {MsInstructionsIcon, MsCodeEdit},
+      name: "MsJsr233Processor",
+      components: {MsDropdown, MsInstructionsIcon, MsCodeEdit},
       data() {
         return {
           codeTemplates: [
@@ -51,7 +56,14 @@
               disabled: this.isPreProcessor
             }
           ],
-          isCodeEditAlive: true
+          isCodeEditAlive: true,
+          languages: [
+            'beanshell',"python"
+          ],
+          codeEditModeMap: {
+            beanshell: 'java',
+            python: 'python'
+          }
         }
       },
       props: {
@@ -62,7 +74,7 @@
           type: Boolean,
           default: false
         },
-        beanShellProcessor: {
+        jsr223Processor: {
           type: Object,
         },
         isPreProcessor: {
@@ -70,17 +82,25 @@
           default: false
         }
       },
+      watch: {
+        jsr223Processor() {
+          this.reload();
+        }
+      },
       methods: {
         addTemplate(template) {
-          if (!this.beanShellProcessor.script) {
-            this.beanShellProcessor.script = "";
+          if (!this.jsr223Processor.script) {
+            this.jsr223Processor.script = "";
           }
-          this.beanShellProcessor.script += template.value;
+          this.jsr223Processor.script += template.value;
           this.reload();
         },
         reload() {
           this.isCodeEditAlive = false;
           this.$nextTick(() => (this.isCodeEditAlive = true));
+        },
+        languageChange(language) {
+          this.jsr223Processor.language = language;
         }
       }
     }
@@ -100,13 +120,10 @@
    padding: 0 20px;
   }
 
-  .script-index div:first-child {
-    font-weight: bold;
-    font-size: 15px;
-  }
-
   .template-title {
     margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 15px;
   }
 
   .document-url {
@@ -115,6 +132,10 @@
 
   .instructions-icon {
     margin-left: 5px;
+  }
+
+  .ms-dropdown {
+    margin-bottom: 20px;
   }
 
 </style>

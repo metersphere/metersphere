@@ -452,7 +452,7 @@ export default {
       timeout_config: "超时设置",
       connect_timeout: "连接超时",
       response_timeout: "响应超时",
-      follow_redirects: "跟隨重定向",
+      follow_redirects: "跟随重定向",
       body_upload_limit_size: "上传文件大小不能超过 500 MB!",
       assertions: {
         label: "断言",
@@ -818,7 +818,7 @@ export default {
   schedule: {
     input_email: "请输入邮箱账号",
     event: "事件",
-    receiving_mode: "接收方式",
+    receiving_mode: "邮箱",
     receiver: "接收人",
     operation: "操作",
     task_notification: "任务通知",
