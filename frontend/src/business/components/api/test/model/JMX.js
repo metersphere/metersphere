@@ -443,6 +443,30 @@ export class BeanShellProcessor extends DefaultTestElement {
   }
 }
 
+export class JSR223Processor extends DefaultTestElement {
+  constructor(tag, guiclass, testclass, testname, processor) {
+    super(tag, guiclass, testclass, testname);
+    this.processor = processor || {};
+    this.stringProp('cacheKey', 'true');
+    this.stringProp('filename');
+    this.stringProp('parameters');
+    this.stringProp('script', this.processor.script);
+    this.stringProp('scriptLanguage', this.processor.language);
+  }
+}
+
+export class JSR223PreProcessor extends JSR223Processor {
+  constructor(testName, processor) {
+    super('JSR223PreProcessor', 'TestBeanGUI', 'JSR223PreProcessor', testName, processor)
+  }
+}
+
+export class JSR223PostProcessor extends JSR223Processor {
+  constructor(testName, processor) {
+    super('JSR223PostProcessor', 'TestBeanGUI', 'JSR223PostProcessor', testName, processor)
+  }
+}
+
 export class BeanShellPreProcessor extends BeanShellProcessor {
   constructor(testName, processor) {
     super('BeanShellPreProcessor', 'TestBeanGUI', 'BeanShellPreProcessor', testName, processor)

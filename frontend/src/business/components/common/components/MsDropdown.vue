@@ -1,5 +1,5 @@
 <template>
-  <el-dropdown @command="handleCommand">
+  <el-dropdown @command="handleCommand" class="ms-dropdown">
     <slot>
       <span class="el-dropdown-link">
         {{currentCommand}}
