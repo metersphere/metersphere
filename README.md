@@ -51,6 +51,7 @@ curl -sSL https://github.com/metersphere/metersphere/releases/latest/download/qu
 
 ## MeterSphere 企业版
 [申请企业版使用](https://jinshuju.net/f/CzzAOe)
+> 注: 企业版支持离线安装，申请通过后会提供高速下载链接
 
 ## 相关工具
 
