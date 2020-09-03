@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import {Request, RequestFactory, Scenario} from "../../model/ScenarioModel";
+  import {JSR223Processor, Request, RequestFactory, Scenario} from "../../model/ScenarioModel";
 import MsApiHttpRequestForm from "./ApiHttpRequestForm";
 import MsApiDubboRequestForm from "./ApiDubboRequestForm";
 import MsScenarioResults from "../../../report/components/ScenarioResults";
@@ -58,10 +58,10 @@ export default {
     mounted() {
       //兼容旧版本 beanshell
       if (!this.request.jsr223PreProcessor.script && this.request.beanShellPreProcessor) {
-        this.request.jsr223PreProcessor = this.request.beanShellPreProcessor;
+        this.request.jsr223PreProcessor = new JSR223Processor(this.request.beanShellPreProcessor);
       }
       if (!this.request.jsr223PostProcessor.script && this.request.beanShellPostProcessor) {
-        this.request.jsr223PostProcessor = this.request.beanShellPostProcessor;
+        this.request.jsr223PostProcessor = new JSR223Processor(this.request.beanShellPostProcessor);
       }
     },
     methods: {
