@@ -82,6 +82,11 @@
           default: false
         }
       },
+      watch: {
+        jsr223Processor() {
+          this.reload();
+        }
+      },
       methods: {
         addTemplate(template) {
           if (!this.jsr223Processor.script) {
