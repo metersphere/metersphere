@@ -6,7 +6,8 @@
     <div class="kv-row" v-for="(item, index) in items" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <el-col class="kv-checkbox">
-          <input type="checkbox" v-if="!isDisable(index)" @change="change" :value="item.uuid" v-model="checkedValues" :disabled="isDisable(index) || isReadOnly"/>
+          <input type="checkbox" v-if="!isDisable(index)" @change="change" :value="item.uuid" v-model="checkedValues"
+                 :disabled="isDisable(index) || isReadOnly"/>
         </el-col>
 
         <el-col>
@@ -32,122 +33,123 @@
 </template>
 
 <script>
-import {KeyValue} from "../model/ScenarioModel";
+  import {KeyValue} from "../model/ScenarioModel";
 
-export default {
-  name: "MsApiKeyValue",
+  export default {
+    name: "MsApiKeyValue",
 
-  props: {
-    keyPlaceholder: String,
-    valuePlaceholder: String,
-    description: String,
-    items: Array,
-    isReadOnly: {
-      type: Boolean,
-      default: false
+    props: {
+      keyPlaceholder: String,
+      valuePlaceholder: String,
+      description: String,
+      items: Array,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      },
+      suggestions: Array
     },
-    suggestions: Array
-  },
-  data() {
-    return {
-      checkedValues:[]
-    }
-  },
-  computed: {
-    keyText() {
-      return this.keyPlaceholder || this.$t("api_test.key");
-    },
-    valueText() {
-      return this.valuePlaceholder || this.$t("api_test.value");
-    }
-  },
-
-  methods: {
-    remove: function (index) {
-      // 移除勾选内容
-      let checkIndex = this.checkedValues.indexOf(this.items[index].uuid);
-      checkIndex != -1 ? this.checkedValues.splice(checkIndex,1): this.checkedValues;
-      // 移除整行输入控件及内容
-      this.items.splice(index, 1);
-      this.$emit('change', this.items);
-    },
-    change: function () {
-      let isNeedCreate = true;
-      let removeIndex = -1;
-      this.items.forEach((item, index) => {
-        // 启用行赋值
-        item.checked=this.checkedValues.indexOf(item.uuid) != -1 ? true:false;
-
-        if (!item.name && !item.value) {
-          // 多余的空行
-          if (index !== this.items.length - 1) {
-            removeIndex = index;
-          }
-          // 没有空行，需要创建空行
-          isNeedCreate = false;
-        }
-      });
-      if (isNeedCreate) {
-        // 往后台送入的复选框值布尔值
-        this.items[this.items.length-1].checked = true;
-        // v-model 选中状态
-        this.checkedValues.push(this.items[this.items.length-1].uuid);
-        this.items.push(new KeyValue());
+    data() {
+      return {
+        checkedValues: []
       }
-      this.$emit('change', this.items);
-      // TODO 检查key重复
     },
-    isDisable: function (index) {
-      return this.items.length - 1 === index;
+    computed: {
+      keyText() {
+        return this.keyPlaceholder || this.$t("api_test.key");
+      },
+      valueText() {
+        return this.valuePlaceholder || this.$t("api_test.value");
+      }
     },
-    querySearch(queryString, cb) {
-      let suggestions = this.suggestions;
-      let results = queryString ? suggestions.filter(this.createFilter(queryString)) : suggestions;
-      cb(results);
-    },
-    uuid: function () {
-      return (((1+Math.random())*0x100000)|0).toString(16).substring(1);
-    },
-    createFilter(queryString) {
-      return (restaurant) => {
-        return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
-      };
-    },
-  },
-  created() {
-    if (this.items.length === 0) {
-      this.items.push(new KeyValue());
-    }else{
-      this.items.forEach((item, index) => {
-        let uuid = this.uuid();
-        item.uuid = uuid;
-        if(item.checked){
-          this.checkedValues.push(uuid);
+
+    methods: {
+      remove: function (index) {
+        // 移除勾选内容
+        let checkIndex = this.checkedValues.indexOf(this.items[index].uuid);
+        checkIndex != -1 ? this.checkedValues.splice(checkIndex, 1) : this.checkedValues;
+        // 移除整行输入控件及内容
+        this.items.splice(index, 1);
+        this.$emit('change', this.items);
+      },
+      change: function () {
+        let isNeedCreate = true;
+        let removeIndex = -1;
+        this.items.forEach((item, index) => {
+          // 启用行赋值
+          item.enable = this.checkedValues.indexOf(item.uuid) != -1 ? true : false;
+
+          if (!item.name && !item.value) {
+            // 多余的空行
+            if (index !== this.items.length - 1) {
+              removeIndex = index;
+            }
+            // 没有空行，需要创建空行
+            isNeedCreate = false;
+          }
+        });
+        if (isNeedCreate) {
+          // 往后台送入的复选框值布尔值
+          this.items[this.items.length - 1].enable = true;
+          // v-model 选中状态
+          this.checkedValues.push(this.items[this.items.length - 1].uuid);
+          this.items.push(new KeyValue());
         }
-      })
+        this.$emit('change', this.items);
+        // TODO 检查key重复
+      },
+      isDisable: function (index) {
+        return this.items.length - 1 === index;
+      },
+      querySearch(queryString, cb) {
+        let suggestions = this.suggestions;
+        let results = queryString ? suggestions.filter(this.createFilter(queryString)) : suggestions;
+        cb(results);
+      },
+      uuid: function () {
+        return (((1 + Math.random()) * 0x100000) | 0).toString(16).substring(1);
+      },
+      createFilter(queryString) {
+        return (restaurant) => {
+          return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+        };
+      },
+    },
+    created() {
+      if (this.items.length === 0) {
+        this.items.push(new KeyValue());
+      } else {
+        this.items.forEach((item, index) => {
+          let uuid = this.uuid();
+          item.uuid = uuid;
+          if (item.enable) {
+            this.checkedValues.push(uuid);
+          }
+        })
+      }
     }
   }
-}
 </script>
 
 <style scoped>
-.kv-description {
-  font-size: 13px;
-}
+  .kv-description {
+    font-size: 13px;
+  }
 
-.kv-row {
-  margin-top: 10px;
-}
-.kv-checkbox {
-  width: 20px;
-  margin-right: 10px;
-}
+  .kv-row {
+    margin-top: 10px;
+  }
 
-.kv-delete {
-  width: 60px;
-}
+  .kv-checkbox {
+    width: 20px;
+    margin-right: 10px;
+  }
 
-.el-autocomplete {
-  width: 100%;
-}
+  .kv-delete {
+    width: 60px;
+  }
+
+  .el-autocomplete {
+    width: 100%;
+  }
 </style>

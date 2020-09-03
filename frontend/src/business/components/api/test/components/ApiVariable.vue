@@ -7,7 +7,8 @@
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
 
         <el-col class="kv-checkbox">
-          <input type="checkbox" v-if="!isDisable(index)" @change="change" :value="item.uuid" v-model="checkedValues"  :disabled="isDisable(index) || isReadOnly"/>
+          <input type="checkbox" v-if="!isDisable(index)" @change="change" :value="item.uuid" v-model="checkedValues"
+                 :disabled="isDisable(index) || isReadOnly"/>
         </el-col>
         <el-col>
 
@@ -56,166 +57,167 @@
 </template>
 
 <script>
-import {KeyValue, Scenario} from "../model/ScenarioModel";
-import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
-import MsApiVariableAdvance from "@/business/components/api/test/components/ApiVariableAdvance";
-import MsApiBodyFileUpload from "./body/ApiBodyFileUpload";
+  import {KeyValue, Scenario} from "../model/ScenarioModel";
+  import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
+  import MsApiVariableAdvance from "@/business/components/api/test/components/ApiVariableAdvance";
+  import MsApiBodyFileUpload from "./body/ApiBodyFileUpload";
 
-export default {
-  name: "MsApiVariable",
-  components: {MsApiBodyFileUpload, MsApiVariableAdvance},
-  props: {
-    keyPlaceholder: String,
-    valuePlaceholder: String,
-    description: String,
-    parameters: Array,
-    environment: Object,
-    scenario: Scenario,
-    type: {
-      type: String,
-      default: ''
+  export default {
+    name: "MsApiVariable",
+    components: {MsApiBodyFileUpload, MsApiVariableAdvance},
+    props: {
+      keyPlaceholder: String,
+      valuePlaceholder: String,
+      description: String,
+      parameters: Array,
+      environment: Object,
+      scenario: Scenario,
+      type: {
+        type: String,
+        default: ''
+      },
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      },
+      suggestions: Array
     },
-    isReadOnly: {
-      type: Boolean,
-      default: false
-    },
-    suggestions: Array
-  },
-  data() {
-    return {
-      currentItem: null,
-      checkedValues:[]
-    }
-  },
-  computed: {
-    keyText() {
-      return this.keyPlaceholder || this.$t("api_test.key");
-    },
-    valueText() {
-      return this.valuePlaceholder || this.$t("api_test.value");
-    }
-  },
-  methods: {
-    remove: function (index) {
-      // 移除勾选内容
-      let checkIndex = this.checkedValues.indexOf(this.parameters[index].uuid);
-      checkIndex != -1 ? this.checkedValues.splice(checkIndex,1): this.checkedValues;
-      // 移除整行输入控件及内容
-      this.parameters.splice(index, 1);
-      this.$emit('change', this.parameters);
-    },
-    change: function () {
-      let isNeedCreate = true;
-      let removeIndex = -1;
-      this.parameters.forEach((item, index) => {
-        // 启用行赋值
-        item.checked=this.checkedValues.indexOf(item.uuid) != -1 ? true:false;
-
-        if (!item.name && !item.value) {
-          // 多余的空行
-          if (index !== this.parameters.length - 1) {
-            removeIndex = index;
-          }
-          // 没有空行，需要创建空行
-          isNeedCreate = false;
-        }
-      });
-      if (isNeedCreate) {
-        // 往后台送入的复选框值布尔值
-        this.parameters[this.parameters.length-1].checked = true;
-        // v-model 选中状态
-        this.checkedValues.push(this.parameters[this.parameters.length-1].uuid);
-        this.parameters.push(new KeyValue(null, null, 'text',false,this.uuid()));
+    data() {
+      return {
+        currentItem: null,
+        checkedValues: []
       }
-      this.$emit('change', this.parameters);
-      // TODO 检查key重复
     },
-    isDisable: function (index) {
-      return this.parameters.length - 1 === index;
+    computed: {
+      keyText() {
+        return this.keyPlaceholder || this.$t("api_test.key");
+      },
+      valueText() {
+        return this.valuePlaceholder || this.$t("api_test.value");
+      }
     },
-    querySearch(queryString, cb) {
-      let suggestions = this.suggestions;
-      let results = queryString ? suggestions.filter(this.createFilter(queryString)) : suggestions;
-      cb(results);
-    },
-    createFilter(queryString) {
-      return (restaurant) => {
-        return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
-      };
-    },
-    funcSearch(queryString, cb) {
-      let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
-      let results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
-      // 调用 callback 返回建议列表的数据
-      cb(results);
-    },
-    funcFilter(queryString) {
-      return (func) => {
-        return (func.name.toLowerCase().indexOf(queryString.toLowerCase()) > -1);
-      };
-    },
-    uuid: function () {
-      return (((1+Math.random())*0x100000)|0).toString(16).substring(1);
-    },
-    advanced(item) {
-      this.$refs.variableAdvance.open();
-      this.currentItem = item;
-      this.itemValue = '';
-      this.mockVariableFuncs = [];
-    },
+    methods: {
+      remove: function (index) {
+        // 移除勾选内容
+        let checkIndex = this.checkedValues.indexOf(this.parameters[index].uuid);
+        checkIndex != -1 ? this.checkedValues.splice(checkIndex, 1) : this.checkedValues;
+        // 移除整行输入控件及内容
+        this.parameters.splice(index, 1);
+        this.$emit('change', this.parameters);
+      },
+      change: function () {
+        let isNeedCreate = true;
+        let removeIndex = -1;
+        this.parameters.forEach((item, index) => {
+          // 启用行赋值
+          item.enable = this.checkedValues.indexOf(item.uuid) != -1 ? true : false;
 
-  },
-  created() {
-    if (this.parameters.length === 0) {
-      this.parameters.push(new KeyValue(null, null, 'text',false,this.uuid()));
-    }else{
-      this.parameters.forEach((item, index) => {
-        let uuid = this.uuid();
-        item.uuid = uuid;
-        if(item.checked){
-          this.checkedValues.push(uuid);
+          if (!item.name && !item.value) {
+            // 多余的空行
+            if (index !== this.parameters.length - 1) {
+              removeIndex = index;
+            }
+            // 没有空行，需要创建空行
+            isNeedCreate = false;
+          }
+        });
+        if (isNeedCreate) {
+          // 往后台送入的复选框值布尔值
+          this.parameters[this.parameters.length - 1].enable = true;
+          // v-model 选中状态
+          this.checkedValues.push(this.parameters[this.parameters.length - 1].uuid);
+          this.parameters.push(new KeyValue(null, null, 'text', false, this.uuid()));
         }
-      })
+        this.$emit('change', this.parameters);
+        // TODO 检查key重复
+      },
+      isDisable: function (index) {
+        return this.parameters.length - 1 === index;
+      },
+      querySearch(queryString, cb) {
+        let suggestions = this.suggestions;
+        let results = queryString ? suggestions.filter(this.createFilter(queryString)) : suggestions;
+        cb(results);
+      },
+      createFilter(queryString) {
+        return (restaurant) => {
+          return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+        };
+      },
+      funcSearch(queryString, cb) {
+        let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
+        let results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
+        // 调用 callback 返回建议列表的数据
+        cb(results);
+      },
+      funcFilter(queryString) {
+        return (func) => {
+          return (func.name.toLowerCase().indexOf(queryString.toLowerCase()) > -1);
+        };
+      },
+      uuid: function () {
+        return (((1 + Math.random()) * 0x100000) | 0).toString(16).substring(1);
+      },
+      advanced(item) {
+        this.$refs.variableAdvance.open();
+        this.currentItem = item;
+        this.itemValue = '';
+        this.mockVariableFuncs = [];
+      },
+
+    },
+    created() {
+      if (this.parameters.length === 0) {
+        this.parameters.push(new KeyValue(null, null, 'text', false, this.uuid()));
+      } else {
+        this.parameters.forEach((item, index) => {
+          let uuid = this.uuid();
+          item.uuid = uuid;
+          if (item.enable) {
+            this.checkedValues.push(uuid);
+          }
+        })
+      }
     }
   }
-}
 </script>
 
 <style scoped>
-.kv-description {
-  font-size: 13px;
-}
+  .kv-description {
+    font-size: 13px;
+  }
 
-.kv-row {
-  margin-top: 10px;
-}
+  .kv-row {
+    margin-top: 10px;
+  }
 
-.kv-delete {
-  width: 60px;
-}
+  .kv-delete {
+    width: 60px;
+  }
 
-.el-autocomplete {
-  width: 100%;
-}
-.kv-checkbox {
-  width: 20px;
-  margin-right: 10px;
-}
+  .el-autocomplete {
+    width: 100%;
+  }
 
-.advanced-item-value >>> .el-dialog__body {
-  padding: 15px 25px;
-}
+  .kv-checkbox {
+    width: 20px;
+    margin-right: 10px;
+  }
 
-.el-row {
-  margin-bottom: 5px;
-}
+  .advanced-item-value >>> .el-dialog__body {
+    padding: 15px 25px;
+  }
 
-.kv-type {
-  width: 70px;
-}
+  .el-row {
+    margin-bottom: 5px;
+  }
 
-.pointer {
-  cursor: pointer;
-  color: #1E90FF;
-}
+  .kv-type {
+    width: 70px;
+  }
+
+  .pointer {
+    cursor: pointer;
+    color: #1E90FF;
+  }
 </style>

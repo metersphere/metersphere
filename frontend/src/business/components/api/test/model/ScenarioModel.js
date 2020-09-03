@@ -312,7 +312,7 @@ export class HttpRequest extends Request {
     this.jsr223PreProcessor = undefined;
     this.jsr223PostProcessor = undefined;
     this.enable = true;
-    this.connectTimeout = 60*1000;
+    this.connectTimeout = 60 * 1000;
     this.responseTimeout = undefined;
     this.followRedirects = true;
 
@@ -541,7 +541,7 @@ export class Body extends BaseConfig {
 
 export class KeyValue extends BaseConfig {
   constructor() {
-    let options, key, value, type,checked,uuid;
+    let options, key, value, type, enable, uuid;
     if (arguments.length === 1) {
       options = arguments[0];
     }
@@ -559,7 +559,7 @@ export class KeyValue extends BaseConfig {
       key = arguments[0];
       value = arguments[1];
       type = arguments[2];
-      checked = arguments[3];
+      enable = arguments[3];
       uuid = arguments[4];
     }
     super();
@@ -567,7 +567,7 @@ export class KeyValue extends BaseConfig {
     this.value = value;
     this.type = type;
     this.files = undefined;
-    this.checked = checked;
+    this.enable = enable;
     this.uuid = uuid;
     this.set(options);
   }
@@ -780,7 +780,7 @@ class JMXHttpRequest {
     if (this.method.toUpperCase() !== "GET") {
       let parameters = [];
       request.parameters.forEach(parameter => {
-        if (parameter.name && parameter.value && parameter.checked) {
+        if (parameter.name && parameter.value && parameter.enable) {
           parameters.push(parameter);
         }
       });
