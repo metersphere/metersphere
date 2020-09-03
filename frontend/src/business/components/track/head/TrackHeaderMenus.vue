@@ -100,12 +100,7 @@ export default {
   },
   mounted() {
     this.init();
-    let self = this;
-    TrackEvent.$on(LIST_CHANGE, () => {
-      self.$refs.projectRecent.recent();
-      self.$refs.planRecent.recent();
-      self.$refs.caseRecent.recent();
-    });
+    this.registerEvents();
   },
   methods: {
     reload() {
@@ -132,6 +127,13 @@ export default {
         this.testCaseEditPath = path;
         this.reload();
       }
+    },
+    registerEvents() {
+      TrackEvent.$on(LIST_CHANGE, () => {
+        this.$refs.projectRecent.recent();
+        this.$refs.planRecent.recent();
+        this.$refs.caseRecent.recent();
+      });
     }
   }
 }
