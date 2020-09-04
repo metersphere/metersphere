@@ -53,7 +53,7 @@
                          :description="$t('api_test.request.parameters_desc')"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.headers')" name="headers">
-        <ms-api-key-value :is-read-only="isReadOnly" :suggestions="headerSuggestions" :items="request.headers"/>
+        <ms-api-key-value :is-read-only="isReadOnly" :isShowEnable="true" :suggestions="headerSuggestions" :items="request.headers"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.body')" name="body" v-if="isNotGet">
         <ms-api-body :is-read-only="isReadOnly"

@@ -1,6 +1,7 @@
 import {
   Arguments, BeanShellPostProcessor, BeanShellPreProcessor,
   CookieManager,
+  DNSCacheManager,
   DubboSample,
   DurationAssertion,
   Element,
@@ -870,6 +871,8 @@ class JMXGenerator {
         this.addScenarioHeaders(threadGroup, scenario);
 
         this.addScenarioCookieManager(threadGroup, scenario);
+        // 放在计划或线程组中，不建议放具体某个请求中
+        this.addDNSCacheManager(threadGroup, scenario.requests[0]);
 
         scenario.requests.forEach(request => {
           if (request.enable) {
@@ -937,6 +940,17 @@ class JMXGenerator {
   addScenarioCookieManager(threadGroup, scenario) {
     if (scenario.enableCookieShare) {
       threadGroup.put(new CookieManager(scenario.name));
+    }
+  }
+
+  addDNSCacheManager(threadGroup, request) {
+    if (request.environment && request.environment.hosts) {
+      let name = request.name + " DNSCacheManager";
+      let hosts = JSON.parse(request.environment.hosts);
+      if (hosts.length > 0) {
+        let domain = request.environment.protocol+"://"+request.environment.domain;
+        threadGroup.put(new DNSCacheManager(name,domain ,hosts));
+      }
     }
   }
 

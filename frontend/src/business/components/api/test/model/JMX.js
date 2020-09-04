@@ -498,6 +498,24 @@ export class HeaderManager extends DefaultTestElement {
   }
 }
 
+export class DNSCacheManager extends DefaultTestElement {
+  constructor(testName,domain, hosts) {
+    super('DNSCacheManager', 'DNSCachePanel', 'DNSCacheManager', testName);
+    let collectionPropServers = this.collectionProp('DNSCacheManager.servers');
+    let collectionPropHosts = this.collectionProp('DNSCacheManager.hosts');
+
+    hosts.forEach(host => {
+      let elementProp = collectionPropHosts.elementProp('', 'StaticHost');
+      if (host && host.domain.trim() === domain.trim()) {
+        elementProp.stringProp('StaticHost.Name', host.domain);
+        elementProp.stringProp('StaticHost.Address', host.ip);
+      }
+    });
+
+    let boolProp = this.boolProp('DNSCacheManager.isCustomResolver', true);
+  }
+}
+
 export class Arguments extends DefaultTestElement {
   constructor(testName, args) {
     super('Arguments', 'ArgumentsPanel', 'Arguments', testName);
