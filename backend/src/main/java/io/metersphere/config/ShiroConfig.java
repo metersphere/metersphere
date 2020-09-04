@@ -102,7 +102,7 @@ public class ShiroConfig implements EnvironmentAware {
 
     @Bean
     public SessionManager sessionManager(MemoryConstrainedCacheManager memoryConstrainedCacheManager) {
-        Long sessionTimeout = env.getProperty("session.timeout", Long.class, 1800L); // 默认1800s, 半个小时
+        Long sessionTimeout = env.getProperty("session.timeout", Long.class, 43200L); // 默认43200s, 12个小时
         return ShiroUtils.getSessionManager(sessionTimeout, memoryConstrainedCacheManager);
     }
 
