@@ -948,8 +948,8 @@ class JMXGenerator {
       let name = request.name + " DNSCacheManager";
       let hosts = JSON.parse(request.environment.hosts);
       if (hosts.length > 0) {
-        let domain = request.environment.protocol + "://" + request.environment.domain;
-        threadGroup.put(new DNSCacheManager(name, domain, hosts));
+        //let domain = request.environment.protocol + "://" + request.environment.domain;
+        threadGroup.put(new DNSCacheManager(name, request.environment.domain, hosts));
       }
     }
   }

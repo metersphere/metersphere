@@ -123,6 +123,9 @@
       validateDomain(domain) {
         let url = {};
         try {
+          if (!domain.startsWith("http") || !domain.startsWith("https")) {
+            domain += "http://";
+          }
           url = new URL(domain);
         } catch (e) {
           this.$warning(this.$t('load_test.input_domain'));
