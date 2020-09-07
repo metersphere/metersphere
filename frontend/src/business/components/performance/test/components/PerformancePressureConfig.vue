@@ -164,6 +164,7 @@ export default {
       } else {
         this.calculateChart();
       }
+      this.getResourcePools();
     },
   },
   methods: {

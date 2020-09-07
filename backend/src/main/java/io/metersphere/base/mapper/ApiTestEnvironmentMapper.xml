@@ -14,6 +14,7 @@
     <result column="variables" jdbcType="LONGVARCHAR" property="variables" />
     <result column="headers" jdbcType="LONGVARCHAR" property="headers" />
     <result column="custom_data" jdbcType="LONGVARCHAR" property="customData" />
+    <result column="hosts" jdbcType="LONGVARCHAR" property="hosts" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -77,7 +78,7 @@
     id, `name`, project_id, protocol, socket, `domain`, port
   </sql>
   <sql id="Blob_Column_List">
-    `variables`, headers, custom_data
+    `variables`, headers, custom_data,hosts
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.ApiTestEnvironmentExample" resultMap="ResultMapWithBLOBs">
     select
@@ -131,11 +132,11 @@
     insert into api_test_environment (id, `name`, project_id, 
       protocol, socket, `domain`, 
       port, `variables`, headers, 
-      custom_data)
+      custom_data,hosts)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
       #{protocol,jdbcType=VARCHAR}, #{socket,jdbcType=VARCHAR}, #{domain,jdbcType=VARCHAR}, 
       #{port,jdbcType=INTEGER}, #{variables,jdbcType=LONGVARCHAR}, #{headers,jdbcType=LONGVARCHAR}, 
-      #{customData,jdbcType=LONGVARCHAR})
+      #{customData,jdbcType=LONGVARCHAR},#{hosts,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs">
     insert into api_test_environment
@@ -170,6 +171,10 @@
       <if test="customData != null">
         custom_data,
       </if>
+      <if test="hosts != null">
+        hosts,
+      </if>
+
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -201,6 +206,9 @@
       </if>
       <if test="customData != null">
         #{customData,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="hosts != null">
+        #{hosts,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -243,6 +251,9 @@
       <if test="record.customData != null">
         custom_data = #{record.customData,jdbcType=LONGVARCHAR},
       </if>
+      <if test="record.hosts != null">
+        hosts = #{hosts,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -259,7 +270,8 @@
       port = #{record.port,jdbcType=INTEGER},
       `variables` = #{record.variables,jdbcType=LONGVARCHAR},
       headers = #{record.headers,jdbcType=LONGVARCHAR},
-      custom_data = #{record.customData,jdbcType=LONGVARCHAR}
+      custom_data = #{record.customData,jdbcType=LONGVARCHAR},
+      hosts = #{hosts,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -307,6 +319,9 @@
       <if test="customData != null">
         custom_data = #{customData,jdbcType=LONGVARCHAR},
       </if>
+      <if test="hosts != null">
+        hosts = #{hosts,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -320,7 +335,8 @@
       port = #{port,jdbcType=INTEGER},
       `variables` = #{variables,jdbcType=LONGVARCHAR},
       headers = #{headers,jdbcType=LONGVARCHAR},
-      custom_data = #{customData,jdbcType=LONGVARCHAR}
+      custom_data = #{customData,jdbcType=LONGVARCHAR},
+      hosts = #{hosts,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.ApiTestEnvironment">

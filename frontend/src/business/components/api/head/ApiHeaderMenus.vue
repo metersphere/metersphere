@@ -87,13 +87,17 @@ export default {
       }
     }
   },
+  methods: {
+    registerEvents() {
+      ApiEvent.$on(LIST_CHANGE, () => {
+        this.$refs.projectRecent.recent();
+        this.$refs.testRecent.recent();
+        this.$refs.reportRecent.recent();
+      });
+    }
+  },
   mounted() {
-    let self = this;
-    ApiEvent.$on(LIST_CHANGE, () => {
-      self.$refs.projectRecent.recent();
-      self.$refs.testRecent.recent();
-      self.$refs.reportRecent.recent();
-    });
+    this.registerEvents();
   }
 }
 

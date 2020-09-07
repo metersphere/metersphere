@@ -207,7 +207,12 @@ export default {
           });
           this.scenarios.forEach(scenario => {
             if (scenario.environmentId) {
-              scenario.environment = environmentMap.get(scenario.environmentId);
+              let env = environmentMap.get(scenario.environmentId);
+              if (!env) {
+                scenario.environmentId = undefined;
+              } else {
+                scenario.environment = env;
+              }
             }
           });
         });

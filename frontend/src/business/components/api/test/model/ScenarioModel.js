@@ -1,6 +1,7 @@
 import {
   Arguments, BeanShellPostProcessor, BeanShellPreProcessor,
   CookieManager,
+  DNSCacheManager,
   DubboSample,
   DurationAssertion,
   Element,
@@ -9,7 +10,7 @@ import {
   HTTPSamplerArguments, HTTPsamplerFiles,
   HTTPSamplerProxy,
   JSONPathAssertion,
-  JSONPostProcessor,
+  JSONPostProcessor, JSR223PostProcessor, JSR223PreProcessor,
   RegexExtractor,
   ResponseCodeAssertion,
   ResponseDataAssertion,
@@ -316,9 +317,12 @@ export class HttpRequest extends Request {
     this.debugReport = undefined;
     this.beanShellPreProcessor = undefined;
     this.beanShellPostProcessor = undefined;
+    this.jsr223PreProcessor = undefined;
+    this.jsr223PostProcessor = undefined;
     this.enable = true;
     this.connectTimeout = 60 * 1000;
     this.responseTimeout = undefined;
+    this.followRedirects = true;
 
     this.set(options);
     this.sets({parameters: KeyValue, headers: KeyValue}, options);
@@ -330,8 +334,8 @@ export class HttpRequest extends Request {
     options.body = new Body(options.body);
     options.assertions = new Assertions(options.assertions);
     options.extract = new Extract(options.extract);
-    options.beanShellPreProcessor = new BeanShellProcessor(options.beanShellPreProcessor);
-    options.beanShellPostProcessor = new BeanShellProcessor(options.beanShellPostProcessor);
+    options.jsr223PreProcessor = new JSR223Processor(options.jsr223PreProcessor);
+    options.jsr223PostProcessor = new JSR223Processor(options.jsr223PostProcessor);
     return options;
   }
 
@@ -401,7 +405,9 @@ export class DubboRequest extends Request {
     this.debugReport = undefined;
     this.beanShellPreProcessor = new BeanShellProcessor(options.beanShellPreProcessor);
     this.beanShellPostProcessor = new BeanShellProcessor(options.beanShellPostProcessor);
-    this.enable = true;
+    this.enable = options.enable == undefined ? true : options.enable;
+    this.jsr223PreProcessor = new JSR223Processor(options.jsr223PreProcessor);
+    this.jsr223PostProcessor = new JSR223Processor(options.jsr223PostProcessor);
 
     this.sets({args: KeyValue, attachmentArgs: KeyValue}, options);
   }
@@ -544,7 +550,7 @@ export class Body extends BaseConfig {
 
 export class KeyValue extends BaseConfig {
   constructor() {
-    let options, key, value, type;
+    let options, key, value, type, enable, uuid;
     if (arguments.length === 1) {
       options = arguments[0];
     }
@@ -558,13 +564,20 @@ export class KeyValue extends BaseConfig {
       value = arguments[1];
       type = arguments[2];
     }
-
+    if (arguments.length === 5) {
+      key = arguments[0];
+      value = arguments[1];
+      type = arguments[2];
+      enable = arguments[3];
+      uuid = arguments[4];
+    }
     super();
     this.name = key;
     this.value = value;
     this.type = type;
     this.files = undefined;
-
+    this.enable = enable;
+    this.uuid = uuid;
     this.set(options);
   }
 
@@ -607,6 +620,16 @@ export class BeanShellProcessor extends BaseConfig {
   constructor(options) {
     super();
     this.script = undefined;
+    this.set(options);
+  }
+}
+
+
+export class JSR223Processor extends BaseConfig {
+  constructor(options) {
+    super();
+    this.script = undefined;
+    this.language = "beanshell";
     this.set(options);
   }
 }
@@ -757,6 +780,7 @@ class JMXHttpRequest {
       }
       this.connectTimeout = request.connectTimeout;
       this.responseTimeout = request.responseTimeout;
+      this.followRedirects = request.followRedirects;
 
     }
   }
@@ -765,7 +789,7 @@ class JMXHttpRequest {
     if (this.method.toUpperCase() !== "GET") {
       let parameters = [];
       request.parameters.forEach(parameter => {
-        if (parameter.name && parameter.value) {
+        if (parameter.name && parameter.value && parameter.enable === true) {
           parameters.push(parameter);
         }
       });
@@ -855,6 +879,8 @@ class JMXGenerator {
         this.addScenarioHeaders(threadGroup, scenario);
 
         this.addScenarioCookieManager(threadGroup, scenario);
+        // 放在计划或线程组中，不建议放具体某个请求中
+        this.addDNSCacheManager(threadGroup, scenario.requests[0]);
 
         scenario.requests.forEach(request => {
           if (request.enable) {
@@ -875,11 +901,11 @@ class JMXGenerator {
               }
             }
 
-            this.addBeanShellProcessor(sampler, request);
+            this.addRequestExtractor(sampler, request);
 
             this.addRequestAssertion(sampler, request);
 
-            this.addRequestExtractor(sampler, request);
+            this.addJSR223PreProcessor(sampler, request);
 
             threadGroup.put(sampler);
           }
@@ -925,6 +951,17 @@ class JMXGenerator {
     }
   }
 
+  addDNSCacheManager(threadGroup, request) {
+    if (request.environment && request.environment.hosts) {
+      let name = request.name + " DNSCacheManager";
+      let hosts = JSON.parse(request.environment.hosts);
+      if (hosts.length > 0) {
+        let domain = request.environment.protocol + "://" + request.environment.domain;
+        threadGroup.put(new DNSCacheManager(name, domain, hosts));
+      }
+    }
+  }
+
   addScenarioHeaders(threadGroup, scenario) {
     let environment = scenario.environment;
     if (environment) {
@@ -946,13 +983,13 @@ class JMXGenerator {
     }
   }
 
-  addBeanShellProcessor(sampler, request) {
+  addJSR223PreProcessor(sampler, request) {
     let name = request.name;
-    if (request.beanShellPreProcessor && request.beanShellPreProcessor.script) {
-      sampler.put(new BeanShellPreProcessor(name, request.beanShellPreProcessor));
+    if (request.jsr223PreProcessor && request.jsr223PreProcessor.script) {
+      sampler.put(new JSR223PreProcessor(name, request.jsr223PreProcessor));
     }
-    if (request.beanShellPostProcessor && request.beanShellPostProcessor.script) {
-      sampler.put(new BeanShellPostProcessor(name, request.beanShellPostProcessor));
+    if (request.jsr223PostProcessor && request.jsr223PostProcessor.script) {
+      sampler.put(new JSR223PostProcessor(name, request.jsr223PostProcessor));
     }
   }
 

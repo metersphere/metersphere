@@ -224,6 +224,10 @@ public class IssuesService {
         String account = object.getString("account");
         String password = object.getString("password");
         String url = object.getString("url");
+        String issuetype = object.getString("issuetype");
+        if (StringUtils.isBlank(issuetype)) {
+            MSException.throwException("Jira 问题类型为空");
+        }
         String auth = EncryptUtils.base64Encoding(account + ":" + password);
 
         String testCaseId = issuesRequest.getTestCaseId();
@@ -252,8 +256,7 @@ public class IssuesService {
                 "        \"summary\":\"" + issuesRequest.getTitle() + "\",\n" +
                 "        \"description\": " + JSON.toJSONString(desc) + ",\n" +
                 "        \"issuetype\":{\n" +
-                "            \"id\":\"10009\",\n" +
-                "            \"name\":\"Defect\"\n" +
+                "            \"name\":\"" + issuetype + "\"\n" +
                 "        }\n" +
                 "    }\n" +
                 "}";
