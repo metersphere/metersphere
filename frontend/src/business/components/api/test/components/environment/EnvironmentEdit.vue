@@ -27,7 +27,7 @@
         </el-switch>
       </el-form-item>
 
-      <ms-api-host-table v-if="envEnable" :hostTable="environment.hosts"/>
+      <ms-api-host-table v-if="envEnable" :hostTable="environment.hosts" ref="refHostTable"/>
 
       <span>{{$t('api_test.environment.globalVariable')}}</span>
       <ms-api-scenario-variables :show-variable="false" :items="environment.variables"/>
@@ -87,12 +87,20 @@
     methods: {
       save() {
         this.$refs['environment'].validate((valid) => {
-          if (valid) {
+          // 校验host列表
+          let valHost = true;
+          if (this.envEnable) {
+            for (let i = 0; i < this.environment.hosts.length; i++) {
+              valHost = this.$refs['refHostTable'].confirm(this.environment.hosts[i]);
+            }
+          }
+          if (valid && valHost) {
             this._save(this.environment);
           } else {
             return false;
           }
         });
+
       },
       _save(environment) {
         let param = this.buildParam(environment);
