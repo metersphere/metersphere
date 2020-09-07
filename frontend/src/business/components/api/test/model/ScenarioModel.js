@@ -781,7 +781,7 @@ class JMXHttpRequest {
     if (this.method.toUpperCase() !== "GET") {
       let parameters = [];
       request.parameters.forEach(parameter => {
-        if (parameter.name && parameter.value && parameter.enable) {
+        if (parameter.name && parameter.value && parameter.enable === true) {
           parameters.push(parameter);
         }
       });
@@ -948,8 +948,8 @@ class JMXGenerator {
       let name = request.name + " DNSCacheManager";
       let hosts = JSON.parse(request.environment.hosts);
       if (hosts.length > 0) {
-        let domain = request.environment.protocol+"://"+request.environment.domain;
-        threadGroup.put(new DNSCacheManager(name,domain ,hosts));
+        let domain = request.environment.protocol + "://" + request.environment.domain;
+        threadGroup.put(new DNSCacheManager(name, domain, hosts));
       }
     }
   }
