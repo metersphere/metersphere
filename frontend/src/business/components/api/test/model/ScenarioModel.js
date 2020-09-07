@@ -550,7 +550,7 @@ export class Body extends BaseConfig {
 
 export class KeyValue extends BaseConfig {
   constructor() {
-    let options, key, value, type, enable, uuid;
+    let options, key, value, type, enable =true, uuid;
     if (arguments.length === 1) {
       options = arguments[0];
     }
@@ -1038,7 +1038,7 @@ class JMXGenerator {
       this.addRequestBodyFile(httpSamplerProxy, request, testId);
     } else {
       httpSamplerProxy.boolProp('HTTPSampler.postBodyRaw', true);
-      body.push({name: '', value: request.body.raw, encode: false});
+      body.push({name: '', value: request.body.raw, encode: false,enable:true});
     }
 
     httpSamplerProxy.add(new HTTPSamplerArguments(body));
