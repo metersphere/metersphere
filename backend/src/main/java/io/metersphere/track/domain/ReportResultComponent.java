@@ -1,7 +1,5 @@
 package io.metersphere.track.domain;
 
-import com.alibaba.fastjson.JSON;
-import io.metersphere.base.domain.Issues;
 import io.metersphere.base.domain.TestCaseNode;
 import io.metersphere.base.domain.TestCaseNodeExample;
 import io.metersphere.base.mapper.TestCaseNodeMapper;
@@ -11,6 +9,7 @@ import io.metersphere.commons.utils.MathUtils;
 import io.metersphere.track.dto.*;
 import io.metersphere.track.service.IssuesService;
 import io.metersphere.track.service.TestCaseNodeService;
+import io.metersphere.track.service.TestPlanProjectService;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -30,8 +29,9 @@ public class ReportResultComponent extends ReportComponent {
     public void init() {
         TestCaseNodeService testCaseNodeService = (TestCaseNodeService) CommonBeanFactory.getBean("testCaseNodeService");
         TestCaseNodeMapper testCaseNodeMapper = (TestCaseNodeMapper) CommonBeanFactory.getBean("testCaseNodeMapper");
+        TestPlanProjectService testPlanProjectService = (TestPlanProjectService) CommonBeanFactory.getBean("testPlanProjectService");
         TestCaseNodeExample testCaseNodeExample = new TestCaseNodeExample();
-        testCaseNodeExample.createCriteria().andProjectIdEqualTo(testPlan.getProjectId());
+        testCaseNodeExample.createCriteria().andProjectIdIn(testPlanProjectService.getProjectIdsByPlanId(testPlan.getId()));
         List<TestCaseNode> nodes = testCaseNodeMapper.selectByExample(testCaseNodeExample);
         nodeTrees = testCaseNodeService.getNodeTrees(nodes);
         nodeTrees.forEach(item -> {

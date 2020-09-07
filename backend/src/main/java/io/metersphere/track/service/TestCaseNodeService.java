@@ -2,10 +2,7 @@ package io.metersphere.track.service;
 
 
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.TestCaseMapper;
-import io.metersphere.base.mapper.TestCaseNodeMapper;
-import io.metersphere.base.mapper.TestPlanMapper;
-import io.metersphere.base.mapper.TestPlanTestCaseMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
@@ -15,6 +12,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.dto.TestCaseNodeDTO;
 import io.metersphere.track.request.testcase.DragNodeRequest;
+import io.metersphere.track.request.testcase.QueryNodeRequest;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -43,6 +41,10 @@ public class TestCaseNodeService {
     ExtTestCaseMapper extTestCaseMapper;
     @Resource
     SqlSessionFactory sqlSessionFactory;
+    @Resource
+    TestPlanProjectService testPlanProjectService;
+    @Resource
+    ProjectMapper projectMapper;
 
     public String addNode(TestCaseNode node) {
         validateNode(node);
@@ -182,8 +184,22 @@ public class TestCaseNodeService {
      */
     public List<TestCaseNodeDTO> getNodeByPlanId(String planId) {
 
-        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
+        List<TestCaseNodeDTO> list = new ArrayList<>();
+        List<String> projectIds = testPlanProjectService.getProjectIdsByPlanId(planId);
+        projectIds.forEach(id -> {
+            String name = projectMapper.selectByPrimaryKey(id).getName();
+            List<TestCaseNodeDTO> nodeList = getNodeDTO(id, planId);
+            TestCaseNodeDTO testCaseNodeDTO = new TestCaseNodeDTO();
+            testCaseNodeDTO.setName(name);
+            testCaseNodeDTO.setLabel(name);
+            testCaseNodeDTO.setChildren(nodeList);
+            list.add(testCaseNodeDTO);
+        });
 
+        return list;
+    }
+    
+    private List<TestCaseNodeDTO> getNodeDTO(String projectId, String planId) {
         TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
         testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(planId);
         List<TestPlanTestCase> testPlanTestCases = testPlanTestCaseMapper.selectByExample(testPlanTestCaseExample);
@@ -193,7 +209,7 @@ public class TestCaseNodeService {
         }
 
         TestCaseNodeExample testCaseNodeExample = new TestCaseNodeExample();
-        testCaseNodeExample.createCriteria().andProjectIdEqualTo(testPlan.getProjectId());
+        testCaseNodeExample.createCriteria().andProjectIdEqualTo(projectId);
         List<TestCaseNode> nodes = testCaseNodeMapper.selectByExample(testCaseNodeExample);
 
         List<String> caseIds = testPlanTestCases.stream()
@@ -254,12 +270,16 @@ public class TestCaseNodeService {
         return false;
     }
 
-    public List<TestCaseNodeDTO> getAllNodeByPlanId(String planId) {
+    public List<TestCaseNodeDTO> getAllNodeByPlanId(QueryNodeRequest request) {
+        // todo jenkins 获取模块
+        String planId = request.getTestPlanId();
+        String projectId = request.getProjectId();
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
         if (testPlan == null) {
             return Collections.emptyList();
         }
-        return getNodeTreeByProjectId(testPlan.getProjectId());
+
+        return getNodeTreeByProjectId(projectId);
     }
 
     public Map<String, String> createNodeByTestCases(List<TestCaseWithBLOBs> testCases, String projectId) {

@@ -4,10 +4,7 @@ package io.metersphere.track.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.TestCaseMapper;
-import io.metersphere.base.mapper.TestCaseReportMapper;
-import io.metersphere.base.mapper.TestPlanMapper;
-import io.metersphere.base.mapper.TestPlanTestCaseMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
@@ -28,6 +25,7 @@ import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.dto.TestPlanDTOWithMetric;
 import io.metersphere.track.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
+import io.metersphere.track.request.testplan.AddTestPlanRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -72,12 +70,29 @@ public class TestPlanService {
     @Resource
     TestCaseReportMapper testCaseReportMapper;
 
-    public void addTestPlan(TestPlan testPlan) {
+    @Resource
+    TestPlanProjectMapper testPlanProjectMapper;
+    @Resource
+    TestPlanProjectService testPlanProjectService;
+    @Resource
+    ProjectMapper projectMapper;
+
+    public void addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
             MSException.throwException(Translator.get("plan_name_already_exists"));
         }
-        ;
-        testPlan.setId(UUID.randomUUID().toString());
+
+        String testPlanId = UUID.randomUUID().toString();
+
+        List<String> projectIds = testPlan.getProjectIds();
+        projectIds.forEach(id -> {
+            TestPlanProject testPlanProject = new TestPlanProject();
+            testPlanProject.setProjectId(id);
+            testPlanProject.setTestPlanId(testPlanId);
+            testPlanProjectMapper.insertSelective(testPlanProject);
+        });
+
+        testPlan.setId(testPlanId);
         testPlan.setStatus(TestPlanStatus.Prepare.name());
         testPlan.setCreateTime(System.currentTimeMillis());
         testPlan.setUpdateTime(System.currentTimeMillis());
@@ -315,5 +330,24 @@ public class TestPlanService {
         }
         testPlan.setStatus(TestPlanStatus.Completed.name());
         testPlanMapper.updateByPrimaryKeySelective(testPlan);
+    }
+
+    public String getProjectNameByPlanId(String testPlanId) {
+        List<String> projectIds = testPlanProjectService.getProjectIdsByPlanId(testPlanId);
+        ProjectExample projectExample = new ProjectExample();
+        projectExample.createCriteria().andIdIn(projectIds);
+
+        List<Project> projects = projectMapper.selectByExample(projectExample);
+        StringBuilder stringBuilder = new StringBuilder();
+        String projectName = "";
+
+        if (projects.size() > 0) {
+            for (Project project : projects) {
+                stringBuilder.append(project.getName()).append("、");
+            }
+            projectName = stringBuilder.toString().substring(0, stringBuilder.length() - 1);
+        }
+
+        return projectName;
     }
 }

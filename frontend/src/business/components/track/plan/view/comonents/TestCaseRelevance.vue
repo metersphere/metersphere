@@ -6,10 +6,12 @@
                :visible.sync="dialogFormVisible"
                @close="close"
                width="60%" v-loading="result.loading"
+               :close-on-click-modal="false"
                top="50px">
 
       <el-container class="main-content">
         <el-aside class="tree-aside" width="250px">
+          <el-link type="primary" class="project-link" @click="switchProject">{{projectName ? projectName : '切换项目' }}</el-link>
           <node-tree class="node-tree"
                      @nodeSelectEvent="nodeChange"
                      @refresh="refresh"
@@ -71,6 +73,8 @@
       </template>
 
     </el-dialog>
+
+    <switch-project ref="switchProject" @getProjectNode="getProjectNode"/>
   </div>
 
 </template>
@@ -86,6 +90,7 @@
   import MsTableAdvSearchBar from "../../../../common/components/search/MsTableAdvSearchBar";
   import MsTableHeader from "../../../../common/components/MsTableHeader";
   import {TEST_CASE_CONFIGS} from "../../../../common/components/search/search-components";
+  import SwitchProject from "../../../case/components/SwitchProject";
 
   export default {
     name: "TestCaseRelevance",
@@ -96,7 +101,8 @@
       TypeTableItem,
       MsTableSearchBar,
       MsTableAdvSearchBar,
-      MsTableHeader
+      MsTableHeader,
+      SwitchProject
     },
     data() {
       return {
@@ -108,6 +114,9 @@
         treeNodes: [],
         selectNodeIds: [],
         selectNodeNames: [],
+        projectId: '',
+        projectName: '',
+        projects: [],
         condition: {
           components: TEST_CASE_CONFIGS
         },
@@ -135,6 +144,9 @@
       },
       selectNodeIds() {
         this.getCaseNames();
+      },
+      projectId() {
+        this.getProjectNode();
       }
     },
     updated() {
@@ -157,7 +169,6 @@
         });
       },
       getCaseNames() {
-        let param = {};
         if (this.planId) {
           // param.planId = this.planId;
           this.condition.planId = this.planId;
@@ -168,12 +179,17 @@
         } else {
           this.condition.nodeIds = [];
         }
-        this.result = this.$post('/test/case/name', this.condition, response => {
-          this.testCases = response.data;
-          this.testCases.forEach(item => {
-            item.checked = false;
+
+        if (this.projectId) {
+          this.condition.projectId = this.projectId;
+          this.result = this.$post('/test/case/name', this.condition, response => {
+            this.testCases = response.data;
+            this.testCases.forEach(item => {
+              item.checked = false;
+            });
           });
-        });
+        }
+
       },
       handleSelectAll(selection) {
         if (selection.length > 0) {
@@ -203,13 +219,18 @@
       initData() {
         this.getCaseNames();
         this.getAllNodeTreeByPlanId();
+        this.getProject();
       },
       refresh() {
         this.close();
       },
       getAllNodeTreeByPlanId() {
         if (this.planId) {
-          this.result = this.$get("/case/node/list/all/plan/" + this.planId, response => {
+          let param = {
+            testPlanId: this.planId,
+            projectId: this.projectId
+          };
+          this.result = this.$post("/case/node/list/all/plan", param , response => {
             this.treeNodes = response.data;
           });
         }
@@ -233,6 +254,36 @@
           })
         })
       },
+      getProject() {
+        if (this.planId) {
+          this.$get("/test/plan/project/" + this.planId,res => {
+            let data = res.data;
+            if (data) {
+              this.projects = data;
+              this.projectId = data[0].id;
+              this.projectName = data[0].name;
+            }
+          })
+        }
+      },
+      switchProject() {
+        this.$refs.switchProject.open(this.planId);
+      },
+      getProjectNode(projectId) {
+        const index = this.projects.findIndex(project => project.id === projectId);
+        if (index !== -1) {
+          this.projectName = this.projects[index].name;
+        }
+        if (projectId) {
+          this.projectId = projectId;
+        }
+        this.result = this.$post("/case/node/list/all/plan",
+          {testPlanId: this.planId, projectId: this.projectId} , response => {
+          this.treeNodes = response.data;
+        });
+
+        this.selectNodeIds = [];
+      }
     }
   }
 </script>
@@ -279,6 +330,12 @@
     min-height: 300px;
     height: 100%;
     /*border: 1px solid #EBEEF5;*/
+  }
+
+  .project-link {
+    float: right;
+    margin-right: 12px;
+    margin-bottom: 10px;
   }
 
 </style>
