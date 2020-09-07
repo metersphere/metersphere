@@ -408,7 +408,15 @@ export default {
       copy: "Copy scenario",
       delete: "Delete scenario",
       disable: "Disable",
-      enable: "Enable"
+      enable: "Enable",
+      create_scenario: "Create scenario",
+      select_scenario: "Select scenario",
+      scenario_request: "Scenario/Request",
+      enable_disable: "Enable/Disable",
+      test_name: "Test Name",
+      reference: "Reference",
+      clone: "Copy",
+      cant_reference:'Historical test files, can be referenced after re-saving'
     },
     request: {
       debug: "Debug",
@@ -477,7 +485,7 @@ export default {
         xpath_expression: "XPath expression",
       },
       processor: {
-        pre_exec_script : "PreProcessor",
+        pre_exec_script: "PreProcessor",
         post_exec_script: "PostProcessor",
         code_template: "Code template",
         bean_shell_processor_tip: "Currently only BeanShell scripts are supported",
@@ -709,7 +717,7 @@ export default {
       result_distribution: "Result distribution",
       custom_component: "Custom",
       create_report: "Create report",
-      defect_list:"Defect list",
+      defect_list: "Defect list",
       view_report: "View report",
       component_library: "Component library",
       component_library_tip: "Drag and drop the component from the component library, add to the right, preview the report effect, only one can be added per system component.",

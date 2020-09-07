@@ -7,6 +7,7 @@ import java.util.List;
 
 @Data
 public class Scenario {
+    private String id;
     private String name;
     private String url;
     private String environmentId;

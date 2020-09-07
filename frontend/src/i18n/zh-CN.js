@@ -408,7 +408,15 @@ export default {
       copy: "复制场景",
       delete: "删除场景",
       disable: "禁用",
-      enable: "启用"
+      enable: "启用",
+      create_scenario: "创建新场景",
+      select_scenario: "选择已有场景",
+      scenario_request: "场景/请求",
+      enable_disable: "启用/禁用",
+      test_name: "测试名称",
+      reference: "引用",
+      clone: "复制",
+      cant_reference: '历史测试文件，重新保存后才可被引用'
     },
     request: {
       debug: "调试",
@@ -478,7 +486,7 @@ export default {
         xpath_expression: "XPath表达式",
       },
       processor: {
-        pre_exec_script : "预执行脚本",
+        pre_exec_script: "预执行脚本",
         post_exec_script: "后执行脚本",
         code_template: "代码模版",
         bean_shell_processor_tip: "仅支持 BeanShell 脚本",
@@ -498,7 +506,7 @@ export default {
         get_provider_success: "获取成功",
         check_registry_center: "获取失败，请检查Registry Center",
         form_description: "如果当前配置项无值，则取场景配置项的值",
-      }
+      },
     },
     api_import: {
       label: "导入",
@@ -711,7 +719,7 @@ export default {
       test_result: "测试结果",
       result_distribution: "测试结果分布",
       custom_component: "自定义模块",
-      defect_list:"缺陷列表",
+      defect_list: "缺陷列表",
       create_report: "创建测试报告",
       view_report: "查看测试报告",
       component_library: "组件库",

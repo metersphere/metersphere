@@ -1,5 +1,5 @@
 <template>
-  <el-form :model="request" :rules="rules" ref="request" label-width="100px">
+  <el-form :model="request" :rules="rules" ref="request" label-width="100px" :disabled="isReadOnly">
 
     <el-form-item :label="$t('api_test.request.name')" prop="name">
       <el-input :disabled="isReadOnly" v-model="request.name" maxlength="300" show-word-limit/>
@@ -40,7 +40,9 @@
       </el-switch>
     </el-form-item>
 
-    <el-button :disabled="!request.enable || !scenario.enable || isReadOnly" class="debug-button" size="small" type="primary" @click="runDebug">{{ $t('api_test.request.debug') }}</el-button>
+    <el-button :disabled="!request.enable || !scenario.enable || isReadOnly" class="debug-button" size="small"
+               type="primary" @click="runDebug">{{ $t('api_test.request.debug') }}
+    </el-button>
 
     <el-tabs v-model="activeName">
       <el-tab-pane :label="$t('api_test.request.parameters')" name="parameters">
@@ -68,7 +70,8 @@
         <ms-api-extract :is-read-only="isReadOnly" :extract="request.extract"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.processor.pre_exec_script')" name="beanShellPreProcessor">
-        <ms-bean-shell-processor :is-pre-processor="true" :is-read-only="isReadOnly" :bean-shell-processor="request.beanShellPreProcessor"/>
+        <ms-bean-shell-processor :is-pre-processor="true" :is-read-only="isReadOnly"
+                                 :bean-shell-processor="request.beanShellPreProcessor"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.processor.post_exec_script')" name="beanShellPostProcessor">
         <ms-bean-shell-processor :is-read-only="isReadOnly" :bean-shell-processor="request.beanShellPostProcessor"/>
@@ -97,7 +100,8 @@ export default {
   components: {
     MsApiAdvancedConfig,
     MsBeanShellProcessor,
-    MsApiVariable, ApiRequestMethodSelect, MsApiExtract, MsApiAssertions, MsApiBody, MsApiKeyValue},
+    MsApiVariable, ApiRequestMethodSelect, MsApiExtract, MsApiAssertions, MsApiBody, MsApiKeyValue
+  },
   props: {
     request: HttpRequest,
     scenario: Scenario,

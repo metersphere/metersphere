@@ -407,7 +407,15 @@ export default {
       copy: "複製場景",
       delete: "删除場景",
       disable: "禁用",
-      enable: "啟用"
+      enable: "啟用",
+      create_scenario: "創建新場景",
+      select_scenario: "選擇已有場景",
+      scenario_request: "場景/請求",
+      enable_disable: "啟用/禁用",
+      test_name: "測試名稱",
+      reference: "引用",
+      clone: "複製",
+      cant_reference: '歷史測試文件，重新保存後才可被引用'
     },
     request: {
       debug: "調試",
