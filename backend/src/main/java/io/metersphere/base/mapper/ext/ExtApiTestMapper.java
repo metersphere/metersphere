@@ -11,4 +11,6 @@ public interface ExtApiTestMapper {
     List<APITestResult> list(@Param("request") QueryAPITestRequest request);
 
     List<ApiTest> getApiTestByProjectId(String projectId);
+
+    List<ApiTest> listByIds(@Param("ids") List<String> ids);
 }

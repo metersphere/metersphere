@@ -1,5 +1,5 @@
 <template>
-  <el-form :model="request" :rules="rules" ref="request" label-width="100px">
+  <el-form :model="request" :rules="rules" ref="request" label-width="100px" :disabled="isReadOnly">
 
     <el-form-item :label="$t('api_test.request.name')" prop="name">
       <el-input :disabled="isReadOnly" v-model="request.name" maxlength="300" show-word-limit/>
@@ -41,7 +41,9 @@
       <el-checkbox class="follow-redirects-item" v-model="request.followRedirects">{{$t('api_test.request.follow_redirects')}}</el-checkbox>
     </el-form-item>
 
-    <el-button :disabled="!request.enable || !scenario.enable || isReadOnly" class="debug-button" size="small" type="primary" @click="runDebug">{{ $t('api_test.request.debug') }}</el-button>
+    <el-button :disabled="!request.enable || !scenario.enable || isReadOnly" class="debug-button" size="small"
+               type="primary" @click="runDebug">{{ $t('api_test.request.debug') }}
+    </el-button>
 
     <el-tabs v-model="activeName">
       <el-tab-pane :label="$t('api_test.request.parameters')" name="parameters">

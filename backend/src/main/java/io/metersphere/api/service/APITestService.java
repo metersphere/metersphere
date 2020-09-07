@@ -74,12 +74,16 @@ public class APITestService {
         return extApiTestMapper.list(request);
     }
 
+    public List<ApiTest> listByIds(QueryAPITestRequest request) {
+        return extApiTestMapper.listByIds(request.getIds());
+    }
+
     public void create(SaveAPITestRequest request, MultipartFile file, List<MultipartFile> bodyFiles) {
         if (file == null) {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
         }
         checkQuota();
-        List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds()) ;
+        List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         request.setBodyUploadIds(null);
         ApiTest test = createTest(request);
         createBodyFiles(test, bodyUploadIds, bodyFiles);
@@ -92,7 +96,7 @@ public class APITestService {
         }
         deleteFileByTestId(request.getId());
 
-        List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds()) ;
+        List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         request.setBodyUploadIds(null);
         ApiTest test = updateTest(request);
         createBodyFiles(test, bodyUploadIds, bodyFiles);
@@ -245,6 +249,7 @@ public class APITestService {
             MSException.throwException(Translator.get("load_test_already_exists"));
         }
     }
+
     public void checkName(SaveAPITestRequest request) {
         ApiTestExample example = new ApiTestExample();
         example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId());
@@ -411,7 +416,7 @@ public class APITestService {
         }
         updateTest(request);
         APITestResult apiTest = get(request.getId());
-        List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds()) ;
+        List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         request.setBodyUploadIds(null);
         createBodyFiles(apiTest, bodyUploadIds, bodyFiles);
         if (SessionUtils.getUser() == null) {

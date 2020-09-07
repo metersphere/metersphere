@@ -106,7 +106,6 @@ export class BaseConfig {
 
   set(options) {
     options = this.initOptions(options)
-
     for (let name in options) {
       if (options.hasOwnProperty(name)) {
         if (!(this[name] instanceof Array)) {
@@ -142,7 +141,7 @@ export class Test extends BaseConfig {
   constructor(options) {
     super();
     this.type = "MS API CONFIG";
-    this.version = '1.1.0';
+    this.version = '1.3.0';
     this.id = uuid();
     this.name = undefined;
     this.projectId = undefined;
@@ -201,6 +200,7 @@ export class Test extends BaseConfig {
 export class Scenario extends BaseConfig {
   constructor(options = {}) {
     super();
+    this.id = undefined;
     this.name = undefined;
     this.url = undefined;
     this.variables = [];
@@ -216,15 +216,17 @@ export class Scenario extends BaseConfig {
     this.sets({variables: KeyValue, headers: KeyValue, requests: RequestFactory}, options);
   }
 
-  initOptions(options) {
-    options = options || {};
+  initOptions(options = {}) {
+    options.id = options.id || uuid();
     options.requests = options.requests || [new RequestFactory()];
     options.dubboConfig = new DubboConfig(options.dubboConfig);
     return options;
   }
 
   clone() {
-    return new Scenario(this);
+    let clone = new Scenario(this);
+    clone.id = uuid();
+    return clone;
   }
 
   isValid() {
@@ -237,6 +239,10 @@ export class Scenario extends BaseConfig {
       }
     }
     return {isValid: true};
+  }
+
+  isReference() {
+    return this.id.indexOf("#") !== -1
   }
 }
 
@@ -296,6 +302,7 @@ export class Request extends BaseConfig {
 export class HttpRequest extends Request {
   constructor(options) {
     super(RequestFactory.TYPES.HTTP);
+    this.id = undefined;
     this.name = undefined;
     this.url = undefined;
     this.path = undefined;
@@ -321,8 +328,8 @@ export class HttpRequest extends Request {
     this.sets({parameters: KeyValue, headers: KeyValue}, options);
   }
 
-  initOptions(options) {
-    options = options || {};
+  initOptions(options = {}) {
+    options.id = options.id || uuid();
     options.method = options.method || "GET";
     options.body = new Body(options.body);
     options.assertions = new Assertions(options.assertions);
@@ -381,6 +388,7 @@ export class DubboRequest extends Request {
 
   constructor(options = {}) {
     super(RequestFactory.TYPES.DUBBO);
+    this.id = options.id || uuid();
     this.name = options.name;
     this.protocol = options.protocol || DubboRequest.PROTOCOLS.DUBBO;
     this.interface = options.interface;
