@@ -182,9 +182,7 @@ public class TestCaseService {
     public List<TestCase> getTestCaseNames(QueryTestCaseRequest request) {
         if (StringUtils.isNotBlank(request.getPlanId())) {
             TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
-            if (testPlan != null) {
-                request.setProjectId(testPlan.getProjectId());
-            }
+            // request 传入要查询的 projectId 切换的项目ID
         }
 
         List<TestCase> testCaseNames = extTestCaseMapper.getTestCaseNames(request);

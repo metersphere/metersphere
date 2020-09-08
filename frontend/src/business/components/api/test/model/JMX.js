@@ -504,8 +504,8 @@ export class DNSCacheManager extends DefaultTestElement {
     let collectionPropHosts = this.collectionProp('DNSCacheManager.hosts');
 
     hosts.forEach(host => {
-      let elementProp = collectionPropHosts.elementProp('', 'StaticHost');
-      if (host && host.domain.trim() === domain.trim()) {
+      let elementProp = collectionPropHosts.elementProp(host.domain, 'StaticHost');
+      if (host && host.domain.trim().indexOf(domain.trim()) != -1) {
         elementProp.stringProp('StaticHost.Name', host.domain);
         elementProp.stringProp('StaticHost.Address', host.ip);
       }

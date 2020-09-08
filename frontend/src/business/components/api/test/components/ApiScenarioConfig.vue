@@ -2,7 +2,7 @@
   <el-container>
     <el-aside class="scenario-aside">
       <div class="scenario-list">
-        <ms-api-collapse v-model="activeName" @change="handleChange" accordion>
+        <ms-api-collapse v-model="activeName" @change="handleChange">
           <draggable :list="scenarios" group="Scenario" class="scenario-draggable" ghost-class="scenario-ghost">
             <ms-api-collapse-item v-for="(scenario, index) in scenarios" :key="index"
                                   :title="scenario.name" :name="index" :class="{'disable-scenario': !scenario.enable}">
