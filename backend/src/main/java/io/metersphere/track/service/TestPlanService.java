@@ -131,6 +131,7 @@ public class TestPlanService {
 
     public int deleteTestPlan(String planId) {
         deleteTestCaseByPlanId(planId);
+        testPlanProjectService.deleteTestPlanProjectByPlanId(planId);
         return testPlanMapper.deleteByPrimaryKey(planId);
     }
 

@@ -6,8 +6,10 @@ import io.metersphere.base.domain.TestPlanProject;
 import io.metersphere.base.domain.TestPlanProjectExample;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.TestPlanProjectMapper;
+import org.python.antlr.ast.Str;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -45,5 +47,24 @@ public class TestPlanProjectService {
         projectExample.createCriteria().andIdIn(projectIds);
         List<Project> projects = projectMapper.selectByExample(projectExample);
         return Optional.ofNullable(projects).orElse(new ArrayList<>());
+    }
+
+    public void deleteTestPlanProjectByPlanId(String planId) {
+        TestPlanProjectExample testPlanProjectExample = new TestPlanProjectExample();
+        testPlanProjectExample.createCriteria().andTestPlanIdEqualTo(planId);
+        testPlanProjectMapper.deleteByExample(testPlanProjectExample);
+    }
+
+    public List<String> getPlanIdByProjectId(String projectId) {
+        TestPlanProjectExample testPlanProjectExample = new TestPlanProjectExample();
+        testPlanProjectExample.createCriteria().andProjectIdEqualTo(projectId);
+        List<TestPlanProject> testPlanProjects = testPlanProjectMapper.selectByExample(testPlanProjectExample);
+        if (CollectionUtils.isEmpty(testPlanProjects)) {
+            return null;
+        }
+        return testPlanProjects
+                .stream()
+                .map(TestPlanProject::getTestPlanId)
+                .collect(Collectors.toList());
     }
 }

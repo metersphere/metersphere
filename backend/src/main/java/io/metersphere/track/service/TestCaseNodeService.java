@@ -271,7 +271,6 @@ public class TestCaseNodeService {
     }
 
     public List<TestCaseNodeDTO> getAllNodeByPlanId(QueryNodeRequest request) {
-        // todo jenkins 获取模块
         String planId = request.getTestPlanId();
         String projectId = request.getProjectId();
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
