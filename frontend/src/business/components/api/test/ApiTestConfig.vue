@@ -53,7 +53,7 @@
               <ms-api-report-dialog :test-id="id" ref="reportDialog"/>
 
               <ms-schedule-config :schedule="test.schedule" :is-read-only="isReadOnly" :save="saveCronExpression"
-                                  @scheduleChange="saveSchedule" :check-open="checkScheduleEdit"/>
+                                  @scheduleChange="saveSchedule" :test-id="id" :check-open="checkScheduleEdit"/>
             </el-row>
           </el-header>
           <ms-api-scenario-config :debug-report-id="debugReportId" @runDebug="runDebug" :is-read-only="isReadOnly"

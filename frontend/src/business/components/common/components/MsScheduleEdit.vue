@@ -26,19 +26,19 @@
           </el-tab-pane>
           <el-tab-pane :label="$t('schedule.task_notification')" name="second">
             <template>
-              <el-select v-model="value" :placeholder="$t('commons.please_select')">
+              <el-select v-model="eventType" :placeholder="$t('commons.please_select')">
                 <el-option
                   v-for="item in options"
-                  :key="item.value"
+                  :key="item.eventType"
                   :label="item.label"
-                  :value="item.value">
+                  :value="item.eventType">
                 </el-option>
               </el-select>
               <el-table
                 :data="tableData"
                 style="width: 100%">
                 <el-table-column
-                  prop="receiver"
+                  prop="name"
                   :label="$t('schedule.receiver')"
                 >
                   <template v-slot:default="{row}">
@@ -47,7 +47,7 @@
                       type="textarea"
                       :rows="1"
                       class="edit-input"
-                      v-model="row.receiver"
+                      v-model="row.name"
                       :placeholder="$t('schedule.receiver')"
                       clearable>
                     </el-input>
@@ -71,20 +71,19 @@
                   </template>
                 </el-table-column>
                 <el-table-column
-                  align="center"
-                  prop="enable"
                   :label="$t('test_resource_pool.enable_disable')"
+                  prop="enable"
                   >
-                  <template slot-scope="scope">
+                  <template v-slot:default="{row}">
                     <el-switch
-                      v-model="scope.row.enable"
-                      :active-value="true"
-                      :inactive-value="false"
-                      active-color="#13ce66"
+                      v-model="row.enable"
+                      active-value="true"
+                      inactive-value="false"
                       inactive-color="#ff4949"
+                      @change="stateChange(row)"
                     />
-                  </template>
-                </el-table-column>
+                </template>
+                  </el-table-column>
                 <el-table-column :label="$t('schedule.operation')">
                   <template v-slot:default="scope">
                     <el-button
@@ -93,6 +92,7 @@
                       circle size="mini"
                       @click="handleAddStep(scope.$index)"></el-button>
                     <el-button
+                      :disabled="(scope.$index == 0 && tableData.length <= 1)"
                       type="danger"
                       icon="el-icon-delete"
                       circle size="mini"
@@ -124,6 +124,7 @@ function defaultCustomValidate() {
     name: "MsScheduleEdit",
     components: {CrontabResult, Crontab},
     props: {
+      testId:String,
       save: Function,
       schedule: {},
       customValidate: {
@@ -133,8 +134,10 @@ function defaultCustomValidate() {
       isReadOnly: {
         type: Boolean,
         default: false
-      }
+      },
     },
+
+
     watch: {
       'schedule.value'() {
         this.form.cronValue = this.schedule.value;
@@ -165,24 +168,24 @@ function defaultCustomValidate() {
           cronValue: ""
         },
         options: [{
-          value: 'success',
+          eventType: 'success',
           label: '执行成功通知'
         }, {
-          value: 'fail',
+          eventType: 'fail',
           label: '执行失败通知'
         }, {
-          value: 'all',
+          eventType: 'all',
           label: '全部通知'
         }],
-        value: '',
+        eventType: '',
         tableData: [
           {
-            receiver: "",
+            name: "",
             email: "",
-            enable: false
+            enable:true
           }
         ],
-        enable: false,
+        enable:true,
         email: "",
         activeName: 'first',
         rules: {
@@ -191,26 +194,45 @@ function defaultCustomValidate() {
       }
     },
     methods: {
-      handleClick() {
+      stateChange(s){
+        alert(s.enable)
+        this.result=this.$get('notice/editState/'+s.email,response=>{
 
+        })
+      },
+      handleClick() {
+        if(this.activeName=="second"){
+          this.result=this.$get('notice/query/'+this.testId,response=>{
+            if(response.data.length<=0){
+              this.tableData.email=""
+              this.tableData.name=""
+              this.tableData.enable=true
+            }else{
+              this.tableData=response.data
+              response.data.forEach(t=>{
+               this.eventType=t.event
+             })
+            }
+          })
+        }
       },
       saveNotice(){
         let param = this.buildParam();
-        /* this.result=this.$post("notice/save",param,()=>{
+         this.result=this.$post("notice/save",param,()=>{
 
-          })*/
+          })
 
       },
       buildParam() {
         let param = {};
-        param.form = this.tableData
-        param.testId = ""
-        param.event = this.value
+        param.notices = this.tableData
+        param.testId = this.testId
+        param.event = this.eventType
         return param;
       },
       handleAddStep(index) {
         let form = {}
-        form.receiver = null;
+        form.name = null;
         form.email = null;
         form.enable = null
         this.tableData.splice(index + 1, 0, form);
