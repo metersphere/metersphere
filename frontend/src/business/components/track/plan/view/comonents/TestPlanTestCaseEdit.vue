@@ -89,6 +89,13 @@
                 <span class="cast_item">{{testCase.nodePath}}</span>
               </el-col>
               <el-col :span="4" :offset="1">
+                <span class="cast_label">{{$t('test_track.plan.plan_project')}}：</span>
+                <span class="cast_item">{{testCase.projectName}}</span>
+              </el-col>
+            </el-row>
+
+            <el-row>
+              <el-col :offset="1">
                 <span class="cast_label">{{$t('test_track.case.prerequisite')}}：</span>
                 <span class="cast_item">{{testCase.prerequisite}}</span>
               </el-col>

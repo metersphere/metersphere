@@ -15,13 +15,6 @@
             <ms-table-button :is-tester-permission="true" icon="el-icon-connection"
                              :content="$t('test_track.plan_view.relevance_test_case')"
                              @click="$emit('openTestCaseRelevanceDialog')"/>
-<!--            <ms-table-button :is-tester-permission="true" icon="el-icon-unlock"-->
-<!--                             :content="$t('test_track.plan_view.cancel_relevance')" @click="handleBatch('delete')"/>-->
-<!--            <ms-table-button :is-tester-permission="true" icon="el-icon-edit-outline"-->
-<!--                             :content="$t('test_track.plan_view.change_execution_results')"-->
-<!--                             @click="handleBatch('status')"/>-->
-<!--            <ms-table-button :is-tester-permission="true" icon="el-icon-user"-->
-<!--                             :content="$t('test_track.plan_view.change_executor')" @click="handleBatch('executor')"/>-->
             <ms-table-button :is-tester-permission="true" v-if="!testPlan.reportId" icon="el-icon-document"
                              :content="$t('test_track.plan_view.create_report')" @click="openTestReport"/>
             <ms-table-button :is-tester-permission="true" v-if="testPlan.reportId" icon="el-icon-document"
@@ -103,7 +96,12 @@
         </el-table-column>
 
         <el-table-column
-          prop="nodePath"
+          prop="projectName"
+          :label="$t('test_track.plan.plan_project')"
+          show-overflow-tooltip>
+        </el-table-column>
+
+        <el-table-column
           :label="$t('test_track.issue.issue')"
           show-overflow-tooltip>
           <template v-slot:default="scope">
@@ -112,7 +110,6 @@
               width="400"
               trigger="hover">
               <el-table border class="adjust-table" :data="scope.row.issuesContent" style="width: 100%">
-<!--                <el-table-column prop="id" label="缺陷ID" show-overflow-tooltip/>-->
                 <el-table-column prop="title" :label="$t('test_track.issue.title')" show-overflow-tooltip/>
                 <el-table-column prop="description" :label="$t('test_track.issue.description')">
                   <template v-slot:default="scope">
@@ -127,7 +124,6 @@
                     </el-popover>
                   </template>
                 </el-table-column>
-<!--                <el-table-column prop="status" label="缺陷状态"/>-->
                 <el-table-column prop="platform" :label="$t('test_track.issue.platform')"/>
               </el-table>
               <el-button slot="reference" type="text">{{scope.row.issuesSize}}</el-button>
@@ -262,7 +258,6 @@
         currentPage: 1,
         pageSize: 10,
         total: 0,
-        // selectIds: new Set(),
         selectRows: new Set(),
         testPlan: {},
         isReadOnly: false,
@@ -369,7 +364,6 @@
                 })
               }
             }
-            // this.selectIds.clear();
             this.selectRows.clear();
           });
         }
@@ -380,7 +374,6 @@
       },
       refresh() {
         this.condition = {components: TEST_CASE_CONFIGS};
-        // this.selectIds.clear();
         this.selectRows.clear();
         this.$emit('refresh');
       },
@@ -443,13 +436,6 @@
         });
       },
       handleSelectAll(selection) {
-        // if (selection.length > 0) {
-        //   this.tableData.forEach(item => {
-        //     this.selectIds.add(item.id);
-        //   });
-        // } else {
-        //   this.selectIds.clear();
-        // }
         if (selection.length > 0) {
           if (selection.length === 1) {
             this.selectRows.add(selection[0]);
@@ -467,11 +453,6 @@
         }
       },
       handleSelectionChange(selection, row) {
-        // if (this.selectIds.has(row.id)) {
-        //   this.selectIds.delete(row.id);
-        // } else {
-        //   this.selectIds.add(row.id);
-        // }
         if (this.selectRows.has(row)) {
           this.$set(row, "showMore", false);
           this.selectRows.delete(row);
