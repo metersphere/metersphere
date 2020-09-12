@@ -57,7 +57,8 @@
             </el-row>
           </el-header>
           <ms-api-scenario-config :debug-report-id="debugReportId" @runDebug="runDebug" :is-read-only="isReadOnly"
-                                  :scenarios="test.scenarioDefinition" :project-id="test.projectId" ref="config"/>
+                                  :test-id="test.id" :scenarios="test.scenarioDefinition" :project-id="test.projectId"
+                                  ref="config"/>
         </el-container>
       </el-card>
     </ms-main-container>
@@ -66,13 +67,12 @@
 
 <script>
 import MsApiScenarioConfig from "./components/ApiScenarioConfig";
-import {Test} from "./model/ScenarioModel"
+import {Test, Scenario} from "./model/ScenarioModel"
 import MsApiReportStatus from "../report/ApiReportStatus";
 import MsApiReportDialog from "./ApiReportDialog";
-import {checkoutTestManagerOrTestUser, downloadFile} from "@/common/js/utils";
+import {checkoutTestManagerOrTestUser, downloadFile, getUUID} from "@/common/js/utils";
 import MsScheduleConfig from "../../common/components/MsScheduleConfig";
 import ApiImport from "./components/import/ApiImport";
-import {getUUID} from "../../../../common/js/utils";
 import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
@@ -134,6 +134,39 @@ export default {
         if (projectId) this.test.projectId = projectId;
       })
     },
+    updateReference() {
+      let updateIds = [];
+      this.test.scenarioDefinition.forEach(scenario => {
+        if (scenario.isReference()) {
+          updateIds.push(scenario.id.split("#")[0]);
+        }
+      })
+
+      if (updateIds.length === 0) return;
+      // 更新引用场景
+      this.result = this.$post("/api/list/ids", {ids: updateIds}, response => {
+        let scenarioMap = {};
+        if (response.data) {
+          response.data.forEach(test => {
+            JSON.parse(test.scenarioDefinition).forEach(options => {
+              let referenceId = test.id + "#" + options.id;
+              scenarioMap[referenceId] = new Scenario(options);
+              scenarioMap[referenceId].id = referenceId;
+            })
+          })
+        }
+
+        let scenarios = [];
+        this.test.scenarioDefinition.forEach(scenario => {
+          if (scenario.isReference()) {
+            if (scenarioMap[scenario.id]) scenarios.push(scenarioMap[scenario.id]);
+          } else {
+            scenarios.push(scenario);
+          }
+        })
+        this.test.scenarioDefinition = scenarios;
+      })
+    },
     getTest(id) {
       this.result = this.$get("/api/get/" + id, response => {
         if (response.data) {
@@ -147,6 +180,8 @@ export default {
             scenarioDefinition: JSON.parse(item.scenarioDefinition),
             schedule: item.schedule ? item.schedule : {},
           });
+          this.updateReference();
+
           this.$refs.config.reset();
         }
       });
@@ -163,7 +198,7 @@ export default {
       let jmx = this.test.toJMX();
       let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
       let file = new File([blob], jmx.name);
-      this.result = this.$fileUpload(url, file, bodyFiles, this.test, response => {
+      this.result = this.$fileUpload(url, file, bodyFiles, this.test, () => {
         if (callback) callback();
         this.create = false;
         this.resetBodyFile();
@@ -344,7 +379,7 @@ export default {
 
 <style scoped>
 .test-container {
-  height: calc(100vh - 150px);
+  height: calc(100vh - 155px);
   min-height: 600px;
 }
 

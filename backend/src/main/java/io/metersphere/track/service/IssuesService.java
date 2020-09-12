@@ -224,6 +224,10 @@ public class IssuesService {
         String account = object.getString("account");
         String password = object.getString("password");
         String url = object.getString("url");
+        String issuetype = object.getString("issuetype");
+        if (StringUtils.isBlank(issuetype)) {
+            MSException.throwException("Jira 问题类型为空");
+        }
         String auth = EncryptUtils.base64Encoding(account + ":" + password);
 
         String testCaseId = issuesRequest.getTestCaseId();
@@ -252,8 +256,7 @@ public class IssuesService {
                 "        \"summary\":\"" + issuesRequest.getTitle() + "\",\n" +
                 "        \"description\": " + JSON.toJSONString(desc) + ",\n" +
                 "        \"issuetype\":{\n" +
-                "            \"id\":\"10009\",\n" +
-                "            \"name\":\"Defect\"\n" +
+                "            \"name\":\"" + issuetype + "\"\n" +
                 "        }\n" +
                 "    }\n" +
                 "}";
@@ -343,10 +346,19 @@ public class IssuesService {
             String body = responseEntity.getBody();
 
             JSONObject obj = JSONObject.parseObject(body);
+            LogUtil.info(obj);
+
+            String lastmodify = "";
+            String status = "";
+
             JSONObject fields = (JSONObject) obj.get("fields");
             JSONObject statusObj = (JSONObject) fields.get("status");
             JSONObject assignee = (JSONObject) fields.get("assignee");
-            JSONObject statusCategory = (JSONObject) statusObj.get("statusCategory");
+
+            if (statusObj != null) {
+                JSONObject statusCategory = (JSONObject) statusObj.get("statusCategory");
+                status = statusCategory.getString("key");
+            }
 
             String id = obj.getString("id");
             String title = fields.getString("summary");
@@ -357,9 +369,8 @@ public class IssuesService {
             HtmlRenderer renderer = HtmlRenderer.builder().build();
             description = renderer.render(document);
 
-            String status = statusCategory.getString("key");
             Long createTime = fields.getLong("created");
-            String lastmodify = "";
+
             if (assignee != null) {
                 lastmodify = assignee.getString("displayName");
             }

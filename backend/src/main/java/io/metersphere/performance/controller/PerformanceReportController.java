@@ -11,6 +11,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.LogDetailDTO;
 import io.metersphere.dto.ReportDTO;
 import io.metersphere.performance.base.*;
+import io.metersphere.performance.controller.request.DeleteReportRequest;
 import io.metersphere.performance.controller.request.ReportRequest;
 import io.metersphere.performance.service.ReportService;
 import org.apache.shiro.authz.annotation.Logical;
@@ -112,5 +113,10 @@ public class PerformanceReportController {
     @GetMapping("log/download/{reportId}/{resourceId}")
     public void downloadLog(@PathVariable String reportId, @PathVariable String resourceId, HttpServletResponse response) throws Exception {
         reportService.downloadLog(response, reportId, resourceId);
+    }
+
+    @PostMapping("/batch/delete")
+    public void deleteReportBatch(@RequestBody DeleteReportRequest reportRequest) {
+        reportService.deleteReportBatch(reportRequest);
     }
 }

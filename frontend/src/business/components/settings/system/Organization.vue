@@ -28,7 +28,7 @@
     </el-card>
 
     <!-- dialog of organization member -->
-    <el-dialog :visible.sync="dialogOrgMemberVisible" width="70%" :destroy-on-close="true" @close="closeFunc"
+    <el-dialog :close-on-click-modal="false" :visible.sync="dialogOrgMemberVisible" width="70%" :destroy-on-close="true" @close="closeFunc"
                class="dialog-css">
       <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="dialogSearch"
                        :create-tip="$t('member.create')" :title="$t('commons.member')"/>
@@ -56,7 +56,7 @@
     </el-dialog>
 
     <!-- add organization form -->
-    <el-dialog :title="$t('organization.create')" :visible.sync="dialogOrgAddVisible" width="30%" @closed="closeFunc"
+    <el-dialog :close-on-click-modal="false" :title="$t('organization.create')" :visible.sync="dialogOrgAddVisible" width="30%" @closed="closeFunc"
                :destroy-on-close="true">
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
                ref="createOrganization">
@@ -75,7 +75,7 @@
     </el-dialog>
 
     <!-- update organization form -->
-    <el-dialog :title="$t('organization.modify')" :visible.sync="dialogOrgUpdateVisible" width="30%"
+    <el-dialog :close-on-click-modal="false" :title="$t('organization.modify')" :visible.sync="dialogOrgUpdateVisible" width="30%"
                :destroy-on-close="true"
                @close="closeFunc">
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
@@ -95,7 +95,7 @@
     </el-dialog>
 
     <!-- add organization member form -->
-    <el-dialog :title="$t('member.create')" :visible.sync="dialogOrgMemberAddVisible" width="30%"
+    <el-dialog :close-on-click-modal="false" :title="$t('member.create')" :visible.sync="dialogOrgMemberAddVisible" width="30%"
                :destroy-on-close="true"
                @close="closeFunc">
       <el-form :model="memberForm" ref="form" :rules="orgMemberRule" label-position="right" label-width="100px"
@@ -133,7 +133,7 @@
     </el-dialog>
 
     <!-- update organization member form -->
-    <el-dialog :title="$t('member.modify')" :visible.sync="dialogOrgMemberUpdateVisible" width="30%"
+    <el-dialog :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="dialogOrgMemberUpdateVisible" width="30%"
                :destroy-on-close="true"
                @close="closeFunc">
       <el-form :model="memberForm" label-position="right" label-width="100px" size="small" ref="updateUserForm">

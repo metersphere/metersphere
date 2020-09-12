@@ -295,8 +295,10 @@ export class HTTPSamplerProxy extends DefaultTestElement {
     if (options.responseTimeout) {
       this.stringProp('HTTPSampler.response_timeout', options.responseTimeout);
     }
+    if (options.followRedirects) {
+      this.boolProp('HTTPSampler.follow_redirects', options.followRedirects, true);
+    }
 
-    this.boolProp("HTTPSampler.follow_redirects", options.follow, true);
     this.boolProp("HTTPSampler.use_keepalive", options.keepalive, true);
   }
 }
@@ -316,14 +318,16 @@ export class HTTPSamplerArguments extends Element {
 
     let collectionProp = this.collectionProp('Arguments.arguments');
     this.args.forEach(arg => {
-      let elementProp = collectionProp.elementProp(arg.name, 'HTTPArgument');
-      elementProp.boolProp('HTTPArgument.always_encode', arg.encode, true);
-      elementProp.boolProp('HTTPArgument.use_equals', arg.equals, true);
-      if (arg.name) {
-        elementProp.stringProp('Argument.name', arg.name);
+      if (arg.enable === true) { // 非禁用的条件加入执行
+        let elementProp = collectionProp.elementProp(arg.name, 'HTTPArgument');
+        elementProp.boolProp('HTTPArgument.always_encode', arg.encode, true);
+        elementProp.boolProp('HTTPArgument.use_equals', arg.equals, true);
+        if (arg.name) {
+          elementProp.stringProp('Argument.name', arg.name);
+        }
+        elementProp.stringProp('Argument.value', arg.value);
+        elementProp.stringProp('Argument.metadata', arg.metadata || "=");
       }
-      elementProp.stringProp('Argument.value', arg.value);
-      elementProp.stringProp('Argument.metadata', arg.metadata || "=");
     });
   }
 }
@@ -441,6 +445,30 @@ export class BeanShellProcessor extends DefaultTestElement {
   }
 }
 
+export class JSR223Processor extends DefaultTestElement {
+  constructor(tag, guiclass, testclass, testname, processor) {
+    super(tag, guiclass, testclass, testname);
+    this.processor = processor || {};
+    this.stringProp('cacheKey', 'true');
+    this.stringProp('filename');
+    this.stringProp('parameters');
+    this.stringProp('script', this.processor.script);
+    this.stringProp('scriptLanguage', this.processor.language);
+  }
+}
+
+export class JSR223PreProcessor extends JSR223Processor {
+  constructor(testName, processor) {
+    super('JSR223PreProcessor', 'TestBeanGUI', 'JSR223PreProcessor', testName, processor)
+  }
+}
+
+export class JSR223PostProcessor extends JSR223Processor {
+  constructor(testName, processor) {
+    super('JSR223PostProcessor', 'TestBeanGUI', 'JSR223PostProcessor', testName, processor)
+  }
+}
+
 export class BeanShellPreProcessor extends BeanShellProcessor {
   constructor(testName, processor) {
     super('BeanShellPreProcessor', 'TestBeanGUI', 'BeanShellPreProcessor', testName, processor)
@@ -459,13 +487,31 @@ export class HeaderManager extends DefaultTestElement {
     this.headers = headers || [];
 
     let collectionProp = this.collectionProp('HeaderManager.headers');
-
-
     this.headers.forEach(header => {
-      let elementProp = collectionProp.elementProp('', 'Header');
-      elementProp.stringProp('Header.name', header.name);
-      elementProp.stringProp('Header.value', header.value);
+      if (header.enable === true) {
+        let elementProp = collectionProp.elementProp('', 'Header');
+        elementProp.stringProp('Header.name', header.name);
+        elementProp.stringProp('Header.value', header.value);
+      }
     });
+  }
+}
+
+export class DNSCacheManager extends DefaultTestElement {
+  constructor(testName, domain, hosts) {
+    super('DNSCacheManager', 'DNSCachePanel', 'DNSCacheManager', testName);
+    let collectionPropServers = this.collectionProp('DNSCacheManager.servers');
+    let collectionPropHosts = this.collectionProp('DNSCacheManager.hosts');
+
+    hosts.forEach(host => {
+      let elementProp = collectionPropHosts.elementProp(host.domain, 'StaticHost');
+      if (host && host.domain.trim().indexOf(domain.trim()) != -1) {
+        elementProp.stringProp('StaticHost.Name', host.domain);
+        elementProp.stringProp('StaticHost.Address', host.ip);
+      }
+    });
+
+    let boolProp = this.boolProp('DNSCacheManager.isCustomResolver', true);
   }
 }
 
@@ -475,12 +521,15 @@ export class Arguments extends DefaultTestElement {
     this.args = args || [];
 
     let collectionProp = this.collectionProp('Arguments.arguments');
+
     this.args.forEach(arg => {
-      let elementProp = collectionProp.elementProp(arg.name, 'Argument');
-      elementProp.stringProp('Argument.name', arg.name);
-      elementProp.stringProp('Argument.value', arg.value);
-      elementProp.stringProp('Argument.desc', arg.desc);
-      elementProp.stringProp('Argument.metadata', arg.metadata, "=");
+      if (arg.enable === true) { // 非禁用的条件加入执行
+        let elementProp = collectionProp.elementProp(arg.name, 'Argument');
+        elementProp.stringProp('Argument.name', arg.name);
+        elementProp.stringProp('Argument.value', arg.value);
+        elementProp.stringProp('Argument.desc', arg.desc);
+        elementProp.stringProp('Argument.metadata', arg.metadata, "=");
+      }
     });
   }
 }
@@ -499,10 +548,12 @@ export class ElementArguments extends Element {
     let collectionProp = this.collectionProp('Arguments.arguments');
     if (args) {
       args.forEach(arg => {
-        let elementProp = collectionProp.elementProp(arg.name, 'Argument');
-        elementProp.stringProp('Argument.name', arg.name);
-        elementProp.stringProp('Argument.value', arg.value);
-        elementProp.stringProp('Argument.metadata', arg.metadata, "=");
+        if (arg.enable === true) { // 非禁用的条件加入执行
+          let elementProp = collectionProp.elementProp(arg.name, 'Argument');
+          elementProp.stringProp('Argument.name', arg.name);
+          elementProp.stringProp('Argument.value', arg.value);
+          elementProp.stringProp('Argument.metadata', arg.metadata, "=");
+        }
       });
     }
   }

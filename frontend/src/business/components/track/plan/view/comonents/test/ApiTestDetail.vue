@@ -23,22 +23,22 @@
 </template>
 
 <script>
-  import {Test} from "../../../../../api/test/model/ScenarioModel"
-  import MsApiScenarioConfig from "../../../../../api/test/components/ApiScenarioConfig";
-  import MsContainer from "../../../../../common/components/MsContainer";
-  import MsMainContainer from "../../../../../common/components/MsMainContainer";
+import {Test} from "../../../../../api/test/model/ScenarioModel"
+import MsApiScenarioConfig from "../../../../../api/test/components/ApiScenarioConfig";
+import MsContainer from "../../../../../common/components/MsContainer";
+import MsMainContainer from "../../../../../common/components/MsMainContainer";
 
-  export default {
-    name: "ApiTestDetail",
-    components: {MsMainContainer, MsContainer, MsApiScenarioConfig},
-    props: {
-      id: String,
-      isReadOnly: {
-        type: Boolean,
-        default: false
-      }
-    },
-    data() {
+export default {
+  name: "ApiTestDetail",
+  components: {MsMainContainer, MsContainer, MsApiScenarioConfig},
+  props: {
+    id: String,
+    isReadOnly: {
+      type: Boolean,
+      default: false
+    }
+  },
+  data() {
       return {
         result: {},
         test: new Test(),
@@ -92,7 +92,7 @@
 
 <style scoped>
   .test-container {
-    height: calc(100vh - 150px);
+    height: calc(100vh - 155px);
     min-height: 600px;
     padding: 15px;
   }

@@ -230,10 +230,14 @@ export default {
       this.$emit("refresh");
     },
     nodeExpand(data) {
-      this.expandedNode.push(data.id);
+      if (data.id) {
+        this.expandedNode.push(data.id);
+      }
     },
     nodeCollapse(data) {
-      this.expandedNode.splice(this.expandedNode.indexOf(data.id), 1);
+      if (data.id) {
+        this.expandedNode.splice(this.expandedNode.indexOf(data.id), 1);
+      }
     }
   }
 };

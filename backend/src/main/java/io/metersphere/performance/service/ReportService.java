@@ -14,6 +14,7 @@ import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.dto.LogDetailDTO;
 import io.metersphere.dto.ReportDTO;
 import io.metersphere.performance.base.*;
+import io.metersphere.performance.controller.request.DeleteReportRequest;
 import io.metersphere.performance.controller.request.ReportRequest;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
@@ -72,18 +73,22 @@ public class ReportService {
 
         LogUtil.info("Delete report started, report ID: %s" + reportId);
 
-        final Engine engine = EngineFactory.createEngine(loadTest);
-        if (engine == null) {
-            MSException.throwException(String.format("Delete report fail. create engine fail，report ID：%s", reportId));
-        }
+        try {
+            final Engine engine = EngineFactory.createEngine(loadTest);
+            if (engine == null) {
+                MSException.throwException(String.format("Delete report fail. create engine fail，report ID：%s", reportId));
+            }
 
-        String reportStatus = loadTestReport.getStatus();
-        boolean isRunning = StringUtils.equals(reportStatus, PerformanceTestStatus.Running.name());
-        boolean isStarting = StringUtils.equals(reportStatus, PerformanceTestStatus.Starting.name());
-        boolean isError = StringUtils.equals(reportStatus, PerformanceTestStatus.Error.name());
-        if (isRunning || isStarting || isError) {
-            LogUtil.info("Start stop engine, report status: %s" + reportStatus);
-            stopEngine(loadTest, engine);
+            String reportStatus = loadTestReport.getStatus();
+            boolean isRunning = StringUtils.equals(reportStatus, PerformanceTestStatus.Running.name());
+            boolean isStarting = StringUtils.equals(reportStatus, PerformanceTestStatus.Starting.name());
+            boolean isError = StringUtils.equals(reportStatus, PerformanceTestStatus.Error.name());
+            if (isRunning || isStarting || isError) {
+                LogUtil.info("Start stop engine, report status: %s" + reportStatus);
+                stopEngine(loadTest, engine);
+            }
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
         }
 
         // delete load_test_report_result
@@ -245,5 +250,10 @@ public class ReportService {
         report.setId(reportId);
         report.setStatus(status);
         loadTestReportMapper.updateByPrimaryKeySelective(report);
+    }
+
+    public void deleteReportBatch(DeleteReportRequest reportRequest) {
+        List<String> ids = reportRequest.getIds();
+        ids.forEach(this::deleteReport);
     }
 }

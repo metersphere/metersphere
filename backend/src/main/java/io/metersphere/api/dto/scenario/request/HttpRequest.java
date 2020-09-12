@@ -8,6 +8,8 @@ import io.metersphere.api.dto.scenario.assertions.Assertions;
 import io.metersphere.api.dto.scenario.extract.Extract;
 import io.metersphere.api.dto.scenario.processor.BeanShellPostProcessor;
 import io.metersphere.api.dto.scenario.processor.BeanShellPreProcessor;
+import io.metersphere.api.dto.scenario.processor.JSR223PostProcessor;
+import io.metersphere.api.dto.scenario.processor.JSR223PreProcessor;
 import lombok.Data;
 
 import java.util.List;
@@ -17,6 +19,8 @@ import java.util.List;
 public class HttpRequest implements Request {
     // type 必须放最前面，以便能够转换正确的类
     private String type = RequestType.HTTP;
+    @JSONField(ordinal = 1)
+    private String id;
     @JSONField(ordinal = 1)
     private String name;
     @JSONField(ordinal = 2)
@@ -47,4 +51,10 @@ public class HttpRequest implements Request {
     private Long connectTimeout;
     @JSONField(ordinal = 15)
     private Long responseTimeout;
+    @JSONField(ordinal = 16)
+    private Boolean followRedirects;
+    @JSONField(ordinal = 17)
+    private JSR223PreProcessor jsr223PreProcessor;
+    @JSONField(ordinal = 18)
+    private JSR223PostProcessor jsr223PostProcessor;
 }

@@ -60,6 +60,10 @@ public class FileService {
         FileContentExample example2 = new FileContentExample();
         example2.createCriteria().andFileIdIn(ids);
         fileContentMapper.deleteByExample(example2);
+
+        LoadTestFileExample example3 = new LoadTestFileExample();
+        example3.createCriteria().andFileIdIn(ids);
+        loadTestFileMapper.deleteByExample(example3);
     }
 
     public FileMetadata saveFile(MultipartFile file) {

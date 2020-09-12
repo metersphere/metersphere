@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+
 import java.util.List;
 
 @RestController
@@ -44,6 +45,11 @@ public class APITestController {
         return PageUtils.setPageInfo(page, apiTestService.list(request));
     }
 
+    @PostMapping("/list/ids")
+    public List<ApiTest> listByIds(@RequestBody QueryAPITestRequest request) {
+        return apiTestService.listByIds(request);
+    }
+
     @GetMapping("/list/{projectId}")
     public List<ApiTest> list(@PathVariable String projectId) {
         return apiTestService.getApiTestByProjectId(projectId);
@@ -66,7 +72,7 @@ public class APITestController {
 
     @PostMapping(value = "/update", consumes = {"multipart/form-data"})
     public void update(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
-            apiTestService.update(request, file, bodyFiles);
+        apiTestService.update(request, file, bodyFiles);
     }
 
     @PostMapping(value = "/copy")
@@ -91,8 +97,13 @@ public class APITestController {
     }
 
     @PostMapping(value = "/run/debug", consumes = {"multipart/form-data"})
-    public String runDebug(@RequestPart("request")  SaveAPITestRequest request,  @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
+    public String runDebug(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         return apiTestService.runDebug(request, file, bodyFiles);
+    }
+
+    @PostMapping(value = "/checkName")
+    public void checkName(@RequestBody SaveAPITestRequest request) {
+        apiTestService.checkName(request);
     }
 
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})

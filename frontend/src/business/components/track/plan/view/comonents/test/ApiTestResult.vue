@@ -30,24 +30,24 @@
 
 <script>
 
-  import MsScenarioResult from "../../../../../api/report/components/ScenarioResult";
-  import MsMetricChart from "../../../../../api/report/components/MetricChart";
-  import MsScenarioResults from "../../../../../api/report/components/ScenarioResults";
-  import MsRequestResult from "../../../../../api/report/components/RequestResult";
-  import MsContainer from "../../../../../common/components/MsContainer";
-  import MsMainContainer from "../../../../../common/components/MsMainContainer";
+import MsScenarioResult from "../../../../../api/report/components/ScenarioResult";
+import MsMetricChart from "../../../../../api/report/components/MetricChart";
+import MsScenarioResults from "../../../../../api/report/components/ScenarioResults";
+import MsRequestResult from "../../../../../api/report/components/RequestResult";
+import MsContainer from "../../../../../common/components/MsContainer";
+import MsMainContainer from "../../../../../common/components/MsMainContainer";
 
-  export default {
-    name: "ApiTestResult",
-    components: {MsMainContainer, MsContainer, MsRequestResult, MsScenarioResults, MsMetricChart, MsScenarioResult},
-    data() {
-      return {
-        activeName: "total",
-        content: {},
-        report: {},
-        loading: true,
-        fails: [],
-      }
+export default {
+  name: "ApiTestResult",
+  components: {MsMainContainer, MsContainer, MsRequestResult, MsScenarioResults, MsMetricChart, MsScenarioResult},
+  data() {
+    return {
+      activeName: "total",
+      content: {},
+      report: {},
+      loading: true,
+      fails: [],
+    }
     },
     props:['reportId'],
     watch: {
@@ -108,7 +108,7 @@
 
 <style scoped>
   .report-container {
-    height: calc(100vh - 150px);
+    height: calc(100vh - 155px);
     min-height: 600px;
     overflow-y: auto;
   }

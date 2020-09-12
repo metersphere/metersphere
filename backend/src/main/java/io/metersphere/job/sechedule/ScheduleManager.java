@@ -39,18 +39,6 @@ public class ScheduleManager {
                 .startNow().build();
 
         scheduler.scheduleJob(jd, trigger);
-
-        try {
-
-            if (!scheduler.isShutdown()) {
-                scheduler.start();
-            }
-
-        } catch (SchedulerException e) {
-            LogUtil.error(e.getMessage(), e);
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
     }
 
     public void addSimpleJob(JobKey jobKey, TriggerKey triggerKey, Class<? extends Job> cls, int repeatIntervalTime) throws SchedulerException {
@@ -89,9 +77,6 @@ public class ScheduleManager {
 
             scheduler.scheduleJob(jobDetail, trigger);
 
-            if (!scheduler.isShutdown()) {
-                scheduler.start();
-            }
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             throw new RuntimeException(e);

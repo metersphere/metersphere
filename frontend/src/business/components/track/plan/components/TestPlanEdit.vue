@@ -2,7 +2,8 @@
 
   <div>
 
-    <el-dialog :title="operationType == 'edit' ? $t('test_track.plan.edit_plan') : $t('test_track.plan.create_plan')"
+    <el-dialog :close-on-click-modal="false"
+               :title="operationType == 'edit' ? $t('test_track.plan.edit_plan') : $t('test_track.plan.create_plan')"
                :visible.sync="dialogFormVisible"
                @close="close"
                width="65%">
@@ -21,11 +22,14 @@
           </el-col>
 
           <el-col :span="11" :offset="2">
-            <el-form-item :label="$t('test_track.plan.plan_project')" :label-width="formLabelWidth" prop="projectId">
+            <el-form-item :label="$t('test_track.plan.plan_project')" :label-width="formLabelWidth" prop="projectIds">
               <el-select
                 :disabled="(form.status == null) ? false : true"
-                v-model="form.projectId"
+                v-model="form.projectIds"
                 :placeholder="$t('test_track.plan.input_plan_project')"
+                multiple
+                style="width: 100%"
+                collapse-tags
                 filterable>
                 <el-option
                   v-for="item in projects"
@@ -67,7 +71,7 @@
         </el-row>
 
         <el-row type="flex" justify="left" style="margin-top: 10px;">
-          <el-col :span="19" :offset="1">
+          <el-col :span="23" :offset="1">
             <el-form-item :label="$t('commons.description')" :label-width="formLabelWidth" prop="description">
               <el-input v-model="form.description"
                         type="textarea"
@@ -123,7 +127,7 @@ export default {
       dialogFormVisible: false,
       form: {
         name: '',
-        projectId: '',
+        projectIds: [],
         principal: '',
         stage: '',
         description: ''
@@ -133,7 +137,7 @@ export default {
           {required: true, message: this.$t('test_track.plan.input_plan_name'), trigger: 'blur'},
           {max: 30, message: this.$t('test_track.length_less_than') + '30', trigger: 'blur'}
         ],
-        projectId: [{required: true, message: this.$t('test_track.plan.input_plan_project'), trigger: 'change'}],
+        projectIds: [{required: true, message: this.$t('test_track.plan.input_plan_project'), trigger: 'change'}],
         principal: [{required: true, message: this.$t('test_track.plan.input_plan_principal'), trigger: 'change'}],
         stage: [{required: true, message: this.$t('test_track.plan.input_plan_stage'), trigger: 'change'}],
         description: [{max: 200, message: this.$t('test_track.length_less_than') + '200', trigger: 'blur'}]
@@ -212,7 +216,7 @@ export default {
         this.$refs['planFrom'].validate((valid) => {
           this.$refs['planFrom'].resetFields();
           this.form.name = '';
-          this.form.projectId = '';
+          this.form.projectIds = [];
           this.form.principal = '';
           this.form.stage = '';
           this.form.description = '';
