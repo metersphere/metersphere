@@ -32,7 +32,7 @@ export default {
       component: () => import(/* webpackChunkName: "setting" */ '@/business/components/settings/system/SystemParameterSetting'),
       meta: {system: true, title: 'commons.system_parameter_setting'}
     },
-    ...requireContext.keys().map(key => requireContext(key).system),
+    ...requireContext.keys().map(key => requireContext(key).system),...requireContext.keys().map(key => requireContext(key).license),
     {
       path: 'organizationmember',
       component: () => import(/* webpackChunkName: "setting" */ '@/business/components/settings/organization/OrganizationMember'),

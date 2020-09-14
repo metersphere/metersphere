@@ -108,6 +108,7 @@ export default {
     formatErr: '格式錯誤',
     please_save: '請先保存',
     id: 'ID',
+    cannot_be_null: '不能为空',
     millisecond: '毫秒',
     reference_documentation: "參考文檔",
     please_upload: '請上傳文件',
@@ -151,6 +152,19 @@ export default {
       }
     }
   },
+  license:{
+    title: '授權管理',
+    corporation: '客戶名稱',
+    expired: '授權時間',
+    product: '產品名稱',
+    edition: '產品版本',
+    licenseVersion: '授權版本',
+    count: '授權數量',
+    valid_license: '授權验证',
+    show_license: '查看授權',
+    valid_license_error: '授權验证失败',
+  },
+
   workspace: {
     create: '創建工作空間',
     update: '修改工作空間',
@@ -638,6 +652,7 @@ export default {
         upload_limit_count: "一次只能上傳一個文件",
         upload_limit_format: "上傳文件只能是 xls、xlsx格式!",
         upload_limit_size: "上傳文件大小不能超過 20MB!",
+        upload_limit_other_size: "上傳文件大小不能超過",
         success: "導入成功！",
         importing: "導入中...",
       },
