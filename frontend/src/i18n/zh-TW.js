@@ -629,6 +629,7 @@ export default {
       batch_move_case: '批量移動用例',
       batch_delete_case: '批量刪除用例',
       batch_unlink: '批量取消關聯',
+      project_name: '所屬項目',
       import: {
         import: "導入用例",
         case_import: "導入測試用例",
@@ -683,7 +684,8 @@ export default {
       status: "狀態",
       describe: "描述",
       current_owner: "處理人",
-      creation_time: "創建時間"
+      creation_time: "創建時間",
+      project_name: "所屬項目"
     },
     home: {
       recent_test: "最近測試",
