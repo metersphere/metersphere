@@ -90,6 +90,12 @@
         initTableData() {
           this.result = this.$post('/test/plan/list/all/relate', this.condition, response => {
             this.tableData = response.data;
+            for (let i = 0; i < this.tableData.length; i++) {
+              let path = "/test/plan/project/name/" + this.tableData[i].id;
+              this.$get(path, res => {
+                this.$set(this.tableData[i], "projectName", res.data);
+              })
+            }
           });
         },
         intoPlan(row, event, column) {

@@ -211,14 +211,16 @@ export class Scenario extends BaseConfig {
     this.environment = undefined;
     this.enableCookieShare = false;
     this.enable = true;
+    this.databaseConfigs = undefined;
 
     this.set(options);
-    this.sets({variables: KeyValue, headers: KeyValue, requests: RequestFactory}, options);
+    this.sets({variables: KeyValue, headers: KeyValue, requests: RequestFactory, databaseConfigs: DatabaseConfig}, options);
   }
 
   initOptions(options = {}) {
     options.id = options.id || uuid();
     options.requests = options.requests || [new RequestFactory()];
+    options.databaseConfigs = options.databaseConfigs || [];
     options.dubboConfig = new DubboConfig(options.dubboConfig);
     return options;
   }
@@ -405,7 +407,7 @@ export class DubboRequest extends Request {
     this.debugReport = undefined;
     this.beanShellPreProcessor = new BeanShellProcessor(options.beanShellPreProcessor);
     this.beanShellPostProcessor = new BeanShellProcessor(options.beanShellPostProcessor);
-    this.enable = options.enable == undefined ? true : options.enable;
+    this.enable = options.enable === undefined ? true : options.enable;
     this.jsr223PreProcessor = new JSR223Processor(options.jsr223PreProcessor);
     this.jsr223PostProcessor = new JSR223Processor(options.jsr223PostProcessor);
 
@@ -476,6 +478,51 @@ export class ConfigCenter extends BaseConfig {
 
   isValid() {
     return !!this.protocol || !!this.group || !!this.namespace || !!this.username || !!this.address || !!this.password || !!this.timeout;
+  }
+}
+
+export class DatabaseConfig extends BaseConfig {
+  static DRIVER_CLASS = ["com.mysql.jdbc.Driver"];
+
+  constructor(options) {
+    super();
+    this.id = undefined;
+    this.name = undefined;
+    this.poolMax = undefined;
+    this.timeout = undefined;
+    this.driver = undefined;
+    this.dbUrl = undefined;
+    this.username = undefined;
+    this.password = undefined;
+
+    this.set(options);
+  }
+
+  initOptions(options = {}) {
+    // options.id = options.id || uuid();
+    return options;
+  }
+// <JDBCDataSource guiclass="TestBeanGUI" testclass="JDBCDataSource" testname="JDBC Connection Configurationqqq" enabled="true">
+//     <boolProp name="autocommit">true</boolProp>
+//     <stringProp name="checkQuery"></stringProp>
+//     <stringProp name="connectionAge">5000</stringProp>
+//     <stringProp name="connectionProperties"></stringProp>
+//     <stringProp name="dataSource">test</stringProp>
+//     <stringProp name="dbUrl">jdbc:mysql://localhost:3306/metersphere?autoReconnect=false&amp;useUnicode=true&amp;characterEncoding=UTF-8&amp;characterSetResults=UTF-8&amp;zeroDateTimeBehavior=convertToNull&amp;allowMultiQueries=true</stringProp>
+//     <stringProp name="driver">com.mysql.jdbc.Driver</stringProp>
+//     <stringProp name="initQuery"></stringProp>
+//     <boolProp name="keepAlive">true</boolProp>
+//     <stringProp name="password">root</stringProp>
+//     <stringProp name="poolMax">10</stringProp>
+//     <boolProp name="preinit">false</boolProp>
+//     <stringProp name="timeout">10000</stringProp>
+//     <stringProp name="transactionIsolation">DEFAULT</stringProp>
+//     <stringProp name="trimInterval">60000</stringProp>
+//     <stringProp name="username">root</stringProp>
+//     </JDBCDataSource>
+
+  isValid() {
+    return !!this.name || !!this.poolMax || !!this.timeout || !!this.driver || !!this.dbUrl || !!this.username || !!this.password;
   }
 }
 

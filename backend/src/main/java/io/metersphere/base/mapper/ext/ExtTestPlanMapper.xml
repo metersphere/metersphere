@@ -97,9 +97,7 @@
 
     <select id="list" resultMap="BaseResultMap"
             parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
-        select test_plan.*, project.name as project_name
-        from test_plan
-        left join project on test_plan.project_id = project.id
+        select test_plan.* from test_plan
         <where>
             <if test="request.combine != null">
                 <include refid="combine">
@@ -111,10 +109,7 @@
                 and test_plan.name like CONCAT('%', #{request.name},'%')
             </if>
             <if test="request.workspaceId != null">
-                AND project.workspace_id = #{request.workspaceId}
-            </if>
-            <if test="request.projectId != null">
-                AND project.id = #{request.projectId}
+                AND test_plan.workspace_id = #{request.workspaceId}
             </if>
             <if test="request.id != null">
                 AND test_plan.id = #{request.id}
@@ -150,9 +145,7 @@
     </select>
 
     <select id="listRelate" resultType="io.metersphere.track.dto.TestPlanDTOWithMetric">
-        select test_plan.*, project.name as project_name
-        from test_plan
-        left join project on test_plan.project_id = project.id
+        select test_plan.* from test_plan
         where test_plan.workspace_id = #{request.workspaceId}
         and (test_plan.principal = #{request.principal}
         <if test="request.planIds != null and request.planIds.size() > 0">
