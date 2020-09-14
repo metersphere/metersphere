@@ -498,4 +498,12 @@ public class TestCaseNodeService {
         }
     }
 
+    public Project getProjectByNode(String nodeId) {
+        TestCaseNodeExample example = new TestCaseNodeExample();
+        example.createCriteria().andIdEqualTo(nodeId);
+        List<TestCaseNode> testCaseNodes = testCaseNodeMapper.selectByExample(example);
+        String projectId = testCaseNodes.get(0).getProjectId();
+        return projectMapper.selectByPrimaryKey(projectId);
+    }
+
 }

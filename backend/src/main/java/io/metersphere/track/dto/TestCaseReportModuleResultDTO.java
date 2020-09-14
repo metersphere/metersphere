@@ -20,4 +20,5 @@ public class TestCaseReportModuleResultDTO {
     private Integer failureCount;
     private Integer blockingCount;
     private Integer underwayCount;
+    private String projectName;
 }

@@ -1,5 +1,6 @@
 package io.metersphere.track.domain;
 
+import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.TestCaseNode;
 import io.metersphere.base.domain.TestCaseNodeExample;
 import io.metersphere.base.mapper.TestCaseNodeMapper;
@@ -52,6 +53,9 @@ public class ReportResultComponent extends ReportComponent {
         nodeTrees.forEach(rootNode -> {
             TestCaseReportModuleResultDTO moduleResult = moduleResultMap.get(rootNode.getId());
             if (moduleResult != null) {
+                TestCaseNodeService testCaseNodeService = (TestCaseNodeService) CommonBeanFactory.getBean("testCaseNodeService");
+                Project project = testCaseNodeService.getProjectByNode(rootNode.getId());
+                moduleResult.setProjectName(project.getName());
                 moduleResult.setModuleName(rootNode.getName());
             }
         });

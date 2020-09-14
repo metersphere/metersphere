@@ -643,6 +643,7 @@ export default {
       batch_move_case: 'Batch move',
       batch_delete_case: 'Batch delete',
       batch_unlink: 'Batch Unlink',
+      project_name: "Project",
       import: {
         import: "Import test case",
         case_import: "Import test case",
@@ -698,7 +699,8 @@ export default {
       describe: "Describe",
       status: "Status",
       current_owner: "Current Owner",
-      creation_time: "Creation time"
+      creation_time: "Creation time",
+      project_name: "Project"
     },
     home: {
       recent_test: "Recent test",
