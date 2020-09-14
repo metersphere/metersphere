@@ -113,6 +113,7 @@ export default {
     reference_documentation: "参考文档",
     id: 'ID',
     millisecond: '毫秒',
+    cannot_be_null: '不能为空',
     date: {
       select_date: '选择日期',
       start_date: '开始日期',
@@ -152,6 +153,18 @@ export default {
         current_user: "是当前用户"
       }
     }
+  },
+  license:{
+    title: '授权管理',
+    corporation: '客户名称',
+    expired: '授权时间',
+    product: '产品名称',
+    edition: '产品版本',
+    licenseVersion: '授权版本',
+    count: '授权数量',
+    valid_license: '授权验证',
+    show_license: '查看授权',
+    valid_license_error: '授权验证失败',
   },
   workspace: {
     create: '创建工作空间',
@@ -640,6 +653,7 @@ export default {
         download_template: "下载模版",
         click_upload: "点击上传",
         upload_limit: "只能上传xls/xlsx文件，且不超过20M",
+        upload_limit_other_size: "上传文件大小不能超过",
         upload_limit_count: "一次只能上传一个文件",
         upload_limit_format: "上传文件只能是 xls、xlsx格式!",
         upload_limit_size: "上传文件大小不能超过 20MB!",
