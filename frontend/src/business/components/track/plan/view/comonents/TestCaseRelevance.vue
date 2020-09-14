@@ -256,7 +256,7 @@
       },
       getProject() {
         if (this.planId) {
-          this.$get("/test/plan/project/" + this.planId,res => {
+          this.$post("/test/plan/project/", {planId: this.planId},res => {
             let data = res.data;
             if (data) {
               this.projects = data;
