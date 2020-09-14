@@ -192,8 +192,8 @@ export default {
         this.total = data.itemCount;
         this.tableData = data.listObject;
         for (let i = 0; i < this.tableData.length; i++) {
-          let path = "/test/plan/project/" + this.tableData[i].id;
-          this.$get(path, res => {
+          let path = "/test/plan/project";
+          this.$post(path,{planId: this.tableData[i].id}, res => {
             let arr = res.data;
             let projectName = arr.map(data => data.name).join("、");
             let projectIds = arr.map(data => data.id);

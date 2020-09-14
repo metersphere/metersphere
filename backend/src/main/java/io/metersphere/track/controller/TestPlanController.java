@@ -14,6 +14,7 @@ import io.metersphere.track.dto.TestPlanDTOWithMetric;
 import io.metersphere.track.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.AddTestPlanRequest;
+import io.metersphere.track.request.testplancase.TestCaseRelevanceRequest;
 import io.metersphere.track.service.TestPlanProjectService;
 import io.metersphere.track.service.TestPlanService;
 import org.apache.shiro.authz.annotation.Logical;
@@ -111,8 +112,18 @@ public class TestPlanController {
         return testPlanService.getProjectNameByPlanId(planId);
     }
 
-    @GetMapping("/project/{planId}")
-    public List<Project> getProjectByPlanId(@PathVariable String planId) {
-        return testPlanProjectService.getProjectByPlanId(planId);
+    @PostMapping("/project")
+    public List<Project> getProjectByPlanId(@RequestBody TestCaseRelevanceRequest request) {
+        List<String> projectIds = testPlanProjectService.getProjectIdsByPlanId(request.getPlanId());
+        request.setProjectIds(projectIds);
+        return testPlanProjectService.getProjectByPlanId(request);
+    }
+
+    @PostMapping("/project/{goPage}/{pageSize}")
+    public Pager<List<Project>> getProjectByPlanId(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody TestCaseRelevanceRequest request) {
+        List<String> projectIds = testPlanProjectService.getProjectIdsByPlanId(request.getPlanId());
+        request.setProjectIds(projectIds);
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, testPlanProjectService.getProjectByPlanId(request));
     }
 }
