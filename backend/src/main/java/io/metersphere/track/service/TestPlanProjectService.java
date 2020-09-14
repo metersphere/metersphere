@@ -6,26 +6,25 @@ import io.metersphere.base.domain.TestPlanProject;
 import io.metersphere.base.domain.TestPlanProjectExample;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.TestPlanProjectMapper;
-import org.python.antlr.ast.Str;
+import io.metersphere.track.request.testplancase.TestCaseRelevanceRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TestPlanProjectService {
-    
+
     @Resource
     TestPlanProjectMapper testPlanProjectMapper;
     @Resource
     ProjectMapper projectMapper;
-    
+
     public List<String> getProjectIdsByPlanId(String planId) {
         TestPlanProjectExample example = new TestPlanProjectExample();
         example.createCriteria().andTestPlanIdEqualTo(planId);
@@ -41,12 +40,14 @@ public class TestPlanProjectService {
         return projectIds;
     }
 
-    public List<Project> getProjectByPlanId(String planId) {
-        List<String> projectIds = getProjectIdsByPlanId(planId);
+    public List<Project> getProjectByPlanId(TestCaseRelevanceRequest request) {
         ProjectExample projectExample = new ProjectExample();
-        projectExample.createCriteria().andIdIn(projectIds);
-        List<Project> projects = projectMapper.selectByExample(projectExample);
-        return Optional.ofNullable(projects).orElse(new ArrayList<>());
+        ProjectExample.Criteria criteria = projectExample.createCriteria();
+        criteria.andIdIn(request.getProjectIds());
+        if (StringUtils.isNotBlank(request.getName())) {
+            criteria.andNameLike(StringUtils.wrapIfMissing(request.getName(), "%"));
+        }
+        return projectMapper.selectByExample(projectExample);
     }
 
     public void deleteTestPlanProjectByPlanId(String planId) {

@@ -110,6 +110,7 @@ export default {
     please_save: 'Please save first',
     formatErr: 'Format Error',
     id: 'ID',
+    cannot_be_null: 'not null ',
     millisecond: 'ms',
     please_upload: 'Please upload file',
     reference_documentation: "Reference documentation",
@@ -152,6 +153,18 @@ export default {
         current_user: "Current user"
       }
     }
+  },
+  license:{
+    title: 'Authorization management',
+    corporation: 'corporation',
+    expired: 'expired',
+    product: 'product',
+    edition: 'edition',
+    licenseVersion: 'licenseVersion',
+    count: 'count',
+    valid_license: 'valid license',
+    show_license: 'show license',
+    valid_license_error: 'validate license error',
   },
   workspace: {
     create: 'Create Workspace',
@@ -639,6 +652,7 @@ export default {
         upload_limit_count: "Only one file can be uploaded at a time",
         upload_limit_format: "Upload files can only be XLS, XLSX format!",
         upload_limit_size: "Upload file size cannot exceed 20MB!",
+        upload_limit_other_size: "Upload file size cannot exceed",
         success: "Import success！",
         importing: "Importing...",
       },

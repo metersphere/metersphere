@@ -37,6 +37,9 @@
                           :environment="scenario.environment"
                           :description="$t('api_test.scenario.kv_description')"/>
       </el-tab-pane>
+      <el-tab-pane :label="'数据库配置'" name="database">
+        <ms-database-config :configs="scenario.databaseConfigs"/>
+      </el-tab-pane>
       <el-tab-pane :label="$t('api_test.scenario.dubbo')" name="dubbo">
         <div class="dubbo-config-title">Config Center</div>
         <ms-dubbo-config-center :config="scenario.dubboConfig.configCenter" :is-read-only="isReadOnly"/>
@@ -62,10 +65,12 @@ import {REQUEST_HEADERS} from "@/common/js/constants";
 import MsDubboRegistryCenter from "@/business/components/api/test/components/request/dubbo/RegistryCenter";
 import MsDubboConfigCenter from "@/business/components/api/test/components/request/dubbo/ConfigCenter";
 import MsDubboConsumerService from "@/business/components/api/test/components/request/dubbo/ConsumerAndService";
+import MsDatabaseConfig from "./request/database/DatabaseConfig";
 
 export default {
   name: "MsApiScenarioForm",
   components: {
+    MsDatabaseConfig,
     MsDubboConsumerService,
     MsDubboConfigCenter, MsDubboRegistryCenter, ApiEnvironmentConfig, MsApiScenarioVariables, MsApiKeyValue
   },
