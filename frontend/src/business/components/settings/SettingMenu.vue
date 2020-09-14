@@ -74,7 +74,7 @@
       }
     },
     mounted() {
-      this.valid();
+      //this.valid();
       this.isCurrentOrganizationAdmin = checkoutCurrentOrganization();
       this.isCurrentWorkspaceUser = checkoutCurrentWorkspace();
     },
