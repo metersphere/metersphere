@@ -273,6 +273,9 @@ public class TestPlanService {
         queryTestPlanRequest.setId(planId);
 
         TestPlanDTO testPlan = extTestPlanMapper.list(queryTestPlanRequest).get(0);
+        String projectName = getProjectNameByPlanId(planId);
+        testPlan.setProjectName(projectName);
+
         TestCaseReport testCaseReport = testCaseReportMapper.selectByPrimaryKey(testPlan.getReportId());
         JSONObject content = JSONObject.parseObject(testCaseReport.getContent());
         JSONArray componentIds = content.getJSONArray("components");
@@ -286,6 +289,7 @@ public class TestPlanService {
             if (issue.size() > 0) {
                 for (Issues i : issue) {
                     i.setModel(testCase.getNodePath());
+                    i.setProjectName(testCase.getProjectName());
                     String des = i.getDescription().replaceAll("<p>", "").replaceAll("</p>", "");
                     i.setDescription(des);
                     if (i.getLastmodify() == null || i.getLastmodify() == "") {

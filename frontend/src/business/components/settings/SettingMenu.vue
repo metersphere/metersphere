@@ -45,64 +45,107 @@
 </template>
 
 <script>
-import {checkoutCurrentOrganization, checkoutCurrentWorkspace} from "@/common/js/utils";
-import Setting from "@/business/components/settings/router";
+  import {checkoutCurrentOrganization, checkoutCurrentWorkspace} from "@/common/js/utils";
+  import Setting from "@/business/components/settings/router";
 
-export default {
-  name: "MsSettingMenu",
-  data() {
-    let getMenus = function (group) {
-      let menus = [];
-      Setting.children.forEach(child => {
-        if (child.meta[group] === true) {
-          let menu = {index: Setting.path + "/" + child.path}
-          menu.title = child.meta.title;
-          menu.roles = child.meta.roles;
-          menus.push(menu);
-        }
-      })
-      return menus;
+  export default {
+    name: "MsSettingMenu",
+    data() {
+      let valid = false;
+      let getMenus = function (group) {
+        let menus = [];
+        Setting.children.forEach(child => {
+          if (child.meta[group] === true) {
+            let menu = {index: Setting.path + "/" + child.path}
+            menu.title = child.meta.title;
+            menu.roles = child.meta.roles;
+            if (child.meta.valid != undefined && child.meta.valid === true) {
+              menu.valid = child.meta.valid;
+              valid = true;
+            }
+            menus.push(menu);
+          }
+        })
+        return menus;
+      }
+      return {
+        systems: getMenus('system'),
+        organizations: getMenus('organization'),
+        workspaces: getMenus('workspace'),
+        persons: getMenus('person'),
+        isValid: valid,
+        isCurrentOrganizationAdmin: false,
+        isCurrentWorkspaceUser: false,
+      }
+    },
+    mounted() {
+      if (this.isValid === true) {
+        this.valid();
+      }
+      this.isCurrentOrganizationAdmin = checkoutCurrentOrganization();
+      this.isCurrentWorkspaceUser = checkoutCurrentWorkspace();
+    },
+    methods: {
+      valid() {
+        let _this = this;
+        this.result = this.$get("/license/valid", response => {
+          let data = response.data;
+          if (data === undefined || data === null || data.status != "valid") {
+            this.systems.forEach(item => {
+              if (item.valid != undefined && item.valid === true) {
+                _this.systems.splice(this.systems.indexOf(item), 1);
+              }
+            })
+
+            this.organizations.forEach(item => {
+              if (item.valid != undefined && item.valid === true) {
+                _this.organizations.splice(this.organizations.indexOf(item), 1);
+              }
+            })
+
+            this.workspaces.forEach(item => {
+              if (item.valid != undefined && item.valid === true) {
+                _this.workspaces.splice(this.workspaces.indexOf(item), 1);
+              }
+            })
+
+            this.persons.forEach(item => {
+              if (item.valid != undefined && item.valid === true) {
+                _this.persons.splice(this.persons.indexOf(item), 1);
+              }
+            })
+          }
+        })
+      }
     }
-    return {
-      systems: getMenus('system'),
-      organizations: getMenus('organization'),
-      workspaces: getMenus('workspace'),
-      persons: getMenus('person'),
-      isCurrentOrganizationAdmin: false,
-      isCurrentWorkspaceUser: false,
-    }
-  },
-  mounted() {
-    this.isCurrentOrganizationAdmin = checkoutCurrentOrganization();
-    this.isCurrentWorkspaceUser = checkoutCurrentWorkspace();
   }
-}
 </script>
 
 <style scoped>
-.setting {
-  border-right: 0;
-}
 
-.setting .setting-item {
-  height: 40px;
-  line-height: 40px;
-}
+  .setting {
+    border-right: 0;
+  }
 
-.icon {
-  width: 24px;
-  margin-right: 10px;
-}
+  .setting .setting-item {
+    height: 40px;
+    line-height: 40px;
+  }
 
-.account {
-  color: #5a78f0;
-}
+  .icon {
+    width: 24px;
+    margin-right: 10px;
+  }
 
-.organization {
-  color: #b33a5b;
-}
+  .account {
+    color: #5a78f0;
+  }
 
-.workspace {
-  color: #44b349;
-}
+  .organization {
+    color: #b33a5b;
+  }
+
+  .workspace {
+    color: #44b349;
+  }
 </style>

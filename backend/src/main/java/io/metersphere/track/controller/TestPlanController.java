@@ -46,7 +46,7 @@ public class TestPlanController {
     public List<TestPlanDTO> listByProjectId(@PathVariable String projectId, @PathVariable String workspaceId) {
         QueryTestPlanRequest request = new QueryTestPlanRequest();
         request.setWorkspaceId(workspaceId);
-        request.setProjectId(projectId);
+//        request.setProjectId(projectId);
         return testPlanService.listTestPlan(request);
     }
 

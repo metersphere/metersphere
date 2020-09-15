@@ -110,6 +110,7 @@ export default {
     please_save: 'Please save first',
     formatErr: 'Format Error',
     id: 'ID',
+    cannot_be_null: 'not null ',
     millisecond: 'ms',
     please_upload: 'Please upload file',
     reference_documentation: "Reference documentation",
@@ -152,6 +153,22 @@ export default {
         current_user: "Current user"
       }
     }
+  },
+  license:{
+    title: 'Authorization management',
+    corporation: 'corporation',
+    time: 'Authorization time',
+    product: 'product',
+    edition: 'edition',
+    licenseVersion: 'licenseVersion',
+    count: 'count',
+    valid_license: 'valid license',
+    show_license: 'show license',
+    valid_license_error: 'validate license error',
+    status: 'valid state',
+    valid: 'valid',
+    invalid: 'invalid',
+    expired: 'expired',
   },
   workspace: {
     create: 'Create Workspace',
@@ -630,6 +647,7 @@ export default {
       batch_move_case: 'Batch move',
       batch_delete_case: 'Batch delete',
       batch_unlink: 'Batch Unlink',
+      project_name: "Project",
       import: {
         import: "Import test case",
         case_import: "Import test case",
@@ -639,6 +657,7 @@ export default {
         upload_limit_count: "Only one file can be uploaded at a time",
         upload_limit_format: "Upload files can only be XLS, XLSX format!",
         upload_limit_size: "Upload file size cannot exceed 20MB!",
+        upload_limit_other_size: "Upload file size cannot exceed",
         success: "Import success！",
         importing: "Importing...",
       },
@@ -684,7 +703,8 @@ export default {
       describe: "Describe",
       status: "Status",
       current_owner: "Current Owner",
-      creation_time: "Creation time"
+      creation_time: "Creation time",
+      project_name: "Project"
     },
     home: {
       recent_test: "Recent test",
