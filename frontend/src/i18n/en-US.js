@@ -157,7 +157,7 @@ export default {
   license:{
     title: 'Authorization management',
     corporation: 'corporation',
-    expired: 'expired',
+    time: 'Authorization time',
     product: 'product',
     edition: 'edition',
     licenseVersion: 'licenseVersion',
@@ -165,6 +165,10 @@ export default {
     valid_license: 'valid license',
     show_license: 'show license',
     valid_license_error: 'validate license error',
+    status: 'valid state',
+    valid: 'valid',
+    invalid: 'invalid',
+    expired: 'expired',
   },
   workspace: {
     create: 'Create Workspace',

@@ -51,6 +51,7 @@
   export default {
     name: "MsSettingMenu",
     data() {
+      let valid = false;
       let getMenus = function (group) {
         let menus = [];
         Setting.children.forEach(child => {
@@ -58,7 +59,10 @@
             let menu = {index: Setting.path + "/" + child.path}
             menu.title = child.meta.title;
             menu.roles = child.meta.roles;
-            menu.valid = child.meta.valid;
+            if (child.meta.valid != undefined && child.meta.valid === true) {
+              menu.valid = child.meta.valid;
+              valid = true;
+            }
             menus.push(menu);
           }
         })
@@ -69,12 +73,15 @@
         organizations: getMenus('organization'),
         workspaces: getMenus('workspace'),
         persons: getMenus('person'),
+        isValid: valid,
         isCurrentOrganizationAdmin: false,
         isCurrentWorkspaceUser: false,
       }
     },
     mounted() {
-      //this.valid();
+      if (this.isValid === true) {
+        this.valid();
+      }
       this.isCurrentOrganizationAdmin = checkoutCurrentOrganization();
       this.isCurrentWorkspaceUser = checkoutCurrentWorkspace();
     },
@@ -83,7 +90,7 @@
         let _this = this;
         this.result = this.$get("/license/valid", response => {
           let data = response.data;
-          if (data === undefined || data != true) {
+          if (data === undefined || data === null || data.status != "valid") {
             this.systems.forEach(item => {
               if (item.valid != undefined && item.valid === true) {
                 _this.systems.splice(this.systems.indexOf(item), 1);
@@ -115,6 +122,7 @@
 </script>
 
 <style scoped>
+
   .setting {
     border-right: 0;
   }

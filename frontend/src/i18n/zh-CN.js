@@ -157,7 +157,7 @@ export default {
   license:{
     title: '授权管理',
     corporation: '客户名称',
-    expired: '授权时间',
+    time: '授权时间',
     product: '产品名称',
     edition: '产品版本',
     licenseVersion: '授权版本',
@@ -165,6 +165,10 @@ export default {
     valid_license: '授权验证',
     show_license: '查看授权',
     valid_license_error: '授权验证失败',
+    status: '授权状态',
+    valid: '有效',
+    invalid: '无效',
+    expired: '已过期',
   },
   workspace: {
     create: '创建工作空间',
