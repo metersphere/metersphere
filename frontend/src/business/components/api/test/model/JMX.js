@@ -274,6 +274,38 @@ export class DubboSample extends DefaultTestElement {
   }
 }
 
+export class JDBCSampler extends DefaultTestElement {
+  constructor(testName, request = {}) {
+    super('JDBCSampler', 'TestBeanGUI', 'JDBCSampler', testName);
+
+    this.stringProp("dataSource", request.dataSource);
+    this.stringProp("query", request.query);
+    this.stringProp("queryTimeout", request.queryTimeout);
+    this.stringProp("queryArguments");
+    this.stringProp("queryArgumentsTypes");
+    this.stringProp("resultSetMaxRows");
+    this.stringProp("resultVariable");
+    this.stringProp("variableNames");
+    this.stringProp("resultSetHandler", 'Store as String');
+    this.stringProp("queryType", 'Callable Statement');
+  }
+}
+
+// <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
+//   <stringProp name="dataSource">test</stringProp>
+//   <stringProp name="query">select id from test_plan;
+// select name from test_plan;
+// </stringProp>
+// <stringProp name="queryArguments"></stringProp>
+//   <stringProp name="queryArgumentsTypes"></stringProp>
+//   <stringProp name="queryTimeout"></stringProp>
+//   <stringProp name="queryType">Callable Statement</stringProp>
+// <stringProp name="resultSetHandler">Store as String</stringProp>
+//   <stringProp name="resultSetMaxRows"></stringProp>
+//   <stringProp name="resultVariable"></stringProp>
+//   <stringProp name="variableNames"></stringProp>
+//   </JDBCSampler>
+
 export class HTTPSamplerProxy extends DefaultTestElement {
   constructor(testName, options = {}) {
     super('HTTPSamplerProxy', 'HttpTestSampleGui', 'HTTPSamplerProxy', testName);
@@ -512,6 +544,29 @@ export class DNSCacheManager extends DefaultTestElement {
     });
 
     let boolProp = this.boolProp('DNSCacheManager.isCustomResolver', true);
+  }
+}
+
+export class JDBCDataSource extends DefaultTestElement {
+  constructor(testName, datasource) {
+    super('JDBCDataSource', 'TestBeanGUI', 'JDBCDataSource', testName);
+
+    this.boolProp('autocommit', true);
+    this.boolProp('keepAlive', true);
+    this.boolProp('preinit', false);
+    this.stringProp('dataSource', datasource.name);
+    this.stringProp('dbUrl', datasource.dbUrl);
+    this.stringProp('driver', datasource.driver);
+    this.stringProp('username', datasource.username);
+    this.stringProp('password', datasource.password);
+    this.stringProp('poolMax', datasource.poolMax);
+    this.stringProp('timeout', datasource.timeout);
+    this.stringProp('connectionAge', '5000');
+    this.stringProp('trimInterval', '60000');
+    this.stringProp('transactionIsolation', 'DEFAULT');
+    this.stringProp('checkQuery');
+    this.stringProp('initQuery');
+    this.stringProp('connectionProperties');
   }
 }
 
