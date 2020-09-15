@@ -264,7 +264,7 @@ public class IssuesService {
         String result = addJiraIssue(url, auth, json);
 
         JSONObject jsonObject = JSON.parseObject(result);
-        String id = jsonObject.getString("id");
+        String id = jsonObject.getString("key");
 
         // 用例与第三方缺陷平台中的缺陷关联
         TestCaseIssues testCaseIssues = new TestCaseIssues();
@@ -360,7 +360,7 @@ public class IssuesService {
                 status = statusCategory.getString("key");
             }
 
-            String id = obj.getString("id");
+            String id = obj.getString("key");
             String title = fields.getString("summary");
             String description = fields.getString("description");
 
