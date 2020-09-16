@@ -29,11 +29,11 @@
 
     <el-tabs v-model="activeName" :disabled="isReadOnly">
       <el-tab-pane :label="$t('api_test.scenario.variables')" name="parameters">
-        <ms-api-scenario-variables :is-read-only="isReadOnly" :items="scenario.variables"
+        <ms-api-scenario-variables :isShowEnable="true" :is-read-only="isReadOnly" :items="scenario.variables"
                                    :description="$t('api_test.scenario.kv_description')"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.scenario.headers')" name="headers">
-        <ms-api-key-value :is-read-only="isReadOnly" :items="scenario.headers" :suggestions="headerSuggestions"
+        <ms-api-key-value :is-read-only="isReadOnly" :isShowEnable="true" :items="scenario.headers" :suggestions="headerSuggestions"
                           :environment="scenario.environment"
                           :description="$t('api_test.scenario.kv_description')"/>
       </el-tab-pane>
