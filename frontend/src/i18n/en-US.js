@@ -114,6 +114,7 @@ export default {
     millisecond: 'ms',
     please_upload: 'Please upload file',
     reference_documentation: "Reference documentation",
+    already_exists: 'The name already exists',
     date: {
       select_date: 'Select date',
       start_date: 'Start date',
@@ -415,6 +416,9 @@ export default {
       environment: "Environment",
       select_environment: "Please select environment",
       please_save_test: "Please Save Test First",
+      common_config: "Common Config",
+      http_config: "HTTP Config",
+      database_config: "Database Config",
     },
     scenario: {
       scenario: "Scenario",
@@ -529,6 +533,19 @@ export default {
         input_consumer_service: "Please enter the consumer & service",
         check_registry_center: "Can't get interface list, please check the registry center",
       }
+    },
+    sql: {
+      dataSource: "Data Source",
+      sql_script: "Sql Script",
+      timeout: "Timeout(ms)",
+      database_driver: "Driver",
+      database_url: "Database URL",
+      username: "Username",
+      password: "Password",
+      pool_max: "Max Number of Configuration",
+      query_timeout: "Max Wait(ms)",
+      name_cannot_be_empty: "SQL request name cannot be empty",
+      dataSource_cannot_be_empty: "SQL request datasource cannot be empty",
     },
     api_import: {
       label: "Import",
@@ -654,13 +671,19 @@ export default {
         case_import: "Import test case",
         download_template: "Download template",
         click_upload: "Upload",
-        upload_limit: "Only XLS/XLSX files can be uploaded, and no more than 20M",
+        upload_limit: "Only XLS/XLSX/XMIND files can be uploaded, and no more than 20M",
+        upload_xmind_format: "Upload files can only be .xmind format",
+        upload_xmind: "Only xmind files can be uploaded, and no more than 500",
         upload_limit_count: "Only one file can be uploaded at a time",
         upload_limit_format: "Upload files can only be XLS, XLSX format!",
         upload_limit_size: "Upload file size cannot exceed 20MB!",
         upload_limit_other_size: "Upload file size cannot exceed",
         success: "Import success！",
         importing: "Importing...",
+        excel_title: "Excel ",
+        xmind_title: "Xmind",
+        import_desc: "Import instructions",
+        import_file: "upload files",
       },
       export: {
         export: "Export cases"
