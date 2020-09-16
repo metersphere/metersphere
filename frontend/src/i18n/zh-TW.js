@@ -545,6 +545,8 @@ export default {
         password: "密碼",
         pool_max: "最大連接數",
         query_timeout: "最大等待時間(ms)",
+        name_cannot_be_empty: "SQL請求名稱不能為空",
+        dataSource_cannot_be_empty: "SQL請求數據源不能為空",
       }
     },
     api_import: {
@@ -672,12 +674,18 @@ export default {
         download_template: "下載模版",
         click_upload: "點擊上傳",
         upload_limit: "只能上傳xls/xlsx文件，且不超過20M",
+        upload_xmind: "支持文件類型：.xmind；壹次至多導入500 條用例",
+        upload_xmind_format: "上傳文件只能是 .xmind 格式",
         upload_limit_other_size: "上傳文件大小不能超過",
         upload_limit_count: "壹次只能上傳壹個文件",
         upload_limit_format: "上傳文件只能是 xls、xlsx格式!",
         upload_limit_size: "上傳文件大小不能超過 20MB!",
         success: "導入成功！",
         importing: "導入中...",
+        excel_title: "表格文件",
+        xmind_title: "思維導圖",
+        import_desc: "導入說明",
+        import_file: "上傳文件",
       },
       export: {
         export: "導出用例"
@@ -864,7 +872,7 @@ export default {
   schedule: {
     input_email: "請輸入郵箱賬號",
     event: "事件",
-    receiving_mode: "郵箱",
+    receiving_mode: "接收方式",
     receiver: "接收人",
     operation: "操作",
     task_notification: "任務通知",

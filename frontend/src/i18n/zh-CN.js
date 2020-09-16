@@ -545,7 +545,6 @@ export default {
         password: "密码",
         pool_max: "最大连接数",
         query_timeout: "最大等待时间(ms)",
-
         name_cannot_be_empty: "SQL请求名称不能为空",
         dataSource_cannot_be_empty: "SQL请求数据源不能为空",
       }
@@ -675,12 +674,18 @@ export default {
         download_template: "下载模版",
         click_upload: "点击上传",
         upload_limit: "只能上传xls/xlsx文件，且不超过20M",
+        upload_xmind: "支持文件类型：.xmind；一次至多导入500 条用例",
+        upload_xmind_format: "上传文件只能是 .xmind 格式",
         upload_limit_other_size: "上传文件大小不能超过",
         upload_limit_count: "一次只能上传一个文件",
         upload_limit_format: "上传文件只能是 xls、xlsx格式!",
         upload_limit_size: "上传文件大小不能超过 20MB!",
         success: "导入成功！",
         importing: "导入中...",
+        excel_title: "表格文件",
+        xmind_title: "思维导图",
+        import_desc: "导入说明",
+        import_file: "上传文件",
       },
       export: {
         export: "导出用例"
@@ -867,7 +872,7 @@ export default {
   schedule: {
     input_email: "请输入邮箱账号",
     event: "事件",
-    receiving_mode: "邮箱",
+    receiving_mode: "接收方式",
     receiver: "接收人",
     operation: "操作",
     task_notification: "任务通知",

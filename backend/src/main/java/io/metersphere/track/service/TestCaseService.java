@@ -27,6 +27,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
+import io.metersphere.xmind.XmindToTestCaseParser;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -38,6 +39,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -66,9 +69,6 @@ public class TestCaseService {
 
     @Resource
     TestCaseNodeService testCaseNodeService;
-
-    @Resource
-    UserMapper userMapper;
 
     @Resource
     UserRoleMapper userRoleMapper;
@@ -236,10 +236,10 @@ public class TestCaseService {
         return projectMapper.selectByPrimaryKey(testCaseWithBLOBs.getProjectId());
     }
 
-    public ExcelResponse testCaseImport(MultipartFile file, String projectId) {
+
+    public ExcelResponse testCaseImport(MultipartFile multipartFile, String projectId, String userId) {
 
         ExcelResponse excelResponse = new ExcelResponse();
-
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
         QueryTestCaseRequest queryTestCaseRequest = new QueryTestCaseRequest();
         queryTestCaseRequest.setProjectId(projectId);
@@ -247,25 +247,44 @@ public class TestCaseService {
         Set<String> testCaseNames = testCases.stream()
                 .map(TestCase::getName)
                 .collect(Collectors.toSet());
-
-        UserRoleExample userRoleExample = new UserRoleExample();
-        userRoleExample.createCriteria()
-                .andRoleIdIn(Arrays.asList(RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER))
-                .andSourceIdEqualTo(currentWorkspaceId);
-
-        Set<String> userIds = userRoleMapper.selectByExample(userRoleExample).stream().map(UserRole::getUserId).collect(Collectors.toSet());
-
-        EasyExcelListener easyExcelListener = null;
         List<ExcelErrData<TestCaseExcelData>> errList = null;
-        try {
-            easyExcelListener = new TestCaseDataListener(this, projectId, testCaseNames, userIds);
-            EasyExcelFactory.read(file.getInputStream(), TestCaseExcelData.class, easyExcelListener).sheet().doRead();
-            errList = easyExcelListener.getErrList();
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
-            MSException.throwException(e.getMessage());
-        } finally {
-            easyExcelListener.close();
+
+        if (multipartFile.getOriginalFilename().endsWith(".xmind")) {
+            try {
+                errList = new ArrayList<>();
+                String processLog = new XmindToTestCaseParser(this, userId, projectId, testCaseNames).importXmind(multipartFile);
+                if (!StringUtils.isEmpty(processLog)) {
+                    excelResponse.setSuccess(false);
+                    ExcelErrData excelErrData = new ExcelErrData(null, 1, processLog);
+                    errList.add(excelErrData);
+                    excelResponse.setErrList(errList);
+                } else {
+                    excelResponse.setSuccess(true);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        } else {
+            UserRoleExample userRoleExample = new UserRoleExample();
+            userRoleExample.createCriteria()
+                    .andRoleIdIn(Arrays.asList(RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER))
+                    .andSourceIdEqualTo(currentWorkspaceId);
+
+            Set<String> userIds = userRoleMapper.selectByExample(userRoleExample).stream().map(UserRole::getUserId).collect(Collectors.toSet());
+
+            EasyExcelListener easyExcelListener = null;
+            try {
+                easyExcelListener = new TestCaseDataListener(this, projectId, testCaseNames, userIds);
+                EasyExcelFactory.read(multipartFile.getInputStream(), TestCaseExcelData.class, easyExcelListener).sheet().doRead();
+                errList = easyExcelListener.getErrList();
+            } catch (Exception e) {
+                LogUtil.error(e.getMessage(), e);
+                MSException.throwException(e.getMessage());
+            } finally {
+                easyExcelListener.close();
+            }
+
         }
         //如果包含错误信息就导出错误信息
         if (!errList.isEmpty()) {
@@ -306,6 +325,35 @@ public class TestCaseService {
             MSException.throwException(e);
         } finally {
             easyExcelExporter.close();
+        }
+    }
+
+    public static void download(HttpServletResponse res) throws IOException {
+        // 发送给客户端的数据
+        OutputStream outputStream = res.getOutputStream();
+        byte[] buff = new byte[1024];
+        // 读取filename
+        String filePath = ClassLoader.getSystemResource("template/testcase.xmind").getPath();
+        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(new File(filePath)));) {
+            int i = bis.read(buff);
+            while (i != -1) {
+                outputStream.write(buff, 0, buff.length);
+                outputStream.flush();
+                i = bis.read(buff);
+            }
+        } catch (Exception ex) {
+            LogUtil.error(ex.getMessage());
+        }
+    }
+
+    public void testCaseXmindTemplateExport(HttpServletResponse response) {
+        try {
+            response.setContentType("application/vnd.ms-excel");
+            response.setCharacterEncoding("utf-8");
+            response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode("思维导图用例模版", "UTF-8") + ".xmind");
+            download(response);
+        } catch (Exception ex) {
+
         }
     }
 
@@ -406,18 +454,18 @@ public class TestCaseService {
             } else if (t.getMethod().equals("auto") && t.getType().equals("api")) {
                 data.setStepDesc("");
                 data.setStepResult("");
-                if(t.getTestId().equals("other")){
+                if (t.getTestId().equals("other")) {
                     data.setRemark(t.getOtherTestName());
-                }else{
+                } else {
                     data.setRemark(t.getApiName());
                 }
 
             } else if (t.getMethod().equals("auto") && t.getType().equals("performance")) {
                 data.setStepDesc("");
                 data.setStepResult("");
-                if(t.getTestId().equals("other")){
+                if (t.getTestId().equals("other")) {
                     data.setRemark(t.getOtherTestName());
-                }else{
+                } else {
                     data.setRemark(t.getPerformName());
                 }
             }
