@@ -821,7 +821,7 @@ export default {
   schedule: {
     input_email: "请输入邮箱账号",
     event: "事件",
-    receiving_mode: "邮箱",
+    receiving_mode: "接收方式",
     receiver: "接收人",
     operation: "操作",
     task_notification: "任务通知",

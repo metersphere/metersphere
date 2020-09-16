@@ -2,6 +2,7 @@ package io.metersphere.notice.controller;
 
 import io.metersphere.base.domain.Notice;
 import io.metersphere.notice.controller.request.NoticeRequest;
+import io.metersphere.notice.service.MailService;
 import io.metersphere.notice.service.NoticeService;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,4 +24,5 @@ public class NoticeController {
     public List<Notice> queryNotice(@PathVariable String testId) {
         return noticeService.queryNotice(testId);
     }
+
 }

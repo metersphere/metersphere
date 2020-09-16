@@ -4,6 +4,7 @@
     <template>
       <div>
         <el-tabs v-model="activeName" @tab-click="handleClick">
+
           <el-tab-pane :label="$t('schedule.edit_timer_task')" name="first">
             <el-form :model="form" :rules="rules" ref="from">
               <el-form-item
@@ -26,81 +27,50 @@
           </el-tab-pane>
           <el-tab-pane :label="$t('schedule.task_notification')" name="second">
             <template>
-              <el-select v-model="eventType" :placeholder="$t('commons.please_select')">
-                <el-option
-                  v-for="item in options"
-                  :key="item.eventType"
-                  :label="item.label"
-                  :value="item.eventType">
-                </el-option>
-              </el-select>
               <el-table
                 :data="tableData"
                 style="width: 100%">
                 <el-table-column
+                  prop="event"
+                  :label="$t('schedule.event')"
+
+                >
+                </el-table-column>
+                <el-table-column
                   prop="name"
                   :label="$t('schedule.receiver')"
+                  width="200"
                 >
                   <template v-slot:default="{row}">
-                    <el-input
-                      size="mini"
-                      type="textarea"
-                      :rows="1"
-                      class="edit-input"
-                      v-model="row.name"
-                      :placeholder="$t('schedule.receiver')"
-                      clearable>
-                    </el-input>
+                    <el-select v-model="row.names" filterable multiple placeholder="请选择" @click.native="userList()">
+                      <el-option
+                        v-for="item in options"
+                        :key="item.id"
+                        :label="item.name"
+                        :value="item.name">
+                      </el-option>
+                    </el-select>
                   </template>
                 </el-table-column>
                 <el-table-column
                   prop="email"
                   :label="$t('schedule.receiving_mode')"
-                  width="200"
-                  >
-                  <template v-slot:default="{row}">
-                    <el-input
-                      size="mini"
-                      type="textarea"
-                      :rows="1"
-                      class="edit-input"
-                      v-model="row.email"
-                      :placeholder="$t('schedule.input_email')"
-                      clearable>
-                    </el-input>
-                  </template>
+                >
                 </el-table-column>
                 <el-table-column
                   :label="$t('test_resource_pool.enable_disable')"
                   prop="enable"
-                  >
+                >
                   <template v-slot:default="{row}">
                     <el-switch
                       v-model="row.enable"
                       active-value="true"
                       inactive-value="false"
                       inactive-color="#ff4949"
-                      @change="stateChange(row)"
                     />
-                </template>
-                  </el-table-column>
-                <el-table-column :label="$t('schedule.operation')">
-                  <template v-slot:default="scope">
-                    <el-button
-                      type="primary"
-                      icon="el-icon-plus"
-                      circle size="mini"
-                      @click="handleAddStep(scope.$index)"></el-button>
-                    <el-button
-                      :disabled="(scope.$index == 0 && tableData.length <= 1)"
-                      type="danger"
-                      icon="el-icon-delete"
-                      circle size="mini"
-                      @click="handleDeleteStep(scope.$index)"></el-button>
                   </template>
                 </el-table-column>
               </el-table>
-                <el-button  type="primary" @click="saveNotice">{{$t('commons.save')}}</el-button>
             </template>
           </el-tab-pane>
         </el-tabs>
@@ -111,20 +81,20 @@
 
 <script>
 
-import Crontab from "../cron/Crontab";
-import CrontabResult from "../cron/CrontabResult";
-import {cronValidate} from "@/common/js/cron";
-import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
+  import Crontab from "../cron/Crontab";
+  import CrontabResult from "../cron/CrontabResult";
+  import {cronValidate} from "@/common/js/cron";
+  import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
 
-function defaultCustomValidate() {
-  return {pass: true};
-}
+  function defaultCustomValidate() {
+    return {pass: true};
+  }
 
   export default {
     name: "MsScheduleEdit",
     components: {CrontabResult, Crontab},
     props: {
-      testId:String,
+      testId: String,
       save: Function,
       schedule: {},
       customValidate: {
@@ -167,25 +137,22 @@ function defaultCustomValidate() {
         form: {
           cronValue: ""
         },
-        options: [{
-          eventType: 'success',
-          label: '执行成功通知'
-        }, {
-          eventType: 'fail',
-          label: '执行失败通知'
-        }, {
-          eventType: 'all',
-          label: '全部通知'
-        }],
-        eventType: '',
         tableData: [
           {
-            name: "",
-            email: "",
-            enable:true
+            event: "执行成功",
+            names: [],
+            email: "邮箱",
+            enable: false
+          },
+          {
+            event: "执行失败",
+            names: [],
+            email: "邮箱",
+            enable: false
           }
         ],
-        enable:true,
+        options: [{}],
+        enable: true,
         email: "",
         activeName: 'first',
         rules: {
@@ -194,56 +161,31 @@ function defaultCustomValidate() {
       }
     },
     methods: {
-      stateChange(s){
-        alert(s.enable)
-        this.result=this.$get('notice/editState/'+s.email,response=>{
-
+      userList() {
+        this.result = this.$get('user/list', response => {
+          this.options = response.data
         })
       },
       handleClick() {
-        if(this.activeName=="second"){
-          this.result=this.$get('notice/query/'+this.testId,response=>{
-            if(response.data.length<=0){
-              this.tableData.email=""
-              this.tableData.name=""
-              this.tableData.enable=true
-            }else{
-              this.tableData=response.data
-              response.data.forEach(t=>{
-               this.eventType=t.event
-             })
+        if (this.activeName == "second") {
+          this.result = this.$get('notice/query/' + this.testId, response => {
+            if (response.data.length > 0) {
+              this.tableData = response.data
             }
           })
         }
-      },
-      saveNotice(){
-        let param = this.buildParam();
-         this.result=this.$post("notice/save",param,()=>{
-
-          })
-
       },
       buildParam() {
         let param = {};
         param.notices = this.tableData
         param.testId = this.testId
-        param.event = this.eventType
         return param;
-      },
-      handleAddStep(index) {
-        let form = {}
-        form.name = null;
-        form.email = null;
-        form.enable = null
-        this.tableData.splice(index + 1, 0, form);
-      },
-      handleDeleteStep(index) {
-        this.tableData.splice(index, 1);
       },
       open() {
         this.dialogVisible = true;
         this.form.cronValue = this.schedule.value;
         listenGoBack(this.close);
+        this.handleClick()
       },
       crontabFill(value, resultList) {
         //确定后回传的值
@@ -264,6 +206,10 @@ function defaultCustomValidate() {
             return false;
           }
         });
+        let param = this.buildParam();
+        this.result = this.$post("notice/save", param, () => {
+
+        })
       },
       close() {
         this.dialogVisible = false;
@@ -296,13 +242,13 @@ function defaultCustomValidate() {
 
 <style scoped>
 
-.inp {
-  width: 50%;
-  margin-right: 20px;
-}
+  .inp {
+    width: 50%;
+    margin-right: 20px;
+  }
 
-.el-form-item {
-  margin-bottom: 10px;
-}
+  .el-form-item {
+    margin-bottom: 10px;
+  }
 
 </style>
