@@ -193,10 +193,13 @@ public class IssuesService {
         List<String> tapdUsers = issuesRequest.getTapdUsers();
         String usersStr = String.join(";", tapdUsers);
 
+        String username = SessionUtils.getUser().getName();
+
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("title", issuesRequest.getTitle());
         paramMap.add("workspace_id", tapdId);
         paramMap.add("description", issuesRequest.getContent());
+        paramMap.add("reporter", username);
         paramMap.add("current_owner", usersStr);
 
         ResultHolder result = call(url, HttpMethod.POST, paramMap);
