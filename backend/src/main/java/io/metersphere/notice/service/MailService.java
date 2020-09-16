@@ -25,10 +25,10 @@ import java.util.Properties;
 
 @Service
 public class MailService {
-    @Resource
+   /* @Resource
     private APIReportService apiReportService;
     @Resource
-    private PerformanceTestService performanceTestService;
+    private PerformanceTestService performanceTestService;*/
     @Resource
     private UserService userService;
     @Resource
@@ -63,7 +63,7 @@ public class MailService {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         String testName="";
         String state="";
-        if(type.equals("api")){
+       /* if(type.equals("api")){
             APIReportResult reportResult=apiReportService.get(id);
             testName=reportResult.getTestName();
             state=reportResult.getStatus();
@@ -71,7 +71,7 @@ public class MailService {
             LoadTestDTO  performanceResult=performanceTestService.get(id);
             testName=performanceResult.getName();
             state=performanceResult.getStatus();
-        }
+        }*/
         String html1="<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "<head>\n" +
