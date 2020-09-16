@@ -6,7 +6,7 @@
           <span class="character">SCHEDULER</span>
         </span>
       <el-switch :disabled="!schedule.value || isReadOnly" v-model="schedule.enable" @change="scheduleChange"/>
-      <ms-schedule-edit :is-read-only="isReadOnly" :schedule="schedule" :save="save" :custom-validate="customValidate"
+      <ms-schedule-edit :is-read-only="isReadOnly" :schedule="schedule" :test-id="testId" :save="save" :custom-validate="customValidate"
                         ref="scheduleEdit"/>
 
     </div>
@@ -38,6 +38,7 @@ export default {
     }
   },
   props: {
+    testId:String,
     save: Function,
     schedule: {},
     checkOpen: {

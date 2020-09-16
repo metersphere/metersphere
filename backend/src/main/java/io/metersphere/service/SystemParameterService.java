@@ -3,6 +3,7 @@ package io.metersphere.service;
 import io.metersphere.base.domain.SystemParameter;
 import io.metersphere.base.domain.SystemParameterExample;
 import io.metersphere.base.mapper.SystemParameterMapper;
+import io.metersphere.base.mapper.ext.ExtSystemParameterMapper;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.EncryptUtils;
@@ -24,7 +25,12 @@ public class SystemParameterService {
 
     @Resource
     private SystemParameterMapper systemParameterMapper;
+    @Resource
+    private ExtSystemParameterMapper extSystemParameterMapper;
 
+   public String searchEmail(){
+       return extSystemParameterMapper.email();
+   }
     public String getSystemLanguage() {
         String result = StringUtils.EMPTY;
         SystemParameterExample example = new SystemParameterExample();

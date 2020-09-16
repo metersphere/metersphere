@@ -19,6 +19,8 @@ import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.PerformanceTestJob;
+import io.metersphere.notice.service.MailService;
+import io.metersphere.notice.service.NoticeService;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
 import io.metersphere.service.FileService;
@@ -80,6 +82,10 @@ public class PerformanceTestService {
     private TestCaseMapper testCaseMapper;
     @Resource
     private TestCaseService testCaseService;
+    @Resource
+    private NoticeService noticeService;
+    @Resource
+    private MailService mailService;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -231,7 +237,10 @@ public class PerformanceTestService {
         }
 
         startEngine(loadTest, engine, request.getTriggerMode());
-
+        if (request.getTriggerMode().equals("SCHEDULE")) {
+            List<Notice> notice = noticeService.queryNotice(request.getId());
+            mailService.sendHtml(engine.getReportId(),notice,"performance");
+        }
         return engine.getReportId();
     }
 
