@@ -114,6 +114,7 @@ export default {
     millisecond: 'ms',
     please_upload: 'Please upload file',
     reference_documentation: "Reference documentation",
+    already_exists: 'The name already exists',
     date: {
       select_date: 'Select date',
       start_date: 'Start date',
@@ -415,6 +416,9 @@ export default {
       environment: "Environment",
       select_environment: "Please select environment",
       please_save_test: "Please Save Test First",
+      common_config: "Common Config",
+      http_config: "HTTP Config",
+      database_config: "Database Config",
     },
     scenario: {
       scenario: "Scenario",
@@ -529,6 +533,17 @@ export default {
         input_consumer_service: "Please enter the consumer & service",
         check_registry_center: "Can't get interface list, please check the registry center",
       }
+    },
+    sql: {
+      dataSource: "Data Source",
+      sql_script: "Sql Script",
+      timeout: "Timeout(ms)",
+      database_driver: "Driver",
+      database_url: "Database URL",
+      username: "Username",
+      password: "Password",
+      pool_max: "Max Number of Configuration",
+      query_timeout: "Max Wait(ms)",
     },
     api_import: {
       label: "Import",

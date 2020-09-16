@@ -114,6 +114,7 @@ export default {
     id: 'ID',
     millisecond: '毫秒',
     cannot_be_null: '不能为空',
+    already_exists: '名称不能重复',
     date: {
       select_date: '选择日期',
       start_date: '开始日期',
@@ -416,6 +417,9 @@ export default {
       environment: "环境",
       select_environment: "请选择环境",
       please_save_test: "请先保存测试",
+      common_config: "通用配置",
+      http_config: "HTTP配置",
+      database_config: "数据库配置",
     },
     scenario: {
       scenario: "场景",
@@ -531,6 +535,20 @@ export default {
         check_registry_center: "获取失败，请检查Registry Center",
         form_description: "如果当前配置项无值，则取场景配置项的值",
       },
+      sql: {
+        dataSource: "数据源",
+        sql_script: "SQL脚本",
+        timeout: "超时时间(ms)",
+        database_driver: "数据库驱动",
+        database_url: "数据库连接URL",
+        username: "用户名",
+        password: "密码",
+        pool_max: "最大连接数",
+        query_timeout: "最大等待时间(ms)",
+
+        name_cannot_be_empty: "SQL请求名称不能为空",
+        dataSource_cannot_be_empty: "SQL请求数据源不能为空",
+      }
     },
     api_import: {
       label: "导入",

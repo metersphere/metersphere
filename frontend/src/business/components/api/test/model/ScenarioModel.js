@@ -469,10 +469,12 @@ export class SqlRequest extends Request {
     super(RequestFactory.TYPES.SQL);
     this.id = options.id || uuid();
     this.name = options.name;
+    this.useEnvironment = options.useEnvironment;
+    this.debugReport = undefined;
     this.dataSource = options.dataSource;
     this.query = options.query;
     // this.queryType = options.queryType;
-    this.queryTimeout = options.queryTimeout;
+    this.queryTimeout = options.queryTimeout || 60000;
     this.enable = options.enable === undefined ? true : options.enable;
     this.assertions = new Assertions(options.assertions);
     this.extract = new Extract(options.extract);
@@ -488,13 +490,13 @@ export class SqlRequest extends Request {
       if (!this.name) {
         return {
           isValid: false,
-          info: 'name'
+          info: 'api_test.request.sql.name_cannot_be_empty'
         }
       }
       if (!this.dataSource) {
         return {
           isValid: false,
-          info: 'dataSource'
+          info: 'api_test.request.sql.dataSource_cannot_be_empty'
         }
       }
     }
@@ -858,10 +860,10 @@ class JMXHttpRequest {
         this.protocol = url.protocol.split(":")[0];
         this.path = this.getPostQueryParameters(request, decodeURIComponent(url.pathname));
       } else {
-        this.domain = environment.domain;
-        this.port = environment.port;
-        this.protocol = environment.protocol;
-        let url = new URL(environment.protocol + "://" + environment.socket);
+        this.domain = environment.config.httpConfig.domain;
+        this.port = environment.config.httpConfig.port;
+        this.protocol = environment.config.httpConfig.protocol;
+        let url = new URL(environment.config.httpConfig.protocol + "://" + environment.config.commonConfig.socket);
         this.path = this.getPostQueryParameters(request, decodeURIComponent(url.pathname + (request.path ? request.path : '')));
       }
       this.connectTimeout = request.connectTimeout;
@@ -968,7 +970,7 @@ class JMXGenerator {
         // 放在计划或线程组中，不建议放具体某个请求中
         this.addDNSCacheManager(threadGroup, scenario.requests[0]);
 
-        this.addJDBCDataSource(threadGroup, scenario);
+        this.addJDBCDataSources(threadGroup, scenario);
 
         scenario.requests.forEach(request => {
           if (request.enable) {
@@ -986,6 +988,7 @@ class JMXGenerator {
                 this.addRequestBody(sampler, request, testId);
               }
             } else if (request instanceof SqlRequest) {
+              request.dataSource = scenario.databaseConfigMap.get(request.dataSource);
               sampler = new JDBCSampler(request.name || "", request);
             }
 
@@ -1013,22 +1016,22 @@ class JMXGenerator {
     let envArray = environments;
     if (!(envArray instanceof Array)) {
       envArray = JSON.parse(environments);
-      envArray.forEach(item => {
-        if (item.name && !keys.has(item.name)) {
-          target.push(new KeyValue(item.name, item.value));
-        }
-      })
     }
+    envArray.forEach(item => {
+      if (item.name && !keys.has(item.name)) {
+        target.push(new KeyValue(item.name, item.value));
+      }
+    })
   }
 
   addScenarioVariables(threadGroup, scenario) {
-    let environment = scenario.environment;
-    if (environment) {
-      this.addEnvironments(environment.variables, scenario.variables)
+    if (scenario.environment) {
+      let commonConfig = scenario.environment.config.commonConfig;
+      this.addEnvironments(commonConfig.variables, scenario.variables)
     }
     let args = this.filterKV(scenario.variables);
     if (args.length > 0) {
-      let name = scenario.name + " Variables"
+      let name = scenario.name + " Variables";
       threadGroup.put(new Arguments(name, args));
     }
   }
@@ -1040,31 +1043,49 @@ class JMXGenerator {
   }
 
   addDNSCacheManager(threadGroup, request) {
-    if (request.environment && request.environment.hosts) {
-      let name = request.name + " DNSCacheManager";
-      let hosts = JSON.parse(request.environment.hosts);
-      if (hosts.length > 0) {
-        //let domain = request.environment.protocol + "://" + request.environment.domain;
-        threadGroup.put(new DNSCacheManager(name, request.environment.domain, hosts));
+    if (request.environment) {
+      let commonConfig = request.environment.config.commonConfig;
+      let hosts = commonConfig.hosts;
+      if (commonConfig.enableHost) {
+        let name = request.name + " DNSCacheManager";
+        if (hosts.length > 0) {
+          //let domain = request.environment.protocol + "://" + request.environment.domain;
+          threadGroup.put(new DNSCacheManager(name, request.environment.config.httpConfig.domain, hosts));
+        }
       }
     }
   }
 
-  addJDBCDataSource(threadGroup, scenario) {
+  addJDBCDataSources(threadGroup, scenario) {
+    let names = new Set();
+    let databaseConfigMap = new Map();
     scenario.databaseConfigs.forEach(config => {
       let name = config.name + "JDBCDataSource";
       threadGroup.put(new JDBCDataSource(name, config));
+      names.add(name);
+      databaseConfigMap.set(config.id, config.name);
     });
+    if (scenario.environment) {
+      let envDatabaseConfigs = scenario.environment.config.databaseConfigs;
+      envDatabaseConfigs.forEach(config => {
+        if (!names.has(config.name)) {
+          let name = config.name + "JDBCDataSource";
+          threadGroup.put(new JDBCDataSource(name, config));
+          databaseConfigMap.set(config.id, config.name);
+        }
+      });
+    }
+    scenario.databaseConfigMap = databaseConfigMap;
   }
 
   addScenarioHeaders(threadGroup, scenario) {
-    let environment = scenario.environment;
-    if (environment) {
-      this.addEnvironments(environment.headers, scenario.headers)
+    if (scenario.environment) {
+      let httpConfig = scenario.environment.config.httpConfig;
+      this.addEnvironments(httpConfig.headers, scenario.headers)
     }
     let headers = this.filterKV(scenario.headers);
     if (headers.length > 0) {
-      let name = scenario.name + " Headers"
+      let name = scenario.name + " Headers";
       threadGroup.put(new HeaderManager(name, headers));
     }
   }
