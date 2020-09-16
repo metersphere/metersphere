@@ -1,6 +1,7 @@
 package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.IssuesMapper;
@@ -17,6 +18,7 @@ import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.IntegrationRequest;
 import io.metersphere.service.IntegrationService;
 import io.metersphere.service.ProjectService;
+import io.metersphere.track.domain.TapdUser;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -188,10 +190,14 @@ public class IssuesService {
             MSException.throwException("未关联Tapd 项目ID");
         }
 
+        List<String> tapdUsers = issuesRequest.getTapdUsers();
+        String usersStr = String.join(";", tapdUsers);
+
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("title", issuesRequest.getTitle());
         paramMap.add("workspace_id", tapdId);
         paramMap.add("description", issuesRequest.getContent());
+        paramMap.add("current_owner", usersStr);
 
         ResultHolder result = call(url, HttpMethod.POST, paramMap);
 
@@ -264,7 +270,7 @@ public class IssuesService {
         String result = addJiraIssue(url, auth, json);
 
         JSONObject jsonObject = JSON.parseObject(result);
-        String id = jsonObject.getString("id");
+        String id = jsonObject.getString("key");
 
         // 用例与第三方缺陷平台中的缺陷关联
         TestCaseIssues testCaseIssues = new TestCaseIssues();
@@ -346,12 +352,21 @@ public class IssuesService {
             String body = responseEntity.getBody();
 
             JSONObject obj = JSONObject.parseObject(body);
+            LogUtil.info(obj);
+
+            String lastmodify = "";
+            String status = "";
+
             JSONObject fields = (JSONObject) obj.get("fields");
             JSONObject statusObj = (JSONObject) fields.get("status");
             JSONObject assignee = (JSONObject) fields.get("assignee");
-            JSONObject statusCategory = (JSONObject) statusObj.get("statusCategory");
 
-            String id = obj.getString("id");
+            if (statusObj != null) {
+                JSONObject statusCategory = (JSONObject) statusObj.get("statusCategory");
+                status = statusCategory.getString("key");
+            }
+
+            String id = obj.getString("key");
             String title = fields.getString("summary");
             String description = fields.getString("description");
 
@@ -360,9 +375,8 @@ public class IssuesService {
             HtmlRenderer renderer = HtmlRenderer.builder().build();
             description = renderer.render(document);
 
-            String status = statusCategory.getString("key");
             Long createTime = fields.getLong("created");
-            String lastmodify = "";
+
             if (assignee != null) {
                 lastmodify = assignee.getString("displayName");
             }
@@ -525,6 +539,21 @@ public class IssuesService {
         issues.setId(issueId);
         issues.setStatus("closed");
         issuesMapper.updateByPrimaryKeySelective(issues);
+    }
+
+    public List<TapdUser> getTapdProjectUsers(String caseId) {
+        List<TapdUser> users = new ArrayList<>();
+        String projectId = getTapdProjectId(caseId);
+        String url = "https://api.tapd.cn/workspaces/users?workspace_id=" + projectId;
+        ResultHolder call = call(url);
+        String listJson = JSON.toJSONString(call.getData());
+        JSONArray jsonArray = JSON.parseArray(listJson);
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JSONObject o = jsonArray.getJSONObject(i);
+            TapdUser user = o.getObject("UserWorkspace", TapdUser.class);
+            users.add(user);
+        }
+        return users;
     }
 
 }

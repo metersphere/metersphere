@@ -6,7 +6,7 @@ import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.controller.ResultHolder;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.performance.engine.AbstractEngine;
@@ -87,11 +87,13 @@ public class DockerTestEngine extends AbstractEngine {
         testRequest.setTestData(context.getTestData());
         testRequest.setEnv(context.getEnv());
 
-        try {
-            restTemplate.postForObject(uri, testRequest, String.class);
-        } catch (Exception e) {
-            LogUtil.error(e);
+
+        ResultHolder result = restTemplate.postForObject(uri, testRequest, ResultHolder.class);
+        if (result == null) {
             MSException.throwException(Translator.get("start_engine_fail"));
+        }
+        if (!result.isSuccess()) {
+            MSException.throwException(result.getMessage());
         }
     }
 
@@ -105,11 +107,12 @@ public class DockerTestEngine extends AbstractEngine {
             Integer port = node.getPort();
 
             String uri = String.format(BASE_URL + "/jmeter/container/stop/" + testId, ip, port);
-            try {
-                restTemplateWithTimeOut.getForObject(uri, String.class);
-            } catch (Exception e) {
-                LogUtil.error("stop load test fail... " + testId, e);
+            ResultHolder result = restTemplateWithTimeOut.getForObject(uri, ResultHolder.class);
+            if (result == null) {
                 MSException.throwException(Translator.get("container_delete_fail"));
+            }
+            if (!result.isSuccess()) {
+                MSException.throwException(result.getMessage());
             }
         });
     }

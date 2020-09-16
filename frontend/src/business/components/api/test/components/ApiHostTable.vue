@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-card class="table-card">
-      <el-table :data="hostTable" style="width: 100%" @cell-dblclick="dblHostTable">
+      <el-table :data="hostTable" style="width: 100%" @cell-dblclick="dblHostTable" class="ht-tb">
         <el-table-column prop="ip" label="IP">
           <template slot-scope="scope">
             <el-input v-if="scope.row.status" v-model="scope.row.ip"></el-input>
@@ -23,7 +23,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column :label="$t('commons.operating')">
+        <el-table-column :label="$t('commons.operating')" width="100">
           <template v-slot:default="scope">
             <span>
               <el-button size="mini" p="$t('commons.remove')" icon="el-icon-close" circle @click="remove(scope.row)"
@@ -36,8 +36,9 @@
         </el-table-column>
       </el-table>
 
-      <el-button size="mini" p="$t('commons.add')" icon="el-icon-circle-plus-outline" circle @click="add"
-                 class="ht-btn-add"></el-button>
+      <el-button class="ht-btn-add" size="mini" p="$t('commons.add')" icon="el-icon-circle-plus-outline" @click="add"
+      >添加
+      </el-button>
 
     </el-card>
 
@@ -94,6 +95,10 @@
       confirm: function (row) {
         this.validateIp(row.ip) && this.validateDomain(row.domain) ? row.status = '' : row.status;
         this.$emit('change', this.hostTable);
+        if (row.status === "") {
+          return true;
+        }
+        return false;
       },
       init: function () {
         if (this.hostTable === undefined || this.hostTable.length === 0) {
@@ -118,15 +123,18 @@
       validateDomain(domain) {
         let url = {};
         try {
-            url = new URL(domain);
+          if (!domain.startsWith("http") || !domain.startsWith("https")) {
+            domain += "http://";
+          }
+          url = new URL(domain);
         } catch (e) {
           this.$warning(this.$t('load_test.input_domain'));
           return false
         }
         return true;
       },
-      dblHostTable:function(row){
-        row.status= 'edit';
+      dblHostTable: function (row) {
+        row.status = 'edit';
       },
       uuid: function () {
         return (((1 + Math.random()) * 0x100000) | 0).toString(16).substring(1);
@@ -138,22 +146,24 @@
 <style scoped>
 
   .ht-btn-remove {
-    font-size: 8px;
     color: white;
     background-color: #DCDFE6;
   }
 
   .ht-btn-confirm {
-    font-size: 8px;
     color: white;
     background-color: #1483F6;
   }
 
   .ht-btn-add {
+    border: 0px;
     margin-top: 10px;
-    font-size: 8px;
     color: #1483F6;
-    border-color: #1483F6;
     background-color: white;
+  }
+
+  .ht-tb {
+    background-color: white;
+    border: 0px;
   }
 </style>

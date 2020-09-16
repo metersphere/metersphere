@@ -69,7 +69,7 @@
         },
         uploadValidate(file) {
           let suffix = file.name.substring(file.name.lastIndexOf('.') + 1);
-          if (suffix != 'xls' && suffix != 'xlsx') {
+          if (suffix != 'xls' && suffix != 'xlsx' && suffix != 'xmind') {
             this.$warning(this.$t('test_track.case.import.upload_limit_format'));
             return false;
           }

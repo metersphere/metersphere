@@ -23,6 +23,8 @@ public class DubboRequest implements Request {
     // type 必须放最前面，以便能够转换正确的类
     private String type = RequestType.DUBBO;
     @JSONField(ordinal = 1)
+    private String id;
+    @JSONField(ordinal = 1)
     private String name;
     @JSONField(ordinal = 2)
     private String protocol;

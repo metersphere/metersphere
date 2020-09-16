@@ -8,7 +8,7 @@ import {
   HashTree,
   HeaderManager,
   HTTPSamplerArguments, HTTPsamplerFiles,
-  HTTPSamplerProxy,
+  HTTPSamplerProxy, JDBCDataSource, JDBCSampler,
   JSONPathAssertion,
   JSONPostProcessor, JSR223PostProcessor, JSR223PreProcessor,
   RegexExtractor,
@@ -106,7 +106,6 @@ export class BaseConfig {
 
   set(options) {
     options = this.initOptions(options)
-
     for (let name in options) {
       if (options.hasOwnProperty(name)) {
         if (!(this[name] instanceof Array)) {
@@ -142,7 +141,7 @@ export class Test extends BaseConfig {
   constructor(options) {
     super();
     this.type = "MS API CONFIG";
-    this.version = '1.1.0';
+    this.version = '1.3.0';
     this.id = uuid();
     this.name = undefined;
     this.projectId = undefined;
@@ -201,6 +200,7 @@ export class Test extends BaseConfig {
 export class Scenario extends BaseConfig {
   constructor(options = {}) {
     super();
+    this.id = undefined;
     this.name = undefined;
     this.url = undefined;
     this.variables = [];
@@ -211,20 +211,24 @@ export class Scenario extends BaseConfig {
     this.environment = undefined;
     this.enableCookieShare = false;
     this.enable = true;
+    this.databaseConfigs = [];
 
     this.set(options);
-    this.sets({variables: KeyValue, headers: KeyValue, requests: RequestFactory}, options);
+    this.sets({variables: KeyValue, headers: KeyValue, requests: RequestFactory, databaseConfigs: DatabaseConfig}, options);
   }
 
-  initOptions(options) {
-    options = options || {};
+  initOptions(options = {}) {
+    options.id = options.id || uuid();
     options.requests = options.requests || [new RequestFactory()];
+    options.databaseConfigs = options.databaseConfigs || [];
     options.dubboConfig = new DubboConfig(options.dubboConfig);
     return options;
   }
 
   clone() {
-    return new Scenario(this);
+    let clone = new Scenario(this);
+    clone.id = uuid();
+    return clone;
   }
 
   isValid() {
@@ -237,6 +241,10 @@ export class Scenario extends BaseConfig {
       }
     }
     return {isValid: true};
+  }
+
+  isReference() {
+    return this.id.indexOf("#") !== -1
   }
 }
 
@@ -265,6 +273,7 @@ export class RequestFactory {
   static TYPES = {
     HTTP: "HTTP",
     DUBBO: "DUBBO",
+    SQL: "SQL",
   }
 
   constructor(options = {}) {
@@ -272,6 +281,8 @@ export class RequestFactory {
     switch (options.type) {
       case RequestFactory.TYPES.DUBBO:
         return new DubboRequest(options);
+      case RequestFactory.TYPES.SQL:
+        return new SqlRequest(options);
       default:
         return new HttpRequest(options);
     }
@@ -296,6 +307,7 @@ export class Request extends BaseConfig {
 export class HttpRequest extends Request {
   constructor(options) {
     super(RequestFactory.TYPES.HTTP);
+    this.id = undefined;
     this.name = undefined;
     this.url = undefined;
     this.path = undefined;
@@ -321,8 +333,8 @@ export class HttpRequest extends Request {
     this.sets({parameters: KeyValue, headers: KeyValue}, options);
   }
 
-  initOptions(options) {
-    options = options || {};
+  initOptions(options = {}) {
+    options.id = options.id || uuid();
     options.method = options.method || "GET";
     options.body = new Body(options.body);
     options.assertions = new Assertions(options.assertions);
@@ -381,6 +393,7 @@ export class DubboRequest extends Request {
 
   constructor(options = {}) {
     super(RequestFactory.TYPES.DUBBO);
+    this.id = options.id || uuid();
     this.name = options.name;
     this.protocol = options.protocol || DubboRequest.PROTOCOLS.DUBBO;
     this.interface = options.interface;
@@ -397,7 +410,7 @@ export class DubboRequest extends Request {
     this.debugReport = undefined;
     this.beanShellPreProcessor = new BeanShellProcessor(options.beanShellPreProcessor);
     this.beanShellPostProcessor = new BeanShellProcessor(options.beanShellPostProcessor);
-    this.enable = options.enable == undefined ? true : options.enable;
+    this.enable = options.enable === undefined ? true : options.enable;
     this.jsr223PreProcessor = new JSR223Processor(options.jsr223PreProcessor);
     this.jsr223PostProcessor = new JSR223Processor(options.jsr223PostProcessor);
 
@@ -450,6 +463,60 @@ export class DubboRequest extends Request {
   }
 }
 
+export class SqlRequest extends Request {
+
+  constructor(options = {}) {
+    super(RequestFactory.TYPES.SQL);
+    this.id = options.id || uuid();
+    this.name = options.name;
+    this.dataSource = options.dataSource;
+    this.query = options.query;
+    // this.queryType = options.queryType;
+    this.queryTimeout = options.queryTimeout;
+    this.enable = options.enable === undefined ? true : options.enable;
+    this.assertions = new Assertions(options.assertions);
+    this.extract = new Extract(options.extract);
+    this.jsr223PreProcessor = new JSR223Processor(options.jsr223PreProcessor);
+    this.jsr223PostProcessor = new JSR223Processor(options.jsr223PostProcessor);
+
+    this.sets({args: KeyValue, attachmentArgs: KeyValue}, options);
+
+  }
+
+  isValid() {
+    if (this.enable) {
+      if (!this.name) {
+        return {
+          isValid: false,
+          info: 'name'
+        }
+      }
+      if (!this.dataSource) {
+        return {
+          isValid: false,
+          info: 'dataSource'
+        }
+      }
+    }
+    return {
+      isValid: true
+    }
+  }
+
+  showType() {
+    return "SQL";
+  }
+
+  showMethod() {
+    return "SQL";
+  }
+
+  clone() {
+    return new SqlRequest(this);
+  }
+}
+
+
 export class ConfigCenter extends BaseConfig {
   static PROTOCOLS = ["zookeeper", "nacos", "apollo"];
 
@@ -468,6 +535,33 @@ export class ConfigCenter extends BaseConfig {
 
   isValid() {
     return !!this.protocol || !!this.group || !!this.namespace || !!this.username || !!this.address || !!this.password || !!this.timeout;
+  }
+}
+
+export class DatabaseConfig extends BaseConfig {
+  static DRIVER_CLASS = ["com.mysql.jdbc.Driver"];
+
+  constructor(options) {
+    super();
+    this.id = undefined;
+    this.name = undefined;
+    this.poolMax = undefined;
+    this.timeout = undefined;
+    this.driver = undefined;
+    this.dbUrl = undefined;
+    this.username = undefined;
+    this.password = undefined;
+
+    this.set(options);
+  }
+
+  initOptions(options = {}) {
+    // options.id = options.id || uuid();
+    return options;
+  }
+
+  isValid() {
+    return !!this.name || !!this.poolMax || !!this.timeout || !!this.driver || !!this.dbUrl || !!this.username || !!this.password;
   }
 }
 
@@ -874,6 +968,8 @@ class JMXGenerator {
         // 放在计划或线程组中，不建议放具体某个请求中
         this.addDNSCacheManager(threadGroup, scenario.requests[0]);
 
+        this.addJDBCDataSource(threadGroup, scenario);
+
         scenario.requests.forEach(request => {
           if (request.enable) {
             if (!request.isValid()) return;
@@ -881,9 +977,7 @@ class JMXGenerator {
 
             if (request instanceof DubboRequest) {
               sampler = new DubboSample(request.name || "", new JMXDubboRequest(request, scenario.dubboConfig));
-            }
-
-            if (request instanceof HttpRequest) {
+            } else if (request instanceof HttpRequest) {
               sampler = new HTTPSamplerProxy(request.name || "", new JMXHttpRequest(request, scenario.environment));
               this.addRequestHeader(sampler, request);
               if (request.method.toUpperCase() === 'GET') {
@@ -891,6 +985,8 @@ class JMXGenerator {
               } else {
                 this.addRequestBody(sampler, request, testId);
               }
+            } else if (request instanceof SqlRequest) {
+              sampler = new JDBCSampler(request.name || "", request);
             }
 
             this.addRequestExtractor(sampler, request);
@@ -948,10 +1044,17 @@ class JMXGenerator {
       let name = request.name + " DNSCacheManager";
       let hosts = JSON.parse(request.environment.hosts);
       if (hosts.length > 0) {
-        let domain = request.environment.protocol + "://" + request.environment.domain;
-        threadGroup.put(new DNSCacheManager(name, domain, hosts));
+        //let domain = request.environment.protocol + "://" + request.environment.domain;
+        threadGroup.put(new DNSCacheManager(name, request.environment.domain, hosts));
       }
     }
+  }
+
+  addJDBCDataSource(threadGroup, scenario) {
+    scenario.databaseConfigs.forEach(config => {
+      let name = config.name + "JDBCDataSource";
+      threadGroup.put(new JDBCDataSource(name, config));
+    });
   }
 
   addScenarioHeaders(threadGroup, scenario) {
@@ -1030,7 +1133,7 @@ class JMXGenerator {
       this.addRequestBodyFile(httpSamplerProxy, request, testId);
     } else {
       httpSamplerProxy.boolProp('HTTPSampler.postBodyRaw', true);
-      body.push({name: '', value: request.body.raw, encode: false});
+      body.push({name: '', value: request.body.raw, encode: false, enable: true});
     }
 
     httpSamplerProxy.add(new HTTPSamplerArguments(body));

@@ -182,9 +182,7 @@ public class TestCaseService {
     public List<TestCase> getTestCaseNames(QueryTestCaseRequest request) {
         if (StringUtils.isNotBlank(request.getPlanId())) {
             TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
-            if (testPlan != null) {
-                request.setProjectId(testPlan.getProjectId());
-            }
+            // request 传入要查询的 projectId 切换的项目ID
         }
 
         List<TestCase> testCaseNames = extTestCaseMapper.getTestCaseNames(request);
@@ -386,7 +384,13 @@ public class TestCaseService {
             data.setPrerequisite(t.getPrerequisite());
             if (t.getMethod().equals("manual")) {
                 String steps = t.getSteps();
-                JSONArray jsonArray = JSON.parseArray(steps);
+                String setp = "";
+                if (steps.contains("null")) {
+                    setp = steps.replace("null", "");
+                } else {
+                    setp = steps;
+                }
+                JSONArray jsonArray = JSON.parseArray(setp);
                 for (int j = 0; j < jsonArray.size(); j++) {
                     int num = j + 1;
                     step.append(num + "." + jsonArray.getJSONObject(j).getString("desc") + "\n");

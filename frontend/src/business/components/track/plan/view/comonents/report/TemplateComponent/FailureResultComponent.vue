@@ -51,6 +51,12 @@
         </el-table-column>
 
         <el-table-column
+          prop="projectName"
+          :label="$t('test_track.case.project_name')"
+          show-overflow-tooltip>
+        </el-table-column>
+
+        <el-table-column
           prop="executorName"
           :label="$t('test_track.plan_view.executor')">
         </el-table-column>

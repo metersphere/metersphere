@@ -83,6 +83,10 @@ public class APITestService {
         return extApiTestMapper.list(request);
     }
 
+    public List<ApiTest> listByIds(QueryAPITestRequest request) {
+        return extApiTestMapper.listByIds(request.getIds());
+    }
+
     public void create(SaveAPITestRequest request, MultipartFile file, List<MultipartFile> bodyFiles) {
         if (file == null) {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
@@ -109,9 +113,6 @@ public class APITestService {
     }
 
     private void createBodyFiles(ApiTest test, List<String> bodyUploadIds, List<MultipartFile> bodyFiles) {
-        if (bodyFiles == null || bodyFiles.isEmpty()) {
-
-        }
         String dir = BODY_FILE_DIR + "/" + test.getId();
         File testDir = new File(dir);
         if (!testDir.exists()) {
@@ -120,24 +121,12 @@ public class APITestService {
         for (int i = 0; i < bodyUploadIds.size(); i++) {
             MultipartFile item = bodyFiles.get(i);
             File file = new File(testDir + "/" + bodyUploadIds.get(i) + "_" + item.getOriginalFilename());
-            InputStream in = null;
-            OutputStream out = null;
-            try {
+            try (InputStream in = item.getInputStream(); OutputStream out = new FileOutputStream(file)) {
                 file.createNewFile();
-                in = item.getInputStream();
-                out = new FileOutputStream(file);
                 FileUtil.copyStream(in, out);
             } catch (IOException e) {
                 LogUtil.error(e);
                 MSException.throwException(Translator.get("upload_fail"));
-            } finally {
-                try {
-                    in.close();
-                    out.close();
-                } catch (IOException e) {
-                    LogUtil.error(e);
-                    MSException.throwException(Translator.get("upload_fail"));
-                }
             }
         }
     }

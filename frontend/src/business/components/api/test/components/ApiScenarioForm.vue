@@ -1,5 +1,6 @@
 <template>
-  <el-form :model="scenario" :rules="rules" ref="scenario" label-width="100px" v-loading="result.loading">
+  <el-form :model="scenario" :rules="rules" ref="scenario" label-width="100px" v-loading="result.loading"
+           :disabled="isReadOnly">
     <el-form-item :label="$t('api_test.scenario.name')" prop="name">
       <el-input :disabled="isReadOnly" v-model="scenario.name" maxlength="100" show-word-limit/>
     </el-form-item>
@@ -26,7 +27,7 @@
       </el-form-item>
     </el-form-item>
 
-    <el-tabs v-model="activeName">
+    <el-tabs v-model="activeName" :disabled="isReadOnly">
       <el-tab-pane :label="$t('api_test.scenario.variables')" name="parameters">
         <ms-api-scenario-variables :is-read-only="isReadOnly" :items="scenario.variables"
                                    :description="$t('api_test.scenario.kv_description')"/>
@@ -36,13 +37,16 @@
                           :environment="scenario.environment"
                           :description="$t('api_test.scenario.kv_description')"/>
       </el-tab-pane>
+      <el-tab-pane :label="'数据库配置'" name="database">
+        <ms-database-config :configs="scenario.databaseConfigs"/>
+      </el-tab-pane>
       <el-tab-pane :label="$t('api_test.scenario.dubbo')" name="dubbo">
         <div class="dubbo-config-title">Config Center</div>
-        <ms-dubbo-config-center :config="scenario.dubboConfig.configCenter"/>
+        <ms-dubbo-config-center :config="scenario.dubboConfig.configCenter" :is-read-only="isReadOnly"/>
         <div class="dubbo-config-title">Registry Center</div>
-        <ms-dubbo-registry-center :registry="scenario.dubboConfig.registryCenter"/>
+        <ms-dubbo-registry-center :registry="scenario.dubboConfig.registryCenter" :is-read-only="isReadOnly"/>
         <div class="dubbo-config-title">Consumer & Service</div>
-        <ms-dubbo-consumer-service :consumer="scenario.dubboConfig.consumerAndService"/>
+        <ms-dubbo-consumer-service :consumer="scenario.dubboConfig.consumerAndService" :is-read-only="isReadOnly"/>
       </el-tab-pane>
     </el-tabs>
 
@@ -61,10 +65,12 @@ import {REQUEST_HEADERS} from "@/common/js/constants";
 import MsDubboRegistryCenter from "@/business/components/api/test/components/request/dubbo/RegistryCenter";
 import MsDubboConfigCenter from "@/business/components/api/test/components/request/dubbo/ConfigCenter";
 import MsDubboConsumerService from "@/business/components/api/test/components/request/dubbo/ConsumerAndService";
+import MsDatabaseConfig from "./request/database/DatabaseConfig";
 
 export default {
   name: "MsApiScenarioForm",
   components: {
+    MsDatabaseConfig,
     MsDubboConsumerService,
     MsDubboConfigCenter, MsDubboRegistryCenter, ApiEnvironmentConfig, MsApiScenarioVariables, MsApiKeyValue
   },

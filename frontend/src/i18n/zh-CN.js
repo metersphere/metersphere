@@ -113,6 +113,7 @@ export default {
     reference_documentation: "参考文档",
     id: 'ID',
     millisecond: '毫秒',
+    cannot_be_null: '不能为空',
     date: {
       select_date: '选择日期',
       start_date: '开始日期',
@@ -152,6 +153,22 @@ export default {
         current_user: "是当前用户"
       }
     }
+  },
+  license:{
+    title: '授权管理',
+    corporation: '客户名称',
+    time: '授权时间',
+    product: '产品名称',
+    edition: '产品版本',
+    licenseVersion: '授权版本',
+    count: '授权数量',
+    valid_license: '授权验证',
+    show_license: '查看授权',
+    valid_license_error: '授权验证失败',
+    status: '授权状态',
+    valid: '有效',
+    invalid: '无效',
+    expired: '已过期',
   },
   workspace: {
     create: '创建工作空间',
@@ -414,7 +431,15 @@ export default {
       copy: "复制场景",
       delete: "删除场景",
       disable: "禁用",
-      enable: "启用"
+      enable: "启用",
+      create_scenario: "创建新场景",
+      select_scenario: "选择已有场景",
+      scenario_request: "场景/请求",
+      enable_disable: "启用/禁用",
+      test_name: "测试名称",
+      reference: "引用",
+      clone: "复制",
+      cant_reference: '历史测试文件，重新保存后才可被引用'
     },
     request: {
       debug: "调试",
@@ -485,7 +510,7 @@ export default {
         xpath_expression: "XPath表达式",
       },
       processor: {
-        pre_exec_script : "预执行脚本",
+        pre_exec_script: "预执行脚本",
         post_exec_script: "后执行脚本",
         code_template: "代码模版",
         bean_shell_processor_tip: "仅支持 BeanShell 脚本",
@@ -505,7 +530,7 @@ export default {
         get_provider_success: "获取成功",
         check_registry_center: "获取失败，请检查Registry Center",
         form_description: "如果当前配置项无值，则取场景配置项的值",
-      }
+      },
     },
     api_import: {
       label: "导入",
@@ -625,12 +650,14 @@ export default {
       batch_move_case: '批量移动用例',
       batch_delete_case: '批量删除用例',
       batch_unlink: '批量取消关联',
+      project_name: '所属项目',
       import: {
         import: "导入用例",
         case_import: "导入测试用例",
         download_template: "下载模版",
         click_upload: "点击上传",
         upload_limit: "只能上传xls/xlsx文件，且不超过20M",
+        upload_limit_other_size: "上传文件大小不能超过",
         upload_limit_count: "一次只能上传一个文件",
         upload_limit_format: "上传文件只能是 xls、xlsx格式!",
         upload_limit_size: "上传文件大小不能超过 20MB!",
@@ -679,7 +706,8 @@ export default {
       status: "状态",
       describe: "描述",
       current_owner: "处理人",
-      creation_time: "创建时间"
+      creation_time: "创建时间",
+      project_name: "所属项目"
     },
     home: {
       recent_test: "最近测试",
@@ -718,7 +746,7 @@ export default {
       test_result: "测试结果",
       result_distribution: "测试结果分布",
       custom_component: "自定义模块",
-      defect_list:"缺陷列表",
+      defect_list: "缺陷列表",
       create_report: "创建测试报告",
       view_report: "查看测试报告",
       component_library: "组件库",

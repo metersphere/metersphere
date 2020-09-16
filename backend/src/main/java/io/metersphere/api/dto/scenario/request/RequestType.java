@@ -5,4 +5,6 @@ public class RequestType {
     public static final String HTTP = "HTTP";
 
     public static final String DUBBO = "DUBBO";
+
+    public static final String SQL = "SQL";
 }

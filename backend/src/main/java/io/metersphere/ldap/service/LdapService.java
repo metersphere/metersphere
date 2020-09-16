@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.EncryptUtils;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.controller.request.LoginRequest;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.SystemParameterService;
@@ -47,6 +48,7 @@ public class LdapService {
             // 执行登录认证
             authenticate(String.valueOf(dirContextOperations.getDn()), credentials);
         } catch (AuthenticationException e) {
+            LogUtil.error(e.getMessage(), e);
             MSException.throwException(Translator.get("authentication_failed"));
         }
 
@@ -93,8 +95,10 @@ public class LdapService {
                     return result.get(0);
                 }
             } catch (NameNotFoundException | InvalidNameException e) {
+                LogUtil.error(e.getMessage(), e);
                 MSException.throwException(Translator.get("login_fail_ou_error"));
             } catch (InvalidSearchFilterException e) {
+                LogUtil.error(e.getMessage(), e);
                 MSException.throwException(Translator.get("login_fail_filter_error"));
             }
         }
@@ -161,8 +165,10 @@ public class LdapService {
         try {
             authenticate(dn, credentials, ldapTemplate);
         } catch (AuthenticationException e) {
+            LogUtil.error(e.getMessage(), e);
             MSException.throwException(Translator.get("ldap_connect_fail_user"));
         } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
             MSException.throwException(Translator.get("ldap_connect_fail"));
         }
 

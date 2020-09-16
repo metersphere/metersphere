@@ -4,6 +4,7 @@ import io.metersphere.base.domain.TestCaseNode;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.track.dto.TestCaseNodeDTO;
 import io.metersphere.track.request.testcase.DragNodeRequest;
+import io.metersphere.track.request.testcase.QueryNodeRequest;
 import io.metersphere.track.service.TestCaseNodeService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -26,9 +27,9 @@ public class TestCaseNodeController {
     }
 
     /*模块列表列表*/
-    @GetMapping("/list/all/plan/{planId}")
-    public List<TestCaseNodeDTO> getAllNodeByPlanId(@PathVariable String planId) {
-        return testCaseNodeService.getAllNodeByPlanId(planId);
+    @PostMapping("/list/all/plan")
+    public List<TestCaseNodeDTO> getAllNodeByPlanId(@RequestBody QueryNodeRequest request) {
+        return testCaseNodeService.getAllNodeByPlanId(request);
     }
 
     @GetMapping("/list/plan/{planId}")
