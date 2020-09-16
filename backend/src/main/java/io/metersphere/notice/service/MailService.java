@@ -1,20 +1,18 @@
 package io.metersphere.notice.service;
 
 import io.metersphere.api.dto.APIReportResult;
-import io.metersphere.api.service.APIReportService;
 import io.metersphere.base.domain.Notice;
 import io.metersphere.base.domain.SystemParameter;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.LoadTestDTO;
-import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.UserService;
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -25,10 +23,8 @@ import java.util.Properties;
 
 @Service
 public class MailService {
-   /* @Resource
-    private APIReportService apiReportService;
     @Resource
-    private PerformanceTestService performanceTestService;*/
+    private ApiAndPerformanceHelper apiAndPerformanceHelper;
     @Resource
     private UserService userService;
     @Resource
@@ -55,24 +51,24 @@ public class MailService {
             }
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable","true");
-        props.put("mail.smtp.starttls.required","true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.starttls.required", "true");
         props.put("mail.smtp.timeout", "30000");
         props.put("mail.smtp.connectiontimeout", "5000");
         javaMailSender.setJavaMailProperties(props);
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-        String testName="";
-        String state="";
-       /* if(type.equals("api")){
-            APIReportResult reportResult=apiReportService.get(id);
-            testName=reportResult.getTestName();
-            state=reportResult.getStatus();
-        }else if(type.equals("performance")){
-            LoadTestDTO  performanceResult=performanceTestService.get(id);
-            testName=performanceResult.getName();
-            state=performanceResult.getStatus();
-        }*/
-        String html1="<!DOCTYPE html>\n" +
+        String testName = "";
+        String state = "";
+        if (type.equals("api")) {
+            APIReportResult reportResult = apiAndPerformanceHelper.getApi(id);
+            testName = reportResult.getTestName();
+            state = reportResult.getStatus();
+        } else if (type.equals("performance")) {
+            LoadTestDTO performanceResult = apiAndPerformanceHelper.getPerformance(id);
+            testName = performanceResult.getName();
+            state = performanceResult.getStatus();
+        }
+        String html1 = "<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "<head>\n" +
                 "  <meta charset=\"UTF-8\">\n" +
@@ -134,5 +130,7 @@ public class MailService {
             e.printStackTrace();
         }
     }
+
+
 }
 
