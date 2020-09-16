@@ -651,13 +651,20 @@ export default {
         case_import: "導入測試用例",
         download_template: "下載模版",
         click_upload: "點擊上傳",
-        upload_limit: "只能上傳xls/xlsx文件,且不超過20M",
+        upload_limit: "只能上傳xls/xlsx/xmind文件,且不超過20M",
+        upload_xmind: "支持文件類型：.xmind；壹次至多導入500 條用例",
+        upload_xmind_format: "上傳文件只能是 .xmind 格式",
         upload_limit_count: "一次只能上傳一個文件",
         upload_limit_format: "上傳文件只能是 xls、xlsx格式!",
         upload_limit_size: "上傳文件大小不能超過 20MB!",
         upload_limit_other_size: "上傳文件大小不能超過",
         success: "導入成功！",
         importing: "導入中...",
+        excel_title: "表格文件",
+        xmind_title: "思維導圖",
+        import_desc: "導入說明",
+        import_file: "上傳文件",
+
       },
       export: {
         export: "導出用例"
