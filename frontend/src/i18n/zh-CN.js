@@ -599,6 +599,7 @@ export default {
     actual_result: ": 实际结果为空",
 
     case: {
+      export_all_cases: '确定要导出全部用例吗?',
       input_test_case: '请输入关联用例名称',
       test_name: '测试名称',
       other: "--其他--",

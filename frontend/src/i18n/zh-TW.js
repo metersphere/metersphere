@@ -594,6 +594,7 @@ export default {
     execution_result: ": 請選擇執行結果",
     actual_result: ": 實際結果為空",
     case: {
+      export_all_cases: '確定要匯出全部用例嗎？',
       input_test_case: '請輸入關聯用例名稱',
       test_name: '測試名稱',
       other: '--其他--',
