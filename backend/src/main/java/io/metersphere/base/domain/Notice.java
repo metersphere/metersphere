@@ -15,5 +15,9 @@ public class Notice implements Serializable {
 
     private String enable;
 
+    private String[] names;
+
+    private String[] emails;
+
     private static final long serialVersionUID = 1L;
 }

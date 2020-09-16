@@ -9,14 +9,15 @@
 
 <script>
   import {JSR223Processor, Request, RequestFactory, Scenario} from "../../model/ScenarioModel";
-import MsApiHttpRequestForm from "./ApiHttpRequestForm";
-import MsApiDubboRequestForm from "./ApiDubboRequestForm";
-import MsScenarioResults from "../../../report/components/ScenarioResults";
-import MsRequestResultTail from "../../../report/components/RequestResultTail";
+  import MsApiHttpRequestForm from "./ApiHttpRequestForm";
+  import MsApiDubboRequestForm from "./ApiDubboRequestForm";
+  import MsScenarioResults from "../../../report/components/ScenarioResults";
+  import MsRequestResultTail from "../../../report/components/RequestResultTail";
+  import MsApiSqlRequestForm from "./ApiSqlRequestForm";
 
 export default {
   name: "MsApiRequestForm",
-  components: {MsRequestResultTail, MsScenarioResults, MsApiDubboRequestForm, MsApiHttpRequestForm},
+  components: {MsApiSqlRequestForm, MsRequestResultTail, MsScenarioResults, MsApiDubboRequestForm, MsApiHttpRequestForm},
   props: {
     scenario: Scenario,
     request: Request,
@@ -40,6 +41,9 @@ export default {
         switch (type) {
           case RequestFactory.TYPES.DUBBO:
             name = "MsApiDubboRequestForm";
+            break;
+          case RequestFactory.TYPES.SQL:
+            name = "MsApiSqlRequestForm";
             break;
           default:
             name = "MsApiHttpRequestForm";

@@ -42,6 +42,7 @@
       <el-radio-group v-model="type" @change="createRequest">
         <el-radio :label="types.HTTP">HTTP</el-radio>
         <el-radio :label="types.DUBBO">DUBBO</el-radio>
+        <el-radio :label="types.SQL">SQL</el-radio>
       </el-radio-group>
       <el-button slot="reference" :disabled="isReadOnly"
                  class="request-create" type="primary" size="mini" icon="el-icon-plus" plain/>

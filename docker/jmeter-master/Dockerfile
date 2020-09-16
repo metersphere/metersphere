@@ -1,4 +1,4 @@
-FROM registry.fit2cloud.com/metersphere/jmeter-base:latest
+FROM registry.fit2cloud.com/metersphere/jmeter-base:0.0.1
 LABEL maintainer="support@fit2cloud.com"
 
 EXPOSE 60000

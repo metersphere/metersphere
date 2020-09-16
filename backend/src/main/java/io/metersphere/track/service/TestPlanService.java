@@ -146,6 +146,10 @@ public class TestPlanService {
         return extTestPlanMapper.list(request);
     }
 
+    public List<TestPlanDTO> listTestPlanByProject(QueryTestPlanRequest request) {
+        return extTestPlanMapper.planList(request);
+    }
+
     public void testPlanRelevance(PlanCaseRelevanceRequest request) {
 
         List<String> testCaseIds = request.getTestCaseIds();

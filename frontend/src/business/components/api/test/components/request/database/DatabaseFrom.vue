@@ -8,7 +8,7 @@
       </el-form-item>
 
       <el-form-item :label="'数据库连接URL'" prop="dbUrl">
-        <el-input v-model="config.dbUrl" maxlength="300" show-word-limit
+        <el-input v-model="config.dbUrl" maxlength="500" show-word-limit
                   :placeholder="$t('commons.input_content')"/>
       </el-form-item>
 
@@ -24,7 +24,7 @@
       </el-form-item>
 
       <el-form-item :label="'密码'" prop="password">
-        <el-input v-model="config.password" maxlength="300" show-word-limit
+        <el-input v-model="config.password" maxlength="200" show-word-limit
                   :placeholder="$t('commons.input_content')"/>
       </el-form-item>
 
@@ -67,7 +67,6 @@
       data() {
         return {
           drivers: DatabaseConfig.DRIVER_CLASS,
-          // config: new DatabaseConfig(),
           rules: {
             name: [
               {required: true, message: this.$t('commons.input_name'), trigger: 'blur'},
@@ -95,7 +94,6 @@
           this.$refs['databaseFrom'].validate((valid) => {
             if (valid) {
               this.$emit('save', this.config);
-              // this.config = new DatabaseConfig();
             } else {
               return false;
             }

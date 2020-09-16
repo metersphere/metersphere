@@ -165,6 +165,12 @@
             <version>${jmeter.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.jmeter</groupId>
+            <artifactId>ApacheJMeter_jdbc</artifactId>
+            <version>${jmeter.version}</version>
+        </dependency>
+
         <!-- Zookeeper -->
         <dependency>
             <groupId>org.apache.dubbo</groupId>
