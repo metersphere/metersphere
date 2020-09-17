@@ -292,8 +292,7 @@ export default {
       });
     },
     cancel() {
-      console.log(this.test.toJMX().xml)
-      // this.$router.push('/api/test/list/all');
+      this.$router.push('/api/test/list/all');
     },
     handleCommand(command) {
       switch (command) {
