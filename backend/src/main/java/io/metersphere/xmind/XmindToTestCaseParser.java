@@ -222,7 +222,10 @@ public class XmindToTestCaseParser {
         StringBuffer processBuffer = new StringBuffer();
         try {
             File file = multipartFileToFile(multipartFile);
+            if (file == null || !file.exists())
+                return Translator.get("incorrect_format");
             JsonRootBean root = XmindParser.parseObject(file);
+            file.delete();
             if (root != null && root.getRootTopic() != null && root.getRootTopic().getChildren() != null) {
                 // 判断是模块还是用例
                 root.getRootTopic().getChildren().getAttached().forEach(item -> {
