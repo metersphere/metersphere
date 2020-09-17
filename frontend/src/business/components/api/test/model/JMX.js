@@ -185,7 +185,7 @@ export class TestPlan extends DefaultTestElement {
 
     props = props || {};
     this.boolProp("TestPlan.functional_mode", props.mode, false);
-    this.boolProp("TestPlan.serialize_threadgroups", props.stg, false);
+    this.boolProp("TestPlan.serialize_threadgroups", props.stg, true);
     this.boolProp("TestPlan.tearDown_on_shutdown", props.tos, true);
     this.stringProp("TestPlan.comments", props.comments);
     this.stringProp("TestPlan.user_define_classpath", props.classpath);
