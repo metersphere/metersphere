@@ -9,8 +9,6 @@ import {
   HeaderManager,
   HTTPSamplerArguments,
   HTTPsamplerFiles,
-  HTTPSamplerProxy,
-  HTTPSamplerArguments, HTTPsamplerFiles,
   HTTPSamplerProxy, JDBCDataSource, JDBCSampler,
   JSONPathAssertion,
   JSONPostProcessor,
