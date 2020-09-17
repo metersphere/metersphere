@@ -255,7 +255,7 @@ public class TestCaseService {
                 String processLog = new XmindToTestCaseParser(this, userId, projectId, testCaseNames).importXmind(multipartFile);
                 if (!StringUtils.isEmpty(processLog)) {
                     excelResponse.setSuccess(false);
-                    ExcelErrData excelErrData = new ExcelErrData(null, 1, processLog);
+                    ExcelErrData excelErrData = new ExcelErrData(null, 1, Translator.get("upload_fail")+"："+ processLog);
                     errList.add(excelErrData);
                     excelResponse.setErrList(errList);
                 } else {

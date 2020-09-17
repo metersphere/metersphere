@@ -377,6 +377,7 @@ export default {
     domain_ip_is_empty: '域名和IP不能為空',
     param_name_value_is_empty: '參數名和參數值不能為空',
     connect_timeout: '建立連接超時時間',
+    response_timeout: '響應超時時間',
     custom_http_code: '自定義 HTTP 響應成功狀態碼',
     separated_by_commas: '按逗號分隔',
     create: '創建測試',
@@ -536,7 +537,7 @@ export default {
         form_description: "如果當前配置項無值，則取場景配置項的值",
       },
       sql: {
-        dataSource: "數據源",
+        dataSource: "數據源名稱",
         sql_script: "SQL腳本",
         timeout: "超時時間(ms)",
         database_driver: "數據庫驅動",

@@ -1,5 +1,6 @@
 package io.metersphere.xmind;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
@@ -23,6 +24,8 @@ import java.util.*;
 
 /**
  * 数据转换
+ * 1 解析Xmind文件 XmindParser.parseJson
+ * 2 解析后的JSON 转成测试用例
  */
 public class XmindToTestCaseParser {
 
@@ -76,6 +79,7 @@ public class XmindToTestCaseParser {
         return jsonArray.toJSONString();
     }
 
+    // 初始化一个用例
     private void newTestCase(String title, String nodePath, List<Attached> attacheds) {
         TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
         testCase.setProjectId(projectId);
@@ -88,6 +92,7 @@ public class XmindToTestCaseParser {
         String tcArr[] = tc.split(":");
         if (tcArr.length != 2) {
             process.append(Translator.get("test_case_name") + "【 " + title + " 】" + Translator.get("incorrect_format"));
+            return;
         }
         // 用例名称
         testCase.setName(tcArr[1].replace("tc:|tc：", ""));
@@ -216,11 +221,25 @@ public class XmindToTestCaseParser {
         return true;
     }
 
+    // 导入思维导图处理
     public String importXmind(MultipartFile multipartFile) {
         StringBuffer processBuffer = new StringBuffer();
+        File file = null;
         try {
-            File file = multipartFileToFile(multipartFile);
-            JsonRootBean root = XmindParser.parseObject(file);
+            file = multipartFileToFile(multipartFile);
+            if (file == null || !file.exists())
+                return Translator.get("incorrect_format");
+
+            // 获取思维导图内容
+            String content = XmindParser.parseJson(file);
+            if (StringUtils.isEmpty(content) || content.split("(?:tc:|tc：)").length == 1) {
+                return Translator.get("import_xmind_not_found");
+            }
+            if (!StringUtils.isEmpty(content) && content.split("(?:tc:|tc：)").length > 500) {
+                return Translator.get("import_xmind_count_error");
+            }
+            JsonRootBean root = JSON.parseObject(content, JsonRootBean.class);
+
             if (root != null && root.getRootTopic() != null && root.getRootTopic().getChildren() != null) {
                 // 判断是模块还是用例
                 root.getRootTopic().getChildren().getAttached().forEach(item -> {
@@ -241,6 +260,8 @@ public class XmindToTestCaseParser {
             LogUtil.error(ex.getMessage());
             ex.printStackTrace();
         } finally {
+            if (file != null)
+                file.delete();
             testCaseWithBLOBs.clear();
         }
         return process.toString();
