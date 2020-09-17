@@ -13,10 +13,7 @@ import io.metersphere.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -57,11 +54,17 @@ public class LdapController {
 
             // 新建用户 获取LDAP映射属性
             String name = ldapService.getMappingAttr("name", dirContext);
+            String phone = ldapService.getNotRequiredMappingAttr("phone", dirContext);
 
             User user = new User();
             user.setId(userId);
             user.setName(name);
             user.setEmail(email);
+
+            if (StringUtils.isNotBlank(phone)) {
+                user.setPhone(phone);
+            }
+
             user.setSource(UserSource.LDAP.name());
             userService.addLdapUser(user);
         }
@@ -80,6 +83,11 @@ public class LdapController {
     @PostMapping("/test/login")
     public void testLogin(@RequestBody LoginRequest request) {
         ldapService.authenticate(request);
+    }
+
+    @GetMapping("/open")
+    public boolean isOpen() {
+        return ldapService.isOpen();
     }
 
 }

@@ -1,5 +1,5 @@
 <template>
-  <ms-aside-container :width="width + 'px'">
+  <ms-aside-container :enable-aside-hidden="false" :width="width + 'px'">
     <div class="title-bar" :style="{'height': titleBarHeight + 'px'}">
       <slot name="title">
         <span :style="{'line-height': titleBarHeight - 10 + 'px'}" class="title-left">
@@ -57,6 +57,10 @@
               }
             ];
           }
+        },
+        enableAsideHidden: {
+          type: Boolean,
+          default: true
         },
       },
       methods: {

@@ -2,6 +2,7 @@ package io.metersphere.track.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.TestPlan;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
@@ -12,6 +13,9 @@ import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.dto.TestPlanDTOWithMetric;
 import io.metersphere.track.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
+import io.metersphere.track.request.testplan.AddTestPlanRequest;
+import io.metersphere.track.request.testplancase.TestCaseRelevanceRequest;
+import io.metersphere.track.service.TestPlanProjectService;
 import io.metersphere.track.service.TestPlanService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -26,6 +30,8 @@ public class TestPlanController {
 
     @Resource
     TestPlanService testPlanService;
+    @Resource
+    TestPlanProjectService testPlanProjectService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<TestPlanDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanRequest request) {
@@ -37,11 +43,11 @@ public class TestPlanController {
 
     /*jenkins测试计划*/
     @GetMapping("/list/all/{projectId}/{workspaceId}")
-    public List<TestPlanDTO> listByprojectId(@PathVariable String projectId, @PathVariable String workspaceId) {
+    public List<TestPlanDTO> listByProjectId(@PathVariable String projectId, @PathVariable String workspaceId) {
         QueryTestPlanRequest request = new QueryTestPlanRequest();
         request.setWorkspaceId(workspaceId);
         request.setProjectId(projectId);
-        return testPlanService.listTestPlan(request);
+        return testPlanService.listTestPlanByProject(request);
     }
 
     @PostMapping("/list/all")
@@ -69,7 +75,7 @@ public class TestPlanController {
 
     @PostMapping("/add")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void addTestPlan(@RequestBody TestPlan testPlan) {
+    public void addTestPlan(@RequestBody AddTestPlanRequest testPlan) {
         testPlanService.addTestPlan(testPlan);
     }
 
@@ -99,5 +105,25 @@ public class TestPlanController {
     @GetMapping("/get/metric/{planId}")
     public TestCaseReportMetricDTO getMetric(@PathVariable String planId) {
         return testPlanService.getMetric(planId);
+    }
+
+    @GetMapping("/project/name/{planId}")
+    public String getProjectNameByPlanId(@PathVariable String planId) {
+        return testPlanService.getProjectNameByPlanId(planId);
+    }
+
+    @PostMapping("/project")
+    public List<Project> getProjectByPlanId(@RequestBody TestCaseRelevanceRequest request) {
+        List<String> projectIds = testPlanProjectService.getProjectIdsByPlanId(request.getPlanId());
+        request.setProjectIds(projectIds);
+        return testPlanProjectService.getProjectByPlanId(request);
+    }
+
+    @PostMapping("/project/{goPage}/{pageSize}")
+    public Pager<List<Project>> getProjectByPlanId(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody TestCaseRelevanceRequest request) {
+        List<String> projectIds = testPlanProjectService.getProjectIdsByPlanId(request.getPlanId());
+        request.setProjectIds(projectIds);
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, testPlanProjectService.getProjectByPlanId(request));
     }
 }

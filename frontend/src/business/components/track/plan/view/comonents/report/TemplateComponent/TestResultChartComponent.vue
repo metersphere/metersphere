@@ -66,6 +66,8 @@
             this.charData.push(data);
           });
           this.reload();
+
+
         },
         reload() {
           this.isShow = false;

@@ -66,7 +66,7 @@
 <style scoped>
 
   .el-table {
-    cursor:pointer;
+    cursor: pointer;
   }
 
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :title="$t('api_test.api_import.title')" :visible.sync="visible" class="api-import" v-loading="result.loading" @close="close">
+  <el-dialog :close-on-click-modal="false" :title="$t('api_test.api_import.title')" :visible.sync="visible" class="api-import" v-loading="result.loading" @close="close">
 
     <div class="header-bar">
       <div>{{$t('api_test.api_import.data_format')}}</div>
@@ -28,7 +28,7 @@
               <el-option v-for="(project, index) in projects" :key="index" :label="project.name" :value="project.id"/>
             </el-select>
           </el-form-item>
-          <el-form-item v-if="(selectedPlatformValue != 'Postman' && useEnvironment) || selectedPlatformValue == 'Swagger2'" :label="$t('api_test.environment.environment_config')" prop="environmentId">
+          <el-form-item v-if="useEnvironment || selectedPlatformValue == 'Swagger2'" :label="$t('api_test.environment.environment_config')" prop="environmentId">
             <el-select v-if="showEnvironmentSelect" size="small"  v-model="formData.environmentId" class="environment-select" clearable>
               <el-option v-for="(environment, index) in environments" :key="index" :label="environment.name + ': ' + environment.protocol + '://' + environment.socket" :value="environment.id"/>
               <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">{{$t('api_test.environment.environment_config')}}</el-button>
@@ -39,7 +39,7 @@
               </template>
             </el-select>
           </el-form-item>
-          <el-form-item v-if="selectedPlatformValue == 'Metersphere'" prop="useEnvironment">
+          <el-form-item v-if="selectedPlatformValue != 'Swagger2'" prop="useEnvironment">
             <el-checkbox v-model="useEnvironment">{{$t('api_test.environment.config_environment')}}</el-checkbox>
           </el-form-item>
 
@@ -95,6 +95,7 @@
 <script>
     import MsDialogFooter from "../../../../common/components/MsDialogFooter";
     import ApiEnvironmentConfig from "../ApiEnvironmentConfig";
+    import {listenGoBack, removeGoBackListener} from "../../../../../../common/js/utils";
     export default {
       name: "ApiImport",
       components: {ApiEnvironmentConfig, MsDialogFooter},
@@ -174,6 +175,7 @@
       methods: {
         open() {
           this.visible = true;
+          listenGoBack(this.close);
         },
         upload(file) {
           this.formData.file = file.file;
@@ -235,7 +237,7 @@
               if (!this.swaggerUrlEable) {
                 param.swaggerUrl = undefined;
               }
-              this.result = this.$fileUpload('/api/import', param.file, param,response => {
+              this.result = this.$fileUpload('/api/import', param.file, null, param,response => {
                 let res = response.data;
                 this.$success(this.$t('test_track.case.import.success'));
                 this.visible = false;
@@ -255,6 +257,8 @@
             swaggerUrl: ''
           };
           this.fileList = [];
+          removeGoBackListener(this.close);
+          this.visible = false;
         }
       }
     }

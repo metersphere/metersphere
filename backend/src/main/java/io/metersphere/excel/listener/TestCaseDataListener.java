@@ -10,10 +10,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -44,23 +41,52 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
             String[] nodes = nodePath.split("/");
             if (nodes.length > TestCaseConstants.MAX_NODE_DEPTH + 1) {
                 stringBuilder.append(Translator.get("test_case_node_level_tip") +
-                        TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level"));
+                        TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level") + "; ");
             }
             for (int i = 0; i < nodes.length; i++) {
                 if (i != 0 && StringUtils.equals(nodes[i].trim(), "")) {
-                    stringBuilder.append(Translator.get("module_not_null"));
+                    stringBuilder.append(Translator.get("module_not_null") + "; ");
                     break;
                 }
             }
         }
 
+        if (StringUtils.equals(data.getType(), TestCaseConstants.Type.Functional.getValue()) && StringUtils.equals(data.getMethod(), TestCaseConstants.Method.Auto.getValue())) {
+            stringBuilder.append(Translator.get("functional_method_tip") + "; ");
+        }
+
         if (!userIds.contains(data.getMaintainer())) {
             stringBuilder.append(Translator.get("user_not_exists") + "：" + data.getMaintainer() + "; ");
         }
+
         if (testCaseNames.contains(data.getName())) {
-            stringBuilder.append(Translator.get("test_case_already_exists_excel") + "：" + data.getName() + "; ");
+            TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
+            BeanUtils.copyBean(testCase, data);
+            testCase.setProjectId(projectId);
+            String steps = getSteps(data);
+            testCase.setSteps(steps);
+
+            boolean dbExist = testCaseService.exist(testCase);
+            boolean excelExist = false;
+
+            if (dbExist) {
+                // db exist
+                stringBuilder.append(Translator.get("test_case_already_exists_excel") + "：" + data.getName() + "; ");
+            } else {
+                // @Data 重写了 equals 和 hashCode 方法
+                excelExist = excelDataList.contains(data);
+            }
+
+            if (excelExist) {
+                // excel exist
+                stringBuilder.append(Translator.get("test_case_already_exists_excel") + "：" + data.getName() + "; ");
+            } else {
+                excelDataList.add(data);
+            }
+
         } else {
             testCaseNames.add(data.getName());
+            excelDataList.add(data);
         }
         return stringBuilder.toString();
     }
@@ -103,6 +129,13 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
         testCase.setNodePath(nodePath);
 
 
+        String steps = getSteps(data);
+        testCase.setSteps(steps);
+
+        return testCase;
+    }
+
+    public String getSteps(TestCaseExcelData data) {
         JSONArray jsonArray = new JSONArray();
 
         String[] stepDesc = new String[1];
@@ -124,7 +157,8 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
 
         for (int i = 0; i < index; i++) {
 
-            JSONObject step = new JSONObject();
+            // 保持插入顺序，判断用例是否有相同的steps
+            JSONObject step = new JSONObject(true);
             step.put("num", i + 1);
 
             Pattern descPattern = Pattern.compile(pattern);
@@ -150,10 +184,7 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
 
             jsonArray.add(step);
         }
-
-        testCase.setSteps(jsonArray.toJSONString());
-
-        return testCase;
+        return jsonArray.toJSONString();
     }
 
 }

@@ -30,8 +30,8 @@
 </template>
 
 <script>
-  import {CURRENT_PROJECT} from '../../../../common/js/constants';
   import MsDialogFooter from '../../common/components/MsDialogFooter';
+  import {listenGoBack, removeGoBackListener} from "../../../../common/js/utils";
 
     export default {
       components: {MsDialogFooter},
@@ -70,6 +70,7 @@
             this.form.name = this.node.name;
           }
           this.nodeIds = nodeIds;
+          listenGoBack(this.close);
           this.dialogFormVisible = true;
         },
         saveNode() {
@@ -118,6 +119,7 @@
         },
         close() {
           this.form.name = '';
+          removeGoBackListener(this.close);
           this.dialogFormVisible = false;
         }
       }

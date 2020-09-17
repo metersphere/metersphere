@@ -154,7 +154,7 @@
                 </include>
             </if>
             <if test="request.name != null">
-                and test_case.name like CONCAT('%', #{request.name},'%')
+                and (test_case.name like CONCAT('%', #{request.name},'%') or test_case.num like CONCAT('%', #{request.name},'%'))
             </if>
             <if test="request.nodeIds != null and request.nodeIds.size() > 0">
                 and test_case.node_id in
@@ -224,7 +224,16 @@
                     #{id}
                 </foreach>
             </if>
+            <if test="request.projectId!=null">
+                and test_case.project_id=#{request.projectId}
+            </if>
         </where>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                ${order.name} ${order.type}
+            </foreach>
+        </if>
     </select>
 
     <select id="getMaxNumByProjectId" resultType="io.metersphere.base.domain.TestCase">

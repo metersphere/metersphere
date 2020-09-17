@@ -7,55 +7,14 @@
             {{request.method}}
           </div>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="20">
           <div class="name">{{request.name}}</div>
           <el-tooltip effect="dark" :content="request.url" placement="bottom" :open-delay="800">
             <div class="url">{{request.url}}</div>
           </el-tooltip>
         </el-col>
-        <el-col :span="2">
-          <div class="time">
-            {{request.responseResult.responseTime}}
-          </div>
-        </el-col>
-        <el-col :span="2">
-          {{request.error}}
-        </el-col>
-        <el-col :span="2">
-          {{assertion}}
-        </el-col>
-        <el-col :span="2">
-          <el-tag size="mini" type="success" v-if="request.success">
-            {{$t('api_report.success')}}
-          </el-tag>
-          <el-tag size="mini" type="danger" v-else>
-            {{$t('api_report.fail')}}
-          </el-tag>
-        </el-col>
       </el-row>
     </div>
-    <el-collapse-transition>
-      <div v-show="isActive">
-        <el-tabs v-model="activeName" v-show="isActive" v-if="hasSub">
-          <el-tab-pane :label="$t('api_report.sub_result')" name="sub">
-            <ms-request-result class="sub-result" v-for="(sub, index) in request.subRequestResults"
-                               :key="index" :request="sub"/>
-          </el-tab-pane>
-          <el-tab-pane :label="$t('api_report.request_result')" name="result">
-            <ms-request-metric :request="request"/>
-            <ms-request-text :request="request"/>
-            <br>
-            <ms-response-text :response="request.responseResult"/>
-          </el-tab-pane>
-        </el-tabs>
-        <div v-else>
-          <ms-request-metric :request="request"/>
-          <ms-request-text :request="request"/>
-          <br>
-          <ms-response-text :response="request.responseResult"/>
-        </div>
-      </div>
-    </el-collapse-transition>
   </div>
 </template>
 
@@ -69,30 +28,19 @@
     name: "MsRequestResult",
     components: {MsResponseText, MsRequestText, MsAssertionResults, MsRequestMetric},
     props: {
-      request: Object
+      request: Object,
+      scenarioName: String
     },
 
     data() {
-      return {
-        isActive: false,
-        activeName: "sub",
-      }
+      return {}
     },
 
     methods: {
       active() {
-        this.isActive = !this.isActive;
+        this.$emit("requestResult", {request: this.request, scenarioName: this.scenarioName});
       }
     },
-
-    computed: {
-      assertion() {
-        return this.request.passAssertions + " / " + this.request.totalAssertions;
-      },
-      hasSub() {
-        return this.request.subRequestResults.length > 0;
-      }
-    }
   }
 </script>
 

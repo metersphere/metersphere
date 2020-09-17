@@ -57,7 +57,16 @@
             </include>
         </if>
     </sql>
-
+    <select id="get" resultMap="BaseResultMap">
+        SELECT r.*, t.name AS test_name, project.name AS project_name, user.name AS user_name
+        FROM api_test_report r JOIN api_test t ON r.test_id = t.id
+        LEFT JOIN project ON project.id = t.project_id
+        LEFT JOIN user ON user.id = r.user_id
+        <where>
+            r.id = #{id}
+        </where>
+        ORDER BY r.update_time DESC
+    </select>
     <select id="list" resultMap="BaseResultMap">
         SELECT t.name AS test_name,
         r.name, r.description, r.id, r.test_id, r.create_time, r.update_time, r.status, r.trigger_mode,
@@ -102,6 +111,7 @@
                     </if>
                 </foreach>
             </if>
+            AND r.status != 'Debug'
         </where>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
@@ -124,19 +134,10 @@
         ORDER BY r.update_time DESC
     </select>
 
-    <select id="get" resultMap="BaseResultMap">
-        SELECT r.*, t.name AS test_name, project.name AS project_name, user.name AS user_name
-        FROM api_test_report r JOIN api_test t ON r.test_id = t.id
-        LEFT JOIN project ON project.id = t.project_id
-        LEFT JOIN user ON user.id = r.user_id
-        <where>
-            r.id = #{id}
-        </where>
-        ORDER BY r.update_time DESC
-    </select>
+
 
     <select id="selectDashboardTests" resultType="io.metersphere.dto.DashboardTestDTO">
-        SELECT create_time AS date, count(api_test_report.id) AS count,
+        SELECT min(create_time) AS date, count(api_test_report.id) AS count,
         date_format(from_unixtime(create_time / 1000), '%Y-%m-%d') AS x
         FROM api_test_report
         WHERE test_id IN (SELECT api_test.id

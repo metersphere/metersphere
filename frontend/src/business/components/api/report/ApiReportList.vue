@@ -8,7 +8,16 @@
                            :show-create="false"/>
         </template>
         <el-table border :data="tableData" class="adjust-table table-content" @sort-change="sort"
+                  @select-all="handleSelectAll"
+                  @select="handleSelect"
                   @filter-change="filter" @row-click="handleView">
+          <el-table-column
+            type="selection"/>
+          <el-table-column width="40" :resizable="false" align="center">
+            <template v-slot:default="scope">
+              <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>
+            </template>
+          </el-table-column>
           <el-table-column :label="$t('commons.name')" width="200" show-overflow-tooltip prop="name">
           </el-table-column>
           <el-table-column prop="testName" :label="$t('api_report.test_name')" width="200" show-overflow-tooltip/>
@@ -49,112 +58,176 @@
 </template>
 
 <script>
-  import MsTablePagination from "../../common/pagination/TablePagination";
-  import MsTableHeader from "../../common/components/MsTableHeader";
-  import MsContainer from "../../common/components/MsContainer";
-  import MsMainContainer from "../../common/components/MsMainContainer";
-  import MsApiReportStatus from "./ApiReportStatus";
-  import {_filter, _sort} from "@/common/js/utils";
-  import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
-  import ReportTriggerModeItem from "../../common/tableItem/ReportTriggerModeItem";
-  import {REPORT_CONFIGS} from "../../common/components/search/search-components";
+import MsTablePagination from "../../common/pagination/TablePagination";
+import MsTableHeader from "../../common/components/MsTableHeader";
+import MsContainer from "../../common/components/MsContainer";
+import MsMainContainer from "../../common/components/MsMainContainer";
+import MsApiReportStatus from "./ApiReportStatus";
+import {_filter, _sort} from "@/common/js/utils";
+import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
+import ReportTriggerModeItem from "../../common/tableItem/ReportTriggerModeItem";
+import {REPORT_CONFIGS} from "../../common/components/search/search-components";
+import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
+import ShowMoreBtn from "../../track/case/components/ShowMoreBtn";
 
-  export default {
-    components: {
-      ReportTriggerModeItem,
-      MsTableOperatorButton,
-      MsApiReportStatus, MsMainContainer, MsContainer, MsTableHeader, MsTablePagination
+export default {
+  components: {
+    ReportTriggerModeItem,
+    MsTableOperatorButton,
+    MsApiReportStatus, MsMainContainer, MsContainer, MsTableHeader, MsTablePagination, ShowMoreBtn
+  },
+  data() {
+    return {
+      result: {},
+      condition: {
+        components: REPORT_CONFIGS
+      },
+      tableData: [],
+      multipleSelection: [],
+      currentPage: 1,
+      pageSize: 5,
+      total: 0,
+      loading: false,
+      statusFilters: [
+        {text: 'Saved', value: 'Saved'},
+        {text: 'Starting', value: 'Starting'},
+        {text: 'Running', value: 'Running'},
+        {text: 'Reporting', value: 'Reporting'},
+        {text: 'Completed', value: 'Completed'},
+        {text: 'Error', value: 'Error'},
+        {text: 'Success', value: 'Success'},
+      ],
+      triggerFilters: [
+        {text: this.$t('commons.trigger_mode.manual'), value: 'MANUAL'},
+        {text: this.$t('commons.trigger_mode.schedule'), value: 'SCHEDULE'},
+        {text: this.$t('commons.trigger_mode.api'), value: 'API'}
+      ],
+      buttons: [
+        {
+          name: this.$t('api_report.batch_delete'), handleClick: this.handleBatchDelete
+        }
+      ],
+      selectRows: new Set(),
+    }
+  },
+
+  watch: {
+    '$route': 'init',
+  },
+
+  methods: {
+    search() {
+      if (this.testId !== 'all') {
+        this.condition.testId = this.testId;
+      }
+
+      let url = "/api/report/list/" + this.currentPage + "/" + this.pageSize;
+      this.result = this.$post(url, this.condition, response => {
+        let data = response.data;
+        this.total = data.itemCount;
+        this.tableData = data.listObject;
+      });
     },
-    data() {
-      return {
-        result: {},
-        condition: {
-          components: REPORT_CONFIGS
-        },
-        tableData: [],
-        multipleSelection: [],
-        currentPage: 1,
-        pageSize: 5,
-        total: 0,
-        loading: false,
-        statusFilters: [
-          {text: 'Saved', value: 'Saved'},
-          {text: 'Starting', value: 'Starting'},
-          {text: 'Running', value: 'Running'},
-          {text: 'Reporting', value: 'Reporting'},
-          {text: 'Completed', value: 'Completed'},
-          {text: 'Error', value: 'Error'},
-          {text: 'Success', value: 'Success'},
-        ],
-        triggerFilters: [
-          {text: this.$t('commons.trigger_mode.manual'), value: 'MANUAL'},
-          {text: this.$t('commons.trigger_mode.schedule'), value: 'SCHEDULE'},
-          {text: this.$t('commons.trigger_mode.api'), value: 'API'}
-        ],
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
+    },
+    handleView(report) {
+      this.$router.push({
+        path: '/api/report/view/' + report.id,
+      })
+    },
+    handleDelete(report) {
+      this.$alert(this.$t('api_report.delete_confirm') + report.name + "？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            this.result = this.$post("/api/report/delete", {id: report.id}, () => {
+              this.$success(this.$t('commons.delete_success'));
+              this.search();
+              // 发送广播，刷新 head 上的最新列表
+              ApiEvent.$emit(LIST_CHANGE);
+            });
+          }
+        }
+      });
+    },
+    init() {
+      this.testId = this.$route.params.testId;
+      this.search();
+    },
+    sort(column) {
+      _sort(column, this.condition);
+      this.init();
+    },
+    filter(filters) {
+      _filter(filters, this.condition);
+      this.init();
+    },
+    handleSelect(selection, row) {
+      if (this.selectRows.has(row)) {
+        this.$set(row, "showMore", false);
+        this.selectRows.delete(row);
+      } else {
+        this.$set(row, "showMore", true);
+        this.selectRows.add(row);
+      }
+
+      let arr = Array.from(this.selectRows);
+
+      // 选中1个以上的用例时显示更多操作
+      if (this.selectRows.size === 1) {
+        this.$set(arr[0], "showMore", false);
+      } else if (this.selectRows.size === 2) {
+        arr.forEach(row => {
+          this.$set(row, "showMore", true);
+        })
       }
     },
-
-    watch: {
-      '$route': 'init',
-    },
-
-    methods: {
-      search() {
-        if (this.testId !== 'all') {
-          this.condition.testId = this.testId;
+    handleSelectAll(selection) {
+      if (selection.length > 0) {
+        if (selection.length === 1) {
+          this.selectRows.add(selection[0]);
+        } else {
+          this.tableData.forEach(item => {
+            this.$set(item, "showMore", true);
+            this.selectRows.add(item);
+          });
         }
-
-        let url = "/api/report/list/" + this.currentPage + "/" + this.pageSize;
-        this.result = this.$post(url, this.condition, response => {
-          let data = response.data;
-          this.total = data.itemCount;
-          this.tableData = data.listObject;
-        });
-      },
-      handleSelectionChange(val) {
-        this.multipleSelection = val;
-      },
-      handleView(report) {
-        this.$router.push({
-          path: '/api/report/view/' + report.id,
+      } else {
+        this.selectRows.clear();
+        this.tableData.forEach(row => {
+          this.$set(row, "showMore", false);
         })
-      },
-      handleDelete(report) {
-        this.$alert(this.$t('api_report.delete_confirm') + report.name + "？", '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              this.result = this.$post("/api/report/delete", {id: report.id}, () => {
-                this.$success(this.$t('commons.delete_success'));
-                this.search();
-              });
-            }
-          }
-        });
-      },
-      init() {
-        this.testId = this.$route.params.testId;
-        this.search();
-      },
-      sort(column) {
-        _sort(column, this.condition);
-        this.init();
-      },
-      filter(filters) {
-        _filter(filters, this.condition);
-        this.init();
-      },
-
+      }
     },
-
-    created() {
-      this.init();
+    handleBatchDelete() {
+      this.$alert(this.$t('api_report.delete_batch_confirm') + "？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            let ids = Array.from(this.selectRows).map(row => row.id);
+            this.$post('/api/report/batch/delete', {ids: ids}, () => {
+              this.selectRows.clear();
+              this.$success(this.$t('commons.delete_success'));
+              this.search();
+              // 发送广播，刷新 head 上的最新列表
+              ApiEvent.$emit(LIST_CHANGE);
+            });
+          }
+        }
+      });
     }
+
+  },
+
+  created() {
+    this.init();
   }
+}
 </script>
 
 <style scoped>
-  .table-content {
-    width: 100%;
-  }
+.table-content {
+  width: 100%;
+}
 </style>

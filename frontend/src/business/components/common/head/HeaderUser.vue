@@ -6,8 +6,9 @@
     <template v-slot:dropdown>
       <el-dropdown-menu>
         <el-dropdown-item command="personal">{{$t('commons.personal_information')}}</el-dropdown-item>
-        <el-dropdown-item command="logout">{{$t('commons.exit_system')}}</el-dropdown-item>
         <el-dropdown-item command="about">{{$t('commons.about_us')}} <i class="el-icon-info"/></el-dropdown-item>
+        <el-dropdown-item command="help">{{$t('commons.help_documentation')}}</el-dropdown-item>
+        <el-dropdown-item command="logout">{{$t('commons.exit_system')}}</el-dropdown-item>
       </el-dropdown-menu>
     </template>
 
@@ -18,6 +19,7 @@
 <script>
   import {getCurrentUser} from "../../../../common/js/utils";
   import AboutUs from "./AboutUs";
+  import axios from "axios";
 
   export default {
     name: "MsUser",
@@ -35,13 +37,26 @@
             this.$router.push('/setting/personsetting').catch(error => error);
             break;
           case "logout":
-            this.$get("/signout", function () {
+            axios.get("/signout").then(response => {
+              if (response.data.success) {
+                localStorage.clear();
+                window.location.href = "/login";
+              } else {
+                if (response.data.message === 'sso') {
+                  localStorage.clear();
+                  window.location.href = "/sso/logout"
+                }
+              }
+            }).catch(error => {
               localStorage.clear();
               window.location.href = "/login";
             });
             break;
           case "about":
             this.$refs.aboutUs.open();
+            break;
+          case "help":
+            window.location.href = "https://metersphere.io/docs/index.html";
             break;
           default:
             break;

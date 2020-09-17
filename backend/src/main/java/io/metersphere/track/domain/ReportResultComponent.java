@@ -1,6 +1,6 @@
 package io.metersphere.track.domain;
 
-import com.alibaba.fastjson.JSON;
+import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.TestCaseNode;
 import io.metersphere.base.domain.TestCaseNodeExample;
 import io.metersphere.base.mapper.TestCaseNodeMapper;
@@ -8,7 +8,9 @@ import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.MathUtils;
 import io.metersphere.track.dto.*;
+import io.metersphere.track.service.IssuesService;
 import io.metersphere.track.service.TestCaseNodeService;
+import io.metersphere.track.service.TestPlanProjectService;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -28,8 +30,9 @@ public class ReportResultComponent extends ReportComponent {
     public void init() {
         TestCaseNodeService testCaseNodeService = (TestCaseNodeService) CommonBeanFactory.getBean("testCaseNodeService");
         TestCaseNodeMapper testCaseNodeMapper = (TestCaseNodeMapper) CommonBeanFactory.getBean("testCaseNodeMapper");
+        TestPlanProjectService testPlanProjectService = (TestPlanProjectService) CommonBeanFactory.getBean("testPlanProjectService");
         TestCaseNodeExample testCaseNodeExample = new TestCaseNodeExample();
-        testCaseNodeExample.createCriteria().andProjectIdEqualTo(testPlan.getProjectId());
+        testCaseNodeExample.createCriteria().andProjectIdIn(testPlanProjectService.getProjectIdsByPlanId(testPlan.getId()));
         List<TestCaseNode> nodes = testCaseNodeMapper.selectByExample(testCaseNodeExample);
         nodeTrees = testCaseNodeService.getNodeTrees(nodes);
         nodeTrees.forEach(item -> {
@@ -50,6 +53,9 @@ public class ReportResultComponent extends ReportComponent {
         nodeTrees.forEach(rootNode -> {
             TestCaseReportModuleResultDTO moduleResult = moduleResultMap.get(rootNode.getId());
             if (moduleResult != null) {
+                TestCaseNodeService testCaseNodeService = (TestCaseNodeService) CommonBeanFactory.getBean("testCaseNodeService");
+                Project project = testCaseNodeService.getProjectByNode(rootNode.getId());
+                moduleResult.setProjectName(project.getName());
                 moduleResult.setModuleName(rootNode.getName());
             }
         });
@@ -78,7 +84,9 @@ public class ReportResultComponent extends ReportComponent {
     }
 
     private void getModuleResultMap(Map<String, Set<String>> childIdMap, Map<String, TestCaseReportModuleResultDTO> moduleResultMap, TestPlanCaseDTO testCase, List<TestCaseNodeDTO> nodeTrees) {
+        IssuesService issuesService = (IssuesService) CommonBeanFactory.getBean("issuesService");
         childIdMap.forEach((rootNodeId, childIds) -> {
+
             if (childIds.contains(testCase.getNodeId())) {
                 TestCaseReportModuleResultDTO moduleResult = moduleResultMap.get(rootNodeId);
                 if (moduleResult == null) {
@@ -86,21 +94,37 @@ public class ReportResultComponent extends ReportComponent {
                     moduleResult.setCaseCount(0);
                     moduleResult.setPassCount(0);
                     moduleResult.setIssuesCount(0);
+                    moduleResult.setFailureCount(0);
+                    moduleResult.setBlockingCount(0);
+                    moduleResult.setPrepareCount(0);
+                    moduleResult.setSkipCount(0);
+                    moduleResult.setUnderwayCount(0);
                     moduleResult.setModuleId(rootNodeId);
                 }
                 moduleResult.setCaseCount(moduleResult.getCaseCount() + 1);
                 if (StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Pass.name())) {
                     moduleResult.setPassCount(moduleResult.getPassCount() + 1);
                 }
-                if (StringUtils.isNotBlank(testCase.getIssues())) {
-                    if (JSON.parseObject(testCase.getIssues()).getBoolean("hasIssues")) {
-                        moduleResult.setIssuesCount(moduleResult.getIssuesCount() + 1);
-                    }
-                    ;
+                if (StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Prepare.name())) {
+                    moduleResult.setPrepareCount(moduleResult.getPrepareCount() + 1);
                 }
+                if (StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Underway.name())) {
+                    moduleResult.setUnderwayCount(moduleResult.getUnderwayCount() + 1);
+                }
+                if (StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Failure.name())) {
+                    moduleResult.setFailureCount(moduleResult.getFailureCount() + 1);
+                }
+                if (StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Skip.name())) {
+                    moduleResult.setSkipCount(moduleResult.getSkipCount() + 1);
+                }
+                if (StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Blocking.name())) {
+                    moduleResult.setBlockingCount(moduleResult.getBlockingCount() + 1);
+                }
+                moduleResult.setIssuesCount(moduleResult.getIssuesCount() + issuesService.getIssues(testCase.getCaseId()).size());
                 moduleResultMap.put(rootNodeId, moduleResult);
                 return;
             }
         });
+
     }
 }

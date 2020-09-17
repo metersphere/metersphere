@@ -1,6 +1,6 @@
 import router from './components/common/router/router'
-import {TokenKey} from '../common/js/constants';
-import {hasRolePermissions, hasRoles} from "../common/js/utils";
+import {TokenKey} from '@/common/js/constants';
+import {hasRolePermissions, hasRoles} from "@/common/js/utils";
 
 const whiteList = ['/login']; // no redirect whitelist
 
@@ -17,22 +17,18 @@ export const roles = {
 };
 
 function checkRolePermission(el, binding, type) {
-  const { value } = binding;
-  const rolesString = localStorage.getItem("roles");
-  const roles = rolesString.split(',');
+  const {value} = binding;
   if (value && value instanceof Array && value.length > 0) {
     const permissionRoles = value;
     let hasPermission = false;
     if (type === 'roles') {
-      hasPermission  = hasRoles(...permissionRoles);
+      hasPermission = hasRoles(...permissionRoles);
     } else if (type === 'permission') {
       hasPermission = hasRolePermissions(...permissionRoles);
     }
     if (!hasPermission) {
       el.parentNode && el.parentNode.removeChild(el)
     }
-  } else {
-    throw new Error(`need roles! Like v-permission="['admin','editor']"`)
   }
 }
 

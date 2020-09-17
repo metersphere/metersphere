@@ -1,5 +1,6 @@
 package io.metersphere.config;
 
+import io.metersphere.commons.utils.ShiroUtils;
 import io.metersphere.security.ApiKeyFilter;
 import io.metersphere.security.LoginFilter;
 import io.metersphere.security.ShiroDBRealm;
@@ -9,9 +10,8 @@ import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
-import org.apache.shiro.web.servlet.SimpleCookie;
-import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.EnvironmentAware;
@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Configuration
+@ConditionalOnProperty(prefix="sso",name = "mode", havingValue = "local", matchIfMissing = true)
 public class ShiroConfig implements EnvironmentAware {
     private Environment env;
 
@@ -42,25 +43,8 @@ public class ShiroConfig implements EnvironmentAware {
         shiroFilterFactoryBean.setSuccessUrl("/");
 
         shiroFilterFactoryBean.getFilters().put("apikey", new ApiKeyFilter());
-
         Map<String, String> filterChainDefinitionMap = shiroFilterFactoryBean.getFilterChainDefinitionMap();
-        filterChainDefinitionMap.put("/resource/**", "anon");
-        filterChainDefinitionMap.put("/", "anon");
-        filterChainDefinitionMap.put("/signin", "anon");
-        filterChainDefinitionMap.put("/ldap/signin", "anon");
-        filterChainDefinitionMap.put("/isLogin", "anon");
-        filterChainDefinitionMap.put("/css/**", "anon");
-        filterChainDefinitionMap.put("/js/**", "anon");
-        filterChainDefinitionMap.put("/img/**", "anon");
-        filterChainDefinitionMap.put("/fonts/**", "anon");
-
-        // for swagger
-        filterChainDefinitionMap.put("/swagger-ui.html", "anon");
-        filterChainDefinitionMap.put("/swagger-ui/**", "anon");
-        filterChainDefinitionMap.put("/v3/api-docs/**", "anon");
-
-        filterChainDefinitionMap.put("/403", "anon");
-        filterChainDefinitionMap.put("/anonymous/**", "anon");
+        ShiroUtils.loadBaseFilterChain(filterChainDefinitionMap);
         filterChainDefinitionMap.put("/**", "apikey, authc");
         return shiroFilterFactoryBean;
     }
@@ -118,19 +102,8 @@ public class ShiroConfig implements EnvironmentAware {
 
     @Bean
     public SessionManager sessionManager(MemoryConstrainedCacheManager memoryConstrainedCacheManager) {
-        Long sessionTimeout = env.getProperty("session.timeout", Long.class, 1800L); // 默认1800s, 半个小时
-
-        DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
-        sessionManager.setSessionIdUrlRewritingEnabled(false);
-        sessionManager.setGlobalSessionTimeout(sessionTimeout * 1000);// 超时时间ms
-        sessionManager.setDeleteInvalidSessions(true);
-        sessionManager.setSessionValidationSchedulerEnabled(true);
-        SimpleCookie sessionIdCookie = new SimpleCookie();
-        sessionManager.setSessionIdCookie(sessionIdCookie);
-        sessionIdCookie.setPath("/");
-        sessionIdCookie.setName("MS_SESSION_ID");
-        sessionManager.setCacheManager(memoryConstrainedCacheManager);
-        return sessionManager;
+        Long sessionTimeout = env.getProperty("session.timeout", Long.class, 43200L); // 默认43200s, 12个小时
+        return ShiroUtils.getSessionManager(sessionTimeout, memoryConstrainedCacheManager);
     }
 
     /**

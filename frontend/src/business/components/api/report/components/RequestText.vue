@@ -30,7 +30,7 @@
 
     data() {
       return {
-        isActive: false,
+        isActive: true,
         activeName: "body",
       }
     },

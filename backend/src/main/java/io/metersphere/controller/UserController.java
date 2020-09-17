@@ -128,7 +128,6 @@ public class UserController {
     }
 
     @GetMapping("/list")
-    @RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.ORG_ADMIN, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public List<User> getUserList() {
         return userService.getUserList();
     }
@@ -282,6 +281,12 @@ public class UserController {
             RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
     public List<User> getTestManagerAndTestUserList(@RequestBody QueryMemberRequest request) {
         return userService.getTestManagerAndTestUserList(request);
+    }
+
+    @GetMapping("/search/{condition}")
+    @RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.ORG_ADMIN, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public List<User> searchUser(@PathVariable String condition) {
+        return userService.searchUser(condition);
     }
 
 }

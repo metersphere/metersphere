@@ -32,7 +32,7 @@
     </el-card>
 
     <!--Modify personal details-->
-    <el-dialog :title="$t('member.modify_personal_info')" :visible.sync="updateVisible" width="30%"
+    <el-dialog :close-on-click-modal="false" :title="$t('member.modify_personal_info')" :visible.sync="updateVisible" width="30%"
                :destroy-on-close="true" @close="handleClose">
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
                ref="updateUserForm">
@@ -57,7 +57,7 @@
     </el-dialog>
 
     <!--Change personal password-->
-    <el-dialog :title="$t('member.edit_password')" :visible.sync="editPasswordVisible" width="35%"
+    <el-dialog :close-on-click-modal="false" :title="$t('member.edit_password')" :visible.sync="editPasswordVisible" width="35%"
                :destroy-on-close="true" @close="handleClose" left>
       <el-form :model="ruleForm" :rules="rules" ref="editPasswordForm" label-width="120px" class="demo-ruleForm">
         <el-form-item :label="$t('member.old_password')" prop="password" style="margin-bottom: 29px">
@@ -65,6 +65,9 @@
         </el-form-item>
         <el-form-item :label="$t('member.new_password')" prop="newpassword">
           <el-input v-model="ruleForm.newpassword" autocomplete="off" show-password/>
+        </el-form-item>
+        <el-form-item :label="$t('member.repeat_password')" prop="repeatPassword">
+          <el-input v-model="ruleForm.repeatPassword" autocomplete="off" show-password/>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -81,7 +84,7 @@
 <script>
   import {TokenKey} from "../../../../common/js/constants";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
-  import {getCurrentUser} from "../../../../common/js/utils";
+  import {getCurrentUser, listenGoBack, removeGoBackListener} from "../../../../common/js/utils";
   import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
 
   export default {
@@ -135,7 +138,16 @@
             {required: true, message: this.$t('user.input_password'), trigger: 'blur'},
             {
               required: true,
-              pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,16}$/,
+              pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,30}$/,
+              message: this.$t('member.password_format_is_incorrect'),
+              trigger: 'blur'
+            },
+          ],
+          repeatPassword: [
+            {required: true, message: this.$t('user.input_password'), trigger: 'blur'},
+            {
+              required: true,
+              pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,30}$/,
               message: this.$t('member.password_format_is_incorrect'),
               trigger: 'blur'
             },
@@ -154,9 +166,11 @@
       edit(row) {
         this.updateVisible = true;
         this.form = Object.assign({}, row);
+        listenGoBack(this.handleClose);
       },
       editPassword(row) {
         this.editPasswordVisible = true;
+        listenGoBack(this.handleClose);
       },
       cancel(){
         this.editPasswordVisible = false;
@@ -186,6 +200,10 @@
       updatePassword(editPasswordForm) {
         this.$refs[editPasswordForm].validate(valid => {
           if (valid) {
+            if (this.ruleForm.newpassword !== this.ruleForm.repeatPassword) {
+              this.$warning(this.$t('member.inconsistent_passwords'));
+              return;
+            }
             this.result = this.$post(this.updatePasswordPath, this.ruleForm, response => {
               this.$success(this.$t('commons.modify_success'));
               this.editPasswordVisible = false;
@@ -198,7 +216,7 @@
         })
       },
       initTableData() {
-        this.result = this.$get("/user/info/" + this.currentUser().id, response => {
+        this.result = this.$get("/user/info/" + encodeURIComponent(this.currentUser().id), response => {
           let data = response.data;
           this.isLdapUser = response.data.source === 'LDAP' ? true : false;
           let dataList = [];
@@ -209,6 +227,9 @@
       handleClose() {
         this.form = {};
         this.ruleForm = {};
+        removeGoBackListener(this.handleClose);
+        this.editPasswordVisible = false;
+        this.updateVisible = false;
       }
     }
   }

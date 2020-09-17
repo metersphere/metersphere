@@ -107,7 +107,8 @@ export const STATUS = {
   options: [
     {label: "Saved", value: "Saved"}, {label: "Starting", value: "Starting"},
     {label: "Running", value: "Running"}, {label: "Reporting", value: "Reporting"},
-    {label: "Completed", value: "Completed"}, {label: "Error", value: "Error"}
+    {label: "Completed", value: "Completed"}, {label: "Error", value: "Error"},
+    {label: "Success", value: "Success"}
   ],
   props: { // 尾部控件的props，一般为element ui控件的props
     multiple: true

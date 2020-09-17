@@ -5,10 +5,21 @@
         <template v-slot:header>
           <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search"
                            :title="$t('commons.test')"
-                           @create="create" :createTip="$t('load_test.create')"/>
+                           @create="create" :createTip="$t('load_test.create')" :runTip="$t('load_test.run')"
+                           :show-run="true"
+                           @runTest="runTest"/>
+
         </template>
-        <el-table border :data="tableData" class="adjust-table table-content" @sort-change="sort" @row-click="handleView"
-                  @filter-change="filter">
+
+        <one-click-operation ref="OneClickOperation" :select-ids="selectIds"
+                             :select-project-names="selectProjectNames" :select-project-id="selectProjectId"
+                             @refresh="init()"></one-click-operation>
+
+        <el-table border :data="tableData" class="adjust-table table-content" @sort-change="sort"
+                  @row-click="handleView"
+                  @filter-change="filter" @select-all="select" @select="select">
+          <el-table-column
+            type="selection"></el-table-column>
           <el-table-column prop="name" :label="$t('commons.name')" width="250" show-overflow-tooltip>
           </el-table-column>
           <el-table-column prop="projectName" :label="$t('load_test.project_name')" width="200" show-overflow-tooltip/>
@@ -41,11 +52,15 @@
         <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
                              :total="total"/>
       </el-card>
+
+      <api-copy-dialog ref="apiCopy" @refresh="search"/>
+
     </ms-main-container>
   </ms-container>
 </template>
 
 <script>
+  import OneClickOperation from './OneClickOperation';
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableHeader from "../../common/components/MsTableHeader";
   import MsTableOperator from "../../common/components/MsTableOperator";
@@ -55,9 +70,13 @@
   import MsTableOperators from "../../common/components/MsTableOperators";
   import {_filter, _sort} from "@/common/js/utils";
   import {TEST_CONFIGS} from "../../common/components/search/search-components";
+  import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
+  import ApiCopyDialog from "./components/ApiCopyDialog";
 
   export default {
     components: {
+      ApiCopyDialog,
+      OneClickOperation,
       MsTableOperators,
       MsApiTestStatus, MsMainContainer, MsContainer, MsTableHeader, MsTablePagination, MsTableOperator
     },
@@ -74,6 +93,9 @@
         pageSize: 5,
         total: 0,
         loading: false,
+        selectIds: new Set(),
+        selectProjectNames: new Set(),
+        selectProjectId: new Set(),
         buttons: [
           {
             tip: this.$t('commons.edit'), icon: "el-icon-edit",
@@ -105,11 +127,27 @@
       create() {
         this.$router.push('/api/test/create');
       },
+      select(selection) {
+        this.selectIds.clear()
+        this.selectProjectNames.clear()
+        this.selectProjectId.clear()
+        selection.forEach(s => {
+          this.selectIds.add(s.id)
+          this.selectProjectNames.add(s.projectName)
+          this.selectProjectId.add(s.projectId)
+        })
+      },
+      runTest() {
+        if (this.selectIds.size < 1) {
+          this.$warning(this.$t('test_track.plan_view.select_manipulate'));
+        } else {
+          this.$refs.OneClickOperation.openOneClickOperation();
+        }
+      },
       search() {
         if (this.projectId !== 'all') {
           this.condition.projectId = this.projectId;
         }
-
         let url = "/api/list/" + this.currentPage + "/" + this.pageSize;
         this.result = this.$post(url, this.condition, response => {
           let data = response.data;
@@ -138,18 +176,20 @@
               this.result = this.$post("/api/delete", {id: test.id}, () => {
                 this.$success(this.$t('commons.delete_success'));
                 this.search();
+                // 发送广播，刷新 head 上的最新列表
+                ApiEvent.$emit(LIST_CHANGE);
               });
             }
           }
         });
       },
       handleCopy(test) {
-        this.result = this.$post("/api/copy", {projectId: test.projectId, id: test.id, name: test.name}, () => {
-          this.$success(this.$t('commons.copy_success'));
-          this.search();
-        });
+        this.$refs.apiCopy.open(test);
       },
       init() {
+        this.selectIds.clear()
+        this.selectProjectNames.clear()
+        this.selectIds.clear()
         this.projectId = this.$route.params.projectId;
         if (this.projectId && this.projectId !== "all") {
           this.$store.commit('setProjectId', this.projectId);

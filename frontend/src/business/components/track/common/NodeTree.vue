@@ -107,6 +107,15 @@ export default {
   },
   methods: {
     handleDragEnd(draggingNode, dropNode, dropType, ev) {
+      let param = this.buildParam(draggingNode, dropNode, dropType);
+      this.$post("/case/node/drag", param, () => {
+        draggingNode.data.level = param.level;
+        this.refreshTable();
+      }, (error) => {
+        this.refreshNode();
+      });
+    },
+    buildParam(draggingNode, dropNode, dropType) {
       let param = {};
       param.id = draggingNode.data.id;
       param.name = draggingNode.data.name;
@@ -115,7 +124,7 @@ export default {
         param.parentId = dropNode.data.id;
         param.level = dropNode.data.level + 1;
       } else {
-        if (dropNode.parent.id === 0) {
+        if (!dropNode.parent.id || dropNode.parent.id === 0) {
           param.parentId = 0;
           param.level = 1;
         } else {
@@ -135,12 +144,9 @@ export default {
           }
         }
       }
+
       param.nodeIds = nodeIds;
-      this.$post("/case/node/drag", param, () => {
-        this.refreshTable();
-      }, (error) => {
-        this.refreshNode();
-      });
+      return param;
     },
     refreshTable() {
       this.$emit('refreshTable');
@@ -224,10 +230,14 @@ export default {
       this.$emit("refresh");
     },
     nodeExpand(data) {
-      this.expandedNode.push(data.id);
+      if (data.id) {
+        this.expandedNode.push(data.id);
+      }
     },
     nodeCollapse(data) {
-      this.expandedNode.splice(this.expandedNode.indexOf(data.id), 1);
+      if (data.id) {
+        this.expandedNode.splice(this.expandedNode.indexOf(data.id), 1);
+      }
     }
   }
 };

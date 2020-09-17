@@ -15,38 +15,26 @@ import io.metersphere.commons.constants.PostmanRequestBodyMode;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PostmanParser extends ApiImportAbstractParser {
 
-    private static final Map<String, String> postmanBodyRowMap;
-
-    static {
-        postmanBodyRowMap = new HashMap<>();
-        postmanBodyRowMap.put("json", "application/json");
-        postmanBodyRowMap.put("text", "text/plain");
-        postmanBodyRowMap.put("html", "text/html");
-        postmanBodyRowMap.put("xml", "text/xml");
-        postmanBodyRowMap.put("javascript", "application/x-javascript");
-    }
-
     @Override
     public ApiImport parse(InputStream source, ApiTestImportRequest request) {
+
         String testStr = getApiTestStr(source);
         PostmanCollection postmanCollection = JSON.parseObject(testStr, PostmanCollection.class);
         PostmanCollectionInfo info = postmanCollection.getInfo();
-        List<Request> requests = parseRequests(postmanCollection);
+        List<PostmanKeyValue> variables = postmanCollection.getVariable();
         ApiImport apiImport = new ApiImport();
         List<Scenario> scenarios = new ArrayList<>();
+
         Scenario scenario = new Scenario();
-        scenario.setRequests(requests);
         scenario.setName(info.getName());
         setScenarioByRequest(scenario, request);
-        scenarios.add(scenario);
+        parseItem(postmanCollection.getItem(), scenario, variables, scenarios);
         apiImport.setScenarios(scenarios);
+
         return apiImport;
     }
 
@@ -59,26 +47,45 @@ public class PostmanParser extends ApiImportAbstractParser {
         return keyValues;
     }
 
-    private List<Request> parseRequests(PostmanCollection postmanCollection) {
-        List<PostmanItem> item = postmanCollection.getItem();
+    private void parseItem(List<PostmanItem> items, Scenario scenario, List<PostmanKeyValue> variables, List<Scenario> scenarios) {
         List<Request> requests = new ArrayList<>();
-        for (PostmanItem requestItem : item) {
-            HttpRequest request = new HttpRequest();
-            PostmanRequest requestDesc = requestItem.getRequest();
-            PostmanUrl url = requestDesc.getUrl();
-            request.setName(requestItem.getName());
-            request.setUrl(url.getRaw());
-            request.setUseEnvironment(false);
-            request.setMethod(requestDesc.getMethod());
-            request.setHeaders(parseKeyValue(requestDesc.getHeader()));
-            request.setParameters(parseKeyValue(url.getQuery()));
-            request.setBody(parseBody(requestDesc, request));
-            requests.add(request);
+        for (PostmanItem item : items) {
+            List<PostmanItem> childItems = item.getItem();
+            if (childItems != null) {
+                Scenario subScenario = new Scenario();
+                subScenario.setName(item.getName());
+                subScenario.setEnvironmentId(scenario.getEnvironmentId());
+                parseItem(childItems, subScenario, variables, scenarios);
+            } else {
+                Request request = parseRequest(item);
+                if (request != null) {
+                    requests.add(request);
+                }
+            }
         }
-        return requests;
+        scenario.setVariables(parseKeyValue(variables));
+        scenario.setRequests(requests);
+        scenarios.add(scenario);
     }
 
-    private Body parseBody(PostmanRequest requestDesc, HttpRequest request) {
+    private Request parseRequest(PostmanItem requestItem) {
+        HttpRequest request = new HttpRequest();
+        PostmanRequest requestDesc = requestItem.getRequest();
+        if (requestDesc == null) {
+            return null;
+        }
+        PostmanUrl url = requestDesc.getUrl();
+        request.setName(requestItem.getName());
+        request.setUrl(url.getRaw());
+        request.setUseEnvironment(false);
+        request.setMethod(requestDesc.getMethod());
+        request.setHeaders(parseKeyValue(requestDesc.getHeader()));
+        request.setParameters(parseKeyValue(url.getQuery()));
+        request.setBody(parseBody(requestDesc));
+        return request;
+    }
+
+    private Body parseBody(PostmanRequest requestDesc) {
         Body body = new Body();
         JSONObject postmanBody = requestDesc.getBody();
         if (postmanBody == null) {
@@ -88,8 +95,13 @@ public class PostmanParser extends ApiImportAbstractParser {
         if (StringUtils.equals(bodyMode, PostmanRequestBodyMode.RAW.value())) {
             body.setRaw(postmanBody.getString(bodyMode));
             body.setType(MsRequestBodyType.RAW.value());
-            String contentType = postmanBodyRowMap.get(postmanBody.getJSONObject("options").getJSONObject("raw").getString("language"));
-            addContentType(request, contentType);
+            JSONObject options = postmanBody.getJSONObject("options");
+            if (options != null) {
+                JSONObject raw = options.getJSONObject(PostmanRequestBodyMode.RAW.value());
+                if (raw != null) {
+                    body.setFormat(raw.getString("language"));
+                }
+            }
         } else if (StringUtils.equals(bodyMode, PostmanRequestBodyMode.FORM_DATA.value()) || StringUtils.equals(bodyMode, PostmanRequestBodyMode.URLENCODED.value())) {
             List<PostmanKeyValue> postmanKeyValues = JSON.parseArray(postmanBody.getString(bodyMode), PostmanKeyValue.class);
             body.setType(MsRequestBodyType.KV.value());

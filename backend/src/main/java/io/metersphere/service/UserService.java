@@ -61,6 +61,9 @@ public class UserService {
     @Resource
     private WorkspaceService workspaceService;
 
+    public List<String> queryEmail(String[] names){
+     return extUserMapper.queryEmails(names);
+    }
     public UserDTO insert(UserRequest user) {
         checkUserParam(user);
         //
@@ -162,6 +165,17 @@ public class UserService {
         checkEmailIsExist(user.getEmail());
         userMapper.insertSelective(user);
     }
+
+    public void createOssUser(User user) {
+        user.setCreateTime(System.currentTimeMillis());
+        user.setUpdateTime(System.currentTimeMillis());
+        user.setStatus(UserStatus.NORMAL);
+        if (StringUtils.isBlank(user.getEmail())) {
+            user.setEmail(user.getId() + "@metershpere.io");
+        }
+        userMapper.insertSelective(user);
+    }
+
 
     private void checkEmailIsExist(String email) {
         UserExample userExample = new UserExample();
@@ -382,7 +396,7 @@ public class UserService {
                 userRoleExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(request.getOrganizationId());
                 List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
                 if (userRoles.size() > 0) {
-                    MSException.throwException(Translator.get("user_already_exists"));
+                    MSException.throwException(Translator.get("user_already_exists") + ": " + userId);
                 } else {
                     for (String roleId : request.getRoleIds()) {
                         UserRole userRole = new UserRole();
@@ -565,5 +579,9 @@ public class UserService {
         }
         MSException.throwException(msg);
         return null;
+    }
+
+    public List<User> searchUser(String condition) {
+        return extUserMapper.searchUser(condition);
     }
 }

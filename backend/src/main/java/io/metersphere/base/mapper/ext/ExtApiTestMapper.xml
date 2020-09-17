@@ -91,8 +91,9 @@
         </if>
     </sql>
 
-    <select id="list" resultMap="BaseResultMap" parameterType="io.metersphere.api.dto.APITestResult">
-        select api_test.*, project.name as project_name, user.name as user_name
+    <select id="list" resultMap="BaseResultMap">
+        select api_test.id, api_test.project_id, api_test.name, api_test.description,
+        api_test.status, api_test.user_id, api_test.create_time, api_test.update_time, project.name as project_name, user.name as user_name
         from api_test
         left join project on api_test.project_id = project.id
         left join user on api_test.user_id = user.id
@@ -104,6 +105,9 @@
                 </include>
             </if>
 
+            <if test="request.excludeId != null">
+                and api_test.id != #{request.excludeId}
+            </if>
             <if test="request.name != null">
                 and api_test.name like CONCAT('%', #{request.name},'%')
             </if>
@@ -140,6 +144,19 @@
         select id,name,status
         from api_test
         where project_id = #{projectId}
+    </select>
+
+    <select id="listByIds" resultType="io.metersphere.base.domain.ApiTest">
+        select *
+        from api_test
+        <where>
+            <if test="ids != null and ids.size() > 0">
+                id in
+                <foreach collection="ids" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
     </select>
 
 </mapper>

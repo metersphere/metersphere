@@ -3,7 +3,7 @@
     <el-card class="card-content" v-loading="result.loading">
       <template v-slot:header>
         <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
-                         :show-create="false">
+                         :show-create="false" :tip="$t('commons.search_by_name_or_id')">
           <template v-slot:title>
             <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="refresh"/>
           </template>
@@ -15,13 +15,6 @@
             <ms-table-button :is-tester-permission="true" icon="el-icon-connection"
                              :content="$t('test_track.plan_view.relevance_test_case')"
                              @click="$emit('openTestCaseRelevanceDialog')"/>
-            <ms-table-button :is-tester-permission="true" icon="el-icon-unlock"
-                             :content="$t('test_track.plan_view.cancel_relevance')" @click="handleBatch('delete')"/>
-            <ms-table-button :is-tester-permission="true" icon="el-icon-edit-outline"
-                             :content="$t('test_track.plan_view.change_execution_results')"
-                             @click="handleBatch('status')"/>
-            <ms-table-button :is-tester-permission="true" icon="el-icon-user"
-                             :content="$t('test_track.plan_view.change_executor')" @click="handleBatch('executor')"/>
             <ms-table-button :is-tester-permission="true" v-if="!testPlan.reportId" icon="el-icon-document"
                              :content="$t('test_track.plan_view.create_report')" @click="openTestReport"/>
             <ms-table-button :is-tester-permission="true" v-if="testPlan.reportId" icon="el-icon-document"
@@ -30,8 +23,10 @@
         </ms-table-header>
       </template>
 
-      <executor-edit ref="executorEdit" :select-ids="selectIds" @refresh="initTableData"/>
-      <status-edit ref="statusEdit" :plan-id="planId" :select-ids="selectIds" @refresh="initTableData"/>
+      <executor-edit ref="executorEdit" :select-ids="new Set(Array.from(this.selectRows).map(row => row.id))"
+                     @refresh="initTableData"/>
+      <status-edit ref="statusEdit" :plan-id="planId"
+                   :select-ids="new Set(Array.from(this.selectRows).map(row => row.id))" @refresh="initTableData"/>
 
       <el-table
         class="adjust-table"
@@ -45,9 +40,15 @@
         :data="tableData">
 
         <el-table-column
-          type="selection"></el-table-column>
+          type="selection"/>
+        <el-table-column width="40" :resizable="false" align="center">
+          <template v-slot:default="scope">
+            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>
+          </template>
+        </el-table-column>
         <el-table-column
           prop="num"
+          sortable="custom"
           :label="$t('commons.id')"
           show-overflow-tooltip>
         </el-table-column>
@@ -93,6 +94,43 @@
           :label="$t('test_track.case.module')"
           show-overflow-tooltip>
         </el-table-column>
+
+        <el-table-column
+          prop="projectName"
+          :label="$t('test_track.plan.plan_project')"
+          show-overflow-tooltip>
+        </el-table-column>
+
+        <el-table-column
+          :label="$t('test_track.issue.issue')"
+          show-overflow-tooltip>
+          <template v-slot:default="scope">
+            <el-popover
+              placement="right"
+              width="400"
+              trigger="hover">
+              <el-table border class="adjust-table" :data="scope.row.issuesContent" style="width: 100%">
+                <el-table-column prop="title" :label="$t('test_track.issue.title')" show-overflow-tooltip/>
+                <el-table-column prop="description" :label="$t('test_track.issue.description')">
+                  <template v-slot:default="scope">
+                    <el-popover
+                      placement="left"
+                      width="400"
+                      trigger="hover"
+                    >
+                      <ckeditor :editor="editor" disabled :config="editorConfig"
+                                v-model="scope.row.description"/>
+                      <el-button slot="reference" type="text">{{$t('test_track.issue.preview')}}</el-button>
+                    </el-popover>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="platform" :label="$t('test_track.issue.platform')"/>
+              </el-table>
+              <el-button slot="reference" type="text">{{scope.row.issuesSize}}</el-button>
+            </el-popover>
+          </template>
+        </el-table-column>
+
 
         <el-table-column
           prop="executorName"
@@ -163,8 +201,9 @@
 
       <test-report-template-list @openReport="openReport" ref="testReportTemplateList"/>
       <test-case-report-view @refresh="initTableData" ref="testCaseReportView"/>
-
     </el-card>
+    <batch-edit ref="batchEdit" @batchEdit="batchEdit"
+                :type-arr="typeArr" :value-arr="valueArr" :dialog-title="$t('test_track.case.batch_edit_case')"/>
   </div>
 </template>
 
@@ -178,7 +217,7 @@
   import MsTableButton from '../../../../common/components/MsTableButton';
   import NodeBreadcrumb from '../../../common/NodeBreadcrumb';
 
-  import {ROLE_TEST_MANAGER, ROLE_TEST_USER, TokenKey} from '../../../../../../common/js/constants';
+  import {ROLE_TEST_MANAGER, ROLE_TEST_USER, TokenKey, WORKSPACE_ID} from '../../../../../../common/js/constants';
   import {_filter, _sort, checkoutTestManagerOrTestUser, hasRoles} from '../../../../../../common/js/utils';
   import PriorityTableItem from "../../../common/tableItems/planview/PriorityTableItem";
   import StatusTableItem from "../../../common/tableItems/planview/StatusTableItem";
@@ -189,6 +228,9 @@
   import TestReportTemplateList from "./TestReportTemplateList";
   import TestCaseReportView from "./report/TestCaseReportView";
   import {TEST_CASE_CONFIGS} from "../../../../common/components/search/search-components";
+  import ShowMoreBtn from "../../../case/components/ShowMoreBtn";
+  import BatchEdit from "../../../case/components/BatchEdit";
+  import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
   export default {
     name: "TestPlanTestCaseList",
@@ -201,7 +243,8 @@
       TypeTableItem,
       StatusTableItem,
       PriorityTableItem, StatusEdit, ExecutorEdit, MsTipButton, MsTablePagination,
-      TestPlanTestCaseEdit, MsTableHeader, NodeBreadcrumb, MsTableButton
+      TestPlanTestCaseEdit, MsTableHeader, NodeBreadcrumb, MsTableButton, ShowMoreBtn,
+      BatchEdit
     },
     data() {
       return {
@@ -215,7 +258,7 @@
         currentPage: 1,
         pageSize: 10,
         total: 0,
-        selectIds: new Set(),
+        selectRows: new Set(),
         testPlan: {},
         isReadOnly: false,
         isTestManagerOrTestUser: false,
@@ -241,7 +284,34 @@
           {text: this.$t('test_track.plan_view.blocking'), value: 'Blocking'},
           {text: this.$t('test_track.plan_view.skip'), value: 'Skip'},
           {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
-        ]
+        ],
+        showMore: false,
+        buttons: [
+          {
+            name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit
+          },
+          {
+            name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch
+          }
+        ],
+        typeArr: [
+          {id: 'status', name: this.$t('test_track.plan_view.execute_result')},
+          {id: 'executor', name: this.$t('test_track.plan_view.executor')},
+        ],
+        valueArr: {
+          executor: [],
+          status: [
+            {name: this.$t('test_track.plan_view.pass'), id: 'Pass'},
+            {name: this.$t('test_track.plan_view.failure'), id: 'Failure'},
+            {name: this.$t('test_track.plan_view.blocking'), id: 'Blocking'},
+            {name: this.$t('test_track.plan_view.skip'), id: 'Skip'}
+          ]
+        },
+        editor: ClassicEditor,
+        editorConfig: {
+          // 'increaseIndent','decreaseIndent'
+          toolbar: [],
+        },
       }
     },
     props: {
@@ -282,7 +352,19 @@
             let data = response.data;
             this.total = data.itemCount;
             this.tableData = data.listObject;
-            this.selectIds.clear();
+            for (let i = 0; i < this.tableData.length; i++) {
+              if (this.tableData[i]) {
+                this.$set(this.tableData[i], "issuesSize", 0);
+                this.$get("/issues/get/" + this.tableData[i].caseId, response => {
+                  let issues = response.data;
+                  if (this.tableData[i]) {
+                    this.$set(this.tableData[i], "issuesSize", issues.length);
+                    this.$set(this.tableData[i], "issuesContent", issues);
+                  }
+                })
+              }
+            }
+            this.selectRows.clear();
           });
         }
       },
@@ -292,7 +374,7 @@
       },
       refresh() {
         this.condition = {components: TEST_CASE_CONFIGS};
-        this.selectIds.clear();
+        this.selectRows.clear();
         this.$emit('refresh');
       },
       refreshTableAndPlan() {
@@ -335,8 +417,10 @@
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              this.$post('/test/plan/case/batch/delete', {ids: [...this.selectIds]}, () => {
-                this.selectIds.clear();
+              let ids = Array.from(this.selectRows).map(row => row.id);
+              this.$post('/test/plan/case/batch/delete', {ids: ids}, () => {
+                // this.selectIds.clear();
+                this.selectRows.clear();
                 this.$emit("refresh");
                 this.$success(this.$t('commons.delete_success'));
               });
@@ -353,22 +437,43 @@
       },
       handleSelectAll(selection) {
         if (selection.length > 0) {
-          this.tableData.forEach(item => {
-            this.selectIds.add(item.id);
-          });
+          if (selection.length === 1) {
+            this.selectRows.add(selection[0]);
+          } else {
+            this.tableData.forEach(item => {
+              this.$set(item, "showMore", true);
+              this.selectRows.add(item);
+            });
+          }
         } else {
-          this.selectIds.clear();
+          this.selectRows.clear();
+          this.tableData.forEach(row => {
+            this.$set(row, "showMore", false);
+          })
         }
       },
       handleSelectionChange(selection, row) {
-        if (this.selectIds.has(row.id)) {
-          this.selectIds.delete(row.id);
+        if (this.selectRows.has(row)) {
+          this.$set(row, "showMore", false);
+          this.selectRows.delete(row);
         } else {
-          this.selectIds.add(row.id);
+          this.$set(row, "showMore", true);
+          this.selectRows.add(row);
+        }
+
+        let arr = Array.from(this.selectRows);
+
+        // 选中1个以上的用例时显示更多操作
+        if (this.selectRows.size === 1) {
+          this.$set(arr[0], "showMore", false);
+        } else if (this.selectRows.size === 2) {
+          arr.forEach(row => {
+            this.$set(row, "showMore", true);
+          })
         }
       },
       handleBatch(type) {
-        if (this.selectIds.size < 1) {
+        if (this.selectRows.size < 1) {
           this.$warning(this.$t('test_track.plan_view.select_manipulate'));
           return;
         }
@@ -426,8 +531,34 @@
         this.initTableData();
       },
       sort(column) {
+        // 每次只对一个字段排序
+        if (this.condition.orders) {
+          this.condition.orders = [];
+        }
         _sort(column, this.condition);
         this.initTableData();
+      },
+      batchEdit(form) {
+        let param = {};
+        param[form.type] = form.value;
+        param.ids = Array.from(this.selectRows).map(row => row.id);
+        this.$post('/test/plan/case/batch/edit', param, () => {
+          this.selectRows.clear();
+          this.status = '';
+          this.$post('/test/plan/edit/status/' + this.planId);
+          this.$success(this.$t('commons.save_success'));
+          this.$emit('refresh');
+        });
+      },
+      handleBatchEdit() {
+        this.getMaintainerOptions();
+        this.$refs.batchEdit.open();
+      },
+      getMaintainerOptions() {
+        let workspaceId = localStorage.getItem(WORKSPACE_ID);
+        this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+          this.valueArr.executor = response.data;
+        });
       }
     }
   }

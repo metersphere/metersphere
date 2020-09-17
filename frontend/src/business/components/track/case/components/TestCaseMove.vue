@@ -25,6 +25,7 @@
 
 <script>
   import MsDialogFooter from '../../../common/components/MsDialogFooter';
+  import {listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
 
   export default {
     name: "TestCaseMove",
@@ -62,11 +63,13 @@
         this.moduleOptions = moduleOptions;
         this.selectIds = selectIds;
         this.dialogVisible = true;
+        listenGoBack(this.close);
       },
       close() {
         this.module = '';
         this.selectIds = [];
         this.dialogVisible = false;
+        removeGoBackListener(this.close);
       }
     }
   }

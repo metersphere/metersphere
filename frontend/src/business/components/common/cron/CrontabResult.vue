@@ -1,62 +1,71 @@
 <template>
-	<div class="popup-result">
-		<p class="title">{{$t('schedule.cron.recent_run_time')}}</p>
-		<ul class="popup-result-scroll">
-			<template>
-				<li v-for='item in resultList' :key="item">{{item}}</li>
-			</template>
-		</ul>
-	</div>
+  <span>
+    <span v-if="enableSimpleMode">{{resultList && resultList.length > 0 ? resultList[0] : ''}}</span>
+    <div v-if="!enableSimpleMode" class="popup-result">
+      <p class="title">{{$t('schedule.cron.recent_run_time')}}</p>
+      <ul class="popup-result-scroll">
+        <template>
+          <li v-for='item in resultList' :key="item">{{item}}</li>
+        </template>
+      </ul>
+    </div>
+  </span>
 </template>
 
 <script>
-import {cronValidate} from "../../../../common/js/cron";
+  import {cronValidate} from "../../../../common/js/cron";
 
-export default {
-  name: 'CrontabResult',
-	data() {
-		return {
-			dayRule: '',
-			dayRuleSup: '',
-			dateArr: [],
-			resultList: [],
-			isShow: false
-		}
-	},
-  watch: {
-    'ex': 'expressionChange'
-  },
-  props: ['ex'],
-  mounted: function () {
-    // 初始化 获取一次结果
-    this.expressionChange();
-  },
-	methods: {
-		// 表达式值变化时，开始去计算  结果
-		expressionChange() {
-			// 计算开始-隐藏结果
-			this.isShow = false;
-      if (!cronValidate(this.ex)) {
-        this.resultList = [];
-        this.$emit("resultListChange", this.resultList);
-        return;
+  export default {
+    name: 'CrontabResult',
+    data() {
+      return {
+        dayRule: '',
+        dayRuleSup: '',
+        dateArr: [],
+        resultList: [],
+        isShow: false
       }
-			// 获取规则数组[0秒、1分、2时、3日、4月、5星期、6年]
-			let ruleArr = this.$options.propsData.ex.split(' ');
-			// 用于记录进入循环的次数
-			let nums = 0;
-			// 用于暂时存符号时间规则结果的数组
-			let resultArr = [];
-			// 获取当前时间精确至[年、月、日、时、分、秒]
-			let nTime = new Date();
-			let nYear = nTime.getFullYear();
-			let nMouth = nTime.getMonth() + 1;
-			let nDay = nTime.getDate();
-			let nHour = nTime.getHours();
-			let nMin = nTime.getMinutes();
-			let nSecond = nTime.getSeconds();
-			// 根据规则获取到近100年可能年数组、月数组等等
-			this.getSecondArr(ruleArr[0]);
+    },
+    watch: {
+      'ex': 'expressionChange'
+    },
+    props: {
+      ex: String,
+      enableSimpleMode: {
+        type: Boolean,
+        default: false
+      }
+    },
+    mounted: function () {
+      // 初始化 获取一次结果
+      this.expressionChange();
+    },
+    methods: {
+      // 表达式值变化时，开始去计算  结果
+      expressionChange() {
+        // 计算开始-隐藏结果
+        this.isShow = false;
+        if (!cronValidate(this.ex)) {
+          this.resultList = [];
+          this.$emit("resultListChange", this.resultList);
+          return;
+        }
+        // 获取规则数组[0秒、1分、2时、3日、4月、5星期、6年]
+        let ruleArr = this.$options.propsData.ex.split(' ');
+        // 用于记录进入循环的次数
+        let nums = 0;
+        // 用于暂时存符号时间规则结果的数组
+        let resultArr = [];
+        // 获取当前时间精确至[年、月、日、时、分、秒]
+        let nTime = new Date();
+        let nYear = nTime.getFullYear();
+        let nMouth = nTime.getMonth() + 1;
+        let nDay = nTime.getDate();
+        let nHour = nTime.getHours();
+        let nMin = nTime.getMinutes();
+        let nSecond = nTime.getSeconds();
+        // 根据规则获取到近100年可能年数组、月数组等等
+        this.getSecondArr(ruleArr[0]);
 			this.getMinArr(ruleArr[1]);
 			this.getHourArr(ruleArr[2]);
 			this.getDayArr(ruleArr[3]);

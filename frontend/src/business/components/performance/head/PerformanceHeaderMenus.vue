@@ -9,26 +9,28 @@
 
           <el-submenu v-permission="['test_manager','test_user','test_viewer']"
                       index="3" popper-class="submenu">
-            <template v-slot:title>{{$t('commons.project')}}</template>
-            <ms-recent-list :options="projectRecent"/>
+            <template v-slot:title>{{ $t('commons.project') }}</template>
+            <ms-recent-list ref="projectRecent" :options="projectRecent"/>
             <el-divider/>
             <ms-show-all :index="'/performance/project/all'"/>
-            <ms-create-button v-permission="['test_manager','test_user']"  :index="'/performance/project/create'" :title="$t('project.create')"/>
+            <ms-create-button v-permission="['test_manager','test_user']" :index="'/performance/project/create'"
+                              :title="$t('project.create')"/>
           </el-submenu>
 
           <el-submenu v-permission="['test_manager','test_user','test_viewer']"
                       index="4" popper-class="submenu">
-            <template v-slot:title>{{$t('commons.test')}}</template>
-            <ms-recent-list :options="testRecent"/>
+            <template v-slot:title>{{ $t('commons.test') }}</template>
+            <ms-recent-list ref="testRecent" :options="testRecent"/>
             <el-divider/>
             <ms-show-all :index="'/performance/test/all'"/>
-            <ms-create-button v-permission="['test_manager','test_user']" :index="'/performance/test/create'" :title="$t('load_test.create')"/>
+            <ms-create-button v-permission="['test_manager','test_user']" :index="'/performance/test/create'"
+                              :title="$t('load_test.create')"/>
           </el-submenu>
 
           <el-submenu v-permission="['test_manager','test_user','test_viewer']"
                       index="5" popper-class="submenu">
-            <template v-slot:title>{{$t('commons.report')}}</template>
-            <ms-recent-list :options="reportRecent"/>
+            <template v-slot:title>{{ $t('commons.report') }}</template>
+            <ms-recent-list ref="reportRecent" :options="reportRecent"/>
             <el-divider/>
             <ms-show-all :index="'/performance/report/all'"/>
           </el-submenu>
@@ -46,67 +48,80 @@
 
 <script>
 
-  import MsCreateTest from "../../common/head/CreateTest";
-  import MsRecentList from "../../common/head/RecentList";
-  import MsCreateButton from "../../common/head/CreateButton";
-  import MsShowAll from "../../common/head/ShowAll";
+import MsCreateTest from "../../common/head/CreateTest";
+import MsRecentList from "../../common/head/RecentList";
+import MsCreateButton from "../../common/head/CreateButton";
+import MsShowAll from "../../common/head/ShowAll";
+import {LIST_CHANGE, PerformanceEvent} from "@/business/components/common/head/ListEvent";
 
-  export default {
-    name: "PerformanceHeaderMenus",
-    components: {
-      MsCreateButton,
-      MsShowAll,
-      MsRecentList,
-      MsCreateTest
-    },
-    data() {
-      return {
-        projectRecent: {
-          title: this.$t('project.recent'),
-          url: "/project/recent/5",
-          index(item) {
-            return '/performance/test/' + item.id;
-          },
-          router(item) {
-            return {name: 'perPlan', params: {projectId: item.id, projectName: item.name}}
-          }
+export default {
+  name: "PerformanceHeaderMenus",
+  components: {
+    MsCreateButton,
+    MsShowAll,
+    MsRecentList,
+    MsCreateTest
+  },
+  data() {
+    return {
+      projectRecent: {
+        title: this.$t('project.recent'),
+        url: "/project/recent/5",
+        index(item) {
+          return '/performance/test/' + item.id;
         },
-        testRecent: {
-          title: this.$t('load_test.recent'),
-          url: "/performance/recent/5",
-          index(item) {
-            return '/performance/test/edit/' + item.id;
-          },
-          router(item) {
-          }
+        router(item) {
+          return {name: 'perPlan', params: {projectId: item.id, projectName: item.name}}
+        }
+      },
+      testRecent: {
+        title: this.$t('load_test.recent'),
+        url: "/performance/recent/5",
+        index(item) {
+          return '/performance/test/edit/' + item.id;
         },
-        reportRecent: {
-          title: this.$t('report.recent'),
-          url: "/performance/report/recent/5",
-          showTime: true,
-          index(item) {
-            return '/performance/report/view/' + item.id;
-          },
-          router(item) {
-          }
+        router(item) {
+        }
+      },
+      reportRecent: {
+        title: this.$t('report.recent'),
+        url: "/performance/report/recent/5",
+        showTime: true,
+        index(item) {
+          return '/performance/report/view/' + item.id;
+        },
+        router(item) {
         }
       }
-    },
+    }
+  },
+  methods: {
+    registerEvents() {
+      PerformanceEvent.$on(LIST_CHANGE, () => {
+        this.$refs.projectRecent.recent();
+        this.$refs.testRecent.recent();
+        this.$refs.reportRecent.recent();
+      });
+    }
+  },
+  mounted() {
+    this.registerEvents();
   }
+}
 
 </script>
 
 <style scoped>
-  .el-divider--horizontal {
-    margin: 0;
-  }
+.el-divider--horizontal {
+  margin: 0;
+}
 
-  .el-menu.el-menu--horizontal {
-    border-bottom: none;
-  }
+.el-menu.el-menu--horizontal {
+  border-bottom: none;
+}
 
-  #menu-bar {
-    border-bottom: 1px solid #E6E6E6;
-    background-color: #FFF;
-  }
+#menu-bar {
+  border-bottom: 1px solid #E6E6E6;
+  background-color: #FFF;
+}
 </style>

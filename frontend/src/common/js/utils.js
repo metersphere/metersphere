@@ -174,3 +174,24 @@ export function downloadFile(name, content) {
     navigator.msSaveBlob(blob, name)
   }
 }
+
+export function listenGoBack( callback) {
+  //监听浏览器返回操作，关闭该对话框
+  if (window.history && window.history.pushState) {
+    history.pushState(null, null, document.URL);
+    window.addEventListener('popstate', callback);
+  }
+}
+
+export function removeGoBackListener(callback) {
+  window.removeEventListener('popstate', callback);
+}
+
+export function getUUID() {
+  function S4() {
+    return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+  }
+  return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+}
+
+

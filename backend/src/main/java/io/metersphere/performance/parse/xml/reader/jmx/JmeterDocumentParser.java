@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.ScriptEngineUtils;
 import io.metersphere.config.KafkaProperties;
 import io.metersphere.i18n.Translator;
 import io.metersphere.performance.engine.EngineContext;
@@ -377,7 +378,9 @@ public class JmeterDocumentParser implements DocumentParser {
                         elementProp.setAttribute("name", jsonObject.getString("name"));
                         elementProp.setAttribute("elementType", "Argument");
                         elementProp.appendChild(createStringProp(document, "Argument.name", jsonObject.getString("name")));
-                        elementProp.appendChild(createStringProp(document, "Argument.value", jsonObject.getString("value")));
+                        // 处理 mock data
+                        String value = jsonObject.getString("value");
+                        elementProp.appendChild(createStringProp(document, "Argument.value", ScriptEngineUtils.calculate(value)));
                         elementProp.appendChild(createStringProp(document, "Argument.metadata", "="));
                         item.appendChild(elementProp);
                     }
@@ -434,6 +437,14 @@ public class JmeterDocumentParser implements DocumentParser {
                 if (context.getProperty("timeout") != null) {
                     removeChildren(item);
                     item.appendChild(ele.getOwnerDocument().createTextNode(context.getProperty("timeout").toString()));
+                }
+            }
+            // 增加一个response_timeout，避免目标网站不反回结果导致测试不能结束
+            if (item instanceof Element && nodeNameEquals(item, STRING_PROP)
+                    && StringUtils.equals(((Element) item).getAttribute("name"), "HTTPSampler.response_timeout")) {
+                if (context.getProperty("responseTimeout") != null) {
+                    removeChildren(item);
+                    item.appendChild(ele.getOwnerDocument().createTextNode(context.getProperty("responseTimeout").toString()));
                 }
             }
         }
@@ -751,7 +762,8 @@ public class JmeterDocumentParser implements DocumentParser {
         threadGroup.appendChild(createStringProp(document, "Steps", "2"));
         threadGroup.appendChild(createStringProp(document, "Hold", String.valueOf(realHold)));
         threadGroup.appendChild(createStringProp(document, "LogFilename", ""));
-        threadGroup.appendChild(createStringProp(document, "Iterations", "1"));
+        // bzm - Concurrency Thread Group "Thread Iterations Limit:" 设置为空
+//        threadGroup.appendChild(createStringProp(document, "Iterations", "1"));
         threadGroup.appendChild(createStringProp(document, "Unit", "M"));
     }
 

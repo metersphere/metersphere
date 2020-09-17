@@ -1,27 +1,29 @@
 <template>
 
   <div>
-  <chart :options="options">
-  </chart>
+    <ms-chart :options="options">
+    </ms-chart>
   </div>
 
 </template>
 
 <script>
 
-  export default {
-    name: "MsPieChart",
-    components: {},
-    mounted() {
-      this.getDataNamesByData();
-    },
-    watch: {
-      data() {
-        this.getDataNamesByData();
-      }
-    },
+import MsChart from "@/business/components/common/chart/MsChart";
+
+export default {
+  name: "MsPieChart",
+  components: {MsChart},
+  mounted() {
+    this.getDataNamesByData();
+  },
+  watch: {
     data() {
-      return {
+      this.getDataNamesByData();
+    }
+  },
+  data() {
+    return {
         options: {
           title: {
             text: this.text,
@@ -30,7 +32,7 @@
           },
           tooltip: {
             trigger: 'item',
-            formatter: '{a} <br/>{b} : {c} ({d}%)'
+            formatter: '{a} <br/>({d}%)'
           },
           legend: {
             orient: 'vertical',
@@ -43,7 +45,16 @@
               type: 'pie',
               radius: ['40%', '70%'],
               // roseType: 'angle',
-              data: this.data
+              data: this.data,
+              animation: false,
+              label: {
+                normal: {
+                  show: true,
+                  position: 'outside',
+                  formatter: '{b}:{c}'
+
+                }
+              }
             }
           ]
         },

@@ -12,6 +12,7 @@ import java.util.Map;
 public class QueryAPITestRequest {
 
     private String id;
+    private String excludeId;
     private String projectId;
     private String name;
     private String workspaceId;
@@ -19,4 +20,5 @@ public class QueryAPITestRequest {
     private List<OrderRequest> orders;
     private Map<String, List<String>> filters;
     private Map<String, Object> combine;
+    private List<String> ids;
 }

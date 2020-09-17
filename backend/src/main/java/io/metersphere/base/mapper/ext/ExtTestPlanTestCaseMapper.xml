@@ -115,9 +115,11 @@
     </select>
 
     <select id="list" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
-        select test_plan_test_case.*, test_case.*
+        select test_case.remark, test_plan_test_case.id as id, test_plan_test_case.*,test_case.*,test_case_node.name as model, project.name as projectName
         from test_plan_test_case
         inner join test_case on test_plan_test_case.case_id = test_case.id
+        left join test_case_node on test_case_node.id=test_case.node_id
+        inner join project on project.id = test_case.project_id
         <where>
             <if test="request.combine != null">
                 <include refid="combine">
@@ -126,7 +128,7 @@
                 </include>
             </if>
             <if test="request.name != null">
-                and test_case.name like CONCAT('%', #{request.name},'%')
+                and (test_case.name like CONCAT('%', #{request.name},'%') or test_case.num like CONCAT('%', #{request.name},'%'))
             </if>
             <if test="request.id != null">
                 and test_case.id = #{request.id}
@@ -165,8 +167,14 @@
                                     #{value}
                                 </foreach>
                             </when>
-                            <otherwise>
+                            <when test="key=='method'">
                                 and test_case.method in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <otherwise>
+                                and test_plan_test_case.status in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
                                 </foreach>
@@ -179,7 +187,14 @@
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
-                test_plan_test_case.${order.name} ${order.type}
+                <choose>
+                    <when test="order.name == 'num'">
+                        test_case.num ${order.type}
+                    </when>
+                    <otherwise>
+                        test_plan_test_case.${order.name} ${order.type}
+                    </otherwise>
+                </choose>
             </foreach>
         </if>
     </select>

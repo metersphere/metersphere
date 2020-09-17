@@ -45,6 +45,7 @@
     </el-card>
 
     <el-dialog
+      :close-on-click-modal="false"
       :title="$t('test_resource_pool.create_resource_pool')"
       :visible.sync="createVisible" width="70%"
       @closed="closeFunc"
@@ -75,13 +76,13 @@
               </el-col>
               <el-col :span="6">
                 <el-form-item prop="port" label="Port" style="padding-left: 20px">
-                  <el-input-number v-model="item.port" :min="1" :max="9999"></el-input-number>
+                  <el-input-number v-model="item.port" :min="1" :max="65535"></el-input-number>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
                 <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"
                               style="padding-left: 20px">
-                  <el-input-number v-model="item.maxConcurrency" :min="1" :max="9999"></el-input-number>
+                  <el-input-number v-model="item.maxConcurrency" :min="1" :max="1000000000"></el-input-number>
                 </el-form-item>
               </el-col>
               <el-col :offset="2" :span="2">
@@ -109,6 +110,7 @@
     </el-dialog>
 
     <el-dialog
+      :close-on-click-modal="false"
       v-loading="result.loading"
       :title="$t('test_resource_pool.update_resource_pool')" :visible.sync="updateVisible" width="70%"
       :destroy-on-close="true"
@@ -137,13 +139,13 @@
               </el-col>
               <el-col :span="6">
                 <el-form-item prop="port" label="Port" style="padding-left: 20px">
-                  <el-input-number v-model="item.port" :min="1" :max="9999"></el-input-number>
+                  <el-input-number v-model="item.port" :min="1" :max="65535"></el-input-number>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
                 <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"
                               style="padding-left: 20px">
-                  <el-input-number v-model="item.maxConcurrency" :min="1" :max="9999"></el-input-number>
+                  <el-input-number v-model="item.maxConcurrency" :min="1" :max="1000000000"></el-input-number>
                 </el-form-item>
               </el-col>
               <el-col :offset="2" :span="2">
@@ -178,6 +180,7 @@
   import MsTableHeader from "../../common/components/MsTableHeader";
   import MsTableOperator from "../../common/components/MsTableOperator";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
+  import {listenGoBack, removeGoBackListener} from "../../../../common/js/utils";
 
   export default {
     name: "MsTestResourcePool",
@@ -272,11 +275,13 @@
       },
       create() {
         this.createVisible = true;
+        listenGoBack(this.closeFunc);
       },
       edit(row) {
         this.updateVisible = true;
         this.form = JSON.parse(JSON.stringify(row));
         this.convertResources();
+        listenGoBack(this.closeFunc);
       },
       convertResources() {
         let resources = [];
@@ -364,6 +369,9 @@
       },
       closeFunc() {
         this.form = {};
+        this.updateVisible = false;
+        this.createVisible = false;
+        removeGoBackListener(this.closeFunc);
       },
       changeSwitch(row) {
         this.result.loading = true;

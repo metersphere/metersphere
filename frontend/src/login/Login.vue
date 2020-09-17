@@ -17,8 +17,8 @@
           <div class="form">
             <el-form-item v-slot:default>
               <el-radio-group v-model="form.authenticate">
-                <el-radio label="LDAP" size="mini">LDAP</el-radio>
-                <el-radio label="LOCAL" size="mini">普通登录</el-radio>
+                <el-radio label="LDAP" size="mini" v-if="openLdap">LDAP</el-radio>
+                <el-radio label="LOCAL" size="mini" v-if="openLdap">普通登录</el-radio>
               </el-radio-group>
             </el-form-item>
             <el-form-item prop="username">
@@ -81,17 +81,28 @@
           ]
         },
         msg: '',
-        ready: false
+        ready: false,
+        openLdap: false
       }
     },
     beforeCreate() {
       this.$get("/isLogin").then(response => {
         if (!response.data.success) {
-          this.ready = true;
+          if (response.data.message === 'sso') {
+            window.location.href = "/sso/login"
+          } else {
+            this.ready = true;
+          }
         } else {
+          let user = response.data.data;
+          saveLocalStorage(response.data);
+          this.getLanguage(user.language);
           window.location.href = "/"
         }
       });
+      this.$get("/ldap/open", response => {
+        this.openLdap = response.data;
+      })
     },
     created: function () {
       // 主页添加键盘事件,注意,不能直接在焦点事件上添加回车
@@ -145,7 +156,7 @@
         if (!language) {
           this.$get("language", response => {
             language = response.data;
-            localStorage.setItem(DEFAULT_LANGUAGE, language)
+            localStorage.setItem(DEFAULT_LANGUAGE, language);
             window.location.href = "/"
           })
         } else {

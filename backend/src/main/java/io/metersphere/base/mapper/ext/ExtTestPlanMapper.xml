@@ -97,9 +97,7 @@
 
     <select id="list" resultMap="BaseResultMap"
             parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
-        select test_plan.*, project.name as project_name
-        from test_plan
-        left join project on test_plan.project_id = project.id
+        select test_plan.* from test_plan
         <where>
             <if test="request.combine != null">
                 <include refid="combine">
@@ -111,10 +109,7 @@
                 and test_plan.name like CONCAT('%', #{request.name},'%')
             </if>
             <if test="request.workspaceId != null">
-                AND project.workspace_id = #{request.workspaceId}
-            </if>
-            <if test="request.projectId != null">
-                AND project.id = #{request.projectId}
+                AND test_plan.workspace_id = #{request.workspaceId}
             </if>
             <if test="request.id != null">
                 AND test_plan.id = #{request.id}
@@ -148,11 +143,21 @@
             </foreach>
         </if>
     </select>
+    <select id="planList" resultMap="BaseResultMap"
+            parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
+        SELECT * FROM TEST_PLAN p LEFT JOIN test_plan_project t ON t.test_plan_id=p.ID
+        <where>
+            <if test="request.workspaceId != null">
+                AND p.workspace_id = #{request.workspaceId}
+            </if>
+            <if test="request.projectId != null">
+                AND t.project_id = #{request.projectId}
+            </if>
+        </where>
+    </select>
 
     <select id="listRelate" resultType="io.metersphere.track.dto.TestPlanDTOWithMetric">
-        select test_plan.*, project.name as project_name
-        from test_plan
-        left join project on test_plan.project_id = project.id
+        select test_plan.* from test_plan
         where test_plan.workspace_id = #{request.workspaceId}
         and (test_plan.principal = #{request.principal}
         <if test="request.planIds != null and request.planIds.size() > 0">

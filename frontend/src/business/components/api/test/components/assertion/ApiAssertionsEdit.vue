@@ -9,6 +9,15 @@
       </div>
     </div>
 
+    <div class="assertion-item-editing json_path" v-if="assertions.jsonPath.length > 0">
+      <div>
+        {{'JSONPath'}}
+      </div>
+      <div class="regex-item" v-for="(jsonPath, index) in assertions.jsonPath" :key="index">
+        <ms-api-assertion-json-path :is-read-only="isReadOnly" :list="assertions.jsonPath" :json-path="jsonPath" :edit="true" :index="index"/>
+      </div>
+    </div>
+
     <div class="assertion-item-editing response-time" v-if="isShow">
       <div>
         {{$t("api_test.request.assertions.response_time")}}
@@ -23,11 +32,12 @@
   import MsApiAssertionRegex from "./ApiAssertionRegex";
   import MsApiAssertionDuration from "./ApiAssertionDuration";
   import {Assertions} from "../../model/ScenarioModel";
+  import MsApiAssertionJsonPath from "./ApiAssertionJsonPath";
 
   export default {
     name: "MsApiAssertionsEdit",
 
-    components: {MsApiAssertionDuration, MsApiAssertionRegex},
+    components: {MsApiAssertionJsonPath, MsApiAssertionDuration, MsApiAssertionRegex},
 
     props: {
       assertions: Assertions,
@@ -54,6 +64,10 @@
 
   .assertion-item-editing.regex {
     border-left: 2px solid #7B0274;
+  }
+
+  .assertion-item-editing.json_path {
+    border-left: 2px solid #44B3D2;
   }
 
   .assertion-item-editing.response-time {

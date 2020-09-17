@@ -10,10 +10,14 @@
       <span class="operate-button">
         <ms-table-button :is-tester-permission="isTesterPermission" v-if="showCreate" icon="el-icon-circle-plus-outline"
                          :content="createTip" @click="create"/>
+        <ms-table-button :is-tester-permission="isTesterPermission" v-if="showRun" icon="el-icon-video-play"
+                         type="primary"
+                         :content="runTip" @click="runTest"/>
+
         <slot name="button"></slot>
       </span>
       <span>
-        <ms-table-search-bar :condition.sync="condition" @change="search" class="search-bar"/>
+        <ms-table-search-bar :condition.sync="condition" @change="search" class="search-bar" :tip="tip"/>
         <ms-table-adv-search-bar :condition.sync="condition" @search="search" v-if="isCombine"/>
       </span>
     </el-row>
@@ -40,6 +44,10 @@
         type: Boolean,
         default: true
       },
+      showRun: {
+        type: Boolean,
+        default: false
+      },
       condition: {
         type: Object
       },
@@ -49,9 +57,20 @@
           return this.$t('commons.create');
         }
       },
+      runTip: {
+        type: String,
+
+      },
+
       isTesterPermission: {
         type: Boolean,
         default: false
+      },
+      tip: {
+        String,
+        default() {
+          return this.$t('commons.search_by_name');
+        }
       }
     },
     methods: {
@@ -61,6 +80,9 @@
       },
       create() {
         this.$emit('create');
+      },
+      runTest() {
+        this.$emit('runTest')
       }
     },
     computed: {

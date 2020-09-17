@@ -9,7 +9,6 @@
     >
       <div
         class="el-collapse-item__header"
-        @click="handleHeaderClick"
         role="button"
         :id="`el-collapse-head-${id}`"
         :tabindex="disabled ? undefined : 0"
@@ -21,7 +20,7 @@
         @focus="handleFocus"
         @blur="focusing = false"
       >
-        <i
+        <i @click="handleHeaderClick"
           class="el-collapse-item__arrow el-icon-arrow-right"
           :class="{'is-active': isActive}">
         </i>
@@ -113,6 +112,7 @@
 <style scoped>
   .el-collapse-item__header {
     padding-left: 7px;
+    border-right: 2px solid #409eff;
   }
 
   .el-collapse-item__header.is-active {
@@ -122,4 +122,5 @@
   .el-collapse-item__content {
     padding-bottom: 0;
   }
+
 </style>

@@ -12,9 +12,9 @@
         <el-table-column prop="organizationName" :label="$t('workspace.organization_name')"/>
         <el-table-column :label="$t('commons.member')">
           <template v-slot:default="scope">
-            <el-button type="text" class="member-size" @click="cellClick(scope.row)">
+            <el-link type="primary" class="member-size" @click="cellClick(scope.row)">
               {{scope.row.memberSize}}
-            </el-button>
+            </el-link>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
@@ -28,7 +28,7 @@
     </el-card>
 
     <!-- add workspace dialog -->
-    <el-dialog :title="$t('workspace.create')" :visible.sync="dialogWsAddVisible" width="30%">
+    <el-dialog :close-on-click-modal="false" :title="$t('workspace.create')" :visible.sync="dialogWsAddVisible" width="30%" @close="close">
       <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="100px" size="small">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
@@ -56,7 +56,7 @@
     </el-dialog>
 
     <!-- update workspace dialog -->
-    <el-dialog :title="$t('workspace.update')" :visible.sync="dialogWsUpdateVisible" width="30%">
+    <el-dialog :close-on-click-modal="false" :title="$t('workspace.update')" :visible.sync="dialogWsUpdateVisible" width="30%" @close="close">
       <el-form :model="form" :rules="rules" ref="updateForm" label-position="right" label-width="100px" size="small">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
@@ -85,7 +85,7 @@
     </el-dialog>
 
     <!-- dialog of workspace member -->
-    <el-dialog :visible.sync="dialogWsMemberVisible" width="70%" :destroy-on-close="true" @close="closeWsMemberDialog" class="dialog-css">
+    <el-dialog :close-on-click-modal="false" :visible.sync="dialogWsMemberVisible" width="70%" :destroy-on-close="true" @close="closeWsMemberDialog" class="dialog-css">
       <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="dialogSearch"
                        :create-tip="$t('member.create')" :title="$t('commons.member')"/>
       <!-- organization member table -->
@@ -111,7 +111,7 @@
     </el-dialog>
 
     <!-- add workspace member dialog -->
-    <el-dialog :title="$t('member.create')" :visible.sync="dialogWsMemberAddVisible" width="30%"
+    <el-dialog :close-on-click-modal="false" :title="$t('member.create')" :visible.sync="dialogWsMemberAddVisible" width="30%"
                :destroy-on-close="true"
                @close="handleClose">
       <el-form :model="memberForm" ref="form" :rules="wsMemberRule" label-position="right" label-width="100px"
@@ -149,7 +149,7 @@
     </el-dialog>
 
     <!-- update workspace member dialog -->
-    <el-dialog :title="$t('member.modify')" :visible.sync="dialogWsMemberUpdateVisible" width="30%"
+    <el-dialog :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="dialogWsMemberUpdateVisible" width="30%"
                :destroy-on-close="true"
                @close="handleClose">
       <el-form :model="memberForm" label-position="right" label-width="100px" size="small" ref="updateUserForm">
@@ -200,12 +200,11 @@
   import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
   import {
-    getCurrentOrganizationId,
     getCurrentUser,
-    getCurrentWorkspaceId,
-    refreshSessionAndCookies
-  } from "../../../../common/js/utils";
-  import {DEFAULT, WORKSPACE} from "../../../../common/js/constants";
+    getCurrentWorkspaceId, listenGoBack,
+    refreshSessionAndCookies, removeGoBackListener
+  } from "@/common/js/utils";
+  import {DEFAULT, WORKSPACE} from "@/common/js/constants";
   import MsDeleteConfirm from "../../common/components/MsDeleteConfirm";
 
   export default {
@@ -230,6 +229,7 @@
         this.$get("/organization/list", response => {
           this.$set(this.form, "orgList", response.data);
         })
+        listenGoBack(this.close);
       },
       submit(formName) {
         this.$refs[formName].validate((valid) => {
@@ -255,7 +255,8 @@
         });
         this.result = this.$get('/role/list/test', response => {
           this.$set(this.memberForm, "roles", response.data);
-        })
+        });
+        listenGoBack(this.handleClose);
       },
       cellClick(row) {
         // 保存当前点击的组织信息到currentRow
@@ -272,13 +273,14 @@
           let url = "/userrole/list/ws/" + row.id;
           // 填充角色信息
           for (let i = 0; i < this.memberLineData.length; i++) {
-            this.$get(url + "/" + this.memberLineData[i].id, response => {
+            this.$get(url + "/" + encodeURIComponent(this.memberLineData[i].id), response => {
               let roles = response.data;
               this.$set(this.memberLineData[i], "roles", roles);
             })
           }
           this.dialogTotal = data.itemCount;
         });
+        listenGoBack(this.closeWsMemberDialog);
       },
       dialogSearch() {
         let row = this.currentWorkspaceRow;
@@ -292,7 +294,7 @@
           let url = "/userrole/list/ws/" + row.id;
           // 填充角色信息
           for (let i = 0; i < this.memberLineData.length; i++) {
-            this.$get(url + "/" + this.memberLineData[i].id, response => {
+            this.$get(url + "/" + encodeURIComponent(this.memberLineData[i].id), response => {
               let roles = response.data;
               this.$set(this.memberLineData[i], "roles", roles);
             })
@@ -307,6 +309,12 @@
         this.$get("/organization/list", response => {
           this.$set(this.form, "orgList1", response.data);
         })
+        listenGoBack(this.close);
+      },
+      close() {
+        this.dialogWsAddVisible = false;
+        this.dialogWsUpdateVisible = false;
+        removeGoBackListener(this.close);
       },
       updateWorkspace(updateForm) {
         this.$refs[updateForm].validate(valid => {
@@ -323,10 +331,15 @@
       },
       handleClose() {
         this.memberForm = {};
+        this.dialogWsMemberAddVisible = false;
+        this.dialogWsMemberUpdateVisible = false;
+        removeGoBackListener(this.handleClose);
       },
       closeWsMemberDialog() {
         this.memberLineData = [];
         this.list();
+        removeGoBackListener(this.closeWsMemberDialog);
+        this.dialogWsMemberVisible = false;
       },
       list() {
         let url = '/workspace/list/all/' + this.currentPage + '/' + this.pageSize;
@@ -373,6 +386,7 @@
         })
         // 编辑时填充角色信息
         this.$set(this.memberForm, 'roleIds', roleIds);
+        listenGoBack(this.handleClose);
       },
       handleDelete(workspace) {
         this.$refs.deleteConfirm.open(workspace);
@@ -406,7 +420,7 @@
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
-          this.result = this.$get('/user/special/ws/member/delete/' + this.currentWorkspaceRow.id + '/' + row.id, () => {
+          this.result = this.$get('/user/special/ws/member/delete/' + this.currentWorkspaceRow.id + '/' + encodeURIComponent(row.id), () => {
             let sourceId = this.currentWorkspaceRow.id;
             let userId = row.id;
             let user = getCurrentUser();
@@ -522,7 +536,7 @@
   }
 
   .dialog-css >>> .el-dialog__header {
-    padding: 0px;
+    padding: 0;
   }
 
 </style>

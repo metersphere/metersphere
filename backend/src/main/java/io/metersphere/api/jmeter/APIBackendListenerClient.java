@@ -2,15 +2,21 @@ package io.metersphere.api.jmeter;
 
 import io.metersphere.api.service.APIReportService;
 import io.metersphere.api.service.APITestService;
+import io.metersphere.base.domain.ApiTestReport;
+import io.metersphere.base.domain.Notice;
 import io.metersphere.commons.constants.APITestStatus;
+import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.notice.service.MailService;
+import io.metersphere.notice.service.NoticeService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.AssertionResult;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
 import org.apache.jmeter.visualizers.backend.BackendListenerContext;
 
+import javax.annotation.Resource;
 import java.io.Serializable;
 import java.util.*;
 
@@ -31,12 +37,16 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
     private APIReportService apiReportService;
 
+    public String runMode = ApiRunMode.RUN.name();
+
     // 测试ID
     private String testId;
 
+    private String debugReportId;
+
     @Override
     public void setupTest(BackendListenerContext context) throws Exception {
-        this.testId = context.getParameter(TEST_ID);
+        setParam(context);
         apiTestService = CommonBeanFactory.getBean(APITestService.class);
         if (apiTestService == null) {
             LogUtil.error("apiTestService is required");
@@ -99,11 +109,29 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
         testResult.getScenarios().addAll(scenarios.values());
         testResult.getScenarios().sort(Comparator.comparing(ScenarioResult::getId));
-        apiTestService.changeStatus(testId, APITestStatus.Completed);
-        apiReportService.complete(testResult);
-
+        ApiTestReport report = null;
+        if (StringUtils.equals(this.runMode, ApiRunMode.DEBUG.name())) {
+            report = apiReportService.get(debugReportId);
+        } else {
+            apiTestService.changeStatus(testId, APITestStatus.Completed);
+            report = apiReportService.getRunningReport(testResult.getTestId());
+        }
+        apiReportService.complete(testResult, report);
         queue.clear();
         super.teardownTest(context);
+        NoticeService noticeService = CommonBeanFactory.getBean(NoticeService.class);
+        List<Notice> notice = null;
+        try {
+            notice = noticeService.queryNotice(testResult.getTestId());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        MailService mailService = CommonBeanFactory.getBean(MailService.class);
+        try {
+            mailService.sendHtml(report.getId(), notice, report.getStatus(), "api");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private RequestResult getRequestResult(SampleResult result) {
@@ -150,6 +178,15 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         } else {
             // Http Method
             return StringUtils.substringBefore(body, " ");
+        }
+    }
+
+    private void setParam(BackendListenerContext context) {
+        this.testId = context.getParameter(TEST_ID);
+        this.runMode = context.getParameter("runMode");
+        this.debugReportId = context.getParameter("debugReportId");
+        if (StringUtils.isBlank(this.runMode)) {
+            this.runMode = ApiRunMode.RUN.name();
         }
     }
 

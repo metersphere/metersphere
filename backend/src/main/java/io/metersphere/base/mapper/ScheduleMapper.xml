@@ -11,6 +11,9 @@
     <result column="enable" jdbcType="BIT" property="enable" />
     <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
     <result column="user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="workspace_id" jdbcType="VARCHAR" property="workspaceId" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="update_time" jdbcType="BIGINT" property="updateTime" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.Schedule">
     <result column="custom_data" jdbcType="LONGVARCHAR" property="customData" />
@@ -74,7 +77,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `key`, `type`, `value`, `group`, job, `enable`, resource_id, user_id
+    id, `key`, `type`, `value`, `group`, job, `enable`, resource_id, user_id, workspace_id, 
+    create_time, update_time
   </sql>
   <sql id="Blob_Column_List">
     custom_data
@@ -131,10 +135,12 @@
     insert into schedule (id, `key`, `type`, 
       `value`, `group`, job, 
       `enable`, resource_id, user_id, 
+      workspace_id, create_time, update_time, 
       custom_data)
     values (#{id,jdbcType=VARCHAR}, #{key,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
       #{value,jdbcType=VARCHAR}, #{group,jdbcType=VARCHAR}, #{job,jdbcType=VARCHAR}, 
       #{enable,jdbcType=BIT}, #{resourceId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, 
+      #{workspaceId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{customData,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.Schedule">
@@ -167,6 +173,15 @@
       <if test="userId != null">
         user_id,
       </if>
+      <if test="workspaceId != null">
+        workspace_id,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
       <if test="customData != null">
         custom_data,
       </if>
@@ -198,6 +213,15 @@
       </if>
       <if test="userId != null">
         #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="workspaceId != null">
+        #{workspaceId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=BIGINT},
       </if>
       <if test="customData != null">
         #{customData,jdbcType=LONGVARCHAR},
@@ -240,6 +264,15 @@
       <if test="record.userId != null">
         user_id = #{record.userId,jdbcType=VARCHAR},
       </if>
+      <if test="record.workspaceId != null">
+        workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=BIGINT},
+      </if>
       <if test="record.customData != null">
         custom_data = #{record.customData,jdbcType=LONGVARCHAR},
       </if>
@@ -259,6 +292,9 @@
       `enable` = #{record.enable,jdbcType=BIT},
       resource_id = #{record.resourceId,jdbcType=VARCHAR},
       user_id = #{record.userId,jdbcType=VARCHAR},
+      workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT},
       custom_data = #{record.customData,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -274,7 +310,10 @@
       job = #{record.job,jdbcType=VARCHAR},
       `enable` = #{record.enable,jdbcType=BIT},
       resource_id = #{record.resourceId,jdbcType=VARCHAR},
-      user_id = #{record.userId,jdbcType=VARCHAR}
+      user_id = #{record.userId,jdbcType=VARCHAR},
+      workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -306,6 +345,15 @@
       <if test="userId != null">
         user_id = #{userId,jdbcType=VARCHAR},
       </if>
+      <if test="workspaceId != null">
+        workspace_id = #{workspaceId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=BIGINT},
+      </if>
       <if test="customData != null">
         custom_data = #{customData,jdbcType=LONGVARCHAR},
       </if>
@@ -322,6 +370,9 @@
       `enable` = #{enable,jdbcType=BIT},
       resource_id = #{resourceId,jdbcType=VARCHAR},
       user_id = #{userId,jdbcType=VARCHAR},
+      workspace_id = #{workspaceId,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=BIGINT},
       custom_data = #{customData,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -334,7 +385,10 @@
       job = #{job,jdbcType=VARCHAR},
       `enable` = #{enable,jdbcType=BIT},
       resource_id = #{resourceId,jdbcType=VARCHAR},
-      user_id = #{userId,jdbcType=VARCHAR}
+      user_id = #{userId,jdbcType=VARCHAR},
+      workspace_id = #{workspaceId,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

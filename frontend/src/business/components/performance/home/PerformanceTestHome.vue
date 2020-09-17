@@ -13,6 +13,9 @@
         <el-col :span="12">
           <ms-test-heatmap :values="values"/>
         </el-col>
+        <el-col :span="12">
+          <ms-schedule-list :group="'PERFORMANCE_TEST'"/>
+        </el-col>
       </el-row>
     </ms-main-container>
   </ms-container>
@@ -25,10 +28,12 @@
   import MsPerformanceTestRecentList from "./PerformanceTestRecentList"
   import MsPerformanceReportRecentList from "./PerformanceReportRecentList"
   import MsTestHeatmap from "../../common/components/MsTestHeatmap";
+  import MsScheduleList from "../../api/home/ScheduleList";
 
   export default {
     name: "PerformanceTestHome",
     components: {
+      MsScheduleList,
       MsTestHeatmap,
       MsMainContainer,
       MsContainer,

@@ -126,40 +126,57 @@ public class Swagger2Parser extends ApiImportAbstractParser {
         Model schema = bodyParameter.getSchema();
 
         if (schema instanceof RefModel) {
+            String simpleRef = "";
             RefModel refModel = (RefModel) bodyParameter.getSchema();
-            Model model = definitions.get(refModel.getSimpleRef());
-            JSONObject bodyParameters = getBodyJSONObjectParameters(model.getProperties(), definitions);
+            String originalRef = refModel.getOriginalRef();
+            if (refModel.getOriginalRef().split("/").length > 3) {
+                simpleRef = originalRef.replace("#/definitions/", "");
+            } else {
+                simpleRef = refModel.getSimpleRef();
+            }
+            Model model = definitions.get(simpleRef);
+            HashSet<String> refSet = new HashSet<>();
+            refSet.add(simpleRef);
+            JSONObject bodyParameters = getBodyJSONObjectParameters(model.getProperties(), definitions, refSet);
             body.setRaw(bodyParameters.toJSONString());
         } else if (schema instanceof ArrayModel) {
             ArrayModel arrayModel = (ArrayModel) bodyParameter.getSchema();
             Property items = arrayModel.getItems();
             if (items instanceof RefProperty) {
                 RefProperty refProperty = (RefProperty) items;
-                Model model = definitions.get(refProperty.getSimpleRef());
+                String simpleRef = refProperty.getSimpleRef();
+                HashSet<String> refSet = new HashSet<>();
+                refSet.add(simpleRef);
+                Model model = definitions.get(simpleRef);
                 JSONArray propertyList = new JSONArray();
-                propertyList.add(getBodyJSONObjectParameters(model.getProperties(), definitions));
+                propertyList.add(getBodyJSONObjectParameters(model.getProperties(), definitions, refSet));
                 body.setRaw(propertyList.toString());
             }
         }
         request.setBody(body);
-        addContentType(request, "application/json");
-
+        body.setFormat("json");
     }
 
-    private JSONObject getBodyJSONObjectParameters(Map<String, Property> properties, Map<String, Model> definitions) {
+    private JSONObject getBodyJSONObjectParameters(Map<String, Property> properties, Map<String, Model> definitions, HashSet<String> refSet) {
         JSONObject jsonObject = new JSONObject();
         properties.forEach((key, value) -> {
             if (value instanceof ObjectProperty) {
                 ObjectProperty objectProperty = (ObjectProperty) value;
-                jsonObject.put(key, getBodyJSONObjectParameters(objectProperty.getProperties(), definitions));
+                jsonObject.put(key, getBodyJSONObjectParameters(objectProperty.getProperties(), definitions, refSet));
             } else if (value instanceof ArrayProperty) {
                 ArrayProperty arrayProperty = (ArrayProperty) value;
                 Property items = arrayProperty.getItems();
                 if (items instanceof RefProperty) {
                     RefProperty refProperty = (RefProperty) items;
-                    Model model = definitions.get(refProperty.getSimpleRef());
+                    String simpleRef = refProperty.getSimpleRef();
+                    if (refSet.contains(simpleRef)) {
+                        jsonObject.put(key, new JSONArray());
+                        return;
+                    }
+                    refSet.add(simpleRef);
+                    Model model = definitions.get(simpleRef);
                     JSONArray propertyList = new JSONArray();
-                    propertyList.add(getBodyJSONObjectParameters(model.getProperties(), definitions));
+                    propertyList.add(getBodyJSONObjectParameters(model.getProperties(), definitions, refSet));
                     jsonObject.put(key, propertyList);
                 } else {
                     jsonObject.put(key, new ArrayList<>());

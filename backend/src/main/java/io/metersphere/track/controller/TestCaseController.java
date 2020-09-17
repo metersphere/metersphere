@@ -99,16 +99,21 @@ public class TestCaseController {
         return testCaseService.deleteTestCase(testCaseId);
     }
 
-    @PostMapping("/import/{projectId}")
+    @PostMapping("/import/{projectId}/{userId}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String projectId) throws NoSuchFieldException {
-        return testCaseService.testCaseImport(file, projectId);
+    public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String projectId,@PathVariable String userId) throws NoSuchFieldException {
+        return testCaseService.testCaseImport(file, projectId,userId);
     }
 
     @GetMapping("/export/template")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void testCaseTemplateExport(HttpServletResponse response) {
         testCaseService.testCaseTemplateExport(response);
+    }
+    @GetMapping("/export/xmindTemplate")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void xmindTemplate(HttpServletResponse response) {
+        testCaseService.testCaseXmindTemplateExport(response);
     }
 
     @PostMapping("/export/testcase")

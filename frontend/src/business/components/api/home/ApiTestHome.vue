@@ -13,6 +13,9 @@
         <el-col :span="12">
           <ms-test-heatmap :values="values"/>
         </el-col>
+        <el-col :span="12">
+          <ms-schedule-list :group="'API_TEST'"/>
+        </el-col>
       </el-row>
     </ms-main-container>
   </ms-container>
@@ -25,11 +28,15 @@
   import MsApiTestRecentList from "./ApiTestRecentList";
   import MsApiReportRecentList from "./ApiReportRecentList";
   import MsTestHeatmap from "../../common/components/MsTestHeatmap";
+  import MsScheduleList from "./ScheduleList";
 
   export default {
     name: "ApiTestHome",
 
-    components: {MsTestHeatmap, MsApiReportRecentList, MsApiTestRecentList, MsMainContainer, MsContainer},
+    components: {
+      MsScheduleList,
+      MsTestHeatmap, MsApiReportRecentList, MsApiTestRecentList, MsMainContainer, MsContainer
+    },
 
     data() {
       return {
