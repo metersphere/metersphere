@@ -335,7 +335,11 @@ public class TestCaseService {
         // 读取filename
         String filePath = ClassLoader.getSystemResource("template/testcase.xmind").getPath();
         LogUtil.info("模版文件路径："+filePath);
-        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(new File(filePath)));) {
+        File file = new File(filePath);
+        if(file == null || !file.exists()){
+            LogUtil.info("模版模版下载失败："+filePath);
+        }
+        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));) {
             int i = bis.read(buff);
             while (i != -1) {
                 outputStream.write(buff, 0, buff.length);
