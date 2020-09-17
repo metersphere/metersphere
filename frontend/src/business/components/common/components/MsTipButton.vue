@@ -2,6 +2,7 @@
 
   <el-tooltip :content="tip"
               placement="bottom"
+              :enterable="false"
               :effect="effect">
     <el-button @click="exec()"
                @click.stop="clickStop"

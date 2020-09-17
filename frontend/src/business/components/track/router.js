@@ -4,6 +4,7 @@ const TestTrack = () => import(/* webpackChunkName: "track" */ '@/business/compo
 const TrackHome = () => import(/* webpackChunkName: "track" */ '@/business/components/track/home/TrackHome')
 const TestCase = () => import(/* webpackChunkName: "track" */ '@/business/components/track/case/TestCase')
 const TestPlan = () => import(/* webpackChunkName: "track" */ '@/business/components/track/plan/TestPlan')
+const TestCaseReview = () => import(/* webpackChunkName: "track" */ '@/business/components/track/review/TestCaseReview')
 const TestPlanView = () => import(/* webpackChunkName: "track" */ '@/business/components/track/plan/view/TestPlanView')
 
 export default {
@@ -53,6 +54,11 @@ export default {
       path: "project/:type",
       name: "trackProject",
       component: MsProject
-    }
+    },
+    {
+      path: "review/:type",
+      name: "testCaseReview",
+      component: TestCaseReview
+    },
   ]
 }
