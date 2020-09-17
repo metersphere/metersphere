@@ -5,7 +5,6 @@ import com.alibaba.excel.write.metadata.style.WriteCellStyle;
 import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.exception.ExcelException;
-import org.apache.poi.ss.usermodel.IndexedColors;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -13,7 +12,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 
-public class EasyExcelExporter {
+public class EasyExcelExporter implements AutoCloseable {
 
     EasyExcelI18nTranslator easyExcelI18nTranslator;
 
@@ -47,6 +46,7 @@ public class EasyExcelExporter {
         }
     }
 
+    @Override
     public void close() {
         easyExcelI18nTranslator.resetExcelProperty();
     }

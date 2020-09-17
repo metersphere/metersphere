@@ -9,10 +9,7 @@ import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpHeader;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +18,8 @@ import java.util.Optional;
 public abstract class ApiImportAbstractParser implements ApiImportParser {
 
     protected String getApiTestStr(InputStream source) {
-        BufferedReader bufferedReader;
         StringBuilder testStr = null;
-        try {
-            bufferedReader = new BufferedReader(new InputStreamReader(source, StandardCharsets.UTF_8));
+        try(BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(source, StandardCharsets.UTF_8))) {
             testStr = new StringBuilder();
             String inputStr;
             while ((inputStr = bufferedReader.readLine()) != null) {
