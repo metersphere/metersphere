@@ -328,18 +328,11 @@ public class TestCaseService {
         }
     }
 
-    public static void download(HttpServletResponse res) throws IOException {
+    public void download(HttpServletResponse res) throws IOException {
         // 发送给客户端的数据
-        OutputStream outputStream = res.getOutputStream();
         byte[] buff = new byte[1024];
-        // 读取filename
-        String filePath = ClassLoader.getSystemResource("template/testcase.xmind").getPath();
-        LogUtil.info("模版文件路径："+filePath);
-        File file = new File(filePath);
-        if(file == null || !file.exists()){
-            LogUtil.info("模版模版下载失败："+filePath);
-        }
-        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));) {
+        try (OutputStream outputStream = res.getOutputStream();
+             BufferedInputStream bis = new BufferedInputStream(this.getClass().getResourceAsStream("/template/testcase.xmind"));) {
             int i = bis.read(buff);
             while (i != -1) {
                 outputStream.write(buff, 0, buff.length);
@@ -348,6 +341,7 @@ public class TestCaseService {
             }
         } catch (Exception ex) {
             LogUtil.error(ex.getMessage());
+            MSException.throwException("下载思维导图模版失败");
         }
     }
 
