@@ -65,6 +65,7 @@ public class MailService {
         } else if (type.equals("performance")) {
             LoadTestDTO performanceResult = apiAndPerformanceHelper.getPerformance(id);
             testName = performanceResult.getName();
+            status = performanceResult.getStatus();
         }
         String html1 = "<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +

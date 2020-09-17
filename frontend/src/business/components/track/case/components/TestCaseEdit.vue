@@ -177,6 +177,12 @@
                     circle size="mini"
                     @click="handleAddStep(scope.$index, scope.row)"></el-button>
                   <el-button
+                    icon="el-icon-document-copy"
+                    type="success"
+                    :disabled="readOnly"
+                    circle size="mini"
+                    @click="handleCopyStep(scope.$index, scope.row)"></el-button>
+                  <el-button
                     type="danger"
                     icon="el-icon-delete"
                     circle size="mini"
@@ -255,7 +261,6 @@ export default {
       },
       moduleOptions: [],
       maintainerOptions: [],
-      methodOptions: [],
       testOptions: [],
       workspaceId: '',
       rules: {
@@ -275,7 +280,11 @@ export default {
       formLabelWidth: "120px",
       operationType: '',
       isCreateContinue: false,
-      isStepTableAlive: true
+      isStepTableAlive: true,
+      methodOptions: [
+        {value: 'auto', label: this.$t('test_track.case.auto')},
+        {value: 'manual', label: this.$t('test_track.case.manual')}
+      ]
     };
   },
   props: {
@@ -354,6 +363,18 @@ export default {
       step.num = data.num + 1;
       step.desc = "";
       step.result = "";
+      this.form.steps.forEach(step => {
+        if (step.num > data.num) {
+          step.num++;
+        }
+      });
+      this.form.steps.splice(index + 1, 0, step);
+    },
+    handleCopyStep(index, data) {
+      let step = {};
+      step.num = data.num + 1;
+      step.desc = data.desc;
+      step.result = data.result;
       this.form.steps.forEach(step => {
         if (step.num > data.num) {
           step.num++;
@@ -440,7 +461,6 @@ export default {
     },
     typeChange() {
       this.form.testId = '';
-      this.getMethodOptions();
       this.getTestOptions()
     },
     getModuleOptions() {
@@ -463,24 +483,15 @@ export default {
           this.testOptions = response.data;
           this.testOptions.unshift({id: 'other', name: this.$t('test_track.case.other')})
         });
-      }
-    },
-    getMethodOptions() {
-      if (!this.form.type || this.form.type != 'functional') {
-        this.methodOptions = [
-          {value: 'auto', label: this.$t('test_track.case.auto')},
-          {value: 'manual', label: this.$t('test_track.case.manual')}
-        ];
-      } else {
-        this.form.method = 'manual';
-        this.methodOptions = [{value: 'manual', label: this.$t('test_track.case.manual')}]
+      } else if (this.form.type === 'functional') {
+        this.testOptions = [{id: 'other', name: this.$t('test_track.case.other')}];
+        this.form.testId = 'other';
       }
     },
     getSelectOptions() {
       this.getModuleOptions();
       this.getMaintainerOptions();
       this.getTestOptions();
-      this.getMethodOptions();
     },
     buildNodePath(node, option, moduleOptions) {
       //递归构建节点路径

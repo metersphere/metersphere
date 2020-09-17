@@ -149,6 +149,7 @@ export default {
         ge: "大於等於",
         lt: "小於",
         le: "小於等於",
+        not_equals: "不等於",
         equals: "等於",
         between: "之間",
         current_user: "是當前用戶"
@@ -487,6 +488,9 @@ export default {
       response_timeout: "響應超時",
       follow_redirects: "跟隨重定向",
       body_upload_limit_size: "上傳文件大小不能超過 500 MB!",
+      condition: "條件",
+      condition_variable: "變量，例如: ${var}",
+      wait: "等待",
       assertions: {
         label: "斷言",
         text: "文本",

@@ -194,8 +194,9 @@ export default {
       return this.request.method !== "GET";
     },
     displayUrl() {
-      return this.request.environment.config.httpConfig.socket ? this.request.environment.config.httpConfig.protocol + '://'
-        + this.request.environment.config.httpConfig.socket + (this.request.path ? this.request.path : '') : '';
+      return (this.request.environment && this.request.environment.config.httpConfig.socket) ?
+        this.request.environment.config.httpConfig.protocol + '://' + this.request.environment.config.httpConfig.socket + (this.request.path ? this.request.path : '')
+        : '';
     }
   }
 }
