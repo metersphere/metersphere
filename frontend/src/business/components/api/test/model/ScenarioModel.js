@@ -541,7 +541,7 @@ export class ConfigCenter extends BaseConfig {
 }
 
 export class DatabaseConfig extends BaseConfig {
-  static DRIVER_CLASS = ["com.mysql.jdbc.Driver"];
+  static DRIVER_CLASS = ["com.mysql.jdbc.Driver","com.microsoft.sqlserver.jdbc.SQLServerDriver"];
 
   constructor(options) {
     super();

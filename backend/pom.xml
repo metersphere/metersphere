@@ -171,6 +171,13 @@
             <version>${jmeter.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <version>7.4.1.jre8</version>
+        </dependency>
+
+
         <!-- Zookeeper -->
         <dependency>
             <groupId>org.apache.dubbo</groupId>

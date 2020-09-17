@@ -536,7 +536,7 @@ export default {
         form_description: "如果當前配置項無值，則取場景配置項的值",
       },
       sql: {
-        dataSource: "數據源",
+        dataSource: "數據源名稱",
         sql_script: "SQL腳本",
         timeout: "超時時間(ms)",
         database_driver: "數據庫驅動",

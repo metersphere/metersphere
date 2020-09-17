@@ -536,7 +536,7 @@ export default {
         form_description: "如果当前配置项无值，则取场景配置项的值",
       },
       sql: {
-        dataSource: "数据源",
+        dataSource: "数据源名称",
         sql_script: "SQL脚本",
         timeout: "超时时间(ms)",
         database_driver: "数据库驱动",
