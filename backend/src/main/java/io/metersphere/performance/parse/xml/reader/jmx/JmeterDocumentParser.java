@@ -442,8 +442,10 @@ public class JmeterDocumentParser implements DocumentParser {
             // 增加一个response_timeout，避免目标网站不反回结果导致测试不能结束
             if (item instanceof Element && nodeNameEquals(item, STRING_PROP)
                     && StringUtils.equals(((Element) item).getAttribute("name"), "HTTPSampler.response_timeout")) {
-                removeChildren(item);
-                item.appendChild(ele.getOwnerDocument().createTextNode(""));
+                if (context.getProperty("responseTimeout") != null) {
+                    removeChildren(item);
+                    item.appendChild(ele.getOwnerDocument().createTextNode(context.getProperty("responseTimeout").toString()));
+                }
             }
         }
     }

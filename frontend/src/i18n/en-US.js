@@ -378,6 +378,7 @@ export default {
     domain_ip_is_empty: 'Domain and IP cannot be empty',
     param_name_value_is_empty: 'Parameters cannot be empty',
     connect_timeout: 'Timeout to establish a connection',
+    response_timeout: 'Timeout to response',
     custom_http_code: 'Custom HTTP response success status code',
     separated_by_commas: 'Separated by commas',
     create: 'Create Test',
