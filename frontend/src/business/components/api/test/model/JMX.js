@@ -350,7 +350,7 @@ export class HTTPSamplerArguments extends Element {
 
     let collectionProp = this.collectionProp('Arguments.arguments');
     this.args.forEach(arg => {
-      if (arg.enable === true) { // 非禁用的条件加入执行
+      if (arg.enable === true  || arg.enable === undefined) { // 非禁用的条件加入执行
         let elementProp = collectionProp.elementProp(arg.name, 'HTTPArgument');
         elementProp.boolProp('HTTPArgument.always_encode', arg.encode, true);
         elementProp.boolProp('HTTPArgument.use_equals', arg.equals, true);
@@ -520,7 +520,7 @@ export class HeaderManager extends DefaultTestElement {
 
     let collectionProp = this.collectionProp('HeaderManager.headers');
     this.headers.forEach(header => {
-      if (header.enable === true) {
+      if (header.enable === true || header.enable === undefined) {
         let elementProp = collectionProp.elementProp('', 'Header');
         elementProp.stringProp('Header.name', header.name);
         elementProp.stringProp('Header.value', header.value);
@@ -576,7 +576,7 @@ export class Arguments extends DefaultTestElement {
     let collectionProp = this.collectionProp('Arguments.arguments');
 
     this.args.forEach(arg => {
-      if (arg.enable === true) { // 非禁用的条件加入执行
+      if (arg.enable === true || arg.enable === undefined) { // 非禁用的条件加入执行
         let elementProp = collectionProp.elementProp(arg.name, 'Argument');
         elementProp.stringProp('Argument.name', arg.name);
         elementProp.stringProp('Argument.value', arg.value);
@@ -601,7 +601,7 @@ export class ElementArguments extends Element {
     let collectionProp = this.collectionProp('Arguments.arguments');
     if (args) {
       args.forEach(arg => {
-        if (arg.enable === true) { // 非禁用的条件加入执行
+        if (arg.enable === true || arg.enable === undefined) { // 非禁用的条件加入执行
           let elementProp = collectionProp.elementProp(arg.name, 'Argument');
           elementProp.stringProp('Argument.name', arg.name);
           elementProp.stringProp('Argument.value', arg.value);
