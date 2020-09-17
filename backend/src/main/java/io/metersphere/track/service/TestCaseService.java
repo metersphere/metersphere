@@ -273,16 +273,12 @@ public class TestCaseService {
 
             Set<String> userIds = userRoleMapper.selectByExample(userRoleExample).stream().map(UserRole::getUserId).collect(Collectors.toSet());
 
-            EasyExcelListener easyExcelListener = null;
-            try {
-                easyExcelListener = new TestCaseDataListener(this, projectId, testCaseNames, userIds);
+            try (EasyExcelListener easyExcelListener = new TestCaseDataListener(this, projectId, testCaseNames, userIds)) {
                 EasyExcelFactory.read(multipartFile.getInputStream(), TestCaseExcelData.class, easyExcelListener).sheet().doRead();
                 errList = easyExcelListener.getErrList();
             } catch (Exception e) {
                 LogUtil.error(e.getMessage(), e);
                 MSException.throwException(e.getMessage());
-            } finally {
-                easyExcelListener.close();
             }
 
         }
@@ -316,15 +312,11 @@ public class TestCaseService {
     }
 
     public void testCaseTemplateExport(HttpServletResponse response) {
-        EasyExcelExporter easyExcelExporter = null;
-        try {
-            easyExcelExporter = new EasyExcelExporter(TestCaseExcelData.class);
+        try (EasyExcelExporter easyExcelExporter = new EasyExcelExporter(TestCaseExcelData.class)) {
             easyExcelExporter.export(response, generateExportTemplate(),
                     Translator.get("test_case_import_template_name"), Translator.get("test_case_import_template_sheet"));
         } catch (Exception e) {
             MSException.throwException(e);
-        } finally {
-            easyExcelExporter.close();
         }
     }
 
@@ -398,15 +390,11 @@ public class TestCaseService {
     }
 
     public void testCaseExport(HttpServletResponse response, TestCaseBatchRequest request) {
-        EasyExcelExporter easyExcelExporter = null;
-        try {
-            easyExcelExporter = new EasyExcelExporter(TestCaseExcelData.class);
+        try (EasyExcelExporter easyExcelExporter = new EasyExcelExporter(TestCaseExcelData.class)) {
             easyExcelExporter.export(response, generateTestCaseExcel(request),
                     Translator.get("test_case_import_template_name"), Translator.get("test_case_import_template_sheet"));
         } catch (Exception e) {
             MSException.throwException(e);
-        } finally {
-            easyExcelExporter.close();
         }
     }
 
