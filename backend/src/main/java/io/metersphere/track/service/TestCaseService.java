@@ -334,7 +334,12 @@ public class TestCaseService {
         byte[] buff = new byte[1024];
         // 读取filename
         String filePath = ClassLoader.getSystemResource("template/testcase.xmind").getPath();
-        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(new File(filePath)));) {
+        LogUtil.info("模版文件路径："+filePath);
+        File file = new File(filePath);
+        if(file == null || !file.exists()){
+            LogUtil.info("模版模版下载失败："+filePath);
+        }
+        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));) {
             int i = bis.read(buff);
             while (i != -1) {
                 outputStream.write(buff, 0, buff.length);
@@ -348,7 +353,7 @@ public class TestCaseService {
 
     public void testCaseXmindTemplateExport(HttpServletResponse response) {
         try {
-            response.setContentType("application/vnd.ms-excel");
+            response.setContentType("application/octet-stream");
             response.setCharacterEncoding("utf-8");
             response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode("思维导图用例模版", "UTF-8") + ".xmind");
             download(response);
