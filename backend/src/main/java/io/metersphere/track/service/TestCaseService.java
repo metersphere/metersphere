@@ -331,8 +331,9 @@ public class TestCaseService {
     public void download(HttpServletResponse res) throws IOException {
         // 发送给客户端的数据
         byte[] buff = new byte[1024];
+        InputStream	is = TestCaseService.class.getResourceAsStream("/io/metersphere/xmind/template/testcase.xml");
         try (OutputStream outputStream = res.getOutputStream();
-             BufferedInputStream bis = new BufferedInputStream(this.getClass().getResourceAsStream("/template/testcase.xmind"));) {
+             BufferedInputStream bis = new BufferedInputStream(is);) {
             int i = bis.read(buff);
             while (i != -1) {
                 outputStream.write(buff, 0, buff.length);
