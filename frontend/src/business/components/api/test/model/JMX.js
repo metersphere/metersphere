@@ -513,6 +513,25 @@ export class BeanShellPostProcessor extends BeanShellProcessor {
   }
 }
 
+export class IfController extends DefaultTestElement {
+  constructor(testName, controller = {}) {
+    super('IfController', 'IfControllerPanel', 'IfController', testName);
+
+    this.stringProp('IfController.comments', controller.comments);
+    this.stringProp('IfController.condition', controller.condition);
+    this.boolProp('IfController.evaluateAll', controller.evaluateAll, false);
+    this.boolProp('IfController.useExpression', controller.useExpression, true);
+  }
+}
+
+export class ConstantTimer extends DefaultTestElement {
+  constructor(testName, timer = {}) {
+    super('ConstantTimer', 'ConstantTimerGui', 'ConstantTimer', testName);
+
+    this.stringProp('ConstantTimer.delay', timer.delay);
+  }
+}
+
 export class HeaderManager extends DefaultTestElement {
   constructor(testName, headers) {
     super('HeaderManager', 'HeaderPanel', 'HeaderManager', testName);

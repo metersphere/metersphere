@@ -1,5 +1,5 @@
 import {
-  Arguments, BeanShellPostProcessor, BeanShellPreProcessor,
+  Arguments,
   CookieManager,
   DNSCacheManager,
   DubboSample,
@@ -7,10 +7,15 @@ import {
   Element,
   HashTree,
   HeaderManager,
+  HTTPSamplerArguments,
+  HTTPsamplerFiles,
+  HTTPSamplerProxy,
   HTTPSamplerArguments, HTTPsamplerFiles,
   HTTPSamplerProxy, JDBCDataSource, JDBCSampler,
   JSONPathAssertion,
-  JSONPostProcessor, JSR223PostProcessor, JSR223PreProcessor,
+  JSONPostProcessor,
+  JSR223PostProcessor,
+  JSR223PreProcessor,
   RegexExtractor,
   ResponseCodeAssertion,
   ResponseDataAssertion,
@@ -19,6 +24,8 @@ import {
   TestPlan,
   ThreadGroup,
   XPath2Extractor,
+  IfController as JMXIfController,
+  ConstantTimer as JMXConstantTimer,
 } from "./JMX";
 import Mock from "mockjs";
 import {funcFilters} from "@/common/js/func-filter";
@@ -295,9 +302,12 @@ export class RequestFactory {
 }
 
 export class Request extends BaseConfig {
-  constructor(type) {
+  constructor(type, options = {}) {
     super();
     this.type = type;
+    options.id = options.id || uuid();
+    options.timer = new ConstantTimer(options.timer);
+    options.controller = new IfController(options.controller);
   }
 
   showType() {
@@ -311,8 +321,7 @@ export class Request extends BaseConfig {
 
 export class HttpRequest extends Request {
   constructor(options) {
-    super(RequestFactory.TYPES.HTTP);
-    this.id = undefined;
+    super(RequestFactory.TYPES.HTTP, options);
     this.name = undefined;
     this.url = undefined;
     this.path = undefined;
@@ -339,7 +348,6 @@ export class HttpRequest extends Request {
   }
 
   initOptions(options = {}) {
-    options.id = options.id || uuid();
     options.method = options.method || "GET";
     options.body = new Body(options.body);
     options.assertions = new Assertions(options.assertions);
@@ -397,8 +405,7 @@ export class DubboRequest extends Request {
   }
 
   constructor(options = {}) {
-    super(RequestFactory.TYPES.DUBBO);
-    this.id = options.id || uuid();
+    super(RequestFactory.TYPES.DUBBO, options);
     this.name = options.name;
     this.protocol = options.protocol || DubboRequest.PROTOCOLS.DUBBO;
     this.interface = options.interface;
@@ -840,6 +847,77 @@ export class ExtractXPath extends ExtractCommon {
   }
 }
 
+export class Controller extends BaseConfig {
+  static TYPES = {
+    IF_CONTROLLER: "If Controller",
+  }
+
+  constructor(type, options = {}) {
+    super();
+    this.type = type
+    options.id = options.id || uuid();
+    options.enable = options.enable || true;
+  }
+}
+
+export class IfController extends Controller {
+  constructor(options = {}) {
+    super(Controller.TYPES.IF_CONTROLLER, options);
+    this.variable;
+    this.operator;
+    this.value;
+
+    this.set(options);
+  }
+
+  isValid() {
+    return !!this.variable && !!this.operator && !!this.value;
+  }
+
+  label() {
+    if (this.isValid()) {
+      let label = this.variable;
+      label += " " + this.operator;
+      label += " " + this.value;
+      return label;
+    }
+    return "";
+  }
+}
+
+export class Timer extends BaseConfig {
+  static TYPES = {
+    CONSTANT_TIMER: "Constant Timer",
+  }
+
+  constructor(type, options = {}) {
+    super();
+    this.type = type;
+    options.id = options.id || uuid();
+    options.enable = options.enable || true;
+  }
+}
+
+export class ConstantTimer extends Timer {
+  constructor(options = {}) {
+    super(Timer.TYPES.CONSTANT_TIMER, options);
+    this.delay;
+
+    this.set(options);
+  }
+
+  isValid() {
+    return this.delay > 0;
+  }
+
+  label() {
+    if (this.isValid()) {
+      return this.delay + " ms";
+    }
+    return "";
+  }
+}
+
 /** ------------------------------------------------------------------------ **/
 const JMX_ASSERTION_CONDITION = {
   MATCH: 1,
@@ -1003,10 +1081,18 @@ class JMXGenerator {
 
             this.addJSR223PreProcessor(sampler, request);
 
-            threadGroup.put(sampler);
+            this.addConstantsTimer(sampler, request);
+
+            if (request.controller.isValid() && request.controller.enable) {
+              if (request.controller instanceof IfController) {
+                let controller = this.getController(sampler, request);
+                threadGroup.put(controller);
+              }
+            } else {
+              threadGroup.put(sampler);
+            }
           }
         })
-
         testPlan.put(threadGroup);
       }
 
@@ -1120,6 +1206,31 @@ class JMXGenerator {
     }
     if (request.jsr223PostProcessor && request.jsr223PostProcessor.script) {
       sampler.put(new JSR223PostProcessor(name, request.jsr223PostProcessor));
+    }
+  }
+
+  addConstantsTimer(sampler, request) {
+    if (request.timer.isValid() && request.timer.enable) {
+      sampler.put(new JMXConstantTimer(request.timer.label(), request.timer));
+    }
+  }
+
+  getController(sampler, request) {
+    if (request.controller.isValid() && request.controller.enable) {
+      if (request.controller instanceof IfController) {
+        let name = request.controller.label();
+        let variable = request.controller.variable;
+        let operator = request.controller.operator;
+        let value = request.controller.value;
+        if (operator === "=~" || operator === "!~") {
+          value = "\".*" + value + ".*\"";
+        }
+
+        let condition = "${__jexl3(" + variable + operator + value + ")}";
+        let controller = new JMXIfController(name, {condition: condition});
+        controller.put(sampler);
+        return controller;
+      }
     }
   }
 

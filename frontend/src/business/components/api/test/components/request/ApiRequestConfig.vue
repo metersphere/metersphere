@@ -4,6 +4,7 @@
                :disabled="isReference">
       <div class="request-item" v-for="(request, index) in this.scenario.requests" :key="index" @click="select(request)"
            :class="{'selected': isSelected(request), 'disable-request': !request.enable || !scenario.enable}">
+        <ms-condition-label :request="request"/>
         <el-row type="flex" align="middle">
           <div class="request-type">
             {{ request.showType() }}
@@ -32,6 +33,12 @@
                                   :command="{type: 'enable', index: index}">
                   {{ $t('api_test.scenario.enable') }}
                 </el-dropdown-item>
+                <el-dropdown-item :disabled="isReadOnly" :command="{type: 'controller', index: index}">
+                  {{ $t('api_test.request.condition') }}
+                </el-dropdown-item>
+                <el-dropdown-item :disabled="isReadOnly" :command="{type: 'wait', index: index}">
+                  {{ $t('api_test.request.wait') }}
+                </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </div>
@@ -47,18 +54,22 @@
       <el-button slot="reference" :disabled="isReadOnly"
                  class="request-create" type="primary" size="mini" icon="el-icon-plus" plain/>
     </el-popover>
-
+    <ms-if-controller ref="controller"/>
+    <ms-constant-timer ref="timer"/>
   </div>
 </template>
 
 <script>
 import {RequestFactory} from "../../model/ScenarioModel";
 import draggable from 'vuedraggable';
+import MsIfController from "@/business/components/api/test/components/request/condition/IfController";
+import MsConstantTimer from "@/business/components/api/test/components/request/condition/ConstantTimer";
+import MsConditionLabel from "@/business/components/api/test/components/request/condition/ConditionLabel";
 
 export default {
   name: "MsApiRequestConfig",
 
-  components: {draggable},
+  components: {MsConditionLabel, MsConstantTimer, MsIfController, draggable},
 
   props: {
     scenario: Object,
@@ -89,7 +100,7 @@ export default {
   },
 
   methods: {
-    createRequest: function (type) {
+    createRequest(type) {
       let request = new RequestFactory({type: type});
       if (this.scenario.environmentId) {
         request.useEnvironment = true;
@@ -98,23 +109,31 @@ export default {
       this.type = "";
       this.visible = false;
     },
-    copyRequest: function (index) {
+    copyRequest(index) {
       let request = this.scenario.requests[index];
       this.scenario.requests.push(new RequestFactory(request));
     },
-    disableRequest: function (index) {
+    disableRequest(index) {
       this.scenario.requests[index].enable = false;
     },
-    enableRequest: function (index) {
+    enableRequest(index) {
       this.scenario.requests[index].enable = true;
     },
-    deleteRequest: function (index) {
+    deleteRequest(index) {
       this.scenario.requests.splice(index, 1);
       if (this.scenario.requests.length === 0) {
         this.createRequest();
       }
     },
-    handleCommand: function (command) {
+    addController(index) {
+      let request = this.scenario.requests[index];
+      this.$refs.controller.open(request);
+    },
+    addTimer(index) {
+      let request = this.scenario.requests[index];
+      this.$refs.timer.open(request);
+    },
+    handleCommand(command) {
       switch (command.type) {
         case "copy":
           this.copyRequest(command.index);
@@ -128,9 +147,15 @@ export default {
         case "enable":
           this.enableRequest(command.index);
           break;
+        case "controller":
+          this.addController(command.index);
+          break;
+        case "wait":
+          this.addTimer(command.index);
+          break;
       }
     },
-    select: function (request) {
+    select(request) {
       request.environment = this.scenario.environment;
       if (!request.useEnvironment) {
         request.useEnvironment = false;
@@ -150,7 +175,6 @@ export default {
 <style scoped>
 .request-item {
   border-left: 5px solid #1E90FF;
-  max-height: 40px;
   border-top: 1px solid #EBEEF5;
   cursor: pointer;
 }
