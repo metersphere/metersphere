@@ -1,49 +1,44 @@
 <template>
-  <ms-main-container>
+  <div class="database-config-list">
 
     <el-table border :data="tableData" class="adjust-table table-content"
               @row-click="handleView">
 
-      <el-table-column prop="name" :label="'连接池名称'" show-overflow-tooltip/>
-      <el-table-column prop="driver" :label="'数据库驱动'"  show-overflow-tooltip/>
-      <el-table-column prop="dbUrl" :label="'数据库连接URL'" show-overflow-tooltip/>
-      <el-table-column prop="username" :label="'用户名'"  show-overflow-tooltip/>
-      <el-table-column prop="poolMax" :label="'最大连接数'" show-overflow-tooltip/>
-      <el-table-column prop="timeout" :label="'最大等待时间'"  show-overflow-tooltip/>
+      <el-table-column type="expand">
+        <template slot-scope="props">
+          <ms-database-from :callback="editConfig" :config="props.row"/>
+        </template>
+      </el-table-column>
+      <el-table-column prop="name" :label="$t('api_test.request.sql.dataSource')" show-overflow-tooltip/>
+      <el-table-column prop="driver" :label="$t('api_test.request.sql.database_driver')"  show-overflow-tooltip/>
+      <el-table-column prop="dbUrl" :label="$t('api_test.request.sql.database_url')" show-overflow-tooltip/>
+      <el-table-column prop="username" :label="$t('api_test.request.sql.username')"  show-overflow-tooltip/>
+      <el-table-column prop="poolMax" :label="$t('api_test.request.sql.pool_max')" show-overflow-tooltip/>
+      <el-table-column prop="timeout" :label="$t('api_test.request.sql.query_timeout')"  show-overflow-tooltip/>
 
-      <el-table-column
-        :label="$t('commons.operating')" min-width="100">
+      <el-table-column :label="$t('commons.operating')" min-width="100">
         <template v-slot:default="scope">
-          <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)"
-                             @deleteClick="handleDelete(scope.$index)">
-            <template v-slot:middle>
-              <ms-table-operator-button :is-tester-permission="true" :tip="$t('commons.copy')"
-                                        icon="el-icon-document-copy"
-                                        type="success" @exec="handleCopy(scope.row)"/>
-            </template>
-          </ms-table-operator>
+          <ms-table-operator-button :is-tester-permission="true" :tip="$t('commons.copy')" icon="el-icon-document-copy" type="success" @exec="handleCopy(scope.$index, scope.row)"/>
+          <ms-table-operator-button :isTesterPermission="true" :tip="$t('commons.delete')" icon="el-icon-delete" type="danger" @exec="handleDelete(scope.$index)"/>
         </template>
       </el-table-column>
 
     </el-table>
 
-    <ms-database-config-dialog :configs="tableData" ref="databaseConfigEdit"/>
-
-  </ms-main-container>
+  </div>
 </template>
 
 <script>
 
     import {DatabaseConfig} from "../../../model/ScenarioModel";
-    import MsMainContainer from "../../../../../common/components/MsMainContainer";
     import MsTableOperator from "../../../../../common/components/MsTableOperator";
     import MsTableOperatorButton from "../../../../../common/components/MsTableOperatorButton";
-    import MsDatabaseConfigDialog from "./DatabaseConfigDialog";
     import {getUUID} from "../../../../../../../common/js/utils";
+    import MsDatabaseFrom from "./DatabaseFrom";
 
     export default {
       name: "MsDatabaseConfigList",
-      components: {MsDatabaseConfigDialog, MsTableOperatorButton, MsTableOperator, MsMainContainer},
+      components: {MsDatabaseFrom, MsTableOperatorButton, MsTableOperator},
       props: {
         tableData: Array,
         isReadOnly: {
@@ -63,15 +58,39 @@
         handleEdit(config) {
           this.$refs.databaseConfigEdit.open(config);
         },
+        editConfig(config) {
+          let index = 0;
+          for (let i in this.tableData) {
+            let item = this.tableData[i];
+            if (item.name === config.name && item.id != config.id) {
+              this.$warning(this.$t('commons.already_exists'));
+              return;
+            }
+            if (item.id === config.id) {
+              index = i;
+            }
+          }
+          Object.assign(this.tableData[index], config);
+          this.$success(this.$t('commons.save_success'));
+        },
         handleDelete(index) {
           this.tableData.splice(index, 1);
         },
-        handleCopy(config) {
+        handleCopy(index, config) {
           let copy = {};
           Object.assign(copy, config);
           copy.id = getUUID();
-          this.$refs.databaseConfigEdit.open(copy);
-        }
+          copy.name = this.getNoRepeatName(copy.name);
+          this.tableData.splice(index + 1, 0, copy);
+        },
+        getNoRepeatName(name) {
+          for (let i in this.tableData) {
+            if (this.tableData[i].name === name) {
+              return this.getNoRepeatName(name + ' copy');
+            }
+          }
+          return name;
+        },
       }
     }
 </script>
@@ -80,13 +99,6 @@
 
   .addButton {
     float: right;
-  }
-
-  .database-from {
-    padding: 10px;
-    border: #DCDFE6 solid 1px;
-    margin: 5px 0;
-    border-radius: 5px;
   }
 
 </style>

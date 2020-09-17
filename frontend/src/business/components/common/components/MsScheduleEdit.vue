@@ -4,6 +4,7 @@
     <template>
       <div>
         <el-tabs v-model="activeName" @tab-click="handleClick">
+
           <el-tab-pane :label="$t('schedule.edit_timer_task')" name="first">
             <el-form :model="form" :rules="rules" ref="from">
               <el-form-item
@@ -26,81 +27,51 @@
           </el-tab-pane>
           <el-tab-pane :label="$t('schedule.task_notification')" name="second">
             <template>
-              <el-select v-model="value" :placeholder="$t('commons.please_select')">
-                <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-                </el-option>
-              </el-select>
               <el-table
                 :data="tableData"
                 style="width: 100%">
                 <el-table-column
-                  prop="receiver"
+                  prop="event"
+                  :label="$t('schedule.event')"
+
+                >
+                </el-table-column>
+                <el-table-column
+                  prop="name"
                   :label="$t('schedule.receiver')"
+                  width="200"
                 >
                   <template v-slot:default="{row}">
-                    <el-input
-                      size="mini"
-                      type="textarea"
-                      :rows="1"
-                      class="edit-input"
-                      v-model="row.receiver"
-                      :placeholder="$t('schedule.receiver')"
-                      clearable>
-                    </el-input>
+                    <el-select v-model="row.names" filterable multiple placeholder="请选择" @click.native="userList()">
+                      <el-option
+                        v-for="item in options"
+                        :key="item.id"
+                        :label="item.name"
+                        :value="item.name">
+                      </el-option>
+                    </el-select>
                   </template>
                 </el-table-column>
                 <el-table-column
                   prop="email"
                   :label="$t('schedule.receiving_mode')"
-                  width="200"
-                  >
-                  <template v-slot:default="{row}">
-                    <el-input
-                      size="mini"
-                      type="textarea"
-                      :rows="1"
-                      class="edit-input"
-                      v-model="row.email"
-                      :placeholder="$t('schedule.input_email')"
-                      clearable>
-                    </el-input>
-                  </template>
+                >
                 </el-table-column>
                 <el-table-column
-                  align="center"
-                  prop="enable"
                   :label="$t('test_resource_pool.enable_disable')"
-                  >
-                  <template slot-scope="scope">
+                  prop="enable"
+                >
+                  <template v-slot:default="{row}">
                     <el-switch
-                      v-model="scope.row.enable"
-                      :active-value="true"
-                      :inactive-value="false"
-                      active-color="#13ce66"
+                      v-model="row.enable"
+                      active-value="true"
+                      inactive-value="false"
                       inactive-color="#ff4949"
                     />
                   </template>
                 </el-table-column>
-                <el-table-column :label="$t('schedule.operation')">
-                  <template v-slot:default="scope">
-                    <el-button
-                      type="primary"
-                      icon="el-icon-plus"
-                      circle size="mini"
-                      @click="handleAddStep(scope.$index)"></el-button>
-                    <el-button
-                      type="danger"
-                      icon="el-icon-delete"
-                      circle size="mini"
-                      @click="handleDeleteStep(scope.$index)"></el-button>
-                  </template>
-                </el-table-column>
               </el-table>
-                <el-button  type="primary" @click="saveNotice">{{$t('commons.save')}}</el-button>
+              <el-button  type="primary" @click="saveNotice">{{$t('commons.save')}}</el-button>
             </template>
           </el-tab-pane>
         </el-tabs>
@@ -111,19 +82,20 @@
 
 <script>
 
-import Crontab from "../cron/Crontab";
-import CrontabResult from "../cron/CrontabResult";
-import {cronValidate} from "@/common/js/cron";
-import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
+  import Crontab from "../cron/Crontab";
+  import CrontabResult from "../cron/CrontabResult";
+  import {cronValidate} from "@/common/js/cron";
+  import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
 
-function defaultCustomValidate() {
-  return {pass: true};
-}
+  function defaultCustomValidate() {
+    return {pass: true};
+  }
 
   export default {
     name: "MsScheduleEdit",
     components: {CrontabResult, Crontab},
     props: {
+      testId: String,
       save: Function,
       schedule: {},
       customValidate: {
@@ -133,8 +105,10 @@ function defaultCustomValidate() {
       isReadOnly: {
         type: Boolean,
         default: false
-      }
+      },
     },
+
+
     watch: {
       'schedule.value'() {
         this.form.cronValue = this.schedule.value;
@@ -164,25 +138,22 @@ function defaultCustomValidate() {
         form: {
           cronValue: ""
         },
-        options: [{
-          value: 'success',
-          label: '执行成功通知'
-        }, {
-          value: 'fail',
-          label: '执行失败通知'
-        }, {
-          value: 'all',
-          label: '全部通知'
-        }],
-        value: '',
         tableData: [
           {
-            receiver: "",
-            email: "",
+            event: "执行成功",
+            names: [],
+            email: "邮箱",
+            enable: false
+          },
+          {
+            event: "执行失败",
+            names: [],
+            email: "邮箱",
             enable: false
           }
         ],
-        enable: false,
+        options: [{}],
+        enable: true,
         email: "",
         activeName: 'first',
         rules: {
@@ -191,37 +162,31 @@ function defaultCustomValidate() {
       }
     },
     methods: {
-      handleClick() {
-
+      userList() {
+        this.result = this.$get('user/list', response => {
+          this.options = response.data
+        })
       },
-      saveNotice(){
-        let param = this.buildParam();
-        /* this.result=this.$post("notice/save",param,()=>{
-
-          })*/
-
+      handleClick() {
+        if (this.activeName == "second") {
+          this.result = this.$get('notice/query/' + this.testId, response => {
+            if (response.data.length > 0) {
+              this.tableData = response.data
+            }
+          })
+        }
       },
       buildParam() {
         let param = {};
-        param.form = this.tableData
-        param.testId = ""
-        param.event = this.value
+        param.notices = this.tableData
+        param.testId = this.testId
         return param;
-      },
-      handleAddStep(index) {
-        let form = {}
-        form.receiver = null;
-        form.email = null;
-        form.enable = null
-        this.tableData.splice(index + 1, 0, form);
-      },
-      handleDeleteStep(index) {
-        this.tableData.splice(index, 1);
       },
       open() {
         this.dialogVisible = true;
         this.form.cronValue = this.schedule.value;
         listenGoBack(this.close);
+        this.handleClick()
       },
       crontabFill(value, resultList) {
         //确定后回传的值
@@ -242,6 +207,12 @@ function defaultCustomValidate() {
             return false;
           }
         });
+      },
+      saveNotice(){
+        let param = this.buildParam();
+        this.result = this.$post("notice/save", param, () => {
+          this.$success(this.$t('commons.save_success'));
+        })
       },
       close() {
         this.dialogVisible = false;
@@ -274,13 +245,13 @@ function defaultCustomValidate() {
 
 <style scoped>
 
-.inp {
-  width: 50%;
-  margin-right: 20px;
-}
+  .inp {
+    width: 50%;
+    margin-right: 20px;
+  }
 
-.el-form-item {
-  margin-bottom: 10px;
-}
+  .el-form-item {
+    margin-bottom: 10px;
+  }
 
 </style>

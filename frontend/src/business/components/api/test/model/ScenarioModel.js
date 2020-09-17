@@ -10,6 +10,8 @@ import {
   HTTPSamplerArguments,
   HTTPsamplerFiles,
   HTTPSamplerProxy,
+  HTTPSamplerArguments, HTTPsamplerFiles,
+  HTTPSamplerProxy, JDBCDataSource, JDBCSampler,
   JSONPathAssertion,
   JSONPostProcessor,
   JSR223PostProcessor,
@@ -216,7 +218,7 @@ export class Scenario extends BaseConfig {
     this.environment = undefined;
     this.enableCookieShare = false;
     this.enable = true;
-    this.databaseConfigs = undefined;
+    this.databaseConfigs = [];
 
     this.set(options);
     this.sets({
@@ -283,6 +285,7 @@ export class RequestFactory {
   static TYPES = {
     HTTP: "HTTP",
     DUBBO: "DUBBO",
+    SQL: "SQL",
   }
 
   constructor(options = {}) {
@@ -290,6 +293,8 @@ export class RequestFactory {
     switch (options.type) {
       case RequestFactory.TYPES.DUBBO:
         return new DubboRequest(options);
+      case RequestFactory.TYPES.SQL:
+        return new SqlRequest(options);
       default:
         return new HttpRequest(options);
     }
@@ -470,6 +475,62 @@ export class DubboRequest extends Request {
   }
 }
 
+export class SqlRequest extends Request {
+
+  constructor(options = {}) {
+    super(RequestFactory.TYPES.SQL);
+    this.id = options.id || uuid();
+    this.name = options.name;
+    this.useEnvironment = options.useEnvironment;
+    this.debugReport = undefined;
+    this.dataSource = options.dataSource;
+    this.query = options.query;
+    // this.queryType = options.queryType;
+    this.queryTimeout = options.queryTimeout || 60000;
+    this.enable = options.enable === undefined ? true : options.enable;
+    this.assertions = new Assertions(options.assertions);
+    this.extract = new Extract(options.extract);
+    this.jsr223PreProcessor = new JSR223Processor(options.jsr223PreProcessor);
+    this.jsr223PostProcessor = new JSR223Processor(options.jsr223PostProcessor);
+
+    this.sets({args: KeyValue, attachmentArgs: KeyValue}, options);
+
+  }
+
+  isValid() {
+    if (this.enable) {
+      if (!this.name) {
+        return {
+          isValid: false,
+          info: 'api_test.request.sql.name_cannot_be_empty'
+        }
+      }
+      if (!this.dataSource) {
+        return {
+          isValid: false,
+          info: 'api_test.request.sql.dataSource_cannot_be_empty'
+        }
+      }
+    }
+    return {
+      isValid: true
+    }
+  }
+
+  showType() {
+    return "SQL";
+  }
+
+  showMethod() {
+    return "SQL";
+  }
+
+  clone() {
+    return new SqlRequest(this);
+  }
+}
+
+
 export class ConfigCenter extends BaseConfig {
   static PROTOCOLS = ["zookeeper", "nacos", "apollo"];
 
@@ -492,7 +553,7 @@ export class ConfigCenter extends BaseConfig {
 }
 
 export class DatabaseConfig extends BaseConfig {
-  static DRIVER_CLASS = ["com.mysql.jdbc.Driver"];
+  static DRIVER_CLASS = ["com.mysql.jdbc.Driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver", "org.postgresql.Driver", "oracle.jdbc.OracleDriver"];
 
   constructor(options) {
     super();
@@ -512,25 +573,6 @@ export class DatabaseConfig extends BaseConfig {
     // options.id = options.id || uuid();
     return options;
   }
-
-// <JDBCDataSource guiclass="TestBeanGUI" testclass="JDBCDataSource" testname="JDBC Connection Configurationqqq" enabled="true">
-//     <boolProp name="autocommit">true</boolProp>
-//     <stringProp name="checkQuery"></stringProp>
-//     <stringProp name="connectionAge">5000</stringProp>
-//     <stringProp name="connectionProperties"></stringProp>
-//     <stringProp name="dataSource">test</stringProp>
-//     <stringProp name="dbUrl">jdbc:mysql://localhost:3306/metersphere?autoReconnect=false&amp;useUnicode=true&amp;characterEncoding=UTF-8&amp;characterSetResults=UTF-8&amp;zeroDateTimeBehavior=convertToNull&amp;allowMultiQueries=true</stringProp>
-//     <stringProp name="driver">com.mysql.jdbc.Driver</stringProp>
-//     <stringProp name="initQuery"></stringProp>
-//     <boolProp name="keepAlive">true</boolProp>
-//     <stringProp name="password">root</stringProp>
-//     <stringProp name="poolMax">10</stringProp>
-//     <boolProp name="preinit">false</boolProp>
-//     <stringProp name="timeout">10000</stringProp>
-//     <stringProp name="transactionIsolation">DEFAULT</stringProp>
-//     <stringProp name="trimInterval">60000</stringProp>
-//     <stringProp name="username">root</stringProp>
-//     </JDBCDataSource>
 
   isValid() {
     return !!this.name || !!this.poolMax || !!this.timeout || !!this.driver || !!this.dbUrl || !!this.username || !!this.password;
@@ -901,10 +943,10 @@ class JMXHttpRequest {
         this.protocol = url.protocol.split(":")[0];
         this.path = this.getPostQueryParameters(request, decodeURIComponent(url.pathname));
       } else {
-        this.domain = environment.domain;
-        this.port = environment.port;
-        this.protocol = environment.protocol;
-        let url = new URL(environment.protocol + "://" + environment.socket);
+        this.domain = environment.config.httpConfig.domain;
+        this.port = environment.config.httpConfig.port;
+        this.protocol = environment.config.httpConfig.protocol;
+        let url = new URL(environment.config.httpConfig.protocol + "://" + environment.config.commonConfig.socket);
         this.path = this.getPostQueryParameters(request, decodeURIComponent(url.pathname + (request.path ? request.path : '')));
       }
       this.connectTimeout = request.connectTimeout;
@@ -1011,6 +1053,8 @@ class JMXGenerator {
         // 放在计划或线程组中，不建议放具体某个请求中
         this.addDNSCacheManager(threadGroup, scenario.requests[0]);
 
+        this.addJDBCDataSources(threadGroup, scenario);
+
         scenario.requests.forEach(request => {
           if (request.enable) {
             if (!request.isValid()) return;
@@ -1018,9 +1062,7 @@ class JMXGenerator {
 
             if (request instanceof DubboRequest) {
               sampler = new DubboSample(request.name || "", new JMXDubboRequest(request, scenario.dubboConfig));
-            }
-
-            if (request instanceof HttpRequest) {
+            } else if (request instanceof HttpRequest) {
               sampler = new HTTPSamplerProxy(request.name || "", new JMXHttpRequest(request, scenario.environment));
               this.addRequestHeader(sampler, request);
               if (request.method.toUpperCase() === 'GET') {
@@ -1028,6 +1070,9 @@ class JMXGenerator {
               } else {
                 this.addRequestBody(sampler, request, testId);
               }
+            } else if (request instanceof SqlRequest) {
+              request.dataSource = scenario.databaseConfigMap.get(request.dataSource);
+              sampler = new JDBCSampler(request.name || "", request);
             }
 
             this.addRequestExtractor(sampler, request);
@@ -1062,22 +1107,22 @@ class JMXGenerator {
     let envArray = environments;
     if (!(envArray instanceof Array)) {
       envArray = JSON.parse(environments);
-      envArray.forEach(item => {
-        if (item.name && !keys.has(item.name)) {
-          target.push(new KeyValue(item.name, item.value));
-        }
-      })
     }
+    envArray.forEach(item => {
+      if (item.name && !keys.has(item.name)) {
+        target.push(new KeyValue(item.name, item.value));
+      }
+    })
   }
 
   addScenarioVariables(threadGroup, scenario) {
-    let environment = scenario.environment;
-    if (environment) {
-      this.addEnvironments(environment.variables, scenario.variables)
+    if (scenario.environment) {
+      let commonConfig = scenario.environment.config.commonConfig;
+      this.addEnvironments(commonConfig.variables, scenario.variables)
     }
     let args = this.filterKV(scenario.variables);
     if (args.length > 0) {
-      let name = scenario.name + " Variables"
+      let name = scenario.name + " Variables";
       threadGroup.put(new Arguments(name, args));
     }
   }
@@ -1089,24 +1134,58 @@ class JMXGenerator {
   }
 
   addDNSCacheManager(threadGroup, request) {
-    if (request.environment && request.environment.hosts) {
-      let name = request.name + " DNSCacheManager";
-      let hosts = JSON.parse(request.environment.hosts);
-      if (hosts.length > 0) {
-        //let domain = request.environment.protocol + "://" + request.environment.domain;
-        threadGroup.put(new DNSCacheManager(name, request.environment.domain, hosts));
+    if (request.environment) {
+      let commonConfig = request.environment.config.commonConfig;
+      let hosts = commonConfig.hosts;
+      if (commonConfig.enableHost && hosts.length > 0) {
+        let name = request.name + " DNSCacheManager";
+        // 强化判断，如果未匹配到合适的host则不开启DNSCache
+        let domain = request.environment.config.httpConfig.domain;
+        let validHosts = [];
+        hosts.forEach(item => {
+          let d = item.domain.trim().replace("http://", "").replace("https://", "");
+          if (item && d === domain.trim()) {
+            item.domain = d; // 域名去掉协议
+            validHosts.push(item);
+          }
+        });
+        if (validHosts.length > 0) {
+          threadGroup.put(new DNSCacheManager(name, validHosts));
+        }
       }
     }
   }
 
+  addJDBCDataSources(threadGroup, scenario) {
+    let names = new Set();
+    let databaseConfigMap = new Map();
+    scenario.databaseConfigs.forEach(config => {
+      let name = config.name + "JDBCDataSource";
+      threadGroup.put(new JDBCDataSource(name, config));
+      names.add(name);
+      databaseConfigMap.set(config.id, config.name);
+    });
+    if (scenario.environment) {
+      let envDatabaseConfigs = scenario.environment.config.databaseConfigs;
+      envDatabaseConfigs.forEach(config => {
+        if (!names.has(config.name)) {
+          let name = config.name + "JDBCDataSource";
+          threadGroup.put(new JDBCDataSource(name, config));
+          databaseConfigMap.set(config.id, config.name);
+        }
+      });
+    }
+    scenario.databaseConfigMap = databaseConfigMap;
+  }
+
   addScenarioHeaders(threadGroup, scenario) {
-    let environment = scenario.environment;
-    if (environment) {
-      this.addEnvironments(environment.headers, scenario.headers)
+    if (scenario.environment) {
+      let httpConfig = scenario.environment.config.httpConfig;
+      this.addEnvironments(httpConfig.headers, scenario.headers)
     }
     let headers = this.filterKV(scenario.headers);
     if (headers.length > 0) {
-      let name = scenario.name + " Headers"
+      let name = scenario.name + " Headers";
       threadGroup.put(new HeaderManager(name, headers));
     }
   }

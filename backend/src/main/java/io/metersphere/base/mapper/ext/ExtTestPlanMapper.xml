@@ -143,6 +143,18 @@
             </foreach>
         </if>
     </select>
+    <select id="planList" resultMap="BaseResultMap"
+            parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
+        SELECT * FROM TEST_PLAN p LEFT JOIN test_plan_project t ON t.test_plan_id=p.ID
+        <where>
+            <if test="request.workspaceId != null">
+                AND p.workspace_id = #{request.workspaceId}
+            </if>
+            <if test="request.projectId != null">
+                AND t.project_id = #{request.projectId}
+            </if>
+        </where>
+    </select>
 
     <select id="listRelate" resultType="io.metersphere.track.dto.TestPlanDTOWithMetric">
         select test_plan.* from test_plan

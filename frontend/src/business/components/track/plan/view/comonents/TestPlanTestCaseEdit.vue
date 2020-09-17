@@ -218,6 +218,12 @@
                 />
                 <ckeditor :editor="editor" :disabled="isReadOnly" :config="editorConfig"
                           v-model="testCase.issues.content"/>
+                <el-row v-if="hasTapdId">
+                  Tapd平台处理人：
+                  <el-select v-model="testCase.tapdUsers" placeholder="请选择处理人"  style="width: 20%" multiple collapse-tags>
+                    <el-option v-for="(userInfo, index) in users" :key="index" :label="userInfo.user" :value="userInfo.user"/>
+                  </el-select>
+                </el-row>
                 <el-button type="primary" size="small" @click="saveIssues">{{$t('commons.save')}}</el-button>
                 <el-button size="small" @click="issuesSwitch=false">{{$t('commons.cancel')}}</el-button>
               </el-col>
@@ -323,6 +329,8 @@
         test: {},
         activeTab: 'detail',
         isFailure: true,
+        users: [],
+        hasTapdId: false
       };
     },
     props: {
@@ -490,6 +498,17 @@
             executeResult += this.addPLabel(stepPrefix + (step.executeResult == undefined ? '' : step.executeResult));
           });
           this.testCase.issues.content = desc + this.addPLabel('') + result + this.addPLabel('') + executeResult + this.addPLabel('');
+
+          this.$get("/test/case/project/" + this.testCase.caseId, res => {
+            const project = res.data;
+            if (project.tapdId) {
+              this.hasTapdId = true;
+              this.result = this.$get("/issues/tapd/user/" + this.testCase.caseId, response => {
+                let data = response.data;
+                this.users = data;
+              })
+            }
+          })
         }
       },
       addPLabel(str) {
@@ -515,6 +534,7 @@
         param.title = this.testCase.issues.title;
         param.content = this.testCase.issues.content;
         param.testCaseId = this.testCase.caseId;
+        param.tapdUsers = this.testCase.tapdUsers;
         this.result = this.$post("/issues/add", param, () => {
           this.$success(this.$t('commons.save_success'));
           this.getIssues(param.testCaseId);
@@ -522,6 +542,7 @@
         this.issuesSwitch = false;
         this.testCase.issues.title = "";
         this.testCase.issues.content = "";
+        this.testCase.tapdUsers = [];
       },
       getIssues(caseId) {
         this.result = this.$get("/issues/get/" + caseId, response => {

@@ -30,7 +30,7 @@
             </el-button>
 
             <ms-schedule-config :schedule="testPlan.schedule" :save="saveCronExpression" @scheduleChange="saveSchedule"
-                                :check-open="checkScheduleEdit" :custom-validate="durationValidate"/>
+                                :check-open="checkScheduleEdit" :test-id="testId" :custom-validate="durationValidate"/>
           </el-col>
         </el-row>
 

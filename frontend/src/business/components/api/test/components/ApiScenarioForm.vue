@@ -9,7 +9,7 @@
       <el-select :disabled="isReadOnly" v-model="scenario.environmentId" class="environment-select"
                  @change="environmentChange" clearable>
         <el-option v-for="(environment, index) in environments" :key="index"
-                   :label="environment.name + ': ' + environment.protocol + '://' + environment.socket"
+                   :label="environment.name + (environment.config.httpConfig.socket ? (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '')"
                    :value="environment.id"/>
         <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
           {{ $t('api_test.environment.environment_config') }}
@@ -29,15 +29,15 @@
 
     <el-tabs v-model="activeName" :disabled="isReadOnly">
       <el-tab-pane :label="$t('api_test.scenario.variables')" name="parameters">
-        <ms-api-scenario-variables :is-read-only="isReadOnly" :items="scenario.variables"
+        <ms-api-scenario-variables :isShowEnable="true" :is-read-only="isReadOnly" :items="scenario.variables"
                                    :description="$t('api_test.scenario.kv_description')"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.scenario.headers')" name="headers">
-        <ms-api-key-value :is-read-only="isReadOnly" :items="scenario.headers" :suggestions="headerSuggestions"
+        <ms-api-key-value :is-read-only="isReadOnly" :isShowEnable="true" :items="scenario.headers" :suggestions="headerSuggestions"
                           :environment="scenario.environment"
                           :description="$t('api_test.scenario.kv_description')"/>
       </el-tab-pane>
-      <el-tab-pane :label="'数据库配置'" name="database">
+      <el-tab-pane :label="$t('api_test.environment.database_config')" name="database">
         <ms-database-config :configs="scenario.databaseConfigs"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.scenario.dubbo')" name="dubbo">
@@ -66,6 +66,7 @@ import MsDubboRegistryCenter from "@/business/components/api/test/components/req
 import MsDubboConfigCenter from "@/business/components/api/test/components/request/dubbo/ConfigCenter";
 import MsDubboConsumerService from "@/business/components/api/test/components/request/dubbo/ConsumerAndService";
 import MsDatabaseConfig from "./request/database/DatabaseConfig";
+import {parseEnvironment} from "../model/EnvironmentModel";
 
 export default {
   name: "MsApiScenarioForm",
@@ -111,6 +112,9 @@ export default {
       if (this.projectId) {
         this.result = this.$get('/api/environment/list/' + this.projectId, response => {
           this.environments = response.data;
+          this.environments.forEach(environment => {
+            parseEnvironment(environment);
+          });
           let hasEnvironment = false;
           for (let i in this.environments) {
             if (this.environments[i].id === this.scenario.environmentId) {

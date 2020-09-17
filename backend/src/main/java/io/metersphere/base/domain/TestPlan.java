@@ -7,8 +7,6 @@ import lombok.Data;
 public class TestPlan implements Serializable {
     private String id;
 
-    private String projectId;
-
     private String workspaceId;
 
     private String reportId;
