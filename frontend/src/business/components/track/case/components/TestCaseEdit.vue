@@ -261,7 +261,6 @@ export default {
       },
       moduleOptions: [],
       maintainerOptions: [],
-      methodOptions: [],
       testOptions: [],
       workspaceId: '',
       rules: {
@@ -281,7 +280,11 @@ export default {
       formLabelWidth: "120px",
       operationType: '',
       isCreateContinue: false,
-      isStepTableAlive: true
+      isStepTableAlive: true,
+      methodOptions: [
+        {value: 'auto', label: this.$t('test_track.case.auto')},
+        {value: 'manual', label: this.$t('test_track.case.manual')}
+      ]
     };
   },
   props: {
@@ -458,7 +461,6 @@ export default {
     },
     typeChange() {
       this.form.testId = '';
-      this.getMethodOptions();
       this.getTestOptions()
     },
     getModuleOptions() {
@@ -481,24 +483,15 @@ export default {
           this.testOptions = response.data;
           this.testOptions.unshift({id: 'other', name: this.$t('test_track.case.other')})
         });
-      }
-    },
-    getMethodOptions() {
-      if (!this.form.type || this.form.type != 'functional') {
-        this.methodOptions = [
-          {value: 'auto', label: this.$t('test_track.case.auto')},
-          {value: 'manual', label: this.$t('test_track.case.manual')}
-        ];
-      } else {
-        this.form.method = 'manual';
-        this.methodOptions = [{value: 'manual', label: this.$t('test_track.case.manual')}]
+      } else if (this.form.type === 'functional') {
+        this.testOptions = [{id: 'other', name: this.$t('test_track.case.other')}];
+        this.form.testId = 'other';
       }
     },
     getSelectOptions() {
       this.getModuleOptions();
       this.getMaintainerOptions();
       this.getTestOptions();
-      this.getMethodOptions();
     },
     buildNodePath(node, option, moduleOptions) {
       //递归构建节点路径
