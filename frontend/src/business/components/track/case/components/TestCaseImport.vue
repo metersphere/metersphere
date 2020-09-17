@@ -247,12 +247,12 @@
   }
 
   .testcase-import >>> .el-dialog {
-    width: 700px;
+    width: 650px;
   }
 
   .testcase-import-img {
-    width: 700px;
-    height: 300px;
+    width: 614px;
+    height: 312px;
     size: 200px;
   }
 
