@@ -1065,11 +1065,8 @@ class JMXGenerator {
             } else if (request instanceof HttpRequest) {
               sampler = new HTTPSamplerProxy(request.name || "", new JMXHttpRequest(request, scenario.environment));
               this.addRequestHeader(sampler, request);
-              if (request.method.toUpperCase() === 'GET') {
-                this.addRequestArguments(sampler, request);
-              } else {
-                this.addRequestBody(sampler, request, testId);
-              }
+              this.addRequestArguments(sampler, request);
+              this.addRequestBody(sampler, request, testId);
             } else if (request instanceof SqlRequest) {
               request.dataSource = scenario.databaseConfigMap.get(request.dataSource);
               sampler = new JDBCSampler(request.name || "", request);

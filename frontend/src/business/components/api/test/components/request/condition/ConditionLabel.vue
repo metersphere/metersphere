@@ -4,7 +4,7 @@
       <el-button size="mini" @click="openController"
                  class="condition"
                  :class="controllerClass"
-                 v-if="request.controller.isValid()">
+                 v-if="request.controller && request.controller.isValid()">
         <el-row type="flex" align="middle">
           <font-awesome-icon :icon="['fas', 'random']"/>
           <div class="condition-label">{{ request.controller.label() }}</div>
@@ -16,10 +16,10 @@
       <el-button size="mini" @click="openTimer"
                  class="condition"
                  :class="timerClass"
-                 v-if="request.timer.isValid()">
+                 v-if="request.timer && request.timer.isValid()">
         <el-row type="flex" align="middle">
           <font-awesome-icon :icon="['fas', 'clock']"/>
-          <div class="condition-label">{{ request.timer.label() }}</div>
+          <div class="condition-label">{{ request.timer && request.timer.label() }}</div>
         </el-row>
       </el-button>
     </div>

@@ -57,7 +57,7 @@
       <el-tab-pane :label="$t('api_test.request.headers')" name="headers">
         <ms-api-key-value :is-read-only="isReadOnly" :isShowEnable="true" :suggestions="headerSuggestions" :items="request.headers"/>
       </el-tab-pane>
-      <el-tab-pane :label="$t('api_test.request.body')" name="body" v-if="isNotGet">
+      <el-tab-pane :label="$t('api_test.request.body')" name="body">
         <ms-api-body :is-read-only="isReadOnly"
                      :body="request.body"
                      :scenario="scenario"
@@ -190,9 +190,6 @@ export default {
   },
 
   computed: {
-    isNotGet() {
-      return this.request.method !== "GET";
-    },
     displayUrl() {
       return (this.request.environment && this.request.environment.config.httpConfig.socket) ?
         this.request.environment.config.httpConfig.protocol + '://' + this.request.environment.config.httpConfig.socket + (this.request.path ? this.request.path : '')
