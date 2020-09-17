@@ -224,6 +224,9 @@
                     #{id}
                 </foreach>
             </if>
+            <if test="request.projectId!=null">
+                and test_case.project_id=#{request.projectId}
+            </if>
         </where>
         <if test="request.orders != null and request.orders.size() > 0">
             order by

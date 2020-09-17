@@ -94,3 +94,10 @@ body {
   border: 1px solid #409EFF;
 }
 /* 表格 input 编辑效果 --> */
+
+.ms-border {
+  padding: 10px;
+  border: #DCDFE6 solid 1px;
+  margin: 5px 0;
+  border-radius: 5px;
+}

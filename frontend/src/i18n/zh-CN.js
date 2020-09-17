@@ -114,6 +114,7 @@ export default {
     id: 'ID',
     millisecond: '毫秒',
     cannot_be_null: '不能为空',
+    already_exists: '名称不能重复',
     date: {
       select_date: '选择日期',
       start_date: '开始日期',
@@ -376,6 +377,7 @@ export default {
     domain_ip_is_empty: '域名和IP不能为空',
     param_name_value_is_empty: '参数名和参数值不能为空',
     connect_timeout: '建立连接超时时间',
+    response_timeout: '响应超时时间',
     custom_http_code: '自定义 HTTP 响应成功状态码',
     separated_by_commas: '按逗号分隔',
     create: '创建测试',
@@ -416,6 +418,9 @@ export default {
       environment: "环境",
       select_environment: "请选择环境",
       please_save_test: "请先保存测试",
+      common_config: "通用配置",
+      http_config: "HTTP配置",
+      database_config: "数据库配置",
     },
     scenario: {
       scenario: "场景",
@@ -531,6 +536,19 @@ export default {
         check_registry_center: "获取失败，请检查Registry Center",
         form_description: "如果当前配置项无值，则取场景配置项的值",
       },
+      sql: {
+        dataSource: "数据源名称",
+        sql_script: "SQL脚本",
+        timeout: "超时时间(ms)",
+        database_driver: "数据库驱动",
+        database_url: "数据库连接URL",
+        username: "用户名",
+        password: "密码",
+        pool_max: "最大连接数",
+        query_timeout: "最大等待时间(ms)",
+        name_cannot_be_empty: "SQL请求名称不能为空",
+        dataSource_cannot_be_empty: "SQL请求数据源不能为空",
+      }
     },
     api_import: {
       label: "导入",
@@ -599,6 +617,7 @@ export default {
     actual_result: ": 实际结果为空",
 
     case: {
+      export_all_cases: '确定要导出全部用例吗?',
       input_test_case: '请输入关联用例名称',
       test_name: '测试名称',
       other: "--其他--",
@@ -657,12 +676,18 @@ export default {
         download_template: "下载模版",
         click_upload: "点击上传",
         upload_limit: "只能上传xls/xlsx文件，且不超过20M",
+        upload_xmind: "支持文件类型：.xmind；一次至多导入500 条用例",
+        upload_xmind_format: "上传文件只能是 .xmind 格式",
         upload_limit_other_size: "上传文件大小不能超过",
         upload_limit_count: "一次只能上传一个文件",
         upload_limit_format: "上传文件只能是 xls、xlsx格式!",
         upload_limit_size: "上传文件大小不能超过 20MB!",
         success: "导入成功！",
         importing: "导入中...",
+        excel_title: "表格文件",
+        xmind_title: "思维导图",
+        import_desc: "导入说明",
+        import_file: "上传文件",
       },
       export: {
         export: "导出用例"

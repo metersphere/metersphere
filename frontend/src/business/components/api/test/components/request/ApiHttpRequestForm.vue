@@ -148,7 +148,7 @@ export default {
       if (!this.request.path) return;
       let url = this.getURL(this.displayUrl);
       let urlStr = url.origin + url.pathname;
-      let envUrl = this.request.environment.protocol + '://' + this.request.environment.socket;
+      let envUrl = this.request.environment.config.httpConfig.protocol + '://' + this.request.environment.config.httpConfig.socket;
       this.request.path = decodeURIComponent(urlStr.substring(envUrl.length, urlStr.length));
     },
     getURL(urlStr) {
@@ -194,7 +194,9 @@ export default {
       return this.request.method !== "GET";
     },
     displayUrl() {
-      return this.request.environment ? this.request.environment.protocol + '://' + this.request.environment.socket + (this.request.path ? this.request.path : '') : '';
+      return (this.request.environment && this.request.environment.config.httpConfig.socket) ?
+        this.request.environment.config.httpConfig.protocol + '://' + this.request.environment.config.httpConfig.socket + (this.request.path ? this.request.path : '')
+        : '';
     }
   }
 }

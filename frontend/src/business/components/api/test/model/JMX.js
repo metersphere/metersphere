@@ -185,7 +185,7 @@ export class TestPlan extends DefaultTestElement {
 
     props = props || {};
     this.boolProp("TestPlan.functional_mode", props.mode, false);
-    this.boolProp("TestPlan.serialize_threadgroups", props.stg, false);
+    this.boolProp("TestPlan.serialize_threadgroups", props.stg, true);
     this.boolProp("TestPlan.tearDown_on_shutdown", props.tos, true);
     this.stringProp("TestPlan.comments", props.comments);
     this.stringProp("TestPlan.user_define_classpath", props.classpath);
@@ -350,7 +350,7 @@ export class HTTPSamplerArguments extends Element {
 
     let collectionProp = this.collectionProp('Arguments.arguments');
     this.args.forEach(arg => {
-      if (arg.enable === true) { // 非禁用的条件加入执行
+      if (arg.enable === true  || arg.enable === undefined) { // 非禁用的条件加入执行
         let elementProp = collectionProp.elementProp(arg.name, 'HTTPArgument');
         elementProp.boolProp('HTTPArgument.always_encode', arg.encode, true);
         elementProp.boolProp('HTTPArgument.use_equals', arg.equals, true);
@@ -520,7 +520,7 @@ export class HeaderManager extends DefaultTestElement {
 
     let collectionProp = this.collectionProp('HeaderManager.headers');
     this.headers.forEach(header => {
-      if (header.enable === true) {
+      if (header.enable === true || header.enable === undefined) {
         let elementProp = collectionProp.elementProp('', 'Header');
         elementProp.stringProp('Header.name', header.name);
         elementProp.stringProp('Header.value', header.value);
@@ -530,17 +530,15 @@ export class HeaderManager extends DefaultTestElement {
 }
 
 export class DNSCacheManager extends DefaultTestElement {
-  constructor(testName, domain, hosts) {
+  constructor(testName, hosts) {
     super('DNSCacheManager', 'DNSCachePanel', 'DNSCacheManager', testName);
     let collectionPropServers = this.collectionProp('DNSCacheManager.servers');
     let collectionPropHosts = this.collectionProp('DNSCacheManager.hosts');
 
     hosts.forEach(host => {
       let elementProp = collectionPropHosts.elementProp(host.domain, 'StaticHost');
-      if (host && host.domain.trim().indexOf(domain.trim()) != -1) {
-        elementProp.stringProp('StaticHost.Name', host.domain);
-        elementProp.stringProp('StaticHost.Address', host.ip);
-      }
+      elementProp.stringProp('StaticHost.Name', host.domain);
+      elementProp.stringProp('StaticHost.Address', host.ip);
     });
 
     let boolProp = this.boolProp('DNSCacheManager.isCustomResolver', true);
@@ -578,7 +576,7 @@ export class Arguments extends DefaultTestElement {
     let collectionProp = this.collectionProp('Arguments.arguments');
 
     this.args.forEach(arg => {
-      if (arg.enable === true) { // 非禁用的条件加入执行
+      if (arg.enable === true || arg.enable === undefined) { // 非禁用的条件加入执行
         let elementProp = collectionProp.elementProp(arg.name, 'Argument');
         elementProp.stringProp('Argument.name', arg.name);
         elementProp.stringProp('Argument.value', arg.value);
@@ -603,7 +601,7 @@ export class ElementArguments extends Element {
     let collectionProp = this.collectionProp('Arguments.arguments');
     if (args) {
       args.forEach(arg => {
-        if (arg.enable === true) { // 非禁用的条件加入执行
+        if (arg.enable === true || arg.enable === undefined) { // 非禁用的条件加入执行
           let elementProp = collectionProp.elementProp(arg.name, 'Argument');
           elementProp.stringProp('Argument.name', arg.name);
           elementProp.stringProp('Argument.value', arg.value);

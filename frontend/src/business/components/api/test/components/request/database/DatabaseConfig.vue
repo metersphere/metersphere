@@ -1,6 +1,6 @@
 <template>
   <div>
-    <ms-database-from :config="currentConfig" @save="addConfig" ref="databaseFrom"/>
+    <ms-database-from :config="currentConfig" :callback="addConfig" ref="databaseFrom"/>
     <ms-database-config-list v-if="configs.length > 0" :table-data="configs"/>
   </div>
 </template>
@@ -31,14 +31,16 @@
         addConfig(config) {
           for (let item of this.configs) {
             if (item.name === config.name) {
-              this.$warning("名称重复");
+              this.$warning(this.$t('commons.already_exists'));
               return;
             }
           }
           config.id = getUUID();
-          this.configs.push(config);
-          this.currentConfig =  new DatabaseConfig();
-        }
+          let item = {};
+          Object.assign(item, config);
+          this.configs.push(item);
+          this.currentConfig = new DatabaseConfig();
+        },
       }
     }
 </script>

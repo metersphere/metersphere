@@ -5,9 +5,9 @@
       <el-input v-model="request.name" maxlength="300" show-word-limit/>
     </el-form-item>
 
-    <el-form-item :label="'连接池'" prop="dataSource">
+    <el-form-item :label="$t('api_test.request.sql.dataSource')" prop="dataSource">
       <el-select v-model="request.dataSource">
-        <el-option v-for="(item, index) in scenario.databaseConfigs" :key="index" :value="item.name" :label="item.name"/>
+        <el-option v-for="(item, index) in databaseConfigsOptions" :key="index" :value="item.id" :label="item.name"/>
       </el-select>
     </el-form-item>
 
@@ -17,14 +17,21 @@
       <!--</el-select>-->
     <!--</el-form-item>-->
 
-    <el-form-item :label="'超时时间'" prop="queryTimeout">
+    <el-form-item :label="$t('api_test.request.sql.timeout')" prop="queryTimeout">
      <el-input-number :disabled="isReadOnly" size="mini" v-model="request.queryTimeout" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
+    </el-form-item>
+
+    <el-form-item>
+      <el-switch
+        v-model="request.useEnvironment"
+        :active-text="$t('api_test.request.refer_to_environment')" @change="getDatabaseConfigsOptions">
+      </el-switch>
     </el-form-item>
 
     <el-button :disabled="!request.enable || !scenario.enable || isReadOnly" class="debug-button" size="small" type="primary" @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
 
     <el-tabs v-model="activeName">
-      <el-tab-pane :label="'sql脚本'" name="sql">
+      <el-tab-pane :label="$t('api_test.request.sql.sql_script')" name="sql">
         <div class="sql-content" >
           <ms-code-edit mode="sql" :read-only="isReadOnly" :modes="['sql']" :data.sync="request.query" theme="eclipse" ref="codeEdit"/>
         </div>
@@ -80,6 +87,7 @@
     data() {
       return {
         activeName: "sql",
+        databaseConfigsOptions: [],
         rules: {
           name: [
             {required: true, message: this.$t('commons.input_name'), trigger: 'blur'},
@@ -93,19 +101,38 @@
     },
 
     methods: {
-      useEnvironmentChange(value) {
-        if (value && !this.request.environment) {
-          this.$error(this.$t('api_test.request.please_add_environment_to_scenario'), 2000);
-          this.request.useEnvironment = false;
+      getDatabaseConfigsOptions() {
+        this.databaseConfigsOptions = [];
+        let names = new Set();
+        let ids = new Set();
+        this.scenario.databaseConfigs.forEach(config => {
+          this.databaseConfigsOptions.push(config);
+          names.add(config.name);
+          ids.add(config.id);
+        });
+        if (this.request.useEnvironment && this.scenario.environment) {
+          this.scenario.environment.config.databaseConfigs.forEach(config => {
+            if (!names.has(config.name)) {
+              this.databaseConfigsOptions.push(config);
+              ids.add(config.id);
+            }
+          });
         }
-        this.$refs["request"].clearValidate();
+        if (!ids.has(this.request.dataSource)) {
+          this.request.dataSource = undefined;
+        }
       },
       runDebug() {
         this.$emit('runDebug');
       }
     },
 
-    computed: {}
+    created() {
+      this.getDatabaseConfigsOptions();
+    },
+    activated() {
+      this.getDatabaseConfigsOptions();
+    }
   }
 </script>
 

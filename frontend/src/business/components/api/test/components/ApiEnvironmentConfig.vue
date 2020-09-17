@@ -21,6 +21,7 @@
   import MsAsideItem from "../../../common/components/MsAsideItem";
   import EnvironmentEdit from "./environment/EnvironmentEdit";
   import {listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
+  import {Environment, parseEnvironment} from "../model/EnvironmentModel";
 
   export default {
     name: "ApiEnvironmentConfig",
@@ -35,7 +36,7 @@
         visible: false,
         projectId: '',
         environments: [],
-        currentEnvironment: {variables: [{}], headers: [{}], protocol: 'https', projectId: this.projectId, hosts: [{}]},
+        currentEnvironment: new Environment(),
         environmentOperators: [
           {
             icon: 'el-icon-document-copy',
@@ -68,7 +69,7 @@
       },
       copyEnvironment(environment) {
         if (!environment.id) {
-          this.$warning(this.$t('commons.please_save'))
+          this.$warning(this.$t('commons.please_save'));
           return;
         }
         let newEnvironment = {};
@@ -102,7 +103,9 @@
         return name;
       },
       addEnvironment() {
-        let newEnvironment = this.getDefaultEnvironment();
+        let newEnvironment = new Environment({
+          projectId: this.projectId
+        });
         this.environments.push(newEnvironment);
         this.$refs.environmentItems.itemSelected(this.environments.length - 1, newEnvironment);
       },
@@ -116,7 +119,9 @@
             if (this.environments.length > 0) {
               this.$refs.environmentItems.itemSelected(0, this.environments[0]);
             } else {
-              let item = this.getDefaultEnvironment();
+              let item = new Environment({
+                projectId: this.projectId
+              });
               this.environments.push(item);
               this.$refs.environmentItems.itemSelected(0, item);
             }
@@ -124,24 +129,8 @@
         }
       },
       getEnvironment(environment) {
-        if (!(environment.variables instanceof Array)) {
-          environment.variables = JSON.parse(environment.variables);
-        }
-        if (!(environment.headers instanceof Array)) {
-          environment.headers = JSON.parse(environment.headers);
-        }
-        if(environment.hosts === undefined || environment.hosts ===null || environment.hosts ===''){
-          environment.hosts = [];
-          environment.enable =false;
-        }
-        else if (!(environment.hosts instanceof Array)) {
-          environment.hosts = JSON.parse(environment.hosts);
-          environment.enable =true;
-        }
+        parseEnvironment(environment);
         this.currentEnvironment = environment;
-      },
-      getDefaultEnvironment() {
-        return {variables: [{}], headers: [{}], protocol: 'https', projectId: this.projectId, hosts: [{}]};
       },
       close() {
         this.$emit('close');
