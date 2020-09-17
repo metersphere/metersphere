@@ -76,6 +76,7 @@ public class XmindToTestCaseParser {
         return jsonArray.toJSONString();
     }
 
+    // 初始化一个用例
     private void newTestCase(String title, String nodePath, List<Attached> attacheds) {
         TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
         testCase.setProjectId(projectId);
@@ -88,6 +89,7 @@ public class XmindToTestCaseParser {
         String tcArr[] = tc.split(":");
         if (tcArr.length != 2) {
             process.append(Translator.get("test_case_name") + "【 " + title + " 】" + Translator.get("incorrect_format"));
+            return;
         }
         // 用例名称
         testCase.setName(tcArr[1].replace("tc:|tc：", ""));
