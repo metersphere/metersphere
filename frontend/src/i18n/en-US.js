@@ -613,6 +613,7 @@ export default {
     execution_result: ": Please select the execution result",
     actual_result: ": The actual result is empty",
     case: {
+      export_all_cases: 'Are you sure you want to export all use cases?',
       input_test_case: 'Please enter the associated case name',
       test_name: 'TestName',
       other: '--Other--',

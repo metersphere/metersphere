@@ -214,7 +214,12 @@ export class Scenario extends BaseConfig {
     this.databaseConfigs = [];
 
     this.set(options);
-    this.sets({variables: KeyValue, headers: KeyValue, requests: RequestFactory, databaseConfigs: DatabaseConfig}, options);
+    this.sets({
+      variables: KeyValue,
+      headers: KeyValue,
+      requests: RequestFactory,
+      databaseConfigs: DatabaseConfig
+    }, options);
   }
 
   initOptions(options = {}) {
@@ -1046,11 +1051,20 @@ class JMXGenerator {
     if (request.environment) {
       let commonConfig = request.environment.config.commonConfig;
       let hosts = commonConfig.hosts;
-      if (commonConfig.enableHost) {
+      if (commonConfig.enableHost && hosts.length > 0) {
         let name = request.name + " DNSCacheManager";
-        if (hosts.length > 0) {
-          //let domain = request.environment.protocol + "://" + request.environment.domain;
-          threadGroup.put(new DNSCacheManager(name, request.environment.config.httpConfig.domain, hosts));
+        // 强化判断，如果未匹配到合适的host则不开启DNSCache
+        let domain = request.environment.config.httpConfig.domain;
+        let validHosts = [];
+        hosts.forEach(item => {
+          let d = item.domain.trim().replace("http://", "").replace("https://", "");
+          if (item && d === domain.trim()) {
+            item.domain = d; // 域名去掉协议
+            validHosts.push(item);
+          }
+        });
+        if (validHosts.length > 0) {
+          threadGroup.put(new DNSCacheManager(name, validHosts));
         }
       }
     }

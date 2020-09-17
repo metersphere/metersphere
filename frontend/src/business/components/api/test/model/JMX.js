@@ -530,17 +530,15 @@ export class HeaderManager extends DefaultTestElement {
 }
 
 export class DNSCacheManager extends DefaultTestElement {
-  constructor(testName, domain, hosts) {
+  constructor(testName, hosts) {
     super('DNSCacheManager', 'DNSCachePanel', 'DNSCacheManager', testName);
     let collectionPropServers = this.collectionProp('DNSCacheManager.servers');
     let collectionPropHosts = this.collectionProp('DNSCacheManager.hosts');
 
     hosts.forEach(host => {
       let elementProp = collectionPropHosts.elementProp(host.domain, 'StaticHost');
-      if (host && host.domain.trim().indexOf(domain.trim()) != -1) {
-        elementProp.stringProp('StaticHost.Name', host.domain);
-        elementProp.stringProp('StaticHost.Address', host.ip);
-      }
+      elementProp.stringProp('StaticHost.Name', host.domain);
+      elementProp.stringProp('StaticHost.Address', host.ip);
     });
 
     let boolProp = this.boolProp('DNSCacheManager.isCustomResolver', true);

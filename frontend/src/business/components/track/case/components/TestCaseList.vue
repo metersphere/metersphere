@@ -382,7 +382,7 @@ export default {
         method: 'post',
         responseType: 'blob',
         // data: {ids: [...this.selectIds]}
-        data: {ids: ids}
+        data: {ids: ids, projectId: this.currentProject.id}
       };
       this.result = this.$request(config).then(response => {
         const filename = this.$t('test_track.case.test_case') + ".xlsx";
@@ -399,9 +399,22 @@ export default {
       });
     },
     handleBatch(type) {
+
       if (this.selectRows.size < 1) {
-        this.$warning(this.$t('test_track.plan_view.select_manipulate'));
-        return;
+        if (type === 'export') {
+          this.$alert(this.$t('test_track.case.export_all_cases'), '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                this.exportTestCase();
+              }
+            }
+          })
+          return;
+        } else {
+          this.$warning(this.$t('test_track.plan_view.select_manipulate'));
+          return;
+        }
       }
       if (type === 'move') {
         let ids = Array.from(this.selectRows).map(row => row.id);
