@@ -12,6 +12,7 @@ public class Attached {
 	private String title;
 	private Notes notes;
 	private String path;
+	private Attached parent;
 	private List<Comments> comments;
 	private Children children;
 
