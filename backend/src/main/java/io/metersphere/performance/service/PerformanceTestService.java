@@ -239,7 +239,7 @@ public class PerformanceTestService {
         startEngine(loadTest, engine, request.getTriggerMode());
         if (request.getTriggerMode().equals("SCHEDULE")) {
             List<Notice> notice = noticeService.queryNotice(request.getId());
-            mailService.sendHtml(engine.getReportId(), notice, "success", "performance");
+            mailService.sendHtml(engine.getReportId(), notice, "status", "performance");
         }
         return engine.getReportId();
     }
