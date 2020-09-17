@@ -342,6 +342,7 @@
             {min: 2, max: 50, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'},
             {
               required: true,
+              pattern: '^[^\u4e00-\u9fa5]+$',
               message: this.$t('user.special_characters_are_not_supported'),
               trigger: 'blur'
             }
