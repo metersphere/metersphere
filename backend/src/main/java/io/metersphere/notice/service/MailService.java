@@ -9,6 +9,7 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.UserService;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -30,25 +31,25 @@ public class MailService {
     @Resource
     private SystemParameterService systemParameterService;
 
-    public void sendHtml(String id, List<Notice> notice,String type) {
+    public void sendHtml(String id, List<Notice> notice, String status, String type) {
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
-        List<SystemParameter> paramList=systemParameterService.getParamList(ParamConstants.Classify.MAIL.getValue());
+        List<SystemParameter> paramList = systemParameterService.getParamList(ParamConstants.Classify.MAIL.getValue());
         javaMailSender.setDefaultEncoding("UTF-8");
         javaMailSender.setProtocol("smtps");
-        for(SystemParameter p:paramList){
-                if(p.getParamKey().equals("smtp.host")){
-                    javaMailSender.setHost(p.getParamValue());
-                }
-                if(p.getParamKey().equals("smtp.port")){
-                    javaMailSender.setPort(Integer.parseInt(p.getParamValue()));
-                }
-                if(p.getParamKey().equals("smtp.account")){
-                    javaMailSender.setUsername(p.getParamValue());
-                }
-            if(p.getParamKey().equals("smtp.password")){
-                    javaMailSender.setPassword(EncryptUtils.aesDecrypt(p.getParamValue()).toString());
-                }
+        for (SystemParameter p : paramList) {
+            if (p.getParamKey().equals("smtp.host")) {
+                javaMailSender.setHost(p.getParamValue());
             }
+            if (p.getParamKey().equals("smtp.port")) {
+                javaMailSender.setPort(Integer.parseInt(p.getParamValue()));
+            }
+            if (p.getParamKey().equals("smtp.account")) {
+                javaMailSender.setUsername(p.getParamValue());
+            }
+            if (p.getParamKey().equals("smtp.password")) {
+                javaMailSender.setPassword(EncryptUtils.aesDecrypt(p.getParamValue()).toString());
+            }
+        }
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
@@ -58,15 +59,12 @@ public class MailService {
         javaMailSender.setJavaMailProperties(props);
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         String testName = "";
-        String state = "";
         if (type.equals("api")) {
             APIReportResult reportResult = apiAndPerformanceHelper.getApi(id);
             testName = reportResult.getTestName();
-            state = reportResult.getStatus();
         } else if (type.equals("performance")) {
             LoadTestDTO performanceResult = apiAndPerformanceHelper.getPerformance(id);
             testName = performanceResult.getName();
-            state = performanceResult.getStatus();
         }
         String html1 = "<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
@@ -76,12 +74,12 @@ public class MailService {
                 "</head>\n" +
                 "<body style=\"text-align: left\">\n" +
                 "    <div>\n" +
-                "      <h3>"+type+"定时任务结果通知</h3>\n" +
-                "      <p>   尊敬的用户：您好，您所执行的"+testName+"运行失败，请点击报告链接查看</p>\n" +
+                "      <h3>" + type + "定时任务结果通知</h3>\n" +
+                "      <p>   尊敬的用户：您好，您所执行的" + testName + "运行失败，请点击报告链接查看</p>\n" +
                 "    </div>\n" +
                 "</body>\n" +
                 "</html>";
-        String html2="<!DOCTYPE html>\n" +
+        String html2 = "<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "<head>\n" +
                 "  <meta charset=\"UTF-8\">\n" +
@@ -89,8 +87,8 @@ public class MailService {
                 "</head>\n" +
                 "<body style=\"text-align: left\">\n" +
                 "    <div>\n" +
-                "      <h3>"+type+"定时任务结果通知</h3>\n" +
-                "      <p>    尊敬的用户：您好，"+testName+"运行成功，请点击报告链接查看</p>\n" +
+                "      <h3>" + type + "定时任务结果通知</h3>\n" +
+                "      <p>    尊敬的用户：您好，" + testName + "运行成功，请点击报告链接查看</p>\n" +
                 "    </div>\n" +
                 "</body>\n" +
                 "</html>";
@@ -99,34 +97,38 @@ public class MailService {
             helper.setFrom(javaMailSender.getUsername());
             helper.setSubject("MeterSphere定时任务结果通知");
             String users[] = {};
-            List<String> successEmailList=new ArrayList<>();
-            List<String> failEmailList=new ArrayList<>();
-            if(notice.size()>0){
-                for(Notice n:notice){
-                    if (n.getEnable().equals("true")&&n.getEvent().equals("执行成功")) {
-                        successEmailList=userService.queryEmail(n.getNames());
+            List<String> successEmailList = new ArrayList<>();
+            List<String> failEmailList = new ArrayList<>();
+            if (notice.size() > 0) {
+                for (Notice n : notice) {
+                    if (n.getEnable().equals("true") && n.getEvent().equals("执行成功")) {
+                        successEmailList = userService.queryEmail(n.getNames());
                     }
-                    if (n.getEnable().equals("true")&&n.getEvent().equals("执行失败")) {
-                        failEmailList=userService.queryEmail(n.getNames());
+                    if (n.getEnable().equals("true") && n.getEvent().equals("执行失败")) {
+                        failEmailList = userService.queryEmail(n.getNames());
                     }
 
                 }
-            }else{
+            } else {
                 LogUtil.error("Recipient information is empty");
             }
 
-            if(state.equals("success")){
-                users=successEmailList.toArray(new String[successEmailList.size()]);
-                helper.setText(html2,true);
-            }else{
-                users=failEmailList.toArray(new String[failEmailList.size()]);
-                helper.setText(html1,true);
+            if (status.equals("Success")) {
+                users = successEmailList.toArray(new String[successEmailList.size()]);
+                helper.setText(html2, true);
+            } else {
+                users = failEmailList.toArray(new String[failEmailList.size()]);
+                helper.setText(html1, true);
 
             }
             helper.setTo(users);
-            javaMailSender.send(mimeMessage);
 
         } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+        try {
+            javaMailSender.send(mimeMessage);
+        } catch (MailException e) {
             e.printStackTrace();
         }
     }

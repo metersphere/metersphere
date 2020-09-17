@@ -71,6 +71,7 @@
                   </template>
                 </el-table-column>
               </el-table>
+              <el-button  type="primary" @click="saveNotice">{{$t('commons.save')}}</el-button>
             </template>
           </el-tab-pane>
         </el-tabs>
@@ -206,9 +207,11 @@
             return false;
           }
         });
+      },
+      saveNotice(){
         let param = this.buildParam();
         this.result = this.$post("notice/save", param, () => {
-
+          this.$success(this.$t('commons.save_success'));
         })
       },
       close() {

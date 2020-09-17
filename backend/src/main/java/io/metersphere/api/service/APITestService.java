@@ -223,10 +223,10 @@ public class APITestService {
             apiTest.setUserId(request.getUserId());
         }
         String reportId = apiReportService.create(apiTest, request.getTriggerMode());
-        if (request.getTriggerMode().equals("SCHEDULE")) {
+        /*if (request.getTriggerMode().equals("SCHEDULE")) {
             List<Notice> notice = noticeService.queryNotice(request.getId());
             mailService.sendHtml(reportId,notice,"api");
-        }
+        }*/
         changeStatus(request.getId(), APITestStatus.Running);
         jMeterService.run(request.getId(), null, is);
         return reportId;

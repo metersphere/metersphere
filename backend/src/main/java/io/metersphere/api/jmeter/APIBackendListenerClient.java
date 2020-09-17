@@ -3,16 +3,20 @@ package io.metersphere.api.jmeter;
 import io.metersphere.api.service.APIReportService;
 import io.metersphere.api.service.APITestService;
 import io.metersphere.base.domain.ApiTestReport;
+import io.metersphere.base.domain.Notice;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.notice.service.MailService;
+import io.metersphere.notice.service.NoticeService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.AssertionResult;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
 import org.apache.jmeter.visualizers.backend.BackendListenerContext;
 
+import javax.annotation.Resource;
 import java.io.Serializable;
 import java.util.*;
 
@@ -113,9 +117,12 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             report = apiReportService.getRunningReport(testResult.getTestId());
         }
         apiReportService.complete(testResult, report);
-
         queue.clear();
         super.teardownTest(context);
+        NoticeService noticeService = CommonBeanFactory.getBean(NoticeService.class);
+        List<Notice> notice = noticeService.queryNotice(testResult.getTestId());
+        MailService mailService = CommonBeanFactory.getBean(MailService.class);
+        mailService.sendHtml(report.getId(), notice, report.getStatus(), "api");
     }
 
     private RequestResult getRequestResult(SampleResult result) {
@@ -170,7 +177,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         this.runMode = context.getParameter("runMode");
         this.debugReportId = context.getParameter("debugReportId");
         if (StringUtils.isBlank(this.runMode)) {
-            this.runMode =  ApiRunMode.RUN.name();
+            this.runMode = ApiRunMode.RUN.name();
         }
     }
 
