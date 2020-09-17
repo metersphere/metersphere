@@ -120,9 +120,18 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         queue.clear();
         super.teardownTest(context);
         NoticeService noticeService = CommonBeanFactory.getBean(NoticeService.class);
-        List<Notice> notice = noticeService.queryNotice(testResult.getTestId());
+        List<Notice> notice = null;
+        try {
+            notice = noticeService.queryNotice(testResult.getTestId());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         MailService mailService = CommonBeanFactory.getBean(MailService.class);
-        mailService.sendHtml(report.getId(), notice, report.getStatus(), "api");
+        try {
+            mailService.sendHtml(report.getId(), notice, report.getStatus(), "api");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private RequestResult getRequestResult(SampleResult result) {
