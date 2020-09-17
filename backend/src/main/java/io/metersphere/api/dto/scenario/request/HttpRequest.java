@@ -5,11 +5,13 @@ import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.assertions.Assertions;
+import io.metersphere.api.dto.scenario.controller.IfController;
 import io.metersphere.api.dto.scenario.extract.Extract;
 import io.metersphere.api.dto.scenario.processor.BeanShellPostProcessor;
 import io.metersphere.api.dto.scenario.processor.BeanShellPreProcessor;
 import io.metersphere.api.dto.scenario.processor.JSR223PostProcessor;
 import io.metersphere.api.dto.scenario.processor.JSR223PreProcessor;
+import io.metersphere.api.dto.scenario.timer.ConstantTimer;
 import lombok.Data;
 
 import java.util.List;
@@ -57,4 +59,8 @@ public class HttpRequest implements Request {
     private JSR223PreProcessor jsr223PreProcessor;
     @JSONField(ordinal = 18)
     private JSR223PostProcessor jsr223PostProcessor;
+    @JSONField(ordinal = 19)
+    private IfController controller;
+    @JSONField(ordinal = 20)
+    private ConstantTimer timer;
 }

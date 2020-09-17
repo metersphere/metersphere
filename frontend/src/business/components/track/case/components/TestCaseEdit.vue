@@ -177,6 +177,12 @@
                     circle size="mini"
                     @click="handleAddStep(scope.$index, scope.row)"></el-button>
                   <el-button
+                    icon="el-icon-document-copy"
+                    type="success"
+                    :disabled="readOnly"
+                    circle size="mini"
+                    @click="handleCopyStep(scope.$index, scope.row)"></el-button>
+                  <el-button
                     type="danger"
                     icon="el-icon-delete"
                     circle size="mini"
@@ -354,6 +360,18 @@ export default {
       step.num = data.num + 1;
       step.desc = "";
       step.result = "";
+      this.form.steps.forEach(step => {
+        if (step.num > data.num) {
+          step.num++;
+        }
+      });
+      this.form.steps.splice(index + 1, 0, step);
+    },
+    handleCopyStep(index, data) {
+      let step = {};
+      step.num = data.num + 1;
+      step.desc = data.desc;
+      step.result = data.result;
       this.form.steps.forEach(step => {
         if (step.num > data.num) {
           step.num++;

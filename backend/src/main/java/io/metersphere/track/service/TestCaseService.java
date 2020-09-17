@@ -328,13 +328,11 @@ public class TestCaseService {
         }
     }
 
-    public static void download(HttpServletResponse res) throws IOException {
+    public void download(HttpServletResponse res) throws IOException {
         // 发送给客户端的数据
-        OutputStream outputStream = res.getOutputStream();
         byte[] buff = new byte[1024];
-        // 读取filename
-        String filePath = ClassLoader.getSystemResource("template/testcase.xmind").getPath();
-        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(new File(filePath)));) {
+        try (OutputStream outputStream = res.getOutputStream();
+             BufferedInputStream bis = new BufferedInputStream(this.getClass().getResourceAsStream("/template/testcase.xmind"));) {
             int i = bis.read(buff);
             while (i != -1) {
                 outputStream.write(buff, 0, buff.length);
@@ -343,12 +341,13 @@ public class TestCaseService {
             }
         } catch (Exception ex) {
             LogUtil.error(ex.getMessage());
+            MSException.throwException("下载思维导图模版失败");
         }
     }
 
     public void testCaseXmindTemplateExport(HttpServletResponse response) {
         try {
-            response.setContentType("application/vnd.ms-excel");
+            response.setContentType("application/octet-stream");
             response.setCharacterEncoding("utf-8");
             response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode("思维导图用例模版", "UTF-8") + ".xmind");
             download(response);

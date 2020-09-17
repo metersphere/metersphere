@@ -75,7 +75,7 @@ import MsApiScenarioForm from "./ApiScenarioForm";
 import {Request, Scenario} from "../model/ScenarioModel";
 import draggable from 'vuedraggable';
 import MsApiScenarioSelect from "@/business/components/api/test/components/ApiScenarioSelect";
-import {compatibleWithEnvironment, Config, parseEnvironment} from "../model/EnvironmentModel";
+import {parseEnvironment} from "../model/EnvironmentModel";
 
 export default {
   name: "MsApiScenarioConfig",

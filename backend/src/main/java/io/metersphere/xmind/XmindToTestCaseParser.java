@@ -21,6 +21,8 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 数据转换
@@ -51,16 +53,38 @@ public class XmindToTestCaseParser {
     protected List<TestCaseExcelData> xmindDataList;
 
     // 递归处理案例数据
-    private void makeXmind(StringBuffer processBuffer, String nodeId, int level, String nodePath, List<Attached> attacheds) {
+    private void makeXmind(StringBuffer processBuffer, Attached parent, int level, String nodePath, List<Attached> attacheds) {
         for (Attached item : attacheds) {
-            if (!StringUtils.isEmpty(item.getTitle()) && item.getTitle().startsWith("tc")) { // 用例
-                this.newTestCase(item.getTitle(), nodePath, item.getChildren() != null ? item.getChildren().getAttached() : null);
+            if (isBlack(item.getTitle(), "(?:tc|tc)")) { // 用例
+                item.setParent(parent);
+                this.newTestCase(item.getTitle(), parent.getPath(), item.getChildren() != null ? item.getChildren().getAttached() : null);
             } else {
-                nodePath = nodePath + "/" + item.getTitle();
-                if (item.getChildren() != null && !item.getChildren().getAttached().isEmpty())
-                    makeXmind(processBuffer, nodeId, level + 1, nodePath, item.getChildren().getAttached());
+                nodePath = parent.getPath() + "/" + item.getTitle();
+                item.setPath(nodePath);
+                if (item.getChildren() != null && !item.getChildren().getAttached().isEmpty()) {
+                    item.setParent(parent);
+                    makeXmind(processBuffer, item, level + 1, nodePath, item.getChildren().getAttached());
+                }
             }
         }
+    }
+
+    private boolean isBlack(String str, String regex) {
+        // regex = "(?:tc:|tc：)"
+        if (StringUtils.isEmpty(str) || StringUtils.isEmpty(regex))
+            return false;
+        Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+        Matcher result = pattern.matcher(str);
+        return result.find();
+    }
+
+    private String replace(String str, String regex) {
+        if (StringUtils.isEmpty(str) || StringUtils.isEmpty(regex))
+            return str;
+        Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+        Matcher result = pattern.matcher(str);
+        str = result.replaceAll("");
+        return str;
     }
 
     // 获取步骤数据
@@ -95,7 +119,7 @@ public class XmindToTestCaseParser {
             return;
         }
         // 用例名称
-        testCase.setName(tcArr[1].replace("tc:|tc：", ""));
+        testCase.setName(this.replace(tcArr[1], "tc:|tc：|tc"));
 
         if (!nodePath.startsWith("/")) {
             nodePath = "/" + nodePath;
@@ -110,7 +134,7 @@ public class XmindToTestCaseParser {
             String otArr[] = tcArr[0].split("-");
             for (int i = 0; i < otArr.length; i++) {
                 if (otArr[i].startsWith("P") || otArr[i].startsWith("p")) {
-                    testCase.setPriority(otArr[i]);
+                    testCase.setPriority(otArr[i].toUpperCase());
                 } else if (otArr[i].endsWith("功能测试")) {
                     testCase.setType("functional");
                 } else if (otArr[i].endsWith("性能测试")) {
@@ -121,20 +145,29 @@ public class XmindToTestCaseParser {
             }
         }
         // 测试步骤处理
+        List<Attached> steps = new LinkedList<>();
         if (attacheds != null && !attacheds.isEmpty()) {
-            List<Attached> steps = new LinkedList<>();
             attacheds.forEach(item -> {
-                if (item.getTitle().startsWith("pc")) {
-                    testCase.setPrerequisite(item.getTitle().replaceAll("(?:pc:|pc：)", ""));
-                } else if (item.getTitle().startsWith("rc")) {
-                    testCase.setRemark(item.getTitle().replaceAll("(?:rc:|rc：)", ""));
+                if (isBlack(item.getTitle(), "(?:pc:|pc：)")) {
+                    testCase.setPrerequisite(replace(item.getTitle(), "(?:pc:|pc：)"));
+                } else if (isBlack(item.getTitle(), "(?:rc:|rc：)")) {
+                    testCase.setRemark(replace(item.getTitle(), "(?:rc:|rc：)"));
                 } else {
                     steps.add(item);
                 }
             });
-            if (!steps.isEmpty()) {
-                testCase.setSteps(this.getSteps(steps));
-            }
+        }
+        if (!steps.isEmpty()) {
+            testCase.setSteps(this.getSteps(steps));
+        } else {
+            JSONArray jsonArray = new JSONArray();
+            // 保持插入顺序，判断用例是否有相同的steps
+            JSONObject step = new JSONObject(true);
+            step.put("num", 1);
+            step.put("desc", "");
+            step.put("result", "");
+            jsonArray.add(step);
+            testCase.setSteps(jsonArray.toJSONString());
         }
         TestCaseExcelData compartData = new TestCaseExcelData();
         BeanUtils.copyBean(compartData, testCase);
@@ -232,25 +265,27 @@ public class XmindToTestCaseParser {
 
             // 获取思维导图内容
             String content = XmindParser.parseJson(file);
-            if (StringUtils.isEmpty(content) || content.split("(?:tc:|tc：)").length == 1) {
+            if (StringUtils.isEmpty(content) || content.split("(?:tc:|tc：|TC:|TC：|tc|TC)").length == 1) {
                 return Translator.get("import_xmind_not_found");
             }
-            if (!StringUtils.isEmpty(content) && content.split("(?:tc:|tc：)").length > 500) {
+            if (!StringUtils.isEmpty(content) && content.split("(?:tc:|tc：|TC:|TC：|tc|TC)").length > 500) {
                 return Translator.get("import_xmind_count_error");
             }
             JsonRootBean root = JSON.parseObject(content, JsonRootBean.class);
 
             if (root != null && root.getRootTopic() != null && root.getRootTopic().getChildren() != null) {
                 // 判断是模块还是用例
-                root.getRootTopic().getChildren().getAttached().forEach(item -> {
-                    if (!StringUtils.isEmpty(item.getTitle()) && item.getTitle().startsWith("tc")) { // 用例
-                        this.newTestCase(item.getTitle(), "", item.getChildren() != null ? item.getChildren().getAttached() : null);
+                for (Attached item : root.getRootTopic().getChildren().getAttached()) {
+                    if (isBlack(item.getTitle(), "(?:tc:|tc：|tc)")) { // 用例
+                        return replace(item.getTitle(), "(?:tc:|tc：|tc)") + "：" + Translator.get("test_case_create_module_fail");
                     } else {
                         item.setPath(item.getTitle());
-                        if (item.getChildren() != null && !item.getChildren().getAttached().isEmpty())
-                            makeXmind(processBuffer, null, 1, item.getPath(), item.getChildren().getAttached());
+                        if (item.getChildren() != null && !item.getChildren().getAttached().isEmpty()) {
+                            item.setPath(item.getTitle());
+                            makeXmind(processBuffer, item, 1, item.getPath(), item.getChildren().getAttached());
+                        }
                     }
-                });
+                }
             }
             if (StringUtils.isEmpty(process.toString()) && !testCaseWithBLOBs.isEmpty()) {
                 testCaseService.saveImportData(testCaseWithBLOBs, projectId);

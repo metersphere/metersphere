@@ -54,8 +54,8 @@
         </el-row>
         <el-row class="import-row">
           <el-card :body-style="{ padding: '0px' }">
-            <img src="../../../../../assets/xmind.jpg" width="700px" height="250px"
-                 class="image">
+            <img src="../../../../../assets/xmind.jpg"
+                 class="testcase-import-img">
           </el-card>
 
         </el-row>
@@ -247,7 +247,13 @@
   }
 
   .testcase-import >>> .el-dialog {
-    width: 700px;
+    width: 650px;
+  }
+
+  .testcase-import-img {
+    width: 614px;
+    height: 312px;
+    size: 200px;
   }
 
 
