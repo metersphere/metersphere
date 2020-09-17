@@ -149,12 +149,13 @@ export default {
         lt: "<",
         le: "<=",
         equals: "=",
+        not_equals: "!=",
         between: "Between",
         current_user: "Current user"
       }
     }
   },
-  license:{
+  license: {
     title: 'Authorization management',
     corporation: 'corporation',
     time: 'Authorization time',
@@ -439,7 +440,7 @@ export default {
       test_name: "Test Name",
       reference: "Reference",
       clone: "Copy",
-      cant_reference:'Historical test files, can be referenced after re-saving'
+      cant_reference: 'Historical test files, can be referenced after re-saving'
     },
     request: {
       debug: "Debug",
@@ -481,6 +482,9 @@ export default {
       response_timeout: "Response Timeout",
       follow_redirects: "Follow Redirects",
       body_upload_limit_size: "The file size does not exceed 500 MB",
+      condition: "condition",
+      condition_variable: "Variable, e.g: ${var}",
+      wait: "wait",
       assertions: {
         label: "Assertion",
         text: "Text",

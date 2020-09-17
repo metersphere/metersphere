@@ -149,12 +149,13 @@ export default {
         lt: "小于",
         le: "小于等于",
         equals: "等于",
+        not_equals: "不等于",
         between: "之间",
         current_user: "是当前用户"
       }
     }
   },
-  license:{
+  license: {
     title: '授权管理',
     corporation: '客户名称',
     time: '授权时间',
@@ -482,6 +483,9 @@ export default {
       response_timeout: "响应超时",
       follow_redirects: "跟随重定向",
       body_upload_limit_size: "上传文件大小不能超过 500 MB!",
+      condition: "条件",
+      condition_variable: "变量，例如: ${var}",
+      wait: "等待",
       assertions: {
         label: "断言",
         text: "文本",
