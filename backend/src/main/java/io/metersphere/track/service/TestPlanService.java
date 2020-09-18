@@ -34,6 +34,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -110,10 +111,49 @@ public class TestPlanService {
         return Optional.ofNullable(testPlanMapper.selectByPrimaryKey(testPlanId)).orElse(new TestPlan());
     }
 
-    public int editTestPlan(TestPlan testPlan) {
+    public int editTestPlan(TestPlanDTO testPlan) {
+        editTestPlanProject(testPlan);
         testPlan.setUpdateTime(System.currentTimeMillis());
         checkTestPlanExist(testPlan);
         return testPlanMapper.updateByPrimaryKeySelective(testPlan);
+    }
+
+    private void editTestPlanProject(TestPlanDTO testPlan) {
+        List<String> projectIds = testPlan.getProjectIds();
+        if (!CollectionUtils.isEmpty(projectIds)) {
+            TestPlanProjectExample testPlanProjectExample1 = new TestPlanProjectExample();
+            testPlanProjectExample1.createCriteria().andTestPlanIdEqualTo(testPlan.getId());
+            List<TestPlanProject> testPlanProjects = testPlanProjectMapper.selectByExample(testPlanProjectExample1);
+            // 已经关联的项目idList
+            List<String> dbProjectIds = testPlanProjects.stream().map(TestPlanProject::getProjectId).collect(Collectors.toList());
+            // 修改后传过来的项目idList，如果还未关联，进行关联
+            projectIds.forEach(projectId -> {
+                if (!dbProjectIds.contains(projectId)) {
+                    TestPlanProject testPlanProject = new TestPlanProject();
+                    testPlanProject.setTestPlanId(testPlan.getId());
+                    testPlanProject.setProjectId(projectId);
+                    testPlanProjectMapper.insert(testPlanProject);
+                }
+            });
+
+            TestPlanProjectExample testPlanProjectExample = new TestPlanProjectExample();
+            testPlanProjectExample.createCriteria().andTestPlanIdEqualTo(testPlan.getId()).andProjectIdNotIn(projectIds);
+            testPlanProjectMapper.deleteByExample(testPlanProjectExample);
+
+            // 关联的项目下的用例idList
+            TestCaseExample example = new TestCaseExample();
+            example.createCriteria().andProjectIdIn(projectIds);
+            List<TestCase> caseList = testCaseMapper.selectByExample(example);
+            List<String> caseIds = caseList.stream().map(TestCase::getId).collect(Collectors.toList());
+
+            // 取消关联所属项目下的用例和计划的关系
+            TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
+            TestPlanTestCaseExample.Criteria criteria = testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(testPlan.getId());
+            if (!CollectionUtils.isEmpty(caseIds)) {
+                criteria.andCaseIdNotIn(caseIds);
+            }
+            testPlanTestCaseMapper.deleteByExample(testPlanTestCaseExample);
+        }
     }
 
     private void checkTestPlanExist(TestPlan testPlan) {

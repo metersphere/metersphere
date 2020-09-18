@@ -6,6 +6,7 @@
                :title="operationType === 'edit' ? '编辑用例评审' : '创建用例评审'"
                :visible.sync="dialogFormVisible"
                @close="close"
+               v-loading="result.loading"
                width="65%">
 
       <el-form :model="form" :rules="rules" ref="reviewForm">
@@ -122,6 +123,7 @@ export default {
   data() {
     return {
       dialogFormVisible: false,
+      result: {},
       form: {
         name: '',
         projectIds: [],
@@ -187,7 +189,7 @@ export default {
       });
     },
     getProjects() {
-      this.$get("/project/listAll", (response) => {
+      this.result = this.$get("/project/listAll", (response) => {
         if (response.success) {
           this.projects = response.data;
         } else {
@@ -197,7 +199,7 @@ export default {
     },
     setReviewerOptions() {
       let workspaceId = localStorage.getItem(WORKSPACE_ID);
-      this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+      this.result = this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
         this.reviewerOptions = response.data;
       });
     },

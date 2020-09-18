@@ -1,5 +1,13 @@
 <template>
   <el-col v-if="auth">
+    <el-row id="header-top1" type="flex" justify="space-between" align="middle">
+      <el-col>
+        <div class="license-head" v-if="valid === true && validData.status == 'expired'">License has expired since
+          {{(validData!= undefined && validData.license!= undefined) ? validData.license.expired:''}},please
+          update license.
+        </div>
+      </el-col>
+    </el-row>
     <el-row id="header-top" type="flex" justify="space-between" align="middle">
 
       <el-col :span="12">
@@ -26,11 +34,22 @@
   import MsHeaderOrgWs from "./components/common/head/HeaderOrgWs";
   import MsLanguageSwitch from "./components/common/head/LanguageSwitch";
   import {saveLocalStorage} from "../common/js/utils";
+  import {saveLicense} from "../common/js/utils";
+  import Setting from "@/business/components/settings/router";
 
   export default {
     name: 'app',
     data() {
+      let xpack = false;
+      Setting.children.forEach(child => {
+        if (child.path === "license") {
+          xpack = true;
+          return;
+        }
+      })
       return {
+        valid: xpack,
+        validData: {},
         auth: false
       }
     },
@@ -46,6 +65,15 @@
       }).catch(() => {
         window.location.href = "/login"
       });
+    },
+    beforeMount() {
+      if (this.valid === true) {
+        // 验证license
+        this.result = this.$get("/license/valid", response => {
+          this.validData = response.data;
+          saveLicense(response.data);
+        });
+      }
     },
     components: {MsLanguageSwitch, MsUser, MsView, MsTopMenus, MsHeaderOrgWs},
     methods: {}
@@ -97,6 +125,14 @@
 
   .align-right {
     float: right;
+  }
+
+  .license-head {
+    height: 30px;
+    background: #BA331B;
+    text-align: center;
+    line-height: 30px;
+    color: white;
   }
 </style>
 

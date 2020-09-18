@@ -55,7 +55,7 @@ public class XmindToTestCaseParser {
     // 递归处理案例数据
     private void makeXmind(StringBuffer processBuffer, Attached parent, int level, String nodePath, List<Attached> attacheds) {
         for (Attached item : attacheds) {
-            if (isBlack(item.getTitle(), "(?:tc|tc)")) { // 用例
+            if (isBlack(item.getTitle(), "(?:tc：|tc:|tc)")) { // 用例
                 item.setParent(parent);
                 this.newTestCase(item.getTitle(), parent.getPath(), item.getChildren() != null ? item.getChildren().getAttached() : null);
             } else {
