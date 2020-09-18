@@ -1281,7 +1281,9 @@ class JMXGenerator {
       body.push({name: '', value: request.body.raw, encode: false, enable: true});
     }
 
-    httpSamplerProxy.add(new HTTPSamplerArguments(body));
+    if (request.method != 'GET') {
+      httpSamplerProxy.add(new HTTPSamplerArguments(body));
+    }
   }
 
   addRequestBodyFile(httpSamplerProxy, request, testId) {
