@@ -17,7 +17,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 
-public abstract class EasyExcelListener<T> extends AnalysisEventListener<T> {
+public abstract class EasyExcelListener<T> extends AnalysisEventListener<T> implements AutoCloseable {
 
     protected List<ExcelErrData<T>> errList = new ArrayList<>();
 
@@ -153,6 +153,8 @@ public abstract class EasyExcelListener<T> extends AnalysisEventListener<T> {
         return errList;
     }
 
+
+    @Override
     public void close() {
         this.easyExcelI18nTranslator.resetExcelProperty();
     }
