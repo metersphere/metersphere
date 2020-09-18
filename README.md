@@ -20,7 +20,7 @@ MeterSphere 是一站式的开源企业级持续测试平台，涵盖测试跟�
 
 ## UI 展示
 
-!https://metersphere.io/docs/img/track/home.jpg)
+![](https://metersphere.io/docs/img/track/home.jpg)
 
 ## 在线体验
 - 环境地址：https://demo.metersphere.com/
