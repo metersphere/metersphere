@@ -131,6 +131,7 @@ export default {
         stage: '',
         description: ''
       },
+      dbProjectIds: [],
       rules: {
         name: [
           {required: true, message: this.$t('test_track.plan.input_plan_name'), trigger: 'blur'},
@@ -159,6 +160,7 @@ export default {
         let tmp = {};
         Object.assign(tmp, testPlan);
         Object.assign(this.form, tmp);
+        this.dbProjectIds = JSON.parse(JSON.stringify(this.form.projectIds));
       }
       listenGoBack(this.close);
       this.dialogFormVisible = true;
@@ -176,15 +178,25 @@ export default {
           param.workspaceId = localStorage.getItem(WORKSPACE_ID);
 
           if (this.operationType === 'edit') {
-            this.$confirm('取消项目关联会同时取消该项目下已关联的测试用例', '提示', {
-              confirmButtonText: this.$t('commons.confirm'),
-              cancelButtonText: this.$t('commons.cancel'),
-              type: 'warning'
-            }).then(() => {
-              this.editTestPlan(param);
-            }).catch(() => {
-              this.$info(this.$t('commons.cancel'))
+            const nowIds = param.projectIds;
+            let sign = true;
+            this.dbProjectIds.forEach(dbId => {
+              if (nowIds.indexOf(dbId) === -1 && sign) {
+                sign = false;
+                this.$confirm('取消项目关联会同时取消该项目下已关联的测试用例', '提示', {
+                  confirmButtonText: this.$t('commons.confirm'),
+                  cancelButtonText: this.$t('commons.cancel'),
+                  type: 'warning'
+                }).then(() => {
+                  this.editTestPlan(param);
+                }).catch(() => {
+                  this.$info(this.$t('commons.cancel'))
+                });
+              }
             });
+            if (sign) {
+              this.editTestPlan(param);
+            }
           } else {
             this.editTestPlan(param);
           }
