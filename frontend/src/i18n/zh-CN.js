@@ -13,6 +13,7 @@ export default {
     annotation: '注释',
     clear: '清空',
     save: '保存',
+    update: '更新',
     save_success: '保存成功',
     delete_success: '删除成功',
     copy_success: '复制成功',

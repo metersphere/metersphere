@@ -13,6 +13,7 @@ export default {
     annotation: 'Annotation',
     clear: 'Clear',
     save: 'Save',
+    update: 'Update',
     save_success: 'Saved successfully',
     delete_success: 'Deleted successfully',
     modify_success: 'Modify Success',

@@ -1,14 +1,11 @@
 <template>
   <div class="database-config-list">
 
-    <el-table border :data="tableData" class="adjust-table table-content"
+    <el-table border :data="tableData"
+              class="adjust-table table-content"
+              highlight-current-row
               @row-click="handleView">
 
-      <el-table-column type="expand">
-        <template slot-scope="props">
-          <ms-database-from :callback="editConfig" :config="props.row"/>
-        </template>
-      </el-table-column>
       <el-table-column prop="name" :label="$t('api_test.request.sql.dataSource')" show-overflow-tooltip/>
       <el-table-column prop="driver" :label="$t('api_test.request.sql.database_driver')"  show-overflow-tooltip/>
       <el-table-column prop="dbUrl" :label="$t('api_test.request.sql.database_url')" show-overflow-tooltip/>
@@ -34,11 +31,10 @@
     import MsTableOperator from "../../../../../common/components/MsTableOperator";
     import MsTableOperatorButton from "../../../../../common/components/MsTableOperatorButton";
     import {getUUID} from "../../../../../../../common/js/utils";
-    import MsDatabaseFrom from "./DatabaseFrom";
 
     export default {
       name: "MsDatabaseConfigList",
-      components: {MsDatabaseFrom, MsTableOperatorButton, MsTableOperator},
+      components: {MsTableOperatorButton, MsTableOperator},
       props: {
         tableData: Array,
         isReadOnly: {
@@ -53,25 +49,8 @@
         }
       },
       methods: {
-        handleView() {
-        },
-        handleEdit(config) {
-          this.$refs.databaseConfigEdit.open(config);
-        },
-        editConfig(config) {
-          let index = 0;
-          for (let i in this.tableData) {
-            let item = this.tableData[i];
-            if (item.name === config.name && item.id != config.id) {
-              this.$warning(this.$t('commons.already_exists'));
-              return;
-            }
-            if (item.id === config.id) {
-              index = i;
-            }
-          }
-          Object.assign(this.tableData[index], config);
-          this.$success(this.$t('commons.save_success'));
+        handleView(row) {
+          this.$emit('rowSelect', row);
         },
         handleDelete(index) {
           this.tableData.splice(index, 1);
