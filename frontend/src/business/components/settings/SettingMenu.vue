@@ -47,6 +47,7 @@
 <script>
   import {checkoutCurrentOrganization, checkoutCurrentWorkspace} from "@/common/js/utils";
   import Setting from "@/business/components/settings/router";
+  import {LicenseKey} from '@/common/js/constants';
 
   export default {
     name: "MsSettingMenu",
@@ -87,35 +88,35 @@
     },
     methods: {
       valid() {
-        let _this = this;
-        this.result = this.$get("/license/valid", response => {
-          let data = response.data;
-          if (data === undefined || data === null || data.status != "valid") {
-            this.systems.forEach(item => {
-              if (item.valid != undefined && item.valid === true) {
-                _this.systems.splice(this.systems.indexOf(item), 1);
-              }
-            })
+        let data = localStorage.getItem(LicenseKey);
+        if (data != undefined && data != null) {
+          data = JSON.parse(data);
+        }
+        if (data === undefined || data === null || data.status != "valid") {
+          this.systems.forEach(item => {
+            if (item.valid != undefined && item.valid === true) {
+              this.systems.splice(this.systems.indexOf(item), 1);
+            }
+          })
 
-            this.organizations.forEach(item => {
-              if (item.valid != undefined && item.valid === true) {
-                _this.organizations.splice(this.organizations.indexOf(item), 1);
-              }
-            })
+          this.organizations.forEach(item => {
+            if (item.valid != undefined && item.valid === true) {
+              this.organizations.splice(this.organizations.indexOf(item), 1);
+            }
+          })
 
-            this.workspaces.forEach(item => {
-              if (item.valid != undefined && item.valid === true) {
-                _this.workspaces.splice(this.workspaces.indexOf(item), 1);
-              }
-            })
+          this.workspaces.forEach(item => {
+            if (item.valid != undefined && item.valid === true) {
+              this.workspaces.splice(this.workspaces.indexOf(item), 1);
+            }
+          })
 
-            this.persons.forEach(item => {
-              if (item.valid != undefined && item.valid === true) {
-                _this.persons.splice(this.persons.indexOf(item), 1);
-              }
-            })
-          }
-        })
+          this.persons.forEach(item => {
+            if (item.valid != undefined && item.valid === true) {
+              this.persons.splice(this.persons.indexOf(item), 1);
+            }
+          })
+        }
       }
     }
   }

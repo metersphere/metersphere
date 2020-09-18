@@ -482,6 +482,8 @@ export class SqlRequest extends Request {
     this.id = options.id || uuid();
     this.name = options.name;
     this.useEnvironment = options.useEnvironment;
+    this.resultVariable = options.resultVariable;
+    this.variableNames = options.variableNames;
     this.debugReport = undefined;
     this.dataSource = options.dataSource;
     this.query = options.query;
@@ -1080,7 +1082,7 @@ class JMXGenerator {
 
             this.addConstantsTimer(sampler, request);
 
-            if (request.controller.isValid() && request.controller.enable) {
+            if (request.controller && request.controller.isValid() && request.controller.enable) {
               if (request.controller instanceof IfController) {
                 let controller = this.getController(sampler, request);
                 threadGroup.put(controller);
@@ -1207,7 +1209,7 @@ class JMXGenerator {
   }
 
   addConstantsTimer(sampler, request) {
-    if (request.timer.isValid() && request.timer.enable) {
+    if (request.timer && request.timer.isValid() && request.timer.enable) {
       sampler.put(new JMXConstantTimer(request.timer.label(), request.timer));
     }
   }
