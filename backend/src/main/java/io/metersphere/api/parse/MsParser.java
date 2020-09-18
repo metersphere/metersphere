@@ -3,6 +3,7 @@ package io.metersphere.api.parse;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.parse.ApiImport;
 import io.metersphere.api.dto.scenario.request.RequestType;
@@ -23,7 +24,7 @@ public class MsParser extends ApiImportAbstractParser {
     }
 
     private String parsePluginFormat(String testStr) {
-        JSONObject testObject = JSONObject.parseObject(testStr);
+        JSONObject testObject = JSONObject.parseObject(testStr, Feature.OrderedField);
         if (testObject.get("scenarios") != null) {
             return testStr;
         } else {
