@@ -69,6 +69,30 @@
           </el-col>
         </el-row>
 
+        <!--start:xuxm增加自定义‘计划开始’，‘计划结束’时间字段-->
+        <el-row>
+          <el-col :span="8" :offset="1">
+            <el-form-item
+              :placeholder="$t('test_track.plan.planned_start_time')"
+              :label="$t('test_track.plan.planned_start_time')"
+              :label-width="formLabelWidth"
+              prop="plannedStartTime">
+              <el-input v-model="form.planned_start_time" type="date" ></el-input>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="11" :offset="2">
+            <el-form-item
+              :placeholder="$t('test_track.plan.planned_end_time')"
+              :label="$t('test_track.plan.planned_end_time')"
+              :label-width="formLabelWidth"
+              prop="planned_end_time">
+              <el-input v-model="form.planned_end_time" type="date" ></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <!--end:xuxm增加自定义‘计划开始’，‘计划结束’时间字段-->
+
         <el-row type="flex" justify="left" style="margin-top: 10px;">
           <el-col :span="23" :offset="1">
             <el-form-item :label="$t('commons.description')" :label-width="formLabelWidth" prop="description">
