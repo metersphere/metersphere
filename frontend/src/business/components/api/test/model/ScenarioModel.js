@@ -856,7 +856,7 @@ export class Controller extends BaseConfig {
     super();
     this.type = type
     options.id = options.id || uuid();
-    options.enable = options.enable || true;
+    options.enable = options.enable === undefined ? true : options.enable;
   }
 }
 
@@ -894,7 +894,7 @@ export class Timer extends BaseConfig {
     super();
     this.type = type;
     options.id = options.id || uuid();
-    options.enable = options.enable || true;
+    options.enable = options.enable === undefined ? true : options.enable;
   }
 }
 
