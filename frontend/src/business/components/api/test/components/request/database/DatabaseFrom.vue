@@ -38,7 +38,10 @@
       </el-form-item>
 
       <el-form-item>
-        <el-button type="primary" size="small" class="addButton" @click="save">{{currentConfig.id ? $t('commons.save') : $t('commons.add')}}</el-button>
+        <div class="buttons">
+          <el-button type="primary" v-show="currentConfig.id" size="small" @click="save('update')">{{$t('commons.update')}}</el-button>
+          <el-button type="primary" size="small" @click="save('add')">{{$t('commons.add')}}</el-button>
+        </div>
       </el-form-item>
 
     </el-form>
@@ -102,10 +105,13 @@
         }
       },
       methods: {
-        save() {
+        save(type) {
           this.$refs['databaseFrom'].validate((valid) => {
             if (valid) {
               if (this.callback) {
+                if (type === 'add') {
+                  this.currentConfig.id = undefined;
+                }
                 this.callback(this.currentConfig);
               }
             } else {
@@ -119,7 +125,7 @@
 
 <style scoped>
 
-  .addButton {
+  .buttons {
     float: right;
   }
 

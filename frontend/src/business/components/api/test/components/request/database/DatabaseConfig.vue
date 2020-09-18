@@ -1,7 +1,7 @@
 <template>
   <div>
-    <ms-database-from :config="currentConfig" :callback="addConfig" ref="databaseFrom"/>
-    <ms-database-config-list v-if="configs.length > 0" :table-data="configs"/>
+    <ms-database-from :config="currentConfig" :callback="saveConfig" ref="databaseFrom"/>
+    <ms-database-config-list @rowSelect="rowSelect" v-if="configs.length > 0" :table-data="configs"/>
   </div>
 </template>
 
@@ -28,19 +28,33 @@
         }
       },
       methods: {
-        addConfig(config) {
+        saveConfig(config) {
           for (let item of this.configs) {
-            if (item.name === config.name) {
+            if (item.name === config.name && item.id != config.id) {
               this.$warning(this.$t('commons.already_exists'));
               return;
             }
           }
+          if (config.id) {
+            this.updateConfig(config);
+          } else {
+            this.addConfig(config);
+          }
+        },
+        addConfig(config) {
           config.id = getUUID();
           let item = {};
           Object.assign(item, config);
           this.configs.push(item);
           this.currentConfig = new DatabaseConfig();
         },
+        updateConfig(config) {
+          Object.assign(this.currentConfig, config);
+          this.currentConfig = new DatabaseConfig();
+        },
+        rowSelect(config) {
+          this.currentConfig = config;
+        }
       }
     }
 </script>
