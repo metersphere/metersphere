@@ -3,7 +3,7 @@
     <el-breadcrumb-item class="node-breadcrumb">
       <a @click="showAll" >
         <i class="el-icon-s-home"></i>&nbsp;
-        {{$t('test_track.plan_view.all_case')}}
+        {{title}}
       </a>
     </el-breadcrumb-item>
 
@@ -22,6 +22,12 @@
       props: {
         nodes: {
           type: Array
+        },
+        title: {
+          type: String,
+          default() {
+            return this.$t('test_track.plan_view.all_case')
+          }
         }
       },
       watch: {

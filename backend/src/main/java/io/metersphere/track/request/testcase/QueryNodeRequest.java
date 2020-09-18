@@ -9,5 +9,6 @@ public class QueryNodeRequest {
 
     private String testPlanId;
     private String projectId;
+    private String reviewId;
 
 }

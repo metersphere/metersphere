@@ -59,22 +59,30 @@ export default {
       result: {},
       dialogVisible: false,
       projectId: '',
-      planId: '',
+      id: '',
       condition: {},
       currentPage: 1,
       pageSize: 5,
       total: 0,
+      url: '',
+      type: ''
     }
   },
   methods: {
-    open(planId) {
+    open(obj) {
       this.dialogVisible = true;
-      this.planId = planId;
+      this.id = obj.id;
+      this.url = obj.url;
+      this.type = obj.type;
       this.initData();
     },
     initData() {
-      this.condition.planId = this.planId;
-      this.result = this.$post("/test/plan/project/" + this.currentPage + "/" + this.pageSize, this.condition, res => {
+      if (this.type === 'plan') {
+        this.condition.planId = this.id;
+      } else {
+        this.condition.reviewId = this.id;
+      }
+      this.result = this.$post(this.url + this.currentPage + "/" + this.pageSize, this.condition, res => {
         const data = res.data;
         this.total = data.itemCount;
         this.tableData = data.listObject;

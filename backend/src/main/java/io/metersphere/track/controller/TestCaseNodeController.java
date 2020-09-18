@@ -32,9 +32,19 @@ public class TestCaseNodeController {
         return testCaseNodeService.getAllNodeByPlanId(request);
     }
 
+    @PostMapping("/list/all/review")
+    public List<TestCaseNodeDTO> getAllNodeByReviewId(@RequestBody QueryNodeRequest request) {
+        return testCaseNodeService.getAllNodeByReviewId(request);
+    }
+
     @GetMapping("/list/plan/{planId}")
     public List<TestCaseNodeDTO> getNodeByPlanId(@PathVariable String planId) {
         return testCaseNodeService.getNodeByPlanId(planId);
+    }
+
+    @GetMapping("/list/review/{reviewId}")
+    public List<TestCaseNodeDTO> getNodeByReviewId(@PathVariable String reviewId) {
+        return testCaseNodeService.getNodeByReviewId(reviewId);
     }
 
     @PostMapping("/add")

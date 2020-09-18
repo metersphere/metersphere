@@ -5,6 +5,7 @@ const TrackHome = () => import(/* webpackChunkName: "track" */ '@/business/compo
 const TestCase = () => import(/* webpackChunkName: "track" */ '@/business/components/track/case/TestCase')
 const TestPlan = () => import(/* webpackChunkName: "track" */ '@/business/components/track/plan/TestPlan')
 const TestCaseReview = () => import(/* webpackChunkName: "track" */ '@/business/components/track/review/TestCaseReview')
+const TestCaseReviewView = () => import(/* webpackChunkName: "track" */ '@/business/components/track/review/view/TestCaseReviewView')
 const TestPlanView = () => import(/* webpackChunkName: "track" */ '@/business/components/track/plan/view/TestPlanView')
 
 export default {
@@ -59,6 +60,11 @@ export default {
       path: "review/:type",
       name: "testCaseReview",
       component: TestCaseReview
+    },
+    {
+      path: "review/view/:reviewId",
+      name: "testCaseReviewView",
+      component: TestCaseReviewView
     },
   ]
 }

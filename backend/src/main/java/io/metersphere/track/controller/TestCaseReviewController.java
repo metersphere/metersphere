@@ -4,15 +4,19 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.TestCaseReview;
+import io.metersphere.base.domain.TestPlan;
 import io.metersphere.base.domain.User;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.track.dto.TestCaseReviewDTO;
+import io.metersphere.track.request.testreview.ReviewRelevanceRequest;
 import io.metersphere.track.request.testreview.QueryCaseReviewRequest;
 import io.metersphere.track.request.testreview.SaveTestCaseReviewRequest;
+import io.metersphere.track.request.testreview.TestReviewRelevanceRequest;
 import io.metersphere.track.service.TestCaseReviewService;
+import io.metersphere.track.service.TestReviewProjectService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +29,8 @@ public class TestCaseReviewController {
 
     @Resource
     TestCaseReviewService testCaseReviewService;
+    @Resource
+    TestReviewProjectService testReviewProjectService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
@@ -69,5 +75,37 @@ public class TestCaseReviewController {
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void deleteCaseReview(@PathVariable String reviewId) {
         testCaseReviewService.deleteCaseReview(reviewId);
+    }
+
+    @PostMapping("/list/all")
+    public List<TestCaseReview> listAll() {
+        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
+        return testCaseReviewService.listCaseReviewAll(currentWorkspaceId);
+    }
+
+    @PostMapping("/relevance")
+    public void testReviewRelevance(@RequestBody ReviewRelevanceRequest request) {
+        testCaseReviewService.testReviewRelevance(request);
+    }
+
+    @PostMapping("/projects")
+    public List<Project> getProjectByReviewId(@RequestBody TestReviewRelevanceRequest request) {
+        List<String> projectIds = testReviewProjectService.getProjectIdsByPlanId(request.getReviewId());
+        request.setProjectIds(projectIds);
+        return testReviewProjectService.getProject(request);
+    }
+
+    @PostMapping("/project/{goPage}/{pageSize}")
+    public Pager<List<Project>> getProjectByReviewId(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody TestReviewRelevanceRequest request) {
+        List<String> projectIds = testReviewProjectService.getProjectIdsByPlanId(request.getReviewId());
+        request.setProjectIds(projectIds);
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, testReviewProjectService.getProject(request));
+    }
+
+
+    @PostMapping("/get/{reviewId}")
+    public TestCaseReview getTestReview(@PathVariable String reviewId) {
+        return testCaseReviewService.getTestReview(reviewId);
     }
 }

@@ -97,7 +97,7 @@ export default {
         title: "最近的评审",
         url: "/test/case/review/recent/5",
         index: function (item) {
-          return '/test/case/review/' + item.id;
+          return '/track/review/view/' + item.id;
         },
         router: function (item) {
         }

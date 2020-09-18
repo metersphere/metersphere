@@ -267,7 +267,7 @@
         }
       },
       switchProject() {
-        this.$refs.switchProject.open(this.planId);
+        this.$refs.switchProject.open({id: this.planId, url: '/test/plan/project/',type: 'plan'});
       },
       getProjectNode(projectId) {
         const index = this.projects.findIndex(project => project.id === projectId);

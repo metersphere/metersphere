@@ -71,6 +71,11 @@ public class TestCaseController {
         return testCaseService.getTestCaseNames(request);
     }
 
+    @PostMapping("/reviews/case")
+    public List<TestCase> getReviewCase(@RequestBody QueryTestCaseRequest request) {
+        return testCaseService.getReviewCase(request);
+    }
+
     @GetMapping("/get/{testCaseId}")
     public TestCaseWithBLOBs getTestCase(@PathVariable String testCaseId) {
         return testCaseService.getTestCase(testCaseId);

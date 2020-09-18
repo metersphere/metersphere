@@ -274,4 +274,10 @@ public class WorkspaceService {
         }
 
     }
+
+    public List<Project> getProjects(String workspaceId) {
+        ProjectExample projectExample = new ProjectExample();
+        projectExample.createCriteria().andWorkspaceIdEqualTo(workspaceId);
+        return projectMapper.selectByExample(projectExample);
+    }
 }

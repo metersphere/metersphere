@@ -75,6 +75,8 @@ public class TestCaseService {
 
     @Resource
     TestCaseIssueService testCaseIssueService;
+    @Resource
+    TestCaseReviewTestCaseMapper testCaseReviewTestCaseMapper;
 
     public void addTestCase(TestCaseWithBLOBs testCase) {
         testCase.setName(testCase.getName());
@@ -201,6 +203,25 @@ public class TestCaseService {
 
         return testCaseNames;
 
+    }
+
+    public List<TestCase> getReviewCase(QueryTestCaseRequest request) {
+
+        List<TestCase> testCases = extTestCaseMapper.getTestCaseNames(request);
+
+        if (StringUtils.isNotBlank(request.getReviewId())) {
+            TestCaseReviewTestCaseExample testCaseReviewTestCaseExample = new TestCaseReviewTestCaseExample();
+            testCaseReviewTestCaseExample.createCriteria().andReviewIdEqualTo(request.getReviewId());
+            List<String> relevanceIds = testCaseReviewTestCaseMapper.selectByExample(testCaseReviewTestCaseExample).stream()
+                    .map(TestCaseReviewTestCase::getCaseId)
+                    .collect(Collectors.toList());
+
+            return testCases.stream()
+                    .filter(testcase -> !relevanceIds.contains(testcase.getId()))
+                    .collect(Collectors.toList());
+        }
+
+        return testCases;
     }
 
 

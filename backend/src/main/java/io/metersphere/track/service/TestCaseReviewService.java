@@ -8,13 +8,18 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.track.dto.TestCaseReviewDTO;
+import io.metersphere.track.request.testreview.ReviewRelevanceRequest;
 import io.metersphere.track.request.testreview.QueryCaseReviewRequest;
 import io.metersphere.track.request.testreview.SaveTestCaseReviewRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -34,6 +39,10 @@ public class TestCaseReviewService {
     private ProjectMapper projectMapper;
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private TestCaseMapper testCaseMapper;
+    @Resource
+    SqlSessionFactory sqlSessionFactory;
 
     public void saveTestCaseReview(SaveTestCaseReviewRequest reviewRequest) {
         checkCaseReviewExist(reviewRequest);
@@ -146,5 +155,59 @@ public class TestCaseReviewService {
         TestCaseReviewUsersExample testCaseReviewUsersExample = new TestCaseReviewUsersExample();
         testCaseReviewUsersExample.createCriteria().andReviewIdEqualTo(reviewId);
         testCaseReviewUsersMapper.deleteByExample(testCaseReviewUsersExample);
+    }
+
+    public List<TestCaseReview> listCaseReviewAll(String currentWorkspaceId) {
+        ProjectExample projectExample = new ProjectExample();
+        projectExample.createCriteria().andWorkspaceIdEqualTo(currentWorkspaceId);
+        List<Project> projects = projectMapper.selectByExample(projectExample);
+        List<String> projectIds = projects.stream().map(Project::getId).collect(Collectors.toList());
+
+        TestCaseReviewProjectExample testCaseReviewProjectExample = new TestCaseReviewProjectExample();
+        testCaseReviewProjectExample.createCriteria().andProjectIdIn(projectIds);
+        List<TestCaseReviewProject> testCaseReviewProjects = testCaseReviewProjectMapper.selectByExample(testCaseReviewProjectExample);
+        List<String> reviewIds = testCaseReviewProjects.stream().map(TestCaseReviewProject::getReviewId).collect(Collectors.toList());
+
+        TestCaseReviewExample testCaseReviewExample = new TestCaseReviewExample();
+        testCaseReviewExample.createCriteria().andIdIn(reviewIds);
+        return testCaseReviewMapper.selectByExample(testCaseReviewExample);
+    }
+
+    public void testReviewRelevance(ReviewRelevanceRequest request) {
+        List<String> testCaseIds = request.getTestCaseIds();
+
+        if (testCaseIds.isEmpty()) {
+            return;
+        }
+
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestCaseReviewTestCaseMapper batchMapper = sqlSession.getMapper(TestCaseReviewTestCaseMapper.class);
+
+        if (!testCaseIds.isEmpty()) {
+            testCaseIds.forEach(caseId -> {
+                TestCaseReviewTestCase caseReview = new TestCaseReviewTestCase();
+                caseReview.setId(UUID.randomUUID().toString());
+                caseReview.setReviewer(SessionUtils.getUser().getId());
+                caseReview.setCaseId(caseId);
+                caseReview.setCreateTime(System.currentTimeMillis());
+                caseReview.setUpdateTime(System.currentTimeMillis());
+                caseReview.setReviewId(request.getReviewId());
+                caseReview.setStatus(TestCaseReviewStatus.Prepare.name());
+                batchMapper.insert(caseReview);
+            });
+        }
+
+        sqlSession.flushStatements();
+
+        TestCaseReview testCaseReview = testCaseReviewMapper.selectByPrimaryKey(request.getReviewId());
+        if (StringUtils.equals(testCaseReview.getStatus(), TestCaseReviewStatus.Prepare.name())
+                || StringUtils.equals(testCaseReview.getStatus(), TestCaseReviewStatus.Completed.name())) {
+            testCaseReview.setStatus(TestCaseReviewStatus.Underway.name());
+            testCaseReviewMapper.updateByPrimaryKey(testCaseReview);
+        }
+    }
+
+    public TestCaseReview getTestReview(String reviewId) {
+        return Optional.ofNullable(testCaseReviewMapper.selectByPrimaryKey(reviewId)).orElse(new TestCaseReview());
     }
 }
