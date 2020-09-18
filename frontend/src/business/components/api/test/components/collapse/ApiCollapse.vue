@@ -40,11 +40,11 @@
     methods: {
       setActiveNames(activeNames, item) {
         activeNames = [].concat(activeNames);
+        let value = this.accordion ? activeNames[0] : activeNames;
         this.activeNames = activeNames;
-        this.$emit('input', item.name);
-        this.$emit('change', item.name);
+        this.$emit('input', value);
       },
-      handleItemClick(item) {
+      handleItemCollapseClick(item) {
         if (this.accordion) {
           this.setActiveNames(
             (this.activeNames[0] || this.activeNames[0] === 0) && item.name, item);
@@ -59,11 +59,15 @@
           }
           this.setActiveNames(activeNames, item);
         }
+      },
+      handleItemClick(item) {
+        this.$emit('change', item.name);
       }
     },
 
     created() {
       this.$on('item-click', this.handleItemClick);
+      this.$on('collapse-click', this.handleItemCollapseClick);
     }
   };
 </script>
