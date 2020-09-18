@@ -37,4 +37,8 @@ public class SqlRequest implements Request {
     private JSR223PreProcessor jsr223PreProcessor;
     @JSONField(ordinal = 12)
     private JSR223PostProcessor jsr223PostProcessor;
+    @JSONField(ordinal = 13)
+    private String resultVariable;
+    @JSONField(ordinal = 14)
+    private String variableNames;
 }

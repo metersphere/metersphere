@@ -281,30 +281,15 @@ export class JDBCSampler extends DefaultTestElement {
     this.stringProp("dataSource", request.dataSource);
     this.stringProp("query", request.query);
     this.stringProp("queryTimeout", request.queryTimeout);
+    this.stringProp("resultVariable", request.resultVariable);
+    this.stringProp("variableNames", request.variableNames);
     this.stringProp("queryArguments");
     this.stringProp("queryArgumentsTypes");
     this.stringProp("resultSetMaxRows");
-    this.stringProp("resultVariable");
-    this.stringProp("variableNames");
     this.stringProp("resultSetHandler", 'Store as String');
     this.stringProp("queryType", 'Callable Statement');
   }
 }
-
-// <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
-//   <stringProp name="dataSource">test</stringProp>
-//   <stringProp name="query">select id from test_plan;
-// select name from test_plan;
-// </stringProp>
-// <stringProp name="queryArguments"></stringProp>
-//   <stringProp name="queryArgumentsTypes"></stringProp>
-//   <stringProp name="queryTimeout"></stringProp>
-//   <stringProp name="queryType">Callable Statement</stringProp>
-// <stringProp name="resultSetHandler">Store as String</stringProp>
-//   <stringProp name="resultSetMaxRows"></stringProp>
-//   <stringProp name="resultVariable"></stringProp>
-//   <stringProp name="variableNames"></stringProp>
-//   </JDBCSampler>
 
 export class HTTPSamplerProxy extends DefaultTestElement {
   constructor(testName, options = {}) {
