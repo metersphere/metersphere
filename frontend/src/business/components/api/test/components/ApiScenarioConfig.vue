@@ -115,11 +115,10 @@ export default {
   watch: {
     projectId() {
       this.initScenarioEnvironment();
+    },
+    testId() {
+      this.initScenarioEnvironment();
     }
-  },
-
-  activated() {
-    this.initScenarioEnvironment();
   },
 
   methods: {
