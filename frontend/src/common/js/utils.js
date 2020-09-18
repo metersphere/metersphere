@@ -5,7 +5,8 @@ import {
   ROLE_TEST_MANAGER,
   ROLE_TEST_USER,
   ROLE_TEST_VIEWER,
-  TokenKey
+  TokenKey,
+  LicenseKey
 } from "./constants";
 import axios from "axios";
 
@@ -89,6 +90,12 @@ export function saveLocalStorage(response) {
   // 保存角色
   localStorage.setItem("roles", roles);
 }
+
+export function saveLicense(data) {
+  // 保存License
+  localStorage.setItem(LicenseKey, JSON.stringify(data));
+}
+
 
 export function refreshSessionAndCookies(sign, sourceId) {
   axios.post(REFRESH_SESSION_USER_URL + "/" + sign + "/" + sourceId).then(r => {
@@ -175,7 +182,7 @@ export function downloadFile(name, content) {
   }
 }
 
-export function listenGoBack( callback) {
+export function listenGoBack(callback) {
   //监听浏览器返回操作，关闭该对话框
   if (window.history && window.history.pushState) {
     history.pushState(null, null, document.URL);
@@ -189,9 +196,10 @@ export function removeGoBackListener(callback) {
 
 export function getUUID() {
   function S4() {
-    return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
   }
-  return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+
+  return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
 }
 
 
