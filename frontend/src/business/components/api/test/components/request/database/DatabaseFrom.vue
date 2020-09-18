@@ -24,7 +24,7 @@
       </el-form-item>
 
       <el-form-item :label="$t('api_test.request.sql.password')" prop="password">
-        <el-input v-model="currentConfig.password" maxlength="200" show-word-limit
+        <el-input v-model="currentConfig.password" type="password" autocomplete="new-password" maxlength="200"
                   :placeholder="$t('commons.input_content')"/>
       </el-form-item>
 
