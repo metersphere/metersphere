@@ -24,7 +24,7 @@ public class TestPlan implements Serializable {
     private String testCaseMatchRule;
 
     private String executorMatchRule;
-    
+
     private Long plannedStartTime;
 
     private Long plannedEndTime;
