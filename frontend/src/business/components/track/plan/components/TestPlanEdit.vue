@@ -24,7 +24,6 @@
           <el-col :span="11" :offset="2">
             <el-form-item :label="$t('test_track.plan.plan_project')" :label-width="formLabelWidth" prop="projectIds">
               <el-select
-                :disabled="(form.status == null) ? false : true"
                 v-model="form.projectIds"
                 :placeholder="$t('test_track.plan.input_plan_project')"
                 multiple
@@ -175,16 +174,32 @@ export default {
             return;
           }
           param.workspaceId = localStorage.getItem(WORKSPACE_ID);
-          this.$post('/test/plan/' + this.operationType, param, () => {
-            this.$success(this.$t('commons.save_success'));
-            this.dialogFormVisible = false;
-            this.$emit("refresh");
-            // 发送广播，刷新 head 上的最新列表
-            TrackEvent.$emit(LIST_CHANGE);
-          });
+
+          if (this.operationType === 'edit') {
+            this.$confirm('取消项目关联会同时取消该项目下已关联的测试用例', '提示', {
+              confirmButtonText: this.$t('commons.confirm'),
+              cancelButtonText: this.$t('commons.cancel'),
+              type: 'warning'
+            }).then(() => {
+              this.editTestPlan(param);
+            }).catch(() => {
+              this.$info(this.$t('commons.cancel'))
+            });
+          } else {
+            this.editTestPlan(param);
+          }
         } else {
           return false;
         }
+      });
+    },
+    editTestPlan(param) {
+      this.$post('/test/plan/' + this.operationType, param, () => {
+        this.$success(this.$t('commons.save_success'));
+        this.dialogFormVisible = false;
+        this.$emit("refresh");
+        // 发送广播，刷新 head 上的最新列表
+        TrackEvent.$emit(LIST_CHANGE);
       });
     },
     getProjects() {

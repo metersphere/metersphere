@@ -552,6 +552,8 @@ export default {
         query_timeout: "最大等待时间(ms)",
         name_cannot_be_empty: "SQL请求名称不能为空",
         dataSource_cannot_be_empty: "SQL请求数据源不能为空",
+        result_variable: "存储结果",
+        variable_names: "按列存储",
       }
     },
     api_import: {

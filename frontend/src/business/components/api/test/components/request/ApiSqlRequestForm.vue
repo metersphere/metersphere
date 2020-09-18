@@ -11,6 +11,14 @@
       </el-select>
     </el-form-item>
 
+    <el-form-item :label="$t('api_test.request.sql.result_variable')" prop="resultVariable">
+      <el-input v-model="request.resultVariable" maxlength="300" show-word-limit/>
+    </el-form-item>
+
+    <el-form-item :label="$t('api_test.request.sql.variable_names')" prop="variableNames">
+      <el-input v-model="request.variableNames" maxlength="300" show-word-limit/>
+    </el-form-item>
+
     <!--<el-form-item :label="'查询类型'" prop="protocol">-->
       <!--<el-select v-model="request.queryType">-->
         <!--<el-option label="dubbo://" :value="protocols.DUBBO"/>-->

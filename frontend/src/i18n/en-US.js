@@ -551,6 +551,8 @@ export default {
       query_timeout: "Max Wait(ms)",
       name_cannot_be_empty: "SQL request name cannot be empty",
       dataSource_cannot_be_empty: "SQL request datasource cannot be empty",
+      result_variable: "Result variable",
+      variable_names: "Variable names",
     },
     api_import: {
       label: "Import",

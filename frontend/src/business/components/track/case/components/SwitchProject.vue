@@ -4,7 +4,7 @@
              :close-on-click-modal="false"
              class="ms-switch-project"
   >
-    <ms-table-header :condition.sync="condition" @search="initData" title="" :show-create="false"/>
+    <ms-table-header :condition.sync="condition" @search="initData" title="切换项目" :show-create="false"/>
     <el-table
             :data="tableData"
             highlight-current-row
