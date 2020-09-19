@@ -37,7 +37,7 @@
           type="selection"/>
         <el-table-column width="40" :resizable="false" align="center">
           <template v-slot:default="scope">
-            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>
+<!--            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>-->
           </template>
         </el-table-column>
         <el-table-column
@@ -128,7 +128,9 @@
 
         <el-table-column
           prop="reviewerName"
-          :label="$t('test_track.plan_view.executor')">
+          label="评审人"
+          show-overflow-tooltip
+        >
         </el-table-column>
 
         <el-table-column
@@ -231,7 +233,7 @@ export default {
       pageSize: 10,
       total: 0,
       selectRows: new Set(),
-      testPlan: {},
+      testReview: {},
       isReadOnly: false,
       isTestManagerOrTestUser: false,
       priorityFilters: [
@@ -466,7 +468,7 @@ export default {
     getTestReviewById() {
       if (this.reviewId) {
         this.$post('/test/case/review/get/' + this.reviewId, {}, response => {
-          this.testPlan = response.data;
+          this.testReview = response.data;
           this.refreshTestReviewRecent();
         });
       }
@@ -506,7 +508,11 @@ export default {
       });
     },
     startReview() {
-
+      if (this.tableData.length !== 0) {
+        this.$refs.testReviewTestCaseEdit.openTestCaseEdit(this.tableData[0]);
+      } else {
+        this.$warning("没有关联的评审！");
+      }
     }
   }
 }

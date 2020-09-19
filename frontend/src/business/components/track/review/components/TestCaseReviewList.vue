@@ -187,8 +187,8 @@ export default {
         }
       });
     },
-    intoReview() {
-
+    intoReview(row) {
+      this.$router.push('/track/review/view/' + row.id);
     },
     testCaseReviewCreate() {
       this.$emit('openCaseReviewEditDialog');

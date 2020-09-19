@@ -132,7 +132,7 @@
                         :default-sort="{prop: 'num', order: 'ascending'}"
                         highlight-current-row>
                         <el-table-column :label="$t('test_track.case.number')" prop="num"
-                                         min-width="5%"></el-table-column>
+                                         min-width="5%"/>
 
                         <el-table-column :label="$t('test_track.case.step_desc')" prop="desc" min-width="21%">
                           <template v-slot:default="scope">
@@ -216,7 +216,7 @@
             <el-card>
               <el-tabs class="system-setting" v-model="activeName">
                 <el-tab-pane label="评论" name="comment">
-                  <review-comment/>
+                  <review-comment :comments="comments" :case-id="testCase.caseId" @getComments="getComments"/>
                 </el-tab-pane>
               </el-tabs>
             </el-card>
@@ -263,7 +263,8 @@ export default {
       activeTab: 'detail',
       isFailure: true,
       users: [],
-      activeName: 'comment'
+      activeName: 'comment',
+      comments: []
     };
   },
   props: {
@@ -290,8 +291,8 @@ export default {
     saveCase(status) {
       let param = {};
       param.id = this.testCase.id;
+      param.reviewId = this.testCase.reviewId;
       param.status = status;
-
       this.$post('/test/review/case/edit', param, () => {
         this.$success(this.$t('commons.save_success'));
         this.updateTestCases(param);
@@ -334,6 +335,7 @@ export default {
       this.activeTab = 'detail';
       listenGoBack(this.handleClose);
       this.initData(testCase);
+      this.getComments(testCase);
     },
     initTest() {
       this.$nextTick(() => {
@@ -360,6 +362,17 @@ export default {
     saveReport(reportId) {
       this.$post('/test/plan/case/edit', {id: this.testCase.id, reportId: reportId});
     },
+    getComments(testCase) {
+      let id = '';
+      if (testCase) {
+        id = testCase.caseId;
+      } else {
+        id = this.testCase.caseId;
+      }
+      this.result = this.$get('/test/case/comment/list/' + id, res => {
+        this.comments = res.data;
+      })
+    },
     initData(testCase) {
       this.result = this.$post('/test/review/case/list/all', this.searchParam, response => {
         this.testCases = response.data;
@@ -374,7 +387,6 @@ export default {
     },
     getRelatedTest() {
       if (this.testCase.method == 'auto' && this.testCase.testId && this.testCase.testId != 'other') {
-        console.log(this.testCase.type)
         this.$get('/' + this.testCase.type + '/get/' + this.testCase.testId, response => {
           let data = response.data;
           if (data) {
