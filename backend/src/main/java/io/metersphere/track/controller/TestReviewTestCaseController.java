@@ -2,6 +2,7 @@ package io.metersphere.track.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.base.domain.TestCaseReviewTestCase;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -39,5 +40,16 @@ public class TestReviewTestCaseController {
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void deleteTestCaseBath(@RequestBody TestReviewCaseBatchRequest request) {
         testReviewTestCaseService.deleteTestCaseBath(request);
+    }
+
+    @PostMapping("/list/all")
+    public List<TestReviewCaseDTO> getTestPlanCases(@RequestBody QueryCaseReviewRequest request) {
+        return testReviewTestCaseService.list(request);
+    }
+
+    @PostMapping("/edit")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void editTestCase(@RequestBody TestCaseReviewTestCase testCaseReviewTestCase) {
+        testReviewTestCaseService.editTestCase(testCaseReviewTestCase);
     }
 }

@@ -180,4 +180,10 @@
             </foreach>
         </if>
     </select>
+
+    <select id="getStatusByReviewId" resultType="java.lang.String">
+        select status
+        from test_case_review_test_case
+        where review_id = #{reviewId}
+    </select>
 </mapper>

@@ -1,8 +1,6 @@
 package io.metersphere.track.service;
 
-import io.metersphere.base.domain.TestCaseReviewTestCaseExample;
-import io.metersphere.base.domain.TestPlanTestCaseExample;
-import io.metersphere.base.domain.User;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.TestCaseReviewTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestReviewCaseMapper;
 import io.metersphere.commons.utils.ServiceUtils;
@@ -52,5 +50,12 @@ public class TestReviewTestCaseService {
         TestCaseReviewTestCaseExample example = new TestCaseReviewTestCaseExample();
         example.createCriteria().andIdIn(request.getIds());
         testCaseReviewTestCaseMapper.deleteByExample(example);
+    }
+
+    public void editTestCase(TestCaseReviewTestCase testCaseReviewTestCase) {
+        testCaseReviewTestCase.setStatus(testCaseReviewTestCase.getStatus());
+        testCaseReviewTestCase.setReviewer(SessionUtils.getUser().getId());
+        testCaseReviewTestCase.setUpdateTime(System.currentTimeMillis());
+        testCaseReviewTestCaseMapper.updateByPrimaryKeySelective(testCaseReviewTestCase);
     }
 }

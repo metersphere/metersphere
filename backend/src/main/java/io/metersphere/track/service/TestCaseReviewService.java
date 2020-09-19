@@ -3,7 +3,10 @@ package io.metersphere.track.service;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestCaseReviewMapper;
+import io.metersphere.base.mapper.ext.ExtTestReviewCaseMapper;
 import io.metersphere.commons.constants.TestCaseReviewStatus;
+import io.metersphere.commons.constants.TestPlanStatus;
+import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
@@ -40,9 +43,9 @@ public class TestCaseReviewService {
     @Resource
     private UserMapper userMapper;
     @Resource
-    private TestCaseMapper testCaseMapper;
-    @Resource
     SqlSessionFactory sqlSessionFactory;
+    @Resource
+    ExtTestReviewCaseMapper extTestReviewCaseMapper;
 
     public void saveTestCaseReview(SaveTestCaseReviewRequest reviewRequest) {
         checkCaseReviewExist(reviewRequest);
@@ -209,5 +212,21 @@ public class TestCaseReviewService {
 
     public TestCaseReview getTestReview(String reviewId) {
         return Optional.ofNullable(testCaseReviewMapper.selectByPrimaryKey(reviewId)).orElse(new TestCaseReview());
+    }
+
+    public void editTestReviewStatus(String reviewId) {
+        List<String> statusList = extTestReviewCaseMapper.getStatusByReviewId(reviewId);
+        TestCaseReview testCaseReview = new TestCaseReview();
+        testCaseReview.setId(reviewId);
+
+        for (String status : statusList) {
+            if (StringUtils.equals(status, TestPlanTestCaseStatus.Prepare.name())) {
+                testCaseReview.setStatus(TestPlanStatus.Underway.name());
+                testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
+                return;
+            }
+        }
+        testCaseReview.setStatus(TestPlanStatus.Completed.name());
+        testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
     }
 }

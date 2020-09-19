@@ -146,16 +146,8 @@
                   <el-dropdown-item :disabled="!isTestManagerOrTestUser" :command="{id: scope.row.id, status: 'Pass'}">
                     {{$t('test_track.plan_view.pass')}}
                   </el-dropdown-item>
-                  <el-dropdown-item :disabled="!isTestManagerOrTestUser"
-                                    :command="{id: scope.row.id, status: 'Failure'}">
-                    {{$t('test_track.plan_view.failure')}}
-                  </el-dropdown-item>
-                  <el-dropdown-item :disabled="!isTestManagerOrTestUser"
-                                    :command="{id: scope.row.id, status: 'Blocking'}">
-                    {{$t('test_track.plan_view.blocking')}}
-                  </el-dropdown-item>
-                  <el-dropdown-item :disabled="!isTestManagerOrTestUser" :command="{id: scope.row.id, status: 'Skip'}">
-                    {{$t('test_track.plan_view.skip')}}
+                  <el-dropdown-item :disabled="!isTestManagerOrTestUser" :command="{id: scope.row.id, status: 'UnPass'}">
+                    未通过
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
@@ -233,9 +225,7 @@ export default {
   data() {
     return {
       result: {},
-      condition: {
-        components: TEST_CASE_CONFIGS
-      },
+      condition: {},
       tableData: [],
       currentPage: 1,
       pageSize: 10,
@@ -262,10 +252,7 @@ export default {
       statusFilters: [
         {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
         {text: this.$t('test_track.plan_view.pass'), value: 'Pass'},
-        {text: this.$t('test_track.plan_view.failure'), value: 'Failure'},
-        {text: this.$t('test_track.plan_view.blocking'), value: 'Blocking'},
-        {text: this.$t('test_track.plan_view.skip'), value: 'Skip'},
-        {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
+        {text: '未通过', value: 'UnPass'},
       ],
       showMore: false,
       buttons: [

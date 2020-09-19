@@ -4,7 +4,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.TestCaseReview;
-import io.metersphere.base.domain.TestPlan;
 import io.metersphere.base.domain.User;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
@@ -107,5 +106,11 @@ public class TestCaseReviewController {
     @PostMapping("/get/{reviewId}")
     public TestCaseReview getTestReview(@PathVariable String reviewId) {
         return testCaseReviewService.getTestReview(reviewId);
+    }
+
+    @PostMapping("/edit/status/{reviewId}")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void editTestPlanStatus(@PathVariable String reviewId) {
+        testCaseReviewService.editTestReviewStatus(reviewId);
     }
 }
