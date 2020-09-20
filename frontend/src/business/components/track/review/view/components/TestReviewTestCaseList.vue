@@ -354,7 +354,7 @@ export default {
         let param = {};
         param.id = this.reviewId;
         param.updateTime = Date.now();
-        this.$post('/test/plan/edit', param);
+        // this.$post('/test/case/review/edit', param);
       }
     },
     search() {
@@ -456,14 +456,7 @@ export default {
       this.$refs.testReportTemplateList.open(this.reviewId);
     },
     statusChange(param) {
-      this.$post('/test/plan/case/edit', param, () => {
-        for (let i = 0; i < this.tableData.length; i++) {
-          if (this.tableData[i].id == param.id) {
-            this.tableData[i].status = param.status;
-            break;
-          }
-        }
-      });
+
     },
     getTestReviewById() {
       if (this.reviewId) {
@@ -486,16 +479,16 @@ export default {
       this.initTableData();
     },
     batchEdit(form) {
-      let param = {};
-      param[form.type] = form.value;
-      param.ids = Array.from(this.selectRows).map(row => row.id);
-      this.$post('/test/plan/case/batch/edit', param, () => {
-        this.selectRows.clear();
-        this.status = '';
-        this.$post('/test/plan/edit/status/' + this.reviewId);
-        this.$success(this.$t('commons.save_success'));
-        this.$emit('refresh');
-      });
+      // let param = {};
+      // param[form.type] = form.value;
+      // param.ids = Array.from(this.selectRows).map(row => row.id);
+      // this.$post('/test/plan/case/batch/edit', param, () => {
+      //   this.selectRows.clear();
+      //   this.status = '';
+      //   this.$post('/test/plan/edit/status/' + this.reviewId);
+      //   this.$success(this.$t('commons.save_success'));
+      //   this.$emit('refresh');
+      // });
     },
     handleBatchEdit() {
       this.getMaintainerOptions();

@@ -204,8 +204,7 @@ export default {
       });
     },
     statusChange(status) {
-      this.form.status = status;
-      this.$forceUpdate();
+
     },
     close() {
       removeGoBackListener(this.close);

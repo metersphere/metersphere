@@ -220,9 +220,7 @@
                 <i class="el-icon-refresh" @click="getComments(testCase)"
                    style="margin-left:10px;font-size: 14px; cursor: pointer"/>
               </template>
-              <tempalte slot="default">
-                <review-comment :comments="comments" :case-id="testCase.caseId" @getComments="getComments"/>
-              </tempalte>
+              <review-comment :comments="comments" :case-id="testCase.caseId" @getComments="getComments"/>
             </el-card>
           </el-col>
         </div>
@@ -365,7 +363,7 @@ export default {
       }
     },
     saveReport(reportId) {
-      this.$post('/test/plan/case/edit', {id: this.testCase.id, reportId: reportId});
+      // this.$post('/test/plan/case/edit', {id: this.testCase.id, reportId: reportId});
     },
     getComments(testCase) {
       let id = '';
