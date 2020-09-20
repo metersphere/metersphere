@@ -28,6 +28,7 @@
                     </el-col>
 
                     <el-col :span="12" class="head-right">
+
                 <span class="head-right-tip" v-if="index + 1 == testCases.length">
                   {{$t('test_track.plan_view.pre_case')}} : {{testCases[index - 1] ? testCases[index - 1].name : ''}}
                 </span>
@@ -213,12 +214,15 @@
             </el-card>
           </el-col>
           <el-col :span="7">
-            <el-card>
-              <el-tabs class="system-setting" v-model="activeName">
-                <el-tab-pane label="评论" name="comment">
-                  <review-comment :comments="comments" :case-id="testCase.caseId" @getComments="getComments"/>
-                </el-tab-pane>
-              </el-tabs>
+            <el-card class="comment-card">
+              <template slot="header">
+                <span style="font-size: 15px; color: #1E90FF">评论</span>
+                <i class="el-icon-refresh" @click="getComments(testCase)"
+                   style="margin-left:10px;font-size: 14px; cursor: pointer"/>
+              </template>
+              <tempalte slot="default">
+                <review-comment :comments="comments" :case-id="testCase.caseId" @getComments="getComments"/>
+              </tempalte>
             </el-card>
           </el-col>
         </div>
@@ -472,6 +476,14 @@ export default {
   }
 
   .container >>> .el-card__body {
-    height: 85vh !important;
+    height: 90vh !important;
+  }
+
+  .comment-card >>> .el-card__header {
+    padding: 0 20px;
+  }
+
+  .comment-card >>> .el-card__body {
+    height: 80vh !important;
   }
 </style>

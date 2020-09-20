@@ -1,9 +1,9 @@
 <template>
   <div class="main">
     <div class="comment-left">
-      <span>
-        <i class="el-icon-user-solid review-comment-user"/>
-      </span>
+      <div class="icon-title">
+        {{comment.author.substring(0,1)}}
+      </div>
     </div>
     <div class="comment-right">
       <span style="font-size: 16px;">{{comment.author}}</span>
@@ -11,7 +11,7 @@
         {{comment.createTime | timestampFormatDate}}
       </span>
       <br/>
-      <div style="word-wrap:break-word; word-break:break-all;">{{comment.description}}</div>
+      <div class="comment-desc">{{comment.description}}</div>
     </div>
   </div>
 </template>
@@ -30,16 +30,15 @@ export default {
 
 <style scoped>
   .main {
-    overflow-y: scroll
-  }
-
-  .review-comment-user {
-    font-size: 19px;
+    overflow-y: scroll;
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
   }
 
   .comment-left {
     float: left;
-    width: 10%;
+    width: 50px;
     height: 100%;
   }
 
@@ -48,5 +47,21 @@ export default {
     width: 90%;
     padding: 0;
     line-height: 25px;
+  }
+
+  .icon-title {
+    color: #fff;
+    width: 30px;
+    background-color: #72dc91;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    border-radius: 30px;
+  }
+
+  .comment-desc {
+    overflow-wrap: break-word;
+    word-break: break-all;
+    border-bottom: 1px solid #ced3de;
   }
 </style>

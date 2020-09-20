@@ -1,10 +1,10 @@
 <template>
   <div v-loading="result.loading">
-    <div style="height: 60vh;overflow-y: scroll">
+    <div style="height:60vh;overflow-y: scroll">
       <review-comment-item v-for="(comment,index) in comments" :key="index" :comment="comment"/>
       <div v-if="comments.length === 0" style="text-align: center">
-        <i class="el-icon-chat-line-square" style="font-size: 20px;color: #8a8b8d;">
-        <span style="font-size: 20px; color: #8a8b8d;">
+        <i class="el-icon-chat-line-square" style="font-size: 15px;color: #8a8b8d;">
+        <span style="font-size: 15px; color: #8a8b8d;">
           暂无评论
         </span>
         </i>
@@ -52,7 +52,7 @@ export default {
         this.$warning("评论内容不能为空！");
         return;
       }
-      this.$post('/test/case/comment/save', comment, () => {
+      this.result = this.$post('/test/case/comment/save', comment, () => {
         this.$success("评论成功！");
         this.$emit('getComments');
         this.textarea = '';
@@ -65,7 +65,7 @@ export default {
 
 <style scoped>
   .send-btn {
-    float: right;
     margin-top: 5px;
+    width: 100%;
   }
 </style>
