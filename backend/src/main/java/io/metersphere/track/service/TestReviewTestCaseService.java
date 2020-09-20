@@ -1,6 +1,7 @@
 package io.metersphere.track.service;
 
 import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.TestCaseReviewMapper;
 import io.metersphere.base.mapper.TestCaseReviewTestCaseMapper;
 import io.metersphere.base.mapper.TestCaseReviewUsersMapper;
 import io.metersphere.base.mapper.ext.ExtTestReviewCaseMapper;
@@ -32,6 +33,8 @@ public class TestReviewTestCaseService {
     TestCaseReviewTestCaseMapper testCaseReviewTestCaseMapper;
     @Resource
     TestCaseReviewUsersMapper testCaseReviewUsersMapper;
+    @Resource
+    TestCaseReviewMapper testCaseReviewMapper;
 
     public List<TestReviewCaseDTO> list(QueryCaseReviewRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -88,6 +91,13 @@ public class TestReviewTestCaseService {
         if (!reviewIds.contains(currentUserId)) {
             MSException.throwException("非此用例的评审人员！");
         }
+
+        TestCaseReview testCaseReview = testCaseReviewMapper.selectByPrimaryKey(reviewId);
+        Long endTime = testCaseReview.getEndTime();
+        if (System.currentTimeMillis() > endTime) {
+            MSException.throwException("此用例评审已到截止时间！");
+        }
+
         testCaseReviewTestCase.setStatus(testCaseReviewTestCase.getStatus());
         testCaseReviewTestCase.setReviewer(SessionUtils.getUser().getId());
         testCaseReviewTestCase.setUpdateTime(System.currentTimeMillis());

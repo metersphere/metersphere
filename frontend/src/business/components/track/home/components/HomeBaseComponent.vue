@@ -3,6 +3,7 @@
     <el-card>
       <template v-slot:header>
         <span class="title">{{ title }}</span>
+        <slot name="header-area"></slot>
       </template>
       <slot></slot>
     </el-card>

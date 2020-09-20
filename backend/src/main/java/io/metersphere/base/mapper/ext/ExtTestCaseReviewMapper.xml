@@ -27,5 +27,31 @@
          where test_case_review.id = test_case_review_project.review_id
            and test_case_review_project.project_id = project.id
            and project.workspace_id = #{workspaceId}
+           order by test_case_review.update_time desc
+    </select>
+
+    <select id="listRelate" resultType="io.metersphere.track.dto.TestReviewDTOWithMetric">
+        select distinct test_case_review.* from test_case_review
+        inner join test_case_review_project on test_case_review.id = test_case_review_project.review_id
+        inner join project on project.id = test_case_review_project.project_id
+        inner join test_case_review_users on test_case_review_users.review_id = test_case_review.id
+        <where>
+            project.workspace_id = #{request.workspaceId}
+            <if test="request.reviewerId != null">
+                and test_case_review_users.user_id = #{request.reviewerId}
+            </if>
+            <if test="request.creator != null">
+                and (test_case_review.creator = #{request.creator}
+                <if test="request.reviewIds != null and request.reviewIds.size() > 0">
+                    or test_case_review.id in
+                    <foreach collection="request.reviewIds" item="reviewId" open="(" close=")" separator=",">
+                        #{reviewId}
+                    </foreach>
+                </if>
+                )
+            </if>
+        </where>
+
+        order by test_case_review.update_time desc
     </select>
 </mapper>

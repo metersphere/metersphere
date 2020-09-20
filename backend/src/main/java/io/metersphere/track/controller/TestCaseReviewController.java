@@ -10,6 +10,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.track.dto.TestCaseReviewDTO;
+import io.metersphere.track.dto.TestReviewDTOWithMetric;
 import io.metersphere.track.request.testreview.ReviewRelevanceRequest;
 import io.metersphere.track.request.testreview.QueryCaseReviewRequest;
 import io.metersphere.track.request.testreview.SaveTestCaseReviewRequest;
@@ -112,5 +113,10 @@ public class TestCaseReviewController {
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void editTestPlanStatus(@PathVariable String reviewId) {
         testCaseReviewService.editTestReviewStatus(reviewId);
+    }
+
+    @GetMapping("/list/all/relate/{type}")
+    public List<TestReviewDTOWithMetric> listRelateAll(@PathVariable String type) {
+        return testCaseReviewService.listRelateAll(type);
     }
 }

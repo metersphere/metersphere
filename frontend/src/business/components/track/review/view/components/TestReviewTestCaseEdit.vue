@@ -328,6 +328,7 @@ export default {
         item.steptResults.push(item.steps[i]);
       }
       this.testCase = item;
+      this.getComments(item);
       this.initTest();
     },
     openTestCaseEdit(testCase) {

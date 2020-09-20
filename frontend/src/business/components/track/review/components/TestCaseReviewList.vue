@@ -63,16 +63,16 @@
           </span>
         </template>
       </el-table-column>
-      <el-table-column
-        prop="reviewerSize"
-        label="已评"
-        show-overflow-tooltip>
-      </el-table-column>
-      <el-table-column
-        prop="resultMap"
-        label="结果分布"
-        show-overflow-tooltip>
-      </el-table-column>
+<!--      <el-table-column-->
+<!--        prop="reviewerSize"-->
+<!--        label="已评"-->
+<!--        show-overflow-tooltip>-->
+<!--      </el-table-column>-->
+<!--      <el-table-column-->
+<!--        prop="resultMap"-->
+<!--        label="结果分布"-->
+<!--        show-overflow-tooltip>-->
+<!--      </el-table-column>-->
       <el-table-column
         prop="createTime"
         :label="$t('commons.create_time')"

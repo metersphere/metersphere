@@ -2,15 +2,21 @@ package io.metersphere.track.service;
 
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseReviewMapper;
 import io.metersphere.base.mapper.ext.ExtTestReviewCaseMapper;
 import io.metersphere.commons.constants.TestCaseReviewStatus;
 import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.user.SessionUser;
+import io.metersphere.commons.utils.MathUtils;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.track.dto.TestCaseReviewDTO;
+import io.metersphere.controller.request.member.QueryMemberRequest;
+import io.metersphere.service.UserService;
+import io.metersphere.track.dto.*;
+import io.metersphere.track.request.testreview.QueryTestReviewRequest;
 import io.metersphere.track.request.testreview.ReviewRelevanceRequest;
 import io.metersphere.track.request.testreview.QueryCaseReviewRequest;
 import io.metersphere.track.request.testreview.SaveTestCaseReviewRequest;
@@ -21,9 +27,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,6 +50,10 @@ public class TestCaseReviewService {
     SqlSessionFactory sqlSessionFactory;
     @Resource
     ExtTestReviewCaseMapper extTestReviewCaseMapper;
+    @Resource
+    ExtProjectMapper extProjectMapper;
+    @Resource
+    UserService userService;
 
     public void saveTestCaseReview(SaveTestCaseReviewRequest reviewRequest) {
         checkCaseReviewExist(reviewRequest);
@@ -228,5 +236,85 @@ public class TestCaseReviewService {
         }
         testCaseReview.setStatus(TestPlanStatus.Completed.name());
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
+    }
+
+    public List<TestReviewDTOWithMetric> listRelateAll(String type) {
+        SessionUser user = SessionUtils.getUser();
+        QueryTestReviewRequest request = new QueryTestReviewRequest();
+        if (StringUtils.equals("creator", type)) {
+            request.setCreator(user.getId());
+        } else {
+            request.setReviewerId(user.getId());
+        }
+        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        request.setReviewIds(extTestReviewCaseMapper.findRelateTestReviewId(user.getId(), SessionUtils.getCurrentWorkspaceId()));
+
+        List<String> projectIds = extProjectMapper.getProjectIdByWorkspaceId(SessionUtils.getCurrentOrganizationId());
+
+        List<TestReviewDTOWithMetric> testReviews = extTestCaseReviewMapper.listRelate(request);
+
+        Map<String, List<TestReviewCaseDTO>> testCaseMap = new HashMap<>();
+        listTestCaseByProjectIds(projectIds).forEach(testCase -> {
+            List<TestReviewCaseDTO> list = testCaseMap.get(testCase.getReviewId());
+            if (list == null) {
+                list = new ArrayList<>();
+                list.add(testCase);
+                testCaseMap.put(testCase.getReviewId(), list);
+            } else {
+                list.add(testCase);
+            }
+        });
+
+        testReviews.forEach(testReview -> {
+            List<TestReviewCaseDTO> testCases = testCaseMap.get(testReview.getId());
+
+            TestCaseReviewUsersExample testCaseReviewUsersExample = new TestCaseReviewUsersExample();
+            testCaseReviewUsersExample.createCriteria().andReviewIdEqualTo(testReview.getId());
+            List<String> userIds = testCaseReviewUsersMapper.selectByExample(testCaseReviewUsersExample)
+                    .stream().map(TestCaseReviewUsers::getUserId).collect(Collectors.toList());
+            String reviewName = getReviewName(userIds);
+            testReview.setReviewerName(reviewName);
+
+            User u = userMapper.selectByPrimaryKey(testReview.getCreator());
+            testReview.setCreator(u.getName());
+
+            testReview.setReviewed(0);
+            testReview.setTotal(0);
+            if (testCases != null) {
+                testReview.setTotal(testCases.size());
+                testCases.forEach(testCase -> {
+                    if (!StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Prepare.name())
+                            && !StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Underway.name())) {
+                        testReview.setReviewed(testReview.getReviewed() + 1);
+                    }
+                });
+            }
+            testReview.setTestRate(MathUtils.getPercentWithDecimal(testReview.getTotal() == 0 ? 0 : testReview.getReviewed() * 1.0 / testReview.getTotal()));
+        });
+
+        return testReviews;
+    }
+
+    private String getReviewName(List<String> userIds) {
+        QueryMemberRequest queryMemberRequest = new QueryMemberRequest();
+        queryMemberRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        Map<String, String> userMap = userService.getMemberList(queryMemberRequest)
+                .stream().collect(Collectors.toMap(User::getId, User::getName));
+        StringBuilder stringBuilder = new StringBuilder();
+        String name = "";
+
+        if (userIds.size() > 0) {
+            for (String id : userIds) {
+                stringBuilder.append(userMap.get(id)).append("、");
+            }
+            name = stringBuilder.toString().substring(0, stringBuilder.length() - 1);
+        }
+        return name;
+    }
+    
+    public List<TestReviewCaseDTO> listTestCaseByProjectIds(List<String> projectIds) {
+        QueryCaseReviewRequest request = new QueryCaseReviewRequest();
+        request.setProjectIds(projectIds);
+        return extTestReviewCaseMapper.list(request);
     }
 }
