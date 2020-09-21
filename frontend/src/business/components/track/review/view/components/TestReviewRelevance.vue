@@ -154,6 +154,7 @@ export default {
   },
   methods: {
     openTestReviewRelevanceDialog() {
+      this.getProject();
       this.initData();
       this.dialogFormVisible = true;
     },
@@ -217,7 +218,6 @@ export default {
     initData() {
       this.getReviews();
       this.getAllNodeTreeByPlanId();
-      this.getProject();
     },
     refresh() {
       this.close();
@@ -225,7 +225,7 @@ export default {
     getAllNodeTreeByPlanId() {
       if (this.reviewId) {
         let param = {
-          testPlanId: this.reviewId,
+          reviewId: this.reviewId,
           projectId: this.projectId
         };
         this.result = this.$post("/case/node/list/all/review", param , response => {
