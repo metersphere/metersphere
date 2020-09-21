@@ -154,6 +154,7 @@
     },
     methods: {
       openTestCaseRelevanceDialog() {
+        this.getProject();
         this.initData();
         this.dialogFormVisible = true;
       },
@@ -219,7 +220,6 @@
       initData() {
         this.getCaseNames();
         this.getAllNodeTreeByPlanId();
-        this.getProject();
       },
       refresh() {
         this.close();
