@@ -220,6 +220,7 @@ export default {
       }
       if (newCsvNum + oldCsvNum > this.fileNumLimit - 1) {
         this.handleExceed();
+        return false;
       }
       if (newJmxNum + oldJmxNum !== 1) {
         this.$error(this.$t('load_test.jmx_is_null'));
