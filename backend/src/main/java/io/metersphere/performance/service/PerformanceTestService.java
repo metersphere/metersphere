@@ -238,8 +238,17 @@ public class PerformanceTestService {
 
         startEngine(loadTest, engine, request.getTriggerMode());
         if (request.getTriggerMode().equals("SCHEDULE")) {
-            List<Notice> notice = noticeService.queryNotice(request.getId());
-            mailService.sendHtml(engine.getReportId(), notice, "status", "performance");
+            List<Notice> notice = null;
+            try {
+                notice = noticeService.queryNotice(request.getId());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            try {
+                mailService.sendHtml(engine.getReportId(), notice, "status", "performance");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return engine.getReportId();
     }
