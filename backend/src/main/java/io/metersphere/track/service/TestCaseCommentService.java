@@ -46,4 +46,10 @@ public class TestCaseCommentService {
         });
         return testCaseComments;
     }
+
+    public void deleteComment(String caseId) {
+        TestCaseCommentExample testCaseCommentExample = new TestCaseCommentExample();
+        testCaseCommentExample.createCriteria().andCaseIdEqualTo(caseId);
+        testCaseCommentMapper.deleteByExample(testCaseCommentExample);
+    }
 }

@@ -5,7 +5,8 @@
         <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
                          :show-create="false" :tip="$t('commons.search_by_name_or_id')">
           <template v-slot:title>
-            <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="refresh" :title="$t('test_track.review_view.all_review')"/>
+            <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="refresh"
+                             :title="$t('test_track.review_view.all_review')"/>
           </template>
           <template v-slot:button>
             <ms-table-button :is-tester-permission="true" icon="el-icon-video-play"
@@ -37,7 +38,7 @@
           type="selection"/>
         <el-table-column width="40" :resizable="false" align="center">
           <template v-slot:default="scope">
-<!--            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>-->
+            <!--            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>-->
           </template>
         </el-table-column>
         <el-table-column
@@ -97,7 +98,7 @@
 
         <el-table-column
           prop="reviewerName"
-          :label="$t('test_track.review.review_creator')"
+          :label="$t('test_track.review.reviewer')"
           show-overflow-tooltip
         >
         </el-table-column>
@@ -428,14 +429,14 @@ export default {
 
 <style scoped>
 
-  .search {
-    margin-left: 10px;
-    width: 240px;
-  }
+.search {
+  margin-left: 10px;
+  width: 240px;
+}
 
-  .test-case-status, .el-table {
-    cursor: pointer;
-  }
+.test-case-status, .el-table {
+  cursor: pointer;
+}
 
 </style>
 
