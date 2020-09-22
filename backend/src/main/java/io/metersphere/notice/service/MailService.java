@@ -198,10 +198,6 @@ public class MailService {
             users = emails.toArray(new String[emails.size()]);
             if (type.equals("reviewer")) {
                 helper.setText(html1, true);
-            } else if (type.equals("reviewer")) {
-                helper.setText(html2, true);
-            } else {
-                helper.setText(html3, true);
             }
             helper.setTo(users);
 

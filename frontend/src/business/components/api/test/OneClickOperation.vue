@@ -22,7 +22,7 @@
 
 <script>
   import MsDialogFooter from '../../common/components/MsDialogFooter'
-  import {Test} from "./model/ScenarioModel"
+  import {Scenario, Test} from "./model/ScenarioModel"
   import MsApiScenarioConfig from "./components/ApiScenarioConfig";
   import MsApiReportStatus from "../report/ApiReportStatus";
   import MsApiReportDialog from "./ApiReportDialog";

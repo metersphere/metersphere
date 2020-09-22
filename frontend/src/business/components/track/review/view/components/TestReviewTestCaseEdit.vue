@@ -20,7 +20,7 @@
 
                   <el-row type="flex" class="head-bar">
 
-                    <el-col :span="12">
+                    <el-col :span="8">
                       <el-button plain size="mini"
                                  icon="el-icon-back"
                                  @click="cancel">{{ $t('test_track.return') }}
@@ -29,12 +29,12 @@
 
                     <el-col :span="12" class="head-right">
 
-                <span class="head-right-tip" v-if="index + 1 == testCases.length">
+                <span class="head-right-tip" v-if="index + 1 === testCases.length">
                   {{ $t('test_track.plan_view.pre_case') }} : {{
                     testCases[index - 1] ? testCases[index - 1].name : ''
                   }}
                 </span>
-                      <span class="head-right-tip" v-if="index + 1 != testCases.length">
+                      <span class="head-right-tip" v-if="index + 1 !== testCases.length">
                   {{ $t('test_track.plan_view.next_case') }} : {{
                           testCases[index + 1] ? testCases[index + 1].name : ''
                         }}
@@ -50,16 +50,16 @@
                       <el-divider direction="vertical"></el-divider>
 
                       <el-button type="success" size="mini" :disabled="isReadOnly" plain @click="saveCase('Pass')">
-                        通过
+                        {{ $t('test_track.review.pass') }}
                       </el-button>
                       <el-button type="danger" size="mini" :disabled="isReadOnly" plain @click="saveCase('UnPass')">
-                        未通过
+                        {{ $t('test_track.review.un_pass') }}
                       </el-button>
                     </el-col>
 
                   </el-row>
 
-                  <el-row style="margin-top: 0px;">
+                  <el-row style="margin-top: 0;">
                     <el-col>
                       <el-divider content-position="left">{{ testCase.name }}</el-divider>
                     </el-col>
@@ -75,18 +75,20 @@
                     </el-col>
                     <el-col :span="5">
                       <span class="cast_label">{{ $t('test_track.case.case_type') }}：</span>
-                      <span class="cast_item" v-if="testCase.type == 'functional'">{{ $t('commons.functional') }}</span>
+                      <span class="cast_item" v-if="testCase.type === 'functional'">{{
+                          $t('commons.functional')
+                        }}</span>
                       <span class="cast_item"
-                            v-if="testCase.type == 'performance'">{{ $t('commons.performance') }}</span>
-                      <span class="cast_item" v-if="testCase.type == 'api'">{{ $t('commons.api') }}</span>
+                            v-if="testCase.type === 'performance'">{{ $t('commons.performance') }}</span>
+                      <span class="cast_item" v-if="testCase.type === 'api'">{{ $t('commons.api') }}</span>
                     </el-col>
                   </el-row>
 
                   <el-row>
                     <el-col :span="4" :offset="1">
                       <span class="cast_label">{{ $t('test_track.case.method') }}：</span>
-                      <span v-if="testCase.method == 'manual'">{{ $t('test_track.case.manual') }}</span>
-                      <span v-if="testCase.method == 'auto'">{{ $t('test_track.case.auto') }}</span>
+                      <span v-if="testCase.method === 'manual'">{{ $t('test_track.case.manual') }}</span>
+                      <span v-if="testCase.method === 'auto'">{{ $t('test_track.case.auto') }}</span>
                     </el-col>
                     <el-col :span="5">
                       <span class="cast_label">{{ $t('test_track.case.module') }}：</span>
@@ -105,27 +107,21 @@
                     </el-col>
                   </el-row>
 
-                  <el-row v-if="testCase.method == 'auto' && testCase.testId">
+                  <el-row v-if="testCase.method === 'auto' && testCase.testId">
                     <el-col class="test-detail" :span="20" :offset="1">
-                      <el-tabs v-model="activeTab" type="border-card" @tab-click="testTabChange">
+                      <el-tabs v-model="activeTab" type="border-card">
                         <el-tab-pane name="detail" :label="$t('test_track.plan_view.test_detail')">
-                          <api-test-detail :is-read-only="isReadOnly" v-if="testCase.type == 'api'" @runTest="testRun"
+                          <api-test-detail :is-read-only="true" v-if="testCase.type === 'api'" @runTest="testRun"
                                            :id="testCase.testId" ref="apiTestDetail"/>
-                          <performance-test-detail :is-read-only="isReadOnly" v-if="testCase.type == 'performance'"
+                          <performance-test-detail :is-read-only="true" v-if="testCase.type === 'performance'"
                                                    @runTest="testRun" :id="testCase.testId"
                                                    ref="performanceTestDetail"/>
-                        </el-tab-pane>
-                        <el-tab-pane name="result" :label="$t('test_track.plan_view.test_result')">
-                          <api-test-result :report-id="testCase.reportId" v-if=" testCase.type == 'api'"
-                                           ref="apiTestResult"/>
-                          <performance-test-result :is-read-only="isReadOnly" :report-id="testCase.reportId"
-                                                   v-if="testCase.type == 'performance'" ref="performanceTestResult"/>
                         </el-tab-pane>
                       </el-tabs>
                     </el-col>
                   </el-row>
 
-                  <el-row v-if="testCase.method && testCase.method != 'auto'">
+                  <el-row v-if="testCase.method && testCase.method !== 'auto'">
                     <el-col :span="20" :offset="1">
                       <div>
                         <span class="cast_label">{{ $t('test_track.case.steps') }}：</span>
@@ -202,7 +198,7 @@
                     <el-col :span="15" :offset="1">
                       <div>
                         <span class="cast_label">{{ $t('commons.remark') }}：</span>
-                        <span v-if="testCase.remark == null || testCase.remark == ''"
+                        <span v-if="testCase.remark == null || testCase.remark === ''"
                               style="color: darkgrey">{{ $t('commons.not_filled') }}</span>
                       </div>
                       <div>
@@ -222,7 +218,7 @@
           <el-col :span="7">
             <el-card class="comment-card">
               <template slot="header">
-                <span style="font-size: 15px; color: #1E90FF">评论</span>
+                <span style="font-size: 15px; color: #1E90FF">{{ $t('test_track.review.comment') }}</span>
                 <i class="el-icon-refresh" @click="getComments(testCase)"
                    style="margin-left:10px;font-size: 14px; cursor: pointer"/>
               </template>
@@ -231,7 +227,6 @@
           </el-col>
         </div>
       </el-row>
-
 
     </template>
 
@@ -348,11 +343,10 @@ export default {
     },
     initTest() {
       this.$nextTick(() => {
-        if (this.testCase.method == 'auto') {
-          if (this.$refs.apiTestDetail && this.testCase.type == 'api') {
-
+        if (this.testCase.method === 'auto') {
+          if (this.$refs.apiTestDetail && this.testCase.type === 'api') {
             this.$refs.apiTestDetail.init();
-          } else if (this.testCase.type == 'performance') {
+          } else if (this.testCase.type === 'performance') {
             this.$refs.performanceTestDetail.init();
           }
         }
@@ -361,12 +355,6 @@ export default {
     testRun(reportId) {
       this.testCase.reportId = reportId;
       this.saveReport(reportId);
-    },
-    testTabChange(data) {
-      if (this.testCase.type == 'performance' && data.paneName == 'result') {
-        this.$refs.performanceTestResult.checkReportStatus();
-        this.$refs.performanceTestResult.init();
-      }
     },
     saveReport(reportId) {
       // this.$post('/test/plan/case/edit', {id: this.testCase.id, reportId: reportId});
@@ -395,7 +383,7 @@ export default {
       });
     },
     getRelatedTest() {
-      if (this.testCase.method == 'auto' && this.testCase.testId && this.testCase.testId != 'other') {
+      if (this.testCase.method === 'auto' && this.testCase.testId && this.testCase.testId !== 'other') {
         this.$get('/' + this.testCase.type + '/get/' + this.testCase.testId, response => {
           let data = response.data;
           if (data) {
@@ -413,7 +401,7 @@ export default {
       this.$post('/test/case/review/edit/status/' + reviewId);
     },
     stepResultChange() {
-      if (this.testCase.method == 'manual') {
+      if (this.testCase.method === 'manual') {
         this.isFailure = this.testCase.steptResults.filter(s => {
           return s.executeResult === 'Failure' || s.executeResult === 'Blocking';
         }).length > 0;

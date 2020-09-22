@@ -351,33 +351,36 @@ public class TestCaseReviewService {
             }
         });
 
-        testReviews.forEach(testReview -> {
-            List<TestReviewCaseDTO> testCases = testCaseMap.get(testReview.getId());
+        if (!CollectionUtils.isEmpty(testReviews)) {
+            testReviews.forEach(testReview -> {
+                List<TestReviewCaseDTO> testCases = testCaseMap.get(testReview.getId());
 
-            TestCaseReviewUsersExample testCaseReviewUsersExample = new TestCaseReviewUsersExample();
-            testCaseReviewUsersExample.createCriteria().andReviewIdEqualTo(testReview.getId());
-            List<String> userIds = testCaseReviewUsersMapper.selectByExample(testCaseReviewUsersExample)
-                    .stream().map(TestCaseReviewUsers::getUserId).collect(Collectors.toList());
-            String reviewName = getReviewName(userIds);
-            testReview.setReviewerName(reviewName);
+                TestCaseReviewUsersExample testCaseReviewUsersExample = new TestCaseReviewUsersExample();
+                testCaseReviewUsersExample.createCriteria().andReviewIdEqualTo(testReview.getId());
+                List<String> userIds = testCaseReviewUsersMapper.selectByExample(testCaseReviewUsersExample)
+                        .stream().map(TestCaseReviewUsers::getUserId).collect(Collectors.toList());
+                String reviewName = getReviewName(userIds);
+                testReview.setReviewerName(reviewName);
 
-            User u = userMapper.selectByPrimaryKey(testReview.getCreator());
-            testReview.setCreator(u.getName());
+                User u = userMapper.selectByPrimaryKey(testReview.getCreator());
+                if (u != null) {
+                    testReview.setCreator(u.getName());
+                }
 
-            testReview.setReviewed(0);
-            testReview.setTotal(0);
-            if (testCases != null) {
-                testReview.setTotal(testCases.size());
-                testCases.forEach(testCase -> {
-                    if (!StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Prepare.name())
-                            && !StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Underway.name())) {
-                        testReview.setReviewed(testReview.getReviewed() + 1);
-                    }
-                });
-            }
-            testReview.setTestRate(MathUtils.getPercentWithDecimal(testReview.getTotal() == 0 ? 0 : testReview.getReviewed() * 1.0 / testReview.getTotal()));
-        });
-
+                testReview.setReviewed(0);
+                testReview.setTotal(0);
+                if (testCases != null) {
+                    testReview.setTotal(testCases.size());
+                    testCases.forEach(testCase -> {
+                        if (!StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Prepare.name())
+                                && !StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Underway.name())) {
+                            testReview.setReviewed(testReview.getReviewed() + 1);
+                        }
+                    });
+                }
+                testReview.setTestRate(MathUtils.getPercentWithDecimal(testReview.getTotal() == 0 ? 0 : testReview.getReviewed() * 1.0 / testReview.getTotal()));
+            });
+        }
         return testReviews;
     }
 
