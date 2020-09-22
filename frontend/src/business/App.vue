@@ -52,7 +52,7 @@
           this.auth = true;
           // 是否显示校验信息
           if (header.default !== undefined) {
-            this.licenseHeader = "MsLicenseHeader";
+            this.licenseHeader = "LicenseMessage";
           }
         } else {
           window.location.href = "/login"
@@ -67,7 +67,7 @@
       MsView,
       MsTopMenus,
       MsHeaderOrgWs,
-      "MsLicenseHeader": header.default
+      "LicenseMessage": header.default
     }
   }
 </script>
