@@ -226,6 +226,7 @@ public class TestCaseReviewService {
     public void deleteCaseReview(String reviewId) {
         deleteCaseReviewProject(reviewId);
         deleteCaseReviewUsers(reviewId);
+        deleteCaseReviewTestCase(reviewId);
         testCaseReviewMapper.deleteByPrimaryKey(reviewId);
     }
 
@@ -239,6 +240,12 @@ public class TestCaseReviewService {
         TestCaseReviewUsersExample testCaseReviewUsersExample = new TestCaseReviewUsersExample();
         testCaseReviewUsersExample.createCriteria().andReviewIdEqualTo(reviewId);
         testCaseReviewUsersMapper.deleteByExample(testCaseReviewUsersExample);
+    }
+
+    private void deleteCaseReviewTestCase(String reviewId) {
+        TestCaseReviewTestCaseExample testCaseReviewTestCaseExample = new TestCaseReviewTestCaseExample();
+        testCaseReviewTestCaseExample.createCriteria().andReviewIdEqualTo(reviewId);
+        testCaseReviewTestCaseMapper.deleteByExample(testCaseReviewTestCaseExample);
     }
 
     public List<TestCaseReview> listCaseReviewAll(String currentWorkspaceId) {
@@ -384,7 +391,7 @@ public class TestCaseReviewService {
         }
         return name;
     }
-    
+
     public List<TestReviewCaseDTO> listTestCaseByProjectIds(List<String> projectIds) {
         QueryCaseReviewRequest request = new QueryCaseReviewRequest();
         request.setProjectIds(projectIds);
