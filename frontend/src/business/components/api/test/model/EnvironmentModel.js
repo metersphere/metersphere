@@ -8,13 +8,14 @@ export class Environment extends BaseConfig {
     this.projectId = undefined;
     this.name = undefined;
     this.id = undefined;
-    this.config = options.config || new Config();
+    this.config = undefined;
 
     this.set(options);
     this.sets({}, options);
   }
 
   initOptions(options = {}) {
+    this.config = new Config(options.config);
     return options;
   }
 }
@@ -22,14 +23,16 @@ export class Environment extends BaseConfig {
 export class Config extends BaseConfig {
   constructor(options = {}) {
     super();
-    this.commonConfig = options.commonConfig || new CommonConfig();
-    this.httpConfig = options.httpConfig || new HttpConfig();
+    this.commonConfig = undefined;
+    this.httpConfig = undefined;
     this.databaseConfigs = [];
 
     this.set(options);
     this.sets({databaseConfigs: DatabaseConfig}, options);
   }
   initOptions(options = {}) {
+    this.commonConfig = new CommonConfig(options.commonConfig);
+    this.httpConfig = new HttpConfig(options.httpConfig);
     options.databaseConfigs = options.databaseConfigs || [];
     return options;
   }
