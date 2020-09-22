@@ -5,7 +5,7 @@
       <div v-if="comments.length === 0" style="text-align: center">
         <i class="el-icon-chat-line-square" style="font-size: 15px;color: #8a8b8d;">
         <span style="font-size: 15px; color: #8a8b8d;">
-          暂无评论
+          {{ $t('test_track.comment.no_comment') }}
         </span>
         </i>
       </div>
@@ -13,7 +13,7 @@
     <div>
       <el-input
         type="textarea"
-        placeholder="发表评论（Ctrl+Enter发送）"
+        :placeholder="$t('test_track.comment.send_comment')"
         v-model="textarea"
         maxlength="60"
         show-word-limit
@@ -22,7 +22,9 @@
         @keyup.ctrl.enter.native="sendComment"
       >
       </el-input>
-      <el-button type="primary" size="mini" class="send-btn" @click="sendComment">发送</el-button>
+      <el-button type="primary" size="mini" class="send-btn" @click="sendComment">
+        {{ $t('test_track.comment.send') }}
+      </el-button>
     </div>
   </div>
 </template>
@@ -49,16 +51,15 @@ export default {
       comment.caseId = this.caseId;
       comment.description = this.textarea;
       if (!this.textarea) {
-        this.$warning("评论内容不能为空！");
+        this.$warning(this.$t('test_track.comment.description_is_null'));
         return;
       }
       this.result = this.$post('/test/case/comment/save', comment, () => {
-        this.$success("评论成功！");
+        this.$success(this.$t('test_track.comment.send_success'));
         this.$emit('getComments');
         this.textarea = '';
       });
     },
-
   }
 }
 </script>

@@ -623,7 +623,8 @@ export default {
     pass_rate: "通過率",
     execution_result: ": 請選擇執行結果",
     actual_result: ": 實際結果為空",
-
+    cancel_relevance_success: "取消關聯成功",
+    switch_project: "切換項目",
     case: {
       export_all_cases: '確定要匯出全部用例嗎？',
       input_test_case: '請輸入關聯用例名稱',
@@ -740,6 +741,17 @@ export default {
       input_review_name: "請輸入評審名稱",
       input_review_project: "請選擇所屬項目",
       input_reviewer: "請選擇評審人",
+      no_link_case: "沒有關聯用例！",
+      pass: "通過",
+      un_pass: "未通過",
+      comment: "評論",
+    },
+    comment: {
+      no_comment: "暫無評論",
+      send_comment: "發表評論（Ctrl+Enter發送）",
+      send: "發送",
+      description_is_null: "評論內容不能為空！",
+      send_success: "評論成功！",
     },
     review_view: {
       review: "評審",

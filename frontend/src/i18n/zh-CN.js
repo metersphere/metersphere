@@ -623,7 +623,8 @@ export default {
     pass_rate: "通过率",
     execution_result: ": 请选择执行结果",
     actual_result: ": 实际结果为空",
-
+    cancel_relevance_success: "取消关联成功",
+    switch_project: "切换项目",
     case: {
       export_all_cases: '确定要导出全部用例吗?',
       input_test_case: '请输入关联用例名称',
@@ -740,6 +741,17 @@ export default {
       input_review_name: "请输入评审名称",
       input_review_project: "请选择所属项目",
       input_reviewer: "请选择评审人",
+      no_link_case: "没有关联用例！",
+      pass: "通过",
+      un_pass: "未通过",
+      comment: "评论",
+    },
+    comment: {
+      no_comment: "暂无评论",
+      send_comment: "发表评论（Ctrl+Enter发送）",
+      send: "发送",
+      description_is_null: "评论内容不能为空！",
+      send_success: "评论成功！",
     },
     review_view: {
       review: "评审",
