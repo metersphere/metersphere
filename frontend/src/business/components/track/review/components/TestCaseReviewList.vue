@@ -37,42 +37,14 @@
       <el-table-column
         prop="status"
         column-key="status"
-        :filters="statusFilters"
         :label="$t('test_track.plan.plan_status')"
         show-overflow-tooltip>
         <template v-slot:default="scope">
-          <span @click.stop="clickt = 'stop'">
-            <el-dropdown class="test-case-status" @command="statusChange">
-              <span class="el-dropdown-link">
-                <plan-status-table-item :value="scope.row.status"/>
-              </span>
-              <el-dropdown-menu slot="dropdown" chang>
-                <el-dropdown-item :disabled="!isTestManagerOrTestUser" :command="{id: scope.row.id, status: 'Prepare'}">
-                  {{ $t('test_track.plan.plan_status_prepare') }}
-                </el-dropdown-item>
-                <el-dropdown-item :disabled="!isTestManagerOrTestUser"
-                                  :command="{id: scope.row.id, status: 'Underway'}">
-                  {{ $t('test_track.plan.plan_status_running') }}
-                </el-dropdown-item>
-                <el-dropdown-item :disabled="!isTestManagerOrTestUser"
-                                  :command="{id: scope.row.id, status: 'Completed'}">
-                  {{ $t('test_track.plan.plan_status_completed') }}
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
+          <span class="el-dropdown-link">
+            <plan-status-table-item :value="scope.row.status"/>
           </span>
         </template>
       </el-table-column>
-<!--      <el-table-column-->
-<!--        prop="reviewerSize"-->
-<!--        label="已评"-->
-<!--        show-overflow-tooltip>-->
-<!--      </el-table-column>-->
-<!--      <el-table-column-->
-<!--        prop="resultMap"-->
-<!--        label="结果分布"-->
-<!--        show-overflow-tooltip>-->
-<!--      </el-table-column>-->
       <el-table-column
         prop="createTime"
         :label="$t('commons.create_time')"
@@ -94,10 +66,10 @@
         <template v-slot:default="scope">
           <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)"
                              @deleteClick="handleDelete(scope.row)">
-            <template v-slot:middle>
-              <ms-table-operator-button :isTesterPermission="true" type="success" tip="重新发起" icon="el-icon-document"
-                                        @exec="reCreate(scope.row)"/>
-            </template>
+            <!--            <template v-slot:middle>-->
+            <!--              <ms-table-operator-button :isTesterPermission="true" type="success" tip="重新发起" icon="el-icon-document"-->
+            <!--                                        @exec="reCreate(scope.row)"/>-->
+            <!--            </template>-->
           </ms-table-operator>
         </template>
       </el-table-column>
@@ -105,7 +77,7 @@
 
     <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                          :total="total"/>
-    <ms-delete-confirm title="删除用例评审" @delete="_handleDelete" ref="deleteConfirm"/>
+    <ms-delete-confirm title="取消用例关联" @delete="_handleDelete" ref="deleteConfirm"/>
 
   </el-card>
 </template>
@@ -217,9 +189,6 @@ export default {
       _sort(column, this.condition);
       this.initTableData();
     },
-    reCreate() {
-
-    }
   }
 }
 </script>

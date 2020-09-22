@@ -96,37 +96,6 @@
         </el-table-column>
 
         <el-table-column
-          :label="$t('test_track.issue.issue')"
-          show-overflow-tooltip>
-          <template v-slot:default="scope">
-            <el-popover
-              placement="right"
-              width="400"
-              trigger="hover">
-              <el-table border class="adjust-table" :data="scope.row.issuesContent" style="width: 100%">
-                <el-table-column prop="title" :label="$t('test_track.issue.title')" show-overflow-tooltip/>
-                <el-table-column prop="description" :label="$t('test_track.issue.description')">
-                  <template v-slot:default="scope">
-                    <el-popover
-                      placement="left"
-                      width="400"
-                      trigger="hover"
-                    >
-                      <ckeditor :editor="editor" disabled :config="editorConfig"
-                                v-model="scope.row.description"/>
-                      <el-button slot="reference" type="text">{{$t('test_track.issue.preview')}}</el-button>
-                    </el-popover>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="platform" :label="$t('test_track.issue.platform')"/>
-              </el-table>
-              <el-button slot="reference" type="text">{{scope.row.issuesSize}}</el-button>
-            </el-popover>
-          </template>
-        </el-table-column>
-
-
-        <el-table-column
           prop="reviewerName"
           label="评审人"
           show-overflow-tooltip
@@ -139,20 +108,8 @@
           column-key="status"
           :label="$t('test_track.plan_view.execute_result')">
           <template v-slot:default="scope">
-            <span @click.stop="clickt = 'stop'">
-              <el-dropdown class="test-case-status" @command="statusChange">
-                <span class="el-dropdown-link">
-                  <status-table-item :value="scope.row.status"/>
-                </span>
-                <el-dropdown-menu slot="dropdown" chang>
-                  <el-dropdown-item :disabled="!isTestManagerOrTestUser" :command="{id: scope.row.id, status: 'Pass'}">
-                    {{$t('test_track.plan_view.pass')}}
-                  </el-dropdown-item>
-                  <el-dropdown-item :disabled="!isTestManagerOrTestUser" :command="{id: scope.row.id, status: 'UnPass'}">
-                    未通过
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
+            <span class="el-dropdown-link">
+              <status-table-item :value="scope.row.status"/>
             </span>
           </template>
         </el-table-column>
@@ -320,18 +277,6 @@ export default {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
-          for (let i = 0; i < this.tableData.length; i++) {
-            if (this.tableData[i]) {
-              this.$set(this.tableData[i], "issuesSize", 0);
-              this.$get("/issues/get/" + this.tableData[i].caseId, response => {
-                let issues = response.data;
-                if (this.tableData[i]) {
-                  this.$set(this.tableData[i], "issuesSize", issues.length);
-                  this.$set(this.tableData[i], "issuesContent", issues);
-                }
-              })
-            }
-          }
           this.selectRows.clear();
         });
       }
@@ -502,6 +447,7 @@ export default {
     },
     startReview() {
       if (this.tableData.length !== 0) {
+        this.isReadOnly = false;
         this.$refs.testReviewTestCaseEdit.openTestCaseEdit(this.tableData[0]);
       } else {
         this.$warning("没有关联的评审！");
