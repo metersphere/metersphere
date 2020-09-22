@@ -9,6 +9,7 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.UserService;
+import io.metersphere.track.request.testreview.SaveTestCaseReviewRequest;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -18,7 +19,9 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -135,5 +138,81 @@ public class MailService {
     }
 
 
+    public void sendHtml(List<String> userIds, String type, SaveTestCaseReviewRequest reviewRequest) {
+        Long startTime = reviewRequest.getCreateTime();
+        Long endTime = reviewRequest.getEndTime();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String start = sdf.format(new Date(Long.parseLong(String.valueOf(startTime))));
+        String end = sdf.format(new Date(Long.parseLong(String.valueOf(endTime))));
+        JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
+        List<SystemParameter> paramList = systemParameterService.getParamList(ParamConstants.Classify.MAIL.getValue());
+        javaMailSender.setDefaultEncoding("UTF-8");
+        javaMailSender.setProtocol("smtps");
+        for (SystemParameter p : paramList) {
+            if (p.getParamKey().equals("smtp.host")) {
+                javaMailSender.setHost(p.getParamValue());
+            }
+            if (p.getParamKey().equals("smtp.port")) {
+                javaMailSender.setPort(Integer.parseInt(p.getParamValue()));
+            }
+            if (p.getParamKey().equals("smtp.account")) {
+                javaMailSender.setUsername(p.getParamValue());
+            }
+            if (p.getParamKey().equals("smtp.password")) {
+                javaMailSender.setPassword(EncryptUtils.aesDecrypt(p.getParamValue()).toString());
+            }
+        }
+        Properties props = new Properties();
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.starttls.required", "true");
+        props.put("mail.smtp.timeout", "30000");
+        props.put("mail.smtp.connectiontimeout", "5000");
+        javaMailSender.setJavaMailProperties(props);
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        String html1 = "<!DOCTYPE html>\n" +
+                "<html lang=\"en\">\n" +
+                "<head>\n" +
+                "  <meta charset=\"UTF-8\">\n" +
+                "  <title>MeterSphere</title>\n" +
+                "</head>\n" +
+                "<body style=\"text-align: left\">\n" +
+                "    <div>\n" +
+                "      <p>" + reviewRequest.getCreator() + "发起的" + reviewRequest.getName() + "的计划开始时间是" + start + ",计划结束时间为" + end + "请跟进" + "</p>\n" +
+                "    </div>\n" +
+                "</body>\n" +
+                "</html>";
+        String html2 = "";
+        String html3 = "";
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+            helper.setFrom(javaMailSender.getUsername());
+            helper.setSubject("测试评审任务通知");
+            String users[] = {};
+            List<String> emails = new ArrayList<>();
+            try {
+                emails = userService.queryEmailByIds(userIds);
+            } catch (Exception e) {
+                LogUtil.error("Recipient information is empty");
+            }
+            users = emails.toArray(new String[emails.size()]);
+            if (type.equals("reviewer")) {
+                helper.setText(html1, true);
+            } else if (type.equals("reviewer")) {
+                helper.setText(html2, true);
+            } else {
+                helper.setText(html3, true);
+            }
+            helper.setTo(users);
+
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+        try {
+            javaMailSender.send(mimeMessage);
+        } catch (MailException e) {
+            e.printStackTrace();
+        }
+    }
 }
 
