@@ -44,7 +44,7 @@
 
         <el-row>
           <el-col :span="10" :offset="1">
-            <el-form-item label="评审人" :label-width="formLabelWidth" prop="principal">
+            <el-form-item label="评审人" :label-width="formLabelWidth" prop="userIds">
               <el-select
                 v-model="form.userIds"
                 placeholder="请选择评审人"
