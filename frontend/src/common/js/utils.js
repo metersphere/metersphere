@@ -204,7 +204,7 @@ export function getUUID() {
 }
 
 
-export function exportPdf(canvasList) {
+export function exportPdf(name, canvasList) {
 
   let pdf = new jsPDF('', 'pt', 'a4');
 
@@ -212,6 +212,7 @@ export function exportPdf(canvasList) {
   let currentHeight = 0;
   for (let canvas of canvasList) {
     if (canvas) {
+
       let contentWidth = canvas.width;
       let contentHeight = canvas.height;
 
@@ -254,7 +255,7 @@ export function exportPdf(canvasList) {
     }
   }
 
-  pdf.save('stone.pdf');
+  pdf.save(name);
 
 }
 
