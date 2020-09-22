@@ -5,13 +5,13 @@
         <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
                          :show-create="false" :tip="$t('commons.search_by_name_or_id')">
           <template v-slot:title>
-            <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="refresh" title="全部评审"/>
+            <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="refresh" :title="$t('test_track.review_view.all_review')"/>
           </template>
           <template v-slot:button>
             <ms-table-button :is-tester-permission="true" icon="el-icon-video-play"
-                             content="开始用例评审" @click="startReview"/>
+                             :content="$t('test_track.review_view.start_review')" @click="startReview"/>
             <ms-table-button :is-tester-permission="true" icon="el-icon-connection"
-                             content="关联用例评审"
+                             :content="$t('test_track.review_view.relevance_case')"
                              @click="$emit('openTestReviewRelevanceDialog')"/>
           </template>
         </ms-table-header>
@@ -91,13 +91,13 @@
 
         <el-table-column
           prop="projectName"
-          :label="$t('test_track.plan.plan_project')"
+          :label="$t('test_track.review.review_project')"
           show-overflow-tooltip>
         </el-table-column>
 
         <el-table-column
           prop="reviewerName"
-          label="评审人"
+          :label="$t('test_track.review.review_creator')"
           show-overflow-tooltip
         >
         </el-table-column>
@@ -106,7 +106,7 @@
           prop="status"
           :filters="statusFilters"
           column-key="status"
-          :label="$t('test_track.plan_view.execute_result')">
+          :label="$t('test_track.review_view.execute_result')">
           <template v-slot:default="scope">
             <span class="el-dropdown-link">
               <status-table-item :value="scope.row.status"/>
@@ -348,41 +348,10 @@ export default {
       });
     },
     handleSelectAll(selection) {
-      if (selection.length > 0) {
-        if (selection.length === 1) {
-          this.selectRows.add(selection[0]);
-        } else {
-          this.tableData.forEach(item => {
-            this.$set(item, "showMore", true);
-            this.selectRows.add(item);
-          });
-        }
-      } else {
-        this.selectRows.clear();
-        this.tableData.forEach(row => {
-          this.$set(row, "showMore", false);
-        })
-      }
+
     },
     handleSelectionChange(selection, row) {
-      if (this.selectRows.has(row)) {
-        this.$set(row, "showMore", false);
-        this.selectRows.delete(row);
-      } else {
-        this.$set(row, "showMore", true);
-        this.selectRows.add(row);
-      }
 
-      let arr = Array.from(this.selectRows);
-
-      // 选中1个以上的用例时显示更多操作
-      if (this.selectRows.size === 1) {
-        this.$set(arr[0], "showMore", false);
-      } else if (this.selectRows.size === 2) {
-        arr.forEach(row => {
-          this.$set(row, "showMore", true);
-        })
-      }
     },
     handleBatch(type) {
       if (this.selectRows.size < 1) {

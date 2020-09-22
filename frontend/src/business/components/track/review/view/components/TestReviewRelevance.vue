@@ -2,7 +2,7 @@
 
   <div>
 
-    <el-dialog title="关联测试评审"
+    <el-dialog :title="$t('test_track.review_view.relevance_case')"
                :visible.sync="dialogFormVisible"
                @close="close"
                width="60%" v-loading="result.loading"
