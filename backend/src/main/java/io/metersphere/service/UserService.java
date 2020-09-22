@@ -61,9 +61,14 @@ public class UserService {
     @Resource
     private WorkspaceService workspaceService;
 
-    public List<String> queryEmail(String[] names){
-     return extUserMapper.queryEmails(names);
+    public List<String> queryEmail(String[] names) {
+        return extUserMapper.queryEmails(names);
     }
+
+    public List<String> queryEmailByIds(List<String> userIds) {
+        return extUserMapper.queryEmailByIds(userIds);
+    }
+
     public UserDTO insert(UserRequest user) {
         checkUserParam(user);
         //

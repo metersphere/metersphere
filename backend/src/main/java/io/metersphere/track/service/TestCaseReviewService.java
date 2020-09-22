@@ -14,6 +14,7 @@ import io.metersphere.commons.utils.MathUtils;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.member.QueryMemberRequest;
+import io.metersphere.notice.service.MailService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.dto.*;
 import io.metersphere.track.request.testreview.QueryTestReviewRequest;
@@ -60,6 +61,8 @@ public class TestCaseReviewService {
     TestCaseMapper testCaseMapper;
     @Resource
     TestCaseReviewTestCaseMapper testCaseReviewTestCaseMapper;
+    @Resource
+    MailService mailService;
 
     public void saveTestCaseReview(SaveTestCaseReviewRequest reviewRequest) {
         checkCaseReviewExist(reviewRequest);
@@ -88,6 +91,8 @@ public class TestCaseReviewService {
         reviewRequest.setCreator(SessionUtils.getUser().getId());
         reviewRequest.setStatus(TestCaseReviewStatus.Prepare.name());
         testCaseReviewMapper.insert(reviewRequest);
+        mailService.sendHtml(userIds, "reviewer", reviewRequest);
+
     }
 
     public List<TestCaseReviewDTO> listCaseReview(QueryCaseReviewRequest request) {
@@ -143,6 +148,7 @@ public class TestCaseReviewService {
         testCaseReview.setUpdateTime(System.currentTimeMillis());
         checkCaseReviewExist(testCaseReview);
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
+        mailService.sendHtml(testCaseReview.getUserIds(), "reviewer", testCaseReview);
     }
 
     private void editCaseReviewer(SaveTestCaseReviewRequest testCaseReview) {
