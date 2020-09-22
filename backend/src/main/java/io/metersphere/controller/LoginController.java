@@ -5,6 +5,7 @@ import io.metersphere.commons.constants.UserSource;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.LoginRequest;
+import io.metersphere.dto.LicenseDTO;
 import io.metersphere.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -66,5 +67,4 @@ public class LoginController {
     public String getDefaultLanguage() {
         return userService.getDefaultLanguage();
     }
-
 }

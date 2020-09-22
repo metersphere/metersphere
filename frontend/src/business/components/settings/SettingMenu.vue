@@ -47,7 +47,6 @@
 <script>
   import {checkoutCurrentOrganization, checkoutCurrentWorkspace} from "@/common/js/utils";
   import Setting from "@/business/components/settings/router";
-  import {LicenseKey} from '@/common/js/constants';
 
   export default {
     name: "MsSettingMenu",
@@ -74,51 +73,14 @@
         organizations: getMenus('organization'),
         workspaces: getMenus('workspace'),
         persons: getMenus('person'),
-        isValid: valid,
         isCurrentOrganizationAdmin: false,
         isCurrentWorkspaceUser: false,
       }
     },
     mounted() {
-      if (this.isValid === true) {
-        this.valid();
-      }
       this.isCurrentOrganizationAdmin = checkoutCurrentOrganization();
       this.isCurrentWorkspaceUser = checkoutCurrentWorkspace();
     },
-    methods: {
-      valid() {
-        let data = localStorage.getItem(LicenseKey);
-        if (data != undefined && data != null) {
-          data = JSON.parse(data);
-        }
-        if (data === undefined || data === null || data.status != "valid") {
-          this.systems.forEach(item => {
-            if (item.valid != undefined && item.valid === true) {
-              this.systems.splice(this.systems.indexOf(item), 1);
-            }
-          })
-
-          this.organizations.forEach(item => {
-            if (item.valid != undefined && item.valid === true) {
-              this.organizations.splice(this.organizations.indexOf(item), 1);
-            }
-          })
-
-          this.workspaces.forEach(item => {
-            if (item.valid != undefined && item.valid === true) {
-              this.workspaces.splice(this.workspaces.indexOf(item), 1);
-            }
-          })
-
-          this.persons.forEach(item => {
-            if (item.valid != undefined && item.valid === true) {
-              this.persons.splice(this.persons.indexOf(item), 1);
-            }
-          })
-        }
-      }
-    }
   }
 </script>
 

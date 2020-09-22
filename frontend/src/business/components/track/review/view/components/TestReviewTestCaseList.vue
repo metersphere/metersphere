@@ -5,7 +5,8 @@
         <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
                          :show-create="false" :tip="$t('commons.search_by_name_or_id')">
           <template v-slot:title>
-            <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="refresh" :title="$t('test_track.review_view.all_review')"/>
+            <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="refresh"
+                             :title="$t('test_track.review_view.all_review')"/>
           </template>
           <template v-slot:button>
             <ms-table-button :is-tester-permission="true" icon="el-icon-video-play"
@@ -37,7 +38,7 @@
           type="selection"/>
         <el-table-column width="40" :resizable="false" align="center">
           <template v-slot:default="scope">
-<!--            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>-->
+            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>
           </template>
         </el-table-column>
         <el-table-column
@@ -97,7 +98,7 @@
 
         <el-table-column
           prop="reviewerName"
-          :label="$t('test_track.review.review_creator')"
+          :label="$t('test_track.review.reviewer')"
           show-overflow-tooltip
         >
         </el-table-column>
@@ -145,14 +146,11 @@
         @refreshTable="search"/>
 
     </el-card>
-    <batch-edit ref="batchEdit" @batchEdit="batchEdit"
-                :type-arr="typeArr" :value-arr="valueArr" :dialog-title="$t('test_track.case.batch_edit_case')"/>
   </div>
 </template>
 
 <script>
 
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
 import MsTableOperator from "../../../../common/components/MsTableOperator";
 import MethodTableItem from "../../../common/tableItems/planview/MethodTableItem";
@@ -170,7 +168,7 @@ import BatchEdit from "../../../case/components/BatchEdit";
 import MsTablePagination from '../../../../common/pagination/TablePagination';
 import {_filter, _sort, checkoutTestManagerOrTestUser, hasRoles} from "../../../../../../common/js/utils";
 import {TEST_CASE_CONFIGS} from "../../../../common/components/search/search-components";
-import {ROLE_TEST_MANAGER, ROLE_TEST_USER, TokenKey, WORKSPACE_ID} from "../../../../../../common/js/constants";
+import {ROLE_TEST_MANAGER, ROLE_TEST_USER} from "../../../../../../common/js/constants";
 import TestReviewTestCaseEdit from "./TestReviewTestCaseEdit";
 
 export default {
@@ -216,9 +214,6 @@ export default {
       showMore: false,
       buttons: [
         {
-          name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit
-        },
-        {
           name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch
         }
       ],
@@ -234,10 +229,6 @@ export default {
           {name: this.$t('test_track.plan_view.blocking'), id: 'Blocking'},
           {name: this.$t('test_track.plan_view.skip'), id: 'Skip'}
         ]
-      },
-      editor: ClassicEditor,
-      editorConfig: {
-        toolbar: [],
       },
     }
   },
@@ -334,7 +325,7 @@ export default {
             this.$post('/test/review/case/batch/delete', {ids: ids}, () => {
               this.selectRows.clear();
               this.$emit("refresh");
-              this.$success(this.$t('commons.delete_success'));
+              this.$success(this.$t('test_track.cancel_relevance_success'));
             });
           }
         }
@@ -344,33 +335,33 @@ export default {
       let testCaseId = testCase.id;
       this.$post('/test/review/case/delete/' + testCaseId, {}, () => {
         this.$emit("refresh");
-        this.$success(this.$t('commons.delete_success'));
+        this.$success(this.$t('test_track.cancel_relevance_success'));
       });
     },
     handleSelectAll(selection) {
-
+      if (selection.length > 0) {
+        this.tableData.forEach(item => {
+          this.$set(item, "showMore", true);
+          this.selectRows.add(item);
+        });
+      } else {
+        this.selectRows.clear();
+        this.tableData.forEach(row => {
+          this.$set(row, "showMore", false);
+        })
+      }
     },
     handleSelectionChange(selection, row) {
-
-    },
-    handleBatch(type) {
-      if (this.selectRows.size < 1) {
-        this.$warning(this.$t('test_track.plan_view.select_manipulate'));
-        return;
-      }
-      if (type === 'executor') {
-        this.$refs.executorEdit.openExecutorEdit();
-      } else if (type === 'status') {
-        this.$refs.statusEdit.openStatusEdit();
-      } else if (type === 'delete') {
-        this.handleDeleteBatch();
+      if (this.selectRows.has(row)) {
+        this.$set(row, "showMore", false);
+        this.selectRows.delete(row);
+      } else {
+        this.$set(row, "showMore", true);
+        this.selectRows.add(row);
       }
     },
     openTestReport() {
       this.$refs.testReportTemplateList.open(this.reviewId);
-    },
-    statusChange(param) {
-
     },
     getTestReviewById() {
       if (this.reviewId) {
@@ -392,34 +383,12 @@ export default {
       _sort(column, this.condition);
       this.initTableData();
     },
-    batchEdit(form) {
-      // let param = {};
-      // param[form.type] = form.value;
-      // param.ids = Array.from(this.selectRows).map(row => row.id);
-      // this.$post('/test/plan/case/batch/edit', param, () => {
-      //   this.selectRows.clear();
-      //   this.status = '';
-      //   this.$post('/test/plan/edit/status/' + this.reviewId);
-      //   this.$success(this.$t('commons.save_success'));
-      //   this.$emit('refresh');
-      // });
-    },
-    handleBatchEdit() {
-      this.getMaintainerOptions();
-      this.$refs.batchEdit.open();
-    },
-    getMaintainerOptions() {
-      let workspaceId = localStorage.getItem(WORKSPACE_ID);
-      this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
-        this.valueArr.executor = response.data;
-      });
-    },
     startReview() {
       if (this.tableData.length !== 0) {
         this.isReadOnly = false;
         this.$refs.testReviewTestCaseEdit.openTestCaseEdit(this.tableData[0]);
       } else {
-        this.$warning("没有关联的评审！");
+        this.$warning(this.$t('test_track.review.no_link_case'));
       }
     }
   }
@@ -427,15 +396,6 @@ export default {
 </script>
 
 <style scoped>
-
-  .search {
-    margin-left: 10px;
-    width: 240px;
-  }
-
-  .test-case-status, .el-table {
-    cursor: pointer;
-  }
 
 </style>
 

@@ -1116,8 +1116,11 @@ class JMXGenerator {
 
   addScenarioVariables(threadGroup, scenario) {
     if (scenario.environment) {
-      let commonConfig = scenario.environment.config.commonConfig;
-      this.addEnvironments(commonConfig.variables, scenario.variables)
+      let config = scenario.environment.config;
+      if (!(scenario.environment.config instanceof Object)) {
+        config = JSON.parse(scenario.environment.config);
+      }
+      this.addEnvironments(config.commonConfig.variables, scenario.variables)
     }
     let args = this.filterKV(scenario.variables);
     if (args.length > 0) {
@@ -1165,8 +1168,11 @@ class JMXGenerator {
       databaseConfigMap.set(config.id, config.name);
     });
     if (scenario.environment) {
-      let envDatabaseConfigs = scenario.environment.config.databaseConfigs;
-      envDatabaseConfigs.forEach(config => {
+      let config = scenario.environment.config;
+      if (!(scenario.environment.config instanceof Object)) {
+        config = JSON.parse(scenario.environment.config);
+      }
+      config.databaseConfigs.forEach(config => {
         if (!names.has(config.name)) {
           let name = config.name + "JDBCDataSource";
           threadGroup.put(new JDBCDataSource(name, config));
@@ -1179,8 +1185,11 @@ class JMXGenerator {
 
   addScenarioHeaders(threadGroup, scenario) {
     if (scenario.environment) {
-      let httpConfig = scenario.environment.config.httpConfig;
-      this.addEnvironments(httpConfig.headers, scenario.headers)
+      let config = scenario.environment.config;
+      if (!(scenario.environment.config instanceof Object)) {
+        config = JSON.parse(scenario.environment.config);
+      }
+      this.addEnvironments(config.httpConfig.headers, scenario.headers)
     }
     let headers = this.filterKV(scenario.headers);
     if (headers.length > 0) {

@@ -77,6 +77,8 @@ public class TestCaseService {
     TestCaseIssueService testCaseIssueService;
     @Resource
     TestCaseReviewTestCaseMapper testCaseReviewTestCaseMapper;
+    @Resource
+    TestCaseCommentService testCaseCommentService;
 
     public void addTestCase(TestCaseWithBLOBs testCase) {
         testCase.setName(testCase.getName());
@@ -155,6 +157,7 @@ public class TestCaseService {
         example.createCriteria().andCaseIdEqualTo(testCaseId);
         testPlanTestCaseMapper.deleteByExample(example);
         testCaseIssueService.delTestCaseIssues(testCaseId);
+        testCaseCommentService.deleteComment(testCaseId);
         return testCaseMapper.deleteByPrimaryKey(testCaseId);
     }
 

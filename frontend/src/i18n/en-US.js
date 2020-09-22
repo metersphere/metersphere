@@ -621,6 +621,8 @@ export default {
     pass_rate: "Pass rate",
     execution_result: ": Please select the execution result",
     actual_result: ": The actual result is empty",
+    cancel_relevance_success: "Unlinked successfully",
+    switch_project: "Switch project",
     case: {
       export_all_cases: 'Are you sure you want to export all use cases?',
       input_test_case: 'Please enter the associated case name',
@@ -737,6 +739,17 @@ export default {
       input_review_name: "Please enter the name of the review",
       input_review_project: "Please select the project",
       input_reviewer: "Please select reviewer",
+      no_link_case: "No associated use cases!",
+      pass: "pass",
+      un_pass: "UnPass",
+      comment: "Comment",
+    },
+    comment: {
+      no_comment: "No Comment",
+      send_comment: "Post a comment (Ctrl + Enter to send)",
+      send: "Send",
+      description_is_null: "Comment content cannot be empty!",
+      send_success: "Comment successful!",
     },
     review_view: {
       review: "Review",
