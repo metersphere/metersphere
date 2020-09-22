@@ -20,7 +20,7 @@
   import MsMainContainer from "../../../common/components/MsMainContainer";
   import MsAsideItem from "../../../common/components/MsAsideItem";
   import EnvironmentEdit from "./environment/EnvironmentEdit";
-  import {listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
+  import {deepClone, listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
   import {Environment, parseEnvironment} from "../model/EnvironmentModel";
 
   export default {
@@ -68,12 +68,13 @@
         }
       },
       copyEnvironment(environment) {
+        this.currentEnvironment = environment;
         if (!environment.id) {
           this.$warning(this.$t('commons.please_save'));
           return;
         }
         let newEnvironment = {};
-        Object.assign(newEnvironment, environment);
+        newEnvironment = new Environment(environment);
         newEnvironment.id = null;
         newEnvironment.name = this.getNoRepeatName(newEnvironment.name);
         if (!this.validateEnvironment(newEnvironment)) {
@@ -84,11 +85,7 @@
         this.$refs.environmentItems.itemSelected(this.environments.length - 1, newEnvironment);
       },
       validateEnvironment(environment) {
-        if (!environment.name || !!environment.name && environment.name.length > 64) {
-          this.$error(this.$t('commons.input_limit', [1, 64]));
-          return false;
-        }
-        if (!this.$refs.environmentEdit.validateSocket(environment.socket)) {
+        if (!this.$refs.environmentEdit.validate()) {
           this.$error(this.$t('commons.formatErr'));
           return false;
         }

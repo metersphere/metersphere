@@ -2,12 +2,16 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="io.metersphere.base.mapper.ext.ExtTestCaseReviewMapper">
 
-    <select id="list" resultType="io.metersphere.track.dto.TestCaseReviewDTO" parameterType="io.metersphere.track.request.testreview.QueryCaseReviewRequest">
-        select distinct test_case_review.*
-          from test_case_review, project, test_case_review_project
+    <select id="list" resultType="io.metersphere.track.dto.TestCaseReviewDTO"
+            parameterType="io.metersphere.track.request.testreview.QueryCaseReviewRequest">
+        select distinct test_case_review.id, test_case_review.name, user.name as creator, test_case_review.status,
+        test_case_review.create_time, test_case_review.update_time, test_case_review.end_time,
+        test_case_review.description
+        from test_case_review, project, test_case_review_project, user
         <where>
             test_case_review.id = test_case_review_project.review_id
             and test_case_review_project.project_id = project.id
+            and user.id = test_case_review.creator
             <if test="request.name != null">
                 and test_case_review.name like CONCAT('%', #{request.name},'%')
             </if>
@@ -21,7 +25,8 @@
         </if>
     </select>
 
-    <select id="listByWorkspaceId" resultType="io.metersphere.track.dto.TestCaseReviewDTO" parameterType="io.metersphere.track.request.testreview.QueryCaseReviewRequest">
+    <select id="listByWorkspaceId" resultType="io.metersphere.track.dto.TestCaseReviewDTO"
+            parameterType="io.metersphere.track.request.testreview.QueryCaseReviewRequest">
         select distinct test_case_review.*
           from test_case_review, project, test_case_review_project
          where test_case_review.id = test_case_review_project.review_id

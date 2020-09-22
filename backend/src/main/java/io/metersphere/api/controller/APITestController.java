@@ -12,6 +12,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.QueryScheduleRequest;
+import io.metersphere.dto.LicenseDTO;
 import io.metersphere.dto.ScheduleDao;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-
 import java.util.List;
 
 @RestController
@@ -127,4 +127,10 @@ public class APITestController {
     public List<ScheduleDao> listSchedule(@RequestBody QueryScheduleRequest request) {
         return apiTestService.listSchedule(request);
     }
+
+    @GetMapping("/license/valid")
+    public LicenseDTO valid() {
+        return apiTestService.validateLicense();
+    }
+
 }

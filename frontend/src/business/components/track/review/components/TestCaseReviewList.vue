@@ -3,8 +3,8 @@
     <template v-slot:header>
       <ms-table-header :is-tester-permission="true" :condition.sync="condition"
                        @search="initTableData" @create="testCaseReviewCreate"
-                       create-tip="创建用例评审"
-                       title="用例评审"/>
+                       :create-tip="$t('test_track.review.create_review')"
+                       :title="$t('test_track.review.test_review')"/>
     </template>
 
     <el-table
@@ -16,28 +16,28 @@
       @row-click="intoReview">
       <el-table-column
         prop="name"
-        label="评审名称"
+        :label="$t('test_track.review.review_name')"
         show-overflow-tooltip>
       </el-table-column>
       <el-table-column
         prop="reviewer"
-        label="评审人"
+        :label="$t('test_track.review.reviewer')"
         show-overflow-tooltip>
       </el-table-column>
       <el-table-column
         prop="projectName"
-        label="所属项目"
+        :label="$t('test_track.review.review_project')"
         show-overflow-tooltip>
       </el-table-column>
       <el-table-column
         prop="creator"
-        label="发起人"
+        :label="$t('test_track.review.review_creator')"
         show-overflow-tooltip>
       </el-table-column>
       <el-table-column
         prop="status"
         column-key="status"
-        :label="$t('test_track.plan.plan_status')"
+        :label="$t('test_track.review.review_status')"
         show-overflow-tooltip>
         <template v-slot:default="scope">
           <span class="el-dropdown-link">
@@ -55,7 +55,7 @@
       </el-table-column>
       <el-table-column
         prop="endTime"
-        label="截止时间"
+        :label="$t('test_track.review.end_time')"
         show-overflow-tooltip>
         <template v-slot:default="scope">
           <span>{{ scope.row.endTime | timestampFormatDate }}</span>
@@ -77,7 +77,7 @@
 
     <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                          :total="total"/>
-    <ms-delete-confirm title="取消用例关联" @delete="_handleDelete" ref="deleteConfirm"/>
+    <ms-delete-confirm :title="$t('test_track.review.delete')" @delete="_handleDelete" ref="deleteConfirm"/>
 
   </el-card>
 </template>

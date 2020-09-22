@@ -79,6 +79,17 @@
           }
         });
       },
+      validate() {
+        let isValidate = false;
+        this.$refs['environment'].validate((valid) => {
+          if (valid && this.$refs.commonConfig.validate() && this.$refs.httpConfig.validate()) {
+            isValidate = true;
+          } else {
+            isValidate = false;
+          }
+        });
+        return isValidate;
+      },
       _save(environment) {
         let param = this.buildParam(environment);
         let url = '/api/environment/add';
