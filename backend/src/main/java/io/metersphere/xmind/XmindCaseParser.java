@@ -12,7 +12,7 @@ import io.metersphere.track.service.TestCaseService;
 import io.metersphere.xmind.parser.XmindParser;
 import io.metersphere.xmind.parser.pojo.Attached;
 import io.metersphere.xmind.parser.pojo.JsonRootBean;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 
 /**
  * 数据转换
- * 1 解析Xmind文件 XmindParser.parseJson
+ * 1 解析Xmind文件 XmindParser.parseObject
  * 2 解析后的JSON this.parse 转成测试用例
  */
 public class XmindCaseParser {
@@ -33,10 +33,10 @@ public class XmindCaseParser {
     // 已存在用例名称
     private Set<String> testCaseNames;
 
-    // 案例详情重写了hashCode方法去重用
+    // 转换后的案例信息
     private List<TestCaseWithBLOBs> testCases;
 
-    // 用于重复对比
+    // 案例详情重写了hashCode方法去重用
     private List<TestCaseExcelData> compartDatas;
 
     public XmindCaseParser(TestCaseService testCaseService, String userId, String projectId, Set<String> testCaseNames) {
@@ -194,21 +194,21 @@ public class XmindCaseParser {
         String nodePath = data.getNodePath();
         StringBuilder stringBuilder = new StringBuilder();
 
-        if (nodePath != null) {
+        if (!StringUtils.isEmpty(nodePath)) {
             String[] nodes = nodePath.split("/");
             if (nodes.length > TestCaseConstants.MAX_NODE_DEPTH + 1) {
                 stringBuilder.append(Translator.get("test_case_node_level_tip") +
                         TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level") + "; ");
             }
             for (int i = 0; i < nodes.length; i++) {
-                if (i != 0 && org.apache.commons.lang3.StringUtils.equals(nodes[i].trim(), "")) {
+                if (i != 0 && StringUtils.equals(nodes[i].trim(), "")) {
                     stringBuilder.append(Translator.get("module_not_null") + "; ");
                     break;
                 }
             }
         }
 
-        if (org.apache.commons.lang3.StringUtils.equals(data.getType(), TestCaseConstants.Type.Functional.getValue()) && org.apache.commons.lang3.StringUtils.equals(data.getMethod(), TestCaseConstants.Method.Auto.getValue())) {
+        if (StringUtils.equals(data.getType(), TestCaseConstants.Type.Functional.getValue()) && StringUtils.equals(data.getMethod(), TestCaseConstants.Method.Auto.getValue())) {
             stringBuilder.append(Translator.get("functional_method_tip") + "; ");
         }
 
