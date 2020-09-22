@@ -67,10 +67,4 @@ public class LoginController {
     public String getDefaultLanguage() {
         return userService.getDefaultLanguage();
     }
-
-    @GetMapping("/api/license/valid")
-    public LicenseDTO valid() {
-        return userService.validateLicense();
-    }
-
 }
