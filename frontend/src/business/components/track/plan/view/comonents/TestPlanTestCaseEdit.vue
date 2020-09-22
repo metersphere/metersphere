@@ -482,7 +482,7 @@
               this.$warning(this.$t("test_track.case.relate_test_not_find"));
             }
           });
-        } else if (this.testCase.testId === 'other') {
+        } else if (this.testCase.testId === 'other' && this.testCase.method == 'auto') {
           this.$warning(this.$t("test_track.case.other_relate_test_not_find"));
         }
       },
