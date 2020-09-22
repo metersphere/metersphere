@@ -1,6 +1,6 @@
 <template>
   <div v-loading="result.loading">
-    <div style="height:60vh;overflow-y: scroll">
+    <div class="comment-list">
       <review-comment-item v-for="(comment,index) in comments" :key="index" :comment="comment"/>
       <div v-if="comments.length === 0" style="text-align: center">
         <i class="el-icon-chat-line-square" style="font-size: 15px;color: #8a8b8d;">
@@ -64,8 +64,13 @@ export default {
 </script>
 
 <style scoped>
-  .send-btn {
-    margin-top: 5px;
-    width: 100%;
-  }
+.send-btn {
+  margin-top: 5px;
+  width: 100%;
+}
+
+.comment-list {
+  overflow-y: scroll;
+  height: calc(70vh);
+}
 </style>

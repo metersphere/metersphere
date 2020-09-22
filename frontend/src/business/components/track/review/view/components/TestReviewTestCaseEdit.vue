@@ -23,23 +23,27 @@
                     <el-col :span="12">
                       <el-button plain size="mini"
                                  icon="el-icon-back"
-                                 @click="cancel">{{$t('test_track.return')}}
+                                 @click="cancel">{{ $t('test_track.return') }}
                       </el-button>
                     </el-col>
 
                     <el-col :span="12" class="head-right">
 
                 <span class="head-right-tip" v-if="index + 1 == testCases.length">
-                  {{$t('test_track.plan_view.pre_case')}} : {{testCases[index - 1] ? testCases[index - 1].name : ''}}
+                  {{ $t('test_track.plan_view.pre_case') }} : {{
+                    testCases[index - 1] ? testCases[index - 1].name : ''
+                  }}
                 </span>
                       <span class="head-right-tip" v-if="index + 1 != testCases.length">
-                  {{$t('test_track.plan_view.next_case')}} : {{testCases[index + 1] ? testCases[index + 1].name : ''}}
+                  {{ $t('test_track.plan_view.next_case') }} : {{
+                          testCases[index + 1] ? testCases[index + 1].name : ''
+                        }}
                 </span>
 
                       <el-button plain size="mini" icon="el-icon-arrow-up"
                                  :disabled="index + 1 <= 1"
                                  @click="handlePre()"/>
-                      <span>  {{index + 1}}/{{testCases.length}} </span>
+                      <span>  {{ index + 1 }}/{{ testCases.length }} </span>
                       <el-button plain size="mini" icon="el-icon-arrow-down"
                                  :disabled="index + 1 >= testCases.length"
                                  @click="handleNext()"/>
@@ -57,7 +61,7 @@
 
                   <el-row style="margin-top: 0px;">
                     <el-col>
-                      <el-divider content-position="left">{{testCase.name}}</el-divider>
+                      <el-divider content-position="left">{{ testCase.name }}</el-divider>
                     </el-col>
                   </el-row>
 
@@ -66,37 +70,38 @@
                 <div class="case_container">
                   <el-row>
                     <el-col :span="4" :offset="1">
-                      <span class="cast_label">{{$t('test_track.case.priority')}}：</span>
-                      <span class="cast_item">{{testCase.priority}}</span>
+                      <span class="cast_label">{{ $t('test_track.case.priority') }}：</span>
+                      <span class="cast_item">{{ testCase.priority }}</span>
                     </el-col>
                     <el-col :span="5">
-                      <span class="cast_label">{{$t('test_track.case.case_type')}}：</span>
-                      <span class="cast_item" v-if="testCase.type == 'functional'">{{$t('commons.functional')}}</span>
-                      <span class="cast_item" v-if="testCase.type == 'performance'">{{$t('commons.performance')}}</span>
-                      <span class="cast_item" v-if="testCase.type == 'api'">{{$t('commons.api')}}</span>
+                      <span class="cast_label">{{ $t('test_track.case.case_type') }}：</span>
+                      <span class="cast_item" v-if="testCase.type == 'functional'">{{ $t('commons.functional') }}</span>
+                      <span class="cast_item"
+                            v-if="testCase.type == 'performance'">{{ $t('commons.performance') }}</span>
+                      <span class="cast_item" v-if="testCase.type == 'api'">{{ $t('commons.api') }}</span>
                     </el-col>
                   </el-row>
 
                   <el-row>
                     <el-col :span="4" :offset="1">
-                      <span class="cast_label">{{$t('test_track.case.method')}}：</span>
-                      <span v-if="testCase.method == 'manual'">{{$t('test_track.case.manual')}}</span>
-                      <span v-if="testCase.method == 'auto'">{{$t('test_track.case.auto')}}</span>
+                      <span class="cast_label">{{ $t('test_track.case.method') }}：</span>
+                      <span v-if="testCase.method == 'manual'">{{ $t('test_track.case.manual') }}</span>
+                      <span v-if="testCase.method == 'auto'">{{ $t('test_track.case.auto') }}</span>
                     </el-col>
                     <el-col :span="5">
-                      <span class="cast_label">{{$t('test_track.case.module')}}：</span>
-                      <span class="cast_item">{{testCase.nodePath}}</span>
+                      <span class="cast_label">{{ $t('test_track.case.module') }}：</span>
+                      <span class="cast_item">{{ testCase.nodePath }}</span>
                     </el-col>
                     <el-col :span="4" :offset="1">
-                      <span class="cast_label">{{$t('test_track.plan.plan_project')}}：</span>
-                      <span class="cast_item">{{testCase.projectName}}</span>
+                      <span class="cast_label">{{ $t('test_track.plan.plan_project') }}：</span>
+                      <span class="cast_item">{{ testCase.projectName }}</span>
                     </el-col>
                   </el-row>
 
                   <el-row>
                     <el-col :offset="1">
-                      <span class="cast_label">{{$t('test_track.case.prerequisite')}}：</span>
-                      <span class="cast_item">{{testCase.prerequisite}}</span>
+                      <span class="cast_label">{{ $t('test_track.case.prerequisite') }}：</span>
+                      <span class="cast_item">{{ testCase.prerequisite }}</span>
                     </el-col>
                   </el-row>
 
@@ -123,7 +128,7 @@
                   <el-row v-if="testCase.method && testCase.method != 'auto'">
                     <el-col :span="20" :offset="1">
                       <div>
-                        <span class="cast_label">{{$t('test_track.case.steps')}}：</span>
+                        <span class="cast_label">{{ $t('test_track.case.steps') }}：</span>
                       </div>
                       <el-table
                         :data="testCase.steptResults"
@@ -196,8 +201,9 @@
                   <el-row>
                     <el-col :span="15" :offset="1">
                       <div>
-                        <span class="cast_label">{{$t('commons.remark')}}：</span>
-                        <span v-if="testCase.remark == null || testCase.remark == ''" style="color: darkgrey">{{$t('commons.not_filled')}}</span>
+                        <span class="cast_label">{{ $t('commons.remark') }}：</span>
+                        <span v-if="testCase.remark == null || testCase.remark == ''"
+                              style="color: darkgrey">{{ $t('commons.not_filled') }}</span>
                       </div>
                       <div>
                         <el-input :rows="3"
@@ -240,7 +246,7 @@ import PerformanceTestDetail from "../../../plan/view/comonents/test/Performance
 import ApiTestResult from "../../../plan/view/comonents/test/ApiTestResult";
 import ApiTestDetail from "../../../plan/view/comonents/test/ApiTestDetail";
 import TestPlanTestCaseStatusButton from "../../../plan/common/TestPlanTestCaseStatusButton";
-import {listenGoBack, removeGoBackListener} from "../../../../../../common/js/utils";
+import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import ReviewComment from "../../commom/ReviewComment";
 
 export default {
@@ -419,69 +425,69 @@ export default {
 
 <style scoped>
 
-  .border-hidden >>> .el-textarea__inner {
-    border-style: hidden;
-    background-color: white;
-    color: #606266;
-  }
+.border-hidden >>> .el-textarea__inner {
+  border-style: hidden;
+  background-color: white;
+  color: #606266;
+}
 
-  .cast_label {
-    color: dimgray;
-  }
+.cast_label {
+  color: dimgray;
+}
 
-  .status-button {
-    padding-left: 4%;
-  }
+.status-button {
+  padding-left: 4%;
+}
 
-  .head-right {
-    text-align: right;
-  }
+.head-right {
+  text-align: right;
+}
 
-  .el-col:not(.test-detail) {
-    line-height: 50px;
-  }
+.el-col:not(.test-detail) {
+  line-height: 50px;
+}
 
-  .issues-edit >>> p {
-    line-height: 16px;
-  }
+.issues-edit >>> p {
+  line-height: 16px;
+}
 
-  .status-button {
-    float: right;
-  }
+.status-button {
+  float: right;
+}
 
-  .head-right-tip {
-    color: darkgrey;
-  }
+.head-right-tip {
+  color: darkgrey;
+}
 
-  .el-scrollbar {
-    height: 100%;
-  }
+.el-scrollbar {
+  height: 100%;
+}
 
-  .container {
-    height: 100vh;
-  }
+.container {
+  height: 100vh;
+}
 
-  .case_container > .el-row {
-    margin-top: 1%;
-  }
+.case_container > .el-row {
+  margin-top: 1%;
+}
 
-  .el-switch >>> .el-switch__label {
-    color: dimgray;
-  }
+.el-switch >>> .el-switch__label {
+  color: dimgray;
+}
 
-  .el-switch >>> .el-switch__label.is-active {
-    color: #409EFF;
-  }
+.el-switch >>> .el-switch__label.is-active {
+  color: #409EFF;
+}
 
-  .container >>> .el-card__body {
-    height: 90vh !important;
-  }
+.container >>> .el-card__body {
+  height: calc(100vh - 70px);
+}
 
-  .comment-card >>> .el-card__header {
-    padding: 0 20px;
-  }
+.comment-card >>> .el-card__header {
+  padding: 0 20px;
+}
 
-  .comment-card >>> .el-card__body {
-    height: 80vh !important;
-  }
+.comment-card >>> .el-card__body {
+  height: calc(100vh - 120px);
+}
 </style>
