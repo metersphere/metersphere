@@ -281,8 +281,8 @@ public class TestCaseService {
                     errList.add(excelErrData);
                     excelResponse.setErrList(errList);
                 } else {
-                    if (!xmindParser.testCases.isEmpty()) {
-                        this.saveImportData(xmindParser.testCases, projectId);
+                    if (!xmindParser.getTestCase().isEmpty()) {
+                        this.saveImportData(xmindParser.getTestCase(), projectId);
                         xmindParser.clear();
                     }
                     excelResponse.setSuccess(true);

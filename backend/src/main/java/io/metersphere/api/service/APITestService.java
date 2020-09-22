@@ -12,7 +12,6 @@ import io.metersphere.api.parse.JmeterDocumentParser;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiTestFileMapper;
 import io.metersphere.base.mapper.ApiTestMapper;
-import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.FileType;
@@ -21,15 +20,13 @@ import io.metersphere.commons.constants.ScheduleType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.QueryScheduleRequest;
+import io.metersphere.dto.LicenseDTO;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiTestJob;
 import io.metersphere.notice.service.MailService;
 import io.metersphere.notice.service.NoticeService;
-import io.metersphere.service.FileService;
-import io.metersphere.service.QuotaService;
-import io.metersphere.service.ScheduleService;
-import io.metersphere.service.UserService;
+import io.metersphere.service.*;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.constants.CommonConstants;
@@ -40,7 +37,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -441,4 +437,13 @@ public class APITestService {
             quotaService.checkAPITestQuota();
         }
     }
+
+    public LicenseDTO validateLicense() {
+        LicenseService licenseService = CommonBeanFactory.getBean(LicenseService.class);
+        if (licenseService != null) {
+            return licenseService.valid();
+        }
+        return null;
+    }
+
 }
