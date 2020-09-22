@@ -25,7 +25,6 @@
           <el-col :span="11" :offset="2">
             <el-form-item :label="$t('test_track.plan.plan_project')" :label-width="formLabelWidth" prop="projectIds">
               <el-select
-                :disabled="(form.status == null) ? false : true"
                 v-model="form.projectIds"
                 :placeholder="$t('test_track.plan.input_plan_project')"
                 multiple
@@ -45,13 +44,12 @@
 
         <el-row>
           <el-col :span="10" :offset="1">
-            <el-form-item label="评审人" :label-width="formLabelWidth" prop="principal">
+            <el-form-item label="评审人" :label-width="formLabelWidth" prop="userIds">
               <el-select
                 v-model="form.userIds"
                 placeholder="请选择评审人"
                 filterable multiple
                 collapse-tags
-                :disabled="(form.status == null) ? false : true"
               >
                 <el-option
                   v-for="item in reviewerOptions"
@@ -132,6 +130,7 @@ export default {
         description: '',
         endTime: ''
       },
+      dbProjectIds: [],
       rules: {
         name: [
           {required: true, message: this.$t('test_track.plan.input_plan_name'), trigger: 'blur'},
@@ -161,6 +160,7 @@ export default {
         let tmp = {};
         Object.assign(tmp, caseReview);
         Object.assign(this.form, tmp);
+        this.dbProjectIds = JSON.parse(JSON.stringify(this.form.projectIds));
       }
       listenGoBack(this.close);
       this.dialogFormVisible = true;
@@ -178,14 +178,42 @@ export default {
           if (this.operationType === 'save') {
             this.compareTime(new Date().getTime(), this.form.endTime);
           }
-          this.$post('/test/case/review/' + this.operationType, param, () => {
-            this.$success(this.$t('commons.save_success'));
-            this.dialogFormVisible = false;
-            this.$emit("refresh");
-          });
+
+          if (this.operationType === 'edit') {
+            const nowIds = param.projectIds;
+            let sign = true;
+            this.dbProjectIds.forEach(dbId => {
+              if (nowIds.indexOf(dbId) === -1 && sign) {
+                sign = false;
+                this.$confirm('取消项目关联会同时取消该项目下已关联的测试用例', '提示', {
+                  confirmButtonText: this.$t('commons.confirm'),
+                  cancelButtonText: this.$t('commons.cancel'),
+                  type: 'warning'
+                }).then(() => {
+                  this.editTestReview(param);
+                }).catch(() => {
+                  this.$info(this.$t('commons.cancel'))
+                });
+              }
+            });
+            if (sign) {
+              this.editTestReview(param);
+            }
+          } else {
+            this.editTestReview(param);
+          }
+
+
         } else {
           return false;
         }
+      });
+    },
+    editTestReview(param) {
+      this.$post('/test/case/review/' + this.operationType, param, () => {
+        this.$success(this.$t('commons.save_success'));
+        this.dialogFormVisible = false;
+        this.$emit("refresh");
       });
     },
     getProjects() {
@@ -204,7 +232,8 @@ export default {
       });
     },
     statusChange(status) {
-
+      this.form.status = status;
+      this.$forceUpdate();
     },
     close() {
       removeGoBackListener(this.close);

@@ -108,20 +108,8 @@
           column-key="status"
           :label="$t('test_track.plan_view.execute_result')">
           <template v-slot:default="scope">
-            <span @click.stop="clickt = 'stop'">
-              <el-dropdown class="test-case-status" @command="statusChange">
-                <span class="el-dropdown-link">
-                  <status-table-item :value="scope.row.status"/>
-                </span>
-                <el-dropdown-menu slot="dropdown" chang>
-                  <el-dropdown-item :disabled="!isTestManagerOrTestUser" :command="{id: scope.row.id, status: 'Pass'}">
-                    {{$t('test_track.plan_view.pass')}}
-                  </el-dropdown-item>
-                  <el-dropdown-item :disabled="!isTestManagerOrTestUser" :command="{id: scope.row.id, status: 'UnPass'}">
-                    未通过
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
+            <span class="el-dropdown-link">
+              <status-table-item :value="scope.row.status"/>
             </span>
           </template>
         </el-table-column>
@@ -459,6 +447,7 @@ export default {
     },
     startReview() {
       if (this.tableData.length !== 0) {
+        this.isReadOnly = false;
         this.$refs.testReviewTestCaseEdit.openTestCaseEdit(this.tableData[0]);
       } else {
         this.$warning("没有关联的评审！");
