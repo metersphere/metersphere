@@ -11,7 +11,7 @@
 
       <el-container class="main-content">
         <el-aside class="tree-aside" width="250px">
-          <el-link type="primary" class="project-link" @click="switchProject">{{projectName ? projectName : '切换项目' }}</el-link>
+          <el-link type="primary" class="project-link" @click="switchProject">{{projectName ? projectName : $t('test_track.switch_project') }}</el-link>
           <node-tree class="node-tree"
                      @nodeSelectEvent="nodeChange"
                      @refresh="refresh"
