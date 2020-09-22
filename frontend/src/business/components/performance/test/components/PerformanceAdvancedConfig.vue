@@ -96,8 +96,7 @@
             <div>{{ $t('load_test.response_timeout') }}</div>
           </el-form-item>
           <el-form-item>
-            <el-input-number :disabled="readOnly" size="mini" v-model="responseTimeout" :min="10"
-                             :max="100000"></el-input-number>
+            <el-input-number :disabled="readOnly" size="mini" v-model="responseTimeout"></el-input-number>
           </el-form-item>
           <el-form-item>
             ms

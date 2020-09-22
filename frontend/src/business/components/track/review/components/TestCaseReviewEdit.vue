@@ -3,7 +3,7 @@
   <div>
 
     <el-dialog :close-on-click-modal="false"
-               :title="operationType === 'edit' ? '编辑用例评审' : '创建用例评审'"
+               :title="operationType === 'edit' ? $t('test_track.review.edit_review') : $t('test_track.review.create_review')"
                :visible.sync="dialogFormVisible"
                @close="close"
                v-loading="result.loading"
@@ -14,8 +14,8 @@
         <el-row>
           <el-col :span="8" :offset="1">
             <el-form-item
-              placeholder="请输入评审标题"
-              label="评审标题"
+              :placeholder="$t('test_track.review.input_review_name')"
+              :label="$t('test_track.review.review_name')"
               :label-width="formLabelWidth"
               prop="name">
               <el-input v-model="form.name"/>
@@ -23,10 +23,10 @@
           </el-col>
 
           <el-col :span="11" :offset="2">
-            <el-form-item :label="$t('test_track.plan.plan_project')" :label-width="formLabelWidth" prop="projectIds">
+            <el-form-item :label="$t('test_track.review.review_project')" :label-width="formLabelWidth" prop="projectIds">
               <el-select
                 v-model="form.projectIds"
-                :placeholder="$t('test_track.plan.input_plan_project')"
+                :placeholder="$t('test_track.review.input_review_project')"
                 multiple
                 style="width: 100%"
                 collapse-tags
@@ -44,10 +44,10 @@
 
         <el-row>
           <el-col :span="10" :offset="1">
-            <el-form-item label="评审人" :label-width="formLabelWidth" prop="principal">
+            <el-form-item :label="$t('test_track.review.reviewer')" :label-width="formLabelWidth" prop="userIds">
               <el-select
                 v-model="form.userIds"
-                placeholder="请选择评审人"
+                :placeholder="$t('test_track.review.input_reviewer')"
                 filterable multiple
                 collapse-tags
               >
@@ -62,7 +62,7 @@
           </el-col>
 
           <el-col :span="10">
-            <el-form-item label="截止时间" :label-width="formLabelWidth" prop="endTime">
+            <el-form-item :label="$t('test_track.review.end_time')" :label-width="formLabelWidth" prop="endTime">
               <el-date-picker @change="endTimeChange" type="datetime" :placeholder="$t('commons.select_date')"
                               v-model="form.endTime"/>
             </el-form-item>
@@ -84,7 +84,7 @@
 
         <el-row v-if="operationType == 'edit'" type="flex" justify="left" style="margin-top: 10px;">
           <el-col :span="19" :offset="1">
-            <el-form-item label="当前状态" :label-width="formLabelWidth" prop="status">
+            <el-form-item :label="$t('test_track.review.review_status')" :label-width="formLabelWidth" prop="status">
               <test-plan-status-button :status="form.status" @statusChange="statusChange"/>
             </el-form-item>
           </el-col>

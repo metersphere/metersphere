@@ -2,7 +2,7 @@
   <el-col v-if="auth">
     <el-row id="header-top1" type="flex" justify="space-between" align="middle">
       <el-col>
-        <div class="license-head" v-if="valid === true && validData.status == 'expired'">License has expired since
+        <div class="license-head" v-if="validData.status == 'expired'">License has expired since
           {{(validData!= undefined && validData.license!= undefined) ? validData.license.expired:''}},please
           update license.
         </div>
@@ -40,15 +40,7 @@
   export default {
     name: 'app',
     data() {
-      let xpack = false;
-      Setting.children.forEach(child => {
-        if (child.path === "license") {
-          xpack = true;
-          return;
-        }
-      })
       return {
-        valid: xpack,
         validData: {},
         auth: false
       }
@@ -67,13 +59,14 @@
       });
     },
     beforeMount() {
-      if (this.valid === true) {
-        // 验证license
-        this.result = this.$get("/license/valid", response => {
+      // 验证license
+      this.result = this.$get("/api/license/valid", response => {
+        let data = response.data;
+        if (data != undefined && data != null) {
           this.validData = response.data;
           saveLicense(response.data);
-        });
-      }
+        }
+      });
     },
     components: {MsLanguageSwitch, MsUser, MsView, MsTopMenus, MsHeaderOrgWs},
     methods: {}

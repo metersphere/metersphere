@@ -30,7 +30,9 @@
     "md5": "^2.3.0",
     "sha.js": "^2.4.11",
     "js-base64": "^3.4.4",
-    "json-bigint": "^1.0.0"
+    "json-bigint": "^1.0.0",
+    "html2canvas": "^1.0.0-rc.7",
+    "jspdf": "^2.1.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.1.0",

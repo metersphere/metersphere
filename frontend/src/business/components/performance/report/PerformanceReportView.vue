@@ -22,13 +22,13 @@
                          @click="rerun(testId)">
                 {{ $t('report.test_execute_again') }}
               </el-button>
-              <!-- <el-button :disabled="isReadOnly" type="info" plain size="mini" @click="exports(reportName)">
+              <el-button :disabled="isReadOnly" type="info" plain size="mini" @click="exportReport(reportName)">
                  {{$t('report.export')}}
-               </el-button>-->
-              <!--
-              <el-button :disabled="isReadOnly" type="warning" plain size="mini">
-                {{$t('report.compare')}}
-              </el-button>-->
+              </el-button>
+
+              <!--<el-button :disabled="isReadOnly" type="warning" plain size="mini">-->
+                <!--{{$t('report.compare')}}-->
+              <!--</el-button>-->
             </el-row>
           </el-col>
           <el-col :span="8">
@@ -54,10 +54,10 @@
               <ms-report-test-overview :report="report" ref="testOverview"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('report.test_request_statistics')">
-              <ms-report-request-statistics :report="report"/>
+              <ms-report-request-statistics :report="report" ref="requestStatistics"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('report.test_error_log')">
-              <ms-report-error-log :report="report"/>
+              <ms-report-error-log :report="report" ref="errorLog"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('report.test_log_details')">
               <ms-report-log-details :report="report"/>
@@ -65,6 +65,33 @@
           </el-tabs>
         </div>
 
+        <div class="report-export" v-show="reportExportVisible">
+        <!--<div class="report-export">-->
+          <el-card id="testOverview">
+            <template v-slot:header >
+              <slot name="header">
+                <span class="title">{{$t('report.test_overview')}}</span>
+              </slot>
+            </template>
+            <ms-report-test-overview :report="report" ref="testOverview"/>
+          </el-card>
+          <el-card id="requestStatistics" title="'requestStatistics'">
+            <template v-slot:header >
+              <slot name="header">
+                <span class="title">{{$t('report.test_request_statistics')}}</span>
+              </slot>
+            </template>
+            <ms-report-request-statistics :report="report" ref="requestStatistics"/>
+          </el-card>
+          <el-card id="errorLog" title="'errorLog'">
+            <template v-slot:header >
+              <slot name="header">
+                <span class="title">{{$t('report.test_error_log')}}</span>
+              </slot>
+            </template>
+            <ms-report-error-log :report="report" ref="errorLog"/>
+          </el-card>
+        </div>
 
       </el-card>
       <el-dialog :title="$t('report.test_stop_now_confirm')" :visible.sync="dialogFormVisible" width="30%">
@@ -91,6 +118,9 @@ import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 
 import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
+import {exportPdf} from "../../../../common/js/utils";
+import html2canvas from 'html2canvas';
+
 
 export default {
   name: "PerformanceReportView",
@@ -123,6 +153,8 @@ export default {
       isReadOnly: false,
       websocket: null,
       dialogFormVisible: false,
+      reportExportVisible: false,
+      isShow: true,
       testPlan: {testResourcePoolId: null}
     }
   },
@@ -247,7 +279,43 @@ export default {
       this.$set(this.report, "status", 'Completed');
       this.initReportTimeInfo();
       window.console.log("socket closed.");
-    }
+    },
+    exportReport(name) {
+      this.result = {loading: true};
+      let result = this.result;
+      result.loading = true;
+      this.reportExportVisible = true;
+      let promises = [];
+      let canvasList = new Array(3);
+      let reset = this.exportReportReset;
+      this.$nextTick(function () {
+        setTimeout(() => {
+          promises.push(this.getCanvasPromise('testOverview', 0, canvasList));
+          promises.push(this.getCanvasPromise('requestStatistics', 1, canvasList));
+          promises.push(this.getCanvasPromise('errorLog', 2, canvasList));
+
+          Promise.all(promises).then(function (info) {
+            exportPdf(name, canvasList);
+            result.loading = false;
+            reset();
+          });
+        }, 1000);
+      })
+    },
+    exportReportReset() {
+      this.reportExportVisible = false;
+      this.isShow = true;
+    },
+    getCanvasPromise(id, index, canvasList) {
+      return new Promise(function(resolve, reject) {
+        html2canvas(document.getElementById(id), {
+          scale: 2
+        }).then(function(canvas) {
+          canvasList[index] = canvas;
+          resolve('success');
+        });
+      });
+    },
   },
   created() {
     this.isReadOnly = false;
@@ -305,14 +373,18 @@ export default {
 
 <style scoped>
 
-.ms-report-view-btns {
-  margin-top: 15px;
-}
+  .ms-report-view-btns {
+    margin-top: 15px;
+  }
 
-.ms-report-time-desc {
-  text-align: left;
-  display: block;
-  color: #5C7878;
-}
+  .ms-report-time-desc {
+    text-align: left;
+    display: block;
+    color: #5C7878;
+  }
+
+  .report-export .el-card {
+    margin-bottom: 15px;
+  }
 
 </style>
