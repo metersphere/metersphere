@@ -1,6 +1,5 @@
 package io.metersphere.xmind;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
@@ -235,9 +234,7 @@ public class XmindCaseParser {
         StringBuffer processBuffer = new StringBuffer();
         try {
             // 获取思维导图内容
-            String content = XmindParser.parseJson(multipartFile);
-            JsonRootBean root = JSON.parseObject(content, JsonRootBean.class);
-
+            JsonRootBean root = XmindParser.parseObject(multipartFile);
             if (root != null && root.getRootTopic() != null && root.getRootTopic().getChildren() != null) {
                 // 判断是模块还是用例
                 for (Attached item : root.getRootTopic().getChildren().getAttached()) {
