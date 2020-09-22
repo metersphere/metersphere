@@ -237,7 +237,7 @@ public class PerformanceTestService {
         }
 
         startEngine(loadTest, engine, request.getTriggerMode());
-        if (request.getTriggerMode().equals("SCHEDULE")) {
+       /* if (request.getTriggerMode().equals("SCHEDULE")) {
             List<Notice> notice = null;
             try {
                 notice = noticeService.queryNotice(request.getId());
@@ -249,7 +249,7 @@ public class PerformanceTestService {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
+        }*/
         return engine.getReportId();
     }
 

@@ -38,8 +38,19 @@
         SELECT
         email
         from user
-        WHERE  name IN
+        WHERE name IN
         <foreach collection="array" item="id" index="index"
+                 open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+
+    </select>
+    <select id="queryEmailByIds" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT
+        email
+        from user
+        WHERE id IN
+        <foreach collection="list" item="id" index="index"
                  open="(" close=")" separator=",">
             #{id}
         </foreach>

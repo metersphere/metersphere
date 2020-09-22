@@ -212,7 +212,7 @@
         }
 
         Promise.all(promises).then(function (info) {
-          exportPdf(canvasList);
+          exportPdf(name, canvasList);
           result.loading = false;
         });
       },

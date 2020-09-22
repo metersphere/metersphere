@@ -67,7 +67,7 @@
               scale: 2
             }).then(function(canvas) {
               //排序
-              canvasList.splice(index, 0, canvas);
+              canvasList[index] = canvas;
               resolve('success');
             });
           });
