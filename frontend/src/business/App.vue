@@ -1,15 +1,11 @@
 <template>
   <el-col v-if="auth">
-    <el-row id="header-top1" type="flex" justify="space-between" align="middle">
+    <el-row v-if="licenseHeader != null">
       <el-col>
-        <div class="license-head" v-if="validData.status == 'expired'">License has expired since
-          {{(validData!= undefined && validData.license!= undefined) ? validData.license.expired:''}},please
-          update license.
-        </div>
+        <component :is="licenseHeader"></component>
       </el-col>
     </el-row>
     <el-row id="header-top" type="flex" justify="space-between" align="middle">
-
       <el-col :span="12">
         <a class="logo"/>
         <ms-top-menus/>
@@ -34,15 +30,18 @@
   import MsHeaderOrgWs from "./components/common/head/HeaderOrgWs";
   import MsLanguageSwitch from "./components/common/head/LanguageSwitch";
   import {saveLocalStorage} from "../common/js/utils";
-  import {saveLicense} from "../common/js/utils";
-  import Setting from "@/business/components/settings/router";
+
+  const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+  const header = requireComponent("./license/LicenseMessage.vue");
 
   export default {
     name: 'app',
+    props: {},
     data() {
       return {
-        validData: {},
-        auth: false
+        licenseHeader: null,
+        auth: false,
+        header: {},
       }
     },
     beforeCreate() {
@@ -51,6 +50,10 @@
           this.$setLang(response.data.data.language);
           saveLocalStorage(response.data);
           this.auth = true;
+          // 是否显示校验信息
+          if (header.default !== undefined) {
+            this.licenseHeader = "MsLicenseHeader";
+          }
         } else {
           window.location.href = "/login"
         }
@@ -58,20 +61,17 @@
         window.location.href = "/login"
       });
     },
-    beforeMount() {
-      // 验证license
-      this.result = this.$get("/api/license/valid", response => {
-        let data = response.data;
-        if (data != undefined && data != null) {
-          this.validData = response.data;
-          saveLicense(response.data);
-        }
-      });
-    },
-    components: {MsLanguageSwitch, MsUser, MsView, MsTopMenus, MsHeaderOrgWs},
-    methods: {}
+    components: {
+      MsLanguageSwitch,
+      MsUser,
+      MsView,
+      MsTopMenus,
+      MsHeaderOrgWs,
+      "MsLicenseHeader": header.default
+    }
   }
 </script>
+
 
 <style scoped>
   #header-top {
@@ -128,4 +128,3 @@
     color: white;
   }
 </style>
-

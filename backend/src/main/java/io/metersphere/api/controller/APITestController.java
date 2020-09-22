@@ -127,10 +127,4 @@ public class APITestController {
     public List<ScheduleDao> listSchedule(@RequestBody QueryScheduleRequest request) {
         return apiTestService.listSchedule(request);
     }
-
-    @GetMapping("/license/valid")
-    public LicenseDTO valid() {
-        return apiTestService.validateLicense();
-    }
-
 }

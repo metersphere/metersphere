@@ -437,13 +437,4 @@ public class APITestService {
             quotaService.checkAPITestQuota();
         }
     }
-
-    public LicenseDTO validateLicense() {
-        LicenseService licenseService = CommonBeanFactory.getBean(LicenseService.class);
-        if (licenseService != null) {
-            return licenseService.valid();
-        }
-        return null;
-    }
-
 }
