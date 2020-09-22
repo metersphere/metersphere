@@ -5,7 +5,7 @@
       <select-menu
         :data="testReviews"
         :current-data="currentReview"
-        title="评审"
+        :title="$t('test_track.review_view.review')"
         @dataChange="changeReview"/>
       <node-tree class="node-tree"
                  v-loading="result.loading"
