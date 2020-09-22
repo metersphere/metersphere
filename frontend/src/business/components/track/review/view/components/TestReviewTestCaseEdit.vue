@@ -20,7 +20,7 @@
 
                   <el-row type="flex" class="head-bar">
 
-                    <el-col :span="12">
+                    <el-col :span="8">
                       <el-button plain size="mini"
                                  icon="el-icon-back"
                                  @click="cancel">{{ $t('test_track.return') }}
