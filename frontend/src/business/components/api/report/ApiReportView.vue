@@ -9,10 +9,10 @@
                 <span>{{ report.projectName }} / </span>
                 <router-link :to="path">{{ report.testName }}</router-link>
                 <span class="time">{{ report.createTime | timestampFormatDate }}</span>
-                <!--<el-button plain type="primary" size="mini" @click="handleExport(report.name)"
+                <el-button class="export-button" plain type="primary" size="mini" @click="handleExport(report.name)"
                            style="margin-left: 1200px">
                   {{$t('test_track.plan_view.export_report')}}
-                </el-button>-->
+                </el-button>
               </el-col>
             </el-row>
           </header>
@@ -36,6 +36,7 @@
                 <ms-request-result-tail v-if="isRequestResult" :request="request" :scenario-name="scenarioName"/>
               </el-col>
             </el-row>
+            <ms-api-report-export v-if="reportExportVisible" id="apiTestReport" :content="content" :total-time="totalTime"/>
           </main>
         </section>
       </el-card>
@@ -52,10 +53,14 @@ import MsMetricChart from "./components/MetricChart";
 import MsScenarioResults from "./components/ScenarioResults";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
+import MsApiReportExport from "./ApiReportExport";
+import {exportPdf} from "../../../../common/js/utils";
+import html2canvas from "html2canvas";
 
 export default {
   name: "MsApiReportView",
   components: {
+    MsApiReportExport,
     MsMainContainer,
     MsContainer, MsScenarioResults, MsRequestResultTail, MsMetricChart, MsScenarioResult, MsRequestResult
   },
@@ -70,6 +75,7 @@ export default {
       isRequestResult: false,
       request: {},
       scenarioName: null,
+      reportExportVisible: false
     }
   },
   activated() {
@@ -139,6 +145,26 @@ export default {
         this.request = requestResult.request;
         this.scenarioName = requestResult.scenarioName;
       });
+    },
+    handleExport(name) {
+      this.loading = true;
+      this.reportExportVisible = true;
+      let reset = this.exportReportReset;
+
+      this.$nextTick(function () {
+        setTimeout(() => {
+          html2canvas(document.getElementById('apiTestReport'), {
+            scale: 2
+          }).then(function(canvas) {
+            exportPdf(name, [canvas]);
+            reset();
+          });
+        }, 1000);
+      });
+    },
+    exportReportReset() {
+      this.reportExportVisible = false;
+      this.loading = false;
     }
   },
 
@@ -170,30 +196,36 @@ export default {
 </style>
 
 <style scoped>
-.report-container {
+
+  .report-container {
   height: calc(100vh - 155px);
   min-height: 600px;
   overflow-y: auto;
-}
+  }
 
-.report-header {
+  .report-header {
   font-size: 15px;
-}
+  }
 
-.report-header a {
+  .report-header a {
   text-decoration: none;
-}
+  }
 
-.report-header .time {
+  .report-header .time {
   color: #909399;
   margin-left: 10px;
-}
+  }
 
-.report-container .fail {
+  .report-container .fail {
   color: #F56C6C;
-}
+  }
 
-.report-container .is-active .fail {
+  .report-container .is-active .fail {
   color: inherit;
-}
+  }
+
+  .export-button {
+    float: right;
+  }
+
 </style>

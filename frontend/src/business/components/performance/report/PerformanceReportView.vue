@@ -66,28 +66,21 @@
         </div>
 
         <div class="report-export" v-show="reportExportVisible">
-        <!--<div class="report-export">-->
           <el-card id="testOverview">
             <template v-slot:header >
-              <slot name="header">
-                <span class="title">{{$t('report.test_overview')}}</span>
-              </slot>
+              <span class="title">{{$t('report.test_overview')}}</span>
             </template>
             <ms-report-test-overview :report="report" ref="testOverview"/>
           </el-card>
           <el-card id="requestStatistics" title="'requestStatistics'">
             <template v-slot:header >
-              <slot name="header">
-                <span class="title">{{$t('report.test_request_statistics')}}</span>
-              </slot>
+              <span class="title">{{$t('report.test_request_statistics')}}</span>
             </template>
             <ms-report-request-statistics :report="report" ref="requestStatistics"/>
           </el-card>
           <el-card id="errorLog" title="'errorLog'">
             <template v-slot:header >
-              <slot name="header">
-                <span class="title">{{$t('report.test_error_log')}}</span>
-              </slot>
+              <span class="title">{{$t('report.test_error_log')}}</span>
             </template>
             <ms-report-error-log :report="report" ref="errorLog"/>
           </el-card>
