@@ -936,7 +936,7 @@ export default {
     performance: "Number of performance tests",
     resource_pool: "Available test resource pool",
     max_threads: "Maximum Concurrency",
-    duration: "Stress test duration",
+    duration: "Stress test duration(minutes)",
     use_default: "Use default quota",
     yes: "Yes",
     no: "No",

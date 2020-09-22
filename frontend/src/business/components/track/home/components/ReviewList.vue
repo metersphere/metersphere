@@ -5,7 +5,7 @@
         <ms-table-button :is-tester-permission="true" v-if="!showMyCreator" icon="el-icon-view"
                          content="我创建的评审" @click="searchMyCreator"/>
         <ms-table-button :is-tester-permission="true" v-if="showMyCreator" icon="el-icon-view"
-                         content="我待审核的评审" @click="searchMyCreator"/>
+                         content="待我评审" @click="searchMyCreator"/>
       </div>
 
     </template>

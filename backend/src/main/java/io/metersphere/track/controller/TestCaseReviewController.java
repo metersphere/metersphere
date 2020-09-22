@@ -67,7 +67,7 @@ public class TestCaseReviewController {
 
     @PostMapping("/edit")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void editCaseReview(@RequestBody TestCaseReview testCaseReview) {
+    public void editCaseReview(@RequestBody SaveTestCaseReviewRequest testCaseReview) {
         testCaseReviewService.editCaseReview(testCaseReview);
     }
 

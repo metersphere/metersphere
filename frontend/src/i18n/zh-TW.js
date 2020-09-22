@@ -938,7 +938,7 @@ export default {
     performance: "性能測試數量",
     resource_pool: "可用測試資源池",
     max_threads: "最大並發數",
-    duration: "壓測時長",
+    duration: "壓測時長（分鐘）",
     use_default: "使用默認配額",
     yes: "是",
     no: "否",
