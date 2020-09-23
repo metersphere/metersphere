@@ -113,6 +113,7 @@
   import MsTableButton from '../../../../components/common/components/MsTableButton';
   import {listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
   import {TokenKey, WORKSPACE_ID} from '../../../../../common/js/constants';
+  import axios from "axios";
 
   export default {
     name: "TestCaseImport",
@@ -188,7 +189,14 @@
         this.$fileDownload('/test/case/export/template');
       },
       downloadXmindTemplate() {
-        this.$fileDownload('/test/case/export/xmindTemplate');
+        axios.get('/test/case/export/xmindTemplate', {responseType: 'blob'})
+          .then(response => {
+            let fileName = window.decodeURI(response.headers['content-disposition'].split('=')[1]);
+            let link = document.createElement("a");
+            link.href = window.URL.createObjectURL(new Blob([response.data]));
+            link.download = fileName;
+            link.click();
+          });
       },
       upload(file) {
         this.isLoading = false;
