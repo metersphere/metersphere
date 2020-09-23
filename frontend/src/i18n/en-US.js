@@ -142,6 +142,8 @@ export default {
       and: 'All',
       or: 'any one',
       operators: {
+        is_null: "Is null",
+        is_not_null: "Is not null",
         like: "Contains",
         not_like: "Not included",
         in: "Belong to",
@@ -292,6 +294,9 @@ export default {
     add: 'Add Role',
   },
   report: {
+    api_test_report: 'Api Test Report',
+    load_test_report: 'Load Test Report',
+    test_plan_report: 'Test Plan Report',
     recent: 'Recent Report',
     search_by_name: 'Search by Name',
     test_name: 'Test',

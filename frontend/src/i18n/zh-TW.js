@@ -142,6 +142,8 @@ export default {
       and: '所有',
       or: '任意壹個',
       operators: {
+        is_null: "空",
+        is_not_null: "非空",
         like: "包含",
         not_like: "不包含",
         in: "屬於",
@@ -292,6 +294,9 @@ export default {
     add: '添加角色',
   },
   report: {
+    api_test_report: '接口測試報告',
+    load_test_report: '性能測試報告',
+    test_plan_report: '測試計劃報告',
     recent: '最近的報告',
     search_by_name: '根據名稱搜索',
     test_name: '所屬測試',

@@ -22,8 +22,8 @@
                          @click="rerun(testId)">
                 {{ $t('report.test_execute_again') }}
               </el-button>
-              <el-button :disabled="isReadOnly" type="info" plain size="mini" @click="exportReport(reportName)">
-                 {{$t('report.export')}}
+              <el-button :disabled="isReadOnly" type="info" plain size="mini" @click="handleExport(reportName)">
+                 {{$t('test_track.plan_view.export_report')}}
               </el-button>
 
               <!--<el-button :disabled="isReadOnly" type="warning" plain size="mini">-->
@@ -65,26 +65,7 @@
           </el-tabs>
         </div>
 
-        <div class="report-export" v-show="reportExportVisible">
-          <el-card id="testOverview">
-            <template v-slot:header >
-              <span class="title">{{$t('report.test_overview')}}</span>
-            </template>
-            <ms-report-test-overview :report="report" ref="testOverview"/>
-          </el-card>
-          <el-card id="requestStatistics" title="'requestStatistics'">
-            <template v-slot:header >
-              <span class="title">{{$t('report.test_request_statistics')}}</span>
-            </template>
-            <ms-report-request-statistics :report="report" ref="requestStatistics"/>
-          </el-card>
-          <el-card id="errorLog" title="'errorLog'">
-            <template v-slot:header >
-              <span class="title">{{$t('report.test_error_log')}}</span>
-            </template>
-            <ms-report-error-log :report="report" ref="errorLog"/>
-          </el-card>
-        </div>
+        <ms-performance-report-export id="performanceReportExport" v-show="reportExportVisible" :report="report"/>
 
       </el-card>
       <el-dialog :title="$t('report.test_stop_now_confirm')" :visible.sync="dialogFormVisible" width="30%">
@@ -113,11 +94,13 @@ import MsMainContainer from "../../common/components/MsMainContainer";
 import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
 import {exportPdf} from "../../../../common/js/utils";
 import html2canvas from 'html2canvas';
+import MsPerformanceReportExport from "./PerformanceReportExport";
 
 
 export default {
   name: "PerformanceReportView",
   components: {
+    MsPerformanceReportExport,
     MsReportErrorLog,
     MsReportLogDetails,
     MsReportRequestStatistics,
@@ -147,7 +130,6 @@ export default {
       websocket: null,
       dialogFormVisible: false,
       reportExportVisible: false,
-      isShow: true,
       testPlan: {testResourcePoolId: null}
     }
   },
@@ -273,41 +255,25 @@ export default {
       this.initReportTimeInfo();
       window.console.log("socket closed.");
     },
-    exportReport(name) {
-      this.result = {loading: true};
-      let result = this.result;
-      result.loading = true;
+    handleExport(name) {
+      this.result.loading = true;
       this.reportExportVisible = true;
-      let promises = [];
-      let canvasList = new Array(3);
       let reset = this.exportReportReset;
+
       this.$nextTick(function () {
         setTimeout(() => {
-          promises.push(this.getCanvasPromise('testOverview', 0, canvasList));
-          promises.push(this.getCanvasPromise('requestStatistics', 1, canvasList));
-          promises.push(this.getCanvasPromise('errorLog', 2, canvasList));
-
-          Promise.all(promises).then(function (info) {
-            exportPdf(name, canvasList);
-            result.loading = false;
+          html2canvas(document.getElementById('performanceReportExport'), {
+            scale: 2
+          }).then(function(canvas) {
+            exportPdf(name, [canvas]);
             reset();
           });
         }, 1000);
-      })
+      });
     },
     exportReportReset() {
       this.reportExportVisible = false;
-      this.isShow = true;
-    },
-    getCanvasPromise(id, index, canvasList) {
-      return new Promise(function(resolve, reject) {
-        html2canvas(document.getElementById(id), {
-          scale: 2
-        }).then(function(canvas) {
-          canvasList[index] = canvas;
-          resolve('success');
-        });
-      });
+      this.result.loading = false;
     },
   },
   created() {
