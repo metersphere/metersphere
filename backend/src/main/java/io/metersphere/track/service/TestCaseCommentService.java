@@ -47,7 +47,7 @@ public class TestCaseCommentService {
         testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(request.getCaseId());
         SaveTestCaseReviewRequest caseReviewRequest = new SaveTestCaseReviewRequest();
         List<String> userIds = new ArrayList<>();
-        userIds.add(testCaseComment.getAuthor());
+        userIds.add(testCaseWithBLOBs.getMaintainer());
         mailService.sendHtml(userIds, "comment", caseReviewRequest, request, testCaseWithBLOBs);
 
     }
