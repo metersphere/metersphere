@@ -306,8 +306,8 @@ export class Request extends BaseConfig {
     super();
     this.type = type;
     options.id = options.id || uuid();
-    options.timer = new ConstantTimer(options.timer);
-    options.controller = new IfController(options.controller);
+    this.timer = options.timer = new ConstantTimer(options.timer);
+    this.controller = options.controller = new IfController(options.controller);
   }
 
   showType() {
@@ -484,7 +484,7 @@ export class DubboRequest extends Request {
 export class SqlRequest extends Request {
 
   constructor(options = {}) {
-    super(RequestFactory.TYPES.SQL);
+    super(RequestFactory.TYPES.SQL, options);
     this.id = options.id || uuid();
     this.name = options.name;
     this.useEnvironment = options.useEnvironment;
@@ -502,7 +502,6 @@ export class SqlRequest extends Request {
     this.jsr223PostProcessor = new JSR223Processor(options.jsr223PostProcessor);
 
     this.sets({args: KeyValue, attachmentArgs: KeyValue}, options);
-
   }
 
   isValid() {
@@ -879,7 +878,7 @@ export class IfController extends Controller {
   }
 
   isValid() {
-    if (!!this.operator && this.operator.indexOf("null") > 0) {
+    if (!!this.operator && this.operator.indexOf("empty") > 0) {
       return !!this.variable && !!this.operator;
     }
     return !!this.variable && !!this.operator && !!this.value;
@@ -1247,13 +1246,13 @@ class JMXGenerator {
           value = "\".*" + value + ".*\"";
         }
 
-        if (operator === "is null") {
+        if (operator === "is empty") {
           variable = "empty(\"" + variable + "\")";
           operator = "";
           value = "";
         }
 
-        if (operator === "is not null") {
+        if (operator === "is not empty") {
           variable = "!empty(\"" + variable + "\")";
           operator = "";
           value = "";

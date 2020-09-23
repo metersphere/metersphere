@@ -142,8 +142,8 @@ export default {
       and: '所有',
       or: '任意壹個',
       operators: {
-        is_null: "空",
-        is_not_null: "非空",
+        is_empty: "空",
+        is_not_empty: "非空",
         like: "包含",
         not_like: "不包含",
         in: "屬於",

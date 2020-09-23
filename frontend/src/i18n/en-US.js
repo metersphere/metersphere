@@ -142,8 +142,8 @@ export default {
       and: 'All',
       or: 'any one',
       operators: {
-        is_null: "Is null",
-        is_not_null: "Is not null",
+        is_empty: "Is empty",
+        is_not_empty: "Is not empty",
         like: "Contains",
         not_like: "Not included",
         in: "Belong to",
