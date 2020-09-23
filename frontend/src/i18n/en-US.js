@@ -279,7 +279,7 @@ export default {
     email_format_is_incorrect: 'Email format is incorrect',
     delete_confirm: 'Are you sure you want to delete this User?',
     apikey_delete_confirm: 'Are you sure you want to delete this API Key?',
-    input_id_placeholder: 'Please enter ID (only supports numbers and English letters)',
+    input_id_placeholder: 'Please enter ID (Chinese characters are not supported)',
     source: 'Source'
   },
   role: {

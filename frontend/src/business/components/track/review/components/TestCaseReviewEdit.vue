@@ -210,7 +210,7 @@ export default {
       });
     },
     editTestReview(param) {
-      this.$post('/test/case/review/' + this.operationType, param, () => {
+      this.result = this.$post('/test/case/review/' + this.operationType, param, () => {
         this.$success(this.$t('commons.save_success'));
         this.dialogFormVisible = false;
         this.$emit("refresh");

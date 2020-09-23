@@ -279,7 +279,7 @@ export default {
     email_format_is_incorrect: '邮箱格式不正确',
     delete_confirm: '这个用户确定要删除吗?',
     apikey_delete_confirm: '这个 API Key 确定要删除吗?',
-    input_id_placeholder: '请输入ID (只支持数字、英文字母)',
+    input_id_placeholder: '请输入ID (不支持中文)',
     source: '用户来源'
   },
   role: {
