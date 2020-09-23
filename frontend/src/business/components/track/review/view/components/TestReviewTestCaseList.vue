@@ -5,13 +5,13 @@
         <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
                          :show-create="false" :tip="$t('commons.search_by_name_or_id')">
           <template v-slot:title>
-            <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="refresh" title="全部评审"/>
+            <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="refresh" :title="$t('test_track.review_view.all_review')"/>
           </template>
           <template v-slot:button>
             <ms-table-button :is-tester-permission="true" icon="el-icon-video-play"
-                             content="开始用例评审" @click="startReview"/>
+                             :content="$t('test_track.review_view.start_review')" @click="startReview"/>
             <ms-table-button :is-tester-permission="true" icon="el-icon-connection"
-                             content="关联用例评审"
+                             :content="$t('test_track.review_view.relevance_case')"
                              @click="$emit('openTestReviewRelevanceDialog')"/>
           </template>
         </ms-table-header>
@@ -91,44 +91,13 @@
 
         <el-table-column
           prop="projectName"
-          :label="$t('test_track.plan.plan_project')"
+          :label="$t('test_track.review.review_project')"
           show-overflow-tooltip>
         </el-table-column>
-
-        <el-table-column
-          :label="$t('test_track.issue.issue')"
-          show-overflow-tooltip>
-          <template v-slot:default="scope">
-            <el-popover
-              placement="right"
-              width="400"
-              trigger="hover">
-              <el-table border class="adjust-table" :data="scope.row.issuesContent" style="width: 100%">
-                <el-table-column prop="title" :label="$t('test_track.issue.title')" show-overflow-tooltip/>
-                <el-table-column prop="description" :label="$t('test_track.issue.description')">
-                  <template v-slot:default="scope">
-                    <el-popover
-                      placement="left"
-                      width="400"
-                      trigger="hover"
-                    >
-                      <ckeditor :editor="editor" disabled :config="editorConfig"
-                                v-model="scope.row.description"/>
-                      <el-button slot="reference" type="text">{{$t('test_track.issue.preview')}}</el-button>
-                    </el-popover>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="platform" :label="$t('test_track.issue.platform')"/>
-              </el-table>
-              <el-button slot="reference" type="text">{{scope.row.issuesSize}}</el-button>
-            </el-popover>
-          </template>
-        </el-table-column>
-
 
         <el-table-column
           prop="reviewerName"
-          label="评审人"
+          :label="$t('test_track.review.review_creator')"
           show-overflow-tooltip
         >
         </el-table-column>
@@ -137,22 +106,10 @@
           prop="status"
           :filters="statusFilters"
           column-key="status"
-          :label="$t('test_track.plan_view.execute_result')">
+          :label="$t('test_track.review_view.execute_result')">
           <template v-slot:default="scope">
-            <span @click.stop="clickt = 'stop'">
-              <el-dropdown class="test-case-status" @command="statusChange">
-                <span class="el-dropdown-link">
-                  <status-table-item :value="scope.row.status"/>
-                </span>
-                <el-dropdown-menu slot="dropdown" chang>
-                  <el-dropdown-item :disabled="!isTestManagerOrTestUser" :command="{id: scope.row.id, status: 'Pass'}">
-                    {{$t('test_track.plan_view.pass')}}
-                  </el-dropdown-item>
-                  <el-dropdown-item :disabled="!isTestManagerOrTestUser" :command="{id: scope.row.id, status: 'UnPass'}">
-                    未通过
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
+            <span class="el-dropdown-link">
+              <status-table-item :value="scope.row.status"/>
             </span>
           </template>
         </el-table-column>
@@ -320,18 +277,6 @@ export default {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
-          for (let i = 0; i < this.tableData.length; i++) {
-            if (this.tableData[i]) {
-              this.$set(this.tableData[i], "issuesSize", 0);
-              this.$get("/issues/get/" + this.tableData[i].caseId, response => {
-                let issues = response.data;
-                if (this.tableData[i]) {
-                  this.$set(this.tableData[i], "issuesSize", issues.length);
-                  this.$set(this.tableData[i], "issuesContent", issues);
-                }
-              })
-            }
-          }
           this.selectRows.clear();
         });
       }
@@ -403,41 +348,10 @@ export default {
       });
     },
     handleSelectAll(selection) {
-      if (selection.length > 0) {
-        if (selection.length === 1) {
-          this.selectRows.add(selection[0]);
-        } else {
-          this.tableData.forEach(item => {
-            this.$set(item, "showMore", true);
-            this.selectRows.add(item);
-          });
-        }
-      } else {
-        this.selectRows.clear();
-        this.tableData.forEach(row => {
-          this.$set(row, "showMore", false);
-        })
-      }
+
     },
     handleSelectionChange(selection, row) {
-      if (this.selectRows.has(row)) {
-        this.$set(row, "showMore", false);
-        this.selectRows.delete(row);
-      } else {
-        this.$set(row, "showMore", true);
-        this.selectRows.add(row);
-      }
 
-      let arr = Array.from(this.selectRows);
-
-      // 选中1个以上的用例时显示更多操作
-      if (this.selectRows.size === 1) {
-        this.$set(arr[0], "showMore", false);
-      } else if (this.selectRows.size === 2) {
-        arr.forEach(row => {
-          this.$set(row, "showMore", true);
-        })
-      }
     },
     handleBatch(type) {
       if (this.selectRows.size < 1) {
@@ -502,6 +416,7 @@ export default {
     },
     startReview() {
       if (this.tableData.length !== 0) {
+        this.isReadOnly = false;
         this.$refs.testReviewTestCaseEdit.openTestCaseEdit(this.tableData[0]);
       } else {
         this.$warning("没有关联的评审！");

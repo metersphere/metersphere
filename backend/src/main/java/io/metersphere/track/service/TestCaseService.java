@@ -27,7 +27,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
-import io.metersphere.xmind.XmindToTestCaseParser;
+import io.metersphere.xmind.XmindCaseParser;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -273,13 +273,18 @@ public class TestCaseService {
         if (multipartFile.getOriginalFilename().endsWith(".xmind")) {
             try {
                 errList = new ArrayList<>();
-                String processLog = new XmindToTestCaseParser(this, userId, projectId, testCaseNames).importXmind(multipartFile);
+                XmindCaseParser xmindParser = new XmindCaseParser(this, userId, projectId, testCaseNames);
+                String processLog = xmindParser.parse(multipartFile);
                 if (!StringUtils.isEmpty(processLog)) {
                     excelResponse.setSuccess(false);
-                    ExcelErrData excelErrData = new ExcelErrData(null, 1, Translator.get("upload_fail")+"："+ processLog);
+                    ExcelErrData excelErrData = new ExcelErrData(null, 1, Translator.get("upload_fail") + "：" + processLog);
                     errList.add(excelErrData);
                     excelResponse.setErrList(errList);
                 } else {
+                    if (!xmindParser.getTestCase().isEmpty()) {
+                        this.saveImportData(xmindParser.getTestCase(), projectId);
+                        xmindParser.clear();
+                    }
                     excelResponse.setSuccess(true);
                 }
             } catch (Exception e) {
@@ -345,7 +350,7 @@ public class TestCaseService {
         // 发送给客户端的数据
         byte[] buff = new byte[1024];
         try (OutputStream outputStream = res.getOutputStream();
-             BufferedInputStream bis = new BufferedInputStream(TestCaseService.class.getResourceAsStream("/io/metersphere/xmind/template/testcase.xml"));) {
+             BufferedInputStream bis = new BufferedInputStream(TestCaseService.class.getResourceAsStream("/io/metersphere/xmind/template/xmind.xml"));) {
             int i = bis.read(buff);
             while (i != -1) {
                 outputStream.write(buff, 0, buff.length);

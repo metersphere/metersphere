@@ -76,7 +76,7 @@ public class MailService {
                 "<body style=\"text-align: left\">\n" +
                 "    <div>\n" +
                 "      <h3>" + type + "定时任务结果通知</h3>\n" +
-                "      <p>   尊敬的用户：您好，您所执行的" + testName + "运行失败，请点击报告链接查看</p>\n" +
+                "      <p>   尊敬的用户：您好，您所执行的" + testName + "运行失败</p>\n" +
                 "    </div>\n" +
                 "</body>\n" +
                 "</html>";
@@ -89,7 +89,7 @@ public class MailService {
                 "<body style=\"text-align: left\">\n" +
                 "    <div>\n" +
                 "      <h3>" + type + "定时任务结果通知</h3>\n" +
-                "      <p>    尊敬的用户：您好，" + testName + "运行成功，请点击报告链接查看</p>\n" +
+                "      <p>    尊敬的用户：您好，" + testName + "运行成功</p>\n" +
                 "    </div>\n" +
                 "</body>\n" +
                 "</html>";

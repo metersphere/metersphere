@@ -1,4 +1,4 @@
-package io.metersphere.xmind.parser.domain;
+package io.metersphere.xmind.parser.pojo;
 
 import lombok.Data;
 

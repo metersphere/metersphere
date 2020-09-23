@@ -26,6 +26,8 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -54,6 +56,10 @@ public class TestCaseReviewService {
     ExtProjectMapper extProjectMapper;
     @Resource
     UserService userService;
+    @Resource
+    TestCaseMapper testCaseMapper;
+    @Resource
+    TestCaseReviewTestCaseMapper testCaseReviewTestCaseMapper;
 
     public void saveTestCaseReview(SaveTestCaseReviewRequest reviewRequest) {
         checkCaseReviewExist(reviewRequest);
@@ -119,18 +125,85 @@ public class TestCaseReviewService {
                 .collect(Collectors.toList());
 
         UserExample userExample = new UserExample();
-        userExample.createCriteria().andIdIn(userIds);
-        return userMapper.selectByExample(userExample);
+        UserExample.Criteria criteria = userExample.createCriteria();
+        if (!CollectionUtils.isEmpty(userIds)) {
+            criteria.andIdIn(userIds);
+            return userMapper.selectByExample(userExample);
+        }
+        return new ArrayList<>();
     }
 
     public List<TestCaseReviewDTO> recent(String currentWorkspaceId) {
         return extTestCaseReviewMapper.listByWorkspaceId(currentWorkspaceId);
     }
 
-    public void editCaseReview(TestCaseReview testCaseReview) {
+    public void editCaseReview(SaveTestCaseReviewRequest testCaseReview) {
+        editCaseReviewer(testCaseReview);
+        editCaseReviewProject(testCaseReview);
         testCaseReview.setUpdateTime(System.currentTimeMillis());
         checkCaseReviewExist(testCaseReview);
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
+    }
+
+    private void editCaseReviewer(SaveTestCaseReviewRequest testCaseReview) {
+        // 要更新的reviewerIds
+        List<String> reviewerIds = testCaseReview.getUserIds();
+
+        String id = testCaseReview.getId();
+        TestCaseReviewUsersExample testCaseReviewUsersExample = new TestCaseReviewUsersExample();
+        testCaseReviewUsersExample.createCriteria().andReviewIdEqualTo(id);
+        List<TestCaseReviewUsers> testCaseReviewUsers = testCaseReviewUsersMapper.selectByExample(testCaseReviewUsersExample);
+        List<String> dbReviewIds = testCaseReviewUsers.stream().map(TestCaseReviewUsers::getUserId).collect(Collectors.toList());
+
+        reviewerIds.forEach(reviewerId -> {
+            if (!dbReviewIds.contains(reviewerId)) {
+                TestCaseReviewUsers caseReviewUser = new TestCaseReviewUsers();
+                caseReviewUser.setUserId(reviewerId);
+                caseReviewUser.setReviewId(id);
+                testCaseReviewUsersMapper.insertSelective(caseReviewUser);
+            }
+        });
+
+        TestCaseReviewUsersExample example = new TestCaseReviewUsersExample();
+        example.createCriteria().andReviewIdEqualTo(id).andUserIdNotIn(reviewerIds);
+        testCaseReviewUsersMapper.deleteByExample(example);
+    }
+
+    private void editCaseReviewProject(SaveTestCaseReviewRequest testCaseReview) {
+        List<String> projectIds = testCaseReview.getProjectIds();
+        String id = testCaseReview.getId();
+        if (!CollectionUtils.isEmpty(projectIds)) {
+            TestCaseReviewProjectExample testCaseReviewProjectExample = new TestCaseReviewProjectExample();
+            testCaseReviewProjectExample.createCriteria().andReviewIdEqualTo(id);
+            List<TestCaseReviewProject> testCaseReviewProjects = testCaseReviewProjectMapper.selectByExample(testCaseReviewProjectExample);
+            List<String> dbProjectIds = testCaseReviewProjects.stream().map(TestCaseReviewProject::getProjectId).collect(Collectors.toList());
+            projectIds.forEach(projectId -> {
+                if (!dbProjectIds.contains(projectId)) {
+                    TestCaseReviewProject testCaseReviewProject = new TestCaseReviewProject();
+                    testCaseReviewProject.setReviewId(id);
+                    testCaseReviewProject.setProjectId(projectId);
+                    testCaseReviewProjectMapper.insert(testCaseReviewProject);
+                }
+            });
+
+            TestCaseReviewProjectExample example = new TestCaseReviewProjectExample();
+            example.createCriteria().andReviewIdEqualTo(id).andProjectIdNotIn(projectIds);
+            testCaseReviewProjectMapper.deleteByExample(example);
+
+
+            // 关联的项目下的用例idList
+            TestCaseExample testCaseExample = new TestCaseExample();
+            testCaseExample.createCriteria().andProjectIdIn(projectIds);
+            List<TestCase> caseList = testCaseMapper.selectByExample(testCaseExample);
+            List<String> caseIds = caseList.stream().map(TestCase::getId).collect(Collectors.toList());
+
+            TestCaseReviewTestCaseExample testCaseReviewTestCaseExample = new TestCaseReviewTestCaseExample();
+            TestCaseReviewTestCaseExample.Criteria criteria = testCaseReviewTestCaseExample.createCriteria().andReviewIdEqualTo(id);
+            if (!CollectionUtils.isEmpty(caseIds)) {
+                criteria.andCaseIdNotIn(caseIds);
+            }
+            testCaseReviewTestCaseMapper.deleteByExample(testCaseReviewTestCaseExample);
+        }
     }
 
     private void checkCaseReviewExist(TestCaseReview testCaseReview) {
@@ -153,6 +226,7 @@ public class TestCaseReviewService {
     public void deleteCaseReview(String reviewId) {
         deleteCaseReviewProject(reviewId);
         deleteCaseReviewUsers(reviewId);
+        deleteCaseReviewTestCase(reviewId);
         testCaseReviewMapper.deleteByPrimaryKey(reviewId);
     }
 
@@ -166,6 +240,12 @@ public class TestCaseReviewService {
         TestCaseReviewUsersExample testCaseReviewUsersExample = new TestCaseReviewUsersExample();
         testCaseReviewUsersExample.createCriteria().andReviewIdEqualTo(reviewId);
         testCaseReviewUsersMapper.deleteByExample(testCaseReviewUsersExample);
+    }
+
+    private void deleteCaseReviewTestCase(String reviewId) {
+        TestCaseReviewTestCaseExample testCaseReviewTestCaseExample = new TestCaseReviewTestCaseExample();
+        testCaseReviewTestCaseExample.createCriteria().andReviewIdEqualTo(reviewId);
+        testCaseReviewTestCaseMapper.deleteByExample(testCaseReviewTestCaseExample);
     }
 
     public List<TestCaseReview> listCaseReviewAll(String currentWorkspaceId) {
@@ -311,7 +391,7 @@ public class TestCaseReviewService {
         }
         return name;
     }
-    
+
     public List<TestReviewCaseDTO> listTestCaseByProjectIds(List<String> projectIds) {
         QueryCaseReviewRequest request = new QueryCaseReviewRequest();
         request.setProjectIds(projectIds);

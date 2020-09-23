@@ -32,12 +32,12 @@
 
           <el-submenu v-permission="['test_manager','test_user','test_viewer']"
                       index="8" popper-class="submenu">
-            <template v-slot:title>用例评审</template>
+            <template v-slot:title>{{$t('test_track.review.test_review')}}</template>
             <ms-recent-list ref="reviewRecent" :options="reviewRecent"/>
             <el-divider/>
             <ms-show-all :index="'/track/review/all'"/>
             <el-menu-item :index="testCaseReviewEditPath" class="blank_item"/>
-            <ms-create-button v-permission="['test_manager','test_user']" :index="'/track/review/create'" title="创建用例评审"/>
+            <ms-create-button v-permission="['test_manager','test_user']" :index="'/track/review/create'" :title="$t('test_track.review.create_review')"/>
           </el-submenu>
 
           <el-submenu v-permission="['test_manager','test_user','test_viewer']" index="7" popper-class="submenu">
@@ -94,7 +94,7 @@ export default {
         }
       },
       reviewRecent: {
-        title: "最近的评审",
+        title: this.$t('test_track.recent_review'),
         url: "/test/case/review/recent/5",
         index: function (item) {
           return '/track/review/view/' + item.id;

@@ -187,6 +187,7 @@
         this.form.cronValue = this.schedule.value;
         listenGoBack(this.close);
         this.handleClick()
+        this.activeName = 'first'
       },
       crontabFill(value, resultList) {
         //确定后回传的值
