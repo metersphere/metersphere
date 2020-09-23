@@ -47,11 +47,14 @@
 <script>
   import {checkoutCurrentOrganization, checkoutCurrentWorkspace} from "@/common/js/utils";
   import Setting from "@/business/components/settings/router";
+  import {LicenseKey} from '@/common/js/constants';
+
+  const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+  const component = requireComponent.keys().length > 0 ? requireComponent("./license/LicenseMessage.vue") : null;
 
   export default {
     name: "MsSettingMenu",
     data() {
-      let valid = false;
       let getMenus = function (group) {
         let menus = [];
         Setting.children.forEach(child => {
@@ -59,10 +62,7 @@
             let menu = {index: Setting.path + "/" + child.path}
             menu.title = child.meta.title;
             menu.roles = child.meta.roles;
-            if (child.meta.valid != undefined && child.meta.valid === true) {
-              menu.valid = child.meta.valid;
-              valid = true;
-            }
+            menu.valid = child.meta.valid;
             menus.push(menu);
           }
         })
@@ -77,7 +77,24 @@
         isCurrentWorkspaceUser: false,
       }
     },
+    methods: {
+      valid() {
+        Promise.all([component.default.valid(this)]).then(() => {
+          let license = localStorage.getItem(LicenseKey);
+          if (license != "valid") {
+            this.systems.forEach(item => {
+              if (item.valid === true) {
+                this.systems.splice(this.systems.indexOf(item), 1);
+              }
+            })
+          }
+        })
+      }
+    },
     mounted() {
+      if (component != null) {
+        this.valid();
+      }
       this.isCurrentOrganizationAdmin = checkoutCurrentOrganization();
       this.isCurrentWorkspaceUser = checkoutCurrentWorkspace();
     },
