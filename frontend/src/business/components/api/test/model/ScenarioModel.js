@@ -246,7 +246,7 @@ export class Scenario extends BaseConfig {
   isValid() {
     if (this.enable) {
       for (let i = 0; i < this.requests.length; i++) {
-        let validator = this.requests[i].isValid(this.environmentId);
+        let validator = this.requests[i].isValid(this.environmentId, this.environment);
         if (!validator.isValid) {
           return validator;
         }
@@ -357,13 +357,19 @@ export class HttpRequest extends Request {
     return options;
   }
 
-  isValid(environmentId) {
+  isValid(environmentId, environment) {
     if (this.enable) {
       if (this.useEnvironment) {
         if (!environmentId) {
           return {
             isValid: false,
             info: 'api_test.request.please_configure_environment_in_scenario'
+          }
+        }
+        if (!environment.config.httpConfig.socket) {
+          return {
+            isValid: false,
+            info: 'api_test.request.please_configure_socket_in_environment'
           }
         }
       } else {
