@@ -33,12 +33,13 @@
                                    :description="$t('api_test.scenario.kv_description')"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.scenario.headers')" name="headers">
-        <ms-api-key-value :is-read-only="isReadOnly" :isShowEnable="true" :items="scenario.headers" :suggestions="headerSuggestions"
+        <ms-api-key-value :is-read-only="isReadOnly" :isShowEnable="true" :items="scenario.headers"
+                          :suggestions="headerSuggestions"
                           :environment="scenario.environment"
                           :description="$t('api_test.scenario.kv_description')"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.environment.database_config')" name="database">
-        <ms-database-config :configs="scenario.databaseConfigs"/>
+        <ms-database-config :configs="scenario.databaseConfigs" :is-read-only="isReadOnly"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.scenario.dubbo')" name="dubbo">
         <div class="dubbo-config-title">Config Center</div>

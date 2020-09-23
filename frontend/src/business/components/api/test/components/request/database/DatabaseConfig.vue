@@ -1,6 +1,6 @@
 <template>
   <div>
-    <ms-database-from :config="currentConfig" :callback="saveConfig" ref="databaseFrom"/>
+    <ms-database-from :config="currentConfig" :callback="saveConfig" ref="databaseFrom" :is-read-only="isReadOnly"/>
     <ms-database-config-list @rowSelect="rowSelect" v-if="configs.length > 0" :table-data="configs"/>
   </div>
 </template>
@@ -9,7 +9,7 @@
     import MsDatabaseConfigList from "./DatabaseConfigList";
     import {DatabaseConfig} from "../../../model/ScenarioModel";
     import MsDatabaseFrom from "./DatabaseFrom";
-    import {getUUID} from "../../../../../../../common/js/utils";
+    import {getUUID} from "@/common/js/utils";
 
     export default {
       name: "MsDatabaseConfig",
@@ -30,7 +30,7 @@
       methods: {
         saveConfig(config) {
           for (let item of this.configs) {
-            if (item.name === config.name && item.id != config.id) {
+            if (item.name === config.name && item.id !== config.id) {
               this.$warning(this.$t('commons.already_exists'));
               return;
             }
