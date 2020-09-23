@@ -36,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -590,13 +591,5 @@ public class UserService {
 
     public List<User> searchUser(String condition) {
         return extUserMapper.searchUser(condition);
-    }
-
-    public LicenseDTO validateLicense() {
-        LicenseService licenseService = CommonBeanFactory.getBean(LicenseService.class);
-        if (licenseService != null) {
-            return licenseService.valid();
-        }
-        return null;
     }
 }
