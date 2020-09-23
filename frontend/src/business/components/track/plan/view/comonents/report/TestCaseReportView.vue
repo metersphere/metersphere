@@ -226,23 +226,6 @@
         this.reportExportVisible = false;
         this.result.loading = false;
       },
-      // handleExport(name) {
-      //
-      //   let result = this.result;
-      //   result.loading = true;
-      //
-      //   let promises = [];
-      //   let canvasList = new Array(this.previews.length);
-      //
-      //   for (let item of this.$refs.templateComponent) {
-      //     promises.push(item.getCanvas(canvasList));
-      //   }
-      //
-      //   Promise.all(promises).then(function (info) {
-      //     exportPdf(name, canvasList);
-      //     result.loading = false;
-      //   });
-      // },
     }
   }
 </script>
@@ -284,10 +267,6 @@
 
   .report-export >>> .template-component {
     width: 100%;
-    margin-top: 20px;
-  }
-
-  .report-export .el-card {
     margin-top: 20px;
   }
 
