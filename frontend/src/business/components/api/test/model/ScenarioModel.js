@@ -1055,7 +1055,7 @@ class JMXGenerator {
 
         this.addScenarioCookieManager(threadGroup, scenario);
         // 放在计划或线程组中，不建议放具体某个请求中
-        this.addDNSCacheManager(threadGroup, scenario.requests[0]);
+        this.addDNSCacheManager(threadGroup, scenario);
 
         this.addJDBCDataSources(threadGroup, scenario);
 
@@ -1137,7 +1137,11 @@ class JMXGenerator {
     }
   }
 
-  addDNSCacheManager(threadGroup, request) {
+  addDNSCacheManager(threadGroup, scenario) {
+    if (scenario.requests.length < 1) {
+      return
+    }
+    let request = scenario.requests[0];
     if (request.environment) {
       let commonConfig = request.environment.config.commonConfig;
       let hosts = commonConfig.hosts;
