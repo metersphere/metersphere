@@ -29,9 +29,10 @@ export default {
   mounted() {
     this.defaultInitOptions = this.defaultInitOptions || {};
     // 默认渲染svg
-    if (!this.defaultInitOptions.renderer) {
-      this.defaultInitOptions.renderer = 'svg';
-    }
+    // BUG: 渲染svg之后 图上的legend 太多会不显示
+    // if (!this.defaultInitOptions.renderer) {
+    // this.defaultInitOptions.renderer = 'svg';
+    // }
   }
 }
 </script>
