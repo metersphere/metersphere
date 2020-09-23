@@ -32,7 +32,7 @@
   import {saveLocalStorage} from "../common/js/utils";
 
   const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
-  const header = requireComponent("./license/LicenseMessage.vue");
+  const header = requireComponent.keys().length > 0 ? requireComponent("./license/LicenseMessage.vue") : {};
 
   export default {
     name: 'app',
