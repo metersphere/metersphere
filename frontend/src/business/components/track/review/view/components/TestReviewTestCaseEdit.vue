@@ -20,7 +20,7 @@
 
                   <el-row type="flex" class="head-bar">
 
-                    <el-col :span="12">
+                    <el-col :span="8">
                       <el-button plain size="mini"
                                  icon="el-icon-back"
                                  @click="cancel">{{ $t('test_track.return') }}
@@ -166,7 +166,7 @@
                               type="textarea"
                               :autosize="{ minRows: 2, maxRows: 4}"
                               :rows="2"
-                              :disabled="isReadOnly"
+                              :disabled="true"
                               v-model="scope.row.actualResult"
                               :placeholder="$t('commons.input_content')"
                               clearable/>
@@ -175,7 +175,7 @@
                         <el-table-column :label="$t('test_track.plan_view.step_result')" min-width="12%">
                           <template v-slot:default="scope">
                             <el-select
-                              :disabled="isReadOnly"
+                              :disabled="true"
                               v-model="scope.row.executeResult"
                               @change="stepResultChange()"
                               size="mini">

@@ -66,5 +66,4 @@ public class LoginController {
     public String getDefaultLanguage() {
         return userService.getDefaultLanguage();
     }
-
 }
