@@ -873,14 +873,17 @@ export class IfController extends Controller {
   }
 
   isValid() {
+    if (!!this.operator && this.operator.indexOf("null") > 0) {
+      return !!this.variable && !!this.operator;
+    }
     return !!this.variable && !!this.operator && !!this.value;
   }
 
   label() {
     if (this.isValid()) {
       let label = this.variable;
-      label += " " + this.operator;
-      label += " " + this.value;
+      if (this.operator) label += " " + this.operator;
+      if (this.value) label += " " + this.value;
       return label;
     }
     return "";
@@ -1232,6 +1235,18 @@ class JMXGenerator {
         let value = request.controller.value;
         if (operator === "=~" || operator === "!~") {
           value = "\".*" + value + ".*\"";
+        }
+
+        if (operator === "is null") {
+          variable = "empty(\"" + variable + "\")";
+          operator = "";
+          value = "";
+        }
+
+        if (operator === "is not null") {
+          variable = "!empty(\"" + variable + "\")";
+          operator = "";
+          value = "";
         }
 
         let condition = "${__jexl3(" + variable + operator + value + ")}";
