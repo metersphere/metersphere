@@ -6,12 +6,13 @@
         <el-input size="small" v-model="controller.variable" :placeholder="$t('api_test.request.condition_variable')"/>
       </el-col>
       <el-col :span="5">
-        <el-select v-model="controller.operator" :placeholder="$t('commons.please_select')" size="small">
+        <el-select v-model="controller.operator" :placeholder="$t('commons.please_select')" size="small"
+                   @change="change">
           <el-option v-for="o in operators" :key="o.value" :label="$t(o.label)" :value="o.value"/>
         </el-select>
       </el-col>
       <el-col :span="6">
-        <el-input size="small" v-model="controller.value" :placeholder="$t('api_test.value')"/>
+        <el-input size="small" v-model="controller.value" :placeholder="$t('api_test.value')" v-if="!hasNullOperator"/>
       </el-col>
       <el-col :span="4">
         <el-switch v-model="controller.enable" :inactive-text="$t('api_test.scenario.enable_disable')"/>
@@ -58,6 +59,14 @@ export default {
         LT: {
           label: "commons.adv_search.operators.lt",
           value: "<"
+        },
+        IS_NULL: {
+          label: "commons.adv_search.operators.is_null",
+          value: "is null"
+        },
+        IS_NOT_NULL: {
+          label: "commons.adv_search.operators.is_not_null",
+          value: "is not null"
         }
       }
     }
@@ -78,6 +87,16 @@ export default {
     remove() {
       this.controller = new IfController();
       this.visible = false;
+    },
+    change(value) {
+      if (value.indexOf("null") > 0) {
+        this.controller.value = "";
+      }
+    }
+  },
+  computed: {
+    hasNullOperator() {
+      return !!this.controller.operator && this.controller.operator.indexOf("null") > 0;
     }
   }
 }
