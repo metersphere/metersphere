@@ -306,8 +306,8 @@ export class Request extends BaseConfig {
     super();
     this.type = type;
     options.id = options.id || uuid();
-    options.timer = new ConstantTimer(options.timer);
-    options.controller = new IfController(options.controller);
+    this.timer = options.timer = new ConstantTimer(options.timer);
+    this.controller = options.controller = new IfController(options.controller);
   }
 
   showType() {
@@ -478,7 +478,7 @@ export class DubboRequest extends Request {
 export class SqlRequest extends Request {
 
   constructor(options = {}) {
-    super(RequestFactory.TYPES.SQL);
+    super(RequestFactory.TYPES.SQL, options);
     this.id = options.id || uuid();
     this.name = options.name;
     this.useEnvironment = options.useEnvironment;
@@ -496,7 +496,6 @@ export class SqlRequest extends Request {
     this.jsr223PostProcessor = new JSR223Processor(options.jsr223PostProcessor);
 
     this.sets({args: KeyValue, attachmentArgs: KeyValue}, options);
-
   }
 
   isValid() {
