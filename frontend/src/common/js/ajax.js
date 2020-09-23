@@ -136,7 +136,6 @@ export default {
         .then(response => {
           let fileName = window.decodeURI(response.headers['content-disposition'].split('=')[1]);
           let link = document.createElement("a");
-          console.log(response.data);
           link.href = window.URL.createObjectURL(new Blob([response.data]));
           link.download = fileName;
           link.click();
