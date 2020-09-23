@@ -466,6 +466,7 @@ export default {
       path: "请求路径",
       address: "请求地址",
       refer_to_environment: "引用环境",
+      please_configure_socket_in_environment: "请在环境中配置环境域名",
       please_configure_environment_in_scenario: "请在场景中配置环境",
       please_add_environment_to_scenario: "请先在场景中添加环境配置",
       url_description: "例如：https://fit2cloud.com",
