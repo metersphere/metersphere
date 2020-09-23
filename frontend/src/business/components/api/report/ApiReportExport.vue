@@ -1,30 +1,35 @@
 <template>
   <el-card>
-    <div class="report-title title">接口测试报告</div>
+    <ms-report-title :title="$t('report.api_test_report')"/>
     <ms-metric-chart :content="content" :totalTime="totalTime"/>
     <div class="scenario-result" v-for="(scenario, index) in content.scenarios" :key="index" :scenario="scenario">
         <div>
-          <el-card >
+          <el-card>
             <template v-slot:header>
               {{$t('api_report.scenario_name')}}：{{scenario.name}}
             </template>
-            <div class="ms-border" v-for="(request, index) in scenario.requestResults" :key="index" :request="request">
+            <div class="ms-border clearfix" v-for="(request, index) in scenario.requestResults" :key="index" :request="request">
 
-              <div class="request-left">
-                <api-report-reqest-header-item :title="request.name">
-                  <span class="url"> {{request.url}}</span>
-                </api-report-reqest-header-item>
+              <div class="request-top">
+                <div>
+                  {{request.name}}
+                </div>
+                <div class="url">
+                  {{request.url}}
+                </div>
               </div>
 
+              <el-divider/>
 
-              <div class="request-right">
+
+              <div class="request-bottom">
 
                 <api-report-reqest-header-item :title="$t('api_test.request.method')">
                   <span class="method"> {{request.method}}</span>
                 </api-report-reqest-header-item>
 
                 <api-report-reqest-header-item :title="$t('api_report.response_time')">
-                  {{request.responseResult.responseTime}}
+                  {{request.responseResult.responseTime}} ms
                 </api-report-reqest-header-item>
 
                 <api-report-reqest-header-item :title="$t('api_report.latency')">
@@ -36,11 +41,11 @@
                 </api-report-reqest-header-item>
 
                 <api-report-reqest-header-item :title="$t('api_report.response_size')">
-                  {{request.responseResult.latency}} ms
+                  {{request.responseResult.responseSize}} bytes
                 </api-report-reqest-header-item>
 
                 <api-report-reqest-header-item :title="$t('api_report.error')">
-                  {{request.responseResult.responseSize}} bytes
+                  {{request.error}}
                 </api-report-reqest-header-item>
 
                 <api-report-reqest-header-item :title="$t('api_report.assertions')">
@@ -72,9 +77,10 @@
     import MsRequestResultTail from "./components/RequestResultTail";
     import ApiReportReqestHeaderItem from "./ApiReportReqestHeaderItem";
     import MsMetricChart from "./components/MetricChart";
+    import MsReportTitle from "../../common/components/MsReportTitle";
     export default {
       name: "MsApiReportExport",
-      components: {MsMetricChart, ApiReportReqestHeaderItem, MsRequestResultTail, MsScenarioResult},
+      components: {MsReportTitle, MsMetricChart, ApiReportReqestHeaderItem, MsRequestResultTail, MsScenarioResult},
       props: {
         content: Object,
         totalTime: Number
@@ -99,25 +105,8 @@
     font-weight: 500;
   }
 
-  .request-right {
-    float: right;
-  }
-
-  .request-left {
-    float: left;
+  .request-top,.request-bottom {
     margin-left: 20px;
-  }
-
-  .ms-border {
-    height: 60px;
-  }
-
-  .report-title {
-    font-size: 30px;
-    font-weight: bold;
-    height: 50px;
-    text-align: center;
-    margin-bottom: 20px;
   }
 
   .url {
@@ -131,6 +120,10 @@
     padding: 10px;
     padding: 30px;
     border-style: none;
+  }
+
+  .request-top div {
+    margin-top: 10px;
   }
 
 </style>
