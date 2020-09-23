@@ -10,7 +10,6 @@ import io.metersphere.commons.constants.UserStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.CodingUtil;
-import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.LoginRequest;
@@ -20,7 +19,6 @@ import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.controller.request.member.UserRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
-import io.metersphere.dto.LicenseDTO;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserRoleDTO;
 import io.metersphere.i18n.Translator;
@@ -36,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -590,13 +589,5 @@ public class UserService {
 
     public List<User> searchUser(String condition) {
         return extUserMapper.searchUser(condition);
-    }
-
-    public LicenseDTO validateLicense() {
-        LicenseService licenseService = CommonBeanFactory.getBean(LicenseService.class);
-        if (licenseService != null) {
-            return licenseService.valid();
-        }
-        return null;
     }
 }

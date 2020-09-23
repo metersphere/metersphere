@@ -88,18 +88,24 @@
               {max: 300, message: this.$t('commons.input_limit', [0, 300]), trigger: 'blur'}
             ],
             driver: [
-              {required: true, message: this.$t('commons.input_name'), trigger: 'blur'},
+              {required: true, message: this.$t('commons.cannot_be_null'), trigger: 'blur'},
             ],
             password: [
               {max: 200, message: this.$t('commons.input_limit', [0, 200]), trigger: 'blur'}
             ],
             dbUrl: [
-              {required: true, message: this.$t('commons.input_name'), trigger: 'blur'},
+              {required: true, message: this.$t('commons.cannot_be_null'), trigger: 'blur'},
               {max: 500, message: this.$t('commons.input_limit', [0, 500]), trigger: 'blur'}
             ],
             username: [
-              {required: true, message: this.$t('commons.input_name'), trigger: 'blur'},
+              {required: true, message: this.$t('commons.cannot_be_null'), trigger: 'blur'},
               {max: 200, message: this.$t('commons.input_limit', [0, 200]), trigger: 'blur'}
+            ],
+            poolMax: [
+              {required: true, message: this.$t('commons.cannot_be_null'), trigger: 'blur'},
+            ],
+            timeout: [
+              {required: true, message: this.$t('commons.cannot_be_null'), trigger: 'blur'},
             ]
           }
         }

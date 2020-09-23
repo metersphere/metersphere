@@ -94,7 +94,7 @@ export function saveLocalStorage(response) {
 
 export function saveLicense(data) {
   // 保存License
-  localStorage.setItem(LicenseKey, JSON.stringify(data));
+  localStorage.setItem(LicenseKey, data);
 }
 
 
@@ -255,7 +255,7 @@ export function exportPdf(name, canvasList) {
     }
   }
 
-  pdf.save(name);
+  pdf.save(name + '.pdf');
 
 }
 
