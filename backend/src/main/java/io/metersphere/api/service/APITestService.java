@@ -20,7 +20,6 @@ import io.metersphere.commons.constants.ScheduleType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.QueryScheduleRequest;
-import io.metersphere.dto.LicenseDTO;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiTestJob;
