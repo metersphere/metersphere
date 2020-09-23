@@ -872,7 +872,7 @@ export class IfController extends Controller {
   }
 
   isValid() {
-    if (!!this.operator && this.operator.indexOf("null") > 0) {
+    if (!!this.operator && this.operator.indexOf("empty") > 0) {
       return !!this.variable && !!this.operator;
     }
     return !!this.variable && !!this.operator && !!this.value;
@@ -1240,13 +1240,13 @@ class JMXGenerator {
           value = "\".*" + value + ".*\"";
         }
 
-        if (operator === "is null") {
+        if (operator === "is empty") {
           variable = "empty(\"" + variable + "\")";
           operator = "";
           value = "";
         }
 
-        if (operator === "is not null") {
+        if (operator === "is not empty") {
           variable = "!empty(\"" + variable + "\")";
           operator = "";
           value = "";

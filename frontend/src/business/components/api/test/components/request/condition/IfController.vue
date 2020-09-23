@@ -12,7 +12,7 @@
         </el-select>
       </el-col>
       <el-col :span="6">
-        <el-input size="small" v-model="controller.value" :placeholder="$t('api_test.value')" v-if="!hasNullOperator"/>
+        <el-input size="small" v-model="controller.value" :placeholder="$t('api_test.value')" v-if="!hasEmptyOperator"/>
       </el-col>
       <el-col :span="4">
         <el-switch v-model="controller.enable" :inactive-text="$t('api_test.scenario.enable_disable')"/>
@@ -60,13 +60,13 @@ export default {
           label: "commons.adv_search.operators.lt",
           value: "<"
         },
-        IS_NULL: {
-          label: "commons.adv_search.operators.is_null",
-          value: "is null"
+        IS_EMPTY: {
+          label: "commons.adv_search.operators.is_empty",
+          value: "is empty"
         },
-        IS_NOT_NULL: {
-          label: "commons.adv_search.operators.is_not_null",
-          value: "is not null"
+        IS_NOT_EMPTY: {
+          label: "commons.adv_search.operators.is_not_empty",
+          value: "is not empty"
         }
       }
     }
@@ -89,14 +89,14 @@ export default {
       this.visible = false;
     },
     change(value) {
-      if (value.indexOf("null") > 0 && !!this.controller.value) {
+      if (value.indexOf("empty") > 0 && !!this.controller.value) {
         this.controller.value = "";
       }
     }
   },
   computed: {
-    hasNullOperator() {
-      return !!this.controller.operator && this.controller.operator.indexOf("null") > 0;
+    hasEmptyOperator() {
+      return !!this.controller.operator && this.controller.operator.indexOf("empty") > 0;
     }
   }
 }
