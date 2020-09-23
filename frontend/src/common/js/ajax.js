@@ -136,7 +136,8 @@ export default {
         .then(response => {
           let fileName = window.decodeURI(response.headers['content-disposition'].split('=')[1]);
           let link = document.createElement("a");
-          link.href = window.URL.createObjectURL(new Blob([response.data], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"}));
+          console.log(response.data);
+          link.href = window.URL.createObjectURL(new Blob([response.data]));
           link.download = fileName;
           link.click();
         });
