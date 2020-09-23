@@ -143,12 +143,14 @@
       normalLogin() {
         this.result = this.$post("signin", this.form, response => {
           saveLocalStorage(response);
+          sessionStorage.setItem('loginSuccess', 'true');
           this.getLanguage(response.data.language);
         });
       },
       ldapLogin() {
         this.result = this.$post("ldap/signin", this.form, response => {
           saveLocalStorage(response);
+          sessionStorage.setItem('loginSuccess', 'true');
           this.getLanguage(response.data.language);
         });
       },

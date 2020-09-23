@@ -3,9 +3,11 @@ package io.metersphere.api.dto.scenario.request;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.scenario.assertions.Assertions;
+import io.metersphere.api.dto.scenario.controller.IfController;
 import io.metersphere.api.dto.scenario.extract.Extract;
 import io.metersphere.api.dto.scenario.processor.JSR223PostProcessor;
 import io.metersphere.api.dto.scenario.processor.JSR223PreProcessor;
+import io.metersphere.api.dto.scenario.timer.ConstantTimer;
 import lombok.Data;
 
 @Data
@@ -41,4 +43,8 @@ public class SqlRequest implements Request {
     private String resultVariable;
     @JSONField(ordinal = 14)
     private String variableNames;
+    @JSONField(ordinal = 15)
+    private IfController controller;
+    @JSONField(ordinal = 16)
+    private ConstantTimer timer;
 }

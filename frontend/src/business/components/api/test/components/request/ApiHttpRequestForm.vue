@@ -29,7 +29,7 @@
         <span class="environment-name">{{ request.environment ? request.environment.name + ': ' : '' }}</span>
         <span class="environment-url">{{ displayUrl }}</span>
         <span v-if="!displayUrl"
-              class="environment-url-tip">{{ $t('api_test.request.please_configure_environment_in_scenario') }}</span>
+              class="environment-url-tip">{{ $t('api_test.request.please_configure_socket_in_environment') }}</span>
       </el-tag>
     </el-form-item>
 

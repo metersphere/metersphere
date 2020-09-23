@@ -246,7 +246,7 @@ export class Scenario extends BaseConfig {
   isValid() {
     if (this.enable) {
       for (let i = 0; i < this.requests.length; i++) {
-        let validator = this.requests[i].isValid(this.environmentId);
+        let validator = this.requests[i].isValid(this.environmentId, this.environment);
         if (!validator.isValid) {
           return validator;
         }
@@ -306,8 +306,8 @@ export class Request extends BaseConfig {
     super();
     this.type = type;
     options.id = options.id || uuid();
-    options.timer = new ConstantTimer(options.timer);
-    options.controller = new IfController(options.controller);
+    this.timer = options.timer = new ConstantTimer(options.timer);
+    this.controller = options.controller = new IfController(options.controller);
   }
 
   showType() {
@@ -357,13 +357,19 @@ export class HttpRequest extends Request {
     return options;
   }
 
-  isValid(environmentId) {
+  isValid(environmentId, environment) {
     if (this.enable) {
       if (this.useEnvironment) {
         if (!environmentId) {
           return {
             isValid: false,
             info: 'api_test.request.please_configure_environment_in_scenario'
+          }
+        }
+        if (!environment.config.httpConfig.socket) {
+          return {
+            isValid: false,
+            info: 'api_test.request.please_configure_socket_in_environment'
           }
         }
       } else {
@@ -478,7 +484,7 @@ export class DubboRequest extends Request {
 export class SqlRequest extends Request {
 
   constructor(options = {}) {
-    super(RequestFactory.TYPES.SQL);
+    super(RequestFactory.TYPES.SQL, options);
     this.id = options.id || uuid();
     this.name = options.name;
     this.useEnvironment = options.useEnvironment;
@@ -496,7 +502,6 @@ export class SqlRequest extends Request {
     this.jsr223PostProcessor = new JSR223Processor(options.jsr223PostProcessor);
 
     this.sets({args: KeyValue, attachmentArgs: KeyValue}, options);
-
   }
 
   isValid() {
@@ -873,14 +878,17 @@ export class IfController extends Controller {
   }
 
   isValid() {
+    if (!!this.operator && this.operator.indexOf("empty") > 0) {
+      return !!this.variable && !!this.operator;
+    }
     return !!this.variable && !!this.operator && !!this.value;
   }
 
   label() {
     if (this.isValid()) {
       let label = this.variable;
-      label += " " + this.operator;
-      label += " " + this.value;
+      if (this.operator) label += " " + this.operator;
+      if (this.value) label += " " + this.value;
       return label;
     }
     return "";
@@ -1053,7 +1061,7 @@ class JMXGenerator {
 
         this.addScenarioCookieManager(threadGroup, scenario);
         // 放在计划或线程组中，不建议放具体某个请求中
-        this.addDNSCacheManager(threadGroup, scenario.requests[0]);
+        this.addDNSCacheManager(threadGroup, scenario);
 
         this.addJDBCDataSources(threadGroup, scenario);
 
@@ -1135,7 +1143,11 @@ class JMXGenerator {
     }
   }
 
-  addDNSCacheManager(threadGroup, request) {
+  addDNSCacheManager(threadGroup, scenario) {
+    if (scenario.requests.length < 1) {
+      return
+    }
+    let request = scenario.requests[0];
     if (request.environment) {
       let commonConfig = request.environment.config.commonConfig;
       let hosts = commonConfig.hosts;
@@ -1232,6 +1244,18 @@ class JMXGenerator {
         let value = request.controller.value;
         if (operator === "=~" || operator === "!~") {
           value = "\".*" + value + ".*\"";
+        }
+
+        if (operator === "is empty") {
+          variable = "empty(\"" + variable + "\")";
+          operator = "";
+          value = "";
+        }
+
+        if (operator === "is not empty") {
+          variable = "!empty(\"" + variable + "\")";
+          operator = "";
+          value = "";
         }
 
         let condition = "${__jexl3(" + variable + operator + value + ")}";

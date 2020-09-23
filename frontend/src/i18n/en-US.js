@@ -142,6 +142,8 @@ export default {
       and: 'All',
       or: 'any one',
       operators: {
+        is_empty: "Is empty",
+        is_not_empty: "Is not empty",
         like: "Contains",
         not_like: "Not included",
         in: "Belong to",
@@ -464,6 +466,7 @@ export default {
       path: "Path",
       address: "Address",
       refer_to_environment: "Use Environment",
+      please_configure_socket_in_environment: "Please Configure Path In The Environment",
       please_configure_environment_in_scenario: "Please Configure Environment In The Scenario",
       please_add_environment_to_scenario: "Please Add The Environment Configuration To The Scenario First",
       url_description: "etc: https://fit2cloud.com",
