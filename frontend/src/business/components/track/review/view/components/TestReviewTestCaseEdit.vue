@@ -29,17 +29,6 @@
 
                     <el-col :span="12" class="head-right">
 
-                <span class="head-right-tip" v-if="index + 1 === testCases.length">
-                  {{ $t('test_track.plan_view.pre_case') }} : {{
-                    testCases[index - 1] ? testCases[index - 1].name : ''
-                  }}
-                </span>
-                      <span class="head-right-tip" v-if="index + 1 !== testCases.length">
-                  {{ $t('test_track.plan_view.next_case') }} : {{
-                          testCases[index + 1] ? testCases[index + 1].name : ''
-                        }}
-                </span>
-
                       <el-button plain size="mini" icon="el-icon-arrow-up"
                                  :disabled="index + 1 <= 1"
                                  @click="handlePre()"/>
