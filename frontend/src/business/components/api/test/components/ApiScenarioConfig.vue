@@ -61,7 +61,7 @@
                              :request="selected" :scenario="currentScenario" v-if="isRequest"/>
       </div>
     </el-main>
-    <ms-api-scenario-select :exclude-id="testId" @select="selectScenario" ref="selectDialog"/>
+    <ms-api-scenario-select :exclude-id="test.id" @select="selectScenario" ref="selectDialog"/>
   </el-container>
 </template>
 
@@ -91,7 +91,7 @@ export default {
   },
 
   props: {
-    testId: String,
+    test: Object,
     scenarios: Array,
     projectId: String,
     isReadOnly: {
@@ -113,14 +113,10 @@ export default {
   },
 
   watch: {
-    projectId() {
-      this.initScenarioEnvironment();
-    },
-    testId() {
+    test() {
       this.initScenarioEnvironment();
     }
   },
-
   methods: {
     notContainsScenario(item) {
       for (let scenario of this.scenarios) {
@@ -251,7 +247,7 @@ export default {
 
   created() {
     this.select(this.scenarios[0]);
-  }
+  },
 }
 </script>
 

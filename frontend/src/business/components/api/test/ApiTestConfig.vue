@@ -57,7 +57,7 @@
             </el-row>
           </el-header>
           <ms-api-scenario-config :debug-report-id="debugReportId" @runDebug="runDebug" :is-read-only="isReadOnly"
-                                  :test-id="test.id" :scenarios="test.scenarioDefinition" :project-id="test.projectId"
+                                  :test="test" :scenarios="test.scenarioDefinition" :project-id="test.projectId"
                                   ref="config"/>
         </el-container>
       </el-card>

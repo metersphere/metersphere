@@ -63,7 +63,7 @@
 <script>
   import MsApiKeyValue from "../ApiKeyValue";
   import MsApiAssertions from "../assertion/ApiAssertions";
-  import {DubboRequest, Scenario, SqlRequest} from "../../model/ScenarioModel";
+  import {Scenario, SqlRequest} from "../../model/ScenarioModel";
   import MsApiExtract from "../extract/ApiExtract";
   import ApiRequestMethodSelect from "../collapse/ApiRequestMethodSelect";
   import MsDubboInterface from "@/business/components/api/test/components/request/dubbo/Interface";
@@ -138,9 +138,6 @@
     created() {
       this.getDatabaseConfigsOptions();
     },
-    activated() {
-      this.getDatabaseConfigsOptions();
-    }
   }
 </script>
 
