@@ -3,12 +3,14 @@ package io.metersphere.notice.service;
 import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.base.domain.Notice;
 import io.metersphere.base.domain.SystemParameter;
+import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.UserService;
+import io.metersphere.track.request.testreview.SaveCommentRequest;
 import io.metersphere.track.request.testreview.SaveTestCaseReviewRequest;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -138,12 +140,20 @@ public class MailService {
     }
 
 
-    public void sendHtml(List<String> userIds, String type, SaveTestCaseReviewRequest reviewRequest) {
+    public void sendHtml(List<String> userIds, String type, SaveTestCaseReviewRequest reviewRequest, SaveCommentRequest request, TestCaseWithBLOBs testCaseWithBLOBs) {
         Long startTime = reviewRequest.getCreateTime();
         Long endTime = reviewRequest.getEndTime();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String start = sdf.format(new Date(Long.parseLong(String.valueOf(startTime))));
-        String end = sdf.format(new Date(Long.parseLong(String.valueOf(endTime))));
+        String start = null;
+        String sTime = String.valueOf(startTime);
+        String eTime = String.valueOf(endTime);
+        if (!sTime.equals("null")) {
+            start = sdf.format(new Date(Long.parseLong(sTime)));
+        }
+        String end = null;
+        if (!eTime.equals("null")) {
+            end = sdf.format(new Date(Long.parseLong(eTime)));
+        }
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
         List<SystemParameter> paramList = systemParameterService.getParamList(ParamConstants.Classify.MAIL.getValue());
         javaMailSender.setDefaultEncoding("UTF-8");
@@ -182,8 +192,31 @@ public class MailService {
                 "    </div>\n" +
                 "</body>\n" +
                 "</html>";
-        String html2 = "";
-        String html3 = "";
+        String html2 = "<!DOCTYPE html>\n" +
+                "<html lang=\"en\">\n" +
+                "<head>\n" +
+                "  <meta charset=\"UTF-8\">\n" +
+                "  <title>MeterSphere</title>\n" +
+                "</head>\n" +
+                "<body style=\"text-align: left\">\n" +
+                "    <div>\n" +
+                "      <p>" + testCaseWithBLOBs.getMaintainer() + "发起的" + testCaseWithBLOBs.getName() + "添加评论：" + request.getDescription() + "</p>\n" +
+                "    </div>\n" +
+                "</body>\n" +
+                "</html>";
+        String html3 = "<!DOCTYPE html>\n" +
+                "<html lang=\"en\">\n" +
+                "<head>\n" +
+                "  <meta charset=\"UTF-8\">\n" +
+                "  <title>MeterSphere</title>\n" +
+                "</head>\n" +
+                "<body style=\"text-align: left\">\n" +
+                "    <div>\n" +
+                "      <p>" + reviewRequest.getCreator() + "发起的" + reviewRequest.getName() + "的计划开始时间是" + start + ",计划结束时间为" + end + "已完成" + "</p>\n" +
+                "    </div>\n" +
+                "</body>\n" +
+                "</html>";
+        ;
         try {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
             helper.setFrom(javaMailSender.getUsername());
@@ -198,6 +231,10 @@ public class MailService {
             users = emails.toArray(new String[emails.size()]);
             if (type.equals("reviewer")) {
                 helper.setText(html1, true);
+            } else if (type.equals("comment")) {
+                helper.setText(html2, true);
+            } else if (type.equals("end")) {
+                helper.setText(html3, true);
             }
             helper.setTo(users);
 

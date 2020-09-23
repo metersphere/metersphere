@@ -33,8 +33,11 @@
 
         <div class="container" ref="resume" id="app">
           <el-main>
-            <div v-for="(item, index) in previews" :key="item.id" id="reportViewpp">
-              <template-component :isReportView="true" :metric="metric" :preview="item" :index="index" ref="templateComponent"/>
+            <div id="reportViewpp" :class="{'report-export' : reportExportVisible}">
+              <ms-report-title v-if="reportExportVisible" :title="$t('report.test_plan_report')"/>
+              <div v-for="(item, index) in previews" :key="item.id">
+                <template-component :isReportView="true" :metric="metric" :preview="item" :index="index" ref="templateComponent"/>
+              </div>
             </div>
           </el-main>
         </div>
@@ -52,10 +55,13 @@
   import RichTextComponent from "./TemplateComponent/RichTextComponent";
   import TestCaseReportTemplateEdit from "./TestCaseReportTemplateEdit";
   import TemplateComponent from "./TemplateComponent/TemplateComponent";
+  import html2canvas from "html2canvas";
+  import MsReportTitle from "../../../../../common/components/MsReportTitle";
 
   export default {
     name: "TestCaseReportView",
     components: {
+      MsReportTitle,
       TemplateComponent,
       TestCaseReportTemplateEdit,
       RichTextComponent, TestResultComponent, TestResultChartComponent, BaseInfoComponent
@@ -70,6 +76,7 @@
         reportId: '',
         metric: {},
         planId: '',
+        reportExportVisible: false,
         componentMap: new Map(
           [
             [1, {name: this.$t('test_track.plan_view.base_info'), id: 1, type: 'system'}],
@@ -198,24 +205,44 @@
           }
         });
       },
-      /*导出报告*/
       handleExport(name) {
+        this.result.loading = true;
+        this.reportExportVisible = true;
+        let reset = this.exportReportReset;
 
-        let result = this.result;
-        result.loading = true;
-
-        let promises = [];
-        let canvasList = new Array(this.previews.length);
-
-        for (let item of this.$refs.templateComponent) {
-          promises.push(item.getCanvas(canvasList));
-        }
-
-        Promise.all(promises).then(function (info) {
-          exportPdf(name, canvasList);
-          result.loading = false;
+        this.$nextTick(function () {
+          setTimeout(() => {
+            html2canvas(document.getElementById('reportViewpp'), {
+              scale: 2
+            }).then(function(canvas) {
+              exportPdf(name, [canvas]);
+              reset();
+            });
+          }, 1000);
         });
+
       },
+      exportReportReset() {
+        this.reportExportVisible = false;
+        this.result.loading = false;
+      },
+      // handleExport(name) {
+      //
+      //   let result = this.result;
+      //   result.loading = true;
+      //
+      //   let promises = [];
+      //   let canvasList = new Array(this.previews.length);
+      //
+      //   for (let item of this.$refs.templateComponent) {
+      //     promises.push(item.getCanvas(canvasList));
+      //   }
+      //
+      //   Promise.all(promises).then(function (info) {
+      //     exportPdf(name, canvasList);
+      //     result.loading = false;
+      //   });
+      // },
     }
   }
 </script>
@@ -248,6 +275,20 @@
 
   .head-right {
     text-align: right;
+  }
+
+  .report-export {
+    padding: 20px 30px;
+    background: white;
+  }
+
+  .report-export >>> .template-component {
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  .report-export .el-card {
+    margin-top: 20px;
   }
 
 </style>

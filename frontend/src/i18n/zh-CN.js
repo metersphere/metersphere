@@ -292,6 +292,9 @@ export default {
     add: '添加角色',
   },
   report: {
+    api_test_report: '接口测试报告',
+    load_test_report: '性能测试报告',
+    test_plan_report: '测试计划报告',
     recent: '最近的报告',
     search_by_name: '根据名称搜索',
     test_name: '所属测试',
