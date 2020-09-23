@@ -89,7 +89,7 @@ export default {
       this.visible = false;
     },
     change(value) {
-      if (value.indexOf("null") > 0) {
+      if (value.indexOf("null") > 0 && !!this.controller.value) {
         this.controller.value = "";
       }
     }
