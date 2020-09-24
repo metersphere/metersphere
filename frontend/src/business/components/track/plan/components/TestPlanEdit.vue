@@ -73,21 +73,19 @@
         <el-row>
           <el-col :span="8" :offset="1">
             <el-form-item
-              :placeholder="$t('test_track.plan.planned_start_time')"
               :label="$t('test_track.plan.planned_start_time')"
               :label-width="formLabelWidth"
               prop="plannedStartTime">
-              <el-input v-model="form.planned_start_time" type="date" ></el-input>
+              <el-date-picker :placeholder="$t('test_track.plan.planned_start_time')" v-model="form.plannedStartTime" type="date" value-format="timestamp"></el-date-picker>
             </el-form-item>
           </el-col>
 
           <el-col :span="11" :offset="2">
             <el-form-item
-              :placeholder="$t('test_track.plan.planned_end_time')"
               :label="$t('test_track.plan.planned_end_time')"
               :label-width="formLabelWidth"
-              prop="planned_end_time">
-              <el-input v-model="form.planned_end_time" type="date" ></el-input>
+              prop="plannedEndTime">
+              <el-date-picker :placeholder="$t('test_track.plan.planned_end_time')" v-model="form.plannedEndTime" type="date" value-format="timestamp" ></el-date-picker>
             </el-form-item>
           </el-col>
         </el-row>
@@ -153,7 +151,9 @@ export default {
         projectIds: [],
         principal: '',
         stage: '',
-        description: ''
+        description: '',
+        plannedStartTime: '',
+        plannedEndTime: ''
       },
       dbProjectIds: [],
       rules: {
