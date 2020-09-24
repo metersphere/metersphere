@@ -15,7 +15,8 @@ import io.metersphere.track.request.testreview.SaveCommentRequest;
 import io.metersphere.track.request.testreview.SaveTestCaseReviewRequest;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.IOUtils;
-import org.flywaydb.core.internal.util.StringUtils;
+import org.apache.commons.lang3.RegExUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -96,11 +97,10 @@ public class MailService {
 
     private String getContent(String template, Map<String, String> context) {
         if (MapUtils.isNotEmpty(context)) {
-            context.forEach((k, v) -> {
-                if (v != null && !v.isEmpty()) {
-                    StringUtils.replaceAll(template, "${" + k + "}", v);
-                }
-            });
+            for (String k : context.keySet()) {
+                if (StringUtils.isNotBlank(context.get(k)))
+                    template = RegExUtils.replaceAll(template, "\\$\\{" + k + "}", context.get(k));
+            }
         }
         return template;
     }
