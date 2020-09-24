@@ -28,7 +28,6 @@
                 :placeholder="$t('test_track.plan.input_plan_project')"
                 multiple
                 style="width: 100%"
-                collapse-tags
                 filterable>
                 <el-option
                   v-for="item in projects"
