@@ -175,6 +175,13 @@ export default {
     invalid: 'invalid',
     expired: 'expired',
   },
+  system_config: {
+    base_config: 'Base Config',
+    base: {
+      url: 'Website URL',
+      url_tip: 'example：http://localhost:8081'
+    }
+  },
   workspace: {
     create: 'Create Workspace',
     update: 'Update Workspace',

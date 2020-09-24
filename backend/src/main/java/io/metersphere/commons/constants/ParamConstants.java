@@ -29,6 +29,7 @@ public interface ParamConstants {
 
     enum Classify implements ParamConstants {
         MAIL("smtp"),
+        BASE("base"),
         LDAP("ldap"),
         REGISTRY("registry");
 
@@ -111,6 +112,21 @@ public interface ParamConstants {
 
         public Integer getValue() {
             return this.value;
+        }
+    }
+
+    enum BASE implements ParamConstants {
+        URL("base.url");
+
+        private String value;
+
+        private BASE(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String getValue() {
+            return value;
         }
     }
 

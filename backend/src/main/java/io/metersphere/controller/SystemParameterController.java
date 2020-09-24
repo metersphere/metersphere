@@ -3,6 +3,7 @@ package io.metersphere.controller;
 import io.metersphere.base.domain.SystemParameter;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.ldap.domain.LdapInfo;
 import io.metersphere.service.SystemParameterService;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -39,6 +40,18 @@ public class SystemParameterController {
     @RequiresRoles(value = {RoleConstants.ADMIN})
     public Object mailInfo() {
         return SystemParameterService.mailInfo(ParamConstants.Classify.MAIL.getValue());
+    }
+
+    @GetMapping("/base/info")
+    @RequiresRoles(value = {RoleConstants.ADMIN})
+    public BaseSystemConfigDTO getBaseInfo () {
+        return SystemParameterService.getBaseInfo();
+    }
+
+    @PostMapping("/save/base")
+    @RequiresRoles(value = {RoleConstants.ADMIN})
+    public void saveBaseInfo (@RequestBody List<SystemParameter> systemParameter) {
+        SystemParameterService.saveBaseInfo(systemParameter);
     }
 
     @PostMapping("/save/ldap")

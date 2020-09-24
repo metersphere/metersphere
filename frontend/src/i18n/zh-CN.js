@@ -175,6 +175,13 @@ export default {
     invalid: '无效',
     expired: '已过期',
   },
+  system_config: {
+    base_config: '基本配置',
+    base: {
+      url: '当前站点URL',
+      url_tip: '例如：http://localhost:8081'
+    }
+  },
   workspace: {
     create: '创建工作空间',
     update: '修改工作空间',
