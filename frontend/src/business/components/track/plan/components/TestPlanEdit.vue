@@ -76,7 +76,7 @@
               :label="$t('test_track.plan.planned_start_time')"
               :label-width="formLabelWidth"
               prop="plannedStartTime">
-              <el-date-picker :placeholder="$t('test_track.plan.planned_start_time')" v-model="form.plannedStartTime" type="date" value-format="timestamp"></el-date-picker>
+              <el-date-picker :placeholder="$t('test_track.plan.planned_start_time')" v-model="form.plannedStartTime" type="datetime" value-format="timestamp"></el-date-picker>
             </el-form-item>
           </el-col>
 
@@ -85,7 +85,7 @@
               :label="$t('test_track.plan.planned_end_time')"
               :label-width="formLabelWidth"
               prop="plannedEndTime">
-              <el-date-picker :placeholder="$t('test_track.plan.planned_end_time')" v-model="form.plannedEndTime" type="date" value-format="timestamp" ></el-date-picker>
+              <el-date-picker :placeholder="$t('test_track.plan.planned_end_time')" v-model="form.plannedEndTime" type="datetime" value-format="timestamp" ></el-date-picker>
             </el-form-item>
           </el-col>
         </el-row>
