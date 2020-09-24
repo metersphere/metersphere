@@ -275,6 +275,13 @@ public class TestCaseReviewService {
     }
 
     public void testReviewRelevance(ReviewRelevanceRequest request) {
+        String reviewId = request.getReviewId();
+        List<String> userIds = getTestCaseReviewerIds(reviewId);
+        String currentId = SessionUtils.getUser().getId();
+        if (!userIds.contains(currentId)) {
+            MSException.throwException("非用例评审人员，不能关联用例！");
+        }
+
         List<String> testCaseIds = request.getTestCaseIds();
 
         if (testCaseIds.isEmpty()) {
@@ -306,6 +313,13 @@ public class TestCaseReviewService {
             testCaseReview.setStatus(TestCaseReviewStatus.Underway.name());
             testCaseReviewMapper.updateByPrimaryKey(testCaseReview);
         }
+    }
+    
+    public List<String> getTestCaseReviewerIds(String reviewId) {
+        TestCaseReviewUsersExample testCaseReviewUsersExample = new TestCaseReviewUsersExample();
+        testCaseReviewUsersExample.createCriteria().andReviewIdEqualTo(reviewId);
+        List<TestCaseReviewUsers> testCaseReviewUsers = testCaseReviewUsersMapper.selectByExample(testCaseReviewUsersExample);
+        return testCaseReviewUsers.stream().map(TestCaseReviewUsers::getUserId).collect(Collectors.toList());
     }
 
     public TestCaseReview getTestReview(String reviewId) {

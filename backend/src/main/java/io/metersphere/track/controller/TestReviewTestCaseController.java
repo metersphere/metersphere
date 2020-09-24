@@ -8,6 +8,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.track.dto.TestReviewCaseDTO;
 import io.metersphere.track.request.testplancase.TestReviewCaseBatchRequest;
+import io.metersphere.track.request.testreview.DeleteRelevanceRequest;
 import io.metersphere.track.request.testreview.QueryCaseReviewRequest;
 import io.metersphere.track.service.TestReviewTestCaseService;
 import org.apache.shiro.authz.annotation.Logical;
@@ -30,10 +31,10 @@ public class TestReviewTestCaseController {
         return PageUtils.setPageInfo(page, testReviewTestCaseService.list(request));
     }
 
-    @PostMapping("/delete/{id}")
+    @PostMapping("/delete")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public int deleteTestCase(@PathVariable String id) {
-        return testReviewTestCaseService.deleteTestCase(id);
+    public int deleteTestCase(@RequestBody DeleteRelevanceRequest request) {
+        return testReviewTestCaseService.deleteTestCase(request);
     }
 
     @PostMapping("/batch/delete")
