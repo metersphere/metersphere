@@ -96,7 +96,11 @@ public class MailService {
 
     private String getContent(String template, Map<String, String> context) {
         if (MapUtils.isNotEmpty(context)) {
-            context.forEach((k, v) -> StringUtils.replaceAll(template, "${" + k + "}", v));
+            context.forEach((k, v) -> {
+                if (v != null && !v.isEmpty()) {
+                    StringUtils.replaceAll(template, "${" + k + "}", v);
+                }
+            });
         }
         return template;
     }
