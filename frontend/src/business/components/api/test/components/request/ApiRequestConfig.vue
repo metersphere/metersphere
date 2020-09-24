@@ -156,6 +156,9 @@ export default {
       }
     },
     select(request) {
+      if (!request) {
+        return;
+      }
       request.environment = this.scenario.environment;
       if (!request.useEnvironment) {
         request.useEnvironment = false;
