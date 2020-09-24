@@ -13,20 +13,20 @@ import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.request.testreview.SaveCommentRequest;
 import io.metersphere.track.request.testreview.SaveTestCaseReviewRequest;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.RegExUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-
 import javax.annotation.Resource;
-import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 @Service
 public class MailService {
@@ -38,31 +38,7 @@ public class MailService {
     private SystemParameterService systemParameterService;
 
     public void sendHtml(String id, List<Notice> notice, String status, String type) {
-        JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
-        List<SystemParameter> paramList = systemParameterService.getParamList(ParamConstants.Classify.MAIL.getValue());
-        javaMailSender.setDefaultEncoding("UTF-8");
-        javaMailSender.setProtocol("smtps");
-        for (SystemParameter p : paramList) {
-            if (p.getParamKey().equals("smtp.host")) {
-                javaMailSender.setHost(p.getParamValue());
-            }
-            if (p.getParamKey().equals("smtp.port")) {
-                javaMailSender.setPort(Integer.parseInt(p.getParamValue()));
-            }
-            if (p.getParamKey().equals("smtp.account")) {
-                javaMailSender.setUsername(p.getParamValue());
-            }
-            if (p.getParamKey().equals("smtp.password")) {
-                javaMailSender.setPassword(EncryptUtils.aesDecrypt(p.getParamValue()).toString());
-            }
-        }
-        Properties props = new Properties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.starttls.required", "true");
-        props.put("mail.smtp.timeout", "30000");
-        props.put("mail.smtp.connectiontimeout", "5000");
-        javaMailSender.setJavaMailProperties(props);
+        JavaMailSenderImpl javaMailSender = getMailSender();
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         String testName = "";
         if (type.equals("api")) {
@@ -73,38 +49,19 @@ public class MailService {
             testName = performanceResult.getName();
             status = performanceResult.getStatus();
         }
-        String html1 = "<!DOCTYPE html>\n" +
-                "<html lang=\"en\">\n" +
-                "<head>\n" +
-                "  <meta charset=\"UTF-8\">\n" +
-                "  <title>MeterSphere</title>\n" +
-                "</head>\n" +
-                "<body style=\"text-align: left\">\n" +
-                "    <div>\n" +
-                "      <h3>" + type + Translator.get("timing_task_result_notification") + "</h3>\n" +
-                "      <p>   尊敬的用户：您好，<p><br/>" +
-                "<p>您所执行的" + testName + "运行失败</p>\n" +
-                "    </div>\n" +
-                "</body>\n" +
-                "</html>";
-        String html2 = "<!DOCTYPE html>\n" +
-                "<html lang=\"en\">\n" +
-                "<head>\n" +
-                "  <meta charset=\"UTF-8\">\n" +
-                "  <title>MeterSphere</title>\n" +
-                "</head>\n" +
-                "<body style=\"text-align: left\">\n" +
-                "    <div>\n" +
-                "      <h3>" + type + Translator.get("timing_task_result_notification") + "</h3>\n" +
-                "      <p>    尊敬的用户：您好，" + testName + "运行成功</p>\n" +
-                "    </div>\n" +
-                "</body>\n" +
-                "</html>";
+
+        Map<String, String> context = new HashMap<>();
+        context.put("title", type + Translator.get("timing_task_result_notification"));
+        context.put("testName", testName);
+
         try {
+            String failTemplate = IOUtils.toString(this.getClass().getResource("/mail/fail.html"), StandardCharsets.UTF_8);
+            String successTemplate = IOUtils.toString(this.getClass().getResource("/mail/success.html"), StandardCharsets.UTF_8);
+
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
             helper.setFrom(javaMailSender.getUsername());
             helper.setSubject(Translator.get("timing_task_result_notification"));
-            String users[] = {};
+            String[] users;
             List<String> successEmailList = new ArrayList<>();
             List<String> failEmailList = new ArrayList<>();
             if (notice.size() > 0) {
@@ -115,23 +72,20 @@ public class MailService {
                     if (n.getEnable().equals("true") && n.getEvent().equals("执行失败")) {
                         failEmailList = userService.queryEmail(n.getNames());
                     }
-
                 }
             } else {
                 LogUtil.error("Recipient information is empty");
             }
 
             if (status.equals("Success")) {
-                users = successEmailList.toArray(new String[successEmailList.size()]);
-                helper.setText(html2, true);
+                users = successEmailList.toArray(new String[0]);
+                helper.setText(getContent(successTemplate, context), true);
             } else {
-                users = failEmailList.toArray(new String[failEmailList.size()]);
-                helper.setText(html1, true);
-
+                users = failEmailList.toArray(new String[0]);
+                helper.setText(getContent(failTemplate, context), true);
             }
             helper.setTo(users);
-
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             LogUtil.error(e);
         }
         try {
@@ -139,6 +93,17 @@ public class MailService {
         } catch (MailException e) {
             LogUtil.error(e);
         }
+    }
+
+    private String getContent(String template, Map<String, String> context) {
+        if (MapUtils.isNotEmpty(context)) {
+            for (String k : context.keySet()) {
+                if (StringUtils.isNotBlank(context.get(k))) {
+                    template = RegExUtils.replaceAll(template, "\\$\\{" + k + "}", context.get(k));
+                }
+            }
+        }
+        return template;
     }
 
 
@@ -156,6 +121,61 @@ public class MailService {
         if (!eTime.equals("null")) {
             end = sdf.format(new Date(Long.parseLong(eTime)));
         }
+        JavaMailSenderImpl javaMailSender = getMailSender();
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+
+        Map<String, String> context = new HashMap<>();
+        context.put("creator", reviewRequest.getCreator());
+        context.put("maintainer", testCaseWithBLOBs.getMaintainer());
+        context.put("testCaseName", testCaseWithBLOBs.getName());
+        context.put("reviewName", reviewRequest.getName());
+        context.put("description", request.getDescription());
+        context.put("start", start);
+        context.put("end", end);
+
+        try {
+            String reviewerTemplate = IOUtils.toString(this.getClass().getResource("/mail/reviewer.html"), StandardCharsets.UTF_8);
+            String commentTemplate = IOUtils.toString(this.getClass().getResource("/mail/comment.html"), StandardCharsets.UTF_8);
+            String endTemplate = IOUtils.toString(this.getClass().getResource("/mail/end.html"), StandardCharsets.UTF_8);
+
+
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+            helper.setFrom(javaMailSender.getUsername());
+            helper.setSubject(Translator.get("test_review_task_notice"));
+            String[] users;
+            List<String> emails = new ArrayList<>();
+            try {
+                emails = userService.queryEmailByIds(userIds);
+            } catch (Exception e) {
+                LogUtil.error("Recipient information is empty");
+            }
+            users = emails.toArray(new String[0]);
+            switch (type) {
+                case "reviewer":
+                    helper.setText(getContent(reviewerTemplate, context), true);
+                    break;
+                case "comment":
+                    helper.setText(getContent(commentTemplate, context), true);
+                    break;
+                case "end":
+                    helper.setText(getContent(endTemplate, context), true);
+                    break;
+                default:
+                    break;
+            }
+            helper.setTo(users);
+
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
+        try {
+            javaMailSender.send(mimeMessage);
+        } catch (MailException e) {
+            LogUtil.error(e);
+        }
+    }
+
+    private JavaMailSenderImpl getMailSender() {
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
         List<SystemParameter> paramList = systemParameterService.getParamList(ParamConstants.Classify.MAIL.getValue());
         javaMailSender.setDefaultEncoding("UTF-8");
@@ -181,72 +201,7 @@ public class MailService {
         props.put("mail.smtp.timeout", "30000");
         props.put("mail.smtp.connectiontimeout", "5000");
         javaMailSender.setJavaMailProperties(props);
-        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-        String html1 = "<!DOCTYPE html>\n" +
-                "<html lang=\"en\">\n" +
-                "<head>\n" +
-                "  <meta charset=\"UTF-8\">\n" +
-                "  <title>MeterSphere</title>\n" +
-                "</head>\n" +
-                "<body style=\"text-align: left\">\n" +
-                "    <div>\n" +
-                "      <p>" + reviewRequest.getCreator() + "发起的:" + "</p><br/>" + reviewRequest.getName() + "</p><br/>" + "计划开始时间是" + start + ",计划结束时间为" + end + "请跟进" + "</p>\n" +
-                "    </div>\n" +
-                "</body>\n" +
-                "</html>";
-        String html2 = "<!DOCTYPE html>\n" +
-                "<html lang=\"en\">\n" +
-                "<head>\n" +
-                "  <meta charset=\"UTF-8\">\n" +
-                "  <title>MeterSphere</title>\n" +
-                "</head>\n" +
-                "<body style=\"text-align: left\">\n" +
-                "    <div>\n" +
-                "      <p>" + testCaseWithBLOBs.getMaintainer() + "发起的" + "</p><br/>" + testCaseWithBLOBs.getName() + "</p><br/>" + "添加评论：" + request.getDescription() + "</p>\n" +
-                "    </div>\n" +
-                "</body>\n" +
-                "</html>";
-        String html3 = "<!DOCTYPE html>\n" +
-                "<html lang=\"en\">\n" +
-                "<head>\n" +
-                "  <meta charset=\"UTF-8\">\n" +
-                "  <title>MeterSphere</title>\n" +
-                "</head>\n" +
-                "<body style=\"text-align: left\">\n" +
-                "    <div>\n" +
-                "      <p>" + reviewRequest.getCreator() + "发起的：" + "</p><br/>" + reviewRequest.getName() + "</p><br/>" + "计划开始时间是" + start + ",计划结束时间为" + end + "已完成" + "</p>\n" +
-                "    </div>\n" +
-                "</body>\n" +
-                "</html>";
-        try {
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-            helper.setFrom(javaMailSender.getUsername());
-            helper.setSubject(Translator.get("test_review_task_notice"));
-            String users[] = {};
-            List<String> emails = new ArrayList<>();
-            try {
-                emails = userService.queryEmailByIds(userIds);
-            } catch (Exception e) {
-                LogUtil.error("Recipient information is empty");
-            }
-            users = emails.toArray(new String[emails.size()]);
-            if (type.equals("reviewer")) {
-                helper.setText(html1, true);
-            } else if (type.equals("comment")) {
-                helper.setText(html2, true);
-            } else if (type.equals("end")) {
-                helper.setText(html3, true);
-            }
-            helper.setTo(users);
-
-        } catch (MessagingException e) {
-            LogUtil.error(e);
-        }
-        try {
-            javaMailSender.send(mimeMessage);
-        } catch (MailException e) {
-            LogUtil.error(e);
-        }
+        return javaMailSender;
     }
 }
 

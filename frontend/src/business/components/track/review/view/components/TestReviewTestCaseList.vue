@@ -322,7 +322,7 @@ export default {
         callback: (action) => {
           if (action === 'confirm') {
             let ids = Array.from(this.selectRows).map(row => row.id);
-            this.$post('/test/review/case/batch/delete', {ids: ids}, () => {
+            this.$post('/test/review/case/batch/delete', {ids: ids, reviewId: this.reviewId}, () => {
               this.selectRows.clear();
               this.$emit("refresh");
               this.$success(this.$t('test_track.cancel_relevance_success'));
@@ -333,7 +333,7 @@ export default {
     },
     _handleDelete(testCase) {
       let testCaseId = testCase.id;
-      this.$post('/test/review/case/delete/' + testCaseId, {}, () => {
+      this.$post('/test/review/case/delete', {id: testCaseId, reviewId: testCase.reviewId}, () => {
         this.$emit("refresh");
         this.$success(this.$t('test_track.cancel_relevance_success'));
       });

@@ -28,7 +28,6 @@
                 :placeholder="$t('test_track.plan.input_plan_project')"
                 multiple
                 style="width: 100%"
-                collapse-tags
                 filterable>
                 <el-option
                   v-for="item in projects"
@@ -68,6 +67,28 @@
             </el-form-item>
           </el-col>
         </el-row>
+
+        <!--start:xuxm增加自定义‘计划开始’，‘计划结束’时间字段-->
+        <el-row>
+          <el-col :span="8" :offset="1">
+            <el-form-item
+              :label="$t('test_track.plan.planned_start_time')"
+              :label-width="formLabelWidth"
+              prop="plannedStartTime">
+              <el-date-picker :placeholder="$t('test_track.plan.planned_start_time')" v-model="form.plannedStartTime" type="datetime" value-format="timestamp"></el-date-picker>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="11" :offset="2">
+            <el-form-item
+              :label="$t('test_track.plan.planned_end_time')"
+              :label-width="formLabelWidth"
+              prop="plannedEndTime">
+              <el-date-picker :placeholder="$t('test_track.plan.planned_end_time')" v-model="form.plannedEndTime" type="datetime" value-format="timestamp" ></el-date-picker>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <!--end:xuxm增加自定义‘计划开始’，‘计划结束’时间字段-->
 
         <el-row type="flex" justify="left" style="margin-top: 10px;">
           <el-col :span="23" :offset="1">
@@ -129,7 +150,9 @@ export default {
         projectIds: [],
         principal: '',
         stage: '',
-        description: ''
+        description: '',
+        plannedStartTime: '',
+        plannedEndTime: ''
       },
       dbProjectIds: [],
       rules: {

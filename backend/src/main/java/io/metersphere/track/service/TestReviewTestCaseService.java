@@ -12,6 +12,7 @@ import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.service.UserService;
 import io.metersphere.track.dto.TestReviewCaseDTO;
 import io.metersphere.track.request.testplancase.TestReviewCaseBatchRequest;
+import io.metersphere.track.request.testreview.DeleteRelevanceRequest;
 import io.metersphere.track.request.testreview.QueryCaseReviewRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,8 @@ public class TestReviewTestCaseService {
     TestCaseReviewUsersMapper testCaseReviewUsersMapper;
     @Resource
     TestCaseReviewMapper testCaseReviewMapper;
+    @Resource
+    TestCaseReviewService testCaseReviewService;
 
     public List<TestReviewCaseDTO> list(QueryCaseReviewRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -71,11 +74,21 @@ public class TestReviewTestCaseService {
         return name;
     }
 
-    public int deleteTestCase(String id) {
-        return testCaseReviewTestCaseMapper.deleteByPrimaryKey(id);
+    public int deleteTestCase(DeleteRelevanceRequest request) {
+        checkReviewer(request.getReviewId());
+        return testCaseReviewTestCaseMapper.deleteByPrimaryKey(request.getId());
+    }
+
+    private void checkReviewer(String reviewId) {
+        List<String> userIds = testCaseReviewService.getTestCaseReviewerIds(reviewId);
+        String currentId = SessionUtils.getUser().getId();
+        if (!userIds.contains(currentId)) {
+            MSException.throwException("非用例评审人员，不能解除用例关联！");
+        }
     }
 
     public void deleteTestCaseBath(TestReviewCaseBatchRequest request) {
+        checkReviewer(request.getReviewId());
         TestCaseReviewTestCaseExample example = new TestCaseReviewTestCaseExample();
         example.createCriteria().andIdIn(request.getIds());
         testCaseReviewTestCaseMapper.deleteByExample(example);

@@ -6,12 +6,12 @@
       </div>
     </div>
     <div class="comment-right">
-      <span style="font-size: 16px;">{{comment.author}}</span>
+      <span style="font-size: 14px;color: #909399;font-weight: bold">{{comment.author}}</span>
       <span style="color: #8a8b8d; margin-left: 8px; font-size: 12px">
         {{comment.createTime | timestampFormatDate}}
       </span>
       <br/>
-      <div class="comment-desc">{{comment.description}}</div>
+      <div class="comment-desc" style="font-size: 10px;color: #303133">{{comment.description}}</div>
     </div>
   </div>
 </template>
@@ -57,7 +57,9 @@ export default {
     line-height: 30px;
     text-align: center;
     border-radius: 30px;
+    font-size: 14px;
   }
+
 
   .comment-desc {
     overflow-wrap: break-word;
