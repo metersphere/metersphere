@@ -36,7 +36,7 @@
                 <ms-request-result-tail v-if="isRequestResult" :request="request" :scenario-name="scenarioName"/>
               </el-col>
             </el-row>
-            <ms-api-report-export v-if="reportExportVisible" id="apiTestReport" :content="content" :total-time="totalTime"/>
+            <ms-api-report-export v-if="reportExportVisible" id="apiTestReport" :title="report.testName" :content="content" :total-time="totalTime"/>
           </main>
         </section>
       </el-card>

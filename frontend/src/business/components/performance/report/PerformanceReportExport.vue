@@ -1,6 +1,5 @@
 <template>
-  <el-card class="report-export">
-    <ms-report-title :title="$t('report.load_test_report')"/>
+  <ms-report-export-template :title="title" :type="$t('report.load_test_report')">
     <el-card id="testOverview">
       <template v-slot:header >
         <span class="title">{{$t('report.test_overview')}}</span>
@@ -19,7 +18,7 @@
       </template>
       <ms-report-error-log :report="report" ref="errorLog"/>
     </el-card>
-  </el-card>
+  </ms-report-export-template>
 </template>
 
 <script>
@@ -30,25 +29,29 @@
 
   import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
   import MsPerformanceReportExport from "./PerformanceReportExport";
-  import MsReportTitle from "../../common/components/MsReportTitle";
+  import MsReportTitle from "../../common/components/report/MsReportTitle";
+  import MsReportExportTemplate from "../../common/components/report/MsReportExportTemplate";
 
 
   export default {
     name: "MsPerformanceReportExport",
     components: {
+      MsReportExportTemplate,
       MsReportTitle,
       MsReportErrorLog,
       MsReportRequestStatistics,
       MsReportTestOverview,
     },
-    props: ['report']
+    props: ['report','title']
   }
 </script>
 
 <style scoped>
 
-  .report-export .el-card {
+  .el-card {
     margin-top: 20px;
+    margin-bottom: 20px;
+    border-style: none;
   }
 
 </style>

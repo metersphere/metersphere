@@ -59,19 +59,6 @@
         },
       },
       methods: {
-        getCanvas(canvasList) {
-          let index = this.index;
-          let componentId = this.getComponentId();
-          return new Promise(function(resolve, reject) {
-            html2canvas(document.getElementById(componentId), {
-              scale: 2
-            }).then(function(canvas) {
-              //排序
-              canvasList[index] = canvas;
-              resolve('success');
-            });
-          });
-        },
         getComponentId() {
           switch (this.preview.id) {
             case 1:

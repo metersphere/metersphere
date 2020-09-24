@@ -33,14 +33,13 @@
 
         <div class="container" ref="resume" id="app">
           <el-main>
-            <div id="reportViewpp" :class="{'report-export' : reportExportVisible}">
-              <ms-report-title v-if="reportExportVisible" :title="$t('report.test_plan_report')"/>
-              <div v-for="(item, index) in previews" :key="item.id">
-                <template-component :isReportView="true" :metric="metric" :preview="item" :index="index" ref="templateComponent"/>
-              </div>
+            <div v-for="(item, index) in previews" :key="item.id">
+              <template-component :isReportView="true" :metric="metric" :preview="item" :index="index" ref="templateComponent"/>
             </div>
+            <ms-test-case-report-export v-if="reportExportVisible" id="testCaseReportExport" :title="report.name" :metric="metric" :previews="previews"/>
           </el-main>
         </div>
+
       </template>
     </el-drawer>
     <test-case-report-template-edit :metric="metric" ref="templateEdit" @refresh="getReport"/>
@@ -56,12 +55,12 @@
   import TestCaseReportTemplateEdit from "./TestCaseReportTemplateEdit";
   import TemplateComponent from "./TemplateComponent/TemplateComponent";
   import html2canvas from "html2canvas";
-  import MsReportTitle from "../../../../../common/components/MsReportTitle";
+  import MsTestCaseReportExport from "../TestCaseReportExport";
 
   export default {
     name: "TestCaseReportView",
     components: {
-      MsReportTitle,
+      MsTestCaseReportExport,
       TemplateComponent,
       TestCaseReportTemplateEdit,
       RichTextComponent, TestResultComponent, TestResultChartComponent, BaseInfoComponent
@@ -212,7 +211,7 @@
 
         this.$nextTick(function () {
           setTimeout(() => {
-            html2canvas(document.getElementById('reportViewpp'), {
+            html2canvas(document.getElementById('testCaseReportExport'), {
               scale: 2
             }).then(function(canvas) {
               exportPdf(name, [canvas]);
@@ -258,16 +257,6 @@
 
   .head-right {
     text-align: right;
-  }
-
-  .report-export {
-    padding: 20px 30px;
-    background: white;
-  }
-
-  .report-export >>> .template-component {
-    width: 100%;
-    margin-top: 20px;
   }
 
 </style>

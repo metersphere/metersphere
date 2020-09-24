@@ -65,7 +65,7 @@
           </el-tabs>
         </div>
 
-        <ms-performance-report-export id="performanceReportExport" v-show="reportExportVisible" :report="report"/>
+        <ms-performance-report-export :title="reportName" id="performanceReportExport" v-show="reportExportVisible" :report="report"/>
 
       </el-card>
       <el-dialog :title="$t('report.test_stop_now_confirm')" :visible.sync="dialogFormVisible" width="30%">

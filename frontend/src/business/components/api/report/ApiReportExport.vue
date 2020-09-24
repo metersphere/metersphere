@@ -1,8 +1,7 @@
 <template>
-  <el-card>
-    <ms-report-title :title="$t('report.api_test_report')"/>
-    <ms-metric-chart :content="content" :totalTime="totalTime"/>
-    <div class="scenario-result" v-for="(scenario, index) in content.scenarios" :key="index" :scenario="scenario">
+    <ms-report-export-template :title="title" :type="$t('report.api_test_report')">
+      <ms-metric-chart :content="content" :totalTime="totalTime"/>
+      <div class="scenario-result" v-for="(scenario, index) in content.scenarios" :key="index" :scenario="scenario">
         <div>
           <el-card>
             <template v-slot:header>
@@ -64,12 +63,13 @@
                     {{$t('api_report.fail')}}
                   </el-tag>
                 </api-report-reqest-header-item>
+
               </div>
             </div>
           </el-card>
         </div>
       </div>
-    </el-card>
+    </ms-report-export-template>
 </template>
 
 <script>
@@ -77,13 +77,17 @@
     import MsRequestResultTail from "./components/RequestResultTail";
     import ApiReportReqestHeaderItem from "./ApiReportReqestHeaderItem";
     import MsMetricChart from "./components/MetricChart";
-    import MsReportTitle from "../../common/components/MsReportTitle";
+    import MsReportTitle from "../../common/components/report/MsReportTitle";
+    import MsReportExportTemplate from "../../common/components/report/MsReportExportTemplate";
     export default {
       name: "MsApiReportExport",
-      components: {MsReportTitle, MsMetricChart, ApiReportReqestHeaderItem, MsRequestResultTail, MsScenarioResult},
+      components: {
+        MsReportExportTemplate,
+        MsReportTitle, MsMetricChart, ApiReportReqestHeaderItem, MsRequestResultTail, MsScenarioResult},
       props: {
         content: Object,
-        totalTime: Number
+        totalTime: Number,
+        title: String
       },
       data() {
         return {
@@ -117,13 +121,13 @@
   }
 
   .el-card {
-    padding: 10px;
-    padding: 30px;
     border-style: none;
+    padding: 10px 30px;
   }
 
   .request-top div {
     margin-top: 10px;
   }
+
 
 </style>
