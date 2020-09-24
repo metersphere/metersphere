@@ -8,6 +8,7 @@ import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.LoadTestDTO;
+import io.metersphere.i18n.Translator;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.request.testreview.SaveCommentRequest;
@@ -80,8 +81,9 @@ public class MailService {
                 "</head>\n" +
                 "<body style=\"text-align: left\">\n" +
                 "    <div>\n" +
-                "      <h3>" + type + "定时任务结果通知</h3>\n" +
-                "      <p>   尊敬的用户：您好，您所执行的" + testName + "运行失败</p>\n" +
+                "      <h3>" + type + Translator.get("timing_task_result_notification") + "</h3>\n" +
+                "      <p>   尊敬的用户：您好，<p><br/>" +
+                "<p>您所执行的" + testName + "运行失败</p>\n" +
                 "    </div>\n" +
                 "</body>\n" +
                 "</html>";
@@ -93,7 +95,7 @@ public class MailService {
                 "</head>\n" +
                 "<body style=\"text-align: left\">\n" +
                 "    <div>\n" +
-                "      <h3>" + type + "定时任务结果通知</h3>\n" +
+                "      <h3>" + type + Translator.get("timing_task_result_notification") + "</h3>\n" +
                 "      <p>    尊敬的用户：您好，" + testName + "运行成功</p>\n" +
                 "    </div>\n" +
                 "</body>\n" +
@@ -101,7 +103,7 @@ public class MailService {
         try {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
             helper.setFrom(javaMailSender.getUsername());
-            helper.setSubject("MeterSphere定时任务结果通知");
+            helper.setSubject(Translator.get("timing_task_result_notification"));
             String users[] = {};
             List<String> successEmailList = new ArrayList<>();
             List<String> failEmailList = new ArrayList<>();
@@ -130,12 +132,12 @@ public class MailService {
             helper.setTo(users);
 
         } catch (MessagingException e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         try {
             javaMailSender.send(mimeMessage);
         } catch (MailException e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
     }
 
@@ -188,7 +190,7 @@ public class MailService {
                 "</head>\n" +
                 "<body style=\"text-align: left\">\n" +
                 "    <div>\n" +
-                "      <p>" + reviewRequest.getCreator() + "发起的" + reviewRequest.getName() + "的计划开始时间是" + start + ",计划结束时间为" + end + "请跟进" + "</p>\n" +
+                "      <p>" + reviewRequest.getCreator() + "发起的:" + "</p><br/>" + reviewRequest.getName() + "</p><br/>" + "计划开始时间是" + start + ",计划结束时间为" + end + "请跟进" + "</p>\n" +
                 "    </div>\n" +
                 "</body>\n" +
                 "</html>";
@@ -200,7 +202,7 @@ public class MailService {
                 "</head>\n" +
                 "<body style=\"text-align: left\">\n" +
                 "    <div>\n" +
-                "      <p>" + testCaseWithBLOBs.getMaintainer() + "发起的" + testCaseWithBLOBs.getName() + "添加评论：" + request.getDescription() + "</p>\n" +
+                "      <p>" + testCaseWithBLOBs.getMaintainer() + "发起的" + "</p><br/>" + testCaseWithBLOBs.getName() + "</p><br/>" + "添加评论：" + request.getDescription() + "</p>\n" +
                 "    </div>\n" +
                 "</body>\n" +
                 "</html>";
@@ -212,15 +214,14 @@ public class MailService {
                 "</head>\n" +
                 "<body style=\"text-align: left\">\n" +
                 "    <div>\n" +
-                "      <p>" + reviewRequest.getCreator() + "发起的" + reviewRequest.getName() + "的计划开始时间是" + start + ",计划结束时间为" + end + "已完成" + "</p>\n" +
+                "      <p>" + reviewRequest.getCreator() + "发起的：" + "</p><br/>" + reviewRequest.getName() + "</p><br/>" + "计划开始时间是" + start + ",计划结束时间为" + end + "已完成" + "</p>\n" +
                 "    </div>\n" +
                 "</body>\n" +
                 "</html>";
-        ;
         try {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
             helper.setFrom(javaMailSender.getUsername());
-            helper.setSubject("测试评审任务通知");
+            helper.setSubject(Translator.get("test_review_task_notice"));
             String users[] = {};
             List<String> emails = new ArrayList<>();
             try {
@@ -239,12 +240,12 @@ public class MailService {
             helper.setTo(users);
 
         } catch (MessagingException e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         try {
             javaMailSender.send(mimeMessage);
         } catch (MailException e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
     }
 }
