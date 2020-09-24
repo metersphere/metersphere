@@ -98,8 +98,9 @@ public class MailService {
     private String getContent(String template, Map<String, String> context) {
         if (MapUtils.isNotEmpty(context)) {
             for (String k : context.keySet()) {
-                if (StringUtils.isNotBlank(context.get(k)))
+                if (StringUtils.isNotBlank(context.get(k))) {
                     template = RegExUtils.replaceAll(template, "\\$\\{" + k + "}", context.get(k));
+                }
             }
         }
         return template;
