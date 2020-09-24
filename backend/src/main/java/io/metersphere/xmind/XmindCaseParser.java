@@ -2,6 +2,7 @@ package io.metersphere.xmind;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.ImmutableMap;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.utils.BeanUtils;
@@ -59,6 +60,8 @@ public class XmindCaseParser {
     public List<TestCaseWithBLOBs> getTestCase() {
         return this.testCases;
     }
+
+    private final Map<String, String> caseTypeMap = ImmutableMap.of("功能测试", "functional", "性能测试", "performance", "接口测试", "api");
 
     // 递归处理案例数据
     private void recursion(StringBuffer processBuffer, Attached parent, int level, String nodePath, List<Attached> attacheds) {
@@ -139,15 +142,11 @@ public class XmindCaseParser {
         // 用例等级和用例性质处理
         if (tcArr[0].indexOf("-") != -1) {
             String otArr[] = tcArr[0].split("-");
-            for (int i = 0; i < otArr.length; i++) {
-                if (otArr[i].startsWith("P") || otArr[i].startsWith("p")) {
-                    testCase.setPriority(otArr[i].toUpperCase());
-                } else if (otArr[i].endsWith("功能测试")) {
-                    testCase.setType("functional");
-                } else if (otArr[i].endsWith("性能测试")) {
-                    testCase.setType("performance");
-                } else if (otArr[i].endsWith("接口测试")) {
-                    testCase.setType("api");
+            for (String item : otArr) {
+                if (item.toUpperCase().startsWith("P")) {
+                    testCase.setPriority(item.toUpperCase());
+                } else {
+                    Optional.ofNullable(caseTypeMap.get(item)).ifPresent(opt -> testCase.setType(opt));
                 }
             }
         }
