@@ -124,7 +124,7 @@ public class MailService {
         context.put("maintainer", testCaseWithBLOBs.getMaintainer());
         context.put("testCaseName", testCaseWithBLOBs.getName());
         context.put("reviewName", reviewRequest.getName());
-        context.put("description", reviewRequest.getDescription());
+        context.put("description", request.getDescription());
         context.put("start", start);
         context.put("end", end);
 
