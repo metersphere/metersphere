@@ -14,9 +14,13 @@
                 </el-select>
               </el-input>
 
-              <el-button type="primary" plain :disabled="isReadOnly" @click="saveTest">
-                {{ $t('commons.save') }}
-              </el-button>
+              <el-tooltip :content="'Ctrl + S'"
+                          placement="top"
+                          :enterable="false">
+                <el-button type="primary" plain :disabled="isReadOnly" @click="saveTest">
+                  {{ $t('commons.save') }}
+                </el-button>
+              </el-tooltip>
 
               <el-button type="primary" plain :disabled="isReadOnly"
                          @click="saveRunTest">
