@@ -470,6 +470,7 @@ export default {
       name: "請求名稱",
       method: "請求方法",
       url: "請求URL",
+      content_type: "請求類型",
       path: "請求路徑",
       address: "請求地址",
       refer_to_environment: "引用環境",
