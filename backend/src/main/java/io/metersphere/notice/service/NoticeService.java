@@ -4,12 +4,10 @@ import io.metersphere.base.domain.Notice;
 import io.metersphere.base.domain.NoticeExample;
 import io.metersphere.base.mapper.NoticeMapper;
 import io.metersphere.notice.controller.request.NoticeRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -24,46 +22,30 @@ public class NoticeService {
         List<Notice> notices = noticeMapper.selectByExample(example);
         if (notices.size() > 0) {
             noticeMapper.deleteByExample(example);
-            noticeRequest.getNotices().forEach(n -> {
-                if (n.getNames().length > 0) {
-                    for (String x : n.getNames()) {
-                        notice.setEvent(n.getEvent());
-                        notice.setEmail(n.getEmail());
-                        notice.setEnable(n.getEnable());
-                        notice.setTestId(noticeRequest.getTestId());
-                        notice.setName(x);
-                        noticeMapper.insert(notice);
-                    }
-                } else {
-                    notice.setEvent(n.getEvent());
-                    notice.setEmail(n.getEmail());
-                    notice.setEnable(n.getEnable());
-                    notice.setTestId(noticeRequest.getTestId());
-                    notice.setName("");
-                    noticeMapper.insert(notice);
-                }
-            });
-        } else {
-            noticeRequest.getNotices().forEach(n -> {
-                if (n.getNames().length > 0) {
-                    for (String x : n.getNames()) {
-                        notice.setEvent(n.getEvent());
-                        notice.setEmail(n.getEmail());
-                        notice.setEnable(n.getEnable());
-                        notice.setTestId(noticeRequest.getTestId());
-                        notice.setName(x);
-                        noticeMapper.insert(notice);
-                    }
-                } else {
-                    notice.setEvent(n.getEvent());
-                    notice.setEmail(n.getEmail());
-                    notice.setEnable(n.getEnable());
-                    notice.setTestId(noticeRequest.getTestId());
-                    notice.setName("");
-                    noticeMapper.insert(notice);
-                }
-            });
         }
+        saveNotice(noticeRequest, notice);
+    }
+
+    private void saveNotice(NoticeRequest noticeRequest, Notice notice) {
+        noticeRequest.getNotices().forEach(n -> {
+            if (n.getNames().length > 0) {
+                for (String x : n.getNames()) {
+                    notice.setEvent(n.getEvent());
+                    notice.setEmail(n.getEmail());
+                    notice.setEnable(n.getEnable());
+                    notice.setTestId(noticeRequest.getTestId());
+                    notice.setName(x);
+                    noticeMapper.insert(notice);
+                }
+            } else {
+                notice.setEvent(n.getEvent());
+                notice.setEmail(n.getEmail());
+                notice.setEnable(n.getEnable());
+                notice.setTestId(noticeRequest.getTestId());
+                notice.setName("");
+                noticeMapper.insert(notice);
+            }
+        });
     }
 
     public List<Notice> queryNotice(String id) {
@@ -73,34 +55,32 @@ public class NoticeService {
         List<Notice> notice = new ArrayList<>();
         List<String> success = new ArrayList<>();
         List<String> fail = new ArrayList<>();
-        String[] successArray = new String[success.size()];
-        String[] failArray = new String[fail.size()];
+        String[] successArray;
+        String[] failArray;
         Notice notice1 = new Notice();
         Notice notice2 = new Notice();
-        if (notices.size() > 0) {
-            for (Notice n : notices) {
-                if (n.getEvent().equals("执行成功")) {
-                    success.add(n.getName());
-                    notice1.setEnable(n.getEnable());
-                    notice1.setTestId(id);
-                    notice1.setEvent(n.getEvent());
-                    notice1.setEmail(n.getEmail());
-                }
-                if (n.getEvent().equals("执行失败")) {
-                    fail.add(n.getName());
-                    notice2.setEnable(n.getEnable());
-                    notice2.setTestId(id);
-                    notice2.setEvent(n.getEvent());
-                    notice2.setEmail(n.getEmail());
-                }
+        for (Notice n : notices) {
+            if (n.getEvent().equals("执行成功")) {
+                success.add(n.getName());
+                notice1.setEnable(n.getEnable());
+                notice1.setTestId(id);
+                notice1.setEvent(n.getEvent());
+                notice1.setEmail(n.getEmail());
             }
-            successArray = success.toArray(new String[success.size()]);
-            failArray = fail.toArray(new String[fail.size()]);
-            notice1.setNames(successArray);
-            notice2.setNames(failArray);
-            notice.add(notice1);
-            notice.add(notice2);
+            if (n.getEvent().equals("执行失败")) {
+                fail.add(n.getName());
+                notice2.setEnable(n.getEnable());
+                notice2.setTestId(id);
+                notice2.setEvent(n.getEvent());
+                notice2.setEmail(n.getEmail());
+            }
         }
+        successArray = success.toArray(new String[0]);
+        failArray = fail.toArray(new String[0]);
+        notice1.setNames(successArray);
+        notice2.setNames(failArray);
+        notice.add(notice1);
+        notice.add(notice2);
         return notice;
     }
 
