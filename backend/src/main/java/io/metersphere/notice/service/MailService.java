@@ -23,6 +23,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -106,8 +107,64 @@ public class MailService {
         return template;
     }
 
+    public void sendEndNotice(List<String> userIds, SaveTestCaseReviewRequest reviewRequest) {
+        Map<String, String> context = getReviewContext(reviewRequest);
 
-    public void sendHtml(List<String> userIds, String type, SaveTestCaseReviewRequest reviewRequest, SaveCommentRequest request, TestCaseWithBLOBs testCaseWithBLOBs) {
+        try {
+            String endTemplate = IOUtils.toString(this.getClass().getResource("/mail/end.html"), StandardCharsets.UTF_8);
+            sendHtml(userIds, context, endTemplate);
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
+    }
+
+
+    public void sendReviewerNotice(List<String> userIds, SaveTestCaseReviewRequest reviewRequest) {
+        Map<String, String> context = getReviewContext(reviewRequest);
+
+        try {
+            String reviewerTemplate = IOUtils.toString(this.getClass().getResource("/mail/reviewer.html"), StandardCharsets.UTF_8);
+            sendHtml(userIds, context, reviewerTemplate);
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
+    }
+
+    private void sendHtml(List<String> userIds, Map<String, String> context, String endTemplate) throws MessagingException {
+        JavaMailSenderImpl javaMailSender = getMailSender();
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+        helper.setFrom(javaMailSender.getUsername());
+        helper.setSubject(Translator.get("test_review_task_notice"));
+        String[] users;
+        List<String> emails = new ArrayList<>();
+        try {
+            emails = userService.queryEmailByIds(userIds);
+        } catch (Exception e) {
+            LogUtil.error("Recipient information is empty");
+        }
+        users = emails.toArray(new String[0]);
+        helper.setText(getContent(endTemplate, context), true);
+        helper.setTo(users);
+
+        javaMailSender.send(mimeMessage);
+    }
+
+    public void sendCommentNotice(List<String> userIds, SaveCommentRequest request, TestCaseWithBLOBs testCaseWithBLOBs) {
+        Map<String, String> context = new HashMap<>();
+        context.put("maintainer", testCaseWithBLOBs.getMaintainer());
+        context.put("testCaseName", testCaseWithBLOBs.getName());
+        context.put("description", request.getDescription());
+
+        try {
+            String commentTemplate = IOUtils.toString(this.getClass().getResource("/mail/comment.html"), StandardCharsets.UTF_8);
+            sendHtml(userIds, context, commentTemplate);
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
+    }
+
+    private Map<String, String> getReviewContext(SaveTestCaseReviewRequest reviewRequest) {
         Long startTime = reviewRequest.getCreateTime();
         Long endTime = reviewRequest.getEndTime();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -121,58 +178,13 @@ public class MailService {
         if (!eTime.equals("null")) {
             end = sdf.format(new Date(Long.parseLong(eTime)));
         }
-        JavaMailSenderImpl javaMailSender = getMailSender();
-        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
         Map<String, String> context = new HashMap<>();
         context.put("creator", reviewRequest.getCreator());
-        context.put("maintainer", testCaseWithBLOBs.getMaintainer());
-        context.put("testCaseName", testCaseWithBLOBs.getName());
         context.put("reviewName", reviewRequest.getName());
-        context.put("description", request.getDescription());
         context.put("start", start);
         context.put("end", end);
-
-        try {
-            String reviewerTemplate = IOUtils.toString(this.getClass().getResource("/mail/reviewer.html"), StandardCharsets.UTF_8);
-            String commentTemplate = IOUtils.toString(this.getClass().getResource("/mail/comment.html"), StandardCharsets.UTF_8);
-            String endTemplate = IOUtils.toString(this.getClass().getResource("/mail/end.html"), StandardCharsets.UTF_8);
-
-
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-            helper.setFrom(javaMailSender.getUsername());
-            helper.setSubject(Translator.get("test_review_task_notice"));
-            String[] users;
-            List<String> emails = new ArrayList<>();
-            try {
-                emails = userService.queryEmailByIds(userIds);
-            } catch (Exception e) {
-                LogUtil.error("Recipient information is empty");
-            }
-            users = emails.toArray(new String[0]);
-            switch (type) {
-                case "reviewer":
-                    helper.setText(getContent(reviewerTemplate, context), true);
-                    break;
-                case "comment":
-                    helper.setText(getContent(commentTemplate, context), true);
-                    break;
-                case "end":
-                    helper.setText(getContent(endTemplate, context), true);
-                    break;
-                default:
-                    break;
-            }
-            helper.setTo(users);
-
-        } catch (Exception e) {
-            LogUtil.error(e);
-        }
-        try {
-            javaMailSender.send(mimeMessage);
-        } catch (MailException e) {
-            LogUtil.error(e);
-        }
+        return context;
     }
 
     private JavaMailSenderImpl getMailSender() {
