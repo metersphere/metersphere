@@ -87,6 +87,7 @@ export default {
       this.report = {};
       this.content = {};
       this.fails = [];
+      this.isRequestResult = false;
     },
     handleClick(tab, event) {
       this.isRequestResult = false
@@ -118,7 +119,6 @@ export default {
       }
     },
     getFails() {
-      this.isRequestResult = false;
       if (this.isNotRunning) {
         this.fails = [];
         this.totalTime = 0
