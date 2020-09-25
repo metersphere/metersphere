@@ -468,6 +468,7 @@ export default {
       input_url: "请输入请求URL",
       input_path: "请输入请求路径",
       name: "请求名称",
+      content_type: "请求类型",
       method: "请求方法",
       url: "请求URL",
       path: "请求路径",

@@ -6,8 +6,8 @@
     <div class="kv-row" v-for="(item, index) in items" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <el-col v-if="isShowEnable" class="kv-checkbox">
-          <input type="checkbox" v-if="!isDisable(index)" @change="change" :value="item.uuid" v-model="checkedValues"
-                 :disabled="isDisable(index) || isReadOnly"/>
+          <input type="checkbox" v-if="!isDisable(index)" v-model="item.enable"
+                 :disabled="isReadOnly"/>
         </el-col>
 
         <el-col>
@@ -52,7 +52,7 @@
     },
     data() {
       return {
-        checkedValues: []
+        // checkedValues: []
       }
     },
     computed: {
@@ -79,10 +79,6 @@
         let isNeedCreate = true;
         let removeIndex = -1;
         this.items.forEach((item, index) => {
-          // 启用行赋值
-          if (this.isShowEnable) {
-            item.enable = this.checkedValues.indexOf(item.uuid) != -1 ? true : false;
-          }
           if (!item.name && !item.value) {
             // 多余的空行
             if (index !== this.items.length - 1) {
@@ -93,13 +89,7 @@
           }
         });
         if (isNeedCreate) {
-          // 往后台送入的复选框值布尔值
-          if (this.isShowEnable) {
-            this.items[this.items.length - 1].enable = true;
-            // v-model 选中状态
-            this.checkedValues.push(this.items[this.items.length - 1].uuid);
-          }
-          this.items.push(new KeyValue());
+          this.items.push(new KeyValue({enable: true}));
         }
         this.$emit('change', this.items);
         // TODO 检查key重复
@@ -112,9 +102,6 @@
         let results = queryString ? suggestions.filter(this.createFilter(queryString)) : suggestions;
         cb(results);
       },
-      uuid: function () {
-        return (((1 + Math.random()) * 0x100000) | 0).toString(16).substring(1);
-      },
       createFilter(queryString) {
         return (restaurant) => {
           return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
@@ -123,15 +110,7 @@
     },
     created() {
       if (this.items.length === 0) {
-        this.items.push(new KeyValue());
-      } else if (this.isShowEnable) {
-        this.items.forEach((item, index) => {
-          let uuid = this.uuid();
-          item.uuid = uuid;
-          if (item.enable) {
-            this.checkedValues.push(uuid);
-          }
-        })
+        this.items.push(new KeyValue({enable: true}));
       }
     }
   }

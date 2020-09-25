@@ -468,6 +468,7 @@ export default {
       input_url: "Please enter the request URL",
       input_path: "Please enter the request path",
       name: "Name",
+      content_type: "Content Type",
       method: "Method",
       url: "URL",
       path: "Path",

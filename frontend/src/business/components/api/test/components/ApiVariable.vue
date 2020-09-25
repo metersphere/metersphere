@@ -3,26 +3,27 @@
     <span class="kv-description" v-if="description">
       {{ description }}
     </span>
+
     <div class="kv-row" v-for="(item, index) in parameters" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
 
         <el-col class="kv-checkbox">
-          <input type="checkbox" v-if="!isDisable(index)" @change="change" :value="item.uuid" v-model="checkedValues"
-                 :disabled="isDisable(index) || isReadOnly"/>
+          <input type="checkbox" v-if="!isDisable(index)" v-model="item.enable"
+                 :disabled="isReadOnly"/>
         </el-col>
         <el-col>
 
           <el-input v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="200"
                     @change="change" :placeholder="keyText" show-word-limit>
             <template v-slot:prepend>
-              <el-select v-if="type === 'body'" :disabled="isReadOnly" class="kv-type" v-model="item.type">
+              <el-select v-if="type === 'body'" :disabled="isReadOnly" class="kv-type" v-model="item.type" @change="typeChange(item)">
                 <el-option value="text"/>
                 <el-option value="file"/>
               </el-select>
             </template>
           </el-input>
 
-          <el-autocomplete :disabled="isReadOnly" :maxlength="200" v-if="suggestions" v-model="item.name" size="small"
+          <el-autocomplete :disabled="isReadOnly" v-if="suggestions" v-model="item.name" size="small"
                            :fetch-suggestions="querySearch" @change="change" :placeholder="keyText" show-word-limit/>
 
         </el-col>
@@ -44,6 +45,13 @@
         <el-col v-if="item.type === 'file'">
           <ms-api-body-file-upload :parameter="item"/>
         </el-col>
+
+        <el-col v-if="type === 'body'">
+          <el-input :disabled="isReadOnly" v-model="item.contentType" size="small" maxlength="100"
+                    @change="change" :placeholder="$t('api_test.request.content_type')" show-word-limit>
+          </el-input>
+        </el-col>
+
         <el-col class="kv-delete">
           <el-button size="mini" class="el-icon-delete-solid" circle @click="remove(index)"
                      :disabled="isDisable(index) || isReadOnly"/>
@@ -85,7 +93,6 @@
     data() {
       return {
         currentItem: null,
-        checkedValues: []
       }
     },
     computed: {
@@ -98,9 +105,6 @@
     },
     methods: {
       remove: function (index) {
-        // 移除勾选内容
-        let checkIndex = this.checkedValues.indexOf(this.parameters[index].uuid);
-        checkIndex != -1 ? this.checkedValues.splice(checkIndex, 1) : this.checkedValues;
         // 移除整行输入控件及内容
         this.parameters.splice(index, 1);
         this.$emit('change', this.parameters);
@@ -109,9 +113,6 @@
         let isNeedCreate = true;
         let removeIndex = -1;
         this.parameters.forEach((item, index) => {
-          // 启用行赋值
-          item.enable = this.checkedValues.indexOf(item.uuid) != -1 ? true : false;
-
           if (!item.name && !item.value) {
             // 多余的空行
             if (index !== this.parameters.length - 1) {
@@ -122,11 +123,7 @@
           }
         });
         if (isNeedCreate) {
-          // 往后台送入的复选框值布尔值
-          this.parameters[this.parameters.length - 1].enable = true;
-          // v-model 选中状态
-          this.checkedValues.push(this.parameters[this.parameters.length - 1].uuid);
-          this.parameters.push(new KeyValue(null, null, 'text', false, this.uuid()));
+          this.parameters.push(new KeyValue({type: 'text', enable: true, uuid: this.uuid(), contentType: 'text/plain'}));
         }
         this.$emit('change', this.parameters);
         // TODO 检查key重复
@@ -161,22 +158,18 @@
       advanced(item) {
         this.$refs.variableAdvance.open();
         this.currentItem = item;
-        this.itemValue = '';
-        this.mockVariableFuncs = [];
       },
-
+      typeChange(item) {
+        if (item.type === 'file') {
+          item.contentType = 'application/octet-stream';
+        } else {
+          item.contentType = 'text/plain';
+        }
+      }
     },
     created() {
       if (this.parameters.length === 0) {
-        this.parameters.push(new KeyValue(null, null, 'text', false, this.uuid()));
-      } else {
-        this.parameters.forEach((item, index) => {
-          let uuid = this.uuid();
-          item.uuid = uuid;
-          if (item.enable) {
-            this.checkedValues.push(uuid);
-          }
-        })
+        this.parameters.push(new KeyValue( {type: 'text', enable: true, uuid: this.uuid(), contentType: 'text/plain'}));
       }
     }
   }
