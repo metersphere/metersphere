@@ -118,6 +118,7 @@ export default {
       }
     },
     getFails() {
+      this.isRequestResult = false;
       if (this.isNotRunning) {
         this.fails = [];
         this.totalTime = 0
