@@ -85,6 +85,8 @@ export default {
       this.report = {};
       this.content = {};
       this.fails = [];
+      this.report = {};
+      this.isRequestResult = false;
     },
     handleClick(tab, event) {
       this.isRequestResult = false

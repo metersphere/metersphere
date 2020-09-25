@@ -115,7 +115,8 @@ public class TestPlanService {
         return Optional.ofNullable(testPlanMapper.selectByPrimaryKey(testPlanId)).orElse(new TestPlan());
     }
 
-    public int editTestPlan(TestPlan testPlan) {
+    public int editTestPlan(TestPlanDTO testPlan) {
+        editTestPlanProject(testPlan);
         testPlan.setUpdateTime(System.currentTimeMillis());
         checkTestPlanExist(testPlan);
         //进行中状态，写入实际开始时间

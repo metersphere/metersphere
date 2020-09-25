@@ -11,7 +11,6 @@ export default {
   components: {
     MsApiReportViewDetail,
   },
-
   computed: {
     reportId: function () {
       return this.$route.params.reportId;

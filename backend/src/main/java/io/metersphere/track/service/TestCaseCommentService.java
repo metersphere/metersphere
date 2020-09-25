@@ -61,7 +61,8 @@ public class TestCaseCommentService {
         testCaseComments.forEach(testCaseComment -> {
             String authorId = testCaseComment.getAuthor();
             User user = userMapper.selectByPrimaryKey(authorId);
-            testCaseComment.setAuthor(user.getName());
+            String author = user == null ? authorId : user.getName();
+            testCaseComment.setAuthor(author);
         });
         return testCaseComments;
     }
