@@ -4,9 +4,15 @@
     <meta charset="UTF-8">
     <title>MeterSphere</title>
 </head>
-<body style="text-align: left">
+<body>
 <div>
-    <p>${creator} 发起的：</p><br/>${reviewName} </p><br/>计划开始时间是 ${start}, 计划结束时间为 ${end} 已完成</p>
+    <p style="text-align: left">${creator} 发起的:<br>
+        ${reviewName}<br>
+        计划开始时间是:${start}<br>
+        计划结束时间为:${end}<br>
+        已完成<br>
+        点击下面链接进入用例评审页面</p>
+    <a href="${url}/#/track/review/view">${url}/#/track/review/view</a>
 </div>
 </body>
 </html>

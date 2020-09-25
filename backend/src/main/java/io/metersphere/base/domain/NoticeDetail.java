@@ -2,10 +2,12 @@ package io.metersphere.base.domain;
 
 import lombok.Data;
 
-import java.io.Serializable;
-
 @Data
-public class Notice implements Serializable {
+public class NoticeDetail extends Notice {
+    private String[] names;
+
+    private String[] emails;
+
     private String event;
 
     private String testId;
@@ -15,6 +17,4 @@ public class Notice implements Serializable {
     private String email;
 
     private String enable;
-
-    private static final long serialVersionUID = 1L;
 }

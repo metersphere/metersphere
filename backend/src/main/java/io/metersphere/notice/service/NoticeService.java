@@ -1,15 +1,14 @@
 package io.metersphere.notice.service;
 
 import io.metersphere.base.domain.Notice;
+import io.metersphere.base.domain.NoticeDetail;
 import io.metersphere.base.domain.NoticeExample;
 import io.metersphere.base.mapper.NoticeMapper;
 import io.metersphere.notice.controller.request.NoticeRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -66,17 +65,17 @@ public class NoticeService {
         }
     }
 
-    public List<Notice> queryNotice(String id) {
+    public List<NoticeDetail> queryNotice(String id) {
         NoticeExample example = new NoticeExample();
         example.createCriteria().andTestIdEqualTo(id);
         List<Notice> notices = noticeMapper.selectByExample(example);
-        List<Notice> notice = new ArrayList<>();
+        List<NoticeDetail> notice = new ArrayList<>();
         List<String> success = new ArrayList<>();
         List<String> fail = new ArrayList<>();
         String[] successArray = new String[success.size()];
         String[] failArray = new String[fail.size()];
-        Notice notice1 = new Notice();
-        Notice notice2 = new Notice();
+        NoticeDetail notice1 = new NoticeDetail();
+        NoticeDetail notice2 = new NoticeDetail();
         if (notices.size() > 0) {
             for (Notice n : notices) {
                 if (n.getEvent().equals("执行成功")) {
