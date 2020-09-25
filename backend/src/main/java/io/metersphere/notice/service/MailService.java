@@ -118,6 +118,19 @@ public class MailService {
         }
     }
 
+    public void sendCommentNotice(List<String> userIds, SaveCommentRequest request, TestCaseWithBLOBs testCaseWithBLOBs) {
+        Map<String, String> context = new HashMap<>();
+        context.put("maintainer", testCaseWithBLOBs.getMaintainer());
+        context.put("testCaseName", testCaseWithBLOBs.getName());
+        context.put("description", request.getDescription());
+
+        try {
+            String commentTemplate = IOUtils.toString(this.getClass().getResource("/mail/comment.html"), StandardCharsets.UTF_8);
+            sendHtml(userIds, context, commentTemplate);
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
+    }
 
     public void sendReviewerNotice(List<String> userIds, SaveTestCaseReviewRequest reviewRequest) {
         Map<String, String> context = getReviewContext(reviewRequest);
@@ -148,20 +161,6 @@ public class MailService {
         helper.setTo(users);
 
         javaMailSender.send(mimeMessage);
-    }
-
-    public void sendCommentNotice(List<String> userIds, SaveCommentRequest request, TestCaseWithBLOBs testCaseWithBLOBs) {
-        Map<String, String> context = new HashMap<>();
-        context.put("maintainer", testCaseWithBLOBs.getMaintainer());
-        context.put("testCaseName", testCaseWithBLOBs.getName());
-        context.put("description", request.getDescription());
-
-        try {
-            String commentTemplate = IOUtils.toString(this.getClass().getResource("/mail/comment.html"), StandardCharsets.UTF_8);
-            sendHtml(userIds, context, commentTemplate);
-        } catch (Exception e) {
-            LogUtil.error(e);
-        }
     }
 
     private Map<String, String> getReviewContext(SaveTestCaseReviewRequest reviewRequest) {
