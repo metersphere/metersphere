@@ -14,7 +14,6 @@ import org.quartz.TriggerKey;
 public class ApiTestJob extends MsScheduleJob {
 
     private APITestService apiTestService;
-    private MailService mailService;
     public ApiTestJob() {
         apiTestService = (APITestService) CommonBeanFactory.getBean(APITestService.class);
     }
