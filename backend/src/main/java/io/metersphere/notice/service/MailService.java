@@ -1,14 +1,13 @@
 package io.metersphere.notice.service;
 
 import io.metersphere.api.dto.APIReportResult;
-import io.metersphere.base.domain.Notice;
 import io.metersphere.base.domain.SystemParameter;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.i18n.Translator;
+import io.metersphere.notice.domain.NoticeDTO;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.request.testreview.SaveCommentRequest;
@@ -17,7 +16,6 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -38,27 +36,19 @@ public class MailService {
     @Resource
     private SystemParameterService systemParameterService;
 
-    public void sendHtml(String id, List<Notice> notice, String status, String type) {
-        JavaMailSenderImpl javaMailSender = getMailSender();
-        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-        String testName = "";
-        if (type.equals("api")) {
-            APIReportResult reportResult = apiAndPerformanceHelper.getApi(id);
-            testName = reportResult.getTestName();
-        } else if (type.equals("performance")) {
-            LoadTestDTO performanceResult = apiAndPerformanceHelper.getPerformance(id);
-            testName = performanceResult.getName();
-            status = performanceResult.getStatus();
-        }
+    public void sendApiTestNotice(String id, List<NoticeDTO> notice, String status) {
+        APIReportResult reportResult = apiAndPerformanceHelper.getApi(id);
+        String testName = reportResult.getTestName();
 
         Map<String, String> context = new HashMap<>();
-        context.put("title", type + Translator.get("timing_task_result_notification"));
+        context.put("title", "API" + Translator.get("timing_task_result_notification"));
         context.put("testName", testName);
 
         try {
             String failTemplate = IOUtils.toString(this.getClass().getResource("/mail/fail.html"), StandardCharsets.UTF_8);
             String successTemplate = IOUtils.toString(this.getClass().getResource("/mail/success.html"), StandardCharsets.UTF_8);
-
+            JavaMailSenderImpl javaMailSender = getMailSender();
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
             helper.setFrom(javaMailSender.getUsername());
             helper.setSubject(Translator.get("timing_task_result_notification"));
@@ -66,7 +56,7 @@ public class MailService {
             List<String> successEmailList = new ArrayList<>();
             List<String> failEmailList = new ArrayList<>();
             if (notice.size() > 0) {
-                for (Notice n : notice) {
+                for (NoticeDTO n : notice) {
                     if (n.getEnable().equals("true") && n.getEvent().equals("执行成功")) {
                         successEmailList = userService.queryEmail(n.getNames());
                     }
@@ -86,12 +76,8 @@ public class MailService {
                 helper.setText(getContent(failTemplate, context), true);
             }
             helper.setTo(users);
-        } catch (Exception e) {
-            LogUtil.error(e);
-        }
-        try {
             javaMailSender.send(mimeMessage);
-        } catch (MailException e) {
+        } catch (Exception e) {
             LogUtil.error(e);
         }
     }
