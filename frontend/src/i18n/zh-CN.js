@@ -175,6 +175,13 @@ export default {
     invalid: '无效',
     expired: '已过期',
   },
+  system_config: {
+    base_config: '基本配置',
+    base: {
+      url: '当前站点URL',
+      url_tip: '例如：http://localhost:8081'
+    }
+  },
   workspace: {
     create: '创建工作空间',
     update: '修改工作空间',
@@ -461,6 +468,7 @@ export default {
       input_url: "请输入请求URL",
       input_path: "请输入请求路径",
       name: "请求名称",
+      content_type: "请求类型",
       method: "请求方法",
       url: "请求URL",
       path: "请求路径",
@@ -730,6 +738,10 @@ export default {
       plan_status_prepare: "未开始",
       plan_status_running: "进行中",
       plan_status_completed: "已完成",
+      planned_start_time: "计划开始",
+      planned_end_time: "计划结束",
+      actual_start_time: "实际开始",
+      actual_end_time: "实际结束",
       plan_delete_confirm: "将删除该测试计划下所有用例，确认删除测试计划: ",
       plan_delete: "删除计划",
     },

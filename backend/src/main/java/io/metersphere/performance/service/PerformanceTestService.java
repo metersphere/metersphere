@@ -19,6 +19,7 @@ import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.PerformanceTestJob;
+import io.metersphere.notice.domain.NoticeDetail;
 import io.metersphere.notice.service.MailService;
 import io.metersphere.notice.service.NoticeService;
 import io.metersphere.performance.engine.Engine;
@@ -237,19 +238,6 @@ public class PerformanceTestService {
         }
 
         startEngine(loadTest, engine, request.getTriggerMode());
-       /* if (request.getTriggerMode().equals("SCHEDULE")) {
-            List<Notice> notice = null;
-            try {
-                notice = noticeService.queryNotice(request.getId());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            try {
-                mailService.sendHtml(engine.getReportId(), notice, "status", "performance");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }*/
         return engine.getReportId();
     }
 
@@ -317,6 +305,19 @@ public class PerformanceTestService {
             reportResult.setReportKey(ReportKeys.ResultStatus.name());
             reportResult.setReportValue("Ready"); // 初始化一个 result_status, 这个值用在data-streaming中
             loadTestReportResultMapper.insertSelective(reportResult);
+            if (triggerMode.equals("SCHEDULE")) {
+                List<NoticeDetail> notice = null;
+                try {
+                    notice = noticeService.queryNotice(loadTest.getId());
+                } catch (Exception e) {
+                    LogUtil.error(e);
+                }
+                try {
+                    mailService.sendHtml(engine.getReportId(), notice, loadTest.getStatus(), "performance");
+                } catch (Exception e) {
+                    LogUtil.error(e);
+                }
+            }
         } catch (MSException e) {
             LogUtil.error(e);
             loadTest.setStatus(PerformanceTestStatus.Error.name());

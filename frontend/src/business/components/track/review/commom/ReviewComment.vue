@@ -72,6 +72,6 @@ export default {
 
 .comment-list {
   overflow-y: scroll;
-  height: calc(70vh);
+  height: calc(100vh - 250px);
 }
 </style>

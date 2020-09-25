@@ -10,13 +10,16 @@ import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.MathUtils;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.notice.service.MailService;
 import io.metersphere.service.UserService;
-import io.metersphere.track.dto.*;
+import io.metersphere.track.dto.TestCaseReviewDTO;
+import io.metersphere.track.dto.TestReviewCaseDTO;
+import io.metersphere.track.dto.TestReviewDTOWithMetric;
 import io.metersphere.track.request.testreview.*;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -314,7 +317,7 @@ public class TestCaseReviewService {
             testCaseReviewMapper.updateByPrimaryKey(testCaseReview);
         }
     }
-    
+
     public List<String> getTestCaseReviewerIds(String reviewId) {
         TestCaseReviewUsersExample testCaseReviewUsersExample = new TestCaseReviewUsersExample();
         testCaseReviewUsersExample.createCriteria().andReviewIdEqualTo(reviewId);
@@ -345,12 +348,13 @@ public class TestCaseReviewService {
         TestCaseReview _testCaseReview = testCaseReviewMapper.selectByPrimaryKey(reviewId);
         List<String> userIds = new ArrayList<>();
         userIds.add(_testCaseReview.getCreator());
+
         try {
             BeanUtils.copyProperties(testCaseReviewRequest, _testCaseReview);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         } catch (InvocationTargetException e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         mailService.sendHtml(userIds, "end", testCaseReviewRequest, request, testCaseWithBLOBs);
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);

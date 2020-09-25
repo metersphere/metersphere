@@ -344,6 +344,9 @@ export class HTTPSamplerArguments extends Element {
         }
         elementProp.stringProp('Argument.value', arg.value);
         elementProp.stringProp('Argument.metadata', arg.metadata || "=");
+        if (arg.contentType) {
+          elementProp.stringProp('HTTPArgument.content_type', arg.contentType, "");
+        }
       }
     });
   }
@@ -363,7 +366,7 @@ export class HTTPsamplerFiles extends Element {
       let elementProp = collectionProp.elementProp(arg.value, 'HTTPFileArg');
       elementProp.stringProp('File.path', arg.value);
       elementProp.stringProp('File.paramname', arg.name);
-      elementProp.stringProp('File.mimetype', arg.metadata || "application/octet-stream");
+      elementProp.stringProp('File.mimetype', arg.contentType || "application/octet-stream");
     });
   }
 }

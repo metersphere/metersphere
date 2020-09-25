@@ -152,14 +152,14 @@ export default {
         ge: "大於等於",
         lt: "小於",
         le: "小於等於",
-        not_equals: "不等於",
         equals: "等於",
+        not_equals: "不等於",
         between: "之間",
         current_user: "是當前用戶"
       }
     }
   },
-  license:{
+  license: {
     title: '授權管理',
     corporation: '客戶名稱',
     time: '授權時間',
@@ -174,6 +174,13 @@ export default {
     valid: '有效',
     invalid: '無效',
     expired: '已過期',
+  },
+  system_config: {
+    base_config: '基本配置',
+    base: {
+      url: '當前站點URL',
+      url_tip: '例如：http://localhost:8081'
+    }
   },
   workspace: {
     create: '創建工作空間',
@@ -281,7 +288,7 @@ export default {
     email_format_is_incorrect: '郵箱格式不正確',
     delete_confirm: '這個用戶確定要刪除嗎?',
     apikey_delete_confirm: '這個 API Key 確定要刪除嗎?',
-    input_id_placeholder: '請輸入ID (不支持中文字符)',
+    input_id_placeholder: '請輸入ID (不支持中文)',
     source: '用戶來源'
   },
   role: {
@@ -463,6 +470,7 @@ export default {
       name: "請求名稱",
       method: "請求方法",
       url: "請求URL",
+      content_type: "請求類型",
       path: "請求路徑",
       address: "請求地址",
       refer_to_environment: "引用環境",
@@ -632,7 +640,7 @@ export default {
     cancel_relevance_success: "取消關聯成功",
     switch_project: "切換項目",
     case: {
-      export_all_cases: '確定要匯出全部用例嗎？',
+      export_all_cases: '確定要導出全部用例嗎?',
       input_test_case: '請輸入關聯用例名稱',
       test_name: '測試名稱',
       other: "--其他--",
