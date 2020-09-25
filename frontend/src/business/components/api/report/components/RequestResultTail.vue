@@ -2,9 +2,12 @@
   <div class="request-result">
     <div @click="active">
       <el-row :gutter="10" type="flex" align="middle" class="info">
-        <el-col :span="16">
+        <el-col :span="12">
           <i class="icon el-icon-arrow-right" :class="{'is-active': isActive}"/>
           {{scenarioName}}
+        </el-col>
+        <el-col :span="4">
+          {{$t('api_report.start_time')}}
         </el-col>
         <el-col :span="2">
           {{$t('api_report.response_time')}}
@@ -20,16 +23,19 @@
         </el-col>
       </el-row>
       <el-row :gutter="10" type="flex" align="middle" class="info">
-        <el-col :span="4">
+        <el-col :span="2">
           <div class="method">
             {{request.method}}
           </div>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="10">
           <div class="name">{{request.name}}</div>
           <el-tooltip effect="dark" :content="request.url" placement="bottom" :open-delay="800">
             <div class="url">{{request.url}}</div>
           </el-tooltip>
+        </el-col>
+        <el-col :span="4">
+            {{request.startTime | timestampFormatDate(true) }}
         </el-col>
         <el-col :span="2">
           <div class="time">

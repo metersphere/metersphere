@@ -10,7 +10,7 @@ const options = function (value, array) {
   return value;
 };
 
-const timestampFormatDate = function (timestamp) {
+const timestampFormatDate = function (timestamp, showMs) {
   if (!timestamp) {
     return timestamp
   }
@@ -34,7 +34,14 @@ const timestampFormatDate = function (timestamp) {
   let s = date.getSeconds();
   s = s < 10 ? ('0' + s) : s;
 
-  return y + '-' + MM + '-' + d + ' ' + h + ':' + m + ':' + s
+  let format = y + '-' + MM + '-' + d + ' ' + h + ':' + m + ':' + s;
+
+  if (showMs === true) {
+    let ms = date.getMilliseconds();
+    format += ':' + ms
+  }
+
+  return format
 };
 
 const filters = {
