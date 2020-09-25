@@ -1,6 +1,9 @@
 package io.metersphere.track.service;
 
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.TestCaseComment;
+import io.metersphere.base.domain.TestCaseCommentExample;
+import io.metersphere.base.domain.TestCaseWithBLOBs;
+import io.metersphere.base.domain.User;
 import io.metersphere.base.mapper.TestCaseCommentMapper;
 import io.metersphere.base.mapper.TestCaseMapper;
 import io.metersphere.base.mapper.TestCaseReviewMapper;
@@ -9,12 +12,10 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.notice.service.MailService;
 import io.metersphere.track.request.testreview.SaveCommentRequest;
 import io.metersphere.track.request.testreview.SaveTestCaseReviewRequest;
-import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;

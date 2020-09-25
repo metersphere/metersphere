@@ -1,14 +1,15 @@
 package io.metersphere.notice.service;
 
 import io.metersphere.api.dto.APIReportResult;
-import io.metersphere.base.domain.Notice;
 import io.metersphere.base.domain.SystemParameter;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.i18n.Translator;
+import io.metersphere.notice.domain.NoticeDetail;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.request.testreview.SaveCommentRequest;
@@ -37,7 +38,9 @@ public class MailService {
     @Resource
     private SystemParameterService systemParameterService;
 
-    public void sendHtml(String id, List<Notice> notice, String status, String type) {
+
+    public void sendHtml(String id, List<NoticeDetail> notice, String status, String type) {
+        BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         JavaMailSenderImpl javaMailSender = getMailSender();
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         String testName = "";
@@ -47,16 +50,19 @@ public class MailService {
         } else if (type.equals("performance")) {
             LoadTestDTO performanceResult = apiAndPerformanceHelper.getPerformance(id);
             testName = performanceResult.getName();
-            status = performanceResult.getStatus();
         }
 
         Map<String, String> context = new HashMap<>();
         context.put("title", type + Translator.get("timing_task_result_notification"));
         context.put("testName", testName);
+        context.put("url", baseSystemConfigDTO.getUrl());
+        context.put("id", id);
+        context.put("type", type);
 
         try {
             String failTemplate = IOUtils.toString(this.getClass().getResource("/mail/fail.html"), StandardCharsets.UTF_8);
             String successTemplate = IOUtils.toString(this.getClass().getResource("/mail/success.html"), StandardCharsets.UTF_8);
+            String successPerformanceTemplate = IOUtils.toString(this.getClass().getResource("/mail/successPerformance.html"), StandardCharsets.UTF_8);
 
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
             helper.setFrom(javaMailSender.getUsername());
@@ -65,7 +71,7 @@ public class MailService {
             List<String> successEmailList = new ArrayList<>();
             List<String> failEmailList = new ArrayList<>();
             if (notice.size() > 0) {
-                for (Notice n : notice) {
+                for (NoticeDetail n : notice) {
                     if (n.getEnable().equals("true") && n.getEvent().equals("执行成功")) {
                         successEmailList = userService.queryEmail(n.getNames());
                     }
@@ -80,6 +86,9 @@ public class MailService {
             if (status.equals("Success")) {
                 users = successEmailList.toArray(new String[0]);
                 helper.setText(getContent(successTemplate, context), true);
+            } else if (status.equals("Starting") && type.equals("performance")) {
+                users = successEmailList.toArray(new String[0]);
+                helper.setText(getContent(successPerformanceTemplate, context), true);
             } else {
                 users = failEmailList.toArray(new String[0]);
                 helper.setText(getContent(failTemplate, context), true);
@@ -108,6 +117,7 @@ public class MailService {
 
 
     public void sendHtml(List<String> userIds, String type, SaveTestCaseReviewRequest reviewRequest, SaveCommentRequest request, TestCaseWithBLOBs testCaseWithBLOBs) {
+        BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         Long startTime = reviewRequest.getCreateTime();
         Long endTime = reviewRequest.getEndTime();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -132,6 +142,8 @@ public class MailService {
         context.put("description", request.getDescription());
         context.put("start", start);
         context.put("end", end);
+        context.put("url", baseSystemConfigDTO.getUrl());
+        context.put("id", reviewRequest.getId());
 
         try {
             String reviewerTemplate = IOUtils.toString(this.getClass().getResource("/mail/reviewer.html"), StandardCharsets.UTF_8);
