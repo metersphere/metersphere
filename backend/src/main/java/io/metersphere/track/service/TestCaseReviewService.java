@@ -20,10 +20,7 @@ import io.metersphere.service.UserService;
 import io.metersphere.track.dto.TestCaseReviewDTO;
 import io.metersphere.track.dto.TestReviewCaseDTO;
 import io.metersphere.track.dto.TestReviewDTOWithMetric;
-import io.metersphere.track.request.testreview.QueryCaseReviewRequest;
-import io.metersphere.track.request.testreview.QueryTestReviewRequest;
-import io.metersphere.track.request.testreview.ReviewRelevanceRequest;
-import io.metersphere.track.request.testreview.SaveTestCaseReviewRequest;
+import io.metersphere.track.request.testreview.*;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -34,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -96,7 +94,10 @@ public class TestCaseReviewService {
         reviewRequest.setCreator(SessionUtils.getUser().getId());
         reviewRequest.setStatus(TestCaseReviewStatus.Prepare.name());
         testCaseReviewMapper.insert(reviewRequest);
-        mailService.sendReviewerNotice(userIds, reviewRequest);
+        SaveCommentRequest request = new SaveCommentRequest();
+        TestCaseWithBLOBs testCaseWithBLOBs = new TestCaseWithBLOBs();
+        mailService.sendHtml(userIds, "reviewer", reviewRequest, request, testCaseWithBLOBs);
+
     }
 
     public List<TestCaseReviewDTO> listCaseReview(QueryCaseReviewRequest request) {
@@ -146,13 +147,15 @@ public class TestCaseReviewService {
         return extTestCaseReviewMapper.listByWorkspaceId(currentWorkspaceId);
     }
 
-    public void editCaseReview(SaveTestCaseReviewRequest reviewRequest) {
-        editCaseReviewer(reviewRequest);
-        editCaseReviewProject(reviewRequest);
-        reviewRequest.setUpdateTime(System.currentTimeMillis());
-        checkCaseReviewExist(reviewRequest);
-        testCaseReviewMapper.updateByPrimaryKeySelective(reviewRequest);
-        mailService.sendReviewerNotice(reviewRequest.getUserIds(), reviewRequest);
+    public void editCaseReview(SaveTestCaseReviewRequest testCaseReview) {
+        editCaseReviewer(testCaseReview);
+        editCaseReviewProject(testCaseReview);
+        testCaseReview.setUpdateTime(System.currentTimeMillis());
+        checkCaseReviewExist(testCaseReview);
+        testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
+        SaveCommentRequest request = new SaveCommentRequest();
+        TestCaseWithBLOBs testCaseWithBLOBs = new TestCaseWithBLOBs();
+        mailService.sendHtml(testCaseReview.getUserIds(), "reviewer", testCaseReview, request, testCaseWithBLOBs);
     }
 
     private void editCaseReviewer(SaveTestCaseReviewRequest testCaseReview) {
@@ -339,16 +342,21 @@ public class TestCaseReviewService {
             }
         }
         testCaseReview.setStatus(TestPlanStatus.Completed.name());
+        SaveCommentRequest request = new SaveCommentRequest();
+        TestCaseWithBLOBs testCaseWithBLOBs = new TestCaseWithBLOBs();
         SaveTestCaseReviewRequest testCaseReviewRequest = new SaveTestCaseReviewRequest();
         TestCaseReview _testCaseReview = testCaseReviewMapper.selectByPrimaryKey(reviewId);
         List<String> userIds = new ArrayList<>();
         userIds.add(_testCaseReview.getCreator());
+
         try {
             BeanUtils.copyProperties(testCaseReviewRequest, _testCaseReview);
-        } catch (Exception e) {
+        } catch (IllegalAccessException e) {
+            LogUtil.error(e);
+        } catch (InvocationTargetException e) {
             LogUtil.error(e);
         }
-        mailService.sendEndNotice(userIds, testCaseReviewRequest);
+        mailService.sendHtml(userIds, "end", testCaseReviewRequest, request, testCaseWithBLOBs);
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
     }
 

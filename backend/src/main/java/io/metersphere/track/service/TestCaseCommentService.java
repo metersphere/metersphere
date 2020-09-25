@@ -11,6 +11,7 @@ import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.notice.service.MailService;
 import io.metersphere.track.request.testreview.SaveCommentRequest;
+import io.metersphere.track.request.testreview.SaveTestCaseReviewRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,9 +46,10 @@ public class TestCaseCommentService {
         testCaseCommentMapper.insert(testCaseComment);
         TestCaseWithBLOBs testCaseWithBLOBs;
         testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(request.getCaseId());
+        SaveTestCaseReviewRequest caseReviewRequest = new SaveTestCaseReviewRequest();
         List<String> userIds = new ArrayList<>();
         userIds.add(testCaseWithBLOBs.getMaintainer());
-        mailService.sendCommentNotice(userIds, request, testCaseWithBLOBs);
+        mailService.sendHtml(userIds, "comment", caseReviewRequest, request, testCaseWithBLOBs);
 
     }
 
