@@ -12,13 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static io.metersphere.commons.constants.NoticeConstants.EXECUTE_FAILED;
+import static io.metersphere.commons.constants.NoticeConstants.EXECUTE_SUCCESSFUL;
+
 @Service
 public class NoticeService {
     @Resource
     private NoticeMapper noticeMapper;
 
     public void saveNotice(NoticeRequest noticeRequest) {
-        Notice notice = new Notice();
         NoticeExample example = new NoticeExample();
         example.createCriteria().andTestIdEqualTo(noticeRequest.getTestId());
         List<Notice> notices = noticeMapper.selectByExample(example);
@@ -28,11 +30,13 @@ public class NoticeService {
         noticeRequest.getNotices().forEach(n -> {
             if (n.getNames().length > 0) {
                 for (String x : n.getNames()) {
+                    Notice notice = new Notice();
                     notice.setId(UUID.randomUUID().toString());
                     notice.setEvent(n.getEvent());
                     notice.setEnable(n.getEnable());
                     notice.setTestId(noticeRequest.getTestId());
                     notice.setName(x);
+                    notice.setType(n.getType());
                     noticeMapper.insert(notice);
                 }
             }
@@ -43,7 +47,7 @@ public class NoticeService {
         NoticeExample example = new NoticeExample();
         example.createCriteria().andTestIdEqualTo(id);
         List<Notice> notices = noticeMapper.selectByExample(example);
-        List<NoticeDetail> notice = new ArrayList<>();
+        List<NoticeDetail> result = new ArrayList<>();
         List<String> success = new ArrayList<>();
         List<String> fail = new ArrayList<>();
         String[] successArray;
@@ -52,16 +56,18 @@ public class NoticeService {
         NoticeDetail notice2 = new NoticeDetail();
         if (notices.size() > 0) {
             for (Notice n : notices) {
-                if (n.getEvent().equals("执行成功")) {
+                if (n.getEvent().equals(EXECUTE_SUCCESSFUL)) {
                     success.add(n.getName());
                     notice1.setEnable(n.getEnable());
                     notice1.setTestId(id);
+                    notice1.setType(n.getType());
                     notice1.setEvent(n.getEvent());
                 }
-                if (n.getEvent().equals("执行失败")) {
+                if (n.getEvent().equals(EXECUTE_FAILED)) {
                     fail.add(n.getName());
                     notice2.setEnable(n.getEnable());
                     notice2.setTestId(id);
+                    notice2.setType(n.getType());
                     notice2.setEvent(n.getEvent());
                 }
             }
@@ -69,10 +75,10 @@ public class NoticeService {
             failArray = fail.toArray(new String[0]);
             notice1.setNames(successArray);
             notice2.setNames(failArray);
-            notice.add(notice1);
-            notice.add(notice2);
+            result.add(notice1);
+            result.add(notice2);
         }
-        return notice;
+        return result;
     }
 
 }
