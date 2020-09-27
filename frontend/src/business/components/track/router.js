@@ -1,12 +1,12 @@
 import MsProject from "@/business/components/project/MsProject";
 
-const TestTrack = () => import(/* webpackChunkName: "track" */ '@/business/components/track/TestTrack')
-const TrackHome = () => import(/* webpackChunkName: "track" */ '@/business/components/track/home/TrackHome')
-const TestCase = () => import(/* webpackChunkName: "track" */ '@/business/components/track/case/TestCase')
-const TestPlan = () => import(/* webpackChunkName: "track" */ '@/business/components/track/plan/TestPlan')
-const TestCaseReview = () => import(/* webpackChunkName: "track" */ '@/business/components/track/review/TestCaseReview')
-const TestCaseReviewView = () => import(/* webpackChunkName: "track" */ '@/business/components/track/review/view/TestCaseReviewView')
-const TestPlanView = () => import(/* webpackChunkName: "track" */ '@/business/components/track/plan/view/TestPlanView')
+const TestTrack = () => import('@/business/components/track/TestTrack')
+const TrackHome = () => import('@/business/components/track/home/TrackHome')
+const TestCase = () => import('@/business/components/track/case/TestCase')
+const TestPlan = () => import('@/business/components/track/plan/TestPlan')
+const TestCaseReview = () => import('@/business/components/track/review/TestCaseReview')
+const TestCaseReviewView = () => import('@/business/components/track/review/view/TestCaseReviewView')
+const TestPlanView = () => import('@/business/components/track/plan/view/TestPlanView')
 
 export default {
   path: "/track",
