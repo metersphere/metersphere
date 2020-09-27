@@ -507,11 +507,7 @@ public class IssuesService {
     }
 
     public List<Issues> getLocalIssues(String caseId) {
-        List<Issues> list = extIssuesMapper.getIssues(caseId, IssuesManagePlatform.Local.toString());
-        List<Issues> issues = list.stream()
-                .filter(l -> !StringUtils.equals(l.getStatus(), "closed"))
-                .collect(Collectors.toList());
-        return issues;
+        return extIssuesMapper.getIssues(caseId, IssuesManagePlatform.Local.toString());
     }
 
     public String getTapdProjectId(String testCaseId) {
@@ -559,4 +555,7 @@ public class IssuesService {
         return users;
     }
 
+    public void deleteIssue(String id) {
+        issuesMapper.deleteByPrimaryKey(id);
+    }
 }
