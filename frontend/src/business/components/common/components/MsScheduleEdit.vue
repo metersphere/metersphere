@@ -174,6 +174,13 @@ export default {
         this.result = this.$get('notice/query/' + this.testId, response => {
           if (response.data.length > 0) {
             this.tableData = response.data
+            this.tableData[0].email="邮箱"
+            this.tableData[0].event="执行成功"
+            this.tableData[1].email="邮箱"
+            this.tableData[1].event="执行失败"
+          }else{
+            this.tableData[0].names=[]
+            this.tableData[1].names=[]
           }
         })
       }

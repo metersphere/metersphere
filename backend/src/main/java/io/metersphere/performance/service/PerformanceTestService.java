@@ -238,6 +238,15 @@ public class PerformanceTestService {
         }
 
         startEngine(loadTest, engine, request.getTriggerMode());
+        List<NoticeDetail> noticeList = null;
+        if (request.getTriggerMode().equals("SCHEDULE")) {
+            try {
+                noticeList = noticeService.queryNotice(loadTest.getId());
+                mailService.sendPerformanceNotification(noticeList, PerformanceTestStatus.Completed.name(), loadTest);
+            } catch (Exception e) {
+                LogUtil.error(e.getMessage(), e);
+            }
+        }
         return engine.getReportId();
     }
 
@@ -280,7 +289,7 @@ public class PerformanceTestService {
             testReport.setUserId(SessionUtils.getUser().getId());
         }
         // 启动测试
-
+        List<NoticeDetail> noticeList = null;
         try {
             engine.start();
             // 启动正常修改状态 starting
@@ -305,24 +314,15 @@ public class PerformanceTestService {
             reportResult.setReportKey(ReportKeys.ResultStatus.name());
             reportResult.setReportValue("Ready"); // 初始化一个 result_status, 这个值用在data-streaming中
             loadTestReportResultMapper.insertSelective(reportResult);
-            if (triggerMode.equals("SCHEDULE")) {
-                List<NoticeDetail> notice = null;
-                try {
-                    notice = noticeService.queryNotice(loadTest.getId());
-                } catch (Exception e) {
-                    LogUtil.error(e);
-                }
-                try {
-                    mailService.sendHtml(engine.getReportId(), notice, loadTest.getStatus(), "performance");
-                } catch (Exception e) {
-                    LogUtil.error(e);
-                }
-            }
         } catch (MSException e) {
             LogUtil.error(e);
             loadTest.setStatus(PerformanceTestStatus.Error.name());
             loadTest.setDescription(e.getMessage());
             loadTestMapper.updateByPrimaryKeySelective(loadTest);
+            if (triggerMode.equals("SCHEDULE")) {
+                noticeList = noticeService.queryNotice(loadTest.getId());
+                mailService.sendPerformanceNotification(noticeList, loadTest.getStatus(), loadTest);
+            }
             throw e;
         }
     }
@@ -445,6 +445,17 @@ public class PerformanceTestService {
             reportService.stopEngine(loadTest, engine);
             // 停止测试之后设置报告的状态
             reportService.updateStatus(reportId, PerformanceTestStatus.Completed.name());
+            List<NoticeDetail> noticeList = null;
+            if (loadTestReport.getTriggerMode().equals("SCHEDULE")) {
+                try {
+                    noticeList = noticeService.queryNotice(loadTest.getId());
+                    mailService.sendPerformanceNotification(noticeList, loadTestReport.getStatus(), loadTest);
+                } catch (Exception e) {
+                    LogUtil.error(e.getMessage(), e);
+                }
+            }
+
+
         }
     }
 
