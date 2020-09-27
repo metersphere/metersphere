@@ -47,7 +47,7 @@ public class NoticeService {
         NoticeExample example = new NoticeExample();
         example.createCriteria().andTestIdEqualTo(id);
         List<Notice> notices = noticeMapper.selectByExample(example);
-        List<NoticeDetail> notice = new ArrayList<>();
+        List<NoticeDetail> result = new ArrayList<>();
         List<String> success = new ArrayList<>();
         List<String> fail = new ArrayList<>();
         String[] successArray;
@@ -75,10 +75,10 @@ public class NoticeService {
             failArray = fail.toArray(new String[0]);
             notice1.setNames(successArray);
             notice2.setNames(failArray);
-            notice.add(notice1);
-            notice.add(notice2);
+            result.add(notice1);
+            result.add(notice2);
         }
-        return notice;
+        return result;
     }
 
 }
