@@ -598,6 +598,7 @@ export default {
     delete_confirm: '確認刪除報告: ',
     delete_batch_confirm: '確認批量刪除報告',
     scenario_name: "場景名稱",
+    start_time: "開始時間",
     response_time: "響應時間(ms)",
     latency: "網絡延遲",
     request_size: "請求大小",

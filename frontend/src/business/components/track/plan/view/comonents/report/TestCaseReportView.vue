@@ -36,12 +36,12 @@
             <div v-for="(item, index) in previews" :key="item.id">
               <template-component :isReportView="true" :metric="metric" :preview="item" :index="index" ref="templateComponent"/>
             </div>
-            <ms-test-case-report-export v-if="reportExportVisible" id="testCaseReportExport" :title="report.name" :metric="metric" :previews="previews"/>
           </el-main>
         </div>
 
       </template>
     </el-drawer>
+    <ms-test-case-report-export v-if="reportExportVisible" id="testCaseReportExport" :title="report.name" :metric="metric" :previews="previews"/>
     <test-case-report-template-edit :metric="metric" ref="templateEdit" @refresh="getReport"/>
   </div>
 </template>

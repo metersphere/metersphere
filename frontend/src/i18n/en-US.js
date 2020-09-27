@@ -598,6 +598,7 @@ export default {
     scenario_name: "Scenario name",
     response_time: "Response time(ms)",
     latency: "Latency",
+    start_time: "Start Time",
     request_size: "Request Size",
     response_size: "Response Size",
     response_code: "Response Code",
