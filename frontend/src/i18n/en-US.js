@@ -933,6 +933,8 @@ export default {
   schedule: {
     input_email: "Please input email account",
     event: "event",
+    event_success: 'EXECUTE SUCCESSFUL',
+    event_failed: 'EXECUTE FAILED',
     receiving_mode: "mailbox",
     receiver: "Receiver",
     operation: "operation",

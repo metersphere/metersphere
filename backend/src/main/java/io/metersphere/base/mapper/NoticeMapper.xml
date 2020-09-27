@@ -7,6 +7,7 @@
     <result column="TEST_ID" jdbcType="VARCHAR" property="testId" />
     <result column="NAME" jdbcType="VARCHAR" property="name" />
     <result column="ENABLE" jdbcType="VARCHAR" property="enable" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -67,7 +68,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, EVENT, TEST_ID, `NAME`, `ENABLE`
+    id, EVENT, TEST_ID, `NAME`, `ENABLE`, `type`
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.NoticeExample" resultMap="BaseResultMap">
     select
@@ -84,26 +85,26 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
-    SELECT
+    select 
     <include refid="Base_Column_List" />
-    FROM notice
-    WHERE id = #{id,jdbcType=VARCHAR}
+    from notice
+    where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     DELETE FROM notice
     WHERE id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.base.domain.NoticeExample">
-    DELETE FROM notice
+    delete from notice
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.Notice">
     INSERT INTO notice (id, EVENT, TEST_ID,
-      `NAME`, `ENABLE`)
+      `NAME`, `ENABLE`, `type`)
     VALUES (#{id,jdbcType=VARCHAR}, #{event,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR},
-      #{name,jdbcType=VARCHAR}, #{enable,jdbcType=VARCHAR})
+      #{name,jdbcType=VARCHAR}, #{enable,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.Notice">
     insert into notice
@@ -123,6 +124,9 @@
       <if test="enable != null">
         `ENABLE`,
       </if>
+      <if test="type != null">
+        `type`,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -139,6 +143,9 @@
       </if>
       <if test="enable != null">
         #{enable,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -166,24 +173,28 @@
       <if test="record.enable != null">
         `ENABLE` = #{record.enable,jdbcType=VARCHAR},
       </if>
+      <if test="record.type != null">
+        `type` = #{record.type,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    UPDATE notice
-    SET id = #{record.id,jdbcType=VARCHAR},
+    update notice
+    set id = #{record.id,jdbcType=VARCHAR},
       EVENT = #{record.event,jdbcType=VARCHAR},
       TEST_ID = #{record.testId,jdbcType=VARCHAR},
       `NAME` = #{record.name,jdbcType=VARCHAR},
-      `ENABLE` = #{record.enable,jdbcType=VARCHAR}
+      `ENABLE` = #{record.enable,jdbcType=VARCHAR},
+      `type` = #{record.type,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.Notice">
-    UPDATE notice
+    update notice
     <set>
       <if test="event != null">
         EVENT = #{event,jdbcType=VARCHAR},
@@ -197,15 +208,19 @@
       <if test="enable != null">
         `ENABLE` = #{enable,jdbcType=VARCHAR},
       </if>
+      <if test="type != null">
+        `type` = #{type,jdbcType=VARCHAR},
+      </if>
     </set>
-    WHERE id = #{id,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.Notice">
     UPDATE notice
     SET EVENT = #{event,jdbcType=VARCHAR},
       TEST_ID = #{testId,jdbcType=VARCHAR},
       `NAME` = #{name,jdbcType=VARCHAR},
-      `ENABLE` = #{enable,jdbcType=VARCHAR}
+      `ENABLE` = #{enable,jdbcType=VARCHAR},
+      `type` = #{type,jdbcType=VARCHAR}
     WHERE id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
