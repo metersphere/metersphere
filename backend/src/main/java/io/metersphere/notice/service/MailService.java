@@ -4,6 +4,7 @@ import io.metersphere.base.domain.ApiTestReport;
 import io.metersphere.base.domain.LoadTestWithBLOBs;
 import io.metersphere.base.domain.SystemParameter;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
+import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
@@ -222,10 +223,10 @@ public class MailService {
         List<String> failEmailList = new ArrayList<>();
         if (noticeList.size() > 0) {
             for (NoticeDetail n : noticeList) {
-                if (n.getEnable().equals("true") && n.getEvent().equals("EXECUTE_SUCCESSFUL")) {
+                if (n.getEnable().equals("true") && n.getEvent().equals(NoticeConstants.EXECUTE_SUCCESSFUL)) {
                     successEmailList = userService.queryEmail(n.getNames());
                 }
-                if (n.getEnable().equals("true") && n.getEvent().equals("EXECUTE_FAILED")) {
+                if (n.getEnable().equals("true") && n.getEvent().equals(NoticeConstants.EXECUTE_FAILED)) {
                     failEmailList = userService.queryEmail(n.getNames());
                 }
             }

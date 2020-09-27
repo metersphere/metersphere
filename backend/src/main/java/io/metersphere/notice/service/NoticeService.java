@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static io.metersphere.commons.constants.NoticeConstants.EXECUTE_FAILED;
+import static io.metersphere.commons.constants.NoticeConstants.EXECUTE_SUCCESSFUL;
+
 @Service
 public class NoticeService {
     @Resource
@@ -53,14 +56,14 @@ public class NoticeService {
         NoticeDetail notice2 = new NoticeDetail();
         if (notices.size() > 0) {
             for (Notice n : notices) {
-                if (n.getEvent().equals("EXECUTE_SUCCESSFUL")) {
+                if (n.getEvent().equals(EXECUTE_SUCCESSFUL)) {
                     success.add(n.getName());
                     notice1.setEnable(n.getEnable());
                     notice1.setTestId(id);
                     notice1.setType(n.getType());
                     notice1.setEvent(n.getEvent());
                 }
-                if (n.getEvent().equals("EXECUTE_FAILED")) {
+                if (n.getEvent().equals(EXECUTE_FAILED)) {
                     fail.add(n.getName());
                     notice2.setEnable(n.getEnable());
                     notice2.setTestId(id);
