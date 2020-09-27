@@ -6,15 +6,17 @@ import java.io.Serializable;
 
 @Data
 public class Notice implements Serializable {
+    private String id;
+
     private String event;
 
     private String testId;
 
     private String name;
 
-    private String email;
-
     private String enable;
+
+    private String type;
 
     private static final long serialVersionUID = 1L;
 }

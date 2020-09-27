@@ -5,7 +5,7 @@
     </span>
     <div class="kv-row" v-for="(item, index) in items" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
-        <el-col v-if="isShowEnable" class="kv-checkbox">
+        <el-col class="kv-checkbox">
           <input type="checkbox" v-if="!isDisable(index)" v-model="item.enable"
                  :disabled="isReadOnly"/>
         </el-col>
@@ -19,6 +19,7 @@
                            show-word-limit/>
 
         </el-col>
+
         <el-col>
           <el-input :disabled="isReadOnly" v-model="item.value" size="small" @change="change"
                     :placeholder="valueText" show-word-limit/>
@@ -42,7 +43,6 @@
       keyPlaceholder: String,
       valuePlaceholder: String,
       description: String,
-      isShowEnable: Boolean,
       items: Array,
       isReadOnly: {
         type: Boolean,
@@ -52,7 +52,6 @@
     },
     data() {
       return {
-        // checkedValues: []
       }
     },
     computed: {
@@ -66,11 +65,6 @@
 
     methods: {
       remove: function (index) {
-        if (this.isShowEnable) {
-          // 移除勾选内容
-          let checkIndex = this.checkedValues.indexOf(this.items[index].uuid);
-          checkIndex != -1 ? this.checkedValues.splice(checkIndex, 1) : this.checkedValues;
-        }
         // 移除整行输入控件及内容
         this.items.splice(index, 1);
         this.$emit('change', this.items);
