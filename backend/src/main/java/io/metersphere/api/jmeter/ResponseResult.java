@@ -23,6 +23,8 @@ public class ResponseResult {
 
     private String body;
 
+    private String vars;
+
     private final List<ResponseAssertionResult> assertions = new ArrayList<>();
 
 }

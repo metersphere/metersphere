@@ -158,6 +158,20 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         responseResult.setResponseTime(result.getTime());
         responseResult.setResponseMessage(result.getResponseMessage());
 
+        if (result.getVars() != null && !result.getVars().entrySet().isEmpty()) {
+            List<String> vars = new LinkedList<>();
+            result.getVars().entrySet().parallelStream().reduce(vars, (first, second) -> {
+                first.add(second.getKey() + "：" + second.getValue());
+                return first;
+            }, (first, second) -> {
+                if (first == second) {
+                    return first;
+                }
+                first.addAll(second);
+                return first;
+            });
+            responseResult.setVars(StringUtils.join(vars, "\n"));
+        }
         for (AssertionResult assertionResult : result.getAssertionResults()) {
             ResponseAssertionResult responseAssertionResult = getResponseAssertionResult(assertionResult);
             if (responseAssertionResult.isPass()) {
