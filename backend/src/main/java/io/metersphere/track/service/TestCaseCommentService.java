@@ -49,7 +49,7 @@ public class TestCaseCommentService {
         SaveTestCaseReviewRequest caseReviewRequest = new SaveTestCaseReviewRequest();
         List<String> userIds = new ArrayList<>();
         userIds.add(testCaseWithBLOBs.getMaintainer());
-        mailService.sendHtml(userIds, "comment", caseReviewRequest, request, testCaseWithBLOBs);
+        mailService.sendCommentNotice(userIds, request, testCaseWithBLOBs);
 
     }
 
