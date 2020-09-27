@@ -7,6 +7,7 @@ import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.utils.CompressUtils;
 import io.metersphere.commons.utils.MybatisInterceptorConfig;
 import io.metersphere.interceptor.MybatisInterceptor;
+import io.metersphere.interceptor.UserDesensitizationInterceptor;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -46,5 +47,10 @@ public class MybatisConfig {
         configList.add(new MybatisInterceptorConfig(TestResource.class, "configuration"));
         interceptor.setInterceptorConfigList(configList);
         return interceptor;
+    }
+
+    @Bean
+    public UserDesensitizationInterceptor userDesensitizationInterceptor() {
+        return new UserDesensitizationInterceptor();
     }
 }
