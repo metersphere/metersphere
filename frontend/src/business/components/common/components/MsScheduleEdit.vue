@@ -144,13 +144,11 @@ export default {
         {
           event: "执行成功",
           names: [],
-          email: "邮箱",
           enable: false
         },
         {
           event: "执行失败",
           names: [],
-          email: "邮箱",
           enable: false
         }
       ],
