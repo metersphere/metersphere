@@ -152,7 +152,7 @@ public class XPath2Extractor
             for (int i = matchCount + 2; i <= prevCount; i++) {
                 vars.remove(concat(refName, i));
             }
-            previousResult.addVars(vars);
+            previousResult.addVars(refName,vars.get(refName));
         } catch (Exception e) {// Saxon exception
             if (log.isWarnEnabled()) {
                 log.warn("Exception while processing '{}', message:{}", getXPathQuery(), e.getMessage());

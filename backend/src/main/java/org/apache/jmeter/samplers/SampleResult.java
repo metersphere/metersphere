@@ -1612,8 +1612,11 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
         this.testLogicalAction = testLogicalAction;
     }
 
-    public void addVars(JMeterVariables vars) {
-        this.vars = vars;
+    public void addVars(String key, String value) {
+        if (this.vars == null) {
+            this.vars = new JMeterVariables();
+        }
+        this.vars.put(key, value);
     }
 
     public JMeterVariables getVars() {

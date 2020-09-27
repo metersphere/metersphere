@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * JSON-PATH based extractor
+ *
  * @since 3.0
  */
 public class JSONPostProcessor
@@ -89,7 +90,7 @@ public class JSONPostProcessor
                     }
                 }
                 SampleResult previousResult = context.getPreviousResult();
-                previousResult.addVars(vars);
+                previousResult.addVars(currentRefName, vars.get(currentRefName));
             } catch (Exception e) {
                 // if something wrong, default value added
                 if (log.isDebugEnabled()) {
@@ -172,7 +173,7 @@ public class JSONPostProcessor
         }
         // extract at position
         if (matchNumber > extractedValues.size()) {
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug(
                         "matchNumber({}) exceeds number of items found({}), default value will be used",
                         matchNumber, extractedValues.size());
@@ -194,7 +195,7 @@ public class JSONPostProcessor
     }
 
     private void handleEmptyResponse(JMeterVariables vars, String[] defaultValues, int i, String currentRefName) {
-        if(log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             log.debug("Response or source variable is null or empty for {}", getName());
         }
         vars.put(currentRefName, defaultValues[i]);
@@ -221,7 +222,7 @@ public class JSONPostProcessor
 
     private void clearOldRefVars(JMeterVariables vars, String refName) {
         vars.remove(refName + REF_MATCH_NR);
-        for (int i=1; vars.get(refName + "_" + i) != null; i++) {
+        for (int i = 1; vars.get(refName + "_" + i) != null; i++) {
             vars.remove(refName + "_" + i);
         }
     }

@@ -83,7 +83,6 @@ public class RegexExtractor extends AbstractScopedTestElement implements PostPro
 
     private transient List<Object> template;
 
-    private JMeterVariables regexVars;
     /**
      * Parses the response data using regular expressions and saving the results
      * into variables for use later in the test.
@@ -93,7 +92,6 @@ public class RegexExtractor extends AbstractScopedTestElement implements PostPro
     @Override
     public void process() {
         initTemplate();
-        regexVars = new JMeterVariables();
         JMeterContext context = getThreadContext();
         SampleResult previousResult = context.getPreviousResult();
         if (previousResult == null) {
@@ -109,7 +107,6 @@ public class RegexExtractor extends AbstractScopedTestElement implements PostPro
         final String defaultValue = getDefaultValue();
         if (defaultValue.length() > 0 || isEmptyDefaultValue()) {// Only replace default if it is provided or empty default value is explicitly requested
             vars.put(refName, defaultValue);
-            regexVars.put(refName, defaultValue);
         }
 
         Perl5Matcher matcher = JMeterUtils.getMatcher();
@@ -135,8 +132,6 @@ public class RegexExtractor extends AbstractScopedTestElement implements PostPro
                     match = getCorrectMatch(matches, matchNumber);
                     if (match != null) {
                         vars.put(refName, generateResult(match));
-                        regexVars.put(refName, generateResult(match));
-
                         saveGroups(vars, refName, match);
                     } else {
                         // refname has already been set to the default (if present)
@@ -147,15 +142,11 @@ public class RegexExtractor extends AbstractScopedTestElement implements PostPro
                     removeGroups(vars, refName); // remove any single matches
                     matchCount = matches.size();
                     vars.put(refName + REF_MATCH_NR, Integer.toString(matchCount));// Save the count
-                    regexVars.put(refName + REF_MATCH_NR, Integer.toString(matchCount));// Save the count
-
                     for (int i = 1; i <= matchCount; i++) {
                         match = getCorrectMatch(matches, i);
                         if (match != null) {
                             final String refName_n = refName + UNDERSCORE + i;
                             vars.put(refName_n, generateResult(match));
-                            regexVars.put(refName_n, generateResult(match));
-
                             saveGroups(vars, refName_n, match);
                         }
                     }
@@ -166,7 +157,7 @@ public class RegexExtractor extends AbstractScopedTestElement implements PostPro
                     vars.remove(refName_n);
                     removeGroups(vars, refName_n);
                 }
-                previousResult.addVars(regexVars);
+                previousResult.addVars(refName, vars.get(refName));
             } catch (RuntimeException e) {
                 log.warn("Error while generating result");
             }
