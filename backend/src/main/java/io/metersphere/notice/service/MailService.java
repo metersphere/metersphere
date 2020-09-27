@@ -46,6 +46,7 @@ public class MailService {
         context.put("title", "Performance" + Translator.get("timing_task_result_notification"));
         context.put("testName", loadTest.getName());
         context.put("id", loadTest.getId());
+        context.put("type", "performance");
         context.put("url", baseSystemConfigDTO.getUrl());
         String performanceTemplate = "";
         try {
@@ -65,7 +66,7 @@ public class MailService {
         Map<String, String> context = new HashMap<>();
         context.put("title", "api" + Translator.get("timing_task_result_notification"));
         context.put("testName", apiTestReport.getName());
-        context.put("type", "Api");
+        context.put("type", "api");
         context.put("url", baseSystemConfigDTO.getUrl());
         context.put("id", apiTestReport.getId());
         String apiTemplate = "";
