@@ -1,8 +1,11 @@
+const path = require('path')
+
+function resolve(dir) {
+  return path.join(__dirname, dir)
+}
+
 module.exports = {
   productionSourceMap: true,
-  configureWebpack: {
-    devtool: 'source-map'
-  },
   devServer: {
     port: 8080,
     proxy: {
@@ -23,5 +26,16 @@ module.exports = {
       template: "src/login/login.html",
       filename: "login.html"
     }
+  },
+  configureWebpack: {
+    devtool: 'source-map',
+    resolve: {
+      alias: {
+        '@': resolve('src')
+      }
+    }
+  },
+  chainWebpack(config) {
+    config.plugins.delete('prefetch')
   }
 };
