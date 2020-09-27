@@ -861,6 +861,7 @@ export default {
       platform: "平台",
       operate: "操作",
       close: "关闭缺陷",
+      delete: "删除缺陷",
       title_description_required: "标题和描述必填",
       close_success: "关闭成功",
       preview: "预览"

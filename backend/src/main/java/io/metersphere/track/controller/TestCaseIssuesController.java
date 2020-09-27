@@ -36,6 +36,11 @@ public class TestCaseIssuesController {
         issuesService.closeLocalIssue(id);
     }
 
+    @GetMapping("/delete/{id}")
+    public void deleteIssue(@PathVariable String id) {
+        issuesService.deleteIssue(id);
+    }
+
     @GetMapping("/tapd/user/{caseId}")
     public List<TapdUser> getTapdUsers(@PathVariable String caseId) {
         return issuesService.getTapdProjectUsers(caseId);

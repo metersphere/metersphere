@@ -21,29 +21,29 @@
               <el-col :span="12">
                 <el-button plain size="mini"
                            icon="el-icon-back"
-                           @click="cancel">{{$t('test_track.return')}}
+                           @click="cancel">{{ $t('test_track.return') }}
                 </el-button>
               </el-col>
 
               <el-col :span="12" class="head-right">
                 <span class="head-right-tip" v-if="index + 1 == testCases.length">
-                  {{$t('test_track.plan_view.pre_case')}} : {{testCases[index - 1] ? testCases[index - 1].name : ''}}
+                  {{ $t('test_track.plan_view.pre_case') }} : {{ testCases[index - 1] ? testCases[index - 1].name : '' }}
                 </span>
                 <span class="head-right-tip" v-if="index + 1 != testCases.length">
-                  {{$t('test_track.plan_view.next_case')}} : {{testCases[index + 1] ? testCases[index + 1].name : ''}}
+                  {{ $t('test_track.plan_view.next_case') }} : {{ testCases[index + 1] ? testCases[index + 1].name : '' }}
                 </span>
 
                 <el-button plain size="mini" icon="el-icon-arrow-up"
                            :disabled="index + 1 <= 1"
                            @click="handlePre()"/>
-                <span>  {{index + 1}}/{{testCases.length}} </span>
+                <span>  {{ index + 1 }}/{{ testCases.length }} </span>
                 <el-button plain size="mini" icon="el-icon-arrow-down"
                            :disabled="index + 1 >= testCases.length"
                            @click="handleNext()"/>
                 <el-divider direction="vertical"></el-divider>
 
                 <el-button type="primary" size="mini" :disabled="isReadOnly" @click="saveCase()">
-                  {{$t('test_track.save')}}
+                  {{ $t('test_track.save') }}
                 </el-button>
               </el-col>
 
@@ -51,7 +51,7 @@
 
             <el-row style="margin-top: 0px;">
               <el-col>
-                <el-divider content-position="left">{{testCase.name}}</el-divider>
+                <el-divider content-position="left">{{ testCase.name }}</el-divider>
               </el-col>
             </el-row>
 
@@ -60,14 +60,14 @@
           <div class="case_container">
             <el-row>
               <el-col :span="4" :offset="1">
-                <span class="cast_label">{{$t('test_track.case.priority')}}：</span>
-                <span class="cast_item">{{testCase.priority}}</span>
+                <span class="cast_label">{{ $t('test_track.case.priority') }}：</span>
+                <span class="cast_item">{{ testCase.priority }}</span>
               </el-col>
               <el-col :span="5">
-                <span class="cast_label">{{$t('test_track.case.case_type')}}：</span>
-                <span class="cast_item" v-if="testCase.type == 'functional'">{{$t('commons.functional')}}</span>
-                <span class="cast_item" v-if="testCase.type == 'performance'">{{$t('commons.performance')}}</span>
-                <span class="cast_item" v-if="testCase.type == 'api'">{{$t('commons.api')}}</span>
+                <span class="cast_label">{{ $t('test_track.case.case_type') }}：</span>
+                <span class="cast_item" v-if="testCase.type == 'functional'">{{ $t('commons.functional') }}</span>
+                <span class="cast_item" v-if="testCase.type == 'performance'">{{ $t('commons.performance') }}</span>
+                <span class="cast_item" v-if="testCase.type == 'api'">{{ $t('commons.api') }}</span>
               </el-col>
               <el-col :span="13">
                 <test-plan-test-case-status-button class="status-button"
@@ -80,24 +80,24 @@
 
             <el-row>
               <el-col :span="4" :offset="1">
-                <span class="cast_label">{{$t('test_track.case.method')}}：</span>
-                <span v-if="testCase.method == 'manual'">{{$t('test_track.case.manual')}}</span>
-                <span v-if="testCase.method == 'auto'">{{$t('test_track.case.auto')}}</span>
+                <span class="cast_label">{{ $t('test_track.case.method') }}：</span>
+                <span v-if="testCase.method == 'manual'">{{ $t('test_track.case.manual') }}</span>
+                <span v-if="testCase.method == 'auto'">{{ $t('test_track.case.auto') }}</span>
               </el-col>
               <el-col :span="5">
-                <span class="cast_label">{{$t('test_track.case.module')}}：</span>
-                <span class="cast_item">{{testCase.nodePath}}</span>
+                <span class="cast_label">{{ $t('test_track.case.module') }}：</span>
+                <span class="cast_item">{{ testCase.nodePath }}</span>
               </el-col>
               <el-col :span="4" :offset="1">
-                <span class="cast_label">{{$t('test_track.plan.plan_project')}}：</span>
-                <span class="cast_item">{{testCase.projectName}}</span>
+                <span class="cast_label">{{ $t('test_track.plan.plan_project') }}：</span>
+                <span class="cast_item">{{ testCase.projectName }}</span>
               </el-col>
             </el-row>
 
             <el-row>
               <el-col :offset="1">
-                <span class="cast_label">{{$t('test_track.case.prerequisite')}}：</span>
-                <span class="cast_item">{{testCase.prerequisite}}</span>
+                <span class="cast_label">{{ $t('test_track.case.prerequisite') }}：</span>
+                <span class="cast_item">{{ testCase.prerequisite }}</span>
               </el-col>
             </el-row>
 
@@ -122,7 +122,7 @@
             <el-row v-if="testCase.method && testCase.method != 'auto'">
               <el-col :span="20" :offset="1">
                 <div>
-                  <span class="cast_label">{{$t('test_track.case.steps')}}：</span>
+                  <span class="cast_label">{{ $t('test_track.case.steps') }}：</span>
                 </div>
                 <el-table
                   :data="testCase.steptResults"
@@ -220,12 +220,14 @@
                           v-model="testCase.issues.content"/>
                 <el-row v-if="hasTapdId">
                   Tapd平台处理人：
-                  <el-select v-model="testCase.tapdUsers" placeholder="请选择处理人"  style="width: 20%" multiple collapse-tags>
-                    <el-option v-for="(userInfo, index) in users" :key="index" :label="userInfo.user" :value="userInfo.user"/>
+                  <el-select v-model="testCase.tapdUsers" placeholder="请选择处理人" style="width: 20%" multiple
+                             collapse-tags>
+                    <el-option v-for="(userInfo, index) in users" :key="index" :label="userInfo.user"
+                               :value="userInfo.user"/>
                   </el-select>
                 </el-row>
-                <el-button type="primary" size="small" @click="saveIssues">{{$t('commons.save')}}</el-button>
-                <el-button size="small" @click="issuesSwitch=false">{{$t('commons.cancel')}}</el-button>
+                <el-button type="primary" size="small" @click="saveIssues">{{ $t('commons.save') }}</el-button>
+                <el-button size="small" @click="issuesSwitch=false">{{ $t('commons.cancel') }}</el-button>
               </el-col>
             </el-row>
 
@@ -240,10 +242,10 @@
                         placement="left"
                         width="400"
                         trigger="hover"
-                        >
+                      >
                         <ckeditor :editor="editor" disabled :config="readConfig"
                                   v-model="scope.row.description"/>
-                        <el-button slot="reference" type="text">{{$t('test_track.issue.preview')}}</el-button>
+                        <el-button slot="reference" type="text">{{ $t('test_track.issue.preview') }}</el-button>
                       </el-popover>
                     </template>
                   </el-table-column>
@@ -252,10 +254,17 @@
                   <el-table-column :label="$t('test_track.issue.operate')">
                     <template v-slot:default="scope">
                       <el-tooltip :content="$t('test_track.issue.close')"
-                                  placement="right">
+                                  placement="top" :enterable="false">
                         <el-button type="danger" icon="el-icon-circle-close" size="mini"
                                    circle v-if="scope.row.platform === 'Local'"
                                    @click="closeIssue(scope.row)"
+                        />
+                      </el-tooltip>
+                      <el-tooltip :content="$t('test_track.issue.delete')"
+                                  placement="top" :enterable="false">
+                        <el-button type="danger" icon="el-icon-delete" size="mini"
+                                   circle v-if="scope.row.platform === 'Local'"
+                                   @click="deleteIssue(scope.row)"
                         />
                       </el-tooltip>
                     </template>
@@ -267,8 +276,9 @@
             <el-row>
               <el-col :span="15" :offset="1">
                 <div>
-                  <span class="cast_label">{{$t('commons.remark')}}：</span>
-                  <span v-if="testCase.remark == null || testCase.remark == ''" style="color: darkgrey">{{$t('commons.not_filled')}}</span>
+                  <span class="cast_label">{{ $t('commons.remark') }}：</span>
+                  <span v-if="testCase.remark == null || testCase.remark == ''"
+                        style="color: darkgrey">{{ $t('commons.not_filled') }}</span>
                 </div>
                 <div>
                   <el-input :rows="3"
@@ -293,327 +303,337 @@
 </template>
 
 <script>
-  import TestPlanTestCaseStatusButton from '../../common/TestPlanTestCaseStatusButton';
-  import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-  import ApiTestDetail from "./test/ApiTestDetail";
-  import ApiTestResult from "./test/ApiTestResult";
-  import PerformanceTestDetail from "./test/PerformanceTestDetail";
-  import PerformanceTestResult from "./test/PerformanceTestResult";
-  import {listenGoBack, removeGoBackListener} from "../../../../../../common/js/utils";
-  import {CURRENT_PROJECT} from "../../../../../../common/js/constants";
+import TestPlanTestCaseStatusButton from '../../common/TestPlanTestCaseStatusButton';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import ApiTestDetail from "./test/ApiTestDetail";
+import ApiTestResult from "./test/ApiTestResult";
+import PerformanceTestDetail from "./test/PerformanceTestDetail";
+import PerformanceTestResult from "./test/PerformanceTestResult";
+import {listenGoBack, removeGoBackListener} from "../../../../../../common/js/utils";
+import {CURRENT_PROJECT} from "../../../../../../common/js/constants";
 
-  export default {
-    name: "TestPlanTestCaseEdit",
-    components: {
-      PerformanceTestResult,
-      PerformanceTestDetail,
-      ApiTestResult,
-      ApiTestDetail,
-      TestPlanTestCaseStatusButton
+export default {
+  name: "TestPlanTestCaseEdit",
+  components: {
+    PerformanceTestResult,
+    PerformanceTestDetail,
+    ApiTestResult,
+    ApiTestDetail,
+    TestPlanTestCaseStatusButton
+  },
+  data() {
+    return {
+      result: {},
+      showDialog: false,
+      testCase: {},
+      index: 0,
+      issuesSwitch: false,
+      testCases: [],
+      issues: [],
+      editor: ClassicEditor,
+      editorConfig: {
+        // 'increaseIndent','decreaseIndent'
+        toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'insertTable', '|', 'undo', 'redo'],
+      },
+      readConfig: {toolbar: []},
+      test: {},
+      activeTab: 'detail',
+      isFailure: true,
+      users: [],
+      hasTapdId: false
+    };
+  },
+  props: {
+    total: {
+      type: Number
     },
-    data() {
-      return {
-        result: {},
-        showDialog: false,
-        testCase: {},
-        index: 0,
-        issuesSwitch: false,
-        testCases: [],
-        issues: [],
-        editor: ClassicEditor,
-        editorConfig: {
-          // 'increaseIndent','decreaseIndent'
-          toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'insertTable', '|', 'undo', 'redo'],
-        },
-        readConfig: {toolbar: []},
-        test: {},
-        activeTab: 'detail',
-        isFailure: true,
-        users: [],
-        hasTapdId: false
-      };
+    searchParam: {
+      type: Object
     },
-    props: {
-      total: {
-        type: Number
-      },
-      searchParam: {
-        type: Object
-      },
-      isReadOnly: {
-        type: Boolean,
-        default: false
-      }
+    isReadOnly: {
+      type: Boolean,
+      default: false
+    }
+  },
+  methods: {
+    handleClose() {
+      removeGoBackListener(this.handleClose);
+      this.showDialog = false;
     },
-    methods: {
-      handleClose() {
-        removeGoBackListener(this.handleClose);
-        this.showDialog = false;
-      },
-      cancel() {
-        this.handleClose();
-        this.$emit('refreshTable');
-      },
-      statusChange(status) {
-        this.testCase.status = status;
-      },
-      saveCase() {
-        let param = {};
-        param.id = this.testCase.id;
-        param.status = this.testCase.status;
-        param.results = [];
+    cancel() {
+      this.handleClose();
+      this.$emit('refreshTable');
+    },
+    statusChange(status) {
+      this.testCase.status = status;
+    },
+    saveCase() {
+      let param = {};
+      param.id = this.testCase.id;
+      param.status = this.testCase.status;
+      param.results = [];
 
-        for (let i = 0; i < this.testCase.steptResults.length; i++) {
-          let result = {};
-          result.actualResult = this.testCase.steptResults[i].actualResult;
-          result.executeResult = this.testCase.steptResults[i].executeResult;
-          if (result.actualResult && result.actualResult.length > 300) {
-            this.$warning(this.$t('test_track.plan_view.actual_result')
-              + this.$t('test_track.length_less_than') + '300');
-            return;
-          }
-          param.results.push(result);
-        }
-
-        param.results = JSON.stringify(param.results);
-        param.issues = JSON.stringify(this.testCase.issues);
-        this.$post('/test/plan/case/edit', param, () => {
-          this.$success(this.$t('commons.save_success'));
-          this.updateTestCases(param);
-          this.setPlanStatus(this.testCase.planId);
-        });
-      },
-      updateTestCases(param) {
-        for (let i = 0; i < this.testCases.length; i++) {
-          let testCase = this.testCases[i];
-          if (testCase.id === param.id) {
-            testCase.results = param.results;
-            testCase.issues = param.issues;
-            testCase.status = param.status;
-            return;
-          }
-        }
-      },
-      handleNext() {
-        this.index++;
-        this.getTestCase(this.index);
-      },
-      handlePre() {
-        this.index--;
-        this.getTestCase(this.index);
-      },
-      getTestCase(index) {
-        let testCase = this.testCases[index];
-        let item = {};
-        Object.assign(item, testCase);
-        item.results = JSON.parse(item.results);
-        item.steps = JSON.parse(item.steps);
-        if (item.issues) {
-          item.issues = JSON.parse(item.issues);
-        } else {
-          item.issues = {};
-          item.issues.hasIssues = false;
-        }
-        item.steptResults = [];
-        for (let i = 0; i < item.steps.length; i++) {
-          if (item.results[i]) {
-            item.steps[i].actualResult = item.results[i].actualResult;
-            item.steps[i].executeResult = item.results[i].executeResult;
-          }
-          item.steptResults.push(item.steps[i]);
-        }
-        this.testCase = item;
-        this.initTest();
-        this.getIssues(testCase.caseId);
-        this.stepResultChange();
-      },
-      openTestCaseEdit(testCase) {
-        this.showDialog = true;
-        this.issuesSwitch = false;
-        this.activeTab = 'detail';
-        listenGoBack(this.handleClose);
-        this.initData(testCase);
-      },
-      initTest() {
-        this.$nextTick(() => {
-          if (this.testCase.method == 'auto') {
-            if (this.$refs.apiTestDetail && this.testCase.type == 'api') {
-
-              this.$refs.apiTestDetail.init();
-            } else if (this.testCase.type == 'performance') {
-              this.$refs.performanceTestDetail.init();
-            }
-          }
-        });
-      },
-      testRun(reportId) {
-        this.testCase.reportId = reportId;
-        this.saveReport(reportId);
-        this.activeTab = 'result';
-      },
-      testTabChange(data) {
-        if (this.testCase.type == 'performance' && data.paneName == 'result') {
-          this.$refs.performanceTestResult.checkReportStatus();
-          this.$refs.performanceTestResult.init();
-        }
-      },
-      saveReport(reportId) {
-        this.$post('/test/plan/case/edit', {id: this.testCase.id, reportId: reportId});
-      },
-      initData(testCase) {
-        this.result = this.$post('/test/plan/case/list/all', this.searchParam, response => {
-          this.testCases = response.data;
-          for (let i = 0; i < this.testCases.length; i++) {
-            if (this.testCases[i].id === testCase.id) {
-              this.index = i;
-              this.getTestCase(i);
-              this.getRelatedTest();
-            }
-          }
-        });
-      },
-      getRelatedTest() {
-        if (this.testCase.method == 'auto' && this.testCase.testId && this.testCase.testId != 'other') {
-          this.$get('/' + this.testCase.type + '/get/' + this.testCase.testId, response => {
-            let data = response.data;
-            if (data) {
-              this.test = data;
-            } else {
-              this.test = {};
-              this.$warning(this.$t("test_track.case.relate_test_not_find"));
-            }
-          });
-        } else if (this.testCase.testId === 'other' && this.testCase.method == 'auto') {
-          this.$warning(this.$t("test_track.case.other_relate_test_not_find"));
-        }
-      },
-      issuesChange() {
-        if (this.issuesSwitch) {
-          let desc = this.addPLabel('[' + this.$t('test_track.plan_view.operate_step') + ']');
-          let result = this.addPLabel('[' + this.$t('test_track.case.expected_results') + ']');
-          let actualResult = this.addPLabel('[' + this.$t('test_track.plan_view.actual_result') + ']');
-          this.testCase.steps.forEach(step => {
-            let stepPrefix = this.$t('test_track.plan_view.step') + step.num + ':';
-            desc += this.addPLabel(stepPrefix + (step.desc == undefined ? '' : step.desc));
-            result += this.addPLabel(stepPrefix + (step.result == undefined ? '' : step.result));
-            actualResult += this.addPLabel(stepPrefix + (step.actualResult == undefined ? '' : step.actualResult));
-          });
-          this.testCase.issues.content = desc + this.addPLabel('') + result + this.addPLabel('') + actualResult + this.addPLabel('');
-
-          this.$get("/test/case/project/" + this.testCase.caseId, res => {
-            const project = res.data;
-            if (project.tapdId) {
-              this.hasTapdId = true;
-              this.result = this.$get("/issues/tapd/user/" + this.testCase.caseId, response => {
-                let data = response.data;
-                this.users = data;
-              })
-            }
-          })
-        }
-      },
-      addPLabel(str) {
-        return "<p>" + str + "</p>";
-      },
-      setPlanStatus(planId) {
-        this.$post('/test/plan/edit/status/' + planId);
-      },
-      stepResultChange() {
-        if (this.testCase.method == 'manual') {
-          this.isFailure = this.testCase.steptResults.filter(s => {
-            return s.executeResult === 'Failure' || s.executeResult === 'Blocking';
-          }).length > 0;
-        }
-
-      },
-      saveIssues() {
-        if (!this.testCase.issues.title || !this.testCase.issues.content) {
-          this.$warning(this.$t('test_track.issue.title_description_required'));
+      for (let i = 0; i < this.testCase.steptResults.length; i++) {
+        let result = {};
+        result.actualResult = this.testCase.steptResults[i].actualResult;
+        result.executeResult = this.testCase.steptResults[i].executeResult;
+        if (result.actualResult && result.actualResult.length > 300) {
+          this.$warning(this.$t('test_track.plan_view.actual_result')
+            + this.$t('test_track.length_less_than') + '300');
           return;
         }
-        let param = {};
-        param.title = this.testCase.issues.title;
-        param.content = this.testCase.issues.content;
-        param.testCaseId = this.testCase.caseId;
-        param.tapdUsers = this.testCase.tapdUsers;
-        this.result = this.$post("/issues/add", param, () => {
-          this.$success(this.$t('commons.save_success'));
-          this.getIssues(param.testCaseId);
-        });
-        this.issuesSwitch = false;
-        this.testCase.issues.title = "";
-        this.testCase.issues.content = "";
-        this.testCase.tapdUsers = [];
-      },
-      getIssues(caseId) {
-        this.result = this.$get("/issues/get/" + caseId, response => {
+        param.results.push(result);
+      }
+
+      param.results = JSON.stringify(param.results);
+      param.issues = JSON.stringify(this.testCase.issues);
+      this.$post('/test/plan/case/edit', param, () => {
+        this.$success(this.$t('commons.save_success'));
+        this.updateTestCases(param);
+        this.setPlanStatus(this.testCase.planId);
+      });
+    },
+    updateTestCases(param) {
+      for (let i = 0; i < this.testCases.length; i++) {
+        let testCase = this.testCases[i];
+        if (testCase.id === param.id) {
+          testCase.results = param.results;
+          testCase.issues = param.issues;
+          testCase.status = param.status;
+          return;
+        }
+      }
+    },
+    handleNext() {
+      this.index++;
+      this.getTestCase(this.index);
+    },
+    handlePre() {
+      this.index--;
+      this.getTestCase(this.index);
+    },
+    getTestCase(index) {
+      let testCase = this.testCases[index];
+      let item = {};
+      Object.assign(item, testCase);
+      item.results = JSON.parse(item.results);
+      item.steps = JSON.parse(item.steps);
+      if (item.issues) {
+        item.issues = JSON.parse(item.issues);
+      } else {
+        item.issues = {};
+        item.issues.hasIssues = false;
+      }
+      item.steptResults = [];
+      for (let i = 0; i < item.steps.length; i++) {
+        if (item.results[i]) {
+          item.steps[i].actualResult = item.results[i].actualResult;
+          item.steps[i].executeResult = item.results[i].executeResult;
+        }
+        item.steptResults.push(item.steps[i]);
+      }
+      this.testCase = item;
+      this.initTest();
+      this.getIssues(testCase.caseId);
+      this.stepResultChange();
+    },
+    openTestCaseEdit(testCase) {
+      this.showDialog = true;
+      this.issuesSwitch = false;
+      this.activeTab = 'detail';
+      listenGoBack(this.handleClose);
+      this.initData(testCase);
+    },
+    initTest() {
+      this.$nextTick(() => {
+        if (this.testCase.method == 'auto') {
+          if (this.$refs.apiTestDetail && this.testCase.type == 'api') {
+
+            this.$refs.apiTestDetail.init();
+          } else if (this.testCase.type == 'performance') {
+            this.$refs.performanceTestDetail.init();
+          }
+        }
+      });
+    },
+    testRun(reportId) {
+      this.testCase.reportId = reportId;
+      this.saveReport(reportId);
+      this.activeTab = 'result';
+    },
+    testTabChange(data) {
+      if (this.testCase.type == 'performance' && data.paneName == 'result') {
+        this.$refs.performanceTestResult.checkReportStatus();
+        this.$refs.performanceTestResult.init();
+      }
+    },
+    saveReport(reportId) {
+      this.$post('/test/plan/case/edit', {id: this.testCase.id, reportId: reportId});
+    },
+    initData(testCase) {
+      this.result = this.$post('/test/plan/case/list/all', this.searchParam, response => {
+        this.testCases = response.data;
+        for (let i = 0; i < this.testCases.length; i++) {
+          if (this.testCases[i].id === testCase.id) {
+            this.index = i;
+            this.getTestCase(i);
+            this.getRelatedTest();
+          }
+        }
+      });
+    },
+    getRelatedTest() {
+      if (this.testCase.method == 'auto' && this.testCase.testId && this.testCase.testId != 'other') {
+        this.$get('/' + this.testCase.type + '/get/' + this.testCase.testId, response => {
           let data = response.data;
-          this.issues = data;
+          if (data) {
+            this.test = data;
+          } else {
+            this.test = {};
+            this.$warning(this.$t("test_track.case.relate_test_not_find"));
+          }
+        });
+      } else if (this.testCase.testId === 'other' && this.testCase.method == 'auto') {
+        this.$warning(this.$t("test_track.case.other_relate_test_not_find"));
+      }
+    },
+    issuesChange() {
+      if (this.issuesSwitch) {
+        let desc = this.addPLabel('[' + this.$t('test_track.plan_view.operate_step') + ']');
+        let result = this.addPLabel('[' + this.$t('test_track.case.expected_results') + ']');
+        let actualResult = this.addPLabel('[' + this.$t('test_track.plan_view.actual_result') + ']');
+        this.testCase.steps.forEach(step => {
+          let stepPrefix = this.$t('test_track.plan_view.step') + step.num + ':';
+          desc += this.addPLabel(stepPrefix + (step.desc == undefined ? '' : step.desc));
+          result += this.addPLabel(stepPrefix + (step.result == undefined ? '' : step.result));
+          actualResult += this.addPLabel(stepPrefix + (step.actualResult == undefined ? '' : step.actualResult));
+        });
+        this.testCase.issues.content = desc + this.addPLabel('') + result + this.addPLabel('') + actualResult + this.addPLabel('');
+
+        this.$get("/test/case/project/" + this.testCase.caseId, res => {
+          const project = res.data;
+          if (project.tapdId) {
+            this.hasTapdId = true;
+            this.result = this.$get("/issues/tapd/user/" + this.testCase.caseId, response => {
+              let data = response.data;
+              this.users = data;
+            })
+          }
         })
-      },
-      closeIssue(row) {
+      }
+    },
+    addPLabel(str) {
+      return "<p>" + str + "</p>";
+    },
+    setPlanStatus(planId) {
+      this.$post('/test/plan/edit/status/' + planId);
+    },
+    stepResultChange() {
+      if (this.testCase.method == 'manual') {
+        this.isFailure = this.testCase.steptResults.filter(s => {
+          return s.executeResult === 'Failure' || s.executeResult === 'Blocking';
+        }).length > 0;
+      }
+
+    },
+    saveIssues() {
+      if (!this.testCase.issues.title || !this.testCase.issues.content) {
+        this.$warning(this.$t('test_track.issue.title_description_required'));
+        return;
+      }
+      let param = {};
+      param.title = this.testCase.issues.title;
+      param.content = this.testCase.issues.content;
+      param.testCaseId = this.testCase.caseId;
+      param.tapdUsers = this.testCase.tapdUsers;
+      this.result = this.$post("/issues/add", param, () => {
+        this.$success(this.$t('commons.save_success'));
+        this.getIssues(param.testCaseId);
+      });
+      this.issuesSwitch = false;
+      this.testCase.issues.title = "";
+      this.testCase.issues.content = "";
+      this.testCase.tapdUsers = [];
+    },
+    getIssues(caseId) {
+      this.result = this.$get("/issues/get/" + caseId, response => {
+        let data = response.data;
+        this.issues = data;
+      })
+    },
+    closeIssue(row) {
+      if (row.status === 'closed') {
+        this.$success(this.$t('test_track.issue.close_success'));
+      } else {
         this.result = this.$get("/issues/close/" + row.id, () => {
           this.getIssues(this.testCase.caseId);
           this.$success(this.$t('test_track.issue.close_success'));
         });
       }
+    },
+    deleteIssue(row) {
+      this.result = this.$get("/issues/delete/" + row.id, () => {
+        this.getIssues(this.testCase.caseId);
+        this.$success(this.$t('commons.delete_success'));
+      })
     }
   }
+}
 </script>
 
 <style scoped>
 
-  .border-hidden >>> .el-textarea__inner {
-    border-style: hidden;
-    background-color: white;
-    color: #606266;
-  }
+.border-hidden >>> .el-textarea__inner {
+  border-style: hidden;
+  background-color: white;
+  color: #606266;
+}
 
-  .cast_label {
-    color: dimgray;
-  }
+.cast_label {
+  color: dimgray;
+}
 
-  .status-button {
-    padding-left: 4%;
-  }
+.status-button {
+  padding-left: 4%;
+}
 
-  .head-right {
-    text-align: right;
-  }
+.head-right {
+  text-align: right;
+}
 
-  .el-col:not(.test-detail) {
-    line-height: 50px;
-  }
+.el-col:not(.test-detail) {
+  line-height: 50px;
+}
 
-  .issues-edit >>> p {
-    line-height: 16px;
-  }
+.issues-edit >>> p {
+  line-height: 16px;
+}
 
-  .status-button {
-    float: right;
-  }
+.status-button {
+  float: right;
+}
 
-  .head-right-tip {
-    color: darkgrey;
-  }
+.head-right-tip {
+  color: darkgrey;
+}
 
-  .el-scrollbar {
-    height: 100%;
-  }
+.el-scrollbar {
+  height: 100%;
+}
 
-  .container {
-    height: 100vh;
-  }
+.container {
+  height: 100vh;
+}
 
-  .case_container > .el-row {
-    margin-top: 1%;
-  }
+.case_container > .el-row {
+  margin-top: 1%;
+}
 
-  .el-switch >>> .el-switch__label {
-    color: dimgray;
-  }
+.el-switch >>> .el-switch__label {
+  color: dimgray;
+}
 
-  .el-switch >>> .el-switch__label.is-active {
-    color: #409EFF;
-  }
+.el-switch >>> .el-switch__label.is-active {
+  color: #409EFF;
+}
 </style>
