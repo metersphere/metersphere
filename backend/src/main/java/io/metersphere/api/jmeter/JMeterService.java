@@ -42,7 +42,6 @@ public class JMeterService {
             Object scriptWrapper = SaveService.loadElement(is);
             HashTree testPlan = getHashTree(scriptWrapper);
             addBackendListener(testId, debugReportId, testPlan);
-
             LocalRunner runner = new LocalRunner(testPlan);
             runner.run();
         } catch (Exception e) {

@@ -1208,6 +1208,25 @@ class JMXGenerator {
       sampler.put(new JSR223PreProcessor(name, request.jsr223PreProcessor));
     }
     if (request.jsr223PostProcessor && request.jsr223PostProcessor.script) {
+      // 增加一段后置脚步，获取 提取变量的内容
+      let vars = [];
+      if (request.extract.regex) {
+        for (let i = 0; i < request.extract.regex.length; i++) {
+          vars.push(request.extract.regex[i].variable);
+        }
+      }
+      if (request.extract.json) {
+        for (let i = 0; i < request.extract.json.length; i++) {
+          vars.push(request.extract.json[i].variable);
+        }
+      }
+      if (request.extract.xpath) {
+        for (let i = 0; i < request.extract.xpath.length; i++) {
+          vars.push(request.extract.xpath[i].variable);
+        }
+      }
+      request.jsr223PostProcessor.script += "\n" + "io.metersphere.api.jmeter.JMeterVars.addVars(org.apache.jmeter.threads.JMeterContextService.getContext().getThread().getThreadName(),vars," + "\"" + vars.join(";") + "\"" + ");"
+
       sampler.put(new JSR223PostProcessor(name, request.jsr223PostProcessor));
     }
   }
