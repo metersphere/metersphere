@@ -2,8 +2,10 @@ package io.metersphere.notice.service;
 
 import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.base.domain.ApiTestReportDetail;
+import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.base.mapper.ApiTestReportDetailMapper;
+import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
 import io.metersphere.commons.constants.ScheduleGroup;
@@ -28,6 +30,8 @@ public class ApiAndPerformanceHelper {
     private ApiTestReportDetailMapper apiTestReportDetailMapper;
     @Resource
     private ScheduleService scheduleService;
+    @Resource
+    private LoadTestReportMapper loadTestReportMapper;
 
     public APIReportResult getApi(String reportId) {
         APIReportResult result = extApiTestReportMapper.get(reportId);
@@ -49,6 +53,10 @@ public class ApiAndPerformanceHelper {
             return loadTestDTO;
         }
         return null;
+    }
+
+    public LoadTestReportWithBLOBs getLoadTestReport(String id) {
+        return loadTestReportMapper.selectByPrimaryKey(id);
     }
 }
 

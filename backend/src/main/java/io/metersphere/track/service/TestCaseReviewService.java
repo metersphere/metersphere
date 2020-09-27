@@ -20,7 +20,10 @@ import io.metersphere.service.UserService;
 import io.metersphere.track.dto.TestCaseReviewDTO;
 import io.metersphere.track.dto.TestReviewCaseDTO;
 import io.metersphere.track.dto.TestReviewDTOWithMetric;
-import io.metersphere.track.request.testreview.*;
+import io.metersphere.track.request.testreview.QueryCaseReviewRequest;
+import io.metersphere.track.request.testreview.QueryTestReviewRequest;
+import io.metersphere.track.request.testreview.ReviewRelevanceRequest;
+import io.metersphere.track.request.testreview.SaveTestCaseReviewRequest;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -31,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -73,7 +75,6 @@ public class TestCaseReviewService {
         String reviewId = UUID.randomUUID().toString();
         List<String> projectIds = reviewRequest.getProjectIds();
         List<String> userIds = reviewRequest.getUserIds();
-
         projectIds.forEach(projectId -> {
             TestCaseReviewProject testCaseReviewProject = new TestCaseReviewProject();
             testCaseReviewProject.setProjectId(projectId);
@@ -94,9 +95,11 @@ public class TestCaseReviewService {
         reviewRequest.setCreator(SessionUtils.getUser().getId());
         reviewRequest.setStatus(TestCaseReviewStatus.Prepare.name());
         testCaseReviewMapper.insert(reviewRequest);
-        SaveCommentRequest request = new SaveCommentRequest();
-        TestCaseWithBLOBs testCaseWithBLOBs = new TestCaseWithBLOBs();
-        mailService.sendHtml(userIds, "reviewer", reviewRequest, request, testCaseWithBLOBs);
+        try {
+            mailService.sendReviewerNotice(userIds, reviewRequest);
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
 
     }
 
@@ -153,9 +156,11 @@ public class TestCaseReviewService {
         testCaseReview.setUpdateTime(System.currentTimeMillis());
         checkCaseReviewExist(testCaseReview);
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
-        SaveCommentRequest request = new SaveCommentRequest();
-        TestCaseWithBLOBs testCaseWithBLOBs = new TestCaseWithBLOBs();
-        mailService.sendHtml(testCaseReview.getUserIds(), "reviewer", testCaseReview, request, testCaseWithBLOBs);
+        try {
+            mailService.sendReviewerNotice(testCaseReview.getUserIds(), testCaseReview);
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
     }
 
     private void editCaseReviewer(SaveTestCaseReviewRequest testCaseReview) {
@@ -342,22 +347,17 @@ public class TestCaseReviewService {
             }
         }
         testCaseReview.setStatus(TestPlanStatus.Completed.name());
-        SaveCommentRequest request = new SaveCommentRequest();
-        TestCaseWithBLOBs testCaseWithBLOBs = new TestCaseWithBLOBs();
         SaveTestCaseReviewRequest testCaseReviewRequest = new SaveTestCaseReviewRequest();
         TestCaseReview _testCaseReview = testCaseReviewMapper.selectByPrimaryKey(reviewId);
         List<String> userIds = new ArrayList<>();
         userIds.add(_testCaseReview.getCreator());
-
+        testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
         try {
             BeanUtils.copyProperties(testCaseReviewRequest, _testCaseReview);
-        } catch (IllegalAccessException e) {
-            LogUtil.error(e);
-        } catch (InvocationTargetException e) {
+            mailService.sendEndNotice(userIds, testCaseReviewRequest);
+        } catch (Exception e) {
             LogUtil.error(e);
         }
-        mailService.sendHtml(userIds, "end", testCaseReviewRequest, request, testCaseWithBLOBs);
-        testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
     }
 
     public List<TestReviewDTOWithMetric> listRelateAll(String type) {
