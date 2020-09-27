@@ -798,6 +798,7 @@ export default {
     plan_view: {
       plan: "Plan",
       relevance_test_case: "Relevance case",
+      cancel_all_relevance: "Unlink all",
       executor: "Executor",
       execute_result: "Result",
       pass: "Pass",
@@ -842,7 +843,8 @@ export default {
       report_template: "Report template",
       test_detail: "Test detail",
       failure_case: "Failure case",
-      export_report: "Export Report"
+      export_report: "Export Report",
+      no_case_relevance: "No related use cases",
     },
     issue: {
       issue: "Issue",

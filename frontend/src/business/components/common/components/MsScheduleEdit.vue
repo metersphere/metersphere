@@ -12,7 +12,10 @@
                 <el-input :disabled="isReadOnly" v-model="form.cronValue" class="inp"
                           :placeholder="$t('schedule.please_input_cron_expression')"/>
                 <!--          <el-button type="primary" @click="showCronDialog">{{$t('schedule.generate_expression')}}</el-button>-->
-                <el-button :disabled="isReadOnly" type="primary" @click="saveCron">{{ $t('commons.save') }}</el-button>
+                <el-button :disabled="isReadOnly" type="primary" @click="saveCron">{{
+                    $t('commons.save')
+                  }}
+                </el-button>
               </el-form-item>
               <el-form-item>
                 <el-link :disabled="isReadOnly" type="primary" @click="showCronDialog">
@@ -21,8 +24,10 @@
               </el-form-item>
               <crontab-result :ex="form.cronValue" ref="crontabResult"/>
             </el-form>
-            <el-dialog width="60%" :title="$t('schedule.generate_expression')" :visible.sync="showCron" :modal="false">
-              <crontab @hide="showCron=false" @fill="crontabFill" :expression="schedule.value" ref="crontab"/>
+            <el-dialog width="60%" :title="$t('schedule.generate_expression')" :visible.sync="showCron"
+                       :modal="false">
+              <crontab @hide="showCron=false" @fill="crontabFill" :expression="schedule.value"
+                       ref="crontab"/>
             </el-dialog>
           </el-tab-pane>
           <el-tab-pane :label="$t('schedule.task_notification')" name="second">
@@ -42,11 +47,12 @@
                 <el-table-column
                   prop="name"
                   :label="$t('schedule.receiver')"
-                  width="200"
+                  width="240"
                 >
                   <template v-slot:default="{row}">
-                    <el-select v-model="row.names" filterable multiple :placeholder="$t('commons.please_select')"
-                               @click.native="userList()">
+                    <el-select v-model="row.names" filterable multiple
+                               :placeholder="$t('commons.please_select')"
+                               @click.native="userList()" style="width: 100%;">
                       <el-option
                         v-for="item in options"
                         :key="item.id"
@@ -268,5 +274,11 @@ export default {
 .el-form-item {
   margin-bottom: 10px;
 }
+
+/deep/ .el-select__tags {
+  flex-wrap: unset;
+  overflow: auto;
+}
+
 
 </style>

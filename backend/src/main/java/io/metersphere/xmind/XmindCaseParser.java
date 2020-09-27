@@ -40,6 +40,9 @@ public class XmindCaseParser {
     // 案例详情重写了hashCode方法去重用
     private List<TestCaseExcelData> compartDatas;
 
+    // 记录没有用例的目录
+    private List<String> nodePaths;
+
     public XmindCaseParser(TestCaseService testCaseService, String userId, String projectId, Set<String> testCaseNames) {
         this.testCaseService = testCaseService;
         this.maintainer = userId;
@@ -48,6 +51,7 @@ public class XmindCaseParser {
         testCases = new LinkedList<>();
         compartDatas = new ArrayList<>();
         process = new StringBuffer();
+        nodePaths = new ArrayList<>();
     }
 
     // 这里清理是为了 加快jvm 回收
@@ -55,26 +59,55 @@ public class XmindCaseParser {
         compartDatas.clear();
         testCases.clear();
         testCaseNames.clear();
+        nodePaths.clear();
     }
 
     public List<TestCaseWithBLOBs> getTestCase() {
         return this.testCases;
     }
 
+    public List<String> getNodePaths() {
+        return this.nodePaths;
+    }
+
     private final Map<String, String> caseTypeMap = ImmutableMap.of("功能测试", "functional", "性能测试", "performance", "接口测试", "api");
 
+    public void validate() {
+        nodePaths.forEach(nodePath -> {
+            String[] nodes = nodePath.split("/");
+            if (nodes.length > TestCaseConstants.MAX_NODE_DEPTH + 1) {
+                process.append(Translator.get("test_case_node_level_tip") +
+                        TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level") + "; ");
+            }
+            for (int i = 0; i < nodes.length; i++) {
+                if (i != 0 && StringUtils.equals(nodes[i].trim(), "")) {
+                    process.append(Translator.get("module_not_null") + "; ");
+                    break;
+                }
+            }
+        });
+    }
+
     // 递归处理案例数据
-    private void recursion(StringBuffer processBuffer, Attached parent, int level, String nodePath, List<Attached> attacheds) {
+    private void recursion(StringBuffer processBuffer, Attached parent, int level, List<Attached> attacheds) {
         for (Attached item : attacheds) {
             if (isAvailable(item.getTitle(), "(?:tc：|tc:|tc)")) { // 用例
                 item.setParent(parent);
                 this.newTestCase(item.getTitle(), parent.getPath(), item.getChildren() != null ? item.getChildren().getAttached() : null);
             } else {
-                nodePath = parent.getPath() + "/" + item.getTitle();
+                String nodePath = parent.getPath() + "/" + item.getTitle();
                 item.setPath(nodePath);
+                item.setParent(parent);
                 if (item.getChildren() != null && !item.getChildren().getAttached().isEmpty()) {
-                    item.setParent(parent);
-                    recursion(processBuffer, item, level + 1, nodePath, item.getChildren().getAttached());
+                    recursion(processBuffer, item, level + 1, item.getChildren().getAttached());
+                } else {
+                    if (!nodePath.startsWith("/")) {
+                        nodePath = "/" + nodePath;
+                    }
+                    if (nodePath.endsWith("/")) {
+                        nodePath = nodePath.substring(0, nodePath.length() - 1);
+                    }
+                    nodePaths.add(nodePath); // 没有用例的路径
                 }
             }
         }
@@ -243,11 +276,12 @@ public class XmindCaseParser {
                         item.setPath(item.getTitle());
                         if (item.getChildren() != null && !item.getChildren().getAttached().isEmpty()) {
                             item.setPath(item.getTitle());
-                            recursion(processBuffer, item, 1, item.getPath(), item.getChildren().getAttached());
+                            recursion(processBuffer, item, 1, item.getChildren().getAttached());
                         }
                     }
                 }
             }
+            this.validate();
         } catch (Exception ex) {
             processBuffer.append(Translator.get("incorrect_format"));
             LogUtil.error(ex.getMessage());

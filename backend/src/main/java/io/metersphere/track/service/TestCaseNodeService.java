@@ -230,7 +230,7 @@ public class TestCaseNodeService {
         return list;
 
     }
-    
+
     private List<TestCaseNodeDTO> getNodeDTO(String projectId, String planId) {
         TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
         testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(planId);
@@ -355,50 +355,45 @@ public class TestCaseNodeService {
     }
 
     public Map<String, String> createNodeByTestCases(List<TestCaseWithBLOBs> testCases, String projectId) {
-
-        List<TestCaseNodeDTO> nodeTrees = getNodeTreeByProjectId(projectId);
-
-        Map<String, String> pathMap = new HashMap<>();
-
         List<String> nodePaths = testCases.stream()
                 .map(TestCase::getNodePath)
                 .collect(Collectors.toList());
 
-        nodePaths.forEach(path -> {
+        return this.createNodes(nodePaths, projectId);
+    }
 
-            if (path == null) {
+    public Map<String, String> createNodes(List<String> nodePaths, String projectId) {
+        List<TestCaseNodeDTO> nodeTrees = getNodeTreeByProjectId(projectId);
+        Map<String, String> pathMap = new HashMap<>();
+        for(String item : nodePaths){
+            if (item == null) {
                 throw new ExcelException(Translator.get("test_case_module_not_null"));
             }
-            List<String> nodeNameList = new ArrayList<>(Arrays.asList(path.split("/")));
-            Iterator<String> pathIterator = nodeNameList.iterator();
-
+            List<String> nodeNameList = new ArrayList<>(Arrays.asList(item.split("/")));
+            Iterator<String> itemIterator = nodeNameList.iterator();
             Boolean hasNode = false;
             String rootNodeName = null;
 
             if (nodeNameList.size() <= 1) {
-                throw new ExcelException(Translator.get("test_case_create_module_fail") + ":" + path);
+                throw new ExcelException(Translator.get("test_case_create_module_fail") + ":" + item);
             } else {
-                pathIterator.next();
-                pathIterator.remove();
-
-                rootNodeName = pathIterator.next().trim();
+                itemIterator.next();
+                itemIterator.remove();
+                rootNodeName = itemIterator.next().trim();
                 //原来没有，新建的树nodeTrees也不包含
                 for (TestCaseNodeDTO nodeTree : nodeTrees) {
                     if (StringUtils.equals(rootNodeName, nodeTree.getName())) {
                         hasNode = true;
-                        createNodeByPathIterator(pathIterator, "/" + rootNodeName, nodeTree,
+                        createNodeByPathIterator(itemIterator, "/" + rootNodeName, nodeTree,
                                 pathMap, projectId, 2);
                     }
                     ;
                 }
             }
-
-
             if (!hasNode) {
-                createNodeByPath(pathIterator, rootNodeName, null, projectId, 1, "", pathMap);
+                createNodeByPath(itemIterator, rootNodeName, null, projectId, 1, "", pathMap);
             }
-        });
-
+        }
         return pathMap;
 
     }
