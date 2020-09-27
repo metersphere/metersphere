@@ -935,6 +935,8 @@ export default {
   schedule: {
     input_email: "请输入邮箱账号",
     event: "事件",
+    event_success: '执行成功',
+    event_failed: '执行失败',
     receiving_mode: "接收方式",
     receiver: "接收人",
     operation: "操作",

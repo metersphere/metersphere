@@ -18,7 +18,6 @@ public class NoticeService {
     private NoticeMapper noticeMapper;
 
     public void saveNotice(NoticeRequest noticeRequest) {
-        Notice notice = new Notice();
         NoticeExample example = new NoticeExample();
         example.createCriteria().andTestIdEqualTo(noticeRequest.getTestId());
         List<Notice> notices = noticeMapper.selectByExample(example);
@@ -28,11 +27,13 @@ public class NoticeService {
         noticeRequest.getNotices().forEach(n -> {
             if (n.getNames().length > 0) {
                 for (String x : n.getNames()) {
+                    Notice notice = new Notice();
                     notice.setId(UUID.randomUUID().toString());
                     notice.setEvent(n.getEvent());
                     notice.setEnable(n.getEnable());
                     notice.setTestId(noticeRequest.getTestId());
                     notice.setName(x);
+                    notice.setType(n.getType());
                     noticeMapper.insert(notice);
                 }
             }
@@ -52,16 +53,18 @@ public class NoticeService {
         NoticeDetail notice2 = new NoticeDetail();
         if (notices.size() > 0) {
             for (Notice n : notices) {
-                if (n.getEvent().equals("执行成功")) {
+                if (n.getEvent().equals("EXECUTE_SUCCESSFUL")) {
                     success.add(n.getName());
                     notice1.setEnable(n.getEnable());
                     notice1.setTestId(id);
+                    notice1.setType(n.getType());
                     notice1.setEvent(n.getEvent());
                 }
-                if (n.getEvent().equals("执行失败")) {
+                if (n.getEvent().equals("EXECUTE_FAILED")) {
                     fail.add(n.getName());
                     notice2.setEnable(n.getEnable());
                     notice2.setTestId(id);
+                    notice2.setType(n.getType());
                     notice2.setEvent(n.getEvent());
                 }
             }

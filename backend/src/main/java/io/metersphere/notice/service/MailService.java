@@ -222,10 +222,10 @@ public class MailService {
         List<String> failEmailList = new ArrayList<>();
         if (noticeList.size() > 0) {
             for (NoticeDetail n : noticeList) {
-                if (n.getEnable().equals("true") && n.getEvent().equals("执行成功")) {
+                if (n.getEnable().equals("true") && n.getEvent().equals("EXECUTE_SUCCESSFUL")) {
                     successEmailList = userService.queryEmail(n.getNames());
                 }
-                if (n.getEnable().equals("true") && n.getEvent().equals("执行失败")) {
+                if (n.getEnable().equals("true") && n.getEvent().equals("EXECUTE_FAILED")) {
                     failEmailList = userService.queryEmail(n.getNames());
                 }
             }

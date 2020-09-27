@@ -931,6 +931,8 @@ export default {
   schedule: {
     input_email: "請輸入郵箱賬號",
     event: "事件",
+    event_success: '執行成功',
+    event_failed: '執行失敗',
     receiving_mode: "接收方式",
     receiver: "接收人",
     operation: "操作",
