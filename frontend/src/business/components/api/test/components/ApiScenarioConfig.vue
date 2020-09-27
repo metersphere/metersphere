@@ -147,6 +147,7 @@ export default {
     deleteScenario(index) {
       this.scenarios.splice(index, 1);
       if (this.scenarios.length === 0) {
+        this.type = this.types.CREATE;
         this.createScenario();
         this.select(this.scenarios[0]);
       }

@@ -23,46 +23,30 @@ public class NoticeService {
         List<Notice> notices = noticeMapper.selectByExample(example);
         if (notices.size() > 0) {
             noticeMapper.deleteByExample(example);
-            noticeRequest.getNotices().forEach(n -> {
-                if (n.getNames().length > 0) {
-                    for (String x : n.getNames()) {
-                        notice.setEvent(n.getEvent());
-                        notice.setEmail(n.getEmail());
-                        notice.setEnable(n.getEnable());
-                        notice.setTestId(noticeRequest.getTestId());
-                        notice.setName(x);
-                        noticeMapper.insert(notice);
-                    }
-                } else {
-                    notice.setEvent(n.getEvent());
-                    notice.setEmail(n.getEmail());
-                    notice.setEnable(n.getEnable());
-                    notice.setTestId(noticeRequest.getTestId());
-                    notice.setName("");
-                    noticeMapper.insert(notice);
-                }
-            });
-        } else {
-            noticeRequest.getNotices().forEach(n -> {
-                if (n.getNames().length > 0) {
-                    for (String x : n.getNames()) {
-                        notice.setEvent(n.getEvent());
-                        notice.setEmail(n.getEmail());
-                        notice.setEnable(n.getEnable());
-                        notice.setTestId(noticeRequest.getTestId());
-                        notice.setName(x);
-                        noticeMapper.insert(notice);
-                    }
-                } else {
-                    notice.setEvent(n.getEvent());
-                    notice.setEmail(n.getEmail());
-                    notice.setEnable(n.getEnable());
-                    notice.setTestId(noticeRequest.getTestId());
-                    notice.setName("");
-                    noticeMapper.insert(notice);
-                }
-            });
         }
+        saveNotice(noticeRequest, notice);
+    }
+
+    private void saveNotice(NoticeRequest noticeRequest, Notice notice) {
+        noticeRequest.getNotices().forEach(n -> {
+            if (n.getNames().length > 0) {
+                for (String x : n.getNames()) {
+                    notice.setEvent(n.getEvent());
+                    notice.setEmail(n.getEmail());
+                    notice.setEnable(n.getEnable());
+                    notice.setTestId(noticeRequest.getTestId());
+                    notice.setName(x);
+                    noticeMapper.insert(notice);
+                }
+            } else {
+                notice.setEvent(n.getEvent());
+                notice.setEmail(n.getEmail());
+                notice.setEnable(n.getEnable());
+                notice.setTestId(noticeRequest.getTestId());
+                notice.setName("");
+                noticeMapper.insert(notice);
+            }
+        });
     }
 
     public List<NoticeDetail> queryNotice(String id) {
@@ -72,8 +56,8 @@ public class NoticeService {
         List<NoticeDetail> notice = new ArrayList<>();
         List<String> success = new ArrayList<>();
         List<String> fail = new ArrayList<>();
-        String[] successArray = new String[success.size()];
-        String[] failArray = new String[fail.size()];
+        String[] successArray;
+        String[] failArray;
         NoticeDetail notice1 = new NoticeDetail();
         NoticeDetail notice2 = new NoticeDetail();
         if (notices.size() > 0) {

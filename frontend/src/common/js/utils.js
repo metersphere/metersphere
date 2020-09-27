@@ -255,7 +255,7 @@ export function exportPdf(name, canvasList) {
     }
   }
 
-  pdf.save(name + '.pdf');
+  pdf.save(name.replace(" ", "_") + '.pdf');
 
 }
 
