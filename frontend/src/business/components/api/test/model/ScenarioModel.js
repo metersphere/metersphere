@@ -656,35 +656,18 @@ export class Body extends BaseConfig {
 }
 
 export class KeyValue extends BaseConfig {
-  constructor() {
-    let options, key, value, type, enable, uuid;
-    if (arguments.length === 1) {
-      options = arguments[0];
-    }
+  constructor(options) {
+    options = options || {};
+    options.enable = options.enable != false ? true : false;
 
-    if (arguments.length === 2) {
-      key = arguments[0];
-      value = arguments[1];
-    }
-    if (arguments.length === 3) {
-      key = arguments[0];
-      value = arguments[1];
-      type = arguments[2];
-    }
-    if (arguments.length === 5) {
-      key = arguments[0];
-      value = arguments[1];
-      type = arguments[2];
-      enable = arguments[3];
-      uuid = arguments[4];
-    }
     super();
-    this.name = key;
-    this.value = value;
-    this.type = type;
+    this.name = undefined;
+    this.value = undefined;
+    this.type = undefined;
     this.files = undefined;
-    this.enable = enable;
-    this.uuid = uuid;
+    this.enable = undefined;
+    this.uuid = undefined;
+    this.contentType = undefined;
     this.set(options);
   }
 
@@ -956,7 +939,7 @@ class JMXHttpRequest {
         this.domain = environment.config.httpConfig.domain;
         this.port = environment.config.httpConfig.port;
         this.protocol = environment.config.httpConfig.protocol;
-        let url = new URL(environment.config.httpConfig.protocol + "://" + environment.config.commonConfig.socket);
+        let url = new URL(environment.config.httpConfig.protocol + "://" + environment.config.httpConfig.socket);
         this.path = this.getPostQueryParameters(request, decodeURIComponent(url.pathname + (request.path ? request.path : '')));
       }
       this.connectTimeout = request.connectTimeout;
@@ -1117,7 +1100,7 @@ class JMXGenerator {
     }
     envArray.forEach(item => {
       if (item.name && !keys.has(item.name)) {
-        target.push(new KeyValue(item.name, item.value));
+        target.push(new KeyValue({name: item.name, value: item.value}));
       }
     })
   }
@@ -1294,7 +1277,7 @@ class JMXGenerator {
         }
       }
     }
-    request.headers.push(new KeyValue('Content-Type', type));
+    request.headers.push(new KeyValue({name: 'Content-Type', value: type}));
   }
 
   addRequestArguments(httpSamplerProxy, request) {
@@ -1323,7 +1306,7 @@ class JMXGenerator {
     let files = [];
     let kvs = this.filterKVFile(request.body.kvs);
     kvs.forEach(kv => {
-      if (kv.files) {
+      if ((kv.enable != false) && kv.files) {
         kv.files.forEach(file => {
           let arg = {};
           arg.name = kv.name;

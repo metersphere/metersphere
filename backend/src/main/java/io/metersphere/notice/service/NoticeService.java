@@ -1,10 +1,10 @@
 package io.metersphere.notice.service;
 
 import io.metersphere.base.domain.Notice;
-import io.metersphere.base.domain.NoticeDetail;
 import io.metersphere.base.domain.NoticeExample;
 import io.metersphere.base.mapper.NoticeMapper;
 import io.metersphere.notice.controller.request.NoticeRequest;
+import io.metersphere.notice.domain.NoticeDetail;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

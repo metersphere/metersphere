@@ -105,9 +105,9 @@
 
   .api-body-upload {
     min-height: 32px;
-    /*border: 1px solid #EBEEF5;*/
-    /*padding: 2px;*/
-    /*border-radius: 4px;*/
+    border: 1px solid #EBEEF5;
+    padding: 2px;
+    border-radius: 4px;
   }
 
   .upload-item {

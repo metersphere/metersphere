@@ -1,5 +1,6 @@
-package io.metersphere.base.domain;
+package io.metersphere.notice.domain;
 
+import io.metersphere.base.domain.Notice;
 import lombok.Data;
 
 @Data

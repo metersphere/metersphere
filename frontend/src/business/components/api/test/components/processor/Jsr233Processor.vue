@@ -34,7 +34,7 @@
           codeTemplates: [
             {
               title: this.$t('api_test.request.processor.code_template_get_variable'),
-              value: 'vars.get("variable_name");',
+              value: 'vars.get("variable_name")',
             },
             {
               title: this.$t('api_test.request.processor.code_template_set_variable'),
@@ -42,17 +42,17 @@
             },
             {
               title: this.$t('api_test.request.processor.code_template_get_response_header'),
-              value: 'prev.getResponseHeaders();',
+              value: 'prev.getResponseHeaders()',
               disabled: this.isPreProcessor
             },
             {
               title: this.$t('api_test.request.processor.code_template_get_response_code'),
-              value: 'prev.getResponseCode();',
+              value: 'prev.getResponseCode()',
               disabled: this.isPreProcessor
             },
             {
               title: this.$t('api_test.request.processor.code_template_get_response_result'),
-              value: 'prev.getResponseDataAsString();',
+              value: 'prev.getResponseDataAsString()',
               disabled: this.isPreProcessor
             }
           ],
@@ -93,6 +93,9 @@
             this.jsr223Processor.script = "";
           }
           this.jsr223Processor.script += template.value;
+          if (this.jsr223Processor.language ===  'beanshell') {
+            this.jsr223Processor.script += ';';
+          }
           this.reload();
         },
         reload() {
