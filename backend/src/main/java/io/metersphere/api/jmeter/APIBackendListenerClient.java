@@ -13,6 +13,7 @@ import io.metersphere.notice.service.NoticeService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.AssertionResult;
 import org.apache.jmeter.samplers.SampleResult;
+import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
 import org.apache.jmeter.visualizers.backend.BackendListenerContext;
 
@@ -71,7 +72,6 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
         // 一个脚本里可能包含多个场景(ThreadGroup)，所以要区分开，key: 场景Id
         final Map<String, ScenarioResult> scenarios = new LinkedHashMap<>();
-
         queue.forEach(result -> {
             // 线程名称: <场景名> <场景Index>-<请求Index>, 例如：Scenario 2-1
             String scenarioName = StringUtils.substringBeforeLast(result.getThreadName(), THREAD_SPLIT);
@@ -154,9 +154,10 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         responseResult.setResponseTime(result.getTime());
         responseResult.setResponseMessage(result.getResponseMessage());
 
-        if (result.getVars() != null && !result.getVars().entrySet().isEmpty()) {
+        if (JMeterVars.variables != null && JMeterVars.variables.get(result.getThreadName()) != null) {
+            JMeterVars.variables.get(result.getThreadName()).remove("TESTSTART.MS"); //去除系统变量
             List<String> vars = new LinkedList<>();
-            result.getVars().entrySet().parallelStream().reduce(vars, (first, second) -> {
+            JMeterVars.variables.get(result.getThreadName()).entrySet().parallelStream().reduce(vars, (first, second) -> {
                 first.add(second.getKey() + "：" + second.getValue());
                 return first;
             }, (first, second) -> {
