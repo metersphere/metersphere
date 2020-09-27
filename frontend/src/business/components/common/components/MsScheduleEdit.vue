@@ -63,10 +63,10 @@
                 >
                   <template v-slot:default="{row}">
                     <el-switch
-                      v-model="row.enable"
-                      active-value="true"
-                      inactive-value="false"
-                      inactive-color="#ff4949"
+                            v-model="row.enable"
+                            active-value="true"
+                            inactive-value="false"
+                            inactive-color="#DCDFE6"
                     />
                   </template>
                 </el-table-column>

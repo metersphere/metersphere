@@ -14,9 +14,13 @@
                 </el-select>
               </el-input>
 
-              <el-button type="primary" plain :disabled="isReadOnly" @click="saveTest">
-                {{ $t('commons.save') }}
-              </el-button>
+              <el-tooltip :content="'Ctrl + S'"
+                          placement="top"
+                          :enterable="false">
+                <el-button type="primary" plain :disabled="isReadOnly" @click="saveTest">
+                  {{ $t('commons.save') }}
+                </el-button>
+              </el-tooltip>
 
               <el-button type="primary" plain :disabled="isReadOnly"
                          @click="saveRunTest">
@@ -67,7 +71,7 @@
 
 <script>
 import MsApiScenarioConfig from "./components/ApiScenarioConfig";
-import {Test, Scenario} from "./model/ScenarioModel"
+import {Scenario, Test} from "./model/ScenarioModel"
 import MsApiReportStatus from "../report/ApiReportStatus";
 import MsApiReportDialog from "./ApiReportDialog";
 import {checkoutTestManagerOrTestUser, downloadFile, getUUID} from "@/common/js/utils";
@@ -368,11 +372,25 @@ export default {
         this.debugReportId = response.data;
         this.resetBodyFile();
       });
-    }
+    },
+    handleEvent(event) {
+      if (event.keyCode === 83 && event.ctrlKey) {
+        console.log('拦截到 ctrl + s');//ctrl+s
+        this.saveTest();
+        event.preventDefault();
+        event.returnValue = false;
+        return false;
+      }
+    },
   },
 
   created() {
     this.init();
+    //
+    document.addEventListener('keydown', this.handleEvent)
+  },
+  beforeDestroy() {
+    document.removeEventListener('keydown', this.handleEvent);
   }
 }
 </script>

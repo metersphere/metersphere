@@ -1,7 +1,6 @@
 package io.metersphere.notice.service;
 
 import io.metersphere.api.dto.APIReportResult;
-import io.metersphere.base.domain.NoticeDetail;
 import io.metersphere.base.domain.SystemParameter;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.ParamConstants;
@@ -10,6 +9,7 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.i18n.Translator;
+import io.metersphere.notice.domain.NoticeDetail;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.request.testreview.SaveCommentRequest;

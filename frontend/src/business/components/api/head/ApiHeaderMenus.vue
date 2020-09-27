@@ -90,6 +90,10 @@ export default {
   methods: {
     registerEvents() {
       ApiEvent.$on(LIST_CHANGE, () => {
+        // todo 这里偶尔会有 refs 为空的情况
+        if (!this.$refs.projectRecent) {
+          return;
+        }
         this.$refs.projectRecent.recent();
         this.$refs.testRecent.recent();
         this.$refs.reportRecent.recent();
