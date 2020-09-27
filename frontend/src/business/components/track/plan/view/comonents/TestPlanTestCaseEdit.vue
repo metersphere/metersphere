@@ -449,6 +449,7 @@
       testRun(reportId) {
         this.testCase.reportId = reportId;
         this.saveReport(reportId);
+        this.activeTab = 'result';
       },
       testTabChange(data) {
         if (this.testCase.type == 'performance' && data.paneName == 'result') {

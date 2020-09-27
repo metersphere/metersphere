@@ -1,5 +1,5 @@
 <template>
-  <ms-report-export-template :title="title" :type="$t('report.load_test_report')">
+  <ms-report-export-template :title="title" :type="$t('report.test_plan_report')">
     <div v-for="(item, index) in previews" :key="item.id">
       <template-component :isReportView="true" :metric="metric" :preview="item" :index="index" ref="templateComponent"/>
     </div>
