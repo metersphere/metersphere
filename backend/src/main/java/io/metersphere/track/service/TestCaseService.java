@@ -284,6 +284,9 @@ public class TestCaseService {
                     errList.add(excelErrData);
                     excelResponse.setErrList(errList);
                 } else {
+                    if (!xmindParser.getNodePaths().isEmpty()) {
+                        testCaseNodeService.createNodes(xmindParser.getNodePaths(), projectId);
+                    }
                     if (!xmindParser.getTestCase().isEmpty()) {
                         this.saveImportData(xmindParser.getTestCase(), projectId);
                         xmindParser.clear();
