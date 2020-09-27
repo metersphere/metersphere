@@ -857,6 +857,7 @@ export default {
       platform: "平臺",
       operate: "操作",
       close: "關閉缺陷",
+      delete: "刪除缺陷",
       title_description_required: "標題和描述必填",
       close_success: "關閉成功",
       preview: "預覽"
@@ -931,6 +932,8 @@ export default {
   schedule: {
     input_email: "請輸入郵箱賬號",
     event: "事件",
+    event_success: '執行成功',
+    event_failed: '執行失敗',
     receiving_mode: "接收方式",
     receiver: "接收人",
     operation: "操作",

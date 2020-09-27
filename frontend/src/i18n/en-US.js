@@ -855,6 +855,7 @@ export default {
       platform: "Platform",
       operate: "Operate",
       close: "Close",
+      delete: "Delete",
       title_description_required: "Title and description are required",
       close_success: "Closed successfully",
       preview: "Preview"
@@ -930,6 +931,8 @@ export default {
   schedule: {
     input_email: "Please input email account",
     event: "event",
+    event_success: 'EXECUTE SUCCESSFUL',
+    event_failed: 'EXECUTE FAILED',
     receiving_mode: "mailbox",
     receiver: "Receiver",
     operation: "operation",

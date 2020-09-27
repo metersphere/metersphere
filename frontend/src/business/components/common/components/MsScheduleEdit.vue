@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :close-on-click-modal="false" width="50%" class="schedule-edit" :visible.sync="dialogVisible"
+  <el-dialog :close-on-click-modal="false" width="60%" class="schedule-edit" :visible.sync="dialogVisible"
              @close="close">
     <template>
       <div>
@@ -21,7 +21,7 @@
               </el-form-item>
               <crontab-result :ex="form.cronValue" ref="crontabResult"/>
             </el-form>
-            <el-dialog :title="$t('schedule.generate_expression')" :visible.sync="showCron" :modal="false">
+            <el-dialog width="60%" :title="$t('schedule.generate_expression')" :visible.sync="showCron" :modal="false">
               <crontab @hide="showCron=false" @fill="crontabFill" :expression="schedule.value" ref="crontab"/>
             </el-dialog>
           </el-tab-pane>
@@ -32,9 +32,12 @@
                 style="width: 100%">
                 <el-table-column
                   prop="event"
-                  :label="$t('schedule.event')"
-
-                >
+                  :label="$t('schedule.event')">
+                  <template v-slot:default="{row}">
+                    <span v-if="row.event === 'EXECUTE_SUCCESSFUL'"> {{ $t('schedule.event_success') }}</span>
+                    <span v-else-if="row.event === 'EXECUTE_FAILED'"> {{ $t('schedule.event_failed') }}</span>
+                    <span v-else>{{ row.event }}</span>
+                  </template>
                 </el-table-column>
                 <el-table-column
                   prop="name"
@@ -42,7 +45,8 @@
                   width="200"
                 >
                   <template v-slot:default="{row}">
-                    <el-select v-model="row.names" filterable multiple placeholder="请选择" @click.native="userList()">
+                    <el-select v-model="row.names" filterable multiple :placeholder="$t('commons.please_select')"
+                               @click.native="userList()">
                       <el-option
                         v-for="item in options"
                         :key="item.id"
@@ -53,7 +57,7 @@
                   </template>
                 </el-table-column>
                 <el-table-column
-                  prop="email"
+                  prop="type"
                   :label="$t('schedule.receiving_mode')"
                 >
                 </el-table-column>
@@ -63,10 +67,10 @@
                 >
                   <template v-slot:default="{row}">
                     <el-switch
-                            v-model="row.enable"
-                            active-value="true"
-                            inactive-value="false"
-                            inactive-color="#DCDFE6"
+                      v-model="row.enable"
+                      active-value="true"
+                      inactive-value="false"
+                      inactive-color="#DCDFE6"
                     />
                   </template>
                 </el-table-column>
@@ -142,21 +146,21 @@ export default {
       },
       tableData: [
         {
-          event: "执行成功",
+          event: "EXECUTE_SUCCESSFUL",
+          type: "EMAIL",
           names: [],
-          email: "邮箱",
           enable: false
         },
         {
-          event: "执行失败",
+          event: "EXECUTE_FAILED",
+          type: "EMAIL",
           names: [],
-          email: "邮箱",
           enable: false
         }
       ],
       options: [{}],
       enable: true,
-      email: "",
+      type: "",
       activeName: 'first',
       rules: {
         cronValue: [{required: true, validator: validateCron, trigger: 'blur'}],
@@ -170,17 +174,18 @@ export default {
       })
     },
     handleClick() {
-      if (this.activeName == "second") {
+      if (this.activeName === "second") {
         this.result = this.$get('notice/query/' + this.testId, response => {
           if (response.data.length > 0) {
             this.tableData = response.data
-            this.tableData[0].email="邮箱"
-            this.tableData[0].event="执行成功"
-            this.tableData[1].email="邮箱"
-            this.tableData[1].event="执行失败"
-          }else{
-            this.tableData[0].names=[]
-            this.tableData[1].names=[]
+
+            this.tableData[0].event = "EXECUTE_SUCCESSFUL"
+            this.tableData[0].type = "EMAIL"
+            this.tableData[1].event = "EXECUTE_FAILED"
+            this.tableData[1].type = "EMAIL"
+          } else {
+            this.tableData[0].names = []
+            this.tableData[1].names = []
           }
         })
       }

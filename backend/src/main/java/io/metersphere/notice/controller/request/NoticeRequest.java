@@ -6,8 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class NoticeRequest extends NoticeDetail {
-   private String testId;
-   private List<NoticeDetail> notices;
-
+public class NoticeRequest {
+    private String testId;
+    private List<NoticeDetail> notices;
 }
