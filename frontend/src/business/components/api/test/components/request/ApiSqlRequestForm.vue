@@ -5,11 +5,24 @@
       <el-input v-model="request.name" maxlength="300" show-word-limit/>
     </el-form-item>
 
-    <el-form-item :label="$t('api_test.request.sql.dataSource')" prop="dataSource">
-      <el-select v-model="request.dataSource">
-        <el-option v-for="(item, index) in databaseConfigsOptions" :key="index" :value="item.id" :label="item.name"/>
-      </el-select>
-    </el-form-item>
+    <div class="one-row">
+      <el-form-item :label="$t('api_test.request.sql.dataSource')" prop="dataSource">
+        <el-select v-model="request.dataSource">
+          <el-option v-for="(item, index) in databaseConfigsOptions" :key="index" :value="item.id" :label="item.name"/>
+        </el-select>
+      </el-form-item>
+
+      <el-form-item :label="$t('api_test.request.sql.timeout')" prop="queryTimeout">
+        <el-input-number :disabled="isReadOnly" size="mini" v-model="request.queryTimeout" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
+      </el-form-item>
+
+      <el-form-item>
+        <el-switch
+          v-model="request.useEnvironment"
+          :active-text="$t('api_test.request.refer_to_environment')" @change="getDatabaseConfigsOptions">
+        </el-switch>
+      </el-form-item>
+    </div>
 
     <el-form-item :label="$t('api_test.request.sql.result_variable')" prop="resultVariable">
       <el-input v-model="request.resultVariable" maxlength="300" show-word-limit/>
@@ -24,17 +37,6 @@
         <!--<el-option label="dubbo://" :value="protocols.DUBBO"/>-->
       <!--</el-select>-->
     <!--</el-form-item>-->
-
-    <el-form-item :label="$t('api_test.request.sql.timeout')" prop="queryTimeout">
-     <el-input-number :disabled="isReadOnly" size="mini" v-model="request.queryTimeout" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
-    </el-form-item>
-
-    <el-form-item>
-      <el-switch
-        v-model="request.useEnvironment"
-        :active-text="$t('api_test.request.refer_to_environment')" @change="getDatabaseConfigsOptions">
-      </el-switch>
-    </el-form-item>
 
     <el-button :disabled="!request.enable || !scenario.enable || isReadOnly" class="debug-button" size="small" type="primary" @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
 
@@ -145,6 +147,14 @@
 
   .sql-content {
     height: calc(100vh - 570px);
+  }
+
+  .one-row .el-form-item {
+    display: inline-block;
+  }
+
+  .one-row .el-form-item:nth-child(2) {
+    margin-left: 60px;
   }
 
 </style>

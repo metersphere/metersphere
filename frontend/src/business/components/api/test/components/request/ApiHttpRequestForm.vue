@@ -156,7 +156,7 @@ export default {
         let url = new URL(urlStr);
         url.searchParams.forEach((value, key) => {
           if (key && value) {
-            this.request.parameters.splice(0, 0, new KeyValue(key, value));
+            this.request.parameters.splice(0, 0, new KeyValue({name: name, value: value}));
           }
         });
         return url;

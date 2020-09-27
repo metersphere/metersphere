@@ -1,7 +1,7 @@
 package io.metersphere.notice.controller;
 
-import io.metersphere.base.domain.NoticeDetail;
 import io.metersphere.notice.controller.request.NoticeRequest;
+import io.metersphere.notice.domain.NoticeDetail;
 import io.metersphere.notice.service.NoticeService;
 import org.springframework.web.bind.annotation.*;
 
