@@ -271,6 +271,8 @@ export default {
           this.form.stage = '';
           this.form.description = '';
           this.form.status = null;
+          this.form.plannedStartTime = null;
+          this.form.plannedEndTime = null;
           return true;
         });
       }

@@ -54,7 +54,7 @@
 
       <el-table-column
         prop="projectName"
-        :label="$t('test_track.home.test_rate')"
+        :label="$t('test_track.home.review_progress')"
         min-width="100"
         show-overflow-tooltip>
         <template v-slot:default="scope">
