@@ -95,10 +95,6 @@ public class TestPlanService {
 
         testPlan.setId(testPlanId);
         testPlan.setStatus(TestPlanStatus.Prepare.name());
-        testPlan.setPlannedStartTime(System.currentTimeMillis());
-        testPlan.setPlannedEndTime(System.currentTimeMillis());
-        testPlan.setActualStartTime(System.currentTimeMillis());
-        testPlan.setActualEndTime(System.currentTimeMillis());
         testPlan.setCreateTime(System.currentTimeMillis());
         testPlan.setUpdateTime(System.currentTimeMillis());
         testPlanMapper.insert(testPlan);
@@ -120,16 +116,14 @@ public class TestPlanService {
         testPlan.setUpdateTime(System.currentTimeMillis());
         checkTestPlanExist(testPlan);
         //进行中状态，写入实际开始时间
-        if ("Underway".equals(testPlan.getStatus())) {
+        if (TestPlanStatus.Underway.name().equals(testPlan.getStatus())) {
             testPlan.setActualStartTime(System.currentTimeMillis());
-            return testPlanMapper.updateByPrimaryKeySelective(testPlan);
-        } else if("Completed".equals(testPlan.getStatus())){
+
+        } else if(TestPlanStatus.Completed.name().equals(testPlan.getStatus())){
             //已完成，写入实际完成时间
             testPlan.setActualEndTime(System.currentTimeMillis());
-            return testPlanMapper.updateByPrimaryKeySelective(testPlan);
-        } else {
-            return 0;
         }
+        return testPlanMapper.updateByPrimaryKeySelective(testPlan);
     }
 
     private void editTestPlanProject(TestPlanDTO testPlan) {
