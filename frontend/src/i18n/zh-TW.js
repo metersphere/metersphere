@@ -1,5 +1,6 @@
 export default {
   commons: {
+    examples: '示例',
     help_documentation: '幫助文檔',
     delete_cancelled: '已取消刪除',
     workspace: '工作空間',
