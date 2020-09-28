@@ -115,6 +115,9 @@ export default {
   watch: {
     test() {
       this.initScenarioEnvironment();
+    },
+    projectId() {
+      this.initScenarioEnvironment();
     }
   },
   methods: {
@@ -208,9 +211,13 @@ export default {
               let env = environmentMap.get(scenario.environmentId);
               if (!env) {
                 scenario.environmentId = undefined;
+                scenario.environment = undefined;
               } else {
                 scenario.environment = env;
               }
+            } else {
+              scenario.environmentId = undefined;
+              scenario.environment = undefined;
             }
           });
         });
