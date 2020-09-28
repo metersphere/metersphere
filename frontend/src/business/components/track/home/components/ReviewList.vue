@@ -1,11 +1,11 @@
 <template>
-  <home-base-component title="我的评审" v-loading>
+  <home-base-component :title="$t('test_track.review.my_review')" v-loading>
     <template slot="header-area">
       <div style="float: right">
         <ms-table-button :is-tester-permission="true" v-if="!showMyCreator" icon="el-icon-view"
-                         content="我创建的评审" @click="searchMyCreator"/>
+                         :content="$t('test_track.review.my_create')" @click="searchMyCreator"/>
         <ms-table-button :is-tester-permission="true" v-if="showMyCreator" icon="el-icon-view"
-                         content="待我评审" @click="searchMyCreator"/>
+                         :content="$t('test_track.review.reviewed_by_me')" @click="searchMyCreator"/>
       </div>
 
     </template>
@@ -24,13 +24,13 @@
       <el-table-column
         prop="creator"
         fixed
-        label="创建人"
+        :label="$t('test_track.review.creator')"
         show-overflow-tooltip>
       </el-table-column>
       <el-table-column
         prop="reviewerName"
         fixed
-        label="评审人"
+        :label="$t('test_track.review.reviewer')"
         show-overflow-tooltip>
       </el-table-column>
 
@@ -45,7 +45,7 @@
 
       <el-table-column
         prop="projectName"
-        label="已评用例"
+        :label="$t('test_track.review.done')"
         show-overflow-tooltip>
         <template v-slot:default="scope">
           {{scope.row.reviewed}}/{{scope.row.total}}

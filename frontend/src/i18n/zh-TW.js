@@ -1,5 +1,6 @@
 export default {
   commons: {
+    examples: '示例',
     help_documentation: '幫助文檔',
     delete_cancelled: '已取消刪除',
     workspace: '工作空間',
@@ -540,6 +541,8 @@ export default {
         bean_shell_processor_tip: "僅支持 BeanShell 腳本",
         code_template_get_variable: "獲取變量",
         code_template_set_variable: "設置變量",
+        code_template_get_global_variable: "獲取全局變量",
+        code_template_set_global_variable: "設置全局變量",
         code_template_get_response_header: "獲取響應頭",
         code_template_get_response_code: "獲取響應碼",
         code_template_get_response_result: "獲取響應結果"
@@ -760,6 +763,11 @@ export default {
       pass: "通過",
       un_pass: "未通過",
       comment: "評論",
+      my_review: "我的評審",
+      my_create: "我創建的評審",
+      reviewed_by_me: "待我評審",
+      creator: "創建人",
+      done: "已評用例"
     },
     comment: {
       no_comment: "暫無評論",

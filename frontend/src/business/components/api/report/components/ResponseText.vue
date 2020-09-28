@@ -63,6 +63,13 @@
         this.mode = mode;
       }
     },
+
+    created() {
+      console.log(this.response.headers);
+      if (this.response.headers.indexOf("Content-Type: application/json") > 0) {
+        this.mode = BODY_FORMAT.JSON;
+      }
+    }
   }
 </script>
 
