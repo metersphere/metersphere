@@ -39,7 +39,6 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
     public String runMode = ApiRunMode.RUN.name();
 
-    private JMeterVars variables;
     // 测试ID
     private String testId;
 
@@ -155,9 +154,9 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         responseResult.setResponseTime(result.getTime());
         responseResult.setResponseMessage(result.getResponseMessage());
 
-        if (variables.get(result.hashCode()) != null) {
+        if (JMeterVars.get(result.hashCode()) != null) {
             List<String> vars = new LinkedList<>();
-            variables.get(result.hashCode()).entrySet().parallelStream().reduce(vars, (first, second) -> {
+            JMeterVars.get(result.hashCode()).entrySet().parallelStream().reduce(vars, (first, second) -> {
                 first.add(second.getKey() + "：" + second.getValue());
                 return first;
             }, (first, second) -> {
@@ -168,6 +167,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                 return first;
             });
             responseResult.setVars(StringUtils.join(vars, "\n"));
+            JMeterVars.remove(result.hashCode());
         }
         for (AssertionResult assertionResult : result.getAssertionResults()) {
             ResponseAssertionResult responseAssertionResult = getResponseAssertionResult(assertionResult);
@@ -199,7 +199,6 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         if (StringUtils.isBlank(this.runMode)) {
             this.runMode = ApiRunMode.RUN.name();
         }
-        variables = new JMeterVars();
     }
 
     private ResponseAssertionResult getResponseAssertionResult(AssertionResult assertionResult) {

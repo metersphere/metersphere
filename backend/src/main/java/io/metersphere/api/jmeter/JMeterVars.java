@@ -13,6 +13,9 @@ import java.util.*;
 
 public class JMeterVars {
 
+    private JMeterVars() { }
+
+    // 数据和线程变量保持一致
     private static Map<Integer, JMeterVariables> variables = new HashMap<>();
 
     // 线程执行过程调用提取变量值
@@ -59,7 +62,12 @@ public class JMeterVars {
         }
     }
 
-    public JMeterVariables get(Integer key) {
+    public static JMeterVariables get(Integer key) {
         return variables.get(key);
     }
+
+    public static void remove(Integer key) {
+        variables.remove(key);
+    }
+
 }
