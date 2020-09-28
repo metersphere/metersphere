@@ -1,5 +1,6 @@
 export default {
   commons: {
+    examples: 'examples',
     help_documentation: 'Help documentation',
     delete_cancelled: 'Delete cancelled',
     workspace: 'Workspace',
@@ -760,6 +761,11 @@ export default {
       pass: "pass",
       un_pass: "UnPass",
       comment: "Comment",
+      my_review: "My Review",
+      my_create: "My Create",
+      reviewed_by_me: "Review By Me",
+      creator: "Creator",
+      done: "Commented use cases"
     },
     comment: {
       no_comment: "No Comment",

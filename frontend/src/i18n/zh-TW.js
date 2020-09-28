@@ -1,5 +1,6 @@
 export default {
   commons: {
+    examples: '示例',
     help_documentation: '幫助文檔',
     delete_cancelled: '已取消刪除',
     workspace: '工作空間',
@@ -762,6 +763,11 @@ export default {
       pass: "通過",
       un_pass: "未通過",
       comment: "評論",
+      my_review: "我的評審",
+      my_create: "我創建的評審",
+      reviewed_by_me: "待我評審",
+      creator: "創建人",
+      done: "已評用例"
     },
     comment: {
       no_comment: "暫無評論",
