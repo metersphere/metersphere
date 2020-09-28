@@ -20,6 +20,7 @@ import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.excel.domain.ExcelErrData;
 import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.excel.domain.TestCaseExcelData;
+import io.metersphere.excel.domain.TestCaseExcelDataFactory;
 import io.metersphere.excel.listener.EasyExcelListener;
 import io.metersphere.excel.listener.TestCaseDataListener;
 import io.metersphere.excel.utils.EasyExcelExporter;
@@ -284,6 +285,9 @@ public class TestCaseService {
                     errList.add(excelErrData);
                     excelResponse.setErrList(errList);
                 } else {
+                    if (!xmindParser.getNodePaths().isEmpty()) {
+                        testCaseNodeService.createNodes(xmindParser.getNodePaths(), projectId);
+                    }
                     if (!xmindParser.getTestCase().isEmpty()) {
                         this.saveImportData(xmindParser.getTestCase(), projectId);
                         xmindParser.clear();
@@ -302,8 +306,9 @@ public class TestCaseService {
 
             Set<String> userIds = userRoleMapper.selectByExample(userRoleExample).stream().map(UserRole::getUserId).collect(Collectors.toSet());
 
-            try (EasyExcelListener easyExcelListener = new TestCaseDataListener(this, projectId, testCaseNames, userIds)) {
-                EasyExcelFactory.read(multipartFile.getInputStream(), TestCaseExcelData.class, easyExcelListener).sheet().doRead();
+            try {
+                EasyExcelListener easyExcelListener = new TestCaseDataListener(this, projectId, testCaseNames, userIds);
+                EasyExcelFactory.read(multipartFile.getInputStream(), new TestCaseExcelDataFactory().getExcelDataByLocal(), easyExcelListener).sheet().doRead();
                 errList = easyExcelListener.getErrList();
             } catch (Exception e) {
                 LogUtil.error(e.getMessage(), e);
@@ -341,7 +346,8 @@ public class TestCaseService {
     }
 
     public void testCaseTemplateExport(HttpServletResponse response) {
-        try (EasyExcelExporter easyExcelExporter = new EasyExcelExporter(TestCaseExcelData.class)) {
+        try {
+            EasyExcelExporter easyExcelExporter = new EasyExcelExporter(new TestCaseExcelDataFactory().getExcelDataByLocal());
             easyExcelExporter.export(response, generateExportTemplate(),
                     Translator.get("test_case_import_template_name"), Translator.get("test_case_import_template_sheet"));
         } catch (Exception e) {
@@ -419,10 +425,12 @@ public class TestCaseService {
     }
 
     public void testCaseExport(HttpServletResponse response, TestCaseBatchRequest request) {
-        try (EasyExcelExporter easyExcelExporter = new EasyExcelExporter(TestCaseExcelData.class)) {
+        try {
+            EasyExcelExporter easyExcelExporter = new EasyExcelExporter(new TestCaseExcelDataFactory().getExcelDataByLocal());
             easyExcelExporter.export(response, generateTestCaseExcel(request),
                     Translator.get("test_case_import_template_name"), Translator.get("test_case_import_template_sheet"));
         } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
             MSException.throwException(e);
         }
     }
@@ -470,7 +478,7 @@ public class TestCaseService {
             } else if (t.getMethod().equals("auto") && t.getType().equals("api")) {
                 data.setStepDesc("");
                 data.setStepResult("");
-                if (t.getTestId().equals("other")) {
+                if (t.getTestId() != null && t.getTestId().equals("other")) {
                     data.setRemark(t.getOtherTestName());
                 } else {
                     data.setRemark(t.getApiName());
@@ -479,7 +487,7 @@ public class TestCaseService {
             } else if (t.getMethod().equals("auto") && t.getType().equals("performance")) {
                 data.setStepDesc("");
                 data.setStepResult("");
-                if (t.getTestId().equals("other")) {
+                if (t.getTestId() != null && t.getTestId().equals("other")) {
                     data.setRemark(t.getOtherTestName());
                 } else {
                     data.setRemark(t.getPerformName());

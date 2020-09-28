@@ -804,6 +804,7 @@ export default {
     plan_view: {
       plan: "计划",
       relevance_test_case: "关联测试用例",
+      cancel_all_relevance: "取消全部关联",
       executor: "执行人",
       execute_result: "执行结果",
       pass: "通过",
@@ -848,7 +849,8 @@ export default {
       report_template: "测试报告模版",
       test_detail: "测试详情",
       failure_case: "失败用例",
-      export_report: "导出报告"
+      export_report: "导出报告",
+      no_case_relevance: "没有关联用例",
     },
     issue: {
       issue: "缺陷",
