@@ -800,6 +800,7 @@ export default {
       my_plan: "我的计划",
       test_rate: "测试进度",
       tested_case: "已测用例",
+      review_progress: "评审进度"
     },
     plan_view: {
       plan: "计划",

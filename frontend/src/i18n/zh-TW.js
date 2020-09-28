@@ -796,6 +796,7 @@ export default {
       my_plan: "我的計劃",
       test_rate: "測試進度",
       tested_case: "已測用例",
+      review_progress: "評審進度"
     },
     plan_view: {
       plan: "計劃",

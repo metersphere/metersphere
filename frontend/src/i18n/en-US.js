@@ -794,6 +794,7 @@ export default {
       my_plan: "My plan",
       test_rate: "Test rate",
       tested_case: "Tested case",
+      review_progress: "Review progress"
     },
     plan_view: {
       plan: "Plan",
