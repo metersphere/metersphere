@@ -38,7 +38,15 @@
             },
             {
               title: this.$t('api_test.request.processor.code_template_set_variable'),
-              value: 'vars.put("variable_name", "variable_value");',
+              value: 'vars.put("variable_name", "variable_value")',
+            },
+            {
+              title: this.$t('api_test.request.processor.code_template_get_global_variable'),
+              value: '${__P("variable_name")}',
+            },
+            {
+              title: this.$t('api_test.request.processor.code_template_set_global_variable'),
+              value: '${__setProperty("variable_name","variable_value",)}',
             },
             {
               title: this.$t('api_test.request.processor.code_template_get_response_header'),

@@ -537,11 +537,13 @@ export default {
         post_exec_script: "PostProcessor",
         code_template: "Code template",
         bean_shell_processor_tip: "Currently only BeanShell scripts are supported",
-        code_template_get_variable: "Get variable",
-        code_template_set_variable: "Set variable",
-        code_template_get_response_header: "Get response header",
-        code_template_get_response_code: "Get response code",
-        code_template_get_response_result: "Get response result"
+        code_template_get_variable: "Get Variable",
+        code_template_set_variable: "Set Variable",
+        code_template_get_global_variable: "Get Global Variable",
+        code_template_set_global_variable: "Set Global variable",
+        code_template_get_response_header: "Get Response Header",
+        code_template_get_response_code: "Get Response Code",
+        code_template_get_response_result: "Get Response Result"
       },
       dubbo: {
         protocol: "protocol",

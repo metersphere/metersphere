@@ -540,6 +540,8 @@ export default {
         bean_shell_processor_tip: "仅支持 BeanShell 脚本",
         code_template_get_variable: "获取变量",
         code_template_set_variable: "设置变量",
+        code_template_get_global_variable: "获取全局变量",
+        code_template_set_global_variable: "设置全局变量",
         code_template_get_response_header: "获取响应头",
         code_template_get_response_code: "获取响应码",
         code_template_get_response_result: "获取响应结果"
