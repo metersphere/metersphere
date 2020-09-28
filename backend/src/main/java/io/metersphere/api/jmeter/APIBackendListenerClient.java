@@ -154,10 +154,10 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         responseResult.setResponseTime(result.getTime());
         responseResult.setResponseMessage(result.getResponseMessage());
 
-        if (JMeterVars.variables != null && JMeterVars.variables.get(result.getThreadName()) != null) {
-            JMeterVars.variables.get(result.getThreadName()).remove("TESTSTART.MS"); //去除系统变量
+        if (JMeterVars.variables != null && JMeterVars.variables.get(result.hashCode()) != null) {
+            JMeterVars.variables.get(result.hashCode()).remove("TESTSTART.MS"); //去除系统变量
             List<String> vars = new LinkedList<>();
-            JMeterVars.variables.get(result.getThreadName()).entrySet().parallelStream().reduce(vars, (first, second) -> {
+            JMeterVars.variables.get(result.hashCode()).entrySet().parallelStream().reduce(vars, (first, second) -> {
                 first.add(second.getKey() + "：" + second.getValue());
                 return first;
             }, (first, second) -> {

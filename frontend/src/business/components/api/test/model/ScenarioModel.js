@@ -1225,7 +1225,7 @@ class JMXGenerator {
           vars.push(request.extract.xpath[i].variable);
         }
       }
-      request.jsr223PostProcessor.script += "\n" + "io.metersphere.api.jmeter.JMeterVars.addVars(org.apache.jmeter.threads.JMeterContextService.getContext().getThread().getThreadName(),vars," + "\"" + vars.join(";") + "\"" + ");"
+      request.jsr223PostProcessor.script += "\n" + "io.metersphere.api.jmeter.JMeterVars.addVars(prev.hashCode(),vars," + "\"" + vars.join(";") + "\"" + ");"
 
       sampler.put(new JSR223PostProcessor(name, request.jsr223PostProcessor));
     }

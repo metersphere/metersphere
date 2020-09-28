@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Map;
 
 public class JMeterVars {
-    public static Map<String, JMeterVariables> variables = new HashMap<>();
+    public static Map<Integer, JMeterVariables> variables = new HashMap<>();
 
-    public static void addVars(String testId, JMeterVariables vars, String extract) {
+    public static void addVars(Integer testId, JMeterVariables vars, String extract) {
         JMeterVariables vs = new JMeterVariables();
         if (!StringUtils.isEmpty(extract) && vars != null) {
             List<String> extracts = Arrays.asList(extract.split(";"));
