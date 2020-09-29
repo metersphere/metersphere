@@ -63,6 +63,8 @@ public class UserController {
     @RequiresRoles(RoleConstants.ADMIN)
     public void deleteUser(@PathVariable(value = "userId") String userId) {
         userService.deleteUser(userId);
+        // 踢掉在线用户
+        SessionUtils.kickOutUser(userId);
     }
 
     @PostMapping("/special/update")
