@@ -231,10 +231,10 @@ public class MailService {
         if (noticeList.size() > 0) {
             for (NoticeDetail n : noticeList) {
                 if (StringUtils.equals(n.getEnable(), "true") && StringUtils.equals(n.getEvent(), NoticeConstants.EXECUTE_SUCCESSFUL)) {
-                    successEmailList = userService.queryEmail(n.getNames());
+                    successEmailList = userService.queryEmail(n.getUserIds());
                 }
                 if (StringUtils.equals(n.getEnable(), "true") && StringUtils.equals(n.getEvent(), NoticeConstants.EXECUTE_FAILED)) {
-                    failEmailList = userService.queryEmail(n.getNames());
+                    failEmailList = userService.queryEmail(n.getUserIds());
                 }
             }
         } else {
