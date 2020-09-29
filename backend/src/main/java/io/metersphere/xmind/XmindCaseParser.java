@@ -288,7 +288,7 @@ public class XmindCaseParser {
         } catch (Exception ex) {
             processBuffer.append(Translator.get("incorrect_format"));
             LogUtil.error(ex.getMessage());
-            return ex.getMessage();
+            return "xmind "+Translator.get("incorrect_format");
         }
         return process.toString();
     }

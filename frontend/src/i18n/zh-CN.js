@@ -782,7 +782,7 @@ export default {
     },
     review_view: {
       review: "评审",
-      all_review: "全部评审",
+      all_case: "全部用例",
       start_review: "开始评审",
       relevance_case: "关联用例",
       execute_result: "执行结果",
