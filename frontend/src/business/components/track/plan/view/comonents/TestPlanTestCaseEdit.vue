@@ -359,6 +359,8 @@ export default {
     handleClose() {
       removeGoBackListener(this.handleClose);
       this.showDialog = false;
+      this.searchParam.status = null;
+      this.$emit('update:search-param', this.searchParam);
     },
     cancel() {
       this.handleClose();

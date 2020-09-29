@@ -778,7 +778,7 @@ export default {
     },
     review_view: {
       review: "評審",
-      all_review: "全部評審",
+      all_case: "全部用例",
       start_review: "開始評審",
       relevance_case: "關聯用例",
       execute_result: "執行結果",

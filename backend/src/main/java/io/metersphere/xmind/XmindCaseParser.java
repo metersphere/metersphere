@@ -82,7 +82,8 @@ public class XmindCaseParser {
             for (int i = 0; i < nodes.length; i++) {
                 if (i != 0 && StringUtils.equals(nodes[i].trim(), "")) {
                     process.append(Translator.get("module_not_null") + "; ");
-                    break;
+                } else if (nodes[i].trim().length() > 30) {
+                    process.append(nodes[i].trim() + "：" + Translator.get("test_track.length_less_than") + "30 ;");
                 }
             }
         });
@@ -236,6 +237,9 @@ public class XmindCaseParser {
                 if (i != 0 && StringUtils.equals(nodes[i].trim(), "")) {
                     stringBuilder.append(Translator.get("module_not_null") + "; ");
                     break;
+                } else if (nodes[i].trim().length() > 30) {
+                    stringBuilder.append(nodes[i].trim() + "：" + Translator.get("test_track.length_less_than") + "30 ;");
+                    break;
                 }
             }
         }
@@ -275,7 +279,6 @@ public class XmindCaseParser {
                     } else {
                         item.setPath(item.getTitle());
                         if (item.getChildren() != null && !item.getChildren().getAttached().isEmpty()) {
-                            item.setPath(item.getTitle());
                             recursion(processBuffer, item, 1, item.getChildren().getAttached());
                         }
                     }
@@ -285,7 +288,7 @@ public class XmindCaseParser {
         } catch (Exception ex) {
             processBuffer.append(Translator.get("incorrect_format"));
             LogUtil.error(ex.getMessage());
-            return ex.getMessage();
+            return "xmind "+Translator.get("incorrect_format");
         }
         return process.toString();
     }

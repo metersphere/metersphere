@@ -776,7 +776,7 @@ export default {
     },
     review_view: {
       review: "Review",
-      all_review: "All Review",
+      all_case: "All case",
       start_review: "Start Review",
       relevance_case: "Relevance Case",
       execute_result: "Result",

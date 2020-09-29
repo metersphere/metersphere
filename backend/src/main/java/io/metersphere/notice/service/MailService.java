@@ -42,12 +42,12 @@ public class MailService {
     @Resource
     private SystemParameterService systemParameterService;
 
-    public void sendPerformanceNotification(List<NoticeDetail> noticeList, String status, LoadTestWithBLOBs loadTest) {
+    public void sendPerformanceNotification(List<NoticeDetail> noticeList, String status, LoadTestWithBLOBs loadTest, String id) {
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         Map<String, String> context = new HashMap<>();
         context.put("title", "Performance" + Translator.get("timing_task_result_notification"));
         context.put("testName", loadTest.getName());
-        context.put("id", loadTest.getId());
+        context.put("id", id);
         context.put("type", "performance");
         context.put("url", baseSystemConfigDTO.getUrl());
         String performanceTemplate = "";

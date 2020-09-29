@@ -196,7 +196,7 @@
 
       <test-plan-test-case-edit
         ref="testPlanTestCaseEdit"
-        :search-param="condition"
+        :search-param.sync="condition"
         @refresh="initTableData"
         :is-read-only="isReadOnly"
         @refreshTable="search"/>
@@ -233,6 +233,7 @@
   import ShowMoreBtn from "../../../case/components/ShowMoreBtn";
   import BatchEdit from "../../../case/components/BatchEdit";
   import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+  import {hub} from "@/business/components/track/plan/event-bus";
 
   export default {
     name: "TestPlanTestCaseList",
@@ -336,8 +337,16 @@
       }
     },
     mounted() {
+      hub.$on("openFailureTestCase", row => {
+        this.isReadOnly = true;
+        this.condition.status = 'Failure';
+        this.$refs.testPlanTestCaseEdit.openTestCaseEdit(row);
+      });
       this.refreshTableAndPlan();
       this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
+    },
+    beforeDestroy() {
+      hub.$off("openFailureTestCase");
     },
     methods: {
       initTableData() {
