@@ -95,6 +95,7 @@ public class XmindCaseParser {
                 item.setParent(parent);
                 this.newTestCase(item.getTitle(), parent.getPath(), item.getChildren() != null ? item.getChildren().getAttached() : null);
             } else {
+                validLength(item.getTitle());
                 String nodePath = parent.getPath() + "/" + item.getTitle();
                 item.setPath(nodePath);
                 item.setParent(parent);
@@ -221,6 +222,13 @@ public class XmindCaseParser {
         compartDatas.add(compartData);
     }
 
+    private void validLength(String title) {
+        if (StringUtils.equals(title.trim(), ""))
+            process.append(Translator.get("module_not_null") + "; ");
+        if (title.length() > 30)
+            process.append(title + "：" + Translator.get("test_track.length_less_than") + "30 ;");
+    }
+
     // 验证合法性
     private boolean validate(TestCaseWithBLOBs data) {
         String nodePath = data.getNodePath();
@@ -273,9 +281,9 @@ public class XmindCaseParser {
                     if (isAvailable(item.getTitle(), "(?:tc:|tc：|tc)")) { // 用例
                         return replace(item.getTitle(), "(?:tc:|tc：|tc)") + "：" + Translator.get("test_case_create_module_fail");
                     } else {
+                        validLength(item.getTitle());
                         item.setPath(item.getTitle());
                         if (item.getChildren() != null && !item.getChildren().getAttached().isEmpty()) {
-                            item.setPath(item.getTitle());
                             recursion(processBuffer, item, 1, item.getChildren().getAttached());
                         }
                     }
