@@ -16,8 +16,6 @@ public interface ExtUserMapper {
 
     List<User> searchUser(String condition);
 
-    List<String> queryEmails(String[] names);
-
     List<String> queryEmailByIds(List<String> userIds);
 
 }
