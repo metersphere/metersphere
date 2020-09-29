@@ -1,10 +1,14 @@
 package io.metersphere.commons.utils;
 
 import io.metersphere.commons.user.SessionUser;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.session.Session;
+import org.apache.shiro.session.mgt.DefaultSessionManager;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.subject.support.DefaultSubjectContext;
 
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -23,6 +27,30 @@ public class SessionUtils {
             return (SessionUser) session.getAttribute(ATTR_USER);
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    private static Session getSessionByUsername(String username) {
+        DefaultSessionManager sessionManager = CommonBeanFactory.getBean(DefaultSessionManager.class);
+        Collection<Session> sessions = sessionManager.getSessionDAO().getActiveSessions();
+        for (Session session : sessions) {
+            if (null != session && StringUtils.equals(String.valueOf(session.getAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY)), username)) {
+                return session;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 踢除用户
+     *
+     * @param username
+     */
+    public static void kickOutUser(String username) {
+        Session session = getSessionByUsername(username);
+        if (session != null) {
+            DefaultSessionManager sessionManager = CommonBeanFactory.getBean(DefaultSessionManager.class);
+            sessionManager.getSessionDAO().delete(session);
         }
     }
 

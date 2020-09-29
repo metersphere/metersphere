@@ -6,6 +6,7 @@
         <el-col>
           <el-form-item :label="$t('system_config.base.url')" prop="url">
             <el-input v-model="formInline.url" :placeholder="$t('system_config.base.url_tip')"/>
+            <i>({{$t('commons.examples')}}:https://rdmetersphere.fit2cloud.com)</i>
           </el-form-item>
         </el-col>
       </el-row>

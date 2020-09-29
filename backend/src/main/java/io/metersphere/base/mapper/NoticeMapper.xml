@@ -5,9 +5,9 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="EVENT" jdbcType="VARCHAR" property="event" />
     <result column="TEST_ID" jdbcType="VARCHAR" property="testId" />
-    <result column="NAME" jdbcType="VARCHAR" property="name" />
     <result column="ENABLE" jdbcType="VARCHAR" property="enable" />
     <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -68,7 +68,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, EVENT, TEST_ID, `NAME`, `ENABLE`, `type`
+    id, EVENT, TEST_ID, `ENABLE`, `type`, user_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.NoticeExample" resultMap="BaseResultMap">
     select
@@ -102,9 +102,11 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.Notice">
     INSERT INTO notice (id, EVENT, TEST_ID,
-      `NAME`, `ENABLE`, `type`)
+      `ENABLE`, `type`, user_id
+      )
     VALUES (#{id,jdbcType=VARCHAR}, #{event,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR},
-      #{name,jdbcType=VARCHAR}, #{enable,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR})
+      #{enable,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.Notice">
     insert into notice
@@ -118,14 +120,14 @@
       <if test="testId != null">
         TEST_ID,
       </if>
-      <if test="name != null">
-        `NAME`,
-      </if>
       <if test="enable != null">
         `ENABLE`,
       </if>
       <if test="type != null">
         `type`,
+      </if>
+      <if test="userId != null">
+        user_id,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -138,14 +140,14 @@
       <if test="testId != null">
         #{testId,jdbcType=VARCHAR},
       </if>
-      <if test="name != null">
-        #{name,jdbcType=VARCHAR},
-      </if>
       <if test="enable != null">
         #{enable,jdbcType=VARCHAR},
       </if>
       <if test="type != null">
         #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -167,14 +169,14 @@
       <if test="record.testId != null">
         TEST_ID = #{record.testId,jdbcType=VARCHAR},
       </if>
-      <if test="record.name != null">
-        `NAME` = #{record.name,jdbcType=VARCHAR},
-      </if>
       <if test="record.enable != null">
         `ENABLE` = #{record.enable,jdbcType=VARCHAR},
       </if>
       <if test="record.type != null">
         `type` = #{record.type,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userId != null">
+        user_id = #{record.userId,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -186,9 +188,9 @@
     set id = #{record.id,jdbcType=VARCHAR},
       EVENT = #{record.event,jdbcType=VARCHAR},
       TEST_ID = #{record.testId,jdbcType=VARCHAR},
-      `NAME` = #{record.name,jdbcType=VARCHAR},
       `ENABLE` = #{record.enable,jdbcType=VARCHAR},
-      `type` = #{record.type,jdbcType=VARCHAR}
+      `type` = #{record.type,jdbcType=VARCHAR},
+      user_id = #{record.userId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -202,14 +204,14 @@
       <if test="testId != null">
         TEST_ID = #{testId,jdbcType=VARCHAR},
       </if>
-      <if test="name != null">
-        `NAME` = #{name,jdbcType=VARCHAR},
-      </if>
       <if test="enable != null">
         `ENABLE` = #{enable,jdbcType=VARCHAR},
       </if>
       <if test="type != null">
         `type` = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=VARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -218,9 +220,9 @@
     UPDATE notice
     SET EVENT = #{event,jdbcType=VARCHAR},
       TEST_ID = #{testId,jdbcType=VARCHAR},
-      `NAME` = #{name,jdbcType=VARCHAR},
       `ENABLE` = #{enable,jdbcType=VARCHAR},
-      `type` = #{type,jdbcType=VARCHAR}
+      `type` = #{type,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=VARCHAR}
     WHERE id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

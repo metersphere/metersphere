@@ -242,7 +242,7 @@ public class PerformanceTestService {
         if (request.getTriggerMode().equals("SCHEDULE")) {
             try {
                 noticeList = noticeService.queryNotice(loadTest.getId());
-                mailService.sendPerformanceNotification(noticeList, PerformanceTestStatus.Completed.name(), loadTest);
+                mailService.sendPerformanceNotification(noticeList, PerformanceTestStatus.Completed.name(), loadTest, engine.getReportId());
             } catch (Exception e) {
                 LogUtil.error(e.getMessage(), e);
             }
@@ -321,7 +321,7 @@ public class PerformanceTestService {
             loadTestMapper.updateByPrimaryKeySelective(loadTest);
             if (triggerMode.equals("SCHEDULE")) {
                 noticeList = noticeService.queryNotice(loadTest.getId());
-                mailService.sendPerformanceNotification(noticeList, loadTest.getStatus(), loadTest);
+                mailService.sendPerformanceNotification(noticeList, loadTest.getStatus(), loadTest, loadTest.getId());
             }
             throw e;
         }
@@ -449,7 +449,7 @@ public class PerformanceTestService {
             if (loadTestReport.getTriggerMode().equals("SCHEDULE")) {
                 try {
                     noticeList = noticeService.queryNotice(loadTest.getId());
-                    mailService.sendPerformanceNotification(noticeList, loadTestReport.getStatus(), loadTest);
+                    mailService.sendPerformanceNotification(noticeList, loadTestReport.getStatus(), loadTest, loadTestReport.getId());
                 } catch (Exception e) {
                     LogUtil.error(e.getMessage(), e);
                 }

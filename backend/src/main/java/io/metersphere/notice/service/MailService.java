@@ -4,8 +4,10 @@ import io.metersphere.base.domain.ApiTestReport;
 import io.metersphere.base.domain.LoadTestWithBLOBs;
 import io.metersphere.base.domain.SystemParameter;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
+import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.ParamConstants;
+import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.BaseSystemConfigDTO;
@@ -40,19 +42,19 @@ public class MailService {
     @Resource
     private SystemParameterService systemParameterService;
 
-    public void sendPerformanceNotification(List<NoticeDetail> noticeList, String status, LoadTestWithBLOBs loadTest) {
+    public void sendPerformanceNotification(List<NoticeDetail> noticeList, String status, LoadTestWithBLOBs loadTest, String id) {
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         Map<String, String> context = new HashMap<>();
         context.put("title", "Performance" + Translator.get("timing_task_result_notification"));
         context.put("testName", loadTest.getName());
-        context.put("id", loadTest.getId());
+        context.put("id", id);
         context.put("type", "performance");
         context.put("url", baseSystemConfigDTO.getUrl());
         String performanceTemplate = "";
         try {
-            if (status.equals("Completed")) {
+            if (StringUtils.equals(status, PerformanceTestStatus.Completed.name())) {
                 performanceTemplate = IOUtils.toString(this.getClass().getResource("/mail/successPerformance.html"), StandardCharsets.UTF_8);
-            } else if (status.equals("Error")) {
+            } else if (StringUtils.equals(status, PerformanceTestStatus.Error.name())) {
                 performanceTemplate = IOUtils.toString(this.getClass().getResource("/mail/failPerformance.html"), StandardCharsets.UTF_8);
             }
             sendHtmlTimeTasks(noticeList, status, context, performanceTemplate);
@@ -71,9 +73,9 @@ public class MailService {
         context.put("id", apiTestReport.getId());
         String apiTemplate = "";
         try {
-            if (apiTestReport.getStatus().equals("Success")) {
+            if (StringUtils.equals(APITestStatus.Success.name(), apiTestReport.getStatus())) {
                 apiTemplate = IOUtils.toString(this.getClass().getResource("/mail/success.html"), StandardCharsets.UTF_8);
-            } else if (apiTestReport.getStatus().equals("Error")) {
+            } else if (StringUtils.equals(APITestStatus.Error.name(), apiTestReport.getStatus())) {
                 apiTemplate = IOUtils.toString(this.getClass().getResource("/mail/fail.html"), StandardCharsets.UTF_8);
             }
             sendHtmlTimeTasks(noticeList, apiTestReport.getStatus(), context, apiTemplate);
@@ -184,17 +186,21 @@ public class MailService {
         javaMailSender.setDefaultEncoding("UTF-8");
         javaMailSender.setProtocol("smtps");
         for (SystemParameter p : paramList) {
-            if (p.getParamKey().equals("smtp.host")) {
-                javaMailSender.setHost(p.getParamValue());
-            }
-            if (p.getParamKey().equals("smtp.port")) {
-                javaMailSender.setPort(Integer.parseInt(p.getParamValue()));
-            }
-            if (p.getParamKey().equals("smtp.account")) {
-                javaMailSender.setUsername(p.getParamValue());
-            }
-            if (p.getParamKey().equals("smtp.password")) {
-                javaMailSender.setPassword(EncryptUtils.aesDecrypt(p.getParamValue()).toString());
+            switch (p.getParamKey()) {
+                case "smtp.host":
+                    javaMailSender.setHost(p.getParamValue());
+                    break;
+                case "smtp.port":
+                    javaMailSender.setPort(Integer.parseInt(p.getParamValue()));
+                    break;
+                case "smtp.account":
+                    javaMailSender.setUsername(p.getParamValue());
+                    break;
+                case "smtp.password":
+                    javaMailSender.setPassword(EncryptUtils.aesDecrypt(p.getParamValue()).toString());
+                    break;
+                default:
+                    break;
             }
         }
         Properties props = new Properties();
@@ -224,18 +230,18 @@ public class MailService {
         List<String> failEmailList = new ArrayList<>();
         if (noticeList.size() > 0) {
             for (NoticeDetail n : noticeList) {
-                if (n.getEnable().equals("true") && n.getEvent().equals(NoticeConstants.EXECUTE_SUCCESSFUL)) {
-                    successEmailList = userService.queryEmail(n.getNames());
+                if (StringUtils.equals(n.getEnable(), "true") && StringUtils.equals(n.getEvent(), NoticeConstants.EXECUTE_SUCCESSFUL)) {
+                    successEmailList = userService.queryEmail(n.getUserIds());
                 }
-                if (n.getEnable().equals("true") && n.getEvent().equals(NoticeConstants.EXECUTE_FAILED)) {
-                    failEmailList = userService.queryEmail(n.getNames());
+                if (StringUtils.equals(n.getEnable(), "true") && StringUtils.equals(n.getEvent(), NoticeConstants.EXECUTE_FAILED)) {
+                    failEmailList = userService.queryEmail(n.getUserIds());
                 }
             }
         } else {
             LogUtil.error("Recipient information is empty");
         }
 
-        if (status.equals("Success") || status.equals("Completed")) {
+        if (StringUtils.equalsAny(status, PerformanceTestStatus.Completed.name(), APITestStatus.Success.name())) {
             recipientEmails = successEmailList.toArray(new String[0]);
         } else {
             recipientEmails = failEmailList.toArray(new String[0]);

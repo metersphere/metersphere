@@ -33,18 +33,6 @@
         </where>
         order by u.update_time desc
     </select>
-    <!--查询邮箱-->
-    <select id="queryEmails" parameterType="java.lang.String" resultType="java.lang.String">
-        SELECT
-        email
-        from user
-        WHERE name IN
-        <foreach collection="array" item="id" index="index"
-                 open="(" close=")" separator=",">
-            #{id}
-        </foreach>
-
-    </select>
     <select id="queryEmailByIds" parameterType="java.lang.String" resultType="java.lang.String">
         SELECT
         email

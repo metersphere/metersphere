@@ -34,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -62,8 +61,8 @@ public class UserService {
     @Resource
     private WorkspaceService workspaceService;
 
-    public List<String> queryEmail(String[] names) {
-        return extUserMapper.queryEmails(names);
+    public List<String> queryEmail(List<String> userIds) {
+        return extUserMapper.queryEmailByIds(userIds);
     }
 
     public List<String> queryEmailByIds(List<String> userIds) {

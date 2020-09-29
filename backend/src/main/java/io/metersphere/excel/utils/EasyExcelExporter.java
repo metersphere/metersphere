@@ -12,20 +12,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 
-public class EasyExcelExporter implements AutoCloseable {
-
-    EasyExcelI18nTranslator easyExcelI18nTranslator;
+public class EasyExcelExporter {
 
     private Class clazz;
 
     public EasyExcelExporter(Class clazz) {
         this.clazz = clazz;
-        //防止多线程修改运行时类注解后，saveOriginalExcelProperty保存的是修改后的值
-        synchronized (EasyExcelI18nTranslator.class) {
-            easyExcelI18nTranslator = new EasyExcelI18nTranslator(clazz);
-            easyExcelI18nTranslator.translateExcelProperty();
-        }
-
     }
 
     public void export(HttpServletResponse response, List data, String fileName, String sheetName) {
@@ -44,11 +36,6 @@ public class EasyExcelExporter implements AutoCloseable {
             LogUtil.error(e.getMessage(), e);
             throw new ExcelException("IO exception");
         }
-    }
-
-    @Override
-    public void close() {
-        easyExcelI18nTranslator.resetExcelProperty();
     }
 
 }

@@ -29,7 +29,6 @@
                 :placeholder="$t('test_track.review.input_review_project')"
                 multiple
                 style="width: 100%"
-                collapse-tags
                 filterable>
                 <el-option
                   v-for="item in projects"
@@ -49,7 +48,6 @@
                 v-model="form.userIds"
                 :placeholder="$t('test_track.review.input_reviewer')"
                 filterable multiple
-                collapse-tags
               >
                 <el-option
                   v-for="item in reviewerOptions"

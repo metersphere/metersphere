@@ -165,7 +165,7 @@
         this.$refs[form].validate(valid => {
           if (valid) {
 
-            let formatUrl = this.form.url;
+            let formatUrl = this.form.url.trim();
             if (!formatUrl.endsWith('/')) {
               formatUrl = formatUrl + '/';
             }
