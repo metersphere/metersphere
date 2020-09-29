@@ -1,5 +1,5 @@
 <template>
-  <div id="menu-bar">
+  <div id="menu-bar" v-if="isRouterAlive">
     <el-row type="flex">
       <el-col :span="8">
         <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router :default-active='$route.path'>
@@ -7,7 +7,7 @@
             {{ $t("i18n.home") }}
           </el-menu-item>
 
-          <el-submenu v-permission="['test_manager','test_user','test_viewer']" index="3">
+          <el-submenu :class="{'deactivation':!isProjectActivation}" v-permission="['test_manager','test_user','test_viewer']" index="3">
             <template v-slot:title>{{ $t('commons.project') }}</template>
             <ms-recent-list ref="projectRecent" :options="projectRecent"/>
             <el-divider class="menu-divider"/>
@@ -21,6 +21,7 @@
             <ms-recent-list ref="testRecent" :options="testRecent"/>
             <el-divider class="menu-divider"/>
             <ms-show-all :index="'/api/test/list/all'"/>
+            <el-menu-item :index="apiTestProjectPath" class="blank_item"></el-menu-item>
             <ms-create-button v-permission="['test_manager','test_user']" :index="'/api/test/create'"
                               :title="$t('load_test.create')"/>
           </el-submenu>
@@ -84,7 +85,15 @@ export default {
         index: function (item) {
           return '/api/report/view/' + item.id;
         }
-      }
+      },
+      isProjectActivation: true,
+      isRouterAlive: true,
+      apiTestProjectPath: '',
+    }
+  },
+  watch: {
+    '$route'(to) {
+      this.init();
     }
   },
   methods: {
@@ -98,7 +107,25 @@ export default {
         this.$refs.testRecent.recent();
         this.$refs.reportRecent.recent();
       });
-    }
+    },
+    reload() {
+      this.isRouterAlive = false;
+      this.$nextTick(function () {
+        this.isRouterAlive = true;
+      });
+    },
+    init() {
+      let path = this.$route.path;
+      if (path.indexOf("/api/test/list") >= 0 && !!this.$route.params.projectId) {
+        this.apiTestProjectPath = path;
+        //不激活项目菜单栏
+        this.isProjectActivation = false;
+        this.reload();
+      } else {
+        this.isProjectActivation = true;
+      }
+
+    },
   },
   mounted() {
     this.registerEvents();
@@ -108,12 +135,20 @@ export default {
 </script>
 
 <style scoped>
-#menu-bar {
-  border-bottom: 1px solid #E6E6E6;
-  background-color: #FFF;
-}
+  #menu-bar {
+    border-bottom: 1px solid #E6E6E6;
+    background-color: #FFF;
+  }
 
-.menu-divider {
-  margin: 0;
-}
+  .menu-divider {
+    margin: 0;
+  }
+
+  .blank_item {
+    display: none;
+  }
+
+  .deactivation >>> .el-submenu__title {
+    border-bottom: white !important;
+  }
 </style>
