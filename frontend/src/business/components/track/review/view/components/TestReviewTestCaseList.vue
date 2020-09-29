@@ -6,7 +6,7 @@
                          :show-create="false" :tip="$t('commons.search_by_name_or_id')">
           <template v-slot:title>
             <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="refresh"
-                             :title="$t('test_track.review_view.all_review')"/>
+                             :title="$t('test_track.review_view.all_case')"/>
           </template>
           <template v-slot:button>
             <ms-table-button :is-tester-permission="true" icon="el-icon-video-play"
