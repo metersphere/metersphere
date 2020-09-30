@@ -272,14 +272,20 @@ public class TestCaseReviewService {
         List<Project> projects = projectMapper.selectByExample(projectExample);
         List<String> projectIds = projects.stream().map(Project::getId).collect(Collectors.toList());
 
-        TestCaseReviewProjectExample testCaseReviewProjectExample = new TestCaseReviewProjectExample();
-        testCaseReviewProjectExample.createCriteria().andProjectIdIn(projectIds);
-        List<TestCaseReviewProject> testCaseReviewProjects = testCaseReviewProjectMapper.selectByExample(testCaseReviewProjectExample);
-        List<String> reviewIds = testCaseReviewProjects.stream().map(TestCaseReviewProject::getReviewId).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(projectIds)) {
+            TestCaseReviewProjectExample testCaseReviewProjectExample = new TestCaseReviewProjectExample();
+            testCaseReviewProjectExample.createCriteria().andProjectIdIn(projectIds);
+            List<TestCaseReviewProject> testCaseReviewProjects = testCaseReviewProjectMapper.selectByExample(testCaseReviewProjectExample);
+            List<String> reviewIds = testCaseReviewProjects.stream().map(TestCaseReviewProject::getReviewId).collect(Collectors.toList());
 
-        TestCaseReviewExample testCaseReviewExample = new TestCaseReviewExample();
-        testCaseReviewExample.createCriteria().andIdIn(reviewIds);
-        return testCaseReviewMapper.selectByExample(testCaseReviewExample);
+            if (!CollectionUtils.isEmpty(reviewIds)) {
+                TestCaseReviewExample testCaseReviewExample = new TestCaseReviewExample();
+                testCaseReviewExample.createCriteria().andIdIn(reviewIds);
+                return testCaseReviewMapper.selectByExample(testCaseReviewExample);
+            }
+        }
+
+        return new ArrayList<>();
     }
 
     public void testReviewRelevance(ReviewRelevanceRequest request) {
