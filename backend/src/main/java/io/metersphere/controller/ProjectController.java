@@ -9,6 +9,7 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.ProjectRequest;
 import io.metersphere.dto.ProjectDTO;
+import io.metersphere.service.CheckOwnerService;
 import io.metersphere.service.ProjectService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -22,6 +23,8 @@ import java.util.List;
 public class ProjectController {
     @Resource
     private ProjectService projectService;
+    @Resource
+    private CheckOwnerService checkOwnerService;
 
     @GetMapping("/listAll")
     public List<ProjectDTO> listAll() {
@@ -71,6 +74,7 @@ public class ProjectController {
     @GetMapping("/delete/{projectId}")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER,}, logical = Logical.OR)
     public void deleteProject(@PathVariable(value = "projectId") String projectId) {
+        checkOwnerService.checkProjectOwner(projectId);
         projectService.deleteProject(projectId);
     }
 
