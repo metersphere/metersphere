@@ -7,15 +7,15 @@
       </slot>
     </el-row>
     <el-row type="flex" justify="space-between" align="middle">
+      <template v-slot:button>
       <span class="operate-button">
         <ms-table-button :is-tester-permission="isTesterPermission" v-if="showCreate" icon="el-icon-circle-plus-outline"
                          :content="createTip" @click="create"/>
         <ms-table-button :is-tester-permission="isTesterPermission" v-if="showRun" icon="el-icon-video-play"
                          type="primary"
                          :content="runTip" @click="runTest"/>
-
-        <slot name="button"></slot>
       </span>
+      </template>
       <span>
         <ms-table-search-bar :condition.sync="condition" @change="search" class="search-bar" :tip="tip"/>
         <ms-table-adv-search-bar :condition.sync="condition" @search="search" v-if="isCombine"/>
