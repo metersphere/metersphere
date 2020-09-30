@@ -273,6 +273,8 @@ public class TestCaseService {
                 .map(TestCase::getName)
                 .collect(Collectors.toSet());
         List<ExcelErrData<TestCaseExcelData>> errList = null;
+        if(multipartFile == null )
+            MSException.throwException(Translator.get("upload_fail"));
 
         if (multipartFile.getOriginalFilename().endsWith(".xmind")) {
             try {

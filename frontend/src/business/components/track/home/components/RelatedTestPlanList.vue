@@ -5,7 +5,7 @@
       border
       :data="tableData"
       @row-click="intoPlan"
-      v-loading="result.loading">
+      v-loading="result.loading" height="300px">
       <el-table-column
         prop="name"
         fixed
