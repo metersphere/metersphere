@@ -41,6 +41,13 @@ router.beforeEach((to, from, next) => {
   }
 });
 
+//重复点击导航路由报错
+const routerPush = VueRouter.prototype.push;
+VueRouter.prototype.push = function push(location) {
+  return routerPush.call(this, location).catch(error => error)
+}
+
+
 // 登入后跳转至原路径
 function redirectLoginPath(originPath) {
   let redirectUrl = sessionStorage.getItem('redirectUrl');
