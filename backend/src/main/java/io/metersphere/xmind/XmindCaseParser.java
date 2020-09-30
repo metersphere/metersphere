@@ -270,25 +270,34 @@ public class XmindCaseParser {
         StringBuffer processBuffer = new StringBuffer();
         try {
             // 获取思维导图内容
-            JsonRootBean root = XmindParser.parseObject(multipartFile);
-            if (root != null && root.getRootTopic() != null && root.getRootTopic().getChildren() != null) {
-                // 判断是模块还是用例
-                for (Attached item : root.getRootTopic().getChildren().getAttached()) {
-                    if (isAvailable(item.getTitle(), "(?:tc:|tc：|tc)")) { // 用例
-                        return replace(item.getTitle(), "(?:tc:|tc：|tc)") + "：" + Translator.get("test_case_create_module_fail");
-                    } else {
-                        item.setPath(item.getTitle());
-                        if (item.getChildren() != null && !item.getChildren().getAttached().isEmpty()) {
-                            recursion(processBuffer, item, 1, item.getChildren().getAttached());
+            List<JsonRootBean> roots = XmindParser.parseObject(multipartFile);
+            for (JsonRootBean root : roots) {
+                if (root != null && root.getRootTopic() != null && root.getRootTopic().getChildren() != null) {
+                    // 判断是模块还是用例
+                    for (Attached item : root.getRootTopic().getChildren().getAttached()) {
+                        if (isAvailable(item.getTitle(), "(?:tc:|tc：|tc)")) { // 用例
+                            return replace(item.getTitle(), "(?:tc:|tc：|tc)") + "：" + Translator.get("test_case_create_module_fail");
+                        } else {
+                            String nodePath = item.getTitle();
+                            item.setPath(nodePath);
+                            if (item.getChildren() != null && !item.getChildren().getAttached().isEmpty()) {
+                                recursion(processBuffer, item, 1, item.getChildren().getAttached());
+                            } else {
+                                if (!nodePath.startsWith("/")) {
+                                    nodePath = "/" + nodePath;
+                                }
+                                if (nodePath.endsWith("/")) {
+                                    nodePath = nodePath.substring(0, nodePath.length() - 1);
+                                }
+                                nodePaths.add(nodePath); // 没有用例的路径
+                            }
                         }
                     }
                 }
             }
             this.validate();
         } catch (Exception ex) {
-            processBuffer.append(Translator.get("incorrect_format"));
-            LogUtil.error(ex.getMessage());
-            return "xmind "+Translator.get("incorrect_format");
+            return ex.getMessage();
         }
         return process.toString();
     }

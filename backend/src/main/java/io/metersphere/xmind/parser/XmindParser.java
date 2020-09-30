@@ -34,61 +34,68 @@ public class XmindParser {
      * @throws ArchiveException
      * @throws DocumentException
      */
-    public static String parseJson(MultipartFile multipartFile) throws IOException, ArchiveException, DocumentException {
-
+    public static List<String> parseJson(MultipartFile multipartFile) throws IOException, ArchiveException, DocumentException {
         File file = FileUtil.multipartFileToFile(multipartFile);
+        List<String> contents = null;
+        String res = null;
         if (file == null || !file.exists())
             MSException.throwException(Translator.get("incorrect_format"));
-
-        String res = ZipUtils.extract(file);
-        String content = null;
-        if (isXmindZen(res, file)) {
-            content = getXmindZenContent(file, res);
-        } else {
-            content = getXmindLegacyContent(file, res);
+        try {
+            res = ZipUtils.extract(file);
+            if (isXmindZen(res, file)) {
+                contents = (getXmindZenContent(file, res));
+            } else {
+                contents = getXmindLegacyContent(file, res);
+            }
+        } catch (Exception e) {
+            MSException.throwException(e.getMessage());
+        } finally {
+            // 删除生成的文件夹
+            if (res != null) {
+                File dir = new File(res);
+                FileUtil.deleteDir(dir);
+            }
+            // 删除零时文件
+            if (file != null)
+                file.delete();
         }
-
-        // 删除生成的文件夹
-        File dir = new File(res);
-        FileUtil.deleteDir(dir);
-        JsonRootBean jsonRootBean = JSON.parseObject(content, JsonRootBean.class);
-        // 删除零时文件
-        if (file != null)
-            file.delete();
-        String json = (JSON.toJSONString(jsonRootBean, false));
-
-        if (StringUtils.isEmpty(content) || content.split("(?:tc:|tc：|TC:|TC：|tc|TC)").length == 1) {
-            MSException.throwException(Translator.get("import_xmind_not_found"));
-        }
-        if (!StringUtils.isEmpty(content) && content.split("(?:tc:|tc：|TC:|TC：|tc|TC)").length > 500) {
-            MSException.throwException(Translator.get("import_xmind_count_error"));
-        }
-        return json;
+        return contents;
     }
 
-    public static JsonRootBean parseObject(MultipartFile multipartFile) throws DocumentException, ArchiveException, IOException {
-        String content = parseJson(multipartFile);
-        JsonRootBean jsonRootBean = JSON.parseObject(content, JsonRootBean.class);
-        return jsonRootBean;
+    public static List<JsonRootBean> parseObject(MultipartFile multipartFile) throws DocumentException, ArchiveException, IOException {
+        List<String> contents = parseJson(multipartFile);
+        int caseCount = 0;
+        List<JsonRootBean> jsonRootBeans = new ArrayList<>();
+        if (contents != null) {
+            for (String content : contents) {
+                caseCount += content.split("(?:tc:|tc：|TC:|TC：|tc|TC)").length;
+                JsonRootBean jsonRootBean = JSON.parseObject(content, JsonRootBean.class);
+                jsonRootBeans.add(jsonRootBean);
+            }
+            if (caseCount > 500) {
+                MSException.throwException(Translator.get("import_xmind_count_error"));
+            }
+        }
+        return jsonRootBeans;
+
     }
 
     /**
      * @return
      */
-    public static String getXmindZenContent(File file, String extractFileDir)
+    public static List<String> getXmindZenContent(File file, String extractFileDir)
             throws IOException, ArchiveException {
         List<String> keys = new ArrayList<>();
         keys.add(xmindZenJson);
         Map<String, String> map = ZipUtils.getContents(keys, file, extractFileDir);
         String content = map.get(xmindZenJson);
-        content = XmindZen.getContent(content);
-        return content;
+        return XmindZen.getContent(content);
     }
 
     /**
      * @return
      */
-    public static String getXmindLegacyContent(File file, String extractFileDir)
+    public static List<String> getXmindLegacyContent(File file, String extractFileDir)
             throws IOException, ArchiveException, DocumentException {
         List<String> keys = new ArrayList<>();
         keys.add(xmindLegacyContent);
@@ -97,7 +104,7 @@ public class XmindParser {
 
         String contentXml = map.get(xmindLegacyContent);
         String commentsXml = map.get(xmindLegacyComments);
-        String xmlContent = XmindLegacy.getContent(contentXml, commentsXml);
+        List<String> xmlContent = XmindLegacy.getContent(contentXml, commentsXml);
 
         return xmlContent;
     }
