@@ -50,14 +50,14 @@
                   width="240"
                 >
                   <template v-slot:default="{row}">
-                    <el-select v-model="row.names" filterable multiple
+                    <el-select v-model="row.userIds" filterable multiple
                                :placeholder="$t('commons.please_select')"
                                @click.native="userList()" style="width: 100%;">
                       <el-option
                         v-for="item in options"
                         :key="item.id"
                         :label="item.name"
-                        :value="item.name">
+                        :value="item.id">
                       </el-option>
                     </el-select>
                   </template>
@@ -154,13 +154,13 @@ export default {
         {
           event: "EXECUTE_SUCCESSFUL",
           type: "EMAIL",
-          names: [],
+          userIds: [],
           enable: false
         },
         {
           event: "EXECUTE_FAILED",
           type: "EMAIL",
-          names: [],
+          userIds: [],
           enable: false
         }
       ],
@@ -190,8 +190,8 @@ export default {
             this.tableData[1].event = "EXECUTE_FAILED"
             this.tableData[1].type = "EMAIL"
           } else {
-            this.tableData[0].names = []
-            this.tableData[1].names = []
+            this.tableData[0].userIds = []
+            this.tableData[1].userIds = []
           }
         })
       }

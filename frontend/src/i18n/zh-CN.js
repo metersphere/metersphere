@@ -1,5 +1,6 @@
 export default {
   commons: {
+    examples: '示例',
     help_documentation: '帮助文档',
     delete_cancelled: '已取消删除',
     workspace: '工作空间',
@@ -540,6 +541,8 @@ export default {
         bean_shell_processor_tip: "仅支持 BeanShell 脚本",
         code_template_get_variable: "获取变量",
         code_template_set_variable: "设置变量",
+        code_template_get_global_variable: "获取全局变量",
+        code_template_set_global_variable: "设置全局变量",
         code_template_get_response_header: "获取响应头",
         code_template_get_response_code: "获取响应码",
         code_template_get_response_result: "获取响应结果"
@@ -764,6 +767,11 @@ export default {
       pass: "通过",
       un_pass: "未通过",
       comment: "评论",
+      my_review: "我的评审",
+      my_create: "我创建的评审",
+      reviewed_by_me: "待我评审",
+      creator: "创建人",
+      done: "已评用例"
     },
     comment: {
       no_comment: "暂无评论",
@@ -774,7 +782,7 @@ export default {
     },
     review_view: {
       review: "评审",
-      all_review: "全部评审",
+      all_case: "全部用例",
       start_review: "开始评审",
       relevance_case: "关联用例",
       execute_result: "执行结果",

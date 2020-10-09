@@ -12,11 +12,11 @@ public class Notice implements Serializable {
 
     private String testId;
 
-    private String name;
-
     private String enable;
 
     private String type;
+
+    private String userId;
 
     private static final long serialVersionUID = 1L;
 }

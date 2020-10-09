@@ -42,12 +42,12 @@ public class MailService {
     @Resource
     private SystemParameterService systemParameterService;
 
-    public void sendPerformanceNotification(List<NoticeDetail> noticeList, String status, LoadTestWithBLOBs loadTest) {
+    public void sendPerformanceNotification(List<NoticeDetail> noticeList, String status, LoadTestWithBLOBs loadTest, String id) {
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         Map<String, String> context = new HashMap<>();
         context.put("title", "Performance" + Translator.get("timing_task_result_notification"));
         context.put("testName", loadTest.getName());
-        context.put("id", loadTest.getId());
+        context.put("id", id);
         context.put("type", "performance");
         context.put("url", baseSystemConfigDTO.getUrl());
         String performanceTemplate = "";
@@ -231,10 +231,10 @@ public class MailService {
         if (noticeList.size() > 0) {
             for (NoticeDetail n : noticeList) {
                 if (StringUtils.equals(n.getEnable(), "true") && StringUtils.equals(n.getEvent(), NoticeConstants.EXECUTE_SUCCESSFUL)) {
-                    successEmailList = userService.queryEmail(n.getNames());
+                    successEmailList = userService.queryEmail(n.getUserIds());
                 }
                 if (StringUtils.equals(n.getEnable(), "true") && StringUtils.equals(n.getEvent(), NoticeConstants.EXECUTE_FAILED)) {
-                    failEmailList = userService.queryEmail(n.getNames());
+                    failEmailList = userService.queryEmail(n.getUserIds());
                 }
             }
         } else {
