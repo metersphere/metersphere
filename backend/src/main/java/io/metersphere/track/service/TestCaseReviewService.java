@@ -410,16 +410,19 @@ public class TestCaseReviewService {
 
                 testReview.setReviewed(0);
                 testReview.setTotal(0);
+                testReview.setPass(0);
                 if (testCases != null) {
                     testReview.setTotal(testCases.size());
                     testCases.forEach(testCase -> {
-                        if (!StringUtils.equals(testCase.getReviewStatus(), TestPlanTestCaseStatus.Prepare.name())
-                                && !StringUtils.equals(testCase.getReviewStatus(), TestPlanTestCaseStatus.Underway.name())) {
+                        if (!StringUtils.equals(testCase.getReviewStatus(), TestReviewCaseStatus.Prepare.name())) {
                             testReview.setReviewed(testReview.getReviewed() + 1);
+                        }
+                        if (StringUtils.equals(testCase.getReviewStatus(), TestReviewCaseStatus.Pass.name())) {
+                            testReview.setPass(testReview.getPass() + 1);
                         }
                     });
                 }
-                testReview.setTestRate(MathUtils.getPercentWithDecimal(testReview.getTotal() == 0 ? 0 : testReview.getReviewed() * 1.0 / testReview.getTotal()));
+
             });
         }
         return testReviews;

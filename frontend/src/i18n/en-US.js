@@ -773,7 +773,8 @@ export default {
       my_create: "My Create",
       reviewed_by_me: "Review By Me",
       creator: "Creator",
-      done: "Commented use cases"
+      done: "Commented use cases",
+      result_distribution: "Result Distribution"
     },
     comment: {
       no_comment: "No Comment",

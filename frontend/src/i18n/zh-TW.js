@@ -775,7 +775,8 @@ export default {
       my_create: "我創建的評審",
       reviewed_by_me: "待我評審",
       creator: "創建人",
-      done: "已評用例"
+      done: "已評用例",
+      result_distribution: "結果分佈"
     },
     comment: {
       no_comment: "暫無評論",
