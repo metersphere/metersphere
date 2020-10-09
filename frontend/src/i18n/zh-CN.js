@@ -116,6 +116,7 @@ export default {
     id: 'ID',
     millisecond: '毫秒',
     cannot_be_null: '不能为空',
+    required: "{0}是必填的",
     already_exists: '名称不能重复',
     date: {
       select_date: '选择日期',
@@ -572,6 +573,22 @@ export default {
         dataSource_cannot_be_empty: "SQL请求数据源不能为空",
         result_variable: "存储结果",
         variable_names: "按列存储",
+      },
+      tcp: {
+        server: "服务器名或IP",
+        port: "端口",
+        connect: "连接(ms)",
+        response: "响应(ms)",
+        re_use_connection: "Re-use connection",
+        no_delay: "设置无延迟",
+        close_connection: "关闭连接",
+        so_linger: "SO LINGER",
+        eol_byte: "行尾(EOL)字节值",
+        request: "要发送的文本",
+        username: "用户名",
+        password: "密码",
+        login: "登录设置",
+        server_cannot_be_empty: "服务器名或IP不能为空",
       }
     },
     api_import: {

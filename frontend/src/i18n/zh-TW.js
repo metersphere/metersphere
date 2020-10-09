@@ -116,6 +116,7 @@ export default {
     id: 'ID',
     millisecond: '毫秒',
     cannot_be_null: '不能為空',
+    required: "{0}是必填的",
     already_exists: '名稱不能重復',
     date: {
       select_date: '選擇日期',
@@ -573,6 +574,22 @@ export default {
         result_variable: "存儲結果",
         variable_names: "按列存儲",
       }
+    },
+    tcp: {
+      server: "服務器名或IP",
+      port: "端口",
+      connect: "連接(ms)",
+      response: "響應(ms)",
+      re_use_connection: "Re-use connection",
+      no_delay: "設置無延遲",
+      close_connection: "關閉連接",
+      so_linger: "SO LINGER",
+      eol_byte: "行尾（EOL）字節值",
+      request: "要發送的文本",
+      username: "用戶名",
+      password: "密碼",
+      login: "登錄設置",
+      server_cannot_be_empty: "服務器名或IP不能為空",
     },
     api_import: {
       label: "導入",

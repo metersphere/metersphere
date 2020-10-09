@@ -4,8 +4,6 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.metersphere.api.dto.scenario.KeyValue;
-import io.metersphere.api.dto.scenario.processor.BeanShellPostProcessor;
-import io.metersphere.api.dto.scenario.processor.BeanShellPreProcessor;
 import io.metersphere.api.dto.scenario.request.dubbo.ConfigCenter;
 import io.metersphere.api.dto.scenario.request.dubbo.ConsumerAndService;
 import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
@@ -39,8 +37,4 @@ public class DubboRequest extends Request {
     private List<KeyValue> args;
     @JSONField(ordinal = 9)
     private List<KeyValue> attachmentArgs;
-    @JSONField(ordinal = 12)
-    private BeanShellPreProcessor beanShellPreProcessor;
-    @JSONField(ordinal = 13)
-    private BeanShellPostProcessor beanShellPostProcessor;
 }
