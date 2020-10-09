@@ -206,9 +206,9 @@ export default {
         {text: this.$t('commons.api'), value: 'api'}
       ],
       statusFilters: [
-        {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
-        {text: this.$t('test_track.plan_view.pass'), value: 'Pass'},
-        {text: '未通过', value: 'UnPass'},
+        {text: this.$t('test_track.case.status_prepare'), value: 'Prepare'},
+        {text: this.$t('test_track.case.status_pass'), value: 'Pass'},
+        {text: this.$t('test_track.case.status_un_pass'), value: 'UnPass'},
       ],
       showMore: false,
       buttons: [

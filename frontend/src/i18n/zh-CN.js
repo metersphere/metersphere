@@ -697,6 +697,10 @@ export default {
       batch_delete_case: '批量删除用例',
       batch_unlink: '批量取消关联',
       project_name: '所属项目',
+      status: '状态',
+      status_prepare: '未开始',
+      status_pass: '通过',
+      status_un_pass: '未通过',
       import: {
         import: "导入用例",
         case_import: "导入测试用例",

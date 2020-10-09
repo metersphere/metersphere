@@ -43,24 +43,24 @@
         </template>
       </el-table-column>
 
-      <el-table-column
-        prop="projectName"
-        :label="$t('test_track.review.done')"
-        show-overflow-tooltip>
-        <template v-slot:default="scope">
-          {{scope.row.reviewed}}/{{scope.row.total}}
-        </template>
-      </el-table-column>
+<!--      <el-table-column-->
+<!--        prop="projectName"-->
+<!--        :label="$t('test_track.review.done')"-->
+<!--        show-overflow-tooltip>-->
+<!--        <template v-slot:default="scope">-->
+<!--          {{scope.row.reviewed}}/{{scope.row.total}}-->
+<!--        </template>-->
+<!--      </el-table-column>-->
 
-      <el-table-column
-        prop="projectName"
-        :label="$t('test_track.home.review_progress')"
-        min-width="100"
-        show-overflow-tooltip>
-        <template v-slot:default="scope">
-          <el-progress :percentage="scope.row.testRate"></el-progress>
-        </template>
-      </el-table-column>
+<!--      <el-table-column-->
+<!--        prop="projectName"-->
+<!--        :label="$t('test_track.home.review_progress')"-->
+<!--        min-width="100"-->
+<!--        show-overflow-tooltip>-->
+<!--        <template v-slot:default="scope">-->
+<!--          <el-progress :percentage="scope.row.testRate"></el-progress>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
 
       <el-table-column
         prop="projectName"

@@ -695,6 +695,10 @@ export default {
       batch_delete_case: 'Batch delete',
       batch_unlink: 'Batch Unlink',
       project_name: "Project",
+      status: 'Status',
+      status_prepare: 'Prepare',
+      status_pass: 'Pass',
+      status_un_pass: 'UnPass',
       import: {
         import: "Import test case",
         case_import: "Import test case",

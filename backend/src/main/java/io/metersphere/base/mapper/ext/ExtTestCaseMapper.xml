@@ -99,7 +99,7 @@
 
 
     <select id="getTestCaseNames" resultType="io.metersphere.base.domain.TestCase">
-        select test_case.id, test_case.name, test_case.priority, test_case.type
+        select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status
         from test_case
         <where>
             <if test="request.combine != null">
@@ -126,6 +126,12 @@
                         <choose>
                             <when test="key=='priority'">
                                 and test_case.priority in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='status'">
+                                and test_case.review_status in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
                                 </foreach>
@@ -177,6 +183,12 @@
                             </when>
                             <when test="key=='type'">
                                 and test_case.type in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='status'">
+                                and test_case.review_status in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
                                 </foreach>

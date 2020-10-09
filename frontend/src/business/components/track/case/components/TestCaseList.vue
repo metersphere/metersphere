@@ -90,7 +90,7 @@
         <el-table-column
           :filters="statusFilters"
           column-key="status"
-          :label="$t('test_track.review_view.execute_result')">
+          :label="$t('test_track.case.status')">
           <template v-slot:default="scope">
             <span class="el-dropdown-link">
               <status-table-item :value="scope.row.reviewStatus"/>
