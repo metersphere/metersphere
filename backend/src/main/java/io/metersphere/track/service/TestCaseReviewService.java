@@ -6,8 +6,8 @@ import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseReviewMapper;
 import io.metersphere.base.mapper.ext.ExtTestReviewCaseMapper;
 import io.metersphere.commons.constants.TestCaseReviewStatus;
-import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
+import io.metersphere.commons.constants.TestReviewCaseStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.LogUtil;
@@ -32,7 +32,6 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -346,13 +345,13 @@ public class TestCaseReviewService {
         testCaseReview.setId(reviewId);
 
         for (String status : statusList) {
-            if (StringUtils.equals(status, TestPlanTestCaseStatus.Prepare.name())) {
-                testCaseReview.setStatus(TestPlanStatus.Underway.name());
+            if (StringUtils.equals(status, TestReviewCaseStatus.Prepare.name())) {
+                testCaseReview.setStatus(TestCaseReviewStatus.Underway.name());
                 testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
                 return;
             }
         }
-        testCaseReview.setStatus(TestPlanStatus.Completed.name());
+        testCaseReview.setStatus(TestCaseReviewStatus.Completed.name());
         SaveTestCaseReviewRequest testCaseReviewRequest = new SaveTestCaseReviewRequest();
         TestCaseReview _testCaseReview = testCaseReviewMapper.selectByPrimaryKey(reviewId);
         List<String> userIds = new ArrayList<>();
@@ -414,8 +413,8 @@ public class TestCaseReviewService {
                 if (testCases != null) {
                     testReview.setTotal(testCases.size());
                     testCases.forEach(testCase -> {
-                        if (!StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Prepare.name())
-                                && !StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Underway.name())) {
+                        if (!StringUtils.equals(testCase.getReviewStatus(), TestPlanTestCaseStatus.Prepare.name())
+                                && !StringUtils.equals(testCase.getReviewStatus(), TestPlanTestCaseStatus.Underway.name())) {
                             testReview.setReviewed(testReview.getReviewed() + 1);
                         }
                     });

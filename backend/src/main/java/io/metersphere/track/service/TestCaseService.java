@@ -10,6 +10,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.constants.TestCaseConstants;
+import io.metersphere.commons.constants.TestCaseReviewStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.BeanUtils;
@@ -88,6 +89,7 @@ public class TestCaseService {
         testCase.setCreateTime(System.currentTimeMillis());
         testCase.setUpdateTime(System.currentTimeMillis());
         testCase.setNum(getNextNum(testCase.getProjectId()));
+        testCase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
         testCaseMapper.insert(testCase);
     }
 
@@ -341,6 +343,7 @@ public class TestCaseService {
                 testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
                 testcase.setSort(sort.getAndIncrement());
                 testcase.setNum(num.decrementAndGet());
+                testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
                 mapper.insert(testcase);
             });
         }

@@ -104,13 +104,12 @@
         </el-table-column>
 
         <el-table-column
-          prop="status"
           :filters="statusFilters"
           column-key="status"
           :label="$t('test_track.review_view.execute_result')">
           <template v-slot:default="scope">
             <span class="el-dropdown-link">
-              <status-table-item :value="scope.row.status"/>
+              <status-table-item :value="scope.row.reviewStatus"/>
             </span>
           </template>
         </el-table-column>

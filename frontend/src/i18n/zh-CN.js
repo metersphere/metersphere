@@ -785,7 +785,7 @@ export default {
       all_case: "全部用例",
       start_review: "开始评审",
       relevance_case: "关联用例",
-      execute_result: "执行结果",
+      execute_result: "评审结果",
     },
     module: {
       search: "搜索模块",

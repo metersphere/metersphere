@@ -283,6 +283,7 @@ export default {
     saveCase(status) {
       let param = {};
       param.id = this.testCase.id;
+      param.caseId = this.testCase.caseId;
       param.reviewId = this.testCase.reviewId;
       param.status = status;
       this.$post('/test/review/case/edit', param, () => {
