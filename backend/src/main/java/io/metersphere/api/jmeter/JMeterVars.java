@@ -13,7 +13,8 @@ import java.util.*;
 
 public class JMeterVars {
 
-    private JMeterVars() { }
+    private JMeterVars() {
+    }
 
     // 数据和线程变量保持一致
     private static Map<Integer, JMeterVariables> variables = new HashMap<>();
@@ -24,7 +25,7 @@ public class JMeterVars {
         if (!StringUtils.isEmpty(extract) && vars != null) {
             List<String> extracts = Arrays.asList(extract.split(";"));
             Optional.ofNullable(extracts).orElse(new ArrayList<>()).forEach(item -> {
-                vs.put(item, vars.get(item));
+                vs.put(item, vars.get(item) == null ? "" : vars.get(item));
             });
             vs.remove("TESTSTART.MS"); // 标示变量移除
         }
