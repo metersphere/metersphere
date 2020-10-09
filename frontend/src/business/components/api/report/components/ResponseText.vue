@@ -22,6 +22,10 @@
           </template>
         </el-tab-pane>
 
+        <el-tab-pane :label="$t('api_test.request.extract.label')" name="label" class="pane">
+          <pre>{{response.vars}}</pre>
+        </el-tab-pane>
+
       </el-tabs>
     </el-collapse-transition>
   </div>
