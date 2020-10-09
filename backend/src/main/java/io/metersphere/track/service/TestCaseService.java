@@ -275,7 +275,7 @@ public class TestCaseService {
                 .map(TestCase::getName)
                 .collect(Collectors.toSet());
         List<ExcelErrData<TestCaseExcelData>> errList = null;
-        if(multipartFile == null )
+        if (multipartFile == null)
             MSException.throwException(Translator.get("upload_fail"));
 
         if (multipartFile.getOriginalFilename().endsWith(".xmind")) {
@@ -286,6 +286,11 @@ public class TestCaseService {
                 if (!StringUtils.isEmpty(processLog)) {
                     excelResponse.setSuccess(false);
                     ExcelErrData excelErrData = new ExcelErrData(null, 1, Translator.get("upload_fail") + "：" + processLog);
+                    errList.add(excelErrData);
+                    excelResponse.setErrList(errList);
+                } else if (xmindParser.getNodePaths().isEmpty() && xmindParser.getTestCase().isEmpty()) {
+                    excelResponse.setSuccess(false);
+                    ExcelErrData excelErrData = new ExcelErrData(null, 1, Translator.get("upload_fail") + "：" + Translator.get("upload_content_is_null"));
                     errList.add(excelErrData);
                     excelResponse.setErrList(errList);
                 } else {
@@ -299,7 +304,8 @@ public class TestCaseService {
                     excelResponse.setSuccess(true);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtil.error(e.getMessage(), e);
+                MSException.throwException(e.getMessage());
             }
 
         } else {

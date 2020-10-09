@@ -90,7 +90,7 @@ public class XmindCaseParser {
     }
 
     // 递归处理案例数据
-    private void recursion(StringBuffer processBuffer, Attached parent, int level, List<Attached> attacheds) {
+    private void recursion(Attached parent, int level, List<Attached> attacheds) {
         for (Attached item : attacheds) {
             if (isAvailable(item.getTitle(), "(?:tc：|tc:|tc)")) { // 用例
                 item.setParent(parent);
@@ -100,7 +100,7 @@ public class XmindCaseParser {
                 item.setPath(nodePath);
                 item.setParent(parent);
                 if (item.getChildren() != null && !item.getChildren().getAttached().isEmpty()) {
-                    recursion(processBuffer, item, level + 1, item.getChildren().getAttached());
+                    recursion(item, level + 1, item.getChildren().getAttached());
                 } else {
                     if (!nodePath.startsWith("/")) {
                         nodePath = "/" + nodePath;
@@ -267,7 +267,6 @@ public class XmindCaseParser {
 
     // 导入思维导图处理
     public String parse(MultipartFile multipartFile) {
-        StringBuffer processBuffer = new StringBuffer();
         try {
             // 获取思维导图内容
             List<JsonRootBean> roots = XmindParser.parseObject(multipartFile);
@@ -281,7 +280,7 @@ public class XmindCaseParser {
                             String nodePath = item.getTitle();
                             item.setPath(nodePath);
                             if (item.getChildren() != null && !item.getChildren().getAttached().isEmpty()) {
-                                recursion(processBuffer, item, 1, item.getChildren().getAttached());
+                                recursion(item, 1, item.getChildren().getAttached());
                             } else {
                                 if (!nodePath.startsWith("/")) {
                                     nodePath = "/" + nodePath;
@@ -295,7 +294,8 @@ public class XmindCaseParser {
                     }
                 }
             }
-            this.validate();
+
+            this.validate(); //检查目录合规性
         } catch (Exception ex) {
             return ex.getMessage();
         }
