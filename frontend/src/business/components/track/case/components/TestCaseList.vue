@@ -86,6 +86,18 @@
             <method-table-item :value="scope.row.method"/>
           </template>
         </el-table-column>
+
+        <el-table-column
+          :filters="statusFilters"
+          column-key="status"
+          :label="$t('test_track.case.status')">
+          <template v-slot:default="scope">
+            <span class="el-dropdown-link">
+              <status-table-item :value="scope.row.reviewStatus"/>
+            </span>
+          </template>
+        </el-table-column>
+
         <el-table-column
           prop="nodePath"
           :label="$t('test_track.case.module')"
@@ -146,6 +158,7 @@
   import BatchEdit from "./BatchEdit";
   import {WORKSPACE_ID} from "../../../../../common/js/constants";
   import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
+  import StatusTableItem from "@/business/components/track/common/tableItems/planview/StatusTableItem";
 
   export default {
     name: "TestCaseList",
@@ -163,7 +176,8 @@
       NodeBreadcrumb,
       MsTableHeader,
       ShowMoreBtn,
-      BatchEdit
+      BatchEdit,
+      StatusTableItem
     },
     data() {
       return {
@@ -191,6 +205,11 @@
           {text: this.$t('commons.functional'), value: 'functional'},
           {text: this.$t('commons.performance'), value: 'performance'},
           {text: this.$t('commons.api'), value: 'api'}
+        ],
+        statusFilters: [
+          {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
+          {text: this.$t('test_track.plan_view.pass'), value: 'Pass'},
+          {text: '未通过', value: 'UnPass'},
         ],
         showMore: false,
         buttons: [

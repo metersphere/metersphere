@@ -695,6 +695,10 @@ export default {
       batch_delete_case: 'Batch delete',
       batch_unlink: 'Batch Unlink',
       project_name: "Project",
+      status: 'Status',
+      status_prepare: 'Prepare',
+      status_pass: 'Pass',
+      status_un_pass: 'UnPass',
       import: {
         import: "Import test case",
         case_import: "Import test case",
@@ -769,7 +773,8 @@ export default {
       my_create: "My Create",
       reviewed_by_me: "Review By Me",
       creator: "Creator",
-      done: "Commented use cases"
+      done: "Commented use cases",
+      result_distribution: "Result Distribution"
     },
     comment: {
       no_comment: "No Comment",
