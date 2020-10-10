@@ -45,28 +45,12 @@
       <el-table-column
         :label="$t('test_track.review.result_distribution')">
         <template v-slot:default="scope">
-          <yan-progress :total="scope.row.total" :done="scope.row.reviewed" :modify="scope.row.pass" :tip="tip"/>
+          <el-tooltip :content="getResultTip(scope.row.total,scope.row.reviewed,scope.row.pass)"
+                      placement="top" :enterable="false" class="item" effect="dark">
+            <yan-progress :total="scope.row.total" :done="scope.row.reviewed" :modify="scope.row.pass" :tip="tip"/>
+          </el-tooltip>
         </template>
       </el-table-column>
-
-      <!--      <el-table-column-->
-      <!--        prop="projectName"-->
-      <!--        :label="$t('test_track.review.done')"-->
-      <!--        show-overflow-tooltip>-->
-      <!--        <template v-slot:default="scope">-->
-      <!--          {{scope.row.reviewed}}/{{scope.row.total}}-->
-      <!--        </template>-->
-      <!--      </el-table-column>-->
-
-      <!--      <el-table-column-->
-      <!--        prop="projectName"-->
-      <!--        :label="$t('test_track.home.review_progress')"-->
-      <!--        min-width="100"-->
-      <!--        show-overflow-tooltip>-->
-      <!--        <template v-slot:default="scope">-->
-      <!--          <el-progress :percentage="scope.row.testRate"></el-progress>-->
-      <!--        </template>-->
-      <!--      </el-table-column>-->
 
       <el-table-column
         prop="projectName"
@@ -95,9 +79,9 @@ export default {
       tableData: [],
       showMyCreator: false,
       tip: [
-        {text: "总共X个", fillStyle: '#D3D3D3'},
-        {text: "评审了X个", fillStyle: '#F08080'},
-        {text: "通过X个", fillStyle: '#90EE90'}
+        {text: "X", fillStyle: '#D3D3D3'},
+        {text: "X", fillStyle: '#ee4545'},
+        {text: "X", fillStyle: '#4dcf4d'}
       ]
     }
   },
@@ -131,6 +115,9 @@ export default {
       } else {
         this.initTableData("reviewer");
       }
+    },
+    getResultTip(total, reviewed, pass) {
+      return '通过: ' + pass + '; ' + '未通过: ' + (reviewed - pass) + '; ' + '未评审: ' + (total - reviewed);
     }
   }
 }
