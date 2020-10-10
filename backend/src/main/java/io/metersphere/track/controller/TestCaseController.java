@@ -83,11 +83,13 @@ public class TestCaseController {
 
     @GetMapping("/get/{testCaseId}")
     public TestCaseWithBLOBs getTestCase(@PathVariable String testCaseId) {
+        checkOwnerService.checkTestCaseOwner(testCaseId);
         return testCaseService.getTestCase(testCaseId);
     }
 
     @GetMapping("/project/{testCaseId}")
     public Project getProjectByTestCaseId(@PathVariable String testCaseId) {
+        checkOwnerService.checkTestCaseOwner(testCaseId);
         return testCaseService.getProjectByTestCaseId(testCaseId);
     }
 
@@ -106,6 +108,7 @@ public class TestCaseController {
     @PostMapping("/delete/{testCaseId}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public int deleteTestCase(@PathVariable String testCaseId) {
+        checkOwnerService.checkTestCaseOwner(testCaseId);
         return testCaseService.deleteTestCase(testCaseId);
     }
 
