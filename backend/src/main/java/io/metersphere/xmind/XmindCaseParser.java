@@ -163,7 +163,7 @@ public class XmindCaseParser {
             return;
         }
         // 用例名称
-        testCase.setName(this.replace(tcArr[1], "tc:|tc：|tc"));
+        testCase.setName(this.replace(tcArr[1], TC_REGEX));
 
         if (!nodePath.startsWith("/")) {
             nodePath = "/" + nodePath;
