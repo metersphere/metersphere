@@ -62,6 +62,15 @@
                   <type-table-item :value="scope.row.type"/>
                 </template>
               </el-table-column>
+              <el-table-column
+                :filters="statusFilters"
+                column-key="status"
+                :label="$t('test_track.case.status')"
+                show-overflow-tooltip>
+                <template v-slot:default="scope">
+                  <status-table-item :value="scope.row.reviewStatus"/>
+                </template>
+              </el-table-column>
             </el-table>
             <div style="text-align: center">共 {{testReviews.length}} 条</div>
           </el-main>
@@ -91,6 +100,7 @@ import MsTableHeader from "../../../../common/components/MsTableHeader";
 import SwitchProject from "../../../case/components/SwitchProject";
 import {TEST_CASE_CONFIGS} from "../../../../common/components/search/search-components";
 import {_filter} from "../../../../../../common/js/utils";
+import StatusTableItem from "@/business/components/track/common/tableItems/planview/StatusTableItem";
 
 export default {
   name: "TestReviewRelevance",
@@ -102,7 +112,8 @@ export default {
     MsTableSearchBar,
     MsTableAdvSearchBar,
     MsTableHeader,
-    SwitchProject
+    SwitchProject,
+    StatusTableItem
   },
   data() {
     return {
@@ -130,7 +141,12 @@ export default {
         {text: this.$t('commons.functional'), value: 'functional'},
         {text: this.$t('commons.performance'), value: 'performance'},
         {text: this.$t('commons.api'), value: 'api'}
-      ]
+      ],
+      statusFilters: [
+        {text: this.$t('test_track.case.status_prepare'), value: 'Prepare'},
+        {text: this.$t('test_track.case.status_pass'), value: 'Pass'},
+        {text: this.$t('test_track.case.status_un_pass'), value: 'UnPass'},
+      ],
     };
   },
   props: {

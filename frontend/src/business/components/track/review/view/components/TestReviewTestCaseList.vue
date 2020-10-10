@@ -104,13 +104,12 @@
         </el-table-column>
 
         <el-table-column
-          prop="status"
           :filters="statusFilters"
           column-key="status"
           :label="$t('test_track.review_view.execute_result')">
           <template v-slot:default="scope">
             <span class="el-dropdown-link">
-              <status-table-item :value="scope.row.status"/>
+              <status-table-item :value="scope.row.reviewStatus"/>
             </span>
           </template>
         </el-table-column>
@@ -207,9 +206,9 @@ export default {
         {text: this.$t('commons.api'), value: 'api'}
       ],
       statusFilters: [
-        {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
-        {text: this.$t('test_track.plan_view.pass'), value: 'Pass'},
-        {text: '未通过', value: 'UnPass'},
+        {text: this.$t('test_track.case.status_prepare'), value: 'Prepare'},
+        {text: this.$t('test_track.case.status_pass'), value: 'Pass'},
+        {text: this.$t('test_track.case.status_un_pass'), value: 'UnPass'},
       ],
       showMore: false,
       buttons: [

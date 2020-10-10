@@ -714,6 +714,10 @@ export default {
       batch_delete_case: '批量删除用例',
       batch_unlink: '批量取消关联',
       project_name: '所属项目',
+      status: '状态',
+      status_prepare: '未开始',
+      status_pass: '通过',
+      status_un_pass: '未通过',
       import: {
         import: "导入用例",
         case_import: "导入测试用例",
@@ -788,7 +792,8 @@ export default {
       my_create: "我创建的评审",
       reviewed_by_me: "待我评审",
       creator: "创建人",
-      done: "已评用例"
+      done: "已评用例",
+      result_distribution: "结果分布"
     },
     comment: {
       no_comment: "暂无评论",
@@ -802,7 +807,7 @@ export default {
       all_case: "全部用例",
       start_review: "开始评审",
       relevance_case: "关联用例",
-      execute_result: "执行结果",
+      execute_result: "评审结果",
     },
     module: {
       search: "搜索模块",

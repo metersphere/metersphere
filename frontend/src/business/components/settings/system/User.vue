@@ -19,8 +19,7 @@
         <el-table-column prop="status" :label="$t('commons.status')" width="120">
           <template v-slot:default="scope">
             <el-switch v-model="scope.row.status"
-                       active-color="#13ce66"
-                       inactive-color="#ff4949"
+                       inactive-color="#DCDFE6"
                        active-value="1"
                        inactive-value="0"
                        @change="changeSwitch(scope.row)"

@@ -53,6 +53,10 @@ export default {
         login();
         return;
       }
+      if (error.response && error.response.status === 403) {
+        window.location.href = "/";
+        return;
+      }
       result.loading = false;
       window.console.error(error.response || error.message);
       if (error.response && error.response.data) {

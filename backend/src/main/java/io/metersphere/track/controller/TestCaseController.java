@@ -10,6 +10,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.excel.domain.ExcelResponse;
+import io.metersphere.service.CheckOwnerService;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
@@ -30,6 +31,8 @@ public class TestCaseController {
 
     @Resource
     TestCaseService testCaseService;
+    @Resource
+    private CheckOwnerService checkOwnerService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<TestCaseDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
@@ -39,6 +42,7 @@ public class TestCaseController {
 
     @GetMapping("/list/{projectId}")
     public List<TestCaseDTO> list(@PathVariable String projectId) {
+        checkOwnerService.checkProjectOwner(projectId);
         QueryTestCaseRequest request = new QueryTestCaseRequest();
         request.setProjectId(projectId);
         return testCaseService.listTestCase(request);
@@ -47,6 +51,7 @@ public class TestCaseController {
 
     @GetMapping("/list/method/{projectId}")
     public List<TestCaseDTO> listByMethod(@PathVariable String projectId) {
+        checkOwnerService.checkProjectOwner(projectId);
         QueryTestCaseRequest request = new QueryTestCaseRequest();
         request.setProjectId(projectId);
         return testCaseService.listTestCaseMthod(request);
@@ -107,8 +112,9 @@ public class TestCaseController {
 
     @PostMapping("/import/{projectId}/{userId}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String projectId,@PathVariable String userId) throws NoSuchFieldException {
-        return testCaseService.testCaseImport(file, projectId,userId);
+    public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String projectId, @PathVariable String userId) {
+        checkOwnerService.checkProjectOwner(projectId);
+        return testCaseService.testCaseImport(file, projectId, userId);
     }
 
     @GetMapping("/export/template")
@@ -116,6 +122,7 @@ public class TestCaseController {
     public void testCaseTemplateExport(HttpServletResponse response) {
         testCaseService.testCaseTemplateExport(response);
     }
+
     @GetMapping("/export/xmindTemplate")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void xmindTemplate(HttpServletResponse response) {

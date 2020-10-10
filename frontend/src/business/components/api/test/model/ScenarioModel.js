@@ -1170,10 +1170,12 @@ class JMXGenerator {
         let domain = request.environment.config.httpConfig.domain;
         let validHosts = [];
         hosts.forEach(item => {
-          let d = item.domain.trim().replace("http://", "").replace("https://", "");
-          if (item && d === domain.trim()) {
-            item.domain = d; // 域名去掉协议
-            validHosts.push(item);
+          if (item.domain != undefined && domain != undefined) {
+            let d = item.domain.trim().replace("http://", "").replace("https://", "");
+            if (d === domain.trim()) {
+              item.domain = d; // 域名去掉协议
+              validHosts.push(item);
+            }
           }
         });
         if (validHosts.length > 0) {

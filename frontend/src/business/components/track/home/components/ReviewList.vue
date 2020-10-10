@@ -14,7 +14,7 @@
       border
       :data="tableData"
       @row-click="intoPlan"
-      v-loading="result.loading">
+      v-loading="result.loading" height="300px">
       <el-table-column
         prop="name"
         fixed
@@ -36,31 +36,37 @@
 
       <el-table-column
         prop="status"
-        :label="$t('test_track.plan.plan_status')"
-        show-overflow-tooltip>
+        :label="$t('test_track.plan.plan_status')">
         <template v-slot:default="scope">
           <plan-status-table-item :value="scope.row.status"/>
         </template>
       </el-table-column>
 
       <el-table-column
-        prop="projectName"
-        :label="$t('test_track.review.done')"
-        show-overflow-tooltip>
+        :label="$t('test_track.review.result_distribution')">
         <template v-slot:default="scope">
-          {{scope.row.reviewed}}/{{scope.row.total}}
+          <yan-progress :total="scope.row.total" :done="scope.row.reviewed" :modify="scope.row.pass" :tip="tip"/>
         </template>
       </el-table-column>
 
-      <el-table-column
-        prop="projectName"
-        :label="$t('test_track.home.review_progress')"
-        min-width="100"
-        show-overflow-tooltip>
-        <template v-slot:default="scope">
-          <el-progress :percentage="scope.row.testRate"></el-progress>
-        </template>
-      </el-table-column>
+      <!--      <el-table-column-->
+      <!--        prop="projectName"-->
+      <!--        :label="$t('test_track.review.done')"-->
+      <!--        show-overflow-tooltip>-->
+      <!--        <template v-slot:default="scope">-->
+      <!--          {{scope.row.reviewed}}/{{scope.row.total}}-->
+      <!--        </template>-->
+      <!--      </el-table-column>-->
+
+      <!--      <el-table-column-->
+      <!--        prop="projectName"-->
+      <!--        :label="$t('test_track.home.review_progress')"-->
+      <!--        min-width="100"-->
+      <!--        show-overflow-tooltip>-->
+      <!--        <template v-slot:default="scope">-->
+      <!--          <el-progress :percentage="scope.row.testRate"></el-progress>-->
+      <!--        </template>-->
+      <!--      </el-table-column>-->
 
       <el-table-column
         prop="projectName"
@@ -87,7 +93,12 @@ export default {
     return {
       result: {},
       tableData: [],
-      showMyCreator: false
+      showMyCreator: false,
+      tip: [
+        {text: "总共X个", fillStyle: '#D3D3D3'},
+        {text: "评审了X个", fillStyle: '#F08080'},
+        {text: "通过X个", fillStyle: '#90EE90'}
+      ]
     }
   },
   mounted() {
@@ -115,7 +126,7 @@ export default {
     },
     searchMyCreator() {
       this.showMyCreator = !this.showMyCreator;
-      if (this.showMyCreator){
+      if (this.showMyCreator) {
         this.initTableData("creator");
       } else {
         this.initTableData("reviewer");

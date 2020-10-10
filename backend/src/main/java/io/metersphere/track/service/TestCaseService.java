@@ -10,6 +10,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.constants.TestCaseConstants;
+import io.metersphere.commons.constants.TestCaseReviewStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.BeanUtils;
@@ -88,6 +89,7 @@ public class TestCaseService {
         testCase.setCreateTime(System.currentTimeMillis());
         testCase.setUpdateTime(System.currentTimeMillis());
         testCase.setNum(getNextNum(testCase.getProjectId()));
+        testCase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
         testCaseMapper.insert(testCase);
     }
 
@@ -273,6 +275,8 @@ public class TestCaseService {
                 .map(TestCase::getName)
                 .collect(Collectors.toSet());
         List<ExcelErrData<TestCaseExcelData>> errList = null;
+        if (multipartFile == null)
+            MSException.throwException(Translator.get("upload_fail"));
 
         if (multipartFile.getOriginalFilename().endsWith(".xmind")) {
             try {
@@ -282,6 +286,11 @@ public class TestCaseService {
                 if (!StringUtils.isEmpty(processLog)) {
                     excelResponse.setSuccess(false);
                     ExcelErrData excelErrData = new ExcelErrData(null, 1, Translator.get("upload_fail") + "：" + processLog);
+                    errList.add(excelErrData);
+                    excelResponse.setErrList(errList);
+                } else if (xmindParser.getNodePaths().isEmpty() && xmindParser.getTestCase().isEmpty()) {
+                    excelResponse.setSuccess(false);
+                    ExcelErrData excelErrData = new ExcelErrData(null, 1, Translator.get("upload_fail") + "：" + Translator.get("upload_content_is_null"));
                     errList.add(excelErrData);
                     excelResponse.setErrList(errList);
                 } else {
@@ -295,7 +304,8 @@ public class TestCaseService {
                     excelResponse.setSuccess(true);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtil.error(e.getMessage(), e);
+                MSException.throwException(e.getMessage());
             }
 
         } else {
@@ -339,6 +349,7 @@ public class TestCaseService {
                 testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
                 testcase.setSort(sort.getAndIncrement());
                 testcase.setNum(num.decrementAndGet());
+                testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
                 mapper.insert(testcase);
             });
         }
