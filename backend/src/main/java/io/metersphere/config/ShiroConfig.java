@@ -35,7 +35,6 @@ public class ShiroConfig implements EnvironmentAware {
     @Bean
     public ShiroFilterFactoryBean getShiroFilterFactoryBean(DefaultWebSecurityManager sessionManager) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
-//        shiroFilterFactoryBean.getFilters().put("authc", new LoginFilter());
         shiroFilterFactoryBean.setLoginUrl("/login");
         shiroFilterFactoryBean.setSecurityManager(sessionManager);
         shiroFilterFactoryBean.setUnauthorizedUrl("/403");
@@ -44,7 +43,6 @@ public class ShiroConfig implements EnvironmentAware {
         shiroFilterFactoryBean.getFilters().put("apikey", new ApiKeyFilter());
         Map<String, String> filterChainDefinitionMap = shiroFilterFactoryBean.getFilterChainDefinitionMap();
         ShiroUtils.loadBaseFilterChain(filterChainDefinitionMap);
-//        filterChainDefinitionMap.put("/**", "apikey, authc");
         filterChainDefinitionMap.put("/**", "apikey");
         return shiroFilterFactoryBean;
     }
