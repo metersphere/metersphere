@@ -8,6 +8,7 @@ import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.service.CheckOwnerService;
 import io.metersphere.track.dto.TestCaseReportMetricDTO;
 import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.dto.TestPlanDTOWithMetric;
@@ -32,6 +33,8 @@ public class TestPlanController {
     TestPlanService testPlanService;
     @Resource
     TestPlanProjectService testPlanProjectService;
+    @Resource
+    CheckOwnerService checkOwnerService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<TestPlanDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanRequest request) {
@@ -70,6 +73,7 @@ public class TestPlanController {
 
     @PostMapping("/get/{testPlanId}")
     public TestPlan getTestPlan(@PathVariable String testPlanId) {
+        checkOwnerService.checkTestPlanOwner(testPlanId);
         return testPlanService.getTestPlan(testPlanId);
     }
 
@@ -88,12 +92,14 @@ public class TestPlanController {
     @PostMapping("/edit/status/{planId}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void editTestPlanStatus(@PathVariable String planId) {
+        checkOwnerService.checkTestPlanOwner(planId);
         testPlanService.editTestPlanStatus(planId);
     }
 
     @PostMapping("/delete/{testPlanId}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public int deleteTestPlan(@PathVariable String testPlanId) {
+        checkOwnerService.checkTestPlanOwner(testPlanId);
         return testPlanService.deleteTestPlan(testPlanId);
     }
 
@@ -109,6 +115,7 @@ public class TestPlanController {
 
     @GetMapping("/project/name/{planId}")
     public String getProjectNameByPlanId(@PathVariable String planId) {
+        checkOwnerService.checkTestPlanOwner(planId);
         return testPlanService.getProjectNameByPlanId(planId);
     }
 
