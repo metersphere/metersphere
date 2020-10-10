@@ -35,7 +35,6 @@
         @filter-change="filter"
         @select-all="handleSelectAll"
         @select="handleSelectionChange"
-        @row-click="showDetail"
         row-key="id"
         class="test-content adjust-table">
         <el-table-column
@@ -54,7 +53,13 @@
         <el-table-column
           prop="name"
           :label="$t('commons.name')"
-          show-overflow-tooltip>
+          show-overflow-tooltip
+        >
+          <template v-slot:default="scope">
+            <div @mouseover="showDetail(scope.row)">
+              <p>{{ scope.row.name }}</p>
+            </div>
+          </template>
         </el-table-column>
         <el-table-column
           prop="priority"
