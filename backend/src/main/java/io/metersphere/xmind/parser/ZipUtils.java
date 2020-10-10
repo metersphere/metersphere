@@ -14,7 +14,7 @@ import java.util.Objects;
  */
 public class ZipUtils {
 
-    private static final String currentPath = System.getProperty("user.dir");
+    private static final String CURRENT_PATH = System.getProperty("user.dir");
 
     /**
      * 找到压缩文件中匹配的子文件，返回的为 getContents("comments.xml, unzip
@@ -25,7 +25,7 @@ public class ZipUtils {
     public static Map<String, String> getContents(List<String> subFileNames, File file, String extractFileDir)
             throws IOException, ArchiveException {
         String destFilePath = extractFileDir;
-        Map<String, String> map = new HashMap<>();
+        Map<String, String> map = new HashMap<>(16);
         File destFile = new File(destFilePath);
         if (destFile.isDirectory()) {
             String[] res = destFile.list(new FileFilter());
@@ -49,12 +49,14 @@ public class ZipUtils {
      */
     public static String extract(File file) throws IOException, ArchiveException {
         Expander expander = new Expander();
-        String destFileName = currentPath + File.separator + "XMind" + System.currentTimeMillis(); // 目标文件夹名字
+        String destFileName = CURRENT_PATH + File.separator + "XMind" + System.currentTimeMillis();
         expander.expand(file, new File(destFileName));
         return destFileName;
     }
 
-    // 这是一个内部类过滤器,策略模式
+    /**
+     * 这是一个内部类过滤器,策略模式
+     */
     static class FileFilter implements FilenameFilter {
         @Override
         public boolean accept(File dir, String name) {

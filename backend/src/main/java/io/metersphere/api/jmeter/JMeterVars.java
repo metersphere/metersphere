@@ -18,10 +18,18 @@ public class JMeterVars {
     private JMeterVars() {
     }
 
-    // 数据和线程变量保持一致
+    /**
+     * 数据和线程变量保持一致
+     */
     private static Map<Integer, JMeterVariables> variables = new HashMap<>();
 
-    // 线程执行过程调用提取变量值
+    /**
+     * 线程执行过程调用提取变量值
+     *
+     * @param testId
+     * @param vars
+     * @param extract
+     */
     public static void addVars(Integer testId, JMeterVariables vars, String extract) {
         JMeterVariables vs = new JMeterVariables();
 
@@ -36,7 +44,11 @@ public class JMeterVars {
         variables.put(testId, vs);
     }
 
-    // 处理所有请求，有提取变量的请求增加后置脚本提取变量值
+    /**
+     * 处理所有请求，有提取变量的请求增加后置脚本提取变量值
+     *
+     * @param tree
+     */
     public static void addJSR223PostProcessor(HashTree tree) {
         for (Object key : tree.keySet()) {
             HashTree node = tree.get(key);

@@ -8,9 +8,14 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+/**
+ * 工具类
+ */
 public class FileUtil {
 
-    //获取流文件
+    /**
+     * 获取流文件
+     */
     private static void inputStreamToFile(InputStream ins, File file) {
         try (OutputStream os = new FileOutputStream(file);) {
             int bytesRead = 0;
@@ -56,6 +61,5 @@ public class FileUtil {
         // 目录此时为空，可以删除
         return dir.delete();
     }
-
 
 }

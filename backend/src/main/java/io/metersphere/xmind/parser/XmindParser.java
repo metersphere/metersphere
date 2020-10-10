@@ -7,7 +7,6 @@ import io.metersphere.xmind.parser.pojo.JsonRootBean;
 import io.metersphere.xmind.utils.FileUtil;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.dom4j.DocumentException;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -21,9 +20,9 @@ import java.util.Objects;
  * @Description 解析主体
  */
 public class XmindParser {
-    public static final String xmindZenJson = "content.json";
-    public static final String xmindLegacyContent = "content.xml";
-    public static final String xmindLegacyComments = "comments.xml";
+    public static final String CONTENT_JSON = "content.json";
+    public static final String CONTENT_XML = "content.xml";
+    public static final String COMMENTS_XML = "comments.xml";
 
     /**
      * 解析脑图文件，返回content整合后的内容
@@ -38,8 +37,9 @@ public class XmindParser {
         File file = FileUtil.multipartFileToFile(multipartFile);
         List<String> contents = null;
         String res = null;
-        if (file == null || !file.exists())
+        if (file == null || !file.exists()) {
             MSException.throwException(Translator.get("incorrect_format"));
+        }
         try {
             res = ZipUtils.extract(file);
             if (isXmindZen(res, file)) {
@@ -56,8 +56,9 @@ public class XmindParser {
                 FileUtil.deleteDir(dir);
             }
             // 删除零时文件
-            if (file != null)
+            if (file != null) {
                 file.delete();
+            }
         }
         return contents;
     }
@@ -86,9 +87,9 @@ public class XmindParser {
     public static List<String> getXmindZenContent(File file, String extractFileDir)
             throws IOException, ArchiveException {
         List<String> keys = new ArrayList<>();
-        keys.add(xmindZenJson);
+        keys.add(CONTENT_JSON);
         Map<String, String> map = ZipUtils.getContents(keys, file, extractFileDir);
-        String content = map.get(xmindZenJson);
+        String content = map.get(CONTENT_JSON);
         return XmindZen.getContent(content);
     }
 
@@ -98,12 +99,12 @@ public class XmindParser {
     public static List<String> getXmindLegacyContent(File file, String extractFileDir)
             throws IOException, ArchiveException, DocumentException {
         List<String> keys = new ArrayList<>();
-        keys.add(xmindLegacyContent);
-        keys.add(xmindLegacyComments);
+        keys.add(CONTENT_XML);
+        keys.add(COMMENTS_XML);
         Map<String, String> map = ZipUtils.getContents(keys, file, extractFileDir);
 
-        String contentXml = map.get(xmindLegacyContent);
-        String commentsXml = map.get(xmindLegacyComments);
+        String contentXml = map.get(CONTENT_XML);
+        String commentsXml = map.get(COMMENTS_XML);
         List<String> xmlContent = XmindLegacy.getContent(contentXml, commentsXml);
 
         return xmlContent;
@@ -115,7 +116,7 @@ public class XmindParser {
         if (parent.isDirectory()) {
             String[] files = parent.list(new ZipUtils.FileFilter());
             for (int i = 0; i < Objects.requireNonNull(files).length; i++) {
-                if (files[i].equals(xmindZenJson)) {
+                if (files[i].equals(CONTENT_JSON)) {
                     return true;
                 }
             }
