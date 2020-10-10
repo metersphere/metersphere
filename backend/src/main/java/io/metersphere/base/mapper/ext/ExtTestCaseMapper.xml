@@ -251,4 +251,11 @@
     <select id="getMaxNumByProjectId" resultType="io.metersphere.base.domain.TestCase">
         select * from test_case where test_case.project_id = #{projectId} order by num desc limit 1;
     </select>
+    <select id="checkIsHave" resultType="java.lang.String">
+        select distinct test_case.id
+        from test_case, project
+        where test_case.project_id = project.id
+        and project.workspace_id = #{workspaceId}
+        and test_case.id = #{caseId};
+    </select>
 </mapper>

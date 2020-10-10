@@ -43,11 +43,13 @@ public class TestCaseNodeController {
 
     @GetMapping("/list/plan/{planId}")
     public List<TestCaseNodeDTO> getNodeByPlanId(@PathVariable String planId) {
+        checkOwnerService.checkTestPlanOwner(planId);
         return testCaseNodeService.getNodeByPlanId(planId);
     }
 
     @GetMapping("/list/review/{reviewId}")
     public List<TestCaseNodeDTO> getNodeByReviewId(@PathVariable String reviewId) {
+        checkOwnerService.checkTestReviewOwner(reviewId);
         return testCaseNodeService.getNodeByReviewId(reviewId);
     }
 

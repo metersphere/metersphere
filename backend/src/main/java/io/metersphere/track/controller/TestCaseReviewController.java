@@ -9,6 +9,7 @@ import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.service.CheckOwnerService;
 import io.metersphere.track.dto.TestCaseReviewDTO;
 import io.metersphere.track.dto.TestReviewDTOWithMetric;
 import io.metersphere.track.request.testreview.ReviewRelevanceRequest;
@@ -32,6 +33,8 @@ public class TestCaseReviewController {
     TestCaseReviewService testCaseReviewService;
     @Resource
     TestReviewProjectService testReviewProjectService;
+    @Resource
+    CheckOwnerService checkOwnerService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<TestCaseReviewDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryCaseReviewRequest request) {
@@ -71,6 +74,7 @@ public class TestCaseReviewController {
     @GetMapping("/delete/{reviewId}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void deleteCaseReview(@PathVariable String reviewId) {
+        checkOwnerService.checkTestReviewOwner(reviewId);
         testCaseReviewService.deleteCaseReview(reviewId);
     }
 
@@ -103,12 +107,14 @@ public class TestCaseReviewController {
 
     @PostMapping("/get/{reviewId}")
     public TestCaseReview getTestReview(@PathVariable String reviewId) {
+        checkOwnerService.checkTestReviewOwner(reviewId);
         return testCaseReviewService.getTestReview(reviewId);
     }
 
     @PostMapping("/edit/status/{reviewId}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void editTestPlanStatus(@PathVariable String reviewId) {
+        checkOwnerService.checkTestReviewOwner(reviewId);
         testCaseReviewService.editTestReviewStatus(reviewId);
     }
 
