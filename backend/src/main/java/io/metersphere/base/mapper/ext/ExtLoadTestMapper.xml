@@ -67,6 +67,9 @@
             <if test="request.name != null">
                 and load_test.name like CONCAT('%', #{request.name},'%')
             </if>
+            <if test="request.userId != null">
+                and load_test.user_id= #{request.userId}
+            </if>
             <if test="request.workspaceId != null">
                 AND project.workspace_id = #{request.workspaceId}
             </if>

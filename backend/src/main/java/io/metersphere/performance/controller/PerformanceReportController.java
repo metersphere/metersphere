@@ -35,6 +35,7 @@ public class PerformanceReportController {
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
         ReportRequest request = new ReportRequest();
         request.setWorkspaceId(currentWorkspaceId);
+        request.setUserId(SessionUtils.getUserId());
         // 最近 `count` 个项目
         PageHelper.startPage(1, count);
         return reportService.getRecentReportList(request);

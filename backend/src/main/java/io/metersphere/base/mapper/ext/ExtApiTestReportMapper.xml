@@ -85,6 +85,9 @@
             <if test="request.name != null">
                 and r.name like CONCAT('%', #{request.name},'%')
             </if>
+            <if test="request.userId != null">
+                AND r.user_id = #{request.userId,jdbcType=VARCHAR}
+            </if>
             <if test="request.projectId != null">
                 AND project.id = #{request.projectId}
             </if>

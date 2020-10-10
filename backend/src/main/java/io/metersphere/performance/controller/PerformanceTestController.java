@@ -41,6 +41,7 @@ public class PerformanceTestController {
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
         QueryTestPlanRequest request = new QueryTestPlanRequest();
         request.setWorkspaceId(currentWorkspaceId);
+        request.setUserId(SessionUtils.getUserId());
         PageHelper.startPage(1, count, true);
         return performanceTestService.recentTestPlans(request);
     }
