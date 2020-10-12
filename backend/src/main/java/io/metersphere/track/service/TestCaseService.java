@@ -317,8 +317,9 @@ public class TestCaseService {
             Set<String> userIds = userRoleMapper.selectByExample(userRoleExample).stream().map(UserRole::getUserId).collect(Collectors.toSet());
 
             try {
-                EasyExcelListener easyExcelListener = new TestCaseDataListener(this, projectId, testCaseNames, userIds);
-                EasyExcelFactory.read(multipartFile.getInputStream(), new TestCaseExcelDataFactory().getExcelDataByLocal(), easyExcelListener).sheet().doRead();
+                Class clazz = new TestCaseExcelDataFactory().getExcelDataByLocal();
+                EasyExcelListener easyExcelListener = new TestCaseDataListener(clazz, projectId, testCaseNames, userIds);
+                EasyExcelFactory.read(multipartFile.getInputStream(), clazz, easyExcelListener).sheet().doRead();
                 errList = easyExcelListener.getErrList();
             } catch (Exception e) {
                 LogUtil.error(e.getMessage(), e);

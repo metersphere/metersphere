@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.excel.domain.TestCaseExcelData;
 import io.metersphere.i18n.Translator;
 import io.metersphere.track.service.TestCaseService;
@@ -25,8 +26,9 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
 
     Set<String> userIds;
 
-    public TestCaseDataListener(TestCaseService testCaseService, String projectId, Set<String> testCaseNames, Set<String> userIds) {
-        this.testCaseService = testCaseService;
+    public TestCaseDataListener(Class clazz, String projectId, Set<String> testCaseNames, Set<String> userIds) {
+        this.clazz = clazz;
+        this.testCaseService = (TestCaseService) CommonBeanFactory.getBean("testCaseService");
         this.projectId = projectId;
         this.testCaseNames = testCaseNames;
         this.userIds = userIds;
