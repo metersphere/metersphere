@@ -718,6 +718,7 @@ export default {
       status_prepare: '未開始',
       status_pass: '通過',
       status_un_pass: '未通過',
+      cancel_relevance_project: "取消項目關聯會同時取消該項目下已關聯的測試用例",
       import: {
         import: "導入用例",
         case_import: "導入測試用例",
@@ -897,7 +898,9 @@ export default {
       delete: "刪除缺陷",
       title_description_required: "標題和描述必填",
       close_success: "關閉成功",
-      preview: "預覽"
+      preview: "預覽",
+      please_choose_current_owner: "請選擇處理人",
+      tapd_current_owner: "Tapd平台處理人：",
     }
   },
   test_resource_pool: {

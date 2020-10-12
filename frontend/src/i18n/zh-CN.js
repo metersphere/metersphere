@@ -718,6 +718,7 @@ export default {
       status_prepare: '未开始',
       status_pass: '通过',
       status_un_pass: '未通过',
+      cancel_relevance_project: "取消项目关联会同时取消该项目下已关联的测试用例",
       import: {
         import: "导入用例",
         case_import: "导入测试用例",
@@ -897,7 +898,9 @@ export default {
       delete: "删除缺陷",
       title_description_required: "标题和描述必填",
       close_success: "关闭成功",
-      preview: "预览"
+      preview: "预览",
+      please_choose_current_owner: "请选择处理人",
+      tapd_current_owner: "Tapd平台处理人：",
     }
   },
   test_resource_pool: {

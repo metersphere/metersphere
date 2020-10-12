@@ -3,7 +3,7 @@
   <div>
 
     <el-dialog :close-on-click-modal="false"
-               :title="operationType == 'edit' ? $t('test_track.plan.edit_plan') : $t('test_track.plan.create_plan')"
+               :title="operationType === 'edit' ? $t('test_track.plan.edit_plan') : $t('test_track.plan.create_plan')"
                :visible.sync="dialogFormVisible"
                @close="close"
                width="65%">
@@ -75,7 +75,8 @@
               :label="$t('test_track.plan.planned_start_time')"
               :label-width="formLabelWidth"
               prop="plannedStartTime">
-              <el-date-picker :placeholder="$t('test_track.plan.planned_start_time')" v-model="form.plannedStartTime" type="datetime" value-format="timestamp"></el-date-picker>
+              <el-date-picker :placeholder="$t('test_track.plan.planned_start_time')" v-model="form.plannedStartTime"
+                              type="datetime" value-format="timestamp"></el-date-picker>
             </el-form-item>
           </el-col>
 
@@ -84,7 +85,8 @@
               :label="$t('test_track.plan.planned_end_time')"
               :label-width="formLabelWidth"
               prop="plannedEndTime">
-              <el-date-picker :placeholder="$t('test_track.plan.planned_end_time')" v-model="form.plannedEndTime" type="datetime" value-format="timestamp" ></el-date-picker>
+              <el-date-picker :placeholder="$t('test_track.plan.planned_end_time')" v-model="form.plannedEndTime"
+                              type="datetime" value-format="timestamp"></el-date-picker>
             </el-form-item>
           </el-col>
         </el-row>
@@ -102,7 +104,7 @@
           </el-col>
         </el-row>
 
-        <el-row v-if="operationType == 'edit'" type="flex" justify="left" style="margin-top: 10px;">
+        <el-row v-if="operationType === 'edit'" type="flex" justify="left" style="margin-top: 10px;">
           <el-col :span="19" :offset="1">
             <el-form-item :label="$t('test_track.plan.plan_status')" :label-width="formLabelWidth" prop="status">
               <test-plan-status-button :status="form.status" @statusChange="statusChange"/>
@@ -134,9 +136,9 @@
 
 <script>
 
-import {WORKSPACE_ID} from '../../../../../common/js/constants';
+import {WORKSPACE_ID} from '@/common/js/constants';
 import TestPlanStatusButton from "../common/TestPlanStatusButton";
-import {listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
+import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
 
 export default {
@@ -194,7 +196,7 @@ export default {
           let param = {};
           Object.assign(param, this.form);
           param.name = param.name.trim();
-          if (param.name == '') {
+          if (param.name === '') {
             this.$warning(this.$t('test_track.plan.input_plan_name'));
             return;
           }
@@ -206,7 +208,7 @@ export default {
             this.dbProjectIds.forEach(dbId => {
               if (nowIds.indexOf(dbId) === -1 && sign) {
                 sign = false;
-                this.$confirm('取消项目关联会同时取消该项目下已关联的测试用例', '提示', {
+                this.$confirm(this.$t('test_track.case.cancel_relevance_project'), this.$t('commons.prompt'), {
                   confirmButtonText: this.$t('commons.confirm'),
                   cancelButtonText: this.$t('commons.cancel'),
                   type: 'warning'
@@ -263,7 +265,7 @@ export default {
     resetForm() {
       //防止点击修改后，点击新建触发校验
       if (this.$refs['planFrom']) {
-        this.$refs['planFrom'].validate((valid) => {
+        this.$refs['planFrom'].validate(() => {
           this.$refs['planFrom'].resetFields();
           this.form.name = '';
           this.form.projectIds = [];
