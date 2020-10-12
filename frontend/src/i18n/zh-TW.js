@@ -469,9 +469,9 @@ export default {
       input_url: "請輸入請求URL",
       input_path: "請輸入請求路徑",
       name: "請求名稱",
+      content_type: "請求類型",
       method: "請求方法",
       url: "請求URL",
-      content_type: "請求類型",
       path: "請求路徑",
       address: "請求地址",
       refer_to_environment: "引用環境",
@@ -697,6 +697,10 @@ export default {
       batch_delete_case: '批量刪除用例',
       batch_unlink: '批量取消關聯',
       project_name: '所屬項目',
+      status: '狀態',
+      status_prepare: '未開始',
+      status_pass: '通過',
+      status_un_pass: '未通過',
       import: {
         import: "導入用例",
         case_import: "導入測試用例",
@@ -742,6 +746,10 @@ export default {
       plan_status_prepare: "未開始",
       plan_status_running: "進行中",
       plan_status_completed: "已完成",
+      planned_start_time: "計劃開始",
+      planned_end_time: "計劃結束",
+      actual_start_time: "實際開始",
+      actual_end_time: "實際結束",
       plan_delete_confirm: "將刪除該測試計劃下所有用例，確認刪除測試計劃: ",
       plan_delete: "刪除計劃",
     },
@@ -767,7 +775,8 @@ export default {
       my_create: "我創建的評審",
       reviewed_by_me: "待我評審",
       creator: "創建人",
-      done: "已評用例"
+      done: "已評用例",
+      result_distribution: "結果分佈"
     },
     comment: {
       no_comment: "暫無評論",
@@ -781,7 +790,7 @@ export default {
       all_case: "全部用例",
       start_review: "開始評審",
       relevance_case: "關聯用例",
-      execute_result: "執行結果",
+      execute_result: "評審結果",
     },
     module: {
       search: "搜索模塊",

@@ -30,7 +30,7 @@
           </el-form-item>
           <el-form-item v-if="useEnvironment || selectedPlatformValue == 'Swagger2'" :label="$t('api_test.environment.environment_config')" prop="environmentId">
             <el-select v-if="showEnvironmentSelect" size="small"  v-model="formData.environmentId" class="environment-select" clearable>
-              <el-option v-for="(environment, index) in environments" :key="index" :label="environment.name + ': ' + environment.protocol + '://' + environment.socket" :value="environment.id"/>
+              <el-option v-for="(environment, index) in environments" :key="index" :label="environment.name" :value="environment.id"/>
               <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">{{$t('api_test.environment.environment_config')}}</el-button>
               <template v-slot:empty>
                 <div class="empty-environment">
@@ -203,6 +203,15 @@
           if (this.formData.projectId) {
             this.$get('/api/environment/list/' + this.formData.projectId, response => {
               this.environments = response.data;
+              let hasEnvironmentId = false;
+              this.environments.forEach(env => {
+                if (env.id === this.formData.environmentId) {
+                  hasEnvironmentId = true;
+                }
+              });
+              if (!hasEnvironmentId) {
+                this.formData.environmentId = '';
+              }
             });
           } else {
             this.environments = [];

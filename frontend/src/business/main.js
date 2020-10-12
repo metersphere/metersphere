@@ -7,6 +7,7 @@ import ajax from "../common/js/ajax";
 import App from './App.vue';
 import message from "../common/js/message";
 import router from "./components/common/router/router";
+import YanProgress from 'yan-progress';
 import './permission' // permission control
 import i18n from "../i18n/i18n";
 import store from "./store";
@@ -28,6 +29,7 @@ Vue.use(chart);
 Vue.use(CalendarHeatmap);
 Vue.use(message);
 Vue.use(CKEditor);
+Vue.use(YanProgress)
 
 // v-permission
 Vue.directive('permission', permission);

@@ -1043,11 +1043,8 @@ class JMXGenerator {
         this.addScenarioHeaders(threadGroup, scenario);
 
         this.addScenarioCookieManager(threadGroup, scenario);
-        // 放在计划或线程组中，不建议放具体某个请求中
-        this.addDNSCacheManager(threadGroup, scenario);
 
         this.addJDBCDataSources(threadGroup, scenario);
-
         scenario.requests.forEach(request => {
           if (request.enable) {
             if (!request.isValid()) return;
@@ -1064,6 +1061,8 @@ class JMXGenerator {
               request.dataSource = scenario.databaseConfigMap.get(request.dataSource);
               sampler = new JDBCSampler(request.name || "", request);
             }
+
+            this.addDNSCacheManager(sampler, scenario.environment, request.useEnvironment);
 
             this.addRequestExtractor(sampler, request);
 
@@ -1126,28 +1125,26 @@ class JMXGenerator {
     }
   }
 
-  addDNSCacheManager(threadGroup, scenario) {
-    if (scenario.requests.length < 1) {
-      return
-    }
-    let request = scenario.requests[0];
-    if (request.environment) {
-      let commonConfig = request.environment.config.commonConfig;
+  addDNSCacheManager(httpSamplerProxy, environment, useEnv) {
+    if (environment && useEnv === true) {
+      let commonConfig = environment.config.commonConfig;
       let hosts = commonConfig.hosts;
       if (commonConfig.enableHost && hosts.length > 0) {
-        let name = request.name + " DNSCacheManager";
+        let name = " DNSCacheManager";
         // 强化判断，如果未匹配到合适的host则不开启DNSCache
-        let domain = request.environment.config.httpConfig.domain;
+        let domain = environment.config.httpConfig.domain;
         let validHosts = [];
         hosts.forEach(item => {
-          let d = item.domain.trim().replace("http://", "").replace("https://", "");
-          if (item && d === domain.trim()) {
-            item.domain = d; // 域名去掉协议
-            validHosts.push(item);
+          if (item.domain != undefined && domain != undefined) {
+            let d = item.domain.trim().replace("http://", "").replace("https://", "");
+            if (d === domain.trim()) {
+              item.domain = d; // 域名去掉协议
+              validHosts.push(item);
+            }
           }
         });
         if (validHosts.length > 0) {
-          threadGroup.put(new DNSCacheManager(name, validHosts));
+          httpSamplerProxy.put(new DNSCacheManager(name, validHosts));
         }
       }
     }
@@ -1222,21 +1219,22 @@ class JMXGenerator {
     if (request.controller.isValid() && request.controller.enable) {
       if (request.controller instanceof IfController) {
         let name = request.controller.label();
-        let variable = request.controller.variable;
+        let variable = "\"" + request.controller.variable + "\"";
         let operator = request.controller.operator;
-        let value = request.controller.value;
+        let value = "\"" + request.controller.value + "\"";
+
         if (operator === "=~" || operator === "!~") {
-          value = "\".*" + value + ".*\"";
+          value = "\".*" + request.controller.value + ".*\"";
         }
 
         if (operator === "is empty") {
-          variable = "empty(\"" + variable + "\")";
+          variable = "empty(" + variable + ")";
           operator = "";
           value = "";
         }
 
         if (operator === "is not empty") {
-          variable = "!empty(\"" + variable + "\")";
+          variable = "!empty(" + variable + ")";
           operator = "";
           value = "";
         }

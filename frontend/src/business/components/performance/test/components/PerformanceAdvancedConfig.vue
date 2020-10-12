@@ -39,8 +39,7 @@
                 :disabled="!row.edit || readOnly"
                 size="mini"
                 v-model="row.enable"
-                active-color="#13ce66"
-                inactive-color="#ff4949">
+                inactive-color="#DCDFE6">
               </el-switch>
             </template>
           </el-table-column>

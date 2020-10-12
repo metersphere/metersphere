@@ -58,4 +58,11 @@
 
         order by test_case_review.update_time desc
     </select>
+    <select id="checkIsHave" resultType="java.lang.String">
+        select distinct review_id
+        from project, test_case_review_project
+        where project.id = test_case_review_project.project_id
+        and project.workspace_id = #{workspaceId}
+        and test_case_review_project.review_id = #{reviewId};
+    </select>
 </mapper>

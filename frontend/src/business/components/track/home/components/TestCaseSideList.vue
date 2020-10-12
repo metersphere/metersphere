@@ -8,7 +8,7 @@
       class="adjust-table"
       @row-click="editTestCase"
       :data="tableData"
-      v-loading="result.loading">
+      v-loading="result.loading" height="300px">
 
       <el-table-column
         prop="name"

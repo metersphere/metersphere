@@ -27,14 +27,14 @@ body {
 }
 
 /*解决高度塌陷和边距重叠*/
-.clearfix:before,.clearfix:after{
+.clearfix:before, .clearfix:after {
   content: "";
   display: table;
   clear: both;
 }
 
 /*解决富文本框中link显示问题*/
-.ck-rounded-corners .ck.ck-balloon-panel,.ck.ck-balloon-panel.ck-rounded-corners {
+.ck-rounded-corners .ck.ck-balloon-panel, .ck.ck-balloon-panel.ck-rounded-corners {
   z-index: 10055 !important;
 }
 
@@ -50,7 +50,7 @@ body {
 
 /* <-- 表格拖拽表头调整宽度，在 t-bable 上添加 border 属性，并添加 adjust-table 类名*/
 .adjust-table td {
-  border-right-color: white;
+  border-right: 0;
 }
 
 .adjust-table th {
@@ -74,12 +74,18 @@ body {
   width: 3px;
   background-color: #EBEEF5;
 }
+
+.adjust-table tr:hover td {
+  border-right: 0;
+}
+
 /* 表格拖拽表头调整宽度 --> */
 
 /* <-- 表格 input 编辑效果*/
 .table-edit-input .el-textarea__inner {
   border-style: hidden;
 }
+
 .table-edit-input.is-disabled .el-textarea__inner {
   background-color: white;
   color: #606266;
@@ -93,6 +99,7 @@ body {
 .table-edit-input .el-textarea__inner:focus {
   border: 1px solid #409EFF;
 }
+
 /* 表格 input 编辑效果 --> */
 
 .ms-border {

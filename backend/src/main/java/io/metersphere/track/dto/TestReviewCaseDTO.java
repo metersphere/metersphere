@@ -9,7 +9,7 @@ import lombok.Setter;
 public class TestReviewCaseDTO extends TestCaseWithBLOBs {
     private String reviewer;
     private String reviewerName;
-    private String status;
+    private String reviewStatus;
     private String results;
     private String reviewId;
     private String caseId;

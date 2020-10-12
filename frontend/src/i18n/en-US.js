@@ -695,6 +695,10 @@ export default {
       batch_delete_case: 'Batch delete',
       batch_unlink: 'Batch Unlink',
       project_name: "Project",
+      status: 'Status',
+      status_prepare: 'Prepare',
+      status_pass: 'Pass',
+      status_un_pass: 'UnPass',
       import: {
         import: "Import test case",
         case_import: "Import test case",
@@ -740,6 +744,10 @@ export default {
       plan_status_prepare: "Not started",
       plan_status_running: "Starting",
       plan_status_completed: "Completed",
+      planned_start_time: "Scheduled Start Time",
+      planned_end_time: "Scheduled End Time",
+      actual_start_time: "Actual Start Time",
+      actual_end_time: "Actual End Time",
       plan_delete_confirm: "All use cases under this plan will be deleted,confirm delete test plan: ",
       plan_delete: "Delete test plan",
     },
@@ -765,7 +773,8 @@ export default {
       my_create: "My Create",
       reviewed_by_me: "Review By Me",
       creator: "Creator",
-      done: "Commented use cases"
+      done: "Commented use cases",
+      result_distribution: "Result Distribution"
     },
     comment: {
       no_comment: "No Comment",
