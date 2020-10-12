@@ -16,6 +16,7 @@ public class Scenario {
     private List<KeyValue> headers;
     private List<Request> requests;
     private DubboConfig dubboConfig;
+    private TCPConfig tcpConfig;
     private List<DatabaseConfig> databaseConfigs;
     private Boolean enable;
 }
