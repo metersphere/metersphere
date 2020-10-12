@@ -111,12 +111,16 @@ export const EXTRACT_TYPE = {
 
 export class BaseConfig {
 
-  set(options) {
+  set(options, notUndefined) {
     options = this.initOptions(options)
     for (let name in options) {
       if (options.hasOwnProperty(name)) {
         if (!(this[name] instanceof Array)) {
-          this[name] = options[name];
+          if (notUndefined === true) {
+            this[name] = options[name] === undefined ? this[name] : options[name];
+          } else {
+            this[name] = options[name];
+          }
         }
       }
     }
@@ -219,6 +223,7 @@ export class Scenario extends BaseConfig {
     this.enableCookieShare = false;
     this.enable = true;
     this.databaseConfigs = [];
+    this.tcpConfig = undefined;
 
     this.set(options);
     this.sets({
@@ -234,6 +239,7 @@ export class Scenario extends BaseConfig {
     options.requests = options.requests || [new RequestFactory()];
     options.databaseConfigs = options.databaseConfigs || [];
     options.dubboConfig = new DubboConfig(options.dubboConfig);
+    options.tcpConfig = new TCPConfig(options.tcpConfig);
     return options;
   }
 
@@ -512,11 +518,11 @@ export class SqlRequest extends Request {
   }
 }
 
-export class TCPConfig extends Request {
+export class TCPConfig extends BaseConfig {
   static CLASSES = ["TCPClientImpl", "BinaryTCPClientImpl", "LengthPrefixedBinaryTCPClientImpl"]
 
   constructor(options = {}) {
-    super(RequestFactory.TYPES.TCP, options);
+    super();
     this.classname = options.classname || TCPConfig.CLASSES[0];
     this.server = options.server;
     this.port = options.port;
@@ -532,17 +538,16 @@ export class TCPConfig extends Request {
     this.username = options.username;
     this.password = options.password;
   }
-
-  isValid() {
-    return !!this.classname || !!this.server;
-  }
 }
 
-export class TCPRequest extends TCPConfig {
+export class TCPRequest extends Request {
   constructor(options = {}) {
-    super(options);
+    super(RequestFactory.TYPES.TCP, options);
     this.useEnvironment = options.useEnvironment;
     this.debugReport = undefined;
+
+    //设置TCPConfig的属性
+    this.set(new TCPConfig(options));
 
     this.request = options.request;
   }
@@ -1040,6 +1045,19 @@ class JMXDubboRequest {
   }
 }
 
+class JMXTCPRequest {
+  constructor(request, scenario) {
+    let obj = request.clone();
+    if (request.useEnvironment) {
+      obj.set(scenario.environment.config.tcpConfig, true);
+      return obj;
+    }
+    obj.set(scenario.tcpConfig, true);
+
+    return obj;
+  }
+}
+
 class JMeterTestPlan extends Element {
   constructor() {
     super('jmeterTestPlan', {
@@ -1098,7 +1116,7 @@ class JMXGenerator {
               request.dataSource = scenario.databaseConfigMap.get(request.dataSource);
               sampler = new JDBCSampler(request.name || "", request);
             } else if (request instanceof TCPRequest) {
-              sampler = new TCPSampler(request.name || "", request);
+              sampler = new TCPSampler(request.name || "", new JMXTCPRequest(request, scenario));
             }
 
             this.addDNSCacheManager(sampler, scenario.environment, request.useEnvironment);

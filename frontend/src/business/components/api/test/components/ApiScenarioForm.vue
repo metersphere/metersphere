@@ -49,9 +49,9 @@
         <div class="dubbo-config-title">Consumer & Service</div>
         <ms-dubbo-consumer-service :consumer="scenario.dubboConfig.consumerAndService" :is-read-only="isReadOnly"/>
       </el-tab-pane>
-<!--      <el-tab-pane :label="$t('api_test.environment.tcp_config')" name="tcp">-->
-<!--        <ms-tcp-config :config="scenario.tcpConfig" :is-read-only="isReadOnly"/>-->
-<!--      </el-tab-pane>-->
+      <el-tab-pane :label="$t('api_test.environment.tcp_config')" name="tcp">
+        <ms-tcp-config :config="scenario.tcpConfig" :is-read-only="isReadOnly"/>
+      </el-tab-pane>
     </el-tabs>
 
     <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>

@@ -436,6 +436,7 @@ export default {
       common_config: "Common Config",
       http_config: "HTTP Config",
       database_config: "Database Config",
+      tcp_config: "TCP Config",
     },
     scenario: {
       scenario: "Scenario",

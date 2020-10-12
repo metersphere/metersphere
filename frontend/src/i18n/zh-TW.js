@@ -437,6 +437,7 @@ export default {
       common_config: "通用配置",
       http_config: "HTTP配置",
       database_config: "數據庫配置",
+      tcp_config: "TCP配置",
     },
     scenario: {
       scenario: "場景",
