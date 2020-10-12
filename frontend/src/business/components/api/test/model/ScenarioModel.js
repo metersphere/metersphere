@@ -512,15 +512,12 @@ export class SqlRequest extends Request {
   }
 }
 
-export class TCPRequest extends Request {
+export class TCPConfig extends Request {
   static CLASSES = ["TCPClientImpl", "BinaryTCPClientImpl", "LengthPrefixedBinaryTCPClientImpl"]
 
   constructor(options = {}) {
     super(RequestFactory.TYPES.TCP, options);
-    this.useEnvironment = options.useEnvironment;
-    this.debugReport = undefined;
-
-    this.classname = options.classname || TCPRequest.CLASSES[0];
+    this.classname = options.classname || TCPConfig.CLASSES[0];
     this.server = options.server;
     this.port = options.port;
     this.ctimeout = options.ctimeout; // Connect
@@ -532,10 +529,22 @@ export class TCPRequest extends Request {
     this.soLinger = options.soLinger;
     this.eolByte = options.eolByte;
 
-    this.request = options.request;
-
     this.username = options.username;
     this.password = options.password;
+  }
+
+  isValid() {
+    return !!this.classname || !!this.server;
+  }
+}
+
+export class TCPRequest extends TCPConfig {
+  constructor(options = {}) {
+    super(options);
+    this.useEnvironment = options.useEnvironment;
+    this.debugReport = undefined;
+
+    this.request = options.request;
   }
 
   isValid() {
@@ -1165,7 +1174,7 @@ class JMXGenerator {
         let domain = environment.config.httpConfig.domain;
         let validHosts = [];
         hosts.forEach(item => {
-          if (item.domain != undefined && domain != undefined) {
+          if (item.domain !== undefined && domain !== undefined) {
             let d = item.domain.trim().replace("http://", "").replace("https://", "");
             if (d === domain.trim()) {
               item.domain = d; // 域名去掉协议

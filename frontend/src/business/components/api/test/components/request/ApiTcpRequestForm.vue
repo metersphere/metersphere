@@ -1,5 +1,5 @@
 <template>
-  <el-form class="tcp" :model="request" :rules="rules" ref="request" label-width="120px" :disabled="isReadOnly">
+  <el-form class="tcp" :model="request" :rules="rules" ref="request" label-width="auto" :disabled="isReadOnly">
 
     <el-form-item :label="$t('api_test.request.name')" prop="name">
       <el-input v-model="request.name" maxlength="300" show-word-limit/>
@@ -11,31 +11,31 @@
       </el-select>
     </el-form-item>
 
-    <el-row :gutter="10">
-      <el-col :span="12">
+    <el-row type="flex" justify="space-between">
+      <el-col :lg="8">
         <el-form-item :label="$t('api_test.request.tcp.server')" prop="server">
           <el-input v-model="request.server" maxlength="300" show-word-limit/>
         </el-form-item>
       </el-col>
-      <el-col :span="4">
-        <el-form-item :label="$t('api_test.request.tcp.port')" prop="port">
+      <el-col :lg="6">
+        <el-form-item :label="$t('api_test.request.tcp.port')" prop="port" label-width="60px">
           <el-input-number v-model="request.port" controls-position="right" :min="0" :max="65535"/>
         </el-form-item>
       </el-col>
-      <el-col :span="4">
-        <el-form-item :label="$t('api_test.request.tcp.connect')" prop="ctimeout">
+      <el-col :lg="6">
+        <el-form-item :label="$t('api_test.request.tcp.connect')" prop="ctimeout" label-width="80px">
           <el-input-number v-model="request.ctimeout" controls-position="right" :min="0"/>
         </el-form-item>
       </el-col>
-      <el-col :span="4">
-        <el-form-item :label="$t('api_test.request.tcp.response')" prop="timeout">
+      <el-col :lg="6">
+        <el-form-item :label="$t('api_test.request.tcp.response')" prop="timeout" label-width="80px">
           <el-input-number v-model="request.timeout" controls-position="right" :min="0"/>
         </el-form-item>
       </el-col>
     </el-row>
 
-    <el-row :gutter="10">
-      <el-col :span="4">
+    <el-row type="flex" justify="space-between">
+      <el-col>
         <el-form-item>
           <el-switch
             v-model="request.useEnvironment"
@@ -44,7 +44,7 @@
           </el-switch>
         </el-form-item>
       </el-col>
-      <el-col :span="4">
+      <el-col>
         <el-form-item label-width="0">
           <el-switch
             v-model="request.reUseConnection"
@@ -52,7 +52,7 @@
           </el-switch>
         </el-form-item>
       </el-col>
-      <el-col :span="4">
+      <el-col>
         <el-form-item label-width="0">
           <el-switch
             v-model="request.closeConnection"
@@ -60,7 +60,7 @@
           </el-switch>
         </el-form-item>
       </el-col>
-      <el-col :span="4">
+      <el-col>
         <el-form-item label-width="0">
           <el-switch
             v-model="request.nodelay"
@@ -68,12 +68,12 @@
           </el-switch>
         </el-form-item>
       </el-col>
-      <el-col :span="4">
+      <el-col>
         <el-form-item :label="$t('api_test.request.tcp.so_linger')" prop="soLinger">
           <el-input v-model="request.soLinger"/>
         </el-form-item>
       </el-col>
-      <el-col :span="4">
+      <el-col>
         <el-form-item :label="$t('api_test.request.tcp.eol_byte')" prop="eolByte">
           <el-input v-model="request.eolByte"/>
         </el-form-item>
