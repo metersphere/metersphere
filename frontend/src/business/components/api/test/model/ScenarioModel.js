@@ -1071,11 +1071,8 @@ class JMXGenerator {
         this.addScenarioHeaders(threadGroup, scenario);
 
         this.addScenarioCookieManager(threadGroup, scenario);
-        // 放在计划或线程组中，不建议放具体某个请求中
-        this.addDNSCacheManager(threadGroup, scenario);
 
         this.addJDBCDataSources(threadGroup, scenario);
-
         scenario.requests.forEach(request => {
           if (request.enable) {
             if (!request.isValid()) return;
@@ -1094,6 +1091,8 @@ class JMXGenerator {
             } else if (request instanceof TCPRequest) {
               sampler = new TCPSampler(request.name || "", request);
             }
+
+            this.addDNSCacheManager(sampler, scenario.environment, request.useEnvironment);
 
             this.addRequestExtractor(sampler, request);
 
@@ -1156,18 +1155,14 @@ class JMXGenerator {
     }
   }
 
-  addDNSCacheManager(threadGroup, scenario) {
-    if (scenario.requests.length < 1) {
-      return
-    }
-    let request = scenario.requests[0];
-    if (request.environment) {
-      let commonConfig = request.environment.config.commonConfig;
+  addDNSCacheManager(httpSamplerProxy, environment, useEnv) {
+    if (environment && useEnv === true) {
+      let commonConfig = environment.config.commonConfig;
       let hosts = commonConfig.hosts;
       if (commonConfig.enableHost && hosts.length > 0) {
-        let name = request.name + " DNSCacheManager";
+        let name = " DNSCacheManager";
         // 强化判断，如果未匹配到合适的host则不开启DNSCache
-        let domain = request.environment.config.httpConfig.domain;
+        let domain = environment.config.httpConfig.domain;
         let validHosts = [];
         hosts.forEach(item => {
           if (item.domain != undefined && domain != undefined) {
@@ -1179,7 +1174,7 @@ class JMXGenerator {
           }
         });
         if (validHosts.length > 0) {
-          threadGroup.put(new DNSCacheManager(name, validHosts));
+          httpSamplerProxy.put(new DNSCacheManager(name, validHosts));
         }
       }
     }
