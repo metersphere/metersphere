@@ -3,6 +3,7 @@ package io.metersphere.api.controller;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.service.CheckOwnerService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +18,12 @@ public class ApiTestEnvironmentController {
 
     @Resource
     ApiTestEnvironmentService apiTestEnvironmentService;
+    @Resource
+    private CheckOwnerService checkOwnerService;
 
     @GetMapping("/list/{projectId}")
     public List<ApiTestEnvironmentWithBLOBs> list(@PathVariable String projectId) {
+        checkOwnerService.checkProjectOwner(projectId);
         return apiTestEnvironmentService.list(projectId);
     }
 

@@ -697,6 +697,10 @@ export default {
       batch_delete_case: '批量刪除用例',
       batch_unlink: '批量取消關聯',
       project_name: '所屬項目',
+      status: '狀態',
+      status_prepare: '未開始',
+      status_pass: '通過',
+      status_un_pass: '未通過',
       import: {
         import: "導入用例",
         case_import: "導入測試用例",
@@ -771,7 +775,8 @@ export default {
       my_create: "我創建的評審",
       reviewed_by_me: "待我評審",
       creator: "創建人",
-      done: "已評用例"
+      done: "已評用例",
+      result_distribution: "結果分佈"
     },
     comment: {
       no_comment: "暫無評論",
@@ -785,7 +790,7 @@ export default {
       all_case: "全部用例",
       start_review: "開始評審",
       relevance_case: "關聯用例",
-      execute_result: "執行結果",
+      execute_result: "評審結果",
     },
     module: {
       search: "搜索模塊",

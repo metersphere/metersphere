@@ -2,6 +2,7 @@ package io.metersphere.track.controller;
 
 import io.metersphere.base.domain.TestCaseNode;
 import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.service.CheckOwnerService;
 import io.metersphere.track.dto.TestCaseNodeDTO;
 import io.metersphere.track.request.testcase.DragNodeRequest;
 import io.metersphere.track.request.testcase.QueryNodeRequest;
@@ -20,9 +21,12 @@ public class TestCaseNodeController {
 
     @Resource
     TestCaseNodeService testCaseNodeService;
+    @Resource
+    private CheckOwnerService checkOwnerService;
 
     @GetMapping("/list/{projectId}")
     public List<TestCaseNodeDTO> getNodeByProjectId(@PathVariable String projectId) {
+        checkOwnerService.checkProjectOwner(projectId);
         return testCaseNodeService.getNodeTreeByProjectId(projectId);
     }
 
@@ -39,11 +43,13 @@ public class TestCaseNodeController {
 
     @GetMapping("/list/plan/{planId}")
     public List<TestCaseNodeDTO> getNodeByPlanId(@PathVariable String planId) {
+        checkOwnerService.checkTestPlanOwner(planId);
         return testCaseNodeService.getNodeByPlanId(planId);
     }
 
     @GetMapping("/list/review/{reviewId}")
     public List<TestCaseNodeDTO> getNodeByReviewId(@PathVariable String reviewId) {
+        checkOwnerService.checkTestReviewOwner(reviewId);
         return testCaseNodeService.getNodeByReviewId(reviewId);
     }
 

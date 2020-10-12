@@ -33,13 +33,10 @@ public class XmindCaseParser {
     private StringBuffer process; // 过程校验记录
     // 已存在用例名称
     private Set<String> testCaseNames;
-
     // 转换后的案例信息
     private List<TestCaseWithBLOBs> testCases;
-
     // 案例详情重写了hashCode方法去重用
     private List<TestCaseExcelData> compartDatas;
-
     // 记录没有用例的目录
     private List<String> nodePaths;
 
@@ -54,7 +51,10 @@ public class XmindCaseParser {
         nodePaths = new ArrayList<>();
     }
 
-    // 这里清理是为了 加快jvm 回收
+    private static final String TC_REGEX = "(?:tc:|tc：|tc)";
+    private static final String PC_REGEX = "(?:pc:|pc：|pc)";
+    private static final String RC_REGEX = "(?:rc:|rc：|rc)";
+
     public void clear() {
         compartDatas.clear();
         testCases.clear();
@@ -90,9 +90,9 @@ public class XmindCaseParser {
     }
 
     // 递归处理案例数据
-    private void recursion(StringBuffer processBuffer, Attached parent, int level, List<Attached> attacheds) {
+    private void recursion(Attached parent, int level, List<Attached> attacheds) {
         for (Attached item : attacheds) {
-            if (isAvailable(item.getTitle(), "(?:tc：|tc:|tc)")) { // 用例
+            if (isAvailable(item.getTitle(), TC_REGEX)) { // 用例
                 item.setParent(parent);
                 this.newTestCase(item.getTitle(), parent.getPath(), item.getChildren() != null ? item.getChildren().getAttached() : null);
             } else {
@@ -100,7 +100,7 @@ public class XmindCaseParser {
                 item.setPath(nodePath);
                 item.setParent(parent);
                 if (item.getChildren() != null && !item.getChildren().getAttached().isEmpty()) {
-                    recursion(processBuffer, item, level + 1, item.getChildren().getAttached());
+                    recursion(item, level + 1, item.getChildren().getAttached());
                 } else {
                     if (!nodePath.startsWith("/")) {
                         nodePath = "/" + nodePath;
@@ -163,7 +163,7 @@ public class XmindCaseParser {
             return;
         }
         // 用例名称
-        testCase.setName(this.replace(tcArr[1], "tc:|tc：|tc"));
+        testCase.setName(this.replace(tcArr[1], TC_REGEX));
 
         if (!nodePath.startsWith("/")) {
             nodePath = "/" + nodePath;
@@ -188,10 +188,10 @@ public class XmindCaseParser {
         List<Attached> steps = new LinkedList<>();
         if (attacheds != null && !attacheds.isEmpty()) {
             attacheds.forEach(item -> {
-                if (isAvailable(item.getTitle(), "(?:pc:|pc：)")) {
-                    testCase.setPrerequisite(replace(item.getTitle(), "(?:pc:|pc：)"));
-                } else if (isAvailable(item.getTitle(), "(?:rc:|rc：)")) {
-                    testCase.setRemark(replace(item.getTitle(), "(?:rc:|rc：)"));
+                if (isAvailable(item.getTitle(), PC_REGEX)) {
+                    testCase.setPrerequisite(replace(item.getTitle(), PC_REGEX));
+                } else if (isAvailable(item.getTitle(), RC_REGEX)) {
+                    testCase.setRemark(replace(item.getTitle(), RC_REGEX));
                 } else {
                     steps.add(item);
                 }
@@ -267,28 +267,37 @@ public class XmindCaseParser {
 
     // 导入思维导图处理
     public String parse(MultipartFile multipartFile) {
-        StringBuffer processBuffer = new StringBuffer();
         try {
             // 获取思维导图内容
-            JsonRootBean root = XmindParser.parseObject(multipartFile);
-            if (root != null && root.getRootTopic() != null && root.getRootTopic().getChildren() != null) {
-                // 判断是模块还是用例
-                for (Attached item : root.getRootTopic().getChildren().getAttached()) {
-                    if (isAvailable(item.getTitle(), "(?:tc:|tc：|tc)")) { // 用例
-                        return replace(item.getTitle(), "(?:tc:|tc：|tc)") + "：" + Translator.get("test_case_create_module_fail");
-                    } else {
-                        item.setPath(item.getTitle());
-                        if (item.getChildren() != null && !item.getChildren().getAttached().isEmpty()) {
-                            recursion(processBuffer, item, 1, item.getChildren().getAttached());
+            List<JsonRootBean> roots = XmindParser.parseObject(multipartFile);
+            for (JsonRootBean root : roots) {
+                if (root != null && root.getRootTopic() != null && root.getRootTopic().getChildren() != null) {
+                    // 判断是模块还是用例
+                    for (Attached item : root.getRootTopic().getChildren().getAttached()) {
+                        if (isAvailable(item.getTitle(), TC_REGEX)) { // 用例
+                            return replace(item.getTitle(), TC_REGEX) + "：" + Translator.get("test_case_create_module_fail");
+                        } else {
+                            String nodePath = item.getTitle();
+                            item.setPath(nodePath);
+                            if (item.getChildren() != null && !item.getChildren().getAttached().isEmpty()) {
+                                recursion(item, 1, item.getChildren().getAttached());
+                            } else {
+                                if (!nodePath.startsWith("/")) {
+                                    nodePath = "/" + nodePath;
+                                }
+                                if (nodePath.endsWith("/")) {
+                                    nodePath = nodePath.substring(0, nodePath.length() - 1);
+                                }
+                                nodePaths.add(nodePath); // 没有用例的路径
+                            }
                         }
                     }
                 }
             }
-            this.validate();
+
+            this.validate(); //检查目录合规性
         } catch (Exception ex) {
-            processBuffer.append(Translator.get("incorrect_format"));
-            LogUtil.error(ex.getMessage());
-            return "xmind "+Translator.get("incorrect_format");
+            return ex.getMessage();
         }
         return process.toString();
     }

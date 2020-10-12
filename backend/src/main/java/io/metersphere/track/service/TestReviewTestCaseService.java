@@ -1,6 +1,7 @@
 package io.metersphere.track.service;
 
 import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.TestCaseMapper;
 import io.metersphere.base.mapper.TestCaseReviewMapper;
 import io.metersphere.base.mapper.TestCaseReviewTestCaseMapper;
 import io.metersphere.base.mapper.TestCaseReviewUsersMapper;
@@ -38,6 +39,8 @@ public class TestReviewTestCaseService {
     TestCaseReviewMapper testCaseReviewMapper;
     @Resource
     TestCaseReviewService testCaseReviewService;
+    @Resource
+    TestCaseMapper testCaseMapper;
 
     public List<TestReviewCaseDTO> list(QueryCaseReviewRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -111,9 +114,17 @@ public class TestReviewTestCaseService {
             MSException.throwException("此用例评审已到截止时间！");
         }
 
+        // 记录测试用例评审状态变更
         testCaseReviewTestCase.setStatus(testCaseReviewTestCase.getStatus());
         testCaseReviewTestCase.setReviewer(SessionUtils.getUser().getId());
         testCaseReviewTestCase.setUpdateTime(System.currentTimeMillis());
         testCaseReviewTestCaseMapper.updateByPrimaryKeySelective(testCaseReviewTestCase);
+
+        // 修改用例评审状态
+        String caseId = testCaseReviewTestCase.getCaseId();
+        TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
+        testCase.setId(caseId);
+        testCase.setReviewStatus(testCaseReviewTestCase.getStatus());
+        testCaseMapper.updateByPrimaryKeySelective(testCase);
     }
 }

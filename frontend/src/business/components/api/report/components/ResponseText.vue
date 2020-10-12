@@ -65,7 +65,6 @@ export default {
   },
 
   mounted() {
-    console.log(this.response.headers);
     if (!this.response.headers) {
       return;
     }

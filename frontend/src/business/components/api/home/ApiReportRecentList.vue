@@ -3,7 +3,7 @@
     <template v-slot:header>
       <span class="title">{{$t('api_report.title')}}</span>
     </template>
-    <el-table border :data="tableData" class="adjust-table table-content" @row-click="link">
+    <el-table border :data="tableData" class="adjust-table table-content" @row-click="link" height="300px">
       <el-table-column prop="name"  :label="$t('commons.name')" width="150" show-overflow-tooltip/>
       <el-table-column width="250" :label="$t('commons.create_time')">
         <template v-slot:default="scope">
