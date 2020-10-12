@@ -41,7 +41,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -492,7 +494,7 @@ public class TestCaseService {
                 if (t.getTestId() != null && t.getTestId().equals("other")) {
                     data.setRemark(t.getOtherTestName());
                 } else {
-                    data.setRemark(t.getApiName());
+                    data.setRemark("[" + t.getApiName() + "]" + "\n" + t.getRemark());
                 }
 
             } else if (t.getMethod().equals("auto") && t.getType().equals("performance")) {
