@@ -26,11 +26,15 @@
               </el-col>
 
               <el-col :span="12" class="head-right">
-                <span class="head-right-tip" v-if="index + 1 == testCases.length">
-                  {{ $t('test_track.plan_view.pre_case') }} : {{ testCases[index - 1] ? testCases[index - 1].name : '' }}
+                <span class="head-right-tip" v-if="index + 1 === testCases.length">
+                  {{ $t('test_track.plan_view.pre_case') }} : {{
+                    testCases[index - 1] ? testCases[index - 1].name : ''
+                  }}
                 </span>
-                <span class="head-right-tip" v-if="index + 1 != testCases.length">
-                  {{ $t('test_track.plan_view.next_case') }} : {{ testCases[index + 1] ? testCases[index + 1].name : '' }}
+                <span class="head-right-tip" v-if="index + 1 !== testCases.length">
+                  {{ $t('test_track.plan_view.next_case') }} : {{
+                    testCases[index + 1] ? testCases[index + 1].name : ''
+                  }}
                 </span>
 
                 <el-button plain size="mini" icon="el-icon-arrow-up"
@@ -49,7 +53,7 @@
 
             </el-row>
 
-            <el-row style="margin-top: 0px;">
+            <el-row style="margin-top: 0;">
               <el-col>
                 <el-divider content-position="left">{{ testCase.name }}</el-divider>
               </el-col>
@@ -65,9 +69,9 @@
               </el-col>
               <el-col :span="5">
                 <span class="cast_label">{{ $t('test_track.case.case_type') }}：</span>
-                <span class="cast_item" v-if="testCase.type == 'functional'">{{ $t('commons.functional') }}</span>
-                <span class="cast_item" v-if="testCase.type == 'performance'">{{ $t('commons.performance') }}</span>
-                <span class="cast_item" v-if="testCase.type == 'api'">{{ $t('commons.api') }}</span>
+                <span class="cast_item" v-if="testCase.type === 'functional'">{{ $t('commons.functional') }}</span>
+                <span class="cast_item" v-if="testCase.type === 'performance'">{{ $t('commons.performance') }}</span>
+                <span class="cast_item" v-if="testCase.type === 'api'">{{ $t('commons.api') }}</span>
               </el-col>
               <el-col :span="13">
                 <test-plan-test-case-status-button class="status-button"
@@ -81,8 +85,8 @@
             <el-row>
               <el-col :span="4" :offset="1">
                 <span class="cast_label">{{ $t('test_track.case.method') }}：</span>
-                <span v-if="testCase.method == 'manual'">{{ $t('test_track.case.manual') }}</span>
-                <span v-if="testCase.method == 'auto'">{{ $t('test_track.case.auto') }}</span>
+                <span v-if="testCase.method === 'manual'">{{ $t('test_track.case.manual') }}</span>
+                <span v-if="testCase.method === 'auto'">{{ $t('test_track.case.auto') }}</span>
               </el-col>
               <el-col :span="5">
                 <span class="cast_label">{{ $t('test_track.case.module') }}：</span>
@@ -101,25 +105,26 @@
               </el-col>
             </el-row>
 
-            <el-row v-if="testCase.method == 'auto' && testCase.testId">
+            <el-row v-if="testCase.method === 'auto' && testCase.testId">
               <el-col class="test-detail" :span="20" :offset="1">
                 <el-tabs v-model="activeTab" type="border-card" @tab-click="testTabChange">
                   <el-tab-pane name="detail" :label="$t('test_track.plan_view.test_detail')">
-                    <api-test-detail :is-read-only="isReadOnly" v-if="testCase.type == 'api'" @runTest="testRun"
+                    <api-test-detail :is-read-only="isReadOnly" v-if="testCase.type === 'api'" @runTest="testRun"
                                      :id="testCase.testId" ref="apiTestDetail"/>
-                    <performance-test-detail :is-read-only="isReadOnly" v-if="testCase.type == 'performance'"
+                    <performance-test-detail :is-read-only="isReadOnly" v-if="testCase.type === 'performance'"
                                              @runTest="testRun" :id="testCase.testId" ref="performanceTestDetail"/>
                   </el-tab-pane>
                   <el-tab-pane name="result" :label="$t('test_track.plan_view.test_result')">
-                    <api-test-result :report-id="testCase.reportId" v-if=" testCase.type == 'api'" ref="apiTestResult"/>
+                    <api-test-result :report-id="testCase.reportId" v-if=" testCase.type === 'api'"
+                                     ref="apiTestResult"/>
                     <performance-test-result :is-read-only="isReadOnly" :report-id="testCase.reportId"
-                                             v-if="testCase.type == 'performance'" ref="performanceTestResult"/>
+                                             v-if="testCase.type === 'performance'" ref="performanceTestResult"/>
                   </el-tab-pane>
                 </el-tabs>
               </el-col>
             </el-row>
 
-            <el-row v-if="testCase.method && testCase.method != 'auto'">
+            <el-row v-if="testCase.method && testCase.method !== 'auto'">
               <el-col :span="20" :offset="1">
                 <div>
                   <span class="cast_label">{{ $t('test_track.case.steps') }}：</span>
@@ -219,8 +224,11 @@
                 <ckeditor :editor="editor" :disabled="isReadOnly" :config="editorConfig"
                           v-model="testCase.issues.content"/>
                 <el-row v-if="hasTapdId">
-                  Tapd平台处理人：
-                  <el-select v-model="testCase.tapdUsers" placeholder="请选择处理人" style="width: 20%" multiple
+                  {{ $t('test_track.issue.please_choose_current_owner') }}
+                  <el-select v-model="testCase.tapdUsers"
+                             multiple
+                             style="width: 20%"
+                             :placeholder="$t('test_track.issue.please_choose_current_owner')"
                              collapse-tags>
                     <el-option v-for="(userInfo, index) in users" :key="index" :label="userInfo.user"
                                :value="userInfo.user"/>
@@ -277,7 +285,7 @@
               <el-col :span="15" :offset="1">
                 <div>
                   <span class="cast_label">{{ $t('commons.remark') }}：</span>
-                  <span v-if="testCase.remark == null || testCase.remark == ''"
+                  <span v-if="testCase.remark == null || testCase.remark === ''"
                         style="color: darkgrey">{{ $t('commons.not_filled') }}</span>
                 </div>
                 <div>
@@ -309,8 +317,7 @@ import ApiTestDetail from "./test/ApiTestDetail";
 import ApiTestResult from "./test/ApiTestResult";
 import PerformanceTestDetail from "./test/PerformanceTestDetail";
 import PerformanceTestResult from "./test/PerformanceTestResult";
-import {listenGoBack, removeGoBackListener} from "../../../../../../common/js/utils";
-import {CURRENT_PROJECT} from "../../../../../../common/js/constants";
+import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
 
 export default {
   name: "TestPlanTestCaseEdit",
@@ -332,7 +339,6 @@ export default {
       issues: [],
       editor: ClassicEditor,
       editorConfig: {
-        // 'increaseIndent','decreaseIndent'
         toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'insertTable', '|', 'undo', 'redo'],
       },
       readConfig: {toolbar: []},
@@ -388,7 +394,6 @@ export default {
       }
 
       param.results = JSON.stringify(param.results);
-      param.issues = JSON.stringify(this.testCase.issues);
       this.$post('/test/plan/case/edit', param, () => {
         this.$success(this.$t('commons.save_success'));
         this.updateTestCases(param);
@@ -448,11 +453,11 @@ export default {
     },
     initTest() {
       this.$nextTick(() => {
-        if (this.testCase.method == 'auto') {
-          if (this.$refs.apiTestDetail && this.testCase.type == 'api') {
+        if (this.testCase.method === 'auto') {
+          if (this.$refs.apiTestDetail && this.testCase.type === 'api') {
 
             this.$refs.apiTestDetail.init();
-          } else if (this.testCase.type == 'performance') {
+          } else if (this.testCase.type === 'performance') {
             this.$refs.performanceTestDetail.init();
           }
         }
@@ -464,7 +469,7 @@ export default {
       this.activeTab = 'result';
     },
     testTabChange(data) {
-      if (this.testCase.type == 'performance' && data.paneName == 'result') {
+      if (this.testCase.type === 'performance' && data.paneName === 'result') {
         this.$refs.performanceTestResult.checkReportStatus();
         this.$refs.performanceTestResult.init();
       }
@@ -485,7 +490,7 @@ export default {
       });
     },
     getRelatedTest() {
-      if (this.testCase.method == 'auto' && this.testCase.testId && this.testCase.testId != 'other') {
+      if (this.testCase.method === 'auto' && this.testCase.testId && this.testCase.testId !== 'other') {
         this.$get('/' + this.testCase.type + '/get/' + this.testCase.testId, response => {
           let data = response.data;
           if (data) {
@@ -495,7 +500,7 @@ export default {
             this.$warning(this.$t("test_track.case.relate_test_not_find"));
           }
         });
-      } else if (this.testCase.testId === 'other' && this.testCase.method == 'auto') {
+      } else if (this.testCase.testId === 'other' && this.testCase.method === 'auto') {
         this.$warning(this.$t("test_track.case.other_relate_test_not_find"));
       }
     },
@@ -506,9 +511,9 @@ export default {
         let actualResult = this.addPLabel('[' + this.$t('test_track.plan_view.actual_result') + ']');
         this.testCase.steps.forEach(step => {
           let stepPrefix = this.$t('test_track.plan_view.step') + step.num + ':';
-          desc += this.addPLabel(stepPrefix + (step.desc == undefined ? '' : step.desc));
-          result += this.addPLabel(stepPrefix + (step.result == undefined ? '' : step.result));
-          actualResult += this.addPLabel(stepPrefix + (step.actualResult == undefined ? '' : step.actualResult));
+          desc += this.addPLabel(stepPrefix + (step.desc === undefined ? '' : step.desc));
+          result += this.addPLabel(stepPrefix + (step.result === undefined ? '' : step.result));
+          actualResult += this.addPLabel(stepPrefix + (step.actualResult === undefined ? '' : step.actualResult));
         });
         this.testCase.issues.content = desc + this.addPLabel('') + result + this.addPLabel('') + actualResult + this.addPLabel('');
 
@@ -517,8 +522,7 @@ export default {
           if (project.tapdId) {
             this.hasTapdId = true;
             this.result = this.$get("/issues/tapd/user/" + this.testCase.caseId, response => {
-              let data = response.data;
-              this.users = data;
+              this.users = response.data;
             })
           }
         })
@@ -531,27 +535,29 @@ export default {
       this.$post('/test/plan/edit/status/' + planId);
     },
     stepResultChange() {
-      if (this.testCase.method == 'manual') {
+      if (this.testCase.method === 'manual') {
         this.isFailure = this.testCase.steptResults.filter(s => {
           return s.executeResult === 'Failure' || s.executeResult === 'Blocking';
         }).length > 0;
       }
-
     },
     saveIssues() {
       if (!this.testCase.issues.title || !this.testCase.issues.content) {
         this.$warning(this.$t('test_track.issue.title_description_required'));
         return;
       }
+
       let param = {};
       param.title = this.testCase.issues.title;
       param.content = this.testCase.issues.content;
       param.testCaseId = this.testCase.caseId;
       param.tapdUsers = this.testCase.tapdUsers;
+
       this.result = this.$post("/issues/add", param, () => {
         this.$success(this.$t('commons.save_success'));
         this.getIssues(param.testCaseId);
       });
+
       this.issuesSwitch = false;
       this.testCase.issues.title = "";
       this.testCase.issues.content = "";
@@ -559,8 +565,7 @@ export default {
     },
     getIssues(caseId) {
       this.result = this.$get("/issues/get/" + caseId, response => {
-        let data = response.data;
-        this.issues = data;
+        this.issues = response.data;
       })
     },
     closeIssue(row) {

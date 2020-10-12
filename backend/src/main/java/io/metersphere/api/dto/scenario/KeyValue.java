@@ -16,16 +16,19 @@ public class KeyValue {
     private boolean enable;
 
     public KeyValue() {
+        this.enable = true;
     }
 
     public KeyValue(String name, String value) {
         this.name = name;
         this.value = value;
+        this.enable = true;
     }
 
     public KeyValue(String name, String value, String description) {
         this.name = name;
         this.value = value;
+        this.enable = true;
         this.description = description;
     }
 }

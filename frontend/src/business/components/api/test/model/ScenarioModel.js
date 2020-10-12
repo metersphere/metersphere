@@ -1276,21 +1276,22 @@ class JMXGenerator {
     if (request.controller.isValid() && request.controller.enable) {
       if (request.controller instanceof IfController) {
         let name = request.controller.label();
-        let variable = request.controller.variable;
+        let variable = "\"" + request.controller.variable + "\"";
         let operator = request.controller.operator;
-        let value = request.controller.value;
+        let value = "\"" + request.controller.value + "\"";
+
         if (operator === "=~" || operator === "!~") {
-          value = "\".*" + value + ".*\"";
+          value = "\".*" + request.controller.value + ".*\"";
         }
 
         if (operator === "is empty") {
-          variable = "empty(\"" + variable + "\")";
+          variable = "empty(" + variable + ")";
           operator = "";
           value = "";
         }
 
         if (operator === "is not empty") {
-          variable = "!empty(\"" + variable + "\")";
+          variable = "!empty(" + variable + ")";
           operator = "";
           value = "";
         }

@@ -717,6 +717,7 @@ export default {
       status_prepare: 'Prepare',
       status_pass: 'Pass',
       status_un_pass: 'UnPass',
+      cancel_relevance_project: "Disassociating the project will also cancel the associated test cases under the project",
       import: {
         import: "Import test case",
         case_import: "Import test case",
@@ -896,7 +897,9 @@ export default {
       delete: "Delete",
       title_description_required: "Title and description are required",
       close_success: "Closed successfully",
-      preview: "Preview"
+      preview: "Preview",
+      please_choose_current_owner: "Please choose current owner",
+      tapd_current_owner: "Tapd Current Owner：",
     }
   },
   test_resource_pool: {

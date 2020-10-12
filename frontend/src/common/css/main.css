@@ -50,7 +50,7 @@ body {
 
 /* <-- 表格拖拽表头调整宽度，在 t-bable 上添加 border 属性，并添加 adjust-table 类名*/
 .adjust-table td {
-  border: 0;
+  border-right: 0;
 }
 
 .adjust-table th {
@@ -76,7 +76,7 @@ body {
 }
 
 .adjust-table tr:hover td {
-  border: 0;
+  border-right: 0;
 }
 
 /* 表格拖拽表头调整宽度 --> */
