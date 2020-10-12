@@ -20,6 +20,9 @@
         <el-tab-pane :label="$t('api_test.environment.database_config')" name="sql">
           <ms-database-config :configs="environment.config.databaseConfigs"/>
         </el-tab-pane>
+        <el-tab-pane :label="$t('api_test.environment.tcp_config')" name="tcp">
+          <ms-tcp-config :config="environment.config.tcpConfig"/>
+        </el-tab-pane>
       </el-tabs>
 
       <div class="environment-footer">
@@ -35,16 +38,18 @@
   import MsApiScenarioVariables from "../ApiScenarioVariables";
   import MsApiKeyValue from "../ApiKeyValue";
   import MsDialogFooter from "../../../../common/components/MsDialogFooter";
-  import {REQUEST_HEADERS} from "../../../../../../common/js/constants";
+  import {REQUEST_HEADERS} from "@/common/js/constants";
   import {Environment} from "../../model/EnvironmentModel";
   import MsApiHostTable from "../ApiHostTable";
   import MsDatabaseConfig from "../request/database/DatabaseConfig";
   import MsEnvironmentHttpConfig from "./EnvironmentHttpConfig";
   import MsEnvironmentCommonConfig from "./EnvironmentCommonConfig";
+  import MsTcpConfig from "@/business/components/api/test/components/request/tcp/TcpConfig";
 
   export default {
     name: "EnvironmentEdit",
     components: {
+      MsTcpConfig,
       MsEnvironmentCommonConfig,
       MsEnvironmentHttpConfig,
       MsDatabaseConfig, MsApiHostTable, MsDialogFooter, MsApiKeyValue, MsApiScenarioVariables},

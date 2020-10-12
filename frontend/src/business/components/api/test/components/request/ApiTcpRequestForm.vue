@@ -1,5 +1,5 @@
 <template>
-  <el-form class="tcp" :model="request" :rules="rules" ref="request" label-width="120px" :disabled="isReadOnly">
+  <el-form class="tcp" :model="request" :rules="rules" ref="request" label-width="auto" :disabled="isReadOnly">
 
     <el-form-item :label="$t('api_test.request.name')" prop="name">
       <el-input v-model="request.name" maxlength="300" show-word-limit/>
@@ -12,30 +12,43 @@
     </el-form-item>
 
     <el-row :gutter="10">
-      <el-col :span="12">
+      <el-col :span="16">
         <el-form-item :label="$t('api_test.request.tcp.server')" prop="server">
           <el-input v-model="request.server" maxlength="300" show-word-limit/>
         </el-form-item>
       </el-col>
-      <el-col :span="4">
-        <el-form-item :label="$t('api_test.request.tcp.port')" prop="port">
+      <el-col :span="8">
+        <el-form-item :label="$t('api_test.request.tcp.port')" prop="port" label-width="60px">
           <el-input-number v-model="request.port" controls-position="right" :min="0" :max="65535"/>
-        </el-form-item>
-      </el-col>
-      <el-col :span="4">
-        <el-form-item :label="$t('api_test.request.tcp.connect')" prop="ctimeout">
-          <el-input-number v-model="request.ctimeout" controls-position="right" :min="0"/>
-        </el-form-item>
-      </el-col>
-      <el-col :span="4">
-        <el-form-item :label="$t('api_test.request.tcp.response')" prop="timeout">
-          <el-input-number v-model="request.timeout" controls-position="right" :min="0"/>
         </el-form-item>
       </el-col>
     </el-row>
 
     <el-row :gutter="10">
-      <el-col :span="4">
+      <el-col :span="6">
+        <el-form-item :label="$t('api_test.request.tcp.connect')" prop="ctimeout">
+          <el-input-number v-model="request.ctimeout" controls-position="right" :min="0"/>
+        </el-form-item>
+      </el-col>
+      <el-col :span="6">
+        <el-form-item :label="$t('api_test.request.tcp.response')" prop="timeout">
+          <el-input-number v-model="request.timeout" controls-position="right" :min="0"/>
+        </el-form-item>
+      </el-col>
+      <el-col :span="6">
+        <el-form-item :label="$t('api_test.request.tcp.so_linger')" prop="soLinger">
+          <el-input v-model="request.soLinger"/>
+        </el-form-item>
+      </el-col>
+      <el-col :span="6">
+        <el-form-item :label="$t('api_test.request.tcp.eol_byte')" prop="eolByte">
+          <el-input v-model="request.eolByte"/>
+        </el-form-item>
+      </el-col>
+    </el-row>
+
+    <el-row :gutter="10">
+      <el-col :span="6">
         <el-form-item>
           <el-switch
             v-model="request.useEnvironment"
@@ -44,38 +57,28 @@
           </el-switch>
         </el-form-item>
       </el-col>
-      <el-col :span="4">
-        <el-form-item label-width="0">
+      <el-col :span="6">
+        <el-form-item>
           <el-switch
             v-model="request.reUseConnection"
             :active-text="$t('api_test.request.tcp.re_use_connection')">
           </el-switch>
         </el-form-item>
       </el-col>
-      <el-col :span="4">
-        <el-form-item label-width="0">
+      <el-col :span="6">
+        <el-form-item>
           <el-switch
             v-model="request.closeConnection"
             :active-text="$t('api_test.request.tcp.close_connection')">
           </el-switch>
         </el-form-item>
       </el-col>
-      <el-col :span="4">
-        <el-form-item label-width="0">
+      <el-col :span="6">
+        <el-form-item>
           <el-switch
             v-model="request.nodelay"
             :active-text="$t('api_test.request.tcp.no_delay')">
           </el-switch>
-        </el-form-item>
-      </el-col>
-      <el-col :span="4">
-        <el-form-item :label="$t('api_test.request.tcp.so_linger')" prop="soLinger">
-          <el-input v-model="request.soLinger"/>
-        </el-form-item>
-      </el-col>
-      <el-col :span="4">
-        <el-form-item :label="$t('api_test.request.tcp.eol_byte')" prop="eolByte">
-          <el-input v-model="request.eolByte"/>
         </el-form-item>
       </el-col>
     </el-row>

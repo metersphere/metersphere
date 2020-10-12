@@ -1,4 +1,5 @@
 import {BaseConfig, DatabaseConfig, KeyValue} from "./ScenarioModel";
+import {TCPConfig} from "@/business/components/api/test/model/ScenarioModel";
 
 export class Environment extends BaseConfig {
   constructor(options = {}) {
@@ -26,14 +27,17 @@ export class Config extends BaseConfig {
     this.commonConfig = undefined;
     this.httpConfig = undefined;
     this.databaseConfigs = [];
+    this.tcpConfig = undefined;
 
     this.set(options);
     this.sets({databaseConfigs: DatabaseConfig}, options);
   }
+
   initOptions(options = {}) {
     this.commonConfig = new CommonConfig(options.commonConfig);
     this.httpConfig = new HttpConfig(options.httpConfig);
     options.databaseConfigs = options.databaseConfigs || [];
+    options.tcpConfig = new TCPConfig(options.tcpConfig);
     return options;
   }
 }
@@ -89,7 +93,6 @@ export class Host extends BaseConfig {
     this.set(options);
   }
 }
-
 
 
 /* ---------- Functions ------- */
