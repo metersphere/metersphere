@@ -168,7 +168,7 @@
       }
     },
     created() {
-      if (this.parameters.length === 0) {
+      if (this.parameters.length === 0 || this.parameters[this.parameters.length - 1].name) {
         this.parameters.push(new KeyValue( {type: 'text', enable: true, uuid: this.uuid(), contentType: 'text/plain'}));
       }
     }
