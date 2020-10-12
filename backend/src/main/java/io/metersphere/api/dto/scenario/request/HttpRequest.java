@@ -4,8 +4,6 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
-import io.metersphere.api.dto.scenario.processor.BeanShellPostProcessor;
-import io.metersphere.api.dto.scenario.processor.BeanShellPreProcessor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -31,10 +29,6 @@ public class HttpRequest extends Request {
     private List<KeyValue> headers;
     @JSONField(ordinal = 8)
     private Body body;
-    @JSONField(ordinal = 11)
-    private BeanShellPreProcessor beanShellPreProcessor;
-    @JSONField(ordinal = 12)
-    private BeanShellPostProcessor beanShellPostProcessor;
     @JSONField(ordinal = 14)
     private Long connectTimeout;
     @JSONField(ordinal = 15)

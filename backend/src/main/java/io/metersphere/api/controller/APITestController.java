@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+
 import java.util.List;
 
 @RestController
@@ -36,6 +37,7 @@ public class APITestController {
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
         QueryAPITestRequest request = new QueryAPITestRequest();
         request.setWorkspaceId(currentWorkspaceId);
+        request.setUserId(SessionUtils.getUserId());
         PageHelper.startPage(1, count, true);
         return apiTestService.recentTest(request);
     }

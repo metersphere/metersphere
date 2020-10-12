@@ -116,6 +116,7 @@ export default {
     id: 'ID',
     millisecond: '毫秒',
     cannot_be_null: '不能为空',
+    required: "{0}是必填的",
     already_exists: '名称不能重复',
     date: {
       select_date: '选择日期',
@@ -305,7 +306,7 @@ export default {
     api_test_report: '接口测试报告',
     load_test_report: '性能测试报告',
     test_plan_report: '测试计划报告',
-    recent: '最近的报告',
+    recent: '我最近的报告',
     search_by_name: '根据名称搜索',
     test_name: '所属测试',
     test_overview: '测试概览',
@@ -342,7 +343,7 @@ export default {
     same_project_test: '只能运行同一项目内的测试',
     already_exists: '测试名称不能重复',
     operating: '操作',
-    recent: '最近的测试',
+    recent: '我最近的测试',
     search_by_name: '根据名称搜索',
     project_name: '所属项目',
     delete_confirm: '确认删除测试: ',
@@ -436,6 +437,7 @@ export default {
       common_config: "通用配置",
       http_config: "HTTP配置",
       database_config: "数据库配置",
+      tcp_config: "TCP配置",
     },
     scenario: {
       scenario: "场景",
@@ -572,6 +574,22 @@ export default {
         dataSource_cannot_be_empty: "SQL请求数据源不能为空",
         result_variable: "存储结果",
         variable_names: "按列存储",
+      },
+      tcp: {
+        server: "服务器名或IP",
+        port: "端口",
+        connect: "连接(ms)",
+        response: "响应(ms)",
+        re_use_connection: "Re-use connection",
+        no_delay: "设置无延迟",
+        close_connection: "关闭连接",
+        so_linger: "SO LINGER",
+        eol_byte: "行尾(EOL)字节值",
+        request: "要发送的文本",
+        username: "用户名",
+        password: "密码",
+        login: "登录设置",
+        server_cannot_be_empty: "服务器名或IP不能为空",
       }
     },
     api_import: {
@@ -635,8 +653,8 @@ export default {
     save: "保 存",
     return: "返 回",
     length_less_than: "长度必须小于",
-    recent_plan: "最近的计划",
-    recent_case: "最近的用例",
+    recent_plan: "我最近的计划",
+    recent_case: "我最近的用例",
     recent_review: "最近的评审",
     pass_rate: "通过率",
     execution_result: ": 请选择执行结果",
@@ -701,6 +719,7 @@ export default {
       status_prepare: '未开始',
       status_pass: '通过',
       status_un_pass: '未通过',
+      cancel_relevance_project: "取消项目关联会同时取消该项目下已关联的测试用例",
       import: {
         import: "导入用例",
         case_import: "导入测试用例",
@@ -880,7 +899,9 @@ export default {
       delete: "删除缺陷",
       title_description_required: "标题和描述必填",
       close_success: "关闭成功",
-      preview: "预览"
+      preview: "预览",
+      please_choose_current_owner: "请选择处理人",
+      tapd_current_owner: "Tapd平台处理人：",
     }
   },
   test_resource_pool: {

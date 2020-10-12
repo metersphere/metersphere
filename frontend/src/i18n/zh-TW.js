@@ -116,6 +116,7 @@ export default {
     id: 'ID',
     millisecond: '毫秒',
     cannot_be_null: '不能為空',
+    required: "{0}是必填的",
     already_exists: '名稱不能重復',
     date: {
       select_date: '選擇日期',
@@ -305,7 +306,7 @@ export default {
     api_test_report: '接口測試報告',
     load_test_report: '性能測試報告',
     test_plan_report: '測試計劃報告',
-    recent: '最近的報告',
+    recent: '我最近的報告',
     search_by_name: '根據名稱搜索',
     test_name: '所屬測試',
     test_overview: '測試概覽',
@@ -342,7 +343,7 @@ export default {
     same_project_test: '只能運行同壹項目內的測試',
     already_exists: '測試名稱不能重復',
     operating: '操作',
-    recent: '最近的測試',
+    recent: '我最近的測試',
     search_by_name: '根據名稱搜索',
     project_name: '所屬項目',
     delete_confirm: '確認刪除測試: ',
@@ -436,6 +437,7 @@ export default {
       common_config: "通用配置",
       http_config: "HTTP配置",
       database_config: "數據庫配置",
+      tcp_config: "TCP配置",
     },
     scenario: {
       scenario: "場景",
@@ -574,6 +576,22 @@ export default {
         variable_names: "按列存儲",
       }
     },
+    tcp: {
+      server: "服務器名或IP",
+      port: "端口",
+      connect: "連接(ms)",
+      response: "響應(ms)",
+      re_use_connection: "Re-use connection",
+      no_delay: "設置無延遲",
+      close_connection: "關閉連接",
+      so_linger: "SO LINGER",
+      eol_byte: "行尾（EOL）字節值",
+      request: "要發送的文本",
+      username: "用戶名",
+      password: "密碼",
+      login: "登錄設置",
+      server_cannot_be_empty: "服務器名或IP不能為空",
+    },
     api_import: {
       label: "導入",
       title: "接口測試導入",
@@ -635,8 +653,8 @@ export default {
     save: "保 存",
     return: "返 回",
     length_less_than: "長度必須小於",
-    recent_plan: "最近的計劃",
-    recent_case: "最近的用例",
+    recent_plan: "我最近的計劃",
+    recent_case: "我最近的用例",
     recent_review: "最近的評審",
     pass_rate: "通過率",
     execution_result: ": 請選擇執行結果",
@@ -701,6 +719,7 @@ export default {
       status_prepare: '未開始',
       status_pass: '通過',
       status_un_pass: '未通過',
+      cancel_relevance_project: "取消項目關聯會同時取消該項目下已關聯的測試用例",
       import: {
         import: "導入用例",
         case_import: "導入測試用例",
@@ -880,7 +899,9 @@ export default {
       delete: "刪除缺陷",
       title_description_required: "標題和描述必填",
       close_success: "關閉成功",
-      preview: "預覽"
+      preview: "預覽",
+      please_choose_current_owner: "請選擇處理人",
+      tapd_current_owner: "Tapd平台處理人：",
     }
   },
   test_resource_pool: {

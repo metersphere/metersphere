@@ -84,6 +84,9 @@
             <if test="reportRequest.name != null">
                 AND ltr.name like CONCAT('%', #{reportRequest.name},'%')
             </if>
+            <if test="reportRequest.userId != null">
+                AND ltr.user_id = #{reportRequest.userId,jdbcType=VARCHAR}
+            </if>
             <if test="reportRequest.workspaceId != null">
                 AND workspace_id = #{reportRequest.workspaceId,jdbcType=VARCHAR}
             </if>

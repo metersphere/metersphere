@@ -63,6 +63,7 @@ public class TestCaseController {
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
         QueryTestCaseRequest request = new QueryTestCaseRequest();
         request.setWorkspaceId(currentWorkspaceId);
+        request.setUserId(SessionUtils.getUserId());
         return testCaseService.recentTestPlans(request, count);
     }
 

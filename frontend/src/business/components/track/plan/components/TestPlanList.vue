@@ -20,7 +20,7 @@
         show-overflow-tooltip>
       </el-table-column>
       <el-table-column
-        prop="principal"
+        prop="userName"
         :label="$t('test_track.plan.plan_principal')"
         show-overflow-tooltip>
       </el-table-column>
@@ -141,7 +141,7 @@ import MsTableOperatorButton from "../../../common/components/MsTableOperatorBut
 import MsTableOperator from "../../../common/components/MsTableOperator";
 import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
 import PlanStageTableItem from "../../common/tableItems/plan/PlanStageTableItem";
-import {_filter, _sort, checkoutTestManagerOrTestUser} from "../../../../../common/js/utils";
+import {_filter, _sort, checkoutTestManagerOrTestUser} from "@/common/js/utils";
 import TestReportTemplateList from "../view/comonents/TestReportTemplateList";
 import TestCaseReportView from "../view/comonents/report/TestCaseReportView";
 import MsDeleteConfirm from "../../../common/components/MsDeleteConfirm";

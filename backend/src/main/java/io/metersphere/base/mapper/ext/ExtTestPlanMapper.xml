@@ -4,7 +4,8 @@
 
     <resultMap id="BaseResultMap" type="io.metersphere.track.dto.TestPlanDTO"
                extends="io.metersphere.base.mapper.TestPlanMapper.BaseResultMap">
-        <result column="project_name" property="projectName"/>
+        <result column="project_name" property="projectName" jdbcType="VARCHAR"/>
+        <result column="user_name" property="userName" jdbcType="VARCHAR"/>
     </resultMap>
     <sql id="condition">
         <choose>
@@ -97,7 +98,8 @@
 
     <select id="list" resultMap="BaseResultMap"
             parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
-        select test_plan.* from test_plan
+        select test_plan.*, user.name as user_name from test_plan
+        LEFT JOIN user ON user.id = test_plan.principal
         <where>
             <if test="request.combine != null">
                 <include refid="combine">

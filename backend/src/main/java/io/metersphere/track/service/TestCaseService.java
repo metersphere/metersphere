@@ -252,7 +252,7 @@ public class TestCaseService {
         PageHelper.startPage(1, count, true);
 
         TestCaseExample testCaseExample = new TestCaseExample();
-        testCaseExample.createCriteria().andProjectIdIn(projectIds);
+        testCaseExample.createCriteria().andProjectIdIn(projectIds).andMaintainerEqualTo(request.getUserId());
         testCaseExample.setOrderByClause("update_time desc, sort desc");
         return testCaseMapper.selectByExample(testCaseExample);
     }

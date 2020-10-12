@@ -34,6 +34,7 @@ public class APIReportController {
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
         QueryAPIReportRequest request = new QueryAPIReportRequest();
         request.setWorkspaceId(currentWorkspaceId);
+        request.setUserId(SessionUtils.getUserId());
         PageHelper.startPage(1, count, true);
         return apiReportService.recentTest(request);
     }

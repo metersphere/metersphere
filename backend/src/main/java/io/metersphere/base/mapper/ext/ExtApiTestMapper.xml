@@ -120,6 +120,9 @@
             <if test="request.id != null">
                 AND api_test.id = #{request.id}
             </if>
+            <if test="request.userId != null">
+                AND api_test.user_id = #{request.userId}
+            </if>
             <if test="request.filters != null and request.filters.size() > 0">
                 <foreach collection="request.filters.entrySet()" index="key" item="values">
 

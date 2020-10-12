@@ -30,14 +30,25 @@ public class XmindCaseParser {
     private TestCaseService testCaseService;
     private String maintainer;
     private String projectId;
-    private StringBuffer process; // 过程校验记录
-    // 已存在用例名称
+    /**
+     * 过程校验记录
+     */
+    private StringBuffer process;
+    /**
+     * 已存在用例名称
+     */
     private Set<String> testCaseNames;
-    // 转换后的案例信息
+    /**
+     * 转换后的案例信息
+     */
     private List<TestCaseWithBLOBs> testCases;
-    // 案例详情重写了hashCode方法去重用
+    /**
+     * 案例详情重写了hashCode方法去重用
+     */
     private List<TestCaseExcelData> compartDatas;
-    // 记录没有用例的目录
+    /**
+     * 记录没有用例的目录
+     */
     private List<String> nodePaths;
 
     public XmindCaseParser(TestCaseService testCaseService, String userId, String projectId, Set<String> testCaseNames) {
@@ -89,7 +100,9 @@ public class XmindCaseParser {
         });
     }
 
-    // 递归处理案例数据
+    /**
+     * 递归处理案例数据
+     */
     private void recursion(Attached parent, int level, List<Attached> attacheds) {
         for (Attached item : attacheds) {
             if (isAvailable(item.getTitle(), TC_REGEX)) { // 用例
@@ -115,23 +128,27 @@ public class XmindCaseParser {
     }
 
     private boolean isAvailable(String str, String regex) {
-        if (StringUtils.isEmpty(str) || StringUtils.isEmpty(regex))
+        if (StringUtils.isEmpty(str) || StringUtils.isEmpty(regex)) {
             return false;
+        }
         Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
         Matcher result = pattern.matcher(str);
         return result.find();
     }
 
     private String replace(String str, String regex) {
-        if (StringUtils.isEmpty(str) || StringUtils.isEmpty(regex))
+        if (StringUtils.isEmpty(str) || StringUtils.isEmpty(regex)) {
             return str;
+        }
         Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
         Matcher result = pattern.matcher(str);
         str = result.replaceAll("");
         return str;
     }
 
-    // 获取步骤数据
+    /**
+     * 获取步骤数据
+     */
     private String getSteps(List<Attached> attacheds) {
         JSONArray jsonArray = new JSONArray();
         for (int i = 0; i < attacheds.size(); i++) {
@@ -147,7 +164,9 @@ public class XmindCaseParser {
         return jsonArray.toJSONString();
     }
 
-    // 初始化一个用例
+    /**
+     * 初始化一个用例
+     */
     private void newTestCase(String title, String nodePath, List<Attached> attacheds) {
         TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
         testCase.setProjectId(projectId);
@@ -157,7 +176,7 @@ public class XmindCaseParser {
         testCase.setType("functional");
 
         String tc = title.replace("：", ":");
-        String tcArr[] = tc.split(":");
+        String[] tcArr = tc.split(":");
         if (tcArr.length != 2) {
             process.append(Translator.get("test_case_name") + "【 " + title + " 】" + Translator.get("incorrect_format"));
             return;
@@ -175,7 +194,7 @@ public class XmindCaseParser {
 
         // 用例等级和用例性质处理
         if (tcArr[0].indexOf("-") != -1) {
-            String otArr[] = tcArr[0].split("-");
+            String[] otArr = tcArr[0].split("-");
             for (String item : otArr) {
                 if (item.toUpperCase().startsWith("P")) {
                     testCase.setPriority(item.toUpperCase());
@@ -222,7 +241,9 @@ public class XmindCaseParser {
         compartDatas.add(compartData);
     }
 
-    // 验证合法性
+    /**
+     * 验证合法性
+     */
     private boolean validate(TestCaseWithBLOBs data) {
         String nodePath = data.getNodePath();
         StringBuilder stringBuilder = new StringBuilder();
@@ -265,7 +286,9 @@ public class XmindCaseParser {
         return true;
     }
 
-    // 导入思维导图处理
+    /**
+     * 导入思维导图处理
+     */
     public String parse(MultipartFile multipartFile) {
         try {
             // 获取思维导图内容
@@ -274,7 +297,8 @@ public class XmindCaseParser {
                 if (root != null && root.getRootTopic() != null && root.getRootTopic().getChildren() != null) {
                     // 判断是模块还是用例
                     for (Attached item : root.getRootTopic().getChildren().getAttached()) {
-                        if (isAvailable(item.getTitle(), TC_REGEX)) { // 用例
+                        // 用例
+                        if (isAvailable(item.getTitle(), TC_REGEX)) {
                             return replace(item.getTitle(), TC_REGEX) + "：" + Translator.get("test_case_create_module_fail");
                         } else {
                             String nodePath = item.getTitle();
@@ -288,7 +312,8 @@ public class XmindCaseParser {
                                 if (nodePath.endsWith("/")) {
                                     nodePath = nodePath.substring(0, nodePath.length() - 1);
                                 }
-                                nodePaths.add(nodePath); // 没有用例的路径
+                                // 没有用例的路径
+                                nodePaths.add(nodePath);
                             }
                         }
                     }

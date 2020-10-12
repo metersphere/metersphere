@@ -16,7 +16,8 @@ import lombok.Data;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = HttpRequest.class, name = RequestType.HTTP),
         @JsonSubTypes.Type(value = DubboRequest.class, name = RequestType.DUBBO),
-        @JsonSubTypes.Type(value = SqlRequest.class, name = RequestType.SQL)
+        @JsonSubTypes.Type(value = SqlRequest.class, name = RequestType.SQL),
+        @JsonSubTypes.Type(value = TCPRequest.class, name = RequestType.TCP)
 })
 @JSONType(seeAlso = {HttpRequest.class, DubboRequest.class, SqlRequest.class}, typeKey = "type")
 @Data

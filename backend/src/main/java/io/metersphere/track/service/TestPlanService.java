@@ -37,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -119,7 +120,7 @@ public class TestPlanService {
         if (TestPlanStatus.Underway.name().equals(testPlan.getStatus())) {
             testPlan.setActualStartTime(System.currentTimeMillis());
 
-        } else if(TestPlanStatus.Completed.name().equals(testPlan.getStatus())){
+        } else if (TestPlanStatus.Completed.name().equals(testPlan.getStatus())) {
             //已完成，写入实际完成时间
             testPlan.setActualEndTime(System.currentTimeMillis());
         }
@@ -248,7 +249,8 @@ public class TestPlanService {
             return null;
         }
         TestPlanExample testPlanTestCaseExample = new TestPlanExample();
-        testPlanTestCaseExample.createCriteria().andWorkspaceIdEqualTo(currentWorkspaceId);
+        testPlanTestCaseExample.createCriteria().andWorkspaceIdEqualTo(currentWorkspaceId)
+                .andPrincipalEqualTo(SessionUtils.getUserId());
         testPlanTestCaseExample.setOrderByClause("update_time desc");
         return testPlanMapper.selectByExample(testPlanTestCaseExample);
     }
