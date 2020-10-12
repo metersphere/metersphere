@@ -137,8 +137,10 @@ public class Swagger2Parser extends ApiImportAbstractParser {
             Model model = definitions.get(simpleRef);
             HashSet<String> refSet = new HashSet<>();
             refSet.add(simpleRef);
-            JSONObject bodyParameters = getBodyJSONObjectParameters(model.getProperties(), definitions, refSet);
-            body.setRaw(bodyParameters.toJSONString());
+            if (model != null ) {
+                JSONObject bodyParameters = getBodyJSONObjectParameters(model.getProperties(), definitions, refSet);
+                body.setRaw(bodyParameters.toJSONString());
+            }
         } else if (schema instanceof ArrayModel) {
             ArrayModel arrayModel = (ArrayModel) bodyParameter.getSchema();
             Property items = arrayModel.getItems();
