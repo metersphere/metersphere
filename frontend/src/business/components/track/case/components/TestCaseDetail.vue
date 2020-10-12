@@ -14,12 +14,7 @@
 
       <el-col :span="11" :offset="2">
         <el-form-item :label="$t('test_track.case.module')" :label-width="formLabelWidth" prop="module">
-          <el-select
-            v-model="testCase.module"
-            :disabled="readOnly"
-            :placeholder="$t('test_track.case.input_module')"
-            filterable>
-          </el-select>
+          <el-input class="case-name" :disabled="readOnly" v-model="testCase.nodePath"></el-input>
         </el-form-item>
       </el-col>
     </el-row>
@@ -46,12 +41,18 @@
         <el-form-item :label="$t('test_track.case.type')" :label-width="formLabelWidth" prop="type">
           <el-select :disabled="readOnly" v-model="testCase.type"
                      :placeholder="$t('test_track.case.input_type')">
+            <el-option :label="$t('commons.functional')" value="functional"></el-option>
+            <el-option :label="$t('commons.performance')" value="performance"></el-option>
+            <el-option :label="$t('commons.api')" value="api"></el-option>
           </el-select>
+
         </el-form-item>
       </el-col>
       <el-col :span="12">
         <el-form-item :label="$t('test_track.case.method')" :label-width="formLabelWidth" prop="method">
           <el-select :disabled="readOnly" v-model="testCase.method" :placeholder="$t('test_track.case.input_method')">
+            <el-option :label="$t('test_track.case.auto')" value="auto"></el-option>
+            <el-option :label="$t('test_track.case.manual')" value="manual"></el-option>
           </el-select>
         </el-form-item>
       </el-col>
@@ -67,7 +68,8 @@
       </el-col>
       <el-col :span="9" :offset="1" v-if="testCase.testId=='other'">
         <el-form-item :label="$t('test_track.case.test_name')" :label-width="formLabelWidth" prop="testId">
-          <el-input v-model="testCase.otherTestName" :placeholder="$t('test_track.case.input_test_case')"></el-input>
+          <el-input v-model="testCase.otherTestName" :placeholder="$t('test_track.case.input_test_case')"
+                    :disabled="readOnly"></el-input>
         </el-form-item>
       </el-col>
     </el-row>
