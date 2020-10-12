@@ -99,7 +99,7 @@
     <select id="list" resultMap="BaseResultMap"
             parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
         select test_plan.*, user.name as user_name from test_plan
-        JOIN user ON user.id = test_plan.principal
+        LEFT JOIN user ON user.id = test_plan.principal
         <where>
             <if test="request.combine != null">
                 <include refid="combine">
