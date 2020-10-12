@@ -99,6 +99,8 @@ export default {
     clone(row) {
       let scenarios = [];
       row.selected.forEach(options => {
+        // 去掉ID，创建新的ID
+        options.id = undefined;
         scenarios.push(new Scenario(options));
       })
       this.$emit('select', scenarios);

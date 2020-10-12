@@ -29,12 +29,7 @@ public abstract class EasyExcelListener<T> extends AnalysisEventListener<T> {
      */
     protected static final int BATCH_COUNT = 2000;
 
-    protected Class<T> clazz;
-
-    public EasyExcelListener() {
-        Type type = getClass().getGenericSuperclass();
-        this.clazz = (Class<T>) ((ParameterizedType) type).getActualTypeArguments()[0];
-    }
+    protected Class clazz;
 
     /**
      * 每条数据解析都会调用

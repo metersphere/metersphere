@@ -41,7 +41,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -317,8 +319,9 @@ public class TestCaseService {
             Set<String> userIds = userRoleMapper.selectByExample(userRoleExample).stream().map(UserRole::getUserId).collect(Collectors.toSet());
 
             try {
-                EasyExcelListener easyExcelListener = new TestCaseDataListener(this, projectId, testCaseNames, userIds);
-                EasyExcelFactory.read(multipartFile.getInputStream(), new TestCaseExcelDataFactory().getExcelDataByLocal(), easyExcelListener).sheet().doRead();
+                Class clazz = new TestCaseExcelDataFactory().getExcelDataByLocal();
+                EasyExcelListener easyExcelListener = new TestCaseDataListener(clazz, projectId, testCaseNames, userIds);
+                EasyExcelFactory.read(multipartFile.getInputStream(), clazz, easyExcelListener).sheet().doRead();
                 errList = easyExcelListener.getErrList();
             } catch (Exception e) {
                 LogUtil.error(e.getMessage(), e);
@@ -492,7 +495,7 @@ public class TestCaseService {
                 if (t.getTestId() != null && t.getTestId().equals("other")) {
                     data.setRemark(t.getOtherTestName());
                 } else {
-                    data.setRemark(t.getApiName());
+                    data.setRemark("[" + t.getApiName() + "]" + "\n" + t.getRemark());
                 }
 
             } else if (t.getMethod().equals("auto") && t.getType().equals("performance")) {
