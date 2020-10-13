@@ -56,9 +56,18 @@
           show-overflow-tooltip
         >
           <template v-slot:default="scope">
-            <div @mouseover="showDetail(scope.row)">
+            <!--<div @mouseover="showDetail(scope.row)">
               <p>{{ scope.row.name }}</p>
-            </div>
+            </div>-->
+            <el-popover
+              placement="right-end"
+              :title="$t('test_track.case.view_case')"
+              width="60%"
+              trigger="hover"
+            >
+              <test-case-detail :test-case="scope.row"/>
+              <p slot="reference">{{ scope.row.name }}</p>
+            </el-popover>
           </template>
         </el-table-column>
         <el-table-column
@@ -164,7 +173,7 @@
   import {WORKSPACE_ID} from "../../../../../common/js/constants";
   import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
   import StatusTableItem from "@/business/components/track/common/tableItems/planview/StatusTableItem";
-
+  import TestCaseDetail from "./TestCaseDetail";
   export default {
     name: "TestCaseList",
     components: {
@@ -182,7 +191,8 @@
       MsTableHeader,
       ShowMoreBtn,
       BatchEdit,
-      StatusTableItem
+      StatusTableItem,
+      TestCaseDetail
     },
     data() {
       return {
