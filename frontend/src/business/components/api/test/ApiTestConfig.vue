@@ -8,7 +8,7 @@
               <el-input :disabled="isReadOnly" class="test-name" v-model="test.name" maxlength="60"
                         :placeholder="$t('api_test.input_name')"
                         show-word-limit>
-                <el-select :disabled="isReadOnly" class="test-project" v-model="test.projectId" slot="prepend"
+                <el-select filterable class="test-project" v-model="test.projectId" slot="prepend"
                            :placeholder="$t('api_test.select_project')">
                   <el-option v-for="project in projects" :key="project.id" :label="project.name" :value="project.id"/>
                 </el-select>
