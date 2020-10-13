@@ -74,7 +74,7 @@
                         :prop="'roles.' + index + '.id'"
                         :rules="{required: true, message: $t('role.please_choose_role'), trigger: 'change'}"
           >
-            <el-select v-model="role.id" :placeholder="$t('role.please_choose_role')">
+            <el-select filterable v-model="role.id" :placeholder="$t('role.please_choose_role')">
               <el-option
                 v-for="item in activeRole(role)"
                 :key="item.id"
@@ -93,7 +93,7 @@
                           :prop="'roles.' + index + '.ids'"
                           :rules="{required: true, message: $t('organization.select_organization'), trigger: 'change'}"
             >
-              <el-select v-model="role.ids" :placeholder="$t('organization.select_organization')" multiple>
+              <el-select filterable v-model="role.ids" :placeholder="$t('organization.select_organization')" multiple>
                 <el-option
                   v-for="item in form.orgList"
                   :key="item.id"
@@ -108,7 +108,7 @@
                           :prop="'roles.' + index + '.ids'"
                           :rules="{required: true, message: $t('workspace.select'), trigger: 'change'}"
             >
-              <el-select v-model="role.ids" :placeholder="$t('workspace.select')" multiple>
+              <el-select filterable v-model="role.ids" :placeholder="$t('workspace.select')" multiple>
                 <el-option
                   v-for="item in form.wsList"
                   :key="item.id"
@@ -123,7 +123,7 @@
                           :prop="'roles.' + index + '.ids'"
                           :rules="{required: true, message: $t('workspace.select'), trigger: 'change'}"
             >
-              <el-select v-model="role.ids" :placeholder="$t('workspace.select')" multiple>
+              <el-select filterable v-model="role.ids" :placeholder="$t('workspace.select')" multiple>
                 <el-option
                   v-for="item in form.wsList"
                   :key="item.id"
@@ -138,7 +138,7 @@
                           :prop="'roles.' + index + '.ids'"
                           :rules="{required: true, message: $t('workspace.select'), trigger: 'change'}"
             >
-              <el-select v-model="role.ids" :placeholder="$t('workspace.select')" multiple>
+              <el-select filterable v-model="role.ids" :placeholder="$t('workspace.select')" multiple>
                 <el-option
                   v-for="item in form.wsList"
                   :key="item.id"
@@ -187,7 +187,7 @@
                         :prop="'roles.' + index + '.id'"
                         :rules="{required: true, message: $t('role.please_choose_role'), trigger: 'change'}"
           >
-            <el-select v-model="role.id" :placeholder="$t('role.please_choose_role')" :disabled="!!role.id">
+            <el-select filterable v-model="role.id" :placeholder="$t('role.please_choose_role')" :disabled="!!role.id">
               <el-option
                 v-for="item in activeRole(role)"
                 :key="item.id"
@@ -204,7 +204,7 @@
                           :prop="'roles.' + index + '.ids'"
                           :rules="{required: true, message: $t('organization.select_organization'), trigger: 'change'}"
             >
-              <el-select v-model="role.ids" :placeholder="$t('organization.select_organization')" multiple>
+              <el-select filterable v-model="role.ids" :placeholder="$t('organization.select_organization')" multiple>
                 <el-option
                   v-for="item in form.orgList"
                   :key="item.id"
@@ -219,7 +219,7 @@
                           :prop="'roles.' + index + '.ids'"
                           :rules="{required: true, message: $t('workspace.select'), trigger: 'change'}"
             >
-              <el-select v-model="role.ids" :placeholder="$t('workspace.select')" multiple>
+              <el-select filterable v-model="role.ids" :placeholder="$t('workspace.select')" multiple>
                 <el-option
                   v-for="item in form.wsList"
                   :key="item.id"
@@ -234,7 +234,7 @@
                           :prop="'roles.' + index + '.ids'"
                           :rules="{required: true, message: $t('workspace.select'), trigger: 'change'}"
             >
-              <el-select v-model="role.ids" :placeholder="$t('workspace.select')" multiple>
+              <el-select filterable v-model="role.ids" :placeholder="$t('workspace.select')" multiple>
                 <el-option
                   v-for="item in form.wsList"
                   :key="item.id"
@@ -249,7 +249,7 @@
                           :prop="'roles.' + index + '.ids'"
                           :rules="{required: true, message: $t('workspace.select'), trigger: 'change'}"
             >
-              <el-select v-model="role.ids" :placeholder="$t('workspace.select')" multiple>
+              <el-select filterable v-model="role.ids" :placeholder="$t('workspace.select')" multiple>
                 <el-option
                   v-for="item in form.wsList"
                   :key="item.id"

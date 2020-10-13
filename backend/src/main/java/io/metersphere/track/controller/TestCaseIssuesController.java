@@ -1,7 +1,7 @@
 package io.metersphere.track.controller;
 
 import io.metersphere.base.domain.Issues;
-import io.metersphere.track.domain.TapdUser;
+import io.metersphere.track.issue.PlatformUser;
 import io.metersphere.track.service.IssuesService;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import org.springframework.web.bind.annotation.*;
@@ -42,7 +42,7 @@ public class TestCaseIssuesController {
     }
 
     @GetMapping("/tapd/user/{caseId}")
-    public List<TapdUser> getTapdUsers(@PathVariable String caseId) {
+    public List<PlatformUser> getPlatformUsers(@PathVariable String caseId) {
         return issuesService.getTapdProjectUsers(caseId);
     }
 
