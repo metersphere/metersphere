@@ -180,6 +180,7 @@
                         :disabled="isReadOnly"
                         v-model="scope.row.executeResult"
                         @change="stepResultChange()"
+                        filterable
                         size="mini">
                         <el-option :label="$t('test_track.plan_view.pass')" value="Pass"
                                    style="color: #7ebf50;"></el-option>
@@ -227,6 +228,7 @@
                   {{ $t('test_track.issue.please_choose_current_owner') }}
                   <el-select v-model="testCase.tapdUsers"
                              multiple
+                             filterable
                              style="width: 20%"
                              :placeholder="$t('test_track.issue.please_choose_current_owner')"
                              collapse-tags>

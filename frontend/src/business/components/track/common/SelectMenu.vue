@@ -1,53 +1,56 @@
 <template>
-  <el-menu :unique-opened="true" mode="horizontal" active-text-color="write"
-           class="project_menu">
-    <el-submenu index="1" popper-class="submenu">
-      <template v-slot:title>
-        <span class="menu-title">{{'[' + title + ']'}}</span>
-        <span> {{currentData == null ? '' : currentData.name}} </span>
-      </template>
-      <template v-slot:default>
-        <div style="height:400px;">
-          <el-scrollbar style="height:100%">
-            <label v-for="(item,index) in data" :key="index">
-              <el-menu-item @click="changeData(item)">
-                {{item.name}}
-                <i class="el-icon-check" v-if="currentData && item.id === currentData.id"></i>
-              </el-menu-item>
-            </label>
-          </el-scrollbar>
-        </div>
-      </template>
-    </el-submenu>
-  </el-menu>
+  <div>
+    <span class="menu-title">{{'[' + title + ']'}}</span>
+    <el-select filterable slot="prepend" v-model="value" @change="changeData" class="project_menu"
+               size="small">
+      <el-option v-for="(item,index) in data" :key="index" :label="item.name" :value="index"/>
+    </el-select>
+  </div>
 </template>
 
 <script>
-    export default {
-      name: "SelectMenu",
-      props: {
-        data: {
-          type: Array
-        },
-        currentData: {
-          type: Object
-        },
-        title: {
-          type: String
-        }
+  export default {
+    name: "SelectMenu",
+    props: {
+      data: {
+        type: Array
       },
-      methods: {
-        changeData(data) {
-          this.$emit("dataChange", data);
+      currentData: {
+        type: Object
+      },
+      title: {
+        type: String
+      }
+    },
+    data() {
+      return {
+        value: ''
+      }
+    },
+    watch: {
+      currentData(data) {
+        if (data != undefined && data != null) {
+          this.value = data.name;
         }
       }
+    },
+    methods: {
+      changeData(index) {
+        this.$emit("dataChange", this.data[index]);
+      }
     }
+  }
 </script>
 
 <style scoped>
+  .project_menu {
+    width: 214px;
+  }
 
   .menu-title {
     color: darkgrey;
+    margin-left: 10px;
+    margin-right: 10px;
   }
 
 </style>
