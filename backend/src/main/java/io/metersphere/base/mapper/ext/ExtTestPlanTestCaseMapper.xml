@@ -173,6 +173,12 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key=='executor'">
+                                and test_plan_test_case.executor in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
                             <otherwise>
                                 and test_plan_test_case.status in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
