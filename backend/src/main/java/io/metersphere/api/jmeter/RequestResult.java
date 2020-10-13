@@ -16,6 +16,8 @@ public class RequestResult {
 
     private long requestSize;
 
+    private long startTime;
+
     private int error;
 
     private boolean success;

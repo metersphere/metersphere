@@ -99,7 +99,7 @@
 
 
     <select id="getTestCaseNames" resultType="io.metersphere.base.domain.TestCase">
-        select test_case.id, test_case.name, test_case.priority, test_case.type
+        select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status
         from test_case
         <where>
             <if test="request.combine != null">
@@ -126,6 +126,12 @@
                         <choose>
                             <when test="key=='priority'">
                                 and test_case.priority in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='status'">
+                                and test_case.review_status in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
                                 </foreach>
@@ -181,6 +187,12 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key=='status'">
+                                and test_case.review_status in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
                             <otherwise>
                                 and test_case.method in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
@@ -224,6 +236,9 @@
                     #{id}
                 </foreach>
             </if>
+            <if test="request.projectId!=null">
+                and test_case.project_id=#{request.projectId}
+            </if>
         </where>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
@@ -235,5 +250,12 @@
 
     <select id="getMaxNumByProjectId" resultType="io.metersphere.base.domain.TestCase">
         select * from test_case where test_case.project_id = #{projectId} order by num desc limit 1;
+    </select>
+    <select id="checkIsHave" resultType="java.lang.String">
+        select distinct test_case.id
+        from test_case, project
+        where test_case.project_id = project.id
+        and project.workspace_id = #{workspaceId}
+        and test_case.id = #{caseId};
     </select>
 </mapper>

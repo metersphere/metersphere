@@ -22,13 +22,13 @@
                          @click="rerun(testId)">
                 {{ $t('report.test_execute_again') }}
               </el-button>
-              <!-- <el-button :disabled="isReadOnly" type="info" plain size="mini" @click="exports(reportName)">
-                 {{$t('report.export')}}
-               </el-button>-->
-              <!--
-              <el-button :disabled="isReadOnly" type="warning" plain size="mini">
-                {{$t('report.compare')}}
-              </el-button>-->
+              <el-button :disabled="isReadOnly" type="info" plain size="mini" @click="handleExport(reportName)">
+                 {{$t('test_track.plan_view.export_report')}}
+              </el-button>
+
+              <!--<el-button :disabled="isReadOnly" type="warning" plain size="mini">-->
+                <!--{{$t('report.compare')}}-->
+              <!--</el-button>-->
             </el-row>
           </el-col>
           <el-col :span="8">
@@ -54,10 +54,10 @@
               <ms-report-test-overview :report="report" ref="testOverview"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('report.test_request_statistics')">
-              <ms-report-request-statistics :report="report"/>
+              <ms-report-request-statistics :report="report" ref="requestStatistics"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('report.test_error_log')">
-              <ms-report-error-log :report="report"/>
+              <ms-report-error-log :report="report" ref="errorLog"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('report.test_log_details')">
               <ms-report-log-details :report="report"/>
@@ -65,6 +65,7 @@
           </el-tabs>
         </div>
 
+        <ms-performance-report-export :title="reportName" id="performanceReportExport" v-show="reportExportVisible" :report="report"/>
 
       </el-card>
       <el-dialog :title="$t('report.test_stop_now_confirm')" :visible.sync="dialogFormVisible" width="30%">
@@ -91,10 +92,15 @@ import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 
 import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
+import {exportPdf} from "../../../../common/js/utils";
+import html2canvas from 'html2canvas';
+import MsPerformanceReportExport from "./PerformanceReportExport";
+
 
 export default {
   name: "PerformanceReportView",
   components: {
+    MsPerformanceReportExport,
     MsReportErrorLog,
     MsReportLogDetails,
     MsReportRequestStatistics,
@@ -123,6 +129,7 @@ export default {
       isReadOnly: false,
       websocket: null,
       dialogFormVisible: false,
+      reportExportVisible: false,
       testPlan: {testResourcePoolId: null}
     }
   },
@@ -247,7 +254,27 @@ export default {
       this.$set(this.report, "status", 'Completed');
       this.initReportTimeInfo();
       window.console.log("socket closed.");
-    }
+    },
+    handleExport(name) {
+      this.result.loading = true;
+      this.reportExportVisible = true;
+      let reset = this.exportReportReset;
+
+      this.$nextTick(function () {
+        setTimeout(() => {
+          html2canvas(document.getElementById('performanceReportExport'), {
+            scale: 2
+          }).then(function(canvas) {
+            exportPdf(name, [canvas]);
+            reset();
+          });
+        }, 1000);
+      });
+    },
+    exportReportReset() {
+      this.reportExportVisible = false;
+      this.result.loading = false;
+    },
   },
   created() {
     this.isReadOnly = false;
@@ -305,14 +332,18 @@ export default {
 
 <style scoped>
 
-.ms-report-view-btns {
-  margin-top: 15px;
-}
+  .ms-report-view-btns {
+    margin-top: 15px;
+  }
 
-.ms-report-time-desc {
-  text-align: left;
-  display: block;
-  color: #5C7878;
-}
+  .ms-report-time-desc {
+    text-align: left;
+    display: block;
+    color: #5C7878;
+  }
+
+  .report-export .el-card {
+    margin-bottom: 15px;
+  }
 
 </style>

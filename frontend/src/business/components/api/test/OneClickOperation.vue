@@ -27,6 +27,7 @@
   import MsApiReportStatus from "../report/ApiReportStatus";
   import MsApiReportDialog from "./ApiReportDialog";
   import {getUUID} from "@/common/js/utils";
+  import {parseEnvironment} from "./model/EnvironmentModel";
 
 
   export default {
@@ -105,11 +106,17 @@
           let environments = response.data;
           let environmentMap = new Map();
           environments.forEach(environment => {
+            parseEnvironment(environment);
             environmentMap.set(environment.id, environment);
           });
           this.test.scenarioDefinition.forEach(scenario => {
               if (scenario.environmentId) {
-                scenario.environment = environmentMap.get(scenario.environmentId);
+                let env = environmentMap.get(scenario.environmentId);
+                if (!env) {
+                  scenario.environmentId = undefined;
+                } else {
+                  scenario.environment = env;
+                }
               }
             }
           )

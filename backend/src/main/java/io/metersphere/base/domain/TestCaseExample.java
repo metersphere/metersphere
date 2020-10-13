@@ -1183,6 +1183,76 @@ public class TestCaseExample {
             addCriterion("other_test_name not between", value1, value2, "otherTestName");
             return (Criteria) this;
         }
+
+        public Criteria andReviewStatusIsNull() {
+            addCriterion("review_status is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewStatusIsNotNull() {
+            addCriterion("review_status is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewStatusEqualTo(String value) {
+            addCriterion("review_status =", value, "reviewStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewStatusNotEqualTo(String value) {
+            addCriterion("review_status <>", value, "reviewStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewStatusGreaterThan(String value) {
+            addCriterion("review_status >", value, "reviewStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewStatusGreaterThanOrEqualTo(String value) {
+            addCriterion("review_status >=", value, "reviewStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewStatusLessThan(String value) {
+            addCriterion("review_status <", value, "reviewStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewStatusLessThanOrEqualTo(String value) {
+            addCriterion("review_status <=", value, "reviewStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewStatusLike(String value) {
+            addCriterion("review_status like", value, "reviewStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewStatusNotLike(String value) {
+            addCriterion("review_status not like", value, "reviewStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewStatusIn(List<String> values) {
+            addCriterion("review_status in", values, "reviewStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewStatusNotIn(List<String> values) {
+            addCriterion("review_status not in", values, "reviewStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewStatusBetween(String value1, String value2) {
+            addCriterion("review_status between", value1, value2, "reviewStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewStatusNotBetween(String value1, String value2) {
+            addCriterion("review_status not between", value1, value2, "reviewStatus");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

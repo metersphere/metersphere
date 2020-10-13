@@ -45,64 +45,87 @@
 </template>
 
 <script>
-import {checkoutCurrentOrganization, checkoutCurrentWorkspace} from "@/common/js/utils";
-import Setting from "@/business/components/settings/router";
+  import {checkoutCurrentOrganization, checkoutCurrentWorkspace} from "@/common/js/utils";
+  import Setting from "@/business/components/settings/router";
+  import {LicenseKey} from '@/common/js/constants';
 
-export default {
-  name: "MsSettingMenu",
-  data() {
-    let getMenus = function (group) {
-      let menus = [];
-      Setting.children.forEach(child => {
-        if (child.meta[group] === true) {
-          let menu = {index: Setting.path + "/" + child.path}
-          menu.title = child.meta.title;
-          menu.roles = child.meta.roles;
-          menus.push(menu);
-        }
-      })
-      return menus;
-    }
-    return {
-      systems: getMenus('system'),
-      organizations: getMenus('organization'),
-      workspaces: getMenus('workspace'),
-      persons: getMenus('person'),
-      isCurrentOrganizationAdmin: false,
-      isCurrentWorkspaceUser: false,
-    }
-  },
-  mounted() {
-    this.isCurrentOrganizationAdmin = checkoutCurrentOrganization();
-    this.isCurrentWorkspaceUser = checkoutCurrentWorkspace();
+  const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+  const component = requireComponent.keys().length > 0 ? requireComponent("./license/LicenseMessage.vue") : null;
+
+  export default {
+    name: "MsSettingMenu",
+    data() {
+      let getMenus = function (group) {
+        let menus = [];
+        Setting.children.forEach(child => {
+          if (child.meta[group] === true) {
+            let menu = {index: Setting.path + "/" + child.path}
+            menu.title = child.meta.title;
+            menu.roles = child.meta.roles;
+            menu.valid = child.meta.valid;
+            menus.push(menu);
+          }
+        })
+        return menus;
+      }
+      return {
+        systems: getMenus('system'),
+        organizations: getMenus('organization'),
+        workspaces: getMenus('workspace'),
+        persons: getMenus('person'),
+        isCurrentOrganizationAdmin: false,
+        isCurrentWorkspaceUser: false,
+      }
+    },
+    methods: {
+      valid() {
+        Promise.all([component.default.valid(this)]).then(() => {
+          let license = localStorage.getItem(LicenseKey);
+          if (license != "valid") {
+            this.systems.forEach(item => {
+              if (item.valid === true) {
+                this.systems.splice(this.systems.indexOf(item), 1);
+              }
+            })
+          }
+        })
+      }
+    },
+    mounted() {
+      if (component != null) {
+        this.valid();
+      }
+      this.isCurrentOrganizationAdmin = checkoutCurrentOrganization();
+      this.isCurrentWorkspaceUser = checkoutCurrentWorkspace();
+    },
   }
-}
 </script>
 
 <style scoped>
-.setting {
-  border-right: 0;
-}
 
-.setting .setting-item {
-  height: 40px;
-  line-height: 40px;
-}
+  .setting {
+    border-right: 0;
+  }
 
-.icon {
-  width: 24px;
-  margin-right: 10px;
-}
+  .setting .setting-item {
+    height: 40px;
+    line-height: 40px;
+  }
 
-.account {
-  color: #5a78f0;
-}
+  .icon {
+    width: 24px;
+    margin-right: 10px;
+  }
 
-.organization {
-  color: #b33a5b;
-}
+  .account {
+    color: #5a78f0;
+  }
 
-.workspace {
-  color: #44b349;
-}
+  .organization {
+    color: #b33a5b;
+  }
+
+  .workspace {
+    color: #44b349;
+  }
 </style>

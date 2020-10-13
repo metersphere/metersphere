@@ -23,9 +23,9 @@ import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiTestJob;
-import io.metersphere.service.FileService;
-import io.metersphere.service.QuotaService;
-import io.metersphere.service.ScheduleService;
+import io.metersphere.notice.service.MailService;
+import io.metersphere.notice.service.NoticeService;
+import io.metersphere.service.*;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.constants.CommonConstants;
@@ -36,7 +36,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -44,7 +43,8 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class APITestService {
-
+    @Resource
+    private UserService userService;
     @Resource
     private ApiTestMapper apiTestMapper;
     @Resource
@@ -61,6 +61,10 @@ public class APITestService {
     private ScheduleService scheduleService;
     @Resource
     private TestCaseService testCaseService;
+    @Resource
+    private MailService mailService;
+    @Resource
+    private NoticeService noticeService;
 
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
@@ -214,8 +218,11 @@ public class APITestService {
             apiTest.setUserId(request.getUserId());
         }
         String reportId = apiReportService.create(apiTest, request.getTriggerMode());
+        /*if (request.getTriggerMode().equals("SCHEDULE")) {
+            List<Notice> notice = noticeService.queryNotice(request.getId());
+            mailService.sendHtml(reportId,notice,"api");
+        }*/
         changeStatus(request.getId(), APITestStatus.Running);
-
         jMeterService.run(request.getId(), null, is);
         return reportId;
     }

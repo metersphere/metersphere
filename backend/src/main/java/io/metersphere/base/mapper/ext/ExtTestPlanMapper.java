@@ -11,4 +11,6 @@ public interface ExtTestPlanMapper {
     List<TestPlanDTO> list(@Param("request") QueryTestPlanRequest params);
 
     List<TestPlanDTOWithMetric> listRelate(@Param("request") QueryTestPlanRequest params);
+
+    List<TestPlanDTO> planList(@Param("request") QueryTestPlanRequest params);
 }

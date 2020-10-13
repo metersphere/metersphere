@@ -37,5 +37,7 @@ public class TestCase implements Serializable {
 
     private String otherTestName;
 
+    private String reviewStatus;
+
     private static final long serialVersionUID = 1L;
 }

@@ -33,6 +33,17 @@
         </where>
         order by u.update_time desc
     </select>
+    <select id="queryEmailByIds" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT
+        email
+        from user
+        WHERE id IN
+        <foreach collection="list" item="id" index="index"
+                 open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+
+    </select>
 
     <!--修改密码-->
     <update id="updatePassword" parameterType="io.metersphere.base.domain.User">

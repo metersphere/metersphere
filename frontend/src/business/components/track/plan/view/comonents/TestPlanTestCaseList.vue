@@ -19,6 +19,8 @@
                              :content="$t('test_track.plan_view.create_report')" @click="openTestReport"/>
             <ms-table-button :is-tester-permission="true" v-if="testPlan.reportId" icon="el-icon-document"
                              :content="$t('test_track.plan_view.view_report')" @click="openReport"/>
+            <ms-table-button :is-tester-permission="true" icon="el-icon-document-remove"
+                             :content="$t('test_track.plan_view.cancel_all_relevance')" @click="handleDeleteBatch"/>
           </template>
         </ms-table-header>
       </template>
@@ -194,7 +196,7 @@
 
       <test-plan-test-case-edit
         ref="testPlanTestCaseEdit"
-        :search-param="condition"
+        :search-param.sync="condition"
         @refresh="initTableData"
         :is-read-only="isReadOnly"
         @refreshTable="search"/>
@@ -231,6 +233,7 @@
   import ShowMoreBtn from "../../../case/components/ShowMoreBtn";
   import BatchEdit from "../../../case/components/BatchEdit";
   import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+  import {hub} from "@/business/components/track/plan/event-bus";
 
   export default {
     name: "TestPlanTestCaseList",
@@ -334,8 +337,16 @@
       }
     },
     mounted() {
+      hub.$on("openFailureTestCase", row => {
+        this.isReadOnly = true;
+        this.condition.status = 'Failure';
+        this.$refs.testPlanTestCaseEdit.openTestCaseEdit(row);
+      });
       this.refreshTableAndPlan();
       this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
+    },
+    beforeDestroy() {
+      hub.$off("openFailureTestCase");
     },
     methods: {
       initTableData() {
@@ -413,38 +424,55 @@
         });
       },
       handleDeleteBatch() {
+        if (this.tableData.length < 1) {
+          this.$warning(this.$t('test_track.plan_view.no_case_relevance'));
+          return;
+        }
         this.$alert(this.$t('test_track.plan_view.confirm_cancel_relevance') + " ？", '', {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              let ids = Array.from(this.selectRows).map(row => row.id);
-              this.$post('/test/plan/case/batch/delete', {ids: ids}, () => {
-                // this.selectIds.clear();
-                this.selectRows.clear();
-                this.$emit("refresh");
-                this.$success(this.$t('commons.delete_success'));
-              });
+              if (this.selectRows.size > 0) {
+                let ids = Array.from(this.selectRows).map(row => row.id);
+                this._handleBatchDelete(ids);
+              } else {
+                if (this.planId) {
+                  this.condition.planId = this.planId;
+                }
+                if (this.selectNodeIds && this.selectNodeIds.length > 0) {
+                  this.condition.nodeIds = this.selectNodeIds;
+                }
+                // 根据条件查询计划下所有的关联用例
+                this.$post('/test/plan/case/list/all', this.condition, res => {
+                  let data = res.data;
+                  let ids = data.map(d => d.id);
+                  this._handleBatchDelete(ids);
+                })
+              }
             }
           }
         });
       },
+      _handleBatchDelete(ids) {
+        this.result = this.$post('/test/plan/case/batch/delete', {ids:ids}, () => {
+          this.selectRows.clear();
+          this.$emit("refresh");
+          this.$success(this.$t('test_track.cancel_relevance_success'));
+        });
+      },
       _handleDelete(testCase) {
         let testCaseId = testCase.id;
-        this.$post('/test/plan/case/delete/' + testCaseId, {}, () => {
+        this.result = this.$post('/test/plan/case/delete/' + testCaseId, {}, () => {
           this.$emit("refresh");
-          this.$success(this.$t('commons.delete_success'));
+          this.$success(this.$t('test_track.cancel_relevance_success'));
         });
       },
       handleSelectAll(selection) {
         if (selection.length > 0) {
-          if (selection.length === 1) {
-            this.selectRows.add(selection[0]);
-          } else {
-            this.tableData.forEach(item => {
-              this.$set(item, "showMore", true);
-              this.selectRows.add(item);
-            });
-          }
+          this.tableData.forEach(item => {
+            this.$set(item, "showMore", true);
+            this.selectRows.add(item);
+          });
         } else {
           this.selectRows.clear();
           this.tableData.forEach(row => {
@@ -459,17 +487,6 @@
         } else {
           this.$set(row, "showMore", true);
           this.selectRows.add(row);
-        }
-
-        let arr = Array.from(this.selectRows);
-
-        // 选中1个以上的用例时显示更多操作
-        if (this.selectRows.size === 1) {
-          this.$set(arr[0], "showMore", false);
-        } else if (this.selectRows.size === 2) {
-          arr.forEach(row => {
-            this.$set(row, "showMore", true);
-          })
         }
       },
       handleBatch(type) {

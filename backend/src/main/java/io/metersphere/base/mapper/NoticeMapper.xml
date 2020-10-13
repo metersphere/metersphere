@@ -2,11 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.base.mapper.NoticeMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.Notice">
+    <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="EVENT" jdbcType="VARCHAR" property="event" />
     <result column="TEST_ID" jdbcType="VARCHAR" property="testId" />
-    <result column="NAME" jdbcType="VARCHAR" property="name" />
-    <result column="EMAIL" jdbcType="VARCHAR" property="email" />
     <result column="ENABLE" jdbcType="VARCHAR" property="enable" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -67,7 +68,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    EVENT, TEST_ID, `NAME`, EMAIL, `ENABLE`
+    id, EVENT, TEST_ID, `ENABLE`, `type`, user_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.NoticeExample" resultMap="BaseResultMap">
     select
@@ -83,6 +84,16 @@
       order by ${orderByClause}
     </if>
   </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from notice
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    DELETE FROM notice
+    WHERE id = #{id,jdbcType=VARCHAR}
+  </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.base.domain.NoticeExample">
     delete from notice
     <if test="_parameter != null">
@@ -90,45 +101,53 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.Notice">
-    insert into notice (EVENT, TEST_ID, `NAME`, 
-      EMAIL, `ENABLE`)
-    values (#{event,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{email,jdbcType=VARCHAR}, #{enable,jdbcType=VARCHAR})
+    INSERT INTO notice (id, EVENT, TEST_ID,
+      `ENABLE`, `type`, user_id
+      )
+    VALUES (#{id,jdbcType=VARCHAR}, #{event,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR},
+      #{enable,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.Notice">
     insert into notice
     <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
       <if test="event != null">
         EVENT,
       </if>
       <if test="testId != null">
         TEST_ID,
       </if>
-      <if test="name != null">
-        `NAME`,
-      </if>
-      <if test="email != null">
-        EMAIL,
-      </if>
       <if test="enable != null">
         `ENABLE`,
       </if>
+      <if test="type != null">
+        `type`,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
       <if test="event != null">
         #{event,jdbcType=VARCHAR},
       </if>
       <if test="testId != null">
         #{testId,jdbcType=VARCHAR},
       </if>
-      <if test="name != null">
-        #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="email != null">
-        #{email,jdbcType=VARCHAR},
-      </if>
       <if test="enable != null">
         #{enable,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -141,20 +160,23 @@
   <update id="updateByExampleSelective" parameterType="map">
     update notice
     <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
       <if test="record.event != null">
         EVENT = #{record.event,jdbcType=VARCHAR},
       </if>
       <if test="record.testId != null">
         TEST_ID = #{record.testId,jdbcType=VARCHAR},
       </if>
-      <if test="record.name != null">
-        `NAME` = #{record.name,jdbcType=VARCHAR},
-      </if>
-      <if test="record.email != null">
-        EMAIL = #{record.email,jdbcType=VARCHAR},
-      </if>
       <if test="record.enable != null">
         `ENABLE` = #{record.enable,jdbcType=VARCHAR},
+      </if>
+      <if test="record.type != null">
+        `type` = #{record.type,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userId != null">
+        user_id = #{record.userId,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -163,13 +185,44 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update notice
-    set EVENT = #{record.event,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=VARCHAR},
+      EVENT = #{record.event,jdbcType=VARCHAR},
       TEST_ID = #{record.testId,jdbcType=VARCHAR},
-      `NAME` = #{record.name,jdbcType=VARCHAR},
-      EMAIL = #{record.email,jdbcType=VARCHAR},
-      `ENABLE` = #{record.enable,jdbcType=VARCHAR}
+      `ENABLE` = #{record.enable,jdbcType=VARCHAR},
+      `type` = #{record.type,jdbcType=VARCHAR},
+      user_id = #{record.userId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.Notice">
+    update notice
+    <set>
+      <if test="event != null">
+        EVENT = #{event,jdbcType=VARCHAR},
+      </if>
+      <if test="testId != null">
+        TEST_ID = #{testId,jdbcType=VARCHAR},
+      </if>
+      <if test="enable != null">
+        `ENABLE` = #{enable,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        `type` = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.Notice">
+    UPDATE notice
+    SET EVENT = #{event,jdbcType=VARCHAR},
+      TEST_ID = #{testId,jdbcType=VARCHAR},
+      `ENABLE` = #{enable,jdbcType=VARCHAR},
+      `type` = #{type,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=VARCHAR}
+    WHERE id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

@@ -38,17 +38,16 @@
     },
 
     methods: {
-      setActiveNames(activeNames) {
+      setActiveNames(activeNames, item) {
         activeNames = [].concat(activeNames);
         let value = this.accordion ? activeNames[0] : activeNames;
         this.activeNames = activeNames;
         this.$emit('input', value);
-        this.$emit('change', value);
       },
-      handleItemClick(item) {
+      handleItemCollapseClick(item) {
         if (this.accordion) {
           this.setActiveNames(
-            (this.activeNames[0] || this.activeNames[0] === 0) && item.name);
+            (this.activeNames[0] || this.activeNames[0] === 0) && item.name, item);
         } else {
           let activeNames = this.activeNames.slice(0);
           let index = activeNames.indexOf(item.name);
@@ -58,13 +57,17 @@
           } else {
             activeNames.push(item.name);
           }
-          this.setActiveNames(activeNames);
+          this.setActiveNames(activeNames, item);
         }
+      },
+      handleItemClick(item) {
+        this.$emit('change', item.name);
       }
     },
 
     created() {
       this.$on('item-click', this.handleItemClick);
+      this.$on('collapse-click', this.handleItemCollapseClick);
     }
   };
 </script>

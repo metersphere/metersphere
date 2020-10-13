@@ -10,6 +10,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.excel.domain.ExcelResponse;
+import io.metersphere.service.CheckOwnerService;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
@@ -30,6 +31,8 @@ public class TestCaseController {
 
     @Resource
     TestCaseService testCaseService;
+    @Resource
+    private CheckOwnerService checkOwnerService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<TestCaseDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
@@ -39,6 +42,7 @@ public class TestCaseController {
 
     @GetMapping("/list/{projectId}")
     public List<TestCaseDTO> list(@PathVariable String projectId) {
+        checkOwnerService.checkProjectOwner(projectId);
         QueryTestCaseRequest request = new QueryTestCaseRequest();
         request.setProjectId(projectId);
         return testCaseService.listTestCase(request);
@@ -47,6 +51,7 @@ public class TestCaseController {
 
     @GetMapping("/list/method/{projectId}")
     public List<TestCaseDTO> listByMethod(@PathVariable String projectId) {
+        checkOwnerService.checkProjectOwner(projectId);
         QueryTestCaseRequest request = new QueryTestCaseRequest();
         request.setProjectId(projectId);
         return testCaseService.listTestCaseMthod(request);
@@ -71,13 +76,20 @@ public class TestCaseController {
         return testCaseService.getTestCaseNames(request);
     }
 
+    @PostMapping("/reviews/case")
+    public List<TestCase> getReviewCase(@RequestBody QueryTestCaseRequest request) {
+        return testCaseService.getReviewCase(request);
+    }
+
     @GetMapping("/get/{testCaseId}")
     public TestCaseWithBLOBs getTestCase(@PathVariable String testCaseId) {
+        checkOwnerService.checkTestCaseOwner(testCaseId);
         return testCaseService.getTestCase(testCaseId);
     }
 
     @GetMapping("/project/{testCaseId}")
     public Project getProjectByTestCaseId(@PathVariable String testCaseId) {
+        checkOwnerService.checkTestCaseOwner(testCaseId);
         return testCaseService.getProjectByTestCaseId(testCaseId);
     }
 
@@ -96,19 +108,27 @@ public class TestCaseController {
     @PostMapping("/delete/{testCaseId}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public int deleteTestCase(@PathVariable String testCaseId) {
+        checkOwnerService.checkTestCaseOwner(testCaseId);
         return testCaseService.deleteTestCase(testCaseId);
     }
 
-    @PostMapping("/import/{projectId}")
+    @PostMapping("/import/{projectId}/{userId}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String projectId) throws NoSuchFieldException {
-        return testCaseService.testCaseImport(file, projectId);
+    public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String projectId, @PathVariable String userId) {
+        checkOwnerService.checkProjectOwner(projectId);
+        return testCaseService.testCaseImport(file, projectId, userId);
     }
 
     @GetMapping("/export/template")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void testCaseTemplateExport(HttpServletResponse response) {
         testCaseService.testCaseTemplateExport(response);
+    }
+
+    @GetMapping("/export/xmindTemplate")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void xmindTemplate(HttpServletResponse response) {
+        testCaseService.testCaseXmindTemplateExport(response);
     }
 
     @PostMapping("/export/testcase")

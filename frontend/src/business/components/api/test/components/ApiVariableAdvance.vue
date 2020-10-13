@@ -173,7 +173,7 @@ export default {
           }
         ];
         if (this.environment) {
-          let variables = JSON.parse(this.environment.variables);
+          let variables = this.environment.config.commonConfig.variables;
           this.environmentParams = [
             {
               name: this.environment.name,

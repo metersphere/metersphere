@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtTestCaseReviewMapper">
+
+    <select id="list" resultType="io.metersphere.track.dto.TestCaseReviewDTO"
+            parameterType="io.metersphere.track.request.testreview.QueryCaseReviewRequest">
+        select distinct test_case_review.id, test_case_review.name, test_case_review.creator, test_case_review.status,
+        test_case_review.create_time, test_case_review.update_time, test_case_review.end_time,
+        test_case_review.description
+        from test_case_review, project, test_case_review_project
+        <where>
+            test_case_review.id = test_case_review_project.review_id
+            and test_case_review_project.project_id = project.id
+            <if test="request.name != null">
+                and test_case_review.name like CONCAT('%', #{request.name},'%')
+            </if>
+            and project.workspace_id = #{request.workspaceId}
+        </where>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                test_case_review.${order.name} ${order.type}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="listByWorkspaceId" resultType="io.metersphere.track.dto.TestCaseReviewDTO"
+            parameterType="io.metersphere.track.request.testreview.QueryCaseReviewRequest">
+        select distinct test_case_review.*
+          from test_case_review, project, test_case_review_project
+         where test_case_review.id = test_case_review_project.review_id
+           and test_case_review_project.project_id = project.id
+           and project.workspace_id = #{workspaceId}
+           order by test_case_review.update_time desc
+    </select>
+
+    <select id="listRelate" resultType="io.metersphere.track.dto.TestReviewDTOWithMetric">
+        select distinct test_case_review.* from test_case_review
+        inner join test_case_review_project on test_case_review.id = test_case_review_project.review_id
+        inner join project on project.id = test_case_review_project.project_id
+        inner join test_case_review_users on test_case_review_users.review_id = test_case_review.id
+        <where>
+            project.workspace_id = #{request.workspaceId}
+            <if test="request.reviewerId != null">
+                and test_case_review_users.user_id = #{request.reviewerId}
+            </if>
+            <if test="request.creator != null">
+                and (test_case_review.creator = #{request.creator}
+                <if test="request.reviewIds != null and request.reviewIds.size() > 0">
+                    or test_case_review.id in
+                    <foreach collection="request.reviewIds" item="reviewId" open="(" close=")" separator=",">
+                        #{reviewId}
+                    </foreach>
+                </if>
+                )
+            </if>
+        </where>
+
+        order by test_case_review.update_time desc
+    </select>
+    <select id="checkIsHave" resultType="java.lang.String">
+        select distinct review_id
+        from project, test_case_review_project
+        where project.id = test_case_review_project.project_id
+        and project.workspace_id = #{workspaceId}
+        and test_case_review_project.review_id = #{reviewId};
+    </select>
+</mapper>

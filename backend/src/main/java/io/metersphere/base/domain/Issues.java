@@ -26,5 +26,9 @@ public class Issues implements Serializable {
 
     private String model;
 
+    private String projectName;
+
+    private String currentOwner;
+
     private static final long serialVersionUID = 1L;
 }

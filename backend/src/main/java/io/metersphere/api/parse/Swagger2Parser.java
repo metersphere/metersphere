@@ -137,8 +137,10 @@ public class Swagger2Parser extends ApiImportAbstractParser {
             Model model = definitions.get(simpleRef);
             HashSet<String> refSet = new HashSet<>();
             refSet.add(simpleRef);
-            JSONObject bodyParameters = getBodyJSONObjectParameters(model.getProperties(), definitions, refSet);
-            body.setRaw(bodyParameters.toJSONString());
+            if (model != null ) {
+                JSONObject bodyParameters = getBodyJSONObjectParameters(model.getProperties(), definitions, refSet);
+                body.setRaw(bodyParameters.toJSONString());
+            }
         } else if (schema instanceof ArrayModel) {
             ArrayModel arrayModel = (ArrayModel) bodyParameter.getSchema();
             Property items = arrayModel.getItems();
@@ -159,32 +161,34 @@ public class Swagger2Parser extends ApiImportAbstractParser {
 
     private JSONObject getBodyJSONObjectParameters(Map<String, Property> properties, Map<String, Model> definitions, HashSet<String> refSet) {
         JSONObject jsonObject = new JSONObject();
-        properties.forEach((key, value) -> {
-            if (value instanceof ObjectProperty) {
-                ObjectProperty objectProperty = (ObjectProperty) value;
-                jsonObject.put(key, getBodyJSONObjectParameters(objectProperty.getProperties(), definitions, refSet));
-            } else if (value instanceof ArrayProperty) {
-                ArrayProperty arrayProperty = (ArrayProperty) value;
-                Property items = arrayProperty.getItems();
-                if (items instanceof RefProperty) {
-                    RefProperty refProperty = (RefProperty) items;
-                    String simpleRef = refProperty.getSimpleRef();
-                    if (refSet.contains(simpleRef)) {
-                        jsonObject.put(key, new JSONArray());
-                        return;
+        if (properties != null) {
+            properties.forEach((key, value) -> {
+                if (value instanceof ObjectProperty) {
+                    ObjectProperty objectProperty = (ObjectProperty) value;
+                    jsonObject.put(key, getBodyJSONObjectParameters(objectProperty.getProperties(), definitions, refSet));
+                } else if (value instanceof ArrayProperty) {
+                    ArrayProperty arrayProperty = (ArrayProperty) value;
+                    Property items = arrayProperty.getItems();
+                    if (items instanceof RefProperty) {
+                        RefProperty refProperty = (RefProperty) items;
+                        String simpleRef = refProperty.getSimpleRef();
+                        if (refSet.contains(simpleRef)) {
+                            jsonObject.put(key, new JSONArray());
+                            return;
+                        }
+                        refSet.add(simpleRef);
+                        Model model = definitions.get(simpleRef);
+                        JSONArray propertyList = new JSONArray();
+                        propertyList.add(getBodyJSONObjectParameters(model.getProperties(), definitions, refSet));
+                        jsonObject.put(key, propertyList);
+                    } else {
+                        jsonObject.put(key, new ArrayList<>());
                     }
-                    refSet.add(simpleRef);
-                    Model model = definitions.get(simpleRef);
-                    JSONArray propertyList = new JSONArray();
-                    propertyList.add(getBodyJSONObjectParameters(model.getProperties(), definitions, refSet));
-                    jsonObject.put(key, propertyList);
                 } else {
-                    jsonObject.put(key, new ArrayList<>());
+                    jsonObject.put(key, Optional.ofNullable(value.getDescription()).orElse(""));
                 }
-            } else {
-                jsonObject.put(key, Optional.ofNullable(value.getDescription()).orElse(""));
-            }
-        });
+            });
+        }
         return jsonObject;
     }
 

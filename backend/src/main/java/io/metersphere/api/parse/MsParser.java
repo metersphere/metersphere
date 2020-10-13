@@ -3,12 +3,12 @@ package io.metersphere.api.parse;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.parse.ApiImport;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.commons.constants.MsRequestBodyType;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.jetty.http.HttpMethod;
 
 import java.io.InputStream;
 
@@ -23,7 +23,7 @@ public class MsParser extends ApiImportAbstractParser {
     }
 
     private String parsePluginFormat(String testStr) {
-        JSONObject testObject = JSONObject.parseObject(testStr);
+        JSONObject testObject = JSONObject.parseObject(testStr, Feature.OrderedField);
         if (testObject.get("scenarios") != null) {
             return testStr;
         } else {
@@ -61,7 +61,7 @@ public class MsParser extends ApiImportAbstractParser {
             Object body = requestObject.get("body");
             if (body instanceof JSONArray) {
                 JSONArray bodies = requestObject.getJSONArray("body");
-                if (StringUtils.equalsIgnoreCase(requestObject.getString("method"), HttpMethod.POST.name()) && bodies != null) {
+                if (StringUtils.equalsIgnoreCase(requestObject.getString("method"), "POST") && bodies != null) {
                     StringBuilder bodyStr = new StringBuilder();
                     for (int i = 0; i < bodies.size(); i++) {
                         String tmp = bodies.getString(i);
@@ -74,7 +74,7 @@ public class MsParser extends ApiImportAbstractParser {
                 }
             } else if (body instanceof JSONObject) {
                 JSONObject bodyObj = requestObject.getJSONObject("body");
-                if (StringUtils.equalsIgnoreCase(requestObject.getString("method"), HttpMethod.POST.name()) && bodyObj != null) {
+                if (StringUtils.equalsIgnoreCase(requestObject.getString("method"), "POST") && bodyObj != null) {
                     JSONArray kvs = new JSONArray();
                     bodyObj.keySet().forEach(key -> {
                         JSONObject kv = new JSONObject();

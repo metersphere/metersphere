@@ -4,7 +4,7 @@
       accept=".jmx,.csv"
       drag
       action=""
-      :limit="5"
+      :limit="fileNumLimit"
       multiple
       :show-file-list="false"
       :before-upload="beforeUpload"
@@ -77,6 +77,7 @@ export default {
       fileList: [],
       tableData: [],
       uploadList: [],
+      fileNumLimit: 5,
     };
   },
   created() {
@@ -196,12 +197,30 @@ export default {
       return this.fileList;// 表示修改了已经上传的文件列表
     },
     validConfig() {
-      let newJmxNum = 0, oldJmxNum = 0;
+      let newJmxNum = 0, oldJmxNum = 0, newCsvNum = 0, oldCsvNum = 0;
       if (this.uploadList.length > 0) {
-        newJmxNum = this.uploadList.filter(f => f.name.toLowerCase().endsWith(".jmx")).length;
+        this.uploadList.forEach(f => {
+          if (f.name.toLowerCase().endsWith(".jmx")) {
+            newJmxNum++;
+          }
+          if (f.name.toLowerCase().endsWith(".csv")) {
+            newCsvNum++;
+          }
+        });
       }
       if (this.fileList.length > 0) {
-        oldJmxNum = this.fileList.filter(f => f.name.toLowerCase().endsWith(".jmx")).length;
+        this.fileList.forEach(f => {
+          if (f.name.toLowerCase().endsWith(".jmx")) {
+            oldJmxNum++;
+          }
+          if (f.name.toLowerCase().endsWith(".csv")) {
+            oldCsvNum++;
+          }
+        });
+      }
+      if (newCsvNum + oldCsvNum > this.fileNumLimit - 1) {
+        this.handleExceed();
+        return false;
       }
       if (newJmxNum + oldJmxNum !== 1) {
         this.$error(this.$t('load_test.jmx_is_null'));

@@ -26,10 +26,10 @@
 
     <el-form-item v-if="request.useEnvironment" :label="$t('api_test.request.address')" class="adjust-margin-bottom">
       <el-tag class="environment-display">
-        <span class="environment-name">{{ request.environment ? request.environment.name + ': ' : '' }}</span>
+        <span class="environment-name">{{ scenario.environment ? scenario.environment.name + ': ' : '' }}</span>
         <span class="environment-url">{{ displayUrl }}</span>
         <span v-if="!displayUrl"
-              class="environment-url-tip">{{ $t('api_test.request.please_configure_environment_in_scenario') }}</span>
+              class="environment-url-tip">{{ $t('api_test.request.please_configure_socket_in_environment') }}</span>
       </el-tag>
     </el-form-item>
 
@@ -49,7 +49,7 @@
       <el-tab-pane :label="$t('api_test.request.parameters')" name="parameters">
         <ms-api-variable :is-read-only="isReadOnly"
                          :parameters="request.parameters"
-                         :environment="request.environment"
+                         :environment="scenario.environment"
                          :scenario="scenario"
                          :extract="request.extract"
                          :description="$t('api_test.request.parameters_desc')"/>
@@ -57,12 +57,12 @@
       <el-tab-pane :label="$t('api_test.request.headers')" name="headers">
         <ms-api-key-value :is-read-only="isReadOnly" :isShowEnable="true" :suggestions="headerSuggestions" :items="request.headers"/>
       </el-tab-pane>
-      <el-tab-pane :label="$t('api_test.request.body')" name="body" v-if="isNotGet">
+      <el-tab-pane :label="$t('api_test.request.body')" name="body">
         <ms-api-body :is-read-only="isReadOnly"
                      :body="request.body"
                      :scenario="scenario"
                      :extract="request.extract"
-                     :environment="request.environment"/>
+                     :environment="scenario.environment"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.assertions.label')" name="assertions">
         <ms-api-assertions :is-read-only="isReadOnly" :assertions="request.assertions"/>
@@ -148,7 +148,7 @@ export default {
       if (!this.request.path) return;
       let url = this.getURL(this.displayUrl);
       let urlStr = url.origin + url.pathname;
-      let envUrl = this.request.environment.protocol + '://' + this.request.environment.socket;
+      let envUrl = this.scenario.environment.config.httpConfig.protocol + '://' + this.scenario.environment.config.httpConfig.socket;
       this.request.path = decodeURIComponent(urlStr.substring(envUrl.length, urlStr.length));
     },
     getURL(urlStr) {
@@ -156,7 +156,7 @@ export default {
         let url = new URL(urlStr);
         url.searchParams.forEach((value, key) => {
           if (key && value) {
-            this.request.parameters.splice(0, 0, new KeyValue(key, value));
+            this.request.parameters.splice(0, 0, new KeyValue({name: key, value: value}));
           }
         });
         return url;
@@ -170,7 +170,7 @@ export default {
       }
     },
     useEnvironmentChange(value) {
-      if (value && !this.request.environment) {
+      if (value && !this.scenario.environment) {
         this.$error(this.$t('api_test.request.please_add_environment_to_scenario'), 2000);
         this.request.useEnvironment = false;
       }
@@ -190,11 +190,10 @@ export default {
   },
 
   computed: {
-    isNotGet() {
-      return this.request.method !== "GET";
-    },
     displayUrl() {
-      return this.request.environment ? this.request.environment.protocol + '://' + this.request.environment.socket + (this.request.path ? this.request.path : '') : '';
+      return (this.scenario.environment && this.scenario.environment.config.httpConfig.socket) ?
+        this.scenario.environment.config.httpConfig.protocol + '://' + this.scenario.environment.config.httpConfig.socket + (this.request.path ? this.request.path : '')
+        : '';
     }
   }
 }

@@ -2,7 +2,7 @@
 
   <div id="menu-bar" v-if="isRouterAlive">
     <el-row type="flex">
-      <el-col :span="8">
+      <el-col :span="12">
         <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router
                  :default-active='$route.path'>
           <el-menu-item :index="'/track/home'">
@@ -30,6 +30,16 @@
                               :title="$t('test_track.case.create_case')"/>
           </el-submenu>
 
+          <el-submenu v-permission="['test_manager','test_user','test_viewer']"
+                      index="8" popper-class="submenu">
+            <template v-slot:title>{{$t('test_track.review.test_review')}}</template>
+            <ms-recent-list ref="reviewRecent" :options="reviewRecent"/>
+            <el-divider/>
+            <ms-show-all :index="'/track/review/all'"/>
+            <el-menu-item :index="testCaseReviewEditPath" class="blank_item"/>
+            <ms-create-button v-permission="['test_manager','test_user']" :index="'/track/review/create'" :title="$t('test_track.review.create_review')"/>
+          </el-submenu>
+
           <el-submenu v-permission="['test_manager','test_user','test_viewer']" index="7" popper-class="submenu">
             <template v-slot:title>{{ $t('test_track.plan.test_plan') }}</template>
             <ms-recent-list ref="planRecent" :options="planRecent"/>
@@ -41,7 +51,7 @@
           </el-submenu>
         </el-menu>
       </el-col>
-      <el-col :span="16"/>
+      <el-col :span="12"/>
     </el-row>
   </div>
 
@@ -61,6 +71,7 @@ export default {
       testPlanViewPath: '',
       isRouterAlive: true,
       testCaseEditPath: '',
+      testCaseReviewEditPath: '',
       testCaseProjectPath: '',
       isProjectActivation: true,
       projectRecent: {
@@ -78,6 +89,15 @@ export default {
         url: "/test/case/recent/5",
         index: function (item) {
           return '/track/case/edit/' + item.id;
+        },
+        router: function (item) {
+        }
+      },
+      reviewRecent: {
+        title: this.$t('test_track.recent_review'),
+        url: "/test/case/review/recent/5",
+        index: function (item) {
+          return '/track/review/view/' + item.id;
         },
         router: function (item) {
         }
@@ -130,6 +150,10 @@ export default {
     },
     registerEvents() {
       TrackEvent.$on(LIST_CHANGE, () => {
+        // todo 这里偶尔会有 refs 为空的情况
+        if (!this.$refs.projectRecent) {
+          return;
+        }
         this.$refs.projectRecent.recent();
         this.$refs.planRecent.recent();
         this.$refs.caseRecent.recent();

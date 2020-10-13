@@ -7,8 +7,6 @@ import lombok.Data;
 public class TestPlan implements Serializable {
     private String id;
 
-    private String projectId;
-
     private String workspaceId;
 
     private String reportId;
@@ -26,6 +24,14 @@ public class TestPlan implements Serializable {
     private String testCaseMatchRule;
 
     private String executorMatchRule;
+
+    private Long plannedStartTime;
+
+    private Long plannedEndTime;
+
+    private Long actualStartTime;
+
+    private Long actualEndTime;
 
     private Long createTime;
 

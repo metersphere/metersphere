@@ -185,7 +185,7 @@ export class TestPlan extends DefaultTestElement {
 
     props = props || {};
     this.boolProp("TestPlan.functional_mode", props.mode, false);
-    this.boolProp("TestPlan.serialize_threadgroups", props.stg, false);
+    this.boolProp("TestPlan.serialize_threadgroups", props.stg, true);
     this.boolProp("TestPlan.tearDown_on_shutdown", props.tos, true);
     this.stringProp("TestPlan.comments", props.comments);
     this.stringProp("TestPlan.user_define_classpath", props.classpath);
@@ -274,6 +274,23 @@ export class DubboSample extends DefaultTestElement {
   }
 }
 
+export class JDBCSampler extends DefaultTestElement {
+  constructor(testName, request = {}) {
+    super('JDBCSampler', 'TestBeanGUI', 'JDBCSampler', testName);
+
+    this.stringProp("dataSource", request.dataSource);
+    this.stringProp("query", request.query);
+    this.stringProp("queryTimeout", request.queryTimeout);
+    this.stringProp("resultVariable", request.resultVariable);
+    this.stringProp("variableNames", request.variableNames);
+    this.stringProp("queryArguments");
+    this.stringProp("queryArgumentsTypes");
+    this.stringProp("resultSetMaxRows");
+    this.stringProp("resultSetHandler", 'Store as String');
+    this.stringProp("queryType", 'Callable Statement');
+  }
+}
+
 export class HTTPSamplerProxy extends DefaultTestElement {
   constructor(testName, options = {}) {
     super('HTTPSamplerProxy', 'HttpTestSampleGui', 'HTTPSamplerProxy', testName);
@@ -318,7 +335,7 @@ export class HTTPSamplerArguments extends Element {
 
     let collectionProp = this.collectionProp('Arguments.arguments');
     this.args.forEach(arg => {
-      if (arg.enable === true) { // 非禁用的条件加入执行
+      if (arg.enable === true  || arg.enable === undefined) { // 非禁用的条件加入执行
         let elementProp = collectionProp.elementProp(arg.name, 'HTTPArgument');
         elementProp.boolProp('HTTPArgument.always_encode', arg.encode, true);
         elementProp.boolProp('HTTPArgument.use_equals', arg.equals, true);
@@ -327,6 +344,9 @@ export class HTTPSamplerArguments extends Element {
         }
         elementProp.stringProp('Argument.value', arg.value);
         elementProp.stringProp('Argument.metadata', arg.metadata || "=");
+        if (arg.contentType) {
+          elementProp.stringProp('HTTPArgument.content_type', arg.contentType, "");
+        }
       }
     });
   }
@@ -346,7 +366,7 @@ export class HTTPsamplerFiles extends Element {
       let elementProp = collectionProp.elementProp(arg.value, 'HTTPFileArg');
       elementProp.stringProp('File.path', arg.value);
       elementProp.stringProp('File.paramname', arg.name);
-      elementProp.stringProp('File.mimetype', arg.metadata || "application/octet-stream");
+      elementProp.stringProp('File.mimetype', arg.contentType || "application/octet-stream");
     });
   }
 }
@@ -481,6 +501,25 @@ export class BeanShellPostProcessor extends BeanShellProcessor {
   }
 }
 
+export class IfController extends DefaultTestElement {
+  constructor(testName, controller = {}) {
+    super('IfController', 'IfControllerPanel', 'IfController', testName);
+
+    this.stringProp('IfController.comments', controller.comments);
+    this.stringProp('IfController.condition', controller.condition);
+    this.boolProp('IfController.evaluateAll', controller.evaluateAll, false);
+    this.boolProp('IfController.useExpression', controller.useExpression, true);
+  }
+}
+
+export class ConstantTimer extends DefaultTestElement {
+  constructor(testName, timer = {}) {
+    super('ConstantTimer', 'ConstantTimerGui', 'ConstantTimer', testName);
+
+    this.stringProp('ConstantTimer.delay', timer.delay);
+  }
+}
+
 export class HeaderManager extends DefaultTestElement {
   constructor(testName, headers) {
     super('HeaderManager', 'HeaderPanel', 'HeaderManager', testName);
@@ -488,7 +527,7 @@ export class HeaderManager extends DefaultTestElement {
 
     let collectionProp = this.collectionProp('HeaderManager.headers');
     this.headers.forEach(header => {
-      if (header.enable === true) {
+      if (header.enable === true || header.enable === undefined) {
         let elementProp = collectionProp.elementProp('', 'Header');
         elementProp.stringProp('Header.name', header.name);
         elementProp.stringProp('Header.value', header.value);
@@ -498,20 +537,41 @@ export class HeaderManager extends DefaultTestElement {
 }
 
 export class DNSCacheManager extends DefaultTestElement {
-  constructor(testName, domain, hosts) {
+  constructor(testName, hosts) {
     super('DNSCacheManager', 'DNSCachePanel', 'DNSCacheManager', testName);
     let collectionPropServers = this.collectionProp('DNSCacheManager.servers');
     let collectionPropHosts = this.collectionProp('DNSCacheManager.hosts');
 
     hosts.forEach(host => {
       let elementProp = collectionPropHosts.elementProp(host.domain, 'StaticHost');
-      if (host && host.domain.trim().indexOf(domain.trim()) != -1) {
-        elementProp.stringProp('StaticHost.Name', host.domain);
-        elementProp.stringProp('StaticHost.Address', host.ip);
-      }
+      elementProp.stringProp('StaticHost.Name', host.domain);
+      elementProp.stringProp('StaticHost.Address', host.ip);
     });
 
     let boolProp = this.boolProp('DNSCacheManager.isCustomResolver', true);
+  }
+}
+
+export class JDBCDataSource extends DefaultTestElement {
+  constructor(testName, datasource) {
+    super('JDBCDataSource', 'TestBeanGUI', 'JDBCDataSource', testName);
+
+    this.boolProp('autocommit', true);
+    this.boolProp('keepAlive', true);
+    this.boolProp('preinit', false);
+    this.stringProp('dataSource', datasource.name);
+    this.stringProp('dbUrl', datasource.dbUrl);
+    this.stringProp('driver', datasource.driver);
+    this.stringProp('username', datasource.username);
+    this.stringProp('password', datasource.password);
+    this.stringProp('poolMax', datasource.poolMax);
+    this.stringProp('timeout', datasource.timeout);
+    this.stringProp('connectionAge', '5000');
+    this.stringProp('trimInterval', '60000');
+    this.stringProp('transactionIsolation', 'DEFAULT');
+    this.stringProp('checkQuery');
+    this.stringProp('initQuery');
+    this.stringProp('connectionProperties');
   }
 }
 
@@ -523,7 +583,7 @@ export class Arguments extends DefaultTestElement {
     let collectionProp = this.collectionProp('Arguments.arguments');
 
     this.args.forEach(arg => {
-      if (arg.enable === true) { // 非禁用的条件加入执行
+      if (arg.enable === true || arg.enable === undefined) { // 非禁用的条件加入执行
         let elementProp = collectionProp.elementProp(arg.name, 'Argument');
         elementProp.stringProp('Argument.name', arg.name);
         elementProp.stringProp('Argument.value', arg.value);
@@ -548,7 +608,7 @@ export class ElementArguments extends Element {
     let collectionProp = this.collectionProp('Arguments.arguments');
     if (args) {
       args.forEach(arg => {
-        if (arg.enable === true) { // 非禁用的条件加入执行
+        if (arg.enable === true || arg.enable === undefined) { // 非禁用的条件加入执行
           let elementProp = collectionProp.elementProp(arg.name, 'Argument');
           elementProp.stringProp('Argument.name', arg.name);
           elementProp.stringProp('Argument.value', arg.value);

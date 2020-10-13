@@ -13,12 +13,12 @@
 
     <!--报告-->
     <div v-if="metric">
-      <base-info-component :report-info="metric" v-if="preview.id == 1"/>
-      <test-result-component :test-results="metric.moduleExecuteResult" v-if="preview.id == 2"/>
-      <test-result-chart-component :execute-result="metric.executeResult" v-if="preview.id == 3"/>
-      <failure-result-component :failure-test-cases="metric.failureTestCases" v-if="preview.id == 4"/>
-      <defect-list-component :defect-list="metric.issues" v-if="preview.id == 5"/>
-      <rich-text-component :is-report-view="isReportView" :preview="preview" v-if="preview.type != 'system'"/>
+      <base-info-component id="baseInfoComponent" :report-info="metric" v-if="preview.id == 1"/>
+      <test-result-component id="testResultComponent" :test-results="metric.moduleExecuteResult" v-if="preview.id == 2"/>
+      <test-result-chart-component id="resultChartComponent" :execute-result="metric.executeResult" v-if="preview.id == 3"/>
+      <failure-result-component id="failureResultComponent" :failure-test-cases="metric.failureTestCases" v-if="preview.id == 4"/>
+      <defect-list-component id="defectListComponent" :defect-list="metric.issues" v-if="preview.id == 5"/>
+      <rich-text-component id="richTextComponent" :is-report-view="isReportView" :preview="preview" v-if="preview.type != 'system'"/>
     </div>
 
   </div>
@@ -31,6 +31,8 @@
     import RichTextComponent from "./RichTextComponent";
     import FailureResultComponent from "./FailureResultComponent";
     import DefectListComponent from "./DefectListComponent";
+    import html2canvas from 'html2canvas';
+
     export default {
       name: "TemplateComponent",
       components: {
@@ -50,6 +52,28 @@
         isReportView: {
           type: Boolean,
           default: true
+        },
+        index: {
+          type: Number,
+          default: 0
+        },
+      },
+      methods: {
+        getComponentId() {
+          switch (this.preview.id) {
+            case 1:
+              return "baseInfoComponent";
+            case 2:
+              return "testResultComponent";
+            case 3:
+              return "resultChartComponent";
+            case 4:
+              return "failureResultComponent";
+            case 5:
+              return "defectListComponent";
+            default:
+              return "richTextComponent";
+          }
         },
       }
     }

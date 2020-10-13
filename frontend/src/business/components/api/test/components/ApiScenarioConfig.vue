@@ -61,7 +61,7 @@
                              :request="selected" :scenario="currentScenario" v-if="isRequest"/>
       </div>
     </el-main>
-    <ms-api-scenario-select :exclude-id="testId" @select="selectScenario" ref="selectDialog"/>
+    <ms-api-scenario-select :exclude-id="test.id" @select="selectScenario" ref="selectDialog"/>
   </el-container>
 </template>
 
@@ -75,6 +75,7 @@ import MsApiScenarioForm from "./ApiScenarioForm";
 import {Request, Scenario} from "../model/ScenarioModel";
 import draggable from 'vuedraggable';
 import MsApiScenarioSelect from "@/business/components/api/test/components/ApiScenarioSelect";
+import {parseEnvironment} from "../model/EnvironmentModel";
 
 export default {
   name: "MsApiScenarioConfig",
@@ -90,7 +91,7 @@ export default {
   },
 
   props: {
-    testId: String,
+    test: Object,
     scenarios: Array,
     projectId: String,
     isReadOnly: {
@@ -112,15 +113,13 @@ export default {
   },
 
   watch: {
+    test() {
+      this.initScenarioEnvironment();
+    },
     projectId() {
       this.initScenarioEnvironment();
     }
   },
-
-  activated() {
-    this.initScenarioEnvironment();
-  },
-
   methods: {
     notContainsScenario(item) {
       for (let scenario of this.scenarios) {
@@ -151,6 +150,7 @@ export default {
     deleteScenario(index) {
       this.scenarios.splice(index, 1);
       if (this.scenarios.length === 0) {
+        this.type = this.types.CREATE;
         this.createScenario();
         this.select(this.scenarios[0]);
       }
@@ -203,6 +203,7 @@ export default {
           let environments = response.data;
           let environmentMap = new Map();
           environments.forEach(environment => {
+            parseEnvironment(environment);
             environmentMap.set(environment.id, environment);
           });
           this.scenarios.forEach(scenario => {
@@ -210,9 +211,13 @@ export default {
               let env = environmentMap.get(scenario.environmentId);
               if (!env) {
                 scenario.environmentId = undefined;
+                scenario.environment = undefined;
               } else {
                 scenario.environment = env;
               }
+            } else {
+              scenario.environmentId = undefined;
+              scenario.environment = undefined;
             }
           });
         });
@@ -250,7 +255,7 @@ export default {
 
   created() {
     this.select(this.scenarios[0]);
-  }
+  },
 }
 </script>
 

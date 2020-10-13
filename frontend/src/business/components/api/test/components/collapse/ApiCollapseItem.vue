@@ -6,10 +6,10 @@
       :aria-expanded="isActive"
       :aria-controls="`el-collapse-content-${id}`"
       :aria-describedby="`el-collapse-content-${id}`"
+      @click="handleHeaderClick"
     >
       <div
         class="el-collapse-item__header"
-        @click="handleHeaderClick"
         role="button"
         :id="`el-collapse-head-${id}`"
         :tabindex="disabled ? undefined : 0"
@@ -21,10 +21,11 @@
         @focus="handleFocus"
         @blur="focusing = false"
       >
-        <i
-          class="el-collapse-item__arrow el-icon-arrow-right"
-          :class="{'is-active': isActive}">
-        </i>
+        <div @click.stop="handleCollapseClick">
+          <i class="el-collapse-item__arrow el-icon-arrow-right"
+             :class="{'is-active': isActive}">
+          </i>
+        </div>
         <slot name="title">{{title}}</slot>
       </div>
     </div>
@@ -100,6 +101,12 @@
       handleHeaderClick() {
         if (this.disabled) return;
         this.dispatch('MsApiCollapse', 'item-click', this);
+        this.focusing = false;
+        this.isClick = true;
+      },
+      handleCollapseClick() {
+        if (this.disabled) return;
+        this.dispatch('MsApiCollapse', 'collapse-click', this);
         this.focusing = false;
         this.isClick = true;
       },

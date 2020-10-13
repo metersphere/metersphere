@@ -1,4 +1,5 @@
 export const TokenKey = 'Admin-Token';
+export const LicenseKey = 'License';
 export const DEFAULT_LANGUAGE = 'default_language';
 
 export const ROLE_ADMIN = 'admin';

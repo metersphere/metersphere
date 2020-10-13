@@ -13,13 +13,13 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
+import io.metersphere.service.CheckOwnerService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-
 import java.util.List;
 
 @RestController
@@ -28,6 +28,8 @@ import java.util.List;
 public class APITestController {
     @Resource
     private APITestService apiTestService;
+    @Resource
+    private CheckOwnerService checkownerService;
 
     @GetMapping("recent/{count}")
     public List<APITestResult> recentTest(@PathVariable int count) {
@@ -52,6 +54,7 @@ public class APITestController {
 
     @GetMapping("/list/{projectId}")
     public List<ApiTest> list(@PathVariable String projectId) {
+        checkownerService.checkProjectOwner(projectId);
         return apiTestService.getApiTestByProjectId(projectId);
     }
 
@@ -72,6 +75,7 @@ public class APITestController {
 
     @PostMapping(value = "/update", consumes = {"multipart/form-data"})
     public void update(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
+        checkownerService.checkApiTestOwner(request.getId());
         apiTestService.update(request, file, bodyFiles);
     }
 
@@ -82,13 +86,16 @@ public class APITestController {
 
     @GetMapping("/get/{testId}")
     public APITestResult get(@PathVariable String testId) {
+        checkownerService.checkApiTestOwner(testId);
         return apiTestService.get(testId);
     }
 
 
     @PostMapping("/delete")
     public void delete(@RequestBody DeleteAPITestRequest request) {
-        apiTestService.delete(request.getId());
+        String testId = request.getId();
+        checkownerService.checkApiTestOwner(testId);
+        apiTestService.delete(testId);
     }
 
     @PostMapping(value = "/run")

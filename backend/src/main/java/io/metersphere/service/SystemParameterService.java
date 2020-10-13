@@ -3,9 +3,11 @@ package io.metersphere.service;
 import io.metersphere.base.domain.SystemParameter;
 import io.metersphere.base.domain.SystemParameterExample;
 import io.metersphere.base.mapper.SystemParameterMapper;
+import io.metersphere.base.mapper.ext.ExtSystemParameterMapper;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.EncryptUtils;
+import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.ldap.domain.LdapInfo;
 import org.apache.commons.collections.CollectionUtils;
@@ -24,7 +26,12 @@ public class SystemParameterService {
 
     @Resource
     private SystemParameterMapper systemParameterMapper;
+    @Resource
+    private ExtSystemParameterMapper extSystemParameterMapper;
 
+   public String searchEmail(){
+       return extSystemParameterMapper.email();
+   }
     public String getSystemLanguage() {
         String result = StringUtils.EMPTY;
         SystemParameterExample example = new SystemParameterExample();
@@ -175,5 +182,31 @@ public class SystemParameterService {
             return null;
         }
         return param.getParamValue();
+    }
+
+    public BaseSystemConfigDTO getBaseInfo() {
+        BaseSystemConfigDTO baseSystemConfigDTO = new BaseSystemConfigDTO();
+        List<SystemParameter> paramList = this.getParamList(ParamConstants.Classify.BASE.getValue());
+        if (!CollectionUtils.isEmpty(paramList)) {
+            for (SystemParameter param : paramList) {
+                if (StringUtils.equals(param.getParamKey(), ParamConstants.BASE.URL.getValue())) {
+                    baseSystemConfigDTO.setUrl(param.getParamValue());
+                }
+            }
+        }
+        return baseSystemConfigDTO;
+    }
+
+    public void saveBaseInfo(List<SystemParameter> parameters) {
+        SystemParameterExample example = new SystemParameterExample();
+        parameters.forEach(param -> {
+            example.createCriteria().andParamKeyEqualTo(param.getParamKey());
+            if (systemParameterMapper.countByExample(example) > 0) {
+                systemParameterMapper.updateByPrimaryKey(param);
+            } else {
+                systemParameterMapper.insert(param);
+            }
+            example.clear();
+        });
     }
 }

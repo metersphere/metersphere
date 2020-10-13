@@ -16,8 +16,7 @@
         <el-table-column prop="status" :label="$t('test_resource_pool.enable_disable')">
           <template v-slot:default="scope">
             <el-switch v-model="scope.row.status"
-                       active-color="#13ce66"
-                       inactive-color="#ff4949"
+                       inactive-color="#DCDFE6"
                        active-value="VALID"
                        inactive-value="INVALID"
                        @change="changeSwitch(scope.row)"

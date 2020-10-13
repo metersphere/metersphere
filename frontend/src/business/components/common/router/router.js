@@ -26,6 +26,9 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
+
+  redirectLoginPath(to.fullPath);
+
   //解决localStorage清空，cookie没失效导致的卡死问题
   if (!localStorage.getItem('Admin-Token')) {
     axios.get("/signout");
@@ -37,5 +40,25 @@ router.beforeEach((to, from, next) => {
     next();
   }
 });
+
+//重复点击导航路由报错
+const routerPush = VueRouter.prototype.push;
+VueRouter.prototype.push = function push(location) {
+  return routerPush.call(this, location).catch(error => error)
+}
+
+
+// 登入后跳转至原路径
+function redirectLoginPath(originPath) {
+  let redirectUrl = sessionStorage.getItem('redirectUrl');
+  let loginSuccess = sessionStorage.getItem('loginSuccess');
+  sessionStorage.setItem('redirectUrl', originPath);
+  if (redirectUrl && loginSuccess) {
+    sessionStorage.removeItem('loginSuccess');
+    router.push(redirectUrl);
+  }
+  sessionStorage.removeItem('loginSuccess');
+}
+
 
 export default router

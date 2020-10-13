@@ -11,7 +11,7 @@
 
       <el-container class="main-content">
         <el-aside class="tree-aside" width="250px">
-          <el-link type="primary" class="project-link" @click="switchProject">{{projectName ? projectName : '切换项目' }}</el-link>
+          <el-link type="primary" class="project-link" @click="switchProject">{{projectName ? projectName : $t('test_track.switch_project') }}</el-link>
           <node-tree class="node-tree"
                      @nodeSelectEvent="nodeChange"
                      @refresh="refresh"
@@ -154,6 +154,7 @@
     },
     methods: {
       openTestCaseRelevanceDialog() {
+        this.getProject();
         this.initData();
         this.dialogFormVisible = true;
       },
@@ -219,7 +220,6 @@
       initData() {
         this.getCaseNames();
         this.getAllNodeTreeByPlanId();
-        this.getProject();
       },
       refresh() {
         this.close();
@@ -256,7 +256,7 @@
       },
       getProject() {
         if (this.planId) {
-          this.$get("/test/plan/project/" + this.planId,res => {
+          this.$post("/test/plan/project/", {planId: this.planId},res => {
             let data = res.data;
             if (data) {
               this.projects = data;
@@ -267,7 +267,7 @@
         }
       },
       switchProject() {
-        this.$refs.switchProject.open(this.planId);
+        this.$refs.switchProject.open({id: this.planId, url: '/test/plan/project/',type: 'plan'});
       },
       getProjectNode(projectId) {
         const index = this.projects.findIndex(project => project.id === projectId);

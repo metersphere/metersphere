@@ -5,7 +5,6 @@ import com.alibaba.excel.write.metadata.style.WriteCellStyle;
 import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.exception.ExcelException;
-import org.apache.poi.ss.usermodel.IndexedColors;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -15,18 +14,10 @@ import java.util.List;
 
 public class EasyExcelExporter {
 
-    EasyExcelI18nTranslator easyExcelI18nTranslator;
-
     private Class clazz;
 
     public EasyExcelExporter(Class clazz) {
         this.clazz = clazz;
-        //防止多线程修改运行时类注解后，saveOriginalExcelProperty保存的是修改后的值
-        synchronized (EasyExcelI18nTranslator.class) {
-            easyExcelI18nTranslator = new EasyExcelI18nTranslator(clazz);
-            easyExcelI18nTranslator.translateExcelProperty();
-        }
-
     }
 
     public void export(HttpServletResponse response, List data, String fileName, String sheetName) {
@@ -45,10 +36,6 @@ public class EasyExcelExporter {
             LogUtil.error(e.getMessage(), e);
             throw new ExcelException("IO exception");
         }
-    }
-
-    public void close() {
-        easyExcelI18nTranslator.resetExcelProperty();
     }
 
 }

@@ -6,7 +6,8 @@
           <span class="character">SCHEDULER</span>
         </span>
       <el-switch :disabled="!schedule.value || isReadOnly" v-model="schedule.enable" @change="scheduleChange"/>
-      <ms-schedule-edit :is-read-only="isReadOnly" :schedule="schedule" :save="save" :custom-validate="customValidate"
+      <ms-schedule-edit :is-read-only="isReadOnly" :schedule="schedule" :test-id="testId" :save="save"
+                        :custom-validate="customValidate"
                         ref="scheduleEdit"/>
 
     </div>
@@ -22,89 +23,108 @@
 </template>
 
 <script>
-import MsScheduleEdit from "./MsScheduleEdit";
-import CrontabResult from "../cron/CrontabResult";
+  import MsScheduleEdit from "./MsScheduleEdit";
+  import CrontabResult from "../cron/CrontabResult";
 
-function defaultCustomValidate() {
-  return {pass: true};
-}
+  function defaultCustomValidate() {
+    return {pass: true};
+  }
 
-export default {
-  name: "MsScheduleConfig",
-  components: {CrontabResult, MsScheduleEdit},
-  data() {
-    return {
-      recentList: [],
-    }
-  },
-  props: {
-    save: Function,
-    schedule: {},
-    checkOpen: {
-      type: Function,
-      default() {
-        return {
-          checkOpen() {
-            return true;
+  export default {
+    name: "MsScheduleConfig",
+    components: {CrontabResult, MsScheduleEdit},
+    data() {
+      return {
+        recentList: [],
+        refreshScheduler: null,
+      }
+    },
+    props: {
+      testId: String,
+      save: Function,
+      schedule: {},
+      checkOpen: {
+        type: Function,
+        default() {
+          return {
+            checkOpen() {
+              return true;
+            }
           }
+        }
+      },
+      customValidate: {
+        type: Function,
+        default: defaultCustomValidate
+      },
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      }
+    },
+    methods: {
+      scheduleEdit() {
+        if (!this.checkOpen()) {
+          return;
+        }
+        this.$refs.scheduleEdit.open();
+      },
+      scheduleChange() {
+        this.$emit('scheduleChange');
+      },
+      flashResultList() {
+        this.$refs.crontabResult.expressionChange();
+      },
+      cancelRefresh() {
+        if (this.refreshScheduler) {
+          clearInterval(this.refreshScheduler);
         }
       }
     },
-    customValidate: {
-      type: Function,
-      default: defaultCustomValidate
+    beforeDestroy() {
+      this.cancelRefresh();
     },
-    isReadOnly: {
-      type: Boolean,
-      default: false
-    }
-  },
-  methods: {
-    scheduleEdit() {
-      if (!this.checkOpen()) {
-        return;
+    watch: {
+      schedule() {
+        if (this.schedule.enable) {
+          this.refreshScheduler = setInterval(this.flashResultList, 2000);
+        } else {
+          this.cancelRefresh();
+        }
       }
-      this.$refs.scheduleEdit.open();
-    },
-    scheduleChange() {
-      this.$emit('scheduleChange');
-    },
-    flashResultList() {
-      this.$refs.crontabResult.expressionChange();
     }
   }
-}
 </script>
 
 <style scoped>
 
-.schedule-config {
-  float: right;
-  width: 250px;
-  height: 15px;
-  line-height: 25px;
-}
+  .schedule-config {
+    float: right;
+    width: 250px;
+    height: 15px;
+    line-height: 25px;
+  }
 
-.el-icon-date {
-  font-size: 20px;
-  margin-left: 5px;
-}
+  .el-icon-date {
+    font-size: 20px;
+    margin-left: 5px;
+  }
 
-.character {
-  font-weight: bold;
-  margin: 0 5px;
-}
+  .character {
+    font-weight: bold;
+    margin: 0 5px;
+  }
 
-.disable-character {
-  color: #cccccc;
-}
+  .disable-character {
+    color: #cccccc;
+  }
 
-.el-switch {
-  margin: 0 5px;
-}
+  .el-switch {
+    margin: 0 5px;
+  }
 
-.cron-ico {
-  cursor: pointer;
-}
+  .cron-ico {
+    cursor: pointer;
+  }
 
 </style>

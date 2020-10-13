@@ -7,6 +7,9 @@ import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.notice.domain.NoticeDetail;
+import io.metersphere.notice.service.MailService;
+import io.metersphere.notice.service.NoticeService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.AssertionResult;
 import org.apache.jmeter.samplers.SampleResult;
@@ -113,9 +116,17 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             report = apiReportService.getRunningReport(testResult.getTestId());
         }
         apiReportService.complete(testResult, report);
-
         queue.clear();
         super.teardownTest(context);
+        NoticeService noticeService = CommonBeanFactory.getBean(NoticeService.class);
+        try {
+            List<NoticeDetail> noticeList = noticeService.queryNotice(testResult.getTestId());
+            MailService mailService = CommonBeanFactory.getBean(MailService.class);
+            mailService.sendApiNotification(report, noticeList);
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
+
     }
 
     private RequestResult getRequestResult(SampleResult result) {
@@ -126,6 +137,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         requestResult.setBody(result.getSamplerData());
         requestResult.setHeaders(result.getRequestHeaders());
         requestResult.setRequestSize(result.getSentBytes());
+        requestResult.setStartTime(result.getStartTime());
         requestResult.setTotalAssertions(result.getAssertionResults().length);
         requestResult.setSuccess(result.isSuccessful());
         requestResult.setError(result.getErrorCount());
@@ -170,7 +182,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         this.runMode = context.getParameter("runMode");
         this.debugReportId = context.getParameter("debugReportId");
         if (StringUtils.isBlank(this.runMode)) {
-            this.runMode =  ApiRunMode.RUN.name();
+            this.runMode = ApiRunMode.RUN.name();
         }
     }
 

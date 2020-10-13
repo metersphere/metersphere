@@ -61,6 +61,14 @@ public class UserService {
     @Resource
     private WorkspaceService workspaceService;
 
+    public List<String> queryEmail(List<String> userIds) {
+        return extUserMapper.queryEmailByIds(userIds);
+    }
+
+    public List<String> queryEmailByIds(List<String> userIds) {
+        return extUserMapper.queryEmailByIds(userIds);
+    }
+
     public UserDTO insert(UserRequest user) {
         checkUserParam(user);
         //
@@ -479,20 +487,18 @@ public class UserService {
 
     /*修改当前用户用户密码*/
     private User updateCurrentUserPwd(EditPassWordRequest request) {
-        if (SessionUtils.getUser() != null) {
-            User user = userMapper.selectByPrimaryKey(SessionUtils.getUser().getId());
-            String pwd = user.getPassword();
-            String prepwd = CodingUtil.md5(request.getPassword(), "utf-8");
-            String newped = request.getNewpassword();
-            if (StringUtils.isNotBlank(prepwd)) {
-                if (prepwd.trim().equals(pwd.trim())) {
-                    user.setPassword(CodingUtil.md5(newped));
-                    user.setUpdateTime(System.currentTimeMillis());
-                    return user;
-                }
-            }
-            MSException.throwException(Translator.get("password_modification_failed"));
+        String oldPassword = CodingUtil.md5(request.getPassword(), "utf-8");
+        String newPassword = request.getNewpassword();
+        UserExample userExample = new UserExample();
+        userExample.createCriteria().andIdEqualTo(SessionUtils.getUser().getId()).andPasswordEqualTo(oldPassword);
+        List<User> users = userMapper.selectByExample(userExample);
+        if (!CollectionUtils.isEmpty(users)) {
+            User user = users.get(0);
+            user.setPassword(CodingUtil.md5(newPassword));
+            user.setUpdateTime(System.currentTimeMillis());
+            return user;
         }
+        MSException.throwException(Translator.get("password_modification_failed"));
         return null;
     }
 
@@ -504,8 +510,8 @@ public class UserService {
     /*管理员修改用户密码*/
     private User updateUserPwd(EditPassWordRequest request) {
         User user = userMapper.selectByPrimaryKey(request.getId());
-        String newped = request.getNewpassword();
-        user.setPassword(CodingUtil.md5(newped));
+        String newPassword = request.getNewpassword();
+        user.setPassword(CodingUtil.md5(newPassword));
         user.setUpdateTime(System.currentTimeMillis());
         return user;
     }

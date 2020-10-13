@@ -16,6 +16,11 @@
           show-overflow-tooltip>
         </el-table-column>
         <el-table-column
+          prop="projectName"
+          :label="$t('test_track.module.project_name')"
+          show-overflow-tooltip>
+        </el-table-column>
+        <el-table-column
           prop="title"
           :label="$t('test_track.module.title')"
           show-overflow-tooltip>
@@ -43,7 +48,7 @@
                 show-overflow-tooltip>
         </el-table-column>
         <el-table-column
-          prop="lastmodify"
+          prop="currentOwner"
           :label="$t('test_track.module.current_owner')"
           show-overflow-tooltip>
         </el-table-column>

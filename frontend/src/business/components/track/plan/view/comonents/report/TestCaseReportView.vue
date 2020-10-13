@@ -25,42 +25,42 @@
             <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleEdit">
               {{$t('test_track.plan_view.edit_component')}}
             </el-button>
-            <!--<el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExport(report.name)">
+            <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExport(report.name)">
               {{$t('test_track.plan_view.export_report')}}
-            </el-button>-->
+            </el-button>
           </el-col>
         </el-row>
 
         <div class="container" ref="resume" id="app">
           <el-main>
-            <div class="preview" v-for="item in previews" :key="item.id">
-              <template-component :isReportView="true" :metric="metric" :preview="item"/>
+            <div v-for="(item, index) in previews" :key="item.id">
+              <template-component :isReportView="true" :metric="metric" :preview="item" :index="index" ref="templateComponent"/>
             </div>
           </el-main>
         </div>
+
       </template>
     </el-drawer>
+    <ms-test-case-report-export v-if="reportExportVisible" id="testCaseReportExport" :title="report.name" :metric="metric" :previews="previews"/>
     <test-case-report-template-edit :metric="metric" ref="templateEdit" @refresh="getReport"/>
-    <!-- <script>
-
-     </script>-->
   </div>
 </template>
 
 <script>
-  import {checkoutTestManagerOrTestUser, jsonToMap, mapToJson} from "../../../../../../../common/js/utils";
+  import {checkoutTestManagerOrTestUser, exportPdf, jsonToMap, mapToJson} from "../../../../../../../common/js/utils";
   import BaseInfoComponent from "./TemplateComponent/BaseInfoComponent";
   import TestResultChartComponent from "./TemplateComponent/TestResultChartComponent";
   import TestResultComponent from "./TemplateComponent/TestResultComponent";
   import RichTextComponent from "./TemplateComponent/RichTextComponent";
   import TestCaseReportTemplateEdit from "./TestCaseReportTemplateEdit";
   import TemplateComponent from "./TemplateComponent/TemplateComponent";
-  import writer from 'file-writer'
-  import ReportStyle from "../../../../../../../common/css/report.css.js";
+  import html2canvas from "html2canvas";
+  import MsTestCaseReportExport from "../TestCaseReportExport";
 
   export default {
     name: "TestCaseReportView",
     components: {
+      MsTestCaseReportExport,
       TemplateComponent,
       TestCaseReportTemplateEdit,
       RichTextComponent, TestResultComponent, TestResultChartComponent, BaseInfoComponent
@@ -75,6 +75,7 @@
         reportId: '',
         metric: {},
         planId: '',
+        reportExportVisible: false,
         componentMap: new Map(
           [
             [1, {name: this.$t('test_track.plan_view.base_info'), id: 1, type: 'system'}],
@@ -178,7 +179,7 @@
       },
       getMetric() {
         this.result = this.$get('/test/plan/get/metric/' + this.planId, response => {
-          this.metric = response.data
+          this.metric = response.data;
 
           if (!this.metric.failureTestCases) {
             this.metric.failureTestCases = [];
@@ -203,33 +204,27 @@
           }
         });
       },
-      /*导出报告*/
       handleExport(name) {
-        let html = this.getHtml();
-        writer(`${name}.html`, html, 'utf-8');
-        console.log(html)
-      },
-      getHtml() {
-        let template = this.$refs.resume.innerHTML;
-        let html = `<!DOCTYPE html>
-                 <html>
-                 <head>
-                 <meta charset="utf-8">
-                 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-                 <title>html</title>
-                <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
-                <style>${ReportStyle}</style>
-                </head>
-                <body>
-                <div style="margin:0 auto;width:1200px">
-                     ${template}
-                </div>
-                <script src="https://cdn.bootcss.com/element-ui/2.4.11/index.js"/>
-                </body>
-                </html>`
-        return html
-      },
+        this.result.loading = true;
+        this.reportExportVisible = true;
+        let reset = this.exportReportReset;
 
+        this.$nextTick(function () {
+          setTimeout(() => {
+            html2canvas(document.getElementById('testCaseReportExport'), {
+              scale: 2
+            }).then(function(canvas) {
+              exportPdf(name, [canvas]);
+              reset();
+            });
+          }, 1000);
+        });
+
+      },
+      exportReportReset() {
+        this.reportExportVisible = false;
+        this.result.loading = false;
+      },
     }
   }
 </script>

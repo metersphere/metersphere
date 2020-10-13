@@ -18,10 +18,6 @@ MeterSphere 是一站式的开源企业级持续测试平台，涵盖测试跟�
 
 > 如需进一步了解 MeterSphere 开源项目，推荐阅读 [MeterSphere 的初心和使命](https://mp.weixin.qq.com/s/DpCt3BNgBTlV3sJ5qtPmZw)
 
-## UI 展示
-
-![UI](https://metersphere.io/images/screenshot/ss01.png)
-
 ## 在线体验
 - 环境地址：https://demo.metersphere.com/
 - 用户名：demo

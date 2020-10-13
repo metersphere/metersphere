@@ -1,12 +1,12 @@
 import MsProject from "@/business/components/project/MsProject";
 
-const PerformanceTest = () => import(/* webpackChunkName: "performance" */ '@/business/components/performance/PerformanceTest')
-const PerformanceTestHome = () => import(/* webpackChunkName: "performance" */ '@/business/components/performance/home/PerformanceTestHome')
-const EditPerformanceTestPlan = () => import(/* webpackChunkName: "performance" */ '@/business/components/performance/test/EditPerformanceTestPlan')
-const PerformanceTestPlan = () => import(/* webpackChunkName: "performance" */ '@/business/components/performance/test/PerformanceTestPlan')
-const PerformanceTestReport = () => import(/* webpackChunkName: "performance" */ '@/business/components/performance/report/PerformanceTestReport')
-const PerformanceChart = () => import(/* webpackChunkName: "performance" */ '@/business/components/performance/report/components/PerformanceChart')
-const PerformanceReportView = () => import(/* webpackChunkName: "performance" */ '@/business/components/performance/report/PerformanceReportView')
+const PerformanceTest = () => import('@/business/components/performance/PerformanceTest')
+const PerformanceTestHome = () => import('@/business/components/performance/home/PerformanceTestHome')
+const EditPerformanceTestPlan = () => import('@/business/components/performance/test/EditPerformanceTestPlan')
+const PerformanceTestPlan = () => import('@/business/components/performance/test/PerformanceTestPlan')
+const PerformanceTestReport = () => import('@/business/components/performance/report/PerformanceTestReport')
+const PerformanceChart = () => import('@/business/components/performance/report/components/PerformanceChart')
+const PerformanceReportView = () => import('@/business/components/performance/report/PerformanceReportView')
 
 export default {
   path: "/performance",
