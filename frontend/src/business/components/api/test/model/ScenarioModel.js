@@ -1052,9 +1052,20 @@ class JMXTCPRequest {
       obj.set(scenario.environment.config.tcpConfig, true);
       return obj;
     }
-    obj.set(scenario.tcpConfig, true);
+
+    this.copy(this, scenario.tcpConfig);
 
     return obj;
+  }
+
+  copy(target, source) {
+    for (let key in source) {
+      if (source.hasOwnProperty(key)) {
+        if (source[key] !== undefined && !target[key]) {
+          target[key] = source[key];
+        }
+      }
+    }
   }
 }
 
