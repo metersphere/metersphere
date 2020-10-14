@@ -248,6 +248,10 @@ public class XmindCaseParser {
         String nodePath = data.getNodePath();
         StringBuilder stringBuilder = new StringBuilder();
 
+        if (data.getName().length() > 50) {
+            stringBuilder.append(data.getName() + "：" + Translator.get("test_case") + Translator.get("test_track.length_less_than") + "50 ;");
+        }
+
         if (!StringUtils.isEmpty(nodePath)) {
             String[] nodes = nodePath.split("/");
             if (nodes.length > TestCaseConstants.MAX_NODE_DEPTH + 1) {
@@ -259,7 +263,7 @@ public class XmindCaseParser {
                     stringBuilder.append(Translator.get("module_not_null") + "; ");
                     break;
                 } else if (nodes[i].trim().length() > 30) {
-                    stringBuilder.append(nodes[i].trim() + "：" + Translator.get("test_track.length_less_than") + "30 ;");
+                    stringBuilder.append(nodes[i].trim() + "：" + Translator.get("module") + Translator.get("test_track.length_less_than") + "30 ;");
                     break;
                 }
             }

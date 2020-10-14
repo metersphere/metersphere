@@ -45,7 +45,6 @@
     width: 20px;
     height: 25px;
     line-height: 25px;
-    background-color: #FFF;
   }
 
   .show-more-btn-title {
