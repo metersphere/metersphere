@@ -27,6 +27,11 @@
           currentConfig: new DatabaseConfig()
         }
       },
+      watch: {
+        configs() {
+          this.currentConfig = new DatabaseConfig();
+        }
+      },
       methods: {
         saveConfig(config) {
           for (let item of this.configs) {
