@@ -477,6 +477,7 @@ export class SqlRequest extends Request {
     this.useEnvironment = options.useEnvironment;
     this.resultVariable = options.resultVariable;
     this.variableNames = options.variableNames;
+    this.variables = options.variables || [];
     this.debugReport = undefined;
     this.dataSource = options.dataSource;
     this.query = options.query;
@@ -1127,6 +1128,7 @@ class JMXGenerator {
             } else if (request instanceof SqlRequest) {
               request.dataSource = scenario.databaseConfigMap.get(request.dataSource);
               sampler = new JDBCSampler(request.name || "", request);
+              this.addRequestVariables(sampler, request);
             } else if (request instanceof TCPRequest) {
               sampler = new TCPSampler(request.name || "", new JMXTCPRequest(request, scenario));
             }
@@ -1185,6 +1187,14 @@ class JMXGenerator {
     if (args.length > 0) {
       let name = scenario.name + " Variables";
       threadGroup.put(new Arguments(name, args));
+    }
+  }
+
+  addRequestVariables(httpSamplerProxy, request) {
+    let name = request.name + " Variables";
+    let variables = this.filterKV(request.variables);
+    if (variables && variables.length > 0) {
+      httpSamplerProxy.put(new Arguments(name, variables));
     }
   }
 
