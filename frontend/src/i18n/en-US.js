@@ -807,6 +807,7 @@ export default {
       all_case: "All case",
       start_review: "Start Review",
       relevance_case: "Relevance Case",
+      last_page: "It's the end！",
       execute_result: "Result",
     },
     module: {

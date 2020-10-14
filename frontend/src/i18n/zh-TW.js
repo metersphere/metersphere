@@ -809,6 +809,7 @@ export default {
       all_case: "全部用例",
       start_review: "開始評審",
       relevance_case: "關聯用例",
+      last_page: "已經到底了！",
       execute_result: "評審結果",
     },
     module: {
