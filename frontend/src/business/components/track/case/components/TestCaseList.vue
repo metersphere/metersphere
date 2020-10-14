@@ -66,7 +66,7 @@
               trigger="hover"
             >
               <test-case-detail :test-case="scope.row"/>
-              <p slot="reference">{{ scope.row.name }}</p>
+              <span slot="reference">{{ scope.row.name }}</span>
             </el-popover>
           </template>
         </el-table-column>

@@ -26,10 +26,13 @@ import io.metersphere.excel.listener.EasyExcelListener;
 import io.metersphere.excel.listener.TestCaseDataListener;
 import io.metersphere.excel.utils.EasyExcelExporter;
 import io.metersphere.i18n.Translator;
+import io.metersphere.service.FileService;
 import io.metersphere.track.dto.TestCaseDTO;
+import io.metersphere.track.request.testcase.EditTestCaseRequest;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
 import io.metersphere.xmind.XmindCaseParser;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -83,8 +86,12 @@ public class TestCaseService {
     TestCaseReviewTestCaseMapper testCaseReviewTestCaseMapper;
     @Resource
     TestCaseCommentService testCaseCommentService;
+    @Resource
+    FileService fileService;
+    @Resource
+    TestCaseFileMapper testCaseFileMapper;
 
-    public void addTestCase(TestCaseWithBLOBs testCase) {
+    private TestCaseWithBLOBs addTestCase(TestCaseWithBLOBs testCase) {
         testCase.setName(testCase.getName());
         checkTestCaseExist(testCase);
         testCase.setId(UUID.randomUUID().toString());
@@ -93,6 +100,7 @@ public class TestCaseService {
         testCase.setNum(getNextNum(testCase.getProjectId()));
         testCase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
         testCaseMapper.insert(testCase);
+        return testCase;
     }
 
     public List<TestCase> getTestCaseByNodeId(List<String> nodeIds) {
@@ -595,5 +603,56 @@ public class TestCaseService {
         }
 
         return false;
+    }
+
+    public String save(TestCaseWithBLOBs testCase, List<MultipartFile> files) {
+        if (files == null) {
+            throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
+        }
+        final TestCaseWithBLOBs testCaseWithBLOBs = addTestCase(testCase);
+        files.forEach(file -> {
+            final FileMetadata fileMetadata = fileService.saveFile(file);
+            TestCaseFile testCaseFile = new TestCaseFile();
+            testCaseFile.setCaseId(testCaseWithBLOBs.getId());
+            testCaseFile.setFileId(fileMetadata.getId());
+            testCaseFileMapper.insert(testCaseFile);
+        });
+        return testCaseWithBLOBs.getId();
+    }
+
+    public String edit(EditTestCaseRequest request, List<MultipartFile> files) {
+        TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(request.getId());
+        if (testCaseWithBLOBs == null) {
+            MSException.throwException(Translator.get("edit_load_test_not_found") + request.getId());
+        }
+
+        // 新选择了一个文件，删除原来的文件
+        List<FileMetadata> updatedFiles = request.getUpdatedFileList();
+        List<FileMetadata> originFiles = fileService.getFileMetadataByCaseId(request.getId());
+        List<String> updatedFileIds = updatedFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
+        List<String> originFileIds = originFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
+        // 相减
+        List<String> deleteFileIds = ListUtils.subtract(originFileIds, updatedFileIds);
+        fileService.deleteFileRelatedByIds(deleteFileIds);
+
+        if (!CollectionUtils.isEmpty(deleteFileIds)) {
+            TestCaseFileExample testCaseFileExample = new TestCaseFileExample();
+            testCaseFileExample.createCriteria().andFileIdIn(deleteFileIds);
+            testCaseFileMapper.deleteByExample(testCaseFileExample);
+        }
+
+
+        if (files != null) {
+            files.forEach(file -> {
+                final FileMetadata fileMetadata = fileService.saveFile(file);
+                TestCaseFile testCaseFile = new TestCaseFile();
+                testCaseFile.setFileId(fileMetadata.getId());
+                testCaseFile.setCaseId(request.getId());
+                testCaseFileMapper.insert(testCaseFile);
+            });
+        }
+
+        editTestCase(request);
+        return request.getId();
     }
 }
