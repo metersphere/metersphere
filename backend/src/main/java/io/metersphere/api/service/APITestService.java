@@ -83,15 +83,19 @@ public class APITestService {
     }
 
     public void create(SaveAPITestRequest request, MultipartFile file, List<MultipartFile> bodyFiles) {
+        List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
+        ApiTest test = createTest(request, file);
+        createBodyFiles(test, bodyUploadIds, bodyFiles);
+    }
+    private ApiTest createTest(SaveAPITestRequest request, MultipartFile file) {
         if (file == null) {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
         }
         checkQuota();
-        List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         request.setBodyUploadIds(null);
         ApiTest test = createTest(request);
-        createBodyFiles(test, bodyUploadIds, bodyFiles);
         saveFile(test.getId(), file);
+        return test;
     }
 
     public void update(SaveAPITestRequest request, MultipartFile file, List<MultipartFile> bodyFiles) {
@@ -108,6 +112,9 @@ public class APITestService {
     }
 
     private void createBodyFiles(ApiTest test, List<String> bodyUploadIds, List<MultipartFile> bodyFiles) {
+        if (bodyUploadIds.size() <= 0) {
+            return;
+        }
         String dir = BODY_FILE_DIR + "/" + test.getId();
         File testDir = new File(dir);
         if (!testDir.exists()) {
@@ -435,5 +442,12 @@ public class APITestService {
         if (quotaService != null) {
             quotaService.checkAPITestQuota();
         }
+    }
+
+    public void mergeCreate(SaveAPITestRequest request, MultipartFile file, List<String> selectIds) {
+        ApiTest test = createTest(request, file);
+        selectIds.forEach(sourceId -> {
+            copyBodyFiles(test.getId(), sourceId);
+        });
     }
 }
