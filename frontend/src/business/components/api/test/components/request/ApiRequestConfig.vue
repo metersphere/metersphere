@@ -9,7 +9,7 @@
           <div class="request-type">
             {{ request.showType() }}
           </div>
-          <div class="request-method">
+          <div class="request-method" :style="{'color': getColor(request.enable, request.showMethod())}">
             {{ request.showMethod() }}
           </div>
           <div class="request-name">
@@ -85,7 +85,13 @@ export default {
       selected: 0,
       visible: false,
       types: RequestFactory.TYPES,
-      type: ""
+      type: "",
+      methodColorMap: new Map([
+        ['GET', "#61AFFE"], ['POST', '#49CC90'], ['PUT', '#fca130'],
+        ['PATCH', '#E2EE11'], ['DELETE', '#f93e3d'], ['OPTIONS', '#0EF5DA'],
+        ['HEAD', '#8E58E7'], ['CONNECT', '#90AFAE'],
+        ['DUBBO', '#C36EEF'],['SQL', '#0AEAD4'],['TCP', '#0A52DF'],
+      ])
     }
   },
 
@@ -154,6 +160,11 @@ export default {
         case "wait":
           this.addTimer(command.index);
           break;
+      }
+    },
+    getColor(enable, method) {
+      if (enable) {
+        return this.methodColorMap.get(method);
       }
     },
     select(request) {
