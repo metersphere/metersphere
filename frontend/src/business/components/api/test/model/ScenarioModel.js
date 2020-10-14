@@ -477,14 +477,14 @@ export class SqlRequest extends Request {
     this.useEnvironment = options.useEnvironment;
     this.resultVariable = options.resultVariable;
     this.variableNames = options.variableNames;
-    this.variables = options.variables || [];
+    this.variables = [];
     this.debugReport = undefined;
     this.dataSource = options.dataSource;
     this.query = options.query;
     // this.queryType = options.queryType;
     this.queryTimeout = options.queryTimeout || 60000;
 
-    this.sets({args: KeyValue, attachmentArgs: KeyValue}, options);
+    this.sets({args: KeyValue, attachmentArgs: KeyValue, variables: KeyValue}, options);
   }
 
   isValid() {
@@ -1117,7 +1117,6 @@ class JMXGenerator {
           if (request.enable) {
             if (!request.isValid()) return;
             let sampler;
-
             if (request instanceof DubboRequest) {
               sampler = new DubboSample(request.name || "", new JMXDubboRequest(request, scenario.dubboConfig));
             } else if (request instanceof HttpRequest) {
