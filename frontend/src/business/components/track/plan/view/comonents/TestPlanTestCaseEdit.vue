@@ -231,7 +231,7 @@
                              filterable
                              style="width: 20%"
                              :placeholder="$t('test_track.issue.please_choose_current_owner')"
-                             collapse-tags>
+                             collapse-tags size="small">
                     <el-option v-for="(userInfo, index) in users" :key="index" :label="userInfo.user"
                                :value="userInfo.user"/>
                   </el-select>
