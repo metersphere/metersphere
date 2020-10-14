@@ -505,6 +505,7 @@ export default {
       connect_timeout: "連接超時",
       response_timeout: "響應超時",
       follow_redirects: "跟隨重定向",
+      do_multipart_post: "對 POST 使用 multipart/form-data",
       body_upload_limit_size: "上傳文件大小不能超過 500 MB!",
       condition: "條件",
       condition_variable: "變量，例如: ${var}",

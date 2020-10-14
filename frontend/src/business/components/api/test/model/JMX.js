@@ -337,6 +337,7 @@ export class HTTPSamplerProxy extends DefaultTestElement {
     }
 
     this.boolProp("HTTPSampler.use_keepalive", options.keepalive, true);
+    this.boolProp("HTTPSampler.DO_MULTIPART_POST", options.doMultipartPost, false);
   }
 }
 

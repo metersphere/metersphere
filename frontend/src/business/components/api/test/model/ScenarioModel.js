@@ -346,6 +346,7 @@ export class HttpRequest extends Request {
     this.environment = options.environment;
     this.useEnvironment = options.useEnvironment;
     this.debugReport = undefined;
+    this.doMultipartPost = options.doMultipartPost;
     this.connectTimeout = options.connectTimeout || 60 * 1000;
     this.responseTimeout = options.responseTimeout;
     this.followRedirects = options.followRedirects === undefined ? true : options.followRedirects;
@@ -987,7 +988,7 @@ class JMXHttpRequest {
       this.connectTimeout = request.connectTimeout;
       this.responseTimeout = request.responseTimeout;
       this.followRedirects = request.followRedirects;
-
+      this.doMultipartPost = request.doMultipartPost;
     }
   }
 

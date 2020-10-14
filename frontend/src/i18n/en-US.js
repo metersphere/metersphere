@@ -504,6 +504,7 @@ export default {
       connect_timeout: "Connect Timeout",
       response_timeout: "Response Timeout",
       follow_redirects: "Follow Redirects",
+      do_multipart_post: "Use multipart/form-data for POST",
       body_upload_limit_size: "The file size does not exceed 500 MB",
       condition: "condition",
       condition_variable: "Variable, e.g: ${var}",
