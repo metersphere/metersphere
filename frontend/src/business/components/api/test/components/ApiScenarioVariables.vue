@@ -11,7 +11,7 @@
         </el-col>
 
         <el-col>
-          <ms-api-variable-input :show-variable="showVariable" :is-read-only="isReadOnly" v-model="item.name" size="small" maxlength="200" @change="change"
+          <ms-api-variable-input :show-copy="showCopy" :show-variable="showVariable" :is-read-only="isReadOnly" v-model="item.name" size="small" maxlength="200" @change="change"
                                  :placeholder="$t('api_test.variable_name')" show-word-limit/>
         </el-col>
         <el-col>
@@ -42,6 +42,10 @@
         default: false
       },
       showVariable: {
+        type: Boolean,
+        default: true
+      },
+      showCopy: {
         type: Boolean,
         default: true
       },

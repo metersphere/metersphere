@@ -346,6 +346,7 @@ export class HttpRequest extends Request {
     this.environment = options.environment;
     this.useEnvironment = options.useEnvironment;
     this.debugReport = undefined;
+    this.doMultipartPost = options.doMultipartPost;
     this.connectTimeout = options.connectTimeout || 60 * 1000;
     this.responseTimeout = options.responseTimeout;
     this.followRedirects = options.followRedirects === undefined ? true : options.followRedirects;
@@ -476,13 +477,14 @@ export class SqlRequest extends Request {
     this.useEnvironment = options.useEnvironment;
     this.resultVariable = options.resultVariable;
     this.variableNames = options.variableNames;
+    this.variables = [];
     this.debugReport = undefined;
     this.dataSource = options.dataSource;
     this.query = options.query;
     // this.queryType = options.queryType;
     this.queryTimeout = options.queryTimeout || 60000;
 
-    this.sets({args: KeyValue, attachmentArgs: KeyValue}, options);
+    this.sets({args: KeyValue, attachmentArgs: KeyValue, variables: KeyValue}, options);
   }
 
   isValid() {
@@ -987,7 +989,7 @@ class JMXHttpRequest {
       this.connectTimeout = request.connectTimeout;
       this.responseTimeout = request.responseTimeout;
       this.followRedirects = request.followRedirects;
-
+      this.doMultipartPost = request.doMultipartPost;
     }
   }
 
@@ -1115,7 +1117,6 @@ class JMXGenerator {
           if (request.enable) {
             if (!request.isValid()) return;
             let sampler;
-
             if (request instanceof DubboRequest) {
               sampler = new DubboSample(request.name || "", new JMXDubboRequest(request, scenario.dubboConfig));
             } else if (request instanceof HttpRequest) {
@@ -1126,6 +1127,7 @@ class JMXGenerator {
             } else if (request instanceof SqlRequest) {
               request.dataSource = scenario.databaseConfigMap.get(request.dataSource);
               sampler = new JDBCSampler(request.name || "", request);
+              this.addRequestVariables(sampler, request);
             } else if (request instanceof TCPRequest) {
               sampler = new TCPSampler(request.name || "", new JMXTCPRequest(request, scenario));
             }
@@ -1184,6 +1186,14 @@ class JMXGenerator {
     if (args.length > 0) {
       let name = scenario.name + " Variables";
       threadGroup.put(new Arguments(name, args));
+    }
+  }
+
+  addRequestVariables(httpSamplerProxy, request) {
+    let name = request.name + " Variables";
+    let variables = this.filterKV(request.variables);
+    if (variables && variables.length > 0) {
+      httpSamplerProxy.put(new Arguments(name, variables));
     }
   }
 

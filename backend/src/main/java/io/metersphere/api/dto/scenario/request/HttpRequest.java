@@ -35,4 +35,6 @@ public class HttpRequest extends Request {
     private Long responseTimeout;
     @JSONField(ordinal = 16)
     private Boolean followRedirects;
+    @JSONField(ordinal = 17)
+    private Boolean doMultipartPost;
 }

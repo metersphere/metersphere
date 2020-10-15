@@ -3,7 +3,7 @@
       <el-form :model="commonConfig" :rules="rules" ref="commonConfig">
 
         <span>{{$t('api_test.environment.globalVariable')}}</span>
-        <ms-api-scenario-variables :items="commonConfig.variables"/>
+        <ms-api-scenario-variables :show-copy="false" :items="commonConfig.variables"/>
 
         <el-form-item>
           <el-switch v-model="commonConfig.enableHost" active-text="Hosts"/>

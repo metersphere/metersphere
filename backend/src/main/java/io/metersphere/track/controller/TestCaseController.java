@@ -2,6 +2,7 @@ package io.metersphere.track.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.TestCase;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
@@ -11,12 +12,18 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.service.CheckOwnerService;
+import io.metersphere.service.FileService;
 import io.metersphere.track.dto.TestCaseDTO;
+import io.metersphere.track.request.testcase.EditTestCaseRequest;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
+import io.metersphere.track.request.testplan.FileOperationRequest;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,6 +40,8 @@ public class TestCaseController {
     TestCaseService testCaseService;
     @Resource
     private CheckOwnerService checkOwnerService;
+    @Resource
+    private FileService fileService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<TestCaseDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
@@ -96,16 +105,16 @@ public class TestCaseController {
         return testCaseService.getProjectByTestCaseId(testCaseId);
     }
 
-    @PostMapping("/add")
+    @PostMapping(value = "/add", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void addTestCase(@RequestBody TestCaseWithBLOBs testCase) {
-        testCaseService.addTestCase(testCase);
+    public void addTestCase(@RequestPart("request") TestCaseWithBLOBs testCase, @RequestPart(value = "file") List<MultipartFile> files) {
+        testCaseService.save(testCase, files);
     }
 
-    @PostMapping("/edit")
+    @PostMapping(value = "/edit", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void editTestCase(@RequestBody TestCaseWithBLOBs testCase) {
-        testCaseService.editTestCase(testCase);
+    public void editTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file") List<MultipartFile> files) {
+        testCaseService.edit(request, files);
     }
 
     @PostMapping("/delete/{testCaseId}")
@@ -150,6 +159,20 @@ public class TestCaseController {
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void deleteTestCaseBath(@RequestBody TestCaseBatchRequest request) {
         testCaseService.deleteTestCaseBath(request);
+    }
+
+    @GetMapping("/file/metadata/{caseId}")
+    public List<FileMetadata> getFileMetadata(@PathVariable String caseId) {
+        return fileService.getFileMetadataByCaseId(caseId);
+    }
+
+    @PostMapping("/file/download")
+    public ResponseEntity<byte[]> downloadJmx(@RequestBody FileOperationRequest fileOperationRequest) {
+        byte[] bytes = fileService.loadFileAsBytes(fileOperationRequest.getId());
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileOperationRequest.getName() + "\"")
+                .body(bytes);
     }
 
 }
