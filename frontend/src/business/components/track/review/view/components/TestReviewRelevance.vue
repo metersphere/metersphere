@@ -64,7 +64,7 @@
                 :label="$t('test_track.case.status')"
                 show-overflow-tooltip>
                 <template v-slot:default="scope">
-                  <status-table-item :value="scope.row.reviewStatus"/>
+                  <review-status :value="scope.row.reviewStatus"/>
                 </template>
               </el-table-column>
 
@@ -98,7 +98,7 @@
   import SwitchProject from "../../../case/components/SwitchProject";
   import {TEST_CASE_CONFIGS} from "../../../../common/components/search/search-components";
   import {_filter} from "../../../../../../common/js/utils";
-  import StatusTableItem from "@/business/components/track/common/tableItems/planview/StatusTableItem";
+  import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
   import elTableInfiniteScroll from 'el-table-infinite-scroll';
 
   export default {
@@ -112,7 +112,8 @@
       MsTableAdvSearchBar,
       MsTableHeader,
       SwitchProject,
-      StatusTableItem
+      ReviewStatus
+
     },
     directives: {
       'el-table-infinite-scroll': elTableInfiniteScroll
