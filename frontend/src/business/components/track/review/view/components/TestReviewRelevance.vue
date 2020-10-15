@@ -2,9 +2,7 @@
 
   <div>
 
-    <el-dialog :title="$t('test_track.review_view.relevance_case')"
-               :visible.sync="dialogFormVisible"
-               @close="close"
+    <el-dialog :title="$t('test_track.review_view.relevance_case')" :visible.sync="dialogFormVisible" @close="close"
                width="60%" v-loading="result.loading"
                :close-on-click-modal="false"
                top="50px">
@@ -14,30 +12,21 @@
           <el-link type="primary" class="project-link" @click="switchProject">{{projectName ? projectName :
             $t('test_track.switch_project') }}
           </el-link>
-          <node-tree class="node-tree"
-                     @nodeSelectEvent="nodeChange"
-                     @refresh="refresh"
-                     :tree-nodes="treeNodes"
+          <node-tree class="node-tree" @nodeSelectEvent="nodeChange" @refresh="refresh" :tree-nodes="treeNodes"
                      ref="nodeTree"/>
         </el-aside>
 
         <el-container>
           <el-main class="case-content">
             <ms-table-header :condition.sync="condition" @search="search" title="" :show-create="false"/>
-            <el-table
-              :data="testReviews"
-              v-el-table-infinite-scroll="loadData"
-              class="infinite-list"
-              @filter-change="filter"
-              row-key="id"
-              @select-all="handleSelectAll"
-              @select="handleSelectionChange"
-              height="50vh"
-              ref="table">
+            <el-table :data="testReviews" @mouseleave.passive="leave" v-el-table-infinite-scroll="loadData"
+                      @filter-change="filter" row-key="id"
+                      @select-all="handleSelectAll"
+                      @select="handleSelectionChange"
+                      height="50vh"
+                      ref="table">
 
-              <el-table-column
-                type="selection"/>
-
+              <el-table-column type="selection"/>
               <el-table-column
                 prop="name"
                 :label="$t('test_track.case.name')"
@@ -46,6 +35,7 @@
                   {{scope.row.name}}
                 </template>
               </el-table-column>
+
               <el-table-column
                 prop="priority"
                 :filters="priorityFilters"
@@ -56,6 +46,7 @@
                   <priority-table-item :value="scope.row.priority"/>
                 </template>
               </el-table-column>
+
               <el-table-column
                 prop="type"
                 :filters="typeFilters"
@@ -66,6 +57,7 @@
                   <type-table-item :value="scope.row.type"/>
                 </template>
               </el-table-column>
+
               <el-table-column
                 :filters="statusFilters"
                 column-key="status"
@@ -75,7 +67,9 @@
                   <status-table-item :value="scope.row.reviewStatus"/>
                 </template>
               </el-table-column>
+
             </el-table>
+            <div v-if="!endStatus" style="text-align: center">{{$t('test_track.review_view.last_page')}}</div>
             <div style="text-align: center">共 {{total}} 条</div>
           </el-main>
         </el-container>
@@ -129,7 +123,6 @@
         dialogFormVisible: false,
         isCheckAll: false,
         testReviews: [],
-        tableData: [],
         selectIds: new Set(),
         treeNodes: [],
         selectNodeIds: [],
@@ -169,12 +162,15 @@
     },
     watch: {
       reviewId() {
-        this.initData();
+        this.condition.reviewId = this.reviewId;
       },
       selectNodeIds() {
-        this.search();
+        if (this.dialogFormVisible) {
+          this.search();
+        }
       },
       projectId() {
+        this.condition.projectId = this.projectId;
         this.getProjectNode();
       }
     },
@@ -184,13 +180,17 @@
     methods: {
       openTestReviewRelevanceDialog() {
         this.getProject();
-        this.initData();
         this.dialogFormVisible = true;
       },
       saveReviewRelevance() {
         let param = {};
         param.reviewId = this.reviewId;
         param.testCaseIds = [...this.selectIds];
+        param.projectId = this.projectId;
+        // 选择全选则全部加入到评审，无论是否加载完全部
+        if (this.testReviews.length === param.testCaseIds.length) {
+          param.testCaseIds = ['all'];
+        }
         this.result = this.$post('/test/case/review/relevance', param, () => {
           this.selectIds.clear();
           this.$success(this.$t('commons.save_success'));
@@ -210,18 +210,18 @@
         } else {
           this.condition.nodeIds = [];
         }
-
         if (this.projectId) {
           this.condition.projectId = this.projectId;
           this.result = this.$post(this.buildPagePath('/test/case/reviews/case'), this.condition, response => {
             let data = response.data;
             this.total = data.itemCount;
-            this.tableData = data.listObject;
-            this.endStatus = this.tableData.length === 50;
-            this.tableData.forEach(item => {
+            let tableData = data.listObject;
+            tableData.forEach(item => {
               item.checked = false;
             });
-            this.testReviews = this.testReviews.concat(this.tableData);
+            this.testReviews = this.testReviews.concat(tableData);
+            this.endStatus = tableData.length === 50 && this.testReviews.length < this.total;
+
           });
         }
 
@@ -251,11 +251,6 @@
         this.selectNodeIds = nodeIds;
         this.selectNodeNames = nodeNames;
       },
-      initData() {
-        // this.testReviews=[];
-        // this.getReviews();
-        // this.getAllNodeTreeByPlanId();
-      },
       refresh() {
         this.close();
       },
@@ -275,7 +270,6 @@
         this.selectIds.clear();
         this.selectNodeIds = [];
         this.selectNodeNames = [];
-        this.tableData = [];
       },
       filter(filters) {
         _filter(filters, this.condition);
@@ -308,11 +302,9 @@
       },
       loadData() {
         if (this.dialogFormVisible) {
-          if (this.endStatus === true) {
+          if (this.endStatus) {
             this.currentPage += 1;
             this.getReviews();
-          } else {
-            this.$message.warning(this.$t('test_track.review_view.last_page'));
           }
         }
       },

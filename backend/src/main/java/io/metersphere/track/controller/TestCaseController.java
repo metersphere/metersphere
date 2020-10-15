@@ -72,9 +72,10 @@ public class TestCaseController {
         return testCaseService.getTestCaseByNodeId(nodeIds);
     }
 
-    @PostMapping("/name")
-    public List<TestCase> getTestCaseNames(@RequestBody QueryTestCaseRequest request) {
-        return testCaseService.getTestCaseNames(request);
+    @PostMapping("/name/{goPage}/{pageSize}")
+    public Pager<List<TestCase>> getTestCaseNames(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page,testCaseService.getTestCaseNames(request));
     }
 
     @PostMapping("/reviews/case/{goPage}/{pageSize}")

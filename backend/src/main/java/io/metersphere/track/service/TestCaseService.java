@@ -190,46 +190,24 @@ public class TestCaseService {
      * @return
      */
     public List<TestCase> getTestCaseNames(QueryTestCaseRequest request) {
-        if (StringUtils.isNotBlank(request.getPlanId())) {
-            TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
-            // request 传入要查询的 projectId 切换的项目ID
-        }
-
-        List<TestCase> testCaseNames = extTestCaseMapper.getTestCaseNames(request);
-
-        if (StringUtils.isNotBlank(request.getPlanId())) {
-            TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
-            testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(request.getPlanId());
-            List<String> relevanceIds = testPlanTestCaseMapper.selectByExample(testPlanTestCaseExample).stream()
-                    .map(TestPlanTestCase::getCaseId)
-                    .collect(Collectors.toList());
-
-            return testCaseNames.stream()
-                    .filter(testcase -> !relevanceIds.contains(testcase.getId()))
-                    .collect(Collectors.toList());
-        }
-
-        return testCaseNames;
-
+        List<OrderRequest> orderList = ServiceUtils.getDefaultOrder(request.getOrders());
+        OrderRequest order = new OrderRequest();
+        order.setName("sort");
+        order.setType("desc");
+        orderList.add(order);
+        request.setOrders(orderList);
+        return extTestCaseMapper.getTestCaseByNotInPlan(request);
     }
 
     public List<TestCase> getReviewCase(QueryTestCaseRequest request) {
-
-        List<TestCase> testCases = extTestCaseMapper.getTestCaseNames(request);
-
-        if (StringUtils.isNotBlank(request.getReviewId())) {
-            TestCaseReviewTestCaseExample testCaseReviewTestCaseExample = new TestCaseReviewTestCaseExample();
-            testCaseReviewTestCaseExample.createCriteria().andReviewIdEqualTo(request.getReviewId());
-            List<String> relevanceIds = testCaseReviewTestCaseMapper.selectByExample(testCaseReviewTestCaseExample).stream()
-                    .map(TestCaseReviewTestCase::getCaseId)
-                    .collect(Collectors.toList());
-
-            return testCases.stream()
-                    .filter(testcase -> !relevanceIds.contains(testcase.getId()))
-                    .collect(Collectors.toList());
-        }
-
-        return testCases;
+        List<OrderRequest> orderList = ServiceUtils.getDefaultOrder(request.getOrders());
+        OrderRequest order = new OrderRequest();
+        // 对模板导入的测试用例排序
+        order.setName("sort");
+        order.setType("desc");
+        orderList.add(order);
+        request.setOrders(orderList);
+        return extTestCaseMapper.getTestCaseByNotInReview(request);
     }
 
 
