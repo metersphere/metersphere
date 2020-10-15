@@ -68,7 +68,7 @@
               </el-table-column>
             </el-table>
 
-            <div v-if="!endStatus" style="text-align: center">{{$t('test_track.review_view.last_page')}}</div>
+            <div v-if="!lineStatus" style="text-align: center">{{$t('test_track.review_view.last_page')}}</div>
             <div style="text-align: center">共 {{total}} 条</div>
           </el-main>
         </el-container>
@@ -130,7 +130,7 @@
         pageSize: 50,
         currentPage: 1,
         total: 0,
-        endStatus: true,
+        lineStatus: true,
         condition: {
           components: TEST_CASE_CONFIGS
         },
@@ -217,7 +217,7 @@
               item.checked = false;
             });
             this.testCases = this.testCases.concat(tableData);
-            this.endStatus = tableData.length === 50 && this.testCases.length < this.total;
+            this.lineStatus = tableData.length === 50 && this.testCases.length < this.total;
           });
         }
 
@@ -251,7 +251,7 @@
       },
       loadData() {
         if (this.dialogFormVisible) {
-          if (this.endStatus) {
+          if (this.lineStatus) {
             this.currentPage += 1;
             this.getTestCases();
           }
@@ -269,7 +269,7 @@
         }
       },
       close() {
-        this.endStatus = false;
+        this.lineStatus = false;
         this.selectIds.clear();
         this.selectNodeIds = [];
         this.selectNodeNames = [];
