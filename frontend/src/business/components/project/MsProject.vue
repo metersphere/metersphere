@@ -37,8 +37,10 @@
               <ms-table-operator :is-tester-permission="true" @editClick="edit(scope.row)"
                                  @deleteClick="handleDelete(scope.row)">
                 <template v-if="baseUrl == 'api'" v-slot:behind>
-                  <ms-table-operator-button :is-tester-permission="true" :tip="'环境配置'" icon="el-icon-setting"
+                  <ms-table-operator-button :is-tester-permission="true" :tip="$t('api_test.environment.environment_config')" icon="el-icon-setting"
                                             type="info" @exec="openEnvironmentConfig(scope.row)"/>
+                  <ms-table-operator-button :is-tester-permission="true" :tip="$t('api_test.jar_config.title')" icon="el-icon-box"
+                                            type="info" @exec="openJarConfig(scope.row)"/>
                 </template>
               </ms-table-operator>
             </template>
@@ -76,6 +78,7 @@
     <ms-delete-confirm :title="$t('project.delete')" @delete="_handleDelete" ref="deleteConfirm"/>
 
     <api-environment-config ref="environmentConfig"/>
+    <ms-jar-config ref="jarConfig"/>
 
   </ms-container>
 </template>
@@ -95,10 +98,12 @@ import MsTableOperatorButton from "../common/components/MsTableOperatorButton";
 import ApiEnvironmentConfig from "../api/test/components/ApiEnvironmentConfig";
 import TemplateComponent from "../track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
 import {ApiEvent, LIST_CHANGE, PerformanceEvent, TrackEvent} from "@/business/components/common/head/ListEvent";
+import MsJarConfig from "../api/test/components/jar/JarConfig";
 
 export default {
   name: "MsProject",
   components: {
+    MsJarConfig,
     TemplateComponent,
     ApiEnvironmentConfig,
     MsTableOperatorButton,
@@ -275,6 +280,9 @@ export default {
     },
     openEnvironmentConfig(project) {
       this.$refs.environmentConfig.open(project.id);
+    },
+    openJarConfig(project) {
+      this.$refs.jarConfig.open(project.id);
     }
   }
 }

@@ -423,6 +423,12 @@ export default {
     export_config: "Export",
     enable_validate_tip: "No request available",
     copy: "Copy Test",
+    jar_config: {
+      title: "The Jar Package Management",
+      jar_file: "Jar package",
+      file_exist: "The name already exists in the project",
+      upload_limit_size: "Upload file size cannot exceed 30MB!",
+    },
     environment: {
       name: "Environment Name",
       socket: "Socket",

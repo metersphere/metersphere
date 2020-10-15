@@ -424,6 +424,12 @@ export default {
     export_config: "导出",
     enable_validate_tip: "没有可用请求",
     copy: "复制测试",
+    jar_config: {
+      title: "jar包管理",
+      jar_file: "jar包",
+      file_exist: "该项目下已存在改jar包",
+      upload_limit_size: "上传文件大小不能超过 30MB!",
+    },
     environment: {
       name: "环境名称",
       socket: "环境域名",

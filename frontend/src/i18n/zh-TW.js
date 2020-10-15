@@ -424,6 +424,12 @@ export default {
     export_config: "導出",
     enable_validate_tip: "沒有可用請求",
     copy: "復制測試",
+    jar_config: {
+      title: "jar包管理",
+      jar_file: "jar包",
+      file_exist: "該項目下已存在改jar包",
+      upload_limit_size: "上傳文件大小不能超過 30MB!",
+    },
     environment: {
       name: "環境名稱",
       socket: "環境域名",
@@ -575,23 +581,23 @@ export default {
         dataSource_cannot_be_empty: "SQL請求數據源不能為空",
         result_variable: "存儲結果",
         variable_names: "按列存儲",
+      },
+      tcp: {
+        server: "服務器名或IP",
+        port: "端口",
+        connect: "連接(ms)",
+        response: "響應(ms)",
+        re_use_connection: "Re-use connection",
+        no_delay: "設置無延遲",
+        close_connection: "關閉連接",
+        so_linger: "SO LINGER",
+        eol_byte: "行尾(EOL)字節值",
+        request: "要發送的文本",
+        username: "用戶名",
+        password: "密碼",
+        login: "登錄設置",
+        server_cannot_be_empty: "服務器名或IP不能為空",
       }
-    },
-    tcp: {
-      server: "服務器名或IP",
-      port: "端口",
-      connect: "連接(ms)",
-      response: "響應(ms)",
-      re_use_connection: "Re-use connection",
-      no_delay: "設置無延遲",
-      close_connection: "關閉連接",
-      so_linger: "SO LINGER",
-      eol_byte: "行尾（EOL）字節值",
-      request: "要發送的文本",
-      username: "用戶名",
-      password: "密碼",
-      login: "登錄設置",
-      server_cannot_be_empty: "服務器名或IP不能為空",
     },
     api_import: {
       label: "導入",
@@ -796,7 +802,7 @@ export default {
       reviewed_by_me: "待我評審",
       creator: "創建人",
       done: "已評用例",
-      result_distribution: "結果分佈"
+      result_distribution: "結果分布"
     },
     comment: {
       no_comment: "暫無評論",
@@ -902,7 +908,7 @@ export default {
       close_success: "關閉成功",
       preview: "預覽",
       please_choose_current_owner: "請選擇處理人",
-      tapd_current_owner: "Tapd平台處理人：",
+      tapd_current_owner: "Tapd平臺處理人：",
     }
   },
   test_resource_pool: {
