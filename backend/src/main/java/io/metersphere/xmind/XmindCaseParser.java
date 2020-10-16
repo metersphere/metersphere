@@ -83,6 +83,9 @@ public class XmindCaseParser {
 
     private final Map<String, String> caseTypeMap = ImmutableMap.of("功能测试", "functional", "性能测试", "performance", "接口测试", "api");
 
+    /**
+     * 验证模块的合规性
+     */
     public void validate() {
         nodePaths.forEach(nodePath -> {
             String[] nodes = nodePath.split("/");
@@ -90,9 +93,11 @@ public class XmindCaseParser {
                 process.append(Translator.get("test_case_node_level_tip") +
                         TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level") + "; ");
             }
+            String path = "";
             for (int i = 0; i < nodes.length; i++) {
+                path += nodes[i].trim() + "/";
                 if (i != 0 && StringUtils.equals(nodes[i].trim(), "")) {
-                    process.append(Translator.get("module_not_null") + "; ");
+                    process.append(path + "：" + Translator.get("module_not_null") + "; ");
                 } else if (nodes[i].trim().length() > 30) {
                     process.append(nodes[i].trim() + "：" + Translator.get("test_track.length_less_than") + "30 ;");
                 }
@@ -101,11 +106,60 @@ public class XmindCaseParser {
     }
 
     /**
+     * 验证用例的合规性
+     */
+    private boolean validate(TestCaseWithBLOBs data) {
+        String nodePath = data.getNodePath();
+        StringBuilder stringBuilder = new StringBuilder();
+
+        if (data.getName().length() > 50) {
+            stringBuilder.append(data.getName() + "：" + Translator.get("test_case") + Translator.get("test_track.length_less_than") + "50 ;");
+        }
+
+        if (!StringUtils.isEmpty(nodePath)) {
+            String[] nodes = nodePath.split("/");
+            if (nodes.length > TestCaseConstants.MAX_NODE_DEPTH + 1) {
+                stringBuilder.append(Translator.get("test_case_node_level_tip") +
+                        TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level") + "; ");
+            }
+            for (int i = 0; i < nodes.length; i++) {
+                if (i != 0 && StringUtils.equals(nodes[i].trim(), "")) {
+                    stringBuilder.append(Translator.get("test_case") + "，" + data.getName() + Translator.get("module_not_null") + "; ");
+                    break;
+                } else if (nodes[i].trim().length() > 30) {
+                    stringBuilder.append(nodes[i].trim() + "：" + Translator.get("module") + Translator.get("test_track.length_less_than") + "30 ;");
+                    break;
+                }
+            }
+        }
+
+        if (StringUtils.equals(data.getType(), TestCaseConstants.Type.Functional.getValue()) && StringUtils.equals(data.getMethod(), TestCaseConstants.Method.Auto.getValue())) {
+            stringBuilder.append(Translator.get("functional_method_tip") + "; ");
+        }
+
+        if (testCaseNames.contains(data.getName())) {
+            boolean dbExist = testCaseService.exist(data);
+            if (dbExist) {
+                // db exist
+                stringBuilder.append(Translator.get("test_case_already_exists_excel") + "：" + data.getName() + "; ");
+            }
+
+        } else {
+            testCaseNames.add(data.getName());
+        }
+        if (!StringUtils.isEmpty(stringBuilder.toString())) {
+            process.append(stringBuilder.toString());
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * 递归处理案例数据
      */
     private void recursion(Attached parent, int level, List<Attached> attacheds) {
         for (Attached item : attacheds) {
-            if (isAvailable(item.getTitle(), TC_REGEX)) { // 用例
+            if (isAvailable(item.getTitle(), TC_REGEX)) {
                 item.setParent(parent);
                 this.newTestCase(item.getTitle(), parent.getPath(), item.getChildren() != null ? item.getChildren().getAttached() : null);
             } else {
@@ -121,7 +175,8 @@ public class XmindCaseParser {
                     if (nodePath.endsWith("/")) {
                         nodePath = nodePath.substring(0, nodePath.length() - 1);
                     }
-                    nodePaths.add(nodePath); // 没有用例的路径
+                    // 没有用例的路径
+                    nodePaths.add(nodePath);
                 }
             }
         }
@@ -242,55 +297,6 @@ public class XmindCaseParser {
     }
 
     /**
-     * 验证合法性
-     */
-    private boolean validate(TestCaseWithBLOBs data) {
-        String nodePath = data.getNodePath();
-        StringBuilder stringBuilder = new StringBuilder();
-
-        if (data.getName().length() > 50) {
-            stringBuilder.append(data.getName() + "：" + Translator.get("test_case") + Translator.get("test_track.length_less_than") + "50 ;");
-        }
-
-        if (!StringUtils.isEmpty(nodePath)) {
-            String[] nodes = nodePath.split("/");
-            if (nodes.length > TestCaseConstants.MAX_NODE_DEPTH + 1) {
-                stringBuilder.append(Translator.get("test_case_node_level_tip") +
-                        TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level") + "; ");
-            }
-            for (int i = 0; i < nodes.length; i++) {
-                if (i != 0 && StringUtils.equals(nodes[i].trim(), "")) {
-                    stringBuilder.append(Translator.get("module_not_null") + "; ");
-                    break;
-                } else if (nodes[i].trim().length() > 30) {
-                    stringBuilder.append(nodes[i].trim() + "：" + Translator.get("module") + Translator.get("test_track.length_less_than") + "30 ;");
-                    break;
-                }
-            }
-        }
-
-        if (StringUtils.equals(data.getType(), TestCaseConstants.Type.Functional.getValue()) && StringUtils.equals(data.getMethod(), TestCaseConstants.Method.Auto.getValue())) {
-            stringBuilder.append(Translator.get("functional_method_tip") + "; ");
-        }
-
-        if (testCaseNames.contains(data.getName())) {
-            boolean dbExist = testCaseService.exist(data);
-            if (dbExist) {
-                // db exist
-                stringBuilder.append(Translator.get("test_case_already_exists_excel") + "：" + data.getName() + "; ");
-            }
-
-        } else {
-            testCaseNames.add(data.getName());
-        }
-        if (!StringUtils.isEmpty(stringBuilder.toString())) {
-            process.append(stringBuilder.toString());
-            return false;
-        }
-        return true;
-    }
-
-    /**
      * 导入思维导图处理
      */
     public String parse(MultipartFile multipartFile) {
@@ -323,8 +329,8 @@ public class XmindCaseParser {
                     }
                 }
             }
-
-            this.validate(); //检查目录合规性
+            //检查目录合规性
+            this.validate();
         } catch (Exception ex) {
             return ex.getMessage();
         }

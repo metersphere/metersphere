@@ -1,7 +1,5 @@
 <template>
-
   <div>
-
     <el-dialog :title="$t('test_track.review_view.relevance_case')" :visible.sync="dialogFormVisible" @close="close"
                width="60%" v-loading="result.loading"
                :close-on-click-modal="false"
@@ -19,7 +17,7 @@
         <el-container>
           <el-main class="case-content">
             <ms-table-header :condition.sync="condition" @search="search" title="" :show-create="false"/>
-            <el-table :data="testReviews" @mouseleave.passive="leave" v-el-table-infinite-scroll="loadData"
+            <el-table :data="testReviews" @mouseleave.passive="leave" v-el-table-infinite-scroll="scrollLoading"
                       @filter-change="filter" row-key="id"
                       @select-all="handleSelectAll"
                       @select="handleSelectionChange"
@@ -202,7 +200,7 @@
       buildPagePath(path) {
         return path + "/" + this.currentPage + "/" + this.pageSize;
       },
-      getReviews() {
+      getReviews(flag) {
         if (this.reviewId) {
           this.condition.reviewId = this.reviewId;
         }
@@ -220,7 +218,7 @@
             tableData.forEach(item => {
               item.checked = false;
             });
-            this.testReviews = this.testReviews.concat(tableData);
+            flag ? this.testReviews = tableData : this.testReviews = this.testReviews.concat(tableData);
             this.lineStatus = tableData.length === 50 && this.testReviews.length < this.total;
 
           });
@@ -301,18 +299,16 @@
       switchProject() {
         this.$refs.switchProject.open({id: this.reviewId, url: '/test/case/review/project/', type: 'review'});
       },
-      loadData() {
-        if (this.dialogFormVisible) {
-          if (this.lineStatus) {
-            this.currentPage += 1;
-            this.getReviews();
-          }
+      scrollLoading() {
+        if (this.dialogFormVisible && this.lineStatus) {
+          this.currentPage += 1;
+          this.getReviews();
         }
       },
       search() {
         this.currentPage = 1;
         this.testReviews = [];
-        this.getReviews();
+        this.getReviews(true);
       },
 
       getProjectNode(projectId) {
