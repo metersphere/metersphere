@@ -27,11 +27,18 @@
     <select id="listByWorkspaceId" resultType="io.metersphere.track.dto.TestCaseReviewDTO"
             parameterType="io.metersphere.track.request.testreview.QueryCaseReviewRequest">
         select distinct test_case_review.*
-          from test_case_review, project, test_case_review_project
-         where test_case_review.id = test_case_review_project.review_id
-           and test_case_review_project.project_id = project.id
-           and project.workspace_id = #{workspaceId}
-           order by test_case_review.update_time desc
+        from test_case_review, project, test_case_review_project, test_case_review_users
+        <where>
+            test_case_review.id = test_case_review_project.review_id
+            and test_case_review_project.project_id = project.id
+            and project.workspace_id = #{workspaceId}
+            and (
+            (test_case_review_users.review_id = test_case_review.id
+            and test_case_review_users.user_id = #{userId} )
+            or test_case_review.creator = #{userId}
+            )
+        </where>
+        order by test_case_review.update_time desc
     </select>
 
     <select id="listRelate" resultType="io.metersphere.track.dto.TestReviewDTOWithMetric">
