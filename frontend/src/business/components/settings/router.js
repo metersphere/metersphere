@@ -49,6 +49,11 @@ export default {
       meta: {organization: true, title: 'organization.service_integration'}
     },
     {
+      path: 'messagesettings',
+      component: () => import('@/business/components/settings/organization/MessageSettings'),
+      meta: {organization: true, title: 'organization.message_settings'}
+    },
+    {
       path: 'member',
       component: () => import('@/business/components/settings/workspace/WorkspaceMember'),
       meta: {workspace: true, title: 'commons.member'}

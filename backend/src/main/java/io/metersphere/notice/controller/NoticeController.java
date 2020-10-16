@@ -24,4 +24,9 @@ public class NoticeController {
         return noticeService.queryNotice(testId);
     }
 
+    @PostMapping("save/message")
+    public void saveMessage() {
+
+    }
 }
+

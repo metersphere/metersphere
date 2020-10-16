@@ -5,11 +5,13 @@ import io.metersphere.api.service.APITestService;
 import io.metersphere.base.domain.ApiTestReport;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.notice.domain.NoticeDetail;
 import io.metersphere.notice.service.MailService;
 import io.metersphere.notice.service.NoticeService;
+import io.metersphere.track.service.TestPlanTestCaseService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.AssertionResult;
 import org.apache.jmeter.samplers.SampleResult;
@@ -117,6 +119,21 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         apiReportService.complete(testResult, report);
         queue.clear();
         super.teardownTest(context);
+
+        TestPlanTestCaseService testPlanTestCaseService = CommonBeanFactory.getBean(TestPlanTestCaseService.class);
+        List<String> ids = testPlanTestCaseService.getTestPlanTestCaseIds(testResult.getTestId());
+        if (ids.size() > 0) {
+            try {
+                if (StringUtils.equals(APITestStatus.Success.name(), report.getStatus())) {
+                    testPlanTestCaseService.updateTestCaseStates(ids, TestPlanTestCaseStatus.Pass.name());
+                } else {
+                    testPlanTestCaseService.updateTestCaseStates(ids, TestPlanTestCaseStatus.Failure.name());
+                }
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
+
+        }
         NoticeService noticeService = CommonBeanFactory.getBean(NoticeService.class);
         try {
             List<NoticeDetail> noticeList = noticeService.queryNotice(testResult.getTestId());
