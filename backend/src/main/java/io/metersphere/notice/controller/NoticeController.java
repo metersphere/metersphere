@@ -1,6 +1,7 @@
 package io.metersphere.notice.controller;
 
 import io.metersphere.notice.controller.request.NoticeRequest;
+import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.domain.NoticeDetail;
 import io.metersphere.notice.service.NoticeService;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +26,8 @@ public class NoticeController {
     }
 
     @PostMapping("save/message")
-    public void saveMessage() {
-
+    public void saveMessage(@RequestBody MessageDetail messageDetail) {
+        noticeService.saveMessageTask(messageDetail);
     }
 }
 

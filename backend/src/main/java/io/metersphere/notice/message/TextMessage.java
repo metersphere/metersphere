@@ -1,7 +1,6 @@
 package io.metersphere.notice.message;
 
 import com.alibaba.fastjson.JSON;
-import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -9,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Data
+
 public class TextMessage implements Message {
     private String text;
     private List<String> mentionedMobileList;

@@ -4,6 +4,7 @@ import io.metersphere.base.domain.Notice;
 import io.metersphere.base.domain.NoticeExample;
 import io.metersphere.base.mapper.NoticeMapper;
 import io.metersphere.notice.controller.request.NoticeRequest;
+import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.domain.NoticeDetail;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -78,4 +79,7 @@ public class NoticeService {
         return result;
     }
 
+    public void saveMessageTask(MessageDetail messageDetail) {
+
+    }
 }
