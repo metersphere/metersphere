@@ -102,7 +102,7 @@
                size="small">
         <el-form-item :label="$t('commons.member')" prop="userIds">
           <el-select filterable v-model="memberForm.userIds" multiple :placeholder="$t('member.please_choose_member')"
-                     class="select-width">
+                     class="select-width" :filter-method="dataFilter">
             <el-option
               v-for="item in memberForm.userList"
               :key="item.id"
@@ -268,10 +268,22 @@ export default {
       this.memberForm = {};
       this.result = this.$get('/user/list/', response => {
         this.$set(this.memberForm, "userList", response.data);
+        this.$set(this.memberForm, "copyUserList", response.data);
       });
       this.result = this.$get('/role/list/org', response => {
         this.$set(this.memberForm, "roles", response.data);
       })
+    },
+    dataFilter(val) {
+      if (val) {
+        this.memberForm.userList = this.memberForm.copyUserList.filter((item) => {
+          if (!!~item.id.indexOf(val) || !!~item.id.toUpperCase().indexOf(val.toUpperCase())) {
+            return true
+          }
+        })
+      } else {
+        this.memberForm.userList = this.memberForm.copyUserList;
+      }
     },
     edit(row) {
       this.dialogOrgUpdateVisible = true;

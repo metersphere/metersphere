@@ -1,7 +1,5 @@
 <template>
-
   <div>
-
     <el-dialog :title="$t('test_track.plan_view.relevance_test_case')"
                :visible.sync="dialogFormVisible"
                @close="close"
@@ -29,7 +27,7 @@
               @filter-change="filter"
               row-key="id"
               @mouseleave.passive="leave"
-              v-el-table-infinite-scroll="loadData"
+              v-el-table-infinite-scroll="scrollLoading"
               @select-all="handleSelectAll"
               @select="handleSelectionChange"
               height="50vh"
@@ -196,9 +194,9 @@
       search() {
         this.currentPage = 1;
         this.testCases = [];
-        this.getTestCases();
+        this.getTestCases(true);
       },
-      getTestCases() {
+      getTestCases(flag) {
         if (this.planId) {
           this.condition.planId = this.planId;
         }
@@ -216,7 +214,7 @@
             tableData.forEach(item => {
               item.checked = false;
             });
-            this.testCases = this.testCases.concat(tableData);
+            flag ? this.testCases = tableData : this.testCases = this.testCases.concat(tableData);
             this.lineStatus = tableData.length === 50 && this.testCases.length < this.total;
           });
         }
@@ -249,12 +247,10 @@
       refresh() {
         this.close();
       },
-      loadData() {
-        if (this.dialogFormVisible) {
-          if (this.lineStatus) {
-            this.currentPage += 1;
-            this.getTestCases();
-          }
+      scrollLoading() {
+        if (this.dialogFormVisible && this.lineStatus) {
+          this.currentPage += 1;
+          this.getTestCases();
         }
       },
       getAllNodeTreeByPlanId() {
