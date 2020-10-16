@@ -83,6 +83,7 @@
         refresh() {
           this.selectNodeIds = [];
           this.selectParentNodes = [];
+          this.$refs.testCaseRelevance.search();
           this.getNodeTreeByPlanId();
         },
         initData() {

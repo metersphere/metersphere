@@ -39,6 +39,7 @@
         :active-text="$t('api_test.request.refer_to_environment')" @change="useEnvironmentChange">
       </el-switch>
       <el-checkbox class="follow-redirects-item" v-model="request.followRedirects">{{$t('api_test.request.follow_redirects')}}</el-checkbox>
+      <el-checkbox class="do-multipart-post" v-model="request.doMultipartPost">{{$t('api_test.request.do_multipart_post')}}</el-checkbox>
     </el-form-item>
 
     <el-button :disabled="!request.enable || !scenario.enable || isReadOnly" class="debug-button" size="small"
@@ -200,31 +201,36 @@ export default {
 </script>
 
 <style scoped>
-.el-tag {
-  width: 100%;
-  height: 40px;
-  line-height: 40px;
-}
 
-.environment-display {
-  font-size: 14px;
-}
+  .el-tag {
+    width: 100%;
+    height: 40px;
+    line-height: 40px;
+  }
 
-.environment-name {
-  font-weight: bold;
-  font-style: italic;
-}
+  .environment-display {
+    font-size: 14px;
+  }
 
-.adjust-margin-bottom {
-  margin-bottom: 10px;
-}
+  .environment-name {
+    font-weight: bold;
+    font-style: italic;
+  }
 
-.environment-url-tip {
-  color: #F56C6C;
-}
+  .adjust-margin-bottom {
+    margin-bottom: 10px;
+  }
 
-.follow-redirects-item {
-  margin-left: 30px;
-}
+  .environment-url-tip {
+    color: #F56C6C;
+  }
+
+  .follow-redirects-item {
+    margin-left: 30px;
+  }
+
+  .do-multipart-post {
+    margin-left: 10px;
+  }
 
 </style>

@@ -41,6 +41,10 @@
     <el-button :disabled="!request.enable || !scenario.enable || isReadOnly" class="debug-button" size="small" type="primary" @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
 
     <el-tabs v-model="activeName">
+      <el-tab-pane :label="$t('api_test.scenario.variables')" name="variables">
+        <ms-api-scenario-variables :is-read-only="isReadOnly" :items="request.variables"
+                                   :description="$t('api_test.scenario.kv_description')"/>
+      </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.sql.sql_script')" name="sql">
         <div class="sql-content" >
           <ms-code-edit mode="sql" :read-only="isReadOnly" :modes="['sql']" :data.sync="request.query" theme="eclipse" ref="codeEdit"/>
@@ -74,10 +78,12 @@
   import MsDubboConsumerService from "@/business/components/api/test/components/request/dubbo/ConsumerAndService";
   import MsJsr233Processor from "../processor/Jsr233Processor";
   import MsCodeEdit from "../../../../common/components/MsCodeEdit";
+  import MsApiScenarioVariables from "../ApiScenarioVariables";
 
   export default {
     name: "MsApiSqlRequestForm",
     components: {
+      MsApiScenarioVariables,
       MsCodeEdit,
       MsJsr233Processor,
       MsDubboConsumerService,
@@ -96,7 +102,7 @@
 
     data() {
       return {
-        activeName: "sql",
+        activeName: "variables",
         databaseConfigsOptions: [],
         rules: {
           name: [

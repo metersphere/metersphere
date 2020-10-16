@@ -1,9 +1,9 @@
 <template>
   <div class="variable-input">
-    <el-input :disabled="isReadOnly" :value="value" v-bind="$attrs" :size="size" @change="change" @input="input"/>
+    <el-input class="el-input__inner_pd" :disabled="isReadOnly" :value="value" v-bind="$attrs" :size="size" @change="change" @input="input"/>
     <div :class="{'hidden': !showVariable}" class="variable-combine" v-if="value">
-      <div  class="variable">{{variable}}</div>
-      <el-tooltip :content="$t('api_test.copied')" manual v-model="visible" placement="top" :visible-arrow="false">
+      <div v-if="showCopy" class="variable">{{variable}}</div>
+      <el-tooltip v-if="showCopy" :content="$t('api_test.copied')" manual v-model="visible" placement="top" :visible-arrow="false">
         <i class="el-icon-copy-document copy" @click="copy"/>
       </el-tooltip>
     </div>
@@ -22,6 +22,10 @@
         default: false
       },
       showVariable: {
+        type: Boolean,
+        default: true
+      },
+      showCopy: {
         type: Boolean,
         default: true
       },
@@ -69,6 +73,9 @@
 <style scoped>
   .variable-input {
     position: relative;
+  }
+  .el-input__inner_pd >>> .el-input__inner {
+    padding-right: 135px;
   }
 
   .variable-combine {

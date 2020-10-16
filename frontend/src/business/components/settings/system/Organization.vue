@@ -101,7 +101,7 @@
       <el-form :model="memberForm" ref="form" :rules="orgMemberRule" label-position="right" label-width="100px"
                size="small">
         <el-form-item :label="$t('commons.member')" prop="userIds">
-          <el-select v-model="memberForm.userIds" multiple :placeholder="$t('member.please_choose_member')"
+          <el-select filterable v-model="memberForm.userIds" multiple :placeholder="$t('member.please_choose_member')"
                      class="select-width">
             <el-option
               v-for="item in memberForm.userList"
@@ -114,7 +114,7 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('commons.role')" prop="roleIds">
-          <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
+          <el-select filterable v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
                      class="select-width">
             <el-option
               v-for="item in memberForm.roles"
@@ -151,7 +151,7 @@
         </el-form-item>
         <el-form-item :label="$t('commons.role')" prop="roleIds"
                       :rules="{required: true, message: $t('role.please_choose_role'), trigger: 'change'}">
-          <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
+          <el-select filterable v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
                      class="select-width">
             <el-option
               v-for="item in memberForm.allroles"

@@ -3,6 +3,7 @@ package io.metersphere.track.service;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtProjectMapper;
+import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseReviewMapper;
 import io.metersphere.base.mapper.ext.ExtTestReviewCaseMapper;
 import io.metersphere.commons.constants.TestCaseReviewStatus;
@@ -18,6 +19,7 @@ import io.metersphere.service.UserService;
 import io.metersphere.track.dto.TestCaseReviewDTO;
 import io.metersphere.track.dto.TestReviewCaseDTO;
 import io.metersphere.track.dto.TestReviewDTOWithMetric;
+import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testreview.QueryCaseReviewRequest;
 import io.metersphere.track.request.testreview.QueryTestReviewRequest;
 import io.metersphere.track.request.testreview.ReviewRelevanceRequest;
@@ -65,7 +67,8 @@ public class TestCaseReviewService {
     TestCaseReviewTestCaseMapper testCaseReviewTestCaseMapper;
     @Resource
     MailService mailService;
-
+    @Resource
+    ExtTestCaseMapper extTestCaseMapper;
 
     public void saveTestCaseReview(SaveTestCaseReviewRequest reviewRequest) {
         checkCaseReviewExist(reviewRequest);
@@ -299,6 +302,16 @@ public class TestCaseReviewService {
 
         if (testCaseIds.isEmpty()) {
             return;
+        }
+        // 如果是关联全部指令则从新查询未关联的案例
+        if (testCaseIds.get(0).equals("all")) {
+            QueryTestCaseRequest req = new QueryTestCaseRequest();
+            req.setReviewId(request.getReviewId());
+            req.setProjectId(request.getProjectId());
+            List<TestCase> testCases = extTestCaseMapper.getTestCaseByNotInReview(req);
+            if (!testCases.isEmpty()) {
+                testCaseIds = testCases.stream().map(testCase -> testCase.getId()).collect(Collectors.toList());
+            }
         }
 
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);

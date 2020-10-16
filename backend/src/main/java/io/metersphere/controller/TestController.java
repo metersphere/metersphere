@@ -25,6 +25,15 @@ public class TestController {
         return jsonObject;
     }
 
+    @PostMapping(value = "/multipart", consumes = {"multipart/form-data"})
+    public Object testMultipart(@RequestPart(value = "id") String id, @RequestPart(value = "user") User user, @RequestParam(value = "name") String name) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("id", id);
+        jsonObject.put("user", user.getName());
+        jsonObject.put("name", name);
+        return jsonObject;
+    }
+
     @GetMapping(value = "/{str}")
     public Object getString(@PathVariable String str) throws InterruptedException {
         if (StringUtils.equals("error", str)) {

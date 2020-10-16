@@ -507,6 +507,15 @@
                             <outputDirectory>src/main/resources/jmeter/lib/ext</outputDirectory>
                             <destFileName>ApacheJMeter_functions.jar</destFileName>
                         </artifactItem>
+                        <artifactItem>
+                            <groupId>org.python</groupId>
+                            <artifactId>jython-standalone</artifactId>
+                            <version>2.7.0</version>
+                            <type>jar</type>
+                            <overWrite>true</overWrite>
+                            <outputDirectory>src/main/resources/jmeter/lib/ext</outputDirectory>
+                            <destFileName>jython-standalone.jar</destFileName>
+                        </artifactItem>
                     </artifactItems>
                     <outputDirectory>${project.build.directory}/wars</outputDirectory>
                     <overWriteReleases>false</overWriteReleases>

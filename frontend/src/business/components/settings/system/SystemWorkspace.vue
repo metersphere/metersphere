@@ -37,7 +37,7 @@
           <el-input type="textarea" v-model="form.description"></el-input>
         </el-form-item>
         <el-form-item :label="$t('workspace.organization_name')" prop="organizationId">
-          <el-select v-model="form.organizationId" :placeholder="$t('organization.select_organization')"
+          <el-select filterable v-model="form.organizationId" :placeholder="$t('organization.select_organization')"
                      class="select-width">
             <el-option
               v-for="item in form.orgList"
@@ -65,7 +65,7 @@
           <el-input type="textarea" v-model="form.description"></el-input>
         </el-form-item>
         <el-form-item :label="$t('workspace.organization_name')" prop="organizationId">
-          <el-select v-model="form.organizationId" :placeholder="$t('organization.select_organization')"
+          <el-select filterable v-model="form.organizationId" :placeholder="$t('organization.select_organization')"
                      class="select-width">
             <el-option
               v-for="item in form.orgList1"
@@ -117,7 +117,7 @@
       <el-form :model="memberForm" ref="form" :rules="wsMemberRule" label-position="right" label-width="100px"
                size="small">
         <el-form-item :label="$t('commons.member')" prop="userIds">
-          <el-select v-model="memberForm.userIds" multiple :placeholder="$t('member.please_choose_member')"
+          <el-select filterable v-model="memberForm.userIds" multiple :placeholder="$t('member.please_choose_member')"
                      class="select-width">
             <el-option
               v-for="item in memberForm.userList"
@@ -130,7 +130,7 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('commons.role')" prop="roleIds">
-          <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
+          <el-select filterable v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
                      class="select-width">
             <el-option
               v-for="item in memberForm.roles"
@@ -166,7 +166,7 @@
           <el-input v-model="memberForm.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.role')" prop="roleIds" :rules="{required: true, message: $t('role.please_choose_role'), trigger: 'change'}">
-          <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
+          <el-select filterable v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
                      class="select-width">
             <el-option
               v-for="item in memberForm.allroles"

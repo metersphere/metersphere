@@ -209,6 +209,59 @@
             </el-form-item>
           </el-col>
         </el-row>
+
+        <el-row style="margin-top: 15px;margin-bottom: 10px">
+          <el-col :offset="2" :span="20">附件:
+            <el-upload
+              action=""
+              :show-file-list="false"
+              :before-upload="beforeUpload"
+              :http-request="handleUpload"
+              :on-exceed="handleExceed"
+              multiple
+              :limit="3"
+              :file-list="fileList">
+              <el-button icon="el-icon-plus" size="mini"></el-button>
+<!--              <span slot="tip" class="el-upload__tip"></span>-->
+            </el-upload>
+          </el-col>
+        </el-row>
+        <el-row type="flex" justify="center">
+          <el-col :span="20">
+            <el-table class="basic-config" :data="tableData">
+              <el-table-column
+                prop="name"
+                :label="$t('load_test.file_name')">
+              </el-table-column>
+              <el-table-column
+                prop="size"
+                :label="$t('load_test.file_size')">
+              </el-table-column>
+              <el-table-column
+                prop="type"
+                :label="$t('load_test.file_type')">
+              </el-table-column>
+              <el-table-column
+                :label="$t('load_test.last_modify_time')">
+                <template v-slot:default="scope">
+                  <i class="el-icon-time"/>
+                  <span class="last-modified">{{ scope.row.updateTime | timestampFormatDate }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                :label="$t('commons.operating')">
+                <template v-slot:default="scope">
+                  <el-button @click="handleDownload(scope.row)" :disabled="!scope.row.id || readOnly" type="primary"
+                             icon="el-icon-download"
+                             size="mini" circle/>
+                  <el-button :disabled="readOnly" @click="handleDelete(scope.row, scope.$index)" type="danger"
+                             icon="el-icon-delete" size="mini"
+                             circle/>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-col>
+        </el-row>
       </el-form>
 
       <template v-slot:footer>
@@ -234,6 +287,7 @@ import {TokenKey, WORKSPACE_ID} from '../../../../../common/js/constants';
 import MsDialogFooter from '../../../common/components/MsDialogFooter'
 import {listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
 import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
+import {Message} from "element-ui";
 
 export default {
   name: "TestCaseEdit",
@@ -263,6 +317,9 @@ export default {
       maintainerOptions: [],
       testOptions: [],
       workspaceId: '',
+      fileList: [],
+      tableData: [],
+      uploadList: [],
       rules: {
         name: [
           {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
@@ -339,6 +396,7 @@ export default {
         tmp.steps = JSON.parse(testCase.steps);
         Object.assign(this.form, tmp);
         this.form.module = testCase.nodeId;
+        this.getFileMetaData(testCase);
       } else {
         if (this.selectNode.data) {
           this.form.module = this.selectNode.data.id;
@@ -357,6 +415,24 @@ export default {
       this.getSelectOptions();
       this.reload();
       this.dialogFormVisible = true;
+    },
+    getFileMetaData(testCase) {
+      this.fileList = [];
+      this.tableData = [];
+      this.uploadList = [];
+      this.result = this.$get("test/case/file/metadata/" + testCase.id, response => {
+        let files = response.data;
+
+        if (!files) {
+          return;
+        }
+        // deep copy
+        this.fileList = JSON.parse(JSON.stringify(files));
+        this.tableData = JSON.parse(JSON.stringify(files));
+        this.tableData.map(f => {
+          f.size = f.size + ' Bytes';
+        });
+      })
     },
     handleAddStep(index, data) {
       let step = {};
@@ -400,7 +476,8 @@ export default {
         if (valid) {
           let param = this.buildParam();
           if (this.validate(param)) {
-            this.result = this.$post('/test/case/' + this.operationType, param, () => {
+            let option = this.getOption(param);
+            this.result = this.$request(option, () => {
               this.$success(this.$t('commons.save_success'));
               if (this.operationType == 'add' && this.isCreateContinue) {
                 this.form.name = '';
@@ -411,6 +488,7 @@ export default {
                   result: ''
                 }];
                 this.form.remark = '';
+                this.form.uploadList = [];
                 this.$emit("refresh");
                 return;
               }
@@ -443,6 +521,32 @@ export default {
         param.testId = null;
       }
       return param;
+    },
+    getOption(param) {
+      let formData = new FormData();
+      let url = '/test/case/' + this.operationType;
+      this.uploadList.forEach(f => {
+        formData.append("file", f);
+      });
+
+      param.updatedFileList = this.fileList;
+
+      let requestJson = JSON.stringify(param, function (key, value) {
+        return key === "file" ? undefined : value
+      });
+
+      formData.append('request', new Blob([requestJson], {
+        type: "application/json"
+      }));
+
+      return {
+        method: 'POST',
+        url: url,
+        data: formData,
+        headers: {
+          'Content-Type': undefined
+        }
+      };
     },
     validate(param) {
       for (let i = 0; i < param.steps.length; i++) {
@@ -527,7 +631,88 @@ export default {
           return true;
         });
       }
-    }
+    },
+    handleExceed() {
+      this.$error(this.$t('load_test.file_size_limit'));
+    },
+    beforeUpload(file) {
+      if (!this.fileValidator(file)) {
+        /// todo: 显示错误信息
+        return false;
+      }
+
+      if (this.tableData.filter(f => f.name === file.name).length > 0) {
+        this.$error(this.$t('load_test.delete_file'));
+        return false;
+      }
+
+      let type = file.name.substring(file.name.lastIndexOf(".") + 1);
+
+      this.tableData.push({
+        name: file.name,
+        size: file.size + ' Bytes', /// todo: 按照大小显示Byte、KB、MB等
+        type: type.toUpperCase(),
+        updateTime: file.lastModified,
+      });
+
+      return true;
+    },
+    handleUpload(uploadResources) {
+      this.uploadList.push(uploadResources.file);
+    },
+    handleDownload(file) {
+      let data = {
+        name: file.name,
+        id: file.id,
+      };
+      let config = {
+        url: '/test/case/file/download',
+        method: 'post',
+        data: data,
+        responseType: 'blob'
+      };
+      this.result = this.$request(config).then(response => {
+        const content = response.data;
+        const blob = new Blob([content]);
+        if ("download" in document.createElement("a")) {
+          // 非IE下载
+          //  chrome/firefox
+          let aTag = document.createElement('a');
+          aTag.download = file.name;
+          aTag.href = URL.createObjectURL(blob);
+          aTag.click();
+          URL.revokeObjectURL(aTag.href)
+        } else {
+          // IE10+下载
+          navigator.msSaveBlob(blob, this.filename)
+        }
+      }).catch(e => {
+        Message.error({message: e.message, showClose: true});
+      });
+    },
+    handleDelete(file, index) {
+      this.$alert(this.$t('load_test.delete_file_confirm') + file.name + "？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            this._handleDelete(file, index);
+          }
+        }
+      });
+    },
+    _handleDelete(file, index) {
+      this.fileList.splice(index, 1);
+      this.tableData.splice(index, 1);
+      let i = this.uploadList.findIndex(upLoadFile => upLoadFile.name === file.name);
+      if (i > -1) {
+        this.uploadList.splice(i, 1);
+      }
+    },
+    fileValidator(file) {
+      /// todo: 是否需要对文件内容和大小做限制
+      return file.size > 0;
+    },
+
   }
 }
 </script>

@@ -2,8 +2,11 @@ package io.metersphere.api.dto.scenario.request;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
+import io.metersphere.api.dto.scenario.KeyValue;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -25,4 +28,6 @@ public class SqlRequest extends Request {
     private String resultVariable;
     @JSONField(ordinal = 14)
     private String variableNames;
+    @JSONField(ordinal = 15)
+    private List<KeyValue> variables;
 }

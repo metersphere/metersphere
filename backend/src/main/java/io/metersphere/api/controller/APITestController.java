@@ -75,6 +75,11 @@ public class APITestController {
         apiTestService.create(request, file, bodyFiles);
     }
 
+    @PostMapping(value = "/create/merge", consumes = {"multipart/form-data"})
+    public void mergeCreate(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "selectIds") List<String> selectIds) {
+        apiTestService.mergeCreate(request, file, selectIds);
+    }
+
     @PostMapping(value = "/update", consumes = {"multipart/form-data"})
     public void update(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         checkownerService.checkApiTestOwner(request.getId());

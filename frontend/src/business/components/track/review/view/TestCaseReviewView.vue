@@ -88,6 +88,7 @@ export default {
     refresh() {
       this.selectNodeIds = [];
       this.selectParentNodes = [];
+      this.$refs.testReviewRelevance.search();
       this.getNodeTreeByReviewId();
     },
     initData() {

@@ -122,13 +122,13 @@
                     >
                       <ckeditor :editor="editor" disabled :config="editorConfig"
                                 v-model="scope.row.description"/>
-                      <el-button slot="reference" type="text">{{$t('test_track.issue.preview')}}</el-button>
+                      <el-button slot="reference" type="text">{{ $t('test_track.issue.preview') }}</el-button>
                     </el-popover>
                   </template>
                 </el-table-column>
                 <el-table-column prop="platform" :label="$t('test_track.issue.platform')"/>
               </el-table>
-              <el-button slot="reference" type="text">{{scope.row.issuesSize}}</el-button>
+              <el-button slot="reference" type="text">{{ scope.row.issuesSize }}</el-button>
             </el-popover>
           </template>
         </el-table-column>
@@ -136,6 +136,8 @@
 
         <el-table-column
           prop="executorName"
+          :filters="executorFilters"
+          column-key="executor"
           :label="$t('test_track.plan_view.executor')">
         </el-table-column>
 
@@ -152,18 +154,18 @@
                 </span>
                 <el-dropdown-menu slot="dropdown" chang>
                   <el-dropdown-item :disabled="!isTestManagerOrTestUser" :command="{id: scope.row.id, status: 'Pass'}">
-                    {{$t('test_track.plan_view.pass')}}
+                    {{ $t('test_track.plan_view.pass') }}
                   </el-dropdown-item>
                   <el-dropdown-item :disabled="!isTestManagerOrTestUser"
                                     :command="{id: scope.row.id, status: 'Failure'}">
-                    {{$t('test_track.plan_view.failure')}}
+                    {{ $t('test_track.plan_view.failure') }}
                   </el-dropdown-item>
                   <el-dropdown-item :disabled="!isTestManagerOrTestUser"
                                     :command="{id: scope.row.id, status: 'Blocking'}">
-                    {{$t('test_track.plan_view.blocking')}}
+                    {{ $t('test_track.plan_view.blocking') }}
                   </el-dropdown-item>
                   <el-dropdown-item :disabled="!isTestManagerOrTestUser" :command="{id: scope.row.id, status: 'Skip'}">
-                    {{$t('test_track.plan_view.skip')}}
+                    {{ $t('test_track.plan_view.skip') }}
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
@@ -210,386 +212,391 @@
 </template>
 
 <script>
-  import ExecutorEdit from './ExecutorEdit';
-  import StatusEdit from './StatusEdit';
-  import TestPlanTestCaseEdit from "./TestPlanTestCaseEdit";
-  import MsTipButton from '../../../../common/components/MsTipButton';
-  import MsTablePagination from '../../../../common/pagination/TablePagination';
-  import MsTableHeader from '../../../../common/components/MsTableHeader';
-  import MsTableButton from '../../../../common/components/MsTableButton';
-  import NodeBreadcrumb from '../../../common/NodeBreadcrumb';
+import ExecutorEdit from './ExecutorEdit';
+import StatusEdit from './StatusEdit';
+import TestPlanTestCaseEdit from "./TestPlanTestCaseEdit";
+import MsTipButton from '../../../../common/components/MsTipButton';
+import MsTablePagination from '../../../../common/pagination/TablePagination';
+import MsTableHeader from '../../../../common/components/MsTableHeader';
+import MsTableButton from '../../../../common/components/MsTableButton';
+import NodeBreadcrumb from '../../../common/NodeBreadcrumb';
 
-  import {ROLE_TEST_MANAGER, ROLE_TEST_USER, TokenKey, WORKSPACE_ID} from '../../../../../../common/js/constants';
-  import {_filter, _sort, checkoutTestManagerOrTestUser, hasRoles} from '../../../../../../common/js/utils';
-  import PriorityTableItem from "../../../common/tableItems/planview/PriorityTableItem";
-  import StatusTableItem from "../../../common/tableItems/planview/StatusTableItem";
-  import TypeTableItem from "../../../common/tableItems/planview/TypeTableItem";
-  import MethodTableItem from "../../../common/tableItems/planview/MethodTableItem";
-  import MsTableOperator from "../../../../common/components/MsTableOperator";
-  import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
-  import TestReportTemplateList from "./TestReportTemplateList";
-  import TestCaseReportView from "./report/TestCaseReportView";
-  import {TEST_CASE_CONFIGS} from "../../../../common/components/search/search-components";
-  import ShowMoreBtn from "../../../case/components/ShowMoreBtn";
-  import BatchEdit from "../../../case/components/BatchEdit";
-  import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-  import {hub} from "@/business/components/track/plan/event-bus";
+import {ROLE_TEST_MANAGER, ROLE_TEST_USER, TokenKey, WORKSPACE_ID} from "@/common/js/constants";
+import {_filter, _sort, checkoutTestManagerOrTestUser, hasRoles} from "@/common/js/utils";
+import PriorityTableItem from "../../../common/tableItems/planview/PriorityTableItem";
+import StatusTableItem from "../../../common/tableItems/planview/StatusTableItem";
+import TypeTableItem from "../../../common/tableItems/planview/TypeTableItem";
+import MethodTableItem from "../../../common/tableItems/planview/MethodTableItem";
+import MsTableOperator from "../../../../common/components/MsTableOperator";
+import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
+import TestReportTemplateList from "./TestReportTemplateList";
+import TestCaseReportView from "./report/TestCaseReportView";
+import {TEST_CASE_CONFIGS} from "../../../../common/components/search/search-components";
+import ShowMoreBtn from "../../../case/components/ShowMoreBtn";
+import BatchEdit from "../../../case/components/BatchEdit";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import {hub} from "@/business/components/track/plan/event-bus";
 
-  export default {
-    name: "TestPlanTestCaseList",
-    components: {
-      TestCaseReportView,
-      TestReportTemplateList,
-      MsTableOperatorButton,
-      MsTableOperator,
-      MethodTableItem,
-      TypeTableItem,
-      StatusTableItem,
-      PriorityTableItem, StatusEdit, ExecutorEdit, MsTipButton, MsTablePagination,
-      TestPlanTestCaseEdit, MsTableHeader, NodeBreadcrumb, MsTableButton, ShowMoreBtn,
-      BatchEdit
-    },
-    data() {
-      return {
-        result: {},
-        deletePath: "/test/case/delete",
-        condition: {
-          components: TEST_CASE_CONFIGS
-        },
-        showMyTestCase: false,
-        tableData: [],
-        currentPage: 1,
-        pageSize: 10,
-        total: 0,
-        selectRows: new Set(),
-        testPlan: {},
-        isReadOnly: false,
-        isTestManagerOrTestUser: false,
-        priorityFilters: [
-          {text: 'P0', value: 'P0'},
-          {text: 'P1', value: 'P1'},
-          {text: 'P2', value: 'P2'},
-          {text: 'P3', value: 'P3'}
-        ],
-        methodFilters: [
-          {text: this.$t('test_track.case.manual'), value: 'manual'},
-          {text: this.$t('test_track.case.auto'), value: 'auto'}
-        ],
-        typeFilters: [
-          {text: this.$t('commons.functional'), value: 'functional'},
-          {text: this.$t('commons.performance'), value: 'performance'},
-          {text: this.$t('commons.api'), value: 'api'}
-        ],
-        statusFilters: [
-          {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
-          {text: this.$t('test_track.plan_view.pass'), value: 'Pass'},
-          {text: this.$t('test_track.plan_view.failure'), value: 'Failure'},
-          {text: this.$t('test_track.plan_view.blocking'), value: 'Blocking'},
-          {text: this.$t('test_track.plan_view.skip'), value: 'Skip'},
-          {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
-        ],
-        showMore: false,
-        buttons: [
-          {
-            name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit
-          },
-          {
-            name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch
-          }
-        ],
-        typeArr: [
-          {id: 'status', name: this.$t('test_track.plan_view.execute_result')},
-          {id: 'executor', name: this.$t('test_track.plan_view.executor')},
-        ],
-        valueArr: {
-          executor: [],
-          status: [
-            {name: this.$t('test_track.plan_view.pass'), id: 'Pass'},
-            {name: this.$t('test_track.plan_view.failure'), id: 'Failure'},
-            {name: this.$t('test_track.plan_view.blocking'), id: 'Blocking'},
-            {name: this.$t('test_track.plan_view.skip'), id: 'Skip'}
-          ]
-        },
-        editor: ClassicEditor,
-        editorConfig: {
-          // 'increaseIndent','decreaseIndent'
-          toolbar: [],
-        },
-      }
-    },
-    props: {
-      planId: {
-        type: String
+export default {
+  name: "TestPlanTestCaseList",
+  components: {
+    TestCaseReportView,
+    TestReportTemplateList,
+    MsTableOperatorButton,
+    MsTableOperator,
+    MethodTableItem,
+    TypeTableItem,
+    StatusTableItem,
+    PriorityTableItem, StatusEdit, ExecutorEdit, MsTipButton, MsTablePagination,
+    TestPlanTestCaseEdit, MsTableHeader, NodeBreadcrumb, MsTableButton, ShowMoreBtn,
+    BatchEdit
+  },
+  data() {
+    return {
+      result: {},
+      deletePath: "/test/case/delete",
+      condition: {
+        components: TEST_CASE_CONFIGS
       },
-      selectNodeIds: {
-        type: Array
+      showMyTestCase: false,
+      tableData: [],
+      currentPage: 1,
+      pageSize: 10,
+      total: 0,
+      selectRows: new Set(),
+      testPlan: {},
+      isReadOnly: false,
+      isTestManagerOrTestUser: false,
+      priorityFilters: [
+        {text: 'P0', value: 'P0'},
+        {text: 'P1', value: 'P1'},
+        {text: 'P2', value: 'P2'},
+        {text: 'P3', value: 'P3'}
+      ],
+      methodFilters: [
+        {text: this.$t('test_track.case.manual'), value: 'manual'},
+        {text: this.$t('test_track.case.auto'), value: 'auto'}
+      ],
+      typeFilters: [
+        {text: this.$t('commons.functional'), value: 'functional'},
+        {text: this.$t('commons.performance'), value: 'performance'},
+        {text: this.$t('commons.api'), value: 'api'}
+      ],
+      statusFilters: [
+        {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
+        {text: this.$t('test_track.plan_view.pass'), value: 'Pass'},
+        {text: this.$t('test_track.plan_view.failure'), value: 'Failure'},
+        {text: this.$t('test_track.plan_view.blocking'), value: 'Blocking'},
+        {text: this.$t('test_track.plan_view.skip'), value: 'Skip'},
+        {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
+      ],
+      executorFilters: [],
+      showMore: false,
+      buttons: [
+        {
+          name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit
+        },
+        {
+          name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch
+        }
+      ],
+      typeArr: [
+        {id: 'status', name: this.$t('test_track.plan_view.execute_result')},
+        {id: 'executor', name: this.$t('test_track.plan_view.executor')},
+      ],
+      valueArr: {
+        executor: [],
+        status: [
+          {name: this.$t('test_track.plan_view.pass'), id: 'Pass'},
+          {name: this.$t('test_track.plan_view.failure'), id: 'Failure'},
+          {name: this.$t('test_track.plan_view.blocking'), id: 'Blocking'},
+          {name: this.$t('test_track.plan_view.skip'), id: 'Skip'}
+        ]
       },
-      selectParentNodes: {
-        type: Array
-      }
-    },
-    watch: {
-      planId() {
-        this.refreshTableAndPlan();
+      editor: ClassicEditor,
+      editorConfig: {
+        // 'increaseIndent','decreaseIndent'
+        toolbar: [],
       },
-      selectNodeIds() {
-        this.search();
-      }
+    }
+  },
+  props: {
+    planId: {
+      type: String
     },
-    mounted() {
-      hub.$on("openFailureTestCase", row => {
-        this.isReadOnly = true;
-        this.condition.status = 'Failure';
-        this.$refs.testPlanTestCaseEdit.openTestCaseEdit(row);
-      });
+    selectNodeIds: {
+      type: Array
+    },
+    selectParentNodes: {
+      type: Array
+    }
+  },
+  watch: {
+    planId() {
       this.refreshTableAndPlan();
-      this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
     },
-    beforeDestroy() {
-      hub.$off("openFailureTestCase");
-    },
-    methods: {
-      initTableData() {
-        if (this.planId) {
-          // param.planId = this.planId;
-          this.condition.planId = this.planId;
-        }
-        if (this.selectNodeIds && this.selectNodeIds.length > 0) {
-          // param.nodeIds = this.selectNodeIds;
-          this.condition.nodeIds = this.selectNodeIds;
-        }
-        if (this.planId) {
-          this.result = this.$post(this.buildPagePath('/test/plan/case/list'), this.condition, response => {
-            let data = response.data;
-            this.total = data.itemCount;
-            this.tableData = data.listObject;
-            for (let i = 0; i < this.tableData.length; i++) {
-              if (this.tableData[i]) {
-                this.$set(this.tableData[i], "issuesSize", 0);
-                this.$get("/issues/get/" + this.tableData[i].caseId, response => {
-                  let issues = response.data;
-                  if (this.tableData[i]) {
-                    this.$set(this.tableData[i], "issuesSize", issues.length);
-                    this.$set(this.tableData[i], "issuesContent", issues);
-                  }
-                })
-              }
-            }
-            this.selectRows.clear();
-          });
-        }
-      },
-      showDetail(row, event, column) {
-        this.isReadOnly = true;
-        this.$refs.testPlanTestCaseEdit.openTestCaseEdit(row);
-      },
-      refresh() {
-        this.condition = {components: TEST_CASE_CONFIGS};
-        this.selectRows.clear();
-        this.$emit('refresh');
-      },
-      refreshTableAndPlan() {
-        this.getTestPlanById();
-        this.initTableData();
-      },
-      refreshTestPlanRecent() {
-        if (hasRoles(ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
-          let param = {};
-          param.id = this.planId;
-          param.updateTime = Date.now();
-          this.$post('/test/plan/edit', param);
-        }
-      },
-      search() {
-        this.initTableData();
-      },
-      buildPagePath(path) {
-        return path + "/" + this.currentPage + "/" + this.pageSize;
-      },
-      handleEdit(testCase, index) {
-        this.isReadOnly = false;
-        if (!checkoutTestManagerOrTestUser()) {
-          this.isReadOnly = true;
-        }
-        this.$refs.testPlanTestCaseEdit.openTestCaseEdit(testCase);
-      },
-      handleDelete(testCase) {
-        this.$alert(this.$t('test_track.plan_view.confirm_cancel_relevance') + ' ' + testCase.name + " ？", '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              this._handleDelete(testCase);
-            }
-          }
-        });
-      },
-      handleDeleteBatch() {
-        if (this.tableData.length < 1) {
-          this.$warning(this.$t('test_track.plan_view.no_case_relevance'));
-          return;
-        }
-        this.$alert(this.$t('test_track.plan_view.confirm_cancel_relevance') + " ？", '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              if (this.selectRows.size > 0) {
-                let ids = Array.from(this.selectRows).map(row => row.id);
-                this._handleBatchDelete(ids);
-              } else {
-                if (this.planId) {
-                  this.condition.planId = this.planId;
-                }
-                if (this.selectNodeIds && this.selectNodeIds.length > 0) {
-                  this.condition.nodeIds = this.selectNodeIds;
-                }
-                // 根据条件查询计划下所有的关联用例
-                this.$post('/test/plan/case/list/all', this.condition, res => {
-                  let data = res.data;
-                  let ids = data.map(d => d.id);
-                  this._handleBatchDelete(ids);
-                })
-              }
-            }
-          }
-        });
-      },
-      _handleBatchDelete(ids) {
-        this.result = this.$post('/test/plan/case/batch/delete', {ids:ids}, () => {
-          this.selectRows.clear();
-          this.$emit("refresh");
-          this.$success(this.$t('test_track.cancel_relevance_success'));
-        });
-      },
-      _handleDelete(testCase) {
-        let testCaseId = testCase.id;
-        this.result = this.$post('/test/plan/case/delete/' + testCaseId, {}, () => {
-          this.$emit("refresh");
-          this.$success(this.$t('test_track.cancel_relevance_success'));
-        });
-      },
-      handleSelectAll(selection) {
-        if (selection.length > 0) {
-          this.tableData.forEach(item => {
-            this.$set(item, "showMore", true);
-            this.selectRows.add(item);
-          });
-        } else {
-          this.selectRows.clear();
-          this.tableData.forEach(row => {
-            this.$set(row, "showMore", false);
-          })
-        }
-      },
-      handleSelectionChange(selection, row) {
-        if (this.selectRows.has(row)) {
-          this.$set(row, "showMore", false);
-          this.selectRows.delete(row);
-        } else {
-          this.$set(row, "showMore", true);
-          this.selectRows.add(row);
-        }
-      },
-      handleBatch(type) {
-        if (this.selectRows.size < 1) {
-          this.$warning(this.$t('test_track.plan_view.select_manipulate'));
-          return;
-        }
-        if (type === 'executor') {
-          this.$refs.executorEdit.openExecutorEdit();
-        } else if (type === 'status') {
-          this.$refs.statusEdit.openStatusEdit();
-        } else if (type === 'delete') {
-          this.handleDeleteBatch();
-        }
-      },
-      searchMyTestCase() {
-        this.showMyTestCase = !this.showMyTestCase;
-        if (this.showMyTestCase) {
-          let user = JSON.parse(localStorage.getItem(TokenKey));
-          this.condition.executor = user.id;
-        } else {
-          this.condition.executor = null;
-        }
-        this.initTableData();
-      },
-      openTestReport() {
-        this.$refs.testReportTemplateList.open(this.planId);
-      },
-      statusChange(param) {
-        this.$post('/test/plan/case/edit', param, () => {
+    selectNodeIds() {
+      this.search();
+    }
+  },
+  mounted() {
+    hub.$on("openFailureTestCase", row => {
+      this.isReadOnly = true;
+      this.condition.status = 'Failure';
+      this.$refs.testPlanTestCaseEdit.openTestCaseEdit(row);
+    });
+    this.refreshTableAndPlan();
+    this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
+    this.getMaintainerOptions();
+  },
+  beforeDestroy() {
+    hub.$off("openFailureTestCase");
+  },
+  methods: {
+    initTableData() {
+      if (this.planId) {
+        // param.planId = this.planId;
+        this.condition.planId = this.planId;
+      }
+      if (this.selectNodeIds && this.selectNodeIds.length > 0) {
+        // param.nodeIds = this.selectNodeIds;
+        this.condition.nodeIds = this.selectNodeIds;
+      }
+      if (this.planId) {
+        this.result = this.$post(this.buildPagePath('/test/plan/case/list'), this.condition, response => {
+          let data = response.data;
+          this.total = data.itemCount;
+          this.tableData = data.listObject;
           for (let i = 0; i < this.tableData.length; i++) {
-            if (this.tableData[i].id == param.id) {
-              this.tableData[i].status = param.status;
-              break;
+            if (this.tableData[i]) {
+              this.$set(this.tableData[i], "issuesSize", 0);
+              this.$get("/issues/get/" + this.tableData[i].caseId, response => {
+                let issues = response.data;
+                if (this.tableData[i]) {
+                  this.$set(this.tableData[i], "issuesSize", issues.length);
+                  this.$set(this.tableData[i], "issuesContent", issues);
+                }
+              })
             }
           }
-        });
-      },
-      getTestPlanById() {
-        if (this.planId) {
-          this.$post('/test/plan/get/' + this.planId, {}, response => {
-            this.testPlan = response.data;
-            this.refreshTestPlanRecent();
-          });
-        }
-      },
-      openReport(planId, id) {
-        this.getTestPlanById();
-        if (!id) {
-          id = this.testPlan.reportId;
-        }
-        if (!planId) {
-          planId = this.planId;
-        }
-        this.$refs.testCaseReportView.open(planId, id);
-      },
-      filter(filters) {
-        _filter(filters, this.condition);
-        this.initTableData();
-      },
-      sort(column) {
-        // 每次只对一个字段排序
-        if (this.condition.orders) {
-          this.condition.orders = [];
-        }
-        _sort(column, this.condition);
-        this.initTableData();
-      },
-      batchEdit(form) {
-        let param = {};
-        param[form.type] = form.value;
-        param.ids = Array.from(this.selectRows).map(row => row.id);
-        this.$post('/test/plan/case/batch/edit', param, () => {
           this.selectRows.clear();
-          this.status = '';
-          this.$post('/test/plan/edit/status/' + this.planId);
-          this.$success(this.$t('commons.save_success'));
-          this.$emit('refresh');
-        });
-      },
-      handleBatchEdit() {
-        this.getMaintainerOptions();
-        this.$refs.batchEdit.open();
-      },
-      getMaintainerOptions() {
-        let workspaceId = localStorage.getItem(WORKSPACE_ID);
-        this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
-          this.valueArr.executor = response.data;
         });
       }
+    },
+    showDetail(row, event, column) {
+      this.isReadOnly = true;
+      this.$refs.testPlanTestCaseEdit.openTestCaseEdit(row);
+    },
+    refresh() {
+      this.condition = {components: TEST_CASE_CONFIGS};
+      this.selectRows.clear();
+      this.$emit('refresh');
+    },
+    refreshTableAndPlan() {
+      this.getTestPlanById();
+      this.initTableData();
+    },
+    refreshTestPlanRecent() {
+      if (hasRoles(ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
+        let param = {};
+        param.id = this.planId;
+        param.updateTime = Date.now();
+        this.$post('/test/plan/edit', param);
+      }
+    },
+    search() {
+      this.initTableData();
+    },
+    buildPagePath(path) {
+      return path + "/" + this.currentPage + "/" + this.pageSize;
+    },
+    handleEdit(testCase, index) {
+      this.isReadOnly = false;
+      if (!checkoutTestManagerOrTestUser()) {
+        this.isReadOnly = true;
+      }
+      this.$refs.testPlanTestCaseEdit.openTestCaseEdit(testCase);
+    },
+    handleDelete(testCase) {
+      this.$alert(this.$t('test_track.plan_view.confirm_cancel_relevance') + ' ' + testCase.name + " ？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            this._handleDelete(testCase);
+          }
+        }
+      });
+    },
+    handleDeleteBatch() {
+      if (this.tableData.length < 1) {
+        this.$warning(this.$t('test_track.plan_view.no_case_relevance'));
+        return;
+      }
+      this.$alert(this.$t('test_track.plan_view.confirm_cancel_relevance') + " ？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            if (this.selectRows.size > 0) {
+              let ids = Array.from(this.selectRows).map(row => row.id);
+              this._handleBatchDelete(ids);
+            } else {
+              if (this.planId) {
+                this.condition.planId = this.planId;
+              }
+              if (this.selectNodeIds && this.selectNodeIds.length > 0) {
+                this.condition.nodeIds = this.selectNodeIds;
+              }
+              // 根据条件查询计划下所有的关联用例
+              this.$post('/test/plan/case/list/all', this.condition, res => {
+                let data = res.data;
+                let ids = data.map(d => d.id);
+                this._handleBatchDelete(ids);
+              })
+            }
+          }
+        }
+      });
+    },
+    _handleBatchDelete(ids) {
+      this.result = this.$post('/test/plan/case/batch/delete', {ids: ids}, () => {
+        this.selectRows.clear();
+        this.$emit("refresh");
+        this.$success(this.$t('test_track.cancel_relevance_success'));
+      });
+    },
+    _handleDelete(testCase) {
+      let testCaseId = testCase.id;
+      this.result = this.$post('/test/plan/case/delete/' + testCaseId, {}, () => {
+        this.$emit("refresh");
+        this.$success(this.$t('test_track.cancel_relevance_success'));
+      });
+    },
+    handleSelectAll(selection) {
+      if (selection.length > 0) {
+        this.tableData.forEach(item => {
+          this.$set(item, "showMore", true);
+          this.selectRows.add(item);
+        });
+      } else {
+        this.selectRows.clear();
+        this.tableData.forEach(row => {
+          this.$set(row, "showMore", false);
+        })
+      }
+    },
+    handleSelectionChange(selection, row) {
+      if (this.selectRows.has(row)) {
+        this.$set(row, "showMore", false);
+        this.selectRows.delete(row);
+      } else {
+        this.$set(row, "showMore", true);
+        this.selectRows.add(row);
+      }
+    },
+    handleBatch(type) {
+      if (this.selectRows.size < 1) {
+        this.$warning(this.$t('test_track.plan_view.select_manipulate'));
+        return;
+      }
+      if (type === 'executor') {
+        this.$refs.executorEdit.openExecutorEdit();
+      } else if (type === 'status') {
+        this.$refs.statusEdit.openStatusEdit();
+      } else if (type === 'delete') {
+        this.handleDeleteBatch();
+      }
+    },
+    searchMyTestCase() {
+      this.showMyTestCase = !this.showMyTestCase;
+      if (this.showMyTestCase) {
+        let user = JSON.parse(localStorage.getItem(TokenKey));
+        this.condition.executor = user.id;
+      } else {
+        this.condition.executor = null;
+      }
+      this.initTableData();
+    },
+    openTestReport() {
+      this.$refs.testReportTemplateList.open(this.planId);
+    },
+    statusChange(param) {
+      this.$post('/test/plan/case/edit', param, () => {
+        for (let i = 0; i < this.tableData.length; i++) {
+          if (this.tableData[i].id == param.id) {
+            this.tableData[i].status = param.status;
+            break;
+          }
+        }
+      });
+    },
+    getTestPlanById() {
+      if (this.planId) {
+        this.$post('/test/plan/get/' + this.planId, {}, response => {
+          this.testPlan = response.data;
+          this.refreshTestPlanRecent();
+        });
+      }
+    },
+    openReport(planId, id) {
+      this.getTestPlanById();
+      if (!id) {
+        id = this.testPlan.reportId;
+      }
+      if (!planId) {
+        planId = this.planId;
+      }
+      this.$refs.testCaseReportView.open(planId, id);
+    },
+    filter(filters) {
+      _filter(filters, this.condition);
+      this.initTableData();
+    },
+    sort(column) {
+      // 每次只对一个字段排序
+      if (this.condition.orders) {
+        this.condition.orders = [];
+      }
+      _sort(column, this.condition);
+      this.initTableData();
+    },
+    batchEdit(form) {
+      let param = {};
+      param[form.type] = form.value;
+      param.ids = Array.from(this.selectRows).map(row => row.id);
+      this.$post('/test/plan/case/batch/edit', param, () => {
+        this.selectRows.clear();
+        this.status = '';
+        this.$post('/test/plan/edit/status/' + this.planId);
+        this.$success(this.$t('commons.save_success'));
+        this.$emit('refresh');
+      });
+    },
+    handleBatchEdit() {
+      this.getMaintainerOptions();
+      this.$refs.batchEdit.open();
+    },
+    getMaintainerOptions() {
+      let workspaceId = localStorage.getItem(WORKSPACE_ID);
+      this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+        this.valueArr.executor = response.data;
+        this.executorFilters = response.data.map(u => {
+          return {text: u.name, value: u.id}
+        });
+      });
     }
   }
+}
 </script>
 
 <style scoped>
 
-  .search {
-    margin-left: 10px;
-    width: 240px;
-  }
+.search {
+  margin-left: 10px;
+  width: 240px;
+}
 
-  .test-case-status, .el-table {
-    cursor: pointer;
-  }
+.test-case-status, .el-table {
+  cursor: pointer;
+}
 
 </style>

@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtProjectMapper;
+import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.TestPlanStatus;
@@ -24,6 +25,7 @@ import io.metersphere.track.dto.TestPlanCaseDTO;
 import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.dto.TestPlanDTOWithMetric;
 import io.metersphere.track.request.testcase.PlanCaseRelevanceRequest;
+import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.AddTestPlanRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
@@ -78,6 +80,8 @@ public class TestPlanService {
     TestPlanProjectService testPlanProjectService;
     @Resource
     ProjectMapper projectMapper;
+    @Resource
+    ExtTestCaseMapper extTestCaseMapper;
 
     public void addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -207,6 +211,16 @@ public class TestPlanService {
             return;
         }
 
+        // 如果是关联全部指令则从新查询未关联的案例
+        if (testCaseIds.get(0).equals("all")) {
+            QueryTestCaseRequest req = new QueryTestCaseRequest();
+            req.setPlanId(request.getPlanId());
+            req.setProjectId(request.getProjectId());
+            List<TestCase> testCases = extTestCaseMapper.getTestCaseByNotInPlan(req);
+            if (!testCases.isEmpty()) {
+                testCaseIds = testCases.stream().map(testCase -> testCase.getId()).collect(Collectors.toList());
+            }
+        }
         TestCaseExample testCaseExample = new TestCaseExample();
         testCaseExample.createCriteria().andIdIn(testCaseIds);
 

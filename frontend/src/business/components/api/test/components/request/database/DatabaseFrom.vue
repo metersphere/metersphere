@@ -1,5 +1,5 @@
 <template>
-  <div class="database-from">
+  <div class="database-from" v-loading="result.loading">
     <el-form :model="currentConfig" :rules="rules" label-width="150px" size="small" :disabled="isReadOnly" ref="databaseFrom">
 
       <el-form-item :label="$t('api_test.request.sql.dataSource')" prop="name">
@@ -39,6 +39,7 @@
 
       <el-form-item>
         <div class="buttons">
+          <el-button type="primary" v-show="currentConfig.id" size="small" @click="validate()">{{$t('校验')}}</el-button>
           <el-button type="primary" v-show="currentConfig.id" size="small" @click="save('update')">{{$t('commons.update')}}</el-button>
           <el-button type="primary" size="small" @click="save('add')">{{$t('commons.add')}}</el-button>
         </div>
@@ -81,6 +82,7 @@
       data() {
         return {
           drivers: DatabaseConfig.DRIVER_CLASS,
+          result: {},
           currentConfig: new DatabaseConfig(),
           rules: {
             name: [
@@ -124,6 +126,11 @@
               return false;
             }
           });
+        },
+        validate() {
+          this.result = this.$post('/api/database/validate', this.currentConfig, () => {
+            this.$success(this.$t('commons.connection_successful'));
+          })
         }
       }
     }
