@@ -672,7 +672,7 @@ export default {
     length_less_than: "長度必須小於",
     recent_plan: "我最近的計劃",
     recent_case: "我最近的用例",
-    recent_review: "最近的評審",
+    recent_review: "我最近的評審",
     pass_rate: "通過率",
     execution_result: ": 請選擇執行結果",
     actual_result: ": 實際結果為空",

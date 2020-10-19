@@ -668,7 +668,7 @@ export default {
     length_less_than: "The length less than",
     recent_plan: "My recent plan",
     recent_case: "My recent case",
-    recent_review: "Recent review",
+    recent_review: "My recent review",
     pass_rate: "Pass rate",
     execution_result: ": Please select the execution result",
     actual_result: ": The actual result is empty",
