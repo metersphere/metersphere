@@ -201,6 +201,9 @@ export default {
                 case RPS_LIMIT:
                   this.rpsLimit = d.value;
                   break;
+                case RPS_LIMIT_ENABLE:
+                  this.rpsLimitEnable = d.value;
+                  break;
                 default:
                   break;
               }
