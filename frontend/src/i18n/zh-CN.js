@@ -527,6 +527,7 @@ export default {
         expect: "期望值",
         expression: "Perl型正则表达式",
         response_in_time: "响应时间在...毫秒以内",
+        ignore_status: "忽略状态"
       },
       extract: {
         label: "提取",

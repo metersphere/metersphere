@@ -526,6 +526,7 @@ export default {
         expect: "Expect Value",
         expression: "Expression",
         response_in_time: "Response in time",
+        ignore_status: "Ignore Status"
       },
       extract: {
         label: "Extract from response",
