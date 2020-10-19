@@ -32,7 +32,7 @@ public class NoticeController {
     }
 
     @GetMapping("/search/message")
-    public List<MessageSettingDetail> searchMessage() {
+    public MessageSettingDetail searchMessage() {
         return noticeService.searchMessage();
     }
 

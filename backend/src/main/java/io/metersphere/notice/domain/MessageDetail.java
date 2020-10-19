@@ -9,7 +9,6 @@ import java.util.List;
 @Data
 public class MessageDetail extends MessageTask {
     private List<String> userIds = new ArrayList<>();
-    private List<String> userNames = new ArrayList<>();
     private List<String> events = new ArrayList<>();
     private String taskType;
     private String webhook;

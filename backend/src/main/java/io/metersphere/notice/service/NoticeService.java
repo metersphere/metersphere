@@ -8,6 +8,7 @@ import io.metersphere.base.mapper.MessageTaskMapper;
 import io.metersphere.base.mapper.NoticeMapper;
 import io.metersphere.notice.controller.request.MessageRequest;
 import io.metersphere.notice.controller.request.NoticeRequest;
+import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.domain.MessageSettingDetail;
 import io.metersphere.notice.domain.NoticeDetail;
 import org.apache.commons.collections4.CollectionUtils;
@@ -16,7 +17,9 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static io.metersphere.commons.constants.NoticeConstants.EXECUTE_FAILED;
 import static io.metersphere.commons.constants.NoticeConstants.EXECUTE_SUCCESSFUL;
@@ -86,7 +89,7 @@ public class NoticeService {
     }
 
     public void saveMessageTask(MessageRequest messageRequest) {
-        String identification=UUID.randomUUID().toString();
+        String identification = UUID.randomUUID().toString();
         messageRequest.getMessageDetail().forEach(list -> {
             list.getEvents().forEach(n -> {
                 list.getUserIds().forEach(m -> {
@@ -106,12 +109,42 @@ public class NoticeService {
 
     }
 
-    public List<MessageSettingDetail> searchMessage() {
+    public MessageSettingDetail searchMessage() {
         MessageTaskExample messageTaskExample = new MessageTaskExample();
         messageTaskExample.createCriteria();
-        List<MessageTask> messageTasks = new ArrayList<>();
-        List<MessageSettingDetail> messageSettingDetail = new ArrayList<>();
-        messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
+        List<MessageTask> messageTaskLists = new ArrayList<>();
+        List<String> userIds = new ArrayList<>();
+        List<String> events = new ArrayList<>();
+        MessageSettingDetail messageSettingDetail = new MessageSettingDetail();
+        MessageDetail messageDetail = new MessageDetail();
+        List<MessageDetail> MessageDetailList = new ArrayList<>();
+        messageTaskLists = messageTaskMapper.selectByExample(messageTaskExample);
+        Map<String, List<MessageTask>> MessageTaskMap = messageTaskLists.stream().collect(Collectors.groupingBy(e -> fetchGroupKey(e)));
+        MessageTaskMap.forEach((k, v) -> {
+            for (MessageTask m : v) {
+                userIds.add(m.getId());
+                events.add(m.getEvent());
+                messageDetail.setTaskType(m.getTaskType());
+                messageDetail.setWebhook(m.getWebhook());
+                messageDetail.setIdentification(m.getIdentification());
+                messageDetail.setType(m.getType());
+            }
+            messageDetail.setEvents(events);
+            messageDetail.setUserIds(userIds);
+            MessageDetailList.add(messageDetail);
+        });
+        List<MessageDetail> jenkinsTask = MessageDetailList.stream().filter(a -> a.getTaskType().equals("jenkinsTask")).collect(Collectors.toList());
+        List<MessageDetail> testCasePlanTask = MessageDetailList.stream().filter(a -> a.getTaskType().equals("testPlanTask")).collect(Collectors.toList());
+        List<MessageDetail> reviewTask = MessageDetailList.stream().filter(a -> a.getTaskType().equals("reviewTask")).collect(Collectors.toList());
+        List<MessageDetail> defectTask = MessageDetailList.stream().filter(a -> a.getTaskType().equals("defect")).collect(Collectors.toList());
+        messageSettingDetail.setJenkinsTask(jenkinsTask);
+        messageSettingDetail.setTestCasePlanTask(testCasePlanTask);
+        messageSettingDetail.setReviewTask(reviewTask);
+        messageSettingDetail.setDefectTask(defectTask);
         return messageSettingDetail;
+    }
+
+    private static String fetchGroupKey(MessageTask user) {
+        return user.getTaskType() + "#" + user.getIdentification();
     }
 }
