@@ -124,7 +124,7 @@
 </template>
 
 <script>
-import {Scenario, TCPRequest} from "@/business/components/api/test/model/ScenarioModel";
+import {Scenario, TCPConfig, TCPRequest} from "@/business/components/api/test/model/ScenarioModel";
 import MsApiAssertions from "@/business/components/api/test/components/assertion/ApiAssertions";
 import MsApiExtract from "@/business/components/api/test/components/extract/ApiExtract";
 import MsJsr233Processor from "@/business/components/api/test/components/processor/Jsr233Processor";
@@ -143,7 +143,7 @@ export default {
   data() {
     return {
       activeName: "assertions",
-      classes: TCPRequest.CLASSES,
+      classes: TCPConfig.CLASSES,
       rules: {
         server: [
           {
