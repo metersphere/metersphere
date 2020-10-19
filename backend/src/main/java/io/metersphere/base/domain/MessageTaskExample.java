@@ -523,6 +523,76 @@ public class MessageTaskExample {
             addCriterion("webhook not between", value1, value2, "webhook");
             return (Criteria) this;
         }
+
+        public Criteria andIdentificationIsNull() {
+            addCriterion("identification is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIdentificationIsNotNull() {
+            addCriterion("identification is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIdentificationEqualTo(String value) {
+            addCriterion("identification =", value, "identification");
+            return (Criteria) this;
+        }
+
+        public Criteria andIdentificationNotEqualTo(String value) {
+            addCriterion("identification <>", value, "identification");
+            return (Criteria) this;
+        }
+
+        public Criteria andIdentificationGreaterThan(String value) {
+            addCriterion("identification >", value, "identification");
+            return (Criteria) this;
+        }
+
+        public Criteria andIdentificationGreaterThanOrEqualTo(String value) {
+            addCriterion("identification >=", value, "identification");
+            return (Criteria) this;
+        }
+
+        public Criteria andIdentificationLessThan(String value) {
+            addCriterion("identification <", value, "identification");
+            return (Criteria) this;
+        }
+
+        public Criteria andIdentificationLessThanOrEqualTo(String value) {
+            addCriterion("identification <=", value, "identification");
+            return (Criteria) this;
+        }
+
+        public Criteria andIdentificationLike(String value) {
+            addCriterion("identification like", value, "identification");
+            return (Criteria) this;
+        }
+
+        public Criteria andIdentificationNotLike(String value) {
+            addCriterion("identification not like", value, "identification");
+            return (Criteria) this;
+        }
+
+        public Criteria andIdentificationIn(List<String> values) {
+            addCriterion("identification in", values, "identification");
+            return (Criteria) this;
+        }
+
+        public Criteria andIdentificationNotIn(List<String> values) {
+            addCriterion("identification not in", values, "identification");
+            return (Criteria) this;
+        }
+
+        public Criteria andIdentificationBetween(String value1, String value2) {
+            addCriterion("identification between", value1, value2, "identification");
+            return (Criteria) this;
+        }
+
+        public Criteria andIdentificationNotBetween(String value1, String value2) {
+            addCriterion("identification not between", value1, value2, "identification");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

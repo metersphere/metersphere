@@ -38,10 +38,12 @@
                                  @click="handleNext()"/>
                       <el-divider direction="vertical"></el-divider>
 
-                      <el-button type="success" size="mini" :disabled="isReadOnly" plain @click="saveCase('Pass')">
+                      <el-button type="success" size="mini"
+                                 :disabled="isReadOnly" :plain="testCase.reviewStatus !== 'Pass'" @click="saveCase('Pass')">
                         {{ $t('test_track.review.pass') }}
                       </el-button>
-                      <el-button type="danger" size="mini" :disabled="isReadOnly" plain @click="saveCase('UnPass')">
+                      <el-button type="danger" size="mini"
+                                 :disabled="isReadOnly" :plain="testCase.reviewStatus !== 'UnPass'" @click="saveCase('UnPass')">
                         {{ $t('test_track.review.un_pass') }}
                       </el-button>
                     </el-col>
@@ -290,6 +292,10 @@ export default {
         this.$success(this.$t('commons.save_success'));
         this.updateTestCases(param);
         this.setReviewStatus(this.testCase.reviewId);
+        // 修改当前用例的评审状态
+        this.testCase.reviewStatus = status;
+        // 修改当前用例在整个用例列表的状态
+        this.testCases[this.index].reviewStatus = status;
       });
     },
     updateTestCases(param) {

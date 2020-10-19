@@ -110,12 +110,6 @@ public class TestReviewTestCaseService {
             MSException.throwException("非此用例的评审人员！");
         }
 
-        TestCaseReview testCaseReview = testCaseReviewMapper.selectByPrimaryKey(reviewId);
-        Long endTime = testCaseReview.getEndTime();
-        if (System.currentTimeMillis() > endTime) {
-            MSException.throwException("此用例评审已到截止时间！");
-        }
-
         // 记录测试用例评审状态变更
         testCaseReviewTestCase.setStatus(testCaseReviewTestCase.getStatus());
         testCaseReviewTestCase.setReviewer(SessionUtils.getUser().getId());

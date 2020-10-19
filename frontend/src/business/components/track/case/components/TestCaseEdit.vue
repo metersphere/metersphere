@@ -213,16 +213,17 @@
         <el-row style="margin-top: 15px;margin-bottom: 10px">
           <el-col :offset="2" :span="20">附件:
             <el-upload
+              accept=".jpg,.jpeg,.png,.xlsx,.doc,.pdf,.docx"
               action=""
               :show-file-list="false"
               :before-upload="beforeUpload"
               :http-request="handleUpload"
               :on-exceed="handleExceed"
               multiple
-              :limit="3"
+              :limit="8"
               :file-list="fileList">
               <el-button icon="el-icon-plus" size="mini"></el-button>
-<!--              <span slot="tip" class="el-upload__tip"></span>-->
+              <span slot="tip" class="el-upload__tip"> 只能上传jpg、jpeg、png、docx、doc、pdf、xlsx文件 </span>
             </el-upload>
           </el-col>
         </el-row>
@@ -488,7 +489,9 @@ export default {
                   result: ''
                 }];
                 this.form.remark = '';
-                this.form.uploadList = [];
+                this.uploadList = [];
+                this.fileList = [];
+                this.tableData = [];
                 this.$emit("refresh");
                 return;
               }
@@ -628,6 +631,9 @@ export default {
             desc: '',
             result: ''
           }];
+          this.uploadList = [];
+          this.fileList = [];
+          this.tableData = [];
           return true;
         });
       }

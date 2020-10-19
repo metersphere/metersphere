@@ -2,7 +2,7 @@
   <el-form :model="form" ref="caseFrom" v-loading="result.loading">
 
     <el-row>
-      <el-col :span="8" :offset="1">
+      <el-col :span="10" :offset="1">
         <el-form-item
           :placeholder="$t('test_track.case.input_name')"
           :label="$t('test_track.case.name')"
@@ -12,7 +12,7 @@
         </el-form-item>
       </el-col>
 
-      <el-col :span="11" :offset="2">
+      <el-col :span="12">
         <el-form-item :label="$t('test_track.case.module')" :label-width="formLabelWidth" prop="module">
           <el-input class="case-name" :disabled="readOnly" v-model="testCase.nodePath"></el-input>
         </el-form-item>
@@ -59,14 +59,14 @@
     </el-row>
 
     <el-row v-if="testCase.method && testCase.method == 'auto'">
-      <el-col :span="9" :offset="1">
+      <el-col :span="10" :offset="1">
         <el-form-item :label="$t('test_track.case.relate_test')" :label-width="formLabelWidth" prop="testId">
           <el-select filterable :disabled="readOnly" v-model="testCase.testId"
                      :placeholder="$t('test_track.case.input_type')">
           </el-select>
         </el-form-item>
       </el-col>
-      <el-col :span="9" :offset="1" v-if="testCase.testId=='other'">
+      <el-col :span="12" v-if="testCase.testId=='other'">
         <el-form-item :label="$t('test_track.case.test_name')" :label-width="formLabelWidth" prop="testId">
           <el-input v-model="testCase.otherTestName" :placeholder="$t('test_track.case.input_test_case')"
                     :disabled="readOnly"></el-input>
@@ -74,10 +74,10 @@
       </el-col>
     </el-row>
     <el-row style="margin-top: 15px;">
-      <el-col :offset="2">{{ $t('test_track.case.prerequisite') }}:</el-col>
+      <el-col :offset="1">{{ $t('test_track.case.prerequisite') }}:</el-col>
     </el-row>
     <el-row type="flex" justify="center" style="margin-top: 10px;">
-      <el-col :span="20">
+      <el-col :span="22">
         <el-form-item prop="prerequisite">
           <el-input :disabled="readOnly" v-model="testCase.prerequisite"
                     type="textarea"
@@ -89,11 +89,11 @@
     </el-row>
 
     <el-row v-if="testCase.method && testCase.method != 'auto'" style="margin-bottom: 10px">
-      <el-col :offset="2">{{ $t('test_track.case.steps') }}:</el-col>
+      <el-col :offset="1">{{ $t('test_track.case.steps') }}:</el-col>
     </el-row>
 
     <el-row v-if="testCase.method && testCase.method != 'auto'" type="flex" justify="center">
-      <el-col :span="20">
+      <el-col :span="22">
         <el-table
           v-if="isStepTableAlive"
           :data="JSON.parse(testCase.steps)"
@@ -136,10 +136,10 @@
     </el-row>
 
     <el-row style="margin-top: 15px;margin-bottom: 10px">
-      <el-col :offset="2">{{ $t('commons.remark') }}:</el-col>
+      <el-col :offset="1">{{ $t('commons.remark') }}:</el-col>
     </el-row>
     <el-row type="flex" justify="center">
-      <el-col :span="20">
+      <el-col :span="22">
         <el-form-item prop="remark">
           <el-input v-model="testCase.remark"
                     :autosize="{ minRows: 2, maxRows: 4}"

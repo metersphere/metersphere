@@ -286,6 +286,7 @@ public class TestCaseService {
                         testCaseNodeService.createNodes(xmindParser.getNodePaths(), projectId);
                     }
                     if (!xmindParser.getTestCase().isEmpty()) {
+                        Collections.reverse(xmindParser.getTestCase());
                         this.saveImportData(xmindParser.getTestCase(), projectId);
                         xmindParser.clear();
                     }
@@ -335,6 +336,9 @@ public class TestCaseService {
             AtomicInteger num = new AtomicInteger();
             num.set(getNextNum(projectId) + testCases.size());
             testCases.forEach(testcase -> {
+                testcase.setId(UUID.randomUUID().toString());
+                testcase.setCreateTime(System.currentTimeMillis());
+                testcase.setUpdateTime(System.currentTimeMillis());
                 testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
                 testcase.setSort(sort.getAndIncrement());
                 testcase.setNum(num.decrementAndGet());
