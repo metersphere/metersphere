@@ -8,10 +8,15 @@ import io.metersphere.base.mapper.TestCaseCommentMapper;
 import io.metersphere.base.mapper.TestCaseMapper;
 import io.metersphere.base.mapper.TestCaseReviewMapper;
 import io.metersphere.base.mapper.UserMapper;
+import io.metersphere.commons.constants.NoticeConstants;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.notice.service.DingTaskService;
 import io.metersphere.notice.service.MailService;
+import io.metersphere.notice.service.WxChatTaskService;
 import io.metersphere.track.request.testreview.SaveCommentRequest;
 import io.metersphere.track.request.testreview.SaveTestCaseReviewRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +39,10 @@ public class TestCaseCommentService {
     MailService mailService;
     @Resource
     TestCaseMapper testCaseMapper;
+    @Resource
+    DingTaskService dingTaskService;
+    @Resource
+    WxChatTaskService wxChatTaskService;
 
     public void saveComment(SaveCommentRequest request) {
         TestCaseComment testCaseComment = new TestCaseComment();
@@ -49,7 +58,18 @@ public class TestCaseCommentService {
         SaveTestCaseReviewRequest caseReviewRequest = new SaveTestCaseReviewRequest();
         List<String> userIds = new ArrayList<>();
         userIds.add(testCaseWithBLOBs.getMaintainer());
-        mailService.sendCommentNotice(userIds, request, testCaseWithBLOBs);
+        String context = getReviewContext(request, testCaseWithBLOBs);
+        try {
+            if (StringUtils.equals(NoticeConstants.NAIL_ROBOT, "NAIL_ROBOT")) {
+                dingTaskService.sendDingTask(context, userIds);
+            } else if (StringUtils.equals(NoticeConstants.WECHAT_ROBOT, "WECHAT_ROBOT")) {
+                wxChatTaskService.enterpriseWechatTask();
+            } else {
+                mailService.sendCommentNotice(userIds, request, testCaseWithBLOBs);
+            }
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
 
     }
 
@@ -71,5 +91,11 @@ public class TestCaseCommentService {
         TestCaseCommentExample testCaseCommentExample = new TestCaseCommentExample();
         testCaseCommentExample.createCriteria().andCaseIdEqualTo(caseId);
         testCaseCommentMapper.deleteByExample(testCaseCommentExample);
+    }
+
+    private String getReviewContext(SaveCommentRequest request, TestCaseWithBLOBs testCaseWithBLOBs) {
+        String context = "";
+        context = testCaseWithBLOBs.getMaintainer() + "发起的" + "'" + testCaseWithBLOBs.getName() + "'" + "添加评论:" + request.getDescription();
+        return context;
     }
 }

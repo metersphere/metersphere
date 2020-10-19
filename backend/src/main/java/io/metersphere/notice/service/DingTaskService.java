@@ -8,15 +8,16 @@ import com.taobao.api.ApiException;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class DingTaskService {
-    public void sendDingTask() {
+    public void sendDingTask(String context, List<String> userIds) {
         DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/robot/send?access_token=5129dc4c073d28f67c7452e0de6536c3ca496728d8c014d0a209b88a8814307a");
         OapiRobotSendRequest request = new OapiRobotSendRequest();
         request.setMsgtype("text");
         OapiRobotSendRequest.Text text = new OapiRobotSendRequest.Text();
-        text.setContent("测试计划任务通知：‘创建人’发起的‘测试计划名称‘ 的’计划开始时间‘，’计划结束时间‘请跟进！");
+        text.setContent(context);
         request.setText(text);
         OapiRobotSendRequest.At at = new OapiRobotSendRequest.At();
         at.setAtMobiles(Arrays.asList("15135125273"));
