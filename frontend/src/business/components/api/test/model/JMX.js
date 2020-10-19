@@ -415,7 +415,7 @@ export class ResponseAssertion extends DefaultTestElement {
     this.assertion = assertion || {};
 
     this.stringProp('Assertion.test_field', this.assertion.field);
-    this.boolProp('Assertion.assume_success', false);
+    this.boolProp('Assertion.assume_success', this.assertion.assumeSuccess);
     this.intProp('Assertion.test_type', this.assertion.type);
     this.stringProp('Assertion.custom_message', this.assertion.message);
 
@@ -440,11 +440,12 @@ export class JSONPathAssertion extends DefaultTestElement {
 }
 
 export class ResponseCodeAssertion extends ResponseAssertion {
-  constructor(testName, type, value, message) {
+  constructor(testName, type, value, assumeSuccess, message) {
     let assertion = {
       field: 'Assertion.response_code',
       type: type,
       value: value,
+      assumeSuccess: assumeSuccess,
       message: message,
     }
     super(testName, assertion)
@@ -452,11 +453,12 @@ export class ResponseCodeAssertion extends ResponseAssertion {
 }
 
 export class ResponseDataAssertion extends ResponseAssertion {
-  constructor(testName, type, value, message) {
+  constructor(testName, type, value, assumeSuccess, message) {
     let assertion = {
       field: 'Assertion.response_data',
       type: type,
       value: value,
+      assumeSuccess: assumeSuccess,
       message: message,
     }
     super(testName, assertion)
@@ -464,11 +466,12 @@ export class ResponseDataAssertion extends ResponseAssertion {
 }
 
 export class ResponseHeadersAssertion extends ResponseAssertion {
-  constructor(testName, type, value, message) {
+  constructor(testName, type, value, assumeSuccess, message) {
     let assertion = {
       field: 'Assertion.response_headers',
       type: type,
       value: value,
+      assumeSuccess: assumeSuccess,
       message: message,
     }
     super(testName, assertion)

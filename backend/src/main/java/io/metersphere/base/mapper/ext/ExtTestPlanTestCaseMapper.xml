@@ -285,4 +285,24 @@
         from test_plan_test_case
         where plan_id = #{planId}
     </select>
+    <select id="getTestPlanTestCaseIds" resultType="java.lang.String">
+        select c.id from test_case a left join test_plan_test_case c on a.id=c.case_id
+        <where>
+            <if test="testId!=null">
+                and a.test_id=#{testId}
+            </if>
+        </where>
+    </select>
+    <update id="updateTestCaseStates" parameterType="java.lang.String">
+        update test_plan_test_case
+        <set>
+            <if test="reportStatus!=null">
+                status=#{reportStatus,jdbcType=VARCHAR}
+            </if>
+        </set>
+        where id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
 </mapper>

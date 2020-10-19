@@ -213,6 +213,20 @@ export default {
     select: 'Select Organization',
     service_integration: 'Service integration',
     defect_manage: 'Defect management platform',
+    message_settings:'Message settings',
+    message:{
+      jenkins_task_notification:'Jenkins task notification',
+      test_plan_task_notification:'Test plan task notification',
+      test_review_task_notice:'Test review task notice',
+      defect_task_notification:'Defect task notification',
+      create_new_notification:'Create a new notification',
+      select_events:'Select event',
+      select_receiving_method:'Select receiving method',
+      mail:'mail',
+      nail_robot:'Nail robot',
+      enterprise_wechat_robot:'Enterprise wechat robot',
+
+    },
     integration: {
       select_defect_platform: 'Please select the defect management platform to be integrated:',
       basic_auth_info: 'Basic Auth account information:',
@@ -526,6 +540,7 @@ export default {
         expect: "Expect Value",
         expression: "Expression",
         response_in_time: "Response in time",
+        ignore_status: "Ignore Status"
       },
       extract: {
         label: "Extract from response",

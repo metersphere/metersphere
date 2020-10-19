@@ -214,6 +214,19 @@ export default {
     delete_warning: '刪除該組織將同步刪除該組織下所有相關工作空間和相關工作空間下的所有項目，以及項目中的所有用例、接口測試、性能測試等,確定要刪除嗎?',
     service_integration: '服務集成',
     defect_manage: '缺陷管理平臺',
+    message_settings:'消息設定',
+    message:{
+      jenkins_task_notification:'Jenkins任務通知',
+      test_plan_task_notification:'測試計畫任務通知',
+      test_review_task_notice:'測試評審任務通知',
+      defect_task_notification:'缺陷任務通知',
+      create_new_notification:'創建新通知',
+      select_events:'選擇事件',
+      select_receiving_method:'選擇接收管道',
+      mail:'郵件',
+      nail_robot:'釘釘機器人',
+      enterprise_wechat_robot:'企業微信機器人',
+    },
     integration: {
       select_defect_platform: '請選擇要集成的缺陷管理平臺：',
       basic_auth_info: 'Basic Auth 賬號信息：',
@@ -236,7 +249,10 @@ export default {
       successful_operation: '操作成功',
       not_integrated: '未集成該平臺',
       choose_platform: '請選擇集成的平臺',
-      verified: '驗證通過'
+      verified: '驗證通過',
+      mail:'郵件',
+      nail_robot:'釘釘機器人',
+      enterprise_wechat_robot:'企業微信機器人',
     }
   },
   project: {
@@ -527,6 +543,7 @@ export default {
         expect: "期望值",
         expression: "Perl型正則表達式",
         response_in_time: "響應時間在...毫秒以內",
+        ignore_status: "忽略狀態"
       },
       extract: {
         label: "提取",

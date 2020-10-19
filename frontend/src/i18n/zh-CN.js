@@ -214,6 +214,22 @@ export default {
     delete_warning: '删除该组织将同步删除该组织下所有相关工作空间和相关工作空间下的所有项目，以及项目中的所有用例、接口测试、性能测试等,确定要删除吗?',
     service_integration: '服务集成',
     defect_manage: '缺陷管理平台',
+    message_settings:'消息设置',
+    message:{
+      jenkins_task_notification:'Jenkins任务通知',
+      test_plan_task_notification:'测试计划任务通知',
+      test_review_task_notice:'测试评审任务通知',
+      create_new_notification:'创建新通知',
+      select_events:'选择事件',
+      defect_task_notification:'缺陷任务通知',
+      select_receiving_method:'选择接收方式',
+      mail:'邮件',
+      nail_robot:'钉钉机器人',
+      enterprise_wechat_robot:'企业微信机器人',
+
+
+
+    },
     integration: {
       select_defect_platform: '请选择要集成的缺陷管理平台：',
       basic_auth_info: 'Basic Auth 账号信息：',
@@ -527,6 +543,7 @@ export default {
         expect: "期望值",
         expression: "Perl型正则表达式",
         response_in_time: "响应时间在...毫秒以内",
+        ignore_status: "忽略状态"
       },
       extract: {
         label: "提取",
