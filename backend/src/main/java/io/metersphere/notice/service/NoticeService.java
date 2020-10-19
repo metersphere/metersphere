@@ -92,10 +92,9 @@ public class NoticeService {
                     MessageTask message = new MessageTask();
                     message.setId(UUID.randomUUID().toString());
                     message.setEvent(n);
-                    message.setTasktype(list.getTaskType());
-                    message.setUserid(m);
+                    message.setTaskType(list.getTaskType());
+                    message.setUserId(m);
                     message.setType(list.getType());
-                    message.setUsername("a");
                     message.setWebhook(list.getWebhook());
                     messageTaskMapper.insert(message);
                 });

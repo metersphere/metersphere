@@ -314,213 +314,143 @@ public class MessageTaskExample {
             return (Criteria) this;
         }
 
-        public Criteria andUseridIsNull() {
-            addCriterion("userId is null");
+        public Criteria andUserIdIsNull() {
+            addCriterion("user_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andUseridIsNotNull() {
-            addCriterion("userId is not null");
+        public Criteria andUserIdIsNotNull() {
+            addCriterion("user_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andUseridEqualTo(String value) {
-            addCriterion("userId =", value, "userid");
+        public Criteria andUserIdEqualTo(String value) {
+            addCriterion("user_id =", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andUseridNotEqualTo(String value) {
-            addCriterion("userId <>", value, "userid");
+        public Criteria andUserIdNotEqualTo(String value) {
+            addCriterion("user_id <>", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andUseridGreaterThan(String value) {
-            addCriterion("userId >", value, "userid");
+        public Criteria andUserIdGreaterThan(String value) {
+            addCriterion("user_id >", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andUseridGreaterThanOrEqualTo(String value) {
-            addCriterion("userId >=", value, "userid");
+        public Criteria andUserIdGreaterThanOrEqualTo(String value) {
+            addCriterion("user_id >=", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andUseridLessThan(String value) {
-            addCriterion("userId <", value, "userid");
+        public Criteria andUserIdLessThan(String value) {
+            addCriterion("user_id <", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andUseridLessThanOrEqualTo(String value) {
-            addCriterion("userId <=", value, "userid");
+        public Criteria andUserIdLessThanOrEqualTo(String value) {
+            addCriterion("user_id <=", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andUseridLike(String value) {
-            addCriterion("userId like", value, "userid");
+        public Criteria andUserIdLike(String value) {
+            addCriterion("user_id like", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andUseridNotLike(String value) {
-            addCriterion("userId not like", value, "userid");
+        public Criteria andUserIdNotLike(String value) {
+            addCriterion("user_id not like", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andUseridIn(List<String> values) {
-            addCriterion("userId in", values, "userid");
+        public Criteria andUserIdIn(List<String> values) {
+            addCriterion("user_id in", values, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andUseridNotIn(List<String> values) {
-            addCriterion("userId not in", values, "userid");
+        public Criteria andUserIdNotIn(List<String> values) {
+            addCriterion("user_id not in", values, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andUseridBetween(String value1, String value2) {
-            addCriterion("userId between", value1, value2, "userid");
+        public Criteria andUserIdBetween(String value1, String value2) {
+            addCriterion("user_id between", value1, value2, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andUseridNotBetween(String value1, String value2) {
-            addCriterion("userId not between", value1, value2, "userid");
+        public Criteria andUserIdNotBetween(String value1, String value2) {
+            addCriterion("user_id not between", value1, value2, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andUsernameIsNull() {
-            addCriterion("userName is null");
+        public Criteria andTaskTypeIsNull() {
+            addCriterion("task_type is null");
             return (Criteria) this;
         }
 
-        public Criteria andUsernameIsNotNull() {
-            addCriterion("userName is not null");
+        public Criteria andTaskTypeIsNotNull() {
+            addCriterion("task_type is not null");
             return (Criteria) this;
         }
 
-        public Criteria andUsernameEqualTo(String value) {
-            addCriterion("userName =", value, "username");
+        public Criteria andTaskTypeEqualTo(String value) {
+            addCriterion("task_type =", value, "taskType");
             return (Criteria) this;
         }
 
-        public Criteria andUsernameNotEqualTo(String value) {
-            addCriterion("userName <>", value, "username");
+        public Criteria andTaskTypeNotEqualTo(String value) {
+            addCriterion("task_type <>", value, "taskType");
             return (Criteria) this;
         }
 
-        public Criteria andUsernameGreaterThan(String value) {
-            addCriterion("userName >", value, "username");
+        public Criteria andTaskTypeGreaterThan(String value) {
+            addCriterion("task_type >", value, "taskType");
             return (Criteria) this;
         }
 
-        public Criteria andUsernameGreaterThanOrEqualTo(String value) {
-            addCriterion("userName >=", value, "username");
+        public Criteria andTaskTypeGreaterThanOrEqualTo(String value) {
+            addCriterion("task_type >=", value, "taskType");
             return (Criteria) this;
         }
 
-        public Criteria andUsernameLessThan(String value) {
-            addCriterion("userName <", value, "username");
+        public Criteria andTaskTypeLessThan(String value) {
+            addCriterion("task_type <", value, "taskType");
             return (Criteria) this;
         }
 
-        public Criteria andUsernameLessThanOrEqualTo(String value) {
-            addCriterion("userName <=", value, "username");
+        public Criteria andTaskTypeLessThanOrEqualTo(String value) {
+            addCriterion("task_type <=", value, "taskType");
             return (Criteria) this;
         }
 
-        public Criteria andUsernameLike(String value) {
-            addCriterion("userName like", value, "username");
+        public Criteria andTaskTypeLike(String value) {
+            addCriterion("task_type like", value, "taskType");
             return (Criteria) this;
         }
 
-        public Criteria andUsernameNotLike(String value) {
-            addCriterion("userName not like", value, "username");
+        public Criteria andTaskTypeNotLike(String value) {
+            addCriterion("task_type not like", value, "taskType");
             return (Criteria) this;
         }
 
-        public Criteria andUsernameIn(List<String> values) {
-            addCriterion("userName in", values, "username");
+        public Criteria andTaskTypeIn(List<String> values) {
+            addCriterion("task_type in", values, "taskType");
             return (Criteria) this;
         }
 
-        public Criteria andUsernameNotIn(List<String> values) {
-            addCriterion("userName not in", values, "username");
+        public Criteria andTaskTypeNotIn(List<String> values) {
+            addCriterion("task_type not in", values, "taskType");
             return (Criteria) this;
         }
 
-        public Criteria andUsernameBetween(String value1, String value2) {
-            addCriterion("userName between", value1, value2, "username");
+        public Criteria andTaskTypeBetween(String value1, String value2) {
+            addCriterion("task_type between", value1, value2, "taskType");
             return (Criteria) this;
         }
 
-        public Criteria andUsernameNotBetween(String value1, String value2) {
-            addCriterion("userName not between", value1, value2, "username");
-            return (Criteria) this;
-        }
-
-        public Criteria andTasktypeIsNull() {
-            addCriterion("taskType is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andTasktypeIsNotNull() {
-            addCriterion("taskType is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andTasktypeEqualTo(String value) {
-            addCriterion("taskType =", value, "tasktype");
-            return (Criteria) this;
-        }
-
-        public Criteria andTasktypeNotEqualTo(String value) {
-            addCriterion("taskType <>", value, "tasktype");
-            return (Criteria) this;
-        }
-
-        public Criteria andTasktypeGreaterThan(String value) {
-            addCriterion("taskType >", value, "tasktype");
-            return (Criteria) this;
-        }
-
-        public Criteria andTasktypeGreaterThanOrEqualTo(String value) {
-            addCriterion("taskType >=", value, "tasktype");
-            return (Criteria) this;
-        }
-
-        public Criteria andTasktypeLessThan(String value) {
-            addCriterion("taskType <", value, "tasktype");
-            return (Criteria) this;
-        }
-
-        public Criteria andTasktypeLessThanOrEqualTo(String value) {
-            addCriterion("taskType <=", value, "tasktype");
-            return (Criteria) this;
-        }
-
-        public Criteria andTasktypeLike(String value) {
-            addCriterion("taskType like", value, "tasktype");
-            return (Criteria) this;
-        }
-
-        public Criteria andTasktypeNotLike(String value) {
-            addCriterion("taskType not like", value, "tasktype");
-            return (Criteria) this;
-        }
-
-        public Criteria andTasktypeIn(List<String> values) {
-            addCriterion("taskType in", values, "tasktype");
-            return (Criteria) this;
-        }
-
-        public Criteria andTasktypeNotIn(List<String> values) {
-            addCriterion("taskType not in", values, "tasktype");
-            return (Criteria) this;
-        }
-
-        public Criteria andTasktypeBetween(String value1, String value2) {
-            addCriterion("taskType between", value1, value2, "tasktype");
-            return (Criteria) this;
-        }
-
-        public Criteria andTasktypeNotBetween(String value1, String value2) {
-            addCriterion("taskType not between", value1, value2, "tasktype");
+        public Criteria andTaskTypeNotBetween(String value1, String value2) {
+            addCriterion("task_type not between", value1, value2, "taskType");
             return (Criteria) this;
         }
 

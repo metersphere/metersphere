@@ -12,11 +12,9 @@ public class MessageTask implements Serializable {
 
     private String event;
 
-    private String userid;
+    private String userId;
 
-    private String username;
-
-    private String tasktype;
+    private String taskType;
 
     private String webhook;
 
