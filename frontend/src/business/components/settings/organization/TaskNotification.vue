@@ -22,11 +22,12 @@
             class="tb-edit"
             border
             size="mini"
-            :header-cell-style="{background:'#EDEDED'}"
+            :header-cell-style="{background:'#ededed'}"
           >
             <el-table-column :label="$t('schedule.event')" min-width="20%" prop="events">
               <template slot-scope="scope">
-                <el-select v-model="scope.row.events" multiple :placeholder="$t('organization.message.select_events')"
+                <el-select :disabled="isReadOnly" v-model="scope.row.events" multiple
+                           :placeholder="$t('organization.message.select_events')"
                            prop="events">
                   <el-option
                     v-for="item in jenkinsEventOptions"
@@ -456,7 +457,15 @@ export default {
       defectReceiverOptions: [],
     }
   },
+  mounted: function () {
+    this.initForm()
+  },
   methods: {
+    initForm() {
+      this.result = this.$get('/notice/search/message', response => {
+
+      })
+    },
     userList() {
       this.result = this.$get('user/list', response => {
         this.jenkinsReceiverOptions = response.data
@@ -488,12 +497,16 @@ export default {
         showDelete: false,
       }
       if (type === 'jenkinsTask') {
+        Task.taskType = 'jenkinsTask'
         this.form.jenkinsTask.unshift(Task)
       } else if (type === 'testPlanTask') {
+        Task.taskType = 'testPlanTask'
         this.form.testPlanTask.unshift(Task)
       } else if (type === 'reviewTask') {
+        Task.taskType = 'reviewTask'
         this.form.reviewTask.unshift(Task)
       } else {
+        Task.taskType = 'defect'
         this.form.defectTask.unshift(Task)
       }
     },
