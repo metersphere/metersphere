@@ -1,8 +1,7 @@
 package io.metersphere.base.domain;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class MessageTask implements Serializable {
@@ -17,6 +16,8 @@ public class MessageTask implements Serializable {
     private String taskType;
 
     private String webhook;
+
+    private String identification;
 
     private static final long serialVersionUID = 1L;
 }

@@ -8,6 +8,7 @@
     <result column="user_id" jdbcType="VARCHAR" property="userId" />
     <result column="task_type" jdbcType="VARCHAR" property="taskType" />
     <result column="webhook" jdbcType="VARCHAR" property="webhook" />
+    <result column="identification" jdbcType="VARCHAR" property="identification" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -20,13 +21,13 @@
                   and ${criterion.condition}
                 </when>
                 <when test="criterion.singleValue">
-                  AND ${criterion.condition} #{criterion.value}
+                  and ${criterion.condition} #{criterion.value}
                 </when>
                 <when test="criterion.betweenValue">
-                  AND ${criterion.condition} #{criterion.value} AND #{criterion.secondValue}
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
                 </when>
                 <when test="criterion.listValue">
-                  AND ${criterion.condition}
+                  and ${criterion.condition}
                   <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
                     #{listItem}
                   </foreach>
@@ -49,13 +50,13 @@
                   and ${criterion.condition}
                 </when>
                 <when test="criterion.singleValue">
-                  AND ${criterion.condition} #{criterion.value}
+                  and ${criterion.condition} #{criterion.value}
                 </when>
                 <when test="criterion.betweenValue">
-                  AND ${criterion.condition} #{criterion.value} AND #{criterion.secondValue}
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
                 </when>
                 <when test="criterion.listValue">
-                  AND ${criterion.condition}
+                  and ${criterion.condition}
                   <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
                     #{listItem}
                   </foreach>
@@ -68,48 +69,48 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `type`, event, user_id, task_type, webhook
+    id, `type`, event, user_id, task_type, webhook, identification
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.MessageTaskExample" resultMap="BaseResultMap">
-    SELECT
+    select
     <if test="distinct">
-      DISTINCT
+      distinct
     </if>
     <include refid="Base_Column_List" />
-    FROM message_task
+    from message_task
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
     <if test="orderByClause != null">
-      ORDER BY ${orderByClause}
+      order by ${orderByClause}
     </if>
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
-    SELECT
+    select 
     <include refid="Base_Column_List" />
-    FROM message_task
-    WHERE id = #{id,jdbcType=VARCHAR}
+    from message_task
+    where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    DELETE FROM message_task
-    WHERE id = #{id,jdbcType=VARCHAR}
+    delete from message_task
+    where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.base.domain.MessageTaskExample">
-    DELETE FROM message_task
+    delete from message_task
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.MessageTask">
-    INSERT INTO message_task (id, `type`, event,
-      user_id, task_type, webhook
-      )
-    VALUES (#{id,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{event,jdbcType=VARCHAR},
-      #{userId,jdbcType=VARCHAR}, #{taskType,jdbcType=VARCHAR}, #{webhook,jdbcType=VARCHAR}
-      )
+    insert into message_task (id, `type`, event, 
+      user_id, task_type, webhook, 
+      identification)
+    values (#{id,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{event,jdbcType=VARCHAR}, 
+      #{userId,jdbcType=VARCHAR}, #{taskType,jdbcType=VARCHAR}, #{webhook,jdbcType=VARCHAR}, 
+      #{identification,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.MessageTask">
-    INSERT INTO message_task
+    insert into message_task
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -128,6 +129,9 @@
       </if>
       <if test="webhook != null">
         webhook,
+      </if>
+      <if test="identification != null">
+        identification,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -149,16 +153,19 @@
       <if test="webhook != null">
         #{webhook,jdbcType=VARCHAR},
       </if>
+      <if test="identification != null">
+        #{identification,jdbcType=VARCHAR},
+      </if>
     </trim>
   </insert>
   <select id="countByExample" parameterType="io.metersphere.base.domain.MessageTaskExample" resultType="java.lang.Long">
-    SELECT count(*) FROM message_task
+    select count(*) from message_task
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    UPDATE message_task
+    update message_task
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
@@ -178,25 +185,29 @@
       <if test="record.webhook != null">
         webhook = #{record.webhook,jdbcType=VARCHAR},
       </if>
+      <if test="record.identification != null">
+        identification = #{record.identification,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    UPDATE message_task
-    SET id = #{record.id,jdbcType=VARCHAR},
+    update message_task
+    set id = #{record.id,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
       event = #{record.event,jdbcType=VARCHAR},
       user_id = #{record.userId,jdbcType=VARCHAR},
       task_type = #{record.taskType,jdbcType=VARCHAR},
-      webhook = #{record.webhook,jdbcType=VARCHAR}
+      webhook = #{record.webhook,jdbcType=VARCHAR},
+      identification = #{record.identification,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.MessageTask">
-    UPDATE message_task
+    update message_task
     <set>
       <if test="type != null">
         `type` = #{type,jdbcType=VARCHAR},
@@ -213,16 +224,20 @@
       <if test="webhook != null">
         webhook = #{webhook,jdbcType=VARCHAR},
       </if>
+      <if test="identification != null">
+        identification = #{identification,jdbcType=VARCHAR},
+      </if>
     </set>
-    WHERE id = #{id,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.MessageTask">
-    UPDATE message_task
-    SET `type` = #{type,jdbcType=VARCHAR},
+    update message_task
+    set `type` = #{type,jdbcType=VARCHAR},
       event = #{event,jdbcType=VARCHAR},
       user_id = #{userId,jdbcType=VARCHAR},
       task_type = #{taskType,jdbcType=VARCHAR},
-      webhook = #{webhook,jdbcType=VARCHAR}
-    WHERE id = #{id,jdbcType=VARCHAR}
+      webhook = #{webhook,jdbcType=VARCHAR},
+      identification = #{identification,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

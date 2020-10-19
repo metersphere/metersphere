@@ -66,6 +66,7 @@
 
         <table tableName="schedule"/>
         <table tableName="notice"/>
+        <table tableName="message_task"/>
 
 
     </context>
