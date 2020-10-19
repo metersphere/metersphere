@@ -173,8 +173,9 @@ export default {
             this.$warning(this.$t('test_track.plan.input_plan_name'));
             return;
           }
-          if (this.operationType === 'save') {
-            this.compareTime(new Date().getTime(), this.form.endTime);
+
+          if (!this.compareTime(new Date().getTime(), this.form.endTime)) {
+            return false;
           }
 
           if (this.operationType === 'edit') {
@@ -254,14 +255,17 @@ export default {
       }
     },
     endTimeChange(value) {
-      this.form.endTime = this.form.endTime.getTime();
-      this.compareTime(new Date().getTime(), value.getTime());
+      if (value) {
+        this.form.endTime = this.form.endTime.getTime();
+        this.compareTime(new Date().getTime(), value.getTime());
+      }
     },
     compareTime(ts1, ts2) {
       if (ts1 > ts2) {
-        this.form.endTime = '';
         this.$warning("截止时间不能早于当前时间！");
+        return false;
       }
+      return true;
     }
   }
 }
