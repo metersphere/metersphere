@@ -1,9 +1,14 @@
 package io.metersphere.notice.service;
 
+import io.metersphere.base.domain.MessageTask;
+import io.metersphere.base.domain.MessageTaskExample;
 import io.metersphere.base.domain.Notice;
 import io.metersphere.base.domain.NoticeExample;
+import io.metersphere.base.mapper.MessageTaskMapper;
 import io.metersphere.base.mapper.NoticeMapper;
+import io.metersphere.notice.controller.request.MessageRequest;
 import io.metersphere.notice.controller.request.NoticeRequest;
+import io.metersphere.notice.domain.MessageSettingDetail;
 import io.metersphere.notice.domain.NoticeDetail;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -20,6 +25,8 @@ import static io.metersphere.commons.constants.NoticeConstants.EXECUTE_SUCCESSFU
 public class NoticeService {
     @Resource
     private NoticeMapper noticeMapper;
+    @Resource
+    private MessageTaskMapper messageTaskMapper;
 
     public void saveNotice(NoticeRequest noticeRequest) {
         NoticeExample example = new NoticeExample();
@@ -78,4 +85,32 @@ public class NoticeService {
         return result;
     }
 
+    public void saveMessageTask(MessageRequest messageRequest) {
+        messageRequest.getMessageDetail().forEach(list -> {
+            list.getEvents().forEach(n -> {
+                list.getUserIds().forEach(m -> {
+                    MessageTask message = new MessageTask();
+                    message.setId(UUID.randomUUID().toString());
+                    message.setEvent(n);
+                    message.setTasktype(list.getTaskType());
+                    message.setUserid(m);
+                    message.setType(list.getType());
+                    message.setUsername("a");
+                    message.setWebhook(list.getWebhook());
+                    messageTaskMapper.insert(message);
+                });
+            });
+        });
+
+
+    }
+
+    public List<MessageSettingDetail> searchMessage() {
+        MessageTaskExample messageTaskExample = new MessageTaskExample();
+        messageTaskExample.createCriteria();
+        List<MessageTask> messageTasks = new ArrayList<>();
+        List<MessageSettingDetail> messageSettingDetail = new ArrayList<>();
+        messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
+        return messageSettingDetail;
+    }
 }

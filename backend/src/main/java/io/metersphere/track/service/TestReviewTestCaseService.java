@@ -15,10 +15,12 @@ import io.metersphere.track.dto.TestReviewCaseDTO;
 import io.metersphere.track.request.testplancase.TestReviewCaseBatchRequest;
 import io.metersphere.track.request.testreview.DeleteRelevanceRequest;
 import io.metersphere.track.request.testreview.QueryCaseReviewRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -64,17 +66,17 @@ public class TestReviewTestCaseService {
         return testCaseReviewUsers.stream().map(TestCaseReviewUsers::getUserId).collect(Collectors.toList());
     }
 
-    private String getReviewName(List<String> userIds, Map userMap) {
-        StringBuilder stringBuilder = new StringBuilder();
-        String name = "";
-
+    private String getReviewName(List<String> userIds, Map<String, String> userMap) {
+        List<String> userNames = new ArrayList<>();
         if (userIds.size() > 0) {
             for (String id : userIds) {
-                stringBuilder.append(userMap.get(id)).append("、");
+                String n = userMap.get(id);
+                if (StringUtils.isNotBlank(n)) {
+                    userNames.add(n);
+                }
             }
-            name = stringBuilder.toString().substring(0, stringBuilder.length() - 1);
         }
-        return name;
+        return StringUtils.join(userNames, "、");
     }
 
     public int deleteTestCase(DeleteRelevanceRequest request) {

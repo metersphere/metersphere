@@ -6,17 +6,18 @@ import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseReviewMapper;
 import io.metersphere.base.mapper.ext.ExtTestReviewCaseMapper;
+import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.TestCaseReviewStatus;
-import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.constants.TestReviewCaseStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.MathUtils;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.member.QueryMemberRequest;
+import io.metersphere.notice.service.DingTaskService;
 import io.metersphere.notice.service.MailService;
+import io.metersphere.notice.service.WxChatTaskService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.dto.TestCaseReviewDTO;
 import io.metersphere.track.dto.TestReviewCaseDTO;
@@ -36,7 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -72,6 +73,10 @@ public class TestCaseReviewService {
     MailService mailService;
     @Resource
     ExtTestCaseMapper extTestCaseMapper;
+    @Resource
+    DingTaskService dingTaskService;
+    @Resource
+    WxChatTaskService wxChatTaskService;
 
     public void saveTestCaseReview(SaveTestCaseReviewRequest reviewRequest) {
         checkCaseReviewExist(reviewRequest);
@@ -99,8 +104,15 @@ public class TestCaseReviewService {
         reviewRequest.setCreator(SessionUtils.getUser().getId());
         reviewRequest.setStatus(TestCaseReviewStatus.Prepare.name());
         testCaseReviewMapper.insert(reviewRequest);
+        String context = getReviewContext(reviewRequest, "create");
         try {
-            mailService.sendReviewerNotice(userIds, reviewRequest);
+            if (StringUtils.equals(NoticeConstants.NAIL_ROBOT, "NAIL_ROBOT")) {
+                dingTaskService.sendDingTask(context, userIds);
+            } else if (StringUtils.equals(NoticeConstants.WECHAT_ROBOT, "WECHAT_ROBOT")) {
+                wxChatTaskService.enterpriseWechatTask();
+            } else {
+                mailService.sendReviewerNotice(userIds, reviewRequest);
+            }
         } catch (Exception e) {
             LogUtil.error(e);
         }
@@ -374,7 +386,14 @@ public class TestCaseReviewService {
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
         try {
             BeanUtils.copyProperties(testCaseReviewRequest, _testCaseReview);
-            mailService.sendEndNotice(userIds, testCaseReviewRequest);
+            String context = getReviewContext(testCaseReviewRequest, "create");
+            if (StringUtils.equals(NoticeConstants.NAIL_ROBOT, "NAIL_ROBOT")) {
+                dingTaskService.sendDingTask(context, userIds);
+            } else if (StringUtils.equals(NoticeConstants.WECHAT_ROBOT, "WECHAT_ROBOT")) {
+                wxChatTaskService.enterpriseWechatTask();
+            } else {
+                mailService.sendEndNotice(userIds, testCaseReviewRequest);
+            }
         } catch (Exception e) {
             LogUtil.error(e);
         }
@@ -464,5 +483,29 @@ public class TestCaseReviewService {
         QueryCaseReviewRequest request = new QueryCaseReviewRequest();
         request.setProjectIds(projectIds);
         return extTestReviewCaseMapper.list(request);
+    }
+
+    private String getReviewContext(SaveTestCaseReviewRequest reviewRequest, String type) {
+        Long startTime = reviewRequest.getCreateTime();
+        Long endTime = reviewRequest.getEndTime();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String start = null;
+        String sTime = String.valueOf(startTime);
+        String eTime = String.valueOf(endTime);
+        if (!sTime.equals("null")) {
+            start = sdf.format(new Date(Long.parseLong(sTime)));
+        }
+        String end = null;
+        if (!eTime.equals("null")) {
+            end = sdf.format(new Date(Long.parseLong(eTime)));
+        }
+        String context = "";
+        if (StringUtils.equals("create", type)) {
+            context = reviewRequest.getCreator() + "发起的" + "'" + reviewRequest.getName() + "'" + "待开始，计划开始时间是" + start + "计划结束时间为" + end + "请跟进";
+        } else if (StringUtils.equals("end", type)) {
+            context = reviewRequest.getCreator() + "发起的" + "'" + reviewRequest.getName() + "'" + "已完成，计划开始时间是" + start + "计划结束时间为" + end + "已完成";
+        }
+
+        return context;
     }
 }

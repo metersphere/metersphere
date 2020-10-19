@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -132,7 +133,7 @@ public class FileService {
         final List<TestCaseFile> testCaseFiles = testCaseFileMapper.selectByExample(testCaseFileExample);
 
         if (CollectionUtils.isEmpty(testCaseFiles)) {
-            return null;
+            return new ArrayList<>();
         }
 
         List<String> fileIds = testCaseFiles.stream().map(TestCaseFile::getFileId).collect(Collectors.toList());

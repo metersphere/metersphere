@@ -95,6 +95,7 @@ public class MailService {
         try {
             javaMailSender.send(mimeMessage);
         } catch (MailException e) {
+            LogUtil.error(e);
             LogUtil.error("Failed to send mail");
         }
     }
@@ -248,6 +249,7 @@ public class MailService {
         }
         return recipientEmails;
     }
+
 
 }
 
