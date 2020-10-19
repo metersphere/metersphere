@@ -91,8 +91,8 @@
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    DELETE FROM notice
-    WHERE id = #{id,jdbcType=VARCHAR}
+    delete from notice
+    where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.base.domain.NoticeExample">
     delete from notice
@@ -101,10 +101,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.Notice">
-    INSERT INTO notice (id, EVENT, TEST_ID,
+    insert into notice (id, EVENT, TEST_ID, 
       `ENABLE`, `type`, user_id
       )
-    VALUES (#{id,jdbcType=VARCHAR}, #{event,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR},
+    values (#{id,jdbcType=VARCHAR}, #{event,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, 
       #{enable,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}
       )
   </insert>
@@ -217,12 +217,12 @@
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.Notice">
-    UPDATE notice
-    SET EVENT = #{event,jdbcType=VARCHAR},
+    update notice
+    set EVENT = #{event,jdbcType=VARCHAR},
       TEST_ID = #{testId,jdbcType=VARCHAR},
       `ENABLE` = #{enable,jdbcType=VARCHAR},
       `type` = #{type,jdbcType=VARCHAR},
       user_id = #{userId,jdbcType=VARCHAR}
-    WHERE id = #{id,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

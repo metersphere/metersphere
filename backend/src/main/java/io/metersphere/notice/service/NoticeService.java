@@ -86,6 +86,7 @@ public class NoticeService {
     }
 
     public void saveMessageTask(MessageRequest messageRequest) {
+        String identification=UUID.randomUUID().toString();
         messageRequest.getMessageDetail().forEach(list -> {
             list.getEvents().forEach(n -> {
                 list.getUserIds().forEach(m -> {
@@ -96,6 +97,7 @@ public class NoticeService {
                     message.setUserId(m);
                     message.setType(list.getType());
                     message.setWebhook(list.getWebhook());
+                    message.setIdentification(identification);
                     messageTaskMapper.insert(message);
                 });
             });
