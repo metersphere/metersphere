@@ -125,6 +125,8 @@ export default {
       this.isReadOnly = true;
     }
     this.getTest(this.$route.params.testId);
+  },
+  activated() {
     this.listProjects();
   },
   mounted() {
