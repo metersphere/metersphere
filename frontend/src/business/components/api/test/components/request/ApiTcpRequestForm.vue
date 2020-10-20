@@ -49,36 +49,26 @@
 
     <el-row :gutter="10">
       <el-col :span="6">
-        <el-form-item>
+        <el-form-item :label="$t('api_test.request.refer_to_environment')">
           <el-switch
             v-model="request.useEnvironment"
-            :active-text="$t('api_test.request.refer_to_environment')"
             @change="useEnvironmentChange">
           </el-switch>
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item>
-          <el-switch
-            v-model="request.reUseConnection"
-            :active-text="$t('api_test.request.tcp.re_use_connection')">
-          </el-switch>
+        <el-form-item :label="$t('api_test.request.tcp.re_use_connection')">
+          <el-checkbox v-model="request.reUseConnection"/>
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item>
-          <el-switch
-            v-model="request.closeConnection"
-            :active-text="$t('api_test.request.tcp.close_connection')">
-          </el-switch>
+        <el-form-item :label="$t('api_test.request.tcp.close_connection')">
+          <el-checkbox v-model="request.closeConnection"/>
         </el-form-item>
       </el-col>
       <el-col :span="6">
-        <el-form-item>
-          <el-switch
-            v-model="request.nodelay"
-            :active-text="$t('api_test.request.tcp.no_delay')">
-          </el-switch>
+        <el-form-item :label="$t('api_test.request.tcp.no_delay')">
+          <el-checkbox v-model="request.nodelay"/>
         </el-form-item>
       </el-col>
     </el-row>
