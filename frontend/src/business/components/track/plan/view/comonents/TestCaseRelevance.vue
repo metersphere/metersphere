@@ -176,7 +176,7 @@
         let param = {};
         param.planId = this.planId;
         param.testCaseIds = [...this.selectIds];
-        param.projectId = this.projectId;
+        param.request = this.condition;
         // 选择全选则全部加入到评审，无论是否加载完全部
         if (this.testCases.length === param.testCaseIds.length) {
           param.testCaseIds = ['all'];

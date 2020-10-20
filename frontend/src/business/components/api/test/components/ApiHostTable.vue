@@ -116,17 +116,13 @@
         return true;
       },
       validateDomain(domain) {
-        let url = {};
-        try {
-          if (!domain.startsWith("http") || !domain.startsWith("https")) {
-            domain += "http://";
-          }
-          url = new URL(domain);
-        } catch (e) {
-          this.$warning(this.$t('load_test.input_domain'));
-          return false
+        let strRegex = "^(?=^.{3,255}$)(http(s)?:\\/\\/)?(www\\.)?[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+(:\\d+)*(\\/\\w+\\.\\w+)*$";
+        const re = new RegExp(strRegex);
+        if (re.test(domain) && domain.length < 26) {
+          return true;
         }
-        return true;
+        this.$warning(this.$t('load_test.input_domain'));
+        return false;
       },
       dblHostTable: function (row) {
         row.status = 'edit';
