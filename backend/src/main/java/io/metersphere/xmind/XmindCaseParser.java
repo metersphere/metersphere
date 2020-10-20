@@ -150,7 +150,7 @@ public class XmindCaseParser {
         if (testCaseNames.contains(data.getName())) {
             boolean dbExist = testCaseService.exist(data);
             if (dbExist) {
-                process.add(Translator.get("test_case_already_exists_excel"), nodePath + data.getName());
+                process.add(Translator.get("test_case_already_exists_excel"), nodePath + "/" + data.getName());
             }
         } else {
             testCaseNames.add(data.getName());
@@ -168,7 +168,7 @@ public class XmindCaseParser {
         TestCaseExcelData compartData = new TestCaseExcelData();
         BeanUtils.copyBean(compartData, data);
         if (compartDatas.contains(compartData)) {
-            process.add(Translator.get("test_case_already_exists_excel"), nodePath + compartData.getName());
+            process.add(Translator.get("test_case_already_exists_excel"), nodePath + "/" + compartData.getName());
         }
         compartDatas.add(compartData);
     }
