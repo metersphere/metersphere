@@ -27,7 +27,7 @@ export default {
       this.loading = false;
     }).catch(() => {
       this.loading = false;
-      this.$error("pdf 加载失败");
+      this.$error(this.$t('test_track.case.pdf_loading_fail'));
     })
   }
 }

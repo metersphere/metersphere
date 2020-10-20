@@ -746,6 +746,10 @@ export default {
       status_pass: '通过',
       status_un_pass: '未通过',
       cancel_relevance_project: "取消项目关联会同时取消该项目下已关联的测试用例",
+      img_loading_fail: "图片加载失败",
+      pdf_loading_fail: "PDF加载失败",
+      upload_tip: "只能上传jpg、jpeg、png、docx、doc、pdf、xlsx文件",
+      attachment: "附件",
       import: {
         import: "导入用例",
         case_import: "导入测试用例",

@@ -746,6 +746,10 @@ export default {
       status_pass: '通過',
       status_un_pass: '未通過',
       cancel_relevance_project: "取消項目關聯會同時取消該項目下已關聯的測試用例",
+      img_loading_fail: "圖片加載失敗",
+      pdf_loading_fail: "PDF加載失敗",
+      upload_tip: "只能上傳jpg、jpeg、png、docx、doc、pdf、xlsx文件",
+      attachment: "附件",
       import: {
         import: "導入用例",
         case_import: "導入測試用例",

@@ -211,7 +211,7 @@
         </el-row>
 
         <el-row style="margin-top: 15px;margin-bottom: 10px">
-          <el-col :offset="2" :span="20">附件:
+          <el-col :offset="2" :span="20">{{ $t('test_track.case.attachment') }}:
             <el-upload
               accept=".jpg,.jpeg,.png,.xlsx,.doc,.pdf,.docx"
               action=""
@@ -223,7 +223,7 @@
               :limit="8"
               :file-list="fileList">
               <el-button icon="el-icon-plus" size="mini"></el-button>
-              <span slot="tip" class="el-upload__tip"> 只能上传jpg、jpeg、png、docx、doc、pdf、xlsx文件 </span>
+              <span slot="tip" class="el-upload__tip"> {{ $t('test_track.case.upload_tip') }} </span>
             </el-upload>
           </el-col>
         </el-row>
