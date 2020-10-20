@@ -68,6 +68,5 @@
         <table tableName="notice"/>
         <table tableName="message_task"/>
 
-
     </context>
 </generatorConfiguration>

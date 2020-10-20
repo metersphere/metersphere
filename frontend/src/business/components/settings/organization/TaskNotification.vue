@@ -26,7 +26,7 @@
           >
             <el-table-column :label="$t('schedule.event')" min-width="20%" prop="events">
               <template slot-scope="scope">
-                <el-select :disabled="isReadOnly" v-model="scope.row.events" multiple
+                <el-select  v-model="scope.row.events" multiple
                            :placeholder="$t('organization.message.select_events')"
                            prop="events">
                   <el-option
@@ -386,52 +386,56 @@ export default {
     return {
       form: {
         jenkinsTask: [{
-          taskType: 'jenkins',
+          taskType: "jenkinsTask",
           events: [],
           userIds: [],
-          type: [],
+          type:[],
           webhook: "",
           result: {
             showSave: true,
             showCancel: true,
             showDelete: false
-          }
+          },
+          identification:"",
         }],
         testPlanTask: [{
-          taskType: 'testPlan',
+          taskType: "testPlanTask",
           events: [],
           userIds: [],
-          type: [],
+          type:[],
           webhook: "",
           result: {
             showSave: true,
             showCancel: true,
             showDelete: false
-          }
+          },
+          identification:"",
         }],
         reviewTask: [{
-          taskType: 'review',
+          taskType: "reviewTask",
           events: [],
           userIds: [],
-          type: [],
+          type:[],
           webhook: "",
           result: {
             showSave: true,
             showCancel: true,
             showDelete: false
-          }
+          },
+          identification:"",
         }],
         defectTask: [{
-          taskType: 'defect',
+          taskType: "defectTask",
           events: [],
           userIds: [],
-          type: [],
+          type:[],
           webhook: "",
           result: {
             showSave: true,
             showCancel: true,
             showDelete: false
-          }
+          },
+          identification:"",
         }],
       },
       jenkinsEventOptions: [
@@ -457,13 +461,13 @@ export default {
       defectReceiverOptions: [],
     }
   },
-  mounted: function () {
+  activated(){
     this.initForm()
   },
   methods: {
     initForm() {
       this.result = this.$get('/notice/search/message', response => {
-
+         /*this.form=response.data*/
       })
     },
     userList() {
@@ -506,7 +510,7 @@ export default {
         Task.taskType = 'reviewTask'
         this.form.reviewTask.unshift(Task)
       } else {
-        Task.taskType = 'defect'
+        Task.taskType = 'defectTask'
         this.form.defectTask.unshift(Task)
       }
     },

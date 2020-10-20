@@ -15,8 +15,11 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.member.QueryMemberRequest;
+import io.metersphere.notice.domain.MessageDetail;
+import io.metersphere.notice.domain.MessageSettingDetail;
 import io.metersphere.notice.service.DingTaskService;
 import io.metersphere.notice.service.MailService;
+import io.metersphere.notice.service.NoticeService;
 import io.metersphere.notice.service.WxChatTaskService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.dto.TestCaseReviewDTO;
@@ -77,6 +80,8 @@ public class TestCaseReviewService {
     DingTaskService dingTaskService;
     @Resource
     WxChatTaskService wxChatTaskService;
+    @Resource
+    NoticeService noticeService;
 
     public void saveTestCaseReview(SaveTestCaseReviewRequest reviewRequest) {
         checkCaseReviewExist(reviewRequest);
@@ -105,14 +110,18 @@ public class TestCaseReviewService {
         reviewRequest.setStatus(TestCaseReviewStatus.Prepare.name());
         testCaseReviewMapper.insert(reviewRequest);
         String context = getReviewContext(reviewRequest, "create");
+        MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
+        List<MessageDetail> reviewTasklist = messageSettingDetail.getReviewTask();
+
         try {
-            if (StringUtils.equals(NoticeConstants.NAIL_ROBOT, "NAIL_ROBOT")) {
+            mailService.sendReviewerNotice(userIds, reviewRequest);
+           /* if (StringUtils.equals(NoticeConstants.NAIL_ROBOT, "NAIL_ROBOT")) {
                 dingTaskService.sendDingTask(context, userIds);
             } else if (StringUtils.equals(NoticeConstants.WECHAT_ROBOT, "WECHAT_ROBOT")) {
                 wxChatTaskService.enterpriseWechatTask();
             } else {
                 mailService.sendReviewerNotice(userIds, reviewRequest);
-            }
+            }*/
         } catch (Exception e) {
             LogUtil.error(e);
         }

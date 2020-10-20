@@ -118,6 +118,7 @@ export default {
     cannot_be_null: '不能为空',
     required: "{0}是必填的",
     already_exists: '名称不能重复',
+    modifier: '修改人',
     date: {
       select_date: '选择日期',
       start_date: '开始日期',
@@ -440,6 +441,12 @@ export default {
     export_config: "导出",
     enable_validate_tip: "没有可用请求",
     copy: "复制测试",
+    jar_config: {
+      title: "jar包管理",
+      jar_file: "jar包",
+      file_exist: "该项目下已存在改jar包",
+      upload_limit_size: "上传文件大小不能超过 30MB!",
+    },
     environment: {
       name: "环境名称",
       socket: "环境域名",

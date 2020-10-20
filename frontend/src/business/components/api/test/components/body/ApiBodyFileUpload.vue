@@ -46,7 +46,10 @@
         handleRemove(file) {
           this.$refs.upload.handleRemove(file);
           for (let i = 0; i < this.parameter.files.length;  i++) {
-            if (file.file.name === this.parameter.files[i].file.name) {
+            let fileName = file.file ? file.file.name : file.name;
+            let paramFileName = this.parameter.files[i].file ?
+              this.parameter.files[i].file.name : this.parameter.files[i].name;
+            if (fileName === paramFileName) {
               this.parameter.files.splice(i, 1);
               this.$refs.upload.handleRemove(file);
               break;

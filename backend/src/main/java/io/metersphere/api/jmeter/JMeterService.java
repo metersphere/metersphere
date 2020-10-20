@@ -6,6 +6,7 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.config.JmeterProperties;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jmeter.NewDriver;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.util.JMeterUtils;
@@ -28,6 +29,8 @@ public class JMeterService {
 
     public void run(String testId, String debugReportId, InputStream is) {
         String JMETER_HOME = getJmeterHome();
+
+        NewDriver.setContextClassLoader();
 
         String JMETER_PROPERTIES = JMETER_HOME + "/bin/jmeter.properties";
         JMeterUtils.loadJMeterProperties(JMETER_PROPERTIES);
