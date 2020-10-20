@@ -11,9 +11,3 @@ CREATE TABLE IF NOT EXISTS `jar_config` (
     `update_time` bigint(13)  NOT NULL COMMENT 'Update timestamp',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
-
--- CREATE TABLE IF NOT EXISTS `jar_config_resource` ( todo1
---     `resource_id` varchar(64) NOT NULL,
---     `jar_config_id` varchar(64) NOT NULL,
---     UNIQUE KEY `jar_config_resource_unique_key` (`resource_id`, `jar_config_id`)
--- ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='Jar config relevance table';
