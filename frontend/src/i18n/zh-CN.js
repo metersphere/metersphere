@@ -554,6 +554,7 @@ export default {
       },
       extract: {
         label: "提取",
+        multiple_matching: "匹配多条",
         select_type: "请选择类型",
         description: "从响应结果中提取数据并将其存储在变量中，在后续请求中使用变量。",
         regex: "正则",
@@ -751,7 +752,7 @@ export default {
         download_template: "下载模版",
         click_upload: "点击上传",
         upload_limit: "只能上传xls/xlsx文件，且不超过20M",
-        upload_xmind: "支持文件类型：.xmind；一次至多导入500 条用例",
+        upload_xmind: "支持文件类型：.xmind；一次至多导入800 条用例",
         upload_xmind_format: "上传文件只能是 .xmind 格式",
         upload_limit_other_size: "上传文件大小不能超过",
         upload_limit_count: "一次只能上传一个文件",
