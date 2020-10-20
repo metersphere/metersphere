@@ -593,6 +593,66 @@ public class MessageTaskExample {
             addCriterion("identification not between", value1, value2, "identification");
             return (Criteria) this;
         }
+
+        public Criteria andIsSetIsNull() {
+            addCriterion("is_Set is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsSetIsNotNull() {
+            addCriterion("is_Set is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsSetEqualTo(Boolean value) {
+            addCriterion("is_Set =", value, "isSet");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsSetNotEqualTo(Boolean value) {
+            addCriterion("is_Set <>", value, "isSet");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsSetGreaterThan(Boolean value) {
+            addCriterion("is_Set >", value, "isSet");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsSetGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("is_Set >=", value, "isSet");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsSetLessThan(Boolean value) {
+            addCriterion("is_Set <", value, "isSet");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsSetLessThanOrEqualTo(Boolean value) {
+            addCriterion("is_Set <=", value, "isSet");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsSetIn(List<Boolean> values) {
+            addCriterion("is_Set in", values, "isSet");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsSetNotIn(List<Boolean> values) {
+            addCriterion("is_Set not in", values, "isSet");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsSetBetween(Boolean value1, Boolean value2) {
+            addCriterion("is_Set between", value1, value2, "isSet");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsSetNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("is_Set not between", value1, value2, "isSet");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

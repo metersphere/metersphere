@@ -1,9 +1,6 @@
 package io.metersphere.notice.service;
 
-import io.metersphere.base.domain.MessageTask;
-import io.metersphere.base.domain.MessageTaskExample;
-import io.metersphere.base.domain.Notice;
-import io.metersphere.base.domain.NoticeExample;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.MessageTaskMapper;
 import io.metersphere.base.mapper.NoticeMapper;
 import io.metersphere.commons.constants.NoticeConstants;
@@ -13,6 +10,7 @@ import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.domain.MessageSettingDetail;
 import io.metersphere.notice.domain.NoticeDetail;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -28,6 +26,9 @@ public class NoticeService {
     private NoticeMapper noticeMapper;
     @Resource
     private MessageTaskMapper messageTaskMapper;
+
+    @Resource
+    MailService mailService;
 
     public void saveNotice(NoticeRequest noticeRequest) {
         NoticeExample example = new NoticeExample();
@@ -99,6 +100,7 @@ public class NoticeService {
                     message.setType(list.getType());
                     message.setWebhook(list.getWebhook());
                     message.setIdentification(identification);
+                    message.setIsSet(list.getIsSet());
                     messageTaskMapper.insert(message);
                 });
             });
@@ -126,6 +128,7 @@ public class NoticeService {
                 messageDetail.setWebhook(m.getWebhook());
                 messageDetail.setIdentification(m.getIdentification());
                 messageDetail.setType(m.getType());
+                messageDetail.setIsSet(m.getIsSet());
             }
             messageDetail.setEvents(new ArrayList(events));
             messageDetail.setUserIds(new ArrayList(userIds));
@@ -145,4 +148,92 @@ public class NoticeService {
     private static String fetchGroupKey(MessageTask user) {
         return user.getTaskType() + "#" + user.getIdentification();
     }
+
+    public int delMessage(String identification){
+        MessageTaskExample example = new MessageTaskExample();
+        example.createCriteria().andIdentificationEqualTo(identification);
+        return messageTaskMapper.deleteByExample(example);
+    }
+/*
+    public  void sendTask(List<String> userIds,String context,String taskType,String eventType){
+        MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
+        List<MessageDetail>  taskList=new ArrayList<>();
+        switch (taskType) {
+            case NoticeConstants.REVIEW_TASK:
+                taskList=messageSettingDetail.getReviewTask();
+                break;
+            case NoticeConstants.JENKINS_TASK:
+                taskList=messageSettingDetail.getJenkinsTask();
+                break;
+            case NoticeConstants.DEFECT_TASK:
+                taskList=messageSettingDetail.getDefectTask();
+                break;
+            case NoticeConstants.TEST_PLAN_TASK:
+                taskList=messageSettingDetail.getTestCasePlanTask();
+                break;
+        }
+
+        taskList.forEach(r->{
+            switch (r.getType()) {
+                case NoticeConstants.NAIL_ROBOT:
+                    sendNailRobot(r,userIds,context,eventType);
+                    break;
+                case NoticeConstants.WECHAT_ROBOT:
+                    sendWechatRobot(r,userIds,context,eventType);
+                    break;
+                case NoticeConstants.EMAIL:
+                    sendEmail(r,userIds,context,eventType);
+                    break;
+            }
+        });
+    }
+*/
+    /*private  void sendNailRobot(MessageDetail messageDetail,List<String> userIds,String context,String eventType){
+        List<String> addresseeIdList=new ArrayList<>();
+        messageDetail.getEvents().forEach(e->{
+            if(StringUtils.equals(eventType,e)){
+                messageDetail.getUserIds().forEach(u->{
+                    if(StringUtils.equals(NoticeConstants.FOUNDER,u)){
+                        addresseeIdList.addAll(userIds);
+                    }else{
+                        addresseeIdList.add(u);
+                    }
+                });
+                dingTaskService.sendDingTask(context, addresseeIdList,messageDetail.getWebhook());
+            }
+        });
+    }
+    private void sendWechatRobot(MessageDetail messageDetail,List<String> userIds,String context,String eventType){
+        List<String> addresseeIdList=new ArrayList<>();
+        messageDetail.getEvents().forEach(e->{
+            if(StringUtils.equals(eventType,e)){
+                messageDetail.getUserIds().forEach(u->{
+                    if(StringUtils.equals(NoticeConstants.FOUNDER,u)){
+                        addresseeIdList.addAll(userIds);
+                    }else{
+                        addresseeIdList.add(u);
+                    }
+                });
+                wxChatTaskService.enterpriseWechatTask(context, addresseeIdList,messageDetail.getWebhook());
+            }
+        });
+    }
+        private   void sendEmail(MessageDetail messageDetail,List<String> userIds,String context,String eventType){
+        List<String> addresseeIdList=new ArrayList<>();
+        if(StringUtils.equals(NoticeConstants.EMAIL,messageDetail.getType())){
+            messageDetail.getEvents().forEach(e->{
+                if(StringUtils.equals(eventType,e)){
+                    messageDetail.getUserIds().forEach(u->{
+                        if(StringUtils.equals(NoticeConstants.FOUNDER,u)){
+                            addresseeIdList.addAll(userIds);
+                        }else{
+                            addresseeIdList.add(u);
+                        }
+                    });
+                        mailService.sendReviewerNotice(addresseeIdList, context);
+                }
+            });
+        }
+
+    }*/
 }

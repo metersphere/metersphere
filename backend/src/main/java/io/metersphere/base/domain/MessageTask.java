@@ -19,5 +19,7 @@ public class MessageTask implements Serializable {
 
     private String identification;
 
+    private Boolean isSet;
+
     private static final long serialVersionUID = 1L;
 }

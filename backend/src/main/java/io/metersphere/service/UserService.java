@@ -22,6 +22,7 @@ import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserRoleDTO;
 import io.metersphere.i18n.Translator;
+import io.metersphere.notice.domain.UserDetail;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
@@ -61,13 +62,13 @@ public class UserService {
     @Resource
     private WorkspaceService workspaceService;
 
-    public List<String> queryEmail(List<String> userIds) {
-        return extUserMapper.queryEmailByIds(userIds);
+    public List<UserDetail> queryTypeByIds(List<String> userIds) {
+        return extUserMapper.queryTypeByIds(userIds);
     }
 
-    public List<String> queryEmailByIds(List<String> userIds) {
-        return extUserMapper.queryEmailByIds(userIds);
-    }
+  /*  public List<String> queryEmailByIds(List<String> userIds) {
+        return extUserMapper.queryTypeByIds(userIds);
+    }*/
 
     public UserDTO insert(UserRequest user) {
         checkUserParam(user);

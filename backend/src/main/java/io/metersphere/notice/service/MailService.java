@@ -12,7 +12,9 @@ import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
+import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.domain.NoticeDetail;
+import io.metersphere.notice.domain.UserDetail;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.request.testreview.SaveCommentRequest;
@@ -100,17 +102,17 @@ public class MailService {
         }
     }
 
-    public void sendEndNotice(List<String> userIds, SaveTestCaseReviewRequest reviewRequest) {
+    public void sendEndNotice(MessageDetail messageDetail, List<String> userIds, SaveTestCaseReviewRequest reviewRequest, String eventType) {
         Map<String, String> context = getReviewContext(reviewRequest);
         try {
             String endTemplate = IOUtils.toString(this.getClass().getResource("/mail/end.html"), StandardCharsets.UTF_8);
-            sendReviewNotice(userIds, context, endTemplate);
+            sendReviewNotice(addresseeIdList(messageDetail,userIds,eventType), context, endTemplate);
         } catch (Exception e) {
             LogUtil.error(e);
         }
     }
 
-    public void sendCommentNotice(List<String> userIds, SaveCommentRequest request, TestCaseWithBLOBs testCaseWithBLOBs) {
+    public void sendCommentNotice(MessageDetail messageDetail, List<String> userIds, SaveCommentRequest request, TestCaseWithBLOBs testCaseWithBLOBs, String eventType) {
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         Map<String, String> context = new HashMap<>();
         context.put("maintainer", testCaseWithBLOBs.getMaintainer());
@@ -126,11 +128,11 @@ public class MailService {
         }
     }
 
-    public void sendReviewerNotice(List<String> userIds, SaveTestCaseReviewRequest reviewRequest) {
+    public void sendReviewerNotice(MessageDetail messageDetail, List<String> userIds, SaveTestCaseReviewRequest reviewRequest, String eventType) {
         Map<String, String> context = getReviewContext(reviewRequest);
         try {
             String reviewerTemplate = IOUtils.toString(this.getClass().getResource("/mail/reviewer.html"), StandardCharsets.UTF_8);
-            sendReviewNotice(userIds, context, reviewerTemplate);
+            sendReviewNotice(addresseeIdList(messageDetail,userIds,eventType), context, reviewerTemplate);
         } catch (Exception e) {
             LogUtil.error(e);
         }
@@ -171,7 +173,10 @@ public class MailService {
         String[] users;
         List<String> emails = new ArrayList<>();
         try {
-            emails = userService.queryEmailByIds(userIds);
+            List<UserDetail>   list=userService.queryTypeByIds(userIds);
+            list.forEach(u->{
+                emails.add(u.getEmail());
+            });
         } catch (Exception e) {
             LogUtil.error("Recipient information is empty");
         }
@@ -232,10 +237,16 @@ public class MailService {
         if (noticeList.size() > 0) {
             for (NoticeDetail n : noticeList) {
                 if (StringUtils.equals(n.getEnable(), "true") && StringUtils.equals(n.getEvent(), NoticeConstants.EXECUTE_SUCCESSFUL)) {
-                    successEmailList = userService.queryEmail(n.getUserIds());
+                    List<UserDetail> list = userService.queryTypeByIds(n.getUserIds());
+                    list.forEach(u -> {
+                        successEmailList.add(u.getEmail());
+                    });
                 }
                 if (StringUtils.equals(n.getEnable(), "true") && StringUtils.equals(n.getEvent(), NoticeConstants.EXECUTE_FAILED)) {
-                    failEmailList = userService.queryEmail(n.getUserIds());
+                    List<UserDetail> list = userService.queryTypeByIds(n.getUserIds());
+                    list.forEach(u -> {
+                        failEmailList.add(u.getEmail());
+                    });
                 }
             }
         } else {
@@ -250,6 +261,24 @@ public class MailService {
         return recipientEmails;
     }
 
-
+    private List<String> addresseeIdList(MessageDetail messageDetail, List<String> userIds, String eventType) {
+        List<String> addresseeIdList = new ArrayList<>();
+        messageDetail.getEvents().forEach(e -> {
+            if (StringUtils.equals(eventType, e)) {
+                messageDetail.getUserIds().forEach(u -> {
+                    if (StringUtils.equals(NoticeConstants.FOUNDER, u)) {
+                        addresseeIdList.addAll(userIds);
+                    } else {
+                        addresseeIdList.add(u);
+                    }
+                });
+            }
+        });
+     return addresseeIdList;
+    }
 }
+
+
+
+
 

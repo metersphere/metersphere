@@ -33,9 +33,9 @@
         </where>
         order by u.update_time desc
     </select>
-    <select id="queryEmailByIds" parameterType="java.lang.String" resultType="java.lang.String">
+    <select id="queryTypeByIds" parameterType="java.lang.String" resultType="io.metersphere.notice.domain.UserDetail">
         SELECT
-        email
+        email,phone
         from user
         WHERE id IN
         <foreach collection="list" item="id" index="index"

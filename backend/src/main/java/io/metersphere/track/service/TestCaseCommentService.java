@@ -60,13 +60,13 @@ public class TestCaseCommentService {
         userIds.add(testCaseWithBLOBs.getMaintainer());
         String context = getReviewContext(request, testCaseWithBLOBs);
         try {
-            if (StringUtils.equals(NoticeConstants.NAIL_ROBOT, "NAIL_ROBOT")) {
+           /* if (StringUtils.equals(NoticeConstants.NAIL_ROBOT, "NAIL_ROBOT")) {
                 dingTaskService.sendDingTask(context, userIds);
             } else if (StringUtils.equals(NoticeConstants.WECHAT_ROBOT, "WECHAT_ROBOT")) {
                 wxChatTaskService.enterpriseWechatTask();
             } else {
                 mailService.sendCommentNotice(userIds, request, testCaseWithBLOBs);
-            }
+            }*/
         } catch (Exception e) {
             LogUtil.error(e);
         }

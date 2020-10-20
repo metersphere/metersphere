@@ -36,9 +36,9 @@ public class NoticeController {
         return noticeService.searchMessage();
     }
 
-    @GetMapping("/delete/message")
-    public void deleteMessage() {
-
+    @GetMapping("/delete/message/{identification}")
+    public int deleteMessage(@PathVariable String identification) {
+        return noticeService.delMessage(identification);
     }
 }
 
