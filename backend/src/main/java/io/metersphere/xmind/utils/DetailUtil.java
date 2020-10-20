@@ -15,11 +15,11 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class ProcMessage implements Serializable {
+public class DetailUtil implements Serializable {
 
     private Map<String, StringBuilder> process;
 
-    public ProcMessage() {
+    public DetailUtil() {
         process = new LinkedHashMap<>();
     }
 
@@ -27,7 +27,7 @@ public class ProcMessage implements Serializable {
         if (process.containsKey(type)) {
             process.get(type).append(msContent + "；");
         } else {
-            process.put(type, new StringBuilder(msContent+"；"));
+            process.put(type, new StringBuilder(msContent + "；"));
         }
     }
 

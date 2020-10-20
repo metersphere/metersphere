@@ -13,7 +13,7 @@ import io.metersphere.track.service.TestCaseService;
 import io.metersphere.xmind.parser.XmindParser;
 import io.metersphere.xmind.parser.pojo.Attached;
 import io.metersphere.xmind.parser.pojo.JsonRootBean;
-import io.metersphere.xmind.utils.ProcMessage;
+import io.metersphere.xmind.utils.DetailUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,7 +34,7 @@ public class XmindCaseParser {
     /**
      * 过程校验记录
      */
-    private ProcMessage process;
+    private DetailUtil process;
     /**
      * 已存在用例名称
      */
@@ -59,7 +59,7 @@ public class XmindCaseParser {
         this.testCaseNames = testCaseNames;
         testCases = new LinkedList<>();
         compartDatas = new ArrayList<>();
-        process = new ProcMessage();
+        process = new DetailUtil();
         nodePaths = new ArrayList<>();
     }
 
