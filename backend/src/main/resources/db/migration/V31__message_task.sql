@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS message_task (
     event     varchar(255) NOT NULL COMMENT '通知事件类型',
     user_id   varchar(50)  NOT NULL COMMENT '接收人id',
     task_type varchar(64)  NOT NULL,
-    webhook   varchar(255) NOT NULL COMMENT 'webhook地址',
+    webhook   varchar(255) COMMENT 'webhook地址',
     CONSTRAINT message_manage_pk
         PRIMARY KEY (id)
 )
