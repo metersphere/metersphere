@@ -66,7 +66,7 @@
               trigger="hover"
             >
               <test-case-detail :test-case="scope.row"/>
-              <p slot="reference">{{ scope.row.name }}</p>
+              <span slot="reference">{{ scope.row.name }}</span>
             </el-popover>
           </template>
         </el-table-column>
@@ -107,7 +107,7 @@
           :label="$t('test_track.case.status')">
           <template v-slot:default="scope">
             <span class="el-dropdown-link">
-              <status-table-item :value="scope.row.reviewStatus"/>
+              <review-status :value="scope.row.reviewStatus"/>
             </span>
           </template>
         </el-table-column>
@@ -174,6 +174,7 @@
   import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
   import StatusTableItem from "@/business/components/track/common/tableItems/planview/StatusTableItem";
   import TestCaseDetail from "./TestCaseDetail";
+  import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
   export default {
     name: "TestCaseList",
     components: {
@@ -192,7 +193,8 @@
       ShowMoreBtn,
       BatchEdit,
       StatusTableItem,
-      TestCaseDetail
+      TestCaseDetail,
+      ReviewStatus
     },
     data() {
       return {
@@ -222,9 +224,9 @@
           {text: this.$t('commons.api'), value: 'api'}
         ],
         statusFilters: [
-          {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
-          {text: this.$t('test_track.plan_view.pass'), value: 'Pass'},
-          {text: '未通过', value: 'UnPass'},
+          {text: this.$t('test_track.case.status_prepare'), value: 'Prepare'},
+          {text: this.$t('test_track.case.status_pass'), value: 'Pass'},
+          {text: this.$t('test_track.case.status_un_pass'), value: 'UnPass'},
         ],
         showMore: false,
         buttons: [

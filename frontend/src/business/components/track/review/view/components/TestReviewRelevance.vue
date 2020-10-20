@@ -1,39 +1,30 @@
 <template>
-
   <div>
-
-    <el-dialog :title="$t('test_track.review_view.relevance_case')"
-               :visible.sync="dialogFormVisible"
-               @close="close"
+    <el-dialog :title="$t('test_track.review_view.relevance_case')" :visible.sync="dialogFormVisible" @close="close"
                width="60%" v-loading="result.loading"
                :close-on-click-modal="false"
                top="50px">
 
       <el-container class="main-content">
         <el-aside class="tree-aside" width="250px">
-          <el-link type="primary" class="project-link" @click="switchProject">{{projectName ? projectName : $t('test_track.switch_project') }}</el-link>
-          <node-tree class="node-tree"
-                     @nodeSelectEvent="nodeChange"
-                     @refresh="refresh"
-                     :tree-nodes="treeNodes"
+          <el-link type="primary" class="project-link" @click="switchProject">{{projectName ? projectName :
+            $t('test_track.switch_project') }}
+          </el-link>
+          <node-tree class="node-tree" @nodeSelectEvent="nodeChange" @refresh="refresh" :tree-nodes="treeNodes"
                      ref="nodeTree"/>
         </el-aside>
 
         <el-container>
           <el-main class="case-content">
-            <ms-table-header :condition.sync="condition" @search="getReviews" title="" :show-create="false"/>
-            <el-table
-              :data="testReviews"
-              @filter-change="filter"
-              row-key="id"
-              @select-all="handleSelectAll"
-              @select="handleSelectionChange"
-              height="50vh"
-              ref="table">
+            <ms-table-header :condition.sync="condition" @search="search" title="" :show-create="false"/>
+            <el-table :data="testReviews" @mouseleave.passive="leave" v-el-table-infinite-scroll="scrollLoading"
+                      @filter-change="filter" row-key="id"
+                      @select-all="handleSelectAll"
+                      @select="handleSelectionChange"
+                      height="50vh"
+                      ref="table">
 
-              <el-table-column
-                type="selection"/>
-
+              <el-table-column type="selection"/>
               <el-table-column
                 prop="name"
                 :label="$t('test_track.case.name')"
@@ -42,6 +33,7 @@
                   {{scope.row.name}}
                 </template>
               </el-table-column>
+
               <el-table-column
                 prop="priority"
                 :filters="priorityFilters"
@@ -52,6 +44,7 @@
                   <priority-table-item :value="scope.row.priority"/>
                 </template>
               </el-table-column>
+
               <el-table-column
                 prop="type"
                 :filters="typeFilters"
@@ -62,17 +55,20 @@
                   <type-table-item :value="scope.row.type"/>
                 </template>
               </el-table-column>
+
               <el-table-column
                 :filters="statusFilters"
                 column-key="status"
                 :label="$t('test_track.case.status')"
                 show-overflow-tooltip>
                 <template v-slot:default="scope">
-                  <status-table-item :value="scope.row.reviewStatus"/>
+                  <review-status :value="scope.row.reviewStatus"/>
                 </template>
               </el-table-column>
+
             </el-table>
-            <div style="text-align: center">共 {{testReviews.length}} 条</div>
+            <div v-if="!lineStatus" style="text-align: center">{{$t('test_track.review_view.last_page')}}</div>
+            <div style="text-align: center">共 {{total}} 条</div>
           </el-main>
         </el-container>
       </el-container>
@@ -90,216 +86,248 @@
 
 <script>
 
-import NodeTree from "../../../common/NodeTree";
-import MsDialogFooter from "../../../../common/components/MsDialogFooter";
-import PriorityTableItem from "../../../common/tableItems/planview/PriorityTableItem";
-import TypeTableItem from "../../../common/tableItems/planview/TypeTableItem";
-import MsTableSearchBar from "../../../../common/components/MsTableSearchBar";
-import MsTableAdvSearchBar from "../../../../common/components/search/MsTableAdvSearchBar";
-import MsTableHeader from "../../../../common/components/MsTableHeader";
-import SwitchProject from "../../../case/components/SwitchProject";
-import {TEST_CASE_CONFIGS} from "../../../../common/components/search/search-components";
-import {_filter} from "../../../../../../common/js/utils";
-import StatusTableItem from "@/business/components/track/common/tableItems/planview/StatusTableItem";
+  import NodeTree from "../../../common/NodeTree";
+  import MsDialogFooter from "../../../../common/components/MsDialogFooter";
+  import PriorityTableItem from "../../../common/tableItems/planview/PriorityTableItem";
+  import TypeTableItem from "../../../common/tableItems/planview/TypeTableItem";
+  import MsTableSearchBar from "../../../../common/components/MsTableSearchBar";
+  import MsTableAdvSearchBar from "../../../../common/components/search/MsTableAdvSearchBar";
+  import MsTableHeader from "../../../../common/components/MsTableHeader";
+  import SwitchProject from "../../../case/components/SwitchProject";
+  import {TEST_CASE_CONFIGS} from "../../../../common/components/search/search-components";
+  import {_filter} from "../../../../../../common/js/utils";
+  import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
+  import elTableInfiniteScroll from 'el-table-infinite-scroll';
 
-export default {
-  name: "TestReviewRelevance",
-  components: {
-    NodeTree,
-    MsDialogFooter,
-    PriorityTableItem,
-    TypeTableItem,
-    MsTableSearchBar,
-    MsTableAdvSearchBar,
-    MsTableHeader,
-    SwitchProject,
-    StatusTableItem
-  },
-  data() {
-    return {
-      result: {},
-      dialogFormVisible: false,
-      isCheckAll: false,
-      testReviews: [],
-      selectIds: new Set(),
-      treeNodes: [],
-      selectNodeIds: [],
-      selectNodeNames: [],
-      projectId: '',
-      projectName: '',
-      projects: [],
-      condition: {
-        components: TEST_CASE_CONFIGS
-      },
-      priorityFilters: [
-        {text: 'P0', value: 'P0'},
-        {text: 'P1', value: 'P1'},
-        {text: 'P2', value: 'P2'},
-        {text: 'P3', value: 'P3'}
-      ],
-      typeFilters: [
-        {text: this.$t('commons.functional'), value: 'functional'},
-        {text: this.$t('commons.performance'), value: 'performance'},
-        {text: this.$t('commons.api'), value: 'api'}
-      ],
-      statusFilters: [
-        {text: this.$t('test_track.case.status_prepare'), value: 'Prepare'},
-        {text: this.$t('test_track.case.status_pass'), value: 'Pass'},
-        {text: this.$t('test_track.case.status_un_pass'), value: 'UnPass'},
-      ],
-    };
-  },
-  props: {
-    reviewId: {
-      type: String
-    }
-  },
-  watch: {
-    reviewId() {
-      this.initData();
+  export default {
+    name: "TestReviewRelevance",
+    components: {
+      NodeTree,
+      MsDialogFooter,
+      PriorityTableItem,
+      TypeTableItem,
+      MsTableSearchBar,
+      MsTableAdvSearchBar,
+      MsTableHeader,
+      SwitchProject,
+      ReviewStatus
+
     },
-    selectNodeIds() {
-      this.getReviews();
+    directives: {
+      'el-table-infinite-scroll': elTableInfiniteScroll
     },
-    projectId() {
-      this.getProjectNode();
-    }
-  },
-  updated() {
-    this.toggleSelection(this.testReviews);
-  },
-  methods: {
-    openTestReviewRelevanceDialog() {
-      this.getProject();
-      this.initData();
-      this.dialogFormVisible = true;
+    data() {
+      return {
+        result: {},
+        dialogFormVisible: false,
+        isCheckAll: false,
+        testReviews: [],
+        selectIds: new Set(),
+        treeNodes: [],
+        selectNodeIds: [],
+        selectNodeNames: [],
+        projectId: '',
+        projectName: '',
+        projects: [],
+        pageSize: 50,
+        currentPage: 1,
+        total: 0,
+        lineStatus: true,
+        condition: {
+          components: TEST_CASE_CONFIGS
+        },
+        priorityFilters: [
+          {text: 'P0', value: 'P0'},
+          {text: 'P1', value: 'P1'},
+          {text: 'P2', value: 'P2'},
+          {text: 'P3', value: 'P3'}
+        ],
+        typeFilters: [
+          {text: this.$t('commons.functional'), value: 'functional'},
+          {text: this.$t('commons.performance'), value: 'performance'},
+          {text: this.$t('commons.api'), value: 'api'}
+        ],
+        statusFilters: [
+          {text: this.$t('test_track.case.status_prepare'), value: 'Prepare'},
+          {text: this.$t('test_track.case.status_pass'), value: 'Pass'},
+          {text: this.$t('test_track.case.status_un_pass'), value: 'UnPass'},
+        ],
+      };
     },
-    saveReviewRelevance() {
-      let param = {};
-      param.reviewId = this.reviewId;
-      param.testCaseIds = [...this.selectIds];
-      this.result = this.$post('/test/case/review/relevance', param, () => {
-        this.selectIds.clear();
-        this.$success(this.$t('commons.save_success'));
-        this.dialogFormVisible = false;
-        this.$emit('refresh');
-      });
+    props: {
+      reviewId: {
+        type: String
+      }
     },
-    getReviews() {
-      if (this.reviewId) {
+    watch: {
+      reviewId() {
         this.condition.reviewId = this.reviewId;
-      }
-      if (this.selectNodeIds && this.selectNodeIds.length > 0) {
-        this.condition.nodeIds = this.selectNodeIds;
-      } else {
-        this.condition.nodeIds = [];
-      }
-
-      if (this.projectId) {
+      },
+      selectNodeIds() {
+        if (this.dialogFormVisible) {
+          this.search();
+        }
+      },
+      projectId() {
         this.condition.projectId = this.projectId;
-        this.result = this.$post('/test/case/reviews/case', this.condition, response => {
-          this.testReviews = response.data;
-          this.testReviews.forEach(item => {
-            item.checked = false;
+        this.getProjectNode();
+      }
+    },
+    updated() {
+      this.toggleSelection(this.testReviews);
+    },
+    methods: {
+      openTestReviewRelevanceDialog() {
+        this.getProject();
+        this.dialogFormVisible = true;
+      },
+      saveReviewRelevance() {
+        let param = {};
+        param.reviewId = this.reviewId;
+        param.testCaseIds = [...this.selectIds];
+        param.projectId = this.projectId;
+        // 选择全选则全部加入到评审，无论是否加载完全部
+        if (this.testReviews.length === param.testCaseIds.length) {
+          param.testCaseIds = ['all'];
+        }
+        this.result = this.$post('/test/case/review/relevance', param, () => {
+          this.selectIds.clear();
+          this.$success(this.$t('commons.save_success'));
+          this.dialogFormVisible = false;
+          this.$emit('refresh');
+        });
+      },
+      buildPagePath(path) {
+        return path + "/" + this.currentPage + "/" + this.pageSize;
+      },
+      getReviews(flag) {
+        if (this.reviewId) {
+          this.condition.reviewId = this.reviewId;
+        }
+        if (this.selectNodeIds && this.selectNodeIds.length > 0) {
+          this.condition.nodeIds = this.selectNodeIds;
+        } else {
+          this.condition.nodeIds = [];
+        }
+        if (this.projectId) {
+          this.condition.projectId = this.projectId;
+          this.result = this.$post(this.buildPagePath('/test/case/reviews/case'), this.condition, response => {
+            let data = response.data;
+            this.total = data.itemCount;
+            let tableData = data.listObject;
+            tableData.forEach(item => {
+              item.checked = false;
+            });
+            flag ? this.testReviews = tableData : this.testReviews = this.testReviews.concat(tableData);
+            this.lineStatus = tableData.length === 50 && this.testReviews.length < this.total;
+
           });
-        });
-      }
+        }
 
-    },
-    handleSelectAll(selection) {
-      if (selection.length > 0) {
-        this.testReviews.forEach(item => {
-          this.selectIds.add(item.id);
-        });
-      } else {
-        // this.selectIds.clear();
-        this.testReviews.forEach(item => {
-          if (this.selectIds.has(item.id)) {
-            this.selectIds.delete(item.id);
-          }
-        });
-      }
-    },
-    handleSelectionChange(selection, row) {
-      if (this.selectIds.has(row.id)) {
-        this.selectIds.delete(row.id);
-      } else {
-        this.selectIds.add(row.id);
-      }
-    },
-    nodeChange(nodeIds, nodeNames) {
-      this.selectNodeIds = nodeIds;
-      this.selectNodeNames = nodeNames;
-    },
-    initData() {
-      this.getReviews();
-      this.getAllNodeTreeByPlanId();
-    },
-    refresh() {
-      this.close();
-    },
-    getAllNodeTreeByPlanId() {
-      if (this.reviewId) {
-        let param = {
-          reviewId: this.reviewId,
-          projectId: this.projectId
-        };
-        this.result = this.$post("/case/node/list/all/review", param , response => {
-          this.treeNodes = response.data;
-        });
-      }
-    },
-    close() {
-      this.selectIds.clear();
-      this.selectNodeIds = [];
-      this.selectNodeNames = [];
-    },
-    filter(filters) {
-      _filter(filters, this.condition);
-      this.initData();
-    },
-    toggleSelection(rows) {
-      rows.forEach(row => {
-        this.selectIds.forEach(id => {
-          if (row.id === id) {
-            // true 是为选中
-            this.$refs.table.toggleRowSelection(row, true)
-          }
+      },
+      handleSelectAll(selection) {
+        if (selection.length > 0) {
+          this.testReviews.forEach(item => {
+            this.selectIds.add(item.id);
+          });
+        } else {
+          // this.selectIds.clear();
+          this.testReviews.forEach(item => {
+            if (this.selectIds.has(item.id)) {
+              this.selectIds.delete(item.id);
+            }
+          });
+        }
+      },
+      handleSelectionChange(selection, row) {
+        if (this.selectIds.has(row.id)) {
+          this.selectIds.delete(row.id);
+        } else {
+          this.selectIds.add(row.id);
+        }
+      },
+      nodeChange(nodeIds, nodeNames) {
+        this.selectNodeIds = nodeIds;
+        this.selectNodeNames = nodeNames;
+      },
+      refresh() {
+        this.close();
+      },
+      getAllNodeTreeByPlanId() {
+        if (this.reviewId) {
+          let param = {
+            reviewId: this.reviewId,
+            projectId: this.projectId
+          };
+          this.result = this.$post("/case/node/list/all/review", param, response => {
+            this.treeNodes = response.data;
+          });
+        }
+      },
+      close() {
+        this.lineStatus = false;
+        this.selectIds.clear();
+        this.selectNodeIds = [];
+        this.selectNodeNames = [];
+      },
+      filter(filters) {
+        _filter(filters, this.condition);
+        this.search();
+      },
+      toggleSelection(rows) {
+        rows.forEach(row => {
+          this.selectIds.forEach(id => {
+            if (row.id === id) {
+              // true 是为选中
+              this.$refs.table.toggleRowSelection(row, true)
+            }
+          })
         })
-      })
-    },
-    getProject() {
-      if (this.reviewId) {
-        this.$post("/test/case/review/projects", {reviewId: this.reviewId},res => {
-          let data = res.data;
-          if (data) {
-            this.projects = data;
-            this.projectId = data[0].id;
-            this.projectName = data[0].name;
-          }
-        })
-      }
-    },
-    switchProject() {
-      this.$refs.switchProject.open({id: this.reviewId, url : '/test/case/review/project/', type: 'review'});
-    },
-    getProjectNode(projectId) {
-      const index = this.projects.findIndex(project => project.id === projectId);
-      if (index !== -1) {
-        this.projectName = this.projects[index].name;
-      }
-      if (projectId) {
-        this.projectId = projectId;
-      }
-      this.result = this.$post("/case/node/list/all/review",
-        {reviewId: this.reviewId, projectId: this.projectId} , response => {
-          this.treeNodes = response.data;
-        });
+      },
+      getProject() {
+        if (this.reviewId) {
+          this.$post("/test/case/review/projects", {reviewId: this.reviewId}, res => {
+            let data = res.data;
+            if (data) {
+              this.projects = data;
+              this.projectId = data[0].id;
+              this.projectName = data[0].name;
+            }
+          })
+        }
+      },
+      switchProject() {
+        this.$refs.switchProject.open({id: this.reviewId, url: '/test/case/review/project/', type: 'review'});
+      },
+      scrollLoading() {
+        if (this.dialogFormVisible && this.lineStatus) {
+          this.currentPage += 1;
+          this.getReviews();
+        }
+      },
+      search() {
+        this.currentPage = 1;
+        this.testReviews = [];
+        this.getReviews(true);
+      },
 
-      this.selectNodeIds = [];
+      getProjectNode(projectId) {
+        const index = this.projects.findIndex(project => project.id === projectId);
+        if (index !== -1) {
+          this.projectName = this.projects[index].name;
+        }
+        if (projectId) {
+          this.projectId = projectId;
+        }
+        this.result = this.$post("/case/node/list/all/review",
+          {reviewId: this.reviewId, projectId: this.projectId}, response => {
+            this.treeNodes = response.data;
+          });
+
+        this.selectNodeIds = [];
+      }
     }
   }
-}
 </script>
 
 <style scoped>

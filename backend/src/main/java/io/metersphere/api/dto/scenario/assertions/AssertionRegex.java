@@ -9,6 +9,7 @@ public class AssertionRegex extends AssertionType {
     private String subject;
     private String expression;
     private String description;
+    private Boolean assumeSuccess;
 
     public AssertionRegex() {
         setType(AssertionType.REGEX);

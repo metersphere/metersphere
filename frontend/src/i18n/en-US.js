@@ -214,6 +214,20 @@ export default {
     select: 'Select Organization',
     service_integration: 'Service integration',
     defect_manage: 'Defect management platform',
+    message_settings:'Message settings',
+    message:{
+      jenkins_task_notification:'Jenkins task notification',
+      test_plan_task_notification:'Test plan task notification',
+      test_review_task_notice:'Test review task notice',
+      defect_task_notification:'Defect task notification',
+      create_new_notification:'Create a new notification',
+      select_events:'Select event',
+      select_receiving_method:'Select receiving method',
+      mail:'mail',
+      nail_robot:'Nail robot',
+      enterprise_wechat_robot:'Enterprise wechat robot',
+
+    },
     integration: {
       select_defect_platform: 'Please select the defect management platform to be integrated:',
       basic_auth_info: 'Basic Auth account information:',
@@ -533,6 +547,7 @@ export default {
         expect: "Expect Value",
         expression: "Expression",
         response_in_time: "Response in time",
+        ignore_status: "Ignore Status"
       },
       extract: {
         label: "Extract from response",
@@ -661,7 +676,7 @@ export default {
     length_less_than: "The length less than",
     recent_plan: "My recent plan",
     recent_case: "My recent case",
-    recent_review: "Recent review",
+    recent_review: "My recent review",
     pass_rate: "Pass rate",
     execution_result: ": Please select the execution result",
     actual_result: ": The actual result is empty",
@@ -721,8 +736,8 @@ export default {
       batch_delete_case: 'Batch delete',
       batch_unlink: 'Batch Unlink',
       project_name: "Project",
-      status: 'Status',
-      status_prepare: 'Prepare',
+      status: 'Review Status',
+      status_prepare: 'Not reviewed',
       status_pass: 'Pass',
       status_un_pass: 'UnPass',
       cancel_relevance_project: "Disassociating the project will also cancel the associated test cases under the project",
@@ -815,6 +830,7 @@ export default {
       all_case: "All case",
       start_review: "Start Review",
       relevance_case: "Relevance Case",
+      last_page: "It's the end！",
       execute_result: "Result",
     },
     module: {

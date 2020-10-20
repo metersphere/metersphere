@@ -64,9 +64,9 @@
 
         <!--要生成的数据库表 -->
 
-        <table tableName="jar_config"/>
-        <!--<table tableName="notice"/>-->
-
+        <table tableName="schedule"/>
+        <table tableName="notice"/>
+        <table tableName="message_task"/>
 
     </context>
 </generatorConfiguration>

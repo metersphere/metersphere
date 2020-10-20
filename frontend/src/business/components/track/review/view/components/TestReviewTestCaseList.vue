@@ -109,7 +109,7 @@
           :label="$t('test_track.review_view.execute_result')">
           <template v-slot:default="scope">
             <span class="el-dropdown-link">
-              <status-table-item :value="scope.row.reviewStatus"/>
+              <review-status :value="scope.row.reviewStatus"/>
             </span>
           </template>
         </el-table-column>
@@ -169,6 +169,7 @@ import {_filter, _sort, checkoutTestManagerOrTestUser, hasRoles} from "../../../
 import {TEST_CASE_CONFIGS} from "../../../../common/components/search/search-components";
 import {ROLE_TEST_MANAGER, ROLE_TEST_USER} from "../../../../../../common/js/constants";
 import TestReviewTestCaseEdit from "./TestReviewTestCaseEdit";
+import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
 
 export default {
   name: "TestReviewTestCaseList",
@@ -176,7 +177,7 @@ export default {
     MsTableOperatorButton, MsTableOperator, MethodTableItem, TypeTableItem,
     StatusTableItem, PriorityTableItem, StatusEdit,
     ExecutorEdit, MsTipButton, TestReviewTestCaseEdit, MsTableHeader,
-    NodeBreadcrumb, MsTableButton, ShowMoreBtn, BatchEdit, MsTablePagination
+    NodeBreadcrumb, MsTableButton, ShowMoreBtn, BatchEdit, MsTablePagination, ReviewStatus
   },
   data() {
     return {

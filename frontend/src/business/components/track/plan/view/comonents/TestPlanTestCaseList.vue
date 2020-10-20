@@ -347,11 +347,7 @@ export default {
     });
     this.refreshTableAndPlan();
     this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
-    this.result = this.$get('user/list', response => {
-      this.executorFilters = response.data.map(u => {
-        return {text: u.name, value: u.id}
-      });
-    });
+    this.getMaintainerOptions();
   },
   beforeDestroy() {
     hub.$off("openFailureTestCase");
@@ -583,6 +579,9 @@ export default {
       let workspaceId = localStorage.getItem(WORKSPACE_ID);
       this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
         this.valueArr.executor = response.data;
+        this.executorFilters = response.data.map(u => {
+          return {text: u.name, value: u.id}
+        });
       });
     }
   }

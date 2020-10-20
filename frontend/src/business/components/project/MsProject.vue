@@ -39,8 +39,6 @@
                 <template v-if="baseUrl == 'api'" v-slot:behind>
                   <ms-table-operator-button :is-tester-permission="true" :tip="$t('api_test.environment.environment_config')" icon="el-icon-setting"
                                             type="info" @exec="openEnvironmentConfig(scope.row)"/>
-                  <!--<ms-table-operator-button :is-tester-permission="true" :tip="$t('api_test.jar_config.title')" icon="el-icon-box"-->
-                                            <!--type="info" @exec="openJarConfig(scope.row)"/>-->
                 </template>
               </ms-table-operator>
             </template>
@@ -98,12 +96,10 @@ import MsTableOperatorButton from "../common/components/MsTableOperatorButton";
 import ApiEnvironmentConfig from "../api/test/components/ApiEnvironmentConfig";
 import TemplateComponent from "../track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
 import {ApiEvent, LIST_CHANGE, PerformanceEvent, TrackEvent} from "@/business/components/common/head/ListEvent";
-import MsJarConfig from "../api/test/components/jar/JarConfig";
 
 export default {
   name: "MsProject",
   components: {
-    MsJarConfig,
     TemplateComponent,
     ApiEnvironmentConfig,
     MsTableOperatorButton,
@@ -131,7 +127,7 @@ export default {
           {min: 2, max: 50, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'}
         ],
         description: [
-          {max: 500, message: this.$t('commons.input_limit', [0, 500]), trigger: 'blur'}
+          {max: 250, message: this.$t('commons.input_limit', [0, 250]), trigger: 'blur'}
         ],
       },
     }
@@ -280,9 +276,6 @@ export default {
     },
     openEnvironmentConfig(project) {
       this.$refs.environmentConfig.open(project.id);
-    },
-    openJarConfig(project) {
-      this.$refs.jarConfig.open(project.id);
     }
   }
 }

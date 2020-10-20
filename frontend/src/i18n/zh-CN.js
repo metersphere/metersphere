@@ -215,6 +215,22 @@ export default {
     delete_warning: '删除该组织将同步删除该组织下所有相关工作空间和相关工作空间下的所有项目，以及项目中的所有用例、接口测试、性能测试等,确定要删除吗?',
     service_integration: '服务集成',
     defect_manage: '缺陷管理平台',
+    message_settings:'消息设置',
+    message:{
+      jenkins_task_notification:'Jenkins任务通知',
+      test_plan_task_notification:'测试计划任务通知',
+      test_review_task_notice:'测试评审任务通知',
+      create_new_notification:'创建新通知',
+      select_events:'选择事件',
+      defect_task_notification:'缺陷任务通知',
+      select_receiving_method:'选择接收方式',
+      mail:'邮件',
+      nail_robot:'钉钉机器人',
+      enterprise_wechat_robot:'企业微信机器人',
+
+
+
+    },
     integration: {
       select_defect_platform: '请选择要集成的缺陷管理平台：',
       basic_auth_info: 'Basic Auth 账号信息：',
@@ -534,6 +550,7 @@ export default {
         expect: "期望值",
         expression: "Perl型正则表达式",
         response_in_time: "响应时间在...毫秒以内",
+        ignore_status: "忽略状态"
       },
       extract: {
         label: "提取",
@@ -663,7 +680,7 @@ export default {
     length_less_than: "长度必须小于",
     recent_plan: "我最近的计划",
     recent_case: "我最近的用例",
-    recent_review: "最近的评审",
+    recent_review: "我最近的评审",
     pass_rate: "通过率",
     execution_result: ": 请选择执行结果",
     actual_result: ": 实际结果为空",
@@ -723,8 +740,8 @@ export default {
       batch_delete_case: '批量删除用例',
       batch_unlink: '批量取消关联',
       project_name: '所属项目',
-      status: '状态',
-      status_prepare: '未开始',
+      status: '评审状态',
+      status_prepare: '未评审',
       status_pass: '通过',
       status_un_pass: '未通过',
       cancel_relevance_project: "取消项目关联会同时取消该项目下已关联的测试用例",
@@ -817,6 +834,7 @@ export default {
       all_case: "全部用例",
       start_review: "开始评审",
       relevance_case: "关联用例",
+      last_page: "已经到底了！",
       execute_result: "评审结果",
     },
     module: {

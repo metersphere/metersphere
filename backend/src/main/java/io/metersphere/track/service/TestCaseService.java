@@ -26,10 +26,13 @@ import io.metersphere.excel.listener.EasyExcelListener;
 import io.metersphere.excel.listener.TestCaseDataListener;
 import io.metersphere.excel.utils.EasyExcelExporter;
 import io.metersphere.i18n.Translator;
+import io.metersphere.service.FileService;
 import io.metersphere.track.dto.TestCaseDTO;
+import io.metersphere.track.request.testcase.EditTestCaseRequest;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
 import io.metersphere.xmind.XmindCaseParser;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -83,8 +86,12 @@ public class TestCaseService {
     TestCaseReviewTestCaseMapper testCaseReviewTestCaseMapper;
     @Resource
     TestCaseCommentService testCaseCommentService;
+    @Resource
+    FileService fileService;
+    @Resource
+    TestCaseFileMapper testCaseFileMapper;
 
-    public void addTestCase(TestCaseWithBLOBs testCase) {
+    private TestCaseWithBLOBs addTestCase(TestCaseWithBLOBs testCase) {
         testCase.setName(testCase.getName());
         checkTestCaseExist(testCase);
         testCase.setId(UUID.randomUUID().toString());
@@ -93,6 +100,7 @@ public class TestCaseService {
         testCase.setNum(getNextNum(testCase.getProjectId()));
         testCase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
         testCaseMapper.insert(testCase);
+        return testCase;
     }
 
     public List<TestCase> getTestCaseByNodeId(List<String> nodeIds) {
@@ -190,46 +198,24 @@ public class TestCaseService {
      * @return
      */
     public List<TestCase> getTestCaseNames(QueryTestCaseRequest request) {
-        if (StringUtils.isNotBlank(request.getPlanId())) {
-            TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
-            // request 传入要查询的 projectId 切换的项目ID
-        }
-
-        List<TestCase> testCaseNames = extTestCaseMapper.getTestCaseNames(request);
-
-        if (StringUtils.isNotBlank(request.getPlanId())) {
-            TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
-            testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(request.getPlanId());
-            List<String> relevanceIds = testPlanTestCaseMapper.selectByExample(testPlanTestCaseExample).stream()
-                    .map(TestPlanTestCase::getCaseId)
-                    .collect(Collectors.toList());
-
-            return testCaseNames.stream()
-                    .filter(testcase -> !relevanceIds.contains(testcase.getId()))
-                    .collect(Collectors.toList());
-        }
-
-        return testCaseNames;
-
+        List<OrderRequest> orderList = ServiceUtils.getDefaultOrder(request.getOrders());
+        OrderRequest order = new OrderRequest();
+        order.setName("sort");
+        order.setType("desc");
+        orderList.add(order);
+        request.setOrders(orderList);
+        return extTestCaseMapper.getTestCaseByNotInPlan(request);
     }
 
     public List<TestCase> getReviewCase(QueryTestCaseRequest request) {
-
-        List<TestCase> testCases = extTestCaseMapper.getTestCaseNames(request);
-
-        if (StringUtils.isNotBlank(request.getReviewId())) {
-            TestCaseReviewTestCaseExample testCaseReviewTestCaseExample = new TestCaseReviewTestCaseExample();
-            testCaseReviewTestCaseExample.createCriteria().andReviewIdEqualTo(request.getReviewId());
-            List<String> relevanceIds = testCaseReviewTestCaseMapper.selectByExample(testCaseReviewTestCaseExample).stream()
-                    .map(TestCaseReviewTestCase::getCaseId)
-                    .collect(Collectors.toList());
-
-            return testCases.stream()
-                    .filter(testcase -> !relevanceIds.contains(testcase.getId()))
-                    .collect(Collectors.toList());
-        }
-
-        return testCases;
+        List<OrderRequest> orderList = ServiceUtils.getDefaultOrder(request.getOrders());
+        OrderRequest order = new OrderRequest();
+        // 对模板导入的测试用例排序
+        order.setName("sort");
+        order.setType("desc");
+        orderList.add(order);
+        request.setOrders(orderList);
+        return extTestCaseMapper.getTestCaseByNotInReview(request);
     }
 
 
@@ -300,6 +286,7 @@ public class TestCaseService {
                         testCaseNodeService.createNodes(xmindParser.getNodePaths(), projectId);
                     }
                     if (!xmindParser.getTestCase().isEmpty()) {
+                        Collections.reverse(xmindParser.getTestCase());
                         this.saveImportData(xmindParser.getTestCase(), projectId);
                         xmindParser.clear();
                     }
@@ -349,6 +336,9 @@ public class TestCaseService {
             AtomicInteger num = new AtomicInteger();
             num.set(getNextNum(projectId) + testCases.size());
             testCases.forEach(testcase -> {
+                testcase.setId(UUID.randomUUID().toString());
+                testcase.setCreateTime(System.currentTimeMillis());
+                testcase.setUpdateTime(System.currentTimeMillis());
                 testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
                 testcase.setSort(sort.getAndIncrement());
                 testcase.setNum(num.decrementAndGet());
@@ -595,5 +585,56 @@ public class TestCaseService {
         }
 
         return false;
+    }
+
+    public String save(TestCaseWithBLOBs testCase, List<MultipartFile> files) {
+        if (files == null) {
+            throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
+        }
+        final TestCaseWithBLOBs testCaseWithBLOBs = addTestCase(testCase);
+        files.forEach(file -> {
+            final FileMetadata fileMetadata = fileService.saveFile(file);
+            TestCaseFile testCaseFile = new TestCaseFile();
+            testCaseFile.setCaseId(testCaseWithBLOBs.getId());
+            testCaseFile.setFileId(fileMetadata.getId());
+            testCaseFileMapper.insert(testCaseFile);
+        });
+        return testCaseWithBLOBs.getId();
+    }
+
+    public String edit(EditTestCaseRequest request, List<MultipartFile> files) {
+        TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(request.getId());
+        if (testCaseWithBLOBs == null) {
+            MSException.throwException(Translator.get("edit_load_test_not_found") + request.getId());
+        }
+
+        // 新选择了一个文件，删除原来的文件
+        List<FileMetadata> updatedFiles = request.getUpdatedFileList();
+        List<FileMetadata> originFiles = fileService.getFileMetadataByCaseId(request.getId());
+        List<String> updatedFileIds = updatedFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
+        List<String> originFileIds = originFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
+        // 相减
+        List<String> deleteFileIds = ListUtils.subtract(originFileIds, updatedFileIds);
+        fileService.deleteFileRelatedByIds(deleteFileIds);
+
+        if (!CollectionUtils.isEmpty(deleteFileIds)) {
+            TestCaseFileExample testCaseFileExample = new TestCaseFileExample();
+            testCaseFileExample.createCriteria().andFileIdIn(deleteFileIds);
+            testCaseFileMapper.deleteByExample(testCaseFileExample);
+        }
+
+
+        if (files != null) {
+            files.forEach(file -> {
+                final FileMetadata fileMetadata = fileService.saveFile(file);
+                TestCaseFile testCaseFile = new TestCaseFile();
+                testCaseFile.setFileId(fileMetadata.getId());
+                testCaseFile.setCaseId(request.getId());
+                testCaseFileMapper.insert(testCaseFile);
+            });
+        }
+
+        editTestCase(request);
+        return request.getId();
     }
 }

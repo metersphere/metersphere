@@ -10,5 +10,6 @@ import java.util.List;
 @Setter
 public class PlanCaseRelevanceRequest {
     private String planId;
+    private String projectId;
     private List<String> testCaseIds = new ArrayList<>();
 }

@@ -28,7 +28,8 @@
     </el-card>
 
     <!-- add workspace dialog -->
-    <el-dialog :close-on-click-modal="false" :title="$t('workspace.create')" :visible.sync="dialogWsAddVisible" width="30%" @close="close">
+    <el-dialog :close-on-click-modal="false" :title="$t('workspace.create')" :visible.sync="dialogWsAddVisible"
+               width="30%" @close="close">
       <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="100px" size="small">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
@@ -56,7 +57,8 @@
     </el-dialog>
 
     <!-- update workspace dialog -->
-    <el-dialog :close-on-click-modal="false" :title="$t('workspace.update')" :visible.sync="dialogWsUpdateVisible" width="30%" @close="close">
+    <el-dialog :close-on-click-modal="false" :title="$t('workspace.update')" :visible.sync="dialogWsUpdateVisible"
+               width="30%" @close="close">
       <el-form :model="form" :rules="rules" ref="updateForm" label-position="right" label-width="100px" size="small">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
@@ -85,7 +87,8 @@
     </el-dialog>
 
     <!-- dialog of workspace member -->
-    <el-dialog :close-on-click-modal="false" :visible.sync="dialogWsMemberVisible" width="70%" :destroy-on-close="true" @close="closeWsMemberDialog" class="dialog-css">
+    <el-dialog :close-on-click-modal="false" :visible.sync="dialogWsMemberVisible" width="70%" :destroy-on-close="true"
+               @close="closeWsMemberDialog" class="dialog-css">
       <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="dialogSearch"
                        :create-tip="$t('member.create')" :title="$t('commons.member')"/>
       <!-- organization member table -->
@@ -101,7 +104,8 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator :tip2="$t('commons.remove')" @editClick="editMember(scope.row)" @deleteClick="delMember(scope.row)"/>
+            <ms-table-operator :tip2="$t('commons.remove')" @editClick="editMember(scope.row)"
+                               @deleteClick="delMember(scope.row)"/>
           </template>
         </el-table-column>
       </el-table>
@@ -111,14 +115,15 @@
     </el-dialog>
 
     <!-- add workspace member dialog -->
-    <el-dialog :close-on-click-modal="false" :title="$t('member.create')" :visible.sync="dialogWsMemberAddVisible" width="30%"
+    <el-dialog :close-on-click-modal="false" :title="$t('member.create')" :visible.sync="dialogWsMemberAddVisible"
+               width="30%"
                :destroy-on-close="true"
                @close="handleClose">
       <el-form :model="memberForm" ref="form" :rules="wsMemberRule" label-position="right" label-width="100px"
                size="small">
         <el-form-item :label="$t('commons.member')" prop="userIds">
           <el-select filterable v-model="memberForm.userIds" multiple :placeholder="$t('member.please_choose_member')"
-                     class="select-width">
+                     class="select-width" :filter-method="dataFilter">
             <el-option
               v-for="item in memberForm.userList"
               :key="item.id"
@@ -149,7 +154,8 @@
     </el-dialog>
 
     <!-- update workspace member dialog -->
-    <el-dialog :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="dialogWsMemberUpdateVisible" width="30%"
+    <el-dialog :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="dialogWsMemberUpdateVisible"
+               width="30%"
                :destroy-on-close="true"
                @close="handleClose">
       <el-form :model="memberForm" label-position="right" label-width="100px" size="small" ref="updateUserForm">
@@ -165,7 +171,8 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="memberForm.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
-        <el-form-item :label="$t('commons.role')" prop="roleIds" :rules="{required: true, message: $t('role.please_choose_role'), trigger: 'change'}">
+        <el-form-item :label="$t('commons.role')" prop="roleIds"
+                      :rules="{required: true, message: $t('role.please_choose_role'), trigger: 'change'}">
           <el-select filterable v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
                      class="select-width">
             <el-option
@@ -231,6 +238,17 @@
         })
         listenGoBack(this.close);
       },
+      dataFilter(val) {
+        if (val) {
+          this.memberForm.userList = this.memberForm.copyUserList.filter((item) => {
+            if (!!~item.id.indexOf(val) || !!~item.id.toUpperCase().indexOf(val.toUpperCase())) {
+              return true
+            }
+          })
+        } else {
+          this.memberForm.userList = this.memberForm.copyUserList;
+        }
+      },
       submit(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
@@ -252,10 +270,12 @@
         this.dialogWsMemberAddVisible = true;
         this.result = this.$get('/user/list/', response => {
           this.$set(this.memberForm, "userList", response.data);
+          this.$set(this.memberForm, "copyUserList", response.data);
         });
         this.result = this.$get('/role/list/test', response => {
           this.$set(this.memberForm, "roles", response.data);
         });
+
         listenGoBack(this.handleClose);
       },
       cellClick(row) {

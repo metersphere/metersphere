@@ -785,6 +785,7 @@ export class Regex extends AssertionType {
     this.subject = undefined;
     this.expression = undefined;
     this.description = undefined;
+    this.assumeSuccess = false;
 
     this.set(options);
   }
@@ -1423,13 +1424,14 @@ class JMXGenerator {
     let name = regex.description;
     let type = JMX_ASSERTION_CONDITION.CONTAINS; // 固定用Match，自己写正则
     let value = regex.expression;
+    let assumeSuccess = regex.assumeSuccess;
     switch (regex.subject) {
       case ASSERTION_REGEX_SUBJECT.RESPONSE_CODE:
-        return new ResponseCodeAssertion(name, type, value);
+        return new ResponseCodeAssertion(name, type, value, assumeSuccess);
       case ASSERTION_REGEX_SUBJECT.RESPONSE_DATA:
-        return new ResponseDataAssertion(name, type, value);
+        return new ResponseDataAssertion(name, type, value, assumeSuccess);
       case ASSERTION_REGEX_SUBJECT.RESPONSE_HEADERS:
-        return new ResponseHeadersAssertion(name, type, value);
+        return new ResponseHeadersAssertion(name, type, value, assumeSuccess);
     }
   }
 

@@ -1,6 +1,8 @@
 package io.metersphere.notice.controller;
 
+import io.metersphere.notice.controller.request.MessageRequest;
 import io.metersphere.notice.controller.request.NoticeRequest;
+import io.metersphere.notice.domain.MessageSettingDetail;
 import io.metersphere.notice.domain.NoticeDetail;
 import io.metersphere.notice.service.NoticeService;
 import org.springframework.web.bind.annotation.*;
@@ -24,4 +26,19 @@ public class NoticeController {
         return noticeService.queryNotice(testId);
     }
 
+    @PostMapping("save/message/task")
+    public void saveMessage(@RequestBody MessageRequest messageRequest) {
+        noticeService.saveMessageTask(messageRequest);
+    }
+
+    @GetMapping("/search/message")
+    public MessageSettingDetail searchMessage() {
+        return noticeService.searchMessage();
+    }
+
+    @GetMapping("/delete/message")
+    public void deleteMessage() {
+
+    }
 }
+

@@ -21,7 +21,22 @@ public interface ExtTestCaseMapper {
     TestCase getMaxNumByProjectId(@Param("projectId") String projectId);
 
     /**
+     * 获取不在测试计划中的用例
+     * @param request
+     * @return
+     */
+    List<TestCase> getTestCaseByNotInPlan(@Param("request") QueryTestCaseRequest request);
+
+    /**
+     * 获取不在评审范围中的用例
+     * @param request
+     * @return
+     */
+    List<TestCase> getTestCaseByNotInReview(@Param("request") QueryTestCaseRequest request);
+
+    /**
      * 检查某工作空间下是否有某用例
+     *
      * @param caseId
      * @param workspaceId
      * @return TestCase ID

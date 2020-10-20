@@ -4,6 +4,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.FileContentMapper;
 import io.metersphere.base.mapper.FileMetadataMapper;
 import io.metersphere.base.mapper.LoadTestFileMapper;
+import io.metersphere.base.mapper.TestCaseFileMapper;
 import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.exception.MSException;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -24,6 +26,8 @@ public class FileService {
     private LoadTestFileMapper loadTestFileMapper;
     @Resource
     private FileContentMapper fileContentMapper;
+    @Resource
+    private TestCaseFileMapper testCaseFileMapper;
 
     public byte[] loadFileAsBytes(String id) {
         FileContent fileContent = fileContentMapper.selectByPrimaryKey(id);
@@ -64,6 +68,19 @@ public class FileService {
         LoadTestFileExample example3 = new LoadTestFileExample();
         example3.createCriteria().andFileIdIn(ids);
         loadTestFileMapper.deleteByExample(example3);
+    }
+
+    public void deleteFileRelatedByIds(List<String> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andIdIn(ids);
+        fileMetadataMapper.deleteByExample(example);
+
+        FileContentExample example2 = new FileContentExample();
+        example2.createCriteria().andFileIdIn(ids);
+        fileContentMapper.deleteByExample(example2);
     }
 
     public FileMetadata saveFile(MultipartFile file) {
@@ -108,5 +125,20 @@ public class FileService {
         int s = filename.lastIndexOf(".") + 1;
         String type = filename.substring(s);
         return FileType.valueOf(type.toUpperCase());
+    }
+
+    public List<FileMetadata> getFileMetadataByCaseId(String caseId) {
+        TestCaseFileExample testCaseFileExample = new TestCaseFileExample();
+        testCaseFileExample.createCriteria().andCaseIdEqualTo(caseId);
+        final List<TestCaseFile> testCaseFiles = testCaseFileMapper.selectByExample(testCaseFileExample);
+
+        if (CollectionUtils.isEmpty(testCaseFiles)) {
+            return new ArrayList<>();
+        }
+
+        List<String> fileIds = testCaseFiles.stream().map(TestCaseFile::getFileId).collect(Collectors.toList());
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andIdIn(fileIds);
+        return fileMetadataMapper.selectByExample(example);
     }
 }

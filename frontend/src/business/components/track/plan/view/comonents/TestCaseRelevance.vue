@@ -1,7 +1,5 @@
 <template>
-
   <div>
-
     <el-dialog :title="$t('test_track.plan_view.relevance_test_case')"
                :visible.sync="dialogFormVisible"
                @close="close"
@@ -11,7 +9,9 @@
 
       <el-container class="main-content">
         <el-aside class="tree-aside" width="250px">
-          <el-link type="primary" class="project-link" @click="switchProject">{{projectName ? projectName : $t('test_track.switch_project') }}</el-link>
+          <el-link type="primary" class="project-link" @click="switchProject">{{projectName ? projectName :
+            $t('test_track.switch_project') }}
+          </el-link>
           <node-tree class="node-tree"
                      @nodeSelectEvent="nodeChange"
                      @refresh="refresh"
@@ -21,11 +21,13 @@
 
         <el-container>
           <el-main class="case-content">
-            <ms-table-header :condition.sync="condition" @search="getCaseNames" title="" :show-create="false"/>
+            <ms-table-header :condition.sync="condition" @search="search" title="" :show-create="false"/>
             <el-table
               :data="testCases"
               @filter-change="filter"
               row-key="id"
+              @mouseleave.passive="leave"
+              v-el-table-infinite-scroll="scrollLoading"
               @select-all="handleSelectAll"
               @select="handleSelectionChange"
               height="50vh"
@@ -63,7 +65,9 @@
                 </template>
               </el-table-column>
             </el-table>
-            <div style="text-align: center">共 {{testCases.length}} 条</div>
+
+            <div v-if="!lineStatus" style="text-align: center">{{$t('test_track.review_view.last_page')}}</div>
+            <div style="text-align: center">共 {{total}} 条</div>
           </el-main>
         </el-container>
       </el-container>
@@ -91,6 +95,7 @@
   import MsTableHeader from "../../../../common/components/MsTableHeader";
   import {TEST_CASE_CONFIGS} from "../../../../common/components/search/search-components";
   import SwitchProject from "../../../case/components/SwitchProject";
+  import elTableInfiniteScroll from 'el-table-infinite-scroll';
 
   export default {
     name: "TestCaseRelevance",
@@ -103,6 +108,9 @@
       MsTableAdvSearchBar,
       MsTableHeader,
       SwitchProject
+    },
+    directives: {
+      'el-table-infinite-scroll': elTableInfiniteScroll
     },
     data() {
       return {
@@ -117,6 +125,10 @@
         projectId: '',
         projectName: '',
         projects: [],
+        pageSize: 50,
+        currentPage: 1,
+        total: 0,
+        lineStatus: true,
         condition: {
           components: TEST_CASE_CONFIGS
         },
@@ -140,12 +152,15 @@
     },
     watch: {
       planId() {
-        this.initData();
+        this.condition.planId = this.planId;
       },
       selectNodeIds() {
-        this.getCaseNames();
+        if (this.dialogFormVisible) {
+          this.search();
+        }
       },
       projectId() {
+        this.condition.projectId = this.projectId;
         this.getProjectNode();
       }
     },
@@ -155,13 +170,17 @@
     methods: {
       openTestCaseRelevanceDialog() {
         this.getProject();
-        this.initData();
         this.dialogFormVisible = true;
       },
       saveCaseRelevance() {
         let param = {};
         param.planId = this.planId;
         param.testCaseIds = [...this.selectIds];
+        param.projectId = this.projectId;
+        // 选择全选则全部加入到评审，无论是否加载完全部
+        if (this.testCases.length === param.testCaseIds.length) {
+          param.testCaseIds = ['all'];
+        }
         this.result = this.$post('/test/plan/relevance', param, () => {
           this.selectIds.clear();
           this.$success(this.$t('commons.save_success'));
@@ -169,25 +188,34 @@
           this.$emit('refresh');
         });
       },
-      getCaseNames() {
+      buildPagePath(path) {
+        return path + "/" + this.currentPage + "/" + this.pageSize;
+      },
+      search() {
+        this.currentPage = 1;
+        this.testCases = [];
+        this.getTestCases(true);
+      },
+      getTestCases(flag) {
         if (this.planId) {
-          // param.planId = this.planId;
           this.condition.planId = this.planId;
         }
         if (this.selectNodeIds && this.selectNodeIds.length > 0) {
-          // param.nodeIds = this.selectNodeIds;
           this.condition.nodeIds = this.selectNodeIds;
         } else {
           this.condition.nodeIds = [];
         }
-
         if (this.projectId) {
           this.condition.projectId = this.projectId;
-          this.result = this.$post('/test/case/name', this.condition, response => {
-            this.testCases = response.data;
-            this.testCases.forEach(item => {
+          this.result = this.$post(this.buildPagePath('/test/case/name'), this.condition, response => {
+            let data = response.data;
+            this.total = data.itemCount;
+            let tableData = data.listObject;
+            tableData.forEach(item => {
               item.checked = false;
             });
+            flag ? this.testCases = tableData : this.testCases = this.testCases.concat(tableData);
+            this.lineStatus = tableData.length === 50 && this.testCases.length < this.total;
           });
         }
 
@@ -198,7 +226,6 @@
             this.selectIds.add(item.id);
           });
         } else {
-          // this.selectIds.clear();
           this.testCases.forEach(item => {
             if (this.selectIds.has(item.id)) {
               this.selectIds.delete(item.id);
@@ -217,12 +244,14 @@
         this.selectNodeIds = nodeIds;
         this.selectNodeNames = nodeNames;
       },
-      initData() {
-        this.getCaseNames();
-        this.getAllNodeTreeByPlanId();
-      },
       refresh() {
         this.close();
+      },
+      scrollLoading() {
+        if (this.dialogFormVisible && this.lineStatus) {
+          this.currentPage += 1;
+          this.getTestCases();
+        }
       },
       getAllNodeTreeByPlanId() {
         if (this.planId) {
@@ -230,19 +259,20 @@
             testPlanId: this.planId,
             projectId: this.projectId
           };
-          this.result = this.$post("/case/node/list/all/plan", param , response => {
+          this.result = this.$post("/case/node/list/all/plan", param, response => {
             this.treeNodes = response.data;
           });
         }
       },
       close() {
+        this.lineStatus = false;
         this.selectIds.clear();
         this.selectNodeIds = [];
         this.selectNodeNames = [];
       },
       filter(filters) {
         _filter(filters, this.condition);
-        this.initData();
+        this.search();
       },
       toggleSelection(rows) {
         rows.forEach(row => {
@@ -256,7 +286,7 @@
       },
       getProject() {
         if (this.planId) {
-          this.$post("/test/plan/project/", {planId: this.planId},res => {
+          this.$post("/test/plan/project/", {planId: this.planId}, res => {
             let data = res.data;
             if (data) {
               this.projects = data;
@@ -267,7 +297,7 @@
         }
       },
       switchProject() {
-        this.$refs.switchProject.open({id: this.planId, url: '/test/plan/project/',type: 'plan'});
+        this.$refs.switchProject.open({id: this.planId, url: '/test/plan/project/', type: 'plan'});
       },
       getProjectNode(projectId) {
         const index = this.projects.findIndex(project => project.id === projectId);
@@ -278,9 +308,9 @@
           this.projectId = projectId;
         }
         this.result = this.$post("/case/node/list/all/plan",
-          {testPlanId: this.planId, projectId: this.projectId} , response => {
-          this.treeNodes = response.data;
-        });
+          {testPlanId: this.planId, projectId: this.projectId}, response => {
+            this.treeNodes = response.data;
+          });
 
         this.selectNodeIds = [];
       }
