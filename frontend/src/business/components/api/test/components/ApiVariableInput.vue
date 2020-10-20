@@ -29,6 +29,10 @@
         type: Boolean,
         default: true
       },
+      showCopyTipWithMultiple: {
+        type: Boolean,
+        default: false
+      },
     },
 
     data() {
@@ -63,7 +67,7 @@
 
     computed: {
       variable() {
-        return "${" + this.value + "}";
+        return "${" + (this.showCopyTipWithMultiple ? (this.value + "_n") : this.value) + "}";
       }
     }
 

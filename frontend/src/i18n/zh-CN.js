@@ -554,6 +554,7 @@ export default {
       },
       extract: {
         label: "提取",
+        multiple_matching: "匹配多条",
         select_type: "请选择类型",
         description: "从响应结果中提取数据并将其存储在变量中，在后续请求中使用变量。",
         regex: "正则",

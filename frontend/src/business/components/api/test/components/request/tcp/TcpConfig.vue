@@ -22,22 +22,25 @@
     </el-row>
 
     <el-row :gutter="10">
-      <el-col :span="6">
+      <el-col :span="12">
         <el-form-item :label="$t('api_test.request.tcp.connect')" prop="ctimeout">
           <el-input-number v-model="config.ctimeout" controls-position="right" :min="0" :step="1000" :controls="false"/>
         </el-form-item>
       </el-col>
-      <el-col :span="6">
+      <el-col :span="12">
         <el-form-item :label="$t('api_test.request.tcp.response')" prop="timeout">
           <el-input-number v-model="config.timeout" controls-position="right" :min="0" :step="1000" :controls="false"/>
         </el-form-item>
       </el-col>
-      <el-col :span="6">
+    </el-row>
+
+    <el-row :gutter="10">
+      <el-col :span="12">
         <el-form-item :label="$t('api_test.request.tcp.so_linger')" prop="soLinger">
           <el-input v-model="config.soLinger"/>
         </el-form-item>
       </el-col>
-      <el-col :span="6">
+      <el-col :span="12">
         <el-form-item :label="$t('api_test.request.tcp.eol_byte')" prop="eolByte">
           <el-input v-model="config.eolByte"/>
         </el-form-item>
@@ -46,27 +49,18 @@
 
     <el-row :gutter="10">
       <el-col :span="8">
-        <el-form-item>
-          <el-switch
-            v-model="config.reUseConnection"
-            :active-text="$t('api_test.request.tcp.re_use_connection')">
-          </el-switch>
+        <el-form-item :label="$t('api_test.request.tcp.re_use_connection')">
+          <el-checkbox v-model="config.reUseConnection"/>
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item>
-          <el-switch
-            v-model="config.closeConnection"
-            :active-text="$t('api_test.request.tcp.close_connection')">
-          </el-switch>
+        <el-form-item :label="$t('api_test.request.tcp.close_connection')">
+          <el-checkbox v-model="config.closeConnection"/>
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item>
-          <el-switch
-            v-model="config.nodelay"
-            :active-text="$t('api_test.request.tcp.no_delay')">
-          </el-switch>
+        <el-form-item :label="$t('api_test.request.tcp.no_delay')">
+          <el-checkbox v-model="config.nodelay"/>
         </el-form-item>
       </el-col>
     </el-row>
