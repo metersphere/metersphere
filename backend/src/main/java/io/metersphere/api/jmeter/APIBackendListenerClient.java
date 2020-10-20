@@ -13,10 +13,13 @@ import io.metersphere.notice.service.MailService;
 import io.metersphere.notice.service.NoticeService;
 import io.metersphere.track.service.TestPlanTestCaseService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.protocol.HTTP;
 import org.apache.jmeter.assertions.AssertionResult;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
 import org.apache.jmeter.visualizers.backend.BackendListenerContext;
+import org.pac4j.core.context.HttpConstants;
+import org.springframework.http.HttpMethod;
 
 import java.io.Serializable;
 import java.util.*;
@@ -204,7 +207,13 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             return StringUtils.substringBetween(body, start, end).toUpperCase();
         } else {
             // Http Method
-            return StringUtils.substringBefore(body, " ");
+            String method = StringUtils.substringBefore(body, " ");
+            for (HttpMethod value : HttpMethod.values()) {
+                if (StringUtils.equals(method, value.name())) {
+                    return method;
+                }
+            }
+            return "Request";
         }
     }
 
