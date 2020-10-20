@@ -263,25 +263,22 @@ public class TestCaseService {
                 .map(TestCase::getName)
                 .collect(Collectors.toSet());
         List<ExcelErrData<TestCaseExcelData>> errList = null;
-        if (multipartFile == null)
+        if (multipartFile == null) {
             MSException.throwException(Translator.get("upload_fail"));
-
+        }
         if (multipartFile.getOriginalFilename().endsWith(".xmind")) {
             try {
-                errList = new ArrayList<>();
                 XmindCaseParser xmindParser = new XmindCaseParser(this, userId, projectId, testCaseNames);
-                String processLog = xmindParser.parse(multipartFile);
-                if (!StringUtils.isEmpty(processLog)) {
-                    excelResponse.setSuccess(false);
-                    ExcelErrData excelErrData = new ExcelErrData(null, 1, Translator.get("upload_fail") + "：" + processLog);
-                    errList.add(excelErrData);
-                    excelResponse.setErrList(errList);
-                } else if (xmindParser.getNodePaths().isEmpty() && xmindParser.getTestCase().isEmpty()) {
-                    excelResponse.setSuccess(false);
+                errList = xmindParser.parse(multipartFile);
+                if (xmindParser.getNodePaths().isEmpty() && xmindParser.getTestCase().isEmpty()) {
+                    if (errList == null) {
+                        errList = new ArrayList<>();
+                    }
                     ExcelErrData excelErrData = new ExcelErrData(null, 1, Translator.get("upload_fail") + "：" + Translator.get("upload_content_is_null"));
                     errList.add(excelErrData);
                     excelResponse.setErrList(errList);
-                } else {
+                }
+                if (errList.isEmpty()) {
                     if (!xmindParser.getNodePaths().isEmpty()) {
                         testCaseNodeService.createNodes(xmindParser.getNodePaths(), projectId);
                     }
@@ -290,7 +287,6 @@ public class TestCaseService {
                         this.saveImportData(xmindParser.getTestCase(), projectId);
                         xmindParser.clear();
                     }
-                    excelResponse.setSuccess(true);
                 }
             } catch (Exception e) {
                 LogUtil.error(e.getMessage(), e);

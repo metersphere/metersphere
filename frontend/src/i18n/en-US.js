@@ -748,7 +748,7 @@ export default {
         click_upload: "Upload",
         upload_limit: "Only XLS/XLSX/XMIND files can be uploaded, and no more than 20M",
         upload_xmind_format: "Upload files can only be .xmind format",
-        upload_xmind: "Only xmind files can be uploaded, and no more than 500",
+        upload_xmind: "Only xmind files can be uploaded, and no more than 800",
         upload_limit_count: "Only one file can be uploaded at a time",
         upload_limit_format: "Upload files can only be XLS, XLSX format!",
         upload_limit_size: "Upload file size cannot exceed 20MB!",
