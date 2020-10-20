@@ -1,9 +1,7 @@
 package io.metersphere.xmind.utils;
 
-import com.sun.deploy.util.StringUtils;
 import io.metersphere.excel.domain.ExcelErrData;
 import io.metersphere.excel.domain.TestCaseExcelData;
-import io.metersphere.i18n.Translator;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -57,22 +55,5 @@ public class DetailUtil implements Serializable {
             errList.add(excelErrData);
         }
         return errList;
-    }
-
-    @Override
-    public String toString() {
-        List<String> result = new ArrayList<>();
-        process.entrySet().parallelStream().reduce(result, (first, second) -> {
-            first.add(second.getKey() + "：" + second.getValue());
-            return first;
-        }, (first, second) -> {
-            if (first == second) {
-                return first;
-            }
-            first.addAll(second);
-            return first;
-        });
-
-        return StringUtils.join(result, "\n");
     }
 }
