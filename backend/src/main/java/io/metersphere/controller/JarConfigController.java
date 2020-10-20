@@ -1,8 +1,12 @@
 package io.metersphere.controller;
 
-import io.metersphere.api.service.JarConfigService;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.JarConfig;
 import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.commons.utils.PageUtils;
+import io.metersphere.commons.utils.Pager;
+import io.metersphere.service.JarConfigService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
@@ -12,16 +16,23 @@ import javax.annotation.Resource;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api/jar")
+@RequestMapping(value = "/jar")
 @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
 public class JarConfigController {
 
     @Resource
-    Jarc JarConfigService;
+    JarConfigService JarConfigService;
 
-    @GetMapping("/list/{projectId}")
-    public List<JarConfig> list(@PathVariable String projectId) {
-        return JarConfigService.list(projectId);
+    @PostMapping("list/{goPage}/{pageSize}")
+    @RequiresRoles(RoleConstants.ORG_ADMIN)
+    public Pager<List<JarConfig>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody JarConfig request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, JarConfigService.list(request));
+    }
+
+    @GetMapping("list/all")
+    public List<JarConfig> listAll() {
+        return JarConfigService.list();
     }
 
     @GetMapping("/get/{id}")

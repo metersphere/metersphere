@@ -40,6 +40,9 @@
                   <el-dropdown-item command="report">
                     {{ $t('api_report.title') }}
                   </el-dropdown-item>
+                  <el-dropdown-item command="jar" :disabled="isReadOnly">
+                    {{ $t('api_test.jar_config.title') }}
+                  </el-dropdown-item>
                   <el-dropdown-item command="performance" :disabled="create || isReadOnly">
                     {{ $t('api_test.create_performance_test') }}
                   </el-dropdown-item>
@@ -58,6 +61,9 @@
 
               <ms-schedule-config :schedule="test.schedule" :is-read-only="isReadOnly" :save="saveCronExpression"
                                   @scheduleChange="saveSchedule" :test-id="id" :check-open="checkScheduleEdit"/>
+
+              <ms-jar-config :is-read-only="isReadOnly" ref="jarConfig"/>
+
             </el-row>
           </el-header>
           <ms-api-scenario-config :debug-report-id="debugReportId" @runDebug="runDebug" :is-read-only="isReadOnly"
@@ -80,11 +86,13 @@
   import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
   import MsContainer from "@/business/components/common/components/MsContainer";
   import MsMainContainer from "@/business/components/common/components/MsMainContainer";
+  import MsJarConfig from "./components/jar/JarConfig";
 
   export default {
     name: "MsApiTestConfig",
 
     components: {
+      MsJarConfig,
       MsMainContainer,
       MsContainer, ApiImport, MsScheduleConfig, MsApiReportDialog, MsApiReportStatus, MsApiScenarioConfig
     },
@@ -315,6 +323,9 @@
             break;
           case "export":
             downloadFile(this.test.name + ".json", this.test.export());
+            break;
+          case "jar":
+            this.$refs.jarConfig.open();
             break;
           case "import":
             this.$refs.apiImport.open();

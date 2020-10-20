@@ -1,8 +1,9 @@
-package io.metersphere.api.service;
+package io.metersphere.service;
 
-import io.metersphere.base.domain.ApiTestJarConfig;
-import io.metersphere.base.domain.ApiTestJarConfigExample;
-import io.metersphere.base.mapper.ApiTestJarConfigMapper;
+import io.metersphere.api.jmeter.NewDriverManager;
+import io.metersphere.base.domain.JarConfig;
+import io.metersphere.base.domain.JarConfigExample;
+import io.metersphere.base.mapper.JarConfigMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
@@ -20,56 +21,69 @@ import java.util.UUID;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class ApiTestJarConfigService {
+public class JarConfigService {
 
     private static final String JAR_FILE_DIR = "/opt/metersphere/data/jar";
 
     @Resource
-    private ApiTestJarConfigMapper apiTestJarConfigMapper;
+    private JarConfigMapper jarConfigMapper;
 
-    public List<ApiTestJarConfig> list(String projectId) {
-        ApiTestJarConfigExample example = new ApiTestJarConfigExample();
-        example.createCriteria().andProjectIdEqualTo(projectId);
-        return apiTestJarConfigMapper.selectByExample(example);
+    public List<JarConfig> list() {
+        JarConfigExample example = new JarConfigExample();
+        return jarConfigMapper.selectByExample(example);
     }
 
-    public ApiTestJarConfig get(String id) {
-        return apiTestJarConfigMapper.selectByPrimaryKey(id);
+    public List<JarConfig> list(JarConfig jarConfig) {
+        JarConfigExample example = new JarConfigExample();
+        if (StringUtils.isNotBlank(jarConfig.getName())) {
+            example.createCriteria().andNameLike("%" + jarConfig.getName() + "%");
+        }
+        example.setOrderByClause("update_time desc");
+        return jarConfigMapper.selectByExample(example);
+    }
+
+    public JarConfig get(String id) {
+        return jarConfigMapper.selectByPrimaryKey(id);
     }
 
     public void delete(String id) {
-        ApiTestJarConfig apiTestJarConfig = apiTestJarConfigMapper.selectByPrimaryKey(id);
-        deleteJarFile(apiTestJarConfig.getPath());
-        apiTestJarConfigMapper.deleteByPrimaryKey(id);
+        JarConfig JarConfig = jarConfigMapper.selectByPrimaryKey(id);
+        deleteJarFile(JarConfig.getPath());
+        jarConfigMapper.deleteByPrimaryKey(id);
     }
 
-    public void update(ApiTestJarConfig apiTestJarConfig, MultipartFile file) {
-        checkExist(apiTestJarConfig);
-        apiTestJarConfig.setOwner(SessionUtils.getUser().getId());
-        apiTestJarConfig.setUpdateTime(System.currentTimeMillis());
-        String deletePath = apiTestJarConfig.getPath();
+    public void update(JarConfig jarConfig, MultipartFile file) {
+        checkExist(jarConfig);
+        jarConfig.setEnable(true);// todo 审批机制时需修改
+        jarConfig.setModifier(SessionUtils.getUser().getId());
+        jarConfig.setUpdateTime(System.currentTimeMillis());
+        String deletePath = jarConfig.getPath();
         if (file != null) {
-            apiTestJarConfig.setFileName(file.getOriginalFilename());
-            apiTestJarConfig.setPath(getJarPath(apiTestJarConfig, file));
+            jarConfig.setFileName(file.getOriginalFilename());
+            jarConfig.setPath(getJarPath(file));
         }
-        apiTestJarConfigMapper.updateByPrimaryKey(apiTestJarConfig);
+        jarConfigMapper.updateByPrimaryKey(jarConfig);
         if (file != null) {
             deleteJarFile(deletePath);
-            createJarFiles(apiTestJarConfig.getProjectId(), file);
+            createJarFiles(file);
+            NewDriverManager.loadJar(jarConfig.getPath());
         }
     }
 
-    public String add(ApiTestJarConfig apiTestJarConfig, MultipartFile file) {
-        apiTestJarConfig.setId(UUID.randomUUID().toString());
-        apiTestJarConfig.setOwner(SessionUtils.getUser().getId());
-        checkExist(apiTestJarConfig);
-        apiTestJarConfig.setCreateTime(System.currentTimeMillis());
-        apiTestJarConfig.setUpdateTime(System.currentTimeMillis());
-        apiTestJarConfig.setPath(getJarPath(apiTestJarConfig, file));
-        apiTestJarConfig.setFileName(file.getOriginalFilename());
-        apiTestJarConfigMapper.insert(apiTestJarConfig);
-        createJarFiles(apiTestJarConfig.getProjectId(), file);
-        return apiTestJarConfig.getId();
+    public String add(JarConfig jarConfig, MultipartFile file) {
+        jarConfig.setId(UUID.randomUUID().toString());
+        jarConfig.setCreator(SessionUtils.getUser().getId());
+        jarConfig.setModifier(SessionUtils.getUser().getId());
+        checkExist(jarConfig);
+        jarConfig.setEnable(true);// todo 审批机制时需修改
+        jarConfig.setCreateTime(System.currentTimeMillis());
+        jarConfig.setUpdateTime(System.currentTimeMillis());
+        jarConfig.setPath(getJarPath(file));
+        jarConfig.setFileName(file.getOriginalFilename());
+        jarConfigMapper.insert(jarConfig);
+        createJarFiles(file);
+        NewDriverManager.loadJar(jarConfig.getPath());
+        return jarConfig.getId();
     }
 
     public void deleteJarFiles(String testId) {
@@ -87,16 +101,15 @@ public class ApiTestJarConfigService {
         }
     }
 
-    public String getJarPath(ApiTestJarConfig apiTestJarConfig, MultipartFile file) {
-        return JAR_FILE_DIR + "/" + apiTestJarConfig.getProjectId() + "/" + file.getOriginalFilename();
+    public String getJarPath(MultipartFile file) {
+        return JAR_FILE_DIR + "/" + file.getOriginalFilename();
     }
 
-    private String createJarFiles(String projectId, MultipartFile jar) {
+    private String createJarFiles(MultipartFile jar) {
         if (jar == null) {
             return null;
         }
-        String dir = JAR_FILE_DIR + "/" + projectId;
-        File testDir = new File(dir);
+        File testDir = new File(JAR_FILE_DIR);
         if (!testDir.exists()) {
             testDir.mkdirs();
         }
@@ -112,18 +125,16 @@ public class ApiTestJarConfigService {
         return filePath;
     }
 
-
-    private void checkExist(ApiTestJarConfig jarConfig) {
+    private void checkExist(JarConfig jarConfig) {
         if (jarConfig.getName() != null) {
-            ApiTestJarConfigExample example = new ApiTestJarConfigExample();
-            ApiTestJarConfigExample.Criteria criteria = example.createCriteria();
-            criteria.andNameEqualTo(jarConfig.getName())
-                    .andProjectIdEqualTo(jarConfig.getProjectId());
+            JarConfigExample example = new JarConfigExample();
+            JarConfigExample.Criteria criteria = example.createCriteria();
+            criteria.andNameEqualTo(jarConfig.getName());
             if (StringUtils.isNotBlank(jarConfig.getId())) {
                 criteria.andIdNotEqualTo(jarConfig.getId());
             }
-            if (apiTestJarConfigMapper.selectByExample(example).size() > 0) {
-                MSException.throwException(Translator.get("api_test_jarConfig_already_exists"));
+            if (jarConfigMapper.selectByExample(example).size() > 0) {
+                MSException.throwException(Translator.get("already_exists"));
             }
         }
     }

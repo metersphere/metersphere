@@ -150,6 +150,10 @@
                     <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-slf4j-impl</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.apache-extras.beanshell</groupId>
+                    <artifactId>bsh</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -505,6 +509,15 @@
                             <overWrite>true</overWrite>
                             <outputDirectory>src/main/resources/jmeter/lib/ext</outputDirectory>
                             <destFileName>jython-standalone.jar</destFileName>
+                        </artifactItem>
+                        <artifactItem>
+                            <groupId>org.apache-extras.beanshell</groupId>
+                            <artifactId>bsh</artifactId>
+                            <version>2.0b6</version>
+                            <type>jar</type>
+                            <overWrite>true</overWrite>
+                            <outputDirectory>src/main/resources/jmeter/lib/ext</outputDirectory>
+                            <destFileName>bsh-2.0b6.jar</destFileName>
                         </artifactItem>
                     </artifactItems>
                     <outputDirectory>${project.build.directory}/wars</outputDirectory>

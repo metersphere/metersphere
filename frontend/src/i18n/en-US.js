@@ -118,6 +118,7 @@ export default {
     please_upload: 'Please upload file',
     reference_documentation: "Reference documentation",
     already_exists: 'The name already exists',
+    modifier: 'Modifier',
     date: {
       select_date: 'Select date',
       start_date: 'Start date',

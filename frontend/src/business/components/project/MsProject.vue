@@ -39,8 +39,8 @@
                 <template v-if="baseUrl == 'api'" v-slot:behind>
                   <ms-table-operator-button :is-tester-permission="true" :tip="$t('api_test.environment.environment_config')" icon="el-icon-setting"
                                             type="info" @exec="openEnvironmentConfig(scope.row)"/>
-                  <ms-table-operator-button :is-tester-permission="true" :tip="$t('api_test.jar_config.title')" icon="el-icon-box"
-                                            type="info" @exec="openJarConfig(scope.row)"/>
+                  <!--<ms-table-operator-button :is-tester-permission="true" :tip="$t('api_test.jar_config.title')" icon="el-icon-box"-->
+                                            <!--type="info" @exec="openJarConfig(scope.row)"/>-->
                 </template>
               </ms-table-operator>
             </template>

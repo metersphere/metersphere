@@ -32,6 +32,11 @@ export default {
       component: () => import('@/business/components/settings/system/SystemParameterSetting'),
       meta: {system: true, title: 'commons.system_parameter_setting'}
     },
+    // todo1 {
+    //   path: 'systemjarsetting',
+    //   component: () => import('@/business/components/settings/system/JarConfigSetting'),
+    //   meta: {system: true, title: 'api_test.jar_config.title'}
+    // },
     ...requireContext.keys().map(key => requireContext(key).system),...requireContext.keys().map(key => requireContext(key).license),
     {
       path: 'organizationmember',

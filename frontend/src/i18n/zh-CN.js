@@ -118,6 +118,7 @@ export default {
     cannot_be_null: '不能为空',
     required: "{0}是必填的",
     already_exists: '名称不能重复',
+    modifier: '修改人',
     date: {
       select_date: '选择日期',
       start_date: '开始日期',
