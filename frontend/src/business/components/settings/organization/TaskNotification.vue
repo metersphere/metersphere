@@ -389,49 +389,53 @@ export default {
           taskType: "jenkinsTask",
           events: [],
           userIds: [],
-          type: [],
+          type:[],
           webhook: "",
           result: {
             showSave: true,
             showCancel: true,
             showDelete: false
-          }
+          },
+          identification:"",
         }],
         testPlanTask: [{
           taskType: "testPlanTask",
           events: [],
           userIds: [],
-          type: [],
+          type:[],
           webhook: "",
           result: {
             showSave: true,
             showCancel: true,
             showDelete: false
-          }
+          },
+          identification:"",
         }],
         reviewTask: [{
           taskType: "reviewTask",
           events: [],
           userIds: [],
-          type: [],
+          type:[],
           webhook: "",
           result: {
             showSave: true,
             showCancel: true,
             showDelete: false
-          }
+          },
+          identification:"",
         }],
         defectTask: [{
-          taskType: "defect",
+          taskType: "defectTask",
           events: [],
           userIds: [],
-          type: [],
+          type:[],
           webhook: "",
           result: {
             showSave: true,
             showCancel: true,
             showDelete: false
-          }
+          },
+          identification:"",
         }],
       },
       jenkinsEventOptions: [
@@ -506,7 +510,7 @@ export default {
         Task.taskType = 'reviewTask'
         this.form.reviewTask.unshift(Task)
       } else {
-        Task.taskType = 'defect'
+        Task.taskType = 'defectTask'
         this.form.defectTask.unshift(Task)
       }
     },

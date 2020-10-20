@@ -114,13 +114,14 @@ public class TestCaseReviewService {
         List<MessageDetail> reviewTasklist = messageSettingDetail.getReviewTask();
 
         try {
-            if (StringUtils.equals(NoticeConstants.NAIL_ROBOT, "NAIL_ROBOT")) {
+            mailService.sendReviewerNotice(userIds, reviewRequest);
+           /* if (StringUtils.equals(NoticeConstants.NAIL_ROBOT, "NAIL_ROBOT")) {
                 dingTaskService.sendDingTask(context, userIds);
             } else if (StringUtils.equals(NoticeConstants.WECHAT_ROBOT, "WECHAT_ROBOT")) {
                 wxChatTaskService.enterpriseWechatTask();
             } else {
                 mailService.sendReviewerNotice(userIds, reviewRequest);
-            }
+            }*/
         } catch (Exception e) {
             LogUtil.error(e);
         }

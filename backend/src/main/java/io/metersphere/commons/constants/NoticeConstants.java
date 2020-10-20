@@ -9,5 +9,9 @@ public interface NoticeConstants {
     String CREATE = "CREATE";
     String UPDATE = "CREATE";
     String DELETE = "DELETE";
+    String JENKINS_TASK = "jenkinsTask";
+    String TEST_PLAN_TASK = "testPlanTask";
+    String REVIEW_TASK = "reviewTask";
+    String DEFECT_TASK = "defectTask";
 
 }
