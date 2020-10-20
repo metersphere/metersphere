@@ -211,12 +211,9 @@ public class TestPlanService {
             return;
         }
 
-        // 如果是关联全部指令则从新查询未关联的案例
+        // 如果是关联全部指令则根据条件查询未关联的案例
         if (testCaseIds.get(0).equals("all")) {
-            QueryTestCaseRequest req = new QueryTestCaseRequest();
-            req.setPlanId(request.getPlanId());
-            req.setProjectId(request.getProjectId());
-            List<TestCase> testCases = extTestCaseMapper.getTestCaseByNotInPlan(req);
+            List<TestCase> testCases = extTestCaseMapper.getTestCaseByNotInPlan(request.getRequest());
             if (!testCases.isEmpty()) {
                 testCaseIds = testCases.stream().map(testCase -> testCase.getId()).collect(Collectors.toList());
             }
