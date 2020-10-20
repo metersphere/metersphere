@@ -74,8 +74,10 @@
     </el-row>
 
     <el-form-item :label="$t('api_test.request.tcp.request')" prop="request">
-      <el-input type="textarea" v-model="request.request" :autosize="{minRows: 4, maxRows: 6}">
-      </el-input>
+      <div class="send-request">
+        <ms-code-edit mode="text" :read-only="isReadOnly" :data.sync="request.request"
+                      :modes="['text', 'json', 'xml', 'html']" theme="eclipse"/>
+      </div>
     </el-form-item>
 
     <el-row :gutter="10">
@@ -118,10 +120,11 @@ import {Scenario, TCPConfig, TCPRequest} from "@/business/components/api/test/mo
 import MsApiAssertions from "@/business/components/api/test/components/assertion/ApiAssertions";
 import MsApiExtract from "@/business/components/api/test/components/extract/ApiExtract";
 import MsJsr233Processor from "@/business/components/api/test/components/processor/Jsr233Processor";
+import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
 
 export default {
   name: "MsApiTcpRequestForm",
-  components: {MsJsr233Processor, MsApiExtract, MsApiAssertions},
+  components: {MsCodeEdit, MsJsr233Processor, MsApiExtract, MsApiAssertions},
   props: {
     request: TCPRequest,
     scenario: Scenario,
@@ -134,15 +137,7 @@ export default {
     return {
       activeName: "assertions",
       classes: TCPConfig.CLASSES,
-      rules: {
-        server: [
-          {
-            required: true,
-            message: this.$t('commons.required', [this.$t('api_test.request.tcp.server')]),
-            trigger: 'blur'
-          }
-        ],
-      }
+      rules: {}
     }
   },
 
@@ -164,5 +159,10 @@ export default {
 <style scoped>
 .tcp >>> .el-input-number {
   width: 100%;
+}
+
+.send-request {
+  padding: 15px 0;
+  height: 300px;
 }
 </style>
