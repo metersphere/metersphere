@@ -5,7 +5,7 @@
         <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
                          :show-create="false" :tip="$t('commons.search_by_name_or_id')">
           <template v-slot:title>
-            <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="refresh"/>
+            <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="breadcrumbRefresh"/>
           </template>
           <template v-slot:button>
             <ms-table-button :is-tester-permission="true" v-if="!showMyTestCase" icon="el-icon-s-custom"
@@ -391,6 +391,10 @@ export default {
       this.condition = {components: TEST_CASE_CONFIGS};
       this.selectRows.clear();
       this.$emit('refresh');
+    },
+    breadcrumbRefresh() {
+      this.showMyTestCase = false;
+      this.refresh();
     },
     refreshTableAndPlan() {
       this.getTestPlanById();

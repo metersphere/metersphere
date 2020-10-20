@@ -167,11 +167,20 @@ public class TestCaseController {
     }
 
     @PostMapping("/file/download")
-    public ResponseEntity<byte[]> downloadJmx(@RequestBody FileOperationRequest fileOperationRequest) {
+    public ResponseEntity<byte[]> download(@RequestBody FileOperationRequest fileOperationRequest) {
         byte[] bytes = fileService.loadFileAsBytes(fileOperationRequest.getId());
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileOperationRequest.getName() + "\"")
+                .body(bytes);
+    }
+
+    @GetMapping("/file/preview/{fileId}")
+    public ResponseEntity<byte[]> preview(@PathVariable String fileId) {
+        byte[] bytes = fileService.loadFileAsBytes(fileId);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileId + "\"")
                 .body(bytes);
     }
 

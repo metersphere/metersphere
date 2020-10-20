@@ -35,7 +35,8 @@
     "jspdf": "^2.1.1",
     "yan-progress": "^1.0.3",
     "nprogress": "^0.2.0",
-    "el-table-infinite-scroll": "^1.0.10"
+    "el-table-infinite-scroll": "^1.0.10",
+    "vue-pdf": "^4.2.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.1.0",

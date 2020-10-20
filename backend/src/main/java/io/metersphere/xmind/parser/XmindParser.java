@@ -73,7 +73,7 @@ public class XmindParser {
                 JsonRootBean jsonRootBean = JSON.parseObject(content, JsonRootBean.class);
                 jsonRootBeans.add(jsonRootBean);
             }
-            if (caseCount > 500) {
+            if (caseCount > 800) {
                 MSException.throwException(Translator.get("import_xmind_count_error"));
             }
         }

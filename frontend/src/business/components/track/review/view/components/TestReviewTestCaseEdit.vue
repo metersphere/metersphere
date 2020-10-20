@@ -16,7 +16,7 @@
             <el-card>
               <el-scrollbar>
 
-                <el-header>
+                <el-header style="height: 100%;">
 
                   <el-row type="flex" class="head-bar">
 
@@ -27,7 +27,7 @@
                       </el-button>
                     </el-col>
 
-                    <el-col :span="12" class="head-right">
+                    <el-col :span="14" class="head-right">
 
                       <el-button plain size="mini" icon="el-icon-arrow-up"
                                  :disabled="index + 1 <= 1"
@@ -425,6 +425,7 @@ export default {
 
 .head-right {
   text-align: right;
+  margin-top: 30px;
 }
 
 .el-col:not(.test-detail) {
