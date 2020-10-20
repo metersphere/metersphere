@@ -45,41 +45,29 @@
       data() {
         return {
           result: {},
-          // relevanceConfigSet: new Set()
         }
       },
-      // created() {
-      //   this.listRelevance();
-      // },
       methods: {
         handleView(row) {
           this.$emit('rowSelect', row);
         },
         handleDelete(id) {
-          this.result = this.$get("/jar/delete/" + id, () => {
-            this.$success(this.$t('commons.delete_success'));
-            this.$emit('refresh');
+          this.$confirm(this.$t('api_test.jar_config.delete_tip'), '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            cancelButtonText: this.$t('commons.cancel'),
+            type: 'warning'
+          }).then(() => {
+            this.result = this.$get("/jar/delete/" + id, () => {
+              this.$success(this.$t('commons.delete_success'));
+              this.$emit('refresh');
+            });
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: this.$t('commons.delete_cancelled')
+            });
           });
         },
-        // handleRelevance(id, type) {
-        //   let url = type === 'relevance' ? '/jar/relevance' : '/jar/unrelevance';
-        //   let param = {
-        //     jarConfigId: id
-        //   };
-        //   this.result = this.$post(url, param, () => {
-        //     this.$success(this.$t('commons.save_success'));
-        //     this.$emit('refresh');
-        //     this.listRelevance();
-        //   });
-        // },
-        // listRelevance() {
-        //   if (this.testId) {
-        //     this.result = this.$get("/jar/relevance/list/" + this.testId, (response) => {
-        //       this.relevanceConfigSet = new Set(response.data);
-        //       this.$emit('refresh');
-        //     });
-        //   }
-        // }
       }
     }
 </script>

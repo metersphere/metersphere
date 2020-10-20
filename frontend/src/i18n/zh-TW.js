@@ -119,6 +119,7 @@ export default {
     required: "{0}是必填的",
     already_exists: '名稱不能重復',
     modifier: '修改人',
+    validate: "校驗",
     date: {
       select_date: '選擇日期',
       start_date: '開始日期',
@@ -444,6 +445,7 @@ export default {
     jar_config: {
       title: "jar包管理",
       jar_file: "jar包",
+      delete_tip: "刪除需重啟服務後生效",
       file_exist: "該項目下已存在改jar包",
       upload_limit_size: "上傳文件大小不能超過 30MB!",
     },

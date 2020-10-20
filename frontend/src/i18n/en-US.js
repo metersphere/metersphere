@@ -119,6 +119,7 @@ export default {
     reference_documentation: "Reference documentation",
     already_exists: 'The name already exists',
     modifier: 'Modifier',
+    validate: "Validate",
     date: {
       select_date: 'Select date',
       start_date: 'Start date',
@@ -441,6 +442,7 @@ export default {
     jar_config: {
       title: "The Jar Package Management",
       jar_file: "Jar package",
+      delete_tip: "The deletion takes effect after the service is restarted",
       file_exist: "The name already exists in the project",
       upload_limit_size: "Upload file size cannot exceed 30MB!",
     },
