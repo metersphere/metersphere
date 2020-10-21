@@ -542,7 +542,7 @@ public class TestCaseNodeService {
 
         rootPath = rootPath + rootNode.getName();
 
-        if (level > 5) {
+        if (level > 8) {
             MSException.throwException(Translator.get("node_deep_limit"));
         }
 
