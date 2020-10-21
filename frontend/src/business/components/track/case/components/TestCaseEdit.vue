@@ -505,6 +505,11 @@ export default {
         formData.append("file", f);
       });
 
+      if (param.isCopy) {
+        // 如果是copy，则把文件的ID传到后台进行文件复制
+        param.fileIds = this.fileList.map(f => f.id);
+      }
+
       param.updatedFileList = this.fileList;
 
       let requestJson = JSON.stringify(param, function (key, value) {

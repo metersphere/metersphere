@@ -583,11 +583,25 @@ public class TestCaseService {
         return false;
     }
 
-    public String save(TestCaseWithBLOBs testCase, List<MultipartFile> files) {
+    public String save(EditTestCaseRequest request, List<MultipartFile> files) {
         if (files == null) {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
         }
-        final TestCaseWithBLOBs testCaseWithBLOBs = addTestCase(testCase);
+
+        final TestCaseWithBLOBs testCaseWithBLOBs = addTestCase(request);
+
+        // 复制用例时传入文件ID进行复制
+        if (!CollectionUtils.isEmpty(request.getFileIds())) {
+            List<String> fileIds = request.getFileIds();
+            fileIds.forEach(id -> {
+                FileMetadata fileMetadata = fileService.copyFile(id);
+                TestCaseFile testCaseFile = new TestCaseFile();
+                testCaseFile.setCaseId(testCaseWithBLOBs.getId());
+                testCaseFile.setFileId(fileMetadata.getId());
+                testCaseFileMapper.insert(testCaseFile);
+            });
+        }
+
         files.forEach(file -> {
             final FileMetadata fileMetadata = fileService.saveFile(file);
             TestCaseFile testCaseFile = new TestCaseFile();

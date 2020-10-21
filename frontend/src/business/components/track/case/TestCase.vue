@@ -174,6 +174,7 @@
         let item = {};
         Object.assign(item, testCase);
         item.name = '';
+        item.isCopy = true;
         this.$refs.testCaseEditDialog.open(item);
       },
       showTestCaseDetail(testCase) {
