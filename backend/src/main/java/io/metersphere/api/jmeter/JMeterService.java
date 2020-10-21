@@ -30,7 +30,7 @@ public class JMeterService {
     public void run(String testId, String debugReportId, InputStream is) {
         String JMETER_HOME = getJmeterHome();
 
-        NewDriver.setContextClassLoader();
+//        NewDriver.setContextClassLoader();
 
         String JMETER_PROPERTIES = JMETER_HOME + "/bin/jmeter.properties";
         JMeterUtils.loadJMeterProperties(JMETER_PROPERTIES);
