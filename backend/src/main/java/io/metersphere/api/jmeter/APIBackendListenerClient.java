@@ -13,12 +13,10 @@ import io.metersphere.notice.service.MailService;
 import io.metersphere.notice.service.NoticeService;
 import io.metersphere.track.service.TestPlanTestCaseService;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.protocol.HTTP;
 import org.apache.jmeter.assertions.AssertionResult;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
 import org.apache.jmeter.visualizers.backend.BackendListenerContext;
-import org.pac4j.core.context.HttpConstants;
 import org.springframework.http.HttpMethod;
 
 import java.io.Serializable;
@@ -41,6 +39,12 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
     private APIReportService apiReportService;
 
+    private TestPlanTestCaseService testPlanTestCaseService;
+
+    private NoticeService noticeService;
+
+    private MailService mailService;
+
     public String runMode = ApiRunMode.RUN.name();
 
     // 测试ID
@@ -59,6 +63,18 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         apiReportService = CommonBeanFactory.getBean(APIReportService.class);
         if (apiReportService == null) {
             LogUtil.error("apiReportService is required");
+        }
+        testPlanTestCaseService = CommonBeanFactory.getBean(TestPlanTestCaseService.class);
+        if (testPlanTestCaseService == null) {
+            LogUtil.error("testPlanTestCaseService is required");
+        }
+        noticeService = CommonBeanFactory.getBean(NoticeService.class);
+        if (noticeService == null) {
+            LogUtil.error("noticeService is required");
+        }
+        mailService = CommonBeanFactory.getBean(MailService.class);
+        if (mailService == null) {
+            LogUtil.error("mailService is required");
         }
         super.setupTest(context);
     }
@@ -112,7 +128,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
         testResult.getScenarios().addAll(scenarios.values());
         testResult.getScenarios().sort(Comparator.comparing(ScenarioResult::getId));
-        ApiTestReport report = null;
+        ApiTestReport report;
         if (StringUtils.equals(this.runMode, ApiRunMode.DEBUG.name())) {
             report = apiReportService.get(debugReportId);
         } else {
@@ -123,7 +139,6 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         queue.clear();
         super.teardownTest(context);
 
-        TestPlanTestCaseService testPlanTestCaseService = CommonBeanFactory.getBean(TestPlanTestCaseService.class);
         List<String> ids = testPlanTestCaseService.getTestPlanTestCaseIds(testResult.getTestId());
         if (ids.size() > 0) {
             try {
@@ -137,10 +152,8 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             }
 
         }
-        NoticeService noticeService = CommonBeanFactory.getBean(NoticeService.class);
         try {
             List<NoticeDetail> noticeList = noticeService.queryNotice(testResult.getTestId());
-            MailService mailService = CommonBeanFactory.getBean(MailService.class);
             mailService.sendApiNotification(report, noticeList);
         } catch (Exception e) {
             LogUtil.error(e);
