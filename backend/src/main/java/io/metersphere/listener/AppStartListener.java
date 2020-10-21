@@ -33,8 +33,6 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
 
         System.out.println("================= 应用启动 =================");
 
-        System.setProperty("jmeter.home", jmeterHome);
-
         loadJars();
 
         initPythonEnv();
