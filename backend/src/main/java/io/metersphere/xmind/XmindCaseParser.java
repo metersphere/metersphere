@@ -231,7 +231,7 @@ public class XmindCaseParser {
                 JSONObject step = new JSONObject(true);
                 step.put("num", i + 1);
                 step.put("desc", attacheds.get(i).getTitle());
-                if (attacheds.get(i).getChildren() != null && !attacheds.get(i).getChildren().getAttached().isEmpty()) {
+                if (attacheds.get(i) != null && attacheds.get(i).getChildren() != null &&  attacheds.get(i).getChildren().getAttached()!=null) {
                     step.put("result", attacheds.get(i).getChildren().getAttached().get(0).getTitle());
                 }
                 jsonArray.add(step);
