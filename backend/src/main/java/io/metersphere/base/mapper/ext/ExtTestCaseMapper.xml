@@ -99,7 +99,7 @@
 
     <select id="getTestCaseByNotInReview" resultType="io.metersphere.base.domain.TestCase">
         select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status from test_case as test_case
-        left join test_case_review_test_case as T2 on test_case.id=T2.case_id
+        left join test_case_review_test_case as T2 on test_case.id=T2.case_id and T2.review_id =#{request.reviewId}
         <where>
             <if test="request.combine != null">
                 <include refid="combine">
@@ -153,7 +153,7 @@
 
     <select id="getTestCaseByNotInPlan" resultType="io.metersphere.base.domain.TestCase">
         select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status from test_case as test_case
-        left join test_plan_test_case as T2 on test_case.id=T2.case_id
+        left join test_plan_test_case as T2 on test_case.id=T2.case_id and T2.plan_id =#{request.planId}
         <where>
             <if test="request.combine != null">
                 <include refid="combine">

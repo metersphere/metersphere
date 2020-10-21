@@ -243,7 +243,7 @@
                 :label="$t('load_test.file_type')">
               </el-table-column>
               <el-table-column
-                :label="$t('load_test.last_modify_time')">
+                :label="$t('test_track.case.upload_time')">
                 <template v-slot:default="scope">
                   <i class="el-icon-time"/>
                   <span class="last-modified">{{ scope.row.updateTime | timestampFormatDate }}</span>
@@ -664,7 +664,7 @@ export default {
         name: file.name,
         size: file.size + ' Bytes', /// todo: 按照大小显示Byte、KB、MB等
         type: type.toUpperCase(),
-        updateTime: file.lastModified,
+        updateTime: new Date().getTime(),
       });
 
       return true;

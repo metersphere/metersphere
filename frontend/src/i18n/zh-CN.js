@@ -752,6 +752,7 @@ export default {
       pdf_loading_fail: "PDF加载失败",
       upload_tip: "只能上传jpg、jpeg、png、docx、doc、pdf、xlsx文件",
       attachment: "附件",
+      upload_time: "上传时间",
       import: {
         import: "导入用例",
         case_import: "导入测试用例",
