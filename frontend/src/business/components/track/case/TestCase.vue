@@ -111,7 +111,7 @@
           }
           let caseId = this.$route.params.caseId;
           this.openRecentTestCaseEditDialog(caseId);
-          // this.$router.push('/track/case/all');
+          this.$router.push('/track/case/all');
         } else if (route.params.projectId){
           this.getProjects();
           this.getProjectById(route.params.projectId);
