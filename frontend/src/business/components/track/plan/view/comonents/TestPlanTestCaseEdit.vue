@@ -401,8 +401,7 @@ export default {
         this.$success(this.$t('commons.save_success'));
         this.updateTestCases(param);
         this.setPlanStatus(this.testCase.planId);
-        // 结果为Pass时 自动跳转到下一用例
-        if (this.testCase.status === 'Pass' && this.index < this.testCases.length - 1) {
+        if (this.index < this.testCases.length - 1) {
           this.handleNext();
         }
       });
