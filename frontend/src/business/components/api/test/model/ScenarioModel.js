@@ -555,14 +555,6 @@ export class TCPRequest extends Request {
   }
 
   isValid() {
-    if (this.enable) {
-      if (!this.server) {
-        return {
-          isValid: false,
-          info: 'api_test.request.tcp.server_cannot_be_empty'
-        }
-      }
-    }
     return {
       isValid: true
     }
