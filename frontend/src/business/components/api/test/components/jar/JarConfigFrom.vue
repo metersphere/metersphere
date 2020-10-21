@@ -65,6 +65,9 @@
               {required: true, message: this.$t('commons.input_name'), trigger: 'blur'},
               {max: 60, message: this.$t('commons.input_limit', [1, 60]), trigger: 'blur'}
             ],
+            description: [
+              {max: 250, message: this.$t('commons.input_limit', [1, 250]), trigger: 'blur'}
+            ],
           },
           fileList: []
         }
