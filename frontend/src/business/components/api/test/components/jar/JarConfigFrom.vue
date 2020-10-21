@@ -5,7 +5,7 @@
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input size="small" v-model="currentConfig.name" clearable show-word-limit/>
         </el-form-item>
-        <el-form-item :label="$t('commons.project')" prop="description">
+        <el-form-item :label="$t('commons.description')" prop="description">
           <el-input :disabled="readOnly" v-model="currentConfig.description"
                     type="textarea"
                     :autosize="{ minRows: 2, maxRows: 4}"
