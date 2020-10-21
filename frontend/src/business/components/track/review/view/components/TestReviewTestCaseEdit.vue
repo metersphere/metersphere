@@ -39,11 +39,11 @@
                       <el-divider direction="vertical"></el-divider>
 
                       <el-button type="success" size="mini"
-                                 :disabled="isReadOnly" :plain="testCase.reviewStatus !== 'Pass'" @click="saveCase('Pass')">
+                                 :disabled="isReadOnly" :icon="testCase.reviewStatus === 'Pass' ? 'el-icon-check' : ''" @click="saveCase('Pass')">
                         {{ $t('test_track.review.pass') }}
                       </el-button>
                       <el-button type="danger" size="mini"
-                                 :disabled="isReadOnly" :plain="testCase.reviewStatus !== 'UnPass'" @click="saveCase('UnPass')">
+                                 :disabled="isReadOnly" :icon="testCase.reviewStatus === 'UnPass' ? 'el-icon-check' : ''" @click="saveCase('UnPass')">
                         {{ $t('test_track.review.un_pass') }}
                       </el-button>
                     </el-col>
@@ -296,6 +296,9 @@ export default {
         this.testCase.reviewStatus = status;
         // 修改当前用例在整个用例列表的状态
         this.testCases[this.index].reviewStatus = status;
+        if (this.index < this.testCases.length - 1) {
+          this.handleNext();
+        }
       });
     },
     updateTestCases(param) {
