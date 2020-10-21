@@ -74,13 +74,13 @@
                 <el-button
                   type="primary"
                   size="mini"
-                  v-show="scope.row.result.showSave"
+                  v-show="scope.row.isSet"
                   @click="handleAddTask(scope.$index,scope.row)"
                 >{{ $t('commons.add') }}
                 </el-button>
                 <el-button
                   size="mini"
-                  v-show="scope.row.result.showCancel"
+                  v-show="scope.row.isSet"
                   @click.native.prevent="removeRowTask(scope.$index,form.jenkinsTask)"
                 >{{ $t('commons.cancel') }}
                 </el-button>
@@ -88,8 +88,8 @@
                   type="danger"
                   icon="el-icon-delete"
                   size="mini"
-                  v-show="scope.row.result.showDelete"
-                  @click.native.prevent="deleteRowTask(scope.$index,form.jenkinsTask)"
+                  v-show="!scope.row.isSet"
+                  @click.native.prevent="deleteRowTask(scope.$index,scope.row)"
                 ></el-button>
               </template>
             </el-table-column>
@@ -113,7 +113,7 @@
             </el-row>
           </div>
           <el-table
-            :data="form.testPlanTask"
+            :data="form.testCasePlanTask"
             class="tb-edit"
             border
             size="mini"
@@ -136,7 +136,7 @@
               <template v-slot:default="{row}">
                 <el-select v-model="row.userIds" filterable multiple
                            :placeholder="$t('commons.please_select')"
-                           @click.native="defectAndTestPlanUserList()" style="width: 100%;">
+                           @click.native="testPlanUserList()" style="width: 100%;">
                   <el-option
                     v-for="item in testPlanReceiverOptions"
                     :key="item.id"
@@ -168,22 +168,22 @@
                 <el-button
                   type="primary"
                   size="mini"
-                  v-show="scope.row.result.showSave"
+                  v-show="scope.row.isSet"
                   @click="handleAddTask(scope.$index,scope.row)"
                 >{{ $t('commons.add') }}
                 </el-button>
                 <el-button
                   size="mini"
-                  v-show="scope.row.result.showCancel"
-                  @click.native.prevent="removeRowTask(scope.$index,form.testPlanTask)"
+                  v-show="scope.row.isSet"
+                  @click.native.prevent="removeRowTask(scope.$index,form.testCasePlanTask)"
                 >{{ $t('commons.cancel') }}
                 </el-button>
                 <el-button
                   type="danger"
                   icon="el-icon-delete"
                   size="mini"
-                  v-show="scope.row.result.showDelete"
-                  @click.native.prevent="deleteRowTask(scope.$index,form.testPlanTask)"
+                  v-show="!scope.row.isSet"
+                  @click.native.prevent="deleteRowTask(scope.$index,scope.row)"
                 ></el-button>
               </template>
             </el-table-column>
@@ -260,13 +260,13 @@
                 <el-button
                   type="primary"
                   size="mini"
-                  v-show="scope.row.result.showSave"
+                  v-show="scope.row.isSet"
                   @click="handleAddTask(scope.$index,scope.row)"
                 >{{ $t('commons.add') }}
                 </el-button>
                 <el-button
                   size="mini"
-                  v-show="scope.row.result.showCancel"
+                  v-show="scope.row.isSet"
                   @click.native.prevent="removeRowTask(scope.$index,form.reviewTask)"
                 >{{ $t('commons.cancel') }}
                 </el-button>
@@ -274,8 +274,8 @@
                   type="danger"
                   icon="el-icon-delete"
                   size="mini"
-                  v-show="scope.row.result.showDelete"
-                  @click.native.prevent="deleteRowTask(scope.$index,form.reviewTask)"
+                  v-show="!scope.row.isSet"
+                  @click.native.prevent="deleteRowTask(scope.$index,scope.row)"
                 ></el-button>
               </template>
             </el-table-column>
@@ -320,7 +320,7 @@
               <template v-slot:default="{row}">
                 <el-select v-model="row.userIds" filterable multiple
                            :placeholder="$t('commons.please_select')"
-                           @click.native="defectAndTestPlanUserList()" style="width: 100%;">
+                           @click.native="defectUserList()" style="width: 100%;">
                   <el-option
                     v-for="item in defectReceiverOptions"
                     :key="item.id"
@@ -352,13 +352,13 @@
                 <el-button
                   type="primary"
                   size="mini"
-                  v-show="scope.row.result.showSave"
+                  v-show="scope.row.isSet"
                   @click="handleAddTask(scope.$index,scope.row)"
                 >{{ $t('commons.add') }}
                 </el-button>
                 <el-button
                   size="mini"
-                  v-show="scope.row.result.showCancel"
+                  v-show="scope.row.isSet"
                   @click.native.prevent="removeRowTask(scope.$index,form.defectTask)"
                 >{{ $t('commons.cancel') }}
                 </el-button>
@@ -366,8 +366,8 @@
                   type="danger"
                   icon="el-icon-delete"
                   size="mini"
-                  v-show="scope.row.result.showDelete"
-                  @click.native.prevent="deleteRowTask(scope.$index,form.defectTask)"
+                  v-show="!scope.row.isSet"
+                  @click.native.prevent="deleteRowTask(scope.$index,scope.row)"
                 ></el-button>
               </template>
             </el-table-column>
@@ -389,53 +389,37 @@ export default {
           taskType: "jenkinsTask",
           events: [],
           userIds: [],
-          type:[],
+          type: [],
           webhook: "",
-          result: {
-            showSave: true,
-            showCancel: true,
-            showDelete: false
-          },
-          identification:"",
+          isSet: true,
+          identification: "",
         }],
-        testPlanTask: [{
+        testCasePlanTask: [{
           taskType: "testPlanTask",
           events: [],
           userIds: [],
-          type:[],
+          type: [],
           webhook: "",
-          result: {
-            showSave: true,
-            showCancel: true,
-            showDelete: false
-          },
-          identification:"",
+          isSet: true,
+          identification: "",
         }],
         reviewTask: [{
           taskType: "reviewTask",
           events: [],
           userIds: [],
-          type:[],
+          type: [],
           webhook: "",
-          result: {
-            showSave: true,
-            showCancel: true,
-            showDelete: false
-          },
-          identification:"",
+          isSet: true,
+          identification: "",
         }],
         defectTask: [{
           taskType: "defectTask",
           events: [],
           userIds: [],
-          type:[],
+          type: [],
           webhook: "",
-          result: {
-            showSave: true,
-            showCancel: true,
-            showDelete: false
-          },
-          identification:"",
+          isSet: true,
+          identification: "",
         }],
       },
       jenkinsEventOptions: [
@@ -467,7 +451,7 @@ export default {
   methods: {
     initForm() {
       this.result = this.$get('/notice/search/message', response => {
-         /*this.form=response.data*/
+        this.form = response.data
       })
     },
     userList() {
@@ -478,62 +462,73 @@ export default {
     reviewUerList() {
       this.result = this.$get('user/list', response => {
         this.reviewReceiverOptions = response.data
-        this.reviewReceiverOptions.unshift({id: 'Founder', name: this.$t('api_test.creator')},
+        this.reviewReceiverOptions.unshift({id: 'FOUNDER', name: this.$t('api_test.creator')},
           {id: 'Executor', name: this.$t('test_track.plan_view.executor')},
-          {id: 'Maintainer', name: this.$t('test_track.case.maintainer')})
+          {id: 'MAINTAINER', name: this.$t('test_track.case.maintainer')})
       })
     },
-    defectAndTestPlanUserList() {
+    defectUserList() {
+      this.result = this.$get('user/list', response => {
+        this.defectReceiverOptions = response.data
+        this.defectReceiverOptions.unshift({id: 'FOUNDER', name: this.$t('api_test.creator')}, {
+          id: 'EXECUTOR',
+          name: this.$t('test_track.plan_view.executor')
+        })
+      })
+    },
+    testPlanUserList() {
       this.result = this.$get('user/list', response => {
         this.testPlanReceiverOptions = response.data
-        this.defectReceiverOptions = response.data
-        this.testPlanReceiverOptions.unshift({id: 'Founder', name: this.$t('api_test.creator')}, {
-          id: 'Executor',
+        this.testPlanReceiverOptions.unshift({id: 'FOUNDER', name: this.$t('api_test.creator')}, {
+          id: 'EXECUTOR',
           name: this.$t('test_track.plan_view.executor')
         })
       })
     },
     handleAddTaskModel(type) {
       let Task = {};
-      Task.result = {
-        showSave: true,
-        showCancel: true,
-        showDelete: false,
-      }
+      Task.events = [];
+      Task.userIds = [];
+      Task.type = "";
+      Task.webhook = "";
+      Task.isSet = true;
+      Task.identification = "";
       if (type === 'jenkinsTask') {
-        Task.taskType = 'jenkinsTask'
+        Task.taskType = 'JENKINS_TASK'
         this.form.jenkinsTask.unshift(Task)
-      } else if (type === 'testPlanTask') {
-        Task.taskType = 'testPlanTask'
-        this.form.testPlanTask.unshift(Task)
-      } else if (type === 'reviewTask') {
-        Task.taskType = 'reviewTask'
+      }
+      if (type === 'testPlanTask') {
+        Task.taskType = 'TEST_PLAN_TASK'
+        this.form.testCasePlanTask.unshift(Task)
+      }
+      if (type === 'reviewTask') {
+        Task.taskType = 'REVIEW_TASK'
         this.form.reviewTask.unshift(Task)
-      } else {
-        Task.taskType = 'defectTask'
+      }
+      if (type === 'defectTask') {
+        Task.taskType = 'DEFECT_TASK'
         this.form.defectTask.unshift(Task)
       }
     },
 
     handleAddTask(index, data) {
       let list = []
+      data.isSet = false
       list.push(data)
       let param = {};
       param.messageDetail = list
       this.result = this.$post("/notice/save/message/task", param, () => {
-        data.result.showSave = false;
-        data.result.showCancel = false;
-        data.result.showDelete = true;
+
       })
     },
     removeRowTask(index, data) { //移除
       data.splice(index, 1)
     },
     deleteRowTask(index, data) { //删除
-      this.result = this.$get("/delete/message" + index, response => {
-
+      this.result = this.$get("/notice/delete/message/" + data.identification, response => {
+        this.initForm()
       })
-      data.splice(index, 1)
+      /*data.splice(index, 1)*/
     },
   }
 }

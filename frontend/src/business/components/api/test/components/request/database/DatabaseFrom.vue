@@ -39,7 +39,7 @@
 
       <el-form-item>
         <div class="buttons">
-          <el-button type="primary" v-show="currentConfig.id" size="small" @click="validate()">{{$t('校验')}}</el-button>
+          <el-button type="primary" v-show="currentConfig.id" size="small" @click="validate()">{{$t('commons.validate')}}</el-button>
           <el-button type="primary" v-show="currentConfig.id" size="small" @click="save('update')">{{$t('commons.update')}}</el-button>
           <el-button type="primary" size="small" @click="save('add')">{{$t('commons.add')}}</el-button>
         </div>

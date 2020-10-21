@@ -855,6 +855,7 @@ export class ExtractCommon extends ExtractType {
     this.value = ""; // ${variable}
     this.expression = undefined;
     this.description = undefined;
+    this.multipleMatching = undefined;
 
     this.set(options);
   }
@@ -1460,6 +1461,7 @@ class JMXGenerator {
     let props = {
       name: extractCommon.variable,
       expression: extractCommon.expression,
+      match: extractCommon.multipleMatching ? -1 : undefined
     }
     let testName = props.name
     switch (extractCommon.type) {

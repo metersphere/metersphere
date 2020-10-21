@@ -211,7 +211,7 @@
         </el-row>
 
         <el-row style="margin-top: 15px;margin-bottom: 10px">
-          <el-col :offset="2" :span="20">附件:
+          <el-col :offset="2" :span="20">{{ $t('test_track.case.attachment') }}:
             <el-upload
               accept=".jpg,.jpeg,.png,.xlsx,.doc,.pdf,.docx"
               action=""
@@ -223,7 +223,7 @@
               :limit="8"
               :file-list="fileList">
               <el-button icon="el-icon-plus" size="mini"></el-button>
-              <span slot="tip" class="el-upload__tip"> 只能上传jpg、jpeg、png、docx、doc、pdf、xlsx文件 </span>
+              <span slot="tip" class="el-upload__tip"> {{ $t('test_track.case.upload_tip') }} </span>
             </el-upload>
           </el-col>
         </el-row>
@@ -252,6 +252,10 @@
               <el-table-column
                 :label="$t('commons.operating')">
                 <template v-slot:default="scope">
+                  <el-button @click="preview(scope.row)" :disabled="!scope.row.id || readOnly" type="primary"
+                             v-if="isPreview(scope.row)"
+                             icon="el-icon-view"
+                             size="mini" circle/>
                   <el-button @click="handleDownload(scope.row)" :disabled="!scope.row.id || readOnly" type="primary"
                              icon="el-icon-download"
                              size="mini" circle/>
@@ -277,6 +281,7 @@
 
     </el-dialog>
 
+    <test-case-file ref="testCaseFile"/>
   </div>
 
 
@@ -289,10 +294,11 @@ import MsDialogFooter from '../../../common/components/MsDialogFooter'
 import {listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
 import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
 import {Message} from "element-ui";
+import TestCaseFile from "@/business/components/track/case/components/TestCaseFile";
 
 export default {
   name: "TestCaseEdit",
-  components: {MsDialogFooter},
+  components: {MsDialogFooter, TestCaseFile},
   data() {
     return {
       result: {},
@@ -718,7 +724,13 @@ export default {
       /// todo: 是否需要对文件内容和大小做限制
       return file.size > 0;
     },
-
+    preview(row) {
+      this.$refs.testCaseFile.open(row);
+    },
+    isPreview(row) {
+      const fileType = row.type;
+      return fileType === 'JPG' || fileType === 'JPEG' || fileType === 'PDF' || fileType === 'PNG';
+    }
   }
 }
 </script>

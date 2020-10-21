@@ -119,6 +119,7 @@ export default {
     reference_documentation: "Reference documentation",
     already_exists: 'The name already exists',
     modifier: 'Modifier',
+    validate: "Validate",
     date: {
       select_date: 'Select date',
       start_date: 'Start date',
@@ -441,6 +442,7 @@ export default {
     jar_config: {
       title: "The Jar Package Management",
       jar_file: "Jar package",
+      delete_tip: "The deletion takes effect after the service is restarted",
       file_exist: "The name already exists in the project",
       upload_limit_size: "Upload file size cannot exceed 30MB!",
     },
@@ -554,6 +556,7 @@ export default {
         select_type: "Choose type",
         description: "Extract data from the response and store it in variables. Use the variables in subsequent requests.",
         regex: "Regex",
+        multiple_matching: "Multiple matching",
         regex_expression: "Regular expression",
         json_path_expression: "JSONPath expression",
         xpath_expression: "XPath expression",
@@ -741,6 +744,10 @@ export default {
       status_pass: 'Pass',
       status_un_pass: 'UnPass',
       cancel_relevance_project: "Disassociating the project will also cancel the associated test cases under the project",
+      img_loading_fail: "Image failed to load",
+      pdf_loading_fail: "PDF loading failed",
+      upload_tip: "Only jpg, jpeg, png, docx, doc, pdf, xlsx files can be uploaded",
+      attachment: "Attachment",
       import: {
         import: "Import test case",
         case_import: "Import test case",
@@ -748,7 +755,7 @@ export default {
         click_upload: "Upload",
         upload_limit: "Only XLS/XLSX/XMIND files can be uploaded, and no more than 20M",
         upload_xmind_format: "Upload files can only be .xmind format",
-        upload_xmind: "Only xmind files can be uploaded, and no more than 500",
+        upload_xmind: "Only xmind files can be uploaded, and no more than 800",
         upload_limit_count: "Only one file can be uploaded at a time",
         upload_limit_format: "Upload files can only be XLS, XLSX format!",
         upload_limit_size: "Upload file size cannot exceed 20MB!",

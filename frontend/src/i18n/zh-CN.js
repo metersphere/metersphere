@@ -119,6 +119,7 @@ export default {
     required: "{0}是必填的",
     already_exists: '名称不能重复',
     modifier: '修改人',
+    validate: "校验",
     date: {
       select_date: '选择日期',
       start_date: '开始日期',
@@ -444,6 +445,7 @@ export default {
     jar_config: {
       title: "jar包管理",
       jar_file: "jar包",
+      delete_tip: "删除需重启服务后生效",
       file_exist: "该项目下已存在改jar包",
       upload_limit_size: "上传文件大小不能超过 30MB!",
     },
@@ -554,6 +556,7 @@ export default {
       },
       extract: {
         label: "提取",
+        multiple_matching: "匹配多条",
         select_type: "请选择类型",
         description: "从响应结果中提取数据并将其存储在变量中，在后续请求中使用变量。",
         regex: "正则",
@@ -745,13 +748,17 @@ export default {
       status_pass: '通过',
       status_un_pass: '未通过',
       cancel_relevance_project: "取消项目关联会同时取消该项目下已关联的测试用例",
+      img_loading_fail: "图片加载失败",
+      pdf_loading_fail: "PDF加载失败",
+      upload_tip: "只能上传jpg、jpeg、png、docx、doc、pdf、xlsx文件",
+      attachment: "附件",
       import: {
         import: "导入用例",
         case_import: "导入测试用例",
         download_template: "下载模版",
         click_upload: "点击上传",
         upload_limit: "只能上传xls/xlsx文件，且不超过20M",
-        upload_xmind: "支持文件类型：.xmind；一次至多导入500 条用例",
+        upload_xmind: "支持文件类型：.xmind；一次至多导入800 条用例",
         upload_xmind_format: "上传文件只能是 .xmind 格式",
         upload_limit_other_size: "上传文件大小不能超过",
         upload_limit_count: "一次只能上传一个文件",

@@ -73,15 +73,16 @@ public class TestCaseReviewService {
     @Resource
     TestCaseReviewTestCaseMapper testCaseReviewTestCaseMapper;
     @Resource
-    MailService mailService;
-    @Resource
     ExtTestCaseMapper extTestCaseMapper;
+    @Resource
+    NoticeService noticeService;
+    @Resource
+    MailService mailService;
     @Resource
     DingTaskService dingTaskService;
     @Resource
     WxChatTaskService wxChatTaskService;
-    @Resource
-    NoticeService noticeService;
+
 
     public void saveTestCaseReview(SaveTestCaseReviewRequest reviewRequest) {
         checkCaseReviewExist(reviewRequest);
@@ -109,24 +110,28 @@ public class TestCaseReviewService {
         reviewRequest.setCreator(SessionUtils.getUser().getId());
         reviewRequest.setStatus(TestCaseReviewStatus.Prepare.name());
         testCaseReviewMapper.insert(reviewRequest);
-        String context = getReviewContext(reviewRequest, "create");
-        MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
-        List<MessageDetail> reviewTasklist = messageSettingDetail.getReviewTask();
-
         try {
-            mailService.sendReviewerNotice(userIds, reviewRequest);
-           /* if (StringUtils.equals(NoticeConstants.NAIL_ROBOT, "NAIL_ROBOT")) {
-                dingTaskService.sendDingTask(context, userIds);
-            } else if (StringUtils.equals(NoticeConstants.WECHAT_ROBOT, "WECHAT_ROBOT")) {
-                wxChatTaskService.enterpriseWechatTask();
-            } else {
-                mailService.sendReviewerNotice(userIds, reviewRequest);
-            }*/
+            String context = getReviewContext(reviewRequest, NoticeConstants.CREATE);
+            MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
+            List<MessageDetail>  taskList=messageSettingDetail.getReviewTask();
+            taskList.forEach(r->{
+                switch (r.getType()) {
+                    case NoticeConstants.NAIL_ROBOT:
+                        dingTaskService.sendNailRobot(r,userIds,context,NoticeConstants.CREATE);
+                        break;
+                    case NoticeConstants.WECHAT_ROBOT:
+                        wxChatTaskService.sendWechatRobot(r,userIds,context,NoticeConstants.CREATE);
+                        break;
+                    case NoticeConstants.EMAIL:
+                        mailService.sendReviewerNotice(r,userIds, reviewRequest,NoticeConstants.CREATE);
+                        break;
+                }
+            });
         } catch (Exception e) {
             LogUtil.error(e);
         }
 
-    }
+        }
 
     public List<TestCaseReviewDTO> listCaseReview(QueryCaseReviewRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -182,7 +187,22 @@ public class TestCaseReviewService {
         checkCaseReviewExist(testCaseReview);
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
         try {
-            mailService.sendReviewerNotice(testCaseReview.getUserIds(), testCaseReview);
+            String context = getReviewContext(testCaseReview, NoticeConstants.CREATE);
+            MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
+            List<MessageDetail>  taskList=messageSettingDetail.getReviewTask();
+            taskList.forEach(r->{
+                switch (r.getType()) {
+                    case NoticeConstants.NAIL_ROBOT:
+                        dingTaskService.sendNailRobot(r,testCaseReview.getUserIds(),context,NoticeConstants.CREATE);
+                        break;
+                    case NoticeConstants.WECHAT_ROBOT:
+                        wxChatTaskService.sendWechatRobot(r,testCaseReview.getUserIds(),context,NoticeConstants.CREATE);
+                        break;
+                    case NoticeConstants.EMAIL:
+                        mailService.sendReviewerNotice(r,testCaseReview.getUserIds(), testCaseReview,NoticeConstants.CREATE);
+                        break;
+                }
+            });
         } catch (Exception e) {
             LogUtil.error(e);
         }
@@ -392,14 +412,22 @@ public class TestCaseReviewService {
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
         try {
             BeanUtils.copyProperties(testCaseReviewRequest, _testCaseReview);
-            String context = getReviewContext(testCaseReviewRequest, "create");
-            if (StringUtils.equals(NoticeConstants.NAIL_ROBOT, "NAIL_ROBOT")) {
-                dingTaskService.sendDingTask(context, userIds);
-            } else if (StringUtils.equals(NoticeConstants.WECHAT_ROBOT, "WECHAT_ROBOT")) {
-                wxChatTaskService.enterpriseWechatTask();
-            } else {
-                mailService.sendEndNotice(userIds, testCaseReviewRequest);
-            }
+            String context = getReviewContext(testCaseReviewRequest, NoticeConstants.UPDATE);
+            MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
+            List<MessageDetail>  taskList=messageSettingDetail.getReviewTask();
+            taskList.forEach(r->{
+                switch (r.getType()) {
+                    case NoticeConstants.NAIL_ROBOT:
+                        dingTaskService.sendNailRobot(r,userIds,context,NoticeConstants.CREATE);
+                        break;
+                    case NoticeConstants.WECHAT_ROBOT:
+                        wxChatTaskService.sendWechatRobot(r,userIds,context,NoticeConstants.CREATE);
+                        break;
+                    case NoticeConstants.EMAIL:
+                        mailService.sendReviewerNotice(r,userIds, testCaseReviewRequest,NoticeConstants.CREATE);
+                        break;
+                }
+            });
         } catch (Exception e) {
             LogUtil.error(e);
         }
@@ -490,8 +518,8 @@ public class TestCaseReviewService {
         request.setProjectIds(projectIds);
         return extTestReviewCaseMapper.list(request);
     }
-
-    private String getReviewContext(SaveTestCaseReviewRequest reviewRequest, String type) {
+    /*通知内容*/
+    private static String getReviewContext(SaveTestCaseReviewRequest reviewRequest, String type) {
         Long startTime = reviewRequest.getCreateTime();
         Long endTime = reviewRequest.getEndTime();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -506,12 +534,13 @@ public class TestCaseReviewService {
             end = sdf.format(new Date(Long.parseLong(eTime)));
         }
         String context = "";
-        if (StringUtils.equals("create", type)) {
-            context = reviewRequest.getCreator() + "发起的" + "'" + reviewRequest.getName() + "'" + "待开始，计划开始时间是" + start + "计划结束时间为" + end + "请跟进";
-        } else if (StringUtils.equals("end", type)) {
-            context = reviewRequest.getCreator() + "发起的" + "'" + reviewRequest.getName() + "'" + "已完成，计划开始时间是" + start + "计划结束时间为" + end + "已完成";
+        if (StringUtils.equals(NoticeConstants.CREATE, type)) {
+            context = reviewRequest.getCreator() + "发起的任务通知" + "'" + reviewRequest.getName() + "'" + "待开始，计划开始时间是" + start + "计划结束时间为" + end + "请跟进";
+        } else if (StringUtils.equals(NoticeConstants.UPDATE, type)) {
+            context = reviewRequest.getCreator() + "发起的任务通知" + "'" + reviewRequest.getName() + "'" + "已完成，计划开始时间是" + start + "计划结束时间为" + end + "已完成";
         }
 
         return context;
     }
+
 }
