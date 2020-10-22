@@ -1,5 +1,6 @@
 export default {
   commons: {
+    comment:'评论',
     examples: '示例',
     help_documentation: '帮助文档',
     delete_cancelled: '已取消删除',

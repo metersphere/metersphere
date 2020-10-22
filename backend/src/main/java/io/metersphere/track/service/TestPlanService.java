@@ -9,15 +9,19 @@ import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
+import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.MathUtils;
-import io.metersphere.commons.utils.ServiceUtils;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.i18n.Translator;
+import io.metersphere.notice.domain.MessageDetail;
+import io.metersphere.notice.domain.MessageSettingDetail;
+import io.metersphere.notice.service.DingTaskService;
+import io.metersphere.notice.service.MailService;
+import io.metersphere.notice.service.NoticeService;
+import io.metersphere.notice.service.WxChatTaskService;
 import io.metersphere.track.Factory.ReportComponentFactory;
 import io.metersphere.track.domain.ReportComponent;
 import io.metersphere.track.dto.TestCaseReportMetricDTO;
@@ -25,7 +29,6 @@ import io.metersphere.track.dto.TestPlanCaseDTO;
 import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.dto.TestPlanDTOWithMetric;
 import io.metersphere.track.request.testcase.PlanCaseRelevanceRequest;
-import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.AddTestPlanRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
@@ -39,7 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -82,6 +85,14 @@ public class TestPlanService {
     ProjectMapper projectMapper;
     @Resource
     ExtTestCaseMapper extTestCaseMapper;
+    @Resource
+    NoticeService noticeService;
+    @Resource
+    MailService mailService;
+    @Resource
+    DingTaskService dingTaskService;
+    @Resource
+    WxChatTaskService wxChatTaskService;
 
     public void addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -102,7 +113,31 @@ public class TestPlanService {
         testPlan.setStatus(TestPlanStatus.Prepare.name());
         testPlan.setCreateTime(System.currentTimeMillis());
         testPlan.setUpdateTime(System.currentTimeMillis());
+        testPlan.setCreator(SessionUtils.getUser().getId());
         testPlanMapper.insert(testPlan);
+
+        List<String> userIds = new ArrayList<>();
+        userIds.add(testPlan.getPrincipal());
+        try {
+            String context = getTestPlanContext(testPlan, NoticeConstants.CREATE);
+            MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
+            List<MessageDetail> taskList = messageSettingDetail.getTestCasePlanTask();
+            taskList.forEach(r -> {
+                switch (r.getType()) {
+                    case NoticeConstants.NAIL_ROBOT:
+                        dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.CREATE);
+                        break;
+                    case NoticeConstants.WECHAT_ROBOT:
+                        wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.CREATE);
+                        break;
+                    case NoticeConstants.EMAIL:
+                        mailService.sendTestPlanStartNotice(r, userIds, testPlan, NoticeConstants.CREATE);
+                        break;
+                }
+            });
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
     }
 
     public List<TestPlan> getTestPlanByName(String name) {
@@ -128,6 +163,30 @@ public class TestPlanService {
             //已完成，写入实际完成时间
             testPlan.setActualEndTime(System.currentTimeMillis());
         }
+        List<String> userIds = new ArrayList<>();
+        userIds.add(testPlan.getPrincipal());
+        AddTestPlanRequest testPlans = new AddTestPlanRequest();
+       /* try {
+            BeanUtils.copyBean(testPlans, testPlan);
+            String context = getTestPlanContext(testPlans, NoticeConstants.CREATE);
+            MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
+            List<MessageDetail> taskList = messageSettingDetail.getReviewTask();
+            taskList.forEach(r -> {
+                switch (r.getType()) {
+                    case NoticeConstants.NAIL_ROBOT:
+                        dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.CREATE);
+                        break;
+                    case NoticeConstants.WECHAT_ROBOT:
+                        wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.CREATE);
+                        break;
+                    case NoticeConstants.EMAIL:
+                        mailService.sendTestPlanStartNotice(r, userIds, testPlans, NoticeConstants.CREATE);
+                        break;
+                }
+            });
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }*/
         return testPlanMapper.updateByPrimaryKeySelective(testPlan);
     }
 
@@ -183,9 +242,35 @@ public class TestPlanService {
     }
 
     public int deleteTestPlan(String planId) {
+        TestPlan testPlan = getTestPlan(planId);
         deleteTestCaseByPlanId(planId);
         testPlanProjectService.deleteTestPlanProjectByPlanId(planId);
-        return testPlanMapper.deleteByPrimaryKey(planId);
+        int num = testPlanMapper.deleteByPrimaryKey(planId);
+        List<String> userIds = new ArrayList<>();
+        AddTestPlanRequest testPlans = new AddTestPlanRequest();
+        userIds.add(testPlan.getCreator());
+        try {
+            BeanUtils.copyBean(testPlans, testPlan);
+            String context = getTestPlanContext(testPlans, NoticeConstants.DELETE);
+            MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
+            List<MessageDetail> taskList = messageSettingDetail.getReviewTask();
+            taskList.forEach(r -> {
+                switch (r.getType()) {
+                    case NoticeConstants.NAIL_ROBOT:
+                        dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.DELETE);
+                        break;
+                    case NoticeConstants.WECHAT_ROBOT:
+                        wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.DELETE);
+                        break;
+                    case NoticeConstants.EMAIL:
+                        mailService.sendTestPlanDeleteNotice(r, userIds, testPlans, NoticeConstants.DELETE);
+                        break;
+                }
+            });
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
+        return num;
     }
 
     public void deleteTestCaseByPlanId(String testPlanId) {
@@ -389,7 +474,6 @@ public class TestPlanService {
         List<String> statusList = extTestPlanTestCaseMapper.getStatusByPlanId(planId);
         TestPlan testPlan = new TestPlan();
         testPlan.setId(planId);
-
         for (String status : statusList) {
             if (StringUtils.equals(status, TestPlanTestCaseStatus.Prepare.name())
                     || StringUtils.equals(status, TestPlanTestCaseStatus.Underway.name())) {
@@ -400,6 +484,34 @@ public class TestPlanService {
         }
         testPlan.setStatus(TestPlanStatus.Completed.name());
         testPlanMapper.updateByPrimaryKeySelective(testPlan);
+        TestPlan testPlans = getTestPlan(planId);
+        List<String> userIds = new ArrayList<>();
+        userIds.add(testPlans.getCreator());
+        AddTestPlanRequest _testPlans = new AddTestPlanRequest();
+        if (StringUtils.equals(TestPlanStatus.Completed.name(), testPlans.getStatus())) {
+            try {
+                BeanUtils.copyBean(_testPlans, testPlans);
+                String context = getTestPlanContext(_testPlans, NoticeConstants.UPDATE);
+                MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
+                List<MessageDetail> taskList = messageSettingDetail.getReviewTask();
+                taskList.forEach(r -> {
+                    switch (r.getType()) {
+                        case NoticeConstants.NAIL_ROBOT:
+                            dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.UPDATE);
+                            break;
+                        case NoticeConstants.WECHAT_ROBOT:
+                            wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.UPDATE);
+                            break;
+                        case NoticeConstants.EMAIL:
+                            mailService.sendTestPlanEndNotice(r, userIds, _testPlans, NoticeConstants.UPDATE);
+                            break;
+                    }
+                });
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
+        }
+
     }
 
     public String getProjectNameByPlanId(String testPlanId) {
@@ -420,4 +532,30 @@ public class TestPlanService {
 
         return projectName;
     }
+
+    private static String getTestPlanContext(AddTestPlanRequest testPlan, String type) {
+        Long startTime = testPlan.getPlannedStartTime();
+        Long endTime = testPlan.getPlannedEndTime();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String start = null;
+        String sTime = String.valueOf(startTime);
+        String eTime = String.valueOf(endTime);
+        if (!sTime.equals("null")) {
+            start = sdf.format(new Date(Long.parseLong(sTime)));
+        }
+        String end = null;
+        if (!eTime.equals("null")) {
+            end = sdf.format(new Date(Long.parseLong(eTime)));
+        }
+        String context = "";
+        if (StringUtils.equals(NoticeConstants.CREATE, type)) {
+            context = "测试计划任务通知：" + testPlan.getCreator() + "创建的" + "'" + testPlan.getName() + "'" + "待开始，计划开始时间是" + start + "计划结束时间为" + end + "请跟进";
+        } else if (StringUtils.equals(NoticeConstants.UPDATE, type)) {
+            context = "测试计划任务通知：" + testPlan.getCreator() + "创建的" + "'" + testPlan.getName() + "'" + "已完成，计划开始时间是" + start + "计划结束时间为" + end + "已完成";
+        } else if (StringUtils.equals(NoticeConstants.DELETE, type)) {
+            context = "测试计划任务通知：" + testPlan.getCreator() + "创建的" + "'" + testPlan.getName() + "'" + "计划开始时间是" + start + "计划结束时间为" + end + "已删除";
+        }
+        return context;
+    }
+
 }

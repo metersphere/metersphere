@@ -923,6 +923,316 @@ public class TestPlanExample {
             addCriterion("update_time not between", value1, value2, "updateTime");
             return (Criteria) this;
         }
+
+        public Criteria andActualEndTimeIsNull() {
+            addCriterion("actual_end_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeIsNotNull() {
+            addCriterion("actual_end_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeEqualTo(Long value) {
+            addCriterion("actual_end_time =", value, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeNotEqualTo(Long value) {
+            addCriterion("actual_end_time <>", value, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeGreaterThan(Long value) {
+            addCriterion("actual_end_time >", value, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("actual_end_time >=", value, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeLessThan(Long value) {
+            addCriterion("actual_end_time <", value, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeLessThanOrEqualTo(Long value) {
+            addCriterion("actual_end_time <=", value, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeIn(List<Long> values) {
+            addCriterion("actual_end_time in", values, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeNotIn(List<Long> values) {
+            addCriterion("actual_end_time not in", values, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeBetween(Long value1, Long value2) {
+            addCriterion("actual_end_time between", value1, value2, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeNotBetween(Long value1, Long value2) {
+            addCriterion("actual_end_time not between", value1, value2, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlannedStartTimeIsNull() {
+            addCriterion("planned_start_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlannedStartTimeIsNotNull() {
+            addCriterion("planned_start_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlannedStartTimeEqualTo(Long value) {
+            addCriterion("planned_start_time =", value, "plannedStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlannedStartTimeNotEqualTo(Long value) {
+            addCriterion("planned_start_time <>", value, "plannedStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlannedStartTimeGreaterThan(Long value) {
+            addCriterion("planned_start_time >", value, "plannedStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlannedStartTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("planned_start_time >=", value, "plannedStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlannedStartTimeLessThan(Long value) {
+            addCriterion("planned_start_time <", value, "plannedStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlannedStartTimeLessThanOrEqualTo(Long value) {
+            addCriterion("planned_start_time <=", value, "plannedStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlannedStartTimeIn(List<Long> values) {
+            addCriterion("planned_start_time in", values, "plannedStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlannedStartTimeNotIn(List<Long> values) {
+            addCriterion("planned_start_time not in", values, "plannedStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlannedStartTimeBetween(Long value1, Long value2) {
+            addCriterion("planned_start_time between", value1, value2, "plannedStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlannedStartTimeNotBetween(Long value1, Long value2) {
+            addCriterion("planned_start_time not between", value1, value2, "plannedStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlannedEndTimeIsNull() {
+            addCriterion("planned_end_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlannedEndTimeIsNotNull() {
+            addCriterion("planned_end_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlannedEndTimeEqualTo(Long value) {
+            addCriterion("planned_end_time =", value, "plannedEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlannedEndTimeNotEqualTo(Long value) {
+            addCriterion("planned_end_time <>", value, "plannedEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlannedEndTimeGreaterThan(Long value) {
+            addCriterion("planned_end_time >", value, "plannedEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlannedEndTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("planned_end_time >=", value, "plannedEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlannedEndTimeLessThan(Long value) {
+            addCriterion("planned_end_time <", value, "plannedEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlannedEndTimeLessThanOrEqualTo(Long value) {
+            addCriterion("planned_end_time <=", value, "plannedEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlannedEndTimeIn(List<Long> values) {
+            addCriterion("planned_end_time in", values, "plannedEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlannedEndTimeNotIn(List<Long> values) {
+            addCriterion("planned_end_time not in", values, "plannedEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlannedEndTimeBetween(Long value1, Long value2) {
+            addCriterion("planned_end_time between", value1, value2, "plannedEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlannedEndTimeNotBetween(Long value1, Long value2) {
+            addCriterion("planned_end_time not between", value1, value2, "plannedEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualStartTimeIsNull() {
+            addCriterion("actual_start_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualStartTimeIsNotNull() {
+            addCriterion("actual_start_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualStartTimeEqualTo(Long value) {
+            addCriterion("actual_start_time =", value, "actualStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualStartTimeNotEqualTo(Long value) {
+            addCriterion("actual_start_time <>", value, "actualStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualStartTimeGreaterThan(Long value) {
+            addCriterion("actual_start_time >", value, "actualStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualStartTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("actual_start_time >=", value, "actualStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualStartTimeLessThan(Long value) {
+            addCriterion("actual_start_time <", value, "actualStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualStartTimeLessThanOrEqualTo(Long value) {
+            addCriterion("actual_start_time <=", value, "actualStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualStartTimeIn(List<Long> values) {
+            addCriterion("actual_start_time in", values, "actualStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualStartTimeNotIn(List<Long> values) {
+            addCriterion("actual_start_time not in", values, "actualStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualStartTimeBetween(Long value1, Long value2) {
+            addCriterion("actual_start_time between", value1, value2, "actualStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualStartTimeNotBetween(Long value1, Long value2) {
+            addCriterion("actual_start_time not between", value1, value2, "actualStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatorIsNull() {
+            addCriterion("creator is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatorIsNotNull() {
+            addCriterion("creator is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatorEqualTo(String value) {
+            addCriterion("creator =", value, "creator");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatorNotEqualTo(String value) {
+            addCriterion("creator <>", value, "creator");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatorGreaterThan(String value) {
+            addCriterion("creator >", value, "creator");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatorGreaterThanOrEqualTo(String value) {
+            addCriterion("creator >=", value, "creator");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatorLessThan(String value) {
+            addCriterion("creator <", value, "creator");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatorLessThanOrEqualTo(String value) {
+            addCriterion("creator <=", value, "creator");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatorLike(String value) {
+            addCriterion("creator like", value, "creator");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatorNotLike(String value) {
+            addCriterion("creator not like", value, "creator");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatorIn(List<String> values) {
+            addCriterion("creator in", values, "creator");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatorNotIn(List<String> values) {
+            addCriterion("creator not in", values, "creator");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatorBetween(String value1, String value2) {
+            addCriterion("creator between", value1, value2, "creator");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatorNotBetween(String value1, String value2) {
+            addCriterion("creator not between", value1, value2, "creator");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

@@ -15,6 +15,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -22,6 +23,7 @@ import java.util.*;
 
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class SystemParameterService {
 
     @Resource
@@ -29,9 +31,10 @@ public class SystemParameterService {
     @Resource
     private ExtSystemParameterMapper extSystemParameterMapper;
 
-   public String searchEmail(){
-       return extSystemParameterMapper.email();
-   }
+    public String searchEmail() {
+        return extSystemParameterMapper.email();
+    }
+
     public String getSystemLanguage() {
         String result = StringUtils.EMPTY;
         SystemParameterExample example = new SystemParameterExample();
