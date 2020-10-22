@@ -22,6 +22,7 @@ import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testplan.AddTestPlanRequest;
 import io.metersphere.track.request.testreview.SaveCommentRequest;
 import io.metersphere.track.request.testreview.SaveTestCaseReviewRequest;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RegExUtils;
@@ -298,6 +299,9 @@ public class MailService {
         helper.setSubject("MeterSphere平台" + Translator.get("test_plan_notification"));
         String[] users;
         List<String> emails = new ArrayList<>();
+        if (CollectionUtils.isEmpty(userIds)) {
+            return;
+        }
         List<UserDetail> list = userService.queryTypeByIds(userIds);
         list.forEach(u -> {
             emails.add(u.getEmail());
