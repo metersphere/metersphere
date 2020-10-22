@@ -9,6 +9,7 @@ import io.metersphere.notice.util.WxChatbotClient;
 import io.metersphere.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
@@ -22,6 +23,7 @@ public class WxChatTaskService {
     @Resource
     private UserService userService;
 
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void sendWechatRobot(MessageDetail messageDetail, List<String> userIds, String context, String eventType) {
         List<String> addresseeIdList = new ArrayList<>();
         messageDetail.getEvents().forEach(e -> {

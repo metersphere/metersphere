@@ -31,6 +31,7 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
@@ -174,6 +175,7 @@ public class MailService {
     }
 
     //测试计划
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void sendTestPlanStartNotice(MessageDetail messageDetail, List<String> userIds, AddTestPlanRequest testPlan, String eventType) {
         Map<String, String> context = getTestPlanContext(testPlan);
         context.put("creator", userIds.toString());
@@ -185,6 +187,7 @@ public class MailService {
         }
     }
 
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void sendTestPlanEndNotice(MessageDetail messageDetail, List<String> userIds, AddTestPlanRequest testPlan, String eventType) {
         Map<String, String> context = getTestPlanContext(testPlan);
         context.put("creator", userIds.toString());
@@ -196,6 +199,7 @@ public class MailService {
         }
     }
 
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void sendTestPlanDeleteNotice(MessageDetail messageDetail, List<String> userIds, AddTestPlanRequest testPlan, String eventType) {
         Map<String, String> context = getTestPlanContext(testPlan);
         context.put("creator", userIds.toString());
