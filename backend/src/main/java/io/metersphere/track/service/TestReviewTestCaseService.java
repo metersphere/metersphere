@@ -87,8 +87,13 @@ public class TestReviewTestCaseService {
     private void checkReviewer(String reviewId) {
         List<String> userIds = testCaseReviewService.getTestCaseReviewerIds(reviewId);
         String currentId = SessionUtils.getUser().getId();
-        if (!userIds.contains(currentId)) {
-            MSException.throwException("非用例评审人员，不能解除用例关联！");
+        TestCaseReview caseReview = testCaseReviewMapper.selectByPrimaryKey(reviewId);
+        String creator = "";
+        if (caseReview != null) {
+            creator = caseReview.getCreator();
+        }
+        if (!userIds.contains(currentId) && !StringUtils.equals(creator, currentId)) {
+            MSException.throwException("没有权限，不能解除用例关联！");
         }
     }
 

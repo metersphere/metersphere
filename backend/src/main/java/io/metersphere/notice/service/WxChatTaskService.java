@@ -7,6 +7,7 @@ import io.metersphere.notice.message.TextMessage;
 import io.metersphere.notice.util.SendResult;
 import io.metersphere.notice.util.WxChatbotClient;
 import io.metersphere.service.UserService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -18,12 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Transactional(rollbackFor = Exception.class)
+@Transactional(propagation = Propagation.NOT_SUPPORTED)
 public class WxChatTaskService {
     @Resource
     private UserService userService;
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void sendWechatRobot(MessageDetail messageDetail, List<String> userIds, String context, String eventType) {
         List<String> addresseeIdList = new ArrayList<>();
         messageDetail.getEvents().forEach(e -> {
@@ -53,8 +53,11 @@ public class WxChatTaskService {
     }
 
     public void enterpriseWechatTask(String context, List<String> userIds, String Webhook) {
+        if (CollectionUtils.isEmpty(userIds)) {
+            return;
+        }
         TextMessage message = new TextMessage(context);
-        List<String> mentionedMobileList = new ArrayList<String>();
+        List<String> mentionedMobileList = new ArrayList<>();
         List<UserDetail> list = userService.queryTypeByIds(userIds);
         List<String> phoneList = new ArrayList<>();
         list.forEach(u -> {

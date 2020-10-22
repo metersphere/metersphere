@@ -9,6 +9,7 @@ import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.domain.UserDetail;
 import io.metersphere.service.UserService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -19,12 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Transactional(rollbackFor = Exception.class)
+@Transactional(propagation = Propagation.NOT_SUPPORTED)
 public class DingTaskService {
     @Resource
     private UserService userService;
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void sendNailRobot(MessageDetail messageDetail, List<String> userIds, String context, String eventType) {
         List<String> addresseeIdList = new ArrayList<>();
         messageDetail.getEvents().forEach(e -> {
@@ -54,6 +54,9 @@ public class DingTaskService {
     }
 
     public void sendDingTask(String context, List<String> userIds, String Webhook) {
+        if (CollectionUtils.isEmpty(userIds)) {
+            return;
+        }
         DingTalkClient client = new DefaultDingTalkClient(Webhook);
         OapiRobotSendRequest request = new OapiRobotSendRequest();
         request.setMsgtype("text");
