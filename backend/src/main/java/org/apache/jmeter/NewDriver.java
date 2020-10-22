@@ -19,7 +19,6 @@
 package org.apache.jmeter;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
@@ -28,12 +27,7 @@ import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 
 /**
  * Main class for JMeter - sets up initial classpath and the loader.
@@ -65,6 +59,14 @@ public final class NewDriver {
         Thread.currentThread().setContextClassLoader(loader);
     }
 
+    public static void loaderClass(String name) {
+        try {
+            loader.loadClass(name);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
     static {
         final List<URL> jars = new LinkedList<>();
         final String initiaClasspath = System.getProperty(JAVA_CLASS_PATH);
@@ -72,28 +74,13 @@ public final class NewDriver {
         // Find JMeter home dir from the initial classpath
         String tmpDir;
 
-//        StringTokenizer tok = new StringTokenizer(initiaClasspath, File.pathSeparator);
-//        if (tok.countTokens() == 1
-//                || (tok.countTokens()  == 2 // Java on Mac OS can add a second entry to the initial classpath
-//                && OS_NAME_LC.startsWith("mac os x")// $NON-NLS-1$
-//        )
-//                ) {
-//            File jar = new File(tok.nextToken());
-//            try {
-//                tmpDir = jar.getCanonicalFile().getParentFile().getParent();
-//                System.out.println(tmpDir + "111");
-//            } catch (IOException e) {
-//                tmpDir = null;
-//            }
-//        } else {// e.g. started from IDE with full classpath
+        //只从 jmeter.home 加载
+        tmpDir = System.getProperty("jmeter.home","");// Allow override $NON-NLS-1$ $NON-NLS-2$
+        if (tmpDir.length() == 0) {
+            File userDir = new File(System.getProperty("user.dir"));// $NON-NLS-1$
+            tmpDir = userDir.getAbsoluteFile().getParent();
+        }
 
-            //只从 jmeter.home 加载
-            tmpDir = System.getProperty("jmeter.home","");// Allow override $NON-NLS-1$ $NON-NLS-2$
-            if (tmpDir.length() == 0) {
-                File userDir = new File(System.getProperty("user.dir"));// $NON-NLS-1$
-                tmpDir = userDir.getAbsoluteFile().getParent();
-            }
-//        }
         JMETER_INSTALLATION_DIRECTORY=tmpDir;
 
         /*
