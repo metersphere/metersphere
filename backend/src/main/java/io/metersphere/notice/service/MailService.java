@@ -42,7 +42,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
-@Transactional(rollbackFor = Exception.class)
+@Transactional(propagation = Propagation.NOT_SUPPORTED)
 public class MailService {
     @Resource
     private UserService userService;
@@ -69,6 +69,7 @@ public class MailService {
             LogUtil.error(e);
         }
     }
+
 
     public void sendApiNotification(ApiTestReport apiTestReport, List<NoticeDetail> noticeList) {
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
@@ -128,6 +129,7 @@ public class MailService {
     }
 
     //测试评审
+
     public void sendEndNotice(MessageDetail messageDetail, List<String> userIds, SaveTestCaseReviewRequest reviewRequest, String eventType) {
         Map<String, String> context = getReviewContext(reviewRequest);
         try {
@@ -138,6 +140,7 @@ public class MailService {
         }
     }
 
+
     public void sendDeleteNotice(MessageDetail messageDetail, List<String> userIds, SaveTestCaseReviewRequest reviewRequest, String eventType) {
         Map<String, String> context = getReviewContext(reviewRequest);
         try {
@@ -147,6 +150,7 @@ public class MailService {
             LogUtil.error(e);
         }
     }
+
 
     public void sendCommentNotice(MessageDetail messageDetail, List<String> userIds, SaveCommentRequest request, TestCaseWithBLOBs testCaseWithBLOBs, String eventType) {
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
@@ -164,6 +168,7 @@ public class MailService {
         }
     }
 
+
     public void sendReviewerNotice(MessageDetail messageDetail, List<String> userIds, SaveTestCaseReviewRequest reviewRequest, String eventType) {
         Map<String, String> context = getReviewContext(reviewRequest);
         try {
@@ -175,7 +180,7 @@ public class MailService {
     }
 
     //测试计划
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+
     public void sendTestPlanStartNotice(MessageDetail messageDetail, List<String> userIds, AddTestPlanRequest testPlan, String eventType) {
         Map<String, String> context = getTestPlanContext(testPlan);
         context.put("creator", userIds.toString());
@@ -187,7 +192,7 @@ public class MailService {
         }
     }
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+
     public void sendTestPlanEndNotice(MessageDetail messageDetail, List<String> userIds, AddTestPlanRequest testPlan, String eventType) {
         Map<String, String> context = getTestPlanContext(testPlan);
         context.put("creator", userIds.toString());
@@ -199,7 +204,7 @@ public class MailService {
         }
     }
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+
     public void sendTestPlanDeleteNotice(MessageDetail messageDetail, List<String> userIds, AddTestPlanRequest testPlan, String eventType) {
         Map<String, String> context = getTestPlanContext(testPlan);
         context.put("creator", userIds.toString());

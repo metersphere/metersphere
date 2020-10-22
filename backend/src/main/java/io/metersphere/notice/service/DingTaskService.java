@@ -19,12 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Transactional(rollbackFor = Exception.class)
+@Transactional(propagation = Propagation.NOT_SUPPORTED)
 public class DingTaskService {
     @Resource
     private UserService userService;
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void sendNailRobot(MessageDetail messageDetail, List<String> userIds, String context, String eventType) {
         List<String> addresseeIdList = new ArrayList<>();
         messageDetail.getEvents().forEach(e -> {
