@@ -1,6 +1,9 @@
 package io.metersphere.notice.service;
 
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.MessageTask;
+import io.metersphere.base.domain.MessageTaskExample;
+import io.metersphere.base.domain.Notice;
+import io.metersphere.base.domain.NoticeExample;
 import io.metersphere.base.mapper.MessageTaskMapper;
 import io.metersphere.base.mapper.NoticeMapper;
 import io.metersphere.commons.constants.NoticeConstants;
@@ -10,8 +13,8 @@ import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.domain.MessageSettingDetail;
 import io.metersphere.notice.domain.NoticeDetail;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -21,6 +24,7 @@ import static io.metersphere.commons.constants.NoticeConstants.EXECUTE_FAILED;
 import static io.metersphere.commons.constants.NoticeConstants.EXECUTE_SUCCESSFUL;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class NoticeService {
     @Resource
     private NoticeMapper noticeMapper;
@@ -149,7 +153,7 @@ public class NoticeService {
         return user.getTaskType() + "#" + user.getIdentification();
     }
 
-    public int delMessage(String identification){
+    public int delMessage(String identification) {
         MessageTaskExample example = new MessageTaskExample();
         example.createCriteria().andIdentificationEqualTo(identification);
         return messageTaskMapper.deleteByExample(example);

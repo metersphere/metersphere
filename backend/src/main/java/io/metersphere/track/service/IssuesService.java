@@ -1,23 +1,35 @@
 package io.metersphere.track.service;
 
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.Issues;
+import io.metersphere.base.domain.Project;
+import io.metersphere.base.domain.ServiceIntegration;
+import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.base.mapper.IssuesMapper;
 import io.metersphere.commons.constants.IssuesManagePlatform;
+import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.user.SessionUser;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.IntegrationRequest;
+import io.metersphere.notice.domain.MessageDetail;
+import io.metersphere.notice.domain.MessageSettingDetail;
+import io.metersphere.notice.service.DingTaskService;
+import io.metersphere.notice.service.MailService;
+import io.metersphere.notice.service.NoticeService;
+import io.metersphere.notice.service.WxChatTaskService;
 import io.metersphere.service.IntegrationService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.track.issue.AbstractIssuePlatform;
 import io.metersphere.track.issue.IssueFactory;
 import io.metersphere.track.issue.PlatformUser;
 import io.metersphere.track.request.testcase.IssuesRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -31,7 +43,14 @@ public class IssuesService {
     private TestCaseService testCaseService;
     @Resource
     private IssuesMapper issuesMapper;
-
+    @Resource
+    MailService mailService;
+    @Resource
+    DingTaskService dingTaskService;
+    @Resource
+    WxChatTaskService wxChatTaskService;
+    @Resource
+    NoticeService noticeService;
 
     public void testAuth(String platform) {
         AbstractIssuePlatform abstractPlatform = IssueFactory.createPlatform(platform, new IssuesRequest());
@@ -71,6 +90,28 @@ public class IssuesService {
         platformList.forEach(platform -> {
             platform.addIssue(issuesRequest);
         });
+        List<String> userIds = new ArrayList<>();
+        userIds.add(orgId);
+        try {
+            String context = getIssuesContext(user, issuesRequest, NoticeConstants.CREATE);
+            MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
+            List<MessageDetail> taskList = messageSettingDetail.getDefectTask();
+            taskList.forEach(r -> {
+                switch (r.getType()) {
+                    case NoticeConstants.NAIL_ROBOT:
+                        dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.CREATE);
+                        break;
+                    case NoticeConstants.WECHAT_ROBOT:
+                        wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.CREATE);
+                        break;
+                    case NoticeConstants.EMAIL:
+                        mailService.sendIssuesNotice(r, userIds, issuesRequest, NoticeConstants.CREATE, user);
+                        break;
+                }
+            });
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
 
     }
 
@@ -150,5 +191,13 @@ public class IssuesService {
 
     public void deleteIssue(String id) {
         issuesMapper.deleteByPrimaryKey(id);
+    }
+
+    private static String getIssuesContext(SessionUser user, IssuesRequest issuesRequest, String type) {
+        String context = "";
+        if (StringUtils.equals(NoticeConstants.CREATE, type)) {
+            context = "缺陷任务通知：" + user.getName() + "发起了一个缺陷" + "'" + issuesRequest.getTitle() + "'" + "请跟进";
+        }
+        return context;
     }
 }

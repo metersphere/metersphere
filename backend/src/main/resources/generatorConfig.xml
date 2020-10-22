@@ -67,6 +67,7 @@
         <table tableName="schedule"/>
         <table tableName="notice"/>
         <table tableName="message_task"/>
+        <table tableName="test_plan"/>
 
     </context>
 </generatorConfiguration>

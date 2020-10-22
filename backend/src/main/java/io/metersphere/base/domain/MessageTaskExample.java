@@ -595,62 +595,62 @@ public class MessageTaskExample {
         }
 
         public Criteria andIsSetIsNull() {
-            addCriterion("is_Set is null");
+            addCriterion("is_set is null");
             return (Criteria) this;
         }
 
         public Criteria andIsSetIsNotNull() {
-            addCriterion("is_Set is not null");
+            addCriterion("is_set is not null");
             return (Criteria) this;
         }
 
         public Criteria andIsSetEqualTo(Boolean value) {
-            addCriterion("is_Set =", value, "isSet");
+            addCriterion("is_set =", value, "isSet");
             return (Criteria) this;
         }
 
         public Criteria andIsSetNotEqualTo(Boolean value) {
-            addCriterion("is_Set <>", value, "isSet");
+            addCriterion("is_set <>", value, "isSet");
             return (Criteria) this;
         }
 
         public Criteria andIsSetGreaterThan(Boolean value) {
-            addCriterion("is_Set >", value, "isSet");
+            addCriterion("is_set >", value, "isSet");
             return (Criteria) this;
         }
 
         public Criteria andIsSetGreaterThanOrEqualTo(Boolean value) {
-            addCriterion("is_Set >=", value, "isSet");
+            addCriterion("is_set >=", value, "isSet");
             return (Criteria) this;
         }
 
         public Criteria andIsSetLessThan(Boolean value) {
-            addCriterion("is_Set <", value, "isSet");
+            addCriterion("is_set <", value, "isSet");
             return (Criteria) this;
         }
 
         public Criteria andIsSetLessThanOrEqualTo(Boolean value) {
-            addCriterion("is_Set <=", value, "isSet");
+            addCriterion("is_set <=", value, "isSet");
             return (Criteria) this;
         }
 
         public Criteria andIsSetIn(List<Boolean> values) {
-            addCriterion("is_Set in", values, "isSet");
+            addCriterion("is_set in", values, "isSet");
             return (Criteria) this;
         }
 
         public Criteria andIsSetNotIn(List<Boolean> values) {
-            addCriterion("is_Set not in", values, "isSet");
+            addCriterion("is_set not in", values, "isSet");
             return (Criteria) this;
         }
 
         public Criteria andIsSetBetween(Boolean value1, Boolean value2) {
-            addCriterion("is_Set between", value1, value2, "isSet");
+            addCriterion("is_set between", value1, value2, "isSet");
             return (Criteria) this;
         }
 
         public Criteria andIsSetNotBetween(Boolean value1, Boolean value2) {
-            addCriterion("is_Set not between", value1, value2, "isSet");
+            addCriterion("is_set not between", value1, value2, "isSet");
             return (Criteria) this;
         }
     }

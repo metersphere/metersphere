@@ -1,5 +1,6 @@
 export default {
   commons: {
+    comment:'comment',
     examples: 'examples',
     help_documentation: 'Help documentation',
     delete_cancelled: 'Delete cancelled',

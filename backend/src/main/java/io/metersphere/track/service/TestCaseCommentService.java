@@ -11,17 +11,20 @@ import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.notice.domain.MessageDetail;
+import io.metersphere.notice.domain.MessageSettingDetail;
 import io.metersphere.notice.service.DingTaskService;
 import io.metersphere.notice.service.MailService;
+import io.metersphere.notice.service.NoticeService;
 import io.metersphere.notice.service.WxChatTaskService;
 import io.metersphere.track.request.testreview.SaveCommentRequest;
-import io.metersphere.track.request.testreview.SaveTestCaseReviewRequest;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,6 +46,9 @@ public class TestCaseCommentService {
     DingTaskService dingTaskService;
     @Resource
     WxChatTaskService wxChatTaskService;
+    @Resource
+    NoticeService noticeService;
+
 
     public void saveComment(SaveCommentRequest request) {
         TestCaseComment testCaseComment = new TestCaseComment();
@@ -55,18 +61,25 @@ public class TestCaseCommentService {
         testCaseCommentMapper.insert(testCaseComment);
         TestCaseWithBLOBs testCaseWithBLOBs;
         testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(request.getCaseId());
-        SaveTestCaseReviewRequest caseReviewRequest = new SaveTestCaseReviewRequest();
         List<String> userIds = new ArrayList<>();
-        userIds.add(testCaseWithBLOBs.getMaintainer());
-        String context = getReviewContext(request, testCaseWithBLOBs);
+        userIds.add(testCaseWithBLOBs.getMaintainer());//用例维护人
         try {
-           /* if (StringUtils.equals(NoticeConstants.NAIL_ROBOT, "NAIL_ROBOT")) {
-                dingTaskService.sendDingTask(context, userIds);
-            } else if (StringUtils.equals(NoticeConstants.WECHAT_ROBOT, "WECHAT_ROBOT")) {
-                wxChatTaskService.enterpriseWechatTask();
-            } else {
-                mailService.sendCommentNotice(userIds, request, testCaseWithBLOBs);
-            }*/
+            String context = getReviewContext(testCaseComment, testCaseWithBLOBs);
+            MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
+            List<MessageDetail> taskList = messageSettingDetail.getReviewTask();
+            taskList.forEach(r -> {
+                switch (r.getType()) {
+                    case NoticeConstants.NAIL_ROBOT:
+                        dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.COMMENT);
+                        break;
+                    case NoticeConstants.WECHAT_ROBOT:
+                        wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.COMMENT);
+                        break;
+                    case NoticeConstants.EMAIL:
+                        mailService.sendCommentNotice(r, userIds, request, testCaseWithBLOBs, NoticeConstants.COMMENT);
+                        break;
+                }
+            });
         } catch (Exception e) {
             LogUtil.error(e);
         }
@@ -93,9 +106,16 @@ public class TestCaseCommentService {
         testCaseCommentMapper.deleteByExample(testCaseCommentExample);
     }
 
-    private String getReviewContext(SaveCommentRequest request, TestCaseWithBLOBs testCaseWithBLOBs) {
+    private String getReviewContext(TestCaseComment testCaseComment, TestCaseWithBLOBs testCaseWithBLOBs) {
+        Long startTime = testCaseComment.getCreateTime();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String start = null;
+        String sTime = String.valueOf(startTime);
+        if (!sTime.equals("null")) {
+            start = sdf.format(new Date(Long.parseLong(sTime)));
+        }
         String context = "";
-        context = testCaseWithBLOBs.getMaintainer() + "发起的" + "'" + testCaseWithBLOBs.getName() + "'" + "添加评论:" + request.getDescription();
+        context = "测试评审任务通知：" + testCaseComment.getAuthor() + "在" + start + "为" + "'" + testCaseWithBLOBs.getName() + "'" + "添加评论:" + testCaseComment.getDescription();
         return context;
     }
 }

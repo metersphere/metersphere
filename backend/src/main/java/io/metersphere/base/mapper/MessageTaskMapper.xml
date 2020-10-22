@@ -9,7 +9,7 @@
     <result column="task_type" jdbcType="VARCHAR" property="taskType" />
     <result column="webhook" jdbcType="VARCHAR" property="webhook" />
     <result column="identification" jdbcType="VARCHAR" property="identification" />
-    <result column="is_Set" jdbcType="BIT" property="isSet" />
+    <result column="is_set" jdbcType="BIT" property="isSet"/>
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -70,7 +70,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `type`, event, user_id, task_type, webhook, identification, is_Set
+    id, `type`, event, user_id, task_type, webhook, identification, is_set
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.MessageTaskExample" resultMap="BaseResultMap">
     select
@@ -103,12 +103,12 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.MessageTask">
-    insert into message_task (id, `type`, event, 
-      user_id, task_type, webhook, 
-      identification, is_Set)
-    values (#{id,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{event,jdbcType=VARCHAR}, 
-      #{userId,jdbcType=VARCHAR}, #{taskType,jdbcType=VARCHAR}, #{webhook,jdbcType=VARCHAR}, 
-      #{identification,jdbcType=VARCHAR}, #{isSet,jdbcType=BIT})
+    insert into message_task (id, `type`, event,
+                              user_id, task_type, webhook,
+                              identification, is_set)
+    values (#{id,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{event,jdbcType=VARCHAR},
+            #{userId,jdbcType=VARCHAR}, #{taskType,jdbcType=VARCHAR}, #{webhook,jdbcType=VARCHAR},
+            #{identification,jdbcType=VARCHAR}, #{isSet,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.MessageTask">
     insert into message_task
@@ -135,7 +135,7 @@
         identification,
       </if>
       <if test="isSet != null">
-        is_Set,
+        is_set,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -196,7 +196,7 @@
         identification = #{record.identification,jdbcType=VARCHAR},
       </if>
       <if test="record.isSet != null">
-        is_Set = #{record.isSet,jdbcType=BIT},
+        is_set = #{record.isSet,jdbcType=BIT},
       </if>
     </set>
     <if test="_parameter != null">
@@ -206,13 +206,13 @@
   <update id="updateByExample" parameterType="map">
     update message_task
     set id = #{record.id,jdbcType=VARCHAR},
-      `type` = #{record.type,jdbcType=VARCHAR},
-      event = #{record.event,jdbcType=VARCHAR},
-      user_id = #{record.userId,jdbcType=VARCHAR},
-      task_type = #{record.taskType,jdbcType=VARCHAR},
-      webhook = #{record.webhook,jdbcType=VARCHAR},
-      identification = #{record.identification,jdbcType=VARCHAR},
-      is_Set = #{record.isSet,jdbcType=BIT}
+    `type` = #{record.type,jdbcType=VARCHAR},
+    event = #{record.event,jdbcType=VARCHAR},
+    user_id = #{record.userId,jdbcType=VARCHAR},
+    task_type = #{record.taskType,jdbcType=VARCHAR},
+    webhook = #{record.webhook,jdbcType=VARCHAR},
+    identification = #{record.identification,jdbcType=VARCHAR},
+    is_set = #{record.isSet,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -239,20 +239,20 @@
         identification = #{identification,jdbcType=VARCHAR},
       </if>
       <if test="isSet != null">
-        is_Set = #{isSet,jdbcType=BIT},
+        is_set = #{isSet,jdbcType=BIT},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.MessageTask">
     update message_task
-    set `type` = #{type,jdbcType=VARCHAR},
-      event = #{event,jdbcType=VARCHAR},
-      user_id = #{userId,jdbcType=VARCHAR},
-      task_type = #{taskType,jdbcType=VARCHAR},
-      webhook = #{webhook,jdbcType=VARCHAR},
-      identification = #{identification,jdbcType=VARCHAR},
-      is_Set = #{isSet,jdbcType=BIT}
+    set `type`         = #{type,jdbcType=VARCHAR},
+        event          = #{event,jdbcType=VARCHAR},
+        user_id        = #{userId,jdbcType=VARCHAR},
+        task_type      = #{taskType,jdbcType=VARCHAR},
+        webhook        = #{webhook,jdbcType=VARCHAR},
+        identification = #{identification,jdbcType=VARCHAR},
+        is_set         = #{isSet,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
