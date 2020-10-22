@@ -36,7 +36,7 @@
               <div class="config-form-label">{{ $t('load_test.rps_limit') }}</div>
             </el-form-item>
             <el-form-item>
-              <el-switch v-model="rpsLimitEnable"/>
+              <el-switch v-model="rpsLimitEnable" :disabled="true"/>
             </el-form-item>
             <el-form-item>
               <el-input-number
