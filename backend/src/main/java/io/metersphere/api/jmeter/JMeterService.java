@@ -6,13 +6,11 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.config.JmeterProperties;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jmeter.NewDriver;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jmeter.visualizers.backend.BackendListener;
 import org.apache.jorphan.collections.HashTree;
-
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -29,10 +27,6 @@ public class JMeterService {
 
     public void run(String testId, String debugReportId, InputStream is) {
         String JMETER_HOME = getJmeterHome();
-
-        // 将当前类加载器设置为 loader ，解决由系统类加载器加载的 JMeter 无法动态加载 jar 包问题
-        // 同时隔离在 beanshell 中访问由系统类加载器加载的其他类
-        NewDriver.setContextClassLoader();
 
         String JMETER_PROPERTIES = JMETER_HOME + "/bin/jmeter.properties";
         JMeterUtils.loadJMeterProperties(JMETER_PROPERTIES);

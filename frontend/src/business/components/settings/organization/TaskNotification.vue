@@ -5,10 +5,10 @@
         <el-col :span="20">
           <div class="grid-content bg-purple-dark">
             <el-row>
-              <el-col :span="6">
+              <el-col :span="10">
                 <span style="font-weight:bold;">{{ $t('organization.message.jenkins_task_notification') }}</span>
               </el-col>
-              <el-col :span="14">
+              <el-col :span="10">
                 <el-button type="text" icon="el-icon-plus" size="mini"
                            @click="handleAddTaskModel('jenkinsTask')">
                   {{ $t('organization.message.create_new_notification') }}
@@ -22,13 +22,15 @@
             class="tb-edit"
             border
             size="mini"
-            :header-cell-style="{background:'#ededed'}"
+            :cell-style="rowClass"
+            :header-cell-style="headClass"
+
           >
             <el-table-column :label="$t('schedule.event')" min-width="20%" prop="events">
               <template slot-scope="scope">
-                <el-select  v-model="scope.row.events" multiple
-                            :placeholder="$t('organization.message.select_events')"
-                            prop="events" :disabled="!scope.row.isSet">
+                <el-select v-model="scope.row.events" multiple
+                           :placeholder="$t('organization.message.select_events')"
+                           prop="events" :disabled="!scope.row.isSet">
                   <el-option
                     v-for="item in jenkinsEventOptions"
                     :key="item.value"
@@ -103,10 +105,10 @@
         <el-col :span="20">
           <div class="grid-content bg-purple-dark">
             <el-row>
-              <el-col :span="6">
+              <el-col :span="10">
                 <span style="font-weight:bold;">{{ $t('organization.message.test_plan_task_notification') }}</span>
               </el-col>
-              <el-col :span="14">
+              <el-col :span="10">
                 <el-button type="text" icon="el-icon-plus" size="mini" @click="handleAddTaskModel('testPlanTask')">
                   {{ $t('organization.message.create_new_notification') }}
                 </el-button>
@@ -118,7 +120,8 @@
             class="tb-edit"
             border
             size="mini"
-            :header-cell-style="{background:'#EDEDED'}"
+            :cell-style="rowClass"
+            :header-cell-style="headClass"
           >
             <el-table-column :label="$t('schedule.event')" min-width="20%" prop="events">
               <template slot-scope="scope">
@@ -195,10 +198,10 @@
         <el-col :span="20">
           <div class="grid-content bg-purple-dark">
             <el-row>
-              <el-col :span="6">
+              <el-col :span="10">
                 <span style="font-weight:bold;">{{ $t('organization.message.test_review_task_notice') }}</span>
               </el-col>
-              <el-col :span="14">
+              <el-col :span="10">
                 <el-button type="text" icon="el-icon-plus" size="mini" @click="handleAddTaskModel('reviewTask')">
                   {{ $t('organization.message.create_new_notification') }}
                 </el-button>
@@ -210,7 +213,8 @@
             class="tb-edit"
             border
             size="mini"
-            :header-cell-style="{background:'#EDEDED'}"
+            :cell-style="rowClass"
+            :header-cell-style="headClass"
           >
             <el-table-column :label="$t('schedule.event')" min-width="20%" prop="events">
               <template slot-scope="scope">
@@ -287,10 +291,10 @@
         <el-col :span="20">
           <div class="grid-content bg-purple-dark">
             <el-row>
-              <el-col :span="6">
+              <el-col :span="10">
                 <span style="font-weight:bold;">{{ $t('organization.message.defect_task_notification') }}</span>
               </el-col>
-              <el-col :span="14">
+              <el-col :span="10">
                 <el-button type="text" icon="el-icon-plus" size="mini" @click="handleAddTaskModel('defectTask')">
                   {{ $t('organization.message.create_new_notification') }}
                 </el-button>
@@ -302,7 +306,8 @@
             class="tb-edit"
             border
             size="mini"
-            :header-cell-style="{background:'#EDEDED'}"
+            :cell-style="rowClass"
+            :header-cell-style="headClass"
           >
             <el-table-column :label="$t('schedule.event')" min-width="20%" prop="events">
               <template slot-scope="scope">
@@ -555,6 +560,13 @@ export default {
       })
       /*data.splice(index, 1)*/
     },
+    rowClass() {
+      return "text-align:center"
+    },
+    headClass() {
+      return "text-align:center;background:'#ededed'"
+    },
+
   }
 }
 </script>
