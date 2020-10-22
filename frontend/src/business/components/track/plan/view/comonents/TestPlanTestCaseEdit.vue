@@ -299,6 +299,21 @@
                 </div>
               </el-col>
             </el-row>
+
+            <el-row>
+              <el-col :span="15" :offset="1">
+                <div>
+                  <span class="cast_label">{{ $t('test_track.case.attachment') }}:</span>
+                </div>
+                <div>
+                  <test-case-attachment :table-data="tableData"
+                                        :read-only="isReadOnly"
+                                        :is-delete="false"
+                                        @handleDelete="handleDelete"
+                  />
+                </div>
+              </el-col>
+            </el-row>
           </div>
 
         </el-scrollbar>
@@ -320,6 +335,7 @@ import ApiTestResult from "./test/ApiTestResult";
 import PerformanceTestDetail from "./test/PerformanceTestDetail";
 import PerformanceTestResult from "./test/PerformanceTestResult";
 import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 
 export default {
   name: "TestPlanTestCaseEdit",
@@ -328,7 +344,8 @@ export default {
     PerformanceTestDetail,
     ApiTestResult,
     ApiTestDetail,
-    TestPlanTestCaseStatusButton
+    TestPlanTestCaseStatusButton,
+    TestCaseAttachment
   },
   data() {
     return {
@@ -348,7 +365,8 @@ export default {
       activeTab: 'detail',
       isFailure: true,
       users: [],
-      hasTapdId: false
+      hasTapdId: false,
+      tableData: [],
     };
   },
   props: {
@@ -401,8 +419,7 @@ export default {
         this.$success(this.$t('commons.save_success'));
         this.updateTestCases(param);
         this.setPlanStatus(this.testCase.planId);
-        // 结果为Pass时 自动跳转到下一用例
-        if (this.testCase.status === 'Pass' && this.index < this.testCases.length - 1) {
+        if (this.index < this.testCases.length - 1) {
           this.handleNext();
         }
       });
@@ -450,6 +467,20 @@ export default {
       this.initTest();
       this.getIssues(testCase.caseId);
       this.stepResultChange();
+      this.getFileMetaData(testCase);
+    },
+    getFileMetaData(testCase) {
+      this.tableData = [];
+      this.result = this.$get("test/case/file/metadata/" + testCase.caseId, response => {
+        let files = response.data;
+        if (!files) {
+          return;
+        }
+        this.tableData = JSON.parse(JSON.stringify(files));
+        this.tableData.map(f => {
+          f.size = f.size + ' Bytes';
+        });
+      })
     },
     openTestCaseEdit(testCase) {
       this.showDialog = true;
@@ -590,6 +621,9 @@ export default {
         this.getIssues(this.testCase.caseId);
         this.$success(this.$t('commons.delete_success'));
       })
+    },
+    handleDelete() {
+
     }
   }
 }

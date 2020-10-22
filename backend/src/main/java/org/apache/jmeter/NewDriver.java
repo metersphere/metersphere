@@ -71,25 +71,29 @@ public final class NewDriver {
 
         // Find JMeter home dir from the initial classpath
         String tmpDir;
-        StringTokenizer tok = new StringTokenizer(initiaClasspath, File.pathSeparator);
-        if (tok.countTokens() == 1
-                || (tok.countTokens()  == 2 // Java on Mac OS can add a second entry to the initial classpath
-                && OS_NAME_LC.startsWith("mac os x")// $NON-NLS-1$
-        )
-                ) {
-            File jar = new File(tok.nextToken());
-            try {
-                tmpDir = jar.getCanonicalFile().getParentFile().getParent();
-            } catch (IOException e) {
-                tmpDir = null;
-            }
-        } else {// e.g. started from IDE with full classpath
+
+//        StringTokenizer tok = new StringTokenizer(initiaClasspath, File.pathSeparator);
+//        if (tok.countTokens() == 1
+//                || (tok.countTokens()  == 2 // Java on Mac OS can add a second entry to the initial classpath
+//                && OS_NAME_LC.startsWith("mac os x")// $NON-NLS-1$
+//        )
+//                ) {
+//            File jar = new File(tok.nextToken());
+//            try {
+//                tmpDir = jar.getCanonicalFile().getParentFile().getParent();
+//                System.out.println(tmpDir + "111");
+//            } catch (IOException e) {
+//                tmpDir = null;
+//            }
+//        } else {// e.g. started from IDE with full classpath
+
+            //只从 jmeter.home 加载
             tmpDir = System.getProperty("jmeter.home","");// Allow override $NON-NLS-1$ $NON-NLS-2$
             if (tmpDir.length() == 0) {
                 File userDir = new File(System.getProperty("user.dir"));// $NON-NLS-1$
                 tmpDir = userDir.getAbsoluteFile().getParent();
             }
-        }
+//        }
         JMETER_INSTALLATION_DIRECTORY=tmpDir;
 
         /*

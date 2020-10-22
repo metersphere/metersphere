@@ -115,7 +115,6 @@ public class TestPlanController {
 
     @GetMapping("/project/name/{planId}")
     public String getProjectNameByPlanId(@PathVariable String planId) {
-        checkOwnerService.checkTestPlanOwner(planId);
         return testPlanService.getProjectNameByPlanId(planId);
     }
 

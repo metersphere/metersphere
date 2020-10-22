@@ -749,6 +749,7 @@ export default {
       pdf_loading_fail: "PDF loading failed",
       upload_tip: "Only jpg, jpeg, png, docx, doc, pdf, xlsx files can be uploaded",
       attachment: "Attachment",
+      upload_time: "Upload Time",
       import: {
         import: "Import test case",
         case_import: "Import test case",

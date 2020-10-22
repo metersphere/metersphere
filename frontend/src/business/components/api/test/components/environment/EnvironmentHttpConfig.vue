@@ -58,10 +58,11 @@
           this.httpConfig.domain = decodeURIComponent(url.hostname);
 
           this.httpConfig.port = url.port;
+          let path = url.pathname === '/' ? '' : url.pathname;
           if (url.port) {
-            this.httpConfig.socket = this.httpConfig.domain + ':' + url.port + url.pathname;
+            this.httpConfig.socket = this.httpConfig.domain + ':' + url.port + path;
           } else {
-            this.httpConfig.socket = this.httpConfig.domain + url.pathname;
+            this.httpConfig.socket = this.httpConfig.domain + path;
           }
           return true;
         },

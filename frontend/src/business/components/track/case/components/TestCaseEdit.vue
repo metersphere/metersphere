@@ -226,47 +226,15 @@
               <span slot="tip" class="el-upload__tip"> {{ $t('test_track.case.upload_tip') }} </span>
             </el-upload>
           </el-col>
-        </el-row>
-        <el-row type="flex" justify="center">
-          <el-col :span="20">
-            <el-table class="basic-config" :data="tableData">
-              <el-table-column
-                prop="name"
-                :label="$t('load_test.file_name')">
-              </el-table-column>
-              <el-table-column
-                prop="size"
-                :label="$t('load_test.file_size')">
-              </el-table-column>
-              <el-table-column
-                prop="type"
-                :label="$t('load_test.file_type')">
-              </el-table-column>
-              <el-table-column
-                :label="$t('load_test.last_modify_time')">
-                <template v-slot:default="scope">
-                  <i class="el-icon-time"/>
-                  <span class="last-modified">{{ scope.row.updateTime | timestampFormatDate }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                :label="$t('commons.operating')">
-                <template v-slot:default="scope">
-                  <el-button @click="preview(scope.row)" :disabled="!scope.row.id || readOnly" type="primary"
-                             v-if="isPreview(scope.row)"
-                             icon="el-icon-view"
-                             size="mini" circle/>
-                  <el-button @click="handleDownload(scope.row)" :disabled="!scope.row.id || readOnly" type="primary"
-                             icon="el-icon-download"
-                             size="mini" circle/>
-                  <el-button :disabled="readOnly" @click="handleDelete(scope.row, scope.$index)" type="danger"
-                             icon="el-icon-delete" size="mini"
-                             circle/>
-                </template>
-              </el-table-column>
-            </el-table>
+          <el-col :offset="2" :span="20">
+            <test-case-attachment :table-data="tableData"
+                                  :read-only="readOnly"
+                                  :is-delete="true"
+                                  @handleDelete="handleDelete"
+            />
           </el-col>
         </el-row>
+
       </el-form>
 
       <template v-slot:footer>
@@ -281,7 +249,6 @@
 
     </el-dialog>
 
-    <test-case-file ref="testCaseFile"/>
   </div>
 
 
@@ -294,11 +261,11 @@ import MsDialogFooter from '../../../common/components/MsDialogFooter'
 import {listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
 import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
 import {Message} from "element-ui";
-import TestCaseFile from "@/business/components/track/case/components/TestCaseFile";
+import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 
 export default {
   name: "TestCaseEdit",
-  components: {MsDialogFooter, TestCaseFile},
+  components: {MsDialogFooter, TestCaseAttachment},
   data() {
     return {
       result: {},
@@ -538,6 +505,11 @@ export default {
         formData.append("file", f);
       });
 
+      if (param.isCopy) {
+        // 如果是copy，则把文件的ID传到后台进行文件复制
+        param.fileIds = this.fileList.map(f => f.id);
+      }
+
       param.updatedFileList = this.fileList;
 
       let requestJson = JSON.stringify(param, function (key, value) {
@@ -664,7 +636,7 @@ export default {
         name: file.name,
         size: file.size + ' Bytes', /// todo: 按照大小显示Byte、KB、MB等
         type: type.toUpperCase(),
-        updateTime: file.lastModified,
+        updateTime: new Date().getTime(),
       });
 
       return true;
@@ -723,13 +695,6 @@ export default {
     fileValidator(file) {
       /// todo: 是否需要对文件内容和大小做限制
       return file.size > 0;
-    },
-    preview(row) {
-      this.$refs.testCaseFile.open(row);
-    },
-    isPreview(row) {
-      const fileType = row.type;
-      return fileType === 'JPG' || fileType === 'JPEG' || fileType === 'PDF' || fileType === 'PNG';
     }
   }
 }

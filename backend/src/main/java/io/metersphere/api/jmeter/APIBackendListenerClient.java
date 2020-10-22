@@ -45,6 +45,12 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
     private APIReportService apiReportService;
 
+    private TestPlanTestCaseService testPlanTestCaseService;
+
+    private NoticeService noticeService;
+
+    private MailService mailService;
+
     public String runMode = ApiRunMode.RUN.name();
 
     // 测试ID
@@ -63,6 +69,18 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         apiReportService = CommonBeanFactory.getBean(APIReportService.class);
         if (apiReportService == null) {
             LogUtil.error("apiReportService is required");
+        }
+        testPlanTestCaseService = CommonBeanFactory.getBean(TestPlanTestCaseService.class);
+        if (testPlanTestCaseService == null) {
+            LogUtil.error("testPlanTestCaseService is required");
+        }
+        noticeService = CommonBeanFactory.getBean(NoticeService.class);
+        if (noticeService == null) {
+            LogUtil.error("noticeService is required");
+        }
+        mailService = CommonBeanFactory.getBean(MailService.class);
+        if (mailService == null) {
+            LogUtil.error("mailService is required");
         }
         super.setupTest(context);
     }
@@ -117,7 +135,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
         testResult.getScenarios().addAll(scenarios.values());
         testResult.getScenarios().sort(Comparator.comparing(ScenarioResult::getId));
-        ApiTestReport report = null;
+        ApiTestReport report;
         if (StringUtils.equals(this.runMode, ApiRunMode.DEBUG.name())) {
             report = apiReportService.get(debugReportId);
         } else {
