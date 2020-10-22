@@ -92,7 +92,6 @@ public final class NewDriver {
             if (tmpDir.length() == 0) {
                 File userDir = new File(System.getProperty("user.dir"));// $NON-NLS-1$
                 tmpDir = userDir.getAbsoluteFile().getParent();
-                System.out.println(tmpDir + "333");
             }
 //        }
         JMETER_INSTALLATION_DIRECTORY=tmpDir;
