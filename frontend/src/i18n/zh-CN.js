@@ -219,7 +219,7 @@ export default {
     defect_manage: '缺陷管理平台',
     message_settings:'消息设置',
     message:{
-      jenkins_task_notification:'Jenkins任务通知',
+      jenkins_task_notification:'Jenkins接口调用任务通知',
       test_plan_task_notification:'测试计划任务通知',
       test_review_task_notice:'测试评审任务通知',
       create_new_notification:'创建新通知',
