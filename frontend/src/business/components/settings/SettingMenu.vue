@@ -92,11 +92,11 @@
       }
     },
     mounted() {
+      this.isCurrentOrganizationAdmin = checkoutCurrentOrganization();
+      this.isCurrentWorkspaceUser = checkoutCurrentWorkspace();
       if (component != null) {
         this.valid();
       }
-      this.isCurrentOrganizationAdmin = checkoutCurrentOrganization();
-      this.isCurrentWorkspaceUser = checkoutCurrentWorkspace();
     },
   }
 </script>
