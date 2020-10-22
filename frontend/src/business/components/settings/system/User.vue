@@ -18,7 +18,7 @@
         <el-table-column prop="email" :label="$t('commons.email')"/>
         <el-table-column prop="status" :label="$t('commons.status')" width="120">
           <template v-slot:default="scope">
-            <el-switch v-model="scope.row.status"
+            <el-switch :disabled="currentUserId === scope.row.id" v-model="scope.row.status"
                        inactive-color="#DCDFE6"
                        active-value="1"
                        inactive-value="0"
@@ -307,6 +307,7 @@ import MsTableOperatorButton from "../../common/components/MsTableOperatorButton
 import {hasRole, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import MsRolesTag from "../../common/components/MsRolesTag";
 import {ROLE_ADMIN} from "@/common/js/constants";
+import {getCurrentUser} from "../../../../common/js/utils";
 
 export default {
   name: "MsUser",
@@ -327,6 +328,7 @@ export default {
       updatePath: '/user/special/update',
       editPasswordPath: '/user/special/password',
       result: {},
+      currentUserId: '',
       createVisible: false,
       updateVisible: false,
       editPasswordVisible: false,
@@ -404,6 +406,7 @@ export default {
     }
   },
   activated() {
+    this.currentUserId = getCurrentUser().id;
     this.search();
     this.getAllRole();
   },
