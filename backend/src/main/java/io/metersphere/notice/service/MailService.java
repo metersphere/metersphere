@@ -281,6 +281,9 @@ public class MailService {
     }
 
     private void sendReviewNotice(List<String> userIds, Map<String, String> context, String Template) throws MessagingException {
+        if (CollectionUtils.isEmpty(userIds)) {
+            return;
+        }
         JavaMailSenderImpl javaMailSender = getMailSender();
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
@@ -301,6 +304,9 @@ public class MailService {
     }
 
     private void sendTestPlanNotice(List<String> userIds, Map<String, String> context, String Template) throws MessagingException {
+        if (CollectionUtils.isEmpty(userIds)) {
+            return;
+        }
         JavaMailSenderImpl javaMailSender = getMailSender();
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
@@ -308,9 +314,6 @@ public class MailService {
         helper.setSubject("MeterSphere平台" + Translator.get("test_plan_notification"));
         String[] users;
         List<String> emails = new ArrayList<>();
-        if (CollectionUtils.isEmpty(userIds)) {
-            return;
-        }
         List<UserDetail> list = userService.queryTypeByIds(userIds);
         list.forEach(u -> {
             emails.add(u.getEmail());
@@ -323,6 +326,9 @@ public class MailService {
     }
 
     private void sendIssuesNotice(List<String> userIds, Map<String, String> context, String Template) throws MessagingException {
+        if (CollectionUtils.isEmpty(userIds)) {
+            return;
+        }
         JavaMailSenderImpl javaMailSender = getMailSender();
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);

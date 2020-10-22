@@ -9,6 +9,7 @@ import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.domain.UserDetail;
 import io.metersphere.service.UserService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -53,6 +54,9 @@ public class DingTaskService {
     }
 
     public void sendDingTask(String context, List<String> userIds, String Webhook) {
+        if (CollectionUtils.isEmpty(userIds)) {
+            return;
+        }
         DingTalkClient client = new DefaultDingTalkClient(Webhook);
         OapiRobotSendRequest request = new OapiRobotSendRequest();
         request.setMsgtype("text");
