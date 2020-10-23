@@ -219,16 +219,18 @@ export default {
     defect_manage: '缺陷管理平臺',
     message_settings:'消息設定',
     message:{
-      jenkins_task_notification:'Jenkins任務通知',
-      test_plan_task_notification:'測試計畫任務通知',
-      test_review_task_notice:'測試評審任務通知',
-      defect_task_notification:'缺陷任務通知',
-      create_new_notification:'創建新通知',
-      select_events:'選擇事件',
-      select_receiving_method:'選擇接收管道',
-      mail:'郵件',
-      nail_robot:'釘釘機器人',
-      enterprise_wechat_robot:'企業微信機器人',
+      jenkins_task_notification: 'Jenkins任務通知',
+      test_plan_task_notification: '測試計畫任務通知',
+      test_review_task_notice: '測試評審任務通知',
+      defect_task_notification: '缺陷任務通知',
+      create_new_notification: '創建新通知',
+      select_events: '選擇事件',
+      select_receiving_method: '選擇接收管道',
+      mail: '郵件',
+      nail_robot: '釘釘機器人',
+      enterprise_wechat_robot: '企業微信機器人',
+      message_webhook: '接收管道為釘釘和企業機器人時，webhook為必填項\n' +
+        '\n'
     },
     integration: {
       select_defect_platform: '請選擇要集成的缺陷管理平臺：',

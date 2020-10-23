@@ -459,7 +459,7 @@ public class TestCaseReviewService {
                             wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.UPDATE);
                             break;
                         case NoticeConstants.EMAIL:
-                            mailService.sendReviewerNotice(r, userIds, testCaseReviewRequest, NoticeConstants.UPDATE);
+                            mailService.sendEndNotice(r, userIds, testCaseReviewRequest, NoticeConstants.UPDATE);
                             break;
                     }
                 });

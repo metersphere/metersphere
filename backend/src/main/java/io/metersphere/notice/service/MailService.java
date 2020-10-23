@@ -168,11 +168,11 @@ public class MailService {
         }
     }
 
-
+/*新建评审*/
     public void sendReviewerNotice(MessageDetail messageDetail, List<String> userIds, SaveTestCaseReviewRequest reviewRequest, String eventType) {
         Map<String, String> context = getReviewContext(reviewRequest);
         try {
-            String reviewerTemplate = IOUtils.toString(this.getClass().getResource("/mail/end.html"), StandardCharsets.UTF_8);
+            String reviewerTemplate = IOUtils.toString(this.getClass().getResource("/mail/reviewer.html"), StandardCharsets.UTF_8);
             sendReviewNotice(addresseeIdList(messageDetail, userIds, eventType), context, reviewerTemplate);
         } catch (Exception e) {
             LogUtil.error(e);
@@ -385,6 +385,8 @@ public class MailService {
             for (String k : context.keySet()) {
                 if (StringUtils.isNotBlank(context.get(k))) {
                     template = RegExUtils.replaceAll(template, "\\$\\{" + k + "}", context.get(k));
+                }else{
+                    template = RegExUtils.replaceAll(template, "\\$\\{" + k + "}", "");
                 }
             }
         }

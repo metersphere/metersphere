@@ -234,7 +234,8 @@ export default {
         '\n' +
         '3. Robots are selected as swarm robots, and "custom keyword" is selected for security verification: "task notification"',
       message: 'Event, receiver and receiving method are required\n' +
-        '\n'
+        '\n',
+      message_webhook: 'Webhook is required when the receiving mode is nail or enterprise robot'
     },
     integration: {
       select_defect_platform: 'Please select the defect management platform to be integrated:',
