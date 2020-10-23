@@ -266,13 +266,6 @@ public class UserService {
         example.setOrderByClause("update_time desc");
         return userMapper.selectByExample(example);
     }
-    public List<User> getUserListByOrgId() {
-        SessionUser user = SessionUtils.getUser();
-        String orgId = user.getLastOrganizationId();
-        UserExample example = new UserExample();
-        example.createCriteria().andLastOrganizationIdEqualTo(orgId);
-        return userMapper.selectByExample(example);
-    }
 
     public List<User> getUserListWithRequest(io.metersphere.controller.request.UserRequest request) {
         return extUserMapper.getUserList(request);

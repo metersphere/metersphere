@@ -504,26 +504,39 @@ export default {
       })
     },
     userList() {
-      this.result = this.$get('user/list/orgId', response => {
+      let param = {
+        name: '',
+        organizationId: this.currentUser().lastOrganizationId
+      };
+      this.result = this.$post('user/special/org/member/list', param, response => {
         this.jenkinsReceiverOptions = response.data
       })
     },
     reviewUerList() {
-      this.result = this.$get('user/list/orgId', response => {
+      let param = {
+        name: '',
+        organizationId: this.currentUser().lastOrganizationId
+      };
+      this.result = this.$post('user/special/org/member/list', param, response => {
         this.reviewReceiverOptions = response.data
       })
+
     },
     defectUserList() {
-      this.result = this.$get('user/list/orgId', response => {
+      let param = {
+        name: '',
+        organizationId: this.currentUser().lastOrganizationId
+      };
+      this.result = this.$post('user/special/org/member/list', param, response => {
         this.defectReceiverOptions = response.data
-        /* this.defectReceiverOptions.push({id: 'FOUNDER', name: this.$t('api_test.creator')}, {
-           id: 'EXECUTOR',
-           name: this.$t('test_track.plan_view.executor')
-         })*/
       })
     },
     testPlanUserList() {
-      this.result = this.$get('user/list/orgId', response => {
+      let param = {
+        name: '',
+        organizationId: this.currentUser().lastOrganizationId
+      };
+      this.result = this.$post('user/special/org/member/list', param, response => {
         this.testPlanReceiverOptions = response.data
       })
     },

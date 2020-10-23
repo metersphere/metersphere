@@ -156,7 +156,7 @@
       initTableData() {
         let param = {
           name: this.condition.name,
-          organizationId: this.currentUser().lastOrganizationId
+          organizationId: this.currentUser().lastOrganionIdzati
         };
         this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
           let data = response.data;
