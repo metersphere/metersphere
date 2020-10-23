@@ -43,6 +43,7 @@ import MsTableSearchBar from "@/business/components/common/components/MsTableSea
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import MsApiScenarioSelectSubTable from "@/business/components/api/test/components/ApiScenarioSelectSubTable";
 import {Scenario} from "@/business/components/api/test/model/ScenarioModel";
+import {parseEnvironment} from "../model/EnvironmentModel";
 
 export default {
   name: "MsApiScenarioSelect",
@@ -51,7 +52,8 @@ export default {
     MsTableAdvSearchBar, MsTableSearchBar, MsTablePagination, MsTableHeader
   },
   props: {
-    excludeId: String
+    excludeId: String,
+    projectId: String
   },
   data() {
     return {
@@ -64,6 +66,7 @@ export default {
       pageSize: 5,
       total: 0,
       selection: false,
+      environmentMap: new Map()
     }
   },
   methods: {
@@ -94,7 +97,36 @@ export default {
         }
         scenarios.push(scenario);
       }
+      this.initScenarioEnvironment(scenarios);
       this.$emit('select', scenarios);
+    },
+    getEnvironment() {
+      if (this.projectId) {
+        this.result = this.$get('/api/environment/list/' + this.projectId, response => {
+          let environments = response.data;
+          this.environmentMap = new Map();
+          environments.forEach(environment => {
+            parseEnvironment(environment);
+            this.environmentMap.set(environment.id, environment);
+          });
+        });
+      }
+    },
+    initScenarioEnvironment(scenarios) {
+      scenarios.forEach(scenario => {
+        if (scenario.environmentId) {
+          let env = this.environmentMap.get(scenario.environmentId);
+          if (!env) {
+            scenario.environmentId = undefined;
+            scenario.environment = undefined;
+          } else {
+            scenario.environment = env;
+          }
+        } else {
+          scenario.environmentId = undefined;
+          scenario.environment = undefined;
+        }
+      });
     },
     clone(row) {
       let scenarios = [];
@@ -102,11 +134,13 @@ export default {
         // 去掉ID，创建新的ID
         options.id = undefined;
         scenarios.push(new Scenario(options));
-      })
+      });
+      this.initScenarioEnvironment(scenarios);
       this.$emit('select', scenarios);
     },
     open() {
       this.search();
+      this.getEnvironment();
       this.visible = true;
     },
     close() {
