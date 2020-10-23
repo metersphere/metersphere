@@ -45,8 +45,7 @@
             <el-table-column :label="$t('schedule.receiver')" prop="userIds" min-width="20%">
               <template v-slot:default="{row}">
                 <el-select v-model="row.userIds" filterable multiple
-                           :placeholder="$t('commons.please_select')"
-                           @click.native="userList()" style="width: 100%;" :disabled="!row.isSet">
+                           :placeholder="$t('commons.please_select')" style="width: 100%;" :disabled="!row.isSet">
                   <el-option
                     v-for="item in jenkinsReceiverOptions"
                     :key="item.id"
@@ -144,8 +143,7 @@
             <el-table-column :label="$t('schedule.receiver')" prop="userIds" min-width="20%">
               <template v-slot:default="{row}">
                 <el-select v-model="row.userIds" filterable multiple
-                           :placeholder="$t('commons.please_select')"
-                           @click.native="testPlanUserList()" style="width: 100%;" :disabled="!row.isSet">
+                           :placeholder="$t('commons.please_select')" style="width: 100%;" :disabled="!row.isSet">
                   <el-option
                     v-for="item in row.testPlanReceiverOptions"
                     :key="item.id"
@@ -241,7 +239,7 @@
               <template v-slot:default="{row}">
                 <el-select v-model="row.userIds" filterable multiple
                            :placeholder="$t('commons.please_select')"
-                           @click.native="reviewUerList()" style="width: 100%;" :disabled="!row.isSet">
+                           style="width: 100%;" :disabled="!row.isSet">
                   <el-option
                     v-for="item in row.reviewReceiverOptions"
                     :key="item.id"
@@ -336,7 +334,7 @@
               <template v-slot:default="{row}">
                 <el-select v-model="row.userIds" filterable multiple
                            :placeholder="$t('commons.please_select')"
-                           @click.native="defectUserList()" style="width: 100%;" :disabled="!row.isSet">
+                           style="width: 100%;" :disabled="!row.isSet">
                   <el-option
                     v-for="item in defectReceiverOptions"
                     :key="item.id"
@@ -397,7 +395,7 @@
 </template>
 
 <script>
-import {getCurrentUser} from "../../../../common/js/utils";
+import {getCurrentUser} from "@/common/js/utils";
 
 export default {
   name: "TaskNotification",
@@ -482,11 +480,9 @@ export default {
   },
 
   activated() {
-    this.initForm()
-    this.userList()
-    this.testPlanUserList()
-    this.defectUserList()
-    this.reviewUerList()
+    this.initUserList(() => {
+      this.initForm()
+    });
   },
   methods: {
     handleEdit(index, data) {
@@ -500,8 +496,8 @@ export default {
     },
     initForm() {
       this.result = this.$get('/notice/search/message', response => {
-        console.log(response.data)
         this.form = response.data
+
         this.form.testCasePlanTask.forEach(planTask => {
           this.handleTestPlanReceivers(planTask);
         });
@@ -511,42 +507,20 @@ export default {
         });
       })
     },
-    userList() {
+    initUserList(after) {
       let param = {
         name: '',
         organizationId: this.currentUser().lastOrganizationId
       };
       this.result = this.$post('user/org/member/list/all', param, response => {
         this.jenkinsReceiverOptions = response.data
-      })
-    },
-    reviewUerList() {
-      let param = {
-        name: '',
-        organizationId: this.currentUser().lastOrganizationId
-      };
-      this.result = this.$post('user/org/member/list/all', param, response => {
         this.reviewReceiverOptions = response.data
-      })
-
-    },
-    defectUserList() {
-      let param = {
-        name: '',
-        organizationId: this.currentUser().lastOrganizationId
-      };
-      this.result = this.$post('user/org/member/list/all', param, response => {
         this.defectReceiverOptions = response.data
-      })
-    },
-    testPlanUserList() {
-      let param = {
-        name: '',
-        organizationId: this.currentUser().lastOrganizationId
-      };
-      this.result = this.$post('user/org/member/list/all', param, response => {
         this.testPlanReceiverOptions = response.data
-      })
+
+        after();
+      });
+
     },
     handleAddTaskModel(type) {
       let Task = {};
@@ -617,7 +591,6 @@ export default {
       return "text-align:center;background:'#ededed'"
     },
     handleTestPlanReceivers(row) {
-      console.log(row);
       let testPlanReceivers = JSON.parse(JSON.stringify(this.testPlanReceiverOptions));
       switch (row.event) {
         case  "CREATE":
@@ -634,7 +607,6 @@ export default {
       row.testPlanReceiverOptions = testPlanReceivers;
     },
     handleReviewReceivers(row) {
-      console.log(row);
       let reviewReceiverOptions = JSON.parse(JSON.stringify(this.reviewReceiverOptions));
 
       switch (row.event) {
