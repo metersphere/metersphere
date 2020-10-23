@@ -14,6 +14,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.service.CheckOwnerService;
+import io.metersphere.xpack.api.controller.request.QueryJsonPathRequest;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 
+import java.util.HashMap;
 import java.util.List;
+
+import static io.metersphere.xpack.utils.ExtractAllJsonPath.getListJson;
 
 @RestController
 @RequestMapping(value = "/api")
@@ -79,7 +83,6 @@ public class APITestController {
     public void mergeCreate(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "selectIds") List<String> selectIds) {
         apiTestService.mergeCreate(request, file, selectIds);
     }
-
     @PostMapping(value = "/update", consumes = {"multipart/form-data"})
     public void update(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         checkownerService.checkApiTestOwner(request.getId());
@@ -140,5 +143,10 @@ public class APITestController {
     @PostMapping("/list/schedule")
     public List<ScheduleDao> listSchedule(@RequestBody QueryScheduleRequest request) {
         return apiTestService.listSchedule(request);
+    }
+
+    @PostMapping("/getJsonPaths")
+    public List<HashMap> getJsonPaths(@RequestBody QueryJsonPathRequest request) {
+        return getListJson(request.getJsonPath());
     }
 }
