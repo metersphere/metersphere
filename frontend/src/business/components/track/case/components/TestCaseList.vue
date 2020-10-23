@@ -444,39 +444,17 @@
         }
       },
       batchEdit(form) {
-        let sign = false;
         let arr = Array.from(this.selectRows);
-        // 功能测试的测试方式不能设置为自动
-        if (form.type === 'method' && form.value === 'auto') {
-          arr.forEach(row => {
-            if (row.type === 'functional') {
-              sign = true;
-              return;
-            }
-          });
-        }
-
-        if (form.type === 'type' && form.value === 'functional') {
-          arr.forEach(row => {
-            if (row.method === 'auto') {
-              sign = true;
-              return;
-            }
-          });
-        }
-
         let ids = arr.map(row => row.id);
         let param = {};
         param[form.type] = form.value;
         param.ids = ids;
-        if (!sign) {
-          this.$post('/test/case/batch/edit', param, () => {
-            this.$success(this.$t('commons.save_success'));
-            this.refresh();
-          });
-        } else {
-          this.$warning("功能测试的测试方式不能设置为自动！");
-        }
+        this.$post('/test/case/batch/edit', param, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.refresh();
+          // 发送广播，刷新 head 上的最新列表
+          TrackEvent.$emit(LIST_CHANGE);
+        });
       },
       filter(filters) {
         _filter(filters, this.condition);
