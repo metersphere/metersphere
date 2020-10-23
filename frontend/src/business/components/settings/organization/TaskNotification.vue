@@ -397,7 +397,7 @@
 </template>
 
 <script>
-import {getCurrentUser} from "../../../../common/js/utils";
+import {getCurrentUser} from "@/common/js/utils";
 
 export default {
   name: "TaskNotification",
@@ -482,11 +482,9 @@ export default {
   },
 
   activated() {
-    this.initForm()
-    this.userList()
-    this.testPlanUserList()
-    this.defectUserList()
-    this.reviewUerList()
+    this.initUserList(() => {
+      this.initForm()
+    });
   },
   methods: {
     handleEdit(index, data) {
@@ -500,8 +498,8 @@ export default {
     },
     initForm() {
       this.result = this.$get('/notice/search/message', response => {
-        console.log(response.data)
         this.form = response.data
+
         this.form.testCasePlanTask.forEach(planTask => {
           this.handleTestPlanReceivers(planTask);
         });
@@ -511,42 +509,20 @@ export default {
         });
       })
     },
-    userList() {
+    initUserList(after) {
       let param = {
         name: '',
         organizationId: this.currentUser().lastOrganizationId
       };
       this.result = this.$post('user/org/member/list/all', param, response => {
         this.jenkinsReceiverOptions = response.data
-      })
-    },
-    reviewUerList() {
-      let param = {
-        name: '',
-        organizationId: this.currentUser().lastOrganizationId
-      };
-      this.result = this.$post('user/org/member/list/all', param, response => {
         this.reviewReceiverOptions = response.data
-      })
-
-    },
-    defectUserList() {
-      let param = {
-        name: '',
-        organizationId: this.currentUser().lastOrganizationId
-      };
-      this.result = this.$post('user/org/member/list/all', param, response => {
         this.defectReceiverOptions = response.data
-      })
-    },
-    testPlanUserList() {
-      let param = {
-        name: '',
-        organizationId: this.currentUser().lastOrganizationId
-      };
-      this.result = this.$post('user/org/member/list/all', param, response => {
         this.testPlanReceiverOptions = response.data
-      })
+
+        after();
+      });
+
     },
     handleAddTaskModel(type) {
       let Task = {};
@@ -617,7 +593,6 @@ export default {
       return "text-align:center;background:'#ededed'"
     },
     handleTestPlanReceivers(row) {
-      console.log(row);
       let testPlanReceivers = JSON.parse(JSON.stringify(this.testPlanReceiverOptions));
       switch (row.event) {
         case  "CREATE":
@@ -634,7 +609,6 @@ export default {
       row.testPlanReceiverOptions = testPlanReceivers;
     },
     handleReviewReceivers(row) {
-      console.log(row);
       let reviewReceiverOptions = JSON.parse(JSON.stringify(this.reviewReceiverOptions));
 
       switch (row.event) {
