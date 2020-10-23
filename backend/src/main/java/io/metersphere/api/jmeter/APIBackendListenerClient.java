@@ -178,7 +178,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             List<NoticeDetail> noticeList = noticeService.queryNotice(testResult.getTestId());
             mailService.sendApiNotification(report, noticeList);
         }
-        if (StringUtils.equals(NoticeConstants.API, "API")) {
+        if (StringUtils.equals(NoticeConstants.API, report.getTriggerMode())) {
             List<String> userIds = new ArrayList<>();
             MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
             List<MessageDetail> taskList = messageSettingDetail.getJenkinsTask();
