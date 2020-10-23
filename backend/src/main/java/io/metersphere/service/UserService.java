@@ -320,6 +320,10 @@ public class UserService {
     public void updateUser(User user) {
         user.setUpdateTime(System.currentTimeMillis());
         userMapper.updateByPrimaryKeySelective(user);
+        // 禁用用户之后，剔除在线用户
+        if (StringUtils.equals(user.getStatus(), UserStatus.DISABLED)) {
+            SessionUtils.kickOutUser(user.getId());
+        }
     }
 
     public void switchUserRole(String sign, String sourceId) {
