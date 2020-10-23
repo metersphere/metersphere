@@ -107,8 +107,7 @@ export default {
 
                     };
 
-                    let detailRes = {};
-                    detailRes = JSON.parse(this.debugResultDetails);
+
 
                     this.$post("/api/getJsonPaths", param).then(response1 => {
 
@@ -116,19 +115,11 @@ export default {
                       // console.log(this.jsonPathList);
 
                     }).catch(() => {
-                      // this.loading = false;
+
                       this.$warning("获取推荐jsonpath列表失败");
                     });
 
-                    // let detailRes = {};
-                    // detailRes = JSON.parse(this.debugResultDetails);
-                    //
-                    // let url1 = '/api/getJsonPaths?jsonString=' + this.debugResultDetails
-                    // this.$get(url1, (response1) => {
-                    //
-                    //   this.jsonPathList = response1.data;
-                    //   console.log(response1.data);
-                    // })
+
 
                   } catch (e) {
                     alert("调试结果的返回不是一个json");

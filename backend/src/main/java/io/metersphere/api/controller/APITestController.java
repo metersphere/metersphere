@@ -14,7 +14,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.service.CheckOwnerService;
-import io.metersphere.xpack.api.controller.request.QueryJsonPathRequest;
+
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +25,8 @@ import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 
-import static io.metersphere.xpack.utils.ExtractAllJsonPath.getListJson;
+import static io.metersphere.commons.utils.JsonPathUtils.getListJson;
+
 
 @RestController
 @RequestMapping(value = "/api")
