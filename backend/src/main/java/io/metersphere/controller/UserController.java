@@ -122,11 +122,6 @@ public class UserController {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getOrgMemberList(request));
     }
-    @PostMapping("/special/org/member/list")
-    @RequiresRoles(RoleConstants.ADMIN)
-    public List<User> _getOrgMemberListByAdmin(@RequestBody QueryOrgMemberRequest request) {
-        return userService.getOrgMemberList(request);
-    }
 
     @PostMapping("/special/org/member/list/all")
     @RequiresRoles(RoleConstants.ADMIN)
@@ -138,6 +133,7 @@ public class UserController {
     public List<User> getUserList() {
         return userService.getUserList();
     }
+
     @PostMapping("/update/current")
     public UserDTO updateCurrentUser(@RequestBody User user) {
         userService.updateUser(user);

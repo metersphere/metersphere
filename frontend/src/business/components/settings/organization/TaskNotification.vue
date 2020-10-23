@@ -502,6 +502,13 @@ export default {
       this.result = this.$get('/notice/search/message', response => {
         console.log(response.data)
         this.form = response.data
+        this.form.testCasePlanTask.forEach(planTask => {
+          this.handleTestPlanReceivers(planTask);
+        });
+
+        this.form.reviewTask.forEach(planTask => {
+          this.handleReviewReceivers(planTask);
+        });
       })
     },
     userList() {
@@ -518,7 +525,7 @@ export default {
         name: '',
         organizationId: this.currentUser().lastOrganizationId
       };
-      this.result = this.$post('user/special/org/member/list', param, response => {
+      this.result = this.$post('user/org/member/list/all', param, response => {
         this.reviewReceiverOptions = response.data
       })
 
@@ -528,7 +535,7 @@ export default {
         name: '',
         organizationId: this.currentUser().lastOrganizationId
       };
-      this.result = this.$post('user/special/org/member/list', param, response => {
+      this.result = this.$post('user/org/member/list/all', param, response => {
         this.defectReceiverOptions = response.data
       })
     },
@@ -537,7 +544,7 @@ export default {
         name: '',
         organizationId: this.currentUser().lastOrganizationId
       };
-      this.result = this.$post('user/special/org/member/list', param, response => {
+      this.result = this.$post('user/org/member/list/all', param, response => {
         this.testPlanReceiverOptions = response.data
       })
     },
