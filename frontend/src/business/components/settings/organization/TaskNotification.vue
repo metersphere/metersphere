@@ -500,6 +500,7 @@ export default {
     },
     initForm() {
       this.result = this.$get('/notice/search/message', response => {
+
         this.form = response.data
       })
     },
@@ -568,17 +569,20 @@ export default {
     handleAddTask(index, data) {
       let list = []
       if (data.event && data.userIds.length > 0 && data.type) {
+        console.log(data.type)
         if (data.type === 'NAIL_ROBOT' || data.type === 'NAIL_ROBOT') {
-          this.$warning(this.$t('organization.message.message_webhook'));
-        } else {
-          data.isSet = false
-          list.push(data)
-          let param = {};
-          param.messageDetail = list
-          this.result = this.$post("/notice/save/message/task", param, () => {
-            this.initForm()
-            this.$success(this.$t('commons.save_success'));
-          })
+          if (!data.webhook) {
+            this.$warning(this.$t('organization.message.message_webhook'));
+          } else {
+            data.isSet = false
+            list.push(data)
+            let param = {};
+            param.messageDetail = list
+            this.result = this.$post("/notice/save/message/task", param, () => {
+              this.initForm()
+              this.$success(this.$t('commons.save_success'));
+            })
+          }
         }
       } else {
         this.$warning(this.$t('organization.message.message'));
