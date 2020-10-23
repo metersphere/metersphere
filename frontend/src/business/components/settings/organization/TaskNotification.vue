@@ -516,7 +516,7 @@ export default {
         name: '',
         organizationId: this.currentUser().lastOrganizationId
       };
-      this.result = this.$post('user/special/org/member/list', param, response => {
+      this.result = this.$post('user/org/member/list/all', param, response => {
         this.jenkinsReceiverOptions = response.data
       })
     },
