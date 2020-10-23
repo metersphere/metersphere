@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration debug="true">
-    <property resource="application.properties"/>
-    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d %5p %40.40c:%4L - %m%n</pattern>
-        </encoder>
-    </appender>
+	<property resource="application.properties"/>
+	<property file="/opt/metersphere/conf/metersphere.properties"/>
+	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d %5p %40.40c:%4L - %m%n</pattern>
+		</encoder>
+	</appender>
 
 	<appender name="debugAppender"
-		class="ch.qos.logback.core.rolling.RollingFileAppender">
+			  class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<filter class="ch.qos.logback.classic.filter.LevelFilter">
 			<level>DEBUG</level>
 			<onMatch>ACCEPT</onMatch>
@@ -142,7 +143,7 @@
 
 	<root level="INFO">
 		<appender-ref ref="infoAsyncAppender" />
-		<appender-ref ref="console" />
+		<appender-ref ref="console"/>
 	</root>
 
 	<logger name="io.metersphere" additivity="false">
@@ -150,6 +151,10 @@
 		<appender-ref ref="infoAsyncAppender"/>
 		<appender-ref ref="warnAsyncAppender"/>
 		<appender-ref ref="errorAsyncAppender"/>
+	</logger>
+
+	<logger name="io.metersphere.base.mapper" level="${logger.sql.level:ERROR}">
+		<appender-ref ref="console"/>
 	</logger>
 
 	<logger name="io.metersphere.Application" additivity="false" level="${logger.level:INFO}">
