@@ -61,7 +61,7 @@
                              :request="selected" :scenario="currentScenario" v-if="isRequest"/>
       </div>
     </el-main>
-    <ms-api-scenario-select :exclude-id="test.id" @select="selectScenario" ref="selectDialog"/>
+    <ms-api-scenario-select :exclude-id="test.id" :project-id="test.projectId" @select="selectScenario" ref="selectDialog"/>
   </el-container>
 </template>
 

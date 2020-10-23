@@ -70,6 +70,6 @@
         from project, test_case_review_project
         where project.id = test_case_review_project.project_id
         and project.workspace_id = #{workspaceId}
-        and test_case_review_project.review_id = #{reviewId};
+        and test_case_review_project.review_id = #{reviewId}
     </select>
 </mapper>
