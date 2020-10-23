@@ -1,8 +1,12 @@
 <template>
   <div style="margin-left: 40px">
+    <el-alert
+      :title="$t('organization.message.notes')"
+      type="info">
+    </el-alert>
     <el-form :model="form" ref="from">
       <el-row class="row">
-        <el-col :span="20">
+        <el-col :span="24">
           <div class="grid-content bg-purple-dark">
             <el-row>
               <el-col :span="10">
@@ -28,7 +32,7 @@
           >
             <el-table-column :label="$t('schedule.event')" min-width="20%" prop="events">
               <template slot-scope="scope">
-                <el-select v-model="scope.row.events" multiple
+                <el-select v-model="scope.row.event"
                            :placeholder="$t('organization.message.select_events')"
                            prop="events" :disabled="!scope.row.isSet">
                   <el-option
@@ -56,7 +60,8 @@
             </el-table-column>
             <el-table-column :label="$t('schedule.receiving_mode')" min-width="20%" prop="type">
               <template slot-scope="scope">
-                <el-select v-model="scope.row.type" :placeholder="$t('organization.message.select_receiving_method')" :disabled="!scope.row.isSet"  @change="handleEdit(scope.$index, scope.row)"
+                <el-select v-model="scope.row.type" :placeholder="$t('organization.message.select_receiving_method')"
+                           :disabled="!scope.row.isSet" @change="handleEdit(scope.$index, scope.row)"
                 >
                   <el-option
                     v-for="item in receiveTypeOptions"
@@ -69,7 +74,8 @@
             </el-table-column>
             <el-table-column label="webhook" min-width="20%" prop="webhook">
               <template v-slot:default="scope">
-                <el-input v-model="scope.row.webhook" placeholder="webhook地址" :disabled="!scope.row.isSet||scope.row.events === 'EMAIL'"></el-input>
+                <el-input v-model="scope.row.webhook" placeholder="webhook地址"
+                          :disabled="!scope.row.isSet||!scope.row.isReadOnly"></el-input>
               </template>
             </el-table-column>
             <el-table-column :label="$t('commons.operating')" min-width="20%" prop="result">
@@ -102,7 +108,7 @@
         </el-col>
       </el-row>
       <el-row class="row">
-        <el-col :span="20">
+        <el-col :span="24">
           <div class="grid-content bg-purple-dark">
             <el-row>
               <el-col :span="10">
@@ -125,7 +131,7 @@
           >
             <el-table-column :label="$t('schedule.event')" min-width="20%" prop="events">
               <template slot-scope="scope">
-                <el-select v-model="scope.row.events" multiple :placeholder="$t('organization.message.select_events')"
+                <el-select v-model="scope.row.event" :placeholder="$t('organization.message.select_events')"
                            prop="events" :disabled="!scope.row.isSet">
                   <el-option
                     v-for="item in otherEventOptions"
@@ -152,7 +158,8 @@
             </el-table-column>
             <el-table-column :label="$t('schedule.receiving_mode')" min-width="20%" prop="type">
               <template slot-scope="scope">
-                <el-select v-model="scope.row.type" :placeholder="$t('organization.message.select_receiving_method')" :disabled="!scope.row.isSet">
+                <el-select v-model="scope.row.type" :placeholder="$t('organization.message.select_receiving_method')"
+                           :disabled="!scope.row.isSet" @change="handleEdit(scope.$index, scope.row)">
                   <el-option
                     v-for="item in receiveTypeOptions"
                     :key="item.value"
@@ -164,7 +171,8 @@
             </el-table-column>
             <el-table-column label="webhook" min-width="20%" prop="webhook">
               <template v-slot:default="scope">
-                <el-input v-model="scope.row.webhook" placeholder="webhook地址" :disabled="!scope.row.isSet"></el-input>
+                <el-input v-model="scope.row.webhook" placeholder="webhook地址"
+                          :disabled="!scope.row.isSet||!scope.row.isReadOnly"></el-input>
               </template>
             </el-table-column>
             <el-table-column :label="$t('commons.operating')" min-width="20%" prop="result">
@@ -195,7 +203,7 @@
         </el-col>
       </el-row>
       <el-row class="row">
-        <el-col :span="20">
+        <el-col :span="24">
           <div class="grid-content bg-purple-dark">
             <el-row>
               <el-col :span="10">
@@ -218,7 +226,7 @@
           >
             <el-table-column :label="$t('schedule.event')" min-width="20%" prop="events">
               <template slot-scope="scope">
-                <el-select v-model="scope.row.events" multiple :placeholder="$t('organization.message.select_events')"
+                <el-select v-model="scope.row.event" :placeholder="$t('organization.message.select_events')"
                            prop="event" :disabled="!scope.row.isSet">
                   <el-option
                     v-for="item in reviewTaskEventOptions"
@@ -245,7 +253,8 @@
             </el-table-column>
             <el-table-column :label="$t('schedule.receiving_mode')" min-width="20%" prop="type">
               <template slot-scope="scope">
-                <el-select v-model="scope.row.type" :placeholder="$t('organization.message.select_receiving_method')" :disabled="!scope.row.isSet">
+                <el-select v-model="scope.row.type" :placeholder="$t('organization.message.select_receiving_method')"
+                           :disabled="!scope.row.isSet" @change="handleEdit(scope.$index, scope.row)">
                   <el-option
                     v-for="item in receiveTypeOptions"
                     :key="item.value"
@@ -257,7 +266,8 @@
             </el-table-column>
             <el-table-column label="webhook" min-width="20%" prop="webhook">
               <template v-slot:default="scope">
-                <el-input v-model="scope.row.webhook" placeholder="webhook地址" :disabled="!scope.row.isSet"></el-input>
+                <el-input v-model="scope.row.webhook" placeholder="webhook地址"
+                          :disabled="!scope.row.isSet||!scope.row.isReadOnly"></el-input>
               </template>
             </el-table-column>
             <el-table-column :label="$t('commons.operating')" min-width="20%" prop="result">
@@ -288,7 +298,7 @@
         </el-col>
       </el-row>
       <el-row class="row">
-        <el-col :span="20">
+        <el-col :span="24">
           <div class="grid-content bg-purple-dark">
             <el-row>
               <el-col :span="10">
@@ -311,7 +321,7 @@
           >
             <el-table-column :label="$t('schedule.event')" min-width="20%" prop="events">
               <template slot-scope="scope">
-                <el-select v-model="scope.row.events" multiple :placeholder="$t('organization.message.select_events')"
+                <el-select v-model="scope.row.event" :placeholder="$t('organization.message.select_events')"
                            prop="event" :disabled="!scope.row.isSet">
                   <el-option
                     v-for="item in defectEventOptions"
@@ -338,7 +348,8 @@
             </el-table-column>
             <el-table-column :label="$t('schedule.receiving_mode')" min-width="20%" prop="type">
               <template slot-scope="scope">
-                <el-select v-model="scope.row.type" :placeholder="$t('organization.message.select_receiving_method')" :disabled="!scope.row.isSet">
+                <el-select v-model="scope.row.type" :placeholder="$t('organization.message.select_receiving_method')"
+                           :disabled="!scope.row.isSet" @change="handleEdit(scope.$index, scope.row)">
                   <el-option
                     v-for="item in receiveTypeOptions"
                     :key="item.value"
@@ -350,7 +361,8 @@
             </el-table-column>
             <el-table-column label="webhook" min-width="20%" prop="webhook">
               <template v-slot:default="scope">
-                <el-input v-model="scope.row.webhook" placeholder="webhook地址" :disabled="!scope.row.isSet"></el-input>
+                <el-input v-model="scope.row.webhook" placeholder="webhook地址"
+                          :disabled="!scope.row.isSet||!scope.row.isReadOnly"></el-input>
               </template>
             </el-table-column>
             <el-table-column :label="$t('commons.operating')" min-width="20%" prop="result">
@@ -385,47 +397,53 @@
 </template>
 
 <script>
+import {getCurrentUser, listenGoBack, removeGoBackListener} from "../../../../common/js/utils";
 
 export default {
   name: "TaskNotification",
   data() {
+
     return {
       form: {
         jenkinsTask: [{
           taskType: "jenkinsTask",
-          events: [],
+          event: "",
           userIds: [],
           type: [],
           webhook: "",
           isSet: true,
           identification: "",
+          isReadOnly: false,
         }],
         testCasePlanTask: [{
           taskType: "testPlanTask",
-          events: [],
+          event: "",
           userIds: [],
           type: [],
           webhook: "",
           isSet: true,
           identification: "",
+          isReadOnly: false,
         }],
         reviewTask: [{
           taskType: "reviewTask",
-          events: [],
+          event: "",
           userIds: [],
           type: [],
           webhook: "",
           isSet: true,
           identification: "",
+          isReadOnly: false,
         }],
         defectTask: [{
           taskType: "defectTask",
-          events: [],
+          event: "",
           userIds: [],
           type: [],
           webhook: "",
           isSet: true,
           identification: "",
+          isReadOnly: false,
         }],
       },
       jenkinsEventOptions: [
@@ -443,17 +461,14 @@ export default {
         {value: 'UPDATE', label: this.$t('commons.update')},
         {value: 'DELETE', label: this.$t('commons.delete')}
       ],
-      reviewTaskEventOptions:[
+      reviewTaskEventOptions: [
         {value: 'CREATE', label: this.$t('commons.create')},
         {value: 'UPDATE', label: this.$t('commons.update')},
         {value: 'DELETE', label: this.$t('commons.delete')},
         {value: 'COMMENT', label: this.$t('commons.comment')}
       ],
-      defectEventOptions:[
+      defectEventOptions: [
         {value: 'CREATE', label: this.$t('commons.create')},
-/*
-        {value: 'UPDATE', label: this.$t('commons.update')},
-*/
       ],
       //测试计划
       testPlanReceiverOptions: [],
@@ -461,6 +476,8 @@ export default {
       reviewReceiverOptions: [],
       //缺陷
       defectReceiverOptions: [],
+      rules: {},
+
     }
   },
 
@@ -472,8 +489,14 @@ export default {
     this.reviewUerList()
   },
   methods: {
-    handleEdit(index, data){
-
+    handleEdit(index, data) {
+      data.isReadOnly = true;
+      if (data.type === 'EMAIL') {
+        data.isReadOnly = !data.isReadOnly
+      }
+    },
+    currentUser: () => {
+      return getCurrentUser();
     },
     initForm() {
       this.result = this.$get('/notice/search/message', response => {
@@ -481,12 +504,12 @@ export default {
       })
     },
     userList() {
-      this.result = this.$get('user/list', response => {
+      this.result = this.$get('user/list/orgId', response => {
         this.jenkinsReceiverOptions = response.data
       })
     },
     reviewUerList() {
-      this.result = this.$get('user/list', response => {
+      this.result = this.$get('user/list/orgId', response => {
         this.reviewReceiverOptions = response.data
         this.reviewReceiverOptions.unshift({id: 'EXECUTOR', name: this.$t('test_track.review.reviewer')},
           {id: 'FOUNDER', name: this.$t('test_track.review.review_creator')},
@@ -494,16 +517,16 @@ export default {
       })
     },
     defectUserList() {
-      this.result = this.$get('user/list', response => {
+      this.result = this.$get('user/list/orgId', response => {
         this.defectReceiverOptions = response.data
-       /* this.defectReceiverOptions.unshift({id: 'FOUNDER', name: this.$t('api_test.creator')}, {
-          id: 'EXECUTOR',
-          name: this.$t('test_track.plan_view.executor')
-        })*/
+        /* this.defectReceiverOptions.unshift({id: 'FOUNDER', name: this.$t('api_test.creator')}, {
+           id: 'EXECUTOR',
+           name: this.$t('test_track.plan_view.executor')
+         })*/
       })
     },
     testPlanUserList() {
-      this.result = this.$get('user/list', response => {
+      this.result = this.$get('user/list/orgId', response => {
         this.testPlanReceiverOptions = response.data
         this.testPlanReceiverOptions.unshift({id: 'FOUNDER', name: this.$t('api_test.creator')}, {
           id: 'EXECUTOR',
@@ -513,7 +536,7 @@ export default {
     },
     handleAddTaskModel(type) {
       let Task = {};
-      Task.events = [];
+      Task.event = [];
       Task.userIds = [];
       Task.type = "";
       Task.webhook = "";
@@ -536,10 +559,9 @@ export default {
         this.form.defectTask.unshift(Task)
       }
     },
-
     handleAddTask(index, data) {
       let list = []
-      if(data.events.length>0 && data.userIds.length>0 && data.type){
+      if (data.event && data.userIds.length > 0 && data.type) {
         data.isSet = false
         list.push(data)
         let param = {};
@@ -558,7 +580,6 @@ export default {
         this.$success(this.$t('commons.delete_success'));
         this.initForm()
       })
-      /*data.splice(index, 1)*/
     },
     rowClass() {
       return "text-align:center"
@@ -572,10 +593,10 @@ export default {
 </script>
 
 <style scoped>
-/deep/ .el-select__tags {
+/*/deep/ .el-select__tags {
   flex-wrap: unset;
   overflow: auto;
-}
+}*/
 
 .row {
   margin-bottom: 30px;

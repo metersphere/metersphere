@@ -253,9 +253,14 @@ export default {
       not_integrated: '未集成該平臺',
       choose_platform: '請選擇集成的平臺',
       verified: '驗證通過',
-      mail:'郵件',
-      nail_robot:'釘釘機器人',
-      enterprise_wechat_robot:'企業微信機器人',
+      mail: '郵件',
+      nail_robot: '釘釘機器人',
+      enterprise_wechat_robot: '企業微信機器人',
+      notes: '注意：1.事件，接收管道，接收人為必填項；\n' +
+        '\n' +
+        '2.接收管道除郵件外webhook為必填；\n' +
+        '\n' +
+        '3.機器人選擇為群機器人，安全驗證選擇“自定義關鍵字”：“任務通知”'
     }
   },
   project: {

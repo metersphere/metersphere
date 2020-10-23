@@ -219,17 +219,19 @@ export default {
     defect_manage: '缺陷管理平台',
     message_settings:'消息设置',
     message:{
-      jenkins_task_notification:'Jenkins接口调用任务通知',
-      test_plan_task_notification:'测试计划任务通知',
-      test_review_task_notice:'测试评审任务通知',
-      create_new_notification:'创建新通知',
-      select_events:'选择事件',
-      defect_task_notification:'缺陷任务通知',
-      select_receiving_method:'选择接收方式',
-      mail:'邮件',
-      nail_robot:'钉钉机器人',
-      enterprise_wechat_robot:'企业微信机器人',
-
+      jenkins_task_notification: 'Jenkins接口调用任务通知',
+      test_plan_task_notification: '测试计划任务通知',
+      test_review_task_notice: '测试评审任务通知',
+      create_new_notification: '创建新通知',
+      select_events: '选择事件',
+      defect_task_notification: '缺陷任务通知',
+      select_receiving_method: '选择接收方式',
+      mail: '邮件',
+      nail_robot: '钉钉机器人',
+      enterprise_wechat_robot: '企业微信机器人',
+      notes: '注意: 1.事件，接收方式，接收人为必填项；\n' +
+        '         2.接收方式除邮件外webhook为必填；\n' +
+        '         3.机器人选择为群机器人，安全验证选择“自定义关键词” ："任务通知"'
 
 
     },

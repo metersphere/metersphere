@@ -218,16 +218,21 @@ export default {
     defect_manage: 'Defect management platform',
     message_settings:'Message settings',
     message:{
-      jenkins_task_notification:'Jenkins task notification',
-      test_plan_task_notification:'Test plan task notification',
-      test_review_task_notice:'Test review task notice',
-      defect_task_notification:'Defect task notification',
-      create_new_notification:'Create a new notification',
-      select_events:'Select event',
-      select_receiving_method:'Select receiving method',
-      mail:'mail',
-      nail_robot:'Nail robot',
-      enterprise_wechat_robot:'Enterprise wechat robot',
+      jenkins_task_notification: 'Jenkins task notification',
+      test_plan_task_notification: 'Test plan task notification',
+      test_review_task_notice: 'Test review task notice',
+      defect_task_notification: 'Defect task notification',
+      create_new_notification: 'Create a new notification',
+      select_events: 'Select event',
+      select_receiving_method: 'Select receiving method',
+      mail: 'mail',
+      nail_robot: 'Nail robot',
+      enterprise_wechat_robot: 'Enterprise wechat robot',
+      notes: 'Note: 1. Event, receiving method and receiver are required;\n' +
+        '\n' +
+        '2. Webhook is required except email;\n' +
+        '\n' +
+        '3. Robots are selected as swarm robots, and "custom keyword" is selected for security verification: "task notification"'
 
     },
     integration: {
