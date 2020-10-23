@@ -172,7 +172,7 @@ public class MailService {
     public void sendReviewerNotice(MessageDetail messageDetail, List<String> userIds, SaveTestCaseReviewRequest reviewRequest, String eventType) {
         Map<String, String> context = getReviewContext(reviewRequest);
         try {
-            String reviewerTemplate = IOUtils.toString(this.getClass().getResource("/mail/reviewer.html"), StandardCharsets.UTF_8);
+            String reviewerTemplate = IOUtils.toString(this.getClass().getResource("/mail/end.html"), StandardCharsets.UTF_8);
             sendReviewNotice(addresseeIdList(messageDetail, userIds, eventType), context, reviewerTemplate);
         } catch (Exception e) {
             LogUtil.error(e);
@@ -183,7 +183,7 @@ public class MailService {
 
     public void sendTestPlanStartNotice(MessageDetail messageDetail, List<String> userIds, AddTestPlanRequest testPlan, String eventType) {
         Map<String, String> context = getTestPlanContext(testPlan);
-        context.put("creator", userIds.toString());
+        context.put("creator", testPlan.getCreator());
         try {
             String endTemplate = IOUtils.toString(this.getClass().getResource("/mail/testPlanStart.html"), StandardCharsets.UTF_8);
             sendTestPlanNotice(addresseeIdList(messageDetail, userIds, eventType), context, endTemplate);
@@ -424,8 +424,7 @@ public class MailService {
 
     private List<String> addresseeIdList(MessageDetail messageDetail, List<String> userIds, String eventType) {
         List<String> addresseeIdList = new ArrayList<>();
-        messageDetail.getEvents().forEach(e -> {
-            if (StringUtils.equals(eventType, e)) {
+            if (StringUtils.equals(eventType, messageDetail.getEvent())) {
                 messageDetail.getUserIds().forEach(u -> {
                     if (!StringUtils.equals(NoticeConstants.EXECUTOR, u) && !StringUtils.equals(NoticeConstants.EXECUTOR, u) && !StringUtils.equals(NoticeConstants.MAINTAINER, u)) {
                         addresseeIdList.add(u);
@@ -446,7 +445,6 @@ public class MailService {
 
                 });
             }
-        });
         return addresseeIdList;
     }
 }

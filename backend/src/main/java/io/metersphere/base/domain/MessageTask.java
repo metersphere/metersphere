@@ -21,5 +21,7 @@ public class MessageTask implements Serializable {
 
     private Boolean isSet;
 
+    private String organizationId;
+
     private static final long serialVersionUID = 1L;
 }

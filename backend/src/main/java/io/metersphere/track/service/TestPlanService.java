@@ -115,7 +115,6 @@ public class TestPlanService {
         testPlan.setUpdateTime(System.currentTimeMillis());
         testPlan.setCreator(SessionUtils.getUser().getId());
         testPlanMapper.insert(testPlan);
-
         List<String> userIds = new ArrayList<>();
         userIds.add(testPlan.getPrincipal());
         try {
@@ -160,33 +159,34 @@ public class TestPlanService {
             testPlan.setActualStartTime(System.currentTimeMillis());
 
         } else if (TestPlanStatus.Completed.name().equals(testPlan.getStatus())) {
+            List<String> userIds = new ArrayList<>();
+            userIds.add(testPlan.getPrincipal());
+            AddTestPlanRequest testPlans = new AddTestPlanRequest();
             //已完成，写入实际完成时间
             testPlan.setActualEndTime(System.currentTimeMillis());
+            try {
+                BeanUtils.copyBean(testPlans, testPlan);
+                String context = getTestPlanContext(testPlans, NoticeConstants.CREATE);
+                MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
+                List<MessageDetail> taskList = messageSettingDetail.getReviewTask();
+                taskList.forEach(r -> {
+                    switch (r.getType()) {
+                        case NoticeConstants.NAIL_ROBOT:
+                            dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.CREATE);
+                            break;
+                        case NoticeConstants.WECHAT_ROBOT:
+                            wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.CREATE);
+                            break;
+                        case NoticeConstants.EMAIL:
+                            mailService.sendTestPlanStartNotice(r, userIds, testPlans, NoticeConstants.CREATE);
+                            break;
+                    }
+                });
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
         }
-        List<String> userIds = new ArrayList<>();
-        userIds.add(testPlan.getPrincipal());
-        AddTestPlanRequest testPlans = new AddTestPlanRequest();
-       /* try {
-            BeanUtils.copyBean(testPlans, testPlan);
-            String context = getTestPlanContext(testPlans, NoticeConstants.CREATE);
-            MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
-            List<MessageDetail> taskList = messageSettingDetail.getReviewTask();
-            taskList.forEach(r -> {
-                switch (r.getType()) {
-                    case NoticeConstants.NAIL_ROBOT:
-                        dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.CREATE);
-                        break;
-                    case NoticeConstants.WECHAT_ROBOT:
-                        wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.CREATE);
-                        break;
-                    case NoticeConstants.EMAIL:
-                        mailService.sendTestPlanStartNotice(r, userIds, testPlans, NoticeConstants.CREATE);
-                        break;
-                }
-            });
-        } catch (Exception e) {
-            LogUtil.error(e);
-        }*/
+
         return testPlanMapper.updateByPrimaryKeySelective(testPlan);
     }
 
@@ -253,7 +253,7 @@ public class TestPlanService {
             BeanUtils.copyBean(testPlans, testPlan);
             String context = getTestPlanContext(testPlans, NoticeConstants.DELETE);
             MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
-            List<MessageDetail> taskList = messageSettingDetail.getReviewTask();
+            List<MessageDetail> taskList = messageSettingDetail.getTestCasePlanTask();
             taskList.forEach(r -> {
                 switch (r.getType()) {
                     case NoticeConstants.NAIL_ROBOT:
@@ -493,7 +493,7 @@ public class TestPlanService {
                 BeanUtils.copyBean(_testPlans, testPlans);
                 String context = getTestPlanContext(_testPlans, NoticeConstants.UPDATE);
                 MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
-                List<MessageDetail> taskList = messageSettingDetail.getReviewTask();
+                List<MessageDetail> taskList = messageSettingDetail.getTestCasePlanTask();
                 taskList.forEach(r -> {
                     switch (r.getType()) {
                         case NoticeConstants.NAIL_ROBOT:

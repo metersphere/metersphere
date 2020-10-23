@@ -184,6 +184,8 @@ public class TestCaseReviewService {
         testCaseReview.setUpdateTime(System.currentTimeMillis());
         checkCaseReviewExist(testCaseReview);
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
+        List<String>  userIds=new ArrayList<>();
+        userIds.addAll(testCaseReview.getUserIds());
         try {
             String context = getReviewContext(testCaseReview, NoticeConstants.CREATE);
             MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
@@ -191,13 +193,13 @@ public class TestCaseReviewService {
             taskList.forEach(r -> {
                 switch (r.getType()) {
                     case NoticeConstants.NAIL_ROBOT:
-                        dingTaskService.sendNailRobot(r, testCaseReview.getUserIds(), context, NoticeConstants.CREATE);
+                        dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.CREATE);
                         break;
                     case NoticeConstants.WECHAT_ROBOT:
-                        wxChatTaskService.sendWechatRobot(r, testCaseReview.getUserIds(), context, NoticeConstants.CREATE);
+                        wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.CREATE);
                         break;
                     case NoticeConstants.EMAIL:
-                        mailService.sendReviewerNotice(r, testCaseReview.getUserIds(), testCaseReview, NoticeConstants.CREATE);
+                        mailService.sendReviewerNotice(r, userIds, testCaseReview, NoticeConstants.CREATE);
                         break;
                 }
             });
