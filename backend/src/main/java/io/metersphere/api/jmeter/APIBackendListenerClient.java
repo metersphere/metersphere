@@ -178,55 +178,45 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             List<NoticeDetail> noticeList = noticeService.queryNotice(testResult.getTestId());
             mailService.sendApiNotification(report, noticeList);
         }
-        if (StringUtils.equals(NoticeConstants.API, report.getTriggerMode())) {
+        if (StringUtils.equals(NoticeConstants.API, "API")) {
             List<String> userIds = new ArrayList<>();
             MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
             List<MessageDetail> taskList = messageSettingDetail.getJenkinsTask();
-            if (StringUtils.equals(report.getStatus(), "Success")) {
-
-            }
-            String contextSuccess = report.getName() + "执行成功";
-            ;
-            String contextFailed = report.getName() + "执行失败";
+            String contextSuccess = "jenkins任务通知" + report.getName() + "执行成功";
+            String contextFailed = "jenkins任务通知" + report.getName() + "执行失败";
             taskList.forEach(r -> {
                 switch (r.getType()) {
                     case NoticeConstants.NAIL_ROBOT:
-                        r.getEvents().forEach(e -> {
-                            if (StringUtils.equals(NoticeConstants.EXECUTE_SUCCESSFUL, e) && StringUtils.equals(report.getStatus(), "Success")) {
-                                dingTaskService.sendNailRobot(r, userIds, contextSuccess, NoticeConstants.EXECUTE_SUCCESSFUL);
-                            }
-                            if (StringUtils.equals(NoticeConstants.EXECUTE_FAILED, e) && StringUtils.equals(report.getStatus(), "Error")) {
-                                dingTaskService.sendNailRobot(r, userIds, contextFailed, NoticeConstants.EXECUTE_FAILED);
-                            }
-                        });
+                        if (StringUtils.equals(NoticeConstants.EXECUTE_SUCCESSFUL, r.getEvent()) && StringUtils.equals(report.getStatus(), "Success")) {
+                            dingTaskService.sendNailRobot(r, userIds, contextSuccess, NoticeConstants.EXECUTE_SUCCESSFUL);
+                        }
+                        if (StringUtils.equals(NoticeConstants.EXECUTE_FAILED, r.getEvent()) && StringUtils.equals(report.getStatus(), "Error")) {
+                            dingTaskService.sendNailRobot(r, userIds, contextFailed, NoticeConstants.EXECUTE_FAILED);
+                        }
                         break;
                     case NoticeConstants.WECHAT_ROBOT:
-                        r.getEvents().forEach(e -> {
-                            if (StringUtils.equals(NoticeConstants.EXECUTE_SUCCESSFUL, e) && StringUtils.equals(report.getStatus(), "Success")) {
+                            if (StringUtils.equals(NoticeConstants.EXECUTE_SUCCESSFUL, r.getEvent()) && StringUtils.equals(report.getStatus(), "Success")) {
                                 wxChatTaskService.sendWechatRobot(r, userIds, contextSuccess, NoticeConstants.EXECUTE_SUCCESSFUL);
                             }
-                            if (StringUtils.equals(NoticeConstants.EXECUTE_FAILED, e) && StringUtils.equals(report.getStatus(), "Error")) {
+                            if (StringUtils.equals(NoticeConstants.EXECUTE_FAILED, r.getEvent()) && StringUtils.equals(report.getStatus(), "Error")) {
                                 wxChatTaskService.sendWechatRobot(r, userIds, contextFailed, NoticeConstants.EXECUTE_FAILED);
                             }
-                        });
                         break;
                     case NoticeConstants.EMAIL:
-                        r.getEvents().forEach(e -> {
-                            if (StringUtils.equals(NoticeConstants.EXECUTE_SUCCESSFUL, e) && StringUtils.equals(report.getStatus(), "Success")) {
+                            if (StringUtils.equals(NoticeConstants.EXECUTE_SUCCESSFUL, r.getEvent()) && StringUtils.equals(report.getStatus(), "Success")) {
                                 try {
                                     mailService.sendApiJenkinsNotification(contextSuccess, r);
                                 } catch (MessagingException messagingException) {
                                     messagingException.printStackTrace();
                                 }
                             }
-                            if (StringUtils.equals(NoticeConstants.EXECUTE_FAILED, e) && StringUtils.equals(report.getStatus(), "Error")) {
+                            if (StringUtils.equals(NoticeConstants.EXECUTE_FAILED, r.getEvent()) && StringUtils.equals(report.getStatus(), "Error")) {
                                 try {
                                     mailService.sendApiJenkinsNotification(contextFailed, r);
                                 } catch (MessagingException messagingException) {
                                     messagingException.printStackTrace();
                                 }
                             }
-                        });
                         break;
                 }
             });

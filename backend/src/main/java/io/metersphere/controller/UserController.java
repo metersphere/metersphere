@@ -133,7 +133,10 @@ public class UserController {
     public List<User> getUserList() {
         return userService.getUserList();
     }
-
+    @GetMapping("/list/orgId")
+    public List<User> getUserListByOrgId() {
+        return userService.getUserListByOrgId();
+    }
     @PostMapping("/update/current")
     public UserDTO updateCurrentUser(@RequestBody User user) {
         userService.updateUser(user);

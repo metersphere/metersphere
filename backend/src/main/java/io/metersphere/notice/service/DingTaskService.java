@@ -27,30 +27,17 @@ public class DingTaskService {
 
     public void sendNailRobot(MessageDetail messageDetail, List<String> userIds, String context, String eventType) {
         List<String> addresseeIdList = new ArrayList<>();
-        messageDetail.getEvents().forEach(e -> {
-            if (StringUtils.equals(eventType, e)) {
+            if (StringUtils.equals(eventType, messageDetail.getEvent())) {
                 messageDetail.getUserIds().forEach(u -> {
-                    if (!StringUtils.equals(NoticeConstants.EXECUTOR, u) && !StringUtils.equals(NoticeConstants.EXECUTOR, u) && !StringUtils.equals(NoticeConstants.MAINTAINER, u)) {
+                    if (!StringUtils.equals(NoticeConstants.EXECUTOR, u) && !StringUtils.equals(NoticeConstants.FOUNDER, u) && !StringUtils.equals(NoticeConstants.MAINTAINER, u)) {
                         addresseeIdList.add(u);
-                    }
-                    if (StringUtils.equals(NoticeConstants.CREATE, eventType) && StringUtils.equals(NoticeConstants.EXECUTOR, u)) {
+                    }else{
                         addresseeIdList.addAll(userIds);
                     }
-                    if (StringUtils.equals(NoticeConstants.UPDATE, eventType) && StringUtils.equals(NoticeConstants.FOUNDER, u)) {
-                        addresseeIdList.addAll(userIds);
-                    }
-                    if (StringUtils.equals(NoticeConstants.DELETE, eventType) && StringUtils.equals(NoticeConstants.FOUNDER, u)) {
-                        addresseeIdList.addAll(userIds);
-                    }
-                    if (StringUtils.equals(NoticeConstants.COMMENT, eventType) && StringUtils.equals(NoticeConstants.MAINTAINER, u)) {
-                        addresseeIdList.addAll(userIds);
-                    }
-
 
                 });
                 sendDingTask(context, addresseeIdList, messageDetail.getWebhook());
             }
-        });
     }
 
     public void sendDingTask(String context, List<String> userIds, String Webhook) {
