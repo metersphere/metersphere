@@ -27,9 +27,7 @@
             border
             size="mini"
             :cell-style="rowClass"
-            :header-cell-style="headClass"
-
-          >
+            :header-cell-style="headClass">
             <el-table-column :label="$t('schedule.event')" min-width="20%" prop="events">
               <template slot-scope="scope">
                 <el-select v-model="scope.row.event"
@@ -132,6 +130,7 @@
             <el-table-column :label="$t('schedule.event')" min-width="20%" prop="events">
               <template slot-scope="scope">
                 <el-select v-model="scope.row.event" :placeholder="$t('organization.message.select_events')"
+                           @change="handleTestPlanReceivers(scope.row)"
                            prop="events" :disabled="!scope.row.isSet">
                   <el-option
                     v-for="item in otherEventOptions"
@@ -148,7 +147,7 @@
                            :placeholder="$t('commons.please_select')"
                            @click.native="testPlanUserList()" style="width: 100%;" :disabled="!row.isSet">
                   <el-option
-                    v-for="item in testPlanReceiverOptions"
+                    v-for="item in row.testPlanReceiverOptions"
                     :key="item.id"
                     :label="item.name"
                     :value="item.id">
@@ -227,6 +226,7 @@
             <el-table-column :label="$t('schedule.event')" min-width="20%" prop="events">
               <template slot-scope="scope">
                 <el-select v-model="scope.row.event" :placeholder="$t('organization.message.select_events')"
+                           @change="handleReviewReceivers(scope.row)"
                            prop="event" :disabled="!scope.row.isSet">
                   <el-option
                     v-for="item in reviewTaskEventOptions"
@@ -243,7 +243,7 @@
                            :placeholder="$t('commons.please_select')"
                            @click.native="reviewUerList()" style="width: 100%;" :disabled="!row.isSet">
                   <el-option
-                    v-for="item in reviewReceiverOptions"
+                    v-for="item in row.reviewReceiverOptions"
                     :key="item.id"
                     :label="item.name"
                     :value="item.id">
@@ -397,7 +397,7 @@
 </template>
 
 <script>
-import {getCurrentUser, listenGoBack, removeGoBackListener} from "../../../../common/js/utils";
+import {getCurrentUser} from "../../../../common/js/utils";
 
 export default {
   name: "TaskNotification",
@@ -481,9 +481,9 @@ export default {
     }
   },
 
-  activated(){
+  activated() {
     this.initForm()
-    this. userList()
+    this.userList()
     this.testPlanUserList()
     this.defectUserList()
     this.reviewUerList()
@@ -511,15 +511,12 @@ export default {
     reviewUerList() {
       this.result = this.$get('user/list/orgId', response => {
         this.reviewReceiverOptions = response.data
-        this.reviewReceiverOptions.unshift({id: 'EXECUTOR', name: this.$t('test_track.review.reviewer')},
-          {id: 'FOUNDER', name: this.$t('test_track.review.review_creator')},
-          {id: 'MAINTAINER', name: this.$t('test_track.case.maintainer')})
       })
     },
     defectUserList() {
       this.result = this.$get('user/list/orgId', response => {
         this.defectReceiverOptions = response.data
-        /* this.defectReceiverOptions.unshift({id: 'FOUNDER', name: this.$t('api_test.creator')}, {
+        /* this.defectReceiverOptions.push({id: 'FOUNDER', name: this.$t('api_test.creator')}, {
            id: 'EXECUTOR',
            name: this.$t('test_track.plan_view.executor')
          })*/
@@ -528,10 +525,6 @@ export default {
     testPlanUserList() {
       this.result = this.$get('user/list/orgId', response => {
         this.testPlanReceiverOptions = response.data
-        this.testPlanReceiverOptions.unshift({id: 'FOUNDER', name: this.$t('api_test.creator')}, {
-          id: 'EXECUTOR',
-          name: this.$t('test_track.plan_view.executor')
-        })
       })
     },
     handleAddTaskModel(type) {
@@ -544,19 +537,19 @@ export default {
       Task.identification = "";
       if (type === 'jenkinsTask') {
         Task.taskType = 'JENKINS_TASK'
-        this.form.jenkinsTask.unshift(Task)
+        this.form.jenkinsTask.push(Task)
       }
       if (type === 'testPlanTask') {
         Task.taskType = 'TEST_PLAN_TASK'
-        this.form.testCasePlanTask.unshift(Task)
+        this.form.testCasePlanTask.push(Task)
       }
       if (type === 'reviewTask') {
         Task.taskType = 'REVIEW_TASK'
-        this.form.reviewTask.unshift(Task)
+        this.form.reviewTask.push(Task)
       }
       if (type === 'defectTask') {
         Task.taskType = 'DEFECT_TASK'
-        this.form.defectTask.unshift(Task)
+        this.form.defectTask.push(Task)
       }
     },
     handleAddTask(index, data) {
@@ -587,7 +580,45 @@ export default {
     headClass() {
       return "text-align:center;background:'#ededed'"
     },
+    handleTestPlanReceivers(row) {
+      console.log(row);
+      let testPlanReceivers = JSON.parse(JSON.stringify(this.testPlanReceiverOptions));
+      switch (row.event) {
+        case  "CREATE":
+          testPlanReceivers.unshift({id: 'EXECUTOR', name: this.$t('test_track.plan_view.executor')})
+          break;
+        case "UPDATE":
+        case "DELETE":
+        case "COMMENT":
+          testPlanReceivers.unshift({id: 'FOUNDER', name: this.$t('api_test.creator')});
+          break;
+        default:
+          break;
+      }
+      row.testPlanReceiverOptions = testPlanReceivers;
+    },
+    handleReviewReceivers(row) {
+      console.log(row);
+      let reviewReceiverOptions = JSON.parse(JSON.stringify(this.reviewReceiverOptions));
 
+      switch (row.event) {
+        case  "CREATE":
+          reviewReceiverOptions.unshift({id: 'EXECUTOR', name: this.$t('test_track.review.reviewer')})
+          break;
+        case "UPDATE":
+          reviewReceiverOptions.unshift({id: 'FOUNDER', name: this.$t('test_track.review.review_creator')})
+          break;
+        case "DELETE":
+          reviewReceiverOptions.unshift({id: 'FOUNDER', name: this.$t('test_track.review.review_creator')})
+          break;
+        case "COMMENT":
+          reviewReceiverOptions.unshift({id: 'MAINTAINER', name: this.$t('test_track.case.maintainer')})
+          break;
+        default:
+          break;
+      }
+      row.reviewReceiverOptions = reviewReceiverOptions;
+    }
   }
 }
 </script>
