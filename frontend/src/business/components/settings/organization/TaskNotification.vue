@@ -563,6 +563,8 @@ export default {
           this.initForm()
           this.$success(this.$t('commons.save_success'));
         })
+      } else {
+        this.$warning(this.$t('organization.message.message'));
       }
     },
     removeRowTask(index, data) { //移除

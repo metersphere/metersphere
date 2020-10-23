@@ -232,8 +232,9 @@ export default {
         '\n' +
         '2. Webhook is required except email;\n' +
         '\n' +
-        '3. Robots are selected as swarm robots, and "custom keyword" is selected for security verification: "task notification"'
-
+        '3. Robots are selected as swarm robots, and "custom keyword" is selected for security verification: "task notification"',
+      message: 'Event, receiver and receiving method are required\n' +
+        '\n'
     },
     integration: {
       select_defect_platform: 'Please select the defect management platform to be integrated:',
