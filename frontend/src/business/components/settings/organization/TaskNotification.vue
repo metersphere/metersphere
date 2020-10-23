@@ -500,7 +500,7 @@ export default {
     },
     initForm() {
       this.result = this.$get('/notice/search/message', response => {
-
+        console.log(response.data)
         this.form = response.data
       })
     },
@@ -567,26 +567,32 @@ export default {
       }
     },
     handleAddTask(index, data) {
-      let list = []
+
       if (data.event && data.userIds.length > 0 && data.type) {
         console.log(data.type)
         if (data.type === 'NAIL_ROBOT' || data.type === 'NAIL_ROBOT') {
           if (!data.webhook) {
             this.$warning(this.$t('organization.message.message_webhook'));
           } else {
-            data.isSet = false
-            list.push(data)
-            let param = {};
-            param.messageDetail = list
-            this.result = this.$post("/notice/save/message/task", param, () => {
-              this.initForm()
-              this.$success(this.$t('commons.save_success'));
-            })
+            this.addTask(data)
           }
+        } else {
+          this.addTask(data)
         }
       } else {
         this.$warning(this.$t('organization.message.message'));
       }
+    },
+    addTask(data) {
+      let list = []
+      data.isSet = false
+      list.push(data)
+      let param = {};
+      param.messageDetail = list
+      this.result = this.$post("/notice/save/message/task", param, () => {
+        this.initForm()
+        this.$success(this.$t('commons.save_success'));
+      })
     },
     removeRowTask(index, data) { //移除
       data.splice(index, 1)
