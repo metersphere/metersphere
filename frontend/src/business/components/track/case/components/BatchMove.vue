@@ -39,6 +39,7 @@
 
 <script>
   import MsDialogFooter from "../../../common/components/MsDialogFooter";
+  import {TrackEvent,LIST_CHANGE} from "@/business/components/common/head/ListEvent";
 
   export default {
     name: "BatchMove",
@@ -85,6 +86,8 @@
         this.result = this.$post('/test/case/batch/edit', param, () => {
           this.$success(this.$t('commons.save_success'));
           this.close();
+          // 发送广播，刷新 head 上的最新列表
+          TrackEvent.$emit(LIST_CHANGE);
           this.$emit('refresh');
         });
       },
