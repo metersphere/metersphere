@@ -7,6 +7,8 @@
 
 > [English](README_EN.md) | 中文
 
+> 我们正在寻找开发者，欢迎加入我们共同打造更好用、更强大的 MeterSphere。[联系我们](mailto:metersphere@fit2cloud.com)
+
 MeterSphere 是一站式的开源企业级持续测试平台，涵盖测试跟踪、接口测试、性能测试、团队协作等功能，兼容JMeter 等开源标准，有效助力开发和测试团队充分利用云弹性进行高度可扩展的自动化测试，加速高质量软件的交付。
 
 - 测试跟踪: 远超 TestLink 的使用体验；
