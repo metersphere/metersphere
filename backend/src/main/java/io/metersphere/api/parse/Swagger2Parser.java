@@ -50,7 +50,11 @@ public class Swagger2Parser extends ApiImportAbstractParser {
             for (HttpMethod method : httpMethods) {
                 Operation operation = operationMap.get(method);
                 HttpRequest request = new HttpRequest();
-                request.setName(operation.getOperationId());
+                if (StringUtils.isNotBlank(operation.getSummary())) {
+                    request.setName(operation.getSummary());
+                } else {
+                    request.setName(operation.getOperationId());
+                }
                 request.setPath(pathName);
                 request.setUseEnvironment(true);
                 request.setMethod(method.name());
