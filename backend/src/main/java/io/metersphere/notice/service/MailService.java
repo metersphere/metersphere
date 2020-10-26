@@ -112,6 +112,25 @@ public class MailService {
             LogUtil.error(e);
         }
     }
+    public void sendLoadJenkinsNotification(String context, MessageDetail messageDetail) throws MessagingException {
+        JavaMailSenderImpl javaMailSender = getMailSender();
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+        helper.setFrom(javaMailSender.getUsername());
+        helper.setSubject("MeterSphere平台" + Translator.get("task_notification"));
+        helper.setText(context);
+        List<UserDetail> list = userService.queryTypeByIds(messageDetail.getUserIds());
+        List<String> EmailList = new ArrayList<>();
+        list.forEach(u -> {
+            EmailList.add(u.getEmail());
+        });
+        helper.setTo(EmailList.toArray(new String[0]));
+        try {
+            javaMailSender.send(mimeMessage);
+        } catch (MailException e) {
+            LogUtil.error(e);
+        }
+    }
 
     private void sendHtmlTimeTasks(List<NoticeDetail> noticeList, String status, Map<String, String> context, String template) throws MessagingException {
         JavaMailSenderImpl javaMailSender = getMailSender();
@@ -168,7 +187,7 @@ public class MailService {
         }
     }
 
-/*新建评审*/
+    //新建评审
     public void sendReviewerNotice(MessageDetail messageDetail, List<String> userIds, SaveTestCaseReviewRequest reviewRequest, String eventType) {
         Map<String, String> context = getReviewContext(reviewRequest);
         try {

@@ -24,6 +24,7 @@ import io.metersphere.notice.service.MailService;
 import io.metersphere.notice.service.NoticeService;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
+import io.metersphere.performance.notice.PerformanceNoticeTask;
 import io.metersphere.service.FileService;
 import io.metersphere.service.QuotaService;
 import io.metersphere.service.ScheduleService;
@@ -68,11 +69,7 @@ public class PerformanceTestService {
     @Resource
     private ExtLoadTestReportDetailMapper extLoadTestReportDetailMapper;
     @Resource
-    private LoadTestReportLogMapper loadTestReportLogMapper;
-    @Resource
     private LoadTestReportResultMapper loadTestReportResultMapper;
-    @Resource
-    private TestResourceService testResourceService;
     @Resource
     private ReportService reportService;
     @Resource
@@ -80,13 +77,13 @@ public class PerformanceTestService {
     @Resource
     private ScheduleService scheduleService;
     @Resource
-    private TestCaseMapper testCaseMapper;
-    @Resource
     private TestCaseService testCaseService;
     @Resource
     private NoticeService noticeService;
     @Resource
     private MailService mailService;
+    @Resource
+    private PerformanceNoticeTask performanceNoticeTask;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -246,6 +243,9 @@ public class PerformanceTestService {
             } catch (Exception e) {
                 LogUtil.error(e.getMessage(), e);
             }
+        }
+        if(request.getTriggerMode().equals("API")){
+            performanceNoticeTask.registerNoticeTask(request.getTriggerMode(),loadTest);
         }
         return engine.getReportId();
     }

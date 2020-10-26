@@ -66,6 +66,7 @@
                   prop="type"
                   :label="$t('schedule.receiving_mode')"
                 >
+
                 </el-table-column>
                 <el-table-column
                   :label="$t('test_resource_pool.enable_disable')"
