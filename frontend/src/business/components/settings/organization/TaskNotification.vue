@@ -45,8 +45,7 @@
             <el-table-column :label="$t('schedule.receiver')" prop="userIds" min-width="20%">
               <template v-slot:default="{row}">
                 <el-select v-model="row.userIds" filterable multiple
-                           :placeholder="$t('commons.please_select')"
-                           @click.native="userList()" style="width: 100%;" :disabled="!row.isSet">
+                           :placeholder="$t('commons.please_select')" style="width: 100%;" :disabled="!row.isSet">
                   <el-option
                     v-for="item in jenkinsReceiverOptions"
                     :key="item.id"
@@ -144,8 +143,7 @@
             <el-table-column :label="$t('schedule.receiver')" prop="userIds" min-width="20%">
               <template v-slot:default="{row}">
                 <el-select v-model="row.userIds" filterable multiple
-                           :placeholder="$t('commons.please_select')"
-                           @click.native="testPlanUserList()" style="width: 100%;" :disabled="!row.isSet">
+                           :placeholder="$t('commons.please_select')" style="width: 100%;" :disabled="!row.isSet">
                   <el-option
                     v-for="item in row.testPlanReceiverOptions"
                     :key="item.id"
@@ -241,7 +239,7 @@
               <template v-slot:default="{row}">
                 <el-select v-model="row.userIds" filterable multiple
                            :placeholder="$t('commons.please_select')"
-                           @click.native="reviewUerList()" style="width: 100%;" :disabled="!row.isSet">
+                           style="width: 100%;" :disabled="!row.isSet">
                   <el-option
                     v-for="item in row.reviewReceiverOptions"
                     :key="item.id"
@@ -336,7 +334,7 @@
               <template v-slot:default="{row}">
                 <el-select v-model="row.userIds" filterable multiple
                            :placeholder="$t('commons.please_select')"
-                           @click.native="defectUserList()" style="width: 100%;" :disabled="!row.isSet">
+                           style="width: 100%;" :disabled="!row.isSet">
                   <el-option
                     v-for="item in defectReceiverOptions"
                     :key="item.id"
