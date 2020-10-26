@@ -19,7 +19,7 @@ import lombok.Data;
         @JsonSubTypes.Type(value = SqlRequest.class, name = RequestType.SQL),
         @JsonSubTypes.Type(value = TCPRequest.class, name = RequestType.TCP)
 })
-@JSONType(seeAlso = {HttpRequest.class, DubboRequest.class, SqlRequest.class}, typeKey = "type")
+@JSONType(seeAlso = {HttpRequest.class, DubboRequest.class, SqlRequest.class, TCPRequest.class}, typeKey = "type")
 @Data
 public abstract class Request {
     @JSONField(ordinal = 1)
