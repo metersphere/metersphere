@@ -797,6 +797,10 @@ export class JSONPath extends AssertionType {
     this.set(options);
   }
 
+  setJSONPathDescription() {
+    this.description = this.expression + " expect: " + (this.expect ? this.expect : '');
+  }
+
   isValid() {
     return !!this.expression;
   }

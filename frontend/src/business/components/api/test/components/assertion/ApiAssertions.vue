@@ -22,6 +22,30 @@
       </el-row>
     </div>
 
+    <div >
+
+      <el-row :gutter="10" style="text-align: right;">
+
+          <el-button
+
+          size="small"
+          type="primary"
+          @click="suggestJson"
+          >推荐JSONPath断言</el-button>
+          <el-button
+            size="small"
+            type="danger"
+            @click="clearJson"
+          >清空JSONPath断言</el-button>
+
+      </el-row>
+
+    </div>
+
+
+
+
+
     <ms-api-assertions-edit :is-read-only="isReadOnly" :assertions="assertions"/>
   </div>
 </template>
@@ -30,7 +54,7 @@
   import MsApiAssertionText from "./ApiAssertionText";
   import MsApiAssertionRegex from "./ApiAssertionRegex";
   import MsApiAssertionDuration from "./ApiAssertionDuration";
-  import {ASSERTION_TYPE, Assertions} from "../../model/ScenarioModel";
+  import {ASSERTION_TYPE, Assertions, JSONPath} from "../../model/ScenarioModel";
   import MsApiAssertionsEdit from "./ApiAssertionsEdit";
   import MsApiAssertionJsonPath from "./ApiAssertionJsonPath";
 
@@ -43,6 +67,7 @@
 
     props: {
       assertions: Assertions,
+      jsonPathList: Array,
       isReadOnly: {
         type: Boolean,
         default: false
@@ -60,6 +85,24 @@
     methods: {
       after() {
         this.type = "";
+      },
+      suggestJson() {
+        console.log("This is suggestJson")
+        // console.log(this.jsonPathList);
+        this.jsonPathList.forEach((item) => {
+          let jsonItem = new JSONPath();
+          jsonItem.expression=item.json_path;
+          jsonItem.expect=item.json_value;
+          jsonItem.setJSONPathDescription();
+          this.assertions.jsonPath.push(jsonItem);
+        });
+
+      },
+      clearJson() {
+        console.log("This is suggestJson")
+        // console.log(this.jsonPathList);
+        this.assertions.jsonPath = [];
+
       }
     }
 
@@ -76,5 +119,23 @@
     border: #DCDFE6 solid 1px;
     margin: 5px 0;
     border-radius: 5px;
+  }
+
+  .bg-purple-dark {
+    background: #99a9bf;
+  }
+  .bg-purple {
+    background: #d3dce6;
+  }
+  .bg-purple-light {
+    background: #e5e9f2;
+  }
+  .grid-content {
+    border-radius: 4px;
+    min-height: 36px;
+  }
+  .row-bg {
+    padding: 10px 0;
+    background-color: #f9fafc;
   }
 </style>
