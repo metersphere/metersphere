@@ -66,7 +66,7 @@
                      :environment="scenario.environment"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.assertions.label')" name="assertions">
-        <ms-api-assertions  :jsonPathList="jsonPathList" :is-read-only="isReadOnly" :assertions="request.assertions"/>
+        <ms-api-assertions :request="request" :is-read-only="isReadOnly" :assertions="request.assertions"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.extract.label')" name="extract">
         <ms-api-extract :is-read-only="isReadOnly" :extract="request.extract"/>

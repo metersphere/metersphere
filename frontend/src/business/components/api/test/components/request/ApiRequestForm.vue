@@ -1,6 +1,6 @@
 <template>
   <div class="request-form">
-    <component @runDebug="runDebug" :is="component"  :jsonPathList="jsonPathList" :is-read-only="isReadOnly" :request="request" :scenario="scenario"/>
+    <component @runDebug="runDebug" :is="component" :is-read-only="isReadOnly" :request="request" :scenario="scenario"/>
     <el-divider v-if="isCompleted"></el-divider>
     <ms-request-result-tail v-loading="debugReportLoading" v-if="isCompleted" :request="request.debugRequestResult ? request.debugRequestResult : {responseResult: {}, subRequestResults: []}"
                             :scenario-name="request.debugScenario ? request.debugScenario.name : ''" ref="msDebugResult"/>
@@ -96,37 +96,6 @@ export default {
                 if (res.scenarios && res.scenarios.length > 0) {
                   this.request.debugScenario = res.scenarios[0];
                   this.request.debugRequestResult = this.request.debugScenario.requestResults[0];
-
-                  //add by Cuipeng
-                  this.debugResultDetails=this.request.debugRequestResult.responseResult.body;
-                  // console.log(this.debugResultDetails);
-                  try {
-
-                    let param = {
-                      jsonPath: this.debugResultDetails
-
-                    };
-
-
-
-                    this.$post("/api/getJsonPaths", param).then(response1 => {
-
-                      this.jsonPathList = response1.data.data;
-                      // console.log(this.jsonPathList);
-
-                    }).catch(() => {
-
-                      this.$warning("获取推荐jsonpath列表失败");
-                    });
-
-
-
-                  } catch (e) {
-                    alert("调试结果的返回不是一个json");
-                    throw e;
-                  }
-                  //add by Cuipeng
-
                   this.deleteReport(this.debugReportId);
                 } else {
                   this.request.debugScenario = new Scenario();

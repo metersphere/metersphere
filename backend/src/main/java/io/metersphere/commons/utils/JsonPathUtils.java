@@ -17,7 +17,7 @@ public class JsonPathUtils {
 
     public static List<HashMap> getListJson(String jsonString) {
 
-        JSONObject jsonObject =JSONObject.parseObject(jsonString);
+        JSONObject jsonObject = JSONObject.parseObject(jsonString);
         List<HashMap> allJsons =new ArrayList<>();
 
         // 获取到所有jsonpath后，获取所有的key
@@ -40,20 +40,16 @@ public class JsonPathUtils {
             jsonPaths.remove(parentNodeJsonPath);
         }
 
-        List<String> jsonPathList = new ArrayList<>();
         Iterator<String> jsonPath = jsonPaths.iterator();
         //将/替换为点.
         while (jsonPath.hasNext()) {
             Map<String,String> item = new HashMap<>();
-
-
             String o_json_path = "$" + jsonPath.next().replaceAll("/", ".");
-            String value = JSONPath.eval(jsonObject,o_json_path).toString();
+            String value = JSONPath.eval(jsonObject, o_json_path).toString();
 
             if(o_json_path.toLowerCase().contains("id")) {
                 continue;
             }
-
 
             if(value.equals("") || value.equals("[]") || o_json_path.equals("")) {
                 continue;
@@ -61,106 +57,70 @@ public class JsonPathUtils {
 
             String json_path = formatJson(o_json_path);
 
-
-
-            //System.out.println(json_path);
-
-
-
             item.put("json_path", json_path);
             item.put("json_value", addEscapeForString(value));
             allJsons.add((HashMap)item);
 
-            jsonPathList.add(json_path);
         }
-        //排序
-        Collections.sort(jsonPathList);
+
+        Collections.sort(allJsons, (a, b) ->
+                ( (String)a.get("json_path") )
+                        .compareTo( (String)b.get("json_path") )
+        );
+
         return allJsons;
     }
 
     private static String  formatJson(String json_path){
-
         String ret="";
-        // 正则表达式
         String reg =  ".(\\d{1,3}).{0,1}";
-
         Boolean change_flag = false;
         Matcher m1 = Pattern.compile(reg).matcher(json_path);
-
-
         String newStr="";
         int rest = 0;
         String tail = "";
-        while (m1.find()) {
 
+        while (m1.find()) {
             int start = m1.start();
             int end = m1.end() - 1;
             if(json_path.charAt(start) != '.' || json_path.charAt(end) != '.') {
                 continue;
             }
-
-
-            newStr += json_path.substring(rest,m1.start()) +"[*]." ;
+            newStr += json_path.substring(rest,m1.start()) +"[" + json_path.substring(start + 1, end) + "]." ;
 
             rest = m1.end();
             tail = json_path.substring(m1.end());
             change_flag = true;
         }
 
-
         if(change_flag) {
             ret = newStr + tail;
         } else {
             ret = json_path;
         }
-
-
-
         return ret;
-
-
     }
 
     private static String addEscapeForString(String input) {
-
         String ret="";
-
-
         String reg =  "[?*/]";
-
         Boolean change_flag = false;
         Matcher m1 = Pattern.compile(reg).matcher(input);
-
-
         String newStr="";
         int rest = 0;
         String tail = "";
+
         while (m1.find()) {
-
-            int start = m1.start();
-            int end = m1.end() - 1;
-
-
-
             newStr += input.substring(rest,m1.start()) + "\\" + m1.group(0) ;
-
             rest = m1.end();
             tail = input.substring(m1.end());
             change_flag = true;
-
         }
         if(change_flag) {
             ret = newStr + tail;
         } else {
             ret = input;
         }
-
         return ret;
-
-
     }
-
-
-
-
 }

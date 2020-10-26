@@ -22,29 +22,18 @@
       </el-row>
     </div>
 
-    <div >
-
-      <el-row :gutter="10" style="text-align: right;">
-
-          <el-button
-
-          size="small"
-          type="primary"
-          @click="suggestJson"
-          >推荐JSONPath断言</el-button>
-          <el-button
-            size="small"
-            type="danger"
-            @click="clearJson"
-          >清空JSONPath断言</el-button>
-
+    <div>
+      <el-row :gutter="10" class="json-path-suggest-button">
+          <el-button size="small" type="primary" @click="suggestJsonOpen">
+            {{$t('api_test.request.assertions.json_path_suggest')}}
+          </el-button>
+          <el-button size="small" type="danger" @click="clearJson">
+            {{$t('api_test.request.assertions.json_path_clear')}}
+          </el-button>
       </el-row>
-
     </div>
 
-
-
-
+    <ms-api-jsonpath-suggest-list @addJsonpathSuggest="addJsonpathSuggest" :request="request" ref="jsonpathSuggestList"/>
 
     <ms-api-assertions-edit :is-read-only="isReadOnly" :assertions="assertions"/>
   </div>
@@ -54,20 +43,22 @@
   import MsApiAssertionText from "./ApiAssertionText";
   import MsApiAssertionRegex from "./ApiAssertionRegex";
   import MsApiAssertionDuration from "./ApiAssertionDuration";
-  import {ASSERTION_TYPE, Assertions, JSONPath} from "../../model/ScenarioModel";
+  import {ASSERTION_TYPE, Assertions, HttpRequest, JSONPath} from "../../model/ScenarioModel";
   import MsApiAssertionsEdit from "./ApiAssertionsEdit";
   import MsApiAssertionJsonPath from "./ApiAssertionJsonPath";
+  import MsApiJsonpathSuggestList from "./ApiJsonpathSuggestList";
 
   export default {
     name: "MsApiAssertions",
 
     components: {
+      MsApiJsonpathSuggestList,
       MsApiAssertionJsonPath,
       MsApiAssertionsEdit, MsApiAssertionDuration, MsApiAssertionRegex, MsApiAssertionText},
 
     props: {
       assertions: Assertions,
-      jsonPathList: Array,
+      request: HttpRequest,
       isReadOnly: {
         type: Boolean,
         default: false
@@ -86,23 +77,24 @@
       after() {
         this.type = "";
       },
-      suggestJson() {
-        console.log("This is suggestJson")
-        // console.log(this.jsonPathList);
-        this.jsonPathList.forEach((item) => {
-          let jsonItem = new JSONPath();
-          jsonItem.expression=item.json_path;
-          jsonItem.expect=item.json_value;
-          jsonItem.setJSONPathDescription();
-          this.assertions.jsonPath.push(jsonItem);
+      suggestJsonOpen() {
+        if (!this.request.debugRequestResult) {
+          this.$message(this.$t('api_test.request.assertions.debug_first'));
+          return;
+        }
+        this.$refs.jsonpathSuggestList.open();
+      },
+      addJsonpathSuggest(jsonPathList) {
+        jsonPathList.forEach(jsonPath => {
+            let jsonItem = new JSONPath();
+            jsonItem.expression = jsonPath.json_path;
+            jsonItem.expect = jsonPath.json_value;
+            jsonItem.setJSONPathDescription();
+            this.assertions.jsonPath.push(jsonItem);
         });
-
       },
       clearJson() {
-        console.log("This is suggestJson")
-        // console.log(this.jsonPathList);
         this.assertions.jsonPath = [];
-
       }
     }
 
@@ -124,18 +116,27 @@
   .bg-purple-dark {
     background: #99a9bf;
   }
+
   .bg-purple {
     background: #d3dce6;
   }
+
   .bg-purple-light {
     background: #e5e9f2;
   }
+
   .grid-content {
     border-radius: 4px;
     min-height: 36px;
   }
+
   .row-bg {
     padding: 10px 0;
     background-color: #f9fafc;
   }
+
+  .json-path-suggest-button {
+    text-align: right;
+  }
+
 </style>

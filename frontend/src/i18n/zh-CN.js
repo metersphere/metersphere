@@ -557,7 +557,11 @@ export default {
         expect: "期望值",
         expression: "Perl型正则表达式",
         response_in_time: "响应时间在...毫秒以内",
-        ignore_status: "忽略状态"
+        json_path_add: "添加 JONPATH 断言",
+        json_path_err: "响应结果不是 JSON 格式",
+        json_path_suggest: "推荐JSONPath断言",
+        json_path_clear: "清空JSONPath断言",
+        debug_first: "请先执行调试获取响应结果",
       },
       extract: {
         label: "提取",
