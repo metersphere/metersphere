@@ -3,16 +3,15 @@
     <ms-main-container>
       <el-row :gutter="20">
         <el-col :span="15">
-          <related-test-plan-list ref="relatedTestPlanList"/>
+          <el-row>
+            <related-test-plan-list ref="relatedTestPlanList"/>
+          </el-row>
+          <el-row>
+            <review-list title="我的评审" ref="caseReviewList"/>
+          </el-row>
         </el-col>
         <el-col :span="9">
           <test-case-side-list :title="$t('test_track.home.recent_test')" ref="testCaseRecentList"/>
-        </el-col>
-      </el-row>
-      <div style="margin-top: 10px"/>
-      <el-row :gutter="20">
-        <el-col :span="15">
-          <review-list title="我的评审" ref="caseReviewList"/>
         </el-col>
       </el-row>
     </ms-main-container>
@@ -52,4 +51,7 @@ export default {
   cursor: pointer;
 }
 
+.el-row {
+  padding-bottom: 20px;
+}
 </style>

@@ -101,7 +101,7 @@
             <el-row>
               <el-col :offset="1">
                 <span class="cast_label">{{ $t('test_track.case.prerequisite') }}：</span>
-                <span class="cast_item">{{ testCase.prerequisite }}</span>
+                <span class="cast_item"><p>{{ testCase.prerequisite }}</p></span>
               </el-col>
             </el-row>
 
@@ -683,5 +683,10 @@ export default {
 
 .el-switch >>> .el-switch__label.is-active {
   color: #409EFF;
+}
+
+p {
+  white-space: pre-line;
+  line-height: 20px;
 }
 </style>
