@@ -841,6 +841,8 @@ export default {
       send: "发送",
       description_is_null: "评论内容不能为空！",
       send_success: "评论成功！",
+      cannot_edit: "无法编辑此评论！",
+      cannot_delete: "无法删除此评论！",
     },
     review_view: {
       review: "评审",
