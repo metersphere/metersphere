@@ -18,6 +18,7 @@ import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.AbstractContextMapper;
 import org.springframework.ldap.core.support.DefaultDirObjectFactory;
+import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.ldap.query.SearchScope;
 import org.springframework.stereotype.Service;
 
@@ -145,17 +146,21 @@ public class LdapService {
         preConnect(url, dn, password);
 
         String credentials = EncryptUtils.aesDecrypt(password).toString();
-
-        SSLLdapContextSource sourceLdapCtx = new SSLLdapContextSource();
-        sourceLdapCtx.setUrl(url);
-        sourceLdapCtx.setUserDn(dn);
-        sourceLdapCtx.setPassword(credentials);
-        sourceLdapCtx.setDirObjectFactory(DefaultDirObjectFactory.class);
-        // todo 这里加上strategy 会报错
+        LdapContextSource sourceLdapCtx;
+        if (StringUtils.startsWith(url, "ldaps://")) {
+            sourceLdapCtx = new SSLLdapContextSource();
+            // todo 这里加上strategy 会报错
 //        DefaultTlsDirContextAuthenticationStrategy strategy = new DefaultTlsDirContextAuthenticationStrategy();
 //        strategy.setShutdownTlsGracefully(true);
 //        strategy.setHostnameVerifier((hostname, session) -> true);
 //        sourceLdapCtx.setAuthenticationStrategy(strategy);
+        } else {
+            sourceLdapCtx = new LdapContextSource();
+        }
+        sourceLdapCtx.setUrl(url);
+        sourceLdapCtx.setUserDn(dn);
+        sourceLdapCtx.setPassword(credentials);
+        sourceLdapCtx.setDirObjectFactory(DefaultDirObjectFactory.class);
         sourceLdapCtx.afterPropertiesSet();
         LdapTemplate ldapTemplate = new LdapTemplate(sourceLdapCtx);
         ldapTemplate.setIgnorePartialResultException(true);
