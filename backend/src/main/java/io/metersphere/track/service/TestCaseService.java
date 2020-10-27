@@ -170,7 +170,7 @@ public class TestCaseService {
         example.createCriteria().andCaseIdEqualTo(testCaseId);
         testPlanTestCaseMapper.deleteByExample(example);
         testCaseIssueService.delTestCaseIssues(testCaseId);
-        testCaseCommentService.deleteComment(testCaseId);
+        testCaseCommentService.deleteCaseComment(testCaseId);
         return testCaseMapper.deleteByPrimaryKey(testCaseId);
     }
 

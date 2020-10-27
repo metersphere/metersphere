@@ -853,6 +853,8 @@ export default {
       relevance_case: "Relevance Case",
       last_page: "It's the end！",
       execute_result: "Result",
+      cannot_edit: "Cannot edit this comment！",
+      cannot_delete: "Cannot delete this comment！",
     },
     module: {
       search: "Search module",

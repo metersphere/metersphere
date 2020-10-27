@@ -1,7 +1,10 @@
 <template>
   <div v-loading="result.loading">
     <div class="comment-list">
-      <review-comment-item v-for="(comment,index) in comments" :key="index" :comment="comment"/>
+      <review-comment-item v-for="(comment,index) in comments"
+                           :key="index"
+                           :comment="comment"
+                           @refresh="refresh"/>
       <div v-if="comments.length === 0" style="text-align: center">
         <i class="el-icon-chat-line-square" style="font-size: 15px;color: #8a8b8d;">
         <span style="font-size: 15px; color: #8a8b8d;">
@@ -56,9 +59,12 @@ export default {
       }
       this.result = this.$post('/test/case/comment/save', comment, () => {
         this.$success(this.$t('test_track.comment.send_success'));
-        this.$emit('getComments');
+        this.refresh();
         this.textarea = '';
       });
+    },
+    refresh() {
+      this.$emit('getComments');
     },
   }
 }

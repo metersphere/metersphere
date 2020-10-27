@@ -1,6 +1,6 @@
 package io.metersphere.track.controller;
 
-import io.metersphere.base.domain.TestCaseComment;
+import io.metersphere.track.dto.TestCaseCommentDTO;
 import io.metersphere.track.request.testreview.SaveCommentRequest;
 import io.metersphere.track.service.TestCaseCommentService;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +13,7 @@ import java.util.List;
 public class TestCaseCommentController {
 
     @Resource
-    TestCaseCommentService testCaseCommentService;
+    private TestCaseCommentService testCaseCommentService;
 
     @PostMapping("/save")
     public void saveComment(@RequestBody SaveCommentRequest request) {
@@ -21,7 +21,17 @@ public class TestCaseCommentController {
     }
 
     @GetMapping("/list/{caseId}")
-    public List<TestCaseComment> getComments(@PathVariable String caseId) {
-        return testCaseCommentService.getComments(caseId);
+    public List<TestCaseCommentDTO> getCaseComments(@PathVariable String caseId) {
+        return testCaseCommentService.getCaseComments(caseId);
+    }
+
+    @GetMapping("/delete/{commentId}")
+    public void deleteComment(@PathVariable String commentId) {
+        testCaseCommentService.delete(commentId);
+    }
+
+    @PostMapping("/edit")
+    public void editComment(@RequestBody SaveCommentRequest request) {
+        testCaseCommentService.edit(request);
     }
 }
