@@ -18,7 +18,6 @@ import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.AbstractContextMapper;
 import org.springframework.ldap.core.support.DefaultDirObjectFactory;
-import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.ldap.query.SearchScope;
 import org.springframework.stereotype.Service;
 
@@ -147,11 +146,16 @@ public class LdapService {
 
         String credentials = EncryptUtils.aesDecrypt(password).toString();
 
-        LdapContextSource sourceLdapCtx = new LdapContextSource();
+        SSLLdapContextSource sourceLdapCtx = new SSLLdapContextSource();
         sourceLdapCtx.setUrl(url);
         sourceLdapCtx.setUserDn(dn);
         sourceLdapCtx.setPassword(credentials);
         sourceLdapCtx.setDirObjectFactory(DefaultDirObjectFactory.class);
+        // todo 这里加上strategy 会报错
+//        DefaultTlsDirContextAuthenticationStrategy strategy = new DefaultTlsDirContextAuthenticationStrategy();
+//        strategy.setShutdownTlsGracefully(true);
+//        strategy.setHostnameVerifier((hostname, session) -> true);
+//        sourceLdapCtx.setAuthenticationStrategy(strategy);
         sourceLdapCtx.afterPropertiesSet();
         LdapTemplate ldapTemplate = new LdapTemplate(sourceLdapCtx);
         ldapTemplate.setIgnorePartialResultException(true);
