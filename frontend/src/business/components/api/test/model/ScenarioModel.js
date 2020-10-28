@@ -1001,8 +1001,8 @@ class JMXHttpRequest {
         this.domain = environment.config.httpConfig.domain;
         this.port = environment.config.httpConfig.port;
         this.protocol = environment.config.httpConfig.protocol;
-        let url = new URL(environment.config.httpConfig.protocol + "://" + environment.config.httpConfig.socket);
-        this.path = this.getPostQueryParameters(request, decodeURIComponent(url.pathname + (request.path ? request.path : '')));
+        let envPath = environment.config.httpConfig.protocol + "://" + environment.config.httpConfig.socket;
+        this.path = this.getPostQueryParameters(request, decodeURIComponent(envPath + (request.path ? request.path : '')));
       }
       this.connectTimeout = request.connectTimeout;
       this.responseTimeout = request.responseTimeout;
