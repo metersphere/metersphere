@@ -95,6 +95,16 @@ public class PerformanceReportController {
         return reportService.getResponseTimeChartData(reportId);
     }
 
+    @GetMapping("/content/error_chart/{reportId}")
+    public List<ChartsData> getErrorChartData(@PathVariable String reportId) {
+        return reportService.getErrorChartData(reportId);
+    }
+
+    @GetMapping("/content/response_code_chart/{reportId}")
+    public List<ChartsData> getResponseCodeChartData(@PathVariable String reportId) {
+        return reportService.getResponseCodeChartData(reportId);
+    }
+
     @GetMapping("/{reportId}")
     public LoadTestReportWithBLOBs getLoadTestReport(@PathVariable String reportId) {
         return reportService.getLoadTestReport(reportId);

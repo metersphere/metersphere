@@ -30,7 +30,7 @@
         show-overflow-tooltip>
       </el-table-column>
       <el-table-column
-        prop="creator"
+        prop="creatorName"
         :label="$t('test_track.review.review_creator')"
         show-overflow-tooltip>
       </el-table-column>
@@ -66,10 +66,6 @@
         <template v-slot:default="scope">
           <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)"
                              @deleteClick="handleDelete(scope.row)">
-            <!--            <template v-slot:middle>-->
-            <!--              <ms-table-operator-button :isTesterPermission="true" type="success" tip="重新发起" icon="el-icon-document"-->
-            <!--                                        @exec="reCreate(scope.row)"/>-->
-            <!--            </template>-->
           </ms-table-operator>
         </template>
       </el-table-column>
