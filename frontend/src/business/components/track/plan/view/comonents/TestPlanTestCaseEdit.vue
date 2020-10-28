@@ -25,7 +25,7 @@
                 </el-button>
               </el-col>
 
-              <el-col :span="12" class="head-right">
+              <el-col :span="11" class="head-right">
                 <span class="head-right-tip" v-if="index + 1 === testCases.length">
                   {{ $t('test_track.plan_view.pre_case') }} : {{
                     testCases[index - 1] ? testCases[index - 1].name : ''
@@ -44,11 +44,6 @@
                 <el-button plain size="mini" icon="el-icon-arrow-down"
                            :disabled="index + 1 >= testCases.length"
                            @click="handleNext()"/>
-                <el-divider direction="vertical"></el-divider>
-
-                <el-button type="primary" size="mini" :disabled="isReadOnly" @click="saveCase()">
-                  {{ $t('test_track.save') }}
-                </el-button>
               </el-col>
 
             </el-row>
@@ -577,6 +572,8 @@ export default {
         this.isFailure = this.testCase.steptResults.filter(s => {
           return s.executeResult === 'Failure' || s.executeResult === 'Blocking';
         }).length > 0;
+      } else {
+        this.isFailure = false;
       }
     },
     saveIssues() {

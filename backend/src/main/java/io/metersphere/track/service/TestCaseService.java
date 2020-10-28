@@ -170,7 +170,7 @@ public class TestCaseService {
         example.createCriteria().andCaseIdEqualTo(testCaseId);
         testPlanTestCaseMapper.deleteByExample(example);
         testCaseIssueService.delTestCaseIssues(testCaseId);
-        testCaseCommentService.deleteComment(testCaseId);
+        testCaseCommentService.deleteCaseComment(testCaseId);
         return testCaseMapper.deleteByPrimaryKey(testCaseId);
     }
 
@@ -458,7 +458,7 @@ public class TestCaseService {
                 String steps = t.getSteps();
                 String setp = "";
                 if (steps.contains("null")) {
-                    setp = steps.replace("null", "");
+                    setp = steps.replace("null", "\"\"");
                 } else {
                     setp = steps;
                 }

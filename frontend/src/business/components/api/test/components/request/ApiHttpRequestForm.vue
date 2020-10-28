@@ -1,4 +1,4 @@
-<template>
+<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <el-form :model="request" :rules="rules" ref="request" label-width="100px" :disabled="isReadOnly">
 
     <el-form-item :label="$t('api_test.request.name')" prop="name">
@@ -66,7 +66,7 @@
                      :environment="scenario.environment"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.assertions.label')" name="assertions">
-        <ms-api-assertions :is-read-only="isReadOnly" :assertions="request.assertions"/>
+        <ms-api-assertions :request="request" :is-read-only="isReadOnly" :assertions="request.assertions"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.request.extract.label')" name="extract">
         <ms-api-extract :is-read-only="isReadOnly" :extract="request.extract"/>
@@ -104,6 +104,7 @@ export default {
     MsApiVariable, ApiRequestMethodSelect, MsApiExtract, MsApiAssertions, MsApiBody, MsApiKeyValue},
   props: {
     request: HttpRequest,
+    jsonPathList: Array,
     scenario: Scenario,
     isReadOnly: {
       type: Boolean,
