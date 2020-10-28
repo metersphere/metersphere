@@ -1405,6 +1405,7 @@ class JMXGenerator {
           let arg = {};
           arg.name = kv.name;
           arg.value = BODY_FILE_DIR + '/' + testId + '/' + file.id + '_' + file.name;
+          arg.contentType = kv.contentType;
           files.push(arg);
         });
       }
