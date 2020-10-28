@@ -6,8 +6,9 @@
     </div>
     <el-collapse-transition>
       <el-tabs v-model="activeName" v-show="isActive">
-        <el-tab-pane label="Body" name="body" class="pane">
-          <ms-code-edit :mode="mode" :read-only="true" :data="response.body" :modes="modes" ref="codeEdit"/>
+        <el-tab-pane :class="'body-pane'" label="Body" name="body" class="pane">
+          <ms-sql-result-table v-if="isSqlType" :body="response.body"/>
+          <ms-code-edit v-if="!isSqlType" :mode="mode" :read-only="true" :data="response.body" :modes="modes" ref="codeEdit"/>
         </el-tab-pane>
         <el-tab-pane label="Headers" name="headers" class="pane">
           <pre>{{ response.headers }}</pre>
@@ -20,7 +21,7 @@
           <pre>{{response.vars}}</pre>
         </el-tab-pane>
 
-        <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane assertions">
+        <el-tab-pane v-if="activeName == 'body' && !isSqlType" :disabled="true" name="mode" class="pane assertions">
           <template v-slot:label>
             <ms-dropdown :commands="modes" :default-command="mode" @command="modeChange"/>
           </template>
@@ -35,18 +36,21 @@
 import MsAssertionResults from "./AssertionResults";
 import MsCodeEdit from "../../../common/components/MsCodeEdit";
 import MsDropdown from "../../../common/components/MsDropdown";
-import {BODY_FORMAT} from "../../test/model/ScenarioModel";
+import {BODY_FORMAT, RequestFactory, Request, SqlRequest} from "../../test/model/ScenarioModel";
+import MsSqlResultTable from "./SqlResultTable";
 
 export default {
   name: "MsResponseText",
 
   components: {
+    MsSqlResultTable,
     MsDropdown,
     MsCodeEdit,
     MsAssertionResults,
   },
 
   props: {
+    requestType: String,
     response: Object
   },
 
@@ -75,39 +79,52 @@ export default {
     if (this.response.headers.indexOf("Content-Type: application/json") > 0) {
       this.mode = BODY_FORMAT.JSON;
     }
+  },
+
+  computed: {
+    isSqlType() {
+      return (this.requestType === RequestFactory.TYPES.SQL && this.response.responseCode === '200');
+    }
   }
 }
 </script>
 
 <style scoped>
-.text-container .icon {
-  padding: 5px;
-}
 
-.text-container .collapse {
-  cursor: pointer;
-}
+  .body-pane {
+    padding: 10px !important;
+    background: white !important;
+  }
 
-.text-container .collapse:hover {
-  opacity: 0.8;
-}
+  .text-container .icon {
+    padding: 5px;
+  }
 
-.text-container .icon.is-active {
-  transform: rotate(90deg);
-}
+  .text-container .collapse {
+    cursor: pointer;
+  }
 
-.text-container .pane {
-  background-color: #F5F5F5;
-  padding: 0 10px;
-  height: 250px;
-  overflow-y: auto;
-}
+  .text-container .collapse:hover {
+    opacity: 0.8;
+  }
 
-.text-container .pane.assertions {
-  padding: 0;
-}
+  .text-container .icon.is-active {
+    transform: rotate(90deg);
+  }
 
-pre {
-  margin: 0;
-}
+  .text-container .pane {
+    background-color: #F5F5F5;
+    padding: 0 10px;
+    height: 250px;
+    overflow-y: auto;
+  }
+
+  .text-container .pane.assertions {
+    padding: 0;
+  }
+
+  pre {
+    margin: 0;
+  }
+
 </style>
