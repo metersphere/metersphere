@@ -210,7 +210,6 @@ public class TestResourcePoolService {
     private void updateTestResource(TestResource testResource) {
         testResource.setUpdateTime(System.currentTimeMillis());
         testResource.setCreateTime(System.currentTimeMillis());
-        testResource.setId(UUID.randomUUID().toString());
         testResourceMapper.insertSelective(testResource);
     }
 
