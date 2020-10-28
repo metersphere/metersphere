@@ -25,7 +25,7 @@ import {
   ThreadGroup,
   XPath2Extractor,
   IfController as JMXIfController,
-  ConstantTimer as JMXConstantTimer, TCPSampler,
+  ConstantTimer as JMXConstantTimer, TCPSampler, JSR223Assertion,
 } from "./JMX";
 import Mock from "mockjs";
 import {funcFilters} from "@/common/js/func-filter";
@@ -94,7 +94,8 @@ export const ASSERTION_TYPE = {
   TEXT: "Text",
   REGEX: "Regex",
   JSON_PATH: "JSON",
-  DURATION: "Duration"
+  DURATION: "Duration",
+  JSR223: "JSR223",
 }
 
 export const ASSERTION_REGEX_SUBJECT = {
@@ -716,16 +717,34 @@ export class KeyValue extends BaseConfig {
   }
 }
 
+export class BeanShellProcessor extends BaseConfig {
+  constructor(options) {
+    super();
+    this.script = undefined;
+    this.set(options);
+  }
+}
+
+export class JSR223Processor extends BaseConfig {
+  constructor(options) {
+    super();
+    this.script = undefined;
+    this.language = "beanshell";
+    this.set(options);
+  }
+}
+
 export class Assertions extends BaseConfig {
   constructor(options) {
     super();
     this.text = [];
     this.regex = [];
     this.jsonPath = [];
+    this.jsr223 = [];
     this.duration = undefined;
 
     this.set(options);
-    this.sets({text: Text, regex: Regex, jsonPath: JSONPath}, options);
+    this.sets({text: Text, regex: Regex, jsonPath: JSONPath, jsr223: AssertionJSR223}, options);
   }
 
   initOptions(options) {
@@ -742,21 +761,22 @@ export class AssertionType extends BaseConfig {
   }
 }
 
-export class BeanShellProcessor extends BaseConfig {
+export class AssertionJSR223 extends AssertionType {
   constructor(options) {
-    super();
-    this.script = undefined;
-    this.set(options);
-  }
-}
+    super(ASSERTION_TYPE.JSR223);
+    this.variable = undefined;
+    this.operator = undefined;
+    this.value = undefined;
+    this.desc = undefined;
 
-
-export class JSR223Processor extends BaseConfig {
-  constructor(options) {
-    super();
+    this.name = undefined;
     this.script = undefined;
     this.language = "beanshell";
     this.set(options);
+  }
+
+  isValid() {
+    return !!this.script && !!this.language;
   }
 }
 
@@ -795,6 +815,10 @@ export class JSONPath extends AssertionType {
     this.description = undefined;
 
     this.set(options);
+  }
+
+  setJSONPathDescription() {
+    this.description = this.expression + " expect: " + (this.expect ? this.expect : '');
   }
 
   isValid() {
@@ -1402,6 +1426,12 @@ class JMXGenerator {
       })
     }
 
+    if (assertions.jsr223.length > 0) {
+      assertions.jsr223.filter(this.filter).forEach(item => {
+        httpSamplerProxy.put(this.getJSR223Assertion(item));
+      })
+    }
+
     if (assertions.duration.isValid()) {
       let name = "Response In Time: " + assertions.duration.value
       httpSamplerProxy.put(new DurationAssertion(name, assertions.duration.value));
@@ -1411,6 +1441,11 @@ class JMXGenerator {
   getJSONPathAssertion(jsonPath) {
     let name = jsonPath.description;
     return new JSONPathAssertion(name, jsonPath);
+  }
+
+  getJSR223Assertion(item) {
+    let name = item.desc;
+    return new JSR223Assertion(name, item);
   }
 
   getResponseAssertion(regex) {

@@ -1,6 +1,6 @@
 export default {
   commons: {
-    comment:'评论',
+    comment: '评论',
     examples: '示例',
     help_documentation: '帮助文档',
     delete_cancelled: '已取消删除',
@@ -217,8 +217,8 @@ export default {
     delete_warning: '删除该组织将同步删除该组织下所有相关工作空间和相关工作空间下的所有项目，以及项目中的所有用例、接口测试、性能测试等,确定要删除吗?',
     service_integration: '服务集成',
     defect_manage: '缺陷管理平台',
-    message_settings:'消息设置',
-    message:{
+    message_settings: '消息设置',
+    message: {
       jenkins_task_notification: 'Jenkins接口调用任务通知',
       test_plan_task_notification: '测试计划任务通知',
       test_review_task_notice: '测试评审任务通知',
@@ -545,6 +545,7 @@ export default {
         text: "文本",
         regex: "正则",
         response_time: "响应时间",
+        jsr223: "脚本",
         select_type: "请选择类型",
         select_subject: "请选择对象",
         select_condition: "请选择条件",
@@ -557,7 +558,18 @@ export default {
         expect: "期望值",
         expression: "Perl型正则表达式",
         response_in_time: "响应时间在...毫秒以内",
-        ignore_status: "忽略状态"
+        json_path_add: "添加 JONPATH 断言",
+        json_path_err: "响应结果不是 JSON 格式",
+        json_path_suggest: "推荐JSONPath断言",
+        json_path_clear: "清空JSONPath断言",
+        debug_first: "请先执行调试获取响应结果",
+        ignore_status: "忽略状态",
+        add: "添加",
+        script_name: "脚本名称",
+        script: "脚本",
+        variable_name: "变量名称",
+        set_failure_status: "设置失败状态",
+        set_failure_msg: "设置失败消息",
       },
       extract: {
         label: "提取",
@@ -841,6 +853,8 @@ export default {
       send: "发送",
       description_is_null: "评论内容不能为空！",
       send_success: "评论成功！",
+      cannot_edit: "无法编辑此评论！",
+      cannot_delete: "无法删除此评论！",
     },
     review_view: {
       review: "评审",

@@ -23,7 +23,7 @@
                 </el-tabs>
               </el-col>
               <el-col :span="16" style="margin-top: 40px;">
-                <ms-request-result-tail v-if="isRequestResult" :request="request" :scenario-name="scenarioName"/>
+                <ms-request-result-tail v-if="isRequestResult" :request-type="requestType" :request="request" :scenario-name="scenarioName"/>
               </el-col>
             </el-row>
             <ms-api-report-export v-if="reportExportVisible" id="apiTestReport" :title="report.testName" :content="content" :total-time="totalTime"/>
@@ -47,6 +47,7 @@ import MsApiReportExport from "./ApiReportExport";
 import {exportPdf} from "../../../../common/js/utils";
 import html2canvas from "html2canvas";
 import MsApiReportViewHeader from "./ApiReportViewHeader";
+import {RequestFactory} from "../test/model/ScenarioModel";
 
 export default {
   name: "MsApiReportViewDetail",
@@ -67,7 +68,8 @@ export default {
       isRequestResult: false,
       request: {},
       scenarioName: null,
-      reportExportVisible: false
+      reportExportVisible: false,
+      requestType: undefined,
     }
   },
   props: ['reportId'],
@@ -140,6 +142,10 @@ export default {
     },
     requestResult(requestResult) {
       this.isRequestResult = false;
+      this.requestType = undefined;
+      if (requestResult.request.body.indexOf('[Callable Statement]') > -1) {
+        this.requestType = RequestFactory.TYPES.SQL;
+      }
       this.$nextTick(function () {
         this.isRequestResult = true;
         this.request = requestResult.request;

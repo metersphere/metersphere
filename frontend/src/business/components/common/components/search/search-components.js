@@ -143,6 +143,34 @@ export const CREATOR = {
   }
 }
 
+export const EXECUTOR = {
+  key: "executor",
+  name: 'MsTableSearchSelect',
+  label: 'test_track.plan_view.executor',
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.NOT_IN, OPERATORS.CURRENT_USER],
+    change: function (component, value) { // 运算符change事件
+      if (value === OPERATORS.CURRENT_USER.value) {
+        component.value = value;
+      }
+    }
+  },
+  options: { // 异步获取候选项
+    url: "/user/list",
+    labelKey: "name",
+    valueKey: "id",
+    showLabel: option => {
+      return option.label + "(" + option.value + ")";
+    }
+  },
+  props: {
+    multiple: true
+  },
+  isShow: operator => {
+    return operator !== OPERATORS.CURRENT_USER.value;
+  }
+}
+
 export const TRIGGER_MODE = {
   key: "triggerMode",
   name: 'MsTableSearchSelect',
@@ -287,6 +315,6 @@ export const TEST_CONFIGS = [NAME, UPDATE_TIME, PROJECT_NAME, CREATE_TIME, STATU
 
 export const REPORT_CONFIGS = [NAME, TEST_NAME, PROJECT_NAME, CREATE_TIME, STATUS, CREATOR, TRIGGER_MODE];
 
-export const TEST_CASE_CONFIGS = [NAME, MODULE, PRIORITY, CREATE_TIME, TYPE, UPDATE_TIME, METHOD, CREATOR];
+export const TEST_CASE_CONFIGS = [NAME, MODULE, PRIORITY, CREATE_TIME, TYPE, UPDATE_TIME, METHOD, CREATOR, EXECUTOR];
 
 export const TEST_PLAN_CONFIGS = [NAME, UPDATE_TIME, PROJECT_NAME, CREATE_TIME, PRINCIPAL, TEST_PLAN_STATUS, STAGE];

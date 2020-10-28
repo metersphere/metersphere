@@ -106,7 +106,7 @@ public class TestCaseReviewController {
     }
 
 
-    @PostMapping("/get/{reviewId}")
+    @GetMapping("/get/{reviewId}")
     public TestCaseReview getTestReview(@PathVariable String reviewId) {
         checkOwnerService.checkTestReviewOwner(reviewId);
         return testCaseReviewService.getTestReview(reviewId);

@@ -365,7 +365,7 @@ export default {
     },
     getTestReviewById() {
       if (this.reviewId) {
-        this.$post('/test/case/review/get/' + this.reviewId, {}, response => {
+        this.$get('/test/case/review/get/' + this.reviewId, response => {
           this.testReview = response.data;
           this.refreshTestReviewRecent();
         });

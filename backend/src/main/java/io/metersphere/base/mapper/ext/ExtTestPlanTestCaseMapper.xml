@@ -94,6 +94,12 @@
                 <property name="object" value="${condition}.creator"/>
             </include>
         </if>
+        <if test="${condition}.executor != null">
+            and test_plan_test_case.executor
+            <include refid="condition">
+                <property name="object" value="${condition}.executor"/>
+            </include>
+        </if>
     </sql>
 
     <select id="getReportMetric" parameterType="java.lang.String"

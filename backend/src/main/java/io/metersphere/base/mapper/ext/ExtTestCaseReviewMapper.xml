@@ -6,11 +6,11 @@
             parameterType="io.metersphere.track.request.testreview.QueryCaseReviewRequest">
         select distinct test_case_review.id, test_case_review.name, test_case_review.creator, test_case_review.status,
         test_case_review.create_time, test_case_review.update_time, test_case_review.end_time,
-        test_case_review.description
-        from test_case_review, project, test_case_review_project
+        test_case_review.description, user.name as creatorName
+        from test_case_review join test_case_review_project on test_case_review.id = test_case_review_project.review_id
+        join project on test_case_review_project.project_id = project.id
+        left join user on  test_case_review.creator = user.id
         <where>
-            test_case_review.id = test_case_review_project.review_id
-            and test_case_review_project.project_id = project.id
             <if test="request.name != null">
                 and test_case_review.name like CONCAT('%', #{request.name},'%')
             </if>

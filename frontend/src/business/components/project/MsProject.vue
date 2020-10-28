@@ -76,7 +76,6 @@
     <ms-delete-confirm :title="$t('project.delete')" @delete="_handleDelete" ref="deleteConfirm"/>
 
     <api-environment-config ref="environmentConfig"/>
-    <ms-jar-config ref="jarConfig"/>
 
   </ms-container>
 </template>

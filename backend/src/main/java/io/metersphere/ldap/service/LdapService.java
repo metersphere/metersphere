@@ -146,8 +146,17 @@ public class LdapService {
         preConnect(url, dn, password);
 
         String credentials = EncryptUtils.aesDecrypt(password).toString();
-
-        LdapContextSource sourceLdapCtx = new LdapContextSource();
+        LdapContextSource sourceLdapCtx;
+        if (StringUtils.startsWith(url, "ldaps://")) {
+            sourceLdapCtx = new SSLLdapContextSource();
+            // todo 这里加上strategy 会报错
+//        DefaultTlsDirContextAuthenticationStrategy strategy = new DefaultTlsDirContextAuthenticationStrategy();
+//        strategy.setShutdownTlsGracefully(true);
+//        strategy.setHostnameVerifier((hostname, session) -> true);
+//        sourceLdapCtx.setAuthenticationStrategy(strategy);
+        } else {
+            sourceLdapCtx = new LdapContextSource();
+        }
         sourceLdapCtx.setUrl(url);
         sourceLdapCtx.setUserDn(dn);
         sourceLdapCtx.setPassword(credentials);

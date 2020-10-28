@@ -1,6 +1,6 @@
 export default {
   commons: {
-    comment:'comment',
+    comment: 'comment',
     examples: 'examples',
     help_documentation: 'Help documentation',
     delete_cancelled: 'Delete cancelled',
@@ -216,8 +216,8 @@ export default {
     select: 'Select Organization',
     service_integration: 'Service integration',
     defect_manage: 'Defect management platform',
-    message_settings:'Message settings',
-    message:{
+    message_settings: 'Message settings',
+    message: {
       jenkins_task_notification: 'Jenkins task notification',
       test_plan_task_notification: 'Test plan task notification',
       test_review_task_notice: 'Test review task notice',
@@ -557,7 +557,18 @@ export default {
         expect: "Expect Value",
         expression: "Expression",
         response_in_time: "Response in time",
-        ignore_status: "Ignore Status"
+        ignore_status: "Ignore Status",
+        add: "Add",
+        script_name: "Script name",
+        script: "Script",
+        variable_name: "Variable name",
+        set_failure_status: "Set failure status",
+        set_failure_msg: "Set failure message",
+        json_path_add: "Add JONPATH Assertions",
+        json_path_err: "The response result is not in JSON format",
+        json_path_suggest: "JSONPath Assertion Suggest",
+        json_path_clear: "Clear JSONPath Assertion",
+        debug_first: "First, debug to get the response",
       },
       extract: {
         label: "Extract from response",
@@ -848,6 +859,8 @@ export default {
       relevance_case: "Relevance Case",
       last_page: "It's the end！",
       execute_result: "Result",
+      cannot_edit: "Cannot edit this comment！",
+      cannot_delete: "Cannot delete this comment！",
     },
     module: {
       search: "Search module",

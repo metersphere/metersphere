@@ -217,20 +217,25 @@ export default {
     delete_warning: '刪除該組織將同步刪除該組織下所有相關工作空間和相關工作空間下的所有項目，以及項目中的所有用例、接口測試、性能測試等,確定要刪除嗎?',
     service_integration: '服務集成',
     defect_manage: '缺陷管理平臺',
-    message_settings:'消息設定',
+    message_settings:'消息設置',
     message:{
-      jenkins_task_notification: 'Jenkins任務通知',
-      test_plan_task_notification: '測試計畫任務通知',
+      jenkins_task_notification: 'Jenkins接口調用任務通知',
+      test_plan_task_notification: '測試計劃任務通知',
       test_review_task_notice: '測試評審任務通知',
-      defect_task_notification: '缺陷任務通知',
       create_new_notification: '創建新通知',
       select_events: '選擇事件',
-      select_receiving_method: '選擇接收管道',
+      defect_task_notification: '缺陷任務通知',
+      select_receiving_method: '選擇接收方式',
       mail: '郵件',
       nail_robot: '釘釘機器人',
       enterprise_wechat_robot: '企業微信機器人',
-      message_webhook: '接收管道為釘釘和企業機器人時，webhook為必填項\n' +
-        '\n'
+      notes: '註意: 1.事件，接收方式，接收人為必填項；\n' +
+      '         2.接收方式除郵件外webhook為必填；\n' +
+      '         3.機器人選擇為群機器人，安全驗證選擇“自定義關鍵詞” ："任務通知"',
+      message: '事件，接收人，接收方式為必填項',
+      message_webhook: '接收方式為釘釘和企業機器人時，webhook為必填項'
+
+
     },
     integration: {
       select_defect_platform: '請選擇要集成的缺陷管理平臺：',
@@ -254,17 +259,7 @@ export default {
       successful_operation: '操作成功',
       not_integrated: '未集成該平臺',
       choose_platform: '請選擇集成的平臺',
-      verified: '驗證通過',
-      mail: '郵件',
-      nail_robot: '釘釘機器人',
-      enterprise_wechat_robot: '企業微信機器人',
-      notes: '注意：1.事件，接收管道，接收人為必填項；\n' +
-        '\n' +
-        '2.接收管道除郵件外webhook為必填；\n' +
-        '\n' +
-        '3.機器人選擇為群機器人，安全驗證選擇“自定義關鍵字”：“任務通知”',
-      message: '事件，接收人，接收管道為必填項\n' +
-        '\n'
+      verified: '驗證通過'
     }
   },
   project: {
@@ -562,7 +557,18 @@ export default {
         expect: "期望值",
         expression: "Perl型正則表達式",
         response_in_time: "響應時間在...毫秒以內",
-        ignore_status: "忽略狀態"
+        json_path_add: "添加 JONPATH 斷言",
+        json_path_err: "響應結果不是 JSON 格式",
+        json_path_suggest: "推薦JSONPath斷言",
+        json_path_clear: "清空JSONPath斷言",
+        debug_first: "請先執行調試獲取響應結果",
+        ignore_status: "忽略狀態",
+        add: "添加",
+        script_name: "腳本名稱",
+        script: "腳本",
+        variable_name: "變量名稱",
+        set_failure_status: "設置失敗狀態",
+        set_failure_msg: "設置失敗消息",
       },
       extract: {
         label: "提取",
@@ -846,6 +852,8 @@ export default {
       send: "發送",
       description_is_null: "評論內容不能為空！",
       send_success: "評論成功！",
+      cannot_edit: "無法編輯此評論!",
+      cannot_delete: "無法刪除此評論!",
     },
     review_view: {
       review: "評審",
