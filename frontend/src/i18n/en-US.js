@@ -1,6 +1,6 @@
 export default {
   commons: {
-    comment:'comment',
+    comment: 'comment',
     examples: 'examples',
     help_documentation: 'Help documentation',
     delete_cancelled: 'Delete cancelled',
@@ -216,8 +216,8 @@ export default {
     select: 'Select Organization',
     service_integration: 'Service integration',
     defect_manage: 'Defect management platform',
-    message_settings:'Message settings',
-    message:{
+    message_settings: 'Message settings',
+    message: {
       jenkins_task_notification: 'Jenkins task notification',
       test_plan_task_notification: 'Test plan task notification',
       test_review_task_notice: 'Test review task notice',
@@ -557,7 +557,13 @@ export default {
         expect: "Expect Value",
         expression: "Expression",
         response_in_time: "Response in time",
-        ignore_status: "Ignore Status"
+        ignore_status: "Ignore Status",
+        add: "Add",
+        script_name: "Script name",
+        script: "Script",
+        variable_name: "Variable name",
+        set_failure_status: "Set failure status",
+        set_failure_msg: "Set failure message",
       },
       extract: {
         label: "Extract from response",

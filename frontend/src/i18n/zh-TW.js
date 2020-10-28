@@ -562,7 +562,13 @@ export default {
         expect: "期望值",
         expression: "Perl型正則表達式",
         response_in_time: "響應時間在...毫秒以內",
-        ignore_status: "忽略狀態"
+        ignore_status: "忽略狀態",
+        add: "添加",
+        script_name: "腳本名稱",
+        script: "腳本",
+        variable_name: "變量名稱",
+        set_failure_status: "設置失敗狀態",
+        set_failure_msg: "設置失敗消息",
       },
       extract: {
         label: "提取",
