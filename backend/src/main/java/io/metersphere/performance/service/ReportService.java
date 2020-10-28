@@ -256,4 +256,16 @@ public class ReportService {
         List<String> ids = reportRequest.getIds();
         ids.forEach(this::deleteReport);
     }
+
+    public List<ChartsData> getErrorChartData(String id) {
+        checkReportStatus(id);
+        String content = getContent(id, ReportKeys.ErrorsChart);
+        return JSON.parseArray(content, ChartsData.class);
+    }
+
+    public List<ChartsData> getResponseCodeChartData(String id) {
+        checkReportStatus(id);
+        String content = getContent(id, ReportKeys.ResponseCodeChart);
+        return JSON.parseArray(content, ChartsData.class);
+    }
 }
