@@ -69,14 +69,14 @@
             <ms-request-metric :request="request"/>
             <ms-request-text  :request="request"/>
             <br>
-            <ms-response-text :response="request.responseResult"/>
+            <ms-response-text :request-type="requestType" :response="request.responseResult"/>
           </el-tab-pane>
         </el-tabs>
         <div v-else>
           <ms-request-metric :request="request"/>
           <ms-request-text v-if="isCodeEditAlive" :request="request"/>
           <br>
-          <ms-response-text v-if="isCodeEditAlive" :response="request.responseResult"/>
+          <ms-response-text :request-type="requestType" v-if="isCodeEditAlive" :response="request.responseResult"/>
         </div>
       </div>
     </el-collapse-transition>
@@ -95,7 +95,8 @@
     components: {MsResponseText, MsRequestText, MsAssertionResults, MsRequestMetric, MsRequestResult},
     props: {
       request: Object,
-      scenarioName: String
+      scenarioName: String,
+      requestType: String
     },
 
     data() {
