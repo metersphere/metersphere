@@ -1,5 +1,5 @@
 <template>
-    <editor v-model="formatData" :lang="mode" @init="editorInit" :theme="theme"/>
+    <editor v-model="formatData" :lang="mode" @init="editorInit" :theme="theme" :height="height"/>
 </template>
 
 <script>
@@ -12,6 +12,7 @@
         }
       },
       props: {
+        height: [String, Number],
         data: {
           type: String
         },
