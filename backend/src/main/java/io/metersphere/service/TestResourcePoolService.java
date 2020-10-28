@@ -1,8 +1,5 @@
 package io.metersphere.service;
 
-import static io.metersphere.commons.constants.ResourceStatusEnum.INVALID;
-import static io.metersphere.commons.constants.ResourceStatusEnum.VALID;
-
 import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.LoadTestMapper;
@@ -25,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +30,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.annotation.Resource;
+import static io.metersphere.commons.constants.ResourceStatusEnum.INVALID;
+import static io.metersphere.commons.constants.ResourceStatusEnum.VALID;
 
 /**
  * @author dongbin
@@ -210,7 +209,10 @@ public class TestResourcePoolService {
     private void updateTestResource(TestResource testResource) {
         testResource.setUpdateTime(System.currentTimeMillis());
         testResource.setCreateTime(System.currentTimeMillis());
-        testResource.setId(UUID.randomUUID().toString());
+        if (StringUtils.isBlank(testResource.getId())) {
+            testResource.setId(UUID.randomUUID().toString());
+        }
+        // 如果是更新操作，插入与原来的ID相同的数据
         testResourceMapper.insertSelective(testResource);
     }
 
