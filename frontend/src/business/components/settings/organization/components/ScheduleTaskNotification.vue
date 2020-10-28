@@ -2,8 +2,7 @@
   <div>
     <el-row>
       <el-col :span="10">
-        <h3>{{ $t('organization.message.jenkins_task_notification') }}</h3>
-        <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="handleAddTaskModel('jenkinsTask')">
+        <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="handleAddTaskModel('scheduleTask')">
           {{ $t('organization.message.create_new_notification') }}
         </el-button>
       </el-col>
@@ -11,7 +10,7 @@
     <el-row>
       <el-col :span="24">
         <el-table
-          :data="form.jenkinsTask"
+          :data="form.scheduleTask"
           class="tb-edit"
           border
           size="mini"
@@ -23,7 +22,7 @@
                          :placeholder="$t('organization.message.select_events')"
                          prop="events" :disabled="!scope.row.isSet">
                 <el-option
-                  v-for="item in jenkinsEventOptions"
+                  v-for="item in scheduleEventOptions"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value">
@@ -36,7 +35,7 @@
               <el-select v-model="row.userIds" filterable multiple
                          :placeholder="$t('commons.please_select')" style="width: 100%;" :disabled="!row.isSet">
                 <el-option
-                  v-for="item in jenkinsReceiverOptions"
+                  v-for="item in scheduleReceiverOptions"
                   :key="item.id"
                   :label="item.name"
                   :value="item.id">
@@ -76,7 +75,7 @@
               <el-button
                 size="mini"
                 v-show="scope.row.isSet"
-                @click.native.prevent="removeRowTask(scope.$index,form.jenkinsTask)"
+                @click.native.prevent="removeRowTask(scope.$index,form.scheduleTask)"
               >{{ $t('commons.cancel') }}
               </el-button>
               <el-button
@@ -84,8 +83,7 @@
                 size="mini"
                 v-show="!scope.row.isSet"
                 @click="handleEditTask(scope.$index,scope.row)"
-              >{{ $t('commons.edit') }}
-              </el-button>
+              >{{ $t('commons.edit') }}</el-button>
               <el-button
                 type="danger"
                 icon="el-icon-delete"
@@ -102,18 +100,18 @@
 </template>
 
 <script>
+
 export default {
-  name: "JenkinsNotification",
+  name: "ScheduleTaskNotification",
   props: {
-    jenkinsReceiverOptions: {
-      type: Array
-    }
+    testId:String,
+    scheduleReceiverOptions:Array,
   },
   data() {
     return {
       form: {
-        jenkinsTask: [{
-          taskType: "jenkinsTask",
+        scheduleTask: [{
+          taskType: "scheduleTask",
           event: "",
           userIds: [],
           type: [],
@@ -121,9 +119,11 @@ export default {
           isSet: true,
           identification: "",
           isReadOnly: false,
+          testId:this.testId,
+
         }],
       },
-      jenkinsEventOptions: [
+      scheduleEventOptions: [
         {value: 'EXECUTE_SUCCESSFUL', label: this.$t('schedule.event_success')},
         {value: 'EXECUTE_FAILED', label: this.$t('schedule.event_failed')}
       ],
@@ -134,13 +134,14 @@ export default {
       ],
     }
   },
-  activated() {
-    this.initForm();
+  mounted(){
+    this.initForm()
   },
   methods: {
-    initForm() {
-      this.result = this.$get('/notice/search/message', response => {
-        this.form.jenkinsTask = response.data.jenkinsTask;
+    initForm(){
+      this.result = this.$get('/notice/search/message/'+this.testId, response => {
+        console.log(response.data);
+        this.form.scheduleTask = response.data;
       })
     },
     handleEdit(index, data) {
@@ -157,22 +158,15 @@ export default {
       Task.webhook = "";
       Task.isSet = true;
       Task.identification = "";
-      if (type === 'jenkinsTask') {
-        Task.taskType = 'JENKINS_TASK'
-        this.form.jenkinsTask.push(Task)
+      if (type === 'scheduleTask') {
+        Task.taskType = 'SCHEDULE_TASK'
+        Task.testId=this.testId
+        this.form.scheduleTask.push(Task)
       }
-      if (type === 'testPlanTask') {
-        Task.taskType = 'TEST_PLAN_TASK'
-        this.form.testCasePlanTask.push(Task)
-      }
-      if (type === 'reviewTask') {
-        Task.taskType = 'REVIEW_TASK'
-        this.form.reviewTask.push(Task)
-      }
-      if (type === 'defectTask') {
-        Task.taskType = 'DEFECT_TASK'
-        this.form.defectTask.push(Task)
-      }
+    },
+    handleEditTask(index,data){
+      data.isSet = true
+      data.testId=this.testId
     },
     handleAddTask(index, data) {
       if (data.event && data.userIds.length > 0 && data.type) {
@@ -189,9 +183,6 @@ export default {
       } else {
         this.$warning(this.$t('organization.message.message'));
       }
-    },
-    handleEditTask(index,data){
-      data.isSet = true
     },
     addTask(data) {
       let list = []
@@ -228,3 +219,4 @@ export default {
   margin-bottom: 10px;
 }
 </style>
+

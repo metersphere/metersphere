@@ -24,10 +24,10 @@ import io.metersphere.notice.service.MailService;
 import io.metersphere.notice.service.NoticeService;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
+import io.metersphere.performance.notice.PerformanceNoticeTask;
 import io.metersphere.service.FileService;
 import io.metersphere.service.QuotaService;
 import io.metersphere.service.ScheduleService;
-import io.metersphere.service.TestResourceService;
 import io.metersphere.track.request.testplan.*;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.commons.collections4.ListUtils;
@@ -68,11 +68,7 @@ public class PerformanceTestService {
     @Resource
     private ExtLoadTestReportDetailMapper extLoadTestReportDetailMapper;
     @Resource
-    private LoadTestReportLogMapper loadTestReportLogMapper;
-    @Resource
     private LoadTestReportResultMapper loadTestReportResultMapper;
-    @Resource
-    private TestResourceService testResourceService;
     @Resource
     private ReportService reportService;
     @Resource
@@ -80,13 +76,13 @@ public class PerformanceTestService {
     @Resource
     private ScheduleService scheduleService;
     @Resource
-    private TestCaseMapper testCaseMapper;
-    @Resource
     private TestCaseService testCaseService;
     @Resource
     private NoticeService noticeService;
     @Resource
     private MailService mailService;
+    @Resource
+    private PerformanceNoticeTask performanceNoticeTask;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -238,14 +234,10 @@ public class PerformanceTestService {
         }
 
         startEngine(loadTest, engine, request.getTriggerMode());
-        List<NoticeDetail> noticeList = null;
-        if (request.getTriggerMode().equals("SCHEDULE")) {
-            try {
-                noticeList = noticeService.queryNotice(loadTest.getId());
-                mailService.sendPerformanceNotification(noticeList, PerformanceTestStatus.Completed.name(), loadTest, engine.getReportId());
-            } catch (Exception e) {
-                LogUtil.error(e.getMessage(), e);
-            }
+
+        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(engine.getReportId());
+        if (StringUtils.equals(NoticeConstants.API, loadTestReport.getTriggerMode()) || StringUtils.equals(NoticeConstants.SCHEDULE, loadTestReport.getTriggerMode())) {
+            performanceNoticeTask.registerNoticeTask(loadTestReport);
         }
         return engine.getReportId();
     }
@@ -319,9 +311,9 @@ public class PerformanceTestService {
             loadTest.setStatus(PerformanceTestStatus.Error.name());
             loadTest.setDescription(e.getMessage());
             loadTestMapper.updateByPrimaryKeySelective(loadTest);
-            if (triggerMode.equals("SCHEDULE")) {
-                noticeList = noticeService.queryNotice(loadTest.getId());
-                mailService.sendPerformanceNotification(noticeList, loadTest.getStatus(), loadTest, loadTest.getId());
+            LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(engine.getReportId());
+            if (StringUtils.equals(NoticeConstants.API, loadTestReport.getTriggerMode()) || StringUtils.equals(NoticeConstants.SCHEDULE, loadTestReport.getTriggerMode())) {
+                performanceNoticeTask.registerNoticeTask(loadTestReport);
             }
             throw e;
         }
@@ -447,12 +439,12 @@ public class PerformanceTestService {
             reportService.updateStatus(reportId, PerformanceTestStatus.Completed.name());
             List<NoticeDetail> noticeList = null;
             if (loadTestReport.getTriggerMode().equals("SCHEDULE")) {
-                try {
+               /* try {
                     noticeList = noticeService.queryNotice(loadTest.getId());
                     mailService.sendPerformanceNotification(noticeList, loadTestReport.getStatus(), loadTest, loadTestReport.getId());
                 } catch (Exception e) {
                     LogUtil.error(e.getMessage(), e);
-                }
+                }*/
             }
 
 

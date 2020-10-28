@@ -80,6 +80,12 @@
               >{{ $t('commons.cancel') }}
               </el-button>
               <el-button
+                type="primary"
+                size="mini"
+                v-show="!scope.row.isSet"
+                @click="handleEditTask(scope.$index,scope.row)"
+              >{{ $t('commons.edit') }}</el-button>
+              <el-button
                 type="danger"
                 icon="el-icon-delete"
                 size="mini"
@@ -146,6 +152,9 @@ export default {
       if (data.type === 'EMAIL') {
         data.isReadOnly = !data.isReadOnly
       }
+    },
+    handleEditTask(index,data){
+      data.isSet = true
     },
     handleAddTaskModel(type) {
       let Task = {};
