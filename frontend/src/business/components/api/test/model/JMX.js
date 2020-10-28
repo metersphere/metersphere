@@ -501,6 +501,12 @@ export class JSR223Processor extends DefaultTestElement {
   }
 }
 
+export class JSR223Assertion extends JSR223Processor {
+  constructor(testName, processor) {
+    super('JSR223Assertion', 'TestBeanGUI', 'JSR223Assertion', testName, processor)
+  }
+}
+
 export class JSR223PreProcessor extends JSR223Processor {
   constructor(testName, processor) {
     super('JSR223PreProcessor', 'TestBeanGUI', 'JSR223PreProcessor', testName, processor)

@@ -3,7 +3,7 @@
              @close="close">
     <template>
       <div>
-        <el-tabs v-model="activeName" @tab-click="handleClick">
+        <el-tabs v-model="activeName">
 
           <el-tab-pane :label="$t('schedule.edit_timer_task')" name="first">
             <el-form :model="form" :rules="rules" ref="from">
@@ -31,60 +31,7 @@
             </el-dialog>
           </el-tab-pane>
           <el-tab-pane :label="$t('schedule.task_notification')" name="second">
-            <template>
-              <el-table
-                :data="tableData"
-                style="width: 100%">
-                <el-table-column
-                  prop="event"
-                  :label="$t('schedule.event')">
-                  <template v-slot:default="{row}">
-                    <span v-if="row.event === 'EXECUTE_SUCCESSFUL'"> {{ $t('schedule.event_success') }}</span>
-                    <span v-else-if="row.event === 'EXECUTE_FAILED'"> {{ $t('schedule.event_failed') }}</span>
-                    <span v-else>{{ row.event }}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column
-                  prop="name"
-                  :label="$t('schedule.receiver')"
-                  width="240"
-                >
-                  <template v-slot:default="{row}">
-                    <el-select v-model="row.userIds" filterable multiple
-                               :placeholder="$t('commons.please_select')"
-                               @click.native="userList()" style="width: 100%;">
-                      <el-option
-                        v-for="item in options"
-                        :key="item.id"
-                        :label="item.name"
-                        :value="item.id">
-                      </el-option>
-                    </el-select>
-                  </template>
-                </el-table-column>
-                <el-table-column
-                  prop="type"
-                  :label="$t('schedule.receiving_mode')"
-                >
-                </el-table-column>
-                <el-table-column
-                  :label="$t('test_resource_pool.enable_disable')"
-                  prop="enable"
-                >
-                  <template v-slot:default="{row}">
-                    <el-switch
-                      v-model="row.enable"
-                      active-value="true"
-                      inactive-value="false"
-                      inactive-color="#DCDFE6"
-                    />
-                  </template>
-                </el-table-column>
-              </el-table>
-              <div style="padding-top: 20px;">
-                <el-button type="primary" @click="saveNotice">{{ $t('commons.save') }}</el-button>
-              </div>
-            </template>
+          <schedule-task-notification :test-id="testId" :schedule-receiver-options="scheduleReceiverOptions"></schedule-task-notification>
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -93,19 +40,19 @@
 </template>
 
 <script>
-
+import {getCurrentUser} from "@/common/js/utils";
 import Crontab from "../cron/Crontab";
 import CrontabResult from "../cron/CrontabResult";
 import {cronValidate} from "@/common/js/cron";
 import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
-
+import ScheduleTaskNotification from "../../settings/organization/components/ScheduleTaskNotification";
 function defaultCustomValidate() {
   return {pass: true};
 }
 
 export default {
   name: "MsScheduleEdit",
-  components: {CrontabResult, Crontab},
+  components: {CrontabResult, Crontab,ScheduleTaskNotification},
   props: {
     testId: String,
     save: Function,
@@ -144,29 +91,13 @@ export default {
       }
     };
     return {
+      scheduleReceiverOptions:[],
       operation: true,
       dialogVisible: false,
       showCron: false,
       form: {
         cronValue: ""
       },
-      tableData: [
-        {
-          event: "EXECUTE_SUCCESSFUL",
-          type: "EMAIL",
-          userIds: [],
-          enable: false
-        },
-        {
-          event: "EXECUTE_FAILED",
-          type: "EMAIL",
-          userIds: [],
-          enable: false
-        }
-      ],
-      options: [{}],
-      enable: true,
-      type: "",
       activeName: 'first',
       rules: {
         cronValue: [{required: true, validator: validateCron, trigger: 'blur'}],
@@ -174,28 +105,26 @@ export default {
     }
   },
   methods: {
-    userList() {
-      this.result = this.$get('user/list', response => {
-        this.options = response.data
-      })
+    currentUser: () => {
+      return getCurrentUser();
     },
-    handleClick() {
-      if (this.activeName === "second") {
-        this.result = this.$get('notice/query/' + this.testId, response => {
-          if (response.data.length > 0) {
-            this.tableData = response.data
+    initUserList() {
+      let param = {
+        name: '',
+        organizationId: this.currentUser().lastOrganizationId
+      };
+      this.result = this.$post('user/org/member/list/all', param, response => {
+        this.scheduleReceiverOptions = response.data
 
-            this.tableData[0].event = "EXECUTE_SUCCESSFUL"
-            this.tableData[0].type = "EMAIL"
-            this.tableData[1].event = "EXECUTE_FAILED"
-            this.tableData[1].type = "EMAIL"
-          } else {
-            this.tableData[0].userIds = []
-            this.tableData[1].userIds = []
-          }
-        })
-      }
+      });
     },
+   /* handleClick() {
+      if (this.activeName === "second") {
+          this.result = this.$get('/notice/search/message/'+this.testId, response => {
+            this.scheduleTask = response.data;
+          })
+      }
+    },*/
     buildParam() {
       let param = {};
       param.notices = this.tableData
@@ -203,10 +132,10 @@ export default {
       return param;
     },
     open() {
+      this.initUserList();
       this.dialogVisible = true;
       this.form.cronValue = this.schedule.value;
       listenGoBack(this.close);
-      this.handleClick()
       this.activeName = 'first'
     },
     crontabFill(value, resultList) {
