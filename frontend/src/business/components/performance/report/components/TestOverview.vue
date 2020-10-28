@@ -502,6 +502,8 @@ export default {
           this.avgBandwidth = '0';
           this.loadOption = {};
           this.resOption = {};
+          this.errorOption = {};
+          this.resCodeOption = {};
         }
       },
       deep: true
