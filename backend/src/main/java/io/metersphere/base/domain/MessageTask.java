@@ -1,7 +1,8 @@
 package io.metersphere.base.domain;
 
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 public class MessageTask implements Serializable {
@@ -22,6 +23,8 @@ public class MessageTask implements Serializable {
     private Boolean isSet;
 
     private String organizationId;
+
+    private String testId;
 
     private static final long serialVersionUID = 1L;
 }

@@ -1,24 +1,22 @@
 package io.metersphere.performance.notice;
 
-import io.metersphere.base.domain.LoadTest;
-import io.metersphere.base.domain.LoadTestWithBLOBs;
-import io.metersphere.base.mapper.LoadTestMapper;
+import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.domain.MessageSettingDetail;
-import io.metersphere.notice.domain.NoticeDetail;
 import io.metersphere.notice.service.DingTaskService;
 import io.metersphere.notice.service.MailService;
 import io.metersphere.notice.service.NoticeService;
 import io.metersphere.notice.service.WxChatTaskService;
+import io.metersphere.service.SystemParameterService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
-import javax.mail.MessagingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -35,7 +33,7 @@ public class PerformanceNoticeTask {
     @Resource
     private MailService mailService;
     @Resource
-    private LoadTestMapper loadTestMapper;
+    private SystemParameterService systemParameterService;
     private final ExecutorService executorService = Executors.newFixedThreadPool(20);
     private boolean isRunning = true;
 
@@ -43,18 +41,18 @@ public class PerformanceNoticeTask {
     public void preDestroy() {
         isRunning = false;
     }
-    public  void registerNoticeTask(String triggerMode,LoadTestWithBLOBs loadTest) {
+
+    public void registerNoticeTask(LoadTestReportWithBLOBs loadTestReport) {
         executorService.submit(() -> {
             while (isRunning) {
-                LoadTestWithBLOBs result = loadTestMapper.selectByPrimaryKey(loadTest.getId());
-                if (StringUtils.equals(result.getStatus(), PerformanceTestStatus.Completed.name())) {
+                if (StringUtils.equals(loadTestReport.getStatus(), PerformanceTestStatus.Completed.name())) {
                     isRunning = false;
-                    sendSuccessNotice(triggerMode,loadTest);
+                    sendSuccessNotice(loadTestReport);
                     return;
                 }
-                if (StringUtils.equals(result.getStatus(), PerformanceTestStatus.Error.name())) {
+                if (StringUtils.equals(loadTestReport.getStatus(), PerformanceTestStatus.Error.name())) {
                     isRunning = false;
-                    sendFailNotice(triggerMode,loadTest);
+                    sendFailNotice(loadTestReport);
                     return;
                 }
                 try {
@@ -66,83 +64,81 @@ public class PerformanceNoticeTask {
         });
     }
 
-    public void sendSuccessNotice(String triggerMode,LoadTestWithBLOBs loadTest) {
-        if (StringUtils.equals(NoticeConstants.API, "API")||StringUtils.equals(NoticeConstants.SCHEDULE,"SCHEDULE")) {
-            List<String> userIds = new ArrayList<>();
+    public void sendSuccessNotice(LoadTestReportWithBLOBs loadTestReport) {
+        List<String> userIds = new ArrayList<>();
+        List<MessageDetail> taskList = new ArrayList<>();
+        String successContext = "";
+        BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
+        String url = baseSystemConfigDTO.getUrl() + "/#/performance/report/view/" + loadTestReport.getId();
+        if (StringUtils.equals(NoticeConstants.API, loadTestReport.getTriggerMode())) {
             MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
-            List<MessageDetail> taskList = messageSettingDetail.getJenkinsTask();
-            if(StringUtils.equals(triggerMode,NoticeConstants.SCHEDULE)){
-                List<NoticeDetail> noticeList = null;
-                noticeList = noticeService.queryNotice(loadTest.getId());
-                mailService.sendPerformanceNotification(noticeList, PerformanceTestStatus.Completed.name(), loadTest, loadTest.getId());            }else{
-                return;
-            }
-
-            if(StringUtils.equals(triggerMode,NoticeConstants.SCHEDULE)){
-                String contextSuccess="";
-                contextSuccess = "jenkins任务通知:" + loadTest.getName() + "执行成功";
-                String finalContextSuccess = contextSuccess;
-                taskList.forEach(r -> {
-                    switch (r.getType()) {
-                        case NoticeConstants.NAIL_ROBOT:
-                            if (StringUtils.equals(NoticeConstants.EXECUTE_SUCCESSFUL, r.getEvent())
-                                    && StringUtils.equals(loadTest.getStatus(), PerformanceTestStatus.Completed.name())) {
-                                dingTaskService.sendNailRobot(r, userIds, finalContextSuccess, NoticeConstants.EXECUTE_SUCCESSFUL);
-                            }
-                            break;
-                        case NoticeConstants.WECHAT_ROBOT:
-                            if (StringUtils.equals(NoticeConstants.EXECUTE_SUCCESSFUL, r.getEvent())
-                                    && StringUtils.equals(loadTest.getStatus(), PerformanceTestStatus.Completed.name())) {
-                                wxChatTaskService.sendWechatRobot(r, userIds, finalContextSuccess, NoticeConstants.EXECUTE_SUCCESSFUL);
-                            }
-                            break;
-                        case NoticeConstants.EMAIL:
-                            if (StringUtils.equals(NoticeConstants.EXECUTE_SUCCESSFUL, r.getEvent())
-                                    && StringUtils.equals(loadTest.getStatus(), PerformanceTestStatus.Completed.name())) {
-                                try {
-                                    mailService.sendLoadJenkinsNotification(finalContextSuccess, r);
-                                } catch (MessagingException messagingException) {
-                                    messagingException.printStackTrace();
-                                }
-                            }
-                            break;
-                    }
-                });
-            }
-
+            taskList = messageSettingDetail.getJenkinsTask();
+            successContext = "jenkins性能测试任务通知" + loadTestReport.getName() + "执行成功" + "请点击下面链接进入测试报告页面" + url;
         }
+        if (StringUtils.equals(NoticeConstants.SCHEDULE, loadTestReport.getTriggerMode())) {
+            taskList = noticeService.searchMessageSchedule(loadTestReport.getId());
+            successContext = "定时任务性能测试任务通知" + loadTestReport.getName() + "执行成功" + "请点击下面链接进入测试报告页面" + url;
+        }
+        String finalSuccessContext = successContext;
+        taskList.forEach(r -> {
+            switch (r.getType()) {
+                case NoticeConstants.NAIL_ROBOT:
+                    if (StringUtils.equals(NoticeConstants.EXECUTE_SUCCESSFUL, r.getEvent()) && StringUtils.equals(loadTestReport.getStatus(), PerformanceTestStatus.Completed.name())) {
+                        dingTaskService.sendNailRobot(r, userIds, finalSuccessContext, NoticeConstants.EXECUTE_SUCCESSFUL);
+                    }
+                    break;
+                case NoticeConstants.WECHAT_ROBOT:
+                    if (StringUtils.equals(NoticeConstants.EXECUTE_SUCCESSFUL, r.getEvent()) && StringUtils.equals(loadTestReport.getStatus(), PerformanceTestStatus.Completed.name())) {
+                        wxChatTaskService.sendWechatRobot(r, userIds, finalSuccessContext, NoticeConstants.EXECUTE_SUCCESSFUL);
+                    }
+                    break;
+                case NoticeConstants.EMAIL:
+                    if (StringUtils.equals(NoticeConstants.EXECUTE_SUCCESSFUL, r.getEvent()) && StringUtils.equals(loadTestReport.getStatus(), PerformanceTestStatus.Completed.name())) {
+                        mailService.sendLoadNotification(r, loadTestReport, NoticeConstants.EXECUTE_SUCCESSFUL);
+                    }
+                    break;
+            }
+
+        });
     }
 
-    public void sendFailNotice(String triggerMode,LoadTestWithBLOBs loadTest) {
-        if (StringUtils.equals(NoticeConstants.API, "API")) {
-            List<String> userIds = new ArrayList<>();
+
+    public void sendFailNotice(LoadTestReportWithBLOBs loadTestReport) {
+        List<String> userIds = new ArrayList<>();
+        List<MessageDetail> taskList = new ArrayList<>();
+        String failedContext = "";
+        BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
+        String url = baseSystemConfigDTO.getUrl() + "/#/performance/report/view/" + loadTestReport.getId();
+        if (StringUtils.equals(NoticeConstants.API, loadTestReport.getTriggerMode())) {
             MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
-            List<MessageDetail> taskList = messageSettingDetail.getJenkinsTask();
-            String contextFailed = "jenkins任务通知:" + loadTest.getName() + "执行失败";
-            taskList.forEach(r -> {
-                switch (r.getType()) {
-                    case NoticeConstants.NAIL_ROBOT:
-                        if (StringUtils.equals(NoticeConstants.EXECUTE_FAILED, r.getEvent())) {
-                            dingTaskService.sendNailRobot(r, userIds, contextFailed, NoticeConstants.EXECUTE_FAILED);
-                        }
-                        break;
-                    case NoticeConstants.WECHAT_ROBOT:
-                        if (StringUtils.equals(NoticeConstants.EXECUTE_FAILED, r.getEvent())) {
-                            wxChatTaskService.sendWechatRobot(r, userIds, contextFailed, NoticeConstants.EXECUTE_FAILED);
-                        }
-                        break;
-                    case NoticeConstants.EMAIL:
-                        if (StringUtils.equals(NoticeConstants.EXECUTE_FAILED, r.getEvent())) {
-                            try {
-                                mailService.sendLoadJenkinsNotification(contextFailed, r);
-                            } catch (MessagingException messagingException) {
-                                messagingException.printStackTrace();
-                            }
-                        }
-                        break;
-                }
-            });
+            taskList = messageSettingDetail.getJenkinsTask();
+            failedContext = "jenkins性能测试任务通知" + loadTestReport.getName() + "执行失败" + "请点击下面链接进入测试报告页面" + url;
         }
+        if (StringUtils.equals(NoticeConstants.SCHEDULE, loadTestReport.getTriggerMode())) {
+            taskList = noticeService.searchMessageSchedule(loadTestReport.getId());
+            failedContext = "定时任务性能测试任务通知" + loadTestReport.getName() + "执行失败" + "请点击下面链接进入测试报告页面" + url;
+        }
+        String finalFailedContext = failedContext;
+        taskList.forEach(r -> {
+            switch (r.getType()) {
+                case NoticeConstants.NAIL_ROBOT:
+                    if (StringUtils.equals(NoticeConstants.EXECUTE_FAILED, r.getEvent()) && StringUtils.equals(loadTestReport.getStatus(), PerformanceTestStatus.Error.name())) {
+                        dingTaskService.sendNailRobot(r, userIds, finalFailedContext, NoticeConstants.EXECUTE_FAILED);
+                    }
+                    break;
+                case NoticeConstants.WECHAT_ROBOT:
+                    if (StringUtils.equals(NoticeConstants.EXECUTE_FAILED, r.getEvent()) && StringUtils.equals(loadTestReport.getStatus(), PerformanceTestStatus.Error.name())) {
+                        wxChatTaskService.sendWechatRobot(r, userIds, finalFailedContext, NoticeConstants.EXECUTE_FAILED);
+                    }
+                    break;
+                case NoticeConstants.EMAIL:
+                    if (StringUtils.equals(NoticeConstants.EXECUTE_FAILED, r.getEvent()) && StringUtils.equals(loadTestReport.getStatus(), PerformanceTestStatus.Error.name())) {
+                        mailService.sendLoadNotification(r, loadTestReport, NoticeConstants.EXECUTE_FAILED);
+                    }
+                    break;
+            }
+
+        });
     }
 
 }
