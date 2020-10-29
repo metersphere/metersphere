@@ -300,6 +300,9 @@ public class PerformanceTestService {
             reportResult.setReportValue("Ready"); // 初始化一个 result_status, 这个值用在data-streaming中
             loadTestReportResultMapper.insertSelective(reportResult);
         } catch (MSException e) {
+            // 启动失败之后清理任务
+            engine.stop();
+
             LogUtil.error(e);
             loadTest.setStatus(PerformanceTestStatus.Error.name());
             loadTest.setDescription(e.getMessage());

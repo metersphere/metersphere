@@ -32,7 +32,6 @@ public class DockerTestEngine extends AbstractEngine {
         super.init(loadTest);
         this.restTemplate = (RestTemplate) CommonBeanFactory.getBean("restTemplate");
         this.restTemplateWithTimeOut = (RestTemplate) CommonBeanFactory.getBean("restTemplateWithTimeOut");
-        // todo 初始化操作
     }
 
     @Override
@@ -60,7 +59,6 @@ public class DockerTestEngine extends AbstractEngine {
     }
 
     private void runTest(TestResource resource, long realThreadNum, int resourceIndex) {
-        // todo 运行测试
         EngineContext context = null;
         try {
             context = EngineFactory.createContext(loadTest, resource.getId(), realThreadNum, this.getStartTime(), this.getReportId(), resourceIndex);
@@ -99,7 +97,6 @@ public class DockerTestEngine extends AbstractEngine {
 
     @Override
     public void stop() {
-        // TODO 停止运行测试
         String testId = loadTest.getId();
         this.resourceList.forEach(r -> {
             NodeDTO node = JSON.parseObject(r.getConfiguration(), NodeDTO.class);
