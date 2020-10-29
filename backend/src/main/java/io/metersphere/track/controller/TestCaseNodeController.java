@@ -77,4 +77,9 @@ public class TestCaseNodeController {
     public void dragNode(@RequestBody DragNodeRequest node) {
         testCaseNodeService.dragNode(node);
     }
+
+    @PostMapping("/pos")
+    public void treeSort(@RequestBody List<String> ids) {
+        testCaseNodeService.sort(ids);
+    }
 }
