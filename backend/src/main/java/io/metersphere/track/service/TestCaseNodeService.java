@@ -58,6 +58,8 @@ public class TestCaseNodeService {
         node.setCreateTime(System.currentTimeMillis());
         node.setUpdateTime(System.currentTimeMillis());
         node.setId(UUID.randomUUID().toString());
+        double pos = getNextLevelPos(node.getProjectId(), node.getLevel());
+        node.setPos(pos);
         testCaseNodeMapper.insertSelective(node);
         return node.getId();
     }
@@ -93,7 +95,7 @@ public class TestCaseNodeService {
     public List<TestCaseNodeDTO> getNodeTreeByProjectId(String projectId) {
         TestCaseNodeExample testCaseNodeExample = new TestCaseNodeExample();
         testCaseNodeExample.createCriteria().andProjectIdEqualTo(projectId);
-        testCaseNodeExample.setOrderByClause("create_time asc");
+        testCaseNodeExample.setOrderByClause("pos asc");
         List<TestCaseNode> nodes = testCaseNodeMapper.selectByExample(testCaseNodeExample);
         return getNodeTrees(nodes);
     }
@@ -486,6 +488,8 @@ public class TestCaseNodeService {
         testCaseNode.setUpdateTime(System.currentTimeMillis());
         testCaseNode.setLevel(level);
         testCaseNode.setId(UUID.randomUUID().toString());
+        double pos = getNextLevelPos(projectId, level);
+        testCaseNode.setPos(pos);
         testCaseNodeMapper.insert(testCaseNode);
         return testCaseNode.getId();
     }
@@ -572,6 +576,62 @@ public class TestCaseNodeService {
         List<TestCaseNode> testCaseNodes = testCaseNodeMapper.selectByExample(example);
         String projectId = testCaseNodes.get(0).getProjectId();
         return projectMapper.selectByPrimaryKey(projectId);
+    }
+
+    private TestCaseNode getCaseNode(String id) {
+        return testCaseNodeMapper.selectByPrimaryKey(id);
+    }
+
+
+    /**
+     * 测试用例同级模块排序
+     * @param ids
+     */
+    public void sort(List<String> ids) {
+        //  获取同级相邻节点
+        String before = ids.get(0);
+        String id = ids.get(1);
+        String after = ids.get(2);
+
+        TestCaseNode beforeCase = null;
+        TestCaseNode afterCase = null;
+
+        TestCaseNode caseNode = getCaseNode(id);
+
+        if (StringUtils.isNotBlank(before)) {
+            beforeCase = getCaseNode(before);
+            beforeCase = beforeCase.getLevel().equals(caseNode.getLevel()) ? beforeCase : null;
+        }
+
+        if (StringUtils.isNotBlank(after)) {
+            afterCase = getCaseNode(after);
+            afterCase = afterCase.getLevel().equals(caseNode.getLevel()) ? afterCase : null;
+        }
+
+        double pos;
+
+        if (beforeCase == null) {
+            pos = afterCase != null ? afterCase.getPos() / 2.0 : 65536;
+        } else {
+            pos = afterCase != null ? (beforeCase.getPos() + afterCase.getPos()) / 2.0 : beforeCase.getPos() + 65536;
+        }
+
+        // todo pos 低于阈值时，触发更新方法，重新计算此目录的所有同级目录的 pos 值
+
+        caseNode.setPos(pos);
+        testCaseNodeMapper.updateByPrimaryKeySelective(caseNode);
+    }
+
+    public double getNextLevelPos(String projectId, int level) {
+        TestCaseNodeExample example = new TestCaseNodeExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andLevelEqualTo(level);
+        example.setOrderByClause("pos desc");
+        List<TestCaseNode> list = testCaseNodeMapper.selectByExample(example);
+        if (!CollectionUtils.isEmpty(list)) {
+            return list.get(0).getPos() + 65536;
+        } else {
+            return 65536;
+        }
     }
 
 }
