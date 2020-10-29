@@ -3,6 +3,9 @@
 </template>
 
 <script>
+  import {formatHtml, formatJson, formatXml} from "../../../../common/js/format-utils";
+  import toDiffableHtml from 'diffable-html';
+
     export default {
       name: "MsCodeEdit",
       components: { editor: require('vue2-ace-editor')},
@@ -71,19 +74,20 @@
           }
         },
         format() {
-          if (this.mode === 'json') {
-            try {
-              var JSONbig = require('json-bigint')({"storeAsString": false});
-              this.formatData = JSON.stringify(JSONbig.parse(this.data), null, '\t');
-            } catch (e) {
+          switch (this.mode) {
+            case 'json':
+              this.formatData = formatJson(this.data);
+              break;
+            case 'html':
+              this.formatData = toDiffableHtml(this.data);
+              break;
+            case 'xml':
+              this.formatData = formatXml(this.data);
+              break;
+            default:
               if (this.data) {
                 this.formatData = this.data;
               }
-            }
-          } else {
-            if (this.data) {
-              this.formatData = this.data;
-            }
           }
         }
       }

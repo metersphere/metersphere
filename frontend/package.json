@@ -36,7 +36,8 @@
     "yan-progress": "^1.0.3",
     "nprogress": "^0.2.0",
     "el-table-infinite-scroll": "^1.0.10",
-    "vue-pdf": "^4.2.0"
+    "vue-pdf": "^4.2.0",
+    "diffable-html": "^4.0.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.1.0",
@@ -63,7 +64,8 @@
       "no-console": "off",
       "no-unused-vars": "off",
       "no-unused-expressions": "off",
-      "no-unused-labels": "off"
+      "no-unused-labels": "off",
+      "no-useless-escape": "off"
     },
     "parserOptions": {
       "parser": "babel-eslint"

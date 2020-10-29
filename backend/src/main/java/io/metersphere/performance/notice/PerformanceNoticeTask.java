@@ -73,11 +73,11 @@ public class PerformanceNoticeTask {
         if (StringUtils.equals(NoticeConstants.API, loadTestReport.getTriggerMode())) {
             MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
             taskList = messageSettingDetail.getJenkinsTask();
-            successContext = "jenkins性能测试任务通知" + loadTestReport.getName() + "执行成功" + "请点击下面链接进入测试报告页面" + url;
+            successContext = "LoadJenkins任务通知:" + loadTestReport.getName() + "执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
         }
         if (StringUtils.equals(NoticeConstants.SCHEDULE, loadTestReport.getTriggerMode())) {
-            taskList = noticeService.searchMessageSchedule(loadTestReport.getId());
-            successContext = "定时任务性能测试任务通知" + loadTestReport.getName() + "执行成功" + "请点击下面链接进入测试报告页面" + url;
+            taskList = noticeService.searchMessageSchedule(loadTestReport.getTestId());
+            successContext = "Load定时任务通知:" + loadTestReport.getName() + "执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
         }
         String finalSuccessContext = successContext;
         taskList.forEach(r -> {
@@ -112,11 +112,11 @@ public class PerformanceNoticeTask {
         if (StringUtils.equals(NoticeConstants.API, loadTestReport.getTriggerMode())) {
             MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
             taskList = messageSettingDetail.getJenkinsTask();
-            failedContext = "jenkins性能测试任务通知" + loadTestReport.getName() + "执行失败" + "请点击下面链接进入测试报告页面" + url;
+            failedContext = "LoadJenkins任务通知:" + loadTestReport.getName() + "执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
         }
         if (StringUtils.equals(NoticeConstants.SCHEDULE, loadTestReport.getTriggerMode())) {
-            taskList = noticeService.searchMessageSchedule(loadTestReport.getId());
-            failedContext = "定时任务性能测试任务通知" + loadTestReport.getName() + "执行失败" + "请点击下面链接进入测试报告页面" + url;
+            taskList = noticeService.searchMessageSchedule(loadTestReport.getTestId());
+            failedContext = "Load定时任务通知:" + loadTestReport.getName() + "执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
         }
         String finalFailedContext = failedContext;
         taskList.forEach(r -> {

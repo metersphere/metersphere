@@ -3,6 +3,7 @@ package io.metersphere.notice.service;
 import io.metersphere.base.domain.MessageTask;
 import io.metersphere.base.domain.MessageTaskExample;
 import io.metersphere.base.mapper.MessageTaskMapper;
+import io.metersphere.base.mapper.ext.ExtMessageMapper;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.SessionUtils;
@@ -21,10 +22,14 @@ import java.util.stream.Collectors;
 public class NoticeService {
     @Resource
     private MessageTaskMapper messageTaskMapper;
+    @Resource
+    private ExtMessageMapper extMessageMapper;
+
 
     public void saveMessageTask(MessageRequest messageRequest) {
         SessionUser user = SessionUtils.getUser();
         String orgId = user.getLastOrganizationId();
+        long time = System.currentTimeMillis();
         messageRequest.getMessageDetail().forEach(list -> {
             MessageTaskExample example = new MessageTaskExample();
             example.createCriteria().andIdentificationEqualTo(list.getIdentification());
@@ -44,6 +49,7 @@ public class NoticeService {
                     message.setIsSet(list.getIsSet());
                     message.setOrganizationId(orgId);
                     message.setTestId(list.getTestId());
+                    message.setCreateTime(time);
                     messageTaskMapper.insert(message);
                 });
             } else {
@@ -60,6 +66,7 @@ public class NoticeService {
                     message.setIsSet(list.getIsSet());
                     message.setOrganizationId(orgId);
                     message.setTestId(list.getTestId());
+                    message.setCreateTime(time);
                     messageTaskMapper.insert(message);
                 });
             }
@@ -68,9 +75,7 @@ public class NoticeService {
     }
 
     public List<MessageDetail> searchMessageSchedule(String testId) {
-        MessageTaskExample example = new MessageTaskExample();
-        example.createCriteria().andTestIdEqualTo(testId);
-        List<MessageTask> messageTaskLists = messageTaskMapper.selectByExample(example);
+        List<MessageTask> messageTaskLists = extMessageMapper.searchMessageByTestId(testId);
         List<MessageDetail> scheduleMessageTask = new ArrayList<>();
         Map<String, List<MessageTask>> MessageTaskMap = messageTaskLists.stream().collect(Collectors.groupingBy(e -> e.getIdentification()));
         MessageTaskMap.forEach((k, v) -> {
@@ -84,22 +89,22 @@ public class NoticeService {
                 messageDetail.setIdentification(m.getIdentification());
                 messageDetail.setType(m.getType());
                 messageDetail.setIsSet(m.getIsSet());
+                messageDetail.setCreateTime(m.getCreateTime());
             }
             messageDetail.setUserIds(new ArrayList(userIds));
             scheduleMessageTask.add(messageDetail);
         });
+        scheduleMessageTask.sort(Comparator.comparing(MessageDetail::getCreateTime).reversed());
         return scheduleMessageTask;
     }
 
     public MessageSettingDetail searchMessage() {
         SessionUser user = SessionUtils.getUser();
         String orgId = user.getLastOrganizationId();
-        MessageTaskExample messageTaskExample = new MessageTaskExample();
-        messageTaskExample.createCriteria().andOrganizationIdEqualTo(orgId);
         List<MessageTask> messageTaskLists = new ArrayList<>();
         MessageSettingDetail messageSettingDetail = new MessageSettingDetail();
         List<MessageDetail> MessageDetailList = new ArrayList<>();
-        messageTaskLists = messageTaskMapper.selectByExample(messageTaskExample);
+        messageTaskLists = extMessageMapper.searchMessageByOrganizationId(orgId);
         Map<String, List<MessageTask>> MessageTaskMap = messageTaskLists.stream().collect(Collectors.groupingBy(e -> fetchGroupKey(e)));
         MessageTaskMap.forEach((k, v) -> {
             Set userIds = new HashSet();
@@ -112,14 +117,19 @@ public class NoticeService {
                 messageDetail.setIdentification(m.getIdentification());
                 messageDetail.setType(m.getType());
                 messageDetail.setIsSet(m.getIsSet());
+                messageDetail.setCreateTime(m.getCreateTime());
             }
             messageDetail.setUserIds(new ArrayList(userIds));
             MessageDetailList.add(messageDetail);
         });
         List<MessageDetail> jenkinsTask = MessageDetailList.stream().filter(a -> a.getTaskType().equals(NoticeConstants.JENKINS_TASK)).collect(Collectors.toList());
+        jenkinsTask.sort(Comparator.comparing(MessageDetail::getCreateTime).reversed());
         List<MessageDetail> testCasePlanTask = MessageDetailList.stream().filter(a -> a.getTaskType().equals(NoticeConstants.TEST_PLAN_TASK)).collect(Collectors.toList());
+        testCasePlanTask.sort(Comparator.comparing(MessageDetail::getCreateTime).reversed());
         List<MessageDetail> reviewTask = MessageDetailList.stream().filter(a -> a.getTaskType().equals(NoticeConstants.REVIEW_TASK)).collect(Collectors.toList());
+        reviewTask.sort(Comparator.comparing(MessageDetail::getCreateTime).reversed());
         List<MessageDetail> defectTask = MessageDetailList.stream().filter(a -> a.getTaskType().equals(NoticeConstants.DEFECT_TASK)).collect(Collectors.toList());
+        defectTask.sort(Comparator.comparing(MessageDetail::getCreateTime).reversed());
         messageSettingDetail.setJenkinsTask(jenkinsTask);
         messageSettingDetail.setTestCasePlanTask(testCasePlanTask);
         messageSettingDetail.setReviewTask(reviewTask);

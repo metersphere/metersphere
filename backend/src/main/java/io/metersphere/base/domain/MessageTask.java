@@ -26,5 +26,7 @@ public class MessageTask implements Serializable {
 
     private String testId;
 
+    private Long createTime;
+
     private static final long serialVersionUID = 1L;
 }
