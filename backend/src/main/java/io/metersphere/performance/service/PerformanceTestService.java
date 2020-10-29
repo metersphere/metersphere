@@ -233,6 +233,9 @@ public class PerformanceTestService {
         if (StringUtils.equals(NoticeConstants.API, loadTestReport.getTriggerMode()) || StringUtils.equals(NoticeConstants.SCHEDULE, loadTestReport.getTriggerMode())) {
             performanceNoticeTask.registerNoticeTask(loadTestReport);
         }
+        /*if (StringUtils.equals(NoticeConstants.API, loadTestReport.getTriggerMode()) || StringUtils.equals(NoticeConstants.SCHEDULE, "SCHEDULE")) {
+            performanceNoticeTask.registerNoticeTask(loadTestReport);
+        }*/
         return engine.getReportId();
     }
 

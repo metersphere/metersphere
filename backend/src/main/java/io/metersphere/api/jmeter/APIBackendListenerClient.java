@@ -183,13 +183,13 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             if (StringUtils.equals(NoticeConstants.API, report.getTriggerMode())) {
                 MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
                 taskList = messageSettingDetail.getJenkinsTask();
-                successContext = "jenkins任务通知:'" + report.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
-                failedContext = "jenkins任务通知:'" + report.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
+                successContext = "ApiJenkins任务通知:'" + report.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
+                failedContext = "ApiJenkins任务通知:'" + report.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
             }
             if (StringUtils.equals(NoticeConstants.SCHEDULE, report.getTriggerMode())) {
                 taskList = noticeService.searchMessageSchedule(testResult.getTestId());
-                successContext = "定时任务通知:'" + report.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
-                failedContext = "定时任务通知:'" + report.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
+                successContext = "Api定时任务通知:'" + report.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
+                failedContext = "Api定时任务通知:'" + report.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
             }
             String finalSuccessContext = successContext;
             String finalFailedContext = failedContext;
