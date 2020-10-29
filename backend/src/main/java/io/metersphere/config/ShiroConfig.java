@@ -43,7 +43,7 @@ public class ShiroConfig implements EnvironmentAware {
         shiroFilterFactoryBean.getFilters().put("apikey", new ApiKeyFilter());
         Map<String, String> filterChainDefinitionMap = shiroFilterFactoryBean.getFilterChainDefinitionMap();
         ShiroUtils.loadBaseFilterChain(filterChainDefinitionMap);
-        filterChainDefinitionMap.put("/**", "apikey");
+        filterChainDefinitionMap.put("/**", "apikey, authc");
         return shiroFilterFactoryBean;
     }
 
