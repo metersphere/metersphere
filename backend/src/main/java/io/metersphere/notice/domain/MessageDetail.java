@@ -16,4 +16,5 @@ public class MessageDetail {
     private String organizationId;
     private Boolean isSet;
     private String testId;
+    private Long createTime;
 }

@@ -1,2 +1,2 @@
-alter table message_task
-    add test_id varchar(255) null;
+ALTER TABLE message_task
+    ADD test_id varchar(50) NULL;

@@ -52,7 +52,6 @@ public class MailService {
         List<String> userIds = new ArrayList<>();
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         Map<String, String> context = new HashMap<>();
-        context.put("title", "Performance" + Translator.get("timing_task_result_notification"));
         context.put("testName", loadTestReport.getName());
         context.put("id", loadTestReport.getId());
         context.put("type", "performance");
@@ -103,7 +102,7 @@ public class MailService {
             helper.setSubject("MeterSphere平台" + Translator.get("task_notification"));
         }
         if (StringUtils.equals(type, NoticeConstants.SCHEDULE)) {
-            helper.setSubject("MeterSphere平台" + Translator.get("timing_task_notification"));
+            helper.setSubject("MeterSphere平台" + Translator.get("task_notification_"));
         }
         String[] users;
         List<String> emails = new ArrayList<>();

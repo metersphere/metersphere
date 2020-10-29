@@ -20,8 +20,6 @@ import io.metersphere.dto.ScheduleDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.PerformanceTestJob;
 import io.metersphere.notice.domain.NoticeDetail;
-import io.metersphere.notice.service.MailService;
-import io.metersphere.notice.service.NoticeService;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
 import io.metersphere.performance.notice.PerformanceNoticeTask;
@@ -77,10 +75,6 @@ public class PerformanceTestService {
     private ScheduleService scheduleService;
     @Resource
     private TestCaseService testCaseService;
-    @Resource
-    private NoticeService noticeService;
-    @Resource
-    private MailService mailService;
     @Resource
     private PerformanceNoticeTask performanceNoticeTask;
 
@@ -239,6 +233,9 @@ public class PerformanceTestService {
         if (StringUtils.equals(NoticeConstants.API, loadTestReport.getTriggerMode()) || StringUtils.equals(NoticeConstants.SCHEDULE, loadTestReport.getTriggerMode())) {
             performanceNoticeTask.registerNoticeTask(loadTestReport);
         }
+        /*if (StringUtils.equals(NoticeConstants.API, loadTestReport.getTriggerMode()) || StringUtils.equals(NoticeConstants.SCHEDULE, "SCHEDULE")) {
+            performanceNoticeTask.registerNoticeTask(loadTestReport);
+        }*/
         return engine.getReportId();
     }
 
@@ -281,7 +278,6 @@ public class PerformanceTestService {
             testReport.setUserId(SessionUtils.getUser().getId());
         }
         // 启动测试
-        List<NoticeDetail> noticeList = null;
         try {
             engine.start();
             // 启动正常修改状态 starting
@@ -307,6 +303,9 @@ public class PerformanceTestService {
             reportResult.setReportValue("Ready"); // 初始化一个 result_status, 这个值用在data-streaming中
             loadTestReportResultMapper.insertSelective(reportResult);
         } catch (MSException e) {
+            // 启动失败之后清理任务
+            engine.stop();
+
             LogUtil.error(e);
             loadTest.setStatus(PerformanceTestStatus.Error.name());
             loadTest.setDescription(e.getMessage());
