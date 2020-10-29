@@ -20,8 +20,6 @@ import io.metersphere.dto.ScheduleDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.PerformanceTestJob;
 import io.metersphere.notice.domain.NoticeDetail;
-import io.metersphere.notice.service.MailService;
-import io.metersphere.notice.service.NoticeService;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
 import io.metersphere.performance.notice.PerformanceNoticeTask;
@@ -77,10 +75,6 @@ public class PerformanceTestService {
     private ScheduleService scheduleService;
     @Resource
     private TestCaseService testCaseService;
-    @Resource
-    private NoticeService noticeService;
-    @Resource
-    private MailService mailService;
     @Resource
     private PerformanceNoticeTask performanceNoticeTask;
 
@@ -281,7 +275,6 @@ public class PerformanceTestService {
             testReport.setUserId(SessionUtils.getUser().getId());
         }
         // 启动测试
-        List<NoticeDetail> noticeList = null;
         try {
             engine.start();
             // 启动正常修改状态 starting
