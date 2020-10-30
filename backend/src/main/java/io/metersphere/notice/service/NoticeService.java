@@ -91,10 +91,12 @@ public class NoticeService {
                 messageDetail.setIsSet(m.getIsSet());
                 messageDetail.setCreateTime(m.getCreateTime());
             }
-            messageDetail.setUserIds(new ArrayList(userIds));
+            if (userIds != null || !"".equals(userIds)) {
+                messageDetail.setUserIds(new ArrayList(userIds));
+            }
             scheduleMessageTask.add(messageDetail);
         });
-        scheduleMessageTask.sort(Comparator.comparing(MessageDetail::getCreateTime).reversed());
+        scheduleMessageTask.sort(Comparator.comparing(MessageDetail::getCreateTime, Comparator.nullsLast(Long::compareTo)).reversed());
         return scheduleMessageTask;
     }
 
@@ -123,13 +125,13 @@ public class NoticeService {
             MessageDetailList.add(messageDetail);
         });
         List<MessageDetail> jenkinsTask = MessageDetailList.stream().filter(a -> a.getTaskType().equals(NoticeConstants.JENKINS_TASK)).collect(Collectors.toList());
-        jenkinsTask.sort(Comparator.comparing(MessageDetail::getCreateTime).reversed());
+        jenkinsTask.sort(Comparator.comparing(MessageDetail::getCreateTime, Comparator.nullsLast(Long::compareTo)).reversed());
         List<MessageDetail> testCasePlanTask = MessageDetailList.stream().filter(a -> a.getTaskType().equals(NoticeConstants.TEST_PLAN_TASK)).collect(Collectors.toList());
-        testCasePlanTask.sort(Comparator.comparing(MessageDetail::getCreateTime).reversed());
+        testCasePlanTask.sort(Comparator.comparing(MessageDetail::getCreateTime, Comparator.nullsLast(Long::compareTo)).reversed());
         List<MessageDetail> reviewTask = MessageDetailList.stream().filter(a -> a.getTaskType().equals(NoticeConstants.REVIEW_TASK)).collect(Collectors.toList());
-        reviewTask.sort(Comparator.comparing(MessageDetail::getCreateTime).reversed());
+        reviewTask.sort(Comparator.comparing(MessageDetail::getCreateTime, Comparator.nullsLast(Long::compareTo)).reversed());
         List<MessageDetail> defectTask = MessageDetailList.stream().filter(a -> a.getTaskType().equals(NoticeConstants.DEFECT_TASK)).collect(Collectors.toList());
-        defectTask.sort(Comparator.comparing(MessageDetail::getCreateTime).reversed());
+        defectTask.sort(Comparator.comparing(MessageDetail::getCreateTime, Comparator.nullsLast(Long::compareTo)).reversed());
         messageSettingDetail.setJenkinsTask(jenkinsTask);
         messageSettingDetail.setTestCasePlanTask(testCasePlanTask);
         messageSettingDetail.setReviewTask(reviewTask);
