@@ -147,7 +147,7 @@ public class LdapService {
 
         String credentials = EncryptUtils.aesDecrypt(password).toString();
         LdapContextSource sourceLdapCtx;
-        if (StringUtils.startsWith(url, "ldaps://")) {
+        if (StringUtils.startsWithIgnoreCase(url, "ldaps://")) {
             sourceLdapCtx = new SSLLdapContextSource();
             // todo 这里加上strategy 会报错
 //        DefaultTlsDirContextAuthenticationStrategy strategy = new DefaultTlsDirContextAuthenticationStrategy();
