@@ -586,12 +586,9 @@ public class TestCaseNodeService {
     }
 
 
-    /**
-     * 测试用例同级模块排序
-     * @param ids
-     */
+    // 测试用例同级模块排序
     public void sort(List<String> ids) {
-        //  获取同级相邻节点
+        // 获取相邻节点
         String before = ids.get(0);
         String id = ids.get(1);
         String after = ids.get(2);
