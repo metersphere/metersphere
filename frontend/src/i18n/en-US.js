@@ -228,11 +228,11 @@ export default {
       mail: 'mail',
       nail_robot: 'Nail robot',
       enterprise_wechat_robot: 'Enterprise wechat robot',
-      notes: 'Note: 1. Event, receiving method and receiver are required;\n' +
+      notes:'Note: 1. Nail and create a custom robot in the enterprise group, and then copy the webhook address on our platform;\n' +
         '\n' +
-        '2. Webhook is required except email;\n' +
+        '2. Robots are selected as swarm robots, and "custom keyword" is selected for security verification: "task notification";\n' +
         '\n' +
-        '3. Robots are selected as swarm robots, and "custom keyword" is selected for security verification: "task notification"',
+        '3. When selecting the receiver, it must be the person included in the group you created. The mobile phone number of the receiver is required and it is the mobile phone number used by the nailing enterprise,',
       message: 'Event, receiver and receiving method are required\n' +
         '\n',
       message_webhook: 'Webhook is required when the receiving mode is nail or enterprise robot'
