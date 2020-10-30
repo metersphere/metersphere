@@ -108,6 +108,9 @@ export default {
   },
   methods: {
     handleDragEnd(draggingNode, dropNode, dropType, ev) {
+      if (dropType === "none" || dropType === undefined) {
+        return;
+      }
       let param = this.buildParam(draggingNode, dropNode, dropType);
 
       this.list = [];
