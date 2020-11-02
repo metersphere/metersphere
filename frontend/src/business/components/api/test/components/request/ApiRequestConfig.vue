@@ -162,9 +162,11 @@ export default {
           break;
       }
     },
-    getColor(enable, method) {
-      if (enable) {
+    getColor(requestEnable, method) {
+      if (this.scenario.enable && requestEnable) {
         return this.methodColorMap.get(method);
+      } else {
+        return '#909399';
       }
     },
     select(request) {

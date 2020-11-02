@@ -1363,15 +1363,19 @@ class JMXGenerator {
   }
 
   addContentType(request, type) {
+    let hasContentType = false;
     for (let index in request.headers) {
       if (request.headers.hasOwnProperty(index)) {
-        if (request.headers[index].name === 'Content-Type') {
+        if (request.headers[index].name === 'Content-Type' && request.headers[index].enable != false) {
           request.headers.splice(index, 1);
+          hasContentType = true;
           break;
         }
       }
     }
-    request.headers.push(new KeyValue({name: 'Content-Type', value: type}));
+    if (!hasContentType) {
+      request.headers.push(new KeyValue({name: 'Content-Type', value: type}));
+    }
   }
 
   addRequestArguments(httpSamplerProxy, request) {
