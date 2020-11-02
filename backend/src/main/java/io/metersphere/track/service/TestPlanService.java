@@ -165,20 +165,20 @@ public class TestPlanService {
             //已完成，写入实际完成时间
             testPlan.setActualEndTime(System.currentTimeMillis());
             try {
-                BeanUtils.copyBean(testPlans, testPlan);
-                String context = getTestPlanContext(testPlans, NoticeConstants.CREATE);
+                BeanUtils.copyBean(testPlans, getTestPlan(testPlan.getId()));
+                String context = getTestPlanContext(testPlans, NoticeConstants.UPDATE);
                 MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
-                List<MessageDetail> taskList = messageSettingDetail.getReviewTask();
+                List<MessageDetail> taskList = messageSettingDetail.getTestCasePlanTask();
                 taskList.forEach(r -> {
                     switch (r.getType()) {
                         case NoticeConstants.NAIL_ROBOT:
-                            dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.CREATE);
+                            dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.UPDATE);
                             break;
                         case NoticeConstants.WECHAT_ROBOT:
-                            wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.CREATE);
+                            wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.UPDATE);
                             break;
                         case NoticeConstants.EMAIL:
-                            mailService.sendTestPlanStartNotice(r, userIds, testPlans, NoticeConstants.CREATE);
+                            mailService.sendTestPlanStartNotice(r, userIds, testPlans, NoticeConstants.UPDATE);
                             break;
                     }
                 });

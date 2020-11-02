@@ -8,6 +8,7 @@ import io.metersphere.base.mapper.ext.ExtTestCaseReviewMapper;
 import io.metersphere.base.mapper.ext.ExtTestReviewCaseMapper;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.TestCaseReviewStatus;
+import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.constants.TestReviewCaseStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
@@ -184,28 +185,31 @@ public class TestCaseReviewService {
         testCaseReview.setUpdateTime(System.currentTimeMillis());
         checkCaseReviewExist(testCaseReview);
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
-        List<String>  userIds=new ArrayList<>();
+        List<String> userIds = new ArrayList<>();
         userIds.addAll(testCaseReview.getUserIds());
-        try {
-            String context = getReviewContext(testCaseReview, NoticeConstants.CREATE);
-            MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
-            List<MessageDetail> taskList = messageSettingDetail.getReviewTask();
-            taskList.forEach(r -> {
-                switch (r.getType()) {
-                    case NoticeConstants.NAIL_ROBOT:
-                        dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.CREATE);
-                        break;
-                    case NoticeConstants.WECHAT_ROBOT:
-                        wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.CREATE);
-                        break;
-                    case NoticeConstants.EMAIL:
-                        mailService.sendReviewerNotice(r, userIds, testCaseReview, NoticeConstants.CREATE);
-                        break;
-                }
-            });
-        } catch (Exception e) {
-            LogUtil.error(e);
+        if (StringUtils.equals(TestPlanStatus.Completed.name(), testCaseReview.getStatus())) {
+            try {
+                String context = getReviewContext(testCaseReview, NoticeConstants.UPDATE);
+                MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
+                List<MessageDetail> taskList = messageSettingDetail.getReviewTask();
+                taskList.forEach(r -> {
+                    switch (r.getType()) {
+                        case NoticeConstants.NAIL_ROBOT:
+                            dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.UPDATE);
+                            break;
+                        case NoticeConstants.WECHAT_ROBOT:
+                            wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.UPDATE);
+                            break;
+                        case NoticeConstants.EMAIL:
+                            mailService.sendReviewerNotice(r, userIds, testCaseReview, NoticeConstants.UPDATE);
+                            break;
+                    }
+                });
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
         }
+
     }
 
     private void editCaseReviewer(SaveTestCaseReviewRequest testCaseReview) {
