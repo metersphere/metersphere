@@ -43,7 +43,7 @@
             <AppenderRef ref="gui-log-event" />
             <AppenderRef ref="Kafka" />
         </Root>
-
+        <Logger name="org.apache.kafka" level="INFO" />
         <Logger name="org.apache.jmeter.junit" level="debug" />
         <!--
         <Logger name="org.apache.jmeter.control" level="debug" />
