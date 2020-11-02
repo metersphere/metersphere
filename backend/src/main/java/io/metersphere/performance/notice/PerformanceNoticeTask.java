@@ -1,6 +1,7 @@
 package io.metersphere.performance.notice;
 
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
+import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.utils.LogUtil;
@@ -34,6 +35,9 @@ public class PerformanceNoticeTask {
     private MailService mailService;
     @Resource
     private SystemParameterService systemParameterService;
+    @Resource
+    private LoadTestReportMapper loadTestReportMapper;
+
     private final ExecutorService executorService = Executors.newFixedThreadPool(20);
     private boolean isRunning = true;
 
@@ -45,14 +49,16 @@ public class PerformanceNoticeTask {
     public void registerNoticeTask(LoadTestReportWithBLOBs loadTestReport) {
         executorService.submit(() -> {
             while (isRunning) {
-                if (StringUtils.equals(loadTestReport.getStatus(), PerformanceTestStatus.Completed.name())) {
+                LoadTestReportWithBLOBs loadTestReportFromDatabase = loadTestReportMapper.selectByPrimaryKey(loadTestReport.getId());
+
+                if (StringUtils.equals(loadTestReportFromDatabase.getStatus(), PerformanceTestStatus.Completed.name())) {
                     isRunning = false;
-                    sendSuccessNotice(loadTestReport);
+                    sendSuccessNotice(loadTestReportFromDatabase);
                     return;
                 }
-                if (StringUtils.equals(loadTestReport.getStatus(), PerformanceTestStatus.Error.name())) {
+                if (StringUtils.equals(loadTestReportFromDatabase.getStatus(), PerformanceTestStatus.Error.name())) {
                     isRunning = false;
-                    sendFailNotice(loadTestReport);
+                    sendFailNotice(loadTestReportFromDatabase);
                     return;
                 }
                 try {
