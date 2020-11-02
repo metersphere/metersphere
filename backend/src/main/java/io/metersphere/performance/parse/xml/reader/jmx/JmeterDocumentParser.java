@@ -37,6 +37,7 @@ public class JmeterDocumentParser implements DocumentParser {
     private final static String DNS_CACHE_MANAGER = "DNSCacheManager";
     private final static String ARGUMENTS = "Arguments";
     private final static String RESPONSE_ASSERTION = "ResponseAssertion";
+    private final static String CSV_DATA_SET = "CSVDataSet";
     private EngineContext context;
 
     @Override
@@ -117,7 +118,30 @@ public class JmeterDocumentParser implements DocumentParser {
                         processArguments(ele);
                     } else if (nodeNameEquals(ele, RESPONSE_ASSERTION)) {
                         processResponseAssertion(ele);
+                    } else if (nodeNameEquals(ele, CSV_DATA_SET)) {
+                        processCsvDataSet(ele);
                     }
+                }
+            }
+        }
+    }
+
+    private void processCsvDataSet(Element element) {
+        NodeList childNodes = element.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node item = childNodes.item(i);
+            if (item instanceof Element && nodeNameEquals(item, STRING_PROP)) {
+                String filenameTag = ((Element) item).getAttribute("name");
+                if (StringUtils.equals(filenameTag, "filename")) {
+                    // 截取文件名
+                    String separator = "/";
+                    String filename = item.getTextContent();
+                    if (!StringUtils.contains(filename, "/")) {
+                        separator = "\\";
+                    }
+                    filename = filename.substring(filename.lastIndexOf(separator) + 1);
+                    item.setTextContent(filename);
+                    break;
                 }
             }
         }

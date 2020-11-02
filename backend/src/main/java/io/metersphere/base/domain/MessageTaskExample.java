@@ -723,6 +723,136 @@ public class MessageTaskExample {
             addCriterion("organization_id not between", value1, value2, "organizationId");
             return (Criteria) this;
         }
+
+        public Criteria andTestIdIsNull() {
+            addCriterion("test_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdIsNotNull() {
+            addCriterion("test_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdEqualTo(String value) {
+            addCriterion("test_id =", value, "testId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdNotEqualTo(String value) {
+            addCriterion("test_id <>", value, "testId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdGreaterThan(String value) {
+            addCriterion("test_id >", value, "testId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdGreaterThanOrEqualTo(String value) {
+            addCriterion("test_id >=", value, "testId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdLessThan(String value) {
+            addCriterion("test_id <", value, "testId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdLessThanOrEqualTo(String value) {
+            addCriterion("test_id <=", value, "testId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdLike(String value) {
+            addCriterion("test_id like", value, "testId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdNotLike(String value) {
+            addCriterion("test_id not like", value, "testId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdIn(List<String> values) {
+            addCriterion("test_id in", values, "testId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdNotIn(List<String> values) {
+            addCriterion("test_id not in", values, "testId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdBetween(String value1, String value2) {
+            addCriterion("test_id between", value1, value2, "testId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdNotBetween(String value1, String value2) {
+            addCriterion("test_id not between", value1, value2, "testId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeIsNull() {
+            addCriterion("create_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeIsNotNull() {
+            addCriterion("create_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeEqualTo(Long value) {
+            addCriterion("create_time =", value, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeNotEqualTo(Long value) {
+            addCriterion("create_time <>", value, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeGreaterThan(Long value) {
+            addCriterion("create_time >", value, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("create_time >=", value, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeLessThan(Long value) {
+            addCriterion("create_time <", value, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeLessThanOrEqualTo(Long value) {
+            addCriterion("create_time <=", value, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeIn(List<Long> values) {
+            addCriterion("create_time in", values, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeNotIn(List<Long> values) {
+            addCriterion("create_time not in", values, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeBetween(Long value1, Long value2) {
+            addCriterion("create_time between", value1, value2, "createTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateTimeNotBetween(Long value1, Long value2) {
+            addCriterion("create_time not between", value1, value2, "createTime");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

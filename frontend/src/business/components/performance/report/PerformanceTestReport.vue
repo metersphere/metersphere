@@ -12,6 +12,7 @@
                   @select-all="handleSelectAll"
                   @select="handleSelect"
                   @sort-change="sort"
+                  @row-click="handleEdit"
                   @filter-change="filter"
         >
           <el-table-column
@@ -278,6 +279,10 @@ export default {
 
 .test-content {
   width: 100%;
+}
+
+.el-table {
+  cursor: pointer;
 }
 
 </style>

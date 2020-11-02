@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtMessageMapper">
+    <select id="searchMessageByTestId" resultType="io.metersphere.base.domain.MessageTask">
+        select m.* from message_task m
+        <where>
+            <if test="testId!=null">
+                and m.test_id=#{testId}
+            </if>
+        </where>
+        order by m.create_time DESC
+    </select>
+    <select id="searchMessageByOrganizationId" resultType="io.metersphere.base.domain.MessageTask">
+        select m.* from message_task m
+        <where>
+            <if test="organizationId!=null">
+                and m.organization_id=#{organizationId}
+            </if>
+        </where>
+        order by m.create_time DESC
+    </select>
+
+</mapper>

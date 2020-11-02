@@ -29,7 +29,9 @@
         </el-checkbox>
       </el-col>
       <el-col class="assertion-btn">
-        <el-button :disabled="isReadOnly" type="primary" size="small" @click="add">Add</el-button>
+        <el-button :disabled="isReadOnly" type="primary" size="small" @click="add">
+          {{ $t('api_test.request.assertions.add') }}
+        </el-button>
       </el-col>
     </el-row>
   </div>

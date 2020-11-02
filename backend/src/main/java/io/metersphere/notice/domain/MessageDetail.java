@@ -1,6 +1,5 @@
 package io.metersphere.notice.domain;
 
-import io.metersphere.base.domain.MessageTask;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -16,4 +15,6 @@ public class MessageDetail {
     private String identification;
     private String organizationId;
     private Boolean isSet;
+    private String testId;
+    private Long createTime;
 }

@@ -9,6 +9,7 @@
             <el-option :label="$t('api_test.request.assertions.regex')" :value="options.REGEX"/>
             <el-option :label="'JSONPath'" :value="options.JSON_PATH"/>
             <el-option :label="$t('api_test.request.assertions.response_time')" :value="options.DURATION"/>
+            <el-option :label="$t('api_test.request.assertions.jsr223')" :value="options.JSR223"/>
           </el-select>
         </el-col>
         <el-col :span="20">
@@ -17,7 +18,10 @@
           <ms-api-assertion-json-path :is-read-only="isReadOnly" :list="assertions.jsonPath" v-if="type === options.JSON_PATH" :callback="after"/>
           <ms-api-assertion-duration :is-read-only="isReadOnly" v-model="time" :duration="assertions.duration"
                                      v-if="type === options.DURATION" :callback="after"/>
-          <el-button v-if="!type" :disabled="true" type="primary" size="small">Add</el-button>
+          <ms-api-assertion-jsr223 :is-read-only="isReadOnly" :list="assertions.jsr223" v-if="type === options.JSR223" :callback="after"/>
+          <el-button v-if="!type" :disabled="true" type="primary" size="small">
+            {{ $t('api_test.request.assertions.add') }}
+          </el-button>
         </el-col>
       </el-row>
     </div>
@@ -46,12 +50,14 @@
   import {ASSERTION_TYPE, Assertions, HttpRequest, JSONPath} from "../../model/ScenarioModel";
   import MsApiAssertionsEdit from "./ApiAssertionsEdit";
   import MsApiAssertionJsonPath from "./ApiAssertionJsonPath";
+  import MsApiAssertionJsr223 from "@/business/components/api/test/components/assertion/ApiAssertionJsr223";
   import MsApiJsonpathSuggestList from "./ApiJsonpathSuggestList";
 
   export default {
     name: "MsApiAssertions",
 
     components: {
+      MsApiAssertionJsr223,
       MsApiJsonpathSuggestList,
       MsApiAssertionJsonPath,
       MsApiAssertionsEdit, MsApiAssertionDuration, MsApiAssertionRegex, MsApiAssertionText},

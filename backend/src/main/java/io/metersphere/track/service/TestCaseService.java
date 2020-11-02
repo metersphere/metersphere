@@ -458,7 +458,7 @@ public class TestCaseService {
                 String steps = t.getSteps();
                 String setp = "";
                 if (steps.contains("null")) {
-                    setp = steps.replace("null", "");
+                    setp = steps.replace("null", "\"\"");
                 } else {
                     setp = steps;
                 }

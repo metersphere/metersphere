@@ -80,6 +80,13 @@
               >{{ $t('commons.cancel') }}
               </el-button>
               <el-button
+                type="primary"
+                size="mini"
+                v-show="!scope.row.isSet"
+                @click="handleEditTask(scope.$index,scope.row)"
+              >{{ $t('commons.edit') }}
+              </el-button>
+              <el-button
                 type="danger"
                 icon="el-icon-delete"
                 size="mini"
@@ -168,7 +175,6 @@ export default {
       }
     },
     handleAddTask(index, data) {
-
       if (data.event && data.userIds.length > 0 && data.type) {
         console.log(data.type)
         if (data.type === 'NAIL_ROBOT' || data.type === 'WECHAT_ROBOT') {
@@ -183,6 +189,9 @@ export default {
       } else {
         this.$warning(this.$t('organization.message.message'));
       }
+    },
+    handleEditTask(index,data){
+      data.isSet = true
     },
     addTask(data) {
       let list = []

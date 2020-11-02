@@ -1,5 +1,5 @@
 <template>
-  <div class="variable-input">
+  <div class="variable-input" :class="{'show-copy': !showCopy}">
     <el-input class="el-input__inner_pd" :disabled="isReadOnly" :value="value" v-bind="$attrs" :size="size" @change="change" @input="input"/>
     <div :class="{'hidden': !showVariable}" class="variable-combine" v-if="value">
       <div v-if="showCopy" class="variable">{{variable}}</div>
@@ -75,12 +75,19 @@
 </script>
 
 <style scoped>
+
   .variable-input {
     position: relative;
   }
+
   .el-input__inner_pd >>> .el-input__inner {
     padding-right: 135px;
   }
+
+  .show-copy .el-input__inner_pd >>> .el-input__inner {
+    padding-right: 0px;
+  }
+
 
   .variable-combine {
     color: #7F7F7F;

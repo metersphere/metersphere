@@ -9,13 +9,14 @@ import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.domain.MessageSettingDetail;
-import io.metersphere.notice.domain.NoticeDetail;
 import io.metersphere.notice.service.DingTaskService;
 import io.metersphere.notice.service.MailService;
 import io.metersphere.notice.service.NoticeService;
 import io.metersphere.notice.service.WxChatTaskService;
+import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.service.TestPlanTestCaseService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.AssertionResult;
@@ -24,7 +25,6 @@ import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
 import org.apache.jmeter.visualizers.backend.BackendListenerContext;
 import org.springframework.http.HttpMethod;
 
-import javax.mail.MessagingException;
 import java.io.Serializable;
 import java.util.*;
 
@@ -158,9 +158,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             } catch (Exception e) {
                 LogUtil.error(e);
             }
-
         }
-
         try {
             sendTask(report, testResult);
         } catch (Exception e) {
@@ -174,51 +172,55 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         MailService mailService = CommonBeanFactory.getBean(MailService.class);
         DingTaskService dingTaskService = CommonBeanFactory.getBean(DingTaskService.class);
         WxChatTaskService wxChatTaskService = CommonBeanFactory.getBean(WxChatTaskService.class);
-        if (StringUtils.equals(NoticeConstants.SCHEDULE, report.getTriggerMode())) {
-            List<NoticeDetail> noticeList = noticeService.queryNotice(testResult.getTestId());
-            mailService.sendApiNotification(report, noticeList);
-        }
-        if (StringUtils.equals(NoticeConstants.API, report.getTriggerMode())) {
+        SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
+        if (StringUtils.equals(NoticeConstants.API, report.getTriggerMode()) || StringUtils.equals(NoticeConstants.SCHEDULE, report.getTriggerMode())) {
             List<String> userIds = new ArrayList<>();
-            MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
-            List<MessageDetail> taskList = messageSettingDetail.getJenkinsTask();
-            String contextSuccess = "jenkins任务通知" + report.getName() + "执行成功";
-            String contextFailed = "jenkins任务通知" + report.getName() + "执行失败";
+            List<MessageDetail> taskList = new ArrayList<>();
+            String successContext = "";
+            String failedContext = "";
+            BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
+            String url = baseSystemConfigDTO.getUrl() + "/#/api/report/view/" + report.getId();
+            if (StringUtils.equals(NoticeConstants.API, report.getTriggerMode())) {
+                MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
+                taskList = messageSettingDetail.getJenkinsTask();
+                successContext = "ApiJenkins任务通知:'" + report.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
+                failedContext = "ApiJenkins任务通知:'" + report.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
+            }
+            if (StringUtils.equals(NoticeConstants.SCHEDULE, report.getTriggerMode())) {
+                taskList = noticeService.searchMessageSchedule(testResult.getTestId());
+                successContext = "Api定时任务通知:'" + report.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
+                failedContext = "Api定时任务通知:'" + report.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
+            }
+            String finalSuccessContext = successContext;
+            String finalFailedContext = failedContext;
             taskList.forEach(r -> {
                 switch (r.getType()) {
                     case NoticeConstants.NAIL_ROBOT:
                         if (StringUtils.equals(NoticeConstants.EXECUTE_SUCCESSFUL, r.getEvent()) && StringUtils.equals(report.getStatus(), "Success")) {
-                            dingTaskService.sendNailRobot(r, userIds, contextSuccess, NoticeConstants.EXECUTE_SUCCESSFUL);
+                            dingTaskService.sendNailRobot(r, userIds, finalSuccessContext, NoticeConstants.EXECUTE_SUCCESSFUL);
                         }
                         if (StringUtils.equals(NoticeConstants.EXECUTE_FAILED, r.getEvent()) && StringUtils.equals(report.getStatus(), "Error")) {
-                            dingTaskService.sendNailRobot(r, userIds, contextFailed, NoticeConstants.EXECUTE_FAILED);
+                            dingTaskService.sendNailRobot(r, userIds, finalFailedContext, NoticeConstants.EXECUTE_FAILED);
                         }
                         break;
                     case NoticeConstants.WECHAT_ROBOT:
-                            if (StringUtils.equals(NoticeConstants.EXECUTE_SUCCESSFUL, r.getEvent()) && StringUtils.equals(report.getStatus(), "Success")) {
-                                wxChatTaskService.sendWechatRobot(r, userIds, contextSuccess, NoticeConstants.EXECUTE_SUCCESSFUL);
-                            }
-                            if (StringUtils.equals(NoticeConstants.EXECUTE_FAILED, r.getEvent()) && StringUtils.equals(report.getStatus(), "Error")) {
-                                wxChatTaskService.sendWechatRobot(r, userIds, contextFailed, NoticeConstants.EXECUTE_FAILED);
-                            }
+                        if (StringUtils.equals(NoticeConstants.EXECUTE_SUCCESSFUL, r.getEvent()) && StringUtils.equals(report.getStatus(), "Success")) {
+                            wxChatTaskService.sendWechatRobot(r, userIds, finalSuccessContext, NoticeConstants.EXECUTE_SUCCESSFUL);
+                        }
+                        if (StringUtils.equals(NoticeConstants.EXECUTE_FAILED, r.getEvent()) && StringUtils.equals(report.getStatus(), "Error")) {
+                            wxChatTaskService.sendWechatRobot(r, userIds, finalFailedContext, NoticeConstants.EXECUTE_FAILED);
+                        }
                         break;
                     case NoticeConstants.EMAIL:
-                            if (StringUtils.equals(NoticeConstants.EXECUTE_SUCCESSFUL, r.getEvent()) && StringUtils.equals(report.getStatus(), "Success")) {
-                                try {
-                                    mailService.sendApiJenkinsNotification(contextSuccess, r);
-                                } catch (MessagingException messagingException) {
-                                    messagingException.printStackTrace();
-                                }
-                            }
-                            if (StringUtils.equals(NoticeConstants.EXECUTE_FAILED, r.getEvent()) && StringUtils.equals(report.getStatus(), "Error")) {
-                                try {
-                                    mailService.sendApiJenkinsNotification(contextFailed, r);
-                                } catch (MessagingException messagingException) {
-                                    messagingException.printStackTrace();
-                                }
-                            }
+                        if (StringUtils.equals(NoticeConstants.EXECUTE_SUCCESSFUL, r.getEvent()) && StringUtils.equals(report.getStatus(), "Success")) {
+                            mailService.sendApiNotification(r, report, NoticeConstants.EXECUTE_SUCCESSFUL);
+                        }
+                        if (StringUtils.equals(NoticeConstants.EXECUTE_FAILED, r.getEvent()) && StringUtils.equals(report.getStatus(), "Error")) {
+                            mailService.sendApiNotification(r, report, NoticeConstants.EXECUTE_FAILED);
+                        }
                         break;
                 }
+
             });
         }
     }

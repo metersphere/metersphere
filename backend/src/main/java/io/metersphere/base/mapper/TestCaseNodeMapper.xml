@@ -9,6 +9,7 @@
     <result column="level" jdbcType="INTEGER" property="level" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="pos" jdbcType="DOUBLE" property="pos" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -69,7 +70,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, name, parent_id, level, create_time, update_time
+    id, project_id, `name`, parent_id, `level`, create_time, update_time, pos
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.TestCaseNodeExample" resultMap="BaseResultMap">
     select
@@ -101,28 +102,14 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-
-  <insert id="insertBatch" parameterType="io.metersphere.base.domain.TestCaseNode">
-    insert into test_case_node (id, project_id, name, 
-      parent_id, level, create_time, 
-      update_time)
-    values
-    <foreach collection="records" item="emp" separator=",">
-      (#{emp.id,jdbcType=VARCHAR}, #{emp.projectId,jdbcType=VARCHAR}, #{emp.name,jdbcType=VARCHAR},
-      #{emp.parentId,jdbcType=VARCHAR}, #{emp.level,jdbcType=INTEGER}, #{emp.createTime,jdbcType=BIGINT},
-      #{emp.updateTime,jdbcType=BIGINT})
-    </foreach>
-  </insert>
-
   <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseNode">
-    insert into test_case_node (id, project_id, name,
-      parent_id, level, create_time,
-      update_time)
-    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
-      #{parentId,jdbcType=VARCHAR}, #{level,jdbcType=INTEGER}, #{createTime,jdbcType=BIGINT},
-      #{updateTime,jdbcType=BIGINT})
+    insert into test_case_node (id, project_id, `name`, 
+      parent_id, `level`, create_time, 
+      update_time, pos)
+    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{parentId,jdbcType=VARCHAR}, #{level,jdbcType=INTEGER}, #{createTime,jdbcType=BIGINT}, 
+      #{updateTime,jdbcType=BIGINT}, #{pos,jdbcType=DOUBLE})
   </insert>
-
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseNode">
     insert into test_case_node
     <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -133,19 +120,22 @@
         project_id,
       </if>
       <if test="name != null">
-        name,
+        `name`,
       </if>
       <if test="parentId != null">
         parent_id,
       </if>
       <if test="level != null">
-        level,
+        `level`,
       </if>
       <if test="createTime != null">
         create_time,
       </if>
       <if test="updateTime != null">
         update_time,
+      </if>
+      <if test="pos != null">
+        pos,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -170,6 +160,9 @@
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
       </if>
+      <if test="pos != null">
+        #{pos,jdbcType=DOUBLE},
+      </if>
     </trim>
   </insert>
   <select id="countByExample" parameterType="io.metersphere.base.domain.TestCaseNodeExample" resultType="java.lang.Long">
@@ -188,19 +181,22 @@
         project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
       <if test="record.name != null">
-        name = #{record.name,jdbcType=VARCHAR},
+        `name` = #{record.name,jdbcType=VARCHAR},
       </if>
       <if test="record.parentId != null">
         parent_id = #{record.parentId,jdbcType=VARCHAR},
       </if>
       <if test="record.level != null">
-        level = #{record.level,jdbcType=INTEGER},
+        `level` = #{record.level,jdbcType=INTEGER},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.pos != null">
+        pos = #{record.pos,jdbcType=DOUBLE},
       </if>
     </set>
     <if test="_parameter != null">
@@ -211,11 +207,12 @@
     update test_case_node
     set id = #{record.id,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
-      name = #{record.name,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
       parent_id = #{record.parentId,jdbcType=VARCHAR},
-      level = #{record.level,jdbcType=INTEGER},
+      `level` = #{record.level,jdbcType=INTEGER},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT}
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      pos = #{record.pos,jdbcType=DOUBLE}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -227,13 +224,13 @@
         project_id = #{projectId,jdbcType=VARCHAR},
       </if>
       <if test="name != null">
-        name = #{name,jdbcType=VARCHAR},
+        `name` = #{name,jdbcType=VARCHAR},
       </if>
       <if test="parentId != null">
         parent_id = #{parentId,jdbcType=VARCHAR},
       </if>
       <if test="level != null">
-        level = #{level,jdbcType=INTEGER},
+        `level` = #{level,jdbcType=INTEGER},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -241,17 +238,21 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
+      <if test="pos != null">
+        pos = #{pos,jdbcType=DOUBLE},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestCaseNode">
     update test_case_node
     set project_id = #{projectId,jdbcType=VARCHAR},
-      name = #{name,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
       parent_id = #{parentId,jdbcType=VARCHAR},
-      level = #{level,jdbcType=INTEGER},
+      `level` = #{level,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT}
+      update_time = #{updateTime,jdbcType=BIGINT},
+      pos = #{pos,jdbcType=DOUBLE}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

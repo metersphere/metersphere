@@ -1,6 +1,7 @@
 package io.metersphere.track.service;
 
 
+import com.google.common.util.concurrent.AtomicDouble;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
@@ -53,11 +54,15 @@ public class TestCaseNodeService {
     @Resource
     TestCaseReviewMapper testCaseReviewMapper;
 
+    private static final double LIMIT_POS = 64;
+
     public String addNode(TestCaseNode node) {
         validateNode(node);
         node.setCreateTime(System.currentTimeMillis());
         node.setUpdateTime(System.currentTimeMillis());
         node.setId(UUID.randomUUID().toString());
+        double pos = getNextLevelPos(node.getProjectId(), node.getLevel(), node.getParentId());
+        node.setPos(pos);
         testCaseNodeMapper.insertSelective(node);
         return node.getId();
     }
@@ -93,7 +98,7 @@ public class TestCaseNodeService {
     public List<TestCaseNodeDTO> getNodeTreeByProjectId(String projectId) {
         TestCaseNodeExample testCaseNodeExample = new TestCaseNodeExample();
         testCaseNodeExample.createCriteria().andProjectIdEqualTo(projectId);
-        testCaseNodeExample.setOrderByClause("create_time asc");
+        testCaseNodeExample.setOrderByClause("pos asc");
         List<TestCaseNode> nodes = testCaseNodeMapper.selectByExample(testCaseNodeExample);
         return getNodeTrees(nodes);
     }
@@ -486,6 +491,8 @@ public class TestCaseNodeService {
         testCaseNode.setUpdateTime(System.currentTimeMillis());
         testCaseNode.setLevel(level);
         testCaseNode.setId(UUID.randomUUID().toString());
+        double pos = getNextLevelPos(projectId, level, pId);
+        testCaseNode.setPos(pos);
         testCaseNodeMapper.insert(testCaseNode);
         return testCaseNode.getId();
     }
@@ -572,6 +579,112 @@ public class TestCaseNodeService {
         List<TestCaseNode> testCaseNodes = testCaseNodeMapper.selectByExample(example);
         String projectId = testCaseNodes.get(0).getProjectId();
         return projectMapper.selectByPrimaryKey(projectId);
+    }
+
+    private TestCaseNode getCaseNode(String id) {
+        return testCaseNodeMapper.selectByPrimaryKey(id);
+    }
+
+
+    /**
+     * 测试用例同级模块排序
+     * @param ids 被拖拽模块相邻的前一个模块 id，
+     *            被拖拽的模块 id，
+     *            被拖拽模块相邻的后一个模块 id
+     */
+    public void sort(List<String> ids) {
+        // 获取相邻节点 id
+        String before = ids.get(0);
+        String id = ids.get(1);
+        String after = ids.get(2);
+
+        TestCaseNode beforeCase = null;
+        TestCaseNode afterCase = null;
+
+        TestCaseNode caseNode = getCaseNode(id);
+
+        // 获取相邻节点
+        if (StringUtils.isNotBlank(before)) {
+            beforeCase = getCaseNode(before);
+            beforeCase = beforeCase.getLevel().equals(caseNode.getLevel()) ? beforeCase : null;
+        }
+
+        if (StringUtils.isNotBlank(after)) {
+            afterCase = getCaseNode(after);
+            afterCase = afterCase.getLevel().equals(caseNode.getLevel()) ? afterCase : null;
+        }
+
+        double pos;
+
+        if (beforeCase == null) {
+            pos = afterCase != null ? afterCase.getPos() / 2.0 : 65536;
+        } else {
+            pos = afterCase != null ? (beforeCase.getPos() + afterCase.getPos()) / 2.0 : beforeCase.getPos() + 65536;
+        }
+
+        caseNode.setPos(pos);
+        testCaseNodeMapper.updateByPrimaryKeySelective(caseNode);
+
+        // pos 低于阈值时，触发更新方法，重新计算此目录的所有同级目录的 pos 值
+        if (pos < LIMIT_POS) {
+            refreshPos(caseNode.getProjectId(), caseNode.getLevel(), caseNode.getParentId());
+        }
+    }
+
+    /**
+     * 按照指定排序方式获取同级模块的列表
+     * @param projectId 所属项目 id
+     * @param level node level
+     * @param parentId node parent id
+     * @param order pos 排序方式
+     * @return 按照指定排序方式排序的同级模块列表
+     */
+    private List<TestCaseNode> getPos(String projectId, int level, String parentId, String order) {
+        TestCaseNodeExample example = new TestCaseNodeExample();
+        TestCaseNodeExample.Criteria criteria = example.createCriteria();
+        criteria.andProjectIdEqualTo(projectId).andLevelEqualTo(level);
+        if (level != 1 && StringUtils.isNotBlank(parentId)) {
+            criteria.andParentIdEqualTo(parentId);
+        }
+        example.setOrderByClause(order);
+        return testCaseNodeMapper.selectByExample(example);
+    }
+
+    /**
+     * 刷新同级模块的 pos 值
+     * @param projectId project id
+     * @param level node level
+     * @param parentId node parent id
+     */
+    private void refreshPos(String projectId, int level, String parentId) {
+        List<TestCaseNode> nodes = getPos(projectId, level, parentId, "pos asc");
+        if (!CollectionUtils.isEmpty(nodes)) {
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+            TestCaseNodeMapper testCaseNodeMapper = sqlSession.getMapper(TestCaseNodeMapper.class);
+            AtomicDouble pos = new AtomicDouble(65536);
+            nodes.forEach((node) -> {
+                node.setPos(pos.getAndAdd(65536));
+                testCaseNodeMapper.updateByPrimaryKey(node);
+            });
+            sqlSession.flushStatements();
+        }
+    }
+
+
+    /**
+     * 获得同级模块下一个 pos 值
+     * @param projectId project id
+     * @param level node level
+     * @param parentId node parent id
+     * @return 同级模块下一个 pos 值
+     */
+    private double getNextLevelPos(String projectId, int level, String parentId) {
+        List<TestCaseNode> list = getPos(projectId, level, parentId, "pos desc");
+        if (!CollectionUtils.isEmpty(list)) {
+            return list.get(0).getPos() + 65536;
+        } else {
+            return 65536;
+        }
     }
 
 }

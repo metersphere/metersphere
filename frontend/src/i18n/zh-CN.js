@@ -229,9 +229,9 @@ export default {
       mail: '邮件',
       nail_robot: '钉钉机器人',
       enterprise_wechat_robot: '企业微信机器人',
-      notes: '注意: 1.事件，接收方式，接收人为必填项；\n' +
-        '         2.接收方式除邮件外webhook为必填；\n' +
-        '         3.机器人选择为群机器人，安全验证选择“自定义关键词” ："任务通知"',
+      notes:'注意:1.钉钉和企业群里新建一个自定义机器人，然后复制 webhook 地址在我们平台上;\n' +
+        '       2.机器人选择为群机器人，安全验证选择“自定义关键词” ："任务通知";\n' +
+        '       3.选择接收人时必须是你所建的群里包含的人,接收人手机号为必填项且为钉钉企业所使用的手机号,',
       message: '事件，接收人，接收方式为必填项',
       message_webhook: '接收方式为钉钉和企业机器人时，webhook为必填项'
 
@@ -572,6 +572,7 @@ export default {
         text: "文本",
         regex: "正则",
         response_time: "响应时间",
+        jsr223: "脚本",
         select_type: "请选择类型",
         select_subject: "请选择对象",
         select_condition: "请选择条件",
@@ -589,6 +590,13 @@ export default {
         json_path_suggest: "推荐JSONPath断言",
         json_path_clear: "清空JSONPath断言",
         debug_first: "请先执行调试获取响应结果",
+        ignore_status: "忽略状态",
+        add: "添加",
+        script_name: "脚本名称",
+        script: "脚本",
+        variable_name: "变量名称",
+        set_failure_status: "设置失败状态",
+        set_failure_msg: "设置失败消息",
       },
       extract: {
         label: "提取",

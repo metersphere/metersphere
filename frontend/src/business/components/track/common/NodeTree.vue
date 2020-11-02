@@ -73,7 +73,8 @@ export default {
         children: "children",
         label: "label"
       },
-      disabled: false
+      disabled: false,
+      list: []
     };
   },
   props: {
@@ -107,9 +108,16 @@ export default {
   },
   methods: {
     handleDragEnd(draggingNode, dropNode, dropType, ev) {
+      if (dropType === "none" || dropType === undefined) {
+        return;
+      }
       let param = this.buildParam(draggingNode, dropNode, dropType);
+
+      this.list = [];
+      this.getNodeTree(this.treeNodes,draggingNode.data.id, this.list);
       this.$post("/case/node/drag", param, () => {
         draggingNode.data.level = param.level;
+        this.$post("/case/node/pos", this.list);
         this.refreshTable();
       }, (error) => {
         this.refreshNode();
@@ -147,6 +155,22 @@ export default {
 
       param.nodeIds = nodeIds;
       return param;
+    },
+    getNodeTree(nodes, id, list) {
+      if (!nodes) {
+        return;
+      }
+      for (let i = 0; i < nodes.length; i++) {
+        if (nodes[i].id === id) {
+          i - 1 >= 0 ? list[0] = nodes[i-1].id : list[0] = "";
+          list[1] = nodes[i].id;
+          i + 1 < nodes.length ? list[2] = nodes[i+1].id : list[2] = "";
+          return;
+        }
+        if (nodes[i].children) {
+          this.getNodeTree(nodes[i].children, id, list);
+        }
+      }
     },
     refreshTable() {
       this.$emit('refreshTable');

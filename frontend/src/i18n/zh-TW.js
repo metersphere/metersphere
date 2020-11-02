@@ -591,6 +591,13 @@ export default {
         json_path_suggest: "推薦JSONPath斷言",
         json_path_clear: "清空JSONPath斷言",
         debug_first: "請先執行調試獲取響應結果",
+        ignore_status: "忽略狀態",
+        add: "添加",
+        script_name: "腳本名稱",
+        script: "腳本",
+        variable_name: "變量名稱",
+        set_failure_status: "設置失敗狀態",
+        set_failure_msg: "設置失敗消息",
       },
       extract: {
         label: "提取",
