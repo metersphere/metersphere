@@ -6,6 +6,7 @@ import com.dingtalk.api.request.OapiRobotSendRequest;
 import com.dingtalk.api.response.OapiRobotSendResponse;
 import com.taobao.api.ApiException;
 import io.metersphere.commons.constants.NoticeConstants;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.domain.UserDetail;
 import io.metersphere.service.UserService;
@@ -62,7 +63,7 @@ public class DingTaskService {
         try {
             response = client.execute(request);
         } catch (ApiException e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         System.out.println(response.getErrcode());
     }

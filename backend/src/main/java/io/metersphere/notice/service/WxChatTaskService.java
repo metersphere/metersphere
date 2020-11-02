@@ -1,6 +1,7 @@
 package io.metersphere.notice.service;
 
 import io.metersphere.commons.constants.NoticeConstants;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.domain.UserDetail;
 import io.metersphere.notice.message.TextMessage;
@@ -55,7 +56,7 @@ public class WxChatTaskService {
             SendResult result = WxChatbotClient.send(Webhook, message);
             System.out.println(result);
         } catch (IOException e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
     }
 
