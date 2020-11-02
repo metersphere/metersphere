@@ -1,6 +1,6 @@
 export default {
   commons: {
-    comment:'評論',
+    comment: '評論',
     examples: '示例',
     help_documentation: '幫助文檔',
     delete_cancelled: '已取消刪除',
@@ -217,8 +217,8 @@ export default {
     delete_warning: '刪除該組織將同步刪除該組織下所有相關工作空間和相關工作空間下的所有項目，以及項目中的所有用例、接口測試、性能測試等,確定要刪除嗎?',
     service_integration: '服務集成',
     defect_manage: '缺陷管理平臺',
-    message_settings:'消息設置',
-    message:{
+    message_settings: '消息設置',
+    message: {
       jenkins_task_notification: 'Jenkins接口調用任務通知',
       test_plan_task_notification: '測試計劃任務通知',
       test_review_task_notice: '測試評審任務通知',
@@ -230,8 +230,8 @@ export default {
       nail_robot: '釘釘機器人',
       enterprise_wechat_robot: '企業微信機器人',
       notes: '註意: 1.事件，接收方式，接收人為必填項；\n' +
-      '         2.接收方式除郵件外webhook為必填；\n' +
-      '         3.機器人選擇為群機器人，安全驗證選擇“自定義關鍵詞” ："任務通知"',
+        '         2.接收方式除郵件外webhook為必填；\n' +
+        '         3.機器人選擇為群機器人，安全驗證選擇“自定義關鍵詞” ："任務通知"',
       message: '事件，接收人，接收方式為必填項',
       message_webhook: '接收方式為釘釘和企業機器人時，webhook為必填項'
 
@@ -453,6 +453,35 @@ export default {
       delete_tip: "刪除需重啟服務後生效",
       file_exist: "該項目下已存在改jar包",
       upload_limit_size: "上傳文件大小不能超過 30MB!",
+    },
+    delimit: {
+      api_title: "接口列表",
+      api_name: "接口名稱",
+      api_status: "接口狀態",
+      api_type: "請求類型",
+      api_path: "路徑",
+      api_principal: "負責人",
+      api_last_time: "最後更新時間",
+      api_case_number: "用例數",
+      api_case_status: "用例狀態",
+      api_case_passing_rate: "用例通過率",
+      request: {
+        grade_info: "按等級從高到低",
+        run_env: "運行環境",
+        select_case: "搜索用例",
+        case: "用例",
+        responsible: "责任人",
+        title: "创建接口",
+        path_info:"請輸入接口的URL，如/api/demo/#{id}，其中id為路徑參數",
+        fast_debug: "快捷調試",
+        close_all_label: "關閉所有標簽",
+        save_as: "另存為新接口",
+        load_case: "加载用例",
+        save_as_case: "另存為新用例",
+        update_api: "更新接口",
+
+      }
+
     },
     environment: {
       name: "環境名稱",
@@ -983,7 +1012,8 @@ export default {
     account: '賬戶不能為空',
   },
   i18n: {
-    home: '首頁'
+    home: '首頁',
+    delimit: '接口定義',
   },
   ldap: {
     url: 'LDAP地址',

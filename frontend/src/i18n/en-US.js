@@ -1,6 +1,6 @@
 export default {
   commons: {
-    comment:'comment',
+    comment: 'comment',
     examples: 'examples',
     help_documentation: 'Help documentation',
     delete_cancelled: 'Delete cancelled',
@@ -216,8 +216,8 @@ export default {
     select: 'Select Organization',
     service_integration: 'Service integration',
     defect_manage: 'Defect management platform',
-    message_settings:'Message settings',
-    message:{
+    message_settings: 'Message settings',
+    message: {
       jenkins_task_notification: 'Jenkins task notification',
       test_plan_task_notification: 'Test plan task notification',
       test_review_task_notice: 'Test review task notice',
@@ -453,6 +453,33 @@ export default {
       delete_tip: "The deletion takes effect after the service is restarted",
       file_exist: "The name already exists in the project",
       upload_limit_size: "Upload file size cannot exceed 30MB!",
+    },
+    delimit: {
+      api_title: "Api test",
+      api_name: "Api name",
+      api_status: "Api status",
+      api_type: "Api type",
+      api_path: "Api path",
+      api_principal: "Api principal",
+      api_last_time: "Last update time",
+      api_case_number: "Number use case",
+      api_case_status: "Ise case status",
+      api_case_passing_rate: "Use case pass rate",
+      request: {
+        grade_info: "From high to low",
+        run_env: "Operating environment",
+        select_case: "Search use cases",
+        case: "Case",
+        title: "Create api",
+        path_info:"Please enter the URL of the interface, such as /api/demo/#{id}, where id is the path parameter",
+        fast_debug: "Fast debug",
+        close_all_label: "close all label",
+        save_as: "Save as new interface",
+        load_case: "Load use case",
+        save_as_case: "Save as new use case",
+        update_api: "Update interface",
+
+      }
     },
     environment: {
       name: "Environment Name",
@@ -984,7 +1011,8 @@ export default {
 
   },
   i18n: {
-    home: 'Home'
+    home: 'Home',
+    delimit: 'ApiDelimit',
   },
   ldap: {
     url: 'LDAP URL',

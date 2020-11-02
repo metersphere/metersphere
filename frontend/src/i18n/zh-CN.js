@@ -1,6 +1,6 @@
 export default {
   commons: {
-    comment:'评论',
+    comment: '评论',
     examples: '示例',
     help_documentation: '帮助文档',
     delete_cancelled: '已取消删除',
@@ -217,8 +217,8 @@ export default {
     delete_warning: '删除该组织将同步删除该组织下所有相关工作空间和相关工作空间下的所有项目，以及项目中的所有用例、接口测试、性能测试等,确定要删除吗?',
     service_integration: '服务集成',
     defect_manage: '缺陷管理平台',
-    message_settings:'消息设置',
-    message:{
+    message_settings: '消息设置',
+    message: {
       jenkins_task_notification: 'Jenkins接口调用任务通知',
       test_plan_task_notification: '测试计划任务通知',
       test_review_task_notice: '测试评审任务通知',
@@ -453,6 +453,33 @@ export default {
       delete_tip: "删除需重启服务后生效",
       file_exist: "该项目下已存在改jar包",
       upload_limit_size: "上传文件大小不能超过 30MB!",
+    },
+    delimit: {
+      api_title: "接口列表",
+      api_name: "接口名称",
+      api_status: "接口状态",
+      api_type: "请求类型",
+      api_path: "路径",
+      api_principal: "负责人",
+      api_last_time: "最后更新时间",
+      api_case_number: "用例数",
+      api_case_status: "用例状态",
+      api_case_passing_rate: "用例通过率",
+      request: {
+        grade_info: "按等级从高到低",
+        run_env: "运行环境",
+        select_case: "搜索用例",
+        case: "用例",
+        responsible: "责任人",
+        title: "创建接口",
+        path_info: "请输入接口的URL，如/api/demo/#{id}，其中id为路径参数",
+        fast_debug: "快捷调试",
+        close_all_label: "关闭所有标签",
+        save_as: "另存为新接口",
+        load_case: "加载用例",
+        save_as_case: "另存为新用例",
+        update_api: "更新接口",
+      }
     },
     environment: {
       name: "环境名称",
@@ -983,7 +1010,8 @@ export default {
     account: '账户不能为空',
   },
   i18n: {
-    home: '首页'
+    home: '首页',
+    delimit: '接口定义',
   },
   ldap: {
     url: 'LDAP地址',
