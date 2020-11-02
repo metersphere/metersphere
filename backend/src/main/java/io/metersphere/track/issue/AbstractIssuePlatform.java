@@ -62,7 +62,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     /**
      * 获取平台与项目相关的属性
-     * @return
+     * @return 其他平台和本地项目绑定的属性值
      */
     abstract String getProjectId();
 

@@ -586,9 +586,14 @@ public class TestCaseNodeService {
     }
 
 
-    // 测试用例同级模块排序
+    /**
+     * 测试用例同级模块排序
+     * @param ids 被拖拽模块相邻的前一个模块 id，
+     *            被拖拽的模块 id，
+     *            被拖拽模块相邻的后一个模块 id
+     */
     public void sort(List<String> ids) {
-        // 获取相邻节点
+        // 获取相邻节点 id
         String before = ids.get(0);
         String id = ids.get(1);
         String after = ids.get(2);
@@ -598,6 +603,7 @@ public class TestCaseNodeService {
 
         TestCaseNode caseNode = getCaseNode(id);
 
+        // 获取相邻节点
         if (StringUtils.isNotBlank(before)) {
             beforeCase = getCaseNode(before);
             beforeCase = beforeCase.getLevel().equals(caseNode.getLevel()) ? beforeCase : null;
@@ -625,6 +631,14 @@ public class TestCaseNodeService {
         }
     }
 
+    /**
+     * 按照指定排序方式获取同级模块的列表
+     * @param projectId 所属项目 id
+     * @param level node level
+     * @param parentId node parent id
+     * @param order pos 排序方式
+     * @return 按照指定排序方式排序的同级模块列表
+     */
     private List<TestCaseNode> getPos(String projectId, int level, String parentId, String order) {
         TestCaseNodeExample example = new TestCaseNodeExample();
         TestCaseNodeExample.Criteria criteria = example.createCriteria();
@@ -636,6 +650,12 @@ public class TestCaseNodeService {
         return testCaseNodeMapper.selectByExample(example);
     }
 
+    /**
+     * 刷新同级模块的 pos 值
+     * @param projectId project id
+     * @param level node level
+     * @param parentId node parent id
+     */
     private void refreshPos(String projectId, int level, String parentId) {
         List<TestCaseNode> nodes = getPos(projectId, level, parentId, "pos asc");
         if (!CollectionUtils.isEmpty(nodes)) {
@@ -650,7 +670,15 @@ public class TestCaseNodeService {
         }
     }
 
-    public double getNextLevelPos(String projectId, int level, String parentId) {
+
+    /**
+     * 获得同级模块下一个 pos 值
+     * @param projectId project id
+     * @param level node level
+     * @param parentId node parent id
+     * @return 同级模块下一个 pos 值
+     */
+    private double getNextLevelPos(String projectId, int level, String parentId) {
         List<TestCaseNode> list = getPos(projectId, level, parentId, "pos desc");
         if (!CollectionUtils.isEmpty(list)) {
             return list.get(0).getPos() + 65536;
