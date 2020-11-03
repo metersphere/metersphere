@@ -25,7 +25,7 @@ import {
   ThreadGroup,
   XPath2Extractor,
   IfController as JMXIfController,
-  ConstantTimer as JMXConstantTimer, TCPSampler, JSR223Assertion,
+  ConstantTimer as JMXConstantTimer, TCPSampler, JSR223Assertion, XPath2Assertion,
 } from "./JMX";
 import Mock from "mockjs";
 import {funcFilters} from "@/common/js/func-filter";
@@ -96,6 +96,7 @@ export const ASSERTION_TYPE = {
   JSON_PATH: "JSON",
   DURATION: "Duration",
   JSR223: "JSR223",
+  XPATH2: "XPath2",
 }
 
 export const ASSERTION_REGEX_SUBJECT = {
@@ -741,10 +742,11 @@ export class Assertions extends BaseConfig {
     this.regex = [];
     this.jsonPath = [];
     this.jsr223 = [];
+    this.xPath2 = [];
     this.duration = undefined;
 
     this.set(options);
-    this.sets({text: Text, regex: Regex, jsonPath: JSONPath, jsr223: AssertionJSR223}, options);
+    this.sets({text: Text, regex: Regex, jsonPath: JSONPath, jsr223: AssertionJSR223, xPath2: XPath2}, options);
   }
 
   initOptions(options) {
@@ -820,6 +822,23 @@ export class JSONPath extends AssertionType {
   setJSONPathDescription() {
     this.description = this.expression + " expect: " + (this.expect ? this.expect : '');
   }
+
+  isValid() {
+    return !!this.expression;
+  }
+}
+
+export class XPath2 extends AssertionType {
+  constructor(options) {
+    super(ASSERTION_TYPE.XPATH2);
+    this.expression = undefined;
+    this.description = undefined;
+    this.set(options);
+  }
+
+  // setJSONPathDescription() {
+  //   this.description = this.expression + " expect: " + (this.expect ? this.expect : '');
+  // }
 
   isValid() {
     return !!this.expression;
@@ -1431,6 +1450,12 @@ class JMXGenerator {
       })
     }
 
+    if (assertions.xPath2.length > 0) {
+      assertions.xPath2.filter(this.filter).forEach(item => {
+        httpSamplerProxy.put(this.getXpathAssertion(item));
+      })
+    }
+
     if (assertions.jsr223.length > 0) {
       assertions.jsr223.filter(this.filter).forEach(item => {
         httpSamplerProxy.put(this.getJSR223Assertion(item));
@@ -1451,6 +1476,11 @@ class JMXGenerator {
   getJSR223Assertion(item) {
     let name = item.desc;
     return new JSR223Assertion(name, item);
+  }
+
+  getXpathAssertion(item) {
+    let name = item.expression;
+    return new XPath2Assertion(name, item);
   }
 
   getResponseAssertion(regex) {

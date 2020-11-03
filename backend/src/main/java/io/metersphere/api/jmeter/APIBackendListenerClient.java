@@ -305,9 +305,11 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
     private ResponseAssertionResult getResponseAssertionResult(AssertionResult assertionResult) {
         ResponseAssertionResult responseAssertionResult = new ResponseAssertionResult();
-        responseAssertionResult.setMessage(assertionResult.getFailureMessage());
         responseAssertionResult.setName(assertionResult.getName());
         responseAssertionResult.setPass(!assertionResult.isFailure() && !assertionResult.isError());
+        if (!responseAssertionResult.isPass()) {
+            responseAssertionResult.setMessage(assertionResult.getFailureMessage());
+        }
         return responseAssertionResult;
     }
 
