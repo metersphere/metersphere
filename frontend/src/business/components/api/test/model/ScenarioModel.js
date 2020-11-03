@@ -1001,7 +1001,8 @@ class JMXHttpRequest {
         this.domain = environment.config.httpConfig.domain;
         this.port = environment.config.httpConfig.port;
         this.protocol = environment.config.httpConfig.protocol;
-        let envPath = environment.config.httpConfig.protocol + "://" + environment.config.httpConfig.socket;
+        let url = new URL(environment.config.httpConfig.protocol + "://" + environment.config.httpConfig.socket);
+        let envPath = url.pathname === '/' ? '' : url.pathname;
         this.path = this.getPostQueryParameters(request, decodeURIComponent(envPath + (request.path ? request.path : '')));
       }
       this.connectTimeout = request.connectTimeout;
@@ -1397,11 +1398,11 @@ class JMXGenerator {
       body = this.filterKV(request.body.kvs);
       this.addRequestBodyFile(httpSamplerProxy, request, testId);
     } else {
-      httpSamplerProxy.boolProp('HTTPSampler.postBodyRaw', true);
       body.push({name: '', value: request.body.raw, encode: false, enable: true});
     }
 
     if (request.method !== 'GET') {
+      httpSamplerProxy.boolProp('HTTPSampler.postBodyRaw', true);
       httpSamplerProxy.add(new HTTPSamplerArguments(body));
     }
   }
