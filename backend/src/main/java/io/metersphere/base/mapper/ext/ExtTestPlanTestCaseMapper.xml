@@ -210,6 +210,14 @@
             </foreach>
         </if>
     </select>
+    <select id="listTestCaseByProjectIds" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
+        select distinct * from test_plan_test_case, test_case
+        where test_plan_test_case.case_id = test_case.id
+        and test_case.project_id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
     <select id="listByNode" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
         select test_plan_test_case.*, test_case.*
         from test_plan_test_case

@@ -19,7 +19,6 @@ import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.PerformanceTestJob;
-import io.metersphere.notice.domain.NoticeDetail;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
 import io.metersphere.performance.notice.PerformanceNoticeTask;
@@ -230,12 +229,10 @@ public class PerformanceTestService {
         startEngine(loadTest, engine, request.getTriggerMode());
 
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(engine.getReportId());
+        loadTestReport.setTriggerMode("API");
         if (StringUtils.equals(NoticeConstants.API, loadTestReport.getTriggerMode()) || StringUtils.equals(NoticeConstants.SCHEDULE, loadTestReport.getTriggerMode())) {
             performanceNoticeTask.registerNoticeTask(loadTestReport);
         }
-        /*if (StringUtils.equals(NoticeConstants.API, loadTestReport.getTriggerMode()) || StringUtils.equals(NoticeConstants.SCHEDULE, "SCHEDULE")) {
-            performanceNoticeTask.registerNoticeTask(loadTestReport);
-        }*/
         return engine.getReportId();
     }
 
@@ -305,15 +302,10 @@ public class PerformanceTestService {
         } catch (MSException e) {
             // 启动失败之后清理任务
             engine.stop();
-
             LogUtil.error(e);
             loadTest.setStatus(PerformanceTestStatus.Error.name());
             loadTest.setDescription(e.getMessage());
             loadTestMapper.updateByPrimaryKeySelective(loadTest);
-            LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(engine.getReportId());
-            if (StringUtils.equals(NoticeConstants.API, loadTestReport.getTriggerMode()) || StringUtils.equals(NoticeConstants.SCHEDULE, loadTestReport.getTriggerMode())) {
-                performanceNoticeTask.registerNoticeTask(loadTestReport);
-            }
             throw e;
         }
     }
@@ -436,17 +428,6 @@ public class PerformanceTestService {
             reportService.stopEngine(loadTest, engine);
             // 停止测试之后设置报告的状态
             reportService.updateStatus(reportId, PerformanceTestStatus.Completed.name());
-            List<NoticeDetail> noticeList = null;
-            if (loadTestReport.getTriggerMode().equals("SCHEDULE")) {
-               /* try {
-                    noticeList = noticeService.queryNotice(loadTest.getId());
-                    mailService.sendPerformanceNotification(noticeList, loadTestReport.getStatus(), loadTest, loadTestReport.getId());
-                } catch (Exception e) {
-                    LogUtil.error(e.getMessage(), e);
-                }*/
-            }
-
-
         }
     }
 

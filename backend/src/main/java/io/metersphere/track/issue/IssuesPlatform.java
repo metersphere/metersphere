@@ -9,31 +9,30 @@ public interface IssuesPlatform {
 
     /**
      * 获取平台相关联的缺陷
-     * @return
+     * @return platform issues list
      */
     List<Issues> getIssue();
 
     /**
      * 添加缺陷到缺陷平台
-     * @param issuesRequest
+     * @param issuesRequest issueRequest
      */
     void addIssue(IssuesRequest issuesRequest);
 
     /**
      * 删除缺陷平台缺陷
-     * @param id
+     * @param id issue id
      */
     void deleteIssue(String id);
 
     /**
-     * 测试缺陷平台连通性
-     * @param
+     * 测试平台联通性
      */
     void testAuth();
 
     /**
      * 获取缺陷平台项目下的相关人员
-     * @return
+     * @return platform user list
      */
     List<PlatformUser> getPlatformUser();
 }

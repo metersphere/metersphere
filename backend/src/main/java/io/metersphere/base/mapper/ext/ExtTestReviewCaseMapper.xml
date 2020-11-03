@@ -195,4 +195,12 @@
         where test_case_review_test_case.review_id = #{userId}
         and project.workspace_id = #{workspaceId}
     </select>
+    <select id="listTestCaseByProjectIds" resultType="io.metersphere.track.dto.TestReviewCaseDTO">
+        select distinct * from test_case_review_test_case, test_case
+        where test_case_review_test_case.case_id = test_case.id
+        and test_case.project_id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
 </mapper>
