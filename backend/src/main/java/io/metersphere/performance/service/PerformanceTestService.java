@@ -229,7 +229,6 @@ public class PerformanceTestService {
         startEngine(loadTest, engine, request.getTriggerMode());
 
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(engine.getReportId());
-        loadTestReport.setTriggerMode("API");
         if (StringUtils.equals(NoticeConstants.API, loadTestReport.getTriggerMode()) || StringUtils.equals(NoticeConstants.SCHEDULE, loadTestReport.getTriggerMode())) {
             performanceNoticeTask.registerNoticeTask(loadTestReport);
         }
