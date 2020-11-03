@@ -18,7 +18,7 @@
 
 export default {
   name: "MsApiRequestForm",
-  components: {MsApiSqlRequestForm, MsRequestResultTail, MsScenarioResults, MsApiDubboRequestForm, MsApiHttpRequestForm},
+  components: {MsApiSqlRequestForm, MsRequestResultTail, MsScenarioResults, MsApiDubboRequestForm, MsApiHttpRequestForm, MsApiTcpRequestForm},
   props: {
     scenario: Scenario,
     request: Request,

@@ -286,12 +286,13 @@
       },
       getProject() {
         if (this.planId) {
-          this.$post("/test/plan/project/", {planId: this.planId}, res => {
+          this.result = this.$post("/test/plan/project/", {planId: this.planId}, res => {
             let data = res.data;
             if (data) {
               this.projects = data;
               this.projectId = data[0].id;
               this.projectName = data[0].name;
+              this.search();
             }
           })
         }
