@@ -561,7 +561,9 @@ public class TestCaseReviewService {
     }
 
     /*编辑，新建，完成,删除通知内容*/
-    private static String getReviewContext(SaveTestCaseReviewRequest reviewRequest, String type) {
+    private String getReviewContext(SaveTestCaseReviewRequest reviewRequest, String type) {
+
+        User user = userMapper.selectByPrimaryKey(reviewRequest.getCreator());
         Long startTime = reviewRequest.getCreateTime();
         Long endTime = reviewRequest.getEndTime();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -577,11 +579,11 @@ public class TestCaseReviewService {
         }
         String context = "";
         if (StringUtils.equals(NoticeConstants.CREATE, type)) {
-            context = "测试评审任务通知：" + reviewRequest.getCreator() + "发起的" + "'" + reviewRequest.getName() + "'" + "待开始，计划开始时间是" + start + "计划结束时间为" + end + "请跟进";
+            context = "测试评审任务通知：" + user.getName() + "发起的" + "'" + reviewRequest.getName() + "'" + "待开始，计划开始时间是" + start + "计划结束时间为" + end + "请跟进";
         } else if (StringUtils.equals(NoticeConstants.UPDATE, type)) {
-            context = "测试评审任务通知：" + reviewRequest.getCreator() + "发起的" + "'" + reviewRequest.getName() + "'" + "已完成，计划开始时间是" + start + "计划结束时间为" + end + "已完成";
+            context = "测试评审任务通知：" + user.getName() + "发起的" + "'" + reviewRequest.getName() + "'" + "已完成，计划开始时间是" + start + "计划结束时间为" + end + "已完成";
         } else if (StringUtils.equals(NoticeConstants.DELETE, type)) {
-            context = "测试评审任务通知：" + reviewRequest.getCreator() + "发起的" + "'" + reviewRequest.getName() + "'" + "计划开始时间是" + start + "计划结束时间为" + end + "已删除";
+            context = "测试评审任务通知：" + user.getName() + "发起的" + "'" + reviewRequest.getName() + "'" + "计划开始时间是" + start + "计划结束时间为" + end + "已删除";
         }
 
         return context;

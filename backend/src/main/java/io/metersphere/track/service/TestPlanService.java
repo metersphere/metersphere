@@ -93,6 +93,8 @@ public class TestPlanService {
     DingTaskService dingTaskService;
     @Resource
     WxChatTaskService wxChatTaskService;
+    @Resource
+    UserMapper userMapper;
 
     public void addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -534,7 +536,8 @@ public class TestPlanService {
         return projectName;
     }
 
-    private static String getTestPlanContext(AddTestPlanRequest testPlan, String type) {
+    private String getTestPlanContext(AddTestPlanRequest testPlan, String type) {
+        User user = userMapper.selectByPrimaryKey(testPlan.getCreator());
         Long startTime = testPlan.getPlannedStartTime();
         Long endTime = testPlan.getPlannedEndTime();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -554,11 +557,11 @@ public class TestPlanService {
         }
         String context = "";
         if (StringUtils.equals(NoticeConstants.CREATE, type)) {
-            context = "测试计划任务通知：" + testPlan.getCreator() + "创建的" + "'" + testPlan.getName() + "'" + "待开始，计划开始时间是" + start + "计划结束时间为" + end + "请跟进";
+            context = "测试计划任务通知：" + user.getName() + "创建的" + "'" + testPlan.getName() + "'" + "待开始，计划开始时间是" + start + "计划结束时间为" + end + "请跟进";
         } else if (StringUtils.equals(NoticeConstants.UPDATE, type)) {
-            context = "测试计划任务通知：" + testPlan.getCreator() + "创建的" + "'" + testPlan.getName() + "'" + "已完成，计划开始时间是" + start + "计划结束时间为" + end + "已完成";
+            context = "测试计划任务通知：" + user.getName() + "创建的" + "'" + testPlan.getName() + "'" + "已完成，计划开始时间是" + start + "计划结束时间为" + end + "已完成";
         } else if (StringUtils.equals(NoticeConstants.DELETE, type)) {
-            context = "测试计划任务通知：" + testPlan.getCreator() + "创建的" + "'" + testPlan.getName() + "'" + "计划开始时间是" + start + "计划结束时间为" + end + "已删除";
+            context = "测试计划任务通知：" + user.getName() + "创建的" + "'" + testPlan.getName() + "'" + "计划开始时间是" + start + "计划结束时间为" + end + "已删除";
         }
         return context;
     }
