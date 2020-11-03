@@ -365,7 +365,7 @@ public class TestPlanService {
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         request.setPlanIds(extTestPlanTestCaseMapper.findRelateTestPlanId(user.getId(), SessionUtils.getCurrentWorkspaceId()));
 
-        List<String> projectIds = extProjectMapper.getProjectIdByWorkspaceId(SessionUtils.getCurrentOrganizationId());
+        List<String> projectIds = extProjectMapper.getProjectIdByWorkspaceId(SessionUtils.getCurrentWorkspaceId());
 
         List<TestPlanDTOWithMetric> testPlans = extTestPlanMapper.listRelate(request);
 
@@ -411,10 +411,11 @@ public class TestPlanService {
         return testPlanTestCaseService.list(request);
     }
 
-    public List<TestPlanCaseDTO> listTestCaseByProjectIds(List<String> projectIds) {
-        QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
-        request.setProjectIds(projectIds);
-        return extTestPlanTestCaseMapper.list(request);
+    private List<TestPlanCaseDTO> listTestCaseByProjectIds(List<String> projectIds) {
+        if (CollectionUtils.isEmpty(projectIds)) {
+            return new ArrayList<>();
+        }
+        return extTestPlanTestCaseMapper.listTestCaseByProjectIds(projectIds);
     }
 
     public TestCaseReportMetricDTO getMetric(String planId) {

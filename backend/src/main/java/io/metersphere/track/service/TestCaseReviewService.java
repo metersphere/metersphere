@@ -484,7 +484,7 @@ public class TestCaseReviewService {
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         request.setReviewIds(extTestReviewCaseMapper.findRelateTestReviewId(user.getId(), SessionUtils.getCurrentWorkspaceId()));
 
-        List<String> projectIds = extProjectMapper.getProjectIdByWorkspaceId(SessionUtils.getCurrentOrganizationId());
+        List<String> projectIds = extProjectMapper.getProjectIdByWorkspaceId(SessionUtils.getCurrentWorkspaceId());
 
         List<TestReviewDTOWithMetric> testReviews = extTestCaseReviewMapper.listRelate(request);
 
@@ -553,10 +553,11 @@ public class TestCaseReviewService {
         return name;
     }
 
-    public List<TestReviewCaseDTO> listTestCaseByProjectIds(List<String> projectIds) {
-        QueryCaseReviewRequest request = new QueryCaseReviewRequest();
-        request.setProjectIds(projectIds);
-        return extTestReviewCaseMapper.list(request);
+    private List<TestReviewCaseDTO> listTestCaseByProjectIds(List<String> projectIds) {
+        if (CollectionUtils.isEmpty(projectIds)) {
+            return new ArrayList<>();
+        }
+        return extTestReviewCaseMapper.listTestCaseByProjectIds(projectIds);
     }
 
     /*编辑，新建，完成,删除通知内容*/
