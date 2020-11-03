@@ -1139,16 +1139,17 @@ class JMXGenerator {
               sampler = new DubboSample(request.name || "", new JMXDubboRequest(request, scenario.dubboConfig));
             } else if (request instanceof HttpRequest) {
               sampler = new HTTPSamplerProxy(request.name || "", new JMXHttpRequest(request, scenario.environment));
-              this.addRequestHeader(sampler, request);
+              this.addRequestHeader(sampler, request, scenario);
               this.addRequestArguments(sampler, request);
               this.addRequestBody(sampler, request, testId);
             } else if (request instanceof SqlRequest) {
               request.dataSource = scenario.databaseConfigMap.get(request.dataSource);
               sampler = new JDBCSampler(request.name || "", request);
-              this.addRequestVariables(sampler, request);
             } else if (request instanceof TCPRequest) {
               sampler = new TCPSampler(request.name || "", new JMXTCPRequest(request, scenario));
             }
+
+            this.addRequestVariables(sampler, request, scenario);
 
             this.addDNSCacheManager(sampler, scenario.environment, request.useEnvironment);
 
@@ -1186,20 +1187,13 @@ class JMXGenerator {
       envArray = JSON.parse(environments);
     }
     envArray.forEach(item => {
-      if (item.name && !keys.has(item.name)) {
+      if (item.enable != false && item.name && !keys.has(item.name)) {
         target.push(new KeyValue({name: item.name, value: item.value}));
       }
     })
   }
 
   addScenarioVariables(threadGroup, scenario) {
-    if (scenario.environment) {
-      let config = scenario.environment.config;
-      if (!(scenario.environment.config instanceof Object)) {
-        config = JSON.parse(scenario.environment.config);
-      }
-      this.addEnvironments(config.commonConfig.variables, scenario.variables)
-    }
     let args = this.filterKV(scenario.variables);
     if (args.length > 0) {
       let name = scenario.name + " Variables";
@@ -1207,11 +1201,23 @@ class JMXGenerator {
     }
   }
 
-  addRequestVariables(httpSamplerProxy, request) {
+  addRequestVariables(httpSamplerProxy, request, scenario) {
+    if (request.useEnvironment && scenario.environment) {
+      let config = scenario.environment.config;
+      if (!(scenario.environment.config instanceof Object)) {
+        config = JSON.parse(scenario.environment.config);
+      }
+      if (!request.variables) {
+        request.variables = [];
+      }
+      this.addEnvironments(config.commonConfig.variables, request.variables)
+    }
     let name = request.name + " Variables";
-    let variables = this.filterKV(request.variables);
-    if (variables && variables.length > 0) {
-      httpSamplerProxy.put(new Arguments(name, variables));
+    if (request.variables) {
+      let variables = this.filterKV(request.variables);
+      if (variables && variables.length > 0) {
+        httpSamplerProxy.put(new Arguments(name, variables));
+      }
     }
   }
 
@@ -1272,13 +1278,6 @@ class JMXGenerator {
   }
 
   addScenarioHeaders(threadGroup, scenario) {
-    if (scenario.environment) {
-      let config = scenario.environment.config;
-      if (!(scenario.environment.config instanceof Object)) {
-        config = JSON.parse(scenario.environment.config);
-      }
-      this.addEnvironments(config.httpConfig.headers, scenario.headers)
-    }
     let headers = this.filterKV(scenario.headers);
     if (headers.length > 0) {
       let name = scenario.name + " Headers";
@@ -1286,7 +1285,14 @@ class JMXGenerator {
     }
   }
 
-  addRequestHeader(httpSamplerProxy, request) {
+  addRequestHeader(httpSamplerProxy, request, scenario) {
+    if (request.useEnvironment && scenario.environment) {
+      let config = scenario.environment.config;
+      if (!(scenario.environment.config instanceof Object)) {
+        config = JSON.parse(scenario.environment.config);
+      }
+      this.addEnvironments(config.httpConfig.headers, request.headers)
+    }
     let name = request.name + " Headers";
     this.addBodyFormat(request);
     let headers = this.filterKV(request.headers);
