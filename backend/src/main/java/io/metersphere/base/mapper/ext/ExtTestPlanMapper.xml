@@ -96,7 +96,7 @@
         </if>
     </sql>
 
-    <select id="list" resultMap="BaseResultMap"
+    <select id="list" resultType="io.metersphere.track.dto.TestPlanDTOWithMetric"
             parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
         select DISTINCT test_plan.*, user.name as user_name from test_plan
         LEFT JOIN user ON user.id = test_plan.principal
