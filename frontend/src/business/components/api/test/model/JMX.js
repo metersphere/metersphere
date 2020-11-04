@@ -439,6 +439,16 @@ export class JSONPathAssertion extends DefaultTestElement {
   }
 }
 
+export class XPath2Assertion extends DefaultTestElement {
+  constructor(testName, xPath) {
+    super('XPath2Assertion', 'XPath2AssertionGui', 'XPath2Assertion', testName);
+    this.xPath = xPath || {};
+    this.stringProp('XPath.xpath', this.xPath.expression);
+    this.stringProp('XPath.namespace');
+    this.boolProp('XPath.negate', false);
+  }
+}
+
 export class ResponseCodeAssertion extends ResponseAssertion {
   constructor(testName, type, value, assumeSuccess, message) {
     let assertion = {
