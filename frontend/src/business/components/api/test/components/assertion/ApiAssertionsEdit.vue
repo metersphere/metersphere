@@ -20,12 +20,12 @@
       </div>
     </div>
 
-    <div class="assertion-item-editing x_path" v-if="assertions.xPath2.length > 0">
+    <div class="assertion-item-editing x_path" v-if="assertions.xpath2.length > 0">
       <div>
         {{ 'XPath' }}
       </div>
-      <div class="regex-item" v-for="(xPath, index) in assertions.xPath2" :key="index">
-        <ms-api-assertion-x-path2 :is-read-only="isReadOnly" :list="assertions.xPath2"
+      <div class="regex-item" v-for="(xPath, index) in assertions.xpath2" :key="index">
+        <ms-api-assertion-x-path2 :is-read-only="isReadOnly" :list="assertions.xpath2"
                                  :x-path2="xPath" :edit="true" :index="index"/>
       </div>
     </div>

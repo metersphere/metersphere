@@ -742,11 +742,11 @@ export class Assertions extends BaseConfig {
     this.regex = [];
     this.jsonPath = [];
     this.jsr223 = [];
-    this.xPath2 = [];
+    this.xpath2 = [];
     this.duration = undefined;
 
     this.set(options);
-    this.sets({text: Text, regex: Regex, jsonPath: JSONPath, jsr223: AssertionJSR223, xPath2: XPath2}, options);
+    this.sets({text: Text, regex: Regex, jsonPath: JSONPath, jsr223: AssertionJSR223, xpath2: XPath2}, options);
   }
 
   initOptions(options) {
@@ -1457,8 +1457,8 @@ class JMXGenerator {
       })
     }
 
-    if (assertions.xPath2.length > 0) {
-      assertions.xPath2.filter(this.filter).forEach(item => {
+    if (assertions.xpath2.length > 0) {
+      assertions.xpath2.filter(this.filter).forEach(item => {
         httpSamplerProxy.put(this.getXpathAssertion(item));
       })
     }
