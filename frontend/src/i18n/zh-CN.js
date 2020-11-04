@@ -347,7 +347,7 @@ export default {
     test_execute_again: '再次执行',
     export: '导出',
     compare: '比较',
-    generation_error: '报告生成错误,无法查看!',
+    generation_error: '报告生成错误, 无法查看, 请检查日志详情!',
     being_generated: '报告正在生成中...',
     delete_confirm: '确认删除报告: ',
     start_status: '测试处于开始状态, 我们生成报告后会自动展示到页面上！',

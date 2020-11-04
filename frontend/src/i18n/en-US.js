@@ -348,7 +348,7 @@ export default {
     test_execute_again: 'Test Execute Again',
     export: 'Export',
     compare: 'Compare',
-    generation_error: 'Report generation error, cannot be viewed!',
+    generation_error: 'Report generation error, unable to view, please check log details!',
     being_generated: 'Report is being generated...',
     delete_confirm: 'Confirm delete: ',
     start_status: 'The test is in the beginning state, we will automatically display it on the page after we generate the report!',

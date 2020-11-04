@@ -349,7 +349,7 @@ export default {
     test_execute_again: '再次執行',
     export: '導出',
     compare: '比較',
-    generation_error: '報告生成錯誤,無法查看!',
+    generation_error: '報告生成錯誤, 無法查看, 請檢查日誌詳情!',
     being_generated: '報告正在生成中...',
     delete_confirm: '確認刪除報告: ',
     start_status: '測試處於開始狀態, 我們生成報告後會自動展示到頁面上！',

@@ -23,11 +23,11 @@
                 {{ $t('report.test_execute_again') }}
               </el-button>
               <el-button :disabled="isReadOnly" type="info" plain size="mini" @click="handleExport(reportName)">
-                 {{$t('test_track.plan_view.export_report')}}
+                {{ $t('test_track.plan_view.export_report') }}
               </el-button>
 
               <!--<el-button :disabled="isReadOnly" type="warning" plain size="mini">-->
-                <!--{{$t('report.compare')}}-->
+              <!--{{$t('report.compare')}}-->
               <!--</el-button>-->
             </el-row>
           </el-col>
@@ -65,7 +65,8 @@
           </el-tabs>
         </div>
 
-        <ms-performance-report-export :title="reportName" id="performanceReportExport" v-show="reportExportVisible" :report="report"/>
+        <ms-performance-report-export :title="reportName" id="performanceReportExport" v-show="reportExportVisible"
+                                      :report="report"/>
 
       </el-card>
       <el-dialog :title="$t('report.test_stop_now_confirm')" :visible.sync="dialogFormVisible" width="30%">
@@ -91,8 +92,7 @@ import MsPerformancePressureConfig from "./components/PerformancePressureConfig"
 import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 
-import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
-import {exportPdf} from "../../../../common/js/utils";
+import {checkoutTestManagerOrTestUser, exportPdf} from "@/common/js/utils";
 import html2canvas from 'html2canvas';
 import MsPerformanceReportExport from "./PerformanceReportExport";
 
@@ -188,7 +188,8 @@ export default {
     checkReportStatus(status) {
       switch (status) {
         case 'Error':
-          this.$warning(this.$t('report.generation_error'));
+          // this.$warning(this.$t('report.generation_error'));
+          this.active = '4';
           break;
         case 'Starting':
           this.$alert(this.$t('report.start_status'));
@@ -240,6 +241,11 @@ export default {
     },
     onMessage(e) {
       this.$set(this.report, "refresh", e.data); // 触发刷新
+      if (e.data.startsWith('Error')) {
+        this.$set(this.report, "status", 'Error');
+        this.$warning(e.data);
+        return;
+      }
       this.$set(this.report, "status", 'Running');
       this.status = 'Running';
       this.initReportTimeInfo();
@@ -264,7 +270,7 @@ export default {
         setTimeout(() => {
           html2canvas(document.getElementById('performanceReportExport'), {
             scale: 2
-          }).then(function(canvas) {
+          }).then(function (canvas) {
             exportPdf(name, [canvas]);
             reset();
           });
@@ -332,18 +338,18 @@ export default {
 
 <style scoped>
 
-  .ms-report-view-btns {
-    margin-top: 15px;
-  }
+.ms-report-view-btns {
+  margin-top: 15px;
+}
 
-  .ms-report-time-desc {
-    text-align: left;
-    display: block;
-    color: #5C7878;
-  }
+.ms-report-time-desc {
+  text-align: left;
+  display: block;
+  color: #5C7878;
+}
 
-  .report-export .el-card {
-    margin-bottom: 15px;
-  }
+.report-export .el-card {
+  margin-bottom: 15px;
+}
 
 </style>

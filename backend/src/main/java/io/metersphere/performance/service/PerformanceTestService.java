@@ -418,16 +418,26 @@ public class PerformanceTestService {
         if (forceStop) {
             reportService.deleteReport(reportId);
         } else {
-            LoadTestReport loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
-            LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(loadTestReport.getTestId());
-            final Engine engine = EngineFactory.createEngine(loadTest);
-            if (engine == null) {
-                MSException.throwException(String.format("Stop report fail. create engine fail，report ID：%s", reportId));
-            }
-            reportService.stopEngine(loadTest, engine);
+            stopEngine(reportId);
             // 停止测试之后设置报告的状态
             reportService.updateStatus(reportId, PerformanceTestStatus.Completed.name());
         }
+    }
+
+    public void stopErrorTest(String reportId) {
+        stopEngine(reportId);
+        // 停止测试之后设置报告的状态
+        reportService.updateStatus(reportId, PerformanceTestStatus.Error.name());
+    }
+
+    private void stopEngine(String reportId) {
+        LoadTestReport loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
+        LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(loadTestReport.getTestId());
+        final Engine engine = EngineFactory.createEngine(loadTest);
+        if (engine == null) {
+            MSException.throwException(String.format("Stop report fail. create engine fail，report ID：%s", reportId));
+        }
+        reportService.stopEngine(loadTest, engine);
     }
 
     public List<ScheduleDao> listSchedule(QueryScheduleRequest request) {

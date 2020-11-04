@@ -241,7 +241,7 @@ public class ReportService {
         }
     }
 
-    public LoadTestReport getReport(String reportId) {
+    public LoadTestReportWithBLOBs getReport(String reportId) {
         return loadTestReportMapper.selectByPrimaryKey(reportId);
     }
 
