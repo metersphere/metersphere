@@ -8,6 +8,7 @@
             <el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT"/>
             <el-option :label="$t('api_test.request.assertions.regex')" :value="options.REGEX"/>
             <el-option :label="'JSONPath'" :value="options.JSON_PATH"/>
+            <el-option :label="'XPath'" :value="options.XPATH2"/>
             <el-option :label="$t('api_test.request.assertions.response_time')" :value="options.DURATION"/>
             <el-option :label="$t('api_test.request.assertions.jsr223')" :value="options.JSR223"/>
           </el-select>
@@ -16,6 +17,7 @@
           <ms-api-assertion-text :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.TEXT" :callback="after"/>
           <ms-api-assertion-regex :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.REGEX" :callback="after"/>
           <ms-api-assertion-json-path :is-read-only="isReadOnly" :list="assertions.jsonPath" v-if="type === options.JSON_PATH" :callback="after"/>
+          <ms-api-assertion-x-path2 :is-read-only="isReadOnly" :list="assertions.xpath2" v-if="type === options.XPATH2" :callback="after"/>
           <ms-api-assertion-duration :is-read-only="isReadOnly" v-model="time" :duration="assertions.duration"
                                      v-if="type === options.DURATION" :callback="after"/>
           <ms-api-assertion-jsr223 :is-read-only="isReadOnly" :list="assertions.jsr223" v-if="type === options.JSR223" :callback="after"/>
@@ -52,11 +54,13 @@
   import MsApiAssertionJsonPath from "./ApiAssertionJsonPath";
   import MsApiAssertionJsr223 from "@/business/components/api/test/components/assertion/ApiAssertionJsr223";
   import MsApiJsonpathSuggestList from "./ApiJsonpathSuggestList";
+  import MsApiAssertionXPath2 from "./ApiAssertionXPath2";
 
   export default {
     name: "MsApiAssertions",
 
     components: {
+      MsApiAssertionXPath2,
       MsApiAssertionJsr223,
       MsApiJsonpathSuggestList,
       MsApiAssertionJsonPath,
