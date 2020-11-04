@@ -457,7 +457,7 @@ public class TestCaseService {
             if (t.getMethod().equals("manual")) {
                 String steps = t.getSteps();
                 String setp = "";
-                if (steps.contains("null")) {
+                if (steps.contains("null") && !steps.contains("\"null\"")) {
                     setp = steps.replace("null", "\"\"");
                 } else {
                     setp = steps;
