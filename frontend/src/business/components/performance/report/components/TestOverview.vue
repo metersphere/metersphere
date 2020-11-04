@@ -114,7 +114,7 @@ export default {
         this.avgResponseTime = '0';
         this.responseTime90 = '0';
         this.avgBandwidth = '0';
-        this.$warning(this.$t('report.generation_error'));
+        // this.$warning(this.$t('report.generation_error'));
       })
       this.getLoadChart();
       this.getResChart();
