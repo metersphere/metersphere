@@ -8,7 +8,7 @@ import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.i18n.Translator;
-import io.metersphere.track.dto.TestPlanDTO;
+import io.metersphere.track.dto.TestPlanDTOWithMetric;
 import io.metersphere.track.request.testplan.QueryTestPlanRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -81,7 +81,7 @@ public class CheckOwnerService {
         io.metersphere.track.request.testcase.QueryTestPlanRequest request = new io.metersphere.track.request.testcase.QueryTestPlanRequest();
         request.setWorkspaceId(workspaceId);
         request.setId(planId);
-        List<TestPlanDTO> list = extTestPlanMapper.list(request);
+        List<TestPlanDTOWithMetric> list = extTestPlanMapper.list(request);
         if (CollectionUtils.size(list) != 1) {
             throw new UnauthorizedException(Translator.get("check_owner_plan"));
         }
