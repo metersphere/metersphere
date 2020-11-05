@@ -1397,11 +1397,13 @@ class JMXGenerator {
       body = this.filterKV(request.body.kvs);
       this.addRequestBodyFile(httpSamplerProxy, request, testId);
     } else {
-      body.push({name: '', value: request.body.raw, encode: false, enable: true});
+      if (request.body.raw) {
+        httpSamplerProxy.boolProp('HTTPSampler.postBodyRaw', true);
+        body.push({name: '', value: request.body.raw, encode: false, enable: true});
+      }
     }
 
     if (request.method !== 'GET') {
-      httpSamplerProxy.boolProp('HTTPSampler.postBodyRaw', true);
       httpSamplerProxy.add(new HTTPSamplerArguments(body));
     }
   }
