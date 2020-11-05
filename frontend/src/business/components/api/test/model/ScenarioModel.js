@@ -1198,16 +1198,25 @@ class JMXGenerator {
   }
 
   addEnvironments(environments, target) {
-    let keys = new Set();
+    let targetMap = new Map();
     target.forEach(item => {
-      keys.add(item.name);
+      if (item.name) {
+        targetMap.set(item.name, item.enable);
+      }
     });
     let envArray = environments;
     if (!(envArray instanceof Array)) {
       envArray = JSON.parse(environments);
     }
     envArray.forEach(item => {
-      if (item.enable != false && item.name && !keys.has(item.name)) {
+      let targetItem = targetMap.get(item.name);
+      let hasItem = undefined;
+      if (targetItem) {
+        hasItem = (targetItem.enable === false ? false : true);
+      } else {
+        hasItem = false;
+      }
+      if (item.enable != false && item.name && !hasItem) {
         target.push(new KeyValue({name: item.name, value: item.value}));
       }
     })
@@ -1311,7 +1320,10 @@ class JMXGenerator {
       if (!(scenario.environment.config instanceof Object)) {
         config = JSON.parse(scenario.environment.config);
       }
-      this.addEnvironments(config.httpConfig.headers, request.headers)
+      this.addEnvironments(config.httpConfig.headers, request.headers);
+      if (request.doMultipartPost) {
+        this.removeContentType(request);
+      }
     }
     let name = request.name + " Headers";
     this.addBodyFormat(request);
@@ -1403,6 +1415,17 @@ class JMXGenerator {
     }
   }
 
+  removeContentType(request) {
+    for (let index in request.headers) {
+      if (request.headers.hasOwnProperty(index)) {
+        if (request.headers[index].name === 'Content-Type' && request.headers[index].enable != false) {
+          request.headers.splice(index, 1);
+          break;
+        }
+      }
+    }
+  }
+
   addRequestArguments(httpSamplerProxy, request) {
     let args = this.filterKV(request.parameters);
     if (args.length > 0) {
@@ -1416,11 +1439,13 @@ class JMXGenerator {
       body = this.filterKV(request.body.kvs);
       this.addRequestBodyFile(httpSamplerProxy, request, testId);
     } else {
-      body.push({name: '', value: request.body.raw, encode: false, enable: true});
+      if (request.body.raw) {
+        httpSamplerProxy.boolProp('HTTPSampler.postBodyRaw', true);
+        body.push({name: '', value: request.body.raw, encode: false, enable: true});
+      }
     }
 
     if (request.method !== 'GET') {
-      httpSamplerProxy.boolProp('HTTPSampler.postBodyRaw', true);
       httpSamplerProxy.add(new HTTPSamplerArguments(body));
     }
   }
