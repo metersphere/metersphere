@@ -85,7 +85,9 @@ public class PerformanceTestService {
     public void delete(DeleteTestPlanRequest request) {
         String testId = request.getId();
 
-        testCaseService.checkIsRelateTest(testId);
+        if (!request.isForceDelete()) {
+            testCaseService.checkIsRelateTest(testId);
+        }
 
         LoadTestReportExample loadTestReportExample = new LoadTestReportExample();
         loadTestReportExample.createCriteria().andTestIdEqualTo(testId);
