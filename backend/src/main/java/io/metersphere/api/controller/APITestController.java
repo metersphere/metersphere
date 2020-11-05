@@ -104,9 +104,8 @@ public class APITestController {
 
     @PostMapping("/delete")
     public void delete(@RequestBody DeleteAPITestRequest request) {
-        String testId = request.getId();
-        checkownerService.checkApiTestOwner(testId);
-        apiTestService.delete(testId);
+        checkownerService.checkApiTestOwner(request.getId());
+        apiTestService.delete(request);
     }
 
     @PostMapping(value = "/run")

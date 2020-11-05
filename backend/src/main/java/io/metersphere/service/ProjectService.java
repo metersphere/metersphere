@@ -1,5 +1,6 @@
 package io.metersphere.service;
 
+import io.metersphere.api.dto.DeleteAPITestRequest;
 import io.metersphere.api.dto.QueryAPITestRequest;
 import io.metersphere.api.service.APITestService;
 import io.metersphere.base.domain.LoadTest;
@@ -96,6 +97,7 @@ public class ProjectService {
         loadTestIdList.forEach(loadTestId -> {
             DeleteTestPlanRequest deleteTestPlanRequest = new DeleteTestPlanRequest();
             deleteTestPlanRequest.setId(loadTestId);
+            deleteTestPlanRequest.setForceDelete(true);
             performanceTestService.delete(deleteTestPlanRequest);
         });
 
@@ -122,7 +124,10 @@ public class ProjectService {
         QueryAPITestRequest request = new QueryAPITestRequest();
         request.setProjectId(projectId);
         apiTestService.list(request).forEach(test -> {
-            apiTestService.delete(test.getId());
+            DeleteAPITestRequest deleteAPITestRequest = new DeleteAPITestRequest();
+            deleteAPITestRequest.setId(test.getId());
+            deleteAPITestRequest.setForceDelete(true);
+            apiTestService.delete(deleteAPITestRequest);
         });
     }
 

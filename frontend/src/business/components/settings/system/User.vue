@@ -368,8 +368,9 @@ export default {
           }
         ],
         phone: [
+          {required: true, message: this.$t('user.input_phone'), trigger: 'blur'},
           {
-            required: false,
+            required: true,
             pattern: '^1(3|4|5|7|8)\\d{9}$',
             message: this.$t('user.mobile_number_format_is_incorrect'),
             trigger: 'blur'
