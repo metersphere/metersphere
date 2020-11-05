@@ -83,6 +83,7 @@ public class DockerTestEngine extends AbstractEngine {
         testRequest.setFileString(content);
         testRequest.setImage(JMETER_IMAGE);
         testRequest.setTestData(context.getTestData());
+        testRequest.setTestJars(context.getTestJars());
         testRequest.setEnv(context.getEnv());
 
 

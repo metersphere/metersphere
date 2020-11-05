@@ -180,6 +180,14 @@ export default {
     invalid: 'invalid',
     expired: 'expired',
   },
+  display: {
+    title: 'Theme',
+    logo: 'System LOGO',
+    loginLogo: 'Picture on the right side of the login page',
+    loginImage: 'Login page upper left corner LOGO',
+    loginTitle: 'Login page prompt information',
+    pageTitle: 'Page Title',
+  },
   system_config: {
     base_config: 'Base Config',
     base: {
@@ -228,7 +236,7 @@ export default {
       mail: 'mail',
       nail_robot: 'Nail robot',
       enterprise_wechat_robot: 'Enterprise wechat robot',
-      notes:'Note: 1. Nail and create a custom robot in the enterprise group, and then copy the webhook address on our platform;\n' +
+      notes: 'Note: 1. Nail and create a custom robot in the enterprise group, and then copy the webhook address on our platform;\n' +
         '\n' +
         '2. Robots are selected as swarm robots, and "custom keyword" is selected for security verification: "task notification";\n' +
         '\n' +
@@ -389,7 +397,7 @@ export default {
     file_status: 'File Status',
     last_modify_time: 'Modify time',
     upload_tips: 'Drag files here, or <em> click to upload </em>',
-    upload_type: 'Only JMX/CSV files can be uploaded',
+    upload_type: 'Only JMX/CSV/JAR files can be uploaded',
     related_file_not_found: "No related test file found!",
     delete_file_confirm: 'Confirm delete file:',
     file_size_limit: "The number of files exceeds the limit！",

@@ -180,6 +180,14 @@ export default {
     invalid: '無效',
     expired: '已過期',
   },
+  display: {
+    title: '顯示設置',
+    logo: '系統 LOGO',
+    loginLogo: '登陸頁面右側圖片',
+    loginImage: '登錄頁左上角 LOGO',
+    loginTitle: '登陸頁面提示信息',
+    pageTitle: '頁面 Title',
+  },
   system_config: {
     base_config: '基本配置',
     base: {
@@ -389,7 +397,7 @@ export default {
     file_status: '文件狀態',
     last_modify_time: '修改時間',
     upload_tips: '將文件拖到此處，或<em>點擊上傳</em>',
-    upload_type: '只能上傳JMX/CSV文件',
+    upload_type: '只能上傳JMX/CSV/JAR文件',
     related_file_not_found: "未找到關聯的測試文件！",
     delete_file_confirm: '確認刪除文件: ',
     file_size_limit: "文件個數超出限制！",

@@ -295,7 +295,6 @@ export default {
       this.infoList = resources;
     },
     del(row) {
-      window.console.log(row);
       this.$confirm(this.$t('test_resource_pool.delete_prompt'), this.$t('commons.prompt'), {
         confirmButtonText: this.$t('commons.confirm'),
         cancelButtonText: this.$t('commons.cancel'),

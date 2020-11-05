@@ -144,7 +144,7 @@ public class MailService {
         context.put("testCaseName", testCaseWithBLOBs.getName());
         context.put("description", request.getDescription());
         context.put("url", baseSystemConfigDTO.getUrl());
-        context.put("id", testCaseWithBLOBs.getId());
+        context.put("id", request.getReviewId());
         try {
             String commentTemplate = IOUtils.toString(this.getClass().getResource("/mail/ReviewComments.html"), StandardCharsets.UTF_8);
             sendReviewNotice(addresseeIdList(messageDetail, userIds, eventType), context, commentTemplate);

@@ -180,6 +180,14 @@ export default {
     invalid: '无效',
     expired: '已过期',
   },
+  display: {
+    title: '显示设置',
+    logo: '系统 LOGO',
+    loginLogo: '登陆页面右侧图片',
+    loginImage: '登录页左上角 LOGO',
+    loginTitle: '登陆页面提示信息',
+    pageTitle: '页面 Title',
+  },
   system_config: {
     base_config: '基本配置',
     base: {
@@ -229,7 +237,7 @@ export default {
       mail: '邮件',
       nail_robot: '钉钉机器人',
       enterprise_wechat_robot: '企业微信机器人',
-      notes:'注意:1.钉钉和企业群里新建一个自定义机器人，然后复制 webhook 地址在我们平台上;\n' +
+      notes: '注意:1.钉钉和企业群里新建一个自定义机器人，然后复制 webhook 地址在我们平台上;\n' +
         '       2.机器人选择为群机器人，安全验证选择“自定义关键词” ："任务通知";\n' +
         '       3.选择接收人时必须是你所建的群里包含的人,接收人手机号为必填项且为钉钉企业所使用的手机号,',
       message: '事件，接收人，接收方式为必填项',
@@ -387,7 +395,7 @@ export default {
     file_status: '文件状态',
     last_modify_time: '修改时间',
     upload_tips: '将文件拖到此处，或<em>点击上传</em>',
-    upload_type: '只能上传JMX/CSV文件',
+    upload_type: '只能上传JMX/CSV/JAR文件',
     related_file_not_found: "未找到关联的测试文件！",
     delete_file_confirm: '确认删除文件: ',
     file_size_limit: "文件个数超出限制！",

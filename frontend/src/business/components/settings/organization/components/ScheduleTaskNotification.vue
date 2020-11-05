@@ -196,7 +196,11 @@ export default {
       })
     },
     removeRowTask(index, data) { //移除
-      data.splice(index, 1)
+      if (!data[index].identification) {
+        data.splice(index, 1)
+      } else {
+        data[index].isSet = false
+      }
     },
     deleteRowTask(index, data) { //删除
       this.result = this.$get("/notice/delete/message/" + data.identification, response => {
