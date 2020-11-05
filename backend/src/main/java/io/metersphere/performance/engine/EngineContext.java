@@ -17,6 +17,7 @@ public class EngineContext {
     private Map<String, Object> properties = new HashMap<>();
     private Map<String, String> testData = new HashMap<>();
     private Map<String, String> env = new HashMap<>();
+    private Map<String, byte[]> testJars = new HashMap<>();
 
     public String getTestId() {
         return testId;
@@ -125,5 +126,14 @@ public class EngineContext {
 
     public void setResourceIndex(Integer resourceIndex) {
         this.resourceIndex = resourceIndex;
+    }
+
+
+    public Map<String, byte[]> getTestJars() {
+        return testJars;
+    }
+
+    public void setTestJars(Map<String, byte[]> testJars) {
+        this.testJars = testJars;
     }
 }

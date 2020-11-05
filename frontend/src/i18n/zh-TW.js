@@ -397,7 +397,7 @@ export default {
     file_status: '文件狀態',
     last_modify_time: '修改時間',
     upload_tips: '將文件拖到此處，或<em>點擊上傳</em>',
-    upload_type: '只能上傳JMX/CSV文件',
+    upload_type: '只能上傳JMX/CSV/JAR文件',
     related_file_not_found: "未找到關聯的測試文件！",
     delete_file_confirm: '確認刪除文件: ',
     file_size_limit: "文件個數超出限制！",
