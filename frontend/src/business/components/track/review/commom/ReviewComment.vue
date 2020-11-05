@@ -40,7 +40,8 @@ export default {
   components: {ReviewCommentItem},
   props: {
     caseId: String,
-    comments: Array
+    comments: Array,
+    reviewId:String,
   },
   data() {
     return {
@@ -53,6 +54,7 @@ export default {
       let comment = {};
       comment.caseId = this.caseId;
       comment.description = this.textarea;
+      comment.reviewId=this.reviewId;
       if (!this.textarea) {
         this.$warning(this.$t('test_track.comment.description_is_null'));
         return;

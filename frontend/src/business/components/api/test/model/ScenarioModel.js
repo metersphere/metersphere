@@ -1393,7 +1393,6 @@ class JMXGenerator {
     for (let index in request.headers) {
       if (request.headers.hasOwnProperty(index)) {
         if (request.headers[index].name === 'Content-Type' && request.headers[index].enable != false) {
-          request.headers.splice(index, 1);
           hasContentType = true;
           break;
         }

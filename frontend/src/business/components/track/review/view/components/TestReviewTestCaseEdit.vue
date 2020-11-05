@@ -229,7 +229,7 @@
                 <i class="el-icon-refresh" @click="getComments(testCase)"
                    style="margin-left:10px;font-size: 14px; cursor: pointer"/>
               </template>
-              <review-comment :comments="comments" :case-id="testCase.caseId" @getComments="getComments"/>
+              <review-comment :comments="comments" :case-id="testCase.caseId" :review-id="testCase.reviewId" @getComments="getComments"/>
             </el-card>
           </el-col>
         </div>
