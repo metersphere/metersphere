@@ -181,7 +181,12 @@ export default {
     expired: '已過期',
   },
   display: {
-    title: '顯示設置'
+    title: '顯示設置',
+    logo: '系統 LOGO',
+    loginLogo: '登陸頁面右側圖片',
+    loginImage: '登錄頁左上角 LOGO',
+    loginTitle: '登陸頁面提示信息',
+    pageTitle: '頁面 Title',
   },
   system_config: {
     base_config: '基本配置',

@@ -181,7 +181,12 @@ export default {
     expired: 'expired',
   },
   display: {
-    title: 'Theme'
+    title: 'Theme',
+    logo: 'System LOGO',
+    loginLogo: 'Picture on the right side of the login page',
+    loginImage: 'Login page upper left corner LOGO',
+    loginTitle: 'Login page prompt information',
+    pageTitle: 'Page Title',
   },
   system_config: {
     base_config: 'Base Config',
