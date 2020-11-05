@@ -34,6 +34,7 @@ import {saveLocalStorage} from "@/common/js/utils";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const header = requireComponent.keys().length > 0 ? requireComponent("./license/LicenseMessage.vue") : {};
+const display = requireComponent.keys().length > 0 ? requireComponent("./display/Display.vue") : {};
 
 export default {
   name: 'app',
@@ -56,21 +57,16 @@ export default {
         if (header.default !== undefined) {
           this.licenseHeader = "LicenseMessage";
         }
+        // 是否显示校验信息
+        if (display.default !== undefined) {
+          display.default.valid(this);
+        }
       } else {
         window.location.href = "/login"
       }
     }).catch(() => {
       window.location.href = "/login"
     });
-  },
-  created() {
-    this.$get("/display/info", response => {
-      this.logoId = response.data[0].paramValue;
-      let title = response.data[4].paramValue;
-      if (title) {
-        document.title = title;
-      }
-    })
   },
   components: {
     MsLanguageSwitch,

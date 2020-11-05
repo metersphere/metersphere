@@ -53,6 +53,8 @@
 import {saveLocalStorage} from '@/common/js/utils';
 import {DEFAULT_LANGUAGE} from "@/common/js/constants";
 
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const display = requireComponent.keys().length > 0 ? requireComponent("./display/Display.vue") : {};
 
 export default {
   name: "Login",
@@ -91,6 +93,11 @@ export default {
   },
   beforeCreate() {
     this.result = this.$get("/isLogin").then(response => {
+
+      if (display.default !== undefined) {
+        display.default.valid(this);
+      }
+
       if (!response.data.success) {
         if (response.data.message === 'sso') {
           window.location.href = "/sso/login"
@@ -111,16 +118,6 @@ export default {
   created: function () {
     // 主页添加键盘事件,注意,不能直接在焦点事件上添加回车
     document.addEventListener("keydown", this.watchEnter);
-
-    this.result = this.$get("/display/info", response => {
-      this.loginLogoId = response.data[1].paramValue;
-      this.loginImageId = response.data[2].paramValue;
-
-      let loginTitle = response.data[3].paramValue;
-      if (loginTitle) {
-        document.title = loginTitle;
-      }
-    })
   },
 
   destroyed() {
