@@ -73,8 +73,14 @@ public class TestResourcePoolService {
         LoadTestExample example = new LoadTestExample();
         example.createCriteria()
                 .andTestResourcePoolIdEqualTo(testResourcePoolId);
-        if (loadTestMapper.countByExample(example) > 0) {
-            MSException.throwException(Translator.get("test_resource_pool_is_use"));
+        List<LoadTest> loadTests = loadTestMapper.selectByExample(example);
+        StringBuilder loadTestNames = new StringBuilder();
+        if (loadTests.size() > 0) {
+            for (LoadTest loadTest : loadTests) {
+                loadTestNames = loadTestNames.append(loadTest.getName()).append(",");
+            }
+            String str = loadTestNames.substring(0, loadTestNames.length() - 1);
+            MSException.throwException(Translator.get("load_test") + " " + str + " " + Translator.get("test_resource_pool_is_use"));
         }
     }
 
