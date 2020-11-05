@@ -180,6 +180,9 @@ export default {
     invalid: 'invalid',
     expired: 'expired',
   },
+  display: {
+    title: 'Theme'
+  },
   system_config: {
     base_config: 'Base Config',
     base: {
@@ -228,7 +231,7 @@ export default {
       mail: 'mail',
       nail_robot: 'Nail robot',
       enterprise_wechat_robot: 'Enterprise wechat robot',
-      notes:'Note: 1. Nail and create a custom robot in the enterprise group, and then copy the webhook address on our platform;\n' +
+      notes: 'Note: 1. Nail and create a custom robot in the enterprise group, and then copy the webhook address on our platform;\n' +
         '\n' +
         '2. Robots are selected as swarm robots, and "custom keyword" is selected for security verification: "task notification";\n' +
         '\n' +

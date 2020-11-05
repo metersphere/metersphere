@@ -180,6 +180,9 @@ export default {
     invalid: '無效',
     expired: '已過期',
   },
+  display: {
+    title: '顯示設置'
+  },
   system_config: {
     base_config: '基本配置',
     base: {
