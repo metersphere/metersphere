@@ -1198,16 +1198,25 @@ class JMXGenerator {
   }
 
   addEnvironments(environments, target) {
-    let keys = new Set();
+    let targetMap = new Map();
     target.forEach(item => {
-      keys.add(item.name);
+      if (item.name) {
+        targetMap.set(item.name, item.enable);
+      }
     });
     let envArray = environments;
     if (!(envArray instanceof Array)) {
       envArray = JSON.parse(environments);
     }
     envArray.forEach(item => {
-      if (item.enable != false && item.name && !keys.has(item.name)) {
+      let targetItem = targetMap.get(item.name);
+      let hasItem = undefined;
+      if (targetItem) {
+        hasItem = (targetItem.enable === false ? false : true);
+      } else {
+        hasItem = false;
+      }
+      if (item.enable != false && item.name && !hasItem) {
         target.push(new KeyValue({name: item.name, value: item.value}));
       }
     })
@@ -1311,7 +1320,10 @@ class JMXGenerator {
       if (!(scenario.environment.config instanceof Object)) {
         config = JSON.parse(scenario.environment.config);
       }
-      this.addEnvironments(config.httpConfig.headers, request.headers)
+      this.addEnvironments(config.httpConfig.headers, request.headers);
+      if (request.doMultipartPost) {
+        this.removeContentType(request);
+      }
     }
     let name = request.name + " Headers";
     this.addBodyFormat(request);
@@ -1400,6 +1412,17 @@ class JMXGenerator {
     }
     if (!hasContentType) {
       request.headers.push(new KeyValue({name: 'Content-Type', value: type}));
+    }
+  }
+
+  removeContentType(request) {
+    for (let index in request.headers) {
+      if (request.headers.hasOwnProperty(index)) {
+        if (request.headers[index].name === 'Content-Type' && request.headers[index].enable != false) {
+          request.headers.splice(index, 1);
+          break;
+        }
+      }
     }
   }
 
