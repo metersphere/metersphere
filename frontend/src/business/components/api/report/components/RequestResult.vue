@@ -4,14 +4,24 @@
       <el-row :gutter="10" type="flex" align="middle" class="info">
         <el-col :span="4">
           <div class="method">
-            {{request.method}}
+            {{ request.method }}
           </div>
         </el-col>
-        <el-col :span="20">
-          <div class="name">{{request.name}}</div>
+        <el-col :span="15">
+          <div class="name">{{ request.name }}</div>
           <el-tooltip effect="dark" :content="request.url" placement="bottom" :open-delay="800">
-            <div class="url">{{request.url}}</div>
+            <div class="url">{{ request.url }}</div>
           </el-tooltip>
+        </el-col>
+        <el-col :span="5">
+          <div class="success">
+            <el-tag size="mini" type="success" v-if="request.success">
+              {{ $t('api_report.success') }}
+            </el-tag>
+            <el-tag size="mini" type="danger" v-else>
+              {{ $t('api_report.fail') }}
+            </el-tag>
+          </div>
         </el-col>
       </el-row>
     </div>
