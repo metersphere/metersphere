@@ -777,8 +777,22 @@ public class JmeterDocumentParser implements DocumentParser {
         elementProp.setAttribute("elementType", "com.blazemeter.jmeter.control.VirtualUserController");
         threadGroup.appendChild(elementProp);
         // 持续时长
-        String duration = context.getProperty("duration").toString();
-        String rampUp = context.getProperty("RampUp").toString();
+        Object durations = context.getProperty("duration");
+        String duration;
+        if (durations instanceof List) {
+            Object o = ((List<?>) durations).get(0);
+            duration = o.toString();
+        } else {
+            duration = durations.toString();
+        }
+        Object rampUps = context.getProperty("RampUp");
+        String rampUp;
+        if (rampUps instanceof List) {
+            Object o = ((List<?>) rampUps).get(0);
+            rampUp = o.toString();
+        } else {
+            rampUp = rampUps.toString();
+        }
         int realHold = Integer.parseInt(duration) - Integer.parseInt(rampUp);
         threadGroup.appendChild(createStringProp(document, "ThreadGroup.on_sample_error", "continue"));
         threadGroup.appendChild(createStringProp(document, "TargetLevel", "2"));
@@ -803,9 +817,18 @@ public class JmeterDocumentParser implements DocumentParser {
           </collectionProp>
         </kg.apc.jmeter.timers.VariableThroughputTimer>
          */
-        if (context.getProperty("rpsLimitEnable") == null || StringUtils.equals(context.getProperty("rpsLimitEnable").toString(), "false")) {
+        if (context.getProperty("rpsLimitEnable") == null) {
             return;
         }
+        Object rpsLimitEnables = context.getProperty("rpsLimitEnable");
+        if (rpsLimitEnables instanceof List) {
+            Object o = ((List<?>) rpsLimitEnables).get(0);
+            ((List<?>) rpsLimitEnables).remove(0);
+            if (o == null || "false".equals(o.toString())) {
+                return;
+            }
+        }
+
         Document document = element.getOwnerDocument();
 
 
@@ -866,11 +889,6 @@ public class JmeterDocumentParser implements DocumentParser {
                     if (nodeNameEquals(ele, STRING_PROP)) {
                         parseStringProp(ele);
                     }
-
-                    // 设置具体的线程数
-                    if (nodeNameEquals(ele, STRING_PROP) && "TargetLevel".equals(ele.getAttribute("name"))) {
-                        ele.getFirstChild().setNodeValue(context.getThreadNum().toString());
-                    }
                 }
             }
         }
@@ -902,11 +920,28 @@ public class JmeterDocumentParser implements DocumentParser {
                                             stringPropCount++;
                                         } else {
                                             stringPropCount = 0;
-                                            Integer duration = (Integer) context.getProperty("duration");// 传入的是分钟数, 需要转化成秒数
+                                            Object durations = context.getProperty("duration");// 传入的是分钟数, 需要转化成秒数
+                                            Integer duration;
+                                            if (durations instanceof List) {
+                                                Object o = ((List<?>) durations).get(0);
+                                                duration = (Integer) o;
+                                                ((List<?>) durations).remove(0);
+                                            } else {
+                                                duration = (Integer) durations;
+                                            }
                                             prop.getFirstChild().setNodeValue(String.valueOf(duration * 60));
                                             continue;
                                         }
-                                        prop.getFirstChild().setNodeValue(context.getProperty("rpsLimit").toString());
+                                        Object rpsLimits = context.getProperty("rpsLimit");
+                                        String rpsLimit;
+                                        if (rpsLimits instanceof List) {
+                                            Object o = ((List<?>) rpsLimits).get(0);
+                                            ((List<?>) rpsLimits).remove(0);
+                                            rpsLimit = o.toString();
+                                        } else {
+                                            rpsLimit = rpsLimits.toString();
+                                        }
+                                        prop.getFirstChild().setNodeValue(rpsLimit);
                                     }
                                 }
                             }
@@ -920,8 +955,15 @@ public class JmeterDocumentParser implements DocumentParser {
     }
 
     private void parseStringProp(Element stringProp) {
-        if (stringProp.getChildNodes().getLength() > 0 && context.getProperty(stringProp.getAttribute("name")) != null) {
-            stringProp.getFirstChild().setNodeValue(context.getProperty(stringProp.getAttribute("name")).toString());
+        Object threadParams = context.getProperty(stringProp.getAttribute("name"));
+        if (stringProp.getChildNodes().getLength() > 0 && threadParams != null) {
+            if (threadParams instanceof List) {
+                Object o = ((List<?>) threadParams).get(0);
+                ((List<?>) threadParams).remove(0);
+                stringProp.getFirstChild().setNodeValue(o.toString());
+            } else {
+                stringProp.getFirstChild().setNodeValue(threadParams.toString());
+            }
         }
     }
 

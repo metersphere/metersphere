@@ -104,6 +104,12 @@ public class PerformanceTestController {
         return performanceTestService.getLoadConfiguration(testId);
     }
 
+    @GetMapping("/get-jmx-content/{testId}")
+    public String getJmxContent(@PathVariable String testId) {
+        checkOwnerService.checkPerformanceTestOwner(testId);
+        return performanceTestService.getJmxContent(testId);
+    }
+
     @PostMapping("/delete")
     public void delete(@RequestBody DeleteTestPlanRequest request) {
         checkOwnerService.checkPerformanceTestOwner(request.getId());

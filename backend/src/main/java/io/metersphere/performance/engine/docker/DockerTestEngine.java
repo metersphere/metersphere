@@ -6,6 +6,7 @@ import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.i18n.Translator;
@@ -52,19 +53,21 @@ public class DockerTestEngine extends AbstractEngine {
 
         for (int i = 0, size = resourceList.size(); i < size; i++) {
             int ratio = resourceRatio.get(i);
-            double realThreadNum = ((double) ratio / totalThreadNum) * threadNum;
-            runTest(resourceList.get(i), Math.round(realThreadNum), i);
+//            double realThreadNum = ((double) ratio / totalThreadNum) * threadNum;
+            runTest(resourceList.get(i), ((double) ratio / totalThreadNum), i);
         }
 
     }
 
-    private void runTest(TestResource resource, long realThreadNum, int resourceIndex) {
+    private void runTest(TestResource resource, double ratio, int resourceIndex) {
         EngineContext context = null;
         try {
-            context = EngineFactory.createContext(loadTest, resource.getId(), realThreadNum, this.getStartTime(), this.getReportId(), resourceIndex);
+            context = EngineFactory.createContext(loadTest, resource.getId(), ratio, this.getStartTime(), this.getReportId(), resourceIndex);
         } catch (MSException e) {
+            LogUtil.error(e);
             throw e;
         } catch (Exception e) {
+            LogUtil.error(e);
             MSException.throwException(e);
         }
 

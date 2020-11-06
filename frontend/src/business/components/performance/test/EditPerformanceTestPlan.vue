@@ -37,7 +37,8 @@
 
         <el-tabs class="testplan-config" v-model="active" type="border-card" :stretch="true">
           <el-tab-pane :label="$t('load_test.basic_config')">
-            <performance-basic-config :is-read-only="isReadOnly" :test-plan="testPlan" ref="basicConfig"/>
+            <performance-basic-config :is-read-only="isReadOnly" :test-plan="testPlan" ref="basicConfig"
+                                      @fileChange="fileChange"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.pressure_config')">
             <performance-pressure-config :is-read-only="isReadOnly" :test-plan="testPlan" :test-id="testId"
@@ -304,6 +305,18 @@ export default {
       return {
         pass: true
       }
+    },
+    fileChange(threadGroups) {
+      let handler = this.$refs.pressureConfig;
+      handler.threadGroups = threadGroups;
+      threadGroups.forEach(tg => {
+        tg.threadNumber = tg.threadNumber || 10;
+        tg.duration = tg.duration || 10;
+        tg.rampUpTime = tg.rampUpTime || 5;
+        tg.step = tg.step || 5;
+        tg.rpsLimit = tg.rpsLimit || 10;
+        handler.calculateChart(tg);
+      });
     }
   }
 }

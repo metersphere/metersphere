@@ -56,6 +56,7 @@
 
 <script>
 import {Message} from "element-ui";
+import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
 
 export default {
   name: "PerformanceBasicConfig",
@@ -89,6 +90,19 @@ export default {
     testPlan() {
       if (this.testPlan.id) {
         this.getFileMetadata(this.testPlan)
+      }
+    },
+    uploadList() {
+      let self = this;
+      let fileList = self.uploadList.filter(f => f.name.endsWith(".jmx"));
+      if (fileList.length > 0) {
+        let file = fileList[0];
+        let jmxReader = new FileReader();
+        jmxReader.onload = function (event) {
+          let threadGroups = findThreadGroup(event.target.result);
+          self.$emit('fileChange', threadGroups);
+        };
+        jmxReader.readAsText(file);
       }
     }
   },
