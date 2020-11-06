@@ -228,7 +228,7 @@ export default {
       mail: 'mail',
       nail_robot: 'Nail robot',
       enterprise_wechat_robot: 'Enterprise wechat robot',
-      notes:'Note: 1. Nail and create a custom robot in the enterprise group, and then copy the webhook address on our platform;\n' +
+      notes: 'Note: 1. Nail and create a custom robot in the enterprise group, and then copy the webhook address on our platform;\n' +
         '\n' +
         '2. Robots are selected as swarm robots, and "custom keyword" is selected for security verification: "task notification";\n' +
         '\n' +
@@ -471,14 +471,25 @@ export default {
         select_case: "Search use cases",
         case: "Case",
         title: "Create api",
-        path_info:"Please enter the URL of the interface, such as /api/demo/#{id}, where id is the path parameter",
+        path_info: "Please enter the URL of the interface, such as /api/demo/#{id}, where id is the path parameter",
         fast_debug: "Fast debug",
         close_all_label: "close all label",
         save_as: "Save as new interface",
         load_case: "Load use case",
         save_as_case: "Save as new use case",
         update_api: "Update interface",
-
+        body_form_data: "form-data",
+        body_x_www_from_urlencoded: "x-www-from-urlencoded",
+        body_raw: "raw",
+        body_binary: "binary",
+        body_json: "json",
+        body_xml: "xml",
+        auth_config: "Authentication configuration",
+        rest_param: "Rest parameter",
+        query_param: "Query parameter",
+        verification_method: "Verification method",
+        verified: "verified",
+        encryption: "encryption",
       }
     },
     environment: {

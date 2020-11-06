@@ -15,12 +15,12 @@
         class="test-content adjust-table">
 
         <el-table-column
-          prop="api_name"
+          prop="name"
           :label="$t('api_test.delimit.api_name')"
           show-overflow-tooltip/>
 
         <el-table-column
-          prop="api_status"
+          prop="status"
           column-key="api_status"
           :label="$t('api_test.delimit.api_status')"
           show-overflow-tooltip>
@@ -28,11 +28,11 @@
           <span class="el-dropdown-link">
            <template>
               <div>
-                <ms-tag v-if="scope.row.api_status == 'Prepare'" type="info"
+                <ms-tag v-if="scope.row.status == 'Prepare'" type="info"
                         :content="$t('test_track.plan.plan_status_prepare')"/>
-                <ms-tag v-if="scope.row.api_status == 'Underway'" type="primary"
+                <ms-tag v-if="scope.row.status == 'Underway'" type="primary"
                         :content="$t('test_track.plan.plan_status_running')"/>
-                <ms-tag v-if="scope.row.api_status == 'Completed'" type="success"
+                <ms-tag v-if="scope.row.status == 'Completed'" type="success"
                         :content="$t('test_track.plan.plan_status_completed')"/>
               </div>
           </template>
@@ -41,7 +41,7 @@
         </el-table-column>
 
         <el-table-column
-          prop="api_type"
+          prop="path"
           :label="$t('api_test.delimit.api_type')"
           show-overflow-tooltip>
           <template v-slot:default="scope">
@@ -49,7 +49,7 @@
            <template>
              <div class="request-method">
                  <el-tag size="mini"
-                         :style="{'background-color': getColor(true, scope.row.api_type)}" class="api-el-tag"> {{ scope.row.api_type }}</el-tag>
+                         :style="{'background-color': getColor(true, scope.row.path)}" class="api-el-tag"> {{ scope.row.path }}</el-tag>
             </div>
           </template>
           </span>
@@ -58,32 +58,33 @@
         </el-table-column>
 
         <el-table-column
-          prop="api_path"
+          prop="url"
           :label="$t('api_test.delimit.api_path')"
           show-overflow-tooltip/>
 
         <el-table-column
-          prop="api_principal"
+          prop="userName"
           :label="$t('api_test.delimit.api_principal')"
           show-overflow-tooltip/>
 
-        <el-table-column
-          prop="api_last_time"
-          :label="$t('api_test.delimit.api_last_time')"
-          show-overflow-tooltip/>
+        <el-table-column width="200" :label="$t('api_test.delimit.api_last_time')" prop="updateTime">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+          </template>
+        </el-table-column>
 
         <el-table-column
-          prop="api_case_number"
+          prop="caseTotal"
           :label="$t('api_test.delimit.api_case_number')"
           show-overflow-tooltip/>
 
         <el-table-column
-          prop="api_case_status"
+          prop="caseStatus"
           :label="$t('api_test.delimit.api_case_status')"
           show-overflow-tooltip/>
 
         <el-table-column
-          prop="api_case_passing_rate"
+          prop="casePassingRate"
           :label="$t('api_test.delimit.api_case_passing_rate')"
           show-overflow-tooltip/>
 
@@ -91,7 +92,7 @@
         <el-table-column
           :label="$t('commons.operating')" min-width="100">
           <template v-slot:default="scope">
-            <el-button type="text" @click="testCaseEdit(scope.row)">编辑</el-button>
+            <el-button type="text" @click="editApi(scope.row)">编辑</el-button>
             <el-button type="text" @click="handleTestCase(scope.row)">用例</el-button>
             <el-button type="text" @click="handleDelete(scope.row)" style="color: #F56C6C">删除</el-button>
           </template>
@@ -104,7 +105,7 @@
     </el-card>
 
     <ms-bottom-container v-bind:enableAsideHidden="isHide">
-      <ms-api-case-list @apiCaseClose="apiCaseClose" :api="selectApi"></ms-api-case-list>
+      <ms-api-case-list @apiCaseClose="apiCaseClose" :api="selectApi" :current-project="currentProject"/>
     </ms-bottom-container>
 
   </div>
@@ -116,13 +117,13 @@
   import MsTableOperator from "../../../common/components/MsTableOperator";
   import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
   import MsTableButton from "../../../common/components/MsTableButton";
-  import {TEST_CASE_CONFIGS} from "../../../common/components/search/search-components";
   import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
   import MsTablePagination from "../../../common/pagination/TablePagination";
   import MsTag from "../../../common/components/MsTag";
   import MsApiCaseList from "./ApiCaseList";
   import MsContainer from "../../../common/components/MsContainer";
   import MsBottomContainer from "./BottomContainer";
+  import {Message} from "element-ui";
 
   export default {
     name: "ApiList",
@@ -143,6 +144,7 @@
         condition: {},
         isHide: true,
         selectApi: {},
+        moduleId: "",
         deletePath: "/test/case/delete",
         methodColorMap: new Map([
           ['GET', "#61AFFE"], ['POST', '#49CC90'], ['PUT', '#fca130'],
@@ -150,37 +152,7 @@
           ['HEAD', '#8E58E7'], ['CONNECT', '#90AFAE'],
           ['DUBBO', '#C36EEF'], ['SQL', '#0AEAD4'], ['TCP', '#0A52DF'],
         ]),
-        tableData: [{
-          api_name: "接口名称",
-          api_status: "Completed",
-          api_type: "GET",
-          api_path: "/api/common/login.do",
-          api_principal: "负责人",
-          api_last_time: "最后更新时间",
-          api_case_number: "用例数",
-          api_case_status: "失败",
-          api_case_passing_rate: "100%"
-        }, {
-          api_name: "接口名称",
-          api_status: "Prepare",
-          api_type: "GET",
-          api_path: "/api/common/login.do",
-          api_principal: "负责人",
-          api_last_time: "最后更新时间",
-          api_case_number: "用例数",
-          api_case_status: "通过",
-          api_case_passing_rate: "100%"
-        }, {
-          api_name: "接口名称",
-          api_status: "Underway",
-          api_type: "POST",
-          api_path: "/api/common/login.do",
-          api_principal: "负责人",
-          api_last_time: "最后更新时间",
-          api_case_number: "用例数",
-          api_case_status: "通过",
-          api_case_passing_rate: "-"
-        }],
+        tableData: [],
         currentPage: 1,
         pageSize: 10,
         total: 0,
@@ -190,9 +162,7 @@
       currentProject: {
         type: Object
       },
-      selectParentNodes: {
-        type: Array
-      }
+      currentModule: Object
     },
     created: function () {
       this.initTableData();
@@ -201,35 +171,49 @@
       currentProject() {
         this.initTableData();
       },
+      currentModule() {
+        this.initTableData();
+      }
     },
     methods: {
       initTableData() {
+        if (this.currentModule != null) {
+          if (this.currentModule.id == "rootID") {
+            this.condition.moduleIds = [];
+          } else {
+            this.condition.moduleIds = this.currentModule.ids;
+          }
+        }
+        if (this.currentProject != null) {
+          this.condition.projectId = this.currentProject.id;
+        }
+        this.result = this.$post("/api/delimit/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
+          this.total = response.data.itemCount;
+          this.tableData = response.data.listObject;
+        });
       },
       search() {
-        alert("s");
+        this.initTableData();
       },
       buildPagePath(path) {
         return path + "/" + this.currentPage + "/" + this.pageSize;
       },
 
-      testCaseEdit(testCase) {
-        this.$emit('testCaseEdit', testCase);
+      editApi(row) {
+        this.$emit('editApi', row);
       },
       handleTestCase(testCase) {
         this.selectApi = testCase;
         this.isHide = false;
       },
       handleDelete(testCase) {
-
+        this.$get('/api/delimit/delete/' + testCase.id, () => {
+          Message.success(this.$t('commons.delete_success'));
+          this.initTableData();
+        });
       },
       apiCaseClose() {
         this.isHide = true;
-      },
-      refresh() {
-        this.condition = {components: TEST_CASE_CONFIGS};
-        // this.selectIds.clear();
-        this.selectRows.clear();
-        this.$emit('refresh');
       },
       getColor(enable, method) {
         if (enable) {

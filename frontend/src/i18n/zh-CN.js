@@ -229,7 +229,7 @@ export default {
       mail: '邮件',
       nail_robot: '钉钉机器人',
       enterprise_wechat_robot: '企业微信机器人',
-      notes:'注意:1.钉钉和企业群里新建一个自定义机器人，然后复制 webhook 地址在我们平台上;\n' +
+      notes: '注意:1.钉钉和企业群里新建一个自定义机器人，然后复制 webhook 地址在我们平台上;\n' +
         '       2.机器人选择为群机器人，安全验证选择“自定义关键词” ："任务通知";\n' +
         '       3.选择接收人时必须是你所建的群里包含的人,接收人手机号为必填项且为钉钉企业所使用的手机号,',
       message: '事件，接收人，接收方式为必填项',
@@ -479,6 +479,19 @@ export default {
         load_case: "加载用例",
         save_as_case: "另存为新用例",
         update_api: "更新接口",
+        body_form_data: "form-data",
+        body_x_www_from_urlencoded: "x-www-from-urlencoded",
+        body_raw: "raw",
+        body_binary: "binary",
+        body_json: "json",
+        body_xml: "xml",
+        auth_config: "认证配置",
+        rest_param: "REST参数",
+        query_param: "QUERY参数",
+        verification_method: "认证方式",
+        verified: "认证",
+        encryption: "加密",
+
       }
     },
     environment: {

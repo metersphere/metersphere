@@ -1,20 +1,19 @@
 package io.metersphere.api.service;
 
 
+import io.metersphere.api.dto.delimit.ApiDelimitRequest;
+import io.metersphere.api.dto.delimit.ApiDelimitResult;
 import io.metersphere.api.dto.delimit.ApiModuleDTO;
 import io.metersphere.api.dto.delimit.DragModuleRequest;
+import io.metersphere.base.domain.ApiDelimitExample;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.base.domain.ApiModuleExample;
-import io.metersphere.base.domain.TestCaseExample;
+import io.metersphere.base.mapper.ApiDelimitMapper;
 import io.metersphere.base.mapper.ApiModuleMapper;
-import io.metersphere.base.mapper.TestCaseMapper;
-import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.i18n.Translator;
-import io.metersphere.track.dto.TestCaseDTO;
-import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -33,15 +32,16 @@ public class ApiModuleService {
     @Resource
     ApiModuleMapper apiModuleMapper;
     @Resource
-    ExtTestCaseMapper extTestCaseMapper;
+    private ApiDelimitMapper apiDelimitMapper;
     @Resource
     SqlSessionFactory sqlSessionFactory;
 
-    public List<ApiModuleDTO> getNodeTreeByProjectId(String projectId) {
-        ApiModuleExample testCaseNodeExample = new ApiModuleExample();
-        testCaseNodeExample.createCriteria().andProjectIdEqualTo(projectId);
-        testCaseNodeExample.setOrderByClause("create_time asc");
-        List<ApiModule> nodes = apiModuleMapper.selectByExample(testCaseNodeExample);
+    public List<ApiModuleDTO> getNodeTreeByProjectId(String projectId, String protocol) {
+        ApiModuleExample apiDelimitNodeExample = new ApiModuleExample();
+        apiDelimitNodeExample.createCriteria().andProjectIdEqualTo(projectId);
+        apiDelimitNodeExample.createCriteria().andProtocolEqualTo(protocol);
+        apiDelimitNodeExample.setOrderByClause("create_time asc");
+        List<ApiModule> nodes = apiModuleMapper.selectByExample(apiDelimitNodeExample);
         return getNodeTrees(nodes);
     }
 
@@ -107,10 +107,10 @@ public class ApiModuleService {
             throw new RuntimeException(Translator.get("test_case_node_level_tip")
                     + TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level"));
         }
-        checkTestCaseNodeExist(node);
+        checkApiModuleExist(node);
     }
 
-    private void checkTestCaseNodeExist(ApiModule node) {
+    private void checkApiModuleExist(ApiModule node) {
         if (node.getName() != null) {
             ApiModuleExample example = new ApiModuleExample();
             ApiModuleExample.Criteria criteria = example.createCriteria();
@@ -130,104 +130,107 @@ public class ApiModuleService {
         }
     }
 
-    private List<TestCaseDTO> QueryTestCaseByNodeIds(List<String> nodeIds) {
-        QueryTestCaseRequest testCaseRequest = new QueryTestCaseRequest();
-        testCaseRequest.setNodeIds(nodeIds);
-        return extTestCaseMapper.list(testCaseRequest);
+    private List<ApiDelimitResult> queryByModuleIds(List<String> nodeIds) {
+        ApiDelimitRequest apiDelimitRequest = new ApiDelimitRequest();
+        apiDelimitRequest.setModuleIds(nodeIds);
+        return apiDelimitMapper.list(apiDelimitRequest);
     }
 
     public int editNode(DragModuleRequest request) {
         request.setUpdateTime(System.currentTimeMillis());
-        checkTestCaseNodeExist(request);
-        List<TestCaseDTO> apiModule = QueryTestCaseByNodeIds(request.getNodeIds());
+        checkApiModuleExist(request);
+        List<ApiDelimitResult> apiModule = queryByModuleIds(request.getNodeIds());
 
-        apiModule.forEach(testCase -> {
-            StringBuilder path = new StringBuilder(testCase.getNodePath());
+        apiModule.forEach(apiDelimit -> {
+            StringBuilder path = new StringBuilder(apiDelimit.getModulePath());
             List<String> pathLists = Arrays.asList(path.toString().split("/"));
             pathLists.set(request.getLevel(), request.getName());
             path.delete(0, path.length());
             for (int i = 1; i < pathLists.size(); i++) {
                 path = path.append("/").append(pathLists.get(i));
             }
-            testCase.setNodePath(path.toString());
+            apiDelimit.setModulePath(path.toString());
         });
 
-        batchUpdateTestCase(apiModule);
+        batchUpdateApiDelimit(apiModule);
 
         return apiModuleMapper.updateByPrimaryKeySelective(request);
     }
 
     public int deleteNode(List<String> nodeIds) {
-        TestCaseExample testCaseExample = new TestCaseExample();
-        testCaseExample.createCriteria().andNodeIdIn(nodeIds);
+        ApiDelimitExample apiDelimitExample = new ApiDelimitExample();
+        apiDelimitExample.createCriteria().andModuleIdIn(nodeIds);
+        apiDelimitMapper.deleteByExample(apiDelimitExample);
 
-        ApiModuleExample testCaseNodeExample = new ApiModuleExample();
-        testCaseNodeExample.createCriteria().andIdIn(nodeIds);
-        return apiModuleMapper.deleteByExample(testCaseNodeExample);
+        ApiModuleExample apiDelimitNodeExample = new ApiModuleExample();
+        apiDelimitNodeExample.createCriteria().andIdIn(nodeIds);
+        return apiModuleMapper.deleteByExample(apiDelimitNodeExample);
     }
 
-    private void batchUpdateTestCase(List<TestCaseDTO> apiModule) {
+    private void batchUpdateApiDelimit(List<ApiDelimitResult> apiModule) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        TestCaseMapper testCaseMapper = sqlSession.getMapper(TestCaseMapper.class);
+        ApiDelimitMapper apiDelimitMapper = sqlSession.getMapper(ApiDelimitMapper.class);
         apiModule.forEach((value) -> {
-            testCaseMapper.updateByPrimaryKey(value);
+            apiDelimitMapper.updateByPrimaryKey(value);
         });
         sqlSession.flushStatements();
     }
 
     public void dragNode(DragModuleRequest request) {
 
-        checkTestCaseNodeExist(request);
+        checkApiModuleExist(request);
 
         List<String> nodeIds = request.getNodeIds();
 
-        List<TestCaseDTO> apiModule = QueryTestCaseByNodeIds(nodeIds);
+        List<ApiDelimitResult> apiModule = queryByModuleIds(nodeIds);
 
         ApiModuleDTO nodeTree = request.getNodeTree();
 
         List<ApiModule> updateNodes = new ArrayList<>();
 
-        buildUpdateTestCase(nodeTree, apiModule, updateNodes, "/", "0", 1);
+        buildUpdateDelimit(nodeTree, apiModule, updateNodes, "/", "0", nodeTree.getLevel());
 
         updateNodes = updateNodes.stream()
                 .filter(item -> nodeIds.contains(item.getId()))
                 .collect(Collectors.toList());
 
-        batchUpdateTestCaseNode(updateNodes);
+        batchUpdateModule(updateNodes);
 
-        batchUpdateTestCase(apiModule);
+        batchUpdateApiDelimit(apiModule);
     }
 
-    private void buildUpdateTestCase(ApiModuleDTO rootNode, List<TestCaseDTO> apiModule,
-                                     List<ApiModule> updateNodes, String rootPath, String pId, int level) {
+    private void buildUpdateDelimit(ApiModuleDTO rootNode, List<ApiDelimitResult> apiDelimits,
+                                    List<ApiModule> updateNodes, String rootPath, String pId, int level) {
 
         rootPath = rootPath + rootNode.getName();
 
         if (level > 8) {
             MSException.throwException(Translator.get("node_deep_limit"));
         }
+        if (rootNode.getId().equals("rootID")) {
+            rootPath = "";
+        }
+        ApiModule apiDelimitNode = new ApiModule();
+        apiDelimitNode.setId(rootNode.getId());
+        apiDelimitNode.setLevel(level);
+        apiDelimitNode.setParentId(pId);
+        updateNodes.add(apiDelimitNode);
 
-        ApiModule testCaseNode = new ApiModule();
-        testCaseNode.setId(rootNode.getId());
-        testCaseNode.setLevel(level);
-        testCaseNode.setParentId(pId);
-        updateNodes.add(testCaseNode);
-
-        for (TestCaseDTO item : apiModule) {
-            if (StringUtils.equals(item.getNodeId(), rootNode.getId())) {
-                item.setNodePath(rootPath);
+        for (ApiDelimitResult item : apiDelimits) {
+            if (StringUtils.equals(item.getModuleId(), rootNode.getId())) {
+                item.setModulePath(rootPath);
             }
         }
 
         List<ApiModuleDTO> children = rootNode.getChildren();
         if (children != null && children.size() > 0) {
             for (int i = 0; i < children.size(); i++) {
-                buildUpdateTestCase(children.get(i), apiModule, updateNodes, rootPath + '/', rootNode.getId(), level + 1);
+                buildUpdateDelimit(children.get(i), apiDelimits, updateNodes, rootPath + '/', rootNode.getId(), level + 1);
             }
         }
     }
 
-    private void batchUpdateTestCaseNode(List<ApiModule> updateNodes) {
+    private void batchUpdateModule(List<ApiModule> updateNodes) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiModuleMapper apiModuleMapper = sqlSession.getMapper(ApiModuleMapper.class);
         updateNodes.forEach((value) -> {

@@ -2,10 +2,17 @@
   <div>
     <el-radio-group v-model="body.type" size="mini">
       <el-radio-button :disabled="isReadOnly" :label="type.KV">
-        {{ $t('api_test.request.body_kv') }}
+        {{ $t('api_test.delimit.request.body_form_data') }}
       </el-radio-button>
+
       <el-radio-button :disabled="isReadOnly" :label="type.RAW">
-        {{ $t('api_test.request.body_text') }}
+        {{ $t('api_test.delimit.request.body_raw') }}
+      </el-radio-button>
+      <el-radio-button :disabled="isReadOnly" :label="type.WWW_FORM">
+        {{ $t('api_test.delimit.request.body_x_www_from_urlencoded') }}
+      </el-radio-button>
+      <el-radio-button :disabled="isReadOnly" :label="type.BINARY">
+        {{ $t('api_test.delimit.request.body_binary') }}
       </el-radio-button>
     </el-radio-group>
 
@@ -19,80 +26,98 @@
                      type="body"
                      :description="$t('api_test.request.parameters_desc')"
                      v-if="body.isKV()"/>
+
+    <ms-api-variable :is-read-only="isReadOnly"
+                     :parameters="body.kvs"
+                     :environment="environment"
+                     :scenario="scenario"
+                     :extract="extract"
+                     type="body"
+                     :description="$t('api_test.request.parameters_desc')"
+                     v-if="body.type == 'WWW_Form'"/>
+
+    <ms-api-variable :is-read-only="isReadOnly"
+                     :parameters="body.kvs"
+                     :environment="environment"
+                     :scenario="scenario"
+                     :extract="extract"
+                     type="body"
+                     :description="$t('api_test.request.parameters_desc')"
+                     v-if="body.type == 'BINARY'"/>
+
     <div class="body-raw" v-if="body.type == 'Raw'">
       <ms-code-edit :mode="body.format" :read-only="isReadOnly" :data.sync="body.raw" :modes="modes" ref="codeEdit"/>
     </div>
-
   </div>
 </template>
 
 <script>
-import MsApiKeyValue from "../ApiKeyValue";
-import {Body, BODY_FORMAT, BODY_TYPE, Scenario} from "../../model/ScenarioModel";
-import MsCodeEdit from "../../../../common/components/MsCodeEdit";
-import MsDropdown from "../../../../common/components/MsDropdown";
-import MsApiVariable from "../ApiVariable";
+  import MsApiKeyValue from "../ApiKeyValue";
+  import {Body, BODY_FORMAT, BODY_TYPE, Scenario} from "../../model/ScenarioModel";
+  import MsCodeEdit from "../../../../common/components/MsCodeEdit";
+  import MsDropdown from "../../../../common/components/MsDropdown";
+  import MsApiVariable from "../ApiVariable";
 
-export default {
-  name: "MsApiBody",
-  components: {MsApiVariable, MsDropdown, MsCodeEdit, MsApiKeyValue},
-  props: {
-    body: Body,
-    scenario: Scenario,
-    environment: Object,
-    extract: Object,
-    isReadOnly: {
-      type: Boolean,
-      default: false
-    }
-  },
-
-  data() {
-    return {
-      type: BODY_TYPE,
-      modes: ['text', 'json', 'xml', 'html']
-    };
-  },
-
-  methods: {
-    modeChange(mode) {
-      this.body.format = mode;
-    }
-  },
-
-  created() {
-    if (!this.body.type) {
-      this.body.type = BODY_TYPE.KV;
-    }
-    if (!this.body.format) {
-      this.body.format = BODY_FORMAT.TEXT;
-    }
-    this.body.kvs.forEach(param => {
-      if (!param.type) {
-        param.type = 'text';
+  export default {
+    name: "MsApiBody",
+    components: {MsApiVariable, MsDropdown, MsCodeEdit, MsApiKeyValue},
+    props: {
+      body: Body,
+      scenario: Scenario,
+      environment: Object,
+      extract: Object,
+      isReadOnly: {
+        type: Boolean,
+        default: false
       }
-    });
+    },
+
+    data() {
+      return {
+        type: BODY_TYPE,
+        modes: ['text', 'json', 'xml', 'html']
+      };
+    },
+
+    methods: {
+      modeChange(mode) {
+        this.body.format = mode;
+      }
+    },
+
+    created() {
+      if (!this.body.type) {
+        this.body.type = BODY_TYPE.KV;
+      }
+      if (!this.body.format) {
+        this.body.format = BODY_FORMAT.TEXT;
+      }
+      this.body.kvs.forEach(param => {
+        if (!param.type) {
+          param.type = 'text';
+        }
+      });
+    }
   }
-}
 </script>
 
 <style scoped>
-.textarea {
-  margin-top: 10px;
-}
+  .textarea {
+    margin-top: 10px;
+  }
 
-.body-raw {
-  padding: 15px 0;
-  height: 300px;
-}
+  .body-raw {
+    padding: 15px 0;
+    height: 300px;
+  }
 
-.el-dropdown {
-  margin-left: 20px;
-  line-height: 30px;
-}
+  .el-dropdown {
+    margin-left: 20px;
+    line-height: 30px;
+  }
 
-.ace_editor {
-  border-radius: 5px;
-}
+  .ace_editor {
+    border-radius: 5px;
+  }
 
 </style>

@@ -23,10 +23,10 @@ public class ApiModuleController {
     @Resource
     private CheckOwnerService checkOwnerService;
 
-    @GetMapping("/list/{projectId}")
+    @GetMapping("/list/{projectId}/{protocol}")
     public List<ApiModuleDTO> getNodeByProjectId(@PathVariable String projectId,@PathVariable String protocol) {
         checkOwnerService.checkProjectOwner(projectId);
-        return apiModuleService.getNodeTreeByProjectId(projectId);
+        return apiModuleService.getNodeTreeByProjectId(projectId,protocol);
     }
 
     @PostMapping("/add")

@@ -2,13 +2,15 @@
   <div class="request-form">
     <component @runDebug="runDebug" :is="component" :is-read-only="isReadOnly" :request="request" :scenario="scenario"/>
     <el-divider v-if="isCompleted"></el-divider>
-    <ms-request-result-tail v-loading="debugReportLoading" v-if="isCompleted" :request="request.debugRequestResult ? request.debugRequestResult : {responseResult: {}, subRequestResults: []}"
-                            :scenario-name="request.debugScenario ? request.debugScenario.name : ''" ref="msDebugResult"/>
+    <ms-request-result-tail v-loading="debugReportLoading" v-if="isCompleted"
+                            :request="request.debugRequestResult ? request.debugRequestResult : {responseResult: {}, subRequestResults: []}"
+                            :scenario-name="request.debugScenario ? request.debugScenario.name : ''"
+                            ref="msDebugResult"/>
   </div>
 </template>
 
 <script>
-  import {JSR223Processor, Request, RequestFactory, Scenario} from "../../model/ScenarioModel";
+  import {JSR223Processor, Request, RequestFactory, Scenario, Test} from "../../model/ScenarioModel";
   import MsApiHttpRequestForm from "./ApiHttpRequestForm";
   // import MsApiTcpRequestForm from "./ApiTcpRequestForm";
   // import MsApiDubboRequestForm from "./ApiDubboRequestForm";
@@ -16,25 +18,25 @@
   import MsRequestResultTail from "../../../report/components/RequestResultTail";
   // import MsApiSqlRequestForm from "./ApiSqlRequestForm";
 
-export default {
-  name: "MsApiRequestForm",
-  components: { MsRequestResultTail, MsScenarioResults,  MsApiHttpRequestForm},
-  props: {
-    scenario: Scenario,
-    request: Request,
-    isReadOnly: {
-      type: Boolean,
-      default: false
+  export default {
+    name: "MsApiRequestForm",
+    components: {MsRequestResultTail, MsScenarioResults, MsApiHttpRequestForm},
+    props: {
+      scenario: Scenario,
+      request: Request,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      },
+      debugReportId: String
     },
-    debugReportId: String
-  },
     data() {
       return {
         reportId: "",
-        content: {scenarios:[]},
+        content: {scenarios: []},
         debugReportLoading: false,
         showDebugReport: false,
-        jsonPathList:[]
+        jsonPathList: [],
       }
     },
     computed: {
@@ -47,9 +49,9 @@ export default {
           case RequestFactory.TYPES.SQL:
             name = "MsApiSqlRequestForm";
             break;
-        case RequestFactory.TYPES.TCP:
-          name = "MsApiTcpRequestForm";
-          break;
+          case RequestFactory.TYPES.TCP:
+            name = "MsApiTcpRequestForm";
+            break;
           default:
             name = "MsApiHttpRequestForm";
         }

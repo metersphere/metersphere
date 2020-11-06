@@ -80,7 +80,10 @@ export const calculate = function (itemValue) {
 export const BODY_TYPE = {
   KV: "KeyValue",
   FORM_DATA: "Form Data",
-  RAW: "Raw"
+  RAW: "Raw",
+  WWW_FORM: "WWW_Form",
+  XML: "XML",
+  BINARY: "BINARY"
 }
 
 export const BODY_FORMAT = {
@@ -118,7 +121,8 @@ export class BaseConfig {
         if (!(this[name] instanceof Array)) {
           if (notUndefined === true) {
             this[name] = options[name] === undefined ? this[name] : options[name];
-          } else {
+          }
+          else {
             this[name] = options[name];
           }
         }
@@ -156,36 +160,18 @@ export class Test extends BaseConfig {
     this.id = uuid();
     this.name = undefined;
     this.projectId = undefined;
-    this.scenarioDefinition = [];
+    this.request = {};
     this.schedule = {};
-
     this.set(options);
-    this.sets({scenarioDefinition: Scenario}, options);
-  }
-
-  export() {
-    let obj = {
-      type: this.type,
-      version: this.version,
-      scenarios: this.scenarioDefinition
-    };
-
-    return JSON.stringify(obj);
   }
 
   initOptions(options) {
     options = options || {};
-    options.scenarioDefinition = options.scenarioDefinition || [new Scenario()];
+    options.request = options.request || new RequestFactory();
     return options;
   }
 
   isValid() {
-    for (let i = 0; i < this.scenarioDefinition.length; i++) {
-      let validator = this.scenarioDefinition[i].isValid();
-      if (!validator.isValid) {
-        return validator;
-      }
-    }
     if (!this.projectId) {
       return {
         isValid: false,
@@ -224,7 +210,6 @@ export class Scenario extends BaseConfig {
     this.enable = true;
     this.databaseConfigs = [];
     this.tcpConfig = undefined;
-
     this.set(options);
     this.sets({
       variables: KeyValue,
@@ -341,6 +326,8 @@ export class HttpRequest extends Request {
     this.path = options.path;
     this.method = options.method || "GET";
     this.parameters = [];
+    this.rest = [];
+    this.authConfig = {verification: "No Auth", isEncrypt: false};
     this.headers = [];
     this.body = new Body(options.body);
     this.environment = options.environment;
@@ -351,7 +338,7 @@ export class HttpRequest extends Request {
     this.responseTimeout = options.responseTimeout;
     this.followRedirects = options.followRedirects === undefined ? true : options.followRedirects;
 
-    this.sets({parameters: KeyValue, headers: KeyValue}, options);
+    this.sets({parameters: KeyValue, rest: KeyValue, headers: KeyValue}, options);
   }
 
   isValid(environmentId, environment) {
@@ -1015,7 +1002,7 @@ class JMXHttpRequest {
 }
 
 class JMXDubboRequest {
-  constructor(request, dubboConfig) {
+  constructor(request) {
     // Request 复制
     let obj = request.clone();
     // 去掉无效的kv
@@ -1025,12 +1012,6 @@ class JMXDubboRequest {
     obj.attachmentArgs = obj.attachmentArgs.filter(arg => {
       return arg.isValid();
     });
-
-    // Scenario DubboConfig复制
-    this.copy(obj.configCenter, dubboConfig.configCenter);
-    this.copy(obj.registryCenter, dubboConfig.registryCenter);
-    this.copy(obj.consumerAndService, dubboConfig.consumerAndService);
-
     return obj;
   }
 
@@ -1046,15 +1027,11 @@ class JMXDubboRequest {
 }
 
 class JMXTCPRequest {
-  constructor(request, scenario) {
+  constructor(request) {
     let obj = request.clone();
     if (request.useEnvironment) {
-      obj.set(scenario.environment.config.tcpConfig, true);
       return obj;
     }
-
-    this.copy(this, scenario.tcpConfig);
-
     return obj;
   }
 
@@ -1090,70 +1067,51 @@ class JMXGenerator {
     if (!test || !test.id || !(test instanceof Test)) return undefined;
 
     let testPlan = new TestPlan(test.name);
-    this.addScenarios(testPlan, test.id, test.scenarioDefinition);
+    this.addScenarios(testPlan, test.id, test.request);
 
     this.jmeterTestPlan = new JMeterTestPlan();
     this.jmeterTestPlan.put(testPlan);
   }
 
-  addScenarios(testPlan, testId, scenarios) {
-    scenarios.forEach(s => {
+  addScenarios(testPlan, testId, request) {
 
-      if (s.enable) {
-        let scenario = s.clone();
+    let threadGroup = new ThreadGroup(request.name || "");
 
-        let threadGroup = new ThreadGroup(scenario.name || "");
+    if (!request.isValid()) return;
+    let sampler;
+    if (request instanceof DubboRequest) {
+      sampler = new DubboSample(request.name || "", new JMXDubboRequest(request));
+    } else if (request instanceof HttpRequest) {
+      sampler = new HTTPSamplerProxy(request.name || "", new JMXHttpRequest(request, false));
+      this.addRequestHeader(sampler, request);
+      this.addRequestArguments(sampler, request);
+      this.addRequestBody(sampler, request, testId);
+    } else if (request instanceof SqlRequest) {
+      sampler = new JDBCSampler(request.name || "", request);
+      this.addRequestVariables(sampler, request);
+    } else if (request instanceof TCPRequest) {
+      sampler = new TCPSampler(request.name || "", new JMXTCPRequest(request));
+    }
 
-        this.addScenarioVariables(threadGroup, scenario);
+    this.addDNSCacheManager(sampler, false, request.useEnvironment);
 
-        this.addScenarioHeaders(threadGroup, scenario);
+    this.addRequestExtractor(sampler, request);
 
-        this.addScenarioCookieManager(threadGroup, scenario);
+    this.addRequestAssertion(sampler, request);
 
-        this.addJDBCDataSources(threadGroup, scenario);
-        scenario.requests.forEach(request => {
-          if (request.enable) {
-            if (!request.isValid()) return;
-            let sampler;
-            if (request instanceof DubboRequest) {
-              sampler = new DubboSample(request.name || "", new JMXDubboRequest(request, scenario.dubboConfig));
-            } else if (request instanceof HttpRequest) {
-              sampler = new HTTPSamplerProxy(request.name || "", new JMXHttpRequest(request, scenario.environment));
-              this.addRequestHeader(sampler, request);
-              this.addRequestArguments(sampler, request);
-              this.addRequestBody(sampler, request, testId);
-            } else if (request instanceof SqlRequest) {
-              request.dataSource = scenario.databaseConfigMap.get(request.dataSource);
-              sampler = new JDBCSampler(request.name || "", request);
-              this.addRequestVariables(sampler, request);
-            } else if (request instanceof TCPRequest) {
-              sampler = new TCPSampler(request.name || "", new JMXTCPRequest(request, scenario));
-            }
+    this.addJSR223PreProcessor(sampler, request);
 
-            this.addDNSCacheManager(sampler, scenario.environment, request.useEnvironment);
+    this.addConstantsTimer(sampler, request);
 
-            this.addRequestExtractor(sampler, request);
-
-            this.addRequestAssertion(sampler, request);
-
-            this.addJSR223PreProcessor(sampler, request);
-
-            this.addConstantsTimer(sampler, request);
-
-            if (request.controller && request.controller.isValid() && request.controller.enable) {
-              if (request.controller instanceof IfController) {
-                let controller = this.getController(sampler, request);
-                threadGroup.put(controller);
-              }
-            } else {
-              threadGroup.put(sampler);
-            }
-          }
-        })
-        testPlan.put(threadGroup);
+    if (request.controller && request.controller.isValid() && request.controller.enable) {
+      if (request.controller instanceof IfController) {
+        let controller = this.getController(sampler, request);
+        threadGroup.put(controller);
       }
-
-    })
+    } else {
+      threadGroup.put(sampler);
+    }
+    testPlan.put(threadGroup);
   }
 
   addEnvironments(environments, target) {

@@ -2,7 +2,8 @@
   <ms-container>
 
     <ms-aside-container>
-      <ms-node-tree></ms-node-tree>
+      <ms-node-tree @selectModule="selectModule" @getApiModuleTree="initTree"
+                    @changeProject="changeProject"></ms-node-tree>
     </ms-aside-container>
 
     <ms-main-container>
@@ -28,18 +29,16 @@
           <ms-api-list
             v-if="item.type === 'list'"
             :current-project="currentProject"
-            :select-node-ids="selectApi"
-            :select-parent-nodes="selectParentNodes"
-            @testCaseEdit="editTestCase"
+            :current-module="currentModule"
+            @editApi="editApi"
             @handleCase="handleCase"
-            @batchMove="batchMove"
-            @refresh="refresh"
-            @moveToNode="moveToNode"
-            ref="testCaseList">
+            ref="apiList">
           </ms-api-list>
 
           <div v-else-if="item.type=== 'add'">
-            <ms-api-config @runTest="runTest"></ms-api-config>
+            <ms-api-config @runTest="runTest" @saveApi="saveApi" :current-api="currentApi"
+                           :currentProject="currentProject"
+                           :moduleOptions="moduleOptions" ref="apiConfig"></ms-api-config>
           </div>
           <div v-else-if="item.type=== 'debug'">
             <ms-debug-http-page @saveAs="saveAs"></ms-debug-http-page>
@@ -66,6 +65,7 @@
   import MsApiConfig from "./components/ApiConfig";
   import MsDebugHttpPage from "./components/debug/DebugHttpPage";
   import MsRunTestHttpPage from "./components/runtest/RunTestHttpPage";
+  import {getCurrentUser, getUUID} from "../../../../common/js/utils";
 
   export default {
     name: "TestCase",
@@ -86,42 +86,34 @@
         projectId: null,
         isHide: true,
         editableTabsValue: '1',
+        tabIndex: 1,
+        result: {},
+        currentPage: 1,
+        pageSize: 5,
+        total: 0,
+        currentProject: null,
+        currentModule: null,
+        currentApi: {},
+        moduleOptions: {},
         editableTabs: [{
           title: this.$t('api_test.delimit.api_title'),
           name: '1',
           type: "list",
           closable: false
         }],
-        tabIndex: 1,
-
-        result: {},
-        currentPage: 1,
-        pageSize: 5,
-        total: 0,
-        projects: [],
-        currentProject: null,
-        treeNodes: [],
-        selectApi: {},
-        selectParentNodes: [],
-        testCaseReadOnly: true,
-        selectNode: {},
-        nodeTreeDraggable: true,
-
       }
     },
-    created() {
-
-    },
-    watch: {
-      '$route': 'init',
-
-    },
-
     methods: {
       handleCommand(e) {
         if (e === "add") {
+          this.currentApi = {
+            status: "Underway",
+            path: "GET",
+            userId: getCurrentUser().id,
+          };
           this.handleTabsEdit(this.$t('api_test.delimit.request.title'), e);
-        } else if (e === "test") {
+        }
+        else if (e === "test") {
           this.handleTabsEdit(this.$t("commons.api"), e);
         }
         else if (e === "closeAll") {
@@ -154,45 +146,56 @@
           if (targetName === undefined || targetName === null) {
             targetName = this.$t('api_test.delimit.request.title');
           }
-          let newTabName = ++this.tabIndex + '';
+          let newTabName = getUUID().substring(0, 8);
           this.editableTabs.push({
             title: targetName,
             name: newTabName,
             closable: true,
-            type: action,
-            content: MsApiConfig
+            type: action
           });
           this.editableTabsValue = newTabName;
         }
       },
 
-      editTestCase(testCase) {
-        this.handleTabsEdit(testCase.api_name, "add");
+      editApi(row) {
+        this.currentApi = row;
+        this.handleTabsEdit(row.name, "add");
       },
       handleCase(testCase) {
-        this.selectApi = testCase;
+        this.currentApi = testCase;
         this.isHide = false;
       },
       apiCaseClose() {
         this.isHide = true;
       },
-
-      batchMove(selectIds) {
+      selectModule(data) {
+        this.currentModule = data;
       },
-
-      refresh() {
-      },
-      moveToNode() {
+      refresh(data) {
+        this.$refs.apiList[0].initTableData(data);
       },
       saveAs(data) {
         this.handleCommand("add");
       },
       runTest(data) {
-        console.log(data);
         this.handleCommand("test");
       },
-      search() {
-          alert(1);
+      saveApi(data) {
+        for (let index in this.editableTabs) {
+          let tab = this.editableTabs[index];
+          if (tab.name === this.editableTabsValue) {
+            tab.title = data.name;
+            break;
+          }
+        }
+        this.$refs.apiList[0].initTableData(data);
+
+      },
+      initTree(data) {
+        this.moduleOptions = data;
+      },
+      changeProject(data) {
+        this.currentProject = data;
       }
     }
   }

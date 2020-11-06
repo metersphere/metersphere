@@ -67,7 +67,7 @@
 <script>
   import {KeyValue, Scenario} from "../model/ScenarioModel";
   import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
-  import MsApiVariableAdvance from "@/business/components/api/test/components/ApiVariableAdvance";
+  import MsApiVariableAdvance from "./ApiVariableAdvance";
   import MsApiBodyFileUpload from "./body/ApiBodyFileUpload";
 
   export default {
@@ -78,6 +78,7 @@
       valuePlaceholder: String,
       description: String,
       parameters: Array,
+      rest: Array,
       environment: Object,
       scenario: Scenario,
       type: {

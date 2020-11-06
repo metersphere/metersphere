@@ -1,10 +1,5 @@
 <template>
   <div class="text-container">
-    <div @click="active" class="collapse">
-      <i class="icon el-icon-arrow-right" :class="{'is-active': isActive}"/>
-      {{ $t('api_report.response') }}
-    </div>
-    <el-collapse-transition>
       <el-tabs v-model="activeName" v-show="isActive">
         <el-tab-pane :class="'body-pane'" label="Body" name="body" class="pane">
           <ms-sql-result-table v-if="isSqlType" :body="response.body"/>
@@ -28,7 +23,6 @@
         </el-tab-pane>
 
       </el-tabs>
-    </el-collapse-transition>
   </div>
 </template>
 

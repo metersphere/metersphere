@@ -2,6 +2,7 @@ package io.metersphere.api.dto.scenario.request;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
+import io.metersphere.api.dto.scenario.AuthConfig;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
 import lombok.Data;
@@ -37,4 +38,8 @@ public class HttpRequest extends Request {
     private Boolean followRedirects;
     @JSONField(ordinal = 17)
     private Boolean doMultipartPost;
+    @JSONField(ordinal = 18)
+    private List<KeyValue> rest;
+    @JSONField(ordinal = 19)
+    private AuthConfig authConfig;
 }
