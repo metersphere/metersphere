@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Configuration
-@ConditionalOnProperty(prefix="sso",name = "mode", havingValue = "local", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "sso", name = "mode", havingValue = "local", matchIfMissing = true)
 public class ShiroConfig implements EnvironmentAware {
     private Environment env;
 
@@ -43,6 +43,8 @@ public class ShiroConfig implements EnvironmentAware {
         shiroFilterFactoryBean.getFilters().put("apikey", new ApiKeyFilter());
         Map<String, String> filterChainDefinitionMap = shiroFilterFactoryBean.getFilterChainDefinitionMap();
         ShiroUtils.loadBaseFilterChain(filterChainDefinitionMap);
+        filterChainDefinitionMap.put("/display/info", "anon");
+        filterChainDefinitionMap.put("/display/file/*", "anon");
         filterChainDefinitionMap.put("/**", "apikey, authc");
         return shiroFilterFactoryBean;
     }

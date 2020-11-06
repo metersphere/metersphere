@@ -193,8 +193,11 @@ public class APITestService {
         return extApiTestMapper.getApiTestByProjectId(projectId);
     }
 
-    public void delete(String testId) {
-        testCaseService.checkIsRelateTest(testId);
+    public void delete(DeleteAPITestRequest request) {
+        String testId = request.getId();
+        if (!request.isForceDelete()) {
+            testCaseService.checkIsRelateTest(testId);
+        }
         deleteFileByTestId(testId);
         apiReportService.deleteByTestId(testId);
         scheduleService.deleteByResourceId(testId);

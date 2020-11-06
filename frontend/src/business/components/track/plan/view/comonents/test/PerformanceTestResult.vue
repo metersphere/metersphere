@@ -57,24 +57,24 @@
 </template>
 
 <script>
-  import MsMainContainer from "../../../../../common/components/MsMainContainer";
-  import MsContainer from "../../../../../common/components/MsContainer";
-  import LogDetails from "../../../../../performance/report/components/LogDetails";
-  import ErrorLog from "../../../../../performance/report/components/ErrorLog";
-  import RequestStatistics from "../../../../../performance/report/components/RequestStatistics";
-  import TestOverview from "../../../../../performance/report/components/TestOverview";
+import MsMainContainer from "../../../../../common/components/MsMainContainer";
+import MsContainer from "../../../../../common/components/MsContainer";
+import LogDetails from "../../../../../performance/report/components/LogDetails";
+import ErrorLog from "../../../../../performance/report/components/ErrorLog";
+import RequestStatistics from "../../../../../performance/report/components/RequestStatistics";
+import TestOverview from "../../../../../performance/report/components/TestOverview";
 
-  export default {
-    name: "PerformanceTestResult",
-    components: {
-      TestOverview,
-      RequestStatistics,
-      ErrorLog,
-      LogDetails,
-      MsContainer,
-      MsMainContainer
-    },
-    data() {
+export default {
+  name: "PerformanceTestResult",
+  components: {
+    TestOverview,
+    RequestStatistics,
+    ErrorLog,
+    LogDetails,
+    MsContainer,
+    MsMainContainer
+  },
+  data() {
       return {
         result: {},
         active: '0',
@@ -145,7 +145,7 @@
         }
         switch (this.report.status) {
           case 'Error':
-            this.$warning(this.$t('report.generation_error'));
+            // this.$warning(this.$t('report.generation_error'));
             break;
           case 'Starting':
             this.$warning(this.$t('report.start_status'));

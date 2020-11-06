@@ -37,7 +37,7 @@ public class TestPlanController {
     CheckOwnerService checkOwnerService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
-    public Pager<List<TestPlanDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanRequest request) {
+    public Pager<List<TestPlanDTOWithMetric>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanRequest request) {
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
         request.setWorkspaceId(currentWorkspaceId);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);

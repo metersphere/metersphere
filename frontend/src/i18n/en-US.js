@@ -180,6 +180,14 @@ export default {
     invalid: 'invalid',
     expired: 'expired',
   },
+  display: {
+    title: 'Theme',
+    logo: 'System LOGO',
+    loginLogo: 'Picture on the right side of the login page',
+    loginImage: 'Login page upper left corner LOGO',
+    loginTitle: 'Login page prompt information',
+    pageTitle: 'Page Title',
+  },
   system_config: {
     base_config: 'Base Config',
     base: {
@@ -348,7 +356,7 @@ export default {
     test_execute_again: 'Test Execute Again',
     export: 'Export',
     compare: 'Compare',
-    generation_error: 'Report generation error, cannot be viewed!',
+    generation_error: 'Report generation error, unable to view, please check log details!',
     being_generated: 'Report is being generated...',
     delete_confirm: 'Confirm delete: ',
     start_status: 'The test is in the beginning state, we will automatically display it on the page after we generate the report!',
@@ -389,7 +397,7 @@ export default {
     file_status: 'File Status',
     last_modify_time: 'Modify time',
     upload_tips: 'Drag files here, or <em> click to upload </em>',
-    upload_type: 'Only JMX/CSV files can be uploaded',
+    upload_type: 'Only JMX/CSV/JAR files can be uploaded',
     related_file_not_found: "No related test file found!",
     delete_file_confirm: 'Confirm delete file:',
     file_size_limit: "The number of files exceeds the limit！",

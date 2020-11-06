@@ -25,7 +25,7 @@ import {
   ThreadGroup,
   XPath2Extractor,
   IfController as JMXIfController,
-  ConstantTimer as JMXConstantTimer, TCPSampler, JSR223Assertion,
+  ConstantTimer as JMXConstantTimer, TCPSampler, JSR223Assertion, XPath2Assertion,
 } from "./JMX";
 import Mock from "mockjs";
 import {funcFilters} from "@/common/js/func-filter";
@@ -96,6 +96,7 @@ export const ASSERTION_TYPE = {
   JSON_PATH: "JSON",
   DURATION: "Duration",
   JSR223: "JSR223",
+  XPATH2: "XPath2",
 }
 
 export const ASSERTION_REGEX_SUBJECT = {
@@ -741,10 +742,11 @@ export class Assertions extends BaseConfig {
     this.regex = [];
     this.jsonPath = [];
     this.jsr223 = [];
+    this.xpath2 = [];
     this.duration = undefined;
 
     this.set(options);
-    this.sets({text: Text, regex: Regex, jsonPath: JSONPath, jsr223: AssertionJSR223}, options);
+    this.sets({text: Text, regex: Regex, jsonPath: JSONPath, jsr223: AssertionJSR223, xpath2: XPath2}, options);
   }
 
   initOptions(options) {
@@ -820,6 +822,23 @@ export class JSONPath extends AssertionType {
   setJSONPathDescription() {
     this.description = this.expression + " expect: " + (this.expect ? this.expect : '');
   }
+
+  isValid() {
+    return !!this.expression;
+  }
+}
+
+export class XPath2 extends AssertionType {
+  constructor(options) {
+    super(ASSERTION_TYPE.XPATH2);
+    this.expression = undefined;
+    this.description = undefined;
+    this.set(options);
+  }
+
+  // setJSONPathDescription() {
+  //   this.description = this.expression + " expect: " + (this.expect ? this.expect : '');
+  // }
 
   isValid() {
     return !!this.expression;
@@ -1001,7 +1020,8 @@ class JMXHttpRequest {
         this.domain = environment.config.httpConfig.domain;
         this.port = environment.config.httpConfig.port;
         this.protocol = environment.config.httpConfig.protocol;
-        let envPath = environment.config.httpConfig.protocol + "://" + environment.config.httpConfig.socket;
+        let url = new URL(environment.config.httpConfig.protocol + "://" + environment.config.httpConfig.socket);
+        let envPath = url.pathname === '/' ? '' : url.pathname;
         this.path = this.getPostQueryParameters(request, decodeURIComponent(envPath + (request.path ? request.path : '')));
       }
       this.connectTimeout = request.connectTimeout;
@@ -1139,16 +1159,17 @@ class JMXGenerator {
               sampler = new DubboSample(request.name || "", new JMXDubboRequest(request, scenario.dubboConfig));
             } else if (request instanceof HttpRequest) {
               sampler = new HTTPSamplerProxy(request.name || "", new JMXHttpRequest(request, scenario.environment));
-              this.addRequestHeader(sampler, request);
+              this.addRequestHeader(sampler, request, scenario);
               this.addRequestArguments(sampler, request);
               this.addRequestBody(sampler, request, testId);
             } else if (request instanceof SqlRequest) {
               request.dataSource = scenario.databaseConfigMap.get(request.dataSource);
               sampler = new JDBCSampler(request.name || "", request);
-              this.addRequestVariables(sampler, request);
             } else if (request instanceof TCPRequest) {
               sampler = new TCPSampler(request.name || "", new JMXTCPRequest(request, scenario));
             }
+
+            this.addRequestVariables(sampler, request, scenario);
 
             this.addDNSCacheManager(sampler, scenario.environment, request.useEnvironment);
 
@@ -1177,29 +1198,31 @@ class JMXGenerator {
   }
 
   addEnvironments(environments, target) {
-    let keys = new Set();
+    let targetMap = new Map();
     target.forEach(item => {
-      keys.add(item.name);
+      if (item.name) {
+        targetMap.set(item.name, item.enable);
+      }
     });
     let envArray = environments;
     if (!(envArray instanceof Array)) {
       envArray = JSON.parse(environments);
     }
     envArray.forEach(item => {
-      if (item.name && !keys.has(item.name)) {
+      let targetItem = targetMap.get(item.name);
+      let hasItem = undefined;
+      if (targetItem) {
+        hasItem = (targetItem.enable === false ? false : true);
+      } else {
+        hasItem = false;
+      }
+      if (item.enable != false && item.name && !hasItem) {
         target.push(new KeyValue({name: item.name, value: item.value}));
       }
     })
   }
 
   addScenarioVariables(threadGroup, scenario) {
-    if (scenario.environment) {
-      let config = scenario.environment.config;
-      if (!(scenario.environment.config instanceof Object)) {
-        config = JSON.parse(scenario.environment.config);
-      }
-      this.addEnvironments(config.commonConfig.variables, scenario.variables)
-    }
     let args = this.filterKV(scenario.variables);
     if (args.length > 0) {
       let name = scenario.name + " Variables";
@@ -1207,11 +1230,23 @@ class JMXGenerator {
     }
   }
 
-  addRequestVariables(httpSamplerProxy, request) {
+  addRequestVariables(httpSamplerProxy, request, scenario) {
+    if (request.useEnvironment && scenario.environment) {
+      let config = scenario.environment.config;
+      if (!(scenario.environment.config instanceof Object)) {
+        config = JSON.parse(scenario.environment.config);
+      }
+      if (!request.variables) {
+        request.variables = [];
+      }
+      this.addEnvironments(config.commonConfig.variables, request.variables)
+    }
     let name = request.name + " Variables";
-    let variables = this.filterKV(request.variables);
-    if (variables && variables.length > 0) {
-      httpSamplerProxy.put(new Arguments(name, variables));
+    if (request.variables) {
+      let variables = this.filterKV(request.variables);
+      if (variables && variables.length > 0) {
+        httpSamplerProxy.put(new Arguments(name, variables));
+      }
     }
   }
 
@@ -1272,13 +1307,6 @@ class JMXGenerator {
   }
 
   addScenarioHeaders(threadGroup, scenario) {
-    if (scenario.environment) {
-      let config = scenario.environment.config;
-      if (!(scenario.environment.config instanceof Object)) {
-        config = JSON.parse(scenario.environment.config);
-      }
-      this.addEnvironments(config.httpConfig.headers, scenario.headers)
-    }
     let headers = this.filterKV(scenario.headers);
     if (headers.length > 0) {
       let name = scenario.name + " Headers";
@@ -1286,7 +1314,17 @@ class JMXGenerator {
     }
   }
 
-  addRequestHeader(httpSamplerProxy, request) {
+  addRequestHeader(httpSamplerProxy, request, scenario) {
+    if (request.useEnvironment && scenario.environment) {
+      let config = scenario.environment.config;
+      if (!(scenario.environment.config instanceof Object)) {
+        config = JSON.parse(scenario.environment.config);
+      }
+      this.addEnvironments(config.httpConfig.headers, request.headers);
+      if (request.doMultipartPost) {
+        this.removeContentType(request);
+      }
+    }
     let name = request.name + " Headers";
     this.addBodyFormat(request);
     let headers = this.filterKV(request.headers);
@@ -1363,15 +1401,29 @@ class JMXGenerator {
   }
 
   addContentType(request, type) {
+    let hasContentType = false;
     for (let index in request.headers) {
       if (request.headers.hasOwnProperty(index)) {
-        if (request.headers[index].name === 'Content-Type') {
+        if (request.headers[index].name === 'Content-Type' && request.headers[index].enable != false) {
+          hasContentType = true;
+          break;
+        }
+      }
+    }
+    if (!hasContentType) {
+      request.headers.push(new KeyValue({name: 'Content-Type', value: type}));
+    }
+  }
+
+  removeContentType(request) {
+    for (let index in request.headers) {
+      if (request.headers.hasOwnProperty(index)) {
+        if (request.headers[index].name === 'Content-Type' && request.headers[index].enable != false) {
           request.headers.splice(index, 1);
           break;
         }
       }
     }
-    request.headers.push(new KeyValue({name: 'Content-Type', value: type}));
   }
 
   addRequestArguments(httpSamplerProxy, request) {
@@ -1387,8 +1439,10 @@ class JMXGenerator {
       body = this.filterKV(request.body.kvs);
       this.addRequestBodyFile(httpSamplerProxy, request, testId);
     } else {
-      httpSamplerProxy.boolProp('HTTPSampler.postBodyRaw', true);
-      body.push({name: '', value: request.body.raw, encode: false, enable: true});
+      if (request.body.raw) {
+        httpSamplerProxy.boolProp('HTTPSampler.postBodyRaw', true);
+        body.push({name: '', value: request.body.raw, encode: false, enable: true});
+      }
     }
 
     if (request.method !== 'GET') {
@@ -1427,6 +1481,12 @@ class JMXGenerator {
       })
     }
 
+    if (assertions.xpath2.length > 0) {
+      assertions.xpath2.filter(this.filter).forEach(item => {
+        httpSamplerProxy.put(this.getXpathAssertion(item));
+      })
+    }
+
     if (assertions.jsr223.length > 0) {
       assertions.jsr223.filter(this.filter).forEach(item => {
         httpSamplerProxy.put(this.getJSR223Assertion(item));
@@ -1447,6 +1507,11 @@ class JMXGenerator {
   getJSR223Assertion(item) {
     let name = item.desc;
     return new JSR223Assertion(name, item);
+  }
+
+  getXpathAssertion(item) {
+    let name = item.expression;
+    return new XPath2Assertion(name, item);
   }
 
   getResponseAssertion(regex) {

@@ -93,6 +93,8 @@ public class TestPlanService {
     DingTaskService dingTaskService;
     @Resource
     WxChatTaskService wxChatTaskService;
+    @Resource
+    UserMapper userMapper;
 
     public void addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -165,20 +167,20 @@ public class TestPlanService {
             //已完成，写入实际完成时间
             testPlan.setActualEndTime(System.currentTimeMillis());
             try {
-                BeanUtils.copyBean(testPlans, testPlan);
-                String context = getTestPlanContext(testPlans, NoticeConstants.CREATE);
+                BeanUtils.copyBean(testPlans, getTestPlan(testPlan.getId()));
+                String context = getTestPlanContext(testPlans, NoticeConstants.UPDATE);
                 MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
-                List<MessageDetail> taskList = messageSettingDetail.getReviewTask();
+                List<MessageDetail> taskList = messageSettingDetail.getTestCasePlanTask();
                 taskList.forEach(r -> {
                     switch (r.getType()) {
                         case NoticeConstants.NAIL_ROBOT:
-                            dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.CREATE);
+                            dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.UPDATE);
                             break;
                         case NoticeConstants.WECHAT_ROBOT:
-                            wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.CREATE);
+                            wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.UPDATE);
                             break;
                         case NoticeConstants.EMAIL:
-                            mailService.sendTestPlanStartNotice(r, userIds, testPlans, NoticeConstants.CREATE);
+                            mailService.sendTestPlanStartNotice(r, userIds, testPlans, NoticeConstants.UPDATE);
                             break;
                     }
                 });
@@ -279,9 +281,46 @@ public class TestPlanService {
         testPlanTestCaseMapper.deleteByExample(testPlanTestCaseExample);
     }
 
-    public List<TestPlanDTO> listTestPlan(QueryTestPlanRequest request) {
+    private void calcTestPlanRate(List<TestPlanDTOWithMetric> testPlans) {
+        List<String> projectIds = extProjectMapper.getProjectIdByWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        Map<String, List<TestPlanCaseDTO>> testCaseMap = new HashMap<>();
+        listTestCaseByProjectIds(projectIds).forEach(testCase -> {
+            List<TestPlanCaseDTO> list = testCaseMap.get(testCase.getPlanId());
+            if (list == null) {
+                list = new ArrayList<>();
+                list.add(testCase);
+                testCaseMap.put(testCase.getPlanId(), list);
+            } else {
+                list.add(testCase);
+            }
+        });
+        testPlans.forEach(testPlan -> {
+            List<TestPlanCaseDTO> testCases = testCaseMap.get(testPlan.getId());
+            testPlan.setTested(0);
+            testPlan.setPassed(0);
+            testPlan.setTotal(0);
+            if (testCases != null) {
+                testPlan.setTotal(testCases.size());
+                testCases.forEach(testCase -> {
+                    if (!StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Prepare.name())
+                            && !StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Underway.name())) {
+                        testPlan.setTested(testPlan.getTested() + 1);
+                        if (StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Pass.name())) {
+                            testPlan.setPassed(testPlan.getPassed() + 1);
+                        }
+                    }
+                });
+            }
+            testPlan.setPassRate(MathUtils.getPercentWithDecimal(testPlan.getTested() == 0 ? 0 : testPlan.getPassed() * 1.0 / testPlan.getTested()));
+            testPlan.setTestRate(MathUtils.getPercentWithDecimal(testPlan.getTotal() == 0 ? 0 : testPlan.getTested() * 1.0 / testPlan.getTotal()));
+        });
+    }
+
+    public List<TestPlanDTOWithMetric> listTestPlan(QueryTestPlanRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        return extTestPlanMapper.list(request);
+        List<TestPlanDTOWithMetric> testPlans = extTestPlanMapper.list(request);
+        calcTestPlanRate(testPlans);
+        return testPlans;
     }
 
     public List<TestPlanDTO> listTestPlanByProject(QueryTestPlanRequest request) {
@@ -359,49 +398,12 @@ public class TestPlanService {
 
     public List<TestPlanDTOWithMetric> listRelateAllPlan() {
         SessionUser user = SessionUtils.getUser();
-
         QueryTestPlanRequest request = new QueryTestPlanRequest();
         request.setPrincipal(user.getId());
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         request.setPlanIds(extTestPlanTestCaseMapper.findRelateTestPlanId(user.getId(), SessionUtils.getCurrentWorkspaceId()));
-
-        List<String> projectIds = extProjectMapper.getProjectIdByWorkspaceId(SessionUtils.getCurrentOrganizationId());
-
         List<TestPlanDTOWithMetric> testPlans = extTestPlanMapper.listRelate(request);
-
-        Map<String, List<TestPlanCaseDTO>> testCaseMap = new HashMap<>();
-        listTestCaseByProjectIds(projectIds).forEach(testCase -> {
-            List<TestPlanCaseDTO> list = testCaseMap.get(testCase.getPlanId());
-            if (list == null) {
-                list = new ArrayList<>();
-                list.add(testCase);
-                testCaseMap.put(testCase.getPlanId(), list);
-            } else {
-                list.add(testCase);
-            }
-        });
-
-        testPlans.forEach(testPlan -> {
-            List<TestPlanCaseDTO> testCases = testCaseMap.get(testPlan.getId());
-            testPlan.setTested(0);
-            testPlan.setPassed(0);
-            testPlan.setTotal(0);
-            if (testCases != null) {
-                testPlan.setTotal(testCases.size());
-                testCases.forEach(testCase -> {
-                    if (!StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Prepare.name())
-                            && !StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Underway.name())) {
-                        testPlan.setTested(testPlan.getTested() + 1);
-                        if (StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Pass.name())) {
-                            testPlan.setPassed(testPlan.getPassed() + 1);
-                        }
-                    }
-                });
-            }
-            testPlan.setPassRate(MathUtils.getPercentWithDecimal(testPlan.getTested() == 0 ? 0 : testPlan.getPassed() * 1.0 / testPlan.getTested()));
-            testPlan.setTestRate(MathUtils.getPercentWithDecimal(testPlan.getTotal() == 0 ? 0 : testPlan.getTested() * 1.0 / testPlan.getTotal()));
-        });
-
+        calcTestPlanRate(testPlans);
         return testPlans;
     }
 
@@ -411,10 +413,11 @@ public class TestPlanService {
         return testPlanTestCaseService.list(request);
     }
 
-    public List<TestPlanCaseDTO> listTestCaseByProjectIds(List<String> projectIds) {
-        QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
-        request.setProjectIds(projectIds);
-        return extTestPlanTestCaseMapper.list(request);
+    private List<TestPlanCaseDTO> listTestCaseByProjectIds(List<String> projectIds) {
+        if (CollectionUtils.isEmpty(projectIds)) {
+            return new ArrayList<>();
+        }
+        return extTestPlanTestCaseMapper.listTestCaseByProjectIds(projectIds);
     }
 
     public TestCaseReportMetricDTO getMetric(String planId) {
@@ -527,13 +530,14 @@ public class TestPlanService {
             for (Project project : projects) {
                 stringBuilder.append(project.getName()).append("、");
             }
-            projectName = stringBuilder.toString().substring(0, stringBuilder.length() - 1);
+            projectName = stringBuilder.substring(0, stringBuilder.length() - 1);
         }
 
         return projectName;
     }
 
-    private static String getTestPlanContext(AddTestPlanRequest testPlan, String type) {
+    private String getTestPlanContext(AddTestPlanRequest testPlan, String type) {
+        User user = userMapper.selectByPrimaryKey(testPlan.getCreator());
         Long startTime = testPlan.getPlannedStartTime();
         Long endTime = testPlan.getPlannedEndTime();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -553,11 +557,11 @@ public class TestPlanService {
         }
         String context = "";
         if (StringUtils.equals(NoticeConstants.CREATE, type)) {
-            context = "测试计划任务通知：" + testPlan.getCreator() + "创建的" + "'" + testPlan.getName() + "'" + "待开始，计划开始时间是" + start + "计划结束时间为" + end + "请跟进";
+            context = "测试计划任务通知：" + user.getName() + "创建的" + "'" + testPlan.getName() + "'" + "待开始，计划开始时间是" + start + "计划结束时间为" + end + "请跟进";
         } else if (StringUtils.equals(NoticeConstants.UPDATE, type)) {
-            context = "测试计划任务通知：" + testPlan.getCreator() + "创建的" + "'" + testPlan.getName() + "'" + "已完成，计划开始时间是" + start + "计划结束时间为" + end + "已完成";
+            context = "测试计划任务通知：" + user.getName() + "创建的" + "'" + testPlan.getName() + "'" + "已完成，计划开始时间是" + start + "计划结束时间为" + end + "已完成";
         } else if (StringUtils.equals(NoticeConstants.DELETE, type)) {
-            context = "测试计划任务通知：" + testPlan.getCreator() + "创建的" + "'" + testPlan.getName() + "'" + "计划开始时间是" + start + "计划结束时间为" + end + "已删除";
+            context = "测试计划任务通知：" + user.getName() + "创建的" + "'" + testPlan.getName() + "'" + "计划开始时间是" + start + "计划结束时间为" + end + "已删除";
         }
         return context;
     }

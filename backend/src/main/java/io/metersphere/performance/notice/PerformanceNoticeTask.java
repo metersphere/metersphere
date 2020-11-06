@@ -47,27 +47,26 @@ public class PerformanceNoticeTask {
     }
 
     public void registerNoticeTask(LoadTestReportWithBLOBs loadTestReport) {
-        executorService.submit(() -> {
-            while (isRunning) {
-                LoadTestReportWithBLOBs loadTestReportFromDatabase = loadTestReportMapper.selectByPrimaryKey(loadTestReport.getId());
-
-                if (StringUtils.equals(loadTestReportFromDatabase.getStatus(), PerformanceTestStatus.Completed.name())) {
-                    isRunning = false;
-                    sendSuccessNotice(loadTestReportFromDatabase);
-                    return;
-                }
-                if (StringUtils.equals(loadTestReportFromDatabase.getStatus(), PerformanceTestStatus.Error.name())) {
-                    isRunning = false;
-                    sendFailNotice(loadTestReportFromDatabase);
-                    return;
-                }
-                try {
-                    Thread.sleep(1000 * 60);// 每分钟检查 loadtest 的状态
-                } catch (InterruptedException e) {
-                    LogUtil.error(e);
-                }
+        int count = 20;
+        while (count-- > 0) {
+            LoadTestReportWithBLOBs loadTestReportFromDatabase = loadTestReportMapper.selectByPrimaryKey(loadTestReport.getId());
+            if (StringUtils.equals(loadTestReportFromDatabase.getStatus(), PerformanceTestStatus.Completed.name())) {
+                isRunning = false;
+                sendSuccessNotice(loadTestReportFromDatabase);
+                return;
             }
-        });
+            if (StringUtils.equals(loadTestReportFromDatabase.getStatus(), PerformanceTestStatus.Error.name())) {
+                isRunning = false;
+                sendFailNotice(loadTestReportFromDatabase);
+                return;
+            }
+            count--;
+            try {
+                Thread.sleep(1000 * 4L);// 每分钟检查 loadtest 的状态
+            } catch (InterruptedException e) {
+                LogUtil.error(e);
+            }
+        }
     }
 
     public void sendSuccessNotice(LoadTestReportWithBLOBs loadTestReport) {

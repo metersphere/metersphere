@@ -1,9 +1,7 @@
 package io.metersphere.notice.service;
 
-import io.metersphere.base.domain.ApiTestReport;
-import io.metersphere.base.domain.LoadTestReportWithBLOBs;
-import io.metersphere.base.domain.SystemParameter;
-import io.metersphere.base.domain.TestCaseWithBLOBs;
+import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.ParamConstants;
@@ -46,6 +44,8 @@ public class MailService {
     private UserService userService;
     @Resource
     private SystemParameterService systemParameterService;
+    @Resource
+    private UserMapper userMapper;
 
     //接口和性能测试
     public void sendLoadNotification(MessageDetail messageDetail, LoadTestReportWithBLOBs loadTestReport, String eventType) {
@@ -144,7 +144,7 @@ public class MailService {
         context.put("testCaseName", testCaseWithBLOBs.getName());
         context.put("description", request.getDescription());
         context.put("url", baseSystemConfigDTO.getUrl());
-        context.put("id", testCaseWithBLOBs.getId());
+        context.put("id", request.getReviewId());
         try {
             String commentTemplate = IOUtils.toString(this.getClass().getResource("/mail/ReviewComments.html"), StandardCharsets.UTF_8);
             sendReviewNotice(addresseeIdList(messageDetail, userIds, eventType), context, commentTemplate);
@@ -297,7 +297,8 @@ public class MailService {
         Map<String, String> context = new HashMap<>();
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         context.put("url", baseSystemConfigDTO.getUrl());
-        context.put("creator", reviewRequest.getCreator());
+        User user = userMapper.selectByPrimaryKey(reviewRequest.getCreator());
+        context.put("creator", user.getName());
         context.put("reviewName", reviewRequest.getName());
         context.put("start", start);
         context.put("end", end);
@@ -328,6 +329,8 @@ public class MailService {
         context.put("start", start);
         context.put("end", end);
         context.put("id", testPlan.getId());
+        User user = userMapper.selectByPrimaryKey(testPlan.getCreator());
+        context.put("creator", user.getName());
         return context;
     }
 

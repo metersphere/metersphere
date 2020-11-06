@@ -180,6 +180,14 @@ export default {
     invalid: '无效',
     expired: '已过期',
   },
+  display: {
+    title: '显示设置',
+    logo: '系统 LOGO',
+    loginLogo: '登陆页面右侧图片',
+    loginImage: '登录页左上角 LOGO',
+    loginTitle: '登陆页面提示信息',
+    pageTitle: '页面 Title',
+  },
   system_config: {
     base_config: '基本配置',
     base: {
@@ -347,7 +355,7 @@ export default {
     test_execute_again: '再次执行',
     export: '导出',
     compare: '比较',
-    generation_error: '报告生成错误,无法查看!',
+    generation_error: '报告生成错误, 无法查看, 请检查日志详情!',
     being_generated: '报告正在生成中...',
     delete_confirm: '确认删除报告: ',
     start_status: '测试处于开始状态, 我们生成报告后会自动展示到页面上！',
@@ -387,7 +395,7 @@ export default {
     file_status: '文件状态',
     last_modify_time: '修改时间',
     upload_tips: '将文件拖到此处，或<em>点击上传</em>',
-    upload_type: '只能上传JMX/CSV文件',
+    upload_type: '只能上传JMX/CSV/JAR文件',
     related_file_not_found: "未找到关联的测试文件！",
     delete_file_confirm: '确认删除文件: ',
     file_size_limit: "文件个数超出限制！",

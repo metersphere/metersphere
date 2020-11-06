@@ -457,7 +457,7 @@ public class TestCaseService {
             if (t.getMethod().equals("manual")) {
                 String steps = t.getSteps();
                 String setp = "";
-                if (steps.contains("null")) {
+                if (steps.contains("null") && !steps.contains("\"null\"")) {
                     setp = steps.replace("null", "\"\"");
                 } else {
                     setp = steps;
@@ -546,7 +546,7 @@ public class TestCaseService {
             for (TestCase testCase : testCases) {
                 caseName = caseName.append(testCase.getName()).append(",");
             }
-            String str = caseName.toString().substring(0, caseName.length() - 1);
+            String str = caseName.substring(0, caseName.length() - 1);
             MSException.throwException(Translator.get("related_case_del_fail_prefix") + " " + str + " " + Translator.get("related_case_del_fail_suffix"));
         }
     }

@@ -63,6 +63,7 @@ public class EngineFactory {
                 });
 
         List<FileMetadata> csvFiles = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.CSV.name())).collect(Collectors.toList());
+        List<FileMetadata> jarFiles = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.JAR.name())).collect(Collectors.toList());
         final FileContent fileContent = fileService.getFileContent(jmxFile.getId());
         if (fileContent == null) {
             MSException.throwException(Translator.get("run_load_test_file_content_not_found") + loadTest.getId());
@@ -123,6 +124,15 @@ public class EngineFactory {
                 data.put(cf.getName(), new String(csvContent.getFile()));
             });
             engineContext.setTestData(data);
+        }
+
+        if (CollectionUtils.isNotEmpty(jarFiles)) {
+            Map<String, byte[]> data = new HashMap<>();
+            jarFiles.forEach(jf -> {
+                FileContent content = fileService.getFileContent(jf.getId());
+                data.put(jf.getName(), content.getFile());
+            });
+            engineContext.setTestJars(data);
         }
 
         return engineContext;

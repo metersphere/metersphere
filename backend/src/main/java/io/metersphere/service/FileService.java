@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -140,5 +141,13 @@ public class FileService {
         FileMetadataExample example = new FileMetadataExample();
         example.createCriteria().andIdIn(fileIds);
         return fileMetadataMapper.selectByExample(example);
+    }
+
+    public void deleteFileById(String fileId) {
+        deleteFileByIds(Collections.singletonList(fileId));
+    }
+
+    public FileMetadata getFileMetadataById(String fileId) {
+        return fileMetadataMapper.selectByPrimaryKey(fileId);
     }
 }

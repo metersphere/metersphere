@@ -8,6 +8,7 @@ import io.metersphere.base.mapper.ext.ExtTestCaseReviewMapper;
 import io.metersphere.base.mapper.ext.ExtTestReviewCaseMapper;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.TestCaseReviewStatus;
+import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.constants.TestReviewCaseStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
@@ -184,28 +185,31 @@ public class TestCaseReviewService {
         testCaseReview.setUpdateTime(System.currentTimeMillis());
         checkCaseReviewExist(testCaseReview);
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
-        List<String>  userIds=new ArrayList<>();
+        List<String> userIds = new ArrayList<>();
         userIds.addAll(testCaseReview.getUserIds());
-        try {
-            String context = getReviewContext(testCaseReview, NoticeConstants.CREATE);
-            MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
-            List<MessageDetail> taskList = messageSettingDetail.getReviewTask();
-            taskList.forEach(r -> {
-                switch (r.getType()) {
-                    case NoticeConstants.NAIL_ROBOT:
-                        dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.CREATE);
-                        break;
-                    case NoticeConstants.WECHAT_ROBOT:
-                        wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.CREATE);
-                        break;
-                    case NoticeConstants.EMAIL:
-                        mailService.sendReviewerNotice(r, userIds, testCaseReview, NoticeConstants.CREATE);
-                        break;
-                }
-            });
-        } catch (Exception e) {
-            LogUtil.error(e);
+        if (StringUtils.equals(TestPlanStatus.Completed.name(), testCaseReview.getStatus())) {
+            try {
+                String context = getReviewContext(testCaseReview, NoticeConstants.UPDATE);
+                MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
+                List<MessageDetail> taskList = messageSettingDetail.getReviewTask();
+                taskList.forEach(r -> {
+                    switch (r.getType()) {
+                        case NoticeConstants.NAIL_ROBOT:
+                            dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.UPDATE);
+                            break;
+                        case NoticeConstants.WECHAT_ROBOT:
+                            wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.UPDATE);
+                            break;
+                        case NoticeConstants.EMAIL:
+                            mailService.sendReviewerNotice(r, userIds, testCaseReview, NoticeConstants.UPDATE);
+                            break;
+                    }
+                });
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
         }
+
     }
 
     private void editCaseReviewer(SaveTestCaseReviewRequest testCaseReview) {
@@ -480,7 +484,7 @@ public class TestCaseReviewService {
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         request.setReviewIds(extTestReviewCaseMapper.findRelateTestReviewId(user.getId(), SessionUtils.getCurrentWorkspaceId()));
 
-        List<String> projectIds = extProjectMapper.getProjectIdByWorkspaceId(SessionUtils.getCurrentOrganizationId());
+        List<String> projectIds = extProjectMapper.getProjectIdByWorkspaceId(SessionUtils.getCurrentWorkspaceId());
 
         List<TestReviewDTOWithMetric> testReviews = extTestCaseReviewMapper.listRelate(request);
 
@@ -549,14 +553,17 @@ public class TestCaseReviewService {
         return name;
     }
 
-    public List<TestReviewCaseDTO> listTestCaseByProjectIds(List<String> projectIds) {
-        QueryCaseReviewRequest request = new QueryCaseReviewRequest();
-        request.setProjectIds(projectIds);
-        return extTestReviewCaseMapper.list(request);
+    private List<TestReviewCaseDTO> listTestCaseByProjectIds(List<String> projectIds) {
+        if (CollectionUtils.isEmpty(projectIds)) {
+            return new ArrayList<>();
+        }
+        return extTestReviewCaseMapper.listTestCaseByProjectIds(projectIds);
     }
 
     /*编辑，新建，完成,删除通知内容*/
-    private static String getReviewContext(SaveTestCaseReviewRequest reviewRequest, String type) {
+    private String getReviewContext(SaveTestCaseReviewRequest reviewRequest, String type) {
+
+        User user = userMapper.selectByPrimaryKey(reviewRequest.getCreator());
         Long startTime = reviewRequest.getCreateTime();
         Long endTime = reviewRequest.getEndTime();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -572,11 +579,11 @@ public class TestCaseReviewService {
         }
         String context = "";
         if (StringUtils.equals(NoticeConstants.CREATE, type)) {
-            context = "测试评审任务通知：" + reviewRequest.getCreator() + "发起的" + "'" + reviewRequest.getName() + "'" + "待开始，计划开始时间是" + start + "计划结束时间为" + end + "请跟进";
+            context = "测试评审任务通知：" + user.getName() + "发起的" + "'" + reviewRequest.getName() + "'" + "待开始，计划开始时间是" + start + "计划结束时间为" + end + "请跟进";
         } else if (StringUtils.equals(NoticeConstants.UPDATE, type)) {
-            context = "测试评审任务通知：" + reviewRequest.getCreator() + "发起的" + "'" + reviewRequest.getName() + "'" + "已完成，计划开始时间是" + start + "计划结束时间为" + end + "已完成";
+            context = "测试评审任务通知：" + user.getName() + "发起的" + "'" + reviewRequest.getName() + "'" + "已完成，计划开始时间是" + start + "计划结束时间为" + end + "已完成";
         } else if (StringUtils.equals(NoticeConstants.DELETE, type)) {
-            context = "测试评审任务通知：" + reviewRequest.getCreator() + "发起的" + "'" + reviewRequest.getName() + "'" + "计划开始时间是" + start + "计划结束时间为" + end + "已删除";
+            context = "测试评审任务通知：" + user.getName() + "发起的" + "'" + reviewRequest.getName() + "'" + "计划开始时间是" + start + "计划结束时间为" + end + "已删除";
         }
 
         return context;

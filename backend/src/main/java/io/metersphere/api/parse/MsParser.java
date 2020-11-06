@@ -61,7 +61,7 @@ public class MsParser extends ApiImportAbstractParser {
             Object body = requestObject.get("body");
             if (body instanceof JSONArray) {
                 JSONArray bodies = requestObject.getJSONArray("body");
-                if (StringUtils.equalsIgnoreCase(requestObject.getString("method"), "POST") && bodies != null) {
+                if (bodies != null) {
                     StringBuilder bodyStr = new StringBuilder();
                     for (int i = 0; i < bodies.size(); i++) {
                         String tmp = bodies.getString(i);
@@ -74,7 +74,7 @@ public class MsParser extends ApiImportAbstractParser {
                 }
             } else if (body instanceof JSONObject) {
                 JSONObject bodyObj = requestObject.getJSONObject("body");
-                if (StringUtils.equalsIgnoreCase(requestObject.getString("method"), "POST") && bodyObj != null) {
+                if (bodyObj != null) {
                     JSONArray kvs = new JSONArray();
                     bodyObj.keySet().forEach(key -> {
                         JSONObject kv = new JSONObject();

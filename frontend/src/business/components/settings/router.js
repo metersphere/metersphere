@@ -32,7 +32,9 @@ export default {
       component: () => import('@/business/components/settings/system/SystemParameterSetting'),
       meta: {system: true, title: 'commons.system_parameter_setting'}
     },
-    ...requireContext.keys().map(key => requireContext(key).system),...requireContext.keys().map(key => requireContext(key).license),
+    ...requireContext.keys().map(key => requireContext(key).system),
+    ...requireContext.keys().map(key => requireContext(key).license),
+    ...requireContext.keys().map(key => requireContext(key).display),
     {
       path: 'organizationmember',
       component: () => import('@/business/components/settings/organization/OrganizationMember'),

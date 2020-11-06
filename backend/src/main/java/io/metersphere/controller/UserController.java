@@ -251,7 +251,7 @@ public class UserController {
      * 组织成员列表不分页
      */
     @PostMapping("/org/member/list/all")
-    @RequiresRoles(value = {RoleConstants.ORG_ADMIN, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @RequiresRoles(value = {RoleConstants.ORG_ADMIN, RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public List<User> getOrgMemberList(@RequestBody QueryOrgMemberRequest request) {
         return userService.getOrgMemberList(request);
     }

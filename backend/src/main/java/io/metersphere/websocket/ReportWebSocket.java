@@ -1,8 +1,9 @@
 package io.metersphere.websocket;
 
-import io.metersphere.base.domain.LoadTestReport;
+import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.performance.service.ReportService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -18,10 +19,16 @@ import java.io.IOException;
 public class ReportWebSocket {
 
     private static ReportService reportService;
+    private static PerformanceTestService performanceTestService;
 
     @Resource
     public void setReportService(ReportService reportService) {
         ReportWebSocket.reportService = reportService;
+    }
+
+    @Resource
+    public void setPerformanceTestService(PerformanceTestService performanceTestService) {
+        ReportWebSocket.performanceTestService = performanceTestService;
     }
 
     /**
@@ -78,9 +85,16 @@ public class ReportWebSocket {
         public void run() {
             while (stopMe) {
                 try {
-                    LoadTestReport report = reportService.getReport(reportId);
-                    if (report == null || StringUtils.equalsAny(report.getStatus(), PerformanceTestStatus.Completed.name(), PerformanceTestStatus.Error.name())) {
+                    LoadTestReportWithBLOBs report = reportService.getReport(reportId);
+                    if (report == null || StringUtils.equalsAny(report.getStatus(), PerformanceTestStatus.Completed.name())) {
                         this.stopMe();
+                        session.close();
+                        break;
+                    }
+                    if (StringUtils.equals(report.getStatus(), PerformanceTestStatus.Error.name())) {
+                        this.stopMe();
+                        session.getBasicRemote().sendText("Error: " + report.getDescription());
+                        performanceTestService.stopErrorTest(reportId);
                         session.close();
                         break;
                     }

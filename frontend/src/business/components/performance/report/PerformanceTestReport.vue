@@ -180,10 +180,7 @@ export default {
       this.multipleSelection = val;
     },
     handleEdit(report) {
-      if (report.status === "Error") {
-        this.$warning(this.$t('report.generation_error'));
-        return false
-      } else if (report.status === "Starting") {
+      if (report.status === "Starting") {
         this.$info(this.$t('report.being_generated'))
         return false
       }
