@@ -776,29 +776,12 @@ public class JmeterDocumentParser implements DocumentParser {
         elementProp.setAttribute("name", "ThreadGroup.main_controller");
         elementProp.setAttribute("elementType", "com.blazemeter.jmeter.control.VirtualUserController");
         threadGroup.appendChild(elementProp);
-        // 持续时长
-        Object durations = context.getProperty("duration");
-        String duration;
-        if (durations instanceof List) {
-            Object o = ((List<?>) durations).get(0);
-            duration = o.toString();
-        } else {
-            duration = durations.toString();
-        }
-        Object rampUps = context.getProperty("RampUp");
-        String rampUp;
-        if (rampUps instanceof List) {
-            Object o = ((List<?>) rampUps).get(0);
-            rampUp = o.toString();
-        } else {
-            rampUp = rampUps.toString();
-        }
-        int realHold = Integer.parseInt(duration) - Integer.parseInt(rampUp);
+
         threadGroup.appendChild(createStringProp(document, "ThreadGroup.on_sample_error", "continue"));
         threadGroup.appendChild(createStringProp(document, "TargetLevel", "2"));
         threadGroup.appendChild(createStringProp(document, "RampUp", "12"));
         threadGroup.appendChild(createStringProp(document, "Steps", "2"));
-        threadGroup.appendChild(createStringProp(document, "Hold", String.valueOf(realHold)));
+        threadGroup.appendChild(createStringProp(document, "Hold", "1"));
         threadGroup.appendChild(createStringProp(document, "LogFilename", ""));
         // bzm - Concurrency Thread Group "Thread Iterations Limit:" 设置为空
 //        threadGroup.appendChild(createStringProp(document, "Iterations", "1"));

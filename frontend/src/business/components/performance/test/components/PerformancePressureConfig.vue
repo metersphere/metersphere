@@ -100,6 +100,7 @@ const STEPS = "Steps";
 const DURATION = "duration";
 const RPS_LIMIT = "rpsLimit";
 const RPS_LIMIT_ENABLE = "rpsLimitEnable";
+const HOLD = "Hold";
 
 export default {
   name: "PerformancePressureConfig",
@@ -472,6 +473,7 @@ export default {
           {key: DURATION, value: this.threadGroups[i].duration},
           {key: RPS_LIMIT, value: this.threadGroups[i].rpsLimit},
           {key: RPS_LIMIT_ENABLE, value: this.threadGroups[i].rpsLimitEnable},
+          {key: HOLD, value: this.threadGroups[i].duration - this.threadGroups[i].rampUpTime},
         ]);
       }
       return result;
