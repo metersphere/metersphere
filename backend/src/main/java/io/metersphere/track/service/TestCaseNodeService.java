@@ -191,17 +191,19 @@ public class TestCaseNodeService {
      * 获取当前计划下
      * 有关联数据的节点
      *
-     * @param planId
-     * @return
+     * @param planId plan id
+     * @return List<TestCaseNodeDTO>
      */
     public List<TestCaseNodeDTO> getNodeByPlanId(String planId) {
 
         List<TestCaseNodeDTO> list = new ArrayList<>();
         List<String> projectIds = testPlanProjectService.getProjectIdsByPlanId(planId);
         projectIds.forEach(id -> {
-            String name = projectMapper.selectByPrimaryKey(id).getName();
+            Project project = projectMapper.selectByPrimaryKey(id);
+            String name = project.getName();
             List<TestCaseNodeDTO> nodeList = getNodeDTO(id, planId);
             TestCaseNodeDTO testCaseNodeDTO = new TestCaseNodeDTO();
+            testCaseNodeDTO.setId(project.getId());
             testCaseNodeDTO.setName(name);
             testCaseNodeDTO.setLabel(name);
             testCaseNodeDTO.setChildren(nodeList);
