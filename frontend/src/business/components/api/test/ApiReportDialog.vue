@@ -22,46 +22,57 @@
         </template>
       </el-table-column>
     </el-table>
+    <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                         :total="total"/>
   </el-dialog>
 </template>
 
 <script>
-  import MsApiReportStatus from "../report/ApiReportStatus";
+import MsApiReportStatus from "../report/ApiReportStatus";
+import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 
-  export default {
-    name: "MsApiReportDialog",
+export default {
+  name: "MsApiReportDialog",
 
-    components: {MsApiReportStatus},
+  components: {MsApiReportStatus, MsTablePagination},
 
-    props: ["testId"],
+  props: ["testId"],
 
-    data() {
-      return {
-        reportVisible: false,
-        result: {},
-        tableData: [],
-        loading: false
-      }
+  data() {
+    return {
+      reportVisible: false,
+      result: {},
+      tableData: [],
+      loading: false,
+      currentPage: 1,
+      pageSize: 5,
+      total: 0,
+    }
+  },
+
+  methods: {
+    open() {
+      this.reportVisible = true;
+
+      this.search();
     },
+    link(row) {
+      this.reportVisible = false;
 
-    methods: {
-      open() {
-        this.reportVisible = true;
-
-        let url = "/api/report/list/" + this.testId;
-        this.result = this.$get(url, response => {
-          this.tableData = response.data;
-        });
-      },
-      link(row) {
-        this.reportVisible = false;
-
-        this.$router.push({
-          path: '/api/report/view/' + row.id,
-        })
-      }
+      this.$router.push({
+        path: '/api/report/view/' + row.id,
+      })
     },
-  }
+    search() {
+      let url = "/api/report/list/" + this.testId + "/" + this.currentPage + "/" + this.pageSize;
+      this.result = this.$get(url, response => {
+        let data = response.data;
+        this.total = data.itemCount;
+        this.tableData = data.listObject;
+      });
+    },
+  },
+}
 </script>
 
 <style scoped>
