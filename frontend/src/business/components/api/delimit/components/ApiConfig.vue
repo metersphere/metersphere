@@ -1,6 +1,7 @@
 <template>
 
   <div class="card-container">
+    <!-- HTTP 请求参数 -->
     <ms-add-complete-http-api @runTest="runTest" @saveApi="saveApi" :httpData="currentApi" :test="test"
                               :moduleOptions="moduleOptions" :currentProject="currentProject"
                               v-if="reqType === 'HTTP'"></ms-add-complete-http-api>
@@ -10,7 +11,7 @@
 <script>
   import MsAddCompleteHttpApi from "./complete/AddCompleteHttpApi";
   import {RequestFactory, Test} from "../model/ScenarioModel";
-  import {downloadFile, getUUID} from "@/common/js/utils";
+  import {getUUID} from "@/common/js/utils";
 
   export default {
     name: "ApiConfig",
@@ -18,8 +19,8 @@
     data() {
       return {
         reqType: RequestFactory.TYPES.HTTP,
+        reqUrl: "",
         test: new Test(),
-        postUrl: "",
       }
     },
     props: {
@@ -28,30 +29,44 @@
       currentProject: {},
     },
     created() {
+      this.test = new Test({
+        request: this.currentApi.request != null ? new RequestFactory(JSON.parse(this.currentApi.request)) : null
+      });
       if (this.currentApi != null && this.currentApi.id != null) {
-        let item = this.currentApi;
-        this.test = new Test({
-          id: item.id,
-          projectId: item.projectId,
-          name: item.name,
-          status: item.status,
-          path: item.path,
-          request: new RequestFactory(JSON.parse(item.request)),
-        });
-        this.postUrl = "/api/delimit/update";
+        this.reqUrl = "/api/delimit/update";
       } else {
-        this.test = new Test();
-        this.postUrl = "/api/delimit/create";
+        this.reqUrl = "/api/delimit/create";
+        this.currentApi.id = getUUID().substring(0, 8);
       }
     },
     methods: {
       runTest(data) {
-        this.$emit('runTest', data);
+        if (this.editApi(data) === true) {
+          this.$emit('runTest', data);
+        }
       },
-      getBodyUploadFiles() {
+      saveApi(data) {
+        if (this.editApi(data) === true) {
+          this.$emit('saveApi', data);
+        }
+      },
+      editApi(data) {
+        data.projectId = this.currentProject.id;
+        data.request = data.test.request;
+        let bodyFiles = this.getBodyUploadFiles(data);
+        let jmx = data.test.toJMX();
+        let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
+        let file = new File([blob], jmx.name);
+        this.$fileUpload(this.reqUrl, file, bodyFiles, data, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.reqUrl = "/api/delimit/update";
+          return true;
+        });
+      },
+      getBodyUploadFiles(data) {
         let bodyUploadFiles = [];
-        this.test.bodyUploadIds = [];
-        let request = this.test.request;
+        data.bodyUploadIds = [];
+        let request = data.request;
         if (request.body) {
           request.body.kvs.forEach(param => {
             if (param.files) {
@@ -60,7 +75,7 @@
                   let fileId = getUUID().substring(0, 8);
                   item.name = item.file.name;
                   item.id = fileId;
-                  this.test.bodyUploadIds.push(fileId);
+                  data.bodyUploadIds.push(fileId);
                   bodyUploadFiles.push(item.file);
                 }
               });
@@ -69,18 +84,6 @@
         }
         return bodyUploadFiles;
       },
-      saveApi(data) {
-        this.test = data;
-        let bodyFiles = this.getBodyUploadFiles();
-        let jmx = this.test.toJMX();
-        let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
-        let file = new File([blob], jmx.name);
-        this.$fileUpload(this.postUrl, file, bodyFiles, this.test, () => {
-          this.$success(this.$t('commons.save_success'));
-          this.$emit('saveApi', this.test);
-          this.postUrl = "/api/delimit/update";
-        });
-      }
     }
   }
 </script>

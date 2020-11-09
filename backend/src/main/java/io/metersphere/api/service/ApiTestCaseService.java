@@ -5,6 +5,7 @@ import io.metersphere.api.dto.delimit.ApiTestCaseRequest;
 import io.metersphere.api.dto.delimit.ApiTestCaseResult;
 import io.metersphere.api.dto.delimit.SaveApiTestCaseRequest;
 import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.ApiDelimitExecResultMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.ApiTestFileMapper;
 import io.metersphere.commons.exception.MSException;
@@ -38,6 +39,8 @@ public class ApiTestCaseService {
     private ApiTestFileMapper apiTestFileMapper;
     @Resource
     private FileService fileService;
+    @Resource
+    private ApiDelimitExecResultMapper apiDelimitExecResultMapper;
 
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
@@ -110,7 +113,7 @@ public class ApiTestCaseService {
 
     public void delete(String testId) {
         deleteFileByTestId(testId);
-        //apiReportService.deleteByTestId(testId);
+        apiDelimitExecResultMapper.deleteByResourceId(testId);
         apiTestCaseMapper.deleteByPrimaryKey(testId);
         deleteBodyFiles(testId);
     }

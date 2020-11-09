@@ -1,17 +1,17 @@
 <template>
 
   <div class="card-container">
-    <el-card class="card-content" v-loading="result.loading">
+    <el-card class="card-content">
 
-      <el-form :model="httpForm" :rules="rule" ref="httpForm" :inline="true" :label-position="labelPosition">
+      <el-form :model="apiData" ref="apiData" :inline="true" label-position="right">
         <div style="font-size: 16px;color: #333333">{{$t('test_track.plan_view.base_info')}}</div>
         <br/>
 
         <el-form-item :label="$t('api_report.request')" prop="responsible">
 
-          <el-input :placeholder="$t('api_test.delimit.request.path_info')" v-model="httpForm.request"
-                    class="ms-http-input" size="small">
-            <el-select v-model="reqValue" slot="prepend" style="width: 100px">
+          <el-input :placeholder="$t('api_test.delimit.request.path_info')" v-model="url"
+                    class="ms-http-input" size="small" :disabled="false">
+            <el-select v-model="path" slot="prepend" style="width: 100px">
               <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
             </el-select>
           </el-input>
@@ -33,13 +33,13 @@
 
         </el-form-item>
 
-        <div style="font-size: 16px;color: #333333;padding-top: 30px">请求参数</div>
+        <div style="font-size: 16px;color: #333333;padding-top: 30px">{{$t('api_test.delimit.request.req_param')}}</div>
         <br/>
         <!-- HTTP 请求参数 -->
-        <ms-api-request-form :debug-report-id="debugReportId" :request="selected" :scenario="currentScenario"/>
+        <ms-api-request-form :request="apiData.request"/>
 
       </el-form>
-      <div style="font-size: 16px;color: #333333 ;padding-top: 30px">响应内容</div>
+      <div style="font-size: 16px;color: #333333 ;padding-top: 30px">{{$t('api_test.delimit.request.res_param')}}</div>
       <br/>
       <ms-response-text :response="responseData"></ms-response-text>
 
@@ -47,7 +47,7 @@
 
     <!-- 加载用例 -->
     <ms-bottom-container v-bind:enableAsideHidden="isHide">
-      <ms-api-case-list @apiCaseClose="apiCaseClose" :api="httpForm"></ms-api-case-list>
+      <ms-api-case-list @apiCaseClose="apiCaseClose" @selectTestCase="selectTestCase" :api="apiData" ref="caseList"/>
     </ms-bottom-container>
 
   </div>
@@ -55,69 +55,121 @@
 
 <script>
   import MsApiRequestForm from "../request/ApiRequestForm";
-  import {Request, Scenario} from "../../model/ScenarioModel";
+  import {downloadFile, getUUID} from "@/common/js/utils";
   import MsResponseText from "../../../report/components/ResponseText";
   import MsApiCaseList from "../ApiCaseList";
   import MsContainer from "../../../../common/components/MsContainer";
   import MsBottomContainer from "../BottomContainer";
+  import {RequestFactory, Test} from "../../model/ScenarioModel";
+  import {REQ_METHOD} from "../../model/JsonData";
 
   export default {
     name: "ApiConfig",
     components: {MsResponseText, MsApiRequestForm, MsApiCaseList, MsContainer, MsBottomContainer},
     data() {
       return {
-        result: {},
-        rule: {},
         isHide: true,
-        labelPosition: 'right',
-        httpForm: {},
-        options: [],
-        reqValue: '',
-        debugReportId: '',
+        url: '',
+        path: '',
+        currentRequest: {},
         responseData: {},
-        currentScenario: Scenario,
-        selected: [Scenario, Request],
-        reqOptions: [{
-          id: 'GET',
-          label: 'GET'
-        }, {
-          id: 'POST',
-          label: 'POST'
-        }],
-        moduleValue: '',
+        reqOptions: REQ_METHOD,
       }
     },
-    props: {httpData: {},},
+    props: {apiData: {}},
     methods: {
       handleCommand(e) {
         switch (e) {
           case "load_case":
             return this.loadCase();
           case "save_as_case":
-            return "";
+            return this.saveAsCase();
           case "update_api":
-            return "update_api";
+            return this.updateApi();
           case "save_as_api":
-            return "save_as_api";
+            return this.saveAsApi();
           default:
             return [];
         }
       },
       saveAs() {
-        this.$emit('saveAs', this.httpForm);
+        this.$emit('saveAs', this.apiData);
       },
       loadCase() {
-        console.log(this.httpForm)
         this.isHide = false;
       },
       apiCaseClose() {
         this.isHide = true;
+      },
+      getBodyUploadFiles() {
+        let bodyUploadFiles = [];
+        this.apiData.bodyUploadIds = [];
+        let request = this.apiData.request;
+        if (request.body) {
+          request.body.kvs.forEach(param => {
+            if (param.files) {
+              param.files.forEach(item => {
+                if (item.file) {
+                  let fileId = getUUID().substring(0, 8);
+                  item.name = item.file.name;
+                  item.id = fileId;
+                  this.apiData.bodyUploadIds.push(fileId);
+                  bodyUploadFiles.push(item.file);
+                }
+              });
+            }
+          });
+        }
+        return bodyUploadFiles;
+      },
+      saveAsCase() {
+        let testCase = {};
+        let test = new Test();
+        test.request = this.apiData.request;
+        testCase.test = test;
+        testCase.request = this.apiData.request;
+        testCase.name = this.apiData.name;
+        testCase.priority = "P0";
+        this.$refs.caseList.saveTestCase(testCase);
+      },
+      saveAsApi() {
+        let data = {};
+        data.request = JSON.stringify(this.apiData.request);
+        data.path = this.apiData.path;
+        data.url = this.apiData.url;
+        data.status = this.apiData.status;
+        data.userId = this.apiData.userId;
+        data.description = this.apiData.description;
+        this.$emit('saveAsApi', data);
+      },
+      editApi(url) {
+        this.apiData.url = this.url;
+        this.apiData.path = this.path;
+        let bodyFiles = this.getBodyUploadFiles();
+        let jmx = this.apiData.test.toJMX();
+        let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
+        let file = new File([blob], jmx.name);
+        this.$fileUpload(url, file, bodyFiles, this.apiData, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.$emit('saveApi', this.apiData);
+        });
+      },
+      updateApi() {
+        let url = "/api/delimit/update";
+        this.editApi(url);
+      },
+      selectTestCase(item) {
+        if (item != null) {
+          this.apiData.request = new RequestFactory(JSON.parse(item.request));
+        } else {
+          this.apiData.request = this.currentRequest;
+        }
       }
     },
-    watch: {
-      httpData(v) {
-        this.httpForm = v;
-      }
+    created() {
+      this.currentRequest = this.apiData.request;
+      this.url = this.apiData.url;
+      this.path = this.apiData.path;
     }
   }
 </script>

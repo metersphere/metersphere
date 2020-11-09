@@ -27,7 +27,7 @@
             </el-col>
             <el-col :span="4">
               <div>
-                <el-select size="small" :placeholder="$t('api_test.delimit.request.grade_info')" v-model="grdValue"
+                <el-select size="small" :placeholder="$t('api_test.delimit.request.grade_info')" v-model="priorityValue"
                            class="ms-api-header-select" @change="getApiTest">
                   <el-option v-for="grd in priority" :key="grd.id" :label="grd.name" :value="grd.id"/>
                 </el-select>
@@ -72,16 +72,15 @@
           </el-row>
         </el-card>
 
-
+        <!-- 环境 -->
         <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
 
       </el-header>
 
-
       <!-- 用例部分 -->
       <el-main>
         <div v-for="(item,index) in apiCaseList" :key="index">
-          <el-card style="margin-top: 10px">
+          <el-card style="margin-top: 10px" @click.native="selectTestCase(item,$event)">
             <el-row>
               <el-col :span="5">
 
@@ -100,8 +99,7 @@
                    @click="active(item)"/>
                 <el-input v-if="item.type==='create'" size="small" v-model="item.name" :name="index"
                           :key="index" class="ms-api-header-select" style="width: 180px"/>
-                {{item.type!= 'create'? item.name : ''}}
-
+                {{item.type!= 'create' ? item.name:''}}
                 <div v-if="item.type!='create'" style="color: #999999;font-size: 12px">
                   <span> {{item.createTime | timestampFormatDate }}</span> {{item.createUser}} 创建
                   <span> {{item.updateTime | timestampFormatDate }}</span> {{item.updateUser}} 更新
@@ -128,8 +126,7 @@
             <!-- 请求参数-->
             <el-collapse-transition>
               <div v-if="item.active">
-                <ms-api-request-form :is-read-only="isReadOnly" :debug-report-id="debugReportId" @runDebug="runDebug"
-                                     :request="item.test.request"/>
+                <ms-api-request-form :is-read-only="isReadOnly" :request="item.test.request"/>
                 <!-- 保存操作 -->
                 <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(item)">
                   {{$t('commons.save')}}
@@ -153,6 +150,7 @@
   import {downloadFile, getUUID} from "@/common/js/utils";
   import {parseEnvironment} from "../model/EnvironmentModel";
   import ApiEnvironmentConfig from "../../test/components/ApiEnvironmentConfig";
+  import {PRIORITY} from "../model/JsonData";
 
   export default {
     name: 'ApiCaseList',
@@ -173,18 +171,12 @@
         grades: [],
         environments: [],
         envValue: {},
-        grdValue: "",
-        value: "",
-        isReadOnly: false,
         name: "",
-        priority: [
-          {name: 'P0', id: 'P0'},
-          {name: 'P1', id: 'P1'},
-          {name: 'P2', id: 'P2'},
-          {name: 'P3', id: 'P3'}
-        ],
+        priorityValue: "",
+        isReadOnly: false,
+        selectedEvent: Object,
+        priority: PRIORITY,
         apiCaseList: [],
-        debugReportId: ''
       }
     },
 
@@ -197,16 +189,10 @@
         this.getEnvironments();
       }
     },
+    created() {
+      this.getApiTest();
+    },
     methods: {
-      getRequest(request) {
-        if (request === undefined || request === null) {
-          this.test = new Test();
-          this.test.request.environment = this.envValue;
-          return this.test.request;
-        } else {
-          return new RequestFactory(JSON.parse(request));
-        }
-      },
       getResult(data) {
         if (data === 'PASS') {
           return '执行结果：通过';
@@ -250,9 +236,6 @@
         };
         this.apiCaseList.push(obj);
       },
-      runDebug() {
-
-      },
       active(item) {
         item.active = !item.active;
       },
@@ -281,9 +264,9 @@
         let condition = {};
         condition.projectId = this.api.projectId;
         condition.apiDelimitId = this.api.id;
-        condition.priority = this.grdValue;
+        condition.priority = this.priorityValue;
         condition.name = this.name;
-        this.result = this.$post("/api/testcase/list", condition, response => {
+        this.$post("/api/testcase/list", condition, response => {
           for (let index in response.data) {
             let test = response.data[index];
             test.test = new Test({request: new RequestFactory(JSON.parse(test.request))});
@@ -308,7 +291,6 @@
         row.projectId = this.api.projectId;
         row.apiDelimitId = this.api.id;
         row.request = row.test.request;
-
         let jmx = row.test.toJMX();
         let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
         let file = new File([blob], jmx.name);
@@ -323,7 +305,7 @@
       },
       getEnvironments() {
         if (this.currentProject) {
-          this.result = this.$get('/api/environment/list/' + this.currentProject.id, response => {
+          this.$get('/api/environment/list/' + this.currentProject.id, response => {
             this.environments = response.data;
             this.environments.forEach(environment => {
               parseEnvironment(environment);
@@ -363,6 +345,23 @@
       },
       environmentConfigClose() {
         this.getEnvironments();
+      },
+      selectTestCase(item, $event) {
+        if (item.type === "create") {
+          return;
+        }
+        if ($event.currentTarget.className.indexOf('is-selected') > 0) {
+          $event.currentTarget.className = "el-card is-always-shadow";
+          this.$emit('selectTestCase', null);
+        } else {
+          if (this.selectedEvent.currentTarget != undefined) {
+            this.selectedEvent.currentTarget.className = "el-card is-always-shadow";
+          }
+          this.selectedEvent.currentTarget = $event.currentTarget;
+          $event.currentTarget.className = "el-card is-always-shadow is-selected";
+          this.$emit('selectTestCase', item);
+        }
+
       }
     }
   }
@@ -412,5 +411,9 @@
 
   .icon.is-active {
     transform: rotate(90deg);
+  }
+
+  .is-selected {
+    background: #EFF7FF;
   }
 </style>

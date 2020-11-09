@@ -6,7 +6,7 @@
       <el-form :model="httpForm" :rules="rule" ref="httpForm" :inline="true" label-position="right">
         <div style="float: right;margin-right: 20px">
           <el-button type="primary" size="small" @click="saveApi">{{$t('commons.save')}}</el-button>
-          <el-button type="primary" size="small" @click="runTest(httpForm)">{{$t('commons.test')}}</el-button>
+          <el-button type="primary" size="small" @click="runTest">{{$t('commons.test')}}</el-button>
         </div>
         <br/>
         <div style="font-size: 16px;color: #333333">{{$t('test_track.plan_view.base_info')}}</div>
@@ -60,13 +60,13 @@
         </el-form-item>
 
 
-        <div style="font-size: 16px;color: #333333;padding-top: 30px">请求参数</div>
+        <div style="font-size: 16px;color: #333333;padding-top: 30px">{{$t('api_test.delimit.request.req_param')}}</div>
         <br/>
         <!-- HTTP 请求参数 -->
-        <ms-api-request-form :debug-report-id="debugReportId" :request="this.test.request"/>
+        <ms-api-request-form :request="test.request"/>
 
       </el-form>
-      <div style="font-size: 16px;color: #333333 ;padding-top: 30px">响应模版</div>
+      <div style="font-size: 16px;color: #333333 ;padding-top: 30px">{{$t('api_test.delimit.request.res_param')}}</div>
       <br/>
       <ms-response-text :response="responseData"></ms-response-text>
     </el-card>
@@ -77,7 +77,7 @@
   import MsApiRequestForm from "../request/ApiRequestForm";
   import MsResponseText from "../../../report/components/ResponseText";
   import {WORKSPACE_ID} from '../../../../../../common/js/constants';
-  import {Scenario, KeyValue, Test} from "../../model/ScenarioModel"
+  import {REQ_METHOD, API_STATUS} from "../../model/JsonData";
 
   export default {
     name: "MsAddCompleteHttpApi",
@@ -95,37 +95,28 @@
           status: [{required: true, message: this.$t('commons.please_select'), trigger: 'change'}],
         },
         httpForm: {},
-        reqValue: '',
-        debugReportId: '',
         maintainerOptions: [],
         responseData: {},
-        currentScenario: new Scenario(),
         currentModule: {},
-        postUrl: "",
-        reqOptions: [{
-          id: 'GET',
-          label: 'GET'
-        }, {
-          id: 'POST',
-          label: 'POST'
-        }],
-        options: [{
-          id: 'Prepare',
-          label: '未开始'
-        }, {
-          id: 'Underway',
-          label: '进行中'
-        }, {
-          id: 'Completed',
-          label: '已完成'
-        }],
-
+        reqOptions: REQ_METHOD,
+        options: API_STATUS
       }
     },
     props: {httpData: {}, moduleOptions: {}, currentProject: {}, test: {}},
     methods: {
-      runTest(data) {
-        this.$emit('runTest', data);
+      runTest() {
+        if (this.currentProject === null) {
+          this.$error(this.$t('api_test.select_project'));
+          return;
+        }
+        this.$refs['httpForm'].validate((valid) => {
+          if (valid) {
+            this.setParameter();
+            this.$emit('runTest', this.httpForm);
+          } else {
+            return false;
+          }
+        })
       },
       getMaintainerOptions() {
         let workspaceId = localStorage.getItem(WORKSPACE_ID);
@@ -133,35 +124,26 @@
           this.maintainerOptions = response.data;
         });
       },
+      setParameter() {
+        this.httpForm.test = this.test;
+        this.httpForm.test.request.url = this.httpForm.url;
+        this.httpForm.test.request.path = this.httpForm.path;
+        this.httpForm.modulePath = this.getPath(this.httpForm.moduleId);
+      },
       saveApi() {
         if (this.currentProject === null) {
           this.$error(this.$t('api_test.select_project'), 2000);
           return;
         }
         this.$refs['httpForm'].validate((valid) => {
-            if (valid) {
-              this.test.name = this.httpForm.name;
-              this.test.path = this.httpForm.path;
-              this.test.url = this.httpForm.url;
-              this.test.userId = this.httpForm.userId;
-              this.test.description = this.httpForm.description;
-              this.test.status = this.httpForm.status;
-              this.test.moduleId = this.httpForm.moduleId;
-              this.test.projectId = this.currentProject.id;
-              this.test.modulePath = this.getPath(this.httpForm.moduleId);
-
-              this.test.bodyUploadIds = [];
-              this.test.request.url = this.httpForm.url;
-              this.test.request.path = this.httpForm.path;
-
-              console.log(this.httpForm)
-              this.$emit('saveApi', this.test);
-            }
-            else {
-              return false;
-            }
+          if (valid) {
+            this.setParameter();
+            this.$emit('saveApi', this.httpForm);
           }
-        )
+          else {
+            return false;
+          }
+        })
       },
       getPath(id) {
         if (id === null) {

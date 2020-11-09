@@ -260,7 +260,7 @@
                 request = #{request,jdbcType=LONGVARCHAR},
             </if>
             <if test="response != null">
-                request = #{response,jdbcType=LONGVARCHAR},
+                response = #{response,jdbcType=LONGVARCHAR},
             </if>
 
         </set>

@@ -6,6 +6,7 @@ import io.metersphere.api.dto.delimit.ApiDelimitRequest;
 import io.metersphere.api.dto.delimit.ApiDelimitResult;
 import io.metersphere.api.dto.delimit.SaveApiDelimitRequest;
 import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.ApiDelimitExecResultMapper;
 import io.metersphere.base.mapper.ApiDelimitMapper;
 import io.metersphere.base.mapper.ApiTestFileMapper;
 import io.metersphere.commons.constants.APITestStatus;
@@ -43,6 +44,8 @@ public class ApiDelimitService {
     private FileService fileService;
     @Resource
     private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private ApiDelimitExecResultMapper apiDelimitExecResultMapper;
 
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
@@ -134,10 +137,18 @@ public class ApiDelimitService {
     public void delete(String apiId) {
         apiTestCaseService.checkIsRelateTest(apiId);
         deleteFileByTestId(apiId);
-        //apiReportService.deleteByTestId(apiId);
+        apiDelimitExecResultMapper.deleteByResourceId(apiId);
         apiDelimitMapper.deleteByPrimaryKey(apiId);
         deleteBodyFiles(apiId);
     }
+
+    public void deleteBatch(List<String> apiIds) {
+        // 简单处理后续优化
+        apiIds.forEach(item -> {
+            delete(item);
+        });
+    }
+
 
     public void deleteBodyFiles(String apiId) {
         File file = new File(BODY_FILE_DIR + "/" + apiId);
@@ -149,9 +160,9 @@ public class ApiDelimitService {
 
     private void checkNameExist(SaveApiDelimitRequest request) {
         ApiDelimitExample example = new ApiDelimitExample();
-        example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
+        example.createCriteria().andUrlEqualTo(request.getUrl()).andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
         if (apiDelimitMapper.countByExample(example) > 0) {
-            MSException.throwException(Translator.get("load_test_already_exists"));
+            MSException.throwException(Translator.get("api_delimit_url_not_repeating"));
         }
     }
 

@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="result.loading">
+  <div>
     <select-menu
       :data="projects"
       :current-data="currentProject"
@@ -49,7 +49,7 @@
 
           <span class="node-operate child">
             <el-tooltip
-              v-if="data.id!='rootID'"
+              v-if="data.id!='root'"
               class="item"
               effect="dark"
               :open-delay="200"
@@ -68,7 +68,7 @@
             </el-tooltip>
 
              <el-tooltip
-               v-if="data.id!='rootID'"
+               v-if="data.id!='root'"
                class="item"
                effect="dark"
                :open-delay="200"
@@ -89,6 +89,7 @@
 <script>
   import MsAddBasisHttpApi from "./basis/AddBasisHttpApi";
   import SelectMenu from "../../../track/common/SelectMenu";
+  import {OPTIONS, DEFAULT_DATA} from "../model/JsonData";
 
   export default {
     name: 'MsApiModule',
@@ -98,35 +99,15 @@
     },
     data() {
       return {
-        options: [{
-          value: 'HTTP',
-          name: 'HTTP'
-        }, {
-          value: 'DUBBO',
-          name: 'DUBBO'
-        }, {
-          value: 'TCP',
-          name: 'TCP'
-        }, {
-          value: 'SQL',
-          name: 'SQL'
-        }],
-        value: 'HTTP',
+        options: OPTIONS,
+        value: OPTIONS[0].value,
         httpVisible: false,
         expandedNode: [],
-        result: {},
         filterText: "",
         nextFlag: true,
         currentProject: {},
         projects: [],
-        data: [
-          {
-            "id": "rootID",
-            "name": "默认模块",
-            "level": 0,
-            "children": [],
-          }
-        ],
+        data: DEFAULT_DATA,
         currentModule: {},
         newLabel: ""
       }
@@ -146,7 +127,7 @@
     methods: {
       getApiModuleTree() {
         if (this.currentProject) {
-          this.result = this.$get("/api/module/list/" + this.currentProject.id + "/" + this.value, response => {
+          this.$get("/api/module/list/" + this.currentProject.id + "/" + this.value, response => {
             if (response.data != undefined && response.data != null) {
               this.data[0].children = response.data;
               let moduleOptions = [];
@@ -220,7 +201,7 @@
         param.nodeIds = nodeIds;
         return param;
       },
-      getNodeTree(nodes, id, list) {
+      getTreeNode(nodes, id, list) {
         if (!nodes) {
           return;
         }
@@ -232,21 +213,21 @@
             return;
           }
           if (nodes[i].children) {
-            this.getNodeTree(nodes[i].children, id, list);
+            this.getTreeNode(nodes[i].children, id, list);
           }
         }
       },
       handleDragEnd(draggingNode, dropNode, dropType, ev) {
-        if (dropNode.data.id === "rootID" || dropType === "none" || dropType === undefined) {
+        if (dropNode.data.id === "root" || dropType === "none" || dropType === undefined) {
           return;
         }
         let param = this.buildParam(draggingNode, dropNode, dropType);
 
         this.list = [];
-        if (param.parentId === "rootID") {
+        if (param.parentId === "root") {
           param.parentId = null;
         }
-        this.getNodeTree(this.data, draggingNode.data.id, this.list);
+        this.getTreeNode(this.data, draggingNode.data.id, this.list);
 
         this.$post("/api/module/drag", param, () => {
           this.getApiGroupData();
@@ -256,7 +237,7 @@
       },
 
       allowDrop(draggingNode, dropNode, type) {
-        if (dropNode.data.id === "rootID") {
+        if (dropNode.data.id === "root") {
           return false
         } else {
           return true
@@ -264,13 +245,12 @@
       },
       allowDrag(draggingNode) {
         // 顶层默认分组不允许拖拽
-        if (draggingNode.data.id === "rootID") {
+        if (draggingNode.data.id === "root") {
           return false
         } else {
           return true
         }
       },
-
       append(node, data) {
         if (this.nextFlag === true) {
           const newChild = {
@@ -311,7 +291,6 @@
         this.$set(data, 'isEdit', 1)
         this.newLabel = data.name
         this.$nextTick(() => {
-          //this.$refs.input.focus();
         })
       },
 
@@ -355,7 +334,7 @@
         if (data.id === "newId") {
           url = '/api/module/add';
           data.level = 1;
-          if (node.parent && node.parent.key != "rootID") {
+          if (node.parent && node.parent.key != "root") {
             data.parentId = node.parent.key;
             data.level = node.parent.level;
           }
@@ -377,7 +356,7 @@
       },
 
       selectModule(data) {
-        if (data.id != "rootID") {
+        if (data.id != "root") {
           if (data.path != undefined && !data.path.startsWith("/")) {
             data.path = "/" + data.path;
           }

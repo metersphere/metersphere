@@ -499,7 +499,10 @@ export default {
         verification_method: "认证方式",
         verified: "认证",
         encryption: "加密",
-
+        req_param: "请求参数",
+        res_param: "响应模版",
+        batch_delete: "批量删除",
+        delete_confirm: "确认删除接口",
       }
     },
     environment: {

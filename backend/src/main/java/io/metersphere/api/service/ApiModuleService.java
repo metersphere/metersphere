@@ -207,7 +207,7 @@ public class ApiModuleService {
         if (level > 8) {
             MSException.throwException(Translator.get("node_deep_limit"));
         }
-        if (rootNode.getId().equals("rootID")) {
+        if (rootNode.getId().equals("root")) {
             rootPath = "";
         }
         ApiModule apiDelimitNode = new ApiModule();

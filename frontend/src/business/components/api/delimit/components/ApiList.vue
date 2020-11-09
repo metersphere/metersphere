@@ -1,42 +1,34 @@
 <template>
 
   <div class="card-container">
-    <el-card class="card-content" v-loading="result.loading">
-
+    <el-card class="card-content">
       <template v-slot:header>
-        <ms-table-header :showCreate="false" :condition.sync="condition"
-                         @search="search"
+        <ms-table-header :showCreate="false" :condition.sync="condition" @search="search"
                          :title="$t('api_test.delimit.api_title')"/>
       </template>
-      <el-table
-        border
-        :data="tableData"
-        row-key="id"
-        class="test-content adjust-table">
+      <el-table border :data="tableData" row-key="id" class="test-content adjust-table"
+                @select-all="handleSelectAll"
+                @select="handleSelect">
+        <el-table-column type="selection"/>
+        <el-table-column width="40" :resizable="false" align="center">
+          <template v-slot:default="scope">
+            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>
+          </template>
+        </el-table-column>
 
-        <el-table-column
-          prop="name"
-          :label="$t('api_test.delimit.api_name')"
-          show-overflow-tooltip/>
-
+        <el-table-column prop="name" :label="$t('api_test.delimit.api_name')" show-overflow-tooltip/>
         <el-table-column
           prop="status"
           column-key="api_status"
           :label="$t('api_test.delimit.api_status')"
           show-overflow-tooltip>
           <template v-slot:default="scope">
-          <span class="el-dropdown-link">
-           <template>
-              <div>
-                <ms-tag v-if="scope.row.status == 'Prepare'" type="info"
-                        :content="$t('test_track.plan.plan_status_prepare')"/>
-                <ms-tag v-if="scope.row.status == 'Underway'" type="primary"
-                        :content="$t('test_track.plan.plan_status_running')"/>
-                <ms-tag v-if="scope.row.status == 'Completed'" type="success"
-                        :content="$t('test_track.plan.plan_status_completed')"/>
-              </div>
-          </template>
-          </span>
+            <ms-tag v-if="scope.row.status == 'Prepare'" type="info"
+                    :content="$t('test_track.plan.plan_status_prepare')"/>
+            <ms-tag v-if="scope.row.status == 'Underway'" type="primary"
+                    :content="$t('test_track.plan.plan_status_running')"/>
+            <ms-tag v-if="scope.row.status == 'Completed'" type="success"
+                    :content="$t('test_track.plan.plan_status_completed')"/>
           </template>
         </el-table-column>
 
@@ -44,17 +36,12 @@
           prop="path"
           :label="$t('api_test.delimit.api_type')"
           show-overflow-tooltip>
-          <template v-slot:default="scope">
-          <span class="el-dropdown-link">
-           <template>
-             <div class="request-method">
-                 <el-tag size="mini"
-                         :style="{'background-color': getColor(true, scope.row.path)}" class="api-el-tag"> {{ scope.row.path }}</el-tag>
-            </div>
+          <template v-slot:default="scope" class="request-method">
+            <el-tag size="mini"
+                    :style="{'background-color': getColor(true, scope.row.path)}" class="api-el-tag"> {{ scope.row.path
+              }}
+            </el-tag>
           </template>
-          </span>
-          </template>
-
         </el-table-column>
 
         <el-table-column
@@ -99,7 +86,7 @@
         </el-table-column>
       </el-table>
 
-      <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
+      <ms-table-pagination :change="initApiTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
 
     </el-card>
@@ -123,7 +110,8 @@
   import MsApiCaseList from "./ApiCaseList";
   import MsContainer from "../../../common/components/MsContainer";
   import MsBottomContainer from "./BottomContainer";
-  import {Message} from "element-ui";
+  import ShowMoreBtn from "../../../../components/track/case/components/ShowMoreBtn";
+  import {API_METHOD_COLOUR} from "../model/JsonData";
 
   export default {
     name: "ApiList",
@@ -136,22 +124,19 @@
       MsTag,
       MsApiCaseList,
       MsContainer,
-      MsBottomContainer
+      MsBottomContainer,
+      ShowMoreBtn
     },
     data() {
       return {
-        result: {},
         condition: {},
         isHide: true,
         selectApi: {},
         moduleId: "",
         deletePath: "/test/case/delete",
-        methodColorMap: new Map([
-          ['GET', "#61AFFE"], ['POST', '#49CC90'], ['PUT', '#fca130'],
-          ['PATCH', '#E2EE11'], ['DELETE', '#f93e3d'], ['OPTIONS', '#0EF5DA'],
-          ['HEAD', '#8E58E7'], ['CONNECT', '#90AFAE'],
-          ['DUBBO', '#C36EEF'], ['SQL', '#0AEAD4'], ['TCP', '#0A52DF'],
-        ]),
+        selectRows: new Set(),
+        buttons: [{name: this.$t('api_test.delimit.request.batch_delete'), handleClick: this.handleDeleteBatch}],
+        methodColorMap: new Map(API_METHOD_COLOUR),
         tableData: [],
         currentPage: 1,
         pageSize: 10,
@@ -159,26 +144,24 @@
       }
     },
     props: {
-      currentProject: {
-        type: Object
-      },
+      currentProject: Object,
       currentModule: Object
     },
     created: function () {
-      this.initTableData();
+      this.initApiTable();
     },
     watch: {
       currentProject() {
-        this.initTableData();
+        this.initApiTable();
       },
       currentModule() {
-        this.initTableData();
+        this.initApiTable();
       }
     },
     methods: {
-      initTableData() {
+      initApiTable() {
         if (this.currentModule != null) {
-          if (this.currentModule.id == "rootID") {
+          if (this.currentModule.id == "root") {
             this.condition.moduleIds = [];
           } else {
             this.condition.moduleIds = this.currentModule.ids;
@@ -192,8 +175,45 @@
           this.tableData = response.data.listObject;
         });
       },
+      handleSelect(selection, row) {
+        if (this.selectRows.has(row)) {
+          this.$set(row, "showMore", false);
+          this.selectRows.delete(row);
+        } else {
+          this.$set(row, "showMore", true);
+          this.selectRows.add(row);
+        }
+
+        let arr = Array.from(this.selectRows);
+
+        // 选中1个以上的用例时显示更多操作
+        if (this.selectRows.size === 1) {
+          this.$set(arr[0], "showMore", false);
+        } else if (this.selectRows.size === 2) {
+          arr.forEach(row => {
+            this.$set(row, "showMore", true);
+          })
+        }
+      },
+      handleSelectAll(selection) {
+        if (selection.length > 0) {
+          if (selection.length === 1) {
+            this.selectRows.add(selection[0]);
+          } else {
+            this.tableData.forEach(item => {
+              this.$set(item, "showMore", true);
+              this.selectRows.add(item);
+            });
+          }
+        } else {
+          this.selectRows.clear();
+          this.tableData.forEach(row => {
+            this.$set(row, "showMore", false);
+          })
+        }
+      },
       search() {
-        this.initTableData();
+        this.initApiTable();
       },
       buildPagePath(path) {
         return path + "/" + this.currentPage + "/" + this.pageSize;
@@ -202,14 +222,29 @@
       editApi(row) {
         this.$emit('editApi', row);
       },
+      handleDeleteBatch() {
+        this.$alert(this.$t('api_test.delimit.request.delete_confirm') + "？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              let ids = Array.from(this.selectRows).map(row => row.id);
+              this.$post('/api/delimit/deleteBatch/', ids, () => {
+                this.selectRows.clear();
+                this.initApiTable();
+                this.$success(this.$t('commons.delete_success'));
+              });
+            }
+          }
+        });
+      },
       handleTestCase(testCase) {
         this.selectApi = testCase;
         this.isHide = false;
       },
       handleDelete(testCase) {
         this.$get('/api/delimit/delete/' + testCase.id, () => {
-          Message.success(this.$t('commons.delete_success'));
-          this.initTableData();
+          this.$success(this.$t('commons.delete_success'));
+          this.initApiTable();
         });
       },
       apiCaseClose() {
@@ -238,5 +273,4 @@
   .api-el-tag {
     color: white;
   }
-
 </style>

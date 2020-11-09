@@ -49,6 +49,11 @@ public class ApiDelimitController {
         apiDelimitService.delete(id);
     }
 
+    @PostMapping("/deleteBatch")
+    public void deleteBatch(@RequestBody List<String> ids) {
+        apiDelimitService.deleteBatch(ids);
+    }
+
     @GetMapping("/get/{id}")
     public ApiDelimit get(@PathVariable String id) {
         return apiDelimitService.get(id);

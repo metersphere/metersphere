@@ -2,8 +2,8 @@
   <ms-container>
 
     <ms-aside-container>
-      <ms-node-tree @selectModule="selectModule" @getApiModuleTree="initTree"
-                    @changeProject="changeProject"></ms-node-tree>
+      <ms-node-tree @selectModule="selectModule" @getApiModuleTree="initTree" @changeProject="changeProject"
+                    @refresh="refresh"/>
     </ms-aside-container>
 
     <ms-main-container>
@@ -16,12 +16,11 @@
           <el-dropdown-item command="closeAll">{{$t('api_test.delimit.request.close_all_label')}}</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
-
-      <el-tabs v-model="editableTabsValue" @edit="handleTabsEdit">
-
+      <!-- 主框架列表 -->
+      <el-tabs v-model="apiDefaultTab" @edit="handleTabsEdit">
         <el-tab-pane
           :key="item.name"
-          v-for="(item) in editableTabs"
+          v-for="(item) in apiTabs"
           :label="item.title"
           :closable="item.closable"
           :name="item.name">
@@ -32,20 +31,23 @@
             :current-module="currentModule"
             @editApi="editApi"
             @handleCase="handleCase"
-            ref="apiList">
-          </ms-api-list>
+            ref="apiList"/>
 
+          <!-- 添加测试窗口-->
           <div v-else-if="item.type=== 'add'">
             <ms-api-config @runTest="runTest" @saveApi="saveApi" :current-api="currentApi"
                            :currentProject="currentProject"
-                           :moduleOptions="moduleOptions" ref="apiConfig"></ms-api-config>
+                           :moduleOptions="moduleOptions" ref="apiConfig"/>
           </div>
+
+          <!-- 快捷调试 -->
           <div v-else-if="item.type=== 'debug'">
-            <ms-debug-http-page @saveAs="saveAs"></ms-debug-http-page>
+            <ms-debug-http-page @saveAs="editApi"/>
           </div>
+
+          <!-- 测试-->
           <div v-else-if="item.type=== 'test'">
-            <!-- 测试-->
-            <ms-run-test-http-page></ms-run-test-http-page>
+            <ms-run-test-http-page :api-data="runTestData" @saveAsApi="editApi"/>
           </div>
         </el-tab-pane>
 
@@ -83,21 +85,16 @@
     comments: {},
     data() {
       return {
-        projectId: null,
         isHide: true,
-        editableTabsValue: '1',
-        tabIndex: 1,
-        result: {},
-        currentPage: 1,
-        pageSize: 5,
-        total: 0,
+        apiDefaultTab: 'default',
         currentProject: null,
         currentModule: null,
         currentApi: {},
         moduleOptions: {},
-        editableTabs: [{
+        runTestData: {},
+        apiTabs: [{
           title: this.$t('api_test.delimit.api_title'),
-          name: '1',
+          name: 'default',
           type: "list",
           closable: false
         }],
@@ -106,21 +103,17 @@
     methods: {
       handleCommand(e) {
         if (e === "add") {
-          this.currentApi = {
-            status: "Underway",
-            path: "GET",
-            userId: getCurrentUser().id,
-          };
+          this.currentApi = {status: "Underway", path: "GET", userId: getCurrentUser().id};
           this.handleTabsEdit(this.$t('api_test.delimit.request.title'), e);
         }
         else if (e === "test") {
           this.handleTabsEdit(this.$t("commons.api"), e);
         }
         else if (e === "closeAll") {
-          let tabs = this.editableTabs[0];
-          this.editableTabs = [];
-          this.editableTabsValue = tabs.name;
-          this.editableTabs.push(tabs);
+          let tabs = this.apiTabs[0];
+          this.apiTabs = [];
+          this.apiDefaultTab = tabs.name;
+          this.apiTabs.push(tabs);
         }
         else {
           this.handleTabsEdit(this.$t('api_test.delimit.request.fast_debug'), "debug");
@@ -128,8 +121,8 @@
       },
       handleTabsEdit(targetName, action) {
         if (action === 'remove') {
-          let tabs = this.editableTabs;
-          let activeName = this.editableTabsValue;
+          let tabs = this.apiTabs;
+          let activeName = this.apiDefaultTab;
           if (activeName === targetName) {
             tabs.forEach((tab, index) => {
               if (tab.name === targetName) {
@@ -140,23 +133,22 @@
               }
             });
           }
-          this.editableTabsValue = activeName;
-          this.editableTabs = tabs.filter(tab => tab.name !== targetName);
+          this.apiDefaultTab = activeName;
+          this.apiTabs = tabs.filter(tab => tab.name !== targetName);
         } else {
           if (targetName === undefined || targetName === null) {
             targetName = this.$t('api_test.delimit.request.title');
           }
           let newTabName = getUUID().substring(0, 8);
-          this.editableTabs.push({
+          this.apiTabs.push({
             title: targetName,
             name: newTabName,
             closable: true,
             type: action
           });
-          this.editableTabsValue = newTabName;
+          this.apiDefaultTab = newTabName;
         }
       },
-
       editApi(row) {
         this.currentApi = row;
         this.handleTabsEdit(row.name, "add");
@@ -172,24 +164,25 @@
         this.currentModule = data;
       },
       refresh(data) {
-        this.$refs.apiList[0].initTableData(data);
+        this.$refs.apiList[0].initApiTable(data);
       },
-      saveAs(data) {
-        this.handleCommand("add");
-      },
-      runTest(data) {
-        this.handleCommand("test");
-      },
-      saveApi(data) {
-        for (let index in this.editableTabs) {
-          let tab = this.editableTabs[index];
-          if (tab.name === this.editableTabsValue) {
+      setTabTitle(data) {
+        for (let index in this.apiTabs) {
+          let tab = this.apiTabs[index];
+          if (tab.name === this.apiDefaultTab) {
             tab.title = data.name;
             break;
           }
         }
+        this.runTestData = data;
+      },
+      runTest(data) {
+        this.setTabTitle(data);
+        this.handleCommand("test");
+      },
+      saveApi(data) {
+        this.setTabTitle(data);
         this.$refs.apiList[0].initTableData(data);
-
       },
       initTree(data) {
         this.moduleOptions = data;

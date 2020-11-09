@@ -498,6 +498,10 @@ export default {
         verification_method: "Verification method",
         verified: "verified",
         encryption: "encryption",
+        req_param: "Request parameter",
+        res_param: "Response template",
+        batch_delete: "Batch deletion",
+        delete_confirm: "confirm deletion",
       }
     },
     environment: {

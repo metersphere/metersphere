@@ -10,7 +10,7 @@
       <el-form-item :label="$t('api_report.request')" prop="url">
         <el-input :placeholder="$t('api_test.delimit.request.path_info')" v-model="httpForm.url"
                   class="ms-http-input" size="small">
-          <el-select v-model="value" slot="prepend" style="width: 100px" size="small">
+          <el-select v-model="httpForm.path" slot="prepend" style="width: 100px" size="small">
             <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id"/>
           </el-select>
         </el-input>
@@ -47,8 +47,10 @@
 
 <script>
   import MsDialogFooter from "../../../../common/components/MsDialogFooter";
-  import {TokenKey, WORKSPACE_ID} from '../../../../../../common/js/constants';
-  import {Scenario, KeyValue, Test} from "../../model/ScenarioModel"
+  import {WORKSPACE_ID} from '../../../../../../common/js/constants';
+  import {Test} from "../../model/ScenarioModel"
+  import {REQ_METHOD} from "../../model/JsonData";
+  import {getCurrentUser} from "../../../../../../common/js/utils";
 
   export default {
     name: "MsAddBasisHttpApi",
@@ -61,7 +63,6 @@
         currentModule: {},
         projectId: "",
         maintainerOptions: [],
-        test: new Test(),
         rule: {
           name: [
             {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
@@ -70,18 +71,9 @@
           url: [{required: true, message: this.$t('api_test.delimit.request.path_info'), trigger: 'blur'}],
           userId: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
         },
-        value: "GET",
-        options: [{
-          id: 'GET',
-          label: 'GET'
-        }, {
-          id: 'POST',
-          label: 'POST'
-        }],
+        value: REQ_METHOD[0].id,
+        options: REQ_METHOD,
       }
-    },
-    created() {
-
     },
     methods: {
       saveApi() {
@@ -89,26 +81,22 @@
           if (valid) {
             let bodyFiles = [];
             let url = "/api/delimit/create";
-            this.test.name = this.httpForm.name;
-            this.test.path = this.value;
-            this.test.url = this.httpForm.url;
-            this.test.userId = this.httpForm.userId;
-            this.test.description = this.httpForm.description;
-            this.test.request.url = this.httpForm.url;
-            this.test.request.path = this.value;
-            this.test.bodyUploadIds = [];
-
-            this.test.projectId = this.projectId;
-
+            let test = new Test();
+            this.httpForm.bodyUploadIds = [];
+            this.httpForm.request = test.request;
+            this.httpForm.request.url = this.httpForm.url;
+            this.httpForm.request.path = this.httpForm.path;
+            this.httpForm.projectId = this.projectId;
+            this.httpForm.id = test.id;
             if (this.currentModule != null) {
-              this.test.modulePath = this.currentModule.path != undefined ? this.currentModule.path : null;
-              this.test.moduleId = this.currentModule.id;
+              this.httpForm.modulePath = this.currentModule.path != undefined ? this.currentModule.path : null;
+              this.httpForm.moduleId = this.currentModule.id;
             }
-            let jmx = this.test.toJMX();
+            let jmx = test.toJMX();
             let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
             let file = new File([blob], jmx.name);
 
-            this.result = this.$fileUpload(url, file, bodyFiles, this.test, () => {
+            this.result = this.$fileUpload(url, file, bodyFiles, this.httpForm, () => {
               this.httpVisible = false;
               this.$parent.refresh(this.currentModule);
             });
@@ -116,36 +104,6 @@
             return false;
           }
         })
-      },
-      urlChange() {
-        if (!this.httpForm.url) return;
-        let url = this.getURL(this.addProtocol(this.httpForm.url));
-        if (url) {
-          this.httpForm.url = decodeURIComponent(url.origin + url.pathname);
-        }
-      }
-      ,
-      getURL(urlStr) {
-        try {
-          let url = new URL(urlStr);
-          url.searchParams.forEach((value, key) => {
-            if (key && value) {
-              this.request.parameters.splice(0, 0, new KeyValue({name: key, value: value}));
-            }
-          });
-          return url;
-        } catch (e) {
-          this.$error(this.$t('api_test.request.url_invalid'), 2000);
-        }
-      }
-      ,
-      addProtocol(url) {
-        if (url) {
-          if (!url.toLowerCase().startsWith("https") && !url.toLowerCase().startsWith("http")) {
-            return "https://" + url;
-          }
-        }
-        return url;
       },
       getMaintainerOptions() {
         let workspaceId = localStorage.getItem(WORKSPACE_ID);
@@ -155,8 +113,7 @@
       }
       ,
       open(currentModule, projectId) {
-        this.httpForm = {};
-        this.test = new Test();
+        this.httpForm = {path: REQ_METHOD[0].id, userId: getCurrentUser().id};
         this.currentModule = currentModule;
         this.projectId = projectId;
         this.getMaintainerOptions();

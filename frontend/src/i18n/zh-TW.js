@@ -499,8 +499,11 @@ export default {
         verification_method: "認證方式",
         verified: "認證",
         encryption: "加密",
+        req_param: "請求參數",
+        res_param: "響應模版",
+        batch_delete: "批量删除",
+        delete_confirm: "確認刪除接口",
       }
-
     },
     environment: {
       name: "環境名稱",
