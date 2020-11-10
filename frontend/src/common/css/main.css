@@ -65,13 +65,13 @@ body {
   background-color: white;
 }
 
-.adjust-table th:hover:after {
+.adjust-table th:not([class*='el-table-column--selection']):hover:after {
   content: '';
   position: absolute;
   top: 25%;
   right: 0;
   height: 50%;
-  width: 3px;
+  width: 2px;
   background-color: #EBEEF5;
 }
 
