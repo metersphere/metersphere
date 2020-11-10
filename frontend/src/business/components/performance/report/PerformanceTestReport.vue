@@ -222,28 +222,13 @@ export default {
         this.$set(row, "showMore", true);
         this.selectRows.add(row);
       }
-
-      let arr = Array.from(this.selectRows);
-
-      // 选中1个以上的用例时显示更多操作
-      if (this.selectRows.size === 1) {
-        this.$set(arr[0], "showMore", false);
-      } else if (this.selectRows.size === 2) {
-        arr.forEach(row => {
-          this.$set(row, "showMore", true);
-        })
-      }
     },
     handleSelectAll(selection) {
       if (selection.length > 0) {
-        if (selection.length === 1) {
-          this.selectRows.add(selection[0]);
-        } else {
-          this.tableData.forEach(item => {
-            this.$set(item, "showMore", true);
-            this.selectRows.add(item);
-          });
-        }
+        this.tableData.forEach(item => {
+          this.$set(item, "showMore", true);
+          this.selectRows.add(item);
+        });
       } else {
         this.selectRows.clear();
         this.tableData.forEach(row => {
