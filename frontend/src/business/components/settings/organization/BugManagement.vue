@@ -9,6 +9,9 @@
         <el-radio label="Jira">
           <img class="platform" src="../../../../assets/jira.png" alt="Jira"/>
         </el-radio>
+        <el-radio label="Zentao">
+          <img class="platform" src="../../../../assets/zentao.jpg" alt="Zentao"/>
+        </el-radio>
       </el-radio-group>
     </div>
 
