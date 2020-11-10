@@ -14,7 +14,7 @@
             </el-select>
           </el-form-item>
         </el-form>
-        <ms-chart class="chart-container" ref="chart1" :options="orgOptions" :autoresize="true"></ms-chart>
+        <ms-chart class="chart-container" ref="chart1" :options="options" :autoresize="true"></ms-chart>
       </el-col>
     </el-row>
     <el-row>
@@ -81,7 +81,7 @@
           </el-col>
           <el-col :span="14">
             <div class="title">{{ $t('load_test.pressure_prediction_chart') }}</div>
-            <ms-chart class="chart-container" :options="threadGroup.orgOptions" :autoresize="true"></ms-chart>
+            <ms-chart class="chart-container" :options="threadGroup.options" :autoresize="true"></ms-chart>
           </el-col>
         </el-collapse-item>
       </el-collapse>
@@ -101,6 +101,15 @@ const DURATION = "duration";
 const RPS_LIMIT = "rpsLimit";
 const RPS_LIMIT_ENABLE = "rpsLimitEnable";
 const HOLD = "Hold";
+
+const hexToRgba = function (hex, opacity) {
+  return 'rgba(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5)) + ','
+    + parseInt('0x' + hex.slice(5, 7)) + ',' + opacity + ')';
+}
+const hexToRgb = function (hex) {
+  return 'rgb(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5))
+    + ',' + parseInt('0x' + hex.slice(5, 7)) + ')';
+}
 
 export default {
   name: "PerformancePressureConfig",
@@ -126,7 +135,7 @@ export default {
       step: 0,
       rpsLimit: 0,
       rpsLimitEnable: false,
-      orgOptions: {},
+      options: {},
       resourcePool: null,
       resourcePools: [],
       activeNames: ["0"],
@@ -233,7 +242,7 @@ export default {
           if (response.data) {
             this.threadGroups = findThreadGroup(response.data);
             this.threadGroups.forEach(tg => {
-              tg.orgOptions = {};
+              tg.options = {};
             });
             this.getLoadConfig();
           }
@@ -248,7 +257,8 @@ export default {
       if (handler.rampUpTime < handler.step) {
         handler.step = handler.rampUpTime;
       }
-      handler.orgOptions = {
+      handler.options = {
+        color: ['#60acfc', '#32d3eb', '#5bc49f', '#feb64d', '#ff7c7c', '#9287e7', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'],
         xAxis: {
           type: 'category',
           boundaryGap: false,
@@ -259,15 +269,14 @@ export default {
         },
         tooltip: {
           trigger: 'axis',
-          formatter: '{a}: {c0}',
-          axisPointer: {
-            lineStyle: {
-              color: '#57617B'
-            }
-          }
         },
-        series: [{
-          name: 'User',
+        series: []
+      };
+
+
+      for (let i = 0; i < handler.threadGroups.length; i++) {
+        let seriesData = {
+          name: handler.threadGroups[i].attributes.testname,
           data: [],
           type: 'line',
           step: 'start',
@@ -283,10 +292,10 @@ export default {
             normal: {
               color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
                 offset: 0,
-                color: 'rgba(137, 189, 27, 0.3)'
+                color: hexToRgba(handler.options.color[i], 0.3),
               }, {
                 offset: 0.8,
-                color: 'rgba(137, 189, 27, 0)'
+                color: hexToRgba(handler.options.color[i], 0),
               }], false),
               shadowColor: 'rgba(0, 0, 0, 0.1)',
               shadowBlur: 10
@@ -294,17 +303,14 @@ export default {
           },
           itemStyle: {
             normal: {
-              color: 'rgb(137,189,27)',
+              color: hexToRgb(handler.options.color[i]),
               borderColor: 'rgba(137,189,2,0.27)',
               borderWidth: 12
             }
           },
-        }]
-      };
-      let threads = [];
-      for (let i = 0; i < handler.threadGroups.length; i++) {
+        };
+
         let tg = handler.threadGroups[i];
-        threads[i] = [];
 
         let timePeriod = Math.floor(tg.rampUpTime / tg.step);
         let timeInc = timePeriod;
@@ -328,27 +334,13 @@ export default {
             }
           }
           // x 轴
-          let xAxis = handler.orgOptions.xAxis.data;
+          let xAxis = handler.options.xAxis.data;
           if (xAxis.indexOf(j) < 0) {
             xAxis.push(j);
           }
-          threads[i].push(threadPeriod);
+          seriesData.data.push(threadPeriod);
         }
-      }
-      let maxLength = 0;
-      for (let i = 0; i < threads.length; i++) {
-        if (maxLength < threads[i].length) {
-          maxLength = threads[i].length;
-        }
-      }
-      for (let i = 0; i < maxLength; i++) {
-        let temp = 0;
-        for (let j = 0; j < threads.length; j++) {
-          if (threads[j].length <= maxLength) {
-            temp += threads[j][i] || 0;
-          }
-        }
-        handler.orgOptions.series[0].data.push(temp);
+        handler.options.series.push(seriesData);
       }
     },
     calculateChart(threadGroup) {
@@ -362,7 +354,7 @@ export default {
       if (handler.rampUpTime < handler.step) {
         handler.step = handler.rampUpTime;
       }
-      handler.orgOptions = {
+      handler.options = {
         xAxis: {
           type: 'category',
           boundaryGap: false,
@@ -424,7 +416,7 @@ export default {
       let inc2count = handler.threadNumber - handler.step * threadInc1;
       for (let i = 0; i <= handler.duration; i++) {
         // x 轴
-        handler.orgOptions.xAxis.data.push(i);
+        handler.options.xAxis.data.push(i);
         if (i > timePeriod) {
           timePeriod += timeInc;
           if (inc2count > 0) {
@@ -436,9 +428,9 @@ export default {
           if (threadPeriod > handler.threadNumber) {
             threadPeriod = handler.threadNumber;
           }
-          handler.orgOptions.series[0].data.push(threadPeriod);
+          handler.options.series[0].data.push(threadPeriod);
         } else {
-          handler.orgOptions.series[0].data.push(threadPeriod);
+          handler.options.series[0].data.push(threadPeriod);
         }
       }
       this.calculateTotalChart();
