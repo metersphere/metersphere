@@ -45,7 +45,7 @@
               </el-form-item>
               <br>
               <el-form-item :label="$t('load_test.rps_limit')">
-                <el-switch v-model="rpsLimitEnable"/>
+                <el-switch v-model="threadGroup.rpsLimitEnable" @change="calculateTotalChart()"/>
                 &nbsp;
                 <el-input-number
                   :disabled="isReadOnly || !threadGroup.rpsLimitEnable"
