@@ -42,14 +42,13 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
     private final List<SampleResult> queue = new ArrayList<>();
 
     private APITestService apiTestService;
-
     private APIReportService apiReportService;
-
     private TestPlanTestCaseService testPlanTestCaseService;
-
     private NoticeService noticeService;
-
     private MailService mailService;
+    private DingTaskService dingTaskService;
+    private WxChatTaskService wxChatTaskService;
+    private SystemParameterService systemParameterService;
 
     public String runMode = ApiRunMode.RUN.name();
 
@@ -81,6 +80,18 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         mailService = CommonBeanFactory.getBean(MailService.class);
         if (mailService == null) {
             LogUtil.error("mailService is required");
+        }
+        dingTaskService = CommonBeanFactory.getBean(DingTaskService.class);
+        if (dingTaskService == null) {
+            LogUtil.error("dingTaskService is required");
+        }
+        wxChatTaskService = CommonBeanFactory.getBean(WxChatTaskService.class);
+        if (wxChatTaskService == null) {
+            LogUtil.error("wxChatTaskService is required");
+        }
+        systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
+        if (systemParameterService == null) {
+            LogUtil.error("systemParameterService is required");
         }
         super.setupTest(context);
     }
@@ -146,7 +157,6 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         queue.clear();
         super.teardownTest(context);
 
-        TestPlanTestCaseService testPlanTestCaseService = CommonBeanFactory.getBean(TestPlanTestCaseService.class);
         List<String> ids = testPlanTestCaseService.getTestPlanTestCaseIds(testResult.getTestId());
         if (ids.size() > 0) {
             try {
@@ -167,12 +177,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
     }
 
-    private static void sendTask(ApiTestReport report, TestResult testResult) {
-        NoticeService noticeService = CommonBeanFactory.getBean(NoticeService.class);
-        MailService mailService = CommonBeanFactory.getBean(MailService.class);
-        DingTaskService dingTaskService = CommonBeanFactory.getBean(DingTaskService.class);
-        WxChatTaskService wxChatTaskService = CommonBeanFactory.getBean(WxChatTaskService.class);
-        SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
+    private void sendTask(ApiTestReport report, TestResult testResult) {
         if (StringUtils.equals(NoticeConstants.API, report.getTriggerMode()) || StringUtils.equals(NoticeConstants.SCHEDULE, report.getTriggerMode())) {
             List<String> userIds = new ArrayList<>();
             List<MessageDetail> taskList = new ArrayList<>();

@@ -201,12 +201,12 @@ export class Test extends BaseConfig {
     return {isValid: true};
   }
 
-  toJMX() {
-    return {
-      name: this.name + '.jmx',
-      xml: new JMXGenerator(this).toXML()
-    };
-  }
+  // toJMX() {
+  //   return {
+  //     name: this.name + '.jmx',
+  //     xml: new JMXGenerator(this).toXML()
+  //   };
+  // }
 }
 
 export class Scenario extends BaseConfig {
@@ -973,7 +973,7 @@ export class ConstantTimer extends Timer {
   }
 }
 
-/** ------------------------------------------------------------------------ **/
+/** ------------------------------------------------------------------------
 const JMX_ASSERTION_CONDITION = {
   MATCH: 1,
   CONTAINS: 1 << 1,
@@ -1188,7 +1188,7 @@ class JMXGenerator {
       envArray = JSON.parse(environments);
     }
     envArray.forEach(item => {
-      if (item.enable != false && item.name && !keys.has(item.name)) {
+      if (item.enable !== false && item.name && !keys.has(item.name)) {
         target.push(new KeyValue({name: item.name, value: item.value}));
       }
     })
@@ -1373,8 +1373,7 @@ class JMXGenerator {
     let hasContentType = false;
     for (let index in request.headers) {
       if (request.headers.hasOwnProperty(index)) {
-        if (request.headers[index].name === 'Content-Type' && request.headers[index].enable != false) {
-          request.headers.splice(index, 1);
+        if (request.headers[index].name === 'Content-Type' && request.headers[index].enable !== false) {
           hasContentType = true;
           break;
         }
@@ -1462,7 +1461,7 @@ class JMXGenerator {
 
   getResponseAssertion(regex) {
     let name = regex.description;
-    let type = JMX_ASSERTION_CONDITION.CONTAINS; // 固定用Match，自己写正则
+    let type = JMX_ASSERTION_CONDITION.CONTAINS;
     let value = regex.expression;
     let assumeSuccess = regex.assumeSuccess;
     switch (regex.subject) {
@@ -1539,4 +1538,4 @@ class JMXGenerator {
   }
 }
 
-
+ **/

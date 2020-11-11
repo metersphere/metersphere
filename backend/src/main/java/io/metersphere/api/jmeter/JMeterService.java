@@ -1,5 +1,6 @@
 package io.metersphere.api.jmeter;
 
+import io.metersphere.api.dto.scenario.Scenario;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
@@ -14,28 +15,38 @@ import org.apache.jorphan.collections.HashTree;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.InputStream;
-import java.lang.reflect.Field;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 
 @Service
 public class JMeterService {
 
     @Resource
     private JmeterProperties jmeterProperties;
+    @Resource
+    private JMXGenerator jmxGenerator;
 
-    public void run(String testId, String debugReportId, InputStream is) {
+    @PostConstruct
+    public void init() {
         String JMETER_HOME = getJmeterHome();
 
         String JMETER_PROPERTIES = JMETER_HOME + "/bin/jmeter.properties";
         JMeterUtils.loadJMeterProperties(JMETER_PROPERTIES);
         JMeterUtils.setJMeterHome(JMETER_HOME);
         JMeterUtils.setLocale(LocaleContextHolder.getLocale());
+    }
 
+    public HashTree getHashTree(String testId, String testName, List<Scenario> scenarios) {
+        return jmxGenerator.parse(testId, testName, scenarios);
+    }
+
+    public void run(String testId, String testName, List<Scenario> scenarios, String debugReportId) {
         try {
-            Object scriptWrapper = SaveService.loadElement(is);
-            HashTree testPlan = getHashTree(scriptWrapper);
+            HashTree testPlan = getHashTree(testId, testName, scenarios);
             JMeterVars.addJSR223PostProcessor(testPlan);
             addBackendListener(testId, debugReportId, testPlan);
             LocalRunner runner = new LocalRunner(testPlan);
@@ -44,6 +55,17 @@ public class JMeterService {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(Translator.get("api_load_script_error"));
         }
+    }
+
+    public String getJMX(HashTree hashTree) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            SaveService.saveTree(hashTree, baos);
+            LogUtil.debug(baos.toString());
+            return baos.toString();
+        } catch (Exception e) {
+            LogUtil.warn("HashTree error, can't log jmx content");
+        }
+        return null;
     }
 
     public String getJmeterHome() {
@@ -58,12 +80,6 @@ public class JMeterService {
         } catch (Exception e) {
             return jmeterProperties.getHome();
         }
-    }
-
-    private HashTree getHashTree(Object scriptWrapper) throws Exception {
-        Field field = scriptWrapper.getClass().getDeclaredField("testPlan");
-        field.setAccessible(true);
-        return (HashTree) field.get(scriptWrapper);
     }
 
     private void addBackendListener(String testId, String debugReportId, HashTree testPlan) {
