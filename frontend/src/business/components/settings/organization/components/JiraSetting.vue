@@ -3,10 +3,10 @@
     <div style="width: 500px">
       <div style="margin-top: 20px;margin-bottom: 10px">{{ $t('organization.integration.basic_auth_info') }}</div>
       <el-form :model="form" ref="form" label-width="120px" size="small" :disabled="show" :rules="rules">
-        <el-form-item :label="$t('organization.integration.api_account')" prop="account">
+        <el-form-item :label="$t('organization.integration.account')" prop="account">
           <el-input v-model="form.account" :placeholder="$t('organization.integration.input_api_account')"/>
         </el-form-item>
-        <el-form-item :label="$t('organization.integration.api_password')" prop="password">
+        <el-form-item :label="$t('organization.integration.password')" prop="password">
           <el-input v-model="form.password" auto-complete="new-password"
                     :placeholder="$t('organization.integration.input_api_password')" show-password/>
         </el-form-item>
@@ -53,9 +53,6 @@ export default {
   created() {
     this.init();
   },
-  beforeDestroy() {
-    console.log("jira setting destroy");
-  },
   data() {
     return {
       show: true,
@@ -73,12 +70,12 @@ export default {
         },
         url: {
           required: true,
-          message: this.$t('organization.integration.input_api_password'),
+          message: this.$t('organization.integration.input_jira_url'),
           trigger: ['change', 'blur']
         },
         issuetype: {
           required: true,
-          message: this.$t('organization.integration.input_api_password'),
+          message: this.$t('organization.integration.input_jira_issuetype'),
           trigger: ['change', 'blur']
         }
       },
@@ -86,9 +83,9 @@ export default {
   },
   methods: {
     init() {
+      const {lastOrganizationId} = getCurrentUser();
       let param = {};
       param.platform = JIRA;
-      const {lastOrganizationId} = getCurrentUser();
       param.orgId = lastOrganizationId;
       this.$parent.result = this.$post("service/integration/type", param, response => {
         let data = response.data;
@@ -159,8 +156,8 @@ export default {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              let param = {};
               const {lastOrganizationId} = getCurrentUser();
+              let param = {};
               param.orgId = lastOrganizationId;
               param.platform = JIRA;
               this.$parent.result = this.$post("service/integration/delete", param, () => {

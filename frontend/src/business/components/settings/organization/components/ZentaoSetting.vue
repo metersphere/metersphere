@@ -3,12 +3,12 @@
     <div style="width: 500px">
       <div style="margin-top: 20px;margin-bottom: 10px">{{ $t('organization.integration.basic_auth_info') }}</div>
       <el-form :model="form" ref="form" label-width="120px" size="small" :disabled="show" :rules="rules">
-        <el-form-item :label="$t('organization.integration.api_account')" prop="account">
-          <el-input v-model="form.account" :placeholder="$t('organization.integration.input_api_account')"/>
+        <el-form-item :label="$t('organization.integration.app_name')" prop="account">
+          <el-input v-model="form.account" :placeholder="$t('organization.integration.input_app_name')"/>
         </el-form-item>
-        <el-form-item :label="$t('organization.integration.api_password')" prop="password">
+        <el-form-item :label="$t('organization.integration.app_key')" prop="password">
           <el-input v-model="form.password" auto-complete="new-password"
-                    :placeholder="$t('organization.integration.input_api_password')" show-password/>
+                    :placeholder="$t('organization.integration.input_app_key')" show-password/>
         </el-form-item>
       </el-form>
     </div>
@@ -24,7 +24,7 @@
     <div class="defect-tip">
       <div>{{ $t('organization.integration.use_tip') }}</div>
       <div>
-        1. {{ $t('organization.integration.use_tip_tapd') }}
+        1. {{ $t('organization.integration.use_tip_zentao') }}
       </div>
       <div>
         2. {{ $t('organization.integration.use_tip_two') }}
@@ -49,9 +49,6 @@ export default {
   created() {
     this.init();
   },
-  beforeDestroy() {
-    console.log("zentao setting destroy");
-  },
   data() {
     return {
       show: true,
@@ -59,12 +56,12 @@ export default {
       rules: {
         account: {
           required: true,
-          message: this.$t('organization.integration.input_api_account'),
+          message: this.$t('organization.integration.input_app_name'),
           trigger: ['change', 'blur']
         },
         password: {
           required: true,
-          message: this.$t('organization.integration.input_api_password'),
+          message: this.$t('organization.integration.input_app_key'),
           trigger: ['change', 'blur']
         }
       },
@@ -75,12 +72,12 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
 
+          const {lastOrganizationId} = getCurrentUser();
           let param = {};
           let auth = {
             account: this.form.account,
             password: this.form.password,
           };
-          const {lastOrganizationId} = getCurrentUser();
           param.organizationId = lastOrganizationId;
           param.platform = ZEN_TAO;
           param.configuration = JSON.stringify(auth);
@@ -99,9 +96,9 @@ export default {
       })
     },
     init() {
+      const {lastOrganizationId} = getCurrentUser();
       let param = {};
       param.platform = ZEN_TAO;
-      const {lastOrganizationId} = getCurrentUser();
       param.orgId = lastOrganizationId;
       this.$parent.result = this.$post("service/integration/type", param, response => {
         let data = response.data;
@@ -137,8 +134,8 @@ export default {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              let param = {};
               const {lastOrganizationId} = getCurrentUser();
+              let param = {};
               param.orgId = lastOrganizationId;
               param.platform = ZEN_TAO;
               this.$parent.result = this.$post("service/integration/delete", param, () => {

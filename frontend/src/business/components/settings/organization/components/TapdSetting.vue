@@ -49,9 +49,6 @@ export default {
   created() {
     this.init();
   },
-  beforeDestroy() {
-    console.log("tapd setting destroy");
-  },
   data() {
     return {
       show: true,
@@ -72,9 +69,9 @@ export default {
   },
   methods: {
     init() {
+      const {lastOrganizationId} = getCurrentUser();
       let param = {};
       param.platform = TAPD;
-      const {lastOrganizationId} = getCurrentUser();
       param.orgId = lastOrganizationId;
       this.$parent.result = this.$post("service/integration/type", param, response => {
         let data = response.data;
@@ -87,7 +84,7 @@ export default {
         }
       })
     },
-    save: function () {
+    save() {
       this.$refs['form'].validate(valid => {
         if (valid) {
 
@@ -137,8 +134,8 @@ export default {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              let param = {};
               const {lastOrganizationId} = getCurrentUser();
+              let param = {};
               param.orgId = lastOrganizationId;
               param.platform = TAPD;
               this.$parent.result = this.$post("service/integration/delete", param, () => {
