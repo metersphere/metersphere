@@ -201,12 +201,12 @@ export class Test extends BaseConfig {
     return {isValid: true};
   }
 
-  // toJMX() {
-  //   return {
-  //     name: this.name + '.jmx',
-  //     xml: new JMXGenerator(this).toXML()
-  //   };
-  // }
+  toJMX() {
+    return {
+      name: this.name + '.jmx',
+      xml: new JMXGenerator(this).toXML()
+    };
+  }
 }
 
 export class Scenario extends BaseConfig {
@@ -973,7 +973,7 @@ export class ConstantTimer extends Timer {
   }
 }
 
-/** ------------------------------------------------------------------------
+/** ------------------------------------------------------------------------ **/
 const JMX_ASSERTION_CONDITION = {
   MATCH: 1,
   CONTAINS: 1 << 1,
@@ -1540,4 +1540,4 @@ class JMXGenerator {
   }
 }
 
- **/
+

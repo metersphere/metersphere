@@ -298,7 +298,11 @@ export default {
       });
     },
     cancel() {
-      this.$router.push('/api/test/list/all');
+      this.result = this.$post("/api/jmx", this.test, response => {
+        console.log(response.data);
+        console.log(this.test.toJMX().xml)
+      });
+      // this.$router.push('/api/test/list/all');
     },
     createPerformance() {
       let validator = this.test.isValid();
@@ -322,7 +326,6 @@ export default {
       });
     },
     handleCommand(command) {
-
       switch (command) {
         case "report":
           this.$refs.reportDialog.open();
