@@ -1,5 +1,6 @@
 import {
   Arguments,
+  ConstantTimer as JMXConstantTimer,
   CookieManager,
   DNSCacheManager,
   DubboSample,
@@ -10,22 +11,24 @@ import {
   HTTPSamplerArguments,
   HTTPsamplerFiles,
   HTTPSamplerProxy,
+  IfController as JMXIfController,
   JDBCDataSource,
   JDBCSampler,
   JSONPathAssertion,
   JSONPostProcessor,
+  JSR223Assertion,
   JSR223PostProcessor,
   JSR223PreProcessor,
   RegexExtractor,
   ResponseCodeAssertion,
   ResponseDataAssertion,
   ResponseHeadersAssertion,
+  TCPSampler,
   TestElement,
   TestPlan,
   ThreadGroup,
+  XPath2Assertion,
   XPath2Extractor,
-  IfController as JMXIfController,
-  ConstantTimer as JMXConstantTimer, TCPSampler, JSR223Assertion, XPath2Assertion,
 } from "./JMX";
 import Mock from "mockjs";
 import {funcFilters} from "@/common/js/func-filter";
@@ -226,6 +229,7 @@ export class Scenario extends BaseConfig {
     this.enable = true;
     this.databaseConfigs = [];
     this.tcpConfig = undefined;
+    this.assertions = undefined;
 
     this.set(options);
     this.sets({
@@ -242,6 +246,7 @@ export class Scenario extends BaseConfig {
     options.databaseConfigs = options.databaseConfigs || [];
     options.dubboConfig = new DubboConfig(options.dubboConfig);
     options.tcpConfig = new TCPConfig(options.tcpConfig);
+    options.assertions = new Assertions(options.assertions);
     return options;
   }
 
@@ -1151,6 +1156,9 @@ class JMXGenerator {
         this.addScenarioCookieManager(threadGroup, scenario);
 
         this.addJDBCDataSources(threadGroup, scenario);
+
+        this.addAssertion(threadGroup, scenario);
+
         scenario.requests.forEach(request => {
           if (request.enable) {
             if (!request.isValid()) return;
@@ -1175,7 +1183,7 @@ class JMXGenerator {
 
             this.addRequestExtractor(sampler, request);
 
-            this.addRequestAssertion(sampler, request);
+            this.addAssertion(sampler, request);
 
             this.addJSR223PreProcessor(sampler, request);
 
@@ -1467,7 +1475,7 @@ class JMXGenerator {
     httpSamplerProxy.add(new HTTPsamplerFiles(files));
   }
 
-  addRequestAssertion(httpSamplerProxy, request) {
+  addAssertion(httpSamplerProxy, request) {
     let assertions = request.assertions;
     if (assertions.regex.length > 0) {
       assertions.regex.filter(this.filter).forEach(regex => {

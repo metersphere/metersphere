@@ -76,28 +76,28 @@
 </template>
 
 <script>
-  import MsApiScenarioConfig from "./components/ApiScenarioConfig";
-  import {Scenario, Test} from "./model/ScenarioModel"
-  import MsApiReportStatus from "../report/ApiReportStatus";
-  import MsApiReportDialog from "./ApiReportDialog";
-  import {checkoutTestManagerOrTestUser, downloadFile, getUUID} from "@/common/js/utils";
-  import MsScheduleConfig from "../../common/components/MsScheduleConfig";
-  import ApiImport from "./components/import/ApiImport";
-  import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
-  import MsContainer from "@/business/components/common/components/MsContainer";
-  import MsMainContainer from "@/business/components/common/components/MsMainContainer";
-  import MsJarConfig from "./components/jar/JarConfig";
+import MsApiScenarioConfig from "./components/ApiScenarioConfig";
+import {Scenario, Test} from "./model/ScenarioModel"
+import MsApiReportStatus from "../report/ApiReportStatus";
+import MsApiReportDialog from "./ApiReportDialog";
+import {checkoutTestManagerOrTestUser, downloadFile, getUUID} from "@/common/js/utils";
+import MsScheduleConfig from "../../common/components/MsScheduleConfig";
+import ApiImport from "./components/import/ApiImport";
+import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
+import MsContainer from "@/business/components/common/components/MsContainer";
+import MsMainContainer from "@/business/components/common/components/MsMainContainer";
+import MsJarConfig from "./components/jar/JarConfig";
 
-  export default {
-    name: "MsApiTestConfig",
+export default {
+  name: "MsApiTestConfig",
 
-    components: {
-      MsJarConfig,
-      MsMainContainer,
-      MsContainer, ApiImport, MsScheduleConfig, MsApiReportDialog, MsApiReportStatus, MsApiScenarioConfig
-    },
+  components: {
+    MsJarConfig,
+    MsMainContainer,
+    MsContainer, ApiImport, MsScheduleConfig, MsApiReportDialog, MsApiReportStatus, MsApiScenarioConfig
+  },
 
-    props: ["id"],
+  props: ["id"],
 
     data() {
       return {
@@ -305,6 +305,7 @@
       },
       cancel() {
         this.$router.push('/api/test/list/all');
+        // console.log(this.test.toJMX().xml);
       },
       handleCommand(command) {
         switch (command) {
