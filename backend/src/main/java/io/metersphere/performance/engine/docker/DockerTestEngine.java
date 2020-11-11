@@ -83,6 +83,7 @@ public class DockerTestEngine extends AbstractEngine {
         TestRequest testRequest = new TestRequest();
         testRequest.setSize(1);
         testRequest.setTestId(testId);
+        testRequest.setReportId(getReportId());
         testRequest.setFileString(content);
         testRequest.setImage(JMETER_IMAGE);
         testRequest.setTestData(context.getTestData());
