@@ -1,7 +1,6 @@
 package io.metersphere.api.jmeter;
 
 import com.alibaba.fastjson.JSONObject;
-import io.github.ningyu.jmeter.plugin.dubbo.gui.DubboSampleGui;
 import io.github.ningyu.jmeter.plugin.dubbo.sample.DubboSample;
 import io.github.ningyu.jmeter.plugin.dubbo.sample.MethodArgument;
 import io.github.ningyu.jmeter.plugin.util.Constants;
@@ -40,6 +39,7 @@ import org.apache.jmeter.protocol.http.util.HTTPFileArg;
 import org.apache.jmeter.protocol.jdbc.config.DataSourceElement;
 import org.apache.jmeter.protocol.jdbc.sampler.JDBCSampler;
 import org.apache.jmeter.protocol.tcp.sampler.TCPSampler;
+import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.testelement.TestPlan;
 import org.apache.jmeter.threads.ThreadGroup;
@@ -265,8 +265,8 @@ public class JMXGenerator {
 
     private TestPlan testPlan(String testName) {
         TestPlan testPlan = new TestPlan(testName);
-        testPlan.setProperty(TestElement.TEST_CLASS, "TestPlan");
-        testPlan.setProperty(TestElement.GUI_CLASS, "TestPlanGui");
+        testPlan.setProperty(TestElement.TEST_CLASS, TestPlan.class.getName());
+        testPlan.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestPlanGui"));
         testPlan.setEnabled(true);
         testPlan.setFunctionalMode(false);
         testPlan.setSerialized(true);
@@ -278,22 +278,22 @@ public class JMXGenerator {
     private ThreadGroup threadGroup(String name) {
         LoopController loopController = new LoopController();
         loopController.setName("LoopController");
-        loopController.setProperty(TestElement.TEST_CLASS, "LoopController");
-        loopController.setProperty(TestElement.GUI_CLASS, "LoopControlPanel");
+        loopController.setProperty(TestElement.TEST_CLASS, LoopController.class.getName());
+        loopController.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("LoopControlPanel"));
         loopController.setEnabled(true);
         loopController.setLoops(1);
 
         ThreadGroup threadGroup = new ThreadGroup();
+        threadGroup.setEnabled(true);
+        threadGroup.setName(name);
+        threadGroup.setProperty(TestElement.TEST_CLASS, ThreadGroup.class.getName());
+        threadGroup.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ThreadGroupGui"));
         threadGroup.setNumThreads(1);
         threadGroup.setRampUp(1);
         threadGroup.setDelay(0);
         threadGroup.setDuration(0);
         threadGroup.setProperty(ThreadGroup.ON_SAMPLE_ERROR, ThreadGroup.ON_SAMPLE_ERROR_CONTINUE);
         threadGroup.setScheduler(false);
-        threadGroup.setName(name);
-        threadGroup.setProperty(TestElement.TEST_CLASS, "ThreadGroup");
-        threadGroup.setProperty(TestElement.GUI_CLASS, "ThreadGroupGui");
-        threadGroup.setEnabled(true);
         threadGroup.setSamplerController(loopController);
 
         return threadGroup;
@@ -303,8 +303,8 @@ public class JMXGenerator {
         Arguments arguments = new Arguments();
         arguments.setEnabled(true);
         arguments.setName(name);
-        arguments.setProperty(TestElement.TEST_CLASS, "Arguments");
-        arguments.setProperty(TestElement.GUI_CLASS, "ArgumentsPanel");
+        arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
+        arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
         variables.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
                 arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
         );
@@ -315,8 +315,8 @@ public class JMXGenerator {
         HeaderManager headerManager = new HeaderManager();
         headerManager.setEnabled(true);
         headerManager.setName(name);
-        headerManager.setProperty(TestElement.TEST_CLASS, "HeaderManager");
-        headerManager.setProperty(TestElement.GUI_CLASS, "HeaderPanel");
+        headerManager.setProperty(TestElement.TEST_CLASS, HeaderManager.class.getName());
+        headerManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HeaderPanel"));
         headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
                 headerManager.add(new Header(keyValue.getName(), keyValue.getValue()))
         );
@@ -327,8 +327,8 @@ public class JMXGenerator {
         CookieManager cookieManager = new CookieManager();
         cookieManager.setEnabled(true);
         cookieManager.setName(scenario.getName() + " Cookie");
-        cookieManager.setProperty(TestElement.TEST_CLASS, "CookieManager");
-        cookieManager.setProperty(TestElement.GUI_CLASS, "CookiePanel");
+        cookieManager.setProperty(TestElement.TEST_CLASS, CookieManager.class.getName());
+        cookieManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("CookiePanel"));
         cookieManager.setClearEachIteration(false);
         cookieManager.setControlledByThread(false);
         return cookieManager;
@@ -338,8 +338,8 @@ public class JMXGenerator {
         DataSourceElement dataSourceElement = new DataSourceElement();
         dataSourceElement.setEnabled(true);
         dataSourceElement.setName(databaseConfig.getName() + " JDBCDataSource");
-        dataSourceElement.setProperty(TestElement.TEST_CLASS, "JDBCDataSource");
-        dataSourceElement.setProperty(TestElement.GUI_CLASS, "TestBeanGUI");
+        dataSourceElement.setProperty(TestElement.TEST_CLASS, DataSourceElement.class.getName());
+        dataSourceElement.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         dataSourceElement.setAutocommit(true);
         dataSourceElement.setKeepAlive(true);
         dataSourceElement.setPreinit(true);
@@ -360,8 +360,8 @@ public class JMXGenerator {
         ConfigTestElement configTestElement = new ConfigTestElement();
         configTestElement.setEnabled(true);
         configTestElement.setName(name);
-        configTestElement.setProperty(TestElement.TEST_CLASS, "ConfigTestElement");
-        configTestElement.setProperty(TestElement.GUI_CLASS, "TCPConfigGui");
+        configTestElement.setProperty(TestElement.TEST_CLASS, ConfigTestElement.class.getName());
+        configTestElement.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TCPConfigGui"));
         configTestElement.setProperty(TCPSampler.CLASSNAME, tcpConfig.getClassname());
         configTestElement.setProperty(TCPSampler.SERVER, tcpConfig.getServer());
         configTestElement.setProperty(TCPSampler.PORT, tcpConfig.getPort());
@@ -381,9 +381,15 @@ public class JMXGenerator {
         HTTPSamplerProxy sampler = new HTTPSamplerProxy();
         sampler.setEnabled(true);
         sampler.setName(request.getName());
-        sampler.setProperty(TestElement.TEST_CLASS, "HTTPSamplerProxy");
-        sampler.setProperty(TestElement.GUI_CLASS, "HttpTestSampleGui");
+        sampler.setProperty(TestElement.TEST_CLASS, HTTPSamplerProxy.class.getName());
+        sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HttpTestSampleGui"));
         sampler.setMethod(request.getMethod());
+        sampler.setContentEncoding("UTF-8");
+        sampler.setConnectTimeout(request.getConnectTimeout());
+        sampler.setResponseTimeout(request.getResponseTimeout());
+        sampler.setFollowRedirects(request.isFollowRedirects());
+        sampler.setUseKeepAlive(true);
+        sampler.setDoMultipart(request.isDoMultipartPost());
 
         try {
             if (request.isUseEnvironment()) {
@@ -413,12 +419,10 @@ public class JMXGenerator {
             LogUtil.error(e);
         }
 
-        sampler.setConnectTimeout(request.getConnectTimeout());
-        sampler.setResponseTimeout(request.getResponseTimeout());
-        sampler.setFollowRedirects(request.isFollowRedirects());
-        sampler.setDoBrowserCompatibleMultipart(request.isDoMultipartPost());
         // 请求参数
-        sampler.setArguments(httpArguments(request.getParameters()));
+        if (CollectionUtils.isNotEmpty(request.getParameters())) {
+            sampler.setArguments(httpArguments(request.getParameters()));
+        }
         // 请求体
         if (!StringUtils.equals(request.getMethod(), "GET")) {
             List<KeyValue> body = new ArrayList<>();
@@ -426,12 +430,14 @@ public class JMXGenerator {
                 body = request.getBody().getKvs().stream().filter(KeyValue::isValid).collect(Collectors.toList());
                 sampler.setHTTPFiles(httpFileArgs(request, testId));
             } else {
-                KeyValue keyValue = new KeyValue("", request.getBody().getRaw());
-                keyValue.setEnable(true);
-                keyValue.setEncode(false);
-                body.add(keyValue);
+                if (StringUtils.isNotBlank(request.getBody().getRaw())) {
+                    sampler.setPostBodyRaw(true);
+                    KeyValue keyValue = new KeyValue("", request.getBody().getRaw());
+                    keyValue.setEnable(true);
+                    keyValue.setEncode(false);
+                    body.add(keyValue);
+                }
             }
-            sampler.setPostBodyRaw(true);
             sampler.setArguments(httpArguments(body));
         }
         return sampler;
@@ -455,8 +461,10 @@ public class JMXGenerator {
         list.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue -> {
                     HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), keyValue.getValue());
                     httpArgument.setAlwaysEncoded(keyValue.isEncode());
-                    httpArgument.setUseEquals(true);
-                    httpArgument.setContentType(keyValue.getContentType());
+//                    httpArgument.setUseEquals(true);
+                    if (StringUtils.isNotBlank(keyValue.getContentType())) {
+                        httpArgument.setContentType(keyValue.getContentType());
+                    }
                     arguments.addArgument(httpArgument);
                 }
         );
@@ -489,8 +497,8 @@ public class JMXGenerator {
     private TCPSampler tcpSampler(TCPRequest request) {
         TCPSampler tcpSampler = new TCPSampler();
         tcpSampler.setName(request.getName());
-        tcpSampler.setProperty(TestElement.TEST_CLASS, "TCPSampler");
-        tcpSampler.setProperty(TestElement.GUI_CLASS, "TCPSamplerGui");
+        tcpSampler.setProperty(TestElement.TEST_CLASS, TCPSampler.class.getName());
+        tcpSampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TCPSamplerGui"));
         tcpSampler.setClassname(request.getClassname());
         tcpSampler.setServer(request.getServer());
         tcpSampler.setPort(request.getPort());
@@ -510,8 +518,8 @@ public class JMXGenerator {
     private JDBCSampler jdbcSampler(SqlRequest request, Map<String, String> databaseConfigMap) {
         JDBCSampler sampler = new JDBCSampler();
         sampler.setName(request.getName());
-        sampler.setProperty(TestElement.TEST_CLASS, "JDBCSampler");
-        sampler.setProperty(TestElement.GUI_CLASS, "TestBeanGUI");
+        sampler.setProperty(TestElement.TEST_CLASS, JDBCSampler.class.getName());
+        sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         // request.getDataSource() 是ID，需要转换为Name
         sampler.setDataSource(databaseConfigMap.get(request.getDataSource()));
         sampler.setQuery(request.getQuery());
@@ -527,7 +535,7 @@ public class JMXGenerator {
         DubboSample sampler = new DubboSample();
         sampler.setName(request.getName());
         sampler.setProperty(TestElement.TEST_CLASS, DubboSample.class.getName());
-        sampler.setProperty(TestElement.GUI_CLASS, DubboSampleGui.class.getName());
+        sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("DubboSampleGui"));
 
         Constants.setConfigCenterProtocol(request.getConfigCenter().getProtocol(), sampler);
         Constants.setConfigCenterGroup(request.getConfigCenter().getGroup(), sampler);
@@ -571,8 +579,8 @@ public class JMXGenerator {
         DNSCacheManager dnsCacheManager = new DNSCacheManager();
         dnsCacheManager.setEnabled(true);
         dnsCacheManager.setName(name);
-        dnsCacheManager.setProperty(TestElement.TEST_CLASS, "DNSCacheManager");
-        dnsCacheManager.setProperty(TestElement.GUI_CLASS, "DNSCachePanel");
+        dnsCacheManager.setProperty(TestElement.TEST_CLASS, DNSCacheManager.class.getName());
+        dnsCacheManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("DNSCachePanel"));
         dnsCacheManager.setCustomResolver(true);
         hosts.forEach(host -> dnsCacheManager.addHost(host.getDomain(), host.getIp()));
 
@@ -583,8 +591,8 @@ public class JMXGenerator {
         ResponseAssertion assertion = new ResponseAssertion();
         assertion.setEnabled(true);
         assertion.setName(assertionRegex.getDescription());
-        assertion.setProperty(TestElement.TEST_CLASS, "ResponseAssertion");
-        assertion.setProperty(TestElement.GUI_CLASS, "AssertionGui");
+        assertion.setProperty(TestElement.TEST_CLASS, ResponseAssertion.class.getName());
+        assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("AssertionGui"));
         assertion.setAssumeSuccess(assertionRegex.isAssumeSuccess());
         assertion.setToContainsType();
         switch (assertionRegex.getSubject()) {
@@ -605,8 +613,8 @@ public class JMXGenerator {
         JSONPathAssertion assertion = new JSONPathAssertion();
         assertion.setEnabled(true);
         assertion.setName(assertionJsonPath.getDescription());
-        assertion.setProperty(TestElement.TEST_CLASS, "JSONPathAssertion");
-        assertion.setProperty(TestElement.GUI_CLASS, "JSONPathAssertionGui");
+        assertion.setProperty(TestElement.TEST_CLASS, JSONPathAssertion.class.getName());
+        assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("JSONPathAssertionGui"));
         assertion.setJsonPath(assertionJsonPath.getExpression());
         assertion.setExpectedValue(assertionJsonPath.getExpect());
         assertion.setJsonValidationBool(true);
@@ -620,8 +628,8 @@ public class JMXGenerator {
         DurationAssertion assertion = new DurationAssertion();
         assertion.setEnabled(true);
         assertion.setName("Response In Time: " + assertionDuration.getValue());
-        assertion.setProperty(TestElement.TEST_CLASS, "DurationAssertion");
-        assertion.setProperty(TestElement.GUI_CLASS, "DurationAssertionGui");
+        assertion.setProperty(TestElement.TEST_CLASS, DurationAssertion.class.getName());
+        assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("DurationAssertionGui"));
         assertion.setAllowedDuration(assertionDuration.getValue());
         return assertion;
     }
@@ -630,8 +638,8 @@ public class JMXGenerator {
         JSR223Assertion assertion = new JSR223Assertion();
         assertion.setEnabled(true);
         assertion.setName(assertionJSR223.getDesc());
-        assertion.setProperty(TestElement.TEST_CLASS, "JSR223Assertion");
-        assertion.setProperty(TestElement.GUI_CLASS, "TestBeanGUI");
+        assertion.setProperty(TestElement.TEST_CLASS, JSR223Assertion.class.getName());
+        assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         assertion.setProperty("cacheKey", "true");
         assertion.setProperty("scriptLanguage", assertionJSR223.getLanguage());
         assertion.setProperty("script", assertionJSR223.getScript());
@@ -642,8 +650,8 @@ public class JMXGenerator {
         RegexExtractor extractor = new RegexExtractor();
         extractor.setEnabled(true);
         extractor.setName(extractRegex.getVariable() + " RegexExtractor");
-        extractor.setProperty(TestElement.TEST_CLASS, "RegexExtractor");
-        extractor.setProperty(TestElement.GUI_CLASS, "RegexExtractorGui");
+        extractor.setProperty(TestElement.TEST_CLASS, RegexExtractor.class.getName());
+        extractor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("RegexExtractorGui"));
         extractor.setRefName(extractRegex.getVariable());
         extractor.setRegex(extractRegex.getExpression());
         extractor.setUseField(extractRegex.getUseHeaders());
@@ -658,8 +666,8 @@ public class JMXGenerator {
         JSONPostProcessor extractor = new JSONPostProcessor();
         extractor.setEnabled(true);
         extractor.setName(extractJSONPath.getVariable() + " JSONExtractor");
-        extractor.setProperty(TestElement.TEST_CLASS, "JSONPostProcessor");
-        extractor.setProperty(TestElement.GUI_CLASS, "JSONPostProcessorGui");
+        extractor.setProperty(TestElement.TEST_CLASS, JSONPostProcessor.class.getName());
+        extractor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("JSONPostProcessorGui"));
         extractor.setRefNames(extractJSONPath.getVariable());
         extractor.setJsonPathExpressions(extractJSONPath.getExpression());
         if (extractJSONPath.isMultipleMatching()) {
@@ -672,8 +680,8 @@ public class JMXGenerator {
         XPath2Extractor extractor = new XPath2Extractor();
         extractor.setEnabled(true);
         extractor.setName(extractXPath.getVariable() + " XPath2Extractor");
-        extractor.setProperty(TestElement.TEST_CLASS, "XPath2Extractor");
-        extractor.setProperty(TestElement.GUI_CLASS, "XPath2ExtractorGui");
+        extractor.setProperty(TestElement.TEST_CLASS, XPath2Extractor.class.getName());
+        extractor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("XPath2ExtractorGui"));
         extractor.setRefName(extractXPath.getVariable());
         extractor.setXPathQuery(extractXPath.getExpression());
         if (extractXPath.isMultipleMatching()) {
@@ -686,8 +694,8 @@ public class JMXGenerator {
         JSR223PreProcessor processor = new JSR223PreProcessor();
         processor.setEnabled(true);
         processor.setName(request.getName());
-        processor.setProperty(TestElement.TEST_CLASS, "JSR223PreProcessor");
-        processor.setProperty(TestElement.GUI_CLASS, "TestBeanGUI");
+        processor.setProperty(TestElement.TEST_CLASS, JSR223PreProcessor.class.getName());
+        processor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         processor.setProperty("cacheKey", "true");
         processor.setProperty("scriptLanguage", request.getJsr223PreProcessor().getLanguage());
         processor.setProperty("script", request.getJsr223PreProcessor().getScript());
@@ -698,8 +706,8 @@ public class JMXGenerator {
         JSR223PostProcessor processor = new JSR223PostProcessor();
         processor.setEnabled(true);
         processor.setName(request.getName());
-        processor.setProperty(TestElement.TEST_CLASS, "JSR223PostProcessor");
-        processor.setProperty(TestElement.GUI_CLASS, "TestBeanGUI");
+        processor.setProperty(TestElement.TEST_CLASS, JSR223PostProcessor.class.getName());
+        processor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         processor.setProperty("cacheKey", "true");
         processor.setProperty("scriptLanguage", request.getJsr223PostProcessor().getLanguage());
         processor.setProperty("script", request.getJsr223PostProcessor().getScript());
@@ -710,8 +718,8 @@ public class JMXGenerator {
         ConstantTimer constantTimer = new ConstantTimer();
         constantTimer.setEnabled(true);
         constantTimer.setName(request.getTimer().getDelay() + " ms");
-        constantTimer.setProperty(TestElement.TEST_CLASS, "ConstantTimer");
-        constantTimer.setProperty(TestElement.GUI_CLASS, "ConstantTimerGui");
+        constantTimer.setProperty(TestElement.TEST_CLASS, ConstantTimer.class.getName());
+        constantTimer.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ConstantTimerGui"));
         constantTimer.setDelay(request.getTimer().getDelay());
         return constantTimer;
     }
@@ -721,8 +729,8 @@ public class JMXGenerator {
         ifController.setEnabled(true);
         ifController.setName(request.getController().getLabel());
         ifController.setCondition(request.getController().getCondition());
-        ifController.setProperty(TestElement.TEST_CLASS, "IfController");
-        ifController.setProperty(TestElement.GUI_CLASS, "IfControllerPanel");
+        ifController.setProperty(TestElement.TEST_CLASS, IfController.class.getName());
+        ifController.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("IfControllerPanel"));
         ifController.setEvaluateAll(false);
         ifController.setUseExpression(true);
         return ifController;
