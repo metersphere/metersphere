@@ -18,3 +18,13 @@ export function findThreadGroup(jmxContent) {
   travel(jmxJson.elements, threadGroups);
   return threadGroups;
 }
+
+
+export function findTestPlan(jmxContent) {
+  let jmxJson = JSON.parse(xml2json(jmxContent));
+  for (let element of jmxJson.elements[0].elements[0].elements) {
+    if (element.name === 'TestPlan') {
+      return element;
+    }
+  }
+}

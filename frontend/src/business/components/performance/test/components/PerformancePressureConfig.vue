@@ -92,7 +92,7 @@
 <script>
 import echarts from "echarts";
 import MsChart from "@/business/components/common/chart/MsChart";
-import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
+import {findTestPlan, findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
 
 const TARGET_LEVEL = "TargetLevel";
 const RAMP_UP = "RampUp";
@@ -115,7 +115,7 @@ export default {
   name: "PerformancePressureConfig",
   components: {MsChart},
   props: {
-    testPlan: {
+    test: {
       type: Object
     },
     testId: {
@@ -140,6 +140,7 @@ export default {
       resourcePools: [],
       activeNames: ["0"],
       threadGroups: [],
+      serializeThreadgroups: false,
     }
   },
   mounted() {
@@ -148,11 +149,11 @@ export default {
     } else {
       this.calculateTotalChart();
     }
-    this.resourcePool = this.testPlan.testResourcePoolId;
+    this.resourcePool = this.test.testResourcePoolId;
     this.getResourcePools();
   },
   watch: {
-    testPlan(n) {
+    test(n) {
       this.resourcePool = n.testResourcePoolId;
     },
     testId() {
@@ -240,6 +241,12 @@ export default {
       if (this.testId) {
         this.$get('/performance/get-jmx-content/' + this.testId, (response) => {
           if (response.data) {
+            let testPlan = findTestPlan(response.data);
+            testPlan.elements.forEach(e => {
+              if (e.attributes.name === 'TestPlan.serialize_threadgroups') {
+                this.serializeThreadgroups = Boolean(e.elements[0].text);
+              }
+            });
             this.threadGroups = findThreadGroup(response.data);
             this.threadGroups.forEach(tg => {
               tg.options = {};
@@ -272,7 +279,6 @@ export default {
         },
         series: []
       };
-
 
       for (let i = 0; i < handler.threadGroups.length; i++) {
         let seriesData = {

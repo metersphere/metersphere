@@ -61,7 +61,7 @@ import {findThreadGroup} from "@/business/components/performance/test/model/Thre
 export default {
   name: "PerformanceBasicConfig",
   props: {
-    testPlan: {
+    test: {
       type: Object
     },
     isReadOnly: {
@@ -82,14 +82,14 @@ export default {
     };
   },
   created() {
-    if (this.testPlan.id) {
-      this.getFileMetadata(this.testPlan)
+    if (this.test.id) {
+      this.getFileMetadata(this.test)
     }
   },
   watch: {
-    testPlan() {
-      if (this.testPlan.id) {
-        this.getFileMetadata(this.testPlan)
+    test() {
+      if (this.test.id) {
+        this.getFileMetadata(this.test)
       }
     },
     uploadList() {
@@ -107,11 +107,11 @@ export default {
     }
   },
   methods: {
-    getFileMetadata(testPlan) {
+    getFileMetadata(test) {
       this.fileList = [];
       this.tableData = [];
       this.uploadList = [];
-      this.result = this.$get(this.getFileMetadataPath + "/" + testPlan.id, response => {
+      this.result = this.$get(this.getFileMetadataPath + "/" + test.id, response => {
         let files = response.data;
 
         if (!files) {

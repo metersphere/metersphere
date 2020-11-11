@@ -19,10 +19,10 @@
 
         <el-tabs class="test-config" v-model="active" type="border-card" :stretch="true">
           <el-tab-pane :label="$t('load_test.basic_config')">
-            <performance-basic-config :is-read-only="true" :test-plan="test" ref="basicConfig"/>
+            <performance-basic-config :is-read-only="true" :test="test" ref="basicConfig"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.pressure_config')">
-            <performance-pressure-config :is-read-only="true" :test-plan="test" :test-id="id" ref="pressureConfig"/>
+            <performance-pressure-config :is-read-only="true" :test="test" :test-id="id" ref="pressureConfig"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.advanced_config')" class="advanced-config">
             <performance-advanced-config :read-only="true" :test-id="id" ref="advancedConfig"/>
@@ -35,22 +35,23 @@
 
 <script>
 
-  import MsContainer from "../../../../../common/components/MsContainer";
-  import MsMainContainer from "../../../../../common/components/MsMainContainer";
-  import PerformanceBasicConfig from "../../../../../performance/test/components/PerformanceBasicConfig";
-  import PerformancePressureConfig from "../../../../../performance/test/components/PerformancePressureConfig";
-  import PerformanceAdvancedConfig from "../../../../../performance/test/components/PerformanceAdvancedConfig";
-  export default {
-    name: "PerformanceTestDetail",
-    components: {
-      PerformanceAdvancedConfig,
-      PerformancePressureConfig,
-      PerformanceBasicConfig,
-      MsMainContainer,
-      MsContainer
-    },
-    data() {
-      return {
+import MsContainer from "../../../../../common/components/MsContainer";
+import MsMainContainer from "../../../../../common/components/MsMainContainer";
+import PerformanceBasicConfig from "../../../../../performance/test/components/PerformanceBasicConfig";
+import PerformancePressureConfig from "../../../../../performance/test/components/PerformancePressureConfig";
+import PerformanceAdvancedConfig from "../../../../../performance/test/components/PerformanceAdvancedConfig";
+
+export default {
+  name: "PerformanceTestDetail",
+  components: {
+    PerformanceAdvancedConfig,
+    PerformancePressureConfig,
+    PerformanceBasicConfig,
+    MsMainContainer,
+    MsContainer
+  },
+  data() {
+    return {
         result: {},
         test: {},
         savePath: "/performance/save",

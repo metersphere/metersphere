@@ -4,12 +4,12 @@
       <el-card v-loading="result.loading">
         <el-row>
           <el-col :span="10">
-            <el-input :disabled="isReadOnly" :placeholder="$t('load_test.input_name')" v-model="testPlan.name"
+            <el-input :disabled="isReadOnly" :placeholder="$t('load_test.input_name')" v-model="test.name"
                       class="input-with-select"
                       maxlength="30" show-word-limit
             >
               <template v-slot:prepend>
-                <el-select filterable v-model="testPlan.projectId"
+                <el-select filterable v-model="test.projectId"
                            :placeholder="$t('load_test.select_project')">
                   <el-option
                     v-for="item in projects"
@@ -29,7 +29,7 @@
             <el-button :disabled="isReadOnly" type="warning" plain @click="cancel">{{ $t('commons.cancel') }}
             </el-button>
 
-            <ms-schedule-config :schedule="testPlan.schedule" :save="saveCronExpression" @scheduleChange="saveSchedule"
+            <ms-schedule-config :schedule="test.schedule" :save="saveCronExpression" @scheduleChange="saveSchedule"
                                 :check-open="checkScheduleEdit" :test-id="testId" :custom-validate="durationValidate"/>
           </el-col>
         </el-row>
@@ -37,11 +37,11 @@
 
         <el-tabs class="testplan-config" v-model="active" type="border-card" :stretch="true">
           <el-tab-pane :label="$t('load_test.basic_config')">
-            <performance-basic-config :is-read-only="isReadOnly" :test-plan="testPlan" ref="basicConfig"
+            <performance-basic-config :is-read-only="isReadOnly" :test="test" ref="basicConfig"
                                       @fileChange="fileChange"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.pressure_config')">
-            <performance-pressure-config :is-read-only="isReadOnly" :test-plan="testPlan" :test-id="testId"
+            <performance-pressure-config :is-read-only="isReadOnly" :test="test" :test-id="testId"
                                          ref="pressureConfig" @changeActive="changeTabActive"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.advanced_config')" class="advanced-config">
@@ -64,7 +64,7 @@ import MsScheduleConfig from "../../common/components/MsScheduleConfig";
 import {LIST_CHANGE, PerformanceEvent} from "@/business/components/common/head/ListEvent";
 
 export default {
-  name: "EditPerformanceTestPlan",
+  name: "EditPerformanceTest",
   components: {
     MsScheduleConfig,
     PerformancePressureConfig,
@@ -76,7 +76,7 @@ export default {
   data() {
     return {
       result: {},
-      testPlan: {schedule: {}},
+      test: {schedule: {}},
       listProjectPath: "/project/listAll",
       savePath: "/performance/save",
       editPath: "/performance/edit",
@@ -137,8 +137,8 @@ export default {
     importAPITest() {
       let apiTest = this.$store.state.api.test;
       if (apiTest && apiTest.name) {
-        this.$set(this.testPlan, "projectId", apiTest.projectId);
-        this.$set(this.testPlan, "name", apiTest.name);
+        this.$set(this.test, "projectId", apiTest.projectId);
+        this.$set(this.test, "name", apiTest.name);
         let blob = new Blob([apiTest.jmx.xml], {type: "application/octet-stream"});
         let file = new File([blob], apiTest.jmx.name);
         this.$refs.basicConfig.beforeUpload(file);
@@ -152,9 +152,9 @@ export default {
         this.testId = testId;
         this.result = this.$get('/performance/get/' + testId, response => {
           if (response.data) {
-            this.testPlan = response.data;
-            if (!this.testPlan.schedule) {
-              this.testPlan.schedule = {};
+            this.test = response.data;
+            if (!this.test.schedule) {
+              this.test.schedule = {};
             }
           }
         });
@@ -166,7 +166,7 @@ export default {
       })
     },
     save() {
-      if (!this.validTestPlan()) {
+      if (!this.validTest()) {
         return;
       }
 
@@ -181,16 +181,16 @@ export default {
       });
     },
     saveAndRun() {
-      if (!this.validTestPlan()) {
+      if (!this.validTest()) {
         return;
       }
 
       let options = this.getSaveOption();
 
       this.result = this.$request(options, (response) => {
-        this.testPlan.id = response.data;
+        this.test.id = response.data;
         this.$success(this.$t('commons.save_success'));
-        this.result = this.$post(this.runPath, {id: this.testPlan.id, triggerMode: 'MANUAL'}, (response) => {
+        this.result = this.$post(this.runPath, {id: this.test.id, triggerMode: 'MANUAL'}, (response) => {
           let reportId = response.data;
           this.$router.push({path: '/performance/report/view/' + reportId})
           // 发送广播，刷新 head 上的最新列表
@@ -200,7 +200,7 @@ export default {
     },
     getSaveOption() {
       let formData = new FormData();
-      let url = this.testPlan.id ? this.editPath : this.savePath;
+      let url = this.test.id ? this.editPath : this.savePath;
 
       if (this.$refs.basicConfig.uploadList.length > 0) {
         this.$refs.basicConfig.uploadList.forEach(f => {
@@ -208,15 +208,15 @@ export default {
         });
       }
       // 基本配置
-      this.testPlan.updatedFileList = this.$refs.basicConfig.updatedFileList();
+      this.test.updatedFileList = this.$refs.basicConfig.updatedFileList();
       // 压力配置
-      this.testPlan.loadConfiguration = JSON.stringify(this.$refs.pressureConfig.convertProperty());
-      this.testPlan.testResourcePoolId = this.$refs.pressureConfig.resourcePool;
+      this.test.loadConfiguration = JSON.stringify(this.$refs.pressureConfig.convertProperty());
+      this.test.testResourcePoolId = this.$refs.pressureConfig.resourcePool;
       // 高级配置
-      this.testPlan.advancedConfiguration = JSON.stringify(this.$refs.advancedConfig.configurations());
+      this.test.advancedConfiguration = JSON.stringify(this.$refs.advancedConfig.configurations());
 
       // file属性不需要json化
-      let requestJson = JSON.stringify(this.testPlan, function (key, value) {
+      let requestJson = JSON.stringify(this.test, function (key, value) {
         return key === "file" ? undefined : value
       });
 
@@ -236,13 +236,13 @@ export default {
     cancel() {
       this.$router.push({path: '/performance/test/all'})
     },
-    validTestPlan() {
-      if (!this.testPlan.name) {
+    validTest() {
+      if (!this.test.name) {
         this.$error(this.$t('load_test.test_name_is_null'));
         return false;
       }
 
-      if (!this.testPlan.projectId) {
+      if (!this.test.projectId) {
         this.$error(this.$t('load_test.project_is_null'));
         return false;
       }
@@ -269,26 +269,26 @@ export default {
       });
     },
     saveCronExpression(cronExpression) {
-      this.testPlan.schedule.enable = true;
-      this.testPlan.schedule.value = cronExpression;
+      this.test.schedule.enable = true;
+      this.test.schedule.value = cronExpression;
       this.saveSchedule();
     },
     saveSchedule() {
       this.checkScheduleEdit();
       let param = {};
-      param = this.testPlan.schedule;
-      param.resourceId = this.testPlan.id;
+      param = this.test.schedule;
+      param.resourceId = this.test.id;
       let url = '/performance/schedule/create';
       if (param.id) {
         url = '/performance/schedule/update';
       }
       this.$post(url, param, response => {
         this.$success(this.$t('commons.save_success'));
-        this.getTest(this.testPlan.id);
+        this.getTest(this.test.id);
       });
     },
     checkScheduleEdit() {
-      if (!this.testPlan.id) {
+      if (!this.test.id) {
         this.$message(this.$t('api_test.environment.please_save_test'));
         return false;
       }
