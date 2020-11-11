@@ -298,11 +298,7 @@ export default {
       });
     },
     cancel() {
-      this.result = this.$post("/api/jmx", this.test, response => {
-        console.log(response.data);
-        console.log(this.test.toJMX().xml)
-      });
-      // this.$router.push('/api/test/list/all');
+      this.$router.push('/api/test/list/all');
     },
     createPerformance() {
       let validator = this.test.isValid();
