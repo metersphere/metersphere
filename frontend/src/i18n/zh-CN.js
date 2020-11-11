@@ -262,6 +262,8 @@ export default {
       input_app_key: '请输入密钥',
       input_jira_url: '请输入Jira地址，例：https://metersphere.atlassian.net/',
       input_jira_issuetype: '请输入问题类型',
+      zentao_url: 'Zentao 地址',
+      input_zentao_url: '请输入Zentao地址，例：http://xx.xx.xx.xx/zentao/',
       use_tip: '使用指引：',
       use_tip_tapd: 'Tapd Basic Auth 账号信息在"公司管理-安全与集成-开放平台"中查询',
       use_tip_jira: 'Jira software server 认证信息为 账号密码，Jira software cloud 认证信息为 账号+令牌(账户设置-安全-创建API令牌)',
