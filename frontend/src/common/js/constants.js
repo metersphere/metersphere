@@ -20,6 +20,10 @@ export const ZH_CN = 'zh_CN';
 export const ZH_TW = 'zh_TW';
 export const EN_US = 'en_US';
 
+export const TAPD = 'Tapd';
+export const JIRA = 'Jira';
+export const ZEN_TAO = 'Zentao';
+
 export const SCHEDULE_TYPE = {
   API_TEST: 'API_TEST',
   PERFORMANCE_TEST: 'PERFORMANCE_TEST'
