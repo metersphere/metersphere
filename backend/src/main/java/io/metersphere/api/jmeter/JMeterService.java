@@ -46,6 +46,7 @@ public class JMeterService {
 
     public void run(String testId, String testName, List<Scenario> scenarios, String debugReportId) {
         try {
+            init();
             HashTree testPlan = getHashTree(testId, testName, scenarios);
             JMeterVars.addJSR223PostProcessor(testPlan);
             addBackendListener(testId, debugReportId, testPlan);

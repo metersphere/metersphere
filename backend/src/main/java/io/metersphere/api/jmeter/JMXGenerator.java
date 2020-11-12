@@ -10,6 +10,9 @@ import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.environment.Host;
 import io.metersphere.api.dto.scenario.extract.*;
 import io.metersphere.api.dto.scenario.request.*;
+import io.metersphere.api.dto.scenario.request.dubbo.ConfigCenter;
+import io.metersphere.api.dto.scenario.request.dubbo.ConsumerAndService;
+import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.utils.LogUtil;
@@ -90,6 +93,8 @@ public class JMXGenerator {
                     databaseConfigMap.put(databaseConfig.getId(), databaseConfig.getName());
                 });
             }
+            // DUBBO Config
+            threadGroupHashTree.add(dubboConfig(scenario.getName() + "DUBBO Config", scenario.getDubboConfig()));
             // 场景TCP Config
             threadGroupHashTree.add(tcpConfig(scenario.getName() + "TCP Config", scenario.getTcpConfig()));
 
@@ -356,6 +361,53 @@ public class JMXGenerator {
         return dataSourceElement;
     }
 
+    private ConfigTestElement dubboConfig(String name, DubboConfig dubboConfig) {
+        ConfigTestElement configTestElement = new ConfigTestElement();
+        configTestElement.setEnabled(true);
+        configTestElement.setName(name);
+        configTestElement.setProperty(TestElement.TEST_CLASS, ConfigTestElement.class.getName());
+        configTestElement.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("DubboDefaultConfigGui"));
+        configTestElement.addConfigElement(configCenter(dubboConfig.getConfigCenter()));
+        configTestElement.addConfigElement(registryCenter(dubboConfig.getRegistryCenter()));
+        configTestElement.addConfigElement(consumerAndService(dubboConfig.getConsumerAndService()));
+        return configTestElement;
+    }
+
+    private ConfigTestElement configCenter(ConfigCenter configCenter) {
+        ConfigTestElement configTestElement = new ConfigTestElement();
+        Constants.setConfigCenterProtocol(configCenter.getProtocol(), configTestElement);
+        Constants.setConfigCenterGroup(configCenter.getGroup(), configTestElement);
+        Constants.setConfigCenterNamespace(configCenter.getNamespace(), configTestElement);
+        Constants.setConfigCenterUserName(configCenter.getUsername(), configTestElement);
+        Constants.setConfigCenterPassword(configCenter.getPassword(), configTestElement);
+        Constants.setConfigCenterAddress(configCenter.getAddress(), configTestElement);
+        Constants.setConfigCenterTimeout(configCenter.getTimeout(), configTestElement);
+        return configTestElement;
+    }
+
+    private ConfigTestElement registryCenter(RegistryCenter registryCenter) {
+        ConfigTestElement configTestElement = new ConfigTestElement();
+        Constants.setRegistryProtocol(registryCenter.getProtocol(), configTestElement);
+        Constants.setRegistryGroup(registryCenter.getGroup(), configTestElement);
+        Constants.setRegistryUserName(registryCenter.getUsername(), configTestElement);
+        Constants.setRegistryPassword(registryCenter.getPassword(), configTestElement);
+        Constants.setRegistryTimeout(registryCenter.getTimeout(), configTestElement);
+        Constants.setAddress(registryCenter.getAddress(), configTestElement);
+        return configTestElement;
+    }
+
+    private ConfigTestElement consumerAndService(ConsumerAndService consumerAndService) {
+        ConfigTestElement configTestElement = new ConfigTestElement();
+        Constants.setTimeout(consumerAndService.getTimeout(), configTestElement);
+        Constants.setVersion(consumerAndService.getVersion(), configTestElement);
+        Constants.setGroup(consumerAndService.getGroup(), configTestElement);
+        Constants.setConnections(consumerAndService.getConnections(), configTestElement);
+        Constants.setLoadbalance(consumerAndService.getLoadBalance(), configTestElement);
+        Constants.setAsync(consumerAndService.getAsync(), configTestElement);
+        Constants.setCluster(consumerAndService.getCluster(), configTestElement);
+        return configTestElement;
+    }
+
     private ConfigTestElement tcpConfig(String name, TCPConfig tcpConfig) {
         ConfigTestElement configTestElement = new ConfigTestElement();
         configTestElement.setEnabled(true);
@@ -537,28 +589,9 @@ public class JMXGenerator {
         sampler.setProperty(TestElement.TEST_CLASS, DubboSample.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("DubboSampleGui"));
 
-        Constants.setConfigCenterProtocol(request.getConfigCenter().getProtocol(), sampler);
-        Constants.setConfigCenterGroup(request.getConfigCenter().getGroup(), sampler);
-        Constants.setConfigCenterNamespace(request.getConfigCenter().getNamespace(), sampler);
-        Constants.setConfigCenterUserName(request.getConfigCenter().getUsername(), sampler);
-        Constants.setConfigCenterPassword(request.getConfigCenter().getPassword(), sampler);
-        Constants.setConfigCenterAddress(request.getConfigCenter().getAddress(), sampler);
-        Constants.setConfigCenterTimeout(request.getConfigCenter().getTimeout(), sampler);
-
-        Constants.setRegistryProtocol(request.getRegistryCenter().getProtocol(), sampler);
-        Constants.setRegistryGroup(request.getRegistryCenter().getGroup(), sampler);
-        Constants.setRegistryUserName(request.getRegistryCenter().getUsername(), sampler);
-        Constants.setRegistryPassword(request.getRegistryCenter().getPassword(), sampler);
-        Constants.setRegistryTimeout(request.getRegistryCenter().getTimeout(), sampler);
-        Constants.setAddress(request.getRegistryCenter().getAddress(), sampler);
-
-        Constants.setTimeout(request.getConsumerAndService().getTimeout(), sampler);
-        Constants.setVersion(request.getConsumerAndService().getVersion(), sampler);
-        Constants.setGroup(request.getConsumerAndService().getGroup(), sampler);
-        Constants.setConnections(request.getConsumerAndService().getConnections(), sampler);
-        Constants.setLoadbalance(request.getConsumerAndService().getLoadBalance(), sampler);
-        Constants.setAsync(request.getConsumerAndService().getAsync(), sampler);
-        Constants.setCluster(request.getConsumerAndService().getCluster(), sampler);
+        sampler.addTestElement(configCenter(request.getConfigCenter()));
+        sampler.addTestElement(registryCenter(request.getRegistryCenter()));
+        sampler.addTestElement(consumerAndService(request.getConsumerAndService()));
 
         Constants.setRpcProtocol(request.getProtocol(), sampler);
         Constants.setInterfaceName(request.get_interface(), sampler);
