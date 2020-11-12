@@ -7,7 +7,7 @@
             <related-test-plan-list ref="relatedTestPlanList"/>
           </el-row>
           <el-row>
-            <review-list title="我的评审" ref="caseReviewList"/>
+            <review-list :title="$t('review.my_review')" ref="caseReviewList"/>
           </el-row>
         </el-col>
         <el-col :span="9">
