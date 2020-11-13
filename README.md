@@ -18,7 +18,7 @@ MeterSphere 是一站式的开源企业级持续测试平台，涵盖测试跟�
 - 性能测试: 兼容 JMeter，支持 Kubernetes 和云环境，轻松支持高并发、分布式的性能测试；
 - 团队协作: 两级租户体系，天然支持团队协作。
 
-![产品定位](https://metersphere.io/images/icon/ct-devops.png)
+![产品定位](https://metersphere.oss-cn-hangzhou.aliyuncs.com/img/ct-devops.png)
 
 
 > 如需进一步了解 MeterSphere 开源项目，推荐阅读 [MeterSphere 的初心和使命](https://mp.weixin.qq.com/s/DpCt3BNgBTlV3sJ5qtPmZw)
@@ -296,7 +296,7 @@ v1.1.0 是 v1.0.0 之后的功能版本。
 
 ## 微信群
 
-![wechat-group](https://metersphere.io/images/contact/wechat-group.png)
+![wechat-group](https://metersphere.oss-cn-hangzhou.aliyuncs.com/img/wechat-group.png)
 
 ## License & Copyright
 
