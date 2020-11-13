@@ -341,7 +341,7 @@ public class MailService {
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
         List<SystemParameter> paramList = systemParameterService.getParamList(ParamConstants.Classify.MAIL.getValue());
         javaMailSender.setDefaultEncoding("UTF-8");
-        javaMailSender.setProtocol("smtps");
+        javaMailSender.setProtocol("smtp");
         for (SystemParameter p : paramList) {
             switch (p.getParamKey()) {
                 case "smtp.host":
@@ -362,8 +362,8 @@ public class MailService {
         }
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.starttls.required", "true");
+        props.put("mail.smtp.starttls.enable", "false");
+        props.put("mail.smtp.starttls.required", "false");
         props.put("mail.smtp.timeout", "30000");
         props.put("mail.smtp.connectiontimeout", "5000");
         javaMailSender.setJavaMailProperties(props);

@@ -28,7 +28,7 @@
             </el-form-item>
             <el-form-item prop="password">
               <el-input v-model="form.password" :placeholder="$t('commons.password')" show-password autocomplete="off"
-                        maxlength="20" show-word-limit/>
+                        maxlength="30" show-word-limit/>
             </el-form-item>
           </div>
           <div class="btn">
@@ -81,7 +81,7 @@ export default {
         ],
         password: [
           {required: true, message: this.$t('commons.input_password'), trigger: 'blur'},
-          {min: 6, max: 20, message: this.$t('commons.input_limit', [6, 20]), trigger: 'blur'}
+          {min: 6, max: 20, message: this.$t('commons.input_limit', [6, 30]), trigger: 'blur'}
         ]
       },
       msg: '',
