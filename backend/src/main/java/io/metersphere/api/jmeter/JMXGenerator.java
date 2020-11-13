@@ -48,12 +48,11 @@ import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
 
 @Component
 public class JMXGenerator {
@@ -91,11 +90,17 @@ public class JMXGenerator {
                 });
             }
             // DUBBO Config
-            threadGroupHashTree.add(dubboConfig(scenario.getName() + "DUBBO Config", scenario.getDubboConfig()));
+            if(scenario.getDubboConfig()!=null) {
+                threadGroupHashTree.add(dubboConfig(scenario.getName() + "DUBBO Config", scenario.getDubboConfig()));
+            }
             // 场景TCP Config
-            threadGroupHashTree.add(tcpConfig(scenario.getName() + "TCP Config", scenario.getTcpConfig()));
+            if(scenario.getTcpConfig()!=null ) {
+                threadGroupHashTree.add(tcpConfig(scenario.getName() + "TCP Config", scenario.getTcpConfig()));
+            }
             // 场景断言
-            addAssertions(threadGroupHashTree, scenario.getAssertions());
+            if(scenario.getAssertions()!=null) {
+                addAssertions(threadGroupHashTree, scenario.getAssertions());
+            }
             // 请求
             scenario.getRequests().stream().filter(Request::isEnable).forEach(request -> {
                 final HashTree samplerHashTree = new ListedHashTree();
@@ -170,6 +175,8 @@ public class JMXGenerator {
             map.put("json", "application/json");
             map.put("html", "text/html");
             map.put("xml", "text/xml");
+            map.put("form", "application/x-www-form-urlencoded");
+            map.put("binary", "application/octet-stream");
             String contentType = map.get(body.getFormat());
             boolean hasContentType = headers.stream().filter(KeyValue::isEnable).anyMatch(keyValue -> keyValue.getName().equals(HTTP.CONTENT_TYPE));
             if (contentType != null && !hasContentType) {
@@ -477,16 +484,39 @@ public class JMXGenerator {
 
         // 请求参数
         if (CollectionUtils.isNotEmpty(request.getParameters())) {
+            // 来自接口定义模块需要参数校验合规性
+            if(request.isDelimit()){
+
+            }
             sampler.setArguments(httpArguments(request.getParameters()));
+        }
+        // rest参数处理
+        if (CollectionUtils.isNotEmpty(request.getRest())) {
+            // 来自接口定义模块需要参数校验合规性
+            if(request.isDelimit()){
+
+            }
+            sampler.setArguments(httpArguments(request.getRest()));
         }
         // 请求体
         if (!StringUtils.equals(request.getMethod(), "GET")) {
             List<KeyValue> body = new ArrayList<>();
             if (request.getBody().isKV()) {
+                // 来自接口定义模块需要参数校验合规性
+                if(request.isDelimit()){
+
+                }
                 body = request.getBody().getKvs().stream().filter(KeyValue::isValid).collect(Collectors.toList());
                 sampler.setHTTPFiles(httpFileArgs(request, testId));
-            } else {
+            }else if (request.getBody().isBinary()){
+                // 上传二进制数据处理
+            }
+            else {
                 if (StringUtils.isNotBlank(request.getBody().getRaw())) {
+                    // 来自接口定义模块需要参数校验合规性
+                    if(request.isDelimit()){
+
+                    }
                     sampler.setPostBodyRaw(true);
                     KeyValue keyValue = new KeyValue("", request.getBody().getRaw());
                     keyValue.setEnable(true);

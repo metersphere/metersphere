@@ -26,6 +26,8 @@
       </el-radio>
     </el-radio-group>
 
+    <ms-dropdown :default-command="body.format" v-if="body.type == 'Raw'" :commands="modes" @command="modeChange"/>
+
     <ms-api-variable :is-read-only="isReadOnly"
                      :parameters="body.kvs"
                      :environment="environment"
@@ -38,17 +40,9 @@
                               type="body"
                               v-if="body.type == 'WWW_FORM'"/>
 
-    <div class="body-raw" v-if="body.type == 'JSON'">
-      <ms-json-code-edit @json-change="jsonChange" @onError="jsonError" :value="body.json" ref="jsonCodeEdit"/>
-    </div>
-
-    <div class="body-raw" v-if="body.type == 'XML'">
-      <ms-code-edit :mode="body.format" :read-only="isReadOnly" :data.sync="body.xml" :modes="modes" ref="codeEdit"/>
-    </div>
-
-
     <div class="body-raw" v-if="body.type == 'Raw'">
-      <ms-code-edit :mode="body.format" :read-only="isReadOnly" :data.sync="body.raw" :modes="modes" ref="codeEdit"/>
+      <ms-json-code-edit v-if="body.format=='json'" @json-change="jsonChange" @onError="jsonError" :value="body.json" ref="jsonCodeEdit"/>
+      <ms-code-edit v-else :mode="body.format" :read-only="isReadOnly" :data.sync="body.raw" :modes="modes" ref="codeEdit"/>
     </div>
 
     <ms-api-binary-variable :is-read-only="isReadOnly"

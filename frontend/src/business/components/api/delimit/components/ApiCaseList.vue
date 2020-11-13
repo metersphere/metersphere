@@ -176,7 +176,7 @@
   import {downloadFile, getUUID} from "@/common/js/utils";
   import {parseEnvironment} from "../model/EnvironmentModel";
   import ApiEnvironmentConfig from "../../test/components/ApiEnvironmentConfig";
-  import {PRIORITY} from "../model/JsonData";
+  import {PRIORITY,RESULT_MAP} from "../model/JsonData";
   import MsApiAssertions from "./assertion/ApiAssertions";
 
   export default {
@@ -226,12 +226,10 @@
     },
     methods: {
       getResult(data) {
-        if (data === 'success') {
-          return '执行结果：通过';
-        } else if (data === 'error') {
-          return '执行结果：未通过';
+        if (RESULT_MAP.get(data)) {
+          return RESULT_MAP.get(data);
         } else {
-          return '执行结果：未执行';
+          return RESULT_MAP.get("default");
         }
       },
       handleCommand(e) {

@@ -10,13 +10,12 @@ public class Body {
     private String type;
     private String raw;
     private String format;
-    private Object json;
-    private String xml;
     private List<KeyValue> kvs;
 
     private final static String KV = "KeyValue";
     private final static String FORM_DATA = "Form Data";
     private final static String RAW = "Raw";
+    private final static String BINARY = "Binary";
 
     public boolean isValid() {
         if (this.isKV()) {
@@ -28,5 +27,9 @@ public class Body {
 
     public boolean isKV() {
         return StringUtils.equals(type, KV);
+    }
+
+    public boolean isBinary(){
+        return StringUtils.equals(type, BINARY);
     }
 }
