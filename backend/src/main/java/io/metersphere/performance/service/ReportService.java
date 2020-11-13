@@ -13,11 +13,13 @@ import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.dto.LogDetailDTO;
 import io.metersphere.dto.ReportDTO;
+import io.metersphere.i18n.Translator;
 import io.metersphere.performance.base.*;
 import io.metersphere.performance.controller.request.DeleteReportRequest;
 import io.metersphere.performance.controller.request.ReportRequest;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
+import io.metersphere.service.FileService;
 import io.metersphere.service.TestResourceService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -47,6 +49,8 @@ public class ReportService {
     private TestResourceService testResourceService;
     @Resource
     private LoadTestReportDetailMapper loadTestReportDetailMapper;
+    @Resource
+    private FileService fileService;
 
     public List<ReportDTO> getRecentReportList(ReportRequest request) {
         List<OrderRequest> orders = new ArrayList<>();
@@ -168,9 +172,9 @@ public class ReportService {
 
     public void checkReportStatus(String reportId) {
         LoadTestReport loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
-        String reportStatus="";
-        if(loadTestReport!=null){
-             reportStatus = loadTestReport.getStatus();
+        String reportStatus = "";
+        if (loadTestReport != null) {
+            reportStatus = loadTestReport.getStatus();
         }
         if (StringUtils.equals(PerformanceTestStatus.Error.name(), reportStatus)) {
             MSException.throwException("Report generation error!");
@@ -270,5 +274,13 @@ public class ReportService {
         checkReportStatus(id);
         String content = getContent(id, ReportKeys.ResponseCodeChart);
         return JSON.parseArray(content, ChartsData.class);
+    }
+
+    public byte[] downloadJtl(String reportId) {
+        LoadTestReportWithBLOBs report = getReport(reportId);
+        if (StringUtils.isBlank(report.getFileId())) {
+            throw new RuntimeException(Translator.get("load_test_report_file_not_exist"));
+        }
+        return fileService.loadFileAsBytes(report.getFileId());
     }
 }
