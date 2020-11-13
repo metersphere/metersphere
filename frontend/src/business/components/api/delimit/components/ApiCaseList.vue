@@ -61,16 +61,27 @@
               </div>
             </el-col>
             <el-col :span="2">
-              <div class="ms-api-header-select">
-                <el-button size="small" style="background-color: #783887;color: white" @click="createCase">
-                  +{{$t('api_test.delimit.request.case')}}
-                </el-button>
-              </div>
+              <!--<div class="ms-api-header-select">-->
+              <!--<el-button size="small" style="background-color: #783887;color: white" @click="createCase">-->
+              <!--+{{$t('api_test.delimit.request.case')}}-->
+              <!--</el-button>-->
+              <!--</div>-->
+
+              <el-dropdown size="small" split-button type="primary" class="ms-api-header-select" @click="createCase"
+                           @command="handleCommand">
+                +{{$t('api_test.delimit.request.case')}}
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item command="run">{{$t('commons.test')}}</el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+
+
             </el-col>
             <el-col :span="2">
               <button type="button" aria-label="Close" class="el-card-btn" @click="apiCaseClose()"><i
                 class="el-dialog__close el-icon el-icon-close"></i></button>
             </el-col>
+
           </el-row>
         </el-card>
 
@@ -123,7 +134,7 @@
               </el-col>
 
               <el-col :span="4">
-                <div v-if="item.type!='create'">{{getResult(item.execute_result)}}</div>
+                <div v-if="item.type!='create'">{{getResult(item.execResult)}}</div>
                 <div v-if="item.type!='create'" style="color: #999999;font-size: 12px">
                   <span> {{item.updateTime | timestampFormatDate }}</span>
                   {{item.updateUser}}
@@ -215,12 +226,17 @@
     },
     methods: {
       getResult(data) {
-        if (data === 'PASS') {
+        if (data === 'success') {
           return '执行结果：通过';
-        } else if (data === 'UN_PASS') {
+        } else if (data === 'error') {
           return '执行结果：未通过';
         } else {
           return '执行结果：未执行';
+        }
+      },
+      handleCommand(e) {
+        if (e === "run") {
+          this.runCase();
         }
       },
       showInput(row) {
@@ -446,6 +462,7 @@
 
   .ms-api-header-select {
     margin-left: 20px;
+    min-width: 100px;
   }
 
   .el-card-btn {

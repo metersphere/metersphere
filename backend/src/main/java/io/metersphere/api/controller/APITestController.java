@@ -1,7 +1,5 @@
 package io.metersphere.api.controller;
 
-import static io.metersphere.commons.utils.JsonPathUtils.getListJson;
-
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.*;
@@ -21,10 +19,11 @@ import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.annotation.Resource;
+import static io.metersphere.commons.utils.JsonPathUtils.getListJson;
 
 
 @RestController

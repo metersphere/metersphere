@@ -146,34 +146,34 @@
     </sql>
 
     <select id="list" resultType="io.metersphere.api.dto.delimit.ApiTestCaseResult">
-        select api_test_case.id, api_test_case.project_id,
-        api_test_case.name,api_test_case.priority,api_test_case.api_delimit_id,T1.name as createUser ,T2.name as
-        updateUser,
-        api_test_case.description,api_test_case.request,api_test_case.response,api_test_case.create_user_id,
-        api_test_case.create_time,api_test_case.update_user_id, api_test_case.update_time
-        from api_test_case left join user T1 on api_test_case.create_user_id = T1.id left join user T2 on
-        api_test_case.update_user_id = T2.id
+        select atc.id, atc.project_id,
+        atc.name,atc.priority,atc.api_delimit_id,T1.name as createUser ,T2.name as updateUser,
+        atc.description,atc.request,atc.response,atc.create_user_id,
+        atc.create_time,atc.update_user_id, atc.update_time,ader.status execResult
+        from api_test_case atc left join user T1 on atc.create_user_id = T1.id left join user T2 on
+        atc.update_user_id = T2.id left join api_delimit_exec_result ader on atc.id = ader.resource_id
         <where>
             <if test="request.name != null and request.name!=''">
-                and api_test_case.name like CONCAT('%', #{request.name},'%')
+
+                and atc.name like CONCAT('%', #{request.name},'%')
             </if>
             <if test="request.id != null and request.id!=''">
-                AND api_test_case.id = #{request.id}
+                AND atc.id = #{request.id}
             </if>
             <if test="request.priority != null and request.priority!=''">
-                AND api_test_case.priority = #{request.priority}
+                AND atc.priority = #{request.priority}
             </if>
             <if test="request.projectId != null and request.projectId!=''">
-                AND api_test_case.project_id = #{request.projectId}
+                AND atc.project_id = #{request.projectId}
             </if>
             <if test="request.apiDelimitId != null and request.apiDelimitId!=''">
-                AND api_test_case.api_delimit_id = #{request.apiDelimitId}
+                AND atc.api_delimit_id = #{request.apiDelimitId}
             </if>
         </where>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
-                api_test_case.${order.name} ${order.type}
+                atc.${order.name} ${order.type}
             </foreach>
         </if>
     </select>

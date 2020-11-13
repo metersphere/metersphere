@@ -39,7 +39,7 @@
     "vue-pdf": "^4.2.0",
     "diffable-html": "^4.0.0",
     "xml-js": "^1.6.11",
-    "jsoneditor": "^9.1.2",
+    "jsoneditor": "^9.1.2"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.1.0",
