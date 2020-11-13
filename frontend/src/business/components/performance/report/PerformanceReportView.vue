@@ -26,7 +26,7 @@
                 {{ $t('test_track.plan_view.export_report') }}
               </el-button>
               <el-button :disabled="isReadOnly" type="warning" plain size="mini" @click="downloadJtl()">
-                下载JTL
+                {{ $t('report.downloadJtl') }}
               </el-button>
 
               <!--<el-button :disabled="isReadOnly" type="warning" plain size="mini">-->
@@ -307,7 +307,10 @@ export default {
           navigator.msSaveBlob(blob, this.filename)
         }
       }).catch(e => {
-        Message.error({message: e.message, showClose: true});
+        let text = e.response.data.text();
+        text.then((data) => {
+          Message.error({message: JSON.parse(data).message || e.message, showClose: true});
+        });
       });
     }
   },

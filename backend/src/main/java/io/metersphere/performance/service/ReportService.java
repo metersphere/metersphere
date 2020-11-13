@@ -279,7 +279,7 @@ public class ReportService {
     public byte[] downloadJtl(String reportId) {
         LoadTestReportWithBLOBs report = getReport(reportId);
         if (StringUtils.isBlank(report.getFileId())) {
-            MSException.throwException(Translator.get("load_test_report_file_not_exist"));
+            throw new RuntimeException(Translator.get("load_test_report_file_not_exist"));
         }
         return fileService.loadFileAsBytes(report.getFileId());
     }
