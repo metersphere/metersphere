@@ -1,33 +1,33 @@
 <template>
   <div class="text-container">
-    <div @click="active" class="collapse">
-      <i class="icon el-icon-arrow-right" :class="{'is-active': isActive}"/>
-      {{ $t('api_report.response') }}
-    </div>
-    <el-collapse-transition>
-      <el-tabs v-model="activeName" v-show="isActive">
-        <el-tab-pane label="Body" name="body" class="pane">
-          <ms-code-edit :mode="mode" :read-only="true" :data="response.body" :modes="modes" ref="codeEdit"/>
-        </el-tab-pane>
-        <el-tab-pane label="Headers" name="headers" class="pane">
-          <pre>{{ response.headers }}</pre>
-        </el-tab-pane>
-        <el-tab-pane :label="$t('api_report.assertions')" name="assertions" class="pane assertions">
-          <ms-assertion-results :assertions="response.assertions"/>
-        </el-tab-pane>
+    <el-form :model="response" ref="response" label-width="100px">
 
-        <el-tab-pane :label="$t('api_test.request.extract.label')" name="label" class="pane">
-          <pre>{{response.vars}}</pre>
-        </el-tab-pane>
+      <el-collapse-transition>
+        <el-tabs v-model="activeName" v-show="isActive">
+          <el-tab-pane :label="$t('api_test.delimit.request.response_header')" name="headers" class="pane">
+            <ms-api-key-value :isShowEnable="false" :suggestions="headerSuggestions"
+                              :items="response.headers"/>
+          </el-tab-pane>
+          <el-tab-pane :label="$t('api_test.delimit.request.response_body')" name="body" class="pane">
+            <ms-api-body
+              :body="response.body"
+              :extract="response.extract"/>
+          </el-tab-pane>
 
-        <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane assertions">
-          <template v-slot:label>
-            <ms-dropdown :commands="modes" :default-command="mode" @command="modeChange"/>
-          </template>
-        </el-tab-pane>
+          <el-tab-pane :label="$t('api_test.delimit.request.status_code')" name="status_code" class="pane">
+            <ms-api-key-value :isShowEnable="false" :suggestions="headerSuggestions"
+                              :items="response.statusCode"/>
+          </el-tab-pane>
 
-      </el-tabs>
-    </el-collapse-transition>
+          <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane cookie">
+            <template v-slot:label>
+              <ms-dropdown :commands="modes" :default-command="mode" @command="modeChange"/>
+            </template>
+          </el-tab-pane>
+
+        </el-tabs>
+      </el-collapse-transition>
+    </el-form>
   </div>
 </template>
 
@@ -35,7 +35,10 @@
   import MsAssertionResults from "./AssertionResults";
   import MsCodeEdit from "../../../../common/components/MsCodeEdit";
   import MsDropdown from "../../../../common/components/MsDropdown";
-  import {BODY_FORMAT} from "../../model/ScenarioModel";
+  import {BODY_FORMAT} from "../../model/ApiTestModel";
+  import MsApiKeyValue from "../ApiKeyValue";
+  import {REQUEST_HEADERS} from "@/common/js/constants";
+  import MsApiBody from "../body/ApiBody";
 
   export default {
     name: "MsResponseText",
@@ -44,6 +47,8 @@
       MsDropdown,
       MsCodeEdit,
       MsAssertionResults,
+      MsApiKeyValue,
+      MsApiBody,
     },
 
     props: {
@@ -53,9 +58,11 @@
     data() {
       return {
         isActive: true,
-        activeName: "body",
+        activeName: "headers",
         modes: ['text', 'json', 'xml', 'html'],
-        mode: BODY_FORMAT.TEXT
+        mode: BODY_FORMAT.TEXT,
+        headerSuggestions: REQUEST_HEADERS
+
       }
     },
 
@@ -97,13 +104,13 @@
   }
 
   .text-container .pane {
-    background-color: #F5F5F5;
+    background-color: white;
     padding: 0 10px;
     height: 250px;
     overflow-y: auto;
   }
 
-  .text-container .pane.assertions {
+  .text-container .pane.cookie {
     padding: 0;
   }
 

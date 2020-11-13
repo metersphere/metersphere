@@ -37,3 +37,8 @@ export const API_METHOD_COLOUR = [
   ['HEAD', '#8E58E7'], ['CONNECT', '#90AFAE'],
   ['DUBBO', '#C36EEF'], ['SQL', '#0AEAD4'], ['TCP', '#0A52DF'],
 ]
+
+export const REQUIRED = [
+  {name: '必填', id: true},
+  {name: '非必填', id: false}
+]

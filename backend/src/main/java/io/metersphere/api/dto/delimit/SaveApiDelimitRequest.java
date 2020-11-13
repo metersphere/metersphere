@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.delimit;
 
 import io.metersphere.api.dto.scenario.request.Request;
+import io.metersphere.api.dto.delimit.response.Response;
 import io.metersphere.base.domain.Schedule;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,6 +13,8 @@ import java.util.List;
 public class SaveApiDelimitRequest {
 
     private String id;
+
+    private String reportId;
 
     private String projectId;
 
@@ -30,6 +33,10 @@ public class SaveApiDelimitRequest {
     private String path;
 
     private Request request;
+
+    private Response response;
+
+    private String environmentId;
 
     private String userId;
 

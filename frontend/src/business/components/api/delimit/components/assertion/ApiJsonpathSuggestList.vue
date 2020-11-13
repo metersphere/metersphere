@@ -51,7 +51,7 @@
 
 <script>
     import MsDialogFooter from "../../../../common/components/MsDialogFooter";
-    import {HttpRequest} from "../../model/ScenarioModel";
+    import {HttpRequest} from "../../model/ApiTestModel";
     export default {
       name: "MsApiJsonpathSuggestList",
       components: {MsDialogFooter},

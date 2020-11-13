@@ -10,7 +10,7 @@
 
 <script>
   import MsAddCompleteHttpApi from "./complete/AddCompleteHttpApi";
-  import {RequestFactory, Test} from "../model/ScenarioModel";
+  import {RequestFactory, ResponseFactory, Test, Body} from "../model/ApiTestModel";
   import {getUUID} from "@/common/js/utils";
 
   export default {
@@ -30,7 +30,13 @@
     },
     created() {
       this.test = new Test({
-        request: this.currentApi.request != null ? new RequestFactory(JSON.parse(this.currentApi.request)) : null
+        request: this.currentApi.request != null ? new RequestFactory(JSON.parse(this.currentApi.request)) : null,
+        response: this.currentApi.response != null ? new ResponseFactory(JSON.parse(this.currentApi.response)) : {
+          headers: [],
+          body: new Body(),
+          statusCode: [],
+          type: "HTTP"
+        }
       });
       if (this.currentApi != null && this.currentApi.id != null) {
         this.reqUrl = "/api/delimit/update";
@@ -41,18 +47,24 @@
     },
     methods: {
       runTest(data) {
-        if (this.editApi(data) === true) {
-          this.$emit('runTest', data);
-        }
-      },
-      saveApi(data) {
-        if (this.editApi(data) === true) {
-          this.$emit('saveApi', data);
-        }
-      },
-      editApi(data) {
         data.projectId = this.currentProject.id;
         data.request = data.test.request;
+        let bodyFiles = this.getBodyUploadFiles(data);
+        let jmx = data.test.toJMX();
+        let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
+        let file = new File([blob], jmx.name);
+
+        this.$fileUpload(this.reqUrl, file, bodyFiles, data, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.reqUrl = "/api/delimit/update";
+          this.$emit('runTest', data);
+        });
+      },
+
+      saveApi(data) {
+        data.projectId = this.currentProject.id;
+        data.request = data.test.request;
+        data.response = data.test.response;
         let bodyFiles = this.getBodyUploadFiles(data);
         let jmx = data.test.toJMX();
         let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
@@ -60,8 +72,9 @@
         this.$fileUpload(this.reqUrl, file, bodyFiles, data, () => {
           this.$success(this.$t('commons.save_success'));
           this.reqUrl = "/api/delimit/update";
-          return true;
+          this.$emit('saveApi', data);
         });
+
       },
       getBodyUploadFiles(data) {
         let bodyUploadFiles = [];

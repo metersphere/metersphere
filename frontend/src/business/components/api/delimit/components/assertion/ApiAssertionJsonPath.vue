@@ -18,7 +18,7 @@
 </template>
 
 <script>
-  import {JSONPath} from "../../model/ScenarioModel";
+  import {JSONPath} from "../../model/ApiTestModel";
 
   export default {
     name: "MsApiAssertionJsonPath",

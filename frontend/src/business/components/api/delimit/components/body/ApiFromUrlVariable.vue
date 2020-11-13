@@ -80,11 +80,11 @@
 </template>
 
 <script>
-  import {KeyValue, Scenario} from "../model/ApiTestModel";
+  import {KeyValue, Scenario} from "../../model/ApiTestModel";
   import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
-  import MsApiVariableAdvance from "./ApiVariableAdvance";
-  import MsApiBodyFileUpload from "./body/ApiBodyFileUpload";
-  import {REQUIRED} from "../model/JsonData";
+  import MsApiVariableAdvance from "../ApiVariableAdvance";
+  import MsApiBodyFileUpload from "../body/ApiBodyFileUpload";
+  import {REQUIRED} from "../../model/JsonData";
 
   export default {
     name: "MsApiVariable",
@@ -192,13 +192,7 @@
     },
     created() {
       if (this.parameters.length === 0 || this.parameters[this.parameters.length - 1].name) {
-        this.parameters.push(new KeyValue({
-          type: 'text',
-          enable: true,
-          required: true,
-          uuid: this.uuid(),
-          contentType: 'text/plain'
-        }));
+        this.parameters.push(new KeyValue({type: 'text', enable: true, required:true,uuid: this.uuid(), contentType: 'text/plain'}));
       }
     }
   }

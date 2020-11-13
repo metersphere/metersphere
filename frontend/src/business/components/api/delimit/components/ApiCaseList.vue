@@ -62,7 +62,9 @@
             </el-col>
             <el-col :span="2">
               <div class="ms-api-header-select">
-                <el-button size="small" @click="createCase">+{{$t('api_test.delimit.request.case')}}</el-button>
+                <el-button size="small" style="background-color: #783887;color: white" @click="createCase">
+                  +{{$t('api_test.delimit.request.case')}}
+                </el-button>
               </div>
             </el-col>
             <el-col :span="2">
@@ -78,7 +80,7 @@
       </el-header>
 
       <!-- 用例部分 -->
-      <el-main>
+      <el-main v-loading="loading">
         <div v-for="(item,index) in apiCaseList" :key="index">
           <el-card style="margin-top: 10px" @click.native="selectTestCase(item,$event)">
             <el-row>
@@ -97,16 +99,21 @@
               <el-col :span="10">
                 <i class="icon el-icon-arrow-right" :class="{'is-active': item.active}"
                    @click="active(item)"/>
-                <el-input v-if="item.type==='create'" size="small" v-model="item.name" :name="index"
-                          :key="index" class="ms-api-header-select" style="width: 180px"/>
-                {{item.type!= 'create' ? item.name:''}}
+                <el-input v-if="item.type==='create'" size="small" v-model="item.name" :name="index" :key="index"
+                          class="ms-api-header-select" style="width: 180px"
+                          @blur="saveTestCase(item)"
+                />
+                <span v-else>
+                  {{item.type!= 'create' ? item.name:''}}
+                  <i class="el-icon-edit" style="cursor:pointer" @click="showInput(item)"/>
+                </span>
                 <div v-if="item.type!='create'" style="color: #999999;font-size: 12px">
                   <span> {{item.createTime | timestampFormatDate }}</span> {{item.createUser}} 创建
                   <span> {{item.updateTime | timestampFormatDate }}</span> {{item.updateUser}} 更新
                 </div>
               </el-col>
               <el-col :span="4">
-                <ms-tip-button @click="runCase" :tip="$t('api_test.run')" icon="el-icon-video-play"
+                <ms-tip-button @click="runCase(item)" :tip="$t('api_test.run')" icon="el-icon-video-play"
                                style="background-color: #409EFF;color: white" size="mini" circle/>
                 <ms-tip-button @click="copyCase(item)" :tip="$t('commons.copy')" icon="el-icon-document-copy"
                                size="mini" circle/>
@@ -126,7 +133,15 @@
             <!-- 请求参数-->
             <el-collapse-transition>
               <div v-if="item.active">
+                <p class="tip">{{$t('api_test.delimit.request.req_param')}} </p>
+
                 <ms-api-request-form :is-read-only="isReadOnly" :request="item.test.request"/>
+
+                <p class="tip">{{$t('api_test.delimit.request.assertions_rule')}} </p>
+
+                <ms-api-assertions :request="item.test.request" :is-read-only="isReadOnly"
+                                   :assertions="item.test.request.assertions"/>
+
                 <!-- 保存操作 -->
                 <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(item)">
                   {{$t('commons.save')}}
@@ -146,11 +161,12 @@
   import MsTag from "../../../common/components/MsTag";
   import MsTipButton from "../../../common/components/MsTipButton";
   import MsApiRequestForm from "./request/ApiRequestForm";
-  import {Test, RequestFactory} from "../model/ScenarioModel";
+  import {Test, RequestFactory} from "../model/ApiTestModel";
   import {downloadFile, getUUID} from "@/common/js/utils";
   import {parseEnvironment} from "../model/EnvironmentModel";
   import ApiEnvironmentConfig from "../../test/components/ApiEnvironmentConfig";
   import {PRIORITY} from "../model/JsonData";
+  import MsApiAssertions from "./assertion/ApiAssertions";
 
   export default {
     name: 'ApiCaseList',
@@ -158,18 +174,21 @@
       MsTag,
       MsTipButton,
       MsApiRequestForm,
-      ApiEnvironmentConfig
+      ApiEnvironmentConfig,
+      MsApiAssertions
     },
     props: {
       api: {
         type: Object
       },
+      loaded: Boolean,
       currentProject: {},
     },
     data() {
       return {
         grades: [],
         environments: [],
+        environment: {},
         envValue: {},
         name: "",
         priorityValue: "",
@@ -177,6 +196,7 @@
         selectedEvent: Object,
         priority: PRIORITY,
         apiCaseList: [],
+        loading: false,
       }
     },
 
@@ -191,6 +211,7 @@
     },
     created() {
       this.getApiTest();
+      this.getEnvironments();
     },
     methods: {
       getResult(data) {
@@ -202,11 +223,58 @@
           return '执行结果：未执行';
         }
       },
+      showInput(row) {
+        row.type = "create";
+        row.active = true;
+        this.active(row);
+      },
       apiCaseClose() {
         this.apiCaseList = [];
         this.$emit('apiCaseClose');
       },
-      runCase() {
+      getReport(id) {
+        let url = "/api/delimit/report/get/" + id + "/run";
+        this.$get(url, response => {
+          if (response.data) {
+            this.loading = false;
+            this.$success(this.$t('schedule.event_success'));
+            this.$emit('refresh');
+          } else {
+            setTimeout(this.getReport, 2000)
+          }
+        });
+      },
+      runCase(row) {
+        if (!this.environment) {
+          this.$warning(this.$t('api_test.environment.select_environment'));
+          return;
+        }
+        row.request = row.test.request;
+        let url = "/api/delimit/run";
+        let bodyFiles = this.getBodyUploadFiles(row);
+        let env = this.environment.config.httpConfig.socket ? (this.environment.config.httpConfig.protocol + '://' + this.environment.config.httpConfig.socket) : '';
+        if (env.endsWith("/")) {
+          env = env.substr(0, env.length - 1);
+        }
+        let sendUrl = this.api.url;
+        if (!sendUrl.startsWith("/")) {
+          sendUrl = "/" + sendUrl;
+        }
+        row.test.request.url = env + sendUrl;
+        row.test.request.path = this.api.path;
+        row.test.request.name = row.id;
+        row.test.request.connectTimeout = "6000";
+        row.test.request.responseTimeout = "0";
+        row.reportId = "run";
+        this.loading = true;
+        let jmx = row.test.toJMX();
+        let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
+        let file = new File([blob], jmx.name);
+        this.$fileUpload(url, file, bodyFiles, row, response => {
+          this.getReport(row.id);
+        }, erro => {
+          this.loading = false;
+        });
       },
       deleteCase(index, row) {
         this.$get('/api/testcase/delete/' + row.id, () => {
@@ -222,19 +290,24 @@
           active: false,
           test: data.test,
         };
-        this.apiCaseList.push(obj);
+        this.apiCaseList.unshift(obj);
       },
-      createCase() {
-        let test = new Test();
+      createCase(row) {
         let obj = {
-          id: this.apiCaseList.size + 1,
           name: '',
           priority: 'P0',
           type: 'create',
           active: false,
-          test: test,
         };
-        this.apiCaseList.push(obj);
+        let request = {};
+        if (row) {
+          request = row.request;
+          obj.apiDelimitId = row.apiDelimitId;
+        } else {
+          request: new RequestFactory(JSON.parse(this.api.request))
+        }
+        obj.test = new Test({request: request});
+        this.apiCaseList.unshift(obj);
       },
       active(item) {
         item.active = !item.active;
@@ -289,7 +362,7 @@
         row.test.request.url = this.api.url;
         row.test.request.path = this.api.path;
         row.projectId = this.api.projectId;
-        row.apiDelimitId = this.api.id;
+        row.apiDelimitId = row.apiDelimitId || this.api.id;
         row.request = row.test.request;
         let jmx = row.test.toJMX();
         let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
@@ -313,19 +386,17 @@
             let hasEnvironment = false;
             for (let i in this.environments) {
               if (this.environments[i].id === this.api.environmentId) {
-                this.api.environment = this.environments[i];
+                this.environment = this.environments[i];
                 hasEnvironment = true;
                 break;
               }
             }
             if (!hasEnvironment) {
-              this.api.environmentId = '';
-              this.api.environment = undefined;
+              this.environment = undefined;
             }
           });
         } else {
-          this.api.environmentId = '';
-          this.api.environment = undefined;
+          this.environment = undefined;
         }
       },
       openEnvironmentConfig() {
@@ -338,7 +409,7 @@
       environmentChange(value) {
         for (let i in this.environments) {
           if (this.environments[i].id === value) {
-            this.api.environment = this.environments[i];
+            this.environment = this.environments[i];
             break;
           }
         }
@@ -347,7 +418,7 @@
         this.getEnvironments();
       },
       selectTestCase(item, $event) {
-        if (item.type === "create") {
+        if (item.type === "create" || !this.loaded) {
           return;
         }
         if ($event.currentTarget.className.indexOf('is-selected') > 0) {
@@ -411,6 +482,19 @@
 
   .icon.is-active {
     transform: rotate(90deg);
+  }
+
+  .tip {
+    padding: 3px 5px;
+    font-size: 16px;
+    border-radius: 4px;
+    border-left: 4px solid #783887;
+    margin: 20px 0;
+  }
+
+  .environment-button {
+    margin-left: 20px;
+    padding: 7px;
   }
 
   .is-selected {

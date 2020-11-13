@@ -90,7 +90,7 @@
 </template>
 
 <script>
-import {calculate, Scenario} from "../model/ScenarioModel";
+import {calculate, Scenario} from "../model/ApiTestModel";
 import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
 
 export default {

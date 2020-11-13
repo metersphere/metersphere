@@ -16,9 +16,11 @@ public class ApiDelimit implements Serializable {
 
     private String url;
 
-    private String description;
+    private String environmentId;
 
     private String status;
+
+    private String description;
 
     private String userId;
 
@@ -31,6 +33,8 @@ public class ApiDelimit implements Serializable {
     private Long updateTime;
 
     private String request;
+
+    private String response;
 
     private static final long serialVersionUID = 1L;
 }

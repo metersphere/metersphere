@@ -29,7 +29,7 @@
 </template>
 
 <script>
-  import {EXTRACT_TYPE, ExtractCommon} from "../../model/ScenarioModel";
+  import {EXTRACT_TYPE, ExtractCommon} from "../../model/ApiTestModel";
   import MsApiVariableInput from "../ApiVariableInput";
 
   export default {

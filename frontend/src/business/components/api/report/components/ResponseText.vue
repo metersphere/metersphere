@@ -1,5 +1,10 @@
 <template>
   <div class="text-container">
+    <div @click="active" class="collapse">
+      <i class="icon el-icon-arrow-right" :class="{'is-active': isActive}"/>
+      {{ $t('api_report.response') }}
+    </div>
+    <el-collapse-transition>
       <el-tabs v-model="activeName" v-show="isActive">
         <el-tab-pane :class="'body-pane'" label="Body" name="body" class="pane">
           <ms-sql-result-table v-if="isSqlType" :body="response.body"/>
@@ -23,64 +28,65 @@
         </el-tab-pane>
 
       </el-tabs>
+    </el-collapse-transition>
   </div>
 </template>
 
 <script>
-import MsAssertionResults from "./AssertionResults";
-import MsCodeEdit from "../../../common/components/MsCodeEdit";
-import MsDropdown from "../../../common/components/MsDropdown";
-import {BODY_FORMAT, RequestFactory, Request, SqlRequest} from "../../test/model/ScenarioModel";
-import MsSqlResultTable from "./SqlResultTable";
+  import MsAssertionResults from "./AssertionResults";
+  import MsCodeEdit from "../../../common/components/MsCodeEdit";
+  import MsDropdown from "../../../common/components/MsDropdown";
+  import {BODY_FORMAT, RequestFactory, Request, SqlRequest} from "../../test/model/ScenarioModel";
+  import MsSqlResultTable from "./SqlResultTable";
 
-export default {
-  name: "MsResponseText",
+  export default {
+    name: "MsResponseText",
 
-  components: {
-    MsSqlResultTable,
-    MsDropdown,
-    MsCodeEdit,
-    MsAssertionResults,
-  },
-
-  props: {
-    requestType: String,
-    response: Object
-  },
-
-  data() {
-    return {
-      isActive: true,
-      activeName: "body",
-      modes: ['text', 'json', 'xml', 'html'],
-      mode: BODY_FORMAT.TEXT
-    }
-  },
-
-  methods: {
-    active() {
-      this.isActive = !this.isActive;
+    components: {
+      MsSqlResultTable,
+      MsDropdown,
+      MsCodeEdit,
+      MsAssertionResults,
     },
-    modeChange(mode) {
-      this.mode = mode;
-    }
-  },
 
-  mounted() {
-    if (!this.response.headers) {
-      return;
-    }
-    if (this.response.headers.indexOf("Content-Type: application/json") > 0) {
-      this.mode = BODY_FORMAT.JSON;
-    }
-  },
+    props: {
+      requestType: String,
+      response: Object
+    },
 
-  computed: {
-    isSqlType() {
-      return (this.requestType === RequestFactory.TYPES.SQL && this.response.responseCode === '200');
+    data() {
+      return {
+        isActive: true,
+        activeName: "body",
+        modes: ['text', 'json', 'xml', 'html'],
+        mode: BODY_FORMAT.TEXT
+      }
+    },
+
+    methods: {
+      active() {
+        this.isActive = !this.isActive;
+      },
+      modeChange(mode) {
+        this.mode = mode;
+      }
+    },
+
+    mounted() {
+      if (!this.response.headers) {
+        return;
+      }
+      if (this.response.headers.indexOf("Content-Type: application/json") > 0) {
+        this.mode = BODY_FORMAT.JSON;
+      }
+    },
+
+    computed: {
+      isSqlType() {
+        return (this.requestType === RequestFactory.TYPES.SQL && this.response.responseCode === '200');
+      }
     }
   }
-}
 </script>
 
 <style scoped>

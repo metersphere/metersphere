@@ -23,7 +23,6 @@ public interface ApiDelimitMapper {
 
     int insert(ApiDelimit record);
 
-    int insertSelective(ApiDelimit record);
 
     List<ApiDelimit> selectByExampleWithBLOBs(ApiDelimitExample example);
 
@@ -31,11 +30,6 @@ public interface ApiDelimitMapper {
 
     ApiDelimit selectByPrimaryKey(String id);
 
-    int updateByExampleSelective(@Param("record") ApiDelimit record, @Param("example") ApiDelimitExample example);
-
-    int updateByExampleWithBLOBs(@Param("record") ApiDelimit record, @Param("example") ApiDelimitExample example);
-
-    int updateByExample(@Param("record") ApiDelimit record, @Param("example") ApiDelimitExample example);
 
     int updateByPrimaryKeySelective(ApiDelimit record);
 

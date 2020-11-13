@@ -81,9 +81,10 @@ export const BODY_TYPE = {
   KV: "KeyValue",
   FORM_DATA: "Form Data",
   RAW: "Raw",
-  WWW_FORM: "WWW_Form",
+  WWW_FORM: "WWW_FORM",
   XML: "XML",
-  BINARY: "BINARY"
+  BINARY: "BINARY",
+  JSON: "JSON"
 }
 
 export const BODY_FORMAT = {
@@ -295,6 +296,29 @@ export class RequestFactory {
   }
 }
 
+export class ResponseFactory {
+  static TYPES = {
+    HTTP: "HTTP",
+    DUBBO: "DUBBO",
+    SQL: "SQL",
+    TCP: "TCP",
+  }
+
+  constructor(options = {}) {
+    options.type = options.type || ResponseFactory.TYPES.HTTP
+    switch (options.type) {
+      case RequestFactory.TYPES.DUBBO:
+        return new DubboRequest(options);
+      case RequestFactory.TYPES.SQL:
+        return new SqlRequest(options);
+      case RequestFactory.TYPES.TCP:
+        return new TCPRequest(options);
+      default:
+        return new HttpResponse(options);
+    }
+  }
+}
+
 export class Request extends BaseConfig {
   constructor(type, options = {}) {
     super();
@@ -386,6 +410,32 @@ export class HttpRequest extends Request {
     return this.method.toUpperCase();
   }
 
+}
+
+
+export class Response extends BaseConfig {
+  constructor(type, options = {}) {
+    super();
+    this.type = type;
+    this.id = options.id || uuid();
+    this.name = options.name;
+    this.enable = options.enable === undefined ? true : options.enable;
+    this.assertions = new Assertions(options.assertions);
+    this.extract = new Extract(options.extract);
+    this.jsr223PreProcessor = new JSR223Processor(options.jsr223PreProcessor);
+    this.jsr223PostProcessor = new JSR223Processor(options.jsr223PostProcessor);
+  }
+}
+
+
+export class HttpResponse extends Response {
+  constructor(options) {
+    super(ResponseFactory.TYPES.HTTP, options);
+    this.headers = [];
+    this.body = new Body(options.body);
+    this.statusCode = [];
+    this.sets({statusCode: KeyValue,headers: KeyValue}, options);
+  }
 }
 
 export class DubboRequest extends Request {
@@ -658,9 +708,12 @@ export class Body extends BaseConfig {
     this.type = undefined;
     this.raw = undefined;
     this.kvs = [];
-
+    this.fromUrlencoded = [];
+    this.binary = [];
+    this.xml = undefined;
+    this.json = undefined;
     this.set(options);
-    this.sets({kvs: KeyValue}, options);
+    this.sets({kvs: KeyValue},{fromUrlencoded: KeyValue},{binary: KeyValue}, options);
   }
 
   isValid() {

@@ -31,7 +31,7 @@
 <script>
   import MsApiAssertionRegex from "./ApiAssertionRegex";
   import MsApiAssertionDuration from "./ApiAssertionDuration";
-  import {Assertions} from "../../model/ScenarioModel";
+  import {Assertions} from "../../model/ApiTestModel";
   import MsApiAssertionJsonPath from "./ApiAssertionJsonPath";
 
   export default {

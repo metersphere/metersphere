@@ -9,8 +9,7 @@
           <el-button type="primary" size="small" @click="runTest">{{$t('commons.test')}}</el-button>
         </div>
         <br/>
-        <div style="font-size: 16px;color: #333333">{{$t('test_track.plan_view.base_info')}}</div>
-        <br/>
+        <p class="tip">{{$t('test_track.plan_view.base_info')}} </p>
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input class="ms-http-input" size="small" v-model="httpForm.name"/>
         </el-form-item>
@@ -59,23 +58,21 @@
                     :rows="2" size="small"/>
         </el-form-item>
 
-
-        <div style="font-size: 16px;color: #333333;padding-top: 30px">{{$t('api_test.delimit.request.req_param')}}</div>
-        <br/>
         <!-- HTTP 请求参数 -->
-        <ms-api-request-form :request="test.request"/>
-
+        <p class="tip">{{$t('api_test.delimit.request.req_param')}} </p>
+        <ms-api-request-form :request="test.request" :isShowEnable="isShowEnable"/>
       </el-form>
-      <div style="font-size: 16px;color: #333333 ;padding-top: 30px">{{$t('api_test.delimit.request.res_param')}}</div>
-      <br/>
-      <ms-response-text :response="responseData"></ms-response-text>
+
+      <!-- 响应内容-->
+      <p class="tip">{{$t('api_test.delimit.request.res_param')}} </p>
+      <ms-response-text :response="test.response"></ms-response-text>
     </el-card>
   </div>
 </template>
 
 <script>
   import MsApiRequestForm from "../request/ApiRequestForm";
-  import MsResponseText from "../../../report/components/ResponseText";
+  import MsResponseText from "../response/ResponseText";
   import {WORKSPACE_ID} from '../../../../../../common/js/constants';
   import {REQ_METHOD, API_STATUS} from "../../model/JsonData";
 
@@ -95,8 +92,8 @@
           status: [{required: true, message: this.$t('commons.please_select'), trigger: 'change'}],
         },
         httpForm: {},
+        isShowEnable: false,
         maintainerOptions: [],
-        responseData: {},
         currentModule: {},
         reqOptions: REQ_METHOD,
         options: API_STATUS
@@ -166,6 +163,14 @@
 <style scoped>
   .ms-http-input {
     width: 500px;
+  }
+
+  .tip {
+    padding: 3px 5px;
+    font-size: 16px;
+    border-radius: 4px;
+    border-left: 4px solid #783887;
+    margin: 20px 0;
   }
 
   .ms-http-textarea {

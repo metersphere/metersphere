@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import {Regex, ASSERTION_REGEX_SUBJECT} from "../../model/ScenarioModel";
+import {Regex, ASSERTION_REGEX_SUBJECT} from "../../model/ApiTestModel";
 
 export default {
   name: "MsApiAssertionText",

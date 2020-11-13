@@ -6,45 +6,6 @@
 
     <div class="kv-row" v-for="(item, index) in parameters" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
-
-        <el-col>
-          <el-input v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="200"
-                    @change="change" :placeholder="keyText" show-word-limit>
-            <template v-slot:prepend>
-              <el-select v-if="type === 'body'" :disabled="isReadOnly" class="kv-type" v-model="item.type"
-                         @change="typeChange(item)">
-                <el-option value="text"/>
-                <el-option value="file"/>
-              </el-select>
-            </template>
-          </el-input>
-
-          <el-autocomplete :disabled="isReadOnly" v-if="suggestions" v-model="item.name" size="small"
-                           :fetch-suggestions="querySearch" @change="change" :placeholder="keyText" show-word-limit/>
-
-        </el-col>
-
-        <el-col class="kv-select">
-          <el-select v-model="item.required" size="small">
-            <el-option v-for="req in requireds" :key="req.id" :label="req.name" :value="req.id"/>
-          </el-select>
-        </el-col>
-
-        <el-col v-if="item.type !== 'file'">
-          <el-autocomplete
-            :disabled="isReadOnly"
-            size="small"
-            class="input-with-autocomplete"
-            v-model="item.value"
-            :fetch-suggestions="funcSearch"
-            :placeholder="valueText"
-            value-key="name"
-            highlight-first-item
-            @select="change">
-            <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(item)"></i>
-          </el-autocomplete>
-        </el-col>
-
         <el-col>
           <el-input v-model="item.description" size="small" maxlength="200"
                     :placeholder="$t('commons.description')" show-word-limit>
@@ -55,22 +16,14 @@
 
         </el-col>
 
-        <el-col v-if="item.type === 'file'">
+        <el-col>
           <ms-api-body-file-upload :parameter="item"/>
-        </el-col>
-
-        <el-col v-if="type === 'body'" class="kv-select">
-          <el-input :disabled="isReadOnly" v-model="item.contentType" size="small"
-                    @change="change" :placeholder="$t('api_test.request.content_type')" show-word-limit>
-          </el-input>
         </el-col>
 
         <el-col class="kv-delete">
           <el-button size="mini" class="el-icon-delete-solid" circle @click="remove(index)"
                      :disabled="isDisable(index) || isReadOnly"/>
         </el-col>
-
-
       </el-row>
     </div>
     <ms-api-variable-advance ref="variableAdvance" :environment="environment" :scenario="scenario"
@@ -80,11 +33,11 @@
 </template>
 
 <script>
-  import {KeyValue, Scenario} from "../model/ApiTestModel";
+  import {KeyValue, Scenario} from "../../model/ApiTestModel";
   import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
-  import MsApiVariableAdvance from "./ApiVariableAdvance";
-  import MsApiBodyFileUpload from "./body/ApiBodyFileUpload";
-  import {REQUIRED} from "../model/JsonData";
+  import MsApiVariableAdvance from "../ApiVariableAdvance";
+  import MsApiBodyFileUpload from "../body/ApiBodyFileUpload";
+  import {REQUIRED} from "../../model/JsonData";
 
   export default {
     name: "MsApiVariable",

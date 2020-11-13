@@ -14,15 +14,18 @@ public class KeyValue {
     private String description;
     private String contentType;
     private boolean enable;
+    private boolean required;
 
     public KeyValue() {
         this.enable = true;
+        this.required = true;
     }
 
     public KeyValue(String name, String value) {
         this.name = name;
         this.value = value;
         this.enable = true;
+        this.required = true;
     }
 
     public KeyValue(String name, String value, String description) {
@@ -30,5 +33,6 @@ public class KeyValue {
         this.value = value;
         this.enable = true;
         this.description = description;
+        this.required = true;
     }
 }

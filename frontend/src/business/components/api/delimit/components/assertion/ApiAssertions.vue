@@ -3,7 +3,8 @@
     <div class="assertion-add">
       <el-row :gutter="10">
         <el-col :span="4">
-          <el-select :disabled="isReadOnly" class="assertion-item" v-model="type" :placeholder="$t('api_test.request.assertions.select_type')"
+          <el-select :disabled="isReadOnly" class="assertion-item" v-model="type"
+                     :placeholder="$t('api_test.request.assertions.select_type')"
                      size="small">
             <el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT"/>
             <el-option :label="$t('api_test.request.assertions.regex')" :value="options.REGEX"/>
@@ -12,9 +13,12 @@
           </el-select>
         </el-col>
         <el-col :span="20">
-          <ms-api-assertion-text :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.TEXT" :callback="after"/>
-          <ms-api-assertion-regex :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.REGEX" :callback="after"/>
-          <ms-api-assertion-json-path :is-read-only="isReadOnly" :list="assertions.jsonPath" v-if="type === options.JSON_PATH" :callback="after"/>
+          <ms-api-assertion-text :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.TEXT"
+                                 :callback="after"/>
+          <ms-api-assertion-regex :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.REGEX"
+                                  :callback="after"/>
+          <ms-api-assertion-json-path :is-read-only="isReadOnly" :list="assertions.jsonPath"
+                                      v-if="type === options.JSON_PATH" :callback="after"/>
           <ms-api-assertion-duration :is-read-only="isReadOnly" v-model="time" :duration="assertions.duration"
                                      v-if="type === options.DURATION" :callback="after"/>
           <el-button v-if="!type" :disabled="true" type="primary" size="small">Add</el-button>
@@ -24,16 +28,17 @@
 
     <div>
       <el-row :gutter="10" class="json-path-suggest-button">
-          <el-button size="small" type="primary" @click="suggestJsonOpen">
-            {{$t('api_test.request.assertions.json_path_suggest')}}
-          </el-button>
-          <el-button size="small" type="danger" @click="clearJson">
-            {{$t('api_test.request.assertions.json_path_clear')}}
-          </el-button>
+        <el-link size="small" type="primary" @click="suggestJsonOpen">
+          {{$t('api_test.request.assertions.json_path_suggest')}}
+        </el-link>
+        <el-link size="small" type="danger" @click="clearJson" style="margin-left: 20px">
+          {{$t('api_test.request.assertions.json_path_clear')}}
+        </el-link>
       </el-row>
     </div>
 
-    <ms-api-jsonpath-suggest-list @addJsonpathSuggest="addJsonpathSuggest" :request="request" ref="jsonpathSuggestList"/>
+    <ms-api-jsonpath-suggest-list @addJsonpathSuggest="addJsonpathSuggest" :request="request"
+                                  ref="jsonpathSuggestList"/>
 
     <ms-api-assertions-edit :is-read-only="isReadOnly" :assertions="assertions"/>
   </div>
@@ -43,7 +48,7 @@
   import MsApiAssertionText from "./ApiAssertionText";
   import MsApiAssertionRegex from "./ApiAssertionRegex";
   import MsApiAssertionDuration from "./ApiAssertionDuration";
-  import {ASSERTION_TYPE, Assertions, HttpRequest, JSONPath} from "../../model/ScenarioModel";
+  import {ASSERTION_TYPE, Assertions, HttpRequest, JSONPath} from "../../model/ApiTestModel";
   import MsApiAssertionsEdit from "./ApiAssertionsEdit";
   import MsApiAssertionJsonPath from "./ApiAssertionJsonPath";
   import MsApiJsonpathSuggestList from "./ApiJsonpathSuggestList";
@@ -54,7 +59,8 @@
     components: {
       MsApiJsonpathSuggestList,
       MsApiAssertionJsonPath,
-      MsApiAssertionsEdit, MsApiAssertionDuration, MsApiAssertionRegex, MsApiAssertionText},
+      MsApiAssertionsEdit, MsApiAssertionDuration, MsApiAssertionRegex, MsApiAssertionText
+    },
 
     props: {
       assertions: Assertions,
@@ -86,11 +92,11 @@
       },
       addJsonpathSuggest(jsonPathList) {
         jsonPathList.forEach(jsonPath => {
-            let jsonItem = new JSONPath();
-            jsonItem.expression = jsonPath.json_path;
-            jsonItem.expect = jsonPath.json_value;
-            jsonItem.setJSONPathDescription();
-            this.assertions.jsonPath.push(jsonItem);
+          let jsonItem = new JSONPath();
+          jsonItem.expression = jsonPath.json_path;
+          jsonItem.expect = jsonPath.json_value;
+          jsonItem.setJSONPathDescription();
+          this.assertions.jsonPath.push(jsonItem);
         });
       },
       clearJson() {
@@ -136,7 +142,10 @@
   }
 
   .json-path-suggest-button {
-    text-align: right;
+    text-align: left;
+    margin-left: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
   }
 
 </style>

@@ -1,66 +1,87 @@
 <template>
   <div>
     <el-radio-group v-model="body.type" size="mini">
-      <el-radio-button :disabled="isReadOnly" :label="type.KV">
+      <el-radio :disabled="isReadOnly" :label="type.KV">
         {{ $t('api_test.delimit.request.body_form_data') }}
-      </el-radio-button>
+      </el-radio>
 
-      <el-radio-button :disabled="isReadOnly" :label="type.RAW">
-        {{ $t('api_test.delimit.request.body_raw') }}
-      </el-radio-button>
-      <el-radio-button :disabled="isReadOnly" :label="type.WWW_FORM">
+      <el-radio :disabled="isReadOnly" :label="type.WWW_FORM">
         {{ $t('api_test.delimit.request.body_x_www_from_urlencoded') }}
-      </el-radio-button>
-      <el-radio-button :disabled="isReadOnly" :label="type.BINARY">
+      </el-radio>
+
+      <el-radio :disabled="isReadOnly" :label="type.JSON">
+        {{ $t('api_test.delimit.request.body_json') }}
+      </el-radio>
+
+      <el-radio :disabled="isReadOnly" :label="type.XML">
+        {{ $t('api_test.delimit.request.body_xml') }}
+      </el-radio>
+
+      <el-radio :disabled="isReadOnly" :label="type.RAW">
+        {{ $t('api_test.delimit.request.body_raw') }}
+      </el-radio>
+
+      <el-radio :disabled="isReadOnly" :label="type.BINARY">
         {{ $t('api_test.delimit.request.body_binary') }}
-      </el-radio-button>
+      </el-radio>
     </el-radio-group>
 
-    <ms-dropdown :default-command="body.format" v-if="body.type == 'Raw'" :commands="modes" @command="modeChange"/>
-
     <ms-api-variable :is-read-only="isReadOnly"
                      :parameters="body.kvs"
                      :environment="environment"
-                     :scenario="scenario"
-                     :extract="extract"
                      type="body"
-                     :description="$t('api_test.request.parameters_desc')"
                      v-if="body.isKV()"/>
 
-    <ms-api-variable :is-read-only="isReadOnly"
-                     :parameters="body.kvs"
-                     :environment="environment"
-                     :scenario="scenario"
-                     :extract="extract"
-                     type="body"
-                     :description="$t('api_test.request.parameters_desc')"
-                     v-if="body.type == 'WWW_Form'"/>
+    <ms-api-from-url-variable :is-read-only="isReadOnly"
+                              :parameters="body.fromUrlencoded"
+                              :environment="environment"
+                              type="body"
+                              v-if="body.type == 'WWW_FORM'"/>
 
-    <ms-api-variable :is-read-only="isReadOnly"
-                     :parameters="body.kvs"
-                     :environment="environment"
-                     :scenario="scenario"
-                     :extract="extract"
-                     type="body"
-                     :description="$t('api_test.request.parameters_desc')"
-                     v-if="body.type == 'BINARY'"/>
+    <div class="body-raw" v-if="body.type == 'JSON'">
+      <ms-json-code-edit @json-change="jsonChange" @onError="jsonError" :value="body.json" ref="jsonCodeEdit"/>
+    </div>
+
+    <div class="body-raw" v-if="body.type == 'XML'">
+      <ms-code-edit :mode="body.format" :read-only="isReadOnly" :data.sync="body.xml" :modes="modes" ref="codeEdit"/>
+    </div>
+
 
     <div class="body-raw" v-if="body.type == 'Raw'">
       <ms-code-edit :mode="body.format" :read-only="isReadOnly" :data.sync="body.raw" :modes="modes" ref="codeEdit"/>
     </div>
+
+    <ms-api-binary-variable :is-read-only="isReadOnly"
+                            :parameters="body.binary"
+                            :environment="environment"
+                            type="body"
+                            v-if="body.type == 'BINARY'"/>
+
   </div>
 </template>
 
 <script>
   import MsApiKeyValue from "../ApiKeyValue";
-  import {Body, BODY_FORMAT, BODY_TYPE, Scenario} from "../../model/ScenarioModel";
+  import {Body, BODY_FORMAT, BODY_TYPE, Scenario} from "../../model/ApiTestModel";
   import MsCodeEdit from "../../../../common/components/MsCodeEdit";
+  import MsJsonCodeEdit from "../../../../common/components/MsJsonCodeEdit";
+
   import MsDropdown from "../../../../common/components/MsDropdown";
   import MsApiVariable from "../ApiVariable";
+  import MsApiBinaryVariable from "./ApiBinaryVariable";
+  import MsApiFromUrlVariable from "./ApiFromUrlVariable";
 
   export default {
     name: "MsApiBody",
-    components: {MsApiVariable, MsDropdown, MsCodeEdit, MsApiKeyValue},
+    components: {
+      MsApiVariable,
+      MsDropdown,
+      MsCodeEdit,
+      MsApiKeyValue,
+      MsApiBinaryVariable,
+      MsApiFromUrlVariable,
+      MsJsonCodeEdit
+    },
     props: {
       body: Body,
       scenario: Scenario,
@@ -82,6 +103,12 @@
     methods: {
       modeChange(mode) {
         this.body.format = mode;
+      },
+      jsonChange(json) {
+        this.body.json = json;
+      },
+      jsonError(e) {
+        this.$error(e);
       }
     },
 
@@ -108,7 +135,7 @@
 
   .body-raw {
     padding: 15px 0;
-    height: 300px;
+    height: 400px;
   }
 
   .el-dropdown {

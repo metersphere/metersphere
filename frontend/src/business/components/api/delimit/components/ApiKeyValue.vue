@@ -5,7 +5,7 @@
     </span>
     <div class="kv-row" v-for="(item, index) in items" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
-        <el-col class="kv-checkbox">
+        <el-col class="kv-checkbox" v-if="isShowEnable">
           <input type="checkbox" v-if="!isDisable(index)" v-model="item.enable"
                  :disabled="isReadOnly"/>
         </el-col>
@@ -34,7 +34,7 @@
 </template>
 
 <script>
-  import {KeyValue} from "../model/ScenarioModel";
+  import {KeyValue} from "../model/ApiTestModel";
 
   export default {
     name: "MsApiKeyValue",
@@ -42,6 +42,10 @@
     props: {
       keyPlaceholder: String,
       valuePlaceholder: String,
+      isShowEnable: {
+        type: Boolean,
+        default: false
+      },
       description: String,
       items: Array,
       isReadOnly: {
@@ -51,8 +55,7 @@
       suggestions: Array
     },
     data() {
-      return {
-      }
+      return {}
     },
     computed: {
       keyText() {

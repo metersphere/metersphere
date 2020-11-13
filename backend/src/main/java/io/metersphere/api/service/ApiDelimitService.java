@@ -1,10 +1,15 @@
 package io.metersphere.api.service;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.delimit.ApiComputeResult;
 import io.metersphere.api.dto.delimit.ApiDelimitRequest;
 import io.metersphere.api.dto.delimit.ApiDelimitResult;
 import io.metersphere.api.dto.delimit.SaveApiDelimitRequest;
+import io.metersphere.api.jmeter.ApiTestResult;
+import io.metersphere.api.jmeter.DelimitJMeterService;
+import io.metersphere.api.parse.JmeterDocumentParser;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDelimitExecResultMapper;
 import io.metersphere.base.mapper.ApiDelimitMapper;
@@ -23,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
+import sun.security.util.Cache;
 
 import javax.annotation.Resource;
 import java.io.*;
@@ -46,6 +52,9 @@ public class ApiDelimitService {
     private ApiTestCaseService apiTestCaseService;
     @Resource
     private ApiDelimitExecResultMapper apiDelimitExecResultMapper;
+    @Resource
+    private DelimitJMeterService jMeterService;
+    private static Cache cache = Cache.newHardMemoryCache(0, 3600 * 24);
 
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
@@ -79,7 +88,7 @@ public class ApiDelimitService {
     public void create(SaveApiDelimitRequest request, MultipartFile file, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         ApiDelimit test = createTest(request, file);
-        createBodyFiles(test, bodyUploadIds, bodyFiles);
+        createBodyFiles(test.getId(), bodyUploadIds, bodyFiles);
     }
 
     private ApiDelimit createTest(SaveApiDelimitRequest request, MultipartFile file) {
@@ -109,13 +118,13 @@ public class ApiDelimitService {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         request.setBodyUploadIds(null);
         ApiDelimit test = updateTest(request);
-        createBodyFiles(test, bodyUploadIds, bodyFiles);
+        createBodyFiles(test.getId(), bodyUploadIds, bodyFiles);
         saveFile(test.getId(), file);
     }
 
-    private void createBodyFiles(ApiDelimit test, List<String> bodyUploadIds, List<MultipartFile> bodyFiles) {
+    private void createBodyFiles(String testId, List<String> bodyUploadIds, List<MultipartFile> bodyFiles) {
         if (bodyUploadIds.size() > 0) {
-            String dir = BODY_FILE_DIR + "/" + test.getId();
+            String dir = BODY_FILE_DIR + "/" + testId;
             File testDir = new File(dir);
             if (!testDir.exists()) {
                 testDir.mkdirs();
@@ -181,6 +190,8 @@ public class ApiDelimitService {
         test.setPath(request.getPath());
         test.setUrl(request.getUrl());
         test.setDescription(request.getDescription());
+        test.setResponse(JSONObject.toJSONString(request.getResponse()));
+        test.setEnvironmentId(request.getEnvironmentId());
         test.setUserId(request.getUserId());
 
         apiDelimitMapper.updateByPrimaryKeySelective(test);
@@ -201,6 +212,8 @@ public class ApiDelimitService {
         test.setUpdateTime(System.currentTimeMillis());
         test.setStatus(APITestStatus.Underway.name());
         test.setModulePath(request.getModulePath());
+        test.setResponse(JSONObject.toJSONString(request.getResponse()));
+        test.setEnvironmentId(request.getEnvironmentId());
         if (request.getUserId() == null) {
             test.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
         } else {
@@ -212,18 +225,18 @@ public class ApiDelimitService {
     }
 
     private void saveFile(String apiId, MultipartFile file) {
-        final FileMetadata fileMetadata = fileService.saveFile(file);
+        final FileMetadata metadata = fileService.saveFile(file);
         ApiTestFile apiTestFile = new ApiTestFile();
         apiTestFile.setTestId(apiId);
-        apiTestFile.setFileId(fileMetadata.getId());
+        apiTestFile.setFileId(metadata.getId());
         apiTestFileMapper.insert(apiTestFile);
     }
 
     private void deleteFileByTestId(String apiId) {
-        ApiTestFileExample ApiTestFileExample = new ApiTestFileExample();
-        ApiTestFileExample.createCriteria().andTestIdEqualTo(apiId);
-        final List<ApiTestFile> ApiTestFiles = apiTestFileMapper.selectByExample(ApiTestFileExample);
-        apiTestFileMapper.deleteByExample(ApiTestFileExample);
+        ApiTestFileExample apiTestFileExample = new ApiTestFileExample();
+        apiTestFileExample.createCriteria().andTestIdEqualTo(apiId);
+        final List<ApiTestFile> ApiTestFiles = apiTestFileMapper.selectByExample(apiTestFileExample);
+        apiTestFileMapper.deleteByExample(apiTestFileExample);
 
         if (!CollectionUtils.isEmpty(ApiTestFiles)) {
             final List<String> fileIds = ApiTestFiles.stream().map(ApiTestFile::getFileId).collect(Collectors.toList());
@@ -231,4 +244,61 @@ public class ApiDelimitService {
         }
     }
 
+    /**
+     * 测试执行
+     *
+     * @param request
+     * @param file
+     * @param bodyFiles
+     * @return
+     */
+    public String run(SaveApiDelimitRequest request, MultipartFile file, List<MultipartFile> bodyFiles) {
+        if (file == null) {
+            throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
+        }
+        List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
+        createBodyFiles(request.getId(), bodyUploadIds, bodyFiles);
+        InputStream is = null;
+        try {
+            // 解析 xml 处理 mock 数据
+            byte[] bytes = JmeterDocumentParser.parse(file.getBytes());
+            is = new ByteArrayInputStream(bytes);
+        } catch (IOException e) {
+            LogUtil.error(e);
+        }
+        jMeterService.run(request.getId(), request.getReportId(), is);
+        return request.getId();
+    }
+
+    public void addResult(ApiTestResult res) {
+        cache.put(res.getId(), res);
+    }
+
+    /**
+     * 获取执行结果报告
+     *
+     * @param testId
+     * @param test
+     * @return
+     */
+    public APIReportResult getResult(String testId, String test) {
+        if (test.equals("debug")) {
+            Object res = cache.get(testId);
+            if (res != null) {
+                cache.remove(testId);
+                APIReportResult reportResult = new APIReportResult();
+                reportResult.setContent(JSON.toJSONString(res));
+                return reportResult;
+            }
+        } else {
+            ApiDelimitExecResult data = apiDelimitExecResultMapper.selectByResourceId(testId);
+            if (data == null) {
+                return null;
+            }
+            APIReportResult reportResult = new APIReportResult();
+            reportResult.setContent(data.getContent());
+            return reportResult;
+        }
+        return null;
+    }
 }

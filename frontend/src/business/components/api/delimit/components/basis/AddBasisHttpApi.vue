@@ -48,7 +48,7 @@
 <script>
   import MsDialogFooter from "../../../../common/components/MsDialogFooter";
   import {WORKSPACE_ID} from '../../../../../../common/js/constants';
-  import {Test} from "../../model/ScenarioModel"
+  import {Test} from "../../model/ApiTestModel"
   import {REQ_METHOD} from "../../model/JsonData";
   import {getCurrentUser} from "../../../../../../common/js/utils";
 

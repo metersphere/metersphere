@@ -47,7 +47,7 @@
 
           <!-- 测试-->
           <div v-else-if="item.type=== 'test'">
-            <ms-run-test-http-page :api-data="runTestData" @saveAsApi="editApi"/>
+            <ms-run-test-http-page :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject"/>
           </div>
         </el-tab-pane>
 
@@ -182,7 +182,7 @@
       },
       saveApi(data) {
         this.setTabTitle(data);
-        this.$refs.apiList[0].initTableData(data);
+        this.$refs.apiList[0].initApiTable(data);
       },
       initTree(data) {
         this.moduleOptions = data;

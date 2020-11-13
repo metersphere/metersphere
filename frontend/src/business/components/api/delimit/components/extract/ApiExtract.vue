@@ -26,7 +26,7 @@
 </template>
 
 <script>
-  import {EXTRACT_TYPE, Extract} from "../../model/ScenarioModel";
+  import {EXTRACT_TYPE, Extract} from "../../model/ApiTestModel";
   import MsApiExtractEdit from "./ApiExtractEdit";
   import MsApiExtractCommon from "./ApiExtractCommon";
 

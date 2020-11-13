@@ -54,7 +54,7 @@
           :label="$t('api_test.delimit.api_principal')"
           show-overflow-tooltip/>
 
-        <el-table-column width="200" :label="$t('api_test.delimit.api_last_time')" prop="updateTime">
+        <el-table-column width="160" :label="$t('api_test.delimit.api_last_time')" prop="updateTime">
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
@@ -76,8 +76,7 @@
           show-overflow-tooltip/>
 
 
-        <el-table-column
-          :label="$t('commons.operating')" min-width="100">
+        <el-table-column :label="$t('commons.operating')" min-width="130" align="center">
           <template v-slot:default="scope">
             <el-button type="text" @click="editApi(scope.row)">编辑</el-button>
             <el-button type="text" @click="handleTestCase(scope.row)">用例</el-button>
@@ -92,7 +91,7 @@
     </el-card>
 
     <ms-bottom-container v-bind:enableAsideHidden="isHide">
-      <ms-api-case-list @apiCaseClose="apiCaseClose" :api="selectApi" :current-project="currentProject"/>
+      <ms-api-case-list @apiCaseClose="apiCaseClose" @refresh="initApiTable" :api="selectApi" :current-project="currentProject"/>
     </ms-bottom-container>
 
   </div>

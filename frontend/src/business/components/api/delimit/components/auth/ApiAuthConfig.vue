@@ -59,7 +59,7 @@
 </template>
 
 <script>
-  import {HttpRequest} from "../../model/ScenarioModel";
+  import {HttpRequest} from "../../model/ApiTestModel";
 
   export default {
     name: "MsApiAuthConfig",

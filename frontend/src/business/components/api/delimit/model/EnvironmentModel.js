@@ -1,4 +1,4 @@
-import {BaseConfig, DatabaseConfig, KeyValue} from "./ScenarioModel";
+import {BaseConfig, DatabaseConfig, KeyValue} from "./ApiTestModel";
 import {TCPConfig} from "@/business/components/api/test/model/ScenarioModel";
 
 export class Environment extends BaseConfig {

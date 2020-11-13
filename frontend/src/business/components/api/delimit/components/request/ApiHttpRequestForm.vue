@@ -3,7 +3,7 @@
     <el-tabs v-model="activeName">
       <!-- 请求头-->
       <el-tab-pane :label="$t('api_test.request.headers')" name="headers">
-        <ms-api-key-value :is-read-only="isReadOnly" :isShowEnable="true" :suggestions="headerSuggestions"
+        <ms-api-key-value :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :suggestions="headerSuggestions"
                           :items="request.headers"/>
       </el-tab-pane>
 
@@ -12,13 +12,12 @@
         <ms-api-variable :is-read-only="isReadOnly"
                          :parameters="request.parameters"
                          :environment="request.environment"
-                         :extract="request.extract"
-                         :description="$t('api_test.request.parameters_desc')"/>
+                         :extract="request.extract"/>
       </el-tab-pane>
 
       <!--REST 参数-->
       <el-tab-pane :label="$t('api_test.delimit.request.rest_param')" name="rest">
-        <ms-api-key-value :is-read-only="isReadOnly" :isShowEnable="true" :suggestions="headerSuggestions"
+        <ms-api-key-value :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :suggestions="headerSuggestions"
                           :items="request.rest"/>
       </el-tab-pane>
 
@@ -49,7 +48,7 @@
   import MsApiKeyValue from "../ApiKeyValue";
   import MsApiBody from "../body/ApiBody";
   import MsApiAuthConfig from "../auth/ApiAuthConfig";
-  import {HttpRequest, KeyValue, Scenario} from "../../model/ScenarioModel";
+  import {HttpRequest, KeyValue, Scenario} from "../../model/ApiTestModel";
   import MsApiExtract from "../extract/ApiExtract";
   import ApiRequestMethodSelect from "../collapse/ApiRequestMethodSelect";
   import {REQUEST_HEADERS} from "@/common/js/constants";
@@ -66,6 +65,7 @@
     },
     props: {
       request: HttpRequest,
+      isShowEnable:Boolean,
       jsonPathList: Array,
       scenario: Scenario,
       isReadOnly: {

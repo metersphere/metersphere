@@ -34,7 +34,7 @@
 </template>
 
 <script>
-  import {Extract, EXTRACT_TYPE} from "../../model/ScenarioModel";
+  import {Extract, EXTRACT_TYPE} from "../../model/ApiTestModel";
   import MsApiExtractCommon from "./ApiExtractCommon";
 
   export default {

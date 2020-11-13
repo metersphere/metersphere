@@ -15,7 +15,7 @@
 
 <script>
 
-  import {Duration} from "../../model/ScenarioModel";
+  import {Duration} from "../../model/ApiTestModel";
 
   export default {
     name: "MsApiAssertionDuration",

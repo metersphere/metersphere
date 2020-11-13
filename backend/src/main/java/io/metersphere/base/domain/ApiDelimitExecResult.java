@@ -12,7 +12,7 @@ public class ApiDelimitExecResult implements Serializable {
     private String content;
     private String status;
     private String userId;
-    private String startTime;
-    private String endTime;
+    private Long startTime;
+    private Long endTime;
 
 }

@@ -481,6 +481,7 @@ export default {
         responsible: "责任人",
         title: "创建接口",
         path_info: "请输入接口的URL，如/api/demo/#{id}，其中id为路径参数",
+        path_all_info: "请输入完整测试地址",
         fast_debug: "快捷调试",
         close_all_label: "关闭所有标签",
         save_as: "另存为新接口",
@@ -500,9 +501,15 @@ export default {
         verified: "认证",
         encryption: "加密",
         req_param: "请求参数",
-        res_param: "响应模版",
+        res_param: "响应内容",
         batch_delete: "批量删除",
         delete_confirm: "确认删除接口",
+        assertions_rule: "断言规则",
+        response_header: "响应头",
+        response_body: "响应体",
+        console: "控制台",
+        status_code: "状态码",
+
       }
     },
     environment: {

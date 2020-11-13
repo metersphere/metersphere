@@ -2,6 +2,7 @@ package io.metersphere.api.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.delimit.ApiDelimitRequest;
 import io.metersphere.api.dto.delimit.ApiDelimitResult;
 import io.metersphere.api.dto.delimit.SaveApiDelimitRequest;
@@ -59,4 +60,18 @@ public class ApiDelimitController {
         return apiDelimitService.get(id);
     }
 
+    @PostMapping(value = "/run/debug", consumes = {"multipart/form-data"})
+    public String runDebug(@RequestPart("request") SaveApiDelimitRequest request, @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
+        return apiDelimitService.run(request, file, bodyFiles);
+    }
+
+    @PostMapping(value = "/run", consumes = {"multipart/form-data"})
+    public String run(@RequestPart("request") SaveApiDelimitRequest request, @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
+        return apiDelimitService.run(request, file, bodyFiles);
+    }
+
+    @GetMapping("/report/get/{testId}/{test}")
+    public APIReportResult getReport(@PathVariable String testId, @PathVariable String test) {
+        return apiDelimitService.getResult(testId, test);
+    }
 }
