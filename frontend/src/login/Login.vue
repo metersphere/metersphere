@@ -81,7 +81,7 @@ export default {
         ],
         password: [
           {required: true, message: this.$t('commons.input_password'), trigger: 'blur'},
-          {min: 6, max: 20, message: this.$t('commons.input_limit', [6, 30]), trigger: 'blur'}
+          {min: 6, max: 30, message: this.$t('commons.input_limit', [6, 30]), trigger: 'blur'}
         ]
       },
       msg: '',
