@@ -207,6 +207,7 @@ public class PerformanceTestService {
 
     @Transactional(noRollbackFor = MSException.class)//  保存失败的信息
     public String run(RunTestPlanRequest request) {
+        LogUtil.info("性能测试run测试");
         final LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(request.getId());
         if (request.getUserId() != null) {
             loadTest.setUserId(request.getUserId());
@@ -343,6 +344,17 @@ public class PerformanceTestService {
     public String getLoadConfiguration(String testId) {
         LoadTestWithBLOBs loadTestWithBLOBs = loadTestMapper.selectByPrimaryKey(testId);
         return Optional.ofNullable(loadTestWithBLOBs).orElse(new LoadTestWithBLOBs()).getLoadConfiguration();
+    }
+
+    public String getJmxContent(String testId) {
+        List<FileMetadata> fileMetadataList = fileService.getFileMetadataByTestId(testId);
+        for (FileMetadata metadata : fileMetadataList) {
+            if (FileType.JMX.name().equals(metadata.getType())) {
+                FileContent fileContent = fileService.getFileContent(metadata.getId());
+                return new String(fileContent.getFile());
+            }
+        }
+        return null;
     }
 
     public List<LoadTestWithBLOBs> selectByTestResourcePoolId(String resourcePoolId) {

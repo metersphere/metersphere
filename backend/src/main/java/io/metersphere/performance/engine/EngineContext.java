@@ -10,7 +10,6 @@ public class EngineContext {
     private String fileType;
     private String content;
     private String resourcePoolId;
-    private Long threadNum;
     private Long startTime;
     private String reportId;
     private Integer resourceIndex;
@@ -93,14 +92,6 @@ public class EngineContext {
 
     public void setResourcePoolId(String resourcePoolId) {
         this.resourcePoolId = resourcePoolId;
-    }
-
-    public Long getThreadNum() {
-        return threadNum;
-    }
-
-    public void setThreadNum(Long threadNum) {
-        this.threadNum = threadNum;
     }
 
     public Long getStartTime() {

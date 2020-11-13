@@ -16,6 +16,9 @@ import io.metersphere.performance.controller.request.ReportRequest;
 import io.metersphere.performance.service.ReportService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -129,5 +132,14 @@ public class PerformanceReportController {
     @PostMapping("/batch/delete")
     public void deleteReportBatch(@RequestBody DeleteReportRequest reportRequest) {
         reportService.deleteReportBatch(reportRequest);
+    }
+
+    @GetMapping("/jtl/download/{reportId}")
+    public ResponseEntity<byte[]> downloadJtl(@PathVariable String reportId) {
+        byte[] bytes = reportService.downloadJtl(reportId);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + reportId + ".jtl\"")
+                .body(bytes);
     }
 }

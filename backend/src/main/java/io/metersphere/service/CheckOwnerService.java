@@ -45,6 +45,10 @@ public class CheckOwnerService {
     }
 
     public void checkApiTestOwner(String testId) {
+        // 关联为其他时
+        if (StringUtils.equals("other", testId)) {
+            return;
+        }
         String workspaceId = SessionUtils.getCurrentWorkspaceId();
         QueryAPITestRequest request = new QueryAPITestRequest();
         request.setWorkspaceId(workspaceId);

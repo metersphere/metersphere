@@ -24,6 +24,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -99,10 +100,10 @@ public class MailService {
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
         helper.setFrom(javaMailSender.getUsername());
         if (StringUtils.equals(type, NoticeConstants.API)) {
-            helper.setSubject("MeterSphere平台" + Translator.get("task_notification"));
+            helper.setSubject("MeterSphere平台" + Translator.get("task_notification_jenkins"));
         }
         if (StringUtils.equals(type, NoticeConstants.SCHEDULE)) {
-            helper.setSubject("MeterSphere平台" + Translator.get("task_notification_"));
+            helper.setSubject("MeterSphere平台" + Translator.get("task_notification"));
         }
         String[] users;
         List<String> emails = new ArrayList<>();
@@ -113,7 +114,11 @@ public class MailService {
         users = emails.toArray(new String[0]);
         helper.setText(getContent(Template, context), true);
         helper.setTo(users);
-        javaMailSender.send(mimeMessage);
+        try {
+            javaMailSender.send(mimeMessage);
+        } catch (MailException e) {
+            LogUtil.error(e);
+        }
     }
     //测试评审
 

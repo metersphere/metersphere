@@ -643,6 +643,76 @@ public class LoadTestReportExample {
             addCriterion("trigger_mode not between", value1, value2, "triggerMode");
             return (Criteria) this;
         }
+
+        public Criteria andFileIdIsNull() {
+            addCriterion("file_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileIdIsNotNull() {
+            addCriterion("file_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileIdEqualTo(String value) {
+            addCriterion("file_id =", value, "fileId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileIdNotEqualTo(String value) {
+            addCriterion("file_id <>", value, "fileId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileIdGreaterThan(String value) {
+            addCriterion("file_id >", value, "fileId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileIdGreaterThanOrEqualTo(String value) {
+            addCriterion("file_id >=", value, "fileId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileIdLessThan(String value) {
+            addCriterion("file_id <", value, "fileId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileIdLessThanOrEqualTo(String value) {
+            addCriterion("file_id <=", value, "fileId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileIdLike(String value) {
+            addCriterion("file_id like", value, "fileId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileIdNotLike(String value) {
+            addCriterion("file_id not like", value, "fileId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileIdIn(List<String> values) {
+            addCriterion("file_id in", values, "fileId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileIdNotIn(List<String> values) {
+            addCriterion("file_id not in", values, "fileId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileIdBetween(String value1, String value2) {
+            addCriterion("file_id between", value1, value2, "fileId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileIdNotBetween(String value1, String value2) {
+            addCriterion("file_id not between", value1, value2, "fileId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

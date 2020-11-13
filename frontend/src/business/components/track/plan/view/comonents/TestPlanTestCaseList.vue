@@ -183,7 +183,8 @@
           </template>
         </el-table-column>
         <el-table-column
-          :label="$t('commons.operating')">
+            min-width="100"
+            :label="$t('commons.operating')">
           <template v-slot:default="scope">
             <ms-table-operator-button :is-tester-permission="true" :tip="$t('commons.edit')" icon="el-icon-edit"
                                       @exec="handleEdit(scope.row)"/>
