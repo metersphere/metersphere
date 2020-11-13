@@ -114,6 +114,7 @@
         </template>
       </el-table-column>
       <el-table-column
+        min-width="150"
         :label="$t('commons.operating')">
         <template v-slot:default="scope">
           <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)"

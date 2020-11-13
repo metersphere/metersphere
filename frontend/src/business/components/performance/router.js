@@ -2,8 +2,8 @@ import MsProject from "@/business/components/project/MsProject";
 
 const PerformanceTest = () => import('@/business/components/performance/PerformanceTest')
 const PerformanceTestHome = () => import('@/business/components/performance/home/PerformanceTestHome')
-const EditPerformanceTestPlan = () => import('@/business/components/performance/test/EditPerformanceTestPlan')
-const PerformanceTestPlan = () => import('@/business/components/performance/test/PerformanceTestPlan')
+const EditPerformanceTest = () => import('@/business/components/performance/test/EditPerformanceTest')
+const PerformanceTestList = () => import('@/business/components/performance/test/PerformanceTestList')
 const PerformanceTestReport = () => import('@/business/components/performance/report/PerformanceTestReport')
 const PerformanceChart = () => import('@/business/components/performance/report/components/PerformanceChart')
 const PerformanceReportView = () => import('@/business/components/performance/report/PerformanceReportView')
@@ -24,12 +24,12 @@ export default {
     {
       path: 'test/create',
       name: "createPerTest",
-      component: EditPerformanceTestPlan,
+      component: EditPerformanceTest,
     },
     {
       path: "test/edit/:testId",
       name: "editPerTest",
-      component: EditPerformanceTestPlan,
+      component: EditPerformanceTest,
       props: {
         content: (route) => {
           return {
@@ -41,7 +41,7 @@ export default {
     {
       path: "test/:projectId",
       name: "perPlan",
-      component: PerformanceTestPlan
+      component: PerformanceTestList
     },
     {
       path: "project/:type",

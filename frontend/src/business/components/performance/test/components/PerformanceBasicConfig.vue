@@ -56,11 +56,12 @@
 
 <script>
 import {Message} from "element-ui";
+import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
 
 export default {
   name: "PerformanceBasicConfig",
   props: {
-    testPlan: {
+    test: {
       type: Object
     },
     isReadOnly: {
@@ -81,23 +82,36 @@ export default {
     };
   },
   created() {
-    if (this.testPlan.id) {
-      this.getFileMetadata(this.testPlan)
+    if (this.test.id) {
+      this.getFileMetadata(this.test)
     }
   },
   watch: {
-    testPlan() {
-      if (this.testPlan.id) {
-        this.getFileMetadata(this.testPlan)
+    test() {
+      if (this.test.id) {
+        this.getFileMetadata(this.test)
+      }
+    },
+    uploadList() {
+      let self = this;
+      let fileList = self.uploadList.filter(f => f.name.endsWith(".jmx"));
+      if (fileList.length > 0) {
+        let file = fileList[0];
+        let jmxReader = new FileReader();
+        jmxReader.onload = function (event) {
+          let threadGroups = findThreadGroup(event.target.result);
+          self.$emit('fileChange', threadGroups);
+        };
+        jmxReader.readAsText(file);
       }
     }
   },
   methods: {
-    getFileMetadata(testPlan) {
+    getFileMetadata(test) {
       this.fileList = [];
       this.tableData = [];
       this.uploadList = [];
-      this.result = this.$get(this.getFileMetadataPath + "/" + testPlan.id, response => {
+      this.result = this.$get(this.getFileMetadataPath + "/" + test.id, response => {
         let files = response.data;
 
         if (!files) {

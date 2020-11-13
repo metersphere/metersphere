@@ -1,91 +1,73 @@
 <template>
   <div v-loading="result.loading" class="pressure-config-container">
     <el-row>
-      <el-col :span="10">
-        <el-form :inline="true">
-          <el-form-item>
-            <div class="config-form-label">{{ $t('load_test.thread_num') }}</div>
-          </el-form-item>
-          <el-form-item>
-            <el-input-number
-              :disabled="true"
-              :placeholder="$t('load_test.input_thread_num')"
-              v-model="threadNumber"
-              @change="calculateChart"
-              :min="1"
-              size="mini"/>
-          </el-form-item>
-        </el-form>
-        <el-form :inline="true">
-          <el-form-item>
-            <div class="config-form-label">{{ $t('load_test.duration') }}</div>
-          </el-form-item>
-          <el-form-item>
-            <el-input-number
-              :disabled="true"
-              :placeholder="$t('load_test.duration')"
-              v-model="duration"
-              :min="1"
-              @change="calculateChart"
-              size="mini"/>
-          </el-form-item>
-        </el-form>
-        <el-form :inline="true">
-          <el-form-item>
-            <el-form-item>
-              <div class="config-form-label">{{ $t('load_test.rps_limit') }}</div>
-            </el-form-item>
-            <el-form-item>
-              <el-switch v-model="rpsLimitEnable" :disabled="true"/>
-            </el-form-item>
-            <el-form-item>
-              <el-input-number
-                :disabled="true"
-                :placeholder="$t('load_test.input_rps_limit')"
-                v-model="rpsLimit"
-                @change="calculateChart"
-                :min="1"
-                size="mini"/>
-            </el-form-item>
-          </el-form-item>
-        </el-form>
-
-        <el-form :inline="true" class="input-bottom-border">
-          <el-form-item>
-            <div>{{ $t('load_test.ramp_up_time_within') }}</div>
-          </el-form-item>
-          <el-form-item>
-            <el-input-number
-              :disabled="true"
-              placeholder=""
-              :min="1"
-              :max="duration"
-              v-model="rampUpTime"
-              @change="calculateChart"
-              size="mini"/>
-          </el-form-item>
-          <el-form-item>
-            <div>{{ $t('load_test.ramp_up_time_minutes') }}</div>
-          </el-form-item>
-          <el-form-item>
-            <el-input-number
-              :disabled="true"
-              placeholder=""
-              :min="1"
-              :max="Math.min(threadNumber, rampUpTime)"
-              v-model="step"
-              @change="calculateChart"
-              size="mini"/>
-          </el-form-item>
-          <el-form-item>
-            <div>{{ $t('load_test.ramp_up_time_times') }}</div>
-          </el-form-item>
-        </el-form>
+      <el-col>
+        <ms-chart class="chart-container" ref="chart1" :options="options" :autoresize="true"></ms-chart>
       </el-col>
-      <el-col :span="14">
-        <div class="title">{{ $t('load_test.pressure_prediction_chart') }}</div>
-        <ms-chart class="chart-container" ref="chart1" :options="orgOptions" :autoresize="true"></ms-chart>
-      </el-col>
+    </el-row>
+    <el-row>
+      <el-collapse v-model="activeNames">
+        <el-collapse-item :title="threadGroup.attributes.testname" :name="index"
+                          v-for="(threadGroup, index) in threadGroups"
+                          :key="index">
+          <el-col :span="10">
+            <el-form :inline="true">
+              <el-form-item :label="$t('load_test.thread_num')">
+                <el-input-number
+                  :disabled="true"
+                  :placeholder="$t('load_test.input_thread_num')"
+                  v-model="threadGroup.threadNumber"
+                  :min="1"
+                  size="mini"/>
+              </el-form-item>
+              <br>
+              <el-form-item :label="$t('load_test.duration')">
+                <el-input-number
+                  :disabled="true"
+                  :placeholder="$t('load_test.duration')"
+                  v-model="threadGroup.duration"
+                  :min="1"
+                  size="mini"/>
+              </el-form-item>
+              <br>
+              <el-form-item :label="$t('load_test.rps_limit')">
+                <el-switch v-model="rpsLimitEnable"/>
+                &nbsp;
+                <el-input-number
+                  :disabled="true"
+                  :placeholder="$t('load_test.input_rps_limit')"
+                  v-model="threadGroup.rpsLimit"
+                  :min="1"
+                  size="mini"/>
+              </el-form-item>
+              <br>
+              <el-form-item :label="$t('load_test.ramp_up_time_within')">
+                <el-input-number
+                  :disabled="true"
+                  placeholder=""
+                  :min="1"
+                  :max="threadGroup.duration"
+                  v-model="threadGroup.rampUpTime"
+                  size="mini"/>
+              </el-form-item>
+              <el-form-item :label="$t('load_test.ramp_up_time_minutes')">
+                <el-input-number
+                  :disabled="true"
+                  placeholder=""
+                  :min="1"
+                  :max="Math.min(threadGroup.threadNumber, threadGroup.rampUpTime)"
+                  v-model="threadGroup.step"
+                  size="mini"/>
+              </el-form-item>
+              <el-form-item :label="$t('load_test.ramp_up_time_times')"/>
+            </el-form>
+          </el-col>
+          <el-col :span="14">
+            <div class="title">{{ $t('load_test.pressure_prediction_chart') }}</div>
+            <ms-chart class="chart-container" :options="threadGroup.options" :autoresize="true"></ms-chart>
+          </el-col>
+        </el-collapse-item>
+      </el-collapse>
     </el-row>
   </div>
 </template>
@@ -93,6 +75,7 @@
 <script>
 import echarts from "echarts";
 import MsChart from "@/business/components/common/chart/MsChart";
+import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
 
 const TARGET_LEVEL = "TargetLevel";
 const RAMP_UP = "RampUp";
@@ -100,6 +83,14 @@ const STEPS = "Steps";
 const DURATION = "duration";
 const RPS_LIMIT = "rpsLimit";
 const RPS_LIMIT_ENABLE = "rpsLimitEnable";
+const hexToRgba = function (hex, opacity) {
+  return 'rgba(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5)) + ','
+    + parseInt('0x' + hex.slice(5, 7)) + ',' + opacity + ')';
+}
+const hexToRgb = function (hex) {
+  return 'rgb(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5))
+    + ',' + parseInt('0x' + hex.slice(5, 7)) + ')';
+}
 
 export default {
   name: "MsPerformancePressureConfig",
@@ -108,62 +99,91 @@ export default {
   data() {
     return {
       result: {},
-      threadNumber: 10,
-      duration: 10,
-      rampUpTime: 10,
-      step: 10,
-      rpsLimit: 10,
+      threadNumber: 0,
+      duration: 0,
+      rampUpTime: 0,
+      step: 0,
+      rpsLimit: 0,
       rpsLimitEnable: false,
-      orgOptions: {},
+      options: {},
+      resourcePool: null,
+      resourcePools: [],
+      activeNames: ["0"],
+      threadGroups: [],
     }
   },
   mounted() {
-    this.getLoadConfig();
+    // this.getJmxContent();
   },
   methods: {
     calculateLoadConfiguration: function (data) {
-      data.forEach(d => {
-        switch (d.key) {
-          case TARGET_LEVEL:
-            this.threadNumber = d.value;
-            break;
-          case RAMP_UP:
-            this.rampUpTime = d.value;
-            break;
-          case DURATION:
-            this.duration = d.value;
-            break;
-          case STEPS:
-            this.step = d.value;
-            break;
-          case RPS_LIMIT:
-            this.rpsLimit = d.value;
-            break;
-          default:
-            break;
+      for (let i = 0; i < data.length; i++) {
+        let d = data[i];
+        if (d instanceof Array) {
+          d.forEach(item => {
+            switch (item.key) {
+              case TARGET_LEVEL:
+                this.threadGroups[i].threadNumber = item.value;
+                break;
+              case RAMP_UP:
+                this.threadGroups[i].rampUpTime = item.value;
+                break;
+              case DURATION:
+                this.threadGroups[i].duration = item.value;
+                break;
+              case STEPS:
+                this.threadGroups[i].step = item.value;
+                break;
+              case RPS_LIMIT:
+                this.threadGroups[i].rpsLimit = item.value;
+                break;
+              case RPS_LIMIT_ENABLE:
+                this.threadGroups[i].rpsLimitEnable = item.value;
+                break;
+              default:
+                break;
+            }
+          })
+          this.calculateChart(this.threadGroups[i]);
+        } else {
+          switch (d.key) {
+            case TARGET_LEVEL:
+              this.threadGroups[0].threadNumber = d.value;
+              break;
+            case RAMP_UP:
+              this.threadGroups[0].rampUpTime = d.value;
+              break;
+            case DURATION:
+              this.threadGroups[0].duration = d.value;
+              break;
+            case STEPS:
+              this.threadGroups[0].step = d.value;
+              break;
+            case RPS_LIMIT:
+              this.threadGroups[0].rpsLimit = d.value;
+              break;
+            case RPS_LIMIT_ENABLE:
+              this.threadGroups[0].rpsLimitEnable = d.value;
+              break;
+            default:
+              break;
+          }
+          this.calculateChart(this.threadGroups[0]);
         }
-      });
-
-      this.threadNumber = this.threadNumber || 10;
-      this.duration = this.duration || 30;
-      this.rampUpTime = this.rampUpTime || 12;
-      this.step = this.step || 3;
-      this.rpsLimit = this.rpsLimit || 10;
-
-      this.calculateChart();
+      }
     },
     getLoadConfig() {
       if (!this.report.id) {
         return;
       }
-      this.$get("/performance/report/" + this.report.id, res => {
+      this.result = this.$get("/performance/report/" + this.report.id, res => {
         let data = res.data;
         if (data) {
           if (data.loadConfiguration) {
             let d = JSON.parse(data.loadConfiguration);
             this.calculateLoadConfiguration(d);
           } else {
-            this.$get('/performance/get-load-config/' + this.report.testId, (response) => {
+            this.$get('/performance/get-load-config/' + this.report.id, (response) => {
               if (response.data) {
                 let data = JSON.parse(response.data);
                 this.calculateLoadConfiguration(data);
@@ -175,14 +195,127 @@ export default {
         }
       });
     },
-    calculateChart() {
-      if (this.duration < this.rampUpTime) {
-        this.rampUpTime = this.duration;
+    getJmxContent() {
+      console.log(this.report.testId);
+      if (!this.report.testId) {
+        return;
       }
-      if (this.rampUpTime < this.step) {
-        this.step = this.rampUpTime;
+      this.result = this.$get('/performance/get-jmx-content/' + this.report.testId, (response) => {
+        if (response.data) {
+          this.threadGroups = findThreadGroup(response.data);
+          this.threadGroups.forEach(tg => {
+            tg.options = {};
+          });
+          this.getLoadConfig();
+        }
+      });
+    },
+    calculateTotalChart() {
+      let handler = this;
+      if (handler.duration < handler.rampUpTime) {
+        handler.rampUpTime = handler.duration;
       }
-      this.orgOptions = {
+      if (handler.rampUpTime < handler.step) {
+        handler.step = handler.rampUpTime;
+      }
+      handler.options = {
+        color: ['#60acfc', '#32d3eb', '#5bc49f', '#feb64d', '#ff7c7c', '#9287e7', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'],
+        xAxis: {
+          type: 'category',
+          boundaryGap: false,
+          data: []
+        },
+        yAxis: {
+          type: 'value'
+        },
+        tooltip: {
+          trigger: 'axis',
+        },
+        series: []
+      };
+
+
+      for (let i = 0; i < handler.threadGroups.length; i++) {
+        let seriesData = {
+          name: handler.threadGroups[i].attributes.testname,
+          data: [],
+          type: 'line',
+          step: 'start',
+          smooth: false,
+          symbolSize: 5,
+          showSymbol: false,
+          lineStyle: {
+            normal: {
+              width: 1
+            }
+          },
+          areaStyle: {
+            normal: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                offset: 0,
+                color: hexToRgba(handler.options.color[i], 0.3),
+              }, {
+                offset: 0.8,
+                color: hexToRgba(handler.options.color[i], 0),
+              }], false),
+              shadowColor: 'rgba(0, 0, 0, 0.1)',
+              shadowBlur: 10
+            }
+          },
+          itemStyle: {
+            normal: {
+              color: hexToRgb(handler.options.color[i]),
+              borderColor: 'rgba(137,189,2,0.27)',
+              borderWidth: 12
+            }
+          },
+        };
+
+        let tg = handler.threadGroups[i];
+
+        let timePeriod = Math.floor(tg.rampUpTime / tg.step);
+        let timeInc = timePeriod;
+
+        let threadPeriod = Math.floor(tg.threadNumber / tg.step);
+        let threadInc1 = Math.floor(tg.threadNumber / tg.step);
+        let threadInc2 = Math.ceil(tg.threadNumber / tg.step);
+        let inc2count = tg.threadNumber - tg.step * threadInc1;
+        for (let j = 0; j <= tg.duration; j++) {
+
+          if (j > timePeriod) {
+            timePeriod += timeInc;
+            if (inc2count > 0) {
+              threadPeriod = threadPeriod + threadInc2;
+              inc2count--;
+            } else {
+              threadPeriod = threadPeriod + threadInc1;
+            }
+            if (threadPeriod > tg.threadNumber) {
+              threadPeriod = tg.threadNumber;
+            }
+          }
+          // x 轴
+          let xAxis = handler.options.xAxis.data;
+          if (xAxis.indexOf(j) < 0) {
+            xAxis.push(j);
+          }
+          seriesData.data.push(threadPeriod);
+        }
+        handler.options.series.push(seriesData);
+      }
+    },
+    calculateChart(threadGroup) {
+      let handler = this;
+      if (threadGroup) {
+        handler = threadGroup;
+      }
+      if (handler.duration < handler.rampUpTime) {
+        handler.rampUpTime = handler.duration;
+      }
+      if (handler.rampUpTime < handler.step) {
+        handler.step = handler.rampUpTime;
+      }
+      handler.options = {
         xAxis: {
           type: 'category',
           boundaryGap: false,
@@ -235,16 +368,16 @@ export default {
           },
         }]
       };
-      let timePeriod = Math.floor(this.rampUpTime / this.step);
+      let timePeriod = Math.floor(handler.rampUpTime / handler.step);
       let timeInc = timePeriod;
 
-      let threadPeriod = Math.floor(this.threadNumber / this.step);
-      let threadInc1 = Math.floor(this.threadNumber / this.step);
-      let threadInc2 = Math.ceil(this.threadNumber / this.step);
-      let inc2count = this.threadNumber - this.step * threadInc1;
-      for (let i = 0; i <= this.duration; i++) {
+      let threadPeriod = Math.floor(handler.threadNumber / handler.step);
+      let threadInc1 = Math.floor(handler.threadNumber / handler.step);
+      let threadInc2 = Math.ceil(handler.threadNumber / handler.step);
+      let inc2count = handler.threadNumber - handler.step * threadInc1;
+      for (let i = 0; i <= handler.duration; i++) {
         // x 轴
-        this.orgOptions.xAxis.data.push(i);
+        handler.options.xAxis.data.push(i);
         if (i > timePeriod) {
           timePeriod += timeInc;
           if (inc2count > 0) {
@@ -253,25 +386,22 @@ export default {
           } else {
             threadPeriod = threadPeriod + threadInc1;
           }
-          if (threadPeriod > this.threadNumber) {
-            threadPeriod = this.threadNumber;
+          if (threadPeriod > handler.threadNumber) {
+            threadPeriod = handler.threadNumber;
           }
-          this.orgOptions.series[0].data.push(threadPeriod);
+          handler.options.series[0].data.push(threadPeriod);
         } else {
-          this.orgOptions.series[0].data.push(threadPeriod);
+          handler.options.series[0].data.push(threadPeriod);
         }
       }
+      this.calculateTotalChart();
     },
   },
   watch: {
-    report: {
-      handler(val) {
-        if (!val.testId) {
-          return;
-        }
-        this.getLoadConfig();
+    'report.testId': {
+      handler() {
+        this.getJmxContent();
       },
-      deep: true
     }
   }
 }
@@ -295,6 +425,7 @@ export default {
 
 .chart-container {
   width: 100%;
+  height: 300px;
 }
 
 .el-col .el-form {

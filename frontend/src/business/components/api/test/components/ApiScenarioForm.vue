@@ -52,6 +52,9 @@
       <el-tab-pane :label="$t('api_test.environment.tcp_config')" name="tcp">
         <ms-tcp-config :config="scenario.tcpConfig" :is-read-only="isReadOnly"/>
       </el-tab-pane>
+      <el-tab-pane :label="$t('api_test.request.assertions.label')" name="assertions">
+        <ms-api-assertions :scenario="scenario" :is-read-only="isReadOnly" :assertions="scenario.assertions"/>
+      </el-tab-pane>
     </el-tabs>
 
     <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
@@ -72,6 +75,7 @@ import MsDubboConsumerService from "@/business/components/api/test/components/re
 import MsDatabaseConfig from "./request/database/DatabaseConfig";
 import {parseEnvironment} from "../model/EnvironmentModel";
 import MsTcpConfig from "@/business/components/api/test/components/request/tcp/TcpConfig";
+import MsApiAssertions from "@/business/components/api/test/components/assertion/ApiAssertions";
 
 export default {
   name: "MsApiScenarioForm",
@@ -79,7 +83,8 @@ export default {
     MsTcpConfig,
     MsDatabaseConfig,
     MsDubboConsumerService,
-    MsDubboConfigCenter, MsDubboRegistryCenter, ApiEnvironmentConfig, MsApiScenarioVariables, MsApiKeyValue
+    MsDubboConfigCenter, MsDubboRegistryCenter, ApiEnvironmentConfig, MsApiScenarioVariables, MsApiKeyValue,
+    MsApiAssertions
   },
   props: {
     scenario: Scenario,

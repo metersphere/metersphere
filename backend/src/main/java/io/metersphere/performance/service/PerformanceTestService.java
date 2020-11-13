@@ -345,6 +345,17 @@ public class PerformanceTestService {
         return Optional.ofNullable(loadTestWithBLOBs).orElse(new LoadTestWithBLOBs()).getLoadConfiguration();
     }
 
+    public String getJmxContent(String testId) {
+        List<FileMetadata> fileMetadataList = fileService.getFileMetadataByTestId(testId);
+        for (FileMetadata metadata : fileMetadataList) {
+            if (FileType.JMX.name().equals(metadata.getType())) {
+                FileContent fileContent = fileService.getFileContent(metadata.getId());
+                return new String(fileContent.getFile());
+            }
+        }
+        return null;
+    }
+
     public List<LoadTestWithBLOBs> selectByTestResourcePoolId(String resourcePoolId) {
         LoadTestExample example = new LoadTestExample();
         example.createCriteria().andTestResourcePoolIdEqualTo(resourcePoolId);

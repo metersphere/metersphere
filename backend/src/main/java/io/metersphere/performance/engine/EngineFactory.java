@@ -9,6 +9,7 @@ import io.metersphere.base.domain.TestResourcePool;
 import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.config.KafkaProperties;
 import io.metersphere.i18n.Translator;
 import io.metersphere.performance.engine.docker.DockerTestEngine;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +54,7 @@ public class EngineFactory {
         return null;
     }
 
-    public static EngineContext createContext(LoadTestWithBLOBs loadTest, String resourceId, long threadNum, long startTime, String reportId, int resourceIndex) {
+    public static EngineContext createContext(LoadTestWithBLOBs loadTest, String resourceId, double ratio, long startTime, String reportId, int resourceIndex) {
         final List<FileMetadata> fileMetadataList = fileService.getFileMetadataByTestId(loadTest.getId());
         if (org.springframework.util.CollectionUtils.isEmpty(fileMetadataList)) {
             MSException.throwException(Translator.get("run_load_test_file_not_found") + loadTest.getId());
@@ -73,7 +75,6 @@ public class EngineFactory {
         engineContext.setTestName(loadTest.getName());
         engineContext.setNamespace(loadTest.getProjectId());
         engineContext.setFileType(jmxFile.getType());
-        engineContext.setThreadNum(threadNum);
         engineContext.setResourcePoolId(loadTest.getTestResourcePoolId());
         engineContext.setStartTime(startTime);
         engineContext.setReportId(reportId);
@@ -90,8 +91,34 @@ public class EngineFactory {
             final JSONArray jsonArray = JSONObject.parseArray(loadTest.getLoadConfiguration());
 
             for (int i = 0; i < jsonArray.size(); i++) {
-                final JSONObject jsonObject = jsonArray.getJSONObject(i);
-                engineContext.addProperty(jsonObject.getString("key"), jsonObject.get("value"));
+                if (jsonArray.get(i) instanceof Map) {
+                    JSONObject o = jsonArray.getJSONObject(i);
+                    String key = o.getString("key");
+                    if ("TargetLevel".equals(key)) {
+                        engineContext.addProperty(key, Math.round(((Integer) o.get("value")) * ratio));
+                    } else {
+                        engineContext.addProperty(key, o.get("value"));
+                    }
+                }
+                if (jsonArray.get(i) instanceof List) {
+                    JSONArray o = jsonArray.getJSONArray(i);
+                    for (int j = 0; j < o.size(); j++) {
+                        JSONObject b = o.getJSONObject(j);
+                        String key = b.getString("key");
+                        Object values = engineContext.getProperty(key);
+                        if (values == null) {
+                            values = new ArrayList<>();
+                        }
+                        if (values instanceof List) {
+                            Object value = b.get("value");
+                            if ("TargetLevel".equals(key)) {
+                                value = Math.round(((Integer) b.get("value")) * ratio);
+                            }
+                            ((List<Object>) values).add(value);
+                            engineContext.addProperty(key, values);
+                        }
+                    }
+                }
             }
         }
         /*
@@ -112,8 +139,10 @@ public class EngineFactory {
             String content = engineSourceParser.parse(engineContext, source);
             engineContext.setContent(content);
         } catch (MSException e) {
+            LogUtil.error(e);
             throw e;
         } catch (Exception e) {
+            LogUtil.error(e);
             MSException.throwException(e);
         }
 

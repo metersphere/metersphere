@@ -39,10 +39,12 @@ public class APIReportController {
         return apiReportService.recentTest(request);
     }
 
-    @GetMapping("/list/{testId}")
-    public List<APIReportResult> listByTestId(@PathVariable String testId) {
+    @GetMapping("/list/{testId}/{goPage}/{pageSize}")
+    public Pager<List<APIReportResult>> listByTestId(@PathVariable String testId, @PathVariable int goPage, @PathVariable int pageSize) {
         checkOwnerService.checkApiTestOwner(testId);
-        return apiReportService.listByTestId(testId);
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, apiReportService.listByTestId(testId));
+
     }
 
     @PostMapping("/list/{goPage}/{pageSize}")

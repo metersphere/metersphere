@@ -80,7 +80,7 @@ import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 import MsPerformanceTestStatus from "./PerformanceTestStatus";
 import MsTableOperators from "../../common/components/MsTableOperators";
-import {_filter, _sort} from "../../../../common/js/utils";
+import {_filter, _sort} from "@/common/js/utils";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import {TEST_CONFIGS} from "../../common/components/search/search-components";
 import {LIST_CHANGE, PerformanceEvent} from "@/business/components/common/head/ListEvent";
@@ -164,30 +164,30 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
-    handleEdit(testPlan) {
+    handleEdit(test) {
       this.$router.push({
-        path: '/performance/test/edit/' + testPlan.id,
+        path: '/performance/test/edit/' + test.id,
       })
     },
-    handleCopy(testPlan) {
-      this.result = this.$post("/performance/copy", {id: testPlan.id}, () => {
+    handleCopy(test) {
+      this.result = this.$post("/performance/copy", {id: test.id}, () => {
         this.$success(this.$t('commons.copy_success'));
         this.search();
       });
     },
-    handleDelete(testPlan) {
-      this.$alert(this.$t('load_test.delete_confirm') + testPlan.name + "？", '', {
+    handleDelete(test) {
+      this.$alert(this.$t('load_test.delete_confirm') + test.name + "？", '', {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
-            this._handleDelete(testPlan);
+            this._handleDelete(test);
           }
         }
       });
     },
-    _handleDelete(testPlan) {
+    _handleDelete(test) {
       let data = {
-        id: testPlan.id
+        id: test.id
       };
 
       this.result = this.$post(this.deletePath, data, () => {

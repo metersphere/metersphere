@@ -20,6 +20,7 @@ MeterSphere 是一站式的开源企业级持续测试平台，涵盖测试跟�
 
 ![产品定位](https://metersphere.io/images/icon/ct-devops.png)
 
+
 > 如需进一步了解 MeterSphere 开源项目，推荐阅读 [MeterSphere 的初心和使命](https://mp.weixin.qq.com/s/DpCt3BNgBTlV3sJ5qtPmZw)
 
 ## 在线体验
