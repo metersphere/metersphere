@@ -2,6 +2,7 @@ package io.metersphere.api.dto.scenario;
 
 import io.metersphere.api.dto.scenario.request.BodyFile;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ public class KeyValue {
     private String description;
     private String contentType;
     private boolean enable;
+    private boolean encode = true;
     private boolean required;
 
     public KeyValue() {
@@ -34,5 +36,13 @@ public class KeyValue {
         this.enable = true;
         this.description = description;
         this.required = true;
+    }
+
+    public boolean isValid() {
+        return (StringUtils.isNotBlank(name) || StringUtils.isNotBlank(value)) && !StringUtils.equalsIgnoreCase(type, "file");
+    }
+
+    public boolean isFile() {
+        return (StringUtils.isNotBlank(name) || StringUtils.isNotBlank(value)) && StringUtils.equalsIgnoreCase(type, "file");
     }
 }

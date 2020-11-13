@@ -1,6 +1,5 @@
 import {
   Arguments,
-  ConstantTimer as JMXConstantTimer,
   CookieManager,
   DNSCacheManager,
   DubboSample,
@@ -11,24 +10,22 @@ import {
   HTTPSamplerArguments,
   HTTPsamplerFiles,
   HTTPSamplerProxy,
-  IfController as JMXIfController,
   JDBCDataSource,
   JDBCSampler,
   JSONPathAssertion,
   JSONPostProcessor,
-  JSR223Assertion,
   JSR223PostProcessor,
   JSR223PreProcessor,
   RegexExtractor,
   ResponseCodeAssertion,
   ResponseDataAssertion,
   ResponseHeadersAssertion,
-  TCPSampler,
   TestElement,
   TestPlan,
   ThreadGroup,
-  XPath2Assertion,
   XPath2Extractor,
+  IfController as JMXIfController,
+  ConstantTimer as JMXConstantTimer, TCPSampler, JSR223Assertion,
 } from "./JMX";
 import Mock from "mockjs";
 import {funcFilters} from "@/common/js/func-filter";
@@ -99,7 +96,6 @@ export const ASSERTION_TYPE = {
   JSON_PATH: "JSON",
   DURATION: "Duration",
   JSR223: "JSR223",
-  XPATH2: "XPath2",
 }
 
 export const ASSERTION_REGEX_SUBJECT = {
@@ -229,7 +225,6 @@ export class Scenario extends BaseConfig {
     this.enable = true;
     this.databaseConfigs = [];
     this.tcpConfig = undefined;
-    this.assertions = undefined;
 
     this.set(options);
     this.sets({
@@ -246,7 +241,6 @@ export class Scenario extends BaseConfig {
     options.databaseConfigs = options.databaseConfigs || [];
     options.dubboConfig = new DubboConfig(options.dubboConfig);
     options.tcpConfig = new TCPConfig(options.tcpConfig);
-    options.assertions = new Assertions(options.assertions);
     return options;
   }
 
@@ -747,11 +741,10 @@ export class Assertions extends BaseConfig {
     this.regex = [];
     this.jsonPath = [];
     this.jsr223 = [];
-    this.xpath2 = [];
     this.duration = undefined;
 
     this.set(options);
-    this.sets({text: Text, regex: Regex, jsonPath: JSONPath, jsr223: AssertionJSR223, xpath2: XPath2}, options);
+    this.sets({text: Text, regex: Regex, jsonPath: JSONPath, jsr223: AssertionJSR223}, options);
   }
 
   initOptions(options) {
@@ -827,23 +820,6 @@ export class JSONPath extends AssertionType {
   setJSONPathDescription() {
     this.description = this.expression + " expect: " + (this.expect ? this.expect : '');
   }
-
-  isValid() {
-    return !!this.expression;
-  }
-}
-
-export class XPath2 extends AssertionType {
-  constructor(options) {
-    super(ASSERTION_TYPE.XPATH2);
-    this.expression = undefined;
-    this.description = undefined;
-    this.set(options);
-  }
-
-  // setJSONPathDescription() {
-  //   this.description = this.expression + " expect: " + (this.expect ? this.expect : '');
-  // }
 
   isValid() {
     return !!this.expression;
@@ -1156,9 +1132,6 @@ class JMXGenerator {
         this.addScenarioCookieManager(threadGroup, scenario);
 
         this.addJDBCDataSources(threadGroup, scenario);
-
-        this.addAssertion(threadGroup, scenario);
-
         scenario.requests.forEach(request => {
           if (request.enable) {
             if (!request.isValid()) return;
@@ -1183,7 +1156,7 @@ class JMXGenerator {
 
             this.addRequestExtractor(sampler, request);
 
-            this.addAssertion(sampler, request);
+            this.addRequestAssertion(sampler, request);
 
             this.addJSR223PreProcessor(sampler, request);
 
@@ -1206,25 +1179,16 @@ class JMXGenerator {
   }
 
   addEnvironments(environments, target) {
-    let targetMap = new Map();
+    let keys = new Set();
     target.forEach(item => {
-      if (item.name) {
-        targetMap.set(item.name, item.enable);
-      }
+      keys.add(item.name);
     });
     let envArray = environments;
     if (!(envArray instanceof Array)) {
       envArray = JSON.parse(environments);
     }
     envArray.forEach(item => {
-      let targetItem = targetMap.get(item.name);
-      let hasItem = undefined;
-      if (targetItem) {
-        hasItem = (targetItem.enable === false ? false : true);
-      } else {
-        hasItem = false;
-      }
-      if (item.enable != false && item.name && !hasItem) {
+      if (item.enable !== false && item.name && !keys.has(item.name)) {
         target.push(new KeyValue({name: item.name, value: item.value}));
       }
     })
@@ -1328,10 +1292,7 @@ class JMXGenerator {
       if (!(scenario.environment.config instanceof Object)) {
         config = JSON.parse(scenario.environment.config);
       }
-      this.addEnvironments(config.httpConfig.headers, request.headers);
-      if (request.doMultipartPost) {
-        this.removeContentType(request);
-      }
+      this.addEnvironments(config.httpConfig.headers, request.headers)
     }
     let name = request.name + " Headers";
     this.addBodyFormat(request);
@@ -1412,7 +1373,7 @@ class JMXGenerator {
     let hasContentType = false;
     for (let index in request.headers) {
       if (request.headers.hasOwnProperty(index)) {
-        if (request.headers[index].name === 'Content-Type' && request.headers[index].enable != false) {
+        if (request.headers[index].name === 'Content-Type' && request.headers[index].enable !== false) {
           hasContentType = true;
           break;
         }
@@ -1420,17 +1381,6 @@ class JMXGenerator {
     }
     if (!hasContentType) {
       request.headers.push(new KeyValue({name: 'Content-Type', value: type}));
-    }
-  }
-
-  removeContentType(request) {
-    for (let index in request.headers) {
-      if (request.headers.hasOwnProperty(index)) {
-        if (request.headers[index].name === 'Content-Type' && request.headers[index].enable != false) {
-          request.headers.splice(index, 1);
-          break;
-        }
-      }
     }
   }
 
@@ -1475,7 +1425,7 @@ class JMXGenerator {
     httpSamplerProxy.add(new HTTPsamplerFiles(files));
   }
 
-  addAssertion(httpSamplerProxy, request) {
+  addRequestAssertion(httpSamplerProxy, request) {
     let assertions = request.assertions;
     if (assertions.regex.length > 0) {
       assertions.regex.filter(this.filter).forEach(regex => {
@@ -1486,12 +1436,6 @@ class JMXGenerator {
     if (assertions.jsonPath.length > 0) {
       assertions.jsonPath.filter(this.filter).forEach(item => {
         httpSamplerProxy.put(this.getJSONPathAssertion(item));
-      })
-    }
-
-    if (assertions.xpath2.length > 0) {
-      assertions.xpath2.filter(this.filter).forEach(item => {
-        httpSamplerProxy.put(this.getXpathAssertion(item));
       })
     }
 
@@ -1517,14 +1461,9 @@ class JMXGenerator {
     return new JSR223Assertion(name, item);
   }
 
-  getXpathAssertion(item) {
-    let name = item.expression;
-    return new XPath2Assertion(name, item);
-  }
-
   getResponseAssertion(regex) {
     let name = regex.description;
-    let type = JMX_ASSERTION_CONDITION.CONTAINS; // 固定用Match，自己写正则
+    let type = JMX_ASSERTION_CONDITION.CONTAINS;
     let value = regex.expression;
     let assumeSuccess = regex.assumeSuccess;
     switch (regex.subject) {

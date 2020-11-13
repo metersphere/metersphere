@@ -6,6 +6,6 @@ import lombok.Data;
 public class ConstantTimer {
     private String type;
     private String id;
-    private Boolean enable;
+    private boolean enable = true;
     private String delay;
 }
