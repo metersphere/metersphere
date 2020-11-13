@@ -10,11 +10,13 @@ import java.util.List;
 public class IssueFactory {
     public static AbstractIssuePlatform createPlatform(String platform, IssuesRequest addIssueRequest) {
         if (StringUtils.equals(IssuesManagePlatform.Tapd.toString(), platform)) {
-            return new TapdIssue(addIssueRequest);
+            return new TapdPlatform(addIssueRequest);
         } else if (StringUtils.equals(IssuesManagePlatform.Jira.toString(), platform)) {
-            return new JiraIssue(addIssueRequest);
-        }  else if (StringUtils.equals("LOCAL", platform)) {
-            return new LocalIssue(addIssueRequest);
+            return new JiraPlatform(addIssueRequest);
+        } else if (StringUtils.equals(IssuesManagePlatform.Zentao.toString(), platform)) {
+            return new ZentaoPlatform(addIssueRequest);
+        } else if (StringUtils.equals("LOCAL", platform)) {
+            return new LocalPlatform(addIssueRequest);
         }
         return null;
     }
