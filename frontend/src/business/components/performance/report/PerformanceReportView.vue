@@ -25,6 +25,9 @@
               <el-button :disabled="isReadOnly" type="info" plain size="mini" @click="handleExport(reportName)">
                 {{ $t('test_track.plan_view.export_report') }}
               </el-button>
+              <el-button :disabled="isReadOnly" type="warning" plain size="mini" @click="downloadJtl()">
+                下载JTL
+              </el-button>
 
               <!--<el-button :disabled="isReadOnly" type="warning" plain size="mini">-->
               <!--{{$t('report.compare')}}-->
@@ -95,6 +98,7 @@ import MsMainContainer from "../../common/components/MsMainContainer";
 import {checkoutTestManagerOrTestUser, exportPdf} from "@/common/js/utils";
 import html2canvas from 'html2canvas';
 import MsPerformanceReportExport from "./PerformanceReportExport";
+import {Message} from "element-ui";
 
 
 export default {
@@ -281,6 +285,31 @@ export default {
       this.reportExportVisible = false;
       this.result.loading = false;
     },
+    downloadJtl() {
+      let config = {
+        url: "/performance/report/jtl/download/" + this.reportId,
+        method: 'get',
+        responseType: 'blob'
+      };
+      this.result = this.$request(config).then(response => {
+        const content = response.data;
+        const blob = new Blob([content]);
+        if ("download" in document.createElement("a")) {
+          // 非IE下载
+          //  chrome/firefox
+          let aTag = document.createElement('a');
+          aTag.download = this.reportId + ".jtl";
+          aTag.href = URL.createObjectURL(blob);
+          aTag.click();
+          URL.revokeObjectURL(aTag.href)
+        } else {
+          // IE10+下载
+          navigator.msSaveBlob(blob, this.filename)
+        }
+      }).catch(e => {
+        Message.error({message: e.message, showClose: true});
+      });
+    }
   },
   created() {
     this.isReadOnly = false;

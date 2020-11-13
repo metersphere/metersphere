@@ -360,6 +360,7 @@ export default {
     test_rerun_confirm: '确定要再次执行当前测试吗？',
     test_stop_success: '停止成功',
     test_execute_again: '再次执行',
+    downloadJtl: '下载JTL',
     export: '导出',
     compare: '比较',
     generation_error: '报告生成错误, 无法查看, 请检查日志详情!',
