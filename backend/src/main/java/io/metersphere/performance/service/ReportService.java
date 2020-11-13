@@ -13,6 +13,7 @@ import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.dto.LogDetailDTO;
 import io.metersphere.dto.ReportDTO;
+import io.metersphere.i18n.Translator;
 import io.metersphere.performance.base.*;
 import io.metersphere.performance.controller.request.DeleteReportRequest;
 import io.metersphere.performance.controller.request.ReportRequest;
@@ -277,6 +278,9 @@ public class ReportService {
 
     public byte[] downloadJtl(String reportId) {
         LoadTestReportWithBLOBs report = getReport(reportId);
+        if (StringUtils.isBlank(report.getFileId())) {
+            MSException.throwException(Translator.get("load_test_report_file_not_exist"));
+        }
         return fileService.loadFileAsBytes(report.getFileId());
     }
 }
