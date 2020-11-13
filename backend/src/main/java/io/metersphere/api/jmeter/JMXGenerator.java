@@ -19,10 +19,7 @@ import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.protocol.HTTP;
-import org.apache.jmeter.assertions.DurationAssertion;
-import org.apache.jmeter.assertions.JSONPathAssertion;
-import org.apache.jmeter.assertions.JSR223Assertion;
-import org.apache.jmeter.assertions.ResponseAssertion;
+import org.apache.jmeter.assertions.*;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.control.IfController;
@@ -97,7 +94,8 @@ public class JMXGenerator {
             threadGroupHashTree.add(dubboConfig(scenario.getName() + "DUBBO Config", scenario.getDubboConfig()));
             // 场景TCP Config
             threadGroupHashTree.add(tcpConfig(scenario.getName() + "TCP Config", scenario.getTcpConfig()));
-
+            // 场景断言
+            addAssertions(threadGroupHashTree, scenario.getAssertions());
             // 请求
             scenario.getRequests().stream().filter(Request::isEnable).forEach(request -> {
                 final HashTree samplerHashTree = new ListedHashTree();
@@ -152,7 +150,7 @@ public class JMXGenerator {
                     addEnvironmentDNS(samplerHashTree, request, config);
                 }
 
-                addRequestAssertions(samplerHashTree, request);
+                addAssertions(samplerHashTree, request.getAssertions());
                 addRequestExtractors(samplerHashTree, request);
                 addJSR223Processors(samplerHashTree, request);
 
@@ -202,28 +200,34 @@ public class JMXGenerator {
         }
     }
 
-    private void addRequestAssertions(HashTree samplerHashTree, Request request) {
-        Assertions assertions = request.getAssertions();
+    private void addAssertions(HashTree hashTree, Assertions assertions) {
+        if (hashTree == null || assertions == null) return;
         if (CollectionUtils.isNotEmpty(assertions.getRegex())) {
             assertions.getRegex().stream().filter(AssertionRegex::isValid).forEach(assertion ->
-                    samplerHashTree.add(responseAssertion(assertion))
+                    hashTree.add(responseAssertion(assertion))
             );
         }
 
         if (CollectionUtils.isNotEmpty(assertions.getJsonPath())) {
             assertions.getJsonPath().stream().filter(AssertionJsonPath::isValid).forEach(assertion ->
-                    samplerHashTree.add(jsonPathAssertion(assertion))
+                    hashTree.add(jsonPathAssertion(assertion))
+            );
+        }
+
+        if (CollectionUtils.isNotEmpty(assertions.getXpath2())) {
+            assertions.getXpath2().stream().filter(AssertionXPath2::isValid).forEach(assertion ->
+                    hashTree.add(xPath2Assertion(assertion))
             );
         }
 
         if (CollectionUtils.isNotEmpty(assertions.getJsr223())) {
             assertions.getJsr223().stream().filter(AssertionJSR223::isValid).forEach(assertion ->
-                    samplerHashTree.add(jsr223Assertion(assertion))
+                    hashTree.add(jsr223Assertion(assertion))
             );
         }
 
         if (assertions.getDuration().isValid()) {
-            samplerHashTree.add(durationAssertion(assertions.getDuration()));
+            hashTree.add(durationAssertion(assertions.getDuration()));
         }
     }
 
@@ -540,9 +544,9 @@ public class JMXGenerator {
     }
 
     private List<KeyValue> merge(List<KeyValue> list1, List<KeyValue> list2) {
-        Set<String> names = list1.stream().map(KeyValue::getName).collect(Collectors.toSet());
+        Set<String> names = list1.stream().filter(KeyValue::isEnable).map(KeyValue::getName).collect(Collectors.toSet());
         List<KeyValue> list = new ArrayList<>(list1);
-        list2.stream().filter(keyValue -> !names.contains(keyValue.getName())).forEach(list::add);
+        list2.stream().filter(KeyValue::isEnable).filter(keyValue -> !names.contains(keyValue.getName())).forEach(list::add);
         return list;
     }
 
@@ -654,6 +658,17 @@ public class JMXGenerator {
         assertion.setExpectNull(false);
         assertion.setInvert(false);
         assertion.setIsRegex(true);
+        return assertion;
+    }
+
+    private XPath2Assertion xPath2Assertion(AssertionXPath2 assertionXPath2) {
+        XPath2Assertion assertion = new XPath2Assertion();
+        assertion.setEnabled(true);
+        assertion.setName(assertionXPath2.getExpression());
+        assertion.setProperty(TestElement.TEST_CLASS, XPath2Assertion.class.getName());
+        assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("XPath2AssertionGui"));
+        assertion.setXPathString(assertionXPath2.getExpression());
+        assertion.setNegated(false);
         return assertion;
     }
 
