@@ -168,7 +168,10 @@ public class ReportService {
 
     public void checkReportStatus(String reportId) {
         LoadTestReport loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
-        String reportStatus = loadTestReport.getStatus();
+        String reportStatus="";
+        if(loadTestReport!=null){
+             reportStatus = loadTestReport.getStatus();
+        }
         if (StringUtils.equals(PerformanceTestStatus.Error.name(), reportStatus)) {
             MSException.throwException("Report generation error!");
         }
