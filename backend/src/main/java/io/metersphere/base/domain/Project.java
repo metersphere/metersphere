@@ -21,5 +21,7 @@ public class Project implements Serializable {
 
     private String jiraKey;
 
+    private String zentaoId;
+
     private static final long serialVersionUID = 1L;
 }
