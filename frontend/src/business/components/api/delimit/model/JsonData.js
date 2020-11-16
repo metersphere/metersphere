@@ -42,3 +42,9 @@ export const REQUIRED = [
   {name: '必填', id: true},
   {name: '非必填', id: false}
 ]
+
+export const RESULT_MAP = new Map([
+  ['success','执行结果：通过'],
+  ['error','执行结果：未通过'],
+  ['default','执行结果：未执行']
+]);

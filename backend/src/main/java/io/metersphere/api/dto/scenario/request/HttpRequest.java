@@ -40,4 +40,8 @@ public class HttpRequest extends Request {
     private List<KeyValue> rest;
     @JSONField(ordinal = 61)
     private AuthConfig authConfig;
+    // 和接口定义模块用途区分
+    @JSONField(ordinal = 62)
+    private boolean isDelimit;
+
 }
