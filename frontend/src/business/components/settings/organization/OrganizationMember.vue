@@ -165,6 +165,11 @@
           for (let i = 0; i < this.tableData.length; i++) {
             this.$get(url + "/" + encodeURIComponent(this.tableData[i].id), response => {
               let roles = response.data;
+              if (roles.length < 1) {
+                roles.push({
+                  id : "org_member",
+                });
+              }
               this.$set(this.tableData[i], "roles", roles);
             })
           }
