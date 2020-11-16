@@ -337,6 +337,7 @@ export default {
     please_choose_role: '請選擇角色',
     admin: '系統管理員',
     org_admin: '組織管理員',
+    org_member: '組織成員',
     test_manager: '測試經理',
     test_user: '測試人員',
     test_viewer: '只讀用戶',

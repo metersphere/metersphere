@@ -171,12 +171,11 @@ public class OrganizationService {
         SessionUser sessionUser = SessionUtils.getUser();
         UserDTO user = userService.getUserDTO(sessionUser.getId());
         List<String> collect = user.getUserRoles().stream()
-                .filter(ur -> RoleConstants.ORG_ADMIN.equals(ur.getRoleId()))
+                .filter(ur -> RoleConstants.ORG_ADMIN.equals(ur.getRoleId()) || RoleConstants.ORG_MEMBER.equals(ur.getRoleId()))
                 .map(UserRole::getSourceId)
                 .collect(Collectors.toList());
         if (!collect.contains(organizationId)) {
             MSException.throwException(Translator.get("organization_does_not_belong_to_user"));
         }
-
     }
 }

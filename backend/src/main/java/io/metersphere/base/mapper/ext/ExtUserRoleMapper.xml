@@ -49,8 +49,16 @@
 
     <select id="getOrgMemberList" resultType="io.metersphere.base.domain.User">
         SELECT DISTINCT * FROM (
-        SELECT `user`.* FROM user_role JOIN `user` ON user_role.user_id = `user`.id
-        WHERE user_role.source_id = #{orgMember.organizationId}
+        SELECT `user`.*
+        FROM user_role JOIN `user`
+        ON user_role.user_id = `user`.id
+        WHERE user_role.source_id in
+        (
+          SELECT id FROM workspace w
+          WHERE w.organization_id = #{orgMember.organizationId}
+          UNION
+          SELECT #{orgMember.organizationId} AS id FROM dual
+        )
         <if test="orgMember.name != null">
             AND `user`.name like CONCAT('%', #{orgMember.name},'%')
         </if>

@@ -336,6 +336,7 @@ export default {
     please_choose_role: 'Please Choose Role',
     admin: 'Admin',
     org_admin: 'Org_Admin',
+    org_member: 'Org Member',
     test_manager: 'Test Manager',
     test_user: 'Test User',
     test_viewer: 'Read-only User',
