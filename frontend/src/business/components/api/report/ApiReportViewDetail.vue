@@ -158,14 +158,12 @@ export default {
       let reset = this.exportReportReset;
 
       this.$nextTick(function () {
-        setTimeout(() => {
-          html2canvas(document.getElementById('apiTestReport'), {
-            scale: 2
-          }).then(function(canvas) {
-            exportPdf(name, [canvas]);
-            reset();
-          });
-        }, 1000);
+        html2canvas(document.getElementById('apiTestReport'), {
+          // scale: 2,
+        }).then(function(canvas) {
+          exportPdf(name, [canvas]);
+          reset();
+        });
       });
     },
     exportReportReset() {
