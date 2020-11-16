@@ -57,9 +57,9 @@ export default {
         if (header.default !== undefined) {
           this.licenseHeader = "LicenseMessage";
         }
-        // 是否显示校验信息
+
         if (display.default !== undefined) {
-          display.default.valid(this);
+          display.default.showHome(this);
         }
       } else {
         window.location.href = "/login"

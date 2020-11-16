@@ -95,7 +95,7 @@ export default {
     this.result = this.$get("/isLogin").then(response => {
 
       if (display.default !== undefined) {
-        display.default.valid(this);
+        display.default.showLogin(this);
       }
 
       if (!response.data.success) {
