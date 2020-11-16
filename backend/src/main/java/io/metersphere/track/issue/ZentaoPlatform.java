@@ -21,17 +21,33 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ZentaoPlatform extends AbstractIssuePlatform {
+    /**
+     * zentao account
+     */
+    private final String account;
+    /**
+     * zentao password
+     */
+    private final String password;
+    /**
+     * zentao url eg:http://x.x.x.x/zentao
+     */
+    private final String url;
 
     public ZentaoPlatform(IssuesRequest issuesRequest) {
         super(issuesRequest);
+        String config = getPlatformConfig(IssuesManagePlatform.Zentao.toString());
+        JSONObject object = JSON.parseObject(config);
+        this.account = object.getString("account");
+        this.password = object.getString("password");
+        this.url = object.getString("url");
     }
 
     @Override
     String getProjectId() {
-//        TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
-//        Project project = projectService.getProjectById(testCase.getProjectId());
-        // todo return getZentao ID
-        return "002";
+        TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
+        Project project = projectService.getProjectById(testCase.getProjectId());
+        return project.getZentaoId();
     }
 
     @Override
@@ -63,62 +79,59 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             }
         });
         return list;
-        
+
     }
 
     private Issues getZentaoIssues(String bugId) {
-        String projectId = getProjectId();
-
         String session = login();
-
-        String config = getPlatformConfig(IssuesManagePlatform.Zentao.toString());
-        JSONObject object = JSON.parseObject(config);
-        String account = object.getString("account");
-        String password = object.getString("password");
-        String url = object.getString("url");
-        url = ZentaoUtils.getUrl(url, account, password);
-        System.out.println(url);
         HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(new HttpHeaders());
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> responseEntity = restTemplate.exchange("http://xx/zentao/bug-view-"+ bugId +".json?zentaosid=" + session, HttpMethod.POST, requestEntity, String.class);
+        ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getModel-bug-getById-bugID={bugId}?zentaosid=" + session,
+                HttpMethod.POST, requestEntity, String.class, bugId);
         String body = responseEntity.getBody();
+        System.out.println(body);
         JSONObject obj = JSONObject.parseObject(body);
         System.out.println(obj);
         if (obj != null) {
-            JSONObject data = obj.getJSONObject("data");
-            JSONArray bugs = data.getJSONArray("bugs");
-            for (int j = 0; j < bugs.size(); j++) {
-                JSONObject bug = bugs.getJSONObject(j);
-                String id = bug.getString("id");
-                String title = bug.getString("title");
-                String description = bug.getString("steps");
-                Long createTime = bug.getLong("openedDate");
-                String status = bug.getString("status");
-                String reporter = bug.getString("openedBy");
-
-                Issues issues = new Issues();
-                issues.setId(id);
-                issues.setTitle(title);
-                issues.setDescription(description);
-                issues.setCreateTime(createTime);
-                issues.setStatus(status);
-                issues.setReporter(reporter);
-                return issues;
+            JSONObject bug = obj.getJSONObject("data");
+            String id = bug.getString("id");
+            String title = bug.getString("title");
+            String description = bug.getString("steps");
+            Long createTime = bug.getLong("openedDate");
+            String status = bug.getString("status");
+            String reporter = bug.getString("openedBy");
+            int deleted = bug.getInteger("deleted");
+            if (deleted == 1) {
+                return new Issues();
             }
+            Issues issues = new Issues();
+            issues.setId(id);
+            issues.setTitle(title);
+            issues.setDescription(description);
+            issues.setCreateTime(createTime);
+            issues.setStatus(status);
+            issues.setReporter(reporter);
+            return issues;
         }
         return new Issues();
     }
 
     @Override
     public void addIssue(IssuesRequest issuesRequest) {
-        String config = getPlatformConfig(IssuesManagePlatform.Zentao.toString());
+
         String session = login();
-        JSONObject object = JSON.parseObject(config);
-//        String account = object.getString("account");
-//        String password = object.getString("password");
+        String projectId = getProjectId();
+
+        if (StringUtils.isBlank(projectId)) {
+            MSException.throwException("add zentao bug fail, project zentao id is null");
+        }
+
+        if (StringUtils.isBlank(session)) {
+            MSException.throwException("session is null");
+        }
 
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
-        paramMap.add("product", "003");
+        paramMap.add("product", projectId);
         paramMap.add("title", issuesRequest.getTitle());
         paramMap.add("openedBuild", "123");
         paramMap.add("steps", issuesRequest.getContent());
@@ -126,12 +139,12 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
         HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(paramMap, new HttpHeaders());
         RestTemplate restTemplate = new RestTemplate();
-        System.out.println("zentao add bug");
-        ResponseEntity<String> responseEntity = restTemplate.exchange("http://xx/zentao/bug-create-3.json?zentaosid=" + session, HttpMethod.POST, requestEntity, String.class);
+        ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getModel-bug-create.json?zentaosid=" + session, HttpMethod.POST, requestEntity, String.class);
         String body = responseEntity.getBody();
         JSONObject obj = JSONObject.parseObject(body);
         if (obj != null) {
-            String id = obj.getString("data");
+            JSONObject data = obj.getJSONObject("data");
+            String id = data.getString("id");
             if (StringUtils.isNotBlank(id)) {
                 // 用例与第三方缺陷平台中的缺陷关联
                 TestCaseIssues testCaseIssues = new TestCaseIssues();
@@ -147,9 +160,6 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
                 issuesMapper.insert(issues);
             }
         }
-
-        System.out.println(obj);
-//        return responseEntity.getBody();
     }
 
     @Override
@@ -160,26 +170,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     @Override
     public void testAuth() {
         try {
-            String config = getPlatformConfig(IssuesManagePlatform.Zentao.toString());
-            JSONObject object = JSON.parseObject(config);
-            String account = object.getString("account");
-            String password = object.getString("password");
-            String url = object.getString("url");
-            url = ZentaoUtils.getUrl(url, account, password);
-            HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(new HttpHeaders());
-            RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<String> exchange = restTemplate.exchange(url + "&m=user&f=apilogin", HttpMethod.GET, requestEntity, String.class);
-
-            String body = exchange.getBody();
-            JSONObject obj = JSONObject.parseObject(body);
-            System.out.println(obj);
-            if (obj != null) {
-                String errcode = obj.getString("errcode");
-                String errmsg = obj.getString("errmsg");
-                if (StringUtils.isNotBlank(errcode)) {
-                    MSException.throwException(errmsg);
-                }
-            }
+            login();
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException("验证失败！");
@@ -190,21 +181,34 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
     private String login() {
         String session = getSession();
-        String loginUrl = "http://xx/zentao/user-login.json?zentaosid=" + session;
+        String loginUrl = url + "user-login.json?zentaosid=" + session;
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
-        paramMap.add("account", "admin");
-        paramMap.add("password", "xx");
-
+        paramMap.add("account", account);
+        paramMap.add("password", password);
         HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(paramMap, new HttpHeaders());
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> responseEntity = restTemplate.exchange(loginUrl, HttpMethod.POST, requestEntity, String.class);
-        return session;
+        String body = responseEntity.getBody();
+        JSONObject obj = JSONObject.parseObject(body);
+        JSONObject user = obj.getJSONObject("user");
+        if (user == null) {
+            LogUtil.error("login fail");
+            LogUtil.error(obj);
+            // 登录失败，获取的session无效，置空session
+            MSException.throwException("zentao login fail");
+        }
+        String username = user.getString("account");
+        if (!StringUtils.equals(username, account)) {
+            LogUtil.error("login fail，inconsistent users");
+            MSException.throwException("zentao login fail");
+        }
+       return session;
     }
 
     private String getSession() {
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(new HttpHeaders());
-        ResponseEntity<String> responseEntity = restTemplate.exchange("http://xx.xxx.xxx.xxx/zentao/api-getsessionid.json", HttpMethod.GET, requestEntity, String.class);
+        ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getsessionid.json", HttpMethod.GET, requestEntity, String.class);
         String body = responseEntity.getBody();
         JSONObject obj = JSONObject.parseObject(body);
         JSONObject data = obj.getJSONObject("data");
