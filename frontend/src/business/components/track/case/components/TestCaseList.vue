@@ -128,7 +128,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          :label="$t('commons.operating')" min-width="100">
+          :label="$t('commons.operating')" min-width="150">
           <template v-slot:default="scope">
             <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)"
                                @deleteClick="handleDelete(scope.row)">
@@ -154,38 +154,39 @@
 
 <script>
 
-  import MsCreateBox from '../../../settings/CreateBox';
-  import TestCaseImport from '../components/TestCaseImport';
-  import TestCaseExport from '../components/TestCaseExport';
-  import MsTablePagination from '../../../../components/common/pagination/TablePagination';
-  import NodeBreadcrumb from '../../common/NodeBreadcrumb';
-  import MsTableHeader from '../../../../components/common/components/MsTableHeader';
-  import PriorityTableItem from "../../common/tableItems/planview/PriorityTableItem";
-  import TypeTableItem from "../../common/tableItems/planview/TypeTableItem";
-  import MethodTableItem from "../../common/tableItems/planview/MethodTableItem";
-  import MsTableOperator from "../../../common/components/MsTableOperator";
-  import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
-  import MsTableButton from "../../../common/components/MsTableButton";
-  import {_filter, _sort} from "../../../../../common/js/utils";
-  import {TEST_CASE_CONFIGS} from "../../../common/components/search/search-components";
-  import ShowMoreBtn from "./ShowMoreBtn";
-  import BatchEdit from "./BatchEdit";
-  import {WORKSPACE_ID} from "../../../../../common/js/constants";
-  import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
-  import StatusTableItem from "@/business/components/track/common/tableItems/planview/StatusTableItem";
-  import TestCaseDetail from "./TestCaseDetail";
-  import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
-  export default {
-    name: "TestCaseList",
-    components: {
-      MsTableButton,
-      MsTableOperatorButton,
-      MsTableOperator,
-      MethodTableItem,
-      TypeTableItem,
-      PriorityTableItem,
-      MsCreateBox,
-      TestCaseImport,
+import MsCreateBox from '../../../settings/CreateBox';
+import TestCaseImport from '../components/TestCaseImport';
+import TestCaseExport from '../components/TestCaseExport';
+import MsTablePagination from '../../../../components/common/pagination/TablePagination';
+import NodeBreadcrumb from '../../common/NodeBreadcrumb';
+import MsTableHeader from '../../../../components/common/components/MsTableHeader';
+import PriorityTableItem from "../../common/tableItems/planview/PriorityTableItem";
+import TypeTableItem from "../../common/tableItems/planview/TypeTableItem";
+import MethodTableItem from "../../common/tableItems/planview/MethodTableItem";
+import MsTableOperator from "../../../common/components/MsTableOperator";
+import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
+import MsTableButton from "../../../common/components/MsTableButton";
+import {_filter, _sort} from "../../../../../common/js/utils";
+import {TEST_CASE_CONFIGS} from "../../../common/components/search/search-components";
+import ShowMoreBtn from "./ShowMoreBtn";
+import BatchEdit from "./BatchEdit";
+import {WORKSPACE_ID} from "../../../../../common/js/constants";
+import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
+import StatusTableItem from "@/business/components/track/common/tableItems/planview/StatusTableItem";
+import TestCaseDetail from "./TestCaseDetail";
+import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
+
+export default {
+  name: "TestCaseList",
+  components: {
+    MsTableButton,
+    MsTableOperatorButton,
+    MsTableOperator,
+    MethodTableItem,
+    TypeTableItem,
+    PriorityTableItem,
+    MsCreateBox,
+    TestCaseImport,
       TestCaseExport,
       MsTablePagination,
       NodeBreadcrumb,

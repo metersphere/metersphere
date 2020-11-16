@@ -7,4 +7,5 @@ import lombok.Setter;
 @Setter
 public class BaseRequest {
     private String testId;
+    private String reportId;
 }

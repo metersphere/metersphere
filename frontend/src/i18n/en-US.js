@@ -362,6 +362,7 @@ export default {
     test_stop_now_confirm: 'Are you sure you want to stop the current test immediately?',
     test_rerun_confirm: 'Are you sure you want to rerun the current test immediately?',
     test_stop_success: 'Test stop successfully',
+    downloadJtl: 'Download JTL',
     test_execute_again: 'Test Execute Again',
     export: 'Export',
     compare: 'Compare',

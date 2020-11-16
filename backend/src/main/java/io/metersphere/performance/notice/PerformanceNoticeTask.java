@@ -39,34 +39,36 @@ public class PerformanceNoticeTask {
     private LoadTestReportMapper loadTestReportMapper;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(20);
-    private boolean isRunning = true;
 
-    @PreDestroy
+    private boolean isRunning=false;
+
+    /*@PreDestroy
     public void preDestroy() {
         isRunning = false;
-    }
+    }*/
 
     public void registerNoticeTask(LoadTestReportWithBLOBs loadTestReport) {
-        int count = 20;
-        while (count-- > 0) {
-            LoadTestReportWithBLOBs loadTestReportFromDatabase = loadTestReportMapper.selectByPrimaryKey(loadTestReport.getId());
-            if (StringUtils.equals(loadTestReportFromDatabase.getStatus(), PerformanceTestStatus.Completed.name())) {
-                isRunning = false;
-                sendSuccessNotice(loadTestReportFromDatabase);
-                return;
+        isRunning=true;
+        executorService.submit(() -> {
+            LogUtil.info("性能测试定时任务");
+            while (isRunning) {
+                LoadTestReportWithBLOBs loadTestReportFromDatabase = loadTestReportMapper.selectByPrimaryKey(loadTestReport.getId());
+                if (StringUtils.equals(loadTestReportFromDatabase.getStatus(), PerformanceTestStatus.Completed.name())) {
+                    sendSuccessNotice(loadTestReportFromDatabase);
+                    isRunning=false;
+                }
+                if (StringUtils.equals(loadTestReportFromDatabase.getStatus(), PerformanceTestStatus.Error.name())) {
+                    sendFailNotice(loadTestReportFromDatabase);
+                    isRunning=false;
+                }
+                try {
+                    //查询定时任务是否关闭
+                    Thread.sleep(1000 * 30);// 每分钟检查 loadtest 的状态
+                } catch (InterruptedException e) {
+                    LogUtil.error(e);
+                }
             }
-            if (StringUtils.equals(loadTestReportFromDatabase.getStatus(), PerformanceTestStatus.Error.name())) {
-                isRunning = false;
-                sendFailNotice(loadTestReportFromDatabase);
-                return;
-            }
-            count--;
-            try {
-                Thread.sleep(1000 * 4L);// 每分钟检查 loadtest 的状态
-            } catch (InterruptedException e) {
-                LogUtil.error(e);
-            }
-        }
+        });
     }
 
     public void sendSuccessNotice(LoadTestReportWithBLOBs loadTestReport) {
