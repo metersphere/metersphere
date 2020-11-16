@@ -89,9 +89,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getModel-bug-getById-bugID={bugId}?zentaosid=" + session,
                 HttpMethod.POST, requestEntity, String.class, bugId);
         String body = responseEntity.getBody();
-        System.out.println(body);
         JSONObject obj = JSONObject.parseObject(body);
-        System.out.println(obj);
         if (obj != null) {
             JSONObject bug = obj.getJSONObject("data");
             String id = bug.getString("id");

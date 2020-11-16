@@ -295,6 +295,7 @@ export default {
     special_characters_are_not_supported: '格式錯誤(不支持特殊字符，且不能以\'-\'開頭結尾)',
     tapd_id: 'TAPD項目ID',
     jira_key: 'JIRA項目key',
+    zentao_id: 'Zentao項目ID',
   },
   member: {
     create: '添加成員',

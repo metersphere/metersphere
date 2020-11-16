@@ -63,7 +63,7 @@
         <el-form-item :label="$t('project.jira_key')" v-if="jira">
           <el-input v-model="form.jiraKey" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="Zentao项目ID" v-if="zentao">
+        <el-form-item :label="$t('project.zentao_id')" v-if="zentao">
           <el-input v-model="form.zentaoId" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
