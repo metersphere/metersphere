@@ -40,9 +40,9 @@ export default {
       component: () => import('@/business/components/api/report/ApiReportView'),
     },
     {
-      path: "delimit",
-      name: "ApiDelimit",
-      component: () => import('@/business/components/api/delimit/ApiDelimit'),
+      path: "definition",
+      name: "ApiDefinition",
+      component: () => import('@/business/components/api/definition/ApiDefinition'),
     }
   ]
 }

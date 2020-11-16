@@ -194,8 +194,8 @@ public class ApiTestCaseExample {
             return (Criteria) this;
         }
 
-        public Criteria andApiDelimitIdEqualTo(String value) {
-            addCriterion("api_delimit_id =", value, "api_delimit_id");
+        public Criteria andApiDefinitionIdEqualTo(String value) {
+            addCriterion("api_definition_id =", value, "api_definition_id");
             return (Criteria) this;
         }
 

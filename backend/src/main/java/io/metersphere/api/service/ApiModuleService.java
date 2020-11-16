@@ -1,14 +1,14 @@
 package io.metersphere.api.service;
 
 
-import io.metersphere.api.dto.delimit.ApiDelimitRequest;
-import io.metersphere.api.dto.delimit.ApiDelimitResult;
-import io.metersphere.api.dto.delimit.ApiModuleDTO;
-import io.metersphere.api.dto.delimit.DragModuleRequest;
-import io.metersphere.base.domain.ApiDelimitExample;
+import io.metersphere.api.dto.definition.ApiDefinitionRequest;
+import io.metersphere.api.dto.definition.ApiDefinitionResult;
+import io.metersphere.api.dto.definition.ApiModuleDTO;
+import io.metersphere.api.dto.definition.DragModuleRequest;
+import io.metersphere.base.domain.ApiDefinitionExample;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.base.domain.ApiModuleExample;
-import io.metersphere.base.mapper.ApiDelimitMapper;
+import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiModuleMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
@@ -32,16 +32,16 @@ public class ApiModuleService {
     @Resource
     ApiModuleMapper apiModuleMapper;
     @Resource
-    private ApiDelimitMapper apiDelimitMapper;
+    private ApiDefinitionMapper apiDefinitionMapper;
     @Resource
     SqlSessionFactory sqlSessionFactory;
 
     public List<ApiModuleDTO> getNodeTreeByProjectId(String projectId, String protocol) {
-        ApiModuleExample apiDelimitNodeExample = new ApiModuleExample();
-        apiDelimitNodeExample.createCriteria().andProjectIdEqualTo(projectId);
-        apiDelimitNodeExample.createCriteria().andProtocolEqualTo(protocol);
-        apiDelimitNodeExample.setOrderByClause("create_time asc");
-        List<ApiModule> nodes = apiModuleMapper.selectByExample(apiDelimitNodeExample);
+        ApiModuleExample apiDefinitionNodeExample = new ApiModuleExample();
+        apiDefinitionNodeExample.createCriteria().andProjectIdEqualTo(projectId);
+        apiDefinitionNodeExample.createCriteria().andProtocolEqualTo(protocol);
+        apiDefinitionNodeExample.setOrderByClause("create_time asc");
+        List<ApiModule> nodes = apiModuleMapper.selectByExample(apiDefinitionNodeExample);
         return getNodeTrees(nodes);
     }
 
@@ -130,48 +130,48 @@ public class ApiModuleService {
         }
     }
 
-    private List<ApiDelimitResult> queryByModuleIds(List<String> nodeIds) {
-        ApiDelimitRequest apiDelimitRequest = new ApiDelimitRequest();
-        apiDelimitRequest.setModuleIds(nodeIds);
-        return apiDelimitMapper.list(apiDelimitRequest);
+    private List<ApiDefinitionResult> queryByModuleIds(List<String> nodeIds) {
+        ApiDefinitionRequest apiDefinitionRequest = new ApiDefinitionRequest();
+        apiDefinitionRequest.setModuleIds(nodeIds);
+        return apiDefinitionMapper.list(apiDefinitionRequest);
     }
 
     public int editNode(DragModuleRequest request) {
         request.setUpdateTime(System.currentTimeMillis());
         checkApiModuleExist(request);
-        List<ApiDelimitResult> apiModule = queryByModuleIds(request.getNodeIds());
+        List<ApiDefinitionResult> apiModule = queryByModuleIds(request.getNodeIds());
 
-        apiModule.forEach(apiDelimit -> {
-            StringBuilder path = new StringBuilder(apiDelimit.getModulePath());
+        apiModule.forEach(apiDefinition -> {
+            StringBuilder path = new StringBuilder(apiDefinition.getModulePath());
             List<String> pathLists = Arrays.asList(path.toString().split("/"));
             pathLists.set(request.getLevel(), request.getName());
             path.delete(0, path.length());
             for (int i = 1; i < pathLists.size(); i++) {
                 path = path.append("/").append(pathLists.get(i));
             }
-            apiDelimit.setModulePath(path.toString());
+            apiDefinition.setModulePath(path.toString());
         });
 
-        batchUpdateApiDelimit(apiModule);
+        batchUpdateApiDefinition(apiModule);
 
         return apiModuleMapper.updateByPrimaryKeySelective(request);
     }
 
     public int deleteNode(List<String> nodeIds) {
-        ApiDelimitExample apiDelimitExample = new ApiDelimitExample();
-        apiDelimitExample.createCriteria().andModuleIdIn(nodeIds);
-        apiDelimitMapper.deleteByExample(apiDelimitExample);
+        ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
+        apiDefinitionExample.createCriteria().andModuleIdIn(nodeIds);
+        apiDefinitionMapper.deleteByExample(apiDefinitionExample);
 
-        ApiModuleExample apiDelimitNodeExample = new ApiModuleExample();
-        apiDelimitNodeExample.createCriteria().andIdIn(nodeIds);
-        return apiModuleMapper.deleteByExample(apiDelimitNodeExample);
+        ApiModuleExample apiDefinitionNodeExample = new ApiModuleExample();
+        apiDefinitionNodeExample.createCriteria().andIdIn(nodeIds);
+        return apiModuleMapper.deleteByExample(apiDefinitionNodeExample);
     }
 
-    private void batchUpdateApiDelimit(List<ApiDelimitResult> apiModule) {
+    private void batchUpdateApiDefinition(List<ApiDefinitionResult> apiModule) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        ApiDelimitMapper apiDelimitMapper = sqlSession.getMapper(ApiDelimitMapper.class);
+        ApiDefinitionMapper apiDefinitionMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
         apiModule.forEach((value) -> {
-            apiDelimitMapper.updateByPrimaryKey(value);
+            apiDefinitionMapper.updateByPrimaryKey(value);
         });
         sqlSession.flushStatements();
     }
@@ -182,13 +182,13 @@ public class ApiModuleService {
 
         List<String> nodeIds = request.getNodeIds();
 
-        List<ApiDelimitResult> apiModule = queryByModuleIds(nodeIds);
+        List<ApiDefinitionResult> apiModule = queryByModuleIds(nodeIds);
 
         ApiModuleDTO nodeTree = request.getNodeTree();
 
         List<ApiModule> updateNodes = new ArrayList<>();
 
-        buildUpdateDelimit(nodeTree, apiModule, updateNodes, "/", "0", nodeTree.getLevel());
+        buildUpdateDefinition(nodeTree, apiModule, updateNodes, "/", "0", nodeTree.getLevel());
 
         updateNodes = updateNodes.stream()
                 .filter(item -> nodeIds.contains(item.getId()))
@@ -196,10 +196,10 @@ public class ApiModuleService {
 
         batchUpdateModule(updateNodes);
 
-        batchUpdateApiDelimit(apiModule);
+        batchUpdateApiDefinition(apiModule);
     }
 
-    private void buildUpdateDelimit(ApiModuleDTO rootNode, List<ApiDelimitResult> apiDelimits,
+    private void buildUpdateDefinition(ApiModuleDTO rootNode, List<ApiDefinitionResult> apiDefinitions,
                                     List<ApiModule> updateNodes, String rootPath, String pId, int level) {
 
         rootPath = rootPath + rootNode.getName();
@@ -210,13 +210,13 @@ public class ApiModuleService {
         if (rootNode.getId().equals("root")) {
             rootPath = "";
         }
-        ApiModule apiDelimitNode = new ApiModule();
-        apiDelimitNode.setId(rootNode.getId());
-        apiDelimitNode.setLevel(level);
-        apiDelimitNode.setParentId(pId);
-        updateNodes.add(apiDelimitNode);
+        ApiModule apiDefinitionNode = new ApiModule();
+        apiDefinitionNode.setId(rootNode.getId());
+        apiDefinitionNode.setLevel(level);
+        apiDefinitionNode.setParentId(pId);
+        updateNodes.add(apiDefinitionNode);
 
-        for (ApiDelimitResult item : apiDelimits) {
+        for (ApiDefinitionResult item : apiDefinitions) {
             if (StringUtils.equals(item.getModuleId(), rootNode.getId())) {
                 item.setModulePath(rootPath);
             }
@@ -225,7 +225,7 @@ public class ApiModuleService {
         List<ApiModuleDTO> children = rootNode.getChildren();
         if (children != null && children.size() > 0) {
             for (int i = 0; i < children.size(); i++) {
-                buildUpdateDelimit(children.get(i), apiDelimits, updateNodes, rootPath + '/', rootNode.getId(), level + 1);
+                buildUpdateDefinition(children.get(i), apiDefinitions, updateNodes, rootPath + '/', rootNode.getId(), level + 1);
             }
         }
     }

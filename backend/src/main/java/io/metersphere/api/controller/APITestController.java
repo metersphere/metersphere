@@ -7,6 +7,7 @@ import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
 import io.metersphere.api.service.APITestService;
 import io.metersphere.base.domain.ApiTest;
 import io.metersphere.base.domain.Schedule;
+import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -113,12 +114,12 @@ public class APITestController {
 
     @PostMapping(value = "/run")
     public String run(@RequestBody SaveAPITestRequest request) {
-        return apiTestService.run(request);
+        return apiTestService.run(request, ApiRunMode.RUN.name());
     }
 
     @PostMapping(value = "/run/debug", consumes = {"multipart/form-data"})
     public String runDebug(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
-        return apiTestService.runDebug(request, bodyFiles);
+        return apiTestService.runDebug(request, bodyFiles, ApiRunMode.DEBUG.name());
     }
 
     @PostMapping(value = "/checkName")

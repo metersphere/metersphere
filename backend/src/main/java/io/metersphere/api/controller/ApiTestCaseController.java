@@ -1,8 +1,8 @@
 package io.metersphere.api.controller;
 
-import io.metersphere.api.dto.delimit.ApiTestCaseRequest;
-import io.metersphere.api.dto.delimit.ApiTestCaseResult;
-import io.metersphere.api.dto.delimit.SaveApiTestCaseRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseResult;
+import io.metersphere.api.dto.definition.SaveApiTestCaseRequest;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.SessionUtils;

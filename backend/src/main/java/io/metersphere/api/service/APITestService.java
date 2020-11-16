@@ -12,10 +12,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiTestFileMapper;
 import io.metersphere.base.mapper.ApiTestMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestMapper;
-import io.metersphere.commons.constants.APITestStatus;
-import io.metersphere.commons.constants.FileType;
-import io.metersphere.commons.constants.ScheduleGroup;
-import io.metersphere.commons.constants.ScheduleType;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.QueryScheduleRequest;
@@ -34,11 +31,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -185,14 +181,14 @@ public class APITestService {
         }
     }
 
-    public String run(SaveAPITestRequest request) {
+    public String run(SaveAPITestRequest request,String runMode) {
         APITestResult apiTest = get(request.getId());
         if (SessionUtils.getUser() == null) {
             apiTest.setUserId(request.getUserId());
         }
         String reportId = apiReportService.create(apiTest, request.getTriggerMode());
         changeStatus(request.getId(), APITestStatus.Running);
-        jMeterService.run(request.getId(), request.getName(), request.getScenarioDefinition(), null);
+        jMeterService.run(request.getId(), request.getName(), request.getScenarioDefinition(), null,runMode);
         return reportId;
     }
 
@@ -353,7 +349,7 @@ public class APITestService {
         return schedules;
     }
 
-    public String runDebug(SaveAPITestRequest request, List<MultipartFile> bodyFiles) {
+    public String runDebug(SaveAPITestRequest request, List<MultipartFile> bodyFiles,String runMode) {
         updateTest(request);
         APITestResult apiTest = get(request.getId());
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
@@ -364,7 +360,7 @@ public class APITestService {
         }
         String reportId = apiReportService.createDebugReport(apiTest);
 
-        jMeterService.run(request.getId(), request.getName(), request.getScenarioDefinition(), reportId);
+        jMeterService.run(request.getId(), request.getName(), request.getScenarioDefinition(), reportId,runMode);
         return reportId;
     }
 

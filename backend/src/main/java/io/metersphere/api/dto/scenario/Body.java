@@ -11,11 +11,15 @@ public class Body {
     private String raw;
     private String format;
     private List<KeyValue> kvs;
+    private Object json;
+    private String xml;
 
     private final static String KV = "KeyValue";
     private final static String FORM_DATA = "Form Data";
     private final static String RAW = "Raw";
     private final static String BINARY = "Binary";
+    private final static String JSON = "JSON";
+    private final static String XML = "XML";
 
     public boolean isValid() {
         if (this.isKV()) {
@@ -29,7 +33,16 @@ public class Body {
         return StringUtils.equals(type, KV);
     }
 
-    public boolean isBinary(){
+    public boolean isBinary() {
         return StringUtils.equals(type, BINARY);
     }
+
+    public boolean isJson() {
+        return StringUtils.equals(type, JSON);
+    }
+
+    public boolean isXml() {
+        return StringUtils.equals(type, XML);
+    }
+
 }

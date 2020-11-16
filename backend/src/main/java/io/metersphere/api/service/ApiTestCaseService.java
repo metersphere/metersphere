@@ -1,11 +1,11 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.api.dto.delimit.ApiTestCaseRequest;
-import io.metersphere.api.dto.delimit.ApiTestCaseResult;
-import io.metersphere.api.dto.delimit.SaveApiTestCaseRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseResult;
+import io.metersphere.api.dto.definition.SaveApiTestCaseRequest;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ApiDelimitExecResultMapper;
+import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.ApiTestFileMapper;
 import io.metersphere.commons.exception.MSException;
@@ -40,7 +40,7 @@ public class ApiTestCaseService {
     @Resource
     private FileService fileService;
     @Resource
-    private ApiDelimitExecResultMapper apiDelimitExecResultMapper;
+    private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
 
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
@@ -113,7 +113,7 @@ public class ApiTestCaseService {
 
     public void delete(String testId) {
         deleteFileByTestId(testId);
-        apiDelimitExecResultMapper.deleteByResourceId(testId);
+        apiDefinitionExecResultMapper.deleteByResourceId(testId);
         apiTestCaseMapper.deleteByPrimaryKey(testId);
         deleteBodyFiles(testId);
     }
@@ -123,7 +123,7 @@ public class ApiTestCaseService {
      */
     public void checkIsRelateTest(String apiId) {
         ApiTestCaseExample testCaseExample = new ApiTestCaseExample();
-        testCaseExample.createCriteria().andApiDelimitIdEqualTo(apiId);
+        testCaseExample.createCriteria().andApiDefinitionIdEqualTo(apiId);
         List<ApiTestCase> testCases = apiTestCaseMapper.selectByExample(testCaseExample);
         StringBuilder caseName = new StringBuilder();
         if (testCases.size() > 0) {
@@ -145,7 +145,7 @@ public class ApiTestCaseService {
 
     private void checkNameExist(SaveApiTestCaseRequest request) {
         ApiTestCaseExample example = new ApiTestCaseExample();
-        example.createCriteria().andNameEqualTo(request.getName()).andApiDelimitIdEqualTo(request.getApiDelimitId()).andIdNotEqualTo(request.getId());
+        example.createCriteria().andNameEqualTo(request.getName()).andApiDefinitionIdEqualTo(request.getApiDefinitionId()).andIdNotEqualTo(request.getId());
         if (apiTestCaseMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("load_test_already_exists"));
         }
@@ -157,7 +157,7 @@ public class ApiTestCaseService {
         final ApiTestCase test = new ApiTestCase();
         test.setId(request.getId());
         test.setName(request.getName());
-        test.setApiDelimitId(request.getApiDelimitId());
+        test.setApiDefinitionId(request.getApiDefinitionId());
         test.setUpdateUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
         test.setProjectId(request.getProjectId());
         test.setRequest(JSONObject.toJSONString(request.getRequest()));
@@ -175,7 +175,7 @@ public class ApiTestCaseService {
         final ApiTestCase test = new ApiTestCase();
         test.setId(request.getId());
         test.setName(request.getName());
-        test.setApiDelimitId(request.getApiDelimitId());
+        test.setApiDefinitionId(request.getApiDefinitionId());
         test.setCreateUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
         test.setUpdateUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
         test.setProjectId(request.getProjectId());

@@ -7,8 +7,8 @@
             {{ $t("i18n.home") }}
           </el-menu-item>
 
-          <el-menu-item :index="'/api/delimit'">
-            {{ $t("i18n.delimit") }}
+          <el-menu-item :index="'/api/definition'">
+            {{ $t("i18n.definition") }}
           </el-menu-item>
 
           <el-submenu :class="{'deactivation':!isProjectActivation}" v-permission="['test_manager','test_user','test_viewer']" index="3">

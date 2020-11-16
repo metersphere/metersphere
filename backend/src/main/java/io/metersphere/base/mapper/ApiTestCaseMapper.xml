@@ -4,7 +4,7 @@
     <resultMap id="BaseResultMap" type="io.metersphere.base.domain.ApiTestCase">
         <id column="id" jdbcType="VARCHAR" property="id"/>
         <result column="project_id" jdbcType="VARCHAR" property="projectId"/>
-        <result column="api_delimit_id" jdbcType="VARCHAR" property="apiDelimitId"/>
+        <result column="api_definition_id" jdbcType="VARCHAR" property="apiDefinitionId"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="priority" jdbcType="VARCHAR" property="priority"/>
         <result column="description" jdbcType="VARCHAR" property="description"/>
@@ -78,7 +78,7 @@
         </where>
     </sql>
     <sql id="Base_Column_List">
-    id, project_id, name,api_delimit_id,priority,description, create_user_id, update_user_id, create_time, update_time
+    id, project_id, name,api_definition_id,priority,description, create_user_id, update_user_id, create_time, update_time
   </sql>
     <sql id="Blob_Column_List">
     request
@@ -145,13 +145,13 @@
         </choose>
     </sql>
 
-    <select id="list" resultType="io.metersphere.api.dto.delimit.ApiTestCaseResult">
+    <select id="list" resultType="io.metersphere.api.dto.definition.ApiTestCaseResult">
         select atc.id, atc.project_id,
-        atc.name,atc.priority,atc.api_delimit_id,T1.name as createUser ,T2.name as updateUser,
+        atc.name,atc.priority,atc.api_definition_id,T1.name as createUser ,T2.name as updateUser,
         atc.description,atc.request,atc.response,atc.create_user_id,
         atc.create_time,atc.update_user_id, atc.update_time,ader.status execResult
         from api_test_case atc left join user T1 on atc.create_user_id = T1.id left join user T2 on
-        atc.update_user_id = T2.id left join api_delimit_exec_result ader on atc.id = ader.resource_id
+        atc.update_user_id = T2.id left join api_definition_exec_result ader on atc.id = ader.resource_id
         <where>
             <if test="request.name != null and request.name!=''">
 
@@ -166,8 +166,8 @@
             <if test="request.projectId != null and request.projectId!=''">
                 AND atc.project_id = #{request.projectId}
             </if>
-            <if test="request.apiDelimitId != null and request.apiDelimitId!=''">
-                AND atc.api_delimit_id = #{request.apiDelimitId}
+            <if test="request.apiDefinitionId != null and request.apiDefinitionId!=''">
+                AND atc.api_definition_id = #{request.apiDefinitionId}
             </if>
         </where>
         <if test="request.orders != null and request.orders.size() > 0">
@@ -215,10 +215,10 @@
     </delete>
 
     <insert id="insert" parameterType="io.metersphere.base.domain.ApiTestCase">
-    insert into api_test_case (id, project_id, name, priority,api_delimit_id,description, create_user_id, update_user_id,
+    insert into api_test_case (id, project_id, name, priority,api_definition_id,description, create_user_id, update_user_id,
       create_time, update_time, request,response
       )
-    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},  #{priority,jdbcType=VARCHAR}, #{apiDelimitId,jdbcType=VARCHAR},#{description,jdbcType=VARCHAR},
+    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},  #{priority,jdbcType=VARCHAR}, #{apiDefinitionId,jdbcType=VARCHAR},#{description,jdbcType=VARCHAR},
      #{createUserId,jdbcType=VARCHAR}, #{updateUserId,jdbcType=VARCHAR},
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{request,jdbcType=LONGVARCHAR}, #{response,jdbcType=LONGVARCHAR})
   </insert>
@@ -241,8 +241,8 @@
                 name = #{name,jdbcType=VARCHAR},
             </if>
 
-            <if test="apiDelimitId != null">
-                api_delimit_id = #{apiDelimitId,jdbcType=BIGINT},
+            <if test="apiDefinitionId != null">
+                api_definition_id = #{apiDefinitionId,jdbcType=BIGINT},
             </if>
             <if test="priority != null">
                 priority = #{priority,jdbcType=LONGVARCHAR},
@@ -271,7 +271,7 @@
         update api_test_case
         set project_id = #{projectId,jdbcType=VARCHAR},
           name = #{name,jdbcType=VARCHAR},
-          api_delimit_id = #{apiDelimitId,jdbcType=VARCHAR},
+          api_definition_id = #{apiDefinitionId,jdbcType=VARCHAR},
           priority = #{priority,jdbcType=VARCHAR},
           description = #{description,jdbcType=VARCHAR},
           update_user_id = #{updateUserId,jdbcType=VARCHAR},

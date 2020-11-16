@@ -1,7 +1,6 @@
 package io.metersphere.api.jmeter;
 
 import io.metersphere.api.dto.scenario.Scenario;
-import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.config.JmeterProperties;
@@ -15,12 +14,11 @@ import org.apache.jorphan.collections.HashTree;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 
 @Service
 public class JMeterService {
@@ -44,12 +42,12 @@ public class JMeterService {
         return jmxGenerator.parse(testId, testName, scenarios);
     }
 
-    public void run(String testId, String testName, List<Scenario> scenarios, String debugReportId) {
+    public void run(String testId, String testName, List<Scenario> scenarios, String debugReportId,String runMode) {
         try {
             init();
             HashTree testPlan = getHashTree(testId, testName, scenarios);
             JMeterVars.addJSR223PostProcessor(testPlan);
-            addBackendListener(testId, debugReportId, testPlan);
+            addBackendListener(testId, debugReportId,runMode, testPlan);
             LocalRunner runner = new LocalRunner(testPlan);
             runner.run();
         } catch (Exception e) {
@@ -64,6 +62,7 @@ public class JMeterService {
             LogUtil.debug(baos.toString());
             return baos.toString();
         } catch (Exception e) {
+            e.printStackTrace();
             LogUtil.warn("HashTree error, can't log jmx content");
         }
         return null;
@@ -83,13 +82,15 @@ public class JMeterService {
         }
     }
 
-    private void addBackendListener(String testId, String debugReportId, HashTree testPlan) {
+    private void addBackendListener(String testId, String debugReportId,String runMode, HashTree testPlan) {
         BackendListener backendListener = new BackendListener();
         backendListener.setName(testId);
         Arguments arguments = new Arguments();
         arguments.addArgument(APIBackendListenerClient.TEST_ID, testId);
+        if(StringUtils.isNotBlank(runMode)){
+            arguments.addArgument("runMode", runMode);
+        }
         if (StringUtils.isNotBlank(debugReportId)) {
-            arguments.addArgument("runMode", ApiRunMode.DEBUG.name());
             arguments.addArgument("debugReportId", debugReportId);
         }
         backendListener.setArguments(arguments);

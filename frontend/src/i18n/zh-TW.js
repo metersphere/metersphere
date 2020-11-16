@@ -469,7 +469,7 @@ export default {
       file_exist: "該項目下已存在改jar包",
       upload_limit_size: "上傳文件大小不能超過 30MB!",
     },
-    delimit: {
+    definition: {
       api_title: "接口列表",
       api_name: "接口名稱",
       api_status: "接口狀態",
@@ -1056,7 +1056,7 @@ export default {
   },
   i18n: {
     home: '首頁',
-    delimit: '接口定義',
+    definition: '接口定義',
   },
   ldap: {
     url: 'LDAP地址',

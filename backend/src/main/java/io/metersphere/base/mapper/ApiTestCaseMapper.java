@@ -1,7 +1,7 @@
 package io.metersphere.base.mapper;
 
-import io.metersphere.api.dto.delimit.ApiTestCaseRequest;
-import io.metersphere.api.dto.delimit.ApiTestCaseResult;
+import io.metersphere.api.dto.definition.ApiTestCaseRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseResult;
 import io.metersphere.base.domain.ApiTestCase;
 import io.metersphere.base.domain.ApiTestCaseExample;
 import org.apache.ibatis.annotations.Param;

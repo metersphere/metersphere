@@ -469,7 +469,7 @@ export default {
       file_exist: "The name already exists in the project",
       upload_limit_size: "Upload file size cannot exceed 30MB!",
     },
-    delimit: {
+    definition: {
       api_title: "Api test",
       api_name: "Api name",
       api_status: "Api status",
@@ -1054,7 +1054,7 @@ export default {
   },
   i18n: {
     home: 'Home',
-    delimit: 'ApiDelimit',
+    definition: 'ApiDefinition',
   },
   ldap: {
     url: 'LDAP URL',

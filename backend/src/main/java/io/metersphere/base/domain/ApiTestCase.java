@@ -14,7 +14,7 @@ public class ApiTestCase implements Serializable {
 
     private String priority;
 
-    private String apiDelimitId;
+    private String apiDefinitionId;
 
     private String description;
 

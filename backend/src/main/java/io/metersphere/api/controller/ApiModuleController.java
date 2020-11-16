@@ -1,7 +1,7 @@
 package io.metersphere.api.controller;
 
-import io.metersphere.api.dto.delimit.ApiModuleDTO;
-import io.metersphere.api.dto.delimit.DragModuleRequest;
+import io.metersphere.api.dto.definition.ApiModuleDTO;
+import io.metersphere.api.dto.definition.DragModuleRequest;
 import io.metersphere.api.service.ApiModuleService;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.commons.constants.RoleConstants;

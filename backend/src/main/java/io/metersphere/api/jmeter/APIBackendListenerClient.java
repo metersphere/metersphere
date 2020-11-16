@@ -2,6 +2,8 @@ package io.metersphere.api.jmeter;
 
 import io.metersphere.api.service.APIReportService;
 import io.metersphere.api.service.APITestService;
+import io.metersphere.api.service.ApiDefinitionExecResultService;
+import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.base.domain.ApiTestReport;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
@@ -49,6 +51,8 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
     private DingTaskService dingTaskService;
     private WxChatTaskService wxChatTaskService;
     private SystemParameterService systemParameterService;
+    private ApiDefinitionService apiDefinitionService;
+    private ApiDefinitionExecResultService apiDefinitionExecResultService;
 
     public String runMode = ApiRunMode.RUN.name();
 
@@ -93,6 +97,15 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         if (systemParameterService == null) {
             LogUtil.error("systemParameterService is required");
         }
+        apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
+        if (apiDefinitionService == null) {
+            LogUtil.error("apiDefinitionService is required");
+        }
+        apiDefinitionExecResultService = CommonBeanFactory.getBean(ApiDefinitionExecResultService.class);
+        if (apiDefinitionExecResultService == null) {
+            LogUtil.error("apiDefinitionExecResultService is required");
+        }
+
         super.setupTest(context);
     }
 
@@ -149,6 +162,15 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         ApiTestReport report;
         if (StringUtils.equals(this.runMode, ApiRunMode.DEBUG.name())) {
             report = apiReportService.get(debugReportId);
+        } else if (StringUtils.equals(this.runMode, ApiRunMode.DELIMIT.name())) {
+            // 调试操作，不需要存储结果
+            if (StringUtils.isBlank(debugReportId)) {
+                apiDefinitionService.addResult(testResult);
+            } else {
+                apiDefinitionService.addResult(testResult);
+                apiDefinitionExecResultService.saveApiResult(testResult);
+            }
+            return;
         } else {
             apiTestService.changeStatus(testId, APITestStatus.Completed);
             report = apiReportService.getRunningReport(testResult.getTestId());

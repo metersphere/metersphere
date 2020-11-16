@@ -9,9 +9,9 @@
     <!-- 此处指定生成针对MyBatis3的DAO -->
     <context id="mysql" targetRuntime="MyBatis3">
         <!-- 字段带`,解决列表跟关键字冲突问题 -->
-        <property name="autoDelimitKeywords" value="true" />
-        <property name="beginningDelimiter" value="`" />
-        <property name="endingDelimiter" value="`" />
+        <property name="autoDefinitionKeywords" value="true" />
+        <property name="beginningDefinitioner" value="`" />
+        <property name="endingDefinitioner" value="`" />
 
         <plugin type="org.mybatis.generator.plugins.SerializablePlugin"/>
         <plugin type="org.mybatis.generator.plugins.UnmergeableXmlMappersPlugin" />
