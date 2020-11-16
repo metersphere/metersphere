@@ -16,5 +16,5 @@ public class ProjectDTO {
     private Long updateTime;
     private String tapdId;
     private String jiraKey;
-
+    private String zentaoId;
 }

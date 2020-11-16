@@ -63,9 +63,11 @@ public class IssuesService {
 
         boolean tapd = isIntegratedPlatform(orgId, IssuesManagePlatform.Tapd.toString());
         boolean jira = isIntegratedPlatform(orgId, IssuesManagePlatform.Jira.toString());
+        boolean zentao = isIntegratedPlatform(orgId, IssuesManagePlatform.Zentao.toString());
 
         String tapdId = getTapdProjectId(issuesRequest.getTestCaseId());
         String jiraKey = getJiraProjectKey(issuesRequest.getTestCaseId());
+        String zentaoId = getZentaoProjectId(issuesRequest.getTestCaseId());
 
         List<String> platforms = new ArrayList<>();
 
@@ -82,7 +84,13 @@ public class IssuesService {
             }
         }
 
-        if (StringUtils.isBlank(tapdId) && StringUtils.isBlank(jiraKey)) {
+        if (zentao) {
+            if (StringUtils.isNotBlank(zentaoId)) {
+                platforms.add(IssuesManagePlatform.Zentao.name());
+            }
+        }
+
+        if (StringUtils.isBlank(tapdId) && StringUtils.isBlank(jiraKey) && StringUtils.isBlank(zentaoId)) {
             platforms.add("LOCAL");
         }
 
@@ -122,6 +130,7 @@ public class IssuesService {
 
         boolean tapd = isIntegratedPlatform(orgId, IssuesManagePlatform.Tapd.toString());
         boolean jira = isIntegratedPlatform(orgId, IssuesManagePlatform.Jira.toString());
+        boolean zentao = isIntegratedPlatform(orgId, IssuesManagePlatform.Zentao.toString());
 
         List<String> platforms = new ArrayList<>();
         if (tapd) {
@@ -140,6 +149,13 @@ public class IssuesService {
             }
         }
 
+        if (zentao) {
+            String zentaoId = getZentaoProjectId(caseId);
+            if (StringUtils.isNotBlank(zentaoId)) {
+                platforms.add(IssuesManagePlatform.Zentao.name());
+            }
+        }
+
         platforms.add("LOCAL");
         IssuesRequest issueRequest = new IssuesRequest();
         issueRequest.setTestCaseId(caseId);
@@ -152,16 +168,22 @@ public class IssuesService {
         return list;
     }
 
-    public String getTapdProjectId(String testCaseId) {
+    private String getTapdProjectId(String testCaseId) {
         TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
         Project project = projectService.getProjectById(testCase.getProjectId());
         return project.getTapdId();
     }
 
-    public String getJiraProjectKey(String testCaseId) {
+    private String getJiraProjectKey(String testCaseId) {
         TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
         Project project = projectService.getProjectById(testCase.getProjectId());
         return project.getJiraKey();
+    }
+
+    private String getZentaoProjectId(String testCaseId) {
+        TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
+        Project project = projectService.getProjectById(testCase.getProjectId());
+        return project.getZentaoId();
     }
 
     /**

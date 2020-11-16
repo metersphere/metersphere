@@ -10,6 +10,9 @@
           <el-input v-model="form.password" auto-complete="new-password"
                     :placeholder="$t('organization.integration.input_app_key')" show-password/>
         </el-form-item>
+        <el-form-item :label="$t('organization.integration.zentao_url')" prop="url">
+          <el-input v-model="form.url" :placeholder="$t('organization.integration.input_zentao_url')"/>
+        </el-form-item>
       </el-form>
     </div>
 
@@ -63,7 +66,12 @@ export default {
           required: true,
           message: this.$t('organization.integration.input_app_key'),
           trigger: ['change', 'blur']
-        }
+        },
+        url: {
+          required: true,
+          message: this.$t('organization.integration.input_zentao_url'),
+          trigger: ['change', 'blur']
+        },
       },
     }
   },
@@ -71,12 +79,16 @@ export default {
     save() {
       this.$refs['form'].validate(valid => {
         if (valid) {
-
+          let formatUrl = this.form.url.trim();
+          if (!formatUrl.endsWith('/')) {
+            formatUrl = formatUrl + '/';
+          }
           const {lastOrganizationId} = getCurrentUser();
           let param = {};
           let auth = {
             account: this.form.account,
             password: this.form.password,
+            url: formatUrl,
           };
           param.organizationId = lastOrganizationId;
           param.platform = ZEN_TAO;
@@ -106,6 +118,7 @@ export default {
           let config = JSON.parse(data.configuration);
           this.$set(this.form, 'account', config.account);
           this.$set(this.form, 'password', config.password);
+          this.$set(this.form, 'url', config.url);
         } else {
           this.clear();
         }
@@ -114,19 +127,26 @@ export default {
     clear() {
       this.$set(this.form, 'account', '');
       this.$set(this.form, 'password', '');
+      this.$set(this.form, 'url', '');
       this.$nextTick(() => {
         this.$refs.form.clearValidate();
       });
     },
     testConnection() {
-      if (this.form.account && this.form.password) {
-        this.$parent.result = this.$get("issues/auth/" + ZEN_TAO, () => {
-          this.$success(this.$t('organization.integration.verified'));
-        });
-      } else {
-        this.$warning(this.$t('organization.integration.not_integrated'));
-        return false;
-      }
+      this.$refs['form'].validate(valid => {
+        if (valid) {
+          if (this.form.account && this.form.password) {
+            this.$parent.result = this.$get("issues/auth/" + ZEN_TAO, () => {
+              this.$success(this.$t('organization.integration.verified'));
+            });
+          } else {
+            this.$warning(this.$t('organization.integration.not_integrated'));
+            return false;
+          }
+        } else {
+          return false;
+        }
+      })
     },
     cancelIntegration() {
       if (this.form.account && this.form.password) {

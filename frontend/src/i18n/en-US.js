@@ -262,6 +262,8 @@ export default {
       input_app_key: 'Please enter the key',
       input_jira_url: 'Please enter Jira address, for example: https://metersphere.atlassian.net/',
       input_jira_issuetype: 'Please enter the question type',
+      zentao_url: 'Zentao url',
+      input_zentao_url: 'Please enter Zentao address, for example: http://xx.xx.xx.xx/zentao/',
       use_tip: 'Usage guidelines:',
       use_tip_tapd: 'Basic Auth account information is queried in "Company Management-Security and Integration-Open Platform"',
       use_tip_jira: 'Jira software server authentication information is account password, Jira software cloud authentication information is account + token (account settings-security-create API token)',
@@ -292,6 +294,7 @@ export default {
     special_characters_are_not_supported: 'Incorrect format (special characters are not supported and cannot end with \'-\')',
     tapd_id: 'TAPD Project ID',
     jira_key: 'JIRA Project key',
+    zentao_id: 'Zentao Project ID',
   },
   member: {
     create: 'Create',

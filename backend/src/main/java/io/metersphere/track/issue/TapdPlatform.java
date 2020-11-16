@@ -24,10 +24,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class TapdIssue extends AbstractIssuePlatform {
+public class TapdPlatform extends AbstractIssuePlatform {
 
 
-    public TapdIssue(IssuesRequest issueRequest) {
+    public TapdPlatform(IssuesRequest issueRequest) {
         super(issueRequest);
     }
 

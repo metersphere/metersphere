@@ -264,6 +264,8 @@ export default {
       input_app_key: '請輸入密鑰',
       input_jira_url: '請輸入Jira地址，例：https://metersphere.atlassian.net/',
       input_jira_issuetype: '請輸入問題類型',
+      zentao_url: 'Zentao 地址',
+      input_zentao_url: '請輸入Zentao地址，例：http://xx.xx.xx.xx/zentao/',
       use_tip: '使用指引：',
       use_tip_tapd: 'Tapd Basic Auth 賬號信息在"公司管理-安全與集成-開放平臺"中查詢',
       use_tip_jira: 'Jira software server 認證信息為 賬號密碼，Jira software cloud 認證信息為 賬號+令牌(賬戶設置-安全-創建API令牌)',
@@ -293,6 +295,7 @@ export default {
     special_characters_are_not_supported: '格式錯誤(不支持特殊字符，且不能以\'-\'開頭結尾)',
     tapd_id: 'TAPD項目ID',
     jira_key: 'JIRA項目key',
+    zentao_id: 'Zentao項目ID',
   },
   member: {
     create: '添加成員',
