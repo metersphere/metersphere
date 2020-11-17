@@ -1,5 +1,5 @@
 <template>
-  <ms-container v-loading="loading" :element-loading-text="$t('api_report.running')">
+  <ms-container v-loading="loading">
     <ms-main-container>
       <el-card>
         <section class="report-container" v-if="this.report.testId">
@@ -23,10 +23,12 @@
                 </el-tabs>
               </el-col>
               <el-col :span="16" style="margin-top: 40px;">
-                <ms-request-result-tail v-if="isRequestResult" :request-type="requestType" :request="request" :scenario-name="scenarioName"/>
+                <ms-request-result-tail v-if="isRequestResult" :request-type="requestType" :request="request"
+                                        :scenario-name="scenarioName"/>
               </el-col>
             </el-row>
-            <ms-api-report-export v-if="reportExportVisible" id="apiTestReport" :title="report.testName" :content="content" :total-time="totalTime"/>
+            <ms-api-report-export v-if="reportExportVisible" id="apiTestReport" :title="report.testName"
+                                  :content="content" :total-time="totalTime"/>
           </main>
         </section>
       </el-card>
@@ -160,7 +162,7 @@ export default {
       this.$nextTick(function () {
         html2canvas(document.getElementById('apiTestReport'), {
           // scale: 2,
-        }).then(function(canvas) {
+        }).then(function (canvas) {
           exportPdf(name, [canvas]);
           reset();
         });
@@ -194,35 +196,35 @@ export default {
 
 <style scoped>
 
-  .report-container {
+.report-container {
   height: calc(100vh - 155px);
   min-height: 600px;
   overflow-y: auto;
-  }
+}
 
-  .report-header {
+.report-header {
   font-size: 15px;
-  }
+}
 
-  .report-header a {
+.report-header a {
   text-decoration: none;
-  }
+}
 
-  .report-header .time {
+.report-header .time {
   color: #909399;
   margin-left: 10px;
-  }
+}
 
-  .report-container .fail {
+.report-container .fail {
   color: #F56C6C;
-  }
+}
 
-  .report-container .is-active .fail {
+.report-container .is-active .fail {
   color: inherit;
-  }
+}
 
-  .export-button {
-    float: right;
-  }
+.export-button {
+  float: right;
+}
 
 </style>
