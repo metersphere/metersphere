@@ -26,14 +26,14 @@ body {
   white-space: nowrap;
 }
 
-/*解决高度塌陷和边距重叠*/
+/* 解决高度塌陷和边距重叠 */
 .clearfix:before, .clearfix:after {
   content: "";
   display: table;
   clear: both;
 }
 
-/*解决富文本框中link显示问题*/
+/* 解决富文本框中link显示问题 */
 .ck-rounded-corners .ck.ck-balloon-panel, .ck.ck-balloon-panel.ck-rounded-corners {
   z-index: 10055 !important;
 }
@@ -48,7 +48,7 @@ body {
   table-layout: fixed !important;
 }
 
-/* <-- 表格拖拽表头调整宽度，在 t-bable 上添加 border 属性，并添加 adjust-table 类名*/
+/* <-- 表格拖拽表头调整宽度，在 t-bable 上添加 border 属性，并添加 adjust-table 类名 */
 .adjust-table td {
   border-right: 0;
 }
@@ -81,7 +81,7 @@ body {
 
 /* 表格拖拽表头调整宽度 --> */
 
-/* <-- 表格 input 编辑效果*/
+/* <-- 表格 input 编辑效果 */
 .table-edit-input .el-textarea__inner {
   border-style: hidden;
 }
