@@ -32,7 +32,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="source" :label="$t('user.source')"/>
-        <el-table-column :label="$t('commons.operating')">
+        <el-table-column :label="$t('commons.operating')" min-width="120px">
           <template v-slot:default="scope">
             <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)">
               <template v-slot:behind>
