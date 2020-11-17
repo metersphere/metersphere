@@ -7,30 +7,29 @@
 
 MeterSphere is a one-stop open-source enterprise-class continuous testing platform. It covers functions such as tests tracking, interface testing, performance testing, team collaboration and is compatible with open-source standards such as JMeter. It helps development and testing teams to conduct highly scalable automated testing, making full use of elasticity of the cloud, and accelerating the delivery process of high-quality software.
 
-- Test Tracking: Far beyond the user experience of TestLink.
-- API Testing: Similar to Postman's experience.
-- Performance Testing: Compatible with JMeter. Support Kubernetes and Cloud Environment. High concurrency, distributed performance testing with ease.
-- Team Collaboration: duo-levels tenants system, naturally support team co-op.
-
+-   Test Tracking: Far beyond the user experience of TestLink.
+-   API Testing: Similar to Postman's experience.
+-   Performance Testing: Compatible with JMeter. Support Kubernetes and Cloud Environment. High concurrency, distributed performance testing with ease.
+-   Team Collaboration: duo-levels tenants system, naturally support team co-op.
 
 ## Quick Start
 
 Only need two steps to install MeterSphere：
 
 What you need:
- 1. Prepare a 64-bit Linux host with no less than 8 G RAM
- 2. Log into root user and execute the command down below to install MeterSphere
+ 1.  Prepare a 64-bit Linux host with no less than 8 G RAM
+ 2.  Log into root user and execute the command down below to install MeterSphere
 
 ```sh
 curl -sSL https://github.com/metersphere/metersphere/releases/latest/download/quick_start.sh | sh
 ```
 
 ## Technical advantages
-  
-- Full Life Cycle: Full coverage over all STLC phases. Starting from the Test Plan to the Report Creation phase.
-- Automation & Scalable: Automation for interface and performance testings. Fully adopt the elasticity of Cloud to produce a large scale of performance testing.
-- Continuous Testing: Seamlessly integrated with the CI tools. Supporting enterprises for "Shift left" testing.
-- Team Collaboration: Support different proportions of teams. Capable from a group of five to a testing center of several hundred people.
+
+-   Full Life Cycle: Full coverage over all STLC phases. Starting from the Test Plan to the Report Creation phase.
+-   Automation & Scalable: Automation for interface and performance testings. Fully adopt the elasticity of Cloud to produce a large scale of performance testing.
+-   Continuous Testing: Seamlessly integrated with the CI tools. Supporting enterprises for "Shift left" testing.
+-   Team Collaboration: Support different proportions of teams. Capable from a group of five to a testing center of several hundred people.
 
 ## Features List
 
@@ -149,15 +148,13 @@ curl -sSL https://github.com/metersphere/metersphere/releases/latest/download/qu
     </tbody>
 </table>
 
-
 ## Technology stack
 
-- Backend: [Spring Boot](https://www.tutorialspoint.com/spring_boot/spring_boot_introduction.htm)
-- Frontend: [Vue.js](https://vuejs.org/)
-- Middleware: [MySQL](https://www.mysql.com/), [Kafka](https://kafka.apache.org/)
-- Basic infrastructure: [Docker](https://www.docker.com/), [Kubernetes](https://kubernetes.io/)
-- Test engine: [JMeter](https://jmeter.apache.org/)
-
+-   Backend: [Spring Boot](https://www.tutorialspoint.com/spring_boot/spring_boot_introduction.htm)
+-   Frontend: [Vue.js](https://vuejs.org/)
+-   Middleware: [MySQL](https://www.mysql.com/), [Kafka](https://kafka.apache.org/)
+-   Basic infrastructure: [Docker](https://www.docker.com/), [Kubernetes](https://kubernetes.io/)
+-   Test engine: [JMeter](https://jmeter.apache.org/)
 
 ## License & Copyright
 
@@ -165,6 +162,6 @@ Copyright (c) 2014-2020 飞致云 FIT2CLOUD, All rights reserved.
 
 Licensed under The GNU General Public License version 2 (GPLv2)  (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
-https://www.gnu.org/licenses/gpl-2.0.html
+<https://www.gnu.org/licenses/gpl-2.0.html>
 
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.

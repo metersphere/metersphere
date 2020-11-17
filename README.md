@@ -5,7 +5,7 @@
 [![GitHub All Releases](https://img.shields.io/github/downloads/metersphere/metersphere/total)](https://github.com/metersphere/metersphere/releases)
 [![TesterHome](https://img.shields.io/badge/TTF-TesterHome-2955C5.svg)](https://testerhome.com/github_statistics)
 
-> [English](README_EN.md) | 中文
+> [English](README-EN.md) | 中文
 
 |Developer Wanted|
 |----------------|
