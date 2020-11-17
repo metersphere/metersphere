@@ -44,7 +44,7 @@ import MsScenarioResults from "./components/ScenarioResults";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import MsApiReportExport from "./ApiReportExport";
-import {exportPdf} from "../../../../common/js/utils";
+import {exportPdf} from "@/common/js/utils";
 import html2canvas from "html2canvas";
 import MsApiReportViewHeader from "./ApiReportViewHeader";
 import {RequestFactory} from "../test/model/ScenarioModel";

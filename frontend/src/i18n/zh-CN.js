@@ -705,7 +705,7 @@ export default {
     detail: "报告详情",
     delete: "删除报告",
     batch_delete: "批量删除报告",
-    running: "测试执行中",
+    running: "测试报告导出中",
     not_exist: "测试报告不存在",
   },
   test_track: {

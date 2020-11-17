@@ -703,7 +703,7 @@ export default {
     detail: "Report detail",
     delete: "Delete report",
     batch_delete: "Delete reports in bulk",
-    running: "The test is running",
+    running: "The test is reporting",
     not_exist: "Test report does not exist",
   },
   test_track: {
