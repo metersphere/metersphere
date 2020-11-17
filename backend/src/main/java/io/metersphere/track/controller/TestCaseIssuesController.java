@@ -2,6 +2,7 @@ package io.metersphere.track.controller;
 
 import io.metersphere.base.domain.Issues;
 import io.metersphere.track.issue.PlatformUser;
+import io.metersphere.track.issue.ZentaoBuild;
 import io.metersphere.track.service.IssuesService;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import org.springframework.web.bind.annotation.*;
@@ -42,8 +43,19 @@ public class TestCaseIssuesController {
     }
 
     @GetMapping("/tapd/user/{caseId}")
-    public List<PlatformUser> getPlatformUsers(@PathVariable String caseId) {
+    public List<PlatformUser> getTapdUsers(@PathVariable String caseId) {
         return issuesService.getTapdProjectUsers(caseId);
     }
+
+    @GetMapping("/zentao/user/{caseId}")
+    public List<PlatformUser> getZentaoUsers(@PathVariable String caseId) {
+        return issuesService.getZentaoUsers(caseId);
+    }
+
+    @GetMapping("/zentao/builds/{caseId}")
+    public List<ZentaoBuild> getZentaoBuilds(@PathVariable String caseId) {
+        return issuesService.getZentaoBuilds(caseId);
+    }
+
 
 }

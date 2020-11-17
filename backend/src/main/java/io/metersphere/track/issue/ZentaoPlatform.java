@@ -13,6 +13,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -131,9 +132,18 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("product", projectId);
         paramMap.add("title", issuesRequest.getTitle());
-        paramMap.add("openedBuild", "123");
         paramMap.add("steps", issuesRequest.getContent());
-        paramMap.add("assignedTo", "admin");
+        if (!CollectionUtils.isEmpty(issuesRequest.getZentaoBuilds())) {
+            List<String> builds = issuesRequest.getZentaoBuilds();
+            builds.forEach(build -> {
+                paramMap.add("openedBuild[]", build);
+            });
+        } else {
+            paramMap.add("openedBuild", "trunk");
+        }
+        if (StringUtils.isNotBlank(issuesRequest.getZentaoUser())) {
+            paramMap.add("assignedTo", issuesRequest.getZentaoUser());
+        }
 
         HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(paramMap, new HttpHeaders());
         RestTemplate restTemplate = new RestTemplate();
@@ -200,7 +210,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             LogUtil.error("login fail，inconsistent users");
             MSException.throwException("zentao login fail");
         }
-       return session;
+        return session;
     }
 
     private String getSession() {
@@ -216,6 +226,53 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
     @Override
     public List<PlatformUser> getPlatformUser() {
-        return null;
+
+        String session = login();
+        HttpHeaders httpHeaders = new HttpHeaders();
+        HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(httpHeaders);
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getModel-user-getList?zentaosid=" + session,
+                HttpMethod.GET, requestEntity, String.class);
+        String body = responseEntity.getBody();
+        JSONObject obj = JSONObject.parseObject(body);
+        JSONArray data = obj.getJSONArray("data");
+
+        List<PlatformUser> users = new ArrayList<>();
+        for (int i = 0; i < data.size(); i++) {
+            JSONObject o = data.getJSONObject(i);
+            PlatformUser platformUser = new PlatformUser();
+            String account = o.getString("account");
+            String username = o.getString("realname");
+            platformUser.setName(username);
+            platformUser.setUser(account);
+            users.add(platformUser);
+        }
+        return users;
+    }
+
+    public List<ZentaoBuild> getBuilds() {
+        String session = login();
+        String projectId = getProjectId();
+        HttpHeaders httpHeaders = new HttpHeaders();
+        HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(httpHeaders);
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getModel-build-getProductBuildPairs-productID={projectId}?zentaosid=" + session,
+                HttpMethod.GET, requestEntity, String.class, projectId);
+        String body = responseEntity.getBody();
+        JSONObject obj = JSONObject.parseObject(body);
+        JSONObject data = obj.getJSONObject("data");
+        Map<String,Object> maps = data.getInnerMap();
+
+        List<ZentaoBuild> list = new ArrayList<>();
+        for (Map.Entry map : maps.entrySet()) {
+            ZentaoBuild build = new ZentaoBuild();
+            String id = (String) map.getKey();
+            if (StringUtils.isNotBlank(id)) {
+                build.setId((String) map.getKey());
+                build.setName((String) map.getValue());
+                list.add(build);
+            }
+        }
+        return list;
     }
 }

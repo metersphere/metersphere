@@ -220,7 +220,7 @@
                 <ckeditor :editor="editor" :disabled="isReadOnly" :config="editorConfig"
                           v-model="testCase.issues.content"/>
                 <el-row v-if="hasTapdId">
-                  {{ $t('test_track.issue.please_choose_current_owner') }}
+                  Tapd bug 处理人
                   <el-select v-model="testCase.tapdUsers"
                              multiple
                              filterable
@@ -228,6 +228,27 @@
                              :placeholder="$t('test_track.issue.please_choose_current_owner')"
                              collapse-tags size="small">
                     <el-option v-for="(userInfo, index) in users" :key="index" :label="userInfo.user"
+                               :value="userInfo.user"/>
+                  </el-select>
+                </el-row>
+                <el-row v-if="hasZentaoId">
+                  禅道 bug 影响版本
+                  <el-select v-model="testCase.zentaoBuilds"
+                             multiple
+                             filterable
+                             style="width: 20%"
+                             placeholder="bug影响版本"
+                             collapse-tags size="small">
+                    <el-option v-for="(build, index) in Builds" :key="index" :label="build.name"
+                               :value="build.id"/>
+                  </el-select>
+                  禅道 bug 处理人
+                  <el-select v-model="testCase.zentaoAssigned"
+                             filterable
+                             style="width: 20%"
+                             :placeholder="$t('test_track.issue.please_choose_current_owner')"
+                             collapse-tags size="small">
+                    <el-option v-for="(userInfo, index) in zentaoUsers" :key="index" :label="userInfo.name"
                                :value="userInfo.user"/>
                   </el-select>
                 </el-row>
@@ -360,7 +381,12 @@ export default {
       activeTab: 'detail',
       isFailure: true,
       users: [],
+      Builds: [],
+      zentaoBuilds: [],
+      zentaoUsers: [],
+      zentaoAssigned: "",
       hasTapdId: false,
+      hasZentaoId: false,
       tableData: [],
     };
   },
@@ -558,6 +584,15 @@ export default {
               this.users = response.data;
             })
           }
+          if (project.zentaoId) {
+            this.hasZentaoId = true;
+            this.result = this.$get("/issues/zentao/builds/" + this.testCase.caseId, response => {
+              this.Builds = response.data;
+            })
+            this.result = this.$get("/issues/zentao/user/" + this.testCase.caseId, response => {
+              this.zentaoUsers = response.data;
+            })
+          }
         })
       }
     },
@@ -587,6 +622,8 @@ export default {
       param.content = this.testCase.issues.content;
       param.testCaseId = this.testCase.caseId;
       param.tapdUsers = this.testCase.tapdUsers;
+      param.zentaoBuilds = this.testCase.zentaoBuilds;
+      param.zentaoUser = this.testCase.zentaoAssigned;
 
       this.result = this.$post("/issues/add", param, () => {
         this.$success(this.$t('commons.save_success'));
@@ -597,6 +634,8 @@ export default {
       this.testCase.issues.title = "";
       this.testCase.issues.content = "";
       this.testCase.tapdUsers = [];
+      this.testCase.zentaoBuilds = [];
+      this.testCase.zentaoAssigned = "";
     },
     getIssues(caseId) {
       this.result = this.$get("/issues/get/" + caseId, response => {

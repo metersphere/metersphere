@@ -19,9 +19,7 @@ import io.metersphere.notice.service.NoticeService;
 import io.metersphere.notice.service.WxChatTaskService;
 import io.metersphere.service.IntegrationService;
 import io.metersphere.service.ProjectService;
-import io.metersphere.track.issue.AbstractIssuePlatform;
-import io.metersphere.track.issue.IssueFactory;
-import io.metersphere.track.issue.PlatformUser;
+import io.metersphere.track.issue.*;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -211,6 +209,13 @@ public class IssuesService {
         return platform.getPlatformUser();
     }
 
+    public List<PlatformUser> getZentaoUsers(String caseId) {
+        IssuesRequest issueRequest = new IssuesRequest();
+        issueRequest.setTestCaseId(caseId);
+        AbstractIssuePlatform platform = IssueFactory.createPlatform(IssuesManagePlatform.Zentao.name(), issueRequest);
+        return platform.getPlatformUser();
+    }
+
     public void deleteIssue(String id) {
         issuesMapper.deleteByPrimaryKey(id);
     }
@@ -221,5 +226,12 @@ public class IssuesService {
             context = "缺陷任务通知：" + user.getName() + "发起了一个缺陷" + "'" + issuesRequest.getTitle() + "'" + "请跟进";
         }
         return context;
+    }
+
+    public List<ZentaoBuild> getZentaoBuilds(String caseId) {
+        IssuesRequest issueRequest = new IssuesRequest();
+        issueRequest.setTestCaseId(caseId);
+        ZentaoPlatform platform = (ZentaoPlatform) IssueFactory.createPlatform(IssuesManagePlatform.Zentao.name(), issueRequest);
+        return platform.getBuilds();
     }
 }
