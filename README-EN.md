@@ -17,8 +17,8 @@ MeterSphere is a one-stop open-source enterprise-class continuous testing platfo
 Only need two steps to install MeterSphere：
 
 What you need:
- 1.  Prepare a 64-bit Linux host with no less than 8 G RAM
- 2.  Log into root user and execute the command down below to install MeterSphere
+ 1. Prepare a 64-bit Linux host with no less than 8 G RAM
+ 2. Log into root user and execute the command down below to install MeterSphere
 
 ```sh
 curl -sSL https://github.com/metersphere/metersphere/releases/latest/download/quick_start.sh | sh
