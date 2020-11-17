@@ -6,9 +6,9 @@ ARG MS_VERSION=dev
 
 RUN mkdir -p /opt/apps && mkdir -p /opt/jmeter
 
-ADD backend/target/backend-1.4.jar /opt/apps
+COPY backend/target/backend-1.4.jar /opt/apps
 
-ADD backend/target/classes/jmeter/ /opt/jmeter/
+COPY backend/target/classes/jmeter/ /opt/jmeter/
 
 ENV JAVA_APP_JAR=/opt/apps/backend-1.4.jar
 
