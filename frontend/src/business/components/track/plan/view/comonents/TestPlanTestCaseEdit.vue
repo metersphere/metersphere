@@ -220,7 +220,7 @@
                 <ckeditor :editor="editor" :disabled="isReadOnly" :config="editorConfig"
                           v-model="testCase.issues.content"/>
                 <el-row v-if="hasTapdId">
-                  Tapd bug 处理人
+                  {{ $t('test_track.issue.tapd_current_owner') }}
                   <el-select v-model="testCase.tapdUsers"
                              multiple
                              filterable
@@ -232,17 +232,17 @@
                   </el-select>
                 </el-row>
                 <el-row v-if="hasZentaoId">
-                  禅道 bug 影响版本
+                  {{ $t('test_track.issue.zentao_bug_build') }}
                   <el-select v-model="testCase.zentaoBuilds"
                              multiple
                              filterable
                              style="width: 20%"
-                             placeholder="bug影响版本"
+                             :placeholder="$t('test_track.issue.zentao_bug_build')"
                              collapse-tags size="small">
                     <el-option v-for="(build, index) in Builds" :key="index" :label="build.name"
                                :value="build.id"/>
                   </el-select>
-                  禅道 bug 处理人
+                  {{ $t('test_track.issue.zentao_bug_assigned') }}
                   <el-select v-model="testCase.zentaoAssigned"
                              filterable
                              style="width: 20%"

@@ -258,8 +258,6 @@ export default {
       jira_issuetype: 'JIRA issuetype',
       input_api_account: 'please enter account',
       input_api_password: 'Please enter password',
-      input_app_name: 'Please enter the application code',
-      input_app_key: 'Please enter the key',
       input_jira_url: 'Please enter Jira address, for example: https://metersphere.atlassian.net/',
       input_jira_issuetype: 'Please enter the question type',
       zentao_url: 'Zentao url',
@@ -267,7 +265,7 @@ export default {
       use_tip: 'Usage guidelines:',
       use_tip_tapd: 'Basic Auth account information is queried in "Company Management-Security and Integration-Open Platform"',
       use_tip_jira: 'Jira software server authentication information is account password, Jira software cloud authentication information is account + token (account settings-security-create API token)',
-      use_tip_zentao: 'Log in to ZenTao as a super administrator user, enter the background-secondary development-application, click [Add Application] to add an application',
+      use_tip_zentao: 'The account password is a Zentao account with corresponding permissions, and the account needs to have super model calling interface permissions',
       use_tip_two: 'After saving the Basic Auth account information, you need to manually associate the ID/key in the Metersphere project',
       link_the_project_now: 'Link the project now',
       cancel_edit: 'Cancel edit',
@@ -973,6 +971,8 @@ export default {
       preview: "Preview",
       please_choose_current_owner: "Please choose current owner",
       tapd_current_owner: "Tapd Current Owner：",
+      zentao_bug_build: "Zentao bug Impact version",
+      zentao_bug_assigned: "Zentao bug handler",
     }
   },
   test_resource_pool: {
