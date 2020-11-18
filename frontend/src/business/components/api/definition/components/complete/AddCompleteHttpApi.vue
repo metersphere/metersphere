@@ -4,12 +4,14 @@
     <el-card class="card-content" v-loading="httpForm.loading">
 
       <el-form :model="httpForm" :rules="rule" ref="httpForm" :inline="true" label-position="right">
+        <!-- 操作按钮 -->
         <div style="float: right;margin-right: 20px">
           <el-button type="primary" size="small" @click="saveApi">{{$t('commons.save')}}</el-button>
           <el-button type="primary" size="small" @click="runTest">{{$t('commons.test')}}</el-button>
         </div>
         <br/>
         <p class="tip">{{$t('test_track.plan_view.base_info')}} </p>
+        <!-- 基础信息 -->
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input class="ms-http-input" size="small" v-model="httpForm.name"/>
         </el-form-item>
@@ -28,7 +30,6 @@
           </el-input>
 
         </el-form-item>
-
 
         <el-form-item :label="$t('commons.status')" prop="status">
           <el-select class="ms-http-input" size="small" v-model="httpForm.status">
@@ -57,15 +58,17 @@
                     :autosize="{ minRows: 2, maxRows: 10}"
                     :rows="2" size="small"/>
         </el-form-item>
+        <!-- 请求参数 -->
+        <div>
+          <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
+          <ms-api-request-form :request="request" :headers="headers" :isShowEnable="isShowEnable"/>
+        </div>
 
-        <!-- HTTP 请求参数 -->
-        <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
-        <ms-api-request-form :request="test.request" :isShowEnable="isShowEnable"/>
       </el-form>
 
       <!-- 响应内容-->
       <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
-      <ms-response-text :response="test.response"></ms-response-text>
+      <ms-response-text :response="response"></ms-response-text>
     </el-card>
   </div>
 </template>
@@ -75,10 +78,11 @@
   import MsResponseText from "../response/ResponseText";
   import {WORKSPACE_ID} from '../../../../../../common/js/constants';
   import {REQ_METHOD, API_STATUS} from "../../model/JsonData";
+  import MsJsr233Processor from "../processor/Jsr233Processor";
 
   export default {
     name: "MsAddCompleteHttpApi",
-    components: {MsResponseText, MsApiRequestForm},
+    components: {MsResponseText, MsApiRequestForm, MsJsr233Processor},
     data() {
       return {
         rule: {
@@ -96,10 +100,10 @@
         maintainerOptions: [],
         currentModule: {},
         reqOptions: REQ_METHOD,
-        options: API_STATUS
+        options: API_STATUS,
       }
     },
-    props: {httpData: {}, moduleOptions: {}, currentProject: {}, test: {}},
+    props: {moduleOptions: {}, currentProject: {}, headers: Array, request: {}, response: {}, basisData: {}},
     methods: {
       runTest() {
         if (this.currentProject === null) {
@@ -122,9 +126,6 @@
         });
       },
       setParameter() {
-        this.httpForm.test = this.test;
-        this.httpForm.test.request.url = this.httpForm.url;
-        this.httpForm.test.request.method = this.httpForm.method;
         this.httpForm.modulePath = this.getPath(this.httpForm.moduleId);
       },
       saveApi() {
@@ -155,7 +156,7 @@
 
     created() {
       this.getMaintainerOptions();
-      this.httpForm = this.httpData;
+      this.httpForm = this.basisData;
     }
   }
 </script>
@@ -175,5 +176,13 @@
 
   .ms-http-textarea {
     width: 500px;
+  }
+
+  .ms-left-cell {
+    margin-top: 100px;
+  }
+
+  .ms-left-buttion {
+    margin: 6px 0px 8px 30px;
   }
 </style>

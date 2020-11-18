@@ -1,32 +1,35 @@
 <template>
-  <div>
-    <div class="extract-description">
-      {{$t('api_test.request.extract.description')}}
-    </div>
-    <div class="extract-add">
-      <el-row :gutter="10">
-        <el-col :span="2">
-          <el-select :disabled="isReadOnly" class="extract-item" v-model="type" :placeholder="$t('api_test.request.extract.select_type')"
-                     size="small">
-            <el-option :label="$t('api_test.request.extract.regex')" :value="options.REGEX"/>
-            <el-option label="JSONPath" :value="options.JSON_PATH"/>
-            <el-option label="XPath" :value="options.XPATH"/>
-          </el-select>
-        </el-col>
-        <el-col :span="22">
-          <ms-api-extract-common :is-read-only="isReadOnly" :extract-type="type" :list="list" v-if="type" :callback="after"/>
-        </el-col>
+  <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin-top: 20px">
+    <el-button class="ms-left-buttion" size="small" type="info" plain>提取参数</el-button>
+    <div style="margin: 20px">
+      <div class="extract-description">
+        {{$t('api_test.request.extract.description')}}
+      </div>
+      <div class="extract-add">
+        <el-row :gutter="10">
+          <el-col :span="2">
+            <el-select :disabled="isReadOnly" class="extract-item" v-model="type" :placeholder="$t('api_test.request.extract.select_type')"
+                       size="small">
+              <el-option :label="$t('api_test.request.extract.regex')" :value="options.REGEX"/>
+              <el-option label="JSONPath" :value="options.JSON_PATH"/>
+              <el-option label="XPath" :value="options.XPATH"/>
+            </el-select>
+          </el-col>
+          <el-col :span="22">
+            <ms-api-extract-common :is-read-only="isReadOnly" :extract-type="type" :list="list" v-if="type" :callback="after"/>
+          </el-col>
 
-        <el-button v-if="!type" :disabled="true" type="primary" size="small">Add</el-button>
-      </el-row>
-    </div>
+          <el-button v-if="!type" :disabled="true" type="primary" size="small">Add</el-button>
+        </el-row>
+      </div>
 
-    <ms-api-extract-edit :is-read-only="isReadOnly" :extract="extract"/>
+      <ms-api-extract-edit :is-read-only="isReadOnly" :extract="extract"/>
+    </div>
   </div>
 </template>
 
 <script>
-  import {EXTRACT_TYPE, Extract} from "../../model/ApiTestModel";
+  import {EXTRACT_TYPE} from "../../model/ApiTestModel";
   import MsApiExtractEdit from "./ApiExtractEdit";
   import MsApiExtractCommon from "./ApiExtractCommon";
 
@@ -39,7 +42,7 @@
     },
 
     props: {
-      extract: Extract,
+      extract: {},
       isReadOnly: {
         type: Boolean,
         default: false

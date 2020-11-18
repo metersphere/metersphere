@@ -59,14 +59,11 @@
 </template>
 
 <script>
-  import {HttpRequest} from "../../model/ApiTestModel";
-
   export default {
     name: "MsApiAuthConfig",
     components: {},
     props: {
       authConfig: {},
-      request: HttpRequest,
     },
 
     data() {

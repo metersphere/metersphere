@@ -1,9 +1,9 @@
 <template>
-  <div class="text-container">
+  <div class="text-container" style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 88%">
     <el-form :model="response" ref="response" label-width="100px">
 
       <el-collapse-transition>
-        <el-tabs v-model="activeName" v-show="isActive">
+        <el-tabs v-model="activeName" v-show="isActive" style="margin: 20px">
           <el-tab-pane :label="$t('api_test.definition.request.response_header')" name="headers" class="pane">
             <ms-api-key-value :isShowEnable="false" :suggestions="headerSuggestions"
                               :items="response.headers"/>
@@ -42,7 +42,6 @@
 
   export default {
     name: "MsResponseText",
-
     components: {
       MsDropdown,
       MsCodeEdit,

@@ -2,7 +2,6 @@ package io.metersphere.api.dto.definition;
 
 import io.metersphere.api.dto.definition.response.Response;
 import io.metersphere.api.dto.scenario.Scenario;
-import io.metersphere.api.dto.scenario.request.Request;
 import io.metersphere.base.domain.Schedule;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,7 +34,7 @@ public class SaveApiDefinitionRequest {
 
     private Scenario scenario;
 
-    private Request request;
+    private Object request;
 
     private Response response;
 

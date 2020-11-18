@@ -40,7 +40,7 @@
     components: {MsApiAssertionJsonPath, MsApiAssertionDuration, MsApiAssertionRegex},
 
     props: {
-      assertions: Assertions,
+      assertions: {},
       isReadOnly: {
         type: Boolean,
         default: false

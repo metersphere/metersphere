@@ -1,25 +1,26 @@
 <template>
-  <div>
-    <div class="assertion-add">
+  <div class="assertion-add" style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 99% ;margin-top: 10px">
+    <el-button class="ms-left-buttion" size="small" type="danger" plain>断言规则</el-button>
+    <div class="assertion-add" style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 98%;">
       <el-row :gutter="10">
         <el-col :span="4">
           <el-select :disabled="isReadOnly" class="assertion-item" v-model="type"
                      :placeholder="$t('api_test.request.assertions.select_type')"
                      size="small">
-            <el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT"/>
-            <el-option :label="$t('api_test.request.assertions.regex')" :value="options.REGEX"/>
+            <!--<el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT"/>-->
+            <!--<el-option :label="$t('api_test.request.assertions.regex')" :value="options.REGEX"/>-->
             <el-option :label="'JSONPath'" :value="options.JSON_PATH"/>
             <el-option :label="$t('api_test.request.assertions.response_time')" :value="options.DURATION"/>
           </el-select>
         </el-col>
         <el-col :span="20">
-          <ms-api-assertion-text :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.TEXT"
-                                 :callback="after"/>
-          <ms-api-assertion-regex :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.REGEX"
-                                  :callback="after"/>
-          <ms-api-assertion-json-path :is-read-only="isReadOnly" :list="assertions.jsonPath"
+          <!--<ms-api-assertion-text :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.TEXT"-->
+                                 <!--:callback="after"/>-->
+          <!--<ms-api-assertion-regex :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.REGEX"-->
+                                  <!--:callback="after"/>-->
+          <ms-api-assertion-json-path :is-read-only="isReadOnly" :list="assertions"
                                       v-if="type === options.JSON_PATH" :callback="after"/>
-          <ms-api-assertion-duration :is-read-only="isReadOnly" v-model="time" :duration="assertions.duration"
+          <ms-api-assertion-duration :is-read-only="isReadOnly" v-model="time" :duration="assertions"
                                      v-if="type === options.DURATION" :callback="after"/>
           <el-button v-if="!type" :disabled="true" type="primary" size="small">Add</el-button>
         </el-col>
@@ -37,7 +38,7 @@
       </el-row>
     </div>
 
-    <ms-api-jsonpath-suggest-list @addJsonpathSuggest="addJsonpathSuggest" :request="request"
+    <ms-api-jsonpath-suggest-list @addJsonpathSuggest="addJsonpathSuggest" :request="assertions"
                                   ref="jsonpathSuggestList"/>
 
     <ms-api-assertions-edit :is-read-only="isReadOnly" :assertions="assertions"/>
@@ -63,8 +64,8 @@
     },
 
     props: {
-      assertions: Assertions,
-      request: HttpRequest,
+      assertions: {},
+      request: {},
       isReadOnly: {
         type: Boolean,
         default: false

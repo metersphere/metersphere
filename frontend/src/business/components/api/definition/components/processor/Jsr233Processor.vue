@@ -1,120 +1,171 @@
 <template>
-  <div >
+  <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin-top: 20px">
     <el-row>
-      <el-col :span="20" class="script-content">
-        <ms-code-edit v-if="isCodeEditAlive" :mode="codeEditModeMap[jsr223Processor.language]" :read-only="isReadOnly" :data.sync="jsr223Processor.script" theme="eclipse" :modes="['java','python']" ref="codeEdit"/>
-      </el-col>
-      <el-col :span="4" class="script-index">
-        <ms-dropdown :default-command="jsr223Processor.language" :commands="languages" @command="languageChange"/>
-        <div class="template-title">{{$t('api_test.request.processor.code_template')}}</div>
-        <div v-for="(template, index) in codeTemplates" :key="index" class="code-template">
-          <el-link :disabled="template.disabled" @click="addTemplate(template)">{{template.title}}</el-link>
-        </div>
-        <div class="document-url">
-          <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor" type="primary">{{$t('commons.reference_documentation')}}</el-link>
-          <ms-instructions-icon :content="$t('api_test.request.processor.bean_shell_processor_tip')"/>
-        </div>
-      </el-col>
+      <div>
+        <el-button class="ms-left-buttion" size="small" :type="styleType" plain>{{title}}</el-button>
+        <i class="icon el-icon-arrow-right" :class="{'is-active': active}" @click="changeActive"
+           style="margin-left: 20px"/>
+
+        <el-input size="small" v-model="jsr223ProcessorData.name"
+                  class="ms-api-header-select" style="width: 380px"/>
+      </div>
     </el-row>
+    <el-collapse-transition>
+      <div v-if="active">
+        <el-row style="margin:0px 10px 10px">
+          <el-col>
+            <div class="document-url">
+              <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
+                       type="primary">{{$t('commons.reference_documentation')}}
+              </el-link>
+              <ms-instructions-icon :content="$t('api_test.request.processor.bean_shell_processor_tip')"/>
+            </div>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="20" class="script-content">
+            <ms-code-edit v-if="isCodeEditAlive" :mode="codeEditModeMap[jsr223ProcessorData.language]=== null ?'java':'python'"
+                          :read-only="isReadOnly"
+                          :data.sync="jsr223ProcessorData.script.value" theme="eclipse" :modes="['java','python']"
+                          ref="codeEdit"/>
+          </el-col>
+          <el-col :span="4" class="script-index">
+            <ms-dropdown :default-command="jsr223ProcessorData.language" :commands="languages" @command="languageChange"/>
+            <div class="template-title">{{$t('api_test.request.processor.code_template')}}</div>
+            <div v-for="(template, index) in codeTemplates" :key="index" class="code-template">
+              <el-link :disabled="template.disabled" @click="addTemplate(template)">{{template.title}}</el-link>
+            </div>
+          </el-col>
+        </el-row>
+      </div>
+    </el-collapse-transition>
   </div>
 </template>
 
 <script>
-    import MsCodeEdit from "../../../../common/components/MsCodeEdit";
-    import MsInstructionsIcon from "../../../../common/components/MsInstructionsIcon";
-    import MsDropdown from "../../../../common/components/MsDropdown";
+  import MsCodeEdit from "../../../../common/components/MsCodeEdit";
+  import MsInstructionsIcon from "../../../../common/components/MsInstructionsIcon";
+  import MsDropdown from "../../../../common/components/MsDropdown";
 
 
-
-    export default {
-      name: "MsJsr233Processor",
-      components: {MsDropdown, MsInstructionsIcon, MsCodeEdit},
-      data() {
-        return {
-          codeTemplates: [
-            {
-              title: this.$t('api_test.request.processor.code_template_get_variable'),
-              value: 'vars.get("variable_name")',
-            },
-            {
-              title: this.$t('api_test.request.processor.code_template_set_variable'),
-              value: 'vars.put("variable_name", "variable_value")',
-            },
-            {
-              title: this.$t('api_test.request.processor.code_template_get_global_variable'),
-              value: 'props.get("variable_name")',
-            },
-            {
-              title: this.$t('api_test.request.processor.code_template_set_global_variable'),
-              value: 'props.put("variable_name", "variable_value")',
-            },
-            {
-              title: this.$t('api_test.request.processor.code_template_get_response_header'),
-              value: 'prev.getResponseHeaders()',
-              disabled: this.isPreProcessor
-            },
-            {
-              title: this.$t('api_test.request.processor.code_template_get_response_code'),
-              value: 'prev.getResponseCode()',
-              disabled: this.isPreProcessor
-            },
-            {
-              title: this.$t('api_test.request.processor.code_template_get_response_result'),
-              value: 'prev.getResponseDataAsString()',
-              disabled: this.isPreProcessor
-            }
-          ],
-          isCodeEditAlive: true,
-          languages: [
-            'beanshell',"python"
-          ],
-          codeEditModeMap: {
-            beanshell: 'java',
-            python: 'python'
+  export default {
+    name: "MsJsr233Processor",
+    components: {MsDropdown, MsInstructionsIcon, MsCodeEdit},
+    data() {
+      return {
+        active: false,
+        jsr223ProcessorData: {},
+        codeTemplates: [
+          {
+            title: this.$t('api_test.request.processor.code_template_get_variable'),
+            value: 'vars.get("variable_name")',
+          },
+          {
+            title: this.$t('api_test.request.processor.code_template_set_variable'),
+            value: 'vars.put("variable_name", "variable_value")',
+          },
+          {
+            title: this.$t('api_test.request.processor.code_template_get_global_variable'),
+            value: 'props.get("variable_name")',
+          },
+          {
+            title: this.$t('api_test.request.processor.code_template_set_global_variable'),
+            value: 'props.put("variable_name", "variable_value")',
+          },
+          {
+            title: this.$t('api_test.request.processor.code_template_get_response_header'),
+            value: 'prev.getResponseHeaders()',
+            disabled: this.isPreProcessor
+          },
+          {
+            title: this.$t('api_test.request.processor.code_template_get_response_code'),
+            value: 'prev.getResponseCode()',
+            disabled: this.isPreProcessor
+          },
+          {
+            title: this.$t('api_test.request.processor.code_template_get_response_result'),
+            value: 'prev.getResponseDataAsString()',
+            disabled: this.isPreProcessor
           }
-        }
-      },
-      props: {
-        type: {
-          type: String,
-        },
-        isReadOnly: {
-          type: Boolean,
-          default: false
-        },
-        jsr223Processor: {
-          type: Object,
-        },
-        isPreProcessor: {
-          type: Boolean,
-          default: false
-        }
-      },
-      watch: {
-        jsr223Processor() {
-          this.reload();
-        }
-      },
-      methods: {
-        addTemplate(template) {
-          if (!this.jsr223Processor.script) {
-            this.jsr223Processor.script = "";
-          }
-          this.jsr223Processor.script += template.value;
-          if (this.jsr223Processor.language ===  'beanshell') {
-            this.jsr223Processor.script += ';';
-          }
-          this.reload();
-        },
-        reload() {
-          this.isCodeEditAlive = false;
-          this.$nextTick(() => (this.isCodeEditAlive = true));
-        },
-        languageChange(language) {
-          this.jsr223Processor.language = language;
+        ],
+        isCodeEditAlive: true,
+        languages: [
+          'beanshell', "python"
+        ],
+        codeEditModeMap: {
+          beanshell: 'java',
+          python: 'python'
         }
       }
+    },
+    created() {
+      this.jsr223ProcessorData = this.jsr223Processor;
+    },
+    props: {
+      type: {
+        type: String,
+        default:
+          "create",
+      }
+      ,
+      name: {
+        type: String,
+      }
+      ,
+      isReadOnly: {
+        type: Boolean,
+        default:
+          false
+      }
+      ,
+      jsr223Processor: {
+        type: Object,
+      }
+      ,
+      isPreProcessor: {
+        type: Boolean,
+        default:
+          false
+      }
+      ,
+      title: String,
+      styleType:
+      String,
     }
+    ,
+    watch: {
+      jsr223Processor() {
+        this.reload();
+      }
+    }
+    ,
+    methods: {
+      addTemplate(template) {
+        if (!this.jsr223ProcessorData.script) {
+          this.jsr223ProcessorData.script = "";
+        }
+        this.jsr223ProcessorData.script += template.value;
+        if (this.jsr223ProcessorData.language === 'beanshell') {
+          this.jsr223ProcessorData.script += ';';
+        }
+        this.reload();
+      }
+      ,
+      reload() {
+        this.isCodeEditAlive = false;
+        this.$nextTick(() => (this.isCodeEditAlive = true));
+      }
+      ,
+      languageChange(language) {
+        this.jsr223ProcessorData.language = language;
+      }
+      ,
+      changeActive() {
+        this.active = !this.active;
+      }
+      ,
+    }
+  }
 </script>
 
 <style scoped>
@@ -128,7 +179,7 @@
   }
 
   .script-index {
-   padding: 0 20px;
+    padding: 0 20px;
   }
 
   .template-title {
@@ -149,4 +200,12 @@
     margin-bottom: 20px;
   }
 
+  .ms-api-header-select {
+    margin-left: 20px;
+    min-width: 300px;
+  }
+
+  .icon.is-active {
+    transform: rotate(90deg);
+  }
 </style>

@@ -11,6 +11,7 @@ public class Body {
     private String raw;
     private String format;
     private List<KeyValue> kvs;
+    private List<KeyValue> binary;
     private Object json;
     private String xml;
 

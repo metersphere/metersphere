@@ -1,73 +1,88 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-  <el-form :model="request" :rules="rules" ref="request" label-width="100px" :disabled="isReadOnly">
-    <el-tabs v-model="activeName">
-      <!-- 请求头-->
-      <el-tab-pane :label="$t('api_test.request.headers')" name="headers">
-        <ms-api-key-value :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :suggestions="headerSuggestions"
-                          :items="request.headers"/>
-      </el-tab-pane>
+  <el-row>
+    <el-col :span="21">
+      <!-- HTTP 请求参数 -->
+      <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100%">
+        <el-tabs v-model="activeName" style="margin: 20px">
+          <!-- 请求头-->
+          <el-tab-pane :label="$t('api_test.request.headers')" name="headers">
+            <ms-api-key-value :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :suggestions="headerSuggestions"
+                              :items="headers"/>
+          </el-tab-pane>
 
-      <!--query 参数-->
-      <el-tab-pane :label="$t('api_test.definition.request.query_param')" name="parameters">
-        <ms-api-variable :is-read-only="isReadOnly"
-                         :parameters="request.parameters"
-                         :environment="request.environment"
-                         :extract="request.extract"/>
-      </el-tab-pane>
+          <!--query 参数-->
+          <el-tab-pane :label="$t('api_test.definition.request.query_param')" name="parameters">
+            <ms-api-variable :is-read-only="isReadOnly"  :parameters="request.arguments"/>
+          </el-tab-pane>
 
-      <!--REST 参数-->
-      <el-tab-pane :label="$t('api_test.definition.request.rest_param')" name="rest">
-        <ms-api-key-value :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :suggestions="headerSuggestions"
-                          :items="request.rest"/>
-      </el-tab-pane>
+          <!--REST 参数-->
+          <el-tab-pane :label="$t('api_test.definition.request.rest_param')" name="rest">
+            <ms-api-variable :is-read-only="isReadOnly"  :parameters="request.rest"/>
+          </el-tab-pane>
 
-      <!--请求体-->
-      <el-tab-pane :label="$t('api_test.request.body')" name="body">
-        <ms-api-body :is-read-only="isReadOnly"
-                     :body="request.body"
-                     :extract="request.extract"
-                     :environment="request.environment"/>
-      </el-tab-pane>
-      <!-- 认证配置 -->
-      <el-tab-pane :label="$t('api_test.definition.request.auth_config')" name="authConfig">
-        <ms-api-auth-config :request="request" :is-read-only="isReadOnly" :auth-config="request.authConfig"/>
-      </el-tab-pane>
+          <!--请求体-->
+          <el-tab-pane :label="$t('api_test.request.body')" name="body">
+            <ms-api-body :is-read-only="isReadOnly" :body="request.body"/>
+          </el-tab-pane>
+          <!-- 认证配置 -->
+          <el-tab-pane :label="$t('api_test.definition.request.auth_config')" name="authConfig">
+            <ms-api-auth-config :is-read-only="isReadOnly" :auth-config="request.authConfig"/>
+          </el-tab-pane>
 
-      <el-tab-pane :label="$t('api_test.request.processor.pre_exec_script')" name="jsr223PreProcessor">
-        <ms-jsr233-processor :is-read-only="isReadOnly" :jsr223-processor="request.jsr223PreProcessor"/>
-      </el-tab-pane>
-      <el-tab-pane :label="$t('api_test.request.processor.post_exec_script')" name="jsr223PostProcessor">
-        <ms-jsr233-processor :is-read-only="isReadOnly" :jsr223-processor="request.jsr223PostProcessor"/>
-      </el-tab-pane>
+        </el-tabs>
+      </div>
+      <div v-for="row in request.hashTree" :key="row.id" v-loading="isReloadData">
+        <ms-jsr233-processor v-if="row.label ==='JSR223 PreProcessor'" :is-read-only="false" title="前置脚本" style-type="warning"
+                             :jsr223-processor="row"/>
 
-    </el-tabs>
-  </el-form>
+        <ms-jsr233-processor v-if="row.label ==='JSR223 PostProcessor'" :is-read-only="false" title="后置脚本" style-type="success"
+                             :jsr223-processor="row"/>
+
+        <!--<ms-api-assertions  v-if="row.label.indexOf('Assertion')>0" :is-read-only="isReadOnly" :request="request"/>-->
+
+        <!--<ms-api-extract :is-read-only="isReadOnly" v-if="row.label==='JSONPostProcessor'" :extract="row"/>-->
+
+      </div>
+    </el-col>
+
+    <el-col :span="3" class="ms-left-cell">
+      <el-button class="ms-left-buttion" size="small" type="warning" @click="addPre" plain>+前置脚本</el-button>
+      <br/>
+      <el-button class="ms-left-buttion" size="small" type="success" @click="addPost" plain>+后置脚本</el-button>
+      <br/>
+      <!--<el-button class="ms-left-buttion" size="small" type="danger" @click="addAssertions" plain>+断言规则</el-button>-->
+      <!--<br/>-->
+      <!--<el-button class="ms-left-buttion" size="small" type="info" @click="addExtract" plain>+提取参数</el-button>-->
+    </el-col>
+  </el-row>
 </template>
 
 <script>
   import MsApiKeyValue from "../ApiKeyValue";
   import MsApiBody from "../body/ApiBody";
   import MsApiAuthConfig from "../auth/ApiAuthConfig";
-  import {HttpRequest, KeyValue, Scenario} from "../../model/ApiTestModel";
-  import MsApiExtract from "../extract/ApiExtract";
   import ApiRequestMethodSelect from "../collapse/ApiRequestMethodSelect";
   import {REQUEST_HEADERS} from "@/common/js/constants";
   import MsApiVariable from "../ApiVariable";
   import MsJsr233Processor from "../processor/Jsr233Processor";
   import MsApiAdvancedConfig from "../ApiAdvancedConfig";
+  import {createComponent} from "../jmeter/components";
+  import MsApiAssertions from "../assertion/ApiAssertions";
+  import MsApiExtract from "../extract/ApiExtract";
+  import HTTPSamplerProxy from "../jmeter/components/sampler/http-sampler";
 
   export default {
     name: "MsApiHttpRequestForm",
     components: {
       MsJsr233Processor,
       MsApiAdvancedConfig,
-      MsApiVariable, ApiRequestMethodSelect, MsApiExtract, MsApiAuthConfig, MsApiBody, MsApiKeyValue
+      MsApiVariable, ApiRequestMethodSelect, MsApiExtract, MsApiAuthConfig, MsApiBody, MsApiKeyValue, MsApiAssertions
     },
     props: {
-      request: HttpRequest,
-      isShowEnable:Boolean,
+      request: {},
+      headers: Array,
+      isShowEnable: Boolean,
       jsonPathList: Array,
-      scenario: Scenario,
       isReadOnly: {
         type: Boolean,
         default: false
@@ -96,70 +111,39 @@
             {max: 500, message: this.$t('commons.input_limit', [0, 500]), trigger: 'blur'},
           ]
         },
-        headerSuggestions: REQUEST_HEADERS
+        headerSuggestions: REQUEST_HEADERS,
+        isReloadData: false,
       }
     },
 
     methods: {
-      urlChange() {
-        if (!this.request.url) return;
-        let url = this.getURL(this.addProtocol(this.request.url));
-        if (url) {
-          this.request.url = decodeURIComponent(url.origin + url.pathname);
-        }
+      addPre() {
+        let jsr223PreProcessor = createComponent("JSR223PreProcessor");
+        this.request.hashTree.push(jsr223PreProcessor);
+        this.reload();
       },
-      pathChange() {
-        if (!this.request.path) return;
-        let url = this.getURL(this.displayUrl);
-        let urlStr = url.origin + url.pathname;
-        let envUrl = this.scenario.environment.config.httpConfig.protocol + '://' + this.scenario.environment.config.httpConfig.socket;
-        this.request.path = decodeURIComponent(urlStr.substring(envUrl.length, urlStr.length));
+      addPost() {
+        let jsr223PostProcessor = createComponent("JSR223PostProcessor");
+        this.request.hashTree.push(jsr223PostProcessor);
+        this.reload();
       },
-      getURL(urlStr) {
-        try {
-          let url = new URL(urlStr);
-          url.searchParams.forEach((value, key) => {
-            if (key && value) {
-              this.request.parameters.splice(0, 0, new KeyValue({name: key, value: value}));
-            }
-          });
-          return url;
-        } catch (e) {
-          this.$error(this.$t('api_test.request.url_invalid'), 2000);
-        }
+      addAssertions() {
+        let jsonPathAssertion = createComponent("JSONPathAssertion");
+        this.request.hashTree.push(jsonPathAssertion);
+        this.reload();
       },
-      methodChange(value) {
-        if (value === 'GET' && this.activeName === 'body') {
-          this.activeName = 'parameters';
-        }
+      addExtract() {
+        let jsonPostProcessor = createComponent("JSONPostProcessor");
+        this.request.hashTree.push(jsonPostProcessor);
+        this.reload();
       },
-      useEnvironmentChange(value) {
-        if (value && !this.scenario.environment) {
-          this.$error(this.$t('api_test.request.please_add_environment_to_scenario'), 2000);
-          this.request.useEnvironment = false;
-        }
-        this.$refs["request"].clearValidate();
+      reload() {
+        this.isReloadData = true
+        this.$nextTick(() => {
+          this.isReloadData = false
+        })
       },
-      addProtocol(url) {
-        if (url) {
-          if (!url.toLowerCase().startsWith("https") && !url.toLowerCase().startsWith("http")) {
-            return "https://" + url;
-          }
-        }
-        return url;
-      },
-      runDebug() {
-        this.$emit('runDebug');
-      }
     },
-
-    computed: {
-      displayUrl() {
-        return (this.scenario.environment && this.scenario.environment.config.httpConfig.socket) ?
-          this.scenario.environment.config.httpConfig.protocol + '://' + this.scenario.environment.config.httpConfig.socket + (this.request.path ? this.request.path : '')
-          : '';
-      }
-    }
   }
 </script>
 
@@ -194,6 +178,14 @@
 
   .do-multipart-post {
     margin-left: 10px;
+  }
+
+  .ms-left-cell {
+    margin-top: 30px;
+  }
+
+  .ms-left-buttion {
+    margin: 6px 0px 8px 30px;
   }
 
 </style>

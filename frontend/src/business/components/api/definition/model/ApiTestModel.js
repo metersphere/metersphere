@@ -705,7 +705,7 @@ export class ConsumerAndService extends BaseConfig {
 export class Body extends BaseConfig {
   constructor(options) {
     super();
-    this.type = undefined;
+    this.type = "KeyValue";
     this.raw = undefined;
     this.kvs = [];
     this.fromUrlencoded = [];

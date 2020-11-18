@@ -52,7 +52,7 @@
         type: Boolean,
         default: false
       },
-      suggestions: Array
+      suggestions: Array,
     },
     data() {
       return {}

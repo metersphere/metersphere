@@ -30,13 +30,11 @@
 
     <ms-api-variable :is-read-only="isReadOnly"
                      :parameters="body.kvs"
-                     :environment="environment"
                      type="body"
-                     v-if="body.isKV()"/>
+                     v-if="body.type == 'KeyValue'"/>
 
     <ms-api-from-url-variable :is-read-only="isReadOnly"
                               :parameters="body.fromUrlencoded"
-                              :environment="environment"
                               type="body"
                               v-if="body.type == 'WWW_FORM'"/>
 
@@ -55,7 +53,6 @@
 
     <ms-api-binary-variable :is-read-only="isReadOnly"
                             :parameters="body.binary"
-                            :environment="environment"
                             type="body"
                             v-if="body.type == 'BINARY'"/>
 
@@ -85,10 +82,7 @@
       MsJsonCodeEdit
     },
     props: {
-      body: Body,
-      scenario: Scenario,
-      environment: Object,
-      extract: Object,
+      body: {},
       isReadOnly: {
         type: Boolean,
         default: false
