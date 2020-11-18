@@ -65,7 +65,7 @@ body {
   background-color: white;
 }
 
-.adjust-table th:not([class*='el-table-column--selection']):hover:after {
+.adjust-table th:not([class*="el-table-column--selection"]):hover:after {
   content: '';
   position: absolute;
   top: 25%;
