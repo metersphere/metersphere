@@ -507,6 +507,8 @@ export default {
       this.showDialog = true;
       this.issuesSwitch = false;
       this.activeTab = 'detail';
+      this.hasTapdId = false;
+      this.hasZentaoId = false;
       listenGoBack(this.handleClose);
       this.initData(testCase);
     },
