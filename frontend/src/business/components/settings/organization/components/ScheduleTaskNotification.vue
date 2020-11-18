@@ -140,7 +140,7 @@ export default {
   methods: {
     initForm(){
       this.result = this.$get('/notice/search/message/'+this.testId, response => {
-        console.log(response.data);
+        // console.log(response.data);
         this.form.scheduleTask = response.data;
       })
     },
@@ -170,7 +170,7 @@ export default {
     },
     handleAddTask(index, data) {
       if (data.event && data.userIds.length > 0 && data.type) {
-        console.log(data.type)
+        // console.log(data.type)
         if (data.type === 'NAIL_ROBOT' || data.type === 'WECHAT_ROBOT') {
           if (!data.webhook) {
             this.$warning(this.$t('organization.message.message_webhook'));

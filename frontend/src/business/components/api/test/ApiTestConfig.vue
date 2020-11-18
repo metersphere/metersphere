@@ -387,7 +387,7 @@ export default {
       },
       handleEvent(event) {
         if (event.keyCode === 83 && event.ctrlKey) {
-          console.log('拦截到 ctrl + s');//ctrl+s
+          // console.log('拦截到 ctrl + s');//ctrl+s
           this.saveTest();
           event.preventDefault();
           event.returnValue = false;

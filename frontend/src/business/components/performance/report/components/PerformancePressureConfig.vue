@@ -196,7 +196,7 @@ export default {
       });
     },
     getJmxContent() {
-      console.log(this.report.testId);
+      // console.log(this.report.testId);
       if (!this.report.testId) {
         return;
       }
