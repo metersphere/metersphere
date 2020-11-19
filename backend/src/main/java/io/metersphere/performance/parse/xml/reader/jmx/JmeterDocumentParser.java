@@ -785,7 +785,9 @@ public class JmeterDocumentParser implements DocumentParser {
         threadGroup.appendChild(createStringProp(document, "LogFilename", ""));
         // bzm - Concurrency Thread Group "Thread Iterations Limit:" 设置为空
 //        threadGroup.appendChild(createStringProp(document, "Iterations", "1"));
-        threadGroup.appendChild(createStringProp(document, "Unit", "M"));
+//        threadGroup.appendChild(createStringProp(document, "Unit", "M"));
+        // 单位改成秒
+        threadGroup.appendChild(createStringProp(document, "Unit", "S"));
     }
 
     private void processCheckoutTimer(Element element) {
@@ -903,7 +905,7 @@ public class JmeterDocumentParser implements DocumentParser {
                                             stringPropCount++;
                                         } else {
                                             stringPropCount = 0;
-                                            Object durations = context.getProperty("duration");// 传入的是分钟数, 需要转化成秒数
+                                            Object durations = context.getProperty("duration");
                                             Integer duration;
                                             if (durations instanceof List) {
                                                 Object o = ((List<?>) durations).get(0);
@@ -912,7 +914,7 @@ public class JmeterDocumentParser implements DocumentParser {
                                             } else {
                                                 duration = (Integer) durations;
                                             }
-                                            prop.getFirstChild().setNodeValue(String.valueOf(duration * 60));
+                                            prop.getFirstChild().setNodeValue(String.valueOf(duration));
                                             continue;
                                         }
                                         Object rpsLimits = context.getProperty("rpsLimit");
