@@ -87,31 +87,39 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         String session = login();
         HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(new HttpHeaders());
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getModel-bug-getById-bugID={bugId}?zentaosid=" + session,
-                HttpMethod.POST, requestEntity, String.class, bugId);
-        String body = responseEntity.getBody();
-        JSONObject obj = JSONObject.parseObject(body);
-        if (obj != null) {
-            JSONObject bug = obj.getJSONObject("data");
-            String id = bug.getString("id");
-            String title = bug.getString("title");
-            String description = bug.getString("steps");
-            Long createTime = bug.getLong("openedDate");
-            String status = bug.getString("status");
-            String reporter = bug.getString("openedBy");
-            int deleted = bug.getInteger("deleted");
-            if (deleted == 1) {
-                return new Issues();
+        try {
+            ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getModel-bug-getById-bugID={bugId}?zentaosid=" + session,
+                    HttpMethod.POST, requestEntity, String.class, bugId);
+            String body = responseEntity.getBody();
+            JSONObject obj = JSONObject.parseObject(body);
+
+            LogUtil.info("bug id is " + bugId + obj);
+
+            if (obj != null) {
+                JSONObject bug = obj.getJSONObject("data");
+                String id = bug.getString("id");
+                String title = bug.getString("title");
+                String description = bug.getString("steps");
+                Long createTime = bug.getLong("openedDate");
+                String status = bug.getString("status");
+                String reporter = bug.getString("openedBy");
+                int deleted = bug.getInteger("deleted");
+                if (deleted == 1) {
+                    return new Issues();
+                }
+                Issues issues = new Issues();
+                issues.setId(id);
+                issues.setTitle(title);
+                issues.setDescription(description);
+                issues.setCreateTime(createTime);
+                issues.setStatus(status);
+                issues.setReporter(reporter);
+                return issues;
             }
-            Issues issues = new Issues();
-            issues.setId(id);
-            issues.setTitle(title);
-            issues.setDescription(description);
-            issues.setCreateTime(createTime);
-            issues.setStatus(status);
-            issues.setReporter(reporter);
-            return issues;
+        } catch (Exception e) {
+            LogUtil.error("get zentao bug fail " + e.getMessage());
         }
+
         return new Issues();
     }
 
@@ -150,6 +158,9 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getModel-bug-create.json?zentaosid=" + session, HttpMethod.POST, requestEntity, String.class);
         String body = responseEntity.getBody();
         JSONObject obj = JSONObject.parseObject(body);
+
+        LogUtil.info("add zentao bug " + obj);
+
         if (obj != null) {
             JSONObject data = obj.getJSONObject("data");
             String id = data.getString("id");
@@ -161,11 +172,16 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
                 testCaseIssues.setTestCaseId(testCaseId);
                 testCaseIssuesMapper.insert(testCaseIssues);
 
-                // 插入缺陷表
-                Issues issues = new Issues();
-                issues.setId(id);
-                issues.setPlatform(IssuesManagePlatform.Zentao.toString());
-                issuesMapper.insert(issues);
+                IssuesExample issuesExample = new IssuesExample();
+                issuesExample.createCriteria().andIdEqualTo(id)
+                        .andPlatformEqualTo(IssuesManagePlatform.Zentao.toString());
+                if (issuesMapper.selectByExample(issuesExample).size() <= 0) {
+                    // 插入缺陷表
+                    Issues issues = new Issues();
+                    issues.setId(id);
+                    issues.setPlatform(IssuesManagePlatform.Zentao.toString());
+                    issuesMapper.insert(issues);
+                }
             }
         }
     }
@@ -235,6 +251,9 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
                 HttpMethod.GET, requestEntity, String.class);
         String body = responseEntity.getBody();
         JSONObject obj = JSONObject.parseObject(body);
+
+        LogUtil.info("zentao user " + obj);
+
         JSONArray data = obj.getJSONArray("data");
 
         List<PlatformUser> users = new ArrayList<>();
@@ -260,6 +279,9 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
                 HttpMethod.GET, requestEntity, String.class, projectId);
         String body = responseEntity.getBody();
         JSONObject obj = JSONObject.parseObject(body);
+
+        LogUtil.info("zentao builds" + obj);
+
         JSONObject data = obj.getJSONObject("data");
         Map<String,Object> maps = data.getInnerMap();
 
