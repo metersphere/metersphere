@@ -172,11 +172,16 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
                 testCaseIssues.setTestCaseId(testCaseId);
                 testCaseIssuesMapper.insert(testCaseIssues);
 
-                // 插入缺陷表
-                Issues issues = new Issues();
-                issues.setId(id);
-                issues.setPlatform(IssuesManagePlatform.Zentao.toString());
-                issuesMapper.insert(issues);
+                IssuesExample issuesExample = new IssuesExample();
+                issuesExample.createCriteria().andIdEqualTo(id)
+                        .andPlatformEqualTo(IssuesManagePlatform.Zentao.toString());
+                if (issuesMapper.selectByExample(issuesExample).size() <= 0) {
+                    // 插入缺陷表
+                    Issues issues = new Issues();
+                    issues.setId(id);
+                    issues.setPlatform(IssuesManagePlatform.Zentao.toString());
+                    issuesMapper.insert(issues);
+                }
             }
         }
     }
