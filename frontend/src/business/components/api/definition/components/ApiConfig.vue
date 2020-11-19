@@ -10,10 +10,7 @@
 
 <script>
   import MsAddCompleteHttpApi from "./complete/AddCompleteHttpApi";
-  import {RequestFactory, ResponseFactory, Test, Body} from "../model/ApiTestModel";
-  import JMX from "./jmeter/jmx";
-  import JmeterTestPlan from "./jmeter/components/jmeter-test-plan";
-  import TestPlan from "./jmeter/components/test-plan";
+  import {ResponseFactory, Body} from "../model/ApiTestModel";
   import {getUUID} from "@/common/js/utils";
   import {createComponent, Request} from "./jmeter/components";
   import Sampler from "./jmeter/components/sampler/sampler";
@@ -24,10 +21,8 @@
     components: {MsAddCompleteHttpApi},
     data() {
       return {
-        reqType: RequestFactory.TYPES.HTTP,
+        reqType: Request.TYPES.HTTP,
         reqUrl: "",
-        test: new Test(),
-        jmx: new JMX(),
         request: Sampler,
         response: {},
         headers: [],
@@ -40,20 +35,9 @@
       protocol: String,
     },
     created() {
-      let jmx = new JMX();
-      let rootTestPlan = new JmeterTestPlan();
-      // 创建一个测试计划
-      let testPlan = new TestPlan();
-      rootTestPlan.hashTree = [testPlan];
-      jmx.elements = [rootTestPlan];
-      // 加一个线程组
-      let threadGroup = createComponent("ThreadGroup");
-      testPlan.hashTree = [threadGroup];
-
-      this.jmx = jmx;
       switch (this.protocol) {
         case Request.TYPES.SQL:
-          this.request = createComponent("OT");
+          this.request = createComponent("SQL");
           break;
         case Request.TYPES.DUBBO:
           this.request = createComponent("JDBCSampler");
@@ -65,15 +49,11 @@
           this.createHttp();
           break;
       }
-
-      threadGroup.hashTree = [this.request];
-      this.response = this.currentApi.response != null ? new ResponseFactory(JSON.parse(this.currentApi.response)) : {
-        headers: [],
-        body: new Body(),
-        statusCode: [],
-        type: "HTTP"
-      };
-
+      if (this.currentApi.response != null && this.currentApi.response != 'null' && this.currentApi.response != undefined) {
+        this.response = new ResponseFactory(JSON.parse(this.currentApi.response));
+      } else {
+        this.response = {headers: [], body: new Body(), statusCode: [], type: "HTTP"};
+      }
       if (this.currentApi != null && this.currentApi.id != null) {
         this.reqUrl = "/api/definition/update";
       } else {
@@ -84,8 +64,9 @@
     methods: {
       runTest(data) {
         data.projectId = this.currentProject.id;
-        data.request = data.test.request;
-        data.response = data.test.response;
+        this.request.hashTree[0].headers = this.headers;
+        data.request = this.request;
+        data.response = this.response;
         let bodyFiles = this.getBodyUploadFiles(data);
         this.$fileUpload(this.reqUrl, null, bodyFiles, data, () => {
           this.$success(this.$t('commons.save_success'));
@@ -94,13 +75,15 @@
         });
       },
       createHttp() {
-        if (this.currentApi.request != null) {
+        if (this.currentApi.request != undefined && this.currentApi.request != null) {
           this.request = JSON.parse(this.currentApi.request);
+          this.currentApi.request = this.request;
           this.headers = this.request.hashTree[0].headers;
         } else {
           let header = createComponent("HeaderManager");
           this.request = createComponent("HTTPSamplerProxy");
           this.request.hashTree = [header];
+          this.currentApi.request = this.request;
         }
       },
       saveApi(data) {
@@ -108,7 +91,6 @@
         this.request.hashTree[0].headers = this.headers;
         data.request = this.request;
         data.response = this.response;
-        console.log(data)
         let bodyFiles = this.getBodyUploadFiles(data);
         this.$fileUpload(this.reqUrl, null, bodyFiles, data, () => {
           this.$success(this.$t('commons.save_success'));

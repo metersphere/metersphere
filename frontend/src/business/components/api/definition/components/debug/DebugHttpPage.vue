@@ -26,7 +26,7 @@
 
         <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
         <!-- HTTP 请求参数 -->
-        <ms-api-request-form :request="test.request"/>
+        <ms-api-request-form :headers="headers" :request="request"/>
 
       </el-form>
       <!-- HTTP 请求返回数据 -->
@@ -41,14 +41,13 @@
 
 <script>
   import MsApiRequestForm from "../request/ApiRequestForm";
-  import {Test} from "../../model/ApiTestModel";
   import MsResponseResult from "../response/ResponseResult";
   import MsRequestMetric from "../response/RequestMetric";
   import {getUUID, getCurrentUser} from "@/common/js/utils";
   import MsResponseText from "../response/ResponseText";
   import MsRun from "../Run";
-
-
+  import {createComponent, Request} from "../jmeter/components";
+  import HeaderManager from "../jmeter/components/configurations/header-manager";
   import {REQ_METHOD} from "../../model/JsonData";
   import MsRequestResultTail from "../response/RequestResultTail";
 
@@ -66,10 +65,27 @@
         responseData: {type: 'HTTP', responseResult: {}, subRequestResults: []},
         loading: false,
         debugResultId: "",
-        test: new Test(),
         runData: [],
+        headers: [],
         reportId: "",
         reqOptions: REQ_METHOD,
+        request: {},
+      }
+    },
+    created() {
+      switch (this.protocol) {
+        case Request.TYPES.SQL:
+          this.request = createComponent("SQL");
+          break;
+        case Request.TYPES.DUBBO:
+          this.request = createComponent("JDBCSampler");
+          break;
+        case Request.TYPES.TCP:
+          this.request = createComponent("TCPSampler");
+          break;
+        default:
+          this.createHttp();
+          break;
       }
     },
     watch: {
@@ -85,15 +101,21 @@
           this.runDebug();
         }
       },
+      createHttp() {
+        let header = createComponent("HeaderManager");
+        this.request = createComponent("HTTPSamplerProxy");
+        this.request.hashTree = [header];
+      },
       runDebug() {
         this.$refs['debugForm'].validate((valid) => {
           if (valid) {
             this.loading = true;
-            this.test.request.url = this.debugForm.url;
-            this.test.request.method = this.debugForm.method;
-            this.test.request.name = getUUID().substring(0, 8);
+            this.request.url = this.debugForm.url;
+            this.request.method.value = this.debugForm.method;
+            this.request.hashTree[0].headers = this.headers;
+            this.request.name = getUUID().substring(0, 8);
             this.runData = [];
-            this.runData.push(this.test.request);
+            this.runData.push(this.request);
             /*触发执行操作*/
             this.reportId = getUUID().substring(0, 8);
           }
@@ -107,7 +129,7 @@
       saveAs() {
         this.$refs['debugForm'].validate((valid) => {
           if (valid) {
-            this.debugForm.request = JSON.stringify(this.test.request);
+            this.debugForm.request = JSON.stringify(this.request);
             this.debugForm.userId = getCurrentUser().id;
             this.debugForm.status = "Underway";
             this.$emit('saveAs', this.debugForm);

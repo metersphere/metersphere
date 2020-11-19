@@ -15,7 +15,7 @@ const DEFAULT_OPTIONS = {
 export default class HeaderManager extends Configuration {
   constructor(options = DEFAULT_OPTIONS) {
     super(options);
-
+    this.type = "HeaderManager";
     this.headers = [];
     let collectionProp = this.initCollectionProp('HeaderManager.headers');
     collectionProp.forEach(elementProp => {

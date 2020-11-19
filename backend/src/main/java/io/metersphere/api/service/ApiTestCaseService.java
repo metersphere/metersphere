@@ -53,21 +53,10 @@ public class ApiTestCaseService {
         return apiTestCaseMapper.selectByPrimaryKey(id);
     }
 
-    public void create(SaveApiTestCaseRequest request, MultipartFile file, List<MultipartFile> bodyFiles) {
+    public void create(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
-        ApiTestCase test = createTest(request, file);
-        createBodyFiles(test, bodyUploadIds, bodyFiles);
-    }
-
-    private ApiTestCase createTest(SaveApiTestCaseRequest request, MultipartFile file) {
-        if (file == null) {
-            throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
-        }
-        checkQuota();
-        request.setBodyUploadIds(null);
         ApiTestCase test = createTest(request);
-        saveFile(test.getId(), file);
-        return test;
+        createBodyFiles(test, bodyUploadIds, bodyFiles);
     }
 
     private void checkQuota() {
@@ -77,17 +66,14 @@ public class ApiTestCaseService {
         }
     }
 
-    public void update(SaveApiTestCaseRequest request, MultipartFile file, List<MultipartFile> bodyFiles) {
-        if (file == null) {
-            throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
-        }
+    public void update(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
+
         deleteFileByTestId(request.getId());
 
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         request.setBodyUploadIds(null);
         ApiTestCase test = updateTest(request);
         createBodyFiles(test, bodyUploadIds, bodyFiles);
-        saveFile(test.getId(), file);
     }
 
     private void createBodyFiles(ApiTestCase test, List<String> bodyUploadIds, List<MultipartFile> bodyFiles) {

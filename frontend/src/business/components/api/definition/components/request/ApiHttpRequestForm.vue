@@ -12,12 +12,12 @@
 
           <!--query 参数-->
           <el-tab-pane :label="$t('api_test.definition.request.query_param')" name="parameters">
-            <ms-api-variable :is-read-only="isReadOnly"  :parameters="request.arguments"/>
+            <ms-api-variable :is-read-only="isReadOnly" :parameters="request.arguments"/>
           </el-tab-pane>
 
           <!--REST 参数-->
           <el-tab-pane :label="$t('api_test.definition.request.rest_param')" name="rest">
-            <ms-api-variable :is-read-only="isReadOnly"  :parameters="request.rest"/>
+            <ms-api-variable :is-read-only="isReadOnly" :parameters="request.rest"/>
           </el-tab-pane>
 
           <!--请求体-->
@@ -32,10 +32,10 @@
         </el-tabs>
       </div>
       <div v-for="row in request.hashTree" :key="row.id" v-loading="isReloadData">
-        <ms-jsr233-processor v-if="row.label ==='JSR223 PreProcessor'" :is-read-only="false" title="前置脚本" style-type="warning"
+        <ms-jsr233-processor v-if="row.label ==='JSR223 PreProcessor'" @remove="remove" :is-read-only="false" title="前置脚本" style-type="warning"
                              :jsr223-processor="row"/>
 
-        <ms-jsr233-processor v-if="row.label ==='JSR223 PostProcessor'" :is-read-only="false" title="后置脚本" style-type="success"
+        <ms-jsr233-processor v-if="row.label ==='JSR223 PostProcessor'" @remove="remove" :is-read-only="false" title="后置脚本" style-type="success"
                              :jsr223-processor="row"/>
 
         <!--<ms-api-assertions  v-if="row.label.indexOf('Assertion')>0" :is-read-only="isReadOnly" :request="request"/>-->
@@ -135,6 +135,11 @@
       addExtract() {
         let jsonPostProcessor = createComponent("JSONPostProcessor");
         this.request.hashTree.push(jsonPostProcessor);
+        this.reload();
+      },
+      remove(row) {
+        let index = this.request.hashTree.indexOf(row);
+        this.request.hashTree.splice(index, 1);
         this.reload();
       },
       reload() {

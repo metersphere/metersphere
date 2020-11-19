@@ -12,7 +12,7 @@ export default class ThreadGroup extends HashTreeElement {
   constructor(options = DEFAULT_OPTIONS) {
     super(options);
     this.$type = TYPE;
-
+    this.type = TYPE;
     this.onSampleError = this.initStringProp('ThreadGroup.on_sample_error', 'continue');
     this.numThreads = this.initStringProp('ThreadGroup.num_threads', 1);
     this.rampTime = this.initStringProp('ThreadGroup.ramp_time', 1);

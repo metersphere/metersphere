@@ -42,12 +42,12 @@ public class JMeterService {
         return jmxGenerator.parse(testId, testName, scenarios);
     }
 
-    public void run(String testId, String testName, List<Scenario> scenarios, String debugReportId,String runMode) {
+    public void run(String testId, String testName, List<Scenario> scenarios, String debugReportId, String runMode) {
         try {
             init();
             HashTree testPlan = getHashTree(testId, testName, scenarios);
             JMeterVars.addJSR223PostProcessor(testPlan);
-            addBackendListener(testId, debugReportId,runMode, testPlan);
+            addBackendListener(testId, debugReportId, runMode, testPlan);
             LocalRunner runner = new LocalRunner(testPlan);
             runner.run();
         } catch (Exception e) {
@@ -82,12 +82,12 @@ public class JMeterService {
         }
     }
 
-    private void addBackendListener(String testId, String debugReportId,String runMode, HashTree testPlan) {
+    private void addBackendListener(String testId, String debugReportId, String runMode, HashTree testPlan) {
         BackendListener backendListener = new BackendListener();
         backendListener.setName(testId);
         Arguments arguments = new Arguments();
         arguments.addArgument(APIBackendListenerClient.TEST_ID, testId);
-        if(StringUtils.isNotBlank(runMode)){
+        if (StringUtils.isNotBlank(runMode)) {
             arguments.addArgument("runMode", runMode);
         }
         if (StringUtils.isNotBlank(debugReportId)) {
@@ -97,4 +97,17 @@ public class JMeterService {
         backendListener.setClassname(APIBackendListenerClient.class.getCanonicalName());
         testPlan.add(testPlan.getArray()[0], backendListener);
     }
+
+    public void runDefinition(String testId, HashTree testPlan, String debugReportId, String runMode) {
+        try {
+            JMeterVars.addJSR223PostProcessor(testPlan);
+            addBackendListener(testId, debugReportId, runMode, testPlan);
+            LocalRunner runner = new LocalRunner(testPlan);
+            runner.run();
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(Translator.get("api_load_script_error"));
+        }
+    }
+
 }

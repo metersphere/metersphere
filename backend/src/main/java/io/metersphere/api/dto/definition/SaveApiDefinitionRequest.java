@@ -1,7 +1,7 @@
 package io.metersphere.api.dto.definition;
 
+import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.response.Response;
-import io.metersphere.api.dto.scenario.Scenario;
 import io.metersphere.base.domain.Schedule;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,10 +31,8 @@ public class SaveApiDefinitionRequest {
     private String modulePath;
 
     private String method;
-
-    private Scenario scenario;
-
-    private Object request;
+    
+    private MsTestElement request;
 
     private Response response;
 

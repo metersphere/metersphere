@@ -27,6 +27,8 @@ import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
 import org.apache.jmeter.visualizers.backend.BackendListenerContext;
 import org.springframework.http.HttpMethod;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.*;
 
@@ -63,6 +65,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
     @Override
     public void setupTest(BackendListenerContext context) throws Exception {
+        setConsole();
         setParam(context);
         apiTestService = CommonBeanFactory.getBean(APITestService.class);
         if (apiTestService == null) {
@@ -109,6 +112,18 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         super.setupTest(context);
     }
 
+    //获得控制台内容
+    private PrintStream oldPrintStream = System.out;
+    private ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+    private void setConsole() {
+        System.setOut(new PrintStream(bos)); //设置新的out
+    }
+
+    private String getConsole() {
+        System.setOut(oldPrintStream);
+        return bos.toString();
+    }
 
     @Override
     public void handleSampleResults(List<SampleResult> sampleResults, BackendListenerContext context) {
@@ -120,8 +135,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         TestResult testResult = new TestResult();
         testResult.setTestId(testId);
         testResult.setTotal(queue.size());
-
-        // 一个脚本里可能包含多个场景(ThreadGroup)，所以要区分开，key: 场景Id
+        // 一个脚本里可能包含多个场景(MsThreadGroup)，所以要区分开，key: 场景Id
         final Map<String, ScenarioResult> scenarios = new LinkedHashMap<>();
         queue.forEach(result -> {
             // 线程名称: <场景名> <场景Index>-<请求Index>, 例如：Scenario 2-1
@@ -276,7 +290,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         responseResult.setResponseSize(result.getResponseData().length);
         responseResult.setResponseTime(result.getTime());
         responseResult.setResponseMessage(result.getResponseMessage());
-
+        responseResult.setConsole(getConsole());
         if (JMeterVars.get(result.hashCode()) != null) {
             List<String> vars = new LinkedList<>();
             JMeterVars.get(result.hashCode()).entrySet().parallelStream().reduce(vars, (first, second) -> {

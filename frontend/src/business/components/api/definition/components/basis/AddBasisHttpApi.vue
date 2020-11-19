@@ -34,7 +34,6 @@
                   :autosize="{ minRows: 2, maxRows: 10}"
                   :rows="2" size="small"/>
       </el-form-item>
-
     </el-form>
 
     <template v-slot:footer>
@@ -48,9 +47,10 @@
 <script>
   import MsDialogFooter from "../../../../common/components/MsDialogFooter";
   import {WORKSPACE_ID} from '../../../../../../common/js/constants';
-  import {Test} from "../../model/ApiTestModel"
   import {REQ_METHOD} from "../../model/JsonData";
-  import {getCurrentUser} from "../../../../../../common/js/utils";
+  import {getCurrentUser, getUUID} from "../../../../../../common/js/utils";
+  import {createComponent} from "../jmeter/components";
+  import HeaderManager from "../jmeter/components/configurations/header-manager";
 
   export default {
     name: "MsAddBasisHttpApi",
@@ -81,22 +81,18 @@
           if (valid) {
             let bodyFiles = [];
             let url = "/api/definition/create";
-            let test = new Test();
             this.httpForm.bodyUploadIds = [];
-            this.httpForm.request = test.request;
-            this.httpForm.request.url = this.httpForm.url;
-            this.httpForm.request.method = this.httpForm.method;
             this.httpForm.projectId = this.projectId;
-            this.httpForm.id = test.id;
+            this.httpForm.id = getUUID().substring(0, 8);
+            let header = createComponent("HeaderManager");
+            let request = createComponent("HTTPSamplerProxy");
+            request.hashTree = [header];
+            this.httpForm.request = request;
             if (this.currentModule != null) {
               this.httpForm.modulePath = this.currentModule.method != undefined ? this.currentModule.method : null;
               this.httpForm.moduleId = this.currentModule.id;
             }
-            let jmx = test.toJMX();
-            let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
-            let file = new File([blob], jmx.name);
-
-            this.result = this.$fileUpload(url, file, bodyFiles, this.httpForm, () => {
+            this.result = this.$fileUpload(url, null, bodyFiles, this.httpForm, () => {
               this.httpVisible = false;
               this.$parent.refresh(this.currentModule);
             });

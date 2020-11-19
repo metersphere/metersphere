@@ -1,6 +1,6 @@
 package io.metersphere.api.dto.definition;
 
-import io.metersphere.api.dto.scenario.request.Request;
+import io.metersphere.api.dto.definition.request.MsTestElement;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,7 +22,7 @@ public class SaveApiTestCaseRequest {
 
     private String description;
 
-    private Request request;
+    private MsTestElement request;
 
     private String response;
 

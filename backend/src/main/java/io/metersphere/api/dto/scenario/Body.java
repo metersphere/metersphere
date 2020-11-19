@@ -10,6 +10,7 @@ public class Body {
     private String type;
     private String raw;
     private String format;
+    private List<KeyValue> fromUrlencoded;
     private List<KeyValue> kvs;
     private List<KeyValue> binary;
     private Object json;

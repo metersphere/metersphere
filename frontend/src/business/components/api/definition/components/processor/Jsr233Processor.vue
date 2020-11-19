@@ -3,11 +3,9 @@
     <el-row>
       <div>
         <el-button class="ms-left-buttion" size="small" :type="styleType" plain>{{title}}</el-button>
-        <i class="icon el-icon-arrow-right" :class="{'is-active': active}" @click="changeActive"
-           style="margin-left: 20px"/>
-
-        <el-input size="small" v-model="jsr223ProcessorData.name"
-                  class="ms-api-header-select" style="width: 380px"/>
+        <i class="icon el-icon-arrow-right" :class="{'is-active': active}" @click="changeActive" style="margin-left: 20px"/>
+        <el-input size="small" v-model="jsr223ProcessorData.name" class="ms-api-header-select" style="width: 380px"/>
+        <el-button size="small" style="float: right" @click="remove">移除</el-button>
       </div>
     </el-row>
     <el-collapse-transition>
@@ -24,7 +22,7 @@
         </el-row>
         <el-row>
           <el-col :span="20" class="script-content">
-            <ms-code-edit v-if="isCodeEditAlive" :mode="codeEditModeMap[jsr223ProcessorData.language]=== null ?'java':'python'"
+            <ms-code-edit v-if="isCodeEditAlive" :mode="jsr223ProcessorData.scriptLanguage.value"
                           :read-only="isReadOnly"
                           :data.sync="jsr223ProcessorData.script.value" theme="eclipse" :modes="['java','python']"
                           ref="codeEdit"/>
@@ -90,7 +88,7 @@
         ],
         isCodeEditAlive: true,
         languages: [
-          'beanshell', "python"
+          'java', "python"
         ],
         codeEditModeMap: {
           beanshell: 'java',
@@ -102,16 +100,6 @@
       this.jsr223ProcessorData = this.jsr223Processor;
     },
     props: {
-      type: {
-        type: String,
-        default:
-          "create",
-      }
-      ,
-      name: {
-        type: String,
-      }
-      ,
       isReadOnly: {
         type: Boolean,
         default:
@@ -149,21 +137,20 @@
           this.jsr223ProcessorData.script += ';';
         }
         this.reload();
-      }
-      ,
+      },
+      remove(){
+        this.$emit('remove', this.jsr223ProcessorData);
+      },
       reload() {
         this.isCodeEditAlive = false;
         this.$nextTick(() => (this.isCodeEditAlive = true));
-      }
-      ,
+      },
       languageChange(language) {
         this.jsr223ProcessorData.language = language;
-      }
-      ,
+      },
       changeActive() {
         this.active = !this.active;
-      }
-      ,
+      },
     }
   }
 </script>

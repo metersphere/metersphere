@@ -3,11 +3,7 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.APIReportResult;
-import io.metersphere.api.dto.definition.ApiComputeResult;
-import io.metersphere.api.dto.definition.ApiDefinitionRequest;
-import io.metersphere.api.dto.definition.ApiDefinitionResult;
-import io.metersphere.api.dto.definition.SaveApiDefinitionRequest;
-import io.metersphere.api.dto.scenario.Scenario;
+import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.*;
@@ -24,6 +20,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.FileService;
 import io.metersphere.service.QuotaService;
+import org.apache.jorphan.collections.HashTree;
 import org.aspectj.util.FileUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -101,7 +98,6 @@ public class ApiDefinitionService {
 
     public void update(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
         deleteFileByTestId(request.getId());
-
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         request.setBodyUploadIds(null);
         ApiDefinition test = updateTest(request);
@@ -210,14 +206,6 @@ public class ApiDefinitionService {
         return test;
     }
 
-    private void saveFile(String apiId, MultipartFile file) {
-        final FileMetadata metadata = fileService.saveFile(file);
-        ApiTestFile apiTestFile = new ApiTestFile();
-        apiTestFile.setTestId(apiId);
-        apiTestFile.setFileId(metadata.getId());
-        apiTestFileMapper.insert(apiTestFile);
-    }
-
     private void deleteFileByTestId(String apiId) {
         ApiTestFileExample apiTestFileExample = new ApiTestFileExample();
         apiTestFileExample.createCriteria().andTestIdEqualTo(apiId);
@@ -237,13 +225,13 @@ public class ApiDefinitionService {
      * @param bodyFiles
      * @return
      */
-    public String run(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
+    public String run(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         createBodyFiles(request.getId(), bodyUploadIds, bodyFiles);
 
-        List<Scenario> scenarios = new ArrayList<>();
-        scenarios.add(request.getScenario());
-        jMeterService.run(request.getId(), request.getName(), scenarios, request.getReportId(), ApiRunMode.DELIMIT.name());
+        HashTree hashTree = request.getTestElement().get();
+        // 调用执行方法
+        jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), ApiRunMode.DELIMIT.name());
         return request.getId();
     }
 
@@ -281,6 +269,9 @@ public class ApiDefinitionService {
      */
     public APIReportResult getDbResult(String testId) {
         ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByResourceId(testId);
+        if (result == null) {
+            return null;
+        }
         APIReportResult reportResult = new APIReportResult();
         reportResult.setContent(result.getContent());
         return reportResult;

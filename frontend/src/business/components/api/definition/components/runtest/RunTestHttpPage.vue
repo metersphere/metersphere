@@ -8,14 +8,14 @@
         <p class="tip">{{$t('test_track.plan_view.base_info')}} </p>
         <!-- 请求方法 -->
         <el-form-item :label="$t('api_report.request')" prop="method">
-          <el-select v-model="api.method" style="width: 100px" size="small">
+          <el-select v-model="api.request.method.value" style="width: 100px" size="small">
             <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
           </el-select>
         </el-form-item>
 
         <!-- 执行环境 -->
         <el-form-item prop="environmentId">
-          <el-select v-model="api.environmentId" size="small" class="ms-htt-width"
+          <el-select v-model="api.request.useEnvironment" size="small" class="ms-htt-width"
                      :placeholder="$t('api_test.definition.request.run_env')"
                      @change="environmentChange" clearable>
             <el-option v-for="(environment, index) in environments" :key="index"
@@ -36,7 +36,7 @@
 
         <!-- 请求地址 -->
         <el-form-item prop="url">
-          <el-input :placeholder="$t('api_test.definition.request.path_info')" v-model="api.url" class="ms-htt-width"
+          <el-input :placeholder="$t('api_test.definition.request.path_info')" v-model="api.request.path.value" class="ms-htt-width"
                     size="small" :disabled="false"/>
         </el-form-item>
 
@@ -59,7 +59,7 @@
 
         <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
         <!-- HTTP 请求参数 -->
-        <ms-api-request-form :request="api.request"/>
+        <ms-api-request-form :headers="api.request.hashTree[0].headers" :request="api.request"/>
 
       </el-form>
       <!--返回结果-->
@@ -149,11 +149,9 @@
         this.$refs['apiData'].validate((valid) => {
           if (valid) {
             this.loading = true;
-            this.api.test.request.url = this.api.url;
-            this.api.test.request.method = this.api.method;
-            this.api.test.request.name = this.api.id;
+            this.api.request.name = this.api.id;
             this.runData = [];
-            this.runData.push(this.api.test.request);
+            this.runData.push(this.api.request);
             /*触发执行操作*/
             this.reportId = getUUID().substring(0, 8);
           }
@@ -197,11 +195,7 @@
       saveAsCase() {
         this.isHide = false;
         this.loaded = false;
-        let testCase = {};
-        testCase.request = this.api.request;
-        testCase.apiDefinitionId = this.api.id;
-        testCase.priority = "P0";
-        this.$refs.caseList.createCase(testCase);
+        this.$refs.caseList.addCase();
       },
       saveAsApi() {
         let data = {};
@@ -216,17 +210,14 @@
       updateApi() {
         let url = "/api/definition/update";
         let bodyFiles = this.getBodyUploadFiles();
-        let jmx = this.api.test.toJMX();
-        let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
-        let file = new File([blob], jmx.name);
-        this.$fileUpload(url, file, bodyFiles, this.api, () => {
+        this.$fileUpload(url, null, bodyFiles, this.api, () => {
           this.$success(this.$t('commons.save_success'));
           this.$emit('saveApi', this.api);
         });
       },
       selectTestCase(item) {
         if (item != null) {
-          this.api.request = new RequestFactory(JSON.parse(item.request));
+          this.api.request = item.request;
         } else {
           this.api.request = this.currentRequest;
         }
@@ -266,7 +257,7 @@
       environmentChange(value) {
         for (let i in this.environments) {
           if (this.environments[i].id === value) {
-            this.api.environment = this.environments[i];
+            this.api.request.useEnvironment = this.environments[i].id;
             break;
           }
         }
@@ -286,6 +277,7 @@
     },
     created() {
       this.api = this.apiData;
+      this.currentRequest = this.api.request;
       this.getEnvironments();
       this.getResult();
     }

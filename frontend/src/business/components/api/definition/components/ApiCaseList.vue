@@ -10,11 +10,11 @@
             <el-col :span="1">
               <template>
                 <div>
-                  <ms-tag v-if="api.api_status == 'Prepare'" type="info"
+                  <ms-tag v-if="api.status == 'Prepare'" type="info"
                           :content="$t('test_track.plan.plan_status_prepare')"/>
-                  <ms-tag v-if="api.api_status == 'Underway'" type="primary"
+                  <ms-tag v-if="api.status == 'Underway'" type="primary"
                           :content="$t('test_track.plan.plan_status_running')"/>
-                  <ms-tag v-if="api.api_status == 'Completed'" type="success"
+                  <ms-tag v-if="api.status == 'Completed'" type="success"
                           :content="$t('test_track.plan.plan_status_completed')"/>
                 </div>
               </template>
@@ -61,13 +61,7 @@
               </div>
             </el-col>
             <el-col :span="2">
-              <!--<div class="ms-api-header-select">-->
-              <!--<el-button size="small" style="background-color: #783887;color: white" @click="createCase">-->
-              <!--+{{$t('api_test.definition.request.case')}}-->
-              <!--</el-button>-->
-              <!--</div>-->
-
-              <el-dropdown size="small" split-button type="primary" class="ms-api-header-select" @click="createCase"
+              <el-dropdown size="small" split-button type="primary" class="ms-api-header-select" @click="addCase"
                            @command="handleCommand">
                 +{{$t('api_test.definition.request.case')}}
                 <el-dropdown-menu slot="dropdown">
@@ -77,7 +71,7 @@
 
 
             </el-col>
-            <el-col :span="2">
+            <el-col :span="1">
               <button type="button" aria-label="Close" class="el-card-btn" @click="apiCaseClose()"><i
                 class="el-dialog__close el-icon el-icon-close"></i></button>
             </el-col>
@@ -124,7 +118,7 @@
                 </div>
               </el-col>
               <el-col :span="4">
-                <ms-tip-button @click="runCase(item)" :tip="$t('api_test.run')" icon="el-icon-video-play"
+                <ms-tip-button @click="singleRun(item)" :tip="$t('api_test.run')" icon="el-icon-video-play"
                                style="background-color: #409EFF;color: white" size="mini" circle/>
                 <ms-tip-button @click="copyCase(item)" :tip="$t('commons.copy')" icon="el-icon-document-copy"
                                size="mini" circle/>
@@ -146,12 +140,11 @@
               <div v-if="item.active">
                 <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
 
-                <ms-api-request-form :is-read-only="isReadOnly" :request="item.test.request"/>
+                <ms-api-request-form :is-read-only="isReadOnly" :headers="item.request.hashTree[0].headers " :request="item.request"/>
 
-                <p class="tip">{{$t('api_test.definition.request.assertions_rule')}} </p>
-
-                <ms-api-assertions :request="item.test.request" :is-read-only="isReadOnly"
-                                   :assertions="item.test.request.assertions"/>
+                <!-- <p class="tip">{{$t('api_test.definition.request.assertions_rule')}} </p>-->
+                <!--<ms-api-assertions :request="item.request" :is-read-only="isReadOnly"-->
+                <!--:assertions="item.request.assertions"/>-->
 
                 <!-- 保存操作 -->
                 <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(item)">
@@ -176,7 +169,6 @@
   import MsTag from "../../../common/components/MsTag";
   import MsTipButton from "../../../common/components/MsTipButton";
   import MsApiRequestForm from "./request/ApiRequestForm";
-  import {Test, RequestFactory} from "../model/ApiTestModel";
   import {downloadFile, getUUID} from "@/common/js/utils";
   import {parseEnvironment} from "../model/EnvironmentModel";
   import ApiEnvironmentConfig from "../../test/components/ApiEnvironmentConfig";
@@ -241,7 +233,7 @@
       },
       handleCommand(e) {
         if (e === "run") {
-          this.runCase();
+          this.batchRun();
         }
       },
       showInput(row) {
@@ -253,35 +245,39 @@
         this.apiCaseList = [];
         this.$emit('apiCaseClose');
       },
-      runCase(row) {
+      batchRun() {
+        if (!this.environment) {
+          this.$warning(this.$t('api_test.environment.select_environment'));
+          return;
+        }
+        this.loading = true;
+        if (this.apiCaseList.length > 0) {
+          this.apiCaseList.forEach(item => {
+            if (item.type != "create") {
+              item.request.name = item.id;
+              item.request.useEnvironment = this.environment.id;
+              this.runData.push(item.request);
+            }
+          })
+          this.loading = true;
+          /*触发执行操作*/
+          this.reportId = getUUID().substring(0, 8);
+        } else {
+          this.$warning("没有可执行的用例！");
+        }
+      },
+      singleRun(row) {
         if (!this.environment) {
           this.$warning(this.$t('api_test.environment.select_environment'));
           return;
         }
         this.runData = [];
-        if (row) {
-          row.test.request.url = this.api.url;
-          row.test.request.method = this.api.method;
-          row.test.request.name = row.id;
-          this.loading = true;
-          this.runData.push(row.test.request);
-          /*触发执行操作*/
-          this.reportId = getUUID().substring(0, 8);
-        } else {
-          if (this.apiCaseList.length > 0) {
-            this.apiCaseList.forEach(item => {
-              if (item.type != "create") {
-                item.test.request.name = item.id;
-                this.runData.push(item.test.request);
-              }
-            })
-            this.loading = true;
-            /*触发执行操作*/
-            this.reportId = getUUID().substring(0, 8);
-          } else {
-            this.$warning("没有可执行的用例！");
-          }
-        }
+        this.loading = true;
+        row.request.name = row.id;
+        row.request.useEnvironment = this.environment.id;
+        this.runData.push(row.request);
+        /*触发执行操作*/
+        this.reportId = getUUID().substring(0, 8);
       },
       runRefresh(data) {
         this.loading = false;
@@ -293,44 +289,48 @@
         this.$get('/api/testcase/delete/' + row.id, () => {
           this.$success(this.$t('commons.delete_success'));
           this.apiCaseList.splice(index, 1);
+          this.$emit('refresh');
         });
       },
       copyCase(data) {
-        let obj = {
-          name: data.name,
-          priority: data.priority,
-          type: 'create',
-          active: false,
-          test: data.test,
-        };
+        let obj = {name: data.name, priority: data.priority, type: 'create', active: false, request: data.request};
         this.apiCaseList.unshift(obj);
       },
-      createCase(row) {
-        let obj = {
-          name: '',
-          priority: 'P0',
-          type: 'create',
-          active: false,
-        };
+      addCase() {
+        // 初始化对象
         let request = {};
-        if (row) {
-          request = row.request;
-          obj.apiDefinitionId = row.apiDefinitionId;
+        if (this.api.request instanceof Object) {
+          request = this.api.request;
         } else {
-          request: new RequestFactory(JSON.parse(this.api.request))
+          request = JSON.parse(this.api.request);
         }
-        obj.test = new Test({request: request});
+        let obj = {apiDefinitionId: this.api.id, name: '', priority: 'P0', type: 'create', active: false};
+        obj.request = request;
         this.apiCaseList.unshift(obj);
       },
+
       active(item) {
         item.active = !item.active;
       },
       getBodyUploadFiles(row) {
         let bodyUploadFiles = [];
         row.bodyUploadIds = [];
-        let request = row.test.request;
+        let request = row.request;
         if (request.body) {
           request.body.kvs.forEach(param => {
+            if (param.files) {
+              param.files.forEach(item => {
+                if (item.file) {
+                  let fileId = getUUID().substring(0, 8);
+                  item.name = item.file.name;
+                  item.id = fileId;
+                  row.bodyUploadIds.push(fileId);
+                  bodyUploadFiles.push(item.file);
+                }
+              });
+            }
+          });
+          request.body.binary.forEach(param => {
             if (param.files) {
               param.files.forEach(item => {
                 if (item.file) {
@@ -355,7 +355,7 @@
         this.$post("/api/testcase/list", condition, response => {
           for (let index in response.data) {
             let test = response.data[index];
-            test.test = new Test({request: new RequestFactory(JSON.parse(test.request))});
+            test.request = JSON.parse(test.request);
           }
           this.apiCaseList = response.data;
         });
@@ -371,21 +371,16 @@
           return;
         }
         let bodyFiles = this.getBodyUploadFiles(row);
-        row.test.request.url = this.api.url;
-        row.test.request.method = this.api.method;
         row.projectId = this.api.projectId;
         row.apiDefinitionId = row.apiDefinitionId || this.api.id;
-        row.request = row.test.request;
-        let jmx = row.test.toJMX();
-        let blob = new Blob([jmx.xml], {type: "application/octet-stream"});
-        let file = new File([blob], jmx.name);
         let url = "/api/testcase/create";
         if (row.id) {
           url = "/api/testcase/update";
         }
-        this.$fileUpload(url, file, bodyFiles, row, () => {
+        this.$fileUpload(url, null, bodyFiles, row, () => {
           this.$success(this.$t('commons.save_success'));
           this.getApiTest();
+          this.$emit('refresh');
         });
       },
       getEnvironments() {

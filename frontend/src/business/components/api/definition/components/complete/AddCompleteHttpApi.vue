@@ -22,9 +22,9 @@
         </el-form-item>
 
         <el-form-item :label="$t('api_report.request')" prop="url">
-          <el-input :placeholder="$t('api_test.definition.request.path_info')" v-model="httpForm.url"
+          <el-input :placeholder="$t('api_test.definition.request.path_info')" v-model="httpForm.request.path.value"
                     class="ms-http-input" size="small" style="margin-top: 5px">
-            <el-select v-model="httpForm.method" slot="prepend" style="width: 100px" size="small">
+            <el-select v-model="httpForm.request.method.value" slot="prepend" style="width: 100px" size="small">
               <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
             </el-select>
           </el-input>
@@ -127,6 +127,7 @@
       },
       setParameter() {
         this.httpForm.modulePath = this.getPath(this.httpForm.moduleId);
+        this.httpForm.url = this.httpForm.request.path.value;
       },
       saveApi() {
         if (this.currentProject === null) {
@@ -163,7 +164,7 @@
 
 <style scoped>
   .ms-http-input {
-    width: 500px;
+    width: 400px;
   }
 
   .tip {
@@ -175,7 +176,7 @@
   }
 
   .ms-http-textarea {
-    width: 500px;
+    width: 400px;
   }
 
   .ms-left-cell {

@@ -1,6 +1,6 @@
 import {boolProp, elementProp, stringProp} from "../../../props";
 import Sampler from "../sampler";
-import {BaseConfig, BODY_TYPE, KeyValue,Body} from "../../../../../model/ApiTestModel";
+import {BaseConfig, BODY_TYPE, KeyValue, Body} from "../../../../../model/ApiTestModel";
 
 const DEFAULT_OPTIONS = {
   options: {
@@ -18,7 +18,7 @@ export default class HTTPSamplerProxy extends Sampler {
     this.protocol = this.initStringProp('HTTPSampler.protocol', "https");
     this.domain = this.initStringProp('HTTPSampler.domain');
     this.port = this.initStringProp('HTTPSampler.port');
-
+    this.type = "HTTPSamplerProxy";
     this.method = this.initStringProp('HTTPSampler.method', "GET");
     this.path = this.initStringProp('HTTPSampler.path');
     this.contentEncoding = this.initStringProp('HTTPSampler.contentEncoding', "UTF-8");
