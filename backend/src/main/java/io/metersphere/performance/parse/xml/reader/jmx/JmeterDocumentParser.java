@@ -880,6 +880,24 @@ public class JmeterDocumentParser implements DocumentParser {
     }
 
     private void processVariableThroughputTimer(Element variableThroughputTimer) {
+        Object durations = context.getProperty("duration");
+        Integer duration;
+        if (durations instanceof List) {
+            Object o = ((List<?>) durations).get(0);
+            duration = (Integer) o;
+            ((List<?>) durations).remove(0);
+        } else {
+            duration = (Integer) durations;
+        }
+        Object rpsLimits = context.getProperty("rpsLimit");
+        String rpsLimit;
+        if (rpsLimits instanceof List) {
+            Object o = ((List<?>) rpsLimits).get(0);
+            ((List<?>) rpsLimits).remove(0);
+            rpsLimit = o.toString();
+        } else {
+            rpsLimit = rpsLimits.toString();
+        }
         if (variableThroughputTimer.getChildNodes().getLength() > 0) {
             final NodeList childNodes = variableThroughputTimer.getChildNodes();
             for (int i = 0; i < childNodes.getLength(); i++) {
@@ -905,26 +923,8 @@ public class JmeterDocumentParser implements DocumentParser {
                                             stringPropCount++;
                                         } else {
                                             stringPropCount = 0;
-                                            Object durations = context.getProperty("duration");
-                                            Integer duration;
-                                            if (durations instanceof List) {
-                                                Object o = ((List<?>) durations).get(0);
-                                                duration = (Integer) o;
-                                                ((List<?>) durations).remove(0);
-                                            } else {
-                                                duration = (Integer) durations;
-                                            }
                                             prop.getFirstChild().setNodeValue(String.valueOf(duration));
                                             continue;
-                                        }
-                                        Object rpsLimits = context.getProperty("rpsLimit");
-                                        String rpsLimit;
-                                        if (rpsLimits instanceof List) {
-                                            Object o = ((List<?>) rpsLimits).get(0);
-                                            ((List<?>) rpsLimits).remove(0);
-                                            rpsLimit = o.toString();
-                                        } else {
-                                            rpsLimit = rpsLimits.toString();
                                         }
                                         prop.getFirstChild().setNodeValue(rpsLimit);
                                     }
