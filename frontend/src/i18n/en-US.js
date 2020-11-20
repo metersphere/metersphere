@@ -27,7 +27,7 @@ export default {
     operating: 'Operating',
     input_limit: 'Within {0} and {1} characters',
     login: 'Sign In',
-    welcome: 'Welcome back, please enter username and password to log in to MeterSphere',
+    welcome: 'Welcome back, please enter username and password to log in',
     username: 'Username',
     password: 'Password',
     input_username: 'Please enter username',

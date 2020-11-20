@@ -27,7 +27,7 @@ export default {
     operating: '操作',
     input_limit: '长度在 {0} 到 {1} 个字符',
     login: '登录',
-    welcome: '欢迎回来，请输入用户名和密码登录MeterSphere',
+    welcome: '欢迎回来，请输入用户名和密码登录',
     username: '姓名',
     password: '密码',
     input_username: '请输入用户姓名',

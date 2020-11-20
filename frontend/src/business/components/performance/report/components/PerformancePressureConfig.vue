@@ -129,7 +129,11 @@ export default {
                 this.threadGroups[i].rampUpTime = item.value;
                 break;
               case DURATION:
-                this.threadGroups[i].duration = item.value;
+                if (item.unit) {
+                  this.threadGroups[i].duration = item.value;
+                } else {
+                  this.threadGroups[i].duration = item.value * 60;
+                }
                 break;
               case STEPS:
                 this.threadGroups[i].step = item.value;
@@ -154,7 +158,11 @@ export default {
               this.threadGroups[0].rampUpTime = d.value;
               break;
             case DURATION:
-              this.threadGroups[0].duration = d.value;
+              if (d.unit) {
+                this.threadGroups[0].duration = d.value;
+              } else {
+                this.threadGroups[0].duration = d.value * 60;
+              }
               break;
             case STEPS:
               this.threadGroups[0].step = d.value;
