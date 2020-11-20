@@ -148,6 +148,7 @@ export default {
       data.isReadOnly = true;
       if (data.type === 'EMAIL') {
         data.isReadOnly = !data.isReadOnly
+        data.webhook = ""
       }
     },
     handleAddTaskModel(type) {
@@ -164,9 +165,15 @@ export default {
         this.form.scheduleTask.push(Task)
       }
     },
-    handleEditTask(index,data){
+    handleEditTask(index,data) {
       data.isSet = true
-      data.testId=this.testId
+      data.testId = this.testId
+      if (data.type === 'EMAIL') {
+        data.isReadOnly = false
+        data.webhook = ""
+      } else {
+        data.isReadOnly = true
+      }
     },
     handleAddTask(index, data) {
       if (data.event && data.userIds.length > 0 && data.type) {

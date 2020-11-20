@@ -147,6 +147,7 @@ export default {
       data.isReadOnly = true;
       if (data.type === 'EMAIL') {
         data.isReadOnly = !data.isReadOnly
+        data.webhook = ""
       }
     },
     handleAddTaskModel(type) {
@@ -190,8 +191,15 @@ export default {
         this.$warning(this.$t('organization.message.message'));
       }
     },
-    handleEditTask(index,data){
+    handleEditTask(index,data) {
       data.isSet = true
+      if (data.type === 'EMAIL') {
+        data.isReadOnly = false
+        data.webhook = ""
+      } else {
+        data.isReadOnly = true
+      }
+
     },
     addTask(data) {
       let list = []

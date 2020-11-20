@@ -145,10 +145,17 @@ export default {
       data.isReadOnly = true;
       if (data.type === 'EMAIL') {
         data.isReadOnly = !data.isReadOnly
+        data.webhook = ""
       }
     },
-    handleEditTask(index,data){
+    handleEditTask(index,data) {
       data.isSet = true
+      if (data.type === 'EMAIL') {
+        data.isReadOnly = false
+        data.webhook = ""
+      } else {
+        data.isReadOnly = true
+      }
     },
     handleAddTaskModel(type) {
       let Task = {};
