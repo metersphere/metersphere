@@ -8,8 +8,7 @@
             <img v-else src="../assets/logo-dark-MeterSphere.svg" style="width: 224px; " alt="">
           </div>
           <div class="title">
-            <span id="s1">{{ $t('commons.login') }}</span>
-            <span id="s2">MeterSphere</span>
+            <span id="s1">{{ loginTitle }}</span>
           </div>
           <div class="border"></div>
           <div class="welcome">
@@ -89,6 +88,7 @@ export default {
       openLdap: false,
       loginLogoId: '_blank',
       loginImageId: '_blank',
+      loginTitle: this.$t("commons.login") + " MeterSphere"
     }
   },
   beforeCreate() {
