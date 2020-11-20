@@ -3,7 +3,6 @@
 </template>
 <script>
   import {getUUID} from "@/common/js/utils";
-  import HeaderManager from "./jmeter/components/configurations/header-manager";
   import ThreadGroup from "./jmeter/components/thread-group";
   import TestPlan from "./jmeter/components/test-plan";
 
@@ -58,10 +57,12 @@
               if (param.files) {
                 param.files.forEach(item => {
                   if (item.file) {
-                    let fileId = getUUID().substring(0, 8);
-                    item.name = item.file.name;
-                    item.id = fileId;
-                    obj.bodyUploadIds.push(fileId);
+                    if (!item.id) {
+                      let fileId = getUUID().substring(0, 12);
+                      item.name = item.file.name;
+                      item.id = fileId;
+                    }
+                    obj.bodyUploadIds.push(item.id);
                     bodyUploadFiles.push(item.file);
                   }
                 });
@@ -71,10 +72,12 @@
               if (param.files) {
                 param.files.forEach(item => {
                   if (item.file) {
-                    let fileId = getUUID().substring(0, 8);
-                    item.name = item.file.name;
-                    item.id = fileId;
-                    obj.bodyUploadIds.push(fileId);
+                    if (!item.id) {
+                      let fileId = getUUID().substring(0, 12);
+                      item.name = item.file.name;
+                      item.id = fileId;
+                    }
+                    obj.bodyUploadIds.push(item.id);
                     bodyUploadFiles.push(item.file);
                   }
                 });

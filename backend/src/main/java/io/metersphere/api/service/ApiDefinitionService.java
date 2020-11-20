@@ -13,13 +13,11 @@ import io.metersphere.base.mapper.ApiTestFileMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.FileService;
-import io.metersphere.service.QuotaService;
 import org.apache.jorphan.collections.HashTree;
 import org.aspectj.util.FileUtil;
 import org.springframework.stereotype.Service;
@@ -85,35 +83,27 @@ public class ApiDefinitionService {
 
     public void create(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
-        ApiDefinition test = createTest(request);
-        createBodyFiles(test.getId(), bodyUploadIds, bodyFiles);
-    }
-
-    private void checkQuota() {
-        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
-        if (quotaService != null) {
-            quotaService.checkAPITestQuota();
-        }
+        createTest(request);
+        createBodyFiles(bodyUploadIds, bodyFiles);
     }
 
     public void update(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
-        deleteFileByTestId(request.getId());
+        deleteFileByTestId(request.getRequest().getId());
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         request.setBodyUploadIds(null);
-        ApiDefinition test = updateTest(request);
-        createBodyFiles(test.getId(), bodyUploadIds, bodyFiles);
+        updateTest(request);
+        createBodyFiles(bodyUploadIds, bodyFiles);
     }
 
-    private void createBodyFiles(String testId, List<String> bodyUploadIds, List<MultipartFile> bodyFiles) {
+    private void createBodyFiles(List<String> bodyUploadIds, List<MultipartFile> bodyFiles) {
         if (bodyUploadIds.size() > 0) {
-            String dir = BODY_FILE_DIR + "/" + testId;
-            File testDir = new File(dir);
+            File testDir = new File(BODY_FILE_DIR);
             if (!testDir.exists()) {
                 testDir.mkdirs();
             }
             for (int i = 0; i < bodyUploadIds.size(); i++) {
                 MultipartFile item = bodyFiles.get(i);
-                File file = new File(testDir + "/" + bodyUploadIds.get(i) + "_" + item.getOriginalFilename());
+                File file = new File(BODY_FILE_DIR + "/" + bodyUploadIds.get(i) + "_" + item.getOriginalFilename());
                 try (InputStream in = item.getInputStream(); OutputStream out = new FileOutputStream(file)) {
                     file.createNewFile();
                     FileUtil.copyStream(in, out);
@@ -227,9 +217,9 @@ public class ApiDefinitionService {
      */
     public String run(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
-        createBodyFiles(request.getId(), bodyUploadIds, bodyFiles);
+        createBodyFiles(bodyUploadIds, bodyFiles);
 
-        HashTree hashTree = request.getTestElement().get();
+        HashTree hashTree = request.getTestElement().generateHashTree();
         // 调用执行方法
         jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), ApiRunMode.DELIMIT.name());
         return request.getId();

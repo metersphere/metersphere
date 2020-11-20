@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.definition.request.sampler;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
@@ -11,6 +12,7 @@ import io.metersphere.api.dto.scenario.AuthConfig;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
+import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -84,7 +86,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     @JSONField(ordinal = 24)
     private String url;
 
-
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree) {
         HTTPSamplerProxy sampler = new HTTPSamplerProxy();
         sampler.setEnabled(true);
@@ -116,7 +117,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 if (StringUtils.isNotBlank(this.getPath().getValue())) {
                     envPath += this.getPath().getValue();
                 }
-                sampler.setPath(getPostQueryParameters(URLDecoder.decode(envPath, "UTF-8")));
+                if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
+                    sampler.setPath(getRestParameters(URLDecoder.decode(envPath, "UTF-8")));
+                } else {
+                    sampler.setPath(getPostQueryParameters(URLDecoder.decode(envPath, "UTF-8")));
+                }
             } else {
                 String url = this.getUrl();
                 if (!url.startsWith("http://") && !url.startsWith("https://")) {
@@ -126,6 +131,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
                 sampler.setPort(urlObject.getPort());
                 sampler.setProtocol(urlObject.getProtocol());
+
+                sampler.setPath(getRestParameters(URLDecoder.decode(urlObject.getPath(), "UTF-8")));
                 sampler.setPath(getPostQueryParameters(URLDecoder.decode(urlObject.getPath(), "UTF-8")));
             }
         } catch (Exception e) {
@@ -136,21 +143,22 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (CollectionUtils.isNotEmpty(this.getArguments())) {
             sampler.setArguments(httpArguments(this.getArguments()));
         }
-        // rest参数处理
-        if (CollectionUtils.isNotEmpty(this.getRest())) {
-            sampler.setArguments(httpArguments(this.getRest()));
-        }
-
         // 请求体
         if (!StringUtils.equals(this.getMethod().getValue(), "GET")) {
             List<KeyValue> body = new ArrayList<>();
-            if (this.getBody().isKV()) {
+            if (this.getBody().isKV() || this.getBody().isBinary()) {
                 body = this.getBody().getKvs().stream().filter(KeyValue::isValid).collect(Collectors.toList());
-                sampler.setHTTPFiles(httpFileArgs());
-            } else if (this.getBody().isBinary()) {
-                // 上传二进制数据处理
+                HTTPFileArg[] httpFileArgs = httpFileArgs();
+                // 文件上传
+                if (httpFileArgs.length > 0) {
+                    sampler.setHTTPFiles(httpFileArgs());
+                    sampler.setDoMultipart(true);
+                }
             } else if (this.getBody().isJson()) {
-
+                KeyValue keyValue = new KeyValue("", JSON.toJSONString(this.getBody().getJson()));
+                keyValue.setEnable(true);
+                keyValue.setEncode(false);
+                body.add(keyValue);
             } else {
                 if (StringUtils.isNotBlank(this.getBody().getRaw())) {
                     sampler.setPostBodyRaw(true);
@@ -184,17 +192,24 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
     }
 
+    private String getRestParameters(String path) {
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append(path);
+        stringBuffer.append("/");
+        this.getRest().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).forEach(keyValue ->
+                stringBuffer.append(keyValue.getValue()).append("/")
+        );
+        return stringBuffer.substring(0, stringBuffer.length() - 1);
+    }
+
     private String getPostQueryParameters(String path) {
-        if (!StringUtils.equals(this.getMethod().getValue(), "GET")) {
-            StringBuffer stringBuffer = new StringBuffer();
-            stringBuffer.append(path);
-            stringBuffer.append("?");
-            this.getArguments().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).forEach(keyValue ->
-                    stringBuffer.append(keyValue.getName()).append("=").append(keyValue.getValue()).append("&")
-            );
-            return stringBuffer.substring(0, stringBuffer.length() - 1);
-        }
-        return path;
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append(path);
+        stringBuffer.append("?");
+        this.getArguments().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).forEach(keyValue ->
+                stringBuffer.append(keyValue.getName()).append("=").append(keyValue.getValue()).append("&")
+        );
+        return stringBuffer.substring(0, stringBuffer.length() - 1);
     }
 
     private Arguments httpArguments(List<KeyValue> list) {
@@ -211,21 +226,30 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         return arguments;
     }
 
-    private HTTPFileArg[] httpFileArgs() {
+    private void setFileArg(List<HTTPFileArg> list, List<BodyFile> files, KeyValue keyValue) {
         final String BODY_FILE_DIR = "/opt/metersphere/data/body";
+        if (files != null) {
+            files.forEach(file -> {
+                String paramName = keyValue.getName() == null ? this.getId() : keyValue.getName();
+                String path = BODY_FILE_DIR + '/' + file.getId() + '_' + file.getName();
+                String mimetype = keyValue.getContentType();
+                list.add(new HTTPFileArg(path, paramName, mimetype));
+            });
+        }
+    }
+
+    private HTTPFileArg[] httpFileArgs() {
         List<HTTPFileArg> list = new ArrayList<>();
         this.getBody().getKvs().stream().filter(KeyValue::isFile).filter(KeyValue::isEnable).forEach(keyValue -> {
-            if (keyValue.getFiles() != null) {
-                keyValue.getFiles().forEach(file -> {
-                    String paramName = keyValue.getName();
-                    String path = BODY_FILE_DIR + '/' + this.getId() + '/' + file.getId() + '_' + file.getName();
-                    String mimetype = keyValue.getContentType();
-                    list.add(new HTTPFileArg(path, paramName, mimetype));
-                });
-            }
+            setFileArg(list, keyValue.getFiles(), keyValue);
+        });
+        this.getBody().getBinary().stream().filter(KeyValue::isFile).filter(KeyValue::isEnable).forEach(keyValue -> {
+            setFileArg(list, keyValue.getFiles(), keyValue);
         });
         return list.toArray(new HTTPFileArg[0]);
     }
 
-
+    private boolean isRest() {
+        return this.getRest().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).toArray().length > 0;
+    }
 }

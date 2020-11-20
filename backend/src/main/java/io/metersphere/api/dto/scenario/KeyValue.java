@@ -2,6 +2,7 @@ package io.metersphere.api.dto.scenario;
 
 import io.metersphere.api.dto.scenario.request.BodyFile;
 import lombok.Data;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -43,6 +44,6 @@ public class KeyValue {
     }
 
     public boolean isFile() {
-        return (StringUtils.isNotBlank(name) || StringUtils.isNotBlank(value)) && StringUtils.equalsIgnoreCase(type, "file");
+        return (CollectionUtils.isNotEmpty(files)) && StringUtils.equalsIgnoreCase(type, "file");
     }
 }

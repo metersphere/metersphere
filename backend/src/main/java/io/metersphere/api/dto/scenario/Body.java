@@ -19,7 +19,7 @@ public class Body {
     private final static String KV = "KeyValue";
     private final static String FORM_DATA = "Form Data";
     private final static String RAW = "Raw";
-    private final static String BINARY = "Binary";
+    private final static String BINARY = "BINARY";
     private final static String JSON = "JSON";
     private final static String XML = "XML";
 

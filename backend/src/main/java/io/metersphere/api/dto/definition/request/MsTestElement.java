@@ -4,12 +4,14 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.configurations.MsHeaderManager;
 import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.commons.utils.LogUtil;
 import lombok.Data;
+import org.apache.jmeter.protocol.http.control.AuthManager;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
@@ -26,11 +28,12 @@ import java.util.List;
         @JsonSubTypes.Type(value = MsJSR223PreProcessor.class, name = "JSR223PreProcessor"),
         @JsonSubTypes.Type(value = MsTestPlan.class, name = "TestPlan"),
         @JsonSubTypes.Type(value = MsThreadGroup.class, name = "ThreadGroup"),
+        @JsonSubTypes.Type(value = MsAuthManager.class, name = "AuthManager"),
 
 })
-@JSONType(seeAlso = {MsHTTPSamplerProxy.class, MsHeaderManager.class, MsJSR223PostProcessor.class, MsJSR223PreProcessor.class}, typeKey = "type")
+@JSONType(seeAlso = {MsHTTPSamplerProxy.class, MsHeaderManager.class, MsJSR223PostProcessor.class, MsJSR223PreProcessor.class,MsTestPlan.class,MsThreadGroup.class, AuthManager.class}, typeKey = "type")
 @Data
-public class MsTestElement {
+public abstract class MsTestElement {
     private String type;
     @JSONField(ordinal = 1)
     private String id;
@@ -65,7 +68,7 @@ public class MsTestElement {
         return null;
     }
 
-    public HashTree get() {
+    public HashTree generateHashTree() {
         HashTree jmeterTestPlanHashTree = new ListedHashTree();
         this.toHashTree(jmeterTestPlanHashTree, this.hashTree);
         return jmeterTestPlanHashTree;

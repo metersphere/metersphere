@@ -1,7 +1,7 @@
 <template>
   <div class="request-result">
     <ms-request-metric :response="response"/>
-    <ms-response-result :response="response.responseResult"/>
+    <ms-response-result :response="response"/>
   </div>
 </template>
 

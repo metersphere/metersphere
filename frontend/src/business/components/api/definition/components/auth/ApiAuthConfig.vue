@@ -3,11 +3,9 @@
     <!-- 认证-->
     <el-tab-pane :label="$t('api_test.definition.request.verified')" name="verified">
 
-      <el-form :model="authConfig" size="small" :rules="rule"
-               ref="authConfig">
-
+      <el-form :model="authConfig" size="small" :rules="rule" ref="authConfig">
         <el-form-item :label="$t('api_test.definition.request.verification_method')" prop="verification">
-          <el-select v-model="authConfig.verification"
+          <el-select v-model="authConfig.verification" @change="change"
                      :placeholder="$t('api_test.definition.request.verification_method')" filterable size="small">
             <el-option
               v-for="item in options"
@@ -20,13 +18,13 @@
         </el-form-item>
 
         <el-form-item :label="$t('api_test.request.tcp.username')" prop="username"
-                      v-if="authConfig.verification !='No Auth'">
+                      v-if="authConfig.verification!=undefined && authConfig.verification !='No Auth'">
           <el-input :placeholder="$t('api_test.request.tcp.username')" v-model="authConfig.username"
                     class="ms-http-input" size="small">
           </el-input>
         </el-form-item>
 
-        <el-form-item :label="$t('commons.password')" prop="password" v-if="authConfig.verification !='No Auth'">
+        <el-form-item :label="$t('commons.password')" prop="password" v-if=" authConfig.verification!=undefined && authConfig.verification !='No Auth'">
           <el-input v-model="authConfig.password" :placeholder="$t('commons.password')" show-password autocomplete="off"
                     maxlength="20" show-word-limit/>
         </el-form-item>
@@ -41,7 +39,7 @@
                ref="authConfig">
 
         <el-form-item :label="$t('api_test.definition.request.encryption')" prop="encryption">
-          <el-select v-model="authConfig.isEncrypt"
+          <el-select v-model="authConfig.encrypt"
                      :placeholder="$t('api_test.definition.request.verification_method')" filterable size="small">
             <el-option
               v-for="item in encryptOptions"
@@ -59,24 +57,47 @@
 </template>
 
 <script>
+  import {createComponent} from "../jmeter/components";
+
   export default {
     name: "MsApiAuthConfig",
     components: {},
     props: {
-      authConfig: {},
+      request: {},
     },
-
+    created() {
+      for (let index in this.request.hashTree) {
+        if (this.request.hashTree[index].type == 'AuthManager') {
+          this.authConfig = this.request.hashTree[index];
+        }
+      }
+    },
     data() {
       return {
         options: [{name: "No Auth"}, {name: "Basic Auth"}],
         encryptOptions: [{id: false, name: "不加密"}],
         activeName: "verified",
         rule: {},
+        authConfig: {},
       }
     },
-
-    methods: {}
-
+    methods: {
+      change() {
+        if (this.authConfig.verification === "Basic Auth") {
+          let authManager = createComponent("AuthManager");
+          authManager.verification = "Basic Auth";
+          authManager.environment = this.request.useEnvironment;
+          this.request.hashTree.push(authManager);
+          this.authConfig = authManager;
+        } else {
+          for (let index in this.request.hashTree) {
+            if (this.request.hashTree[index].type === "AuthManager") {
+              this.request.hashTree.splice(index, 1);
+            }
+          }
+        }
+      }
+    }
   }
 </script>
 

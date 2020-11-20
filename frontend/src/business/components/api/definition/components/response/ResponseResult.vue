@@ -3,17 +3,17 @@
 
     <el-tabs v-model="activeName" v-show="isActive">
       <el-tab-pane :label="$t('api_test.definition.request.response_header')" name="headers" class="pane">
-        <pre>{{ response.headers }}</pre>
+        <pre>{{ response.responseResult.headers }}</pre>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.definition.request.response_body')" name="body" class="pane">
-        <ms-code-edit :mode="mode" :read-only="true" :modes="modes" :data.sync="response.body" ref="codeEdit"/>
+        <ms-code-edit :mode="mode" :read-only="true" :modes="modes" :data.sync="response.responseResult.body" ref="codeEdit"/>
       </el-tab-pane>
       <el-tab-pane label="Cookie" name="cookie" class="pane cookie">
         <pre>{{response.cookies}}</pre>
       </el-tab-pane>
 
       <el-tab-pane :label="$t('api_test.definition.request.console')" name="console" class="pane">
-        <pre>{{response.console}}</pre>
+        <pre>{{response.responseResult.console}}</pre>
       </el-tab-pane>
 
       <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane cookie">

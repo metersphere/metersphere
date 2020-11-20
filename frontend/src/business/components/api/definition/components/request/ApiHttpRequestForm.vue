@@ -6,31 +6,58 @@
         <el-tabs v-model="activeName" style="margin: 20px">
           <!-- 请求头-->
           <el-tab-pane :label="$t('api_test.request.headers')" name="headers">
-            <ms-api-key-value :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :suggestions="headerSuggestions"
-                              :items="headers"/>
+            <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.request.headers')" placement="top-start" slot="label">
+              <span>{{$t('api_test.request.headers')}}
+                <div class="el-step__icon is-text ms-api-col ms-header" v-if="headers.length>1">
+                  <div class="el-step__icon-inner">{{headers.length-1}}</div>
+                </div>
+              </span>
+            </el-tooltip>
+
+            <ms-api-key-value :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :suggestions="headerSuggestions" :items="headers"/>
           </el-tab-pane>
 
           <!--query 参数-->
-          <el-tab-pane :label="$t('api_test.definition.request.query_param')" name="parameters">
-            <ms-api-variable :is-read-only="isReadOnly" :parameters="request.arguments"/>
+          <el-tab-pane :label="$t('api_test.definition.request.query_param')" name="parameters" :disabled="request.rest.length>1">
+            <el-tooltip class="item-tabs" effect="dark" content="地址栏中跟在？后面的参数,如updateapi?id=112" placement="top-start" slot="label">
+              <span>{{$t('api_test.definition.request.query_param')}}
+                <div class="el-step__icon is-text ms-api-col ms-query" v-if="request.arguments.length>1">
+                  <div class="el-step__icon-inner">{{request.arguments.length-1}}</div>
+                </div></span>
+            </el-tooltip>
+
+            <ms-api-variable :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.arguments"/>
           </el-tab-pane>
 
           <!--REST 参数-->
-          <el-tab-pane :label="$t('api_test.definition.request.rest_param')" name="rest">
-            <ms-api-variable :is-read-only="isReadOnly" :parameters="request.rest"/>
+          <el-tab-pane :label="$t('api_test.definition.request.rest_param')" name="rest" :disabled="request.arguments.length>1">
+            <el-tooltip class="item-tabs" effect="dark" content="地址栏中被斜杠/分隔的参数，如updateapi/{id}" placement="top-start" slot="label">
+              <span>
+                {{$t('api_test.definition.request.rest_param')}}
+                <div class="el-step__icon is-text ms-api-col ms-query" v-if="request.rest.length>1">
+                  <div class="el-step__icon-inner">{{request.rest.length-1}}</div>
+                </div>
+              </span>
+            </el-tooltip>
+            <ms-api-variable :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.rest"/>
           </el-tab-pane>
 
           <!--请求体-->
           <el-tab-pane :label="$t('api_test.request.body')" name="body">
-            <ms-api-body :is-read-only="isReadOnly" :body="request.body"/>
+            <ms-api-body :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :headers="headers" :body="request.body"/>
           </el-tab-pane>
           <!-- 认证配置 -->
           <el-tab-pane :label="$t('api_test.definition.request.auth_config')" name="authConfig">
-            <ms-api-auth-config :is-read-only="isReadOnly" :auth-config="request.authConfig"/>
+            <el-tooltip class="item-tabs" effect="dark" content="请求需要进行权限校验" placement="top-start" slot="label">
+              <span>{{$t('api_test.definition.request.auth_config')}}</span>
+            </el-tooltip>
+
+            <ms-api-auth-config :is-read-only="isReadOnly" :request="request"/>
           </el-tab-pane>
 
         </el-tabs>
       </div>
+      <!--定制脚本-->
       <div v-for="row in request.hashTree" :key="row.id" v-loading="isReloadData">
         <ms-jsr233-processor v-if="row.label ==='JSR223 PreProcessor'" @remove="remove" :is-read-only="false" title="前置脚本" style-type="warning"
                              :jsr223-processor="row"/>
@@ -69,7 +96,6 @@
   import {createComponent} from "../jmeter/components";
   import MsApiAssertions from "../assertion/ApiAssertions";
   import MsApiExtract from "../extract/ApiExtract";
-  import HTTPSamplerProxy from "../jmeter/components/sampler/http-sampler";
 
   export default {
     name: "MsApiHttpRequestForm",
@@ -153,44 +179,26 @@
 </script>
 
 <style scoped>
-
-  .el-tag {
-    width: 100%;
-    height: 40px;
-    line-height: 40px;
-  }
-
-  .environment-display {
-    font-size: 14px;
-  }
-
-  .environment-name {
-    font-weight: bold;
-    font-style: italic;
-  }
-
-  .adjust-margin-bottom {
-    margin-bottom: 10px;
-  }
-
-  .environment-url-tip {
-    color: #F56C6C;
-  }
-
-  .follow-redirects-item {
-    margin-left: 30px;
-  }
-
-  .do-multipart-post {
-    margin-left: 10px;
-  }
-
   .ms-left-cell {
     margin-top: 30px;
   }
 
   .ms-left-buttion {
     margin: 6px 0px 8px 30px;
+  }
+
+  .ms-query {
+    background: #7F7F7F;
+    color: white;
+    height: 18px;
+    border-radius: 42%;
+  }
+
+  .ms-header {
+    background: #783887;
+    color: white;
+    height: 18px;
+    border-radius: 42%;
   }
 
 </style>

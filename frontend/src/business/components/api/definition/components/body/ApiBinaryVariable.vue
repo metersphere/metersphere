@@ -6,6 +6,10 @@
 
     <div class="kv-row" v-for="(item, index) in parameters" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
+        <el-col class="kv-checkbox" v-if="isShowEnable">
+          <input type="checkbox" v-model="item.enable" :disabled="isReadOnly"/>
+        </el-col>
+
         <el-col>
           <el-input v-model="item.description" size="small" maxlength="200"
                     :placeholder="$t('commons.description')" show-word-limit>
@@ -57,6 +61,10 @@
       isReadOnly: {
         type: Boolean,
         default: false
+      },
+      isShowEnable: {
+        type: Boolean,
+        default: true
       },
       suggestions: Array
     },
@@ -146,11 +154,11 @@
     created() {
       if (this.parameters.length === 0 || this.parameters[this.parameters.length - 1].name) {
         this.parameters.push(new KeyValue({
-          type: 'text',
+          type: 'file',
           enable: true,
           required: true,
           uuid: this.uuid(),
-          contentType: 'text/plain'
+          contentType: 'application/octet-stream'
         }));
       }
     }

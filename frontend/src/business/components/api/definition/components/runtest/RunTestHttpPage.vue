@@ -15,7 +15,7 @@
 
         <!-- 执行环境 -->
         <el-form-item prop="environmentId">
-          <el-select v-model="api.request.useEnvironment" size="small" class="ms-htt-width"
+          <el-select v-model="api.environmentId" size="small" class="ms-htt-width"
                      :placeholder="$t('api_test.definition.request.run_env')"
                      @change="environmentChange" clearable>
             <el-option v-for="(environment, index) in environments" :key="index"
@@ -150,6 +150,7 @@
           if (valid) {
             this.loading = true;
             this.api.request.name = this.api.id;
+            this.api.request.useEnvironment = this.api.environmentId;
             this.runData = [];
             this.runData.push(this.api.request);
             /*触发执行操作*/

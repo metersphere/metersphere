@@ -26,10 +26,12 @@
       </el-radio>
     </el-radio-group>
 
-    <ms-dropdown :default-command="body.format" v-if="body.type == 'Raw'" :commands="modes" @command="modeChange"/>
-
+    <!--
+        <ms-dropdown :default-command="body.format" v-if="body.type == 'Raw'" :commands="modes" @command="modeChange"/>
+    -->
     <ms-api-variable :is-read-only="isReadOnly"
                      :parameters="body.kvs"
+                     :isShowEnable="isShowEnable"
                      type="body"
                      v-if="body.type == 'KeyValue'"/>
 
@@ -38,21 +40,22 @@
                               type="body"
                               v-if="body.type == 'WWW_FORM'"/>
 
-    <div class="body-raw" v-if="body.type == 'JSON'">
+    <div class="ms-body" v-if="body.type == 'JSON'">
       <ms-json-code-edit @json-change="jsonChange" @onError="jsonError" :value="body.json" ref="jsonCodeEdit"/>
     </div>
 
-    <div class="body-raw" v-if="body.type == 'XML'">
+    <div class="ms-body" v-if="body.type == 'XML'">
       <ms-code-edit :read-only="isReadOnly" :data.sync="body.xml" :modes="modes" ref="codeEdit"/>
     </div>
 
 
-    <div class="body-raw" v-if="body.type == 'Raw'">
+    <div class="ms-body" v-if="body.type == 'Raw'">
       <ms-code-edit :read-only="isReadOnly" :data.sync="body.raw" :modes="modes" ref="codeEdit"/>
     </div>
 
     <ms-api-binary-variable :is-read-only="isReadOnly"
                             :parameters="body.binary"
+                            :isShowEnable="isShowEnable"
                             type="body"
                             v-if="body.type == 'BINARY'"/>
 
@@ -61,7 +64,7 @@
 
 <script>
   import MsApiKeyValue from "../ApiKeyValue";
-  import {Body, BODY_FORMAT, BODY_TYPE, Scenario} from "../../model/ApiTestModel";
+  import {Body, BODY_FORMAT, BODY_TYPE, KeyValue, Scenario} from "../../model/ApiTestModel";
   import MsCodeEdit from "../../../../common/components/MsCodeEdit";
   import MsJsonCodeEdit from "../../../../common/components/MsJsonCodeEdit";
 
@@ -83,9 +86,14 @@
     },
     props: {
       body: {},
+      headers: Array,
       isReadOnly: {
         type: Boolean,
         default: false
+      },
+      isShowEnable: {
+        type: Boolean,
+        default: true
       }
     },
     data() {
@@ -99,15 +107,45 @@
       modeChange(mode) {
         switch (this.body.type) {
           case "JSON":
-            return this.body.format = "json";
+            this.body.format = "json";
+            this.setContentType("application/json");
+            break;
           case "XML":
-            return this.body.format = "xml";
+            this.body.format = "xml";
+            this.setContentType("text/xml");
+            break;
           case "WWW_FORM":
-            return this.body.format = "form";
+            this.body.format = "form";
+            this.setContentType("application/x-www-form-urlencoded");
+            break;
           case "BINARY":
-            return this.body.format = "binary";
+            this.body.format = "binary";
+            this.setContentType("application/octet-stream");
+            break;
           default:
-            return this.body.format = mode;
+            this.removeContentType();
+            this.body.format = mode;
+            break;
+        }
+      },
+      setContentType(value) {
+        let isType = false;
+        this.headers.forEach(item => {
+          if (item.name === "Content-Type") {
+            item.value = value;
+            isType = true;
+          }
+        })
+        if (!isType) {
+          this.headers.unshift(new KeyValue({name: "Content-Type", value: value}));
+        }
+      },
+      removeContentType() {
+        for (let index in this.headers) {
+          if (this.headers[index].name === "Content-Type") {
+            this.headers.splice(index, 1);
+            return;
+          }
         }
       },
       jsonChange(json) {
@@ -139,7 +177,7 @@
     margin-top: 10px;
   }
 
-  .body-raw {
+  .ms-body {
     padding: 15px 0;
     height: 400px;
   }

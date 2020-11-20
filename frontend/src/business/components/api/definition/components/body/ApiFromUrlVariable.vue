@@ -10,13 +10,6 @@
         <el-col>
           <el-input v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="200"
                     @change="change" :placeholder="keyText" show-word-limit>
-            <template v-slot:prepend>
-              <el-select v-if="type === 'body'" :disabled="isReadOnly" class="kv-type" v-model="item.type"
-                         @change="typeChange(item)">
-                <el-option value="text"/>
-                <el-option value="file"/>
-              </el-select>
-            </template>
           </el-input>
 
           <el-autocomplete :disabled="isReadOnly" v-if="suggestions" v-model="item.name" size="small"
@@ -53,16 +46,6 @@
           <el-autocomplete :disabled="isReadOnly" v-if="suggestions" v-model="item.name" size="small"
                            :fetch-suggestions="querySearch" @change="change" :placeholder="keyText" show-word-limit/>
 
-        </el-col>
-
-        <el-col v-if="item.type === 'file'">
-          <ms-api-body-file-upload :parameter="item"/>
-        </el-col>
-
-        <el-col v-if="type === 'body'" class="kv-select">
-          <el-input :disabled="isReadOnly" v-model="item.contentType" size="small"
-                    @change="change" :placeholder="$t('api_test.request.content_type')" show-word-limit>
-          </el-input>
         </el-col>
 
         <el-col class="kv-delete">
@@ -145,7 +128,7 @@
             type: 'text',
             enable: true,
             uuid: this.uuid(),
-            contentType: 'text/plain'
+            contentType: 'application/x-www-from-urlencoded'
           }));
         }
         this.$emit('change', this.parameters);
@@ -183,16 +166,12 @@
         this.currentItem = item;
       },
       typeChange(item) {
-        if (item.type === 'file') {
-          item.contentType = 'application/octet-stream';
-        } else {
-          item.contentType = 'text/plain';
-        }
+        item.contentType = 'application/x-www-from-urlencoded';
       }
     },
     created() {
       if (this.parameters.length === 0 || this.parameters[this.parameters.length - 1].name) {
-        this.parameters.push(new KeyValue({type: 'text', enable: true, required:true,uuid: this.uuid(), contentType: 'text/plain'}));
+        this.parameters.push(new KeyValue({type: 'text', enable: true, required: true, uuid: this.uuid(), contentType: 'application/x-www-from-urlencoded'}));
       }
     }
   }

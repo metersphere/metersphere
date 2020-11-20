@@ -22,6 +22,7 @@ import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.service.TestPlanTestCaseService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.AssertionResult;
+import org.apache.jmeter.protocol.http.sampler.HTTPSampleResult;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
 import org.apache.jmeter.visualizers.backend.BackendListenerContext;
@@ -278,6 +279,10 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         requestResult.setTotalAssertions(result.getAssertionResults().length);
         requestResult.setSuccess(result.isSuccessful());
         requestResult.setError(result.getErrorCount());
+        if (result instanceof HTTPSampleResult) {
+            HTTPSampleResult res = (HTTPSampleResult) result;
+            requestResult.setCookies(res.getCookies());
+        }
         for (SampleResult subResult : result.getSubResults()) {
             requestResult.getSubRequestResults().add(getRequestResult(subResult));
         }
