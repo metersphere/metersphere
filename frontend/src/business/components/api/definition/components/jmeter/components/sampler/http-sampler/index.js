@@ -1,7 +1,6 @@
 import {boolProp, elementProp, stringProp} from "../../../props";
 import Sampler from "../sampler";
-import {BaseConfig, BODY_TYPE, KeyValue, Body} from "../../../../../model/ApiTestModel";
-
+import {Body} from "../../../../../model/ApiTestModel";
 const DEFAULT_OPTIONS = {
   options: {
     attributes: {
@@ -32,8 +31,7 @@ export default class HTTPSamplerProxy extends Sampler {
     this.embeddedUrlRe = this.initStringProp('HTTPSampler.embedded_url_re');
     this.connectTimeout = this.initStringProp('HTTPSampler.connect_timeout');
     this.responseTimeout = this.initStringProp('HTTPSampler.response_timeout');
-    // 初始化认证对象 和主体对象
-    this.authConfig = {};
+    // 初始化主体对象
     this.body = new Body();
 
     this.arguments = [];

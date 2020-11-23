@@ -8,7 +8,6 @@ import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager;
 import io.metersphere.api.dto.definition.request.prop.BoolProp;
 import io.metersphere.api.dto.definition.request.prop.StringProp;
-import io.metersphere.api.dto.scenario.AuthConfig;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
@@ -72,7 +71,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private List<KeyValue> rest;
 
     @JSONField(ordinal = 20)
-    private AuthConfig authConfig;
+    private String url;
 
     @JSONField(ordinal = 21)
     private BoolProp followRedirects;
@@ -83,8 +82,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     @JSONField(ordinal = 23)
     private String useEnvironment;
 
-    @JSONField(ordinal = 24)
-    private String url;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree) {
         HTTPSamplerProxy sampler = new HTTPSamplerProxy();

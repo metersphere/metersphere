@@ -98,7 +98,9 @@ export const ASSERTION_TYPE = {
   TEXT: "Text",
   REGEX: "Regex",
   JSON_PATH: "JSON",
-  DURATION: "Duration"
+  DURATION: "Duration",
+  JSR223: "JSR223",
+  XPATH2: "XPath2",
 }
 
 export const ASSERTION_REGEX_SUBJECT = {
@@ -434,7 +436,7 @@ export class HttpResponse extends Response {
     this.headers = [];
     this.body = new Body(options.body);
     this.statusCode = [];
-    this.sets({statusCode: KeyValue,headers: KeyValue}, options);
+    this.sets({statusCode: KeyValue, headers: KeyValue}, options);
   }
 }
 
@@ -713,7 +715,7 @@ export class Body extends BaseConfig {
     this.xml = undefined;
     this.json = undefined;
     this.set(options);
-    this.sets({kvs: KeyValue},{fromUrlencoded: KeyValue},{binary: KeyValue}, options);
+    this.sets({kvs: KeyValue}, {fromUrlencoded: KeyValue}, {binary: KeyValue}, options);
   }
 
   isValid() {
@@ -759,13 +761,16 @@ export class KeyValue extends BaseConfig {
 export class Assertions extends BaseConfig {
   constructor(options) {
     super();
+    this.type = "Assertions";
     this.text = [];
     this.regex = [];
     this.jsonPath = [];
+    this.jsr223 = [];
+    this.xpath2 = [];
     this.duration = undefined;
 
     this.set(options);
-    this.sets({text: Text, regex: Regex, jsonPath: JSONPath}, options);
+    this.sets({text: Text, regex: Regex, jsonPath: JSONPath, jsr223: AssertionJSR223, xpath2: XPath2}, options);
   }
 
   initOptions(options) {
@@ -782,6 +787,37 @@ export class AssertionType extends BaseConfig {
   }
 }
 
+export class AssertionJSR223 extends AssertionType {
+  constructor(options) {
+    super(ASSERTION_TYPE.JSR223);
+    this.variable = undefined;
+    this.operator = undefined;
+    this.value = undefined;
+    this.desc = undefined;
+
+    this.name = undefined;
+    this.script = undefined;
+    this.language = "beanshell";
+    this.set(options);
+  }
+
+  isValid() {
+    return !!this.script && !!this.language;
+  }
+}
+
+export class Text extends AssertionType {
+  constructor(options) {
+    super(ASSERTION_TYPE.TEXT);
+    this.subject = undefined;
+    this.condition = undefined;
+    this.value = undefined;
+
+    this.set(options);
+  }
+}
+
+
 export class BeanShellProcessor extends BaseConfig {
   constructor(options) {
     super();
@@ -796,17 +832,6 @@ export class JSR223Processor extends BaseConfig {
     super();
     this.script = undefined;
     this.language = "beanshell";
-    this.set(options);
-  }
-}
-
-export class Text extends AssertionType {
-  constructor(options) {
-    super(ASSERTION_TYPE.TEXT);
-    this.subject = undefined;
-    this.condition = undefined;
-    this.value = undefined;
-
     this.set(options);
   }
 }
@@ -845,6 +870,20 @@ export class JSONPath extends AssertionType {
     return !!this.expression;
   }
 }
+
+export class XPath2 extends AssertionType {
+  constructor(options) {
+    super(ASSERTION_TYPE.XPATH2);
+    this.expression = undefined;
+    this.description = undefined;
+    this.set(options);
+  }
+
+  isValid() {
+    return !!this.expression;
+  }
+}
+
 
 export class Duration extends AssertionType {
   constructor(options) {

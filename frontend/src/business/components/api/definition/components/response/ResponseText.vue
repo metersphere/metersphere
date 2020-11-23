@@ -5,13 +5,10 @@
       <el-collapse-transition>
         <el-tabs v-model="activeName" v-show="isActive" style="margin: 20px">
           <el-tab-pane :label="$t('api_test.definition.request.response_header')" name="headers" class="pane">
-            <ms-api-key-value :isShowEnable="false" :suggestions="headerSuggestions"
-                              :items="response.headers"/>
+            <ms-api-key-value :isShowEnable="false" :suggestions="headerSuggestions" :items="response.headers"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('api_test.definition.request.response_body')" name="body" class="pane">
-            <ms-api-body
-              :body="response.body"
-              :extract="response.extract"/>
+            <ms-api-body :isShowEnable="false" :body="response.body" :headers="response.headers"/>
           </el-tab-pane>
 
           <el-tab-pane :label="$t('api_test.definition.request.status_code')" name="status_code" class="pane">

@@ -25,10 +25,6 @@
         {{ $t('api_test.definition.request.body_binary') }}
       </el-radio>
     </el-radio-group>
-
-    <!--
-        <ms-dropdown :default-command="body.format" v-if="body.type == 'Raw'" :commands="modes" @command="modeChange"/>
-    -->
     <ms-api-variable :is-read-only="isReadOnly"
                      :parameters="body.kvs"
                      :isShowEnable="isShowEnable"
@@ -64,7 +60,7 @@
 
 <script>
   import MsApiKeyValue from "../ApiKeyValue";
-  import {Body, BODY_FORMAT, BODY_TYPE, KeyValue, Scenario} from "../../model/ApiTestModel";
+  import {BODY_FORMAT, BODY_TYPE, KeyValue} from "../../model/ApiTestModel";
   import MsCodeEdit from "../../../../common/components/MsCodeEdit";
   import MsJsonCodeEdit from "../../../../common/components/MsJsonCodeEdit";
 

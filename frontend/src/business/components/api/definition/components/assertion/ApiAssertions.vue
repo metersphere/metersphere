@@ -1,47 +1,56 @@
 <template>
-  <div class="assertion-add" style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 99% ;margin-top: 10px">
-    <el-button class="ms-left-buttion" size="small" type="danger" plain>断言规则</el-button>
-    <div class="assertion-add" style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 98%;">
+  <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin-top: 20px">
+    <div class="assertion-add">
       <el-row :gutter="10">
         <el-col :span="4">
           <el-select :disabled="isReadOnly" class="assertion-item" v-model="type"
                      :placeholder="$t('api_test.request.assertions.select_type')"
                      size="small">
-            <!--<el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT"/>-->
-            <!--<el-option :label="$t('api_test.request.assertions.regex')" :value="options.REGEX"/>-->
+            <el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT"/>
+            <el-option :label="$t('api_test.request.assertions.regex')" :value="options.REGEX"/>
             <el-option :label="'JSONPath'" :value="options.JSON_PATH"/>
+            <el-option :label="'XPath'" :value="options.XPATH2"/>
             <el-option :label="$t('api_test.request.assertions.response_time')" :value="options.DURATION"/>
+            <el-option :label="$t('api_test.request.assertions.jsr223')" :value="options.JSR223"/>
           </el-select>
         </el-col>
         <el-col :span="20">
-          <!--<ms-api-assertion-text :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.TEXT"-->
-                                 <!--:callback="after"/>-->
-          <!--<ms-api-assertion-regex :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.REGEX"-->
-                                  <!--:callback="after"/>-->
-          <ms-api-assertion-json-path :is-read-only="isReadOnly" :list="assertions"
+          <ms-api-assertion-text :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.TEXT"
+                                 :callback="after"/>
+          <ms-api-assertion-regex :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.REGEX"
+                                  :callback="after"/>
+          <ms-api-assertion-json-path :is-read-only="isReadOnly" :list="assertions.jsonPath"
                                       v-if="type === options.JSON_PATH" :callback="after"/>
-          <ms-api-assertion-duration :is-read-only="isReadOnly" v-model="time" :duration="assertions"
+          <ms-api-assertion-x-path2 :is-read-only="isReadOnly" :list="assertions.xpath2" v-if="type === options.XPATH2"
+                                    :callback="after"/>
+          <ms-api-assertion-duration :is-read-only="isReadOnly" v-model="time" :duration="assertions.duration"
                                      v-if="type === options.DURATION" :callback="after"/>
-          <el-button v-if="!type" :disabled="true" type="primary" size="small">Add</el-button>
+          <ms-api-assertion-jsr223 :is-read-only="isReadOnly" :list="assertions.jsr223" v-if="type === options.JSR223"
+                                   :callback="after"/>
+          <el-button v-if="!type" :disabled="true" type="primary" size="small">
+            {{ $t('api_test.request.assertions.add') }}
+          </el-button>
         </el-col>
       </el-row>
+
+
+      <!--<div v-if="!scenario">-->
+      <!--<el-row :gutter="10" class="json-path-suggest-button">-->
+      <!--<el-link size="small" type="primary" @click="suggestJsonOpen" style="margin-right: 20px">-->
+      <!--{{ $t('api_test.request.assertions.json_path_suggest') }}-->
+      <!--</el-link>-->
+      <!--<el-link size="small" type="danger" @click="clearJson">-->
+      <!--{{ $t('api_test.request.assertions.json_path_clear') }}-->
+      <!--</el-link>-->
+      <!--</el-row>-->
+      <!--</div>-->
     </div>
 
-    <div>
-      <el-row :gutter="10" class="json-path-suggest-button">
-        <el-link size="small" type="primary" @click="suggestJsonOpen">
-          {{$t('api_test.request.assertions.json_path_suggest')}}
-        </el-link>
-        <el-link size="small" type="danger" @click="clearJson" style="margin-left: 20px">
-          {{$t('api_test.request.assertions.json_path_clear')}}
-        </el-link>
-      </el-row>
-    </div>
 
-    <ms-api-jsonpath-suggest-list @addJsonpathSuggest="addJsonpathSuggest" :request="assertions"
-                                  ref="jsonpathSuggestList"/>
+    <!--<ms-api-jsonpath-suggest-list @addJsonpathSuggest="addJsonpathSuggest" :request="request"-->
+    <!--ref="jsonpathSuggestList"/>-->
 
-    <ms-api-assertions-edit :is-read-only="isReadOnly" :assertions="assertions"/>
+    <ms-api-assertions-edit :is-read-only="isReadOnly" :assertions="assertions" style="margin-bottom: 20px"/>
   </div>
 </template>
 
@@ -49,23 +58,28 @@
   import MsApiAssertionText from "./ApiAssertionText";
   import MsApiAssertionRegex from "./ApiAssertionRegex";
   import MsApiAssertionDuration from "./ApiAssertionDuration";
-  import {ASSERTION_TYPE, Assertions, HttpRequest, JSONPath} from "../../model/ApiTestModel";
+  import {ASSERTION_TYPE, Assertions, JSONPath, Scenario} from "../../model/ApiTestModel";
   import MsApiAssertionsEdit from "./ApiAssertionsEdit";
   import MsApiAssertionJsonPath from "./ApiAssertionJsonPath";
+  import MsApiAssertionJsr223 from "./ApiAssertionJsr223";
   import MsApiJsonpathSuggestList from "./ApiJsonpathSuggestList";
+  import MsApiAssertionXPath2 from "./ApiAssertionXPath2";
 
   export default {
     name: "MsApiAssertions",
 
     components: {
+      MsApiAssertionXPath2,
+      MsApiAssertionJsr223,
       MsApiJsonpathSuggestList,
       MsApiAssertionJsonPath,
       MsApiAssertionsEdit, MsApiAssertionDuration, MsApiAssertionRegex, MsApiAssertionText
     },
 
     props: {
-      assertions: {},
+      assertions: Assertions,
       request: {},
+      scenario: Scenario,
       isReadOnly: {
         type: Boolean,
         default: false
@@ -115,7 +129,6 @@
 
   .assertion-add {
     padding: 10px;
-    border: #DCDFE6 solid 1px;
     margin: 5px 0;
     border-radius: 5px;
   }
@@ -143,10 +156,8 @@
   }
 
   .json-path-suggest-button {
-    text-align: left;
-    margin-left: 20px;
     margin-top: 20px;
-    margin-bottom: 20px;
+    margin-left: 20px;
   }
 
 </style>

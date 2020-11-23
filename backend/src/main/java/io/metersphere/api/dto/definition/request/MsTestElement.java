@@ -4,6 +4,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.configurations.MsHeaderManager;
 import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
@@ -29,9 +30,10 @@ import java.util.List;
         @JsonSubTypes.Type(value = MsTestPlan.class, name = "TestPlan"),
         @JsonSubTypes.Type(value = MsThreadGroup.class, name = "ThreadGroup"),
         @JsonSubTypes.Type(value = MsAuthManager.class, name = "AuthManager"),
+        @JsonSubTypes.Type(value = MsAssertions.class, name = "Assertions"),
 
 })
-@JSONType(seeAlso = {MsHTTPSamplerProxy.class, MsHeaderManager.class, MsJSR223PostProcessor.class, MsJSR223PreProcessor.class,MsTestPlan.class,MsThreadGroup.class, AuthManager.class}, typeKey = "type")
+@JSONType(seeAlso = {MsHTTPSamplerProxy.class, MsHeaderManager.class, MsJSR223PostProcessor.class, MsJSR223PreProcessor.class, MsTestPlan.class, MsThreadGroup.class, AuthManager.class, MsAssertions.class}, typeKey = "type")
 @Data
 public abstract class MsTestElement {
     private String type;
