@@ -518,6 +518,13 @@ export default {
         response_body: "Response body",
         console: "Console",
         status_code: "Status code",
+        query_info: "Follow the address bar? The following parameters, such as updateapi?id=112",
+        rest_info: "Slash/separated parameters in the address bar, such as updateapi/{id}",
+        auth_config_info: "Request requires permission verification",
+        pre_script: "Prescript",
+        post_script: "Postscript",
+        extract_param: "Extract parameters",
+
       }
     },
     environment: {

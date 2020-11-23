@@ -64,7 +64,6 @@ export default {
   components: {MsDialogFooter, MsJsr233Processor},
   props: {
     assertion: {
-      type: AssertionJSR223,
       default: () => {
         return new AssertionJSR223();
       }

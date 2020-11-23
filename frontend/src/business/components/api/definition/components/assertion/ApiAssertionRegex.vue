@@ -37,7 +37,6 @@ export default {
 
   props: {
     regex: {
-      type: Regex,
       default: () => {
         return new Regex();
       }

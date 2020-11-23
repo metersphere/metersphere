@@ -54,7 +54,6 @@
 <script>
 import MsApiAssertionRegex from "./ApiAssertionRegex";
 import MsApiAssertionDuration from "./ApiAssertionDuration";
-import {Assertions} from "../../model/ApiTestModel";
 import MsApiAssertionJsonPath from "./ApiAssertionJsonPath";
 import MsApiAssertionJsr223 from "@/business/components/api/test/components/assertion/ApiAssertionJsr223";
 import MsApiAssertionXPath2 from "./ApiAssertionXPath2";
@@ -67,7 +66,7 @@ export default {
     MsApiAssertionJsr223, MsApiAssertionJsonPath, MsApiAssertionDuration, MsApiAssertionRegex},
 
   props: {
-    assertions: Assertions,
+    assertions: {},
     isReadOnly: {
       type: Boolean,
       default: false

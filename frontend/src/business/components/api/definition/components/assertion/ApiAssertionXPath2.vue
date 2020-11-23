@@ -23,7 +23,6 @@
 
     props: {
       xPath2: {
-        type: XPath2,
         default: () => {
           return new XPath2();
         }

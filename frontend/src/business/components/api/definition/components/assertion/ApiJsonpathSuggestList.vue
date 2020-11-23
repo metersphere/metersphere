@@ -50,64 +50,65 @@
 </template>
 
 <script>
-    import MsDialogFooter from "../../../../common/components/MsDialogFooter";
-    import {HttpRequest} from "../../model/ApiTestModel";
-    export default {
-      name: "MsApiJsonpathSuggestList",
-      components: {MsDialogFooter},
-      data() {
-        return {
-          result: {},
-          dialogFormVisible: false,
-          isCheckAll: false,
-          selectItems: new Set(),
-          jsonPathList: [],
-        };
+  import MsDialogFooter from "../../../../common/components/MsDialogFooter";
+  import {HttpRequest} from "../../model/ApiTestModel";
+
+  export default {
+    name: "MsApiJsonpathSuggestList",
+    components: {MsDialogFooter},
+    data() {
+      return {
+        result: {},
+        dialogFormVisible: false,
+        isCheckAll: false,
+        selectItems: new Set(),
+        jsonPathList: [],
+      };
+    },
+    props: {
+      request: HttpRequest,
+    },
+    methods: {
+      close() {
+        this.selectItems.clear();
       },
-      props: {
-        request: HttpRequest,
+      open() {
+        this.getJsonPaths();
       },
-      methods: {
-        close() {
-          this.selectItems.clear();
-        },
-        open() {
-          this.getJsonPaths();
-        },
-        getJsonPaths() {
-          if (this.request.debugRequestResult) {
-            let param = {
-              jsonPath: this.request.debugRequestResult.responseResult.body
-            };
-            this.result = this.$post("/api/getJsonPaths", param).then(response => {
-              this.jsonPathList = response.data.data;
-              this.dialogFormVisible = true;
-            }).catch(() => {
-              this.$warning(this.$t('api_test.request.assertions.json_path_err'));
-              this.dialogFormVisible = false;
-            });
-          }
-        },
-        handleSelectAll(selection) {
-          if (selection.length > 0) {
-            this.selectItems = new Set(this.jsonPathList);
-          } else {
-            this.selectItems = new Set();
-          }
-        },
-        handleSelectionChange(selection, row) {
-          if (this.selectItems.has(row)) {
-            this.selectItems.delete(row);
-          } else {
-            this.selectItems.add(row);
-          }
-        },
-        commit() {
-          this.$emit("addJsonpathSuggest", this.selectItems);
-          this.dialogFormVisible = false;
+      getJsonPaths() {
+        if (this.request.debugRequestResult) {
+          let param = {
+            jsonPath: this.request.debugRequestResult.responseResult.body
+          };
+          this.result = this.$post("/api/getJsonPaths", param).then(response => {
+            this.jsonPathList = response.data.data;
+            this.dialogFormVisible = true;
+          }).catch(() => {
+            this.$warning(this.$t('api_test.request.assertions.json_path_err'));
+            this.dialogFormVisible = false;
+          });
         }
+      },
+      handleSelectAll(selection) {
+        if (selection.length > 0) {
+          this.selectItems = new Set(this.jsonPathList);
+        } else {
+          this.selectItems = new Set();
+        }
+      },
+      handleSelectionChange(selection, row) {
+        if (this.selectItems.has(row)) {
+          this.selectItems.delete(row);
+        } else {
+          this.selectItems.add(row);
+        }
+      },
+      commit() {
+        this.$emit("addJsonpathSuggest", this.selectItems);
+        this.dialogFormVisible = false;
       }
     }
+  }
 </script>
 
 <style scoped>

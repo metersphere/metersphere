@@ -19,7 +19,7 @@
 
           <!--query 参数-->
           <el-tab-pane :label="$t('api_test.definition.request.query_param')" name="parameters" :disabled="request.rest.length>1">
-            <el-tooltip class="item-tabs" effect="dark" content="地址栏中跟在？后面的参数,如updateapi?id=112" placement="top-start" slot="label">
+            <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.query_info')" placement="top-start" slot="label">
               <span>{{$t('api_test.definition.request.query_param')}}
                 <div class="el-step__icon is-text ms-api-col ms-query" v-if="request.arguments.length>1">
                   <div class="el-step__icon-inner">{{request.arguments.length-1}}</div>
@@ -31,7 +31,7 @@
 
           <!--REST 参数-->
           <el-tab-pane :label="$t('api_test.definition.request.rest_param')" name="rest" :disabled="request.arguments.length>1">
-            <el-tooltip class="item-tabs" effect="dark" content="地址栏中被斜杠/分隔的参数，如updateapi/{id}" placement="top-start" slot="label">
+            <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.rest_info')" placement="top-start" slot="label">
               <span>
                 {{$t('api_test.definition.request.rest_param')}}
                 <div class="el-step__icon is-text ms-api-col ms-query" v-if="request.rest.length>1">
@@ -49,7 +49,7 @@
 
           <!-- 认证配置 -->
           <el-tab-pane :label="$t('api_test.definition.request.auth_config')" name="authConfig">
-            <el-tooltip class="item-tabs" effect="dark" content="请求需要进行权限校验" placement="top-start" slot="label">
+            <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.auth_config_info')" placement="top-start" slot="label">
               <span>{{$t('api_test.definition.request.auth_config')}}</span>
             </el-tooltip>
 
@@ -58,31 +58,30 @@
 
         </el-tabs>
       </div>
-      <!--定制脚本-->
+
       <div v-for="row in request.hashTree" :key="row.id" v-loading="isReloadData">
-        <ms-jsr233-processor v-if="row.label ==='JSR223 PreProcessor'" @remove="remove" :is-read-only="false" title="前置脚本" style-type="warning"
+        <!-- 前置脚本 -->
+        <ms-jsr233-processor v-if="row.label ==='JSR223 PreProcessor'" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.pre_script')" style-type="warning"
                              :jsr223-processor="row"/>
-
-        <ms-jsr233-processor v-if="row.label ==='JSR223 PostProcessor'" @remove="remove" :is-read-only="false" title="后置脚本" style-type="success"
+        <!--后置脚本-->
+        <ms-jsr233-processor v-if="row.label ==='JSR223 PostProcessor'" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.post_script')" style-type="success"
                              :jsr223-processor="row"/>
+        <!--断言规则-->
+        <ms-api-assertions v-if="row.type==='Assertions'" @remove="remove" :is-read-only="isReadOnly" :assertions="row"/>
+        <!--提取规则-->
+        <ms-api-extract :is-read-only="isReadOnly" @remove="remove" v-if="row.type==='Extract'" :extract="row"/>
 
-        <ms-api-assertions v-if="row.type==='Assertions'" :is-read-only="isReadOnly" :assertions="row"/>
       </div>
-
-
-      <!--
-            <ms-api-extract :is-read-only="isReadOnly" v-if="row.label==='JSONPostProcessor'" :extract="row"/>
-      -->
     </el-col>
-
+    <!--操作按钮-->
     <el-col :span="3" class="ms-left-cell">
-      <el-button class="ms-left-buttion" size="small" type="warning" @click="addPre" plain>+前置脚本</el-button>
+      <el-button class="ms-left-buttion" size="small" type="warning" @click="addPre" plain>+{{$t('api_test.definition.request.pre_script')}}</el-button>
       <br/>
-      <el-button class="ms-left-buttion" size="small" type="success" @click="addPost" plain>+后置脚本</el-button>
+      <el-button class="ms-left-buttion" size="small" type="success" @click="addPost" plain>+{{$t('api_test.definition.request.post_script')}}</el-button>
       <br/>
-      <el-button class="ms-left-buttion" size="small" type="danger" @click="addAssertions" plain>+断言规则</el-button>
+      <el-button class="ms-left-buttion" size="small" type="danger" @click="addAssertions" plain>+{{$t('api_test.definition.request.assertions_rule')}}</el-button>
       <br/>
-      <el-button class="ms-left-buttion" size="small" type="info" @click="addExtract" plain>+提取参数</el-button>
+      <el-button class="ms-left-buttion" size="small" type="info" @click="addExtract" plain>+{{$t('api_test.definition.request.extract_param')}}</el-button>
     </el-col>
   </el-row>
 </template>
@@ -99,7 +98,7 @@
   import {createComponent} from "../jmeter/components";
   import MsApiAssertions from "../assertion/ApiAssertions";
   import MsApiExtract from "../extract/ApiExtract";
-  import {Assertions} from "../../model/ApiTestModel";
+  import {Assertions, Extract} from "../../model/ApiTestModel";
 
   export default {
     name: "MsApiHttpRequestForm",
@@ -143,16 +142,7 @@
         },
         headerSuggestions: REQUEST_HEADERS,
         isReloadData: false,
-        assertions: [],
       }
-    },
-    created() {
-      this.request.hashTree.forEach(row => {
-        if (row.type === "Assertions") {
-          row = new Assertions({text: row.text, regex: row.regex, jsonPath: row.jsonPath, jsr223: row.jsr223, xpath2: row.xpath2, duration: row.duration});
-        }
-      })
-      console.log(this.assertions)
     },
     methods: {
       addPre() {
@@ -166,13 +156,12 @@
         this.reload();
       },
       addAssertions() {
-        //let jsonPathAssertion = createComponent("JSONPathAssertion");
         let assertions = new Assertions();
         this.request.hashTree.push(assertions);
         this.reload();
       },
       addExtract() {
-        let jsonPostProcessor = createComponent("JSONPostProcessor");
+        let jsonPostProcessor = new Extract();
         this.request.hashTree.push(jsonPostProcessor);
         this.reload();
       },

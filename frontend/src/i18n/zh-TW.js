@@ -519,6 +519,12 @@ export default {
         response_body: "響應體",
         console: "控制臺",
         status_code: "狀態碼",
+        query_info: "地址欄中跟在？後面的參數,如updateapi?id=112",
+        rest_info: "地址欄中被斜杠/分隔的參數，如updateapi/{id}",
+        auth_config_info: "請求需要進行權限校驗",
+        pre_script: "前置腳本",
+        post_script: "後置腳本",
+        extract_param: "提取參數",
 
       }
     },

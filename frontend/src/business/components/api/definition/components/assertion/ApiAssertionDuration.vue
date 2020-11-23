@@ -17,14 +17,12 @@
 
 <script>
 
-  import {Duration} from "../../model/ApiTestModel";
-
   export default {
     name: "MsApiAssertionDuration",
 
     props: {
-      duration: Duration,
       value: [Number, String],
+      duration:{},
       edit: Boolean,
       callback: Function,
       isReadOnly: {
@@ -42,6 +40,7 @@
       },
       remove() {
         this.duration.value = undefined;
+
       },
       change(value) {
         if (this.validate()) {

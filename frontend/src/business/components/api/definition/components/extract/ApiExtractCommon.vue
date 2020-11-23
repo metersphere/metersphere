@@ -43,7 +43,6 @@
         }
       },
       common: {
-        type: ExtractCommon,
         default: () => {
           return new ExtractCommon();
         }

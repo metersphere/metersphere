@@ -519,7 +519,12 @@ export default {
         response_body: "响应体",
         console: "控制台",
         status_code: "状态码",
-
+        query_info: "地址栏中跟在？后面的参数,如updateapi?id=112",
+        rest_info: "地址栏中被斜杠/分隔的参数，如updateapi/{id}",
+        auth_config_info: "请求需要进行权限校验",
+        pre_script: "前置脚本",
+        post_script: "后置脚本",
+        extract_param:"提取参数",
       }
     },
     environment: {

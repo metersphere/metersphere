@@ -1,6 +1,8 @@
 <template>
   <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin-top: 20px">
-    <el-button class="ms-left-buttion" size="small" type="info" plain>提取参数</el-button>
+    <el-button class="ms-left-buttion" size="small" type="info" plain>{{$t('api_test.definition.request.extract_param')}}</el-button>
+    <el-button size="small" style="float: right;margin-top: 0px" @click="remove">移除</el-button>
+
     <div style="margin: 20px">
       <div class="extract-description">
         {{$t('api_test.request.extract.description')}}
@@ -59,7 +61,11 @@
     methods: {
       after() {
         this.type = "";
-      }
+      },
+      remove() {
+        this.$emit('remove', this.extract);
+      },
+
     },
 
     computed: {

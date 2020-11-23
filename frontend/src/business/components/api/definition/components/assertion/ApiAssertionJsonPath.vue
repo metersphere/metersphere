@@ -27,7 +27,6 @@
 
     props: {
       jsonPath: {
-        type: JSONPath,
         default: () => {
           return new JSONPath();
         }

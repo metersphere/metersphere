@@ -1,12 +1,18 @@
 <template>
-  <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin-top: 20px">
+  <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin-top: 20px" v-loading="loading">
+    <div>
+      <el-button class="ms-left-buttion" size="small" type="danger" plain>{{$t('api_test.definition.request.assertions_rule')}}</el-button>
+      <el-button size="small" style="float: right;margin-top: 0px" @click="remove">移除</el-button>
+    </div>
     <div class="assertion-add">
       <el-row :gutter="10">
         <el-col :span="4">
           <el-select :disabled="isReadOnly" class="assertion-item" v-model="type"
                      :placeholder="$t('api_test.request.assertions.select_type')"
                      size="small">
-            <el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT"/>
+            <!--
+                        <el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT"/>
+            -->
             <el-option :label="$t('api_test.request.assertions.regex')" :value="options.REGEX"/>
             <el-option :label="'JSONPath'" :value="options.JSON_PATH"/>
             <el-option :label="'XPath'" :value="options.XPATH2"/>
@@ -15,8 +21,10 @@
           </el-select>
         </el-col>
         <el-col :span="20">
-          <ms-api-assertion-text :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.TEXT"
-                                 :callback="after"/>
+          <!--
+                    <ms-api-assertion-text :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.TEXT"
+                                           :callback="after"/>
+          -->
           <ms-api-assertion-regex :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.REGEX"
                                   :callback="after"/>
           <ms-api-assertion-json-path :is-read-only="isReadOnly" :list="assertions.jsonPath"
@@ -77,7 +85,7 @@
     },
 
     props: {
-      assertions: Assertions,
+      assertions: {},
       request: {},
       scenario: Scenario,
       isReadOnly: {
@@ -91,12 +99,14 @@
         options: ASSERTION_TYPE,
         time: "",
         type: "",
+        loading: false,
       }
     },
 
     methods: {
       after() {
         this.type = "";
+        this.reload();
       },
       suggestJsonOpen() {
         if (!this.request.debugRequestResult) {
@@ -104,6 +114,15 @@
           return;
         }
         this.$refs.jsonpathSuggestList.open();
+      },
+      reload() {
+        this.loading = true
+        this.$nextTick(() => {
+          this.loading = false
+        })
+      },
+      remove(){
+        this.$emit('remove', this.assertions);
       },
       addJsonpathSuggest(jsonPathList) {
         jsonPathList.forEach(jsonPath => {

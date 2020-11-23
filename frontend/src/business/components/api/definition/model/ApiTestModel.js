@@ -901,6 +901,7 @@ export class Duration extends AssertionType {
 export class Extract extends BaseConfig {
   constructor(options) {
     super();
+    this.type = "Extract";
     this.regex = [];
     this.json = [];
     this.xpath = [];

@@ -43,7 +43,7 @@
     components: {MsApiExtractCommon},
 
     props: {
-      extract: Extract,
+      extract: {},
       isReadOnly: {
         type: Boolean,
         default: false

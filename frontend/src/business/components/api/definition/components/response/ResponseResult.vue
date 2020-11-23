@@ -16,6 +16,15 @@
         <pre>{{response.responseResult.console}}</pre>
       </el-tab-pane>
 
+      <el-tab-pane :label="$t('api_report.assertions')" name="assertions" class="pane assertions">
+        <ms-assertion-results :assertions="response.responseResult.assertions"/>
+      </el-tab-pane>
+
+      <el-tab-pane :label="$t('api_test.request.extract.label')" name="label" class="pane">
+        <pre>{{response.responseResult.vars}}</pre>
+      </el-tab-pane>
+
+
       <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane cookie">
         <template v-slot:label>
           <ms-dropdown :commands="modes" :default-command="mode" @command="modeChange"/>
