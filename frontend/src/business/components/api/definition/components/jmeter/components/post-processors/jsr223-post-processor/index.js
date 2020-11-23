@@ -15,11 +15,11 @@ export default class JSR223PostProcessor extends PostProcessor {
   constructor(options = DEFAULT_OPTIONS) {
     super(options);
     this.type = "JSR223PostProcessor";
-    this.scriptLanguage = this.initStringProp("scriptLanguage", "java")
-    this.parameters = this.initStringProp("parameters")
-    this.filename = this.initStringProp("filename")
-    this.cacheKey = this.initStringProp("cacheKey", true)
-    this.script = this.initStringProp("script")
+    this.scriptLanguage = "java";
+    this.parameters = [];
+    this.filename = undefined;
+    this.cacheKey = true;
+    this.script = undefined;
   }
 }
 

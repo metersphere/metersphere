@@ -111,7 +111,7 @@
           if (valid) {
             this.loading = true;
             this.request.url = this.debugForm.url;
-            this.request.method.value = this.debugForm.method;
+            this.request.method = this.debugForm.method;
             this.request.hashTree[0].headers = this.headers;
             this.request.name = getUUID().substring(0, 8);
             this.runData = [];

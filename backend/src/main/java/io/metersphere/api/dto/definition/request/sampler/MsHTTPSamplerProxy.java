@@ -6,8 +6,6 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager;
-import io.metersphere.api.dto.definition.request.prop.BoolProp;
-import io.metersphere.api.dto.definition.request.prop.StringProp;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
@@ -41,25 +39,25 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private String type = "HTTPSamplerProxy";
 
     @JSONField(ordinal = 10)
-    private StringProp protocol;
+    private String protocol;
 
     @JSONField(ordinal = 11)
-    private StringProp domain;
+    private String domain;
 
     @JSONField(ordinal = 12)
-    private StringProp port;
+    private String port;
 
     @JSONField(ordinal = 13)
-    private StringProp method;
+    private String method;
 
     @JSONField(ordinal = 14)
-    private StringProp path;
+    private String path;
 
     @JSONField(ordinal = 15)
-    private StringProp connectTimeout;
+    private String connectTimeout;
     @JSONField(ordinal = 16)
 
-    private StringProp responseTimeout;
+    private String responseTimeout;
     @JSONField(ordinal = 17)
 
     private List<KeyValue> arguments;
@@ -74,10 +72,10 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private String url;
 
     @JSONField(ordinal = 21)
-    private BoolProp followRedirects;
+    private boolean followRedirects;
 
     @JSONField(ordinal = 22)
-    private BoolProp doMultipartPost;
+    private boolean doMultipartPost;
 
     @JSONField(ordinal = 23)
     private String useEnvironment;
@@ -89,13 +87,13 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         sampler.setName(this.getName());
         sampler.setProperty(TestElement.TEST_CLASS, HTTPSamplerProxy.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HttpTestSampleGui"));
-        sampler.setMethod(this.getMethod().getValue());
+        sampler.setMethod(this.getMethod());
         sampler.setContentEncoding("UTF-8");
-        sampler.setConnectTimeout(this.getConnectTimeout().getValue() == null ? "6000" : this.getConnectTimeout().getValue());
-        sampler.setResponseTimeout(this.getResponseTimeout().getValue() == null ? "6000" : this.getResponseTimeout().getValue());
-        sampler.setFollowRedirects(this.getFollowRedirects() != null ? this.getFollowRedirects().isValue() : true);
+        sampler.setConnectTimeout(this.getConnectTimeout() == null ? "6000" : this.getConnectTimeout());
+        sampler.setResponseTimeout(this.getResponseTimeout() == null ? "6000" : this.getResponseTimeout());
+        sampler.setFollowRedirects(this.isFollowRedirects());
         sampler.setUseKeepAlive(true);
-        sampler.setDoMultipart(this.getDoMultipartPost() != null ? this.getDoMultipartPost().isValue() : true);
+        sampler.setDoMultipart(this.isDoMultipartPost());
         EnvironmentConfig config = null;
         if (useEnvironment != null) {
             ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
@@ -111,8 +109,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 url = config.getHttpConfig().getProtocol() + "://" + config.getHttpConfig().getSocket();
                 URL urlObject = new URL(url);
                 String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
-                if (StringUtils.isNotBlank(this.getPath().getValue())) {
-                    envPath += this.getPath().getValue();
+                if (StringUtils.isNotBlank(this.getPath())) {
+                    envPath += this.getPath();
                 }
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
                     sampler.setPath(getRestParameters(URLDecoder.decode(envPath, "UTF-8")));
@@ -141,7 +139,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             sampler.setArguments(httpArguments(this.getArguments()));
         }
         // 请求体
-        if (!StringUtils.equals(this.getMethod().getValue(), "GET")) {
+        if (!StringUtils.equals(this.getMethod(), "GET")) {
             List<KeyValue> body = new ArrayList<>();
             if (this.getBody().isKV() || this.getBody().isBinary()) {
                 body = this.getBody().getKvs().stream().filter(KeyValue::isValid).collect(Collectors.toList());

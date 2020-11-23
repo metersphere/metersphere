@@ -3,7 +3,6 @@ package io.metersphere.api.dto.definition.request.processors.post;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.MsTestElement;
-import io.metersphere.api.dto.definition.request.prop.StringProp;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -21,10 +20,10 @@ public class MsJSR223PostProcessor extends MsTestElement {
     private String type = "JSR223PostProcessor";
 
     @JSONField(ordinal = 10)
-    private StringProp script;
+    private String script;
 
     @JSONField(ordinal = 11)
-    private StringProp scriptLanguage;
+    private String scriptLanguage;
 
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree) {
@@ -34,8 +33,8 @@ public class MsJSR223PostProcessor extends MsTestElement {
         processor.setProperty(TestElement.TEST_CLASS, JSR223PostProcessor.class.getName());
         processor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         processor.setProperty("cacheKey", "true");
-        processor.setProperty("scriptLanguage", this.getScriptLanguage().getValue());
-        processor.setProperty("script", this.getScript().getValue());
+        processor.setProperty("scriptLanguage", this.getScriptLanguage());
+        processor.setProperty("script", this.getScript());
 
         final HashTree jsr223PostTree = tree.add(processor);
         if (CollectionUtils.isNotEmpty(hashTree)) {

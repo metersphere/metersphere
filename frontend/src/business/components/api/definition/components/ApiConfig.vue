@@ -56,7 +56,7 @@
       }
       if (this.currentApi != null && this.currentApi.id != null) {
         this.reqUrl = "/api/definition/update";
-        this.currentApi.url = this.request.path.value;
+        this.currentApi.url = this.request.path;
       } else {
         this.reqUrl = "/api/definition/create";
         this.currentApi.id = getUUID().substring(0, 8);

@@ -22,9 +22,9 @@
         </el-row>
         <el-row>
           <el-col :span="20" class="script-content">
-            <ms-code-edit v-if="isCodeEditAlive" :mode="jsr223ProcessorData.scriptLanguage.value"
+            <ms-code-edit v-if="isCodeEditAlive" :mode="jsr223ProcessorData.scriptLanguage"
                           :read-only="isReadOnly"
-                          :data.sync="jsr223ProcessorData.script.value" theme="eclipse" :modes="['java','python']"
+                          :data.sync="jsr223ProcessorData.script" theme="eclipse" :modes="['java','python']"
                           ref="codeEdit"/>
           </el-col>
           <el-col :span="4" class="script-index">

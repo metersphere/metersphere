@@ -246,7 +246,7 @@
       handleTestCase(testCase) {
         this.selectApi = testCase;
         let request = JSON.parse(testCase.request);
-        this.selectApi.url = request.path.value;
+        this.selectApi.url = request.path;
         this.isHide = false;
       },
       handleDelete(testCase) {

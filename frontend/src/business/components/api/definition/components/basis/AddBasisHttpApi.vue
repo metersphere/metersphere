@@ -100,7 +100,7 @@
             this.httpForm.protocol = this.currentProtocol;
             let header = createComponent("HeaderManager");
             let request = createComponent("HTTPSamplerProxy");
-            request.path.value = this.httpForm.url;
+            request.path = this.httpForm.url;
             request.hashTree = [header];
             this.httpForm.request = request;
             if (this.currentModule != null) {

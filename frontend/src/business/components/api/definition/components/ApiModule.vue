@@ -156,6 +156,7 @@
       getApiGroupData() {
         this.getProjects();
         this.getApiModuleTree();
+        this.changeProtocol();
       },
       findTreeByNodeId(rootNode, nodeId) {
         if (rootNode.id == nodeId) {

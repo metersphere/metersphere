@@ -8,7 +8,7 @@
         <p class="tip">{{$t('test_track.plan_view.base_info')}} </p>
         <!-- 请求方法 -->
         <el-form-item :label="$t('api_report.request')" prop="method">
-          <el-select v-model="api.request.method.value" style="width: 100px" size="small">
+          <el-select v-model="api.request.method" style="width: 100px" size="small">
             <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
           </el-select>
         </el-form-item>
@@ -36,7 +36,7 @@
 
         <!-- 请求地址 -->
         <el-form-item prop="url">
-          <el-input :placeholder="$t('api_test.definition.request.path_info')" v-model="api.request.path.value" class="ms-htt-width"
+          <el-input :placeholder="$t('api_test.definition.request.path_info')" v-model="api.request.path" class="ms-htt-width"
                     size="small" :disabled="false"/>
         </el-form-item>
 
