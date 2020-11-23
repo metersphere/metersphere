@@ -389,7 +389,7 @@ export default {
       this.saveReport(reportId);
     },
     saveReport(reportId) {
-      // this.$post('/test/plan/case/edit', {id: this.testCase.id, reportId: reportId});
+
     },
     getComments(testCase) {
       let id = '';

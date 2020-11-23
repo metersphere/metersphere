@@ -112,6 +112,7 @@ public class MailService {
             emails.add(u.getEmail());
         });
         users = emails.toArray(new String[0]);
+        LogUtil.info("收件人地址"+users);
         helper.setText(getContent(Template, context), true);
         helper.setTo(users);
         try {
@@ -195,7 +196,8 @@ public class MailService {
 
     public void sendTestPlanStartNotice(MessageDetail messageDetail, List<String> userIds, AddTestPlanRequest testPlan, String eventType) {
         Map<String, String> context = getTestPlanContext(testPlan);
-        context.put("creator", testPlan.getCreator());
+        User user = userMapper.selectByPrimaryKey(testPlan.getCreator());
+        context.put("creator", user.getName());
         try {
             String endTemplate = IOUtils.toString(this.getClass().getResource("/mail/TestPlanStart.html"), StandardCharsets.UTF_8);
             sendTestPlanNotice(addresseeIdList(messageDetail, userIds, eventType), context, endTemplate);
@@ -205,8 +207,9 @@ public class MailService {
     }
 
     public void sendTestPlanEndNotice(MessageDetail messageDetail, List<String> userIds, AddTestPlanRequest testPlan, String eventType) {
+        User user = userMapper.selectByPrimaryKey(testPlan.getCreator());
         Map<String, String> context = getTestPlanContext(testPlan);
-        context.put("creator", userIds.toString());
+        context.put("creator", user.getName());
         try {
             String endTemplate = IOUtils.toString(this.getClass().getResource("/mail/TestPlanEnd.html"), StandardCharsets.UTF_8);
             sendTestPlanNotice(addresseeIdList(messageDetail, userIds, eventType), context, endTemplate);
@@ -216,8 +219,9 @@ public class MailService {
     }
 
     public void sendTestPlanDeleteNotice(MessageDetail messageDetail, List<String> userIds, AddTestPlanRequest testPlan, String eventType) {
+        User user = userMapper.selectByPrimaryKey(testPlan.getCreator());
         Map<String, String> context = getTestPlanContext(testPlan);
-        context.put("creator", userIds.toString());
+        context.put("creator", user.getName());
         try {
             String endTemplate = IOUtils.toString(this.getClass().getResource("/mail/TestPlanDelete.html"), StandardCharsets.UTF_8);
             sendTestPlanNotice(addresseeIdList(messageDetail, userIds, eventType), context, endTemplate);

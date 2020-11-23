@@ -151,26 +151,26 @@ export default {
       data.isReadOnly = true;
       if (data.type === 'EMAIL') {
         data.isReadOnly = !data.isReadOnly
-        data.webhook = ""
+        data.webhook = '';
       }
     },
     handleEditTask(index,data) {
       data.isSet = true
       if (data.type === 'EMAIL') {
-        data.isReadOnly = false
-        data.webhook = ""
+        data.isReadOnly = false;
+        data.webhook = '';
       } else {
-        data.isReadOnly = true
+        data.isReadOnly = true;
       }
     },
     handleAddTaskModel(type) {
       let Task = {};
       Task.event = [];
       Task.userIds = [];
-      Task.type = "";
-      Task.webhook = "";
+      Task.type = '';
+      Task.webhook = '';
       Task.isSet = true;
-      Task.identification = "";
+      Task.identification = '';
       if (type === 'jenkinsTask') {
         Task.taskType = 'JENKINS_TASK'
         this.form.jenkinsTask.push(Task)

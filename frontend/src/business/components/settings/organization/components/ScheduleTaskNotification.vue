@@ -147,8 +147,8 @@ export default {
     handleEdit(index, data) {
       data.isReadOnly = true;
       if (data.type === 'EMAIL') {
-        data.isReadOnly = !data.isReadOnly
-        data.webhook = ""
+        data.isReadOnly = !data.isReadOnly;
+        data.webhook = ''
       }
     },
     handleAddTaskModel(type) {
@@ -166,13 +166,13 @@ export default {
       }
     },
     handleEditTask(index,data) {
-      data.isSet = true
-      data.testId = this.testId
+      data.isSet = true;
+      data.testId = this.testId;
       if (data.type === 'EMAIL') {
-        data.isReadOnly = false
-        data.webhook = ""
+        data.isReadOnly = false;
+        data.webhook = ''
       } else {
-        data.isReadOnly = true
+        data.isReadOnly = true;
       }
     },
     handleAddTask(index, data) {
@@ -192,9 +192,9 @@ export default {
       }
     },
     addTask(data) {
-      let list = []
-      data.isSet = false
-      list.push(data)
+      let list = [];
+      data.isSet = false;
+      list.push(data);
       let param = {};
       param.messageDetail = list
       this.result = this.$post("/notice/save/message/task", param, () => {

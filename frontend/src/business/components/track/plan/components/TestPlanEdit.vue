@@ -58,11 +58,8 @@
             <el-form-item :label="$t('test_track.plan.plan_stage')" :label-width="formLabelWidth" prop="stage">
               <el-select v-model="form.stage" clearable :placeholder="$t('test_track.plan.input_plan_stage')">
                 <el-option :label="$t('test_track.plan.smoke_test')" value="smoke"></el-option>
-                <!--<el-option :label="$t('test_track.plan.functional_test')" value="functional"></el-option>-->
-                <!--<el-option :label="$t('test_track.plan.integration_testing')" value="integration"></el-option>-->
                 <el-option :label="$t('test_track.plan.system_test')" value="system"></el-option>
                 <el-option :label="$t('test_track.plan.regression_test')" value="regression"></el-option>
-                <!--<el-option :label="$t('test_track.plan.version_validation')" value="version"></el-option>-->
               </el-select>
             </el-form-item>
           </el-col>

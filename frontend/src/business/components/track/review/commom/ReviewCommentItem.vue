@@ -129,6 +129,10 @@ export default {
 
 pre {
   margin: 0 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  width: 100%;
+  line-height: 20px;
 }
 
 .comment-delete {
