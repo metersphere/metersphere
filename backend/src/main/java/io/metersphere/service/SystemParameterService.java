@@ -7,6 +7,7 @@ import io.metersphere.base.mapper.ext.ExtSystemParameterMapper;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.EncryptUtils;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.ldap.domain.LdapInfo;
@@ -99,6 +100,7 @@ public class SystemParameterService {
         try {
             javaMailSender.testConnection();
         } catch (MessagingException e) {
+            LogUtil.error(e);
             MSException.throwException(Translator.get("connection_failed"));
         }
     }
