@@ -293,6 +293,8 @@
               this.projectId = data[0].id;
               this.projectName = data[0].name;
               this.search();
+              // 获取项目时刷新该项目模块
+              this.getProjectNode(this.projectId)
             }
           })
         }
