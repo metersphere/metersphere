@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading="loading">
     <div class="assertion-item-editing regex" v-if="assertions.regex.length > 0">
       <div>
         {{ $t("api_test.request.assertions.regex") }}
@@ -26,7 +26,7 @@
       </div>
       <div class="regex-item" v-for="(xPath, index) in assertions.xpath2" :key="index">
         <ms-api-assertion-x-path2 :is-read-only="isReadOnly" :list="assertions.xpath2"
-                                 :x-path2="xPath" :edit="true" :index="index"/>
+                                  :x-path2="xPath" :edit="true" :index="index"/>
       </div>
     </div>
 
@@ -52,65 +52,84 @@
 </template>
 
 <script>
-import MsApiAssertionRegex from "./ApiAssertionRegex";
-import MsApiAssertionDuration from "./ApiAssertionDuration";
-import MsApiAssertionJsonPath from "./ApiAssertionJsonPath";
-import MsApiAssertionJsr223 from "@/business/components/api/test/components/assertion/ApiAssertionJsr223";
-import MsApiAssertionXPath2 from "./ApiAssertionXPath2";
+  import MsApiAssertionRegex from "./ApiAssertionRegex";
+  import MsApiAssertionDuration from "./ApiAssertionDuration";
+  import MsApiAssertionJsonPath from "./ApiAssertionJsonPath";
+  import MsApiAssertionJsr223 from "@/business/components/api/test/components/assertion/ApiAssertionJsr223";
+  import MsApiAssertionXPath2 from "./ApiAssertionXPath2";
 
-export default {
-  name: "MsApiAssertionsEdit",
+  export default {
+    name: "MsApiAssertionsEdit",
 
-  components: {
-    MsApiAssertionXPath2,
-    MsApiAssertionJsr223, MsApiAssertionJsonPath, MsApiAssertionDuration, MsApiAssertionRegex},
+    components: {
+      MsApiAssertionXPath2,
+      MsApiAssertionJsr223, MsApiAssertionJsonPath, MsApiAssertionDuration, MsApiAssertionRegex
+    },
 
-  props: {
-    assertions: {},
-    isReadOnly: {
-      type: Boolean,
-      default: false
-    }
-  },
-
-  computed: {
-    isShow() {
-      let rt = this.assertions.duration;
-      return rt.value !== undefined;
+    props: {
+      assertions: {},
+      reloadData: String,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      }
+    },
+    data() {
+      return {
+        loading: false,
+      }
+    },
+    computed: {
+      isShow() {
+        let rt = this.assertions.duration;
+        return rt.value !== undefined;
+      }
+    },
+    watch: {
+      reloadData() {
+        this.reload();
+      }
+    },
+    methods: {
+      reload() {
+        this.loading = true
+        this.$nextTick(() => {
+          this.loading = false
+        })
+      },
     }
   }
-}
 </script>
 
 <style scoped>
-.assertion-item-editing {
-  padding-left: 10px;
-  margin-top: 10px;
-}
+  .assertion-item-editing {
+    padding-left: 10px;
+    margin-top: 10px;
+  }
 
-.assertion-item-editing.regex {
-  border-left: 2px solid #7B0274;
-}
+  .assertion-item-editing.regex {
+    border-left: 2px solid #7B0274;
+  }
 
-.assertion-item-editing.json_path {
-  border-left: 2px solid #44B3D2;
-}
+  .assertion-item-editing.json_path {
+    border-left: 2px solid #44B3D2;
+  }
 
-.assertion-item-editing.response-time {
-  border-left: 2px solid #DD0240;
-}
+  .assertion-item-editing.response-time {
+    border-left: 2px solid #DD0240;
+  }
 
-.assertion-item-editing.jsr223 {
-  border-left: 2px solid #1FDD02;
-}
+  .assertion-item-editing.jsr223 {
+    border-left: 2px solid #1FDD02;
+  }
 
-.assertion-item-editing.x_path {
-  border-left: 2px solid #fca130;
-}
+  .assertion-item-editing.x_path {
+    border-left: 2px solid #fca130;
+  }
 
-.regex-item {
-  margin-top: 10px;
-}
+  .regex-item {
+    margin-top: 10px;
+  }
 
 
 </style>

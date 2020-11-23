@@ -25,7 +25,7 @@
         </el-row>
       </div>
 
-      <ms-api-extract-edit :is-read-only="isReadOnly" :extract="extract"/>
+      <ms-api-extract-edit :is-read-only="isReadOnly" :reloadData="reloadData" :extract="extract"/>
     </div>
   </div>
 </template>
@@ -34,6 +34,7 @@
   import {EXTRACT_TYPE} from "../../model/ApiTestModel";
   import MsApiExtractEdit from "./ApiExtractEdit";
   import MsApiExtractCommon from "./ApiExtractCommon";
+  import {getUUID} from "@/common/js/utils";
 
   export default {
     name: "MsApiExtract",
@@ -55,12 +56,14 @@
       return {
         options: EXTRACT_TYPE,
         type: "",
+        reloadData: "",
       }
     },
 
     methods: {
       after() {
         this.type = "";
+        this.reloadData = getUUID().substring(0, 8);
       },
       remove() {
         this.$emit('remove', this.extract);

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading="loading">
     <div class="extract-item-editing regex" v-if="extract.regex.length > 0">
       <div>
         {{$t("api_test.request.extract.regex")}}
@@ -47,12 +47,27 @@
       isReadOnly: {
         type: Boolean,
         default: false
+      },
+      reloadData: String,
+    },
+    watch: {
+      reloadData() {
+        this.reload();
       }
     },
 
+    methods: {
+      reload() {
+        this.loading = true
+        this.$nextTick(() => {
+          this.loading = false
+        })
+      },
+    },
     data() {
       return {
-        type: EXTRACT_TYPE
+        type: EXTRACT_TYPE,
+        loading: false
       }
     }
   }

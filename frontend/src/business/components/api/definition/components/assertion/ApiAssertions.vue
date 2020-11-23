@@ -58,7 +58,7 @@
     <!--<ms-api-jsonpath-suggest-list @addJsonpathSuggest="addJsonpathSuggest" :request="request"-->
     <!--ref="jsonpathSuggestList"/>-->
 
-    <ms-api-assertions-edit :is-read-only="isReadOnly" :assertions="assertions" style="margin-bottom: 20px"/>
+    <ms-api-assertions-edit :is-read-only="isReadOnly" :assertions="assertions" :reloadData="reloadData" style="margin-bottom: 20px"/>
   </div>
 </template>
 
@@ -72,6 +72,7 @@
   import MsApiAssertionJsr223 from "./ApiAssertionJsr223";
   import MsApiJsonpathSuggestList from "./ApiJsonpathSuggestList";
   import MsApiAssertionXPath2 from "./ApiAssertionXPath2";
+  import {getUUID} from "@/common/js/utils";
 
   export default {
     name: "MsApiAssertions",
@@ -100,12 +101,14 @@
         time: "",
         type: "",
         loading: false,
+        reloadData: "",
       }
     },
 
     methods: {
       after() {
         this.type = "";
+        this.reloadData = getUUID().substring(0, 8);
         this.reload();
       },
       suggestJsonOpen() {
@@ -121,7 +124,7 @@
           this.loading = false
         })
       },
-      remove(){
+      remove() {
         this.$emit('remove', this.assertions);
       },
       addJsonpathSuggest(jsonPathList) {
