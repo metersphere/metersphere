@@ -7,8 +7,8 @@
     <el-collapse-transition>
       <el-tabs v-model="activeName" v-show="isActive">
         <el-tab-pane :class="'body-pane'" label="Body" name="body" class="pane">
-          <ms-sql-result-table v-if="isSqlType" :body="response.body"/>
-          <ms-code-edit v-if="!isSqlType" :mode="mode" :read-only="true" :data="response.body" :modes="modes" ref="codeEdit"/>
+          <ms-sql-result-table v-if="isSqlType && mode == 'table'" :body="response.body"/>
+          <ms-code-edit v-if="mode != 'table'" :mode="mode" :read-only="true" :data="response.body" :modes="modes" ref="codeEdit"/>
         </el-tab-pane>
         <el-tab-pane label="Headers" name="headers" class="pane">
           <pre>{{ response.headers }}</pre>
@@ -21,9 +21,10 @@
           <pre>{{response.vars}}</pre>
         </el-tab-pane>
 
-        <el-tab-pane v-if="activeName == 'body' && !isSqlType" :disabled="true" name="mode" class="pane assertions">
+        <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane assertions">
           <template v-slot:label>
-            <ms-dropdown :commands="modes" :default-command="mode" @command="modeChange"/>
+            <ms-dropdown v-if="!isSqlType" :commands="modes" :default-command="mode" @command="modeChange"/>
+            <ms-dropdown v-if="isSqlType" :commands="sqlModes" :default-command="mode" @command="sqlModeChange"/>
           </template>
         </el-tab-pane>
 
@@ -59,6 +60,7 @@ export default {
       isActive: true,
       activeName: "body",
       modes: ['text', 'json', 'xml', 'html'],
+      sqlModes: ['text', 'table'],
       mode: BODY_FORMAT.TEXT
     }
   },
@@ -68,6 +70,9 @@ export default {
       this.isActive = !this.isActive;
     },
     modeChange(mode) {
+      this.mode = mode;
+    },
+    sqlModeChange(mode) {
       this.mode = mode;
     }
   },
