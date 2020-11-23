@@ -2,6 +2,7 @@ package io.metersphere.controller.handler;
 
 import com.alibaba.fastjson.JSON;
 import io.metersphere.controller.ResultHolder;
+import io.metersphere.controller.handler.annotation.NoResultHolder;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -28,6 +29,10 @@ public class ResultResponseBodyAdvice implements ResponseBodyAdvice<Object> {
         // 处理空值
         if (o == null && StringHttpMessageConverter.class.isAssignableFrom(converterType)) {
             return null;
+        }
+
+        if (methodParameter.hasMethodAnnotation(NoResultHolder.class)) {
+            return o;
         }
 
         if (!(o instanceof ResultHolder)) {
