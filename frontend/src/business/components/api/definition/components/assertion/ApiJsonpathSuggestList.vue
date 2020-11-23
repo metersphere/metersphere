@@ -65,7 +65,7 @@
         };
       },
       props: {
-        request: {},
+        request: HttpRequest,
       },
       methods: {
         close() {

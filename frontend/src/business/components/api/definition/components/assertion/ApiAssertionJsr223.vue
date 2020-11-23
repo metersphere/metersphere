@@ -56,7 +56,7 @@
 
 <script>
 import {AssertionJSR223} from "../../model/ApiTestModel";
-import MsJsr233Processor from "../processor/Jsr233Processor";
+import MsJsr233Processor from "@/business/components/api/test/components/processor/Jsr233Processor";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 
 export default {
