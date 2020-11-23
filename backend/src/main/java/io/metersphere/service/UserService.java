@@ -435,8 +435,12 @@ public class UserService {
     }
 
     public void delOrganizationMember(String organizationId, String userId) {
+
+        List<String> resourceIds = workspaceService.getWorkspaceIdsOrgId(organizationId);
+        resourceIds.add(organizationId);
+
         UserRoleExample userRoleExample = new UserRoleExample();
-        userRoleExample.createCriteria().andRoleIdLike("%org%").andUserIdEqualTo(userId).andSourceIdEqualTo(organizationId);
+        userRoleExample.createCriteria().andUserIdEqualTo(userId).andSourceIdIn(resourceIds);
 
         User user = userMapper.selectByPrimaryKey(userId);
         if (StringUtils.equals(organizationId, user.getLastOrganizationId())) {
