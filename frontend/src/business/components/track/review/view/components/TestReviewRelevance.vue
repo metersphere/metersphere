@@ -231,7 +231,6 @@
             this.selectIds.add(item.id);
           });
         } else {
-          // this.selectIds.clear();
           this.testReviews.forEach(item => {
             if (this.selectIds.has(item.id)) {
               this.selectIds.delete(item.id);
