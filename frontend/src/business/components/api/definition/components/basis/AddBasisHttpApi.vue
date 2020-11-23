@@ -7,7 +7,7 @@
         <el-input v-model="httpForm.name" autocomplete="off" :placeholder="$t('commons.name')"/>
       </el-form-item>
 
-      <el-form-item :label="$t('api_report.request')" prop="url">
+      <el-form-item :label="$t('api_report.request')" prop="url" v-if="currentProtocol==='HTTP'">
         <el-input :placeholder="$t('api_test.definition.request.path_info')" v-model="httpForm.url"
                   class="ms-http-input" size="small">
           <el-select v-model="httpForm.method" slot="prepend" style="width: 100px" size="small">
@@ -15,6 +15,8 @@
           </el-select>
         </el-input>
       </el-form-item>
+
+
       <el-form-item :label="$t('api_test.definition.request.responsible')" prop="userId">
         <el-select v-model="httpForm.userId"
                    :placeholder="$t('api_test.definition.request.responsible')" filterable size="small"
@@ -39,8 +41,14 @@
     <template v-slot:footer>
       <ms-dialog-footer
         @cancel="httpVisible = false"
-        @confirm="saveApi"/>
+        :isShow="true"
+        title="编辑详情"
+        @saveAsEdit="saveApi(true)"
+        @confirm="saveApi">
+      </ms-dialog-footer>
+
     </template>
+
   </el-dialog>
 </template>
 
@@ -55,7 +63,12 @@
   export default {
     name: "MsAddBasisHttpApi",
     components: {MsDialogFooter},
-    props: {},
+    props: {
+      currentProtocol: {
+        type: String,
+        default: "HTTP"
+      },
+    },
     data() {
       return {
         httpForm: {},
@@ -76,7 +89,7 @@
       }
     },
     methods: {
-      saveApi() {
+      saveApi(saveAs) {
         this.$refs['httpForm'].validate((valid) => {
           if (valid) {
             let bodyFiles = [];
@@ -84,8 +97,10 @@
             this.httpForm.bodyUploadIds = [];
             this.httpForm.projectId = this.projectId;
             this.httpForm.id = getUUID().substring(0, 8);
+            this.httpForm.protocol = this.currentProtocol;
             let header = createComponent("HeaderManager");
             let request = createComponent("HTTPSamplerProxy");
+            request.path.value = this.httpForm.url;
             request.hashTree = [header];
             this.httpForm.request = request;
             if (this.currentModule != null) {
@@ -94,7 +109,13 @@
             }
             this.result = this.$fileUpload(url, null, bodyFiles, this.httpForm, () => {
               this.httpVisible = false;
-              this.$parent.refresh(this.currentModule);
+              if (saveAs) {
+                this.httpForm.request = JSON.stringify(request);
+                console.log(this.httpForm)
+                this.$parent.saveAsEdit(this.httpForm);
+              } else {
+                this.$parent.refresh(this.currentModule);
+              }
             });
           } else {
             return false;

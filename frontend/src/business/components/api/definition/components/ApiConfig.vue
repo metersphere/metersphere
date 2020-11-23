@@ -32,10 +32,10 @@
       currentApi: {},
       moduleOptions: {},
       currentProject: {},
-      protocol: String,
+      currentProtocol: String,
     },
     created() {
-      switch (this.protocol) {
+      switch (this.currentProtocol) {
         case Request.TYPES.SQL:
           this.request = createComponent("SQL");
           break;
@@ -56,6 +56,7 @@
       }
       if (this.currentApi != null && this.currentApi.id != null) {
         this.reqUrl = "/api/definition/update";
+        this.currentApi.url = this.request.path.value;
       } else {
         this.reqUrl = "/api/definition/create";
         this.currentApi.id = getUUID().substring(0, 8);

@@ -16,6 +16,7 @@ public class ApiDefinitionRequest {
     private String projectId;
     private String moduleId;
     private List<String> moduleIds;
+    private String protocol;
     private String name;
     private String workspaceId;
     private String userId;

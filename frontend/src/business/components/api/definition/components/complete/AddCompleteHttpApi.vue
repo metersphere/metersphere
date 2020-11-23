@@ -24,7 +24,7 @@
         <el-form-item :label="$t('api_report.request')" prop="url">
           <el-input :placeholder="$t('api_test.definition.request.path_info')" v-model="httpForm.url"
                     class="ms-http-input" size="small" style="margin-top: 5px">
-            <el-select v-model="httpForm.request.method.value" slot="prepend" style="width: 100px" size="small">
+            <el-select v-model="request.method.value" slot="prepend" style="width: 100px" size="small">
               <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
             </el-select>
           </el-input>
@@ -127,7 +127,7 @@
       },
       setParameter() {
         this.httpForm.modulePath = this.getPath(this.httpForm.moduleId);
-        this.httpForm.request.path.value = this.httpForm.url;
+        this.request.path.value = this.httpForm.url;
         this.httpForm.request.useEnvironment = undefined;
       },
       saveApi() {
@@ -153,7 +153,7 @@
           return item.id === id ? item.path : "";
         });
         return path[0].path;
-      }
+      },
     },
 
     created() {

@@ -264,8 +264,8 @@ public class ApiDefinitionExample {
             return (Criteria) this;
         }
 
-        public Criteria andUrlEqualTo(String value) {
-            addCriterion("url =", value, "url");
+        public Criteria andProtocolEqualTo(String value) {
+            addCriterion("protocol =", value, "protocol");
             return (Criteria) this;
         }
 

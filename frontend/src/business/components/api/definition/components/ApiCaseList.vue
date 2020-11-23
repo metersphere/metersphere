@@ -20,7 +20,7 @@
               </template>
             </el-col>
             <el-col :span="4">
-              <div class="variable-combine">{{api.url}}</div>
+              <div class="variable-combine">{{api.url ===undefined ? "暂无路径" : api.url}}</div>
             </el-col>
             <el-col :span="2">
               <div>{{$t('test_track.plan_view.case_count')}}：5</div>

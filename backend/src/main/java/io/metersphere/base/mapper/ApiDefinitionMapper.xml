@@ -7,7 +7,7 @@
         <result column="module_id" jdbcType="VARCHAR" property="moduleId"/>
         <result column="module_path" jdbcType="VARCHAR" property="modulePath"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
-        <result column="url" jdbcType="VARCHAR" property="url"/>
+        <result column="protocol" jdbcType="VARCHAR" property="protocol"/>
         <result column="method" jdbcType="VARCHAR" property="method"/>
         <result column="description" jdbcType="VARCHAR" property="description"/>
         <result column="status" jdbcType="VARCHAR" property="status"/>
@@ -80,7 +80,7 @@
         </where>
     </sql>
     <sql id="Base_Column_List">
-    id, project_id, name,module_id,module_path,url ,method ,description, status, user_id, create_time, update_time
+    id, project_id, name,module_id,module_path,protocol ,method ,description, status, user_id, create_time, update_time
   </sql>
     <sql id="Blob_Column_List">
     request
@@ -204,7 +204,7 @@
 
     <select id="list" resultType="io.metersphere.api.dto.definition.ApiDefinitionResult">
         select api_definition.id, api_definition.project_id,
-        api_definition.name,api_definition.url,api_definition.module_id,api_definition.module_path,api_definition.method,
+        api_definition.name,api_definition.protocol,api_definition.module_id,api_definition.module_path,api_definition.method,
         api_definition.description,api_definition.request,api_definition.response,api_definition.environment_id,
         api_definition.status, api_definition.user_id, api_definition.create_time, api_definition.update_time, project.name as
         project_name, user.name as user_name
@@ -221,6 +221,9 @@
 
             <if test="request.name != null">
                 and api_definition.name like CONCAT('%', #{request.name},'%')
+            </if>
+            <if test="request.protocol != null">
+                AND api_definition.protocol = #{request.protocol}
             </if>
             <if test="request.workspaceId != null">
                 AND project.workspace_id = #{request.workspaceId}
@@ -303,10 +306,10 @@
     </delete>
 
     <insert id="insert" parameterType="io.metersphere.base.domain.ApiDefinition">
-        insert into api_definition (id, project_id, name, url,module_id,module_path,method,
+        insert into api_definition (id, project_id, name, protocol,module_id,module_path,method,
           description, status, user_id,create_time, update_time, request,response,environment_id )
         values
-         (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},  #{url,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR},#{modulePath,jdbcType=VARCHAR},#{method,jdbcType=VARCHAR},
+         (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},  #{protocol,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR},#{modulePath,jdbcType=VARCHAR},#{method,jdbcType=VARCHAR},
           #{description,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR},
           #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{request,jdbcType=LONGVARCHAR},#{response,jdbcType=LONGVARCHAR},#{environmentId,jdbcType=VARCHAR}
           )
@@ -333,8 +336,8 @@
             <if test="moduleId != null">
                 module_id = #{moduleId,jdbcType=BIGINT},
             </if>
-            <if test="url != null">
-                url = #{url,jdbcType=LONGVARCHAR},
+            <if test="protocol != null">
+                protocol = #{protocol,jdbcType=LONGVARCHAR},
             </if>
             <if test="method != null">
                 method = #{method,jdbcType=VARCHAR},
@@ -378,7 +381,7 @@
           user_id = #{userId,jdbcType=VARCHAR},
           module_id = #{moduleId,jdbcType=VARCHAR},
           module_path = #{modulePath,jdbcType=VARCHAR},
-          url = #{url,jdbcType=VARCHAR},
+          protocol = #{protocol,jdbcType=VARCHAR},
           method = #{method,jdbcType=VARCHAR},
           create_time = #{createTime,jdbcType=BIGINT},
           update_time = #{updateTime,jdbcType=BIGINT},
@@ -392,7 +395,7 @@
         set project_id = #{projectId,jdbcType=VARCHAR},
           name = #{name,jdbcType=VARCHAR},
           module_id = #{moduleId,jdbcType=VARCHAR},
-          url = #{url,jdbcType=VARCHAR},
+          protocol = #{protocol,jdbcType=VARCHAR},
           module_path = #{modulePath,jdbcType=VARCHAR},
           method = #{method,jdbcType=VARCHAR},
           description = #{description,jdbcType=VARCHAR},

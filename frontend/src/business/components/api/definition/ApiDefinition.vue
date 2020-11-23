@@ -2,8 +2,8 @@
   <ms-container>
 
     <ms-aside-container>
-      <ms-node-tree @selectModule="selectModule" @getApiModuleTree="initTree" @changeProject="changeProject"
-                    @refresh="refresh"/>
+      <ms-node-tree @selectModule="selectModule" @getApiModuleTree="initTree" @changeProject="changeProject" @changeProtocol="changeProtocol"
+                    @refresh="refresh" @saveAsEdit="editApi"/>
     </ms-aside-container>
 
     <ms-main-container>
@@ -28,6 +28,7 @@
           <ms-api-list
             v-if="item.type === 'list'"
             :current-project="currentProject"
+            :current-protocol="currentProtocol"
             :current-module="currentModule"
             @editApi="editApi"
             @handleCase="handleCase"
@@ -37,6 +38,7 @@
           <div v-else-if="item.type=== 'add'">
             <ms-api-config @runTest="runTest" @saveApi="saveApi" :current-api="currentApi"
                            :currentProject="currentProject"
+                           :currentProtocol="currentProtocol"
                            :moduleOptions="moduleOptions" ref="apiConfig"/>
           </div>
 
@@ -88,6 +90,7 @@
         isHide: true,
         apiDefaultTab: 'default',
         currentProject: null,
+        currentProtocol: null,
         currentModule: null,
         currentApi: {},
         moduleOptions: {},
@@ -103,7 +106,7 @@
     methods: {
       handleCommand(e) {
         if (e === "add") {
-          this.currentApi = {status: "Underway", method: "GET", userId: getCurrentUser().id};
+          this.currentApi = {status: "Underway", method: "GET", userId: getCurrentUser().id, url: "", protocol: this.currentProtocol};
           this.handleTabsEdit(this.$t('api_test.definition.request.title'), e);
         }
         else if (e === "test") {
@@ -189,6 +192,9 @@
       },
       changeProject(data) {
         this.currentProject = data;
+      },
+      changeProtocol(data) {
+        this.currentProtocol = data;
       }
     }
   }

@@ -44,10 +44,10 @@
           </template>
         </el-table-column>
 
-        <el-table-column
-          prop="url"
-          :label="$t('api_test.definition.api_path')"
-          show-overflow-tooltip/>
+        <!--<el-table-column-->
+          <!--prop="url"-->
+          <!--:label="$t('api_test.definition.api_path')"-->
+          <!--show-overflow-tooltip/>-->
 
         <el-table-column
           prop="userName"
@@ -144,6 +144,7 @@
     },
     props: {
       currentProject: Object,
+      currentProtocol: String,
       currentModule: Object
     },
     created: function () {
@@ -154,6 +155,9 @@
         this.initApiTable();
       },
       currentModule() {
+        this.initApiTable();
+      },
+      currentProtocol() {
         this.initApiTable();
       }
     },
@@ -168,6 +172,9 @@
         }
         if (this.currentProject != null) {
           this.condition.projectId = this.currentProject.id;
+        }
+        if (this.currentProtocol != null) {
+          this.condition.protocol = this.currentProtocol;
         }
         this.result = this.$post("/api/definition/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
           this.total = response.data.itemCount;
@@ -238,6 +245,8 @@
       },
       handleTestCase(testCase) {
         this.selectApi = testCase;
+        let request = JSON.parse(testCase.request);
+        this.selectApi.url = request.path.value;
         this.isHide = false;
       },
       handleDelete(testCase) {

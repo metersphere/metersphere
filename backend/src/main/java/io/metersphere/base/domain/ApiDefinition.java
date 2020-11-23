@@ -14,7 +14,7 @@ public class ApiDefinition implements Serializable {
 
     private String method;
 
-    private String url;
+    private String protocol;
 
     private String environmentId;
 

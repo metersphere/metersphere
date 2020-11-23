@@ -141,7 +141,7 @@ public class ApiDefinitionService {
 
     private void checkNameExist(SaveApiDefinitionRequest request) {
         ApiDefinitionExample example = new ApiDefinitionExample();
-        example.createCriteria().andUrlEqualTo(request.getUrl()).andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
+        example.createCriteria().andProtocolEqualTo(request.getProtocol()).andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
         if (apiDefinitionMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("api_definition_url_not_repeating"));
         }
@@ -160,7 +160,7 @@ public class ApiDefinitionService {
         test.setModulePath(request.getModulePath());
         test.setModuleId(request.getModuleId());
         test.setMethod(request.getMethod());
-        test.setUrl(request.getUrl());
+        test.setProtocol(request.getProtocol());
         test.setDescription(request.getDescription());
         test.setResponse(JSONObject.toJSONString(request.getResponse()));
         test.setEnvironmentId(request.getEnvironmentId());
@@ -175,7 +175,7 @@ public class ApiDefinitionService {
         final ApiDefinition test = new ApiDefinition();
         test.setId(request.getId());
         test.setName(request.getName());
-        test.setUrl(request.getUrl());
+        test.setProtocol(request.getProtocol());
         test.setMethod(request.getMethod());
         test.setModuleId(request.getModuleId());
         test.setProjectId(request.getProjectId());

@@ -6,7 +6,7 @@
       :title="$t('test_track.project')"
       @dataChange="changeProject" style="margin-bottom: 20px"/>
 
-    <el-select style="width: 100px ;height: 30px" size="small" v-model="value">
+    <el-select style="width: 100px ;height: 30px" size="small" v-model="value" @change="changeProtocol">
       <el-option
         v-for="item in options"
         :key="item.value"
@@ -80,7 +80,7 @@
         </span>
     </el-tree>
 
-    <ms-add-basis-http-api ref="httpApi"></ms-add-basis-http-api>
+    <ms-add-basis-http-api :current-protocol="value" ref="httpApi"></ms-add-basis-http-api>
 
   </div>
 
@@ -373,6 +373,9 @@
       refresh(data) {
         this.$emit('refresh', data);
       },
+      saveAsEdit(data) {
+        this.$emit('saveAsEdit', data);
+      },
       filterNode(value, data) {
         if (!value) return true;
         return data.name.indexOf(value) !== -1;
@@ -402,6 +405,9 @@
         if (data.id) {
           this.expandedNode.splice(this.expandedNode.indexOf(data.id), 1);
         }
+      },
+      changeProtocol() {
+        this.$emit('changeProtocol', this.value);
       }
     }
   }

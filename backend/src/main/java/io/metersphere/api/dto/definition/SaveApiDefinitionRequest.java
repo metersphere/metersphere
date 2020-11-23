@@ -20,7 +20,7 @@ public class SaveApiDefinitionRequest {
 
     private String name;
 
-    private String url;
+    private String protocol;
 
     private String moduleId;
 
