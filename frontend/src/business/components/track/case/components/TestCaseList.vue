@@ -8,7 +8,7 @@
                          :tip="$t('commons.search_by_name_or_id')"
                          :create-tip="$t('test_track.case.create')" @create="testCaseCreate">
           <template v-slot:title>
-            <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="refresh"/>
+            <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="showAll"/>
           </template>
           <template v-slot:button>
             <ms-table-button :is-tester-permission="true" icon="el-icon-download"
@@ -298,6 +298,9 @@ export default {
           // param.nodeIds = this.selectNodeIds;
           this.condition.nodeIds = this.selectNodeIds;
         }
+        this.getData();
+      },
+      getData() {
         if (this.currentProject) {
           this.condition.projectId = this.currentProject.id;
           this.result = this.$post(this.buildPagePath('/test/case/list'), this.condition, response => {
@@ -365,6 +368,10 @@ export default {
         // this.selectIds.clear();
         this.selectRows.clear();
         this.$emit('refresh');
+      },
+      showAll() {
+        this.condition = {components: TEST_CASE_CONFIGS};
+        this.getData();
       },
       showDetail(row, event, column) {
         this.$emit('testCaseDetail', row);
