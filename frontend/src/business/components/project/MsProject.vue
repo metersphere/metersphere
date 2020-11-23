@@ -63,6 +63,9 @@
         <el-form-item :label="$t('project.jira_key')" v-if="jira">
           <el-input v-model="form.jiraKey" autocomplete="off"></el-input>
         </el-form-item>
+        <el-form-item :label="$t('project.zentao_id')" v-if="zentao">
+          <el-input v-model="form.zentaoId" autocomplete="off"></el-input>
+        </el-form-item>
       </el-form>
       <template v-slot:footer>
         <div class="dialog-footer">
@@ -116,6 +119,7 @@ export default {
       items: [],
       tapd: false,
       jira: false,
+      zentao: false,
       form: {},
       currentPage: 1,
       pageSize: 5,
@@ -193,6 +197,9 @@ export default {
           }
           if (platforms.indexOf("Jira") !== -1) {
             this.jira = true;
+          }
+          if (platforms.indexOf("Zentao") !== -1) {
+            this.zentao = true;
           }
         });
       }

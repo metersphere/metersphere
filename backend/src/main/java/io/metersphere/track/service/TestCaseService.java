@@ -457,12 +457,19 @@ public class TestCaseService {
             if (t.getMethod().equals("manual")) {
                 String steps = t.getSteps();
                 String setp = "";
-                if (steps.contains("null") && !steps.contains("\"null\"")) {
-                    setp = steps.replace("null", "\"\"");
-                } else {
-                    setp = steps;
+                setp = steps;
+                JSONArray jsonArray = null;
+
+                //解决旧版本保存用例导出报错
+                try {
+                    jsonArray = JSON.parseArray(setp);
+                } catch (Exception e) {
+                    if (steps.contains("null") && !steps.contains("\"null\"")) {
+                        setp = steps.replace("null", "\"\"");
+                        jsonArray = JSON.parseArray(setp);
+                    }
                 }
-                JSONArray jsonArray = JSON.parseArray(setp);
+
                 for (int j = 0; j < jsonArray.size(); j++) {
                     int num = j + 1;
                     step.append(num + "." + jsonArray.getJSONObject(j).getString("desc") + "\n");

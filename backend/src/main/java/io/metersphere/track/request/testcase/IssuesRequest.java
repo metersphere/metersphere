@@ -13,4 +13,12 @@ public class IssuesRequest {
     private String projectId;
     private String testCaseId;
     private List<String> tapdUsers;
+    /**
+     * zentao bug 处理人
+     */
+    private String zentaoUser;
+    /**
+     * zentao bug 影响版本
+     */
+    private List<String> zentaoBuilds;
 }

@@ -32,7 +32,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="source" :label="$t('user.source')"/>
-        <el-table-column :label="$t('commons.operating')">
+        <el-table-column :label="$t('commons.operating')" min-width="120px">
           <template v-slot:default="scope">
             <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)">
               <template v-slot:behind>
@@ -89,6 +89,21 @@
             </el-button>
           </el-form-item>
           <div v-if="role.id === 'org_admin'">
+            <el-form-item :label="$t('organization.select_organization')"
+                          :prop="'roles.' + index + '.ids'"
+                          :rules="{required: true, message: $t('organization.select_organization'), trigger: 'change'}"
+            >
+              <el-select filterable v-model="role.ids" :placeholder="$t('organization.select_organization')" multiple>
+                <el-option
+                  v-for="item in form.orgList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </div>
+          <div v-if="role.id === 'org_member'">
             <el-form-item :label="$t('organization.select_organization')"
                           :prop="'roles.' + index + '.ids'"
                           :rules="{required: true, message: $t('organization.select_organization'), trigger: 'change'}"
@@ -200,6 +215,21 @@
             </el-button>
           </el-form-item>
           <div v-if="role.id === 'org_admin'">
+            <el-form-item :label="$t('organization.select_organization')"
+                          :prop="'roles.' + index + '.ids'"
+                          :rules="{required: true, message: $t('organization.select_organization'), trigger: 'change'}"
+            >
+              <el-select filterable v-model="role.ids" :placeholder="$t('organization.select_organization')" multiple>
+                <el-option
+                  v-for="item in form.orgList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </div>
+          <div v-if="role.id === 'org_member'">
             <el-form-item :label="$t('organization.select_organization')"
                           :prop="'roles.' + index + '.ids'"
                           :rules="{required: true, message: $t('organization.select_organization'), trigger: 'change'}"

@@ -25,6 +25,9 @@
               <el-button :disabled="isReadOnly" type="info" plain size="mini" @click="handleExport(reportName)">
                 {{ $t('test_track.plan_view.export_report') }}
               </el-button>
+              <el-button :disabled="isReadOnly" type="warning" plain size="mini" @click="downloadJtl()">
+                {{ $t('report.downloadJtl') }}
+              </el-button>
 
               <!--<el-button :disabled="isReadOnly" type="warning" plain size="mini">-->
               <!--{{$t('report.compare')}}-->
@@ -95,6 +98,7 @@ import MsMainContainer from "../../common/components/MsMainContainer";
 import {checkoutTestManagerOrTestUser, exportPdf} from "@/common/js/utils";
 import html2canvas from 'html2canvas';
 import MsPerformanceReportExport from "./PerformanceReportExport";
+import {Message} from "element-ui";
 
 
 export default {
@@ -234,10 +238,10 @@ export default {
       });
     },
     onOpen() {
-      window.console.log("socket opening.");
+      // window.console.log("socket opening.");
     },
     onError(e) {
-      window.console.error(e)
+      // window.console.error(e)
     },
     onMessage(e) {
       this.$set(this.report, "refresh", e.data); // 触发刷新
@@ -249,7 +253,7 @@ export default {
       this.$set(this.report, "status", 'Running');
       this.status = 'Running';
       this.initReportTimeInfo();
-      window.console.log('receive a message:', e.data);
+      // window.console.log('receive a message:', e.data);
     },
     onClose(e) {
       if (e.code === 1005) {
@@ -259,7 +263,7 @@ export default {
       this.$set(this.report, "refresh", Math.random()); // 触发刷新
       this.$set(this.report, "status", 'Completed');
       this.initReportTimeInfo();
-      window.console.log("socket closed.");
+      // window.console.log("socket closed.");
     },
     handleExport(name) {
       this.result.loading = true;
@@ -267,20 +271,46 @@ export default {
       let reset = this.exportReportReset;
 
       this.$nextTick(function () {
-        setTimeout(() => {
-          html2canvas(document.getElementById('performanceReportExport'), {
-            scale: 2
-          }).then(function (canvas) {
-            exportPdf(name, [canvas]);
-            reset();
-          });
-        }, 1000);
+        html2canvas(document.getElementById('performanceReportExport'), {
+          // scale: 2
+        }).then(function (canvas) {
+          exportPdf(name, [canvas]);
+          reset();
+        });
       });
     },
     exportReportReset() {
       this.reportExportVisible = false;
       this.result.loading = false;
     },
+    downloadJtl() {
+      let config = {
+        url: "/performance/report/jtl/download/" + this.reportId,
+        method: 'get',
+        responseType: 'blob'
+      };
+      this.result = this.$request(config).then(response => {
+        const content = response.data;
+        const blob = new Blob([content]);
+        if ("download" in document.createElement("a")) {
+          // 非IE下载
+          //  chrome/firefox
+          let aTag = document.createElement('a');
+          aTag.download = this.reportId + ".jtl";
+          aTag.href = URL.createObjectURL(blob);
+          aTag.click();
+          URL.revokeObjectURL(aTag.href)
+        } else {
+          // IE10+下载
+          navigator.msSaveBlob(blob, this.filename)
+        }
+      }).catch(e => {
+        let text = e.response.data.text();
+        text.then((data) => {
+          Message.error({message: JSON.parse(data).message || e.message, showClose: true});
+        });
+      });
+    }
   },
   created() {
     this.isReadOnly = false;
@@ -328,7 +358,7 @@ export default {
         });
         this.initWebSocket();
       } else {
-        console.log("close socket.");
+        // console.log("close socket.");
         this.websocket.close() //离开路由之后断开websocket连接
       }
     }

@@ -191,7 +191,11 @@ export default {
                     this.threadGroups[i].rampUpTime = item.value;
                     break;
                   case DURATION:
-                    this.threadGroups[i].duration = item.value;
+                    if (item.unit) {
+                      this.threadGroups[i].duration = item.value;
+                    } else {
+                      this.threadGroups[i].duration = item.value * 60;
+                    }
                     break;
                   case STEPS:
                     this.threadGroups[i].step = item.value;
@@ -216,7 +220,11 @@ export default {
                   this.threadGroups[0].rampUpTime = d.value;
                   break;
                 case DURATION:
-                  this.threadGroups[0].duration = d.value;
+                  if (d.unit) {
+                    this.threadGroups[0].duration = d.value;
+                  } else {
+                    this.threadGroups[0].duration = d.value * 60;
+                  }
                   break;
                 case STEPS:
                   this.threadGroups[0].step = d.value;
@@ -468,7 +476,7 @@ export default {
           {key: TARGET_LEVEL, value: this.threadGroups[i].threadNumber},
           {key: RAMP_UP, value: this.threadGroups[i].rampUpTime},
           {key: STEPS, value: this.threadGroups[i].step},
-          {key: DURATION, value: this.threadGroups[i].duration},
+          {key: DURATION, value: this.threadGroups[i].duration, unit: 'S'},
           {key: RPS_LIMIT, value: this.threadGroups[i].rpsLimit},
           {key: RPS_LIMIT_ENABLE, value: this.threadGroups[i].rpsLimitEnable},
           {key: HOLD, value: this.threadGroups[i].duration - this.threadGroups[i].rampUpTime},

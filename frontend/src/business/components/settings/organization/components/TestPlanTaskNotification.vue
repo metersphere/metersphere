@@ -151,10 +151,17 @@ export default {
       data.isReadOnly = true;
       if (data.type === 'EMAIL') {
         data.isReadOnly = !data.isReadOnly
+        data.webhook = ""
       }
     },
-    handleEditTask(index,data){
+    handleEditTask(index,data) {
       data.isSet = true
+      if (data.type === 'EMAIL') {
+        data.isReadOnly = false
+        data.webhook = ""
+      } else {
+        data.isReadOnly = true
+      }
     },
     handleAddTaskModel(type) {
       let Task = {};
@@ -184,7 +191,7 @@ export default {
     handleAddTask(index, data) {
 
       if (data.event && data.userIds.length > 0 && data.type) {
-        console.log(data.type)
+        // console.log(data.type)
         if (data.type === 'NAIL_ROBOT' || data.type === 'WECHAT_ROBOT') {
           if (!data.webhook) {
             this.$warning(this.$t('organization.message.message_webhook'));

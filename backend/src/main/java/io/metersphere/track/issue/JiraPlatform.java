@@ -28,10 +28,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class JiraIssue extends AbstractIssuePlatform {
+public class JiraPlatform extends AbstractIssuePlatform {
 
 
-    public JiraIssue(IssuesRequest issuesRequest) {
+    public JiraPlatform(IssuesRequest issuesRequest) {
         super(issuesRequest);
     }
 

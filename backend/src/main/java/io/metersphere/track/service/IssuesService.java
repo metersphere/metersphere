@@ -19,9 +19,7 @@ import io.metersphere.notice.service.NoticeService;
 import io.metersphere.notice.service.WxChatTaskService;
 import io.metersphere.service.IntegrationService;
 import io.metersphere.service.ProjectService;
-import io.metersphere.track.issue.AbstractIssuePlatform;
-import io.metersphere.track.issue.IssueFactory;
-import io.metersphere.track.issue.PlatformUser;
+import io.metersphere.track.issue.*;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -63,9 +61,11 @@ public class IssuesService {
 
         boolean tapd = isIntegratedPlatform(orgId, IssuesManagePlatform.Tapd.toString());
         boolean jira = isIntegratedPlatform(orgId, IssuesManagePlatform.Jira.toString());
+        boolean zentao = isIntegratedPlatform(orgId, IssuesManagePlatform.Zentao.toString());
 
         String tapdId = getTapdProjectId(issuesRequest.getTestCaseId());
         String jiraKey = getJiraProjectKey(issuesRequest.getTestCaseId());
+        String zentaoId = getZentaoProjectId(issuesRequest.getTestCaseId());
 
         List<String> platforms = new ArrayList<>();
 
@@ -82,7 +82,13 @@ public class IssuesService {
             }
         }
 
-        if (StringUtils.isBlank(tapdId) && StringUtils.isBlank(jiraKey)) {
+        if (zentao) {
+            if (StringUtils.isNotBlank(zentaoId)) {
+                platforms.add(IssuesManagePlatform.Zentao.name());
+            }
+        }
+
+        if (StringUtils.isBlank(tapdId) && StringUtils.isBlank(jiraKey) && StringUtils.isBlank(zentaoId)) {
             platforms.add("LOCAL");
         }
 
@@ -122,6 +128,7 @@ public class IssuesService {
 
         boolean tapd = isIntegratedPlatform(orgId, IssuesManagePlatform.Tapd.toString());
         boolean jira = isIntegratedPlatform(orgId, IssuesManagePlatform.Jira.toString());
+        boolean zentao = isIntegratedPlatform(orgId, IssuesManagePlatform.Zentao.toString());
 
         List<String> platforms = new ArrayList<>();
         if (tapd) {
@@ -140,6 +147,13 @@ public class IssuesService {
             }
         }
 
+        if (zentao) {
+            String zentaoId = getZentaoProjectId(caseId);
+            if (StringUtils.isNotBlank(zentaoId)) {
+                platforms.add(IssuesManagePlatform.Zentao.name());
+            }
+        }
+
         platforms.add("LOCAL");
         IssuesRequest issueRequest = new IssuesRequest();
         issueRequest.setTestCaseId(caseId);
@@ -152,16 +166,22 @@ public class IssuesService {
         return list;
     }
 
-    public String getTapdProjectId(String testCaseId) {
+    private String getTapdProjectId(String testCaseId) {
         TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
         Project project = projectService.getProjectById(testCase.getProjectId());
         return project.getTapdId();
     }
 
-    public String getJiraProjectKey(String testCaseId) {
+    private String getJiraProjectKey(String testCaseId) {
         TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
         Project project = projectService.getProjectById(testCase.getProjectId());
         return project.getJiraKey();
+    }
+
+    private String getZentaoProjectId(String testCaseId) {
+        TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
+        Project project = projectService.getProjectById(testCase.getProjectId());
+        return project.getZentaoId();
     }
 
     /**
@@ -189,6 +209,13 @@ public class IssuesService {
         return platform.getPlatformUser();
     }
 
+    public List<PlatformUser> getZentaoUsers(String caseId) {
+        IssuesRequest issueRequest = new IssuesRequest();
+        issueRequest.setTestCaseId(caseId);
+        AbstractIssuePlatform platform = IssueFactory.createPlatform(IssuesManagePlatform.Zentao.name(), issueRequest);
+        return platform.getPlatformUser();
+    }
+
     public void deleteIssue(String id) {
         issuesMapper.deleteByPrimaryKey(id);
     }
@@ -199,5 +226,12 @@ public class IssuesService {
             context = "缺陷任务通知：" + user.getName() + "发起了一个缺陷" + "'" + issuesRequest.getTitle() + "'" + "请跟进";
         }
         return context;
+    }
+
+    public List<ZentaoBuild> getZentaoBuilds(String caseId) {
+        IssuesRequest issueRequest = new IssuesRequest();
+        issueRequest.setTestCaseId(caseId);
+        ZentaoPlatform platform = (ZentaoPlatform) IssueFactory.createPlatform(IssuesManagePlatform.Zentao.name(), issueRequest);
+        return platform.getBuilds();
     }
 }

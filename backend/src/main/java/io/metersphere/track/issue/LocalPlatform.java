@@ -10,9 +10,9 @@ import io.metersphere.track.request.testcase.IssuesRequest;
 import java.util.List;
 import java.util.UUID;
 
-public class LocalIssue extends AbstractIssuePlatform {
+public class LocalPlatform extends AbstractIssuePlatform {
 
-    public LocalIssue(IssuesRequest issuesRequest) {
+    public LocalPlatform(IssuesRequest issuesRequest) {
         super(issuesRequest);
     }
 

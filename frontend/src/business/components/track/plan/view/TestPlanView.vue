@@ -106,6 +106,9 @@
         nodeChange(nodeIds, pNodes) {
           this.selectNodeIds = nodeIds;
           this.selectParentNodes = pNodes;
+          // 切换node后，重置分页数
+          this.$refs.testPlanTestCaseList.currentPage = 1;
+          this.$refs.testPlanTestCaseList.pageSize = 10;
         },
         changePlan(plan) {
           this.currentPlan = plan;

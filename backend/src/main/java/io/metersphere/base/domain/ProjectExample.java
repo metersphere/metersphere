@@ -643,6 +643,76 @@ public class ProjectExample {
             addCriterion("jira_key not between", value1, value2, "jiraKey");
             return (Criteria) this;
         }
+
+        public Criteria andZentaoIdIsNull() {
+            addCriterion("zentao_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andZentaoIdIsNotNull() {
+            addCriterion("zentao_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andZentaoIdEqualTo(String value) {
+            addCriterion("zentao_id =", value, "zentaoId");
+            return (Criteria) this;
+        }
+
+        public Criteria andZentaoIdNotEqualTo(String value) {
+            addCriterion("zentao_id <>", value, "zentaoId");
+            return (Criteria) this;
+        }
+
+        public Criteria andZentaoIdGreaterThan(String value) {
+            addCriterion("zentao_id >", value, "zentaoId");
+            return (Criteria) this;
+        }
+
+        public Criteria andZentaoIdGreaterThanOrEqualTo(String value) {
+            addCriterion("zentao_id >=", value, "zentaoId");
+            return (Criteria) this;
+        }
+
+        public Criteria andZentaoIdLessThan(String value) {
+            addCriterion("zentao_id <", value, "zentaoId");
+            return (Criteria) this;
+        }
+
+        public Criteria andZentaoIdLessThanOrEqualTo(String value) {
+            addCriterion("zentao_id <=", value, "zentaoId");
+            return (Criteria) this;
+        }
+
+        public Criteria andZentaoIdLike(String value) {
+            addCriterion("zentao_id like", value, "zentaoId");
+            return (Criteria) this;
+        }
+
+        public Criteria andZentaoIdNotLike(String value) {
+            addCriterion("zentao_id not like", value, "zentaoId");
+            return (Criteria) this;
+        }
+
+        public Criteria andZentaoIdIn(List<String> values) {
+            addCriterion("zentao_id in", values, "zentaoId");
+            return (Criteria) this;
+        }
+
+        public Criteria andZentaoIdNotIn(List<String> values) {
+            addCriterion("zentao_id not in", values, "zentaoId");
+            return (Criteria) this;
+        }
+
+        public Criteria andZentaoIdBetween(String value1, String value2) {
+            addCriterion("zentao_id between", value1, value2, "zentaoId");
+            return (Criteria) this;
+        }
+
+        public Criteria andZentaoIdNotBetween(String value1, String value2) {
+            addCriterion("zentao_id not between", value1, value2, "zentaoId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

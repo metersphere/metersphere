@@ -22,5 +22,7 @@ public class LoadTestReport implements Serializable {
 
     private String triggerMode;
 
+    private String fileId;
+
     private static final long serialVersionUID = 1L;
 }

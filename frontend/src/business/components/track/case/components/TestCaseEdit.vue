@@ -139,7 +139,7 @@
               size="mini"
               :default-sort="{prop: 'num', order: 'ascending'}"
               highlight-current-row>
-              <el-table-column :label="$t('test_track.case.number')" prop="num" min-width="15%"></el-table-column>
+              <el-table-column :label="$t('test_track.case.number')" prop="num" min-width="10%"></el-table-column>
               <el-table-column :label="$t('test_track.case.step_desc')" prop="desc" min-width="35%">
                 <template v-slot:default="scope">
                   <el-input
@@ -168,7 +168,7 @@
                     clearable/>
                 </template>
               </el-table-column>
-              <el-table-column :label="$t('commons.input_content')" min-width="15%">
+              <el-table-column :label="$t('commons.input_content')" min-width="20%">
                 <template v-slot:default="scope">
                   <el-button
                     type="primary"

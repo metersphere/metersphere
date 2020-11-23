@@ -94,13 +94,20 @@
             </el-row>
 
             <el-row>
+              <el-col :span="4" :offset="1" v-if="testCase.testId == 'other'">
+                <span class="cast_label">{{ $t('test_track.case.test_name') }}：</span>
+                <span class="cast_item">{{ testCase.otherTestName }}</span>
+              </el-col>
+            </el-row>
+
+            <el-row>
               <el-col :offset="1">
                 <span class="cast_label">{{ $t('test_track.case.prerequisite') }}：</span>
                 <span class="cast_item"><p>{{ testCase.prerequisite }}</p></span>
               </el-col>
             </el-row>
 
-            <el-row v-if="testCase.method === 'auto' && testCase.testId">
+            <el-row v-if="testCase.method === 'auto' && testCase.testId && testCase.testId != 'other'">
               <el-col class="test-detail" :span="20" :offset="1">
                 <el-tabs v-model="activeTab" type="border-card" @tab-click="testTabChange">
                   <el-tab-pane name="detail" :label="$t('test_track.plan_view.test_detail')">
@@ -220,7 +227,7 @@
                 <ckeditor :editor="editor" :disabled="isReadOnly" :config="editorConfig"
                           v-model="testCase.issues.content"/>
                 <el-row v-if="hasTapdId">
-                  {{ $t('test_track.issue.please_choose_current_owner') }}
+                  {{ $t('test_track.issue.tapd_current_owner') }}
                   <el-select v-model="testCase.tapdUsers"
                              multiple
                              filterable
@@ -228,6 +235,27 @@
                              :placeholder="$t('test_track.issue.please_choose_current_owner')"
                              collapse-tags size="small">
                     <el-option v-for="(userInfo, index) in users" :key="index" :label="userInfo.user"
+                               :value="userInfo.user"/>
+                  </el-select>
+                </el-row>
+                <el-row v-if="hasZentaoId">
+                  {{ $t('test_track.issue.zentao_bug_build') }}
+                  <el-select v-model="testCase.zentaoBuilds"
+                             multiple
+                             filterable
+                             style="width: 20%"
+                             :placeholder="$t('test_track.issue.zentao_bug_build')"
+                             collapse-tags size="small">
+                    <el-option v-for="(build, index) in Builds" :key="index" :label="build.name"
+                               :value="build.id"/>
+                  </el-select>
+                  {{ $t('test_track.issue.zentao_bug_assigned') }}
+                  <el-select v-model="testCase.zentaoAssigned"
+                             filterable
+                             style="width: 20%"
+                             :placeholder="$t('test_track.issue.please_choose_current_owner')"
+                             collapse-tags size="small">
+                    <el-option v-for="(userInfo, index) in zentaoUsers" :key="index" :label="userInfo.name"
                                :value="userInfo.user"/>
                   </el-select>
                 </el-row>
@@ -360,7 +388,12 @@ export default {
       activeTab: 'detail',
       isFailure: true,
       users: [],
+      Builds: [],
+      zentaoBuilds: [],
+      zentaoUsers: [],
+      zentaoAssigned: "",
       hasTapdId: false,
+      hasZentaoId: false,
       tableData: [],
     };
   },
@@ -481,6 +514,8 @@ export default {
       this.showDialog = true;
       this.issuesSwitch = false;
       this.activeTab = 'detail';
+      this.hasTapdId = false;
+      this.hasZentaoId = false;
       listenGoBack(this.handleClose);
       this.initData(testCase);
     },
@@ -558,6 +593,15 @@ export default {
               this.users = response.data;
             })
           }
+          if (project.zentaoId) {
+            this.hasZentaoId = true;
+            this.result = this.$get("/issues/zentao/builds/" + this.testCase.caseId, response => {
+              this.Builds = response.data;
+            })
+            this.result = this.$get("/issues/zentao/user/" + this.testCase.caseId, response => {
+              this.zentaoUsers = response.data;
+            })
+          }
         })
       }
     },
@@ -587,6 +631,8 @@ export default {
       param.content = this.testCase.issues.content;
       param.testCaseId = this.testCase.caseId;
       param.tapdUsers = this.testCase.tapdUsers;
+      param.zentaoBuilds = this.testCase.zentaoBuilds;
+      param.zentaoUser = this.testCase.zentaoAssigned;
 
       this.result = this.$post("/issues/add", param, () => {
         this.$success(this.$t('commons.save_success'));
@@ -597,6 +643,8 @@ export default {
       this.testCase.issues.title = "";
       this.testCase.issues.content = "";
       this.testCase.tapdUsers = [];
+      this.testCase.zentaoBuilds = [];
+      this.testCase.zentaoAssigned = "";
     },
     getIssues(caseId) {
       this.result = this.$get("/issues/get/" + caseId, response => {

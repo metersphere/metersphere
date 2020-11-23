@@ -207,6 +207,7 @@ public class PerformanceTestService {
 
     @Transactional(noRollbackFor = MSException.class)//  保存失败的信息
     public String run(RunTestPlanRequest request) {
+        LogUtil.info("性能测试run测试");
         final LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(request.getId());
         if (request.getUserId() != null) {
             loadTest.setUserId(request.getUserId());

@@ -5,41 +5,41 @@
 [![GitHub All Releases](https://img.shields.io/github/downloads/metersphere/metersphere/total)](https://github.com/metersphere/metersphere/releases)
 [![TesterHome](https://img.shields.io/badge/TTF-TesterHome-2955C5.svg)](https://testerhome.com/github_statistics)
 
-> [English](README_EN.md) | 中文
+> [English](README-EN.md) | 中文
 
-|Developer Wanted|
-|----------------|
-|我们正在寻找开发者，欢迎加入我们共同打造更好用、更强大的 MeterSphere。联系我们： <metersphere@fit2cloud.com>|
+| Developer Wanted                                                                                             |
+| ------------------------------------------------------------------------------------------------------------ |
+| 我们正在寻找开发者，欢迎加入我们共同打造更好用、更强大的 MeterSphere。联系我们： [metersphere@fit2cloud.com](mailto:metersphere@fit2cloud.com) |
 
 MeterSphere 是一站式的开源企业级持续测试平台，涵盖测试跟踪、接口测试、性能测试、团队协作等功能，兼容JMeter 等开源标准，有效助力开发和测试团队充分利用云弹性进行高度可扩展的自动化测试，加速高质量软件的交付。
 
-- 测试跟踪: 远超 TestLink 的使用体验；
-- 接口测试: 类似 Postman 的体验；
-- 性能测试: 兼容 JMeter，支持 Kubernetes 和云环境，轻松支持高并发、分布式的性能测试；
-- 团队协作: 两级租户体系，天然支持团队协作。
+-   测试跟踪: 远超 TestLink 的使用体验；
+-   接口测试: 类似 Postman 的体验；
+-   性能测试: 兼容 JMeter，支持 Kubernetes 和云环境，轻松支持高并发、分布式的性能测试；
+-   团队协作: 两级租户体系，天然支持团队协作。
 
 ![产品定位](https://metersphere.oss-cn-hangzhou.aliyuncs.com/img/ct-devops.png)
-
 
 > 如需进一步了解 MeterSphere 开源项目，推荐阅读 [MeterSphere 的初心和使命](https://mp.weixin.qq.com/s/DpCt3BNgBTlV3sJ5qtPmZw)
 
 ## 在线体验
-- 环境地址：https://demo.metersphere.com/
-- 用户名：demo
-- 密码：P@ssw0rd123..
 
-| :warning: 注意 |
-|:---------------------------|
-| 该环境仅作体验目的使用，我们会定时清理、重置数据！ |
-| 请勿修改体验环境用户的密码！ |
+-   环境地址：<https://demo.metersphere.com/>
+-   用户名：demo
+-   密码：P@ssw0rd123..
+
+| :warning: 注意                 |
+| :--------------------------- |
+| 该环境仅作体验目的使用，我们会定时清理、重置数据！    |
+| 请勿修改体验环境用户的密码！               |
 | 请勿在环境中添加业务生产环境地址、用户名密码等敏感信息！ |
 
 ## 快速开始
 
 仅需两步快速安装 MeterSphere：
 
- 1. 准备一台不小于 8 G内存的 64位 Linux 主机；
- 2. 以 root 用户执行如下命令一键安装 MeterSphere。
+1.  准备一台不小于 8 G内存的 64位 Linux 主机；
+2.  以 root 用户执行如下命令一键安装 MeterSphere。
 
 ```sh
 curl -sSL https://github.com/metersphere/metersphere/releases/latest/download/quick_start.sh | sh
@@ -47,34 +47,37 @@ curl -sSL https://github.com/metersphere/metersphere/releases/latest/download/qu
 
 文档和演示视频：
 
-- [完整文档](https://metersphere.io/docs/)
-- [演示视频](http://video.fit2cloud.com/%E3%80%90%E6%BC%94%E7%A4%BA%E8%A7%86%E9%A2%91%E3%80%91202006%20MeterSphere%20v1.0%20%E5%8A%9F%E8%83%BD%E6%BC%94%E7%A4%BA.mp4)
+-   [完整文档](https://metersphere.io/docs/)
+-   [演示视频](http://video.fit2cloud.com/%E3%80%90%E6%BC%94%E7%A4%BA%E8%A7%86%E9%A2%91%E3%80%91202006%20MeterSphere%20v1.0%20%E5%8A%9F%E8%83%BD%E6%BC%94%E7%A4%BA.mp4)
 
 ## MeterSphere 企业版
+
 [申请企业版使用](https://jinshuju.net/f/CzzAOe)
+
 > 注: 企业版支持离线安装，申请通过后会提供高速下载链接
 
 ## 相关工具
 
-- [Jenkins 插件](https://github.com/metersphere/jenkins-plugin)
-- [浏览器插件](https://github.com/metersphere/chrome-extensions)
+-   [Jenkins 插件](https://github.com/metersphere/jenkins-plugin)
+-   [浏览器插件](https://github.com/metersphere/chrome-extensions)
 
 ## 版本说明
 
 MeterSphere 版本号命名规则为：v大版本.功能版本.Bug修复版本。比如：
 
-```
+```text
 v1.0.1 是 v1.0.0 之后的Bug修复版本；
 v1.1.0 是 v1.0.0 之后的功能版本。
 ```
+
 像其它优秀开源项目一样，MeterSphere 将每月发布一个功能版本。
 
 ## 技术优势
-  
-- 全生命周期: 能够覆盖从测试计划到测试执行、测试报告分析的不同阶段；
-- 自动化 & 扩展性: 支持接口和性能的自动化测试，可以充分利用云弹性实现超大规模的性能测试；
-- 持续测试: 能够与持续集成工具无缝集成，支撑企业实现测试左移；
-- 团队协作: 支持不同规模的测试团队，小到几个人的测试团队、大到数百人的测试中心。
+
+-   全生命周期: 能够覆盖从测试计划到测试执行、测试报告分析的不同阶段；
+-   自动化 & 扩展性: 支持接口和性能的自动化测试，可以充分利用云弹性实现超大规模的性能测试；
+-   持续测试: 能够与持续集成工具无缝集成，支撑企业实现测试左移；
+-   团队协作: 支持不同规模的测试团队，小到几个人的测试团队、大到数百人的测试中心。
 
 ## 功能列表
 
@@ -276,17 +279,17 @@ v1.1.0 是 v1.0.0 之后的功能版本。
 
 ## 技术栈
 
-- 后端: [Spring Boot](https://www.tutorialspoint.com/spring_boot/spring_boot_introduction.htm)
-- 前端: [Vue.js](https://vuejs.org/)
-- 中间件: [MySQL](https://www.mysql.com/), [Kafka](https://kafka.apache.org/)
-- 基础设施: [Docker](https://www.docker.com/), [Kubernetes](https://kubernetes.io/)
-- 测试引擎: [JMeter](https://jmeter.apache.org/)
+-   后端: [Spring Boot](https://www.tutorialspoint.com/spring_boot/spring_boot_introduction.htm)
+-   前端: [Vue.js](https://vuejs.org/)
+-   中间件: [MySQL](https://www.mysql.com/), [Kafka](https://kafka.apache.org/)
+-   基础设施: [Docker](https://www.docker.com/), [Kubernetes](https://kubernetes.io/)
+-   测试引擎: [JMeter](https://jmeter.apache.org/)
 
 ## 致谢
 
--  [BlazeMeter](https://www.blazemeter.com/)：感谢 BlazeMeter 提供的设计思路
--  [JMeter](https://jmeter.apache.org/)：MeterSphere 使用了 JMeter 作为测试引擎
--  [Element](https://element.eleme.cn/#/)：感谢 Element 提供的优秀组件库
+-   [BlazeMeter](https://www.blazemeter.com/)：感谢 BlazeMeter 提供的设计思路
+-   [JMeter](https://jmeter.apache.org/)：MeterSphere 使用了 JMeter 作为测试引擎
+-   [Element](https://element.eleme.cn/#/)：感谢 Element 提供的优秀组件库
 
 ## 加入 MeterSphere 团队
 
@@ -304,6 +307,6 @@ Copyright (c) 2014-2020 飞致云 FIT2CLOUD, All rights reserved.
 
 Licensed under The GNU General Public License version 2 (GPLv2)  (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
-https://www.gnu.org/licenses/gpl-2.0.html
+<https://www.gnu.org/licenses/gpl-2.0.html>
 
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.

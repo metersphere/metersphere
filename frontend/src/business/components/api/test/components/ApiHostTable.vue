@@ -118,7 +118,7 @@
       validateDomain(domain) {
         let strRegex = "^(?=^.{3,255}$)(http(s)?:\\/\\/)?(www\\.)?[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+(:\\d+)*(\\/\\w+\\.\\w+)*$";
         const re = new RegExp(strRegex);
-        if (re.test(domain) && domain.length < 26) {
+        if (re.test(domain) && domain.length < 67) {
           return true;
         }
         this.$warning(this.$t('load_test.input_domain'));

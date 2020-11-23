@@ -3,12 +3,15 @@
     <div style="width: 500px">
       <div style="margin-top: 20px;margin-bottom: 10px">{{ $t('organization.integration.basic_auth_info') }}</div>
       <el-form :model="form" ref="form" label-width="120px" size="small" :disabled="show" :rules="rules">
-        <el-form-item :label="$t('organization.integration.app_name')" prop="account">
-          <el-input v-model="form.account" :placeholder="$t('organization.integration.input_app_name')"/>
+        <el-form-item :label="$t('organization.integration.account')" prop="account">
+          <el-input v-model="form.account" :placeholder="$t('organization.integration.input_api_account')"/>
         </el-form-item>
-        <el-form-item :label="$t('organization.integration.app_key')" prop="password">
+        <el-form-item :label="$t('organization.integration.password')" prop="password">
           <el-input v-model="form.password" auto-complete="new-password"
-                    :placeholder="$t('organization.integration.input_app_key')" show-password/>
+                    :placeholder="$t('organization.integration.input_api_password')" show-password/>
+        </el-form-item>
+        <el-form-item :label="$t('organization.integration.zentao_url')" prop="url">
+          <el-input v-model="form.url" :placeholder="$t('organization.integration.input_zentao_url')"/>
         </el-form-item>
       </el-form>
     </div>
@@ -56,14 +59,19 @@ export default {
       rules: {
         account: {
           required: true,
-          message: this.$t('organization.integration.input_app_name'),
+          message: this.$t('organization.integration.input_api_account'),
           trigger: ['change', 'blur']
         },
         password: {
           required: true,
-          message: this.$t('organization.integration.input_app_key'),
+          message: this.$t('organization.integration.input_api_password'),
           trigger: ['change', 'blur']
-        }
+        },
+        url: {
+          required: true,
+          message: this.$t('organization.integration.input_zentao_url'),
+          trigger: ['change', 'blur']
+        },
       },
     }
   },
@@ -71,12 +79,16 @@ export default {
     save() {
       this.$refs['form'].validate(valid => {
         if (valid) {
-
+          let formatUrl = this.form.url.trim();
+          if (!formatUrl.endsWith('/')) {
+            formatUrl = formatUrl + '/';
+          }
           const {lastOrganizationId} = getCurrentUser();
           let param = {};
           let auth = {
             account: this.form.account,
             password: this.form.password,
+            url: formatUrl,
           };
           param.organizationId = lastOrganizationId;
           param.platform = ZEN_TAO;
@@ -106,6 +118,7 @@ export default {
           let config = JSON.parse(data.configuration);
           this.$set(this.form, 'account', config.account);
           this.$set(this.form, 'password', config.password);
+          this.$set(this.form, 'url', config.url);
         } else {
           this.clear();
         }
@@ -114,19 +127,26 @@ export default {
     clear() {
       this.$set(this.form, 'account', '');
       this.$set(this.form, 'password', '');
+      this.$set(this.form, 'url', '');
       this.$nextTick(() => {
         this.$refs.form.clearValidate();
       });
     },
     testConnection() {
-      if (this.form.account && this.form.password) {
-        this.$parent.result = this.$get("issues/auth/" + ZEN_TAO, () => {
-          this.$success(this.$t('organization.integration.verified'));
-        });
-      } else {
-        this.$warning(this.$t('organization.integration.not_integrated'));
-        return false;
-      }
+      this.$refs['form'].validate(valid => {
+        if (valid) {
+          if (this.form.account && this.form.password) {
+            this.$parent.result = this.$get("issues/auth/" + ZEN_TAO, () => {
+              this.$success(this.$t('organization.integration.verified'));
+            });
+          } else {
+            this.$warning(this.$t('organization.integration.not_integrated'));
+            return false;
+          }
+        } else {
+          return false;
+        }
+      })
     },
     cancelIntegration() {
       if (this.form.account && this.form.password) {
