@@ -129,7 +129,7 @@
         reportId: "",
       }
     },
-    props: {apiData: {}, currentProject: {}},
+    props: {apiData: {}, currentProject: {}, currentProtocol: String,},
     methods: {
       handleCommand(e) {
         switch (e) {
@@ -151,6 +151,7 @@
             this.loading = true;
             this.api.request.name = this.api.id;
             this.api.request.useEnvironment = this.api.environmentId;
+            this.api.protocol = this.currentProtocol;
             this.runData = [];
             this.runData.push(this.api.request);
             /*触发执行操作*/
@@ -278,6 +279,7 @@
     },
     created() {
       this.api = this.apiData;
+      this.api.protocol = this.currentProtocol;
       this.currentRequest = this.api.request;
       this.getEnvironments();
       this.getResult();

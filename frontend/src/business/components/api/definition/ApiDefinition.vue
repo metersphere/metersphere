@@ -44,12 +44,12 @@
 
           <!-- 快捷调试 -->
           <div v-else-if="item.type=== 'debug'">
-            <ms-debug-http-page @saveAs="editApi"/>
+            <ms-debug-http-page :currentProtocol="currentProtocol" @saveAs="editApi"/>
           </div>
 
           <!-- 测试-->
           <div v-else-if="item.type=== 'test'">
-            <ms-run-test-http-page :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject"/>
+            <ms-run-test-http-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject"/>
           </div>
         </el-tab-pane>
 

@@ -94,9 +94,9 @@ export default {
   beforeCreate() {
     this.result = this.$get("/isLogin").then(response => {
 
-      if (display.default !== undefined) {
-        display.default.valid(this);
-      }
+      // if (display.default !== undefined) {
+      //   display.default.valid(this);
+      // }
 
       if (!response.data.success) {
         if (response.data.message === 'sso') {

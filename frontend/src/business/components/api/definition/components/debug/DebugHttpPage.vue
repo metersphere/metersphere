@@ -54,6 +54,9 @@
   export default {
     name: "ApiConfig",
     components: {MsRequestResultTail, MsResponseResult, MsApiRequestForm, MsRequestMetric, MsResponseText, MsRun},
+    props: {
+      currentProtocol: String,
+    },
     data() {
       return {
         rules: {
@@ -132,6 +135,7 @@
             this.debugForm.request = JSON.stringify(this.request);
             this.debugForm.userId = getCurrentUser().id;
             this.debugForm.status = "Underway";
+            this.debugForm.protocol = this.currentProtocol;
             this.$emit('saveAs', this.debugForm);
           }
           else {
