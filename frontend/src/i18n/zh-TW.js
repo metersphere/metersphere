@@ -315,6 +315,7 @@ export default {
     repeat_password: '確認密碼',
     inconsistent_passwords: '兩次輸入的密碼不壹致',
     remove_member: '確定要移除該成員嗎',
+    org_remove_member: '將該用戶從組織中移除，將同時移除該組織下所有工作空間的權限，確定要移除該成員嗎？',
     input_id_or_email: '請輸入用戶 ID, 或者 用戶郵箱',
     no_such_user: '無此用戶信息, 請輸入正確的用戶 ID 或者 用戶郵箱！',
   },

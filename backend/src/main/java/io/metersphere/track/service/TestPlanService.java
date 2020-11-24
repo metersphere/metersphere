@@ -141,7 +141,7 @@ public class TestPlanService {
         }
     }
 
-    public List<TestPlan> getTestPlanByName(String name) {
+    public synchronized List<TestPlan> getTestPlanByName(String name) {
         TestPlanExample example = new TestPlanExample();
         example.createCriteria().andWorkspaceIdEqualTo(SessionUtils.getCurrentWorkspaceId())
                 .andNameEqualTo(name);

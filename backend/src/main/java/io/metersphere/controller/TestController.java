@@ -3,6 +3,7 @@ package io.metersphere.controller;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.User;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.controller.handler.annotation.NoResultHolder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,6 +33,26 @@ public class TestController {
         jsonObject.put("user", user.getName());
         jsonObject.put("name", name);
         return jsonObject;
+    }
+
+    @NoResultHolder
+    @GetMapping(value = "/xml")
+    public String getXmlString() {
+        return "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n" +
+                "\n" +
+                "<bookstore>\n" +
+                "\n" +
+                "<book>\n" +
+                "  <title lang=\"eng\">Harry Potter</title>\n" +
+                "  <price>29.99</price>\n" +
+                "</book>\n" +
+                "\n" +
+                "<book>\n" +
+                "  <title lang=\"eng\">Learning XML</title>\n" +
+                "  <price>39.95</price>\n" +
+                "</book>\n" +
+                "\n" +
+                "</bookstore>";
     }
 
     @GetMapping(value = "/{str}")
