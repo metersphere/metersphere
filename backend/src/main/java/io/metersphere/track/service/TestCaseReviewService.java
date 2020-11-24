@@ -572,10 +572,14 @@ public class TestCaseReviewService {
         String eTime = String.valueOf(endTime);
         if (!sTime.equals("null")) {
             start = sdf.format(new Date(Long.parseLong(sTime)));
+        } else {
+            start = "未设置";
         }
         String end = null;
         if (!eTime.equals("null")) {
             end = sdf.format(new Date(Long.parseLong(eTime)));
+        } else {
+            start = "未设置";
         }
         String context = "";
         if (StringUtils.equals(NoticeConstants.CREATE, type)) {

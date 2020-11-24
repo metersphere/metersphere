@@ -195,7 +195,7 @@ export default {
       data.isSet = true
       if (data.type === 'EMAIL') {
         data.isReadOnly = false;
-        data.webhook = ''
+        data.webhook = '';
       } else {
         data.isReadOnly = true;
       }
@@ -203,7 +203,6 @@ export default {
     },
     addTask(data) {
       let list = [];
-      data.isSet = false;
       list.push(data);
       let param = {};
       param.messageDetail = list;
@@ -216,7 +215,7 @@ export default {
       if (!data[index].identification) {
         data.splice(index, 1)
       } else {
-        data[index].isSet = false;
+        data[parseInt(index)].isSet = false;
       }
 
     },

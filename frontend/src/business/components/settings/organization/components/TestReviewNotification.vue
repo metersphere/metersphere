@@ -221,7 +221,7 @@ export default {
       if (!data[index].identification) {
         data.splice(index, 1)
       } else {
-        data[index].isSet = false
+        data[index].isSet = false;
       }
     },
     deleteRowTask(index, data) { //删除
