@@ -347,6 +347,7 @@ public class MailService {
         List<SystemParameter> paramList = systemParameterService.getParamList(ParamConstants.Classify.MAIL.getValue());
         javaMailSender.setDefaultEncoding("UTF-8");
         javaMailSender.setProtocol("smtp");
+        props.put("mail.smtp.auth", "true");
 
         for (SystemParameter p : paramList) {
             switch (p.getParamKey()) {
@@ -373,12 +374,18 @@ public class MailService {
                     props.put("mail.smtp.starttls.enable", result);
                     props.put("mail.smtp.starttls.required", result);
                     break;
+                case "smtp.anon":
+                    boolean isAnon = BooleanUtils.toBoolean(p.getParamValue());
+                    if (isAnon) {
+                        props.put("mail.smtp.auth", "false");
+                        javaMailSender.setUsername(null);
+                        javaMailSender.setPassword(null);
+                    }
+                    break;
                 default:
                     break;
             }
         }
-
-        props.put("mail.smtp.auth", "true");
 
         props.put("mail.smtp.timeout", "30000");
         props.put("mail.smtp.connectiontimeout", "5000");
