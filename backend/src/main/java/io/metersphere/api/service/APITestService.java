@@ -8,7 +8,6 @@ import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.api.parse.ApiImportParserFactory;
-import io.metersphere.api.parse.JmeterDocumentParser;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiTestFileMapper;
 import io.metersphere.base.mapper.ApiTestMapper;
@@ -86,9 +85,9 @@ public class APITestService {
         return extApiTestMapper.listByIds(request.getIds());
     }
 
-    public void create(SaveAPITestRequest request, MultipartFile file, List<MultipartFile> bodyFiles) {
+    public void create(SaveAPITestRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
-        ApiTest test = createTest(request, file);
+        ApiTest test = createTest(request);
         createBodyFiles(test, bodyUploadIds, bodyFiles);
     }
     private ApiTest createTest(SaveAPITestRequest request, MultipartFile file) {
@@ -102,17 +101,13 @@ public class APITestService {
         return test;
     }
 
-    public void update(SaveAPITestRequest request, MultipartFile file, List<MultipartFile> bodyFiles) {
-        if (file == null) {
-            throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
-        }
+    public void update(SaveAPITestRequest request,  List<MultipartFile> bodyFiles) {
         deleteFileByTestId(request.getId());
 
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         request.setBodyUploadIds(null);
         ApiTest test = updateTest(request);
         createBodyFiles(test, bodyUploadIds, bodyFiles);
-        saveFile(test.getId(), file);
     }
 
     private void createBodyFiles(ApiTest test, List<String> bodyUploadIds, List<MultipartFile> bodyFiles) {
@@ -292,6 +287,13 @@ public class APITestService {
             fileService.deleteFileByIds(fileIds);
         }
     }
+    private void saveFile(String testId, MultipartFile file) {
+        final FileMetadata fileMetadata = fileService.saveFile(file);
+        ApiTestFile apiTestFile = new ApiTestFile();
+        apiTestFile.setTestId(testId);
+        apiTestFile.setFileId(fileMetadata.getId());
+        apiTestFileMapper.insert(apiTestFile);
+    }
 
     public void updateSchedule(Schedule request) {
         scheduleService.editSchedule(request);
@@ -309,6 +311,17 @@ public class APITestService {
         schedule.setGroup(ScheduleGroup.API_TEST.name());
         schedule.setType(ScheduleType.CRON.name());
         return schedule;
+    }
+    private ApiTestFile getFileByTestId(String testId) {
+        ApiTestFileExample ApiTestFileExample = new ApiTestFileExample();
+        ApiTestFileExample.createCriteria().andTestIdEqualTo(testId);
+        final List<ApiTestFile> ApiTestFiles = apiTestFileMapper.selectByExample(ApiTestFileExample);
+        apiTestFileMapper.selectByExample(ApiTestFileExample);
+        if (!CollectionUtils.isEmpty(ApiTestFiles)) {
+            return ApiTestFiles.get(0);
+        } else {
+            return null;
+        }
     }
 
     private void addOrUpdateApiTestCronJob(Schedule request) {
