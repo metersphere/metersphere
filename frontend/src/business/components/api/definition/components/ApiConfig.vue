@@ -5,26 +5,33 @@
     <ms-add-complete-http-api @runTest="runTest" @saveApi="saveApi" :request="request" :headers="headers" :response="response" :basisData="currentApi"
                               :moduleOptions="moduleOptions" :currentProject="currentProject"
                               v-if="currentProtocol === 'HTTP'"/>
+
+    <!-- TCP -->
+    <ms-api-tcp-request-form :request="request" :currentProject="currentProject" :basisData="currentApi" :moduleOptions="moduleOptions" :maintainerOptions="maintainerOptions" v-if="currentProtocol === 'TCP'"/>
   </div>
 </template>
 
 <script>
   import MsAddCompleteHttpApi from "./complete/AddCompleteHttpApi";
+  import MsApiTcpRequestForm from "./complete/ApiTcpRequestForm";
   import {ResponseFactory, Body} from "../model/ApiTestModel";
   import {getUUID} from "@/common/js/utils";
   import {createComponent, Request} from "./jmeter/components";
   import Sampler from "./jmeter/components/sampler/sampler";
   import HeaderManager from "./jmeter/components/configurations/header-manager";
+  import {WORKSPACE_ID} from '@/common/js/constants';
 
   export default {
     name: "ApiConfig",
-    components: {MsAddCompleteHttpApi},
+    components: {MsAddCompleteHttpApi, MsApiTcpRequestForm},
     data() {
       return {
         reqUrl: "",
         request: Sampler,
+        config: {},
         response: {},
         headers: [],
+        maintainerOptions: [],
       }
     },
     props: {
@@ -34,6 +41,7 @@
       currentProtocol: String,
     },
     created() {
+      this.getMaintainerOptions();
       switch (this.currentProtocol) {
         case Request.TYPES.SQL:
           this.request = createComponent("SQL");
@@ -70,6 +78,13 @@
           this.$emit('runTest', data);
         });
       },
+      getMaintainerOptions() {
+        let workspaceId = localStorage.getItem(WORKSPACE_ID);
+        this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+          this.maintainerOptions = response.data;
+        });
+      },
+
       createHttp() {
         if (this.currentApi.request != undefined && this.currentApi.request != null) {
           this.request = JSON.parse(this.currentApi.request);
@@ -103,32 +118,36 @@
         data.bodyUploadIds = [];
         let request = data.request;
         if (request.body) {
-          request.body.kvs.forEach(param => {
-            if (param.files) {
-              param.files.forEach(item => {
-                if (item.file) {
-                  let fileId = getUUID().substring(0, 8);
-                  item.name = item.file.name;
-                  item.id = fileId;
-                  data.bodyUploadIds.push(fileId);
-                  bodyUploadFiles.push(item.file);
-                }
-              });
-            }
-          });
-          request.body.binary.forEach(param => {
-            if (param.files) {
-              param.files.forEach(item => {
-                if (item.file) {
-                  let fileId = getUUID().substring(0, 8);
-                  item.name = item.file.name;
-                  item.id = fileId;
-                  data.bodyUploadIds.push(fileId);
-                  bodyUploadFiles.push(item.file);
-                }
-              });
-            }
-          });
+          if (request.body.kvs) {
+            request.body.kvs.forEach(param => {
+              if (param.files) {
+                param.files.forEach(item => {
+                  if (item.file) {
+                    let fileId = getUUID().substring(0, 8);
+                    item.name = item.file.name;
+                    item.id = fileId;
+                    data.bodyUploadIds.push(fileId);
+                    bodyUploadFiles.push(item.file);
+                  }
+                });
+              }
+            });
+          }
+          if (request.body.binary) {
+            request.body.binary.forEach(param => {
+              if (param.files) {
+                param.files.forEach(item => {
+                  if (item.file) {
+                    let fileId = getUUID().substring(0, 8);
+                    item.name = item.file.name;
+                    item.id = fileId;
+                    data.bodyUploadIds.push(fileId);
+                    bodyUploadFiles.push(item.file);
+                  }
+                });
+              }
+            });
+          }
         }
         return bodyUploadFiles;
       },

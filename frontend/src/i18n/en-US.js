@@ -525,6 +525,7 @@ export default {
         pre_script: "Prescript",
         post_script: "Postscript",
         extract_param: "Extract parameters",
+        add_module: "Add module",
 
       }
     },

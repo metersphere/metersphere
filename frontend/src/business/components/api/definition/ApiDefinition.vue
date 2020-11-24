@@ -3,7 +3,7 @@
 
     <ms-aside-container>
       <ms-node-tree @selectModule="selectModule" @getApiModuleTree="initTree" @changeProject="changeProject" @changeProtocol="changeProtocol"
-                    @refresh="refresh" @saveAsEdit="editApi"/>
+                    @refresh="refresh" @saveAsEdit="editApi" @debug="debug" @exportAPI="exportAPI"/>
     </ms-aside-container>
 
     <ms-main-container>
@@ -69,7 +69,7 @@
   import MsApiConfig from "./components/ApiConfig";
   import MsDebugHttpPage from "./components/debug/DebugHttpPage";
   import MsRunTestHttpPage from "./components/runtest/RunTestHttpPage";
-  import {getCurrentUser, getUUID} from "../../../../common/js/utils";
+  import {downloadFile, getCurrentUser, getUUID} from "@/common/js/utils";
 
   export default {
     name: "TestCase",
@@ -101,6 +101,11 @@
           type: "list",
           closable: false
         }],
+      }
+    },
+    watch: {
+      currentProtocol() {
+        this.handleCommand("closeAll");
       }
     },
     methods: {
@@ -154,6 +159,9 @@
           this.apiDefaultTab = newTabName;
         }
       },
+      debug() {
+        this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug");
+      },
       editApi(row) {
         this.currentApi = row;
         this.handleTabsEdit(row.name, "add");
@@ -167,6 +175,13 @@
       },
       selectModule(data) {
         this.currentModule = data;
+      },
+      exportAPI() {
+        if (!this.$refs.apiList[0].tableData) {
+          return;
+        }
+        let obj = {projectName: this.currentProject.name, protocol: this.currentProtocol, data: this.$refs.apiList[0].tableData}
+        downloadFile("导出API.json", JSON.stringify(obj));
       },
       refresh(data) {
         this.$refs.apiList[0].initApiTable(data);

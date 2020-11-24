@@ -168,10 +168,10 @@
 <script>
   import MsTag from "../../../common/components/MsTag";
   import MsTipButton from "../../../common/components/MsTipButton";
-  import MsApiRequestForm from "./request/ApiRequestForm";
+  import MsApiRequestForm from "./request/http/ApiRequestForm";
   import {downloadFile, getUUID} from "@/common/js/utils";
   import {parseEnvironment} from "../model/EnvironmentModel";
-  import ApiEnvironmentConfig from "../../test/components/ApiEnvironmentConfig";
+  import ApiEnvironmentConfig from "./environment/ApiEnvironmentConfig";
   import {PRIORITY, RESULT_MAP} from "../model/JsonData";
   import MsApiAssertions from "./assertion/ApiAssertions";
   import MsRun from "./Run";

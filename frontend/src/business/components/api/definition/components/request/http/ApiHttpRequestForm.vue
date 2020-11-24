@@ -87,18 +87,18 @@
 </template>
 
 <script>
-  import MsApiKeyValue from "../ApiKeyValue";
-  import MsApiBody from "../body/ApiBody";
-  import MsApiAuthConfig from "../auth/ApiAuthConfig";
-  import ApiRequestMethodSelect from "../collapse/ApiRequestMethodSelect";
+  import MsApiKeyValue from "../../ApiKeyValue";
+  import MsApiBody from "../../body/ApiBody";
+  import MsApiAuthConfig from "../../auth/ApiAuthConfig";
+  import ApiRequestMethodSelect from "../../collapse/ApiRequestMethodSelect";
   import {REQUEST_HEADERS} from "@/common/js/constants";
-  import MsApiVariable from "../ApiVariable";
-  import MsJsr233Processor from "../processor/Jsr233Processor";
-  import MsApiAdvancedConfig from "../ApiAdvancedConfig";
-  import {createComponent} from "../jmeter/components";
-  import MsApiAssertions from "../assertion/ApiAssertions";
-  import MsApiExtract from "../extract/ApiExtract";
-  import {Assertions, Extract} from "../../model/ApiTestModel";
+  import MsApiVariable from "../../ApiVariable";
+  import MsJsr233Processor from "../../processor/Jsr233Processor";
+  import MsApiAdvancedConfig from "../../ApiAdvancedConfig";
+  import {createComponent} from "../../jmeter/components";
+  import MsApiAssertions from "../../assertion/ApiAssertions";
+  import MsApiExtract from "../../extract/ApiExtract";
+  import {Assertions, Extract} from "../../../model/ApiTestModel";
 
   export default {
     name: "MsApiHttpRequestForm",

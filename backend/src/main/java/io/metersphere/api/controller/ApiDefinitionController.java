@@ -3,6 +3,7 @@ package io.metersphere.api.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.APIReportResult;
+import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.ApiDefinitionRequest;
 import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
@@ -80,5 +81,12 @@ public class ApiDefinitionController {
     public APIReportResult getReport(@PathVariable String testId) {
         return apiDefinitionService.getDbResult(testId);
     }
+
+    @PostMapping(value = "/import", consumes = {"multipart/form-data"})
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public String testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ApiTestImportRequest request) {
+        return apiDefinitionService.apiTestImport(file, request);
+    }
+
 
 }

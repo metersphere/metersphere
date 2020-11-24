@@ -12,27 +12,26 @@ const DEFAULT_OPTIONS = {
 };
 
 export default class TCPSampler extends Sampler {
+  static CLASSES = ["TCPClientImpl", "BinaryTCPClientImpl", "LengthPrefixedBinaryTCPClientImpl"]
+
   constructor(options = DEFAULT_OPTIONS) {
     super(options);
-    this.classname = this.initStringProp("TCPSampler.classname", "TCPClientImpl")
+    this.type = "TCPSampler";
+    this.classname = options.classname || TCPSampler.CLASSES[0];
+    this.server = options.server;
+    this.port = options.port;
+    this.ctimeout = options.ctimeout; // Connect
+    this.timeout = options.timeout; // Response
 
-    this.server = this.initStringProp("TCPSampler.server")
-    this.port = this.initStringProp("TCPSampler.port")
+    this.reUseConnection = options.reUseConnection === undefined ? true : options.reUseConnection;
+    this.nodelay = options.nodelay === undefined ? false : options.nodelay;
+    this.closeConnection = options.closeConnection === undefined ? false : options.closeConnection;
+    this.soLinger = options.soLinger;
+    this.eolByte = options.eolByte;
 
-    this.connectTimeout = this.initStringProp("TCPSampler.ctimeout")
-    this.responseTimeout = this.initStringProp("TCPSampler.timeout")
-
-    this.reUseConnection = this.initBoolProp("TCPSampler.reUseConnection", true)
-    this.closeConnection = this.initBoolProp("TCPSampler.closeConnection", false)
-    this.nodelay = this.initBoolProp("TCPSampler.nodelay", false)
-
-    this.soLinger = this.initStringProp("TCPSampler.soLinger")
-    this.eolByte = this.initStringProp("TCPSampler.EolByte")
-
-    this.request = this.initStringProp("TCPSampler.request")
-    this.username = this.initStringProp("ConfigTestElement.username")
-    this.password = this.initStringProp("ConfigTestElement.password")
-
+    this.username = options.username;
+    this.password = options.password;
+    this.hashTree = [];
   }
 }
 

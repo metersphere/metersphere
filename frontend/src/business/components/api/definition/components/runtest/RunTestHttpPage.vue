@@ -86,14 +86,13 @@
 </template>
 
 <script>
-  import MsApiRequestForm from "../request/ApiRequestForm";
+  import MsApiRequestForm from "../request/http/ApiRequestForm";
   import {downloadFile, getUUID} from "@/common/js/utils";
   import MsApiCaseList from "../ApiCaseList";
   import MsContainer from "../../../../common/components/MsContainer";
   import MsBottomContainer from "../BottomContainer";
-  import {RequestFactory, Scenario} from "../../model/ApiTestModel";
   import {parseEnvironment} from "../../model/EnvironmentModel";
-  import ApiEnvironmentConfig from "../../../test/components/ApiEnvironmentConfig";
+  import ApiEnvironmentConfig from "../environment/ApiEnvironmentConfig";
   import MsRequestResultTail from "../response/RequestResultTail";
   import MsRun from "../Run";
 

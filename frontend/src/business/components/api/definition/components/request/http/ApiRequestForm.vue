@@ -6,11 +6,6 @@
 
 <script>
   import MsApiHttpRequestForm from "./ApiHttpRequestForm";
-  import {Request} from "../jmeter/components";
-
-  // import MsApiTcpRequestForm from "./ApiTcpRequestForm";
-  // import MsApiDubboRequestForm from "./ApiDubboRequestForm";
-  // import MsApiSqlRequestForm from "./ApiSqlRequestForm";
 
   export default {
     name: "MsApiRequestForm",
@@ -29,21 +24,7 @@
     },
     computed: {
       component({request: {type}}) {
-        let name;
-        switch (type) {
-          case Request.TYPES.DUBBO:
-            name = "MsApiDubboRequestForm";
-            break;
-          case Request.TYPES.SQL:
-            name = "MsApiSqlRequestForm";
-            break;
-          case Request.TYPES.TCP:
-            name = "MsApiTcpRequestForm";
-            break;
-          default:
-            name = "MsApiHttpRequestForm";
-        }
-        return name;
+        return "MsApiHttpRequestForm";
       }
     }
   }

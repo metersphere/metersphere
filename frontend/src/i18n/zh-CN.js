@@ -525,7 +525,9 @@ export default {
         auth_config_info: "请求需要进行权限校验",
         pre_script: "前置脚本",
         post_script: "后置脚本",
-        extract_param:"提取参数",
+        extract_param: "提取参数",
+        add_module: "创建模块",
+
       }
     },
     environment: {
@@ -704,7 +706,7 @@ export default {
         close_connection: "关闭连接",
         so_linger: "SO LINGER",
         eol_byte: "行尾(EOL)字节值",
-        request: "要发送的文本",
+        request: "发送文本",
         username: "用户名",
         password: "密码",
         login: "登录设置",

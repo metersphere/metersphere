@@ -526,7 +526,7 @@ export default {
         pre_script: "前置腳本",
         post_script: "後置腳本",
         extract_param: "提取參數",
-
+        add_module: "創建模塊",
       }
     },
     environment: {

@@ -40,7 +40,7 @@
 </template>
 
 <script>
-  import MsApiRequestForm from "../request/ApiRequestForm";
+  import MsApiRequestForm from "../request/http/ApiRequestForm";
   import MsResponseResult from "../response/ResponseResult";
   import MsRequestMetric from "../response/RequestMetric";
   import {getUUID, getCurrentUser} from "@/common/js/utils";

@@ -18,7 +18,20 @@
     <el-input style="width: 175px; padding-left: 3px" :placeholder="$t('test_track.module.search')" v-model="filterText"
               size="small">
       <template v-slot:append>
-        <el-button icon="el-icon-folder-add" @click="addApi"></el-button>
+        <!--
+                <el-button icon="el-icon-folder-add" @click="addApi"></el-button>
+        -->
+        <el-dropdown size="small" split-button type="primary" class="ms-api-buttion" @click="handleCommand('add')"
+                     @command="handleCommand">
+          <el-button icon="el-icon-folder-add" @click="addApi"></el-button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="add-api">{{$t('api_test.definition.request.title')}}</el-dropdown-item>
+            <!--<el-dropdown-item command="add-module">{{$t('api_test.definition.request.add_module')}}</el-dropdown-item>-->
+            <el-dropdown-item command="debug">{{$t('api_test.definition.request.fast_debug')}}</el-dropdown-item>
+            <el-dropdown-item command="import">{{$t('api_test.api_import.label')}}</el-dropdown-item>
+            <el-dropdown-item command="export">{{$t('report.export')}}</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
       </template>
     </el-input>
 
@@ -81,6 +94,7 @@
     </el-tree>
 
     <ms-add-basis-http-api :current-protocol="value" ref="httpApi"></ms-add-basis-http-api>
+    <api-import ref="apiImport" @refresh="refresh"/>
 
   </div>
 
@@ -90,12 +104,14 @@
   import MsAddBasisHttpApi from "./basis/AddBasisApi";
   import SelectMenu from "../../../track/common/SelectMenu";
   import {OPTIONS, DEFAULT_DATA} from "../model/JsonData";
+  import ApiImport from "./import/ApiImport";
 
   export default {
     name: 'MsApiModule',
     components: {
       MsAddBasisHttpApi,
-      SelectMenu
+      SelectMenu,
+      ApiImport
     },
     data() {
       return {
@@ -138,6 +154,24 @@
             }
           });
 
+        }
+      },
+      handleCommand(e) {
+        switch (e) {
+          case "debug":
+            this.$emit('debug');
+            break;
+          case "add-api":
+            this.addApi();
+            break;
+          case "add-module":
+            break;
+          case "import":
+            this.$refs.apiImport.open(this.currentModule);
+            break;
+          default:
+            this.$emit('exportAPI');
+            break;
         }
       },
       buildNodePath(node, option, moduleOptions) {
@@ -382,7 +416,7 @@
         return data.name.indexOf(value) !== -1;
       },
       addApi() {
-        this.$refs.httpApi.open(this.currentModule, this.currentProject.id);
+        this.$refs.httpApi.open(this.currentModule);
       },
       // 项目相关方法
       changeProject(project) {
@@ -459,5 +493,9 @@
 
   /deep/ .el-tree-node__content {
     height: 33px;
+  }
+
+  .ms-api-buttion {
+    width: 30px;
   }
 </style>

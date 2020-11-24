@@ -3,10 +3,14 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.APIReportResult;
+import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.TestResult;
+import io.metersphere.api.parse.ApiImportParser;
+import io.metersphere.api.parse.ApiImportParserFactory;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
@@ -29,10 +33,7 @@ import sun.security.util.Cache;
 
 import javax.annotation.Resource;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -206,6 +207,39 @@ public class ApiDefinitionService {
         return test;
     }
 
+    private ApiDefinition createTest(ApiDefinitionResult request) {
+        SaveApiDefinitionRequest saveReq = new SaveApiDefinitionRequest();
+        saveReq.setId(UUID.randomUUID().toString());
+        saveReq.setName(request.getName());
+        saveReq.setProtocol(request.getProtocol());
+        saveReq.setProjectId(request.getProjectId());
+        saveReq.setPath(request.getPath());
+        checkNameExist(saveReq);
+        final ApiDefinition test = new ApiDefinition();
+        test.setId(request.getId());
+        test.setName(request.getName());
+        test.setProtocol(request.getProtocol());
+        test.setMethod(request.getMethod());
+        test.setPath(request.getPath());
+        test.setModuleId(request.getModuleId());
+        test.setProjectId(request.getProjectId());
+        test.setRequest(request.getRequest());
+        test.setCreateTime(System.currentTimeMillis());
+        test.setUpdateTime(System.currentTimeMillis());
+        test.setStatus(APITestStatus.Underway.name());
+        test.setModulePath(request.getModulePath());
+        test.setResponse(request.getResponse());
+        test.setEnvironmentId(request.getEnvironmentId());
+        if (request.getUserId() == null) {
+            test.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+        } else {
+            test.setUserId(request.getUserId());
+        }
+        test.setDescription(request.getDescription());
+        apiDefinitionMapper.insert(test);
+        return test;
+    }
+
     private void deleteFileByTestId(String apiId) {
         ApiTestFileExample apiTestFileExample = new ApiTestFileExample();
         apiTestFileExample.createCriteria().andTestIdEqualTo(apiId);
@@ -276,4 +310,31 @@ public class ApiDefinitionService {
         reportResult.setContent(result.getContent());
         return reportResult;
     }
+
+
+    public String apiTestImport(MultipartFile file, ApiTestImportRequest request) {
+        ApiImportParser apiImportParser = ApiImportParserFactory.getApiImportParser(request.getPlatform());
+        ApiDefinitionImport apiImport = null;
+        try {
+            apiImport = Objects.requireNonNull(apiImportParser).parseApi(file == null ? null : file.getInputStream(), request);
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(Translator.get("parse_data_error"));
+        }
+        importApiTest(request, apiImport);
+        return "SUCCESS";
+    }
+
+    private void importApiTest(ApiTestImportRequest importRequest, ApiDefinitionImport apiImport) {
+        apiImport.getData().forEach(item -> {
+            item.setProjectId(importRequest.getProjectId());
+            item.setModuleId(importRequest.getModuleId());
+            item.setModulePath(importRequest.getModulePath());
+            item.setEnvironmentId(importRequest.getEnvironmentId());
+            item.setId(UUID.randomUUID().toString());
+            item.setUserId(null);
+            createTest(item);
+        });
+    }
+
 }
