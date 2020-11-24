@@ -7,15 +7,15 @@
         <el-input v-model="httpForm.name" autocomplete="off" :placeholder="$t('commons.name')"/>
       </el-form-item>
 
-      <el-form-item :label="$t('api_report.request')" prop="url" v-if="currentProtocol==='HTTP'">
-        <el-input :placeholder="$t('api_test.definition.request.path_info')" v-model="httpForm.url"
+      <!--HTTP 协议特有参数-->
+      <el-form-item :label="$t('api_report.request')" prop="path" v-if="currentProtocol==='HTTP'">
+        <el-input :placeholder="$t('api_test.definition.request.path_info')" v-model="httpForm.path"
                   class="ms-http-input" size="small">
           <el-select v-model="httpForm.method" slot="prepend" style="width: 100px" size="small">
             <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id"/>
           </el-select>
         </el-input>
       </el-form-item>
-
 
       <el-form-item :label="$t('api_test.definition.request.responsible')" prop="userId">
         <el-select v-model="httpForm.userId"
@@ -57,11 +57,10 @@
   import {WORKSPACE_ID} from '../../../../../../common/js/constants';
   import {REQ_METHOD} from "../../model/JsonData";
   import {getCurrentUser, getUUID} from "../../../../../../common/js/utils";
-  import {createComponent} from "../jmeter/components";
+  import {createComponent,Request} from "../jmeter/components";
   import HeaderManager from "../jmeter/components/configurations/header-manager";
-
   export default {
-    name: "MsAddBasisHttpApi",
+    name: "MsAddBasisApi",
     components: {MsDialogFooter},
     props: {
       currentProtocol: {
@@ -81,7 +80,7 @@
             {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
             {max: 50, message: this.$t('test_track.length_less_than') + '50', trigger: 'blur'}
           ],
-          url: [{required: true, message: this.$t('api_test.definition.request.path_info'), trigger: 'blur'}],
+          path: [{required: true, message: this.$t('api_test.definition.request.path_info'), trigger: 'blur'}],
           userId: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
         },
         value: REQ_METHOD[0].id,
@@ -93,25 +92,17 @@
         this.$refs['httpForm'].validate((valid) => {
           if (valid) {
             let bodyFiles = [];
-            let url = "/api/definition/create";
-            this.httpForm.bodyUploadIds = [];
-            this.httpForm.projectId = this.projectId;
-            this.httpForm.id = getUUID().substring(0, 8);
-            this.httpForm.protocol = this.currentProtocol;
+            let path = "/api/definition/create";
+            this.setParameter();
             let header = createComponent("HeaderManager");
             let request = createComponent("HTTPSamplerProxy");
-            request.path = this.httpForm.url;
+            request.path = this.httpForm.path;
             request.hashTree = [header];
             this.httpForm.request = request;
-            if (this.currentModule != null) {
-              this.httpForm.modulePath = this.currentModule.method != undefined ? this.currentModule.method : null;
-              this.httpForm.moduleId = this.currentModule.id;
-            }
-            this.result = this.$fileUpload(url, null, bodyFiles, this.httpForm, () => {
+            this.result = this.$fileUpload(path, null, bodyFiles, this.httpForm, () => {
               this.httpVisible = false;
               if (saveAs) {
                 this.httpForm.request = JSON.stringify(request);
-                console.log(this.httpForm)
                 this.$parent.saveAsEdit(this.httpForm);
               } else {
                 this.$parent.refresh(this.currentModule);
@@ -121,6 +112,29 @@
             return false;
           }
         })
+      },
+      setParameter() {
+        this.httpForm.bodyUploadIds = [];
+        this.httpForm.projectId = this.projectId;
+        this.httpForm.id = getUUID().substring(0, 8);
+        this.httpForm.protocol = this.currentProtocol;
+        if (this.currentModule != null) {
+          this.httpForm.modulePath = this.currentModule.method != undefined ? this.currentModule.method : null;
+          this.httpForm.moduleId = this.currentModule.id;
+        }
+        switch (this.currentProtocol) {
+          case Request.TYPES.SQL:
+            this.httpForm.method = Request.TYPES.SQL;
+            break;
+          case Request.TYPES.DUBBO:
+            this.httpForm.method = "dubbo://";
+            break;
+          case Request.TYPES.TCP:
+            this.httpForm.method = Request.TYPES.TCP;
+            break;
+          default:
+            break;
+        }
       },
       getMaintainerOptions() {
         let workspaceId = localStorage.getItem(WORKSPACE_ID);

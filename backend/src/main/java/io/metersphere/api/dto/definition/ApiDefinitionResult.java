@@ -11,8 +11,6 @@ public class ApiDefinitionResult extends ApiDefinition {
 
     private String projectName;
 
-    private String url;
-
     private String userName;
 
     private String caseTotal;

@@ -44,10 +44,10 @@
           </template>
         </el-table-column>
 
-        <!--<el-table-column-->
-          <!--prop="url"-->
-          <!--:label="$t('api_test.definition.api_path')"-->
-          <!--show-overflow-tooltip/>-->
+        <el-table-column
+          prop="path"
+          :label="$t('api_test.definition.api_path')"
+          show-overflow-tooltip/>
 
         <el-table-column
           prop="userName"
@@ -153,12 +153,15 @@
     watch: {
       currentProject() {
         this.initApiTable();
+        this.apiCaseClose();
       },
       currentModule() {
         this.initApiTable();
+        this.apiCaseClose();
       },
       currentProtocol() {
         this.initApiTable();
+        this.apiCaseClose();
       }
     },
     methods: {

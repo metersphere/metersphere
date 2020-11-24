@@ -87,7 +87,7 @@
 </template>
 
 <script>
-  import MsAddBasisHttpApi from "./basis/AddBasisHttpApi";
+  import MsAddBasisHttpApi from "./basis/AddBasisApi";
   import SelectMenu from "../../../track/common/SelectMenu";
   import {OPTIONS, DEFAULT_DATA} from "../model/JsonData";
 

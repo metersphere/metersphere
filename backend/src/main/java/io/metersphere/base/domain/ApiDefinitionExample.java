@@ -264,6 +264,12 @@ public class ApiDefinitionExample {
             return (Criteria) this;
         }
 
+        public Criteria andPathEqualTo(String value) {
+            addCriterion("path =", value, "path");
+            return (Criteria) this;
+        }
+
+
         public Criteria andProtocolEqualTo(String value) {
             addCriterion("protocol =", value, "protocol");
             return (Criteria) this;

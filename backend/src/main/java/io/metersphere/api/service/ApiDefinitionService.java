@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.*;
@@ -141,9 +142,16 @@ public class ApiDefinitionService {
 
     private void checkNameExist(SaveApiDefinitionRequest request) {
         ApiDefinitionExample example = new ApiDefinitionExample();
-        example.createCriteria().andProtocolEqualTo(request.getProtocol()).andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
-        if (apiDefinitionMapper.countByExample(example) > 0) {
-            MSException.throwException(Translator.get("api_definition_url_not_repeating"));
+        if (request.getProtocol().equals(RequestType.HTTP)) {
+            example.createCriteria().andProtocolEqualTo(request.getProtocol()).andPathEqualTo(request.getPath()).andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
+            if (apiDefinitionMapper.countByExample(example) > 0) {
+                MSException.throwException(Translator.get("api_definition_url_not_repeating"));
+            }
+        } else {
+            example.createCriteria().andProtocolEqualTo(request.getProtocol()).andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
+            if (apiDefinitionMapper.countByExample(example) > 0) {
+                MSException.throwException(Translator.get("load_test_already_exists"));
+            }
         }
     }
 
@@ -153,6 +161,7 @@ public class ApiDefinitionService {
         final ApiDefinition test = new ApiDefinition();
         test.setId(request.getId());
         test.setName(request.getName());
+        test.setPath(request.getPath());
         test.setProjectId(request.getProjectId());
         test.setRequest(JSONObject.toJSONString(request.getRequest()));
         test.setUpdateTime(System.currentTimeMillis());
@@ -177,6 +186,7 @@ public class ApiDefinitionService {
         test.setName(request.getName());
         test.setProtocol(request.getProtocol());
         test.setMethod(request.getMethod());
+        test.setPath(request.getPath());
         test.setModuleId(request.getModuleId());
         test.setProjectId(request.getProjectId());
         test.setRequest(JSONObject.toJSONString(request.getRequest()));

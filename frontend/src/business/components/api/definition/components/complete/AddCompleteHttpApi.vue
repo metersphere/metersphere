@@ -21,10 +21,10 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item :label="$t('api_report.request')" prop="url">
-          <el-input :placeholder="$t('api_test.definition.request.path_info')" v-model="httpForm.url"
+        <el-form-item :label="$t('api_report.request')" prop="path">
+          <el-input :placeholder="$t('api_test.definition.request.path_info')" v-model="httpForm.path"
                     class="ms-http-input" size="small" style="margin-top: 5px">
-            <el-select v-model="request.method" slot="prepend" style="width: 100px" size="small">
+            <el-select v-model="httpForm.method" slot="prepend" style="width: 100px" size="small">
               <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
             </el-select>
           </el-input>
@@ -90,7 +90,7 @@
             {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
             {max: 50, message: this.$t('test_track.length_less_than') + '50', trigger: 'blur'}
           ],
-          url: [{required: true, message: this.$t('api_test.definition.request.path_info'), trigger: 'blur'}],
+          path: [{required: true, message: this.$t('api_test.definition.request.path_info'), trigger: 'blur'}],
           userId: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
           moduleId: [{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
           status: [{required: true, message: this.$t('commons.please_select'), trigger: 'change'}],
@@ -127,7 +127,8 @@
       },
       setParameter() {
         this.httpForm.modulePath = this.getPath(this.httpForm.moduleId);
-        this.request.path = this.httpForm.url;
+        this.request.path = this.httpForm.path;
+        this.request.method = this.httpForm.method;
         this.httpForm.request.useEnvironment = undefined;
       },
       saveApi() {

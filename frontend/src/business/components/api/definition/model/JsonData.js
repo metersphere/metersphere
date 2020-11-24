@@ -35,7 +35,7 @@ export const API_METHOD_COLOUR = [
   ['GET', "#61AFFE"], ['POST', '#49CC90'], ['PUT', '#fca130'],
   ['PATCH', '#E2EE11'], ['DELETE', '#f93e3d'], ['OPTIONS', '#0EF5DA'],
   ['HEAD', '#8E58E7'], ['CONNECT', '#90AFAE'],
-  ['DUBBO', '#C36EEF'], ['SQL', '#0AEAD4'], ['TCP', '#0A52DF'],
+  ['DUBBO', '#C36EEF'], ['dubbo://', '#C36EEF'],['SQL', '#0AEAD4'], ['TCP', '#0A52DF'],
 ]
 
 export const REQUIRED = [

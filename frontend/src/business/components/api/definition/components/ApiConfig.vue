@@ -4,7 +4,7 @@
     <!-- HTTP 请求参数 -->
     <ms-add-complete-http-api @runTest="runTest" @saveApi="saveApi" :request="request" :headers="headers" :response="response" :basisData="currentApi"
                               :moduleOptions="moduleOptions" :currentProject="currentProject"
-                              v-if="reqType === 'HTTP'"></ms-add-complete-http-api>
+                              v-if="currentProtocol === 'HTTP'"/>
   </div>
 </template>
 
@@ -21,7 +21,6 @@
     components: {MsAddCompleteHttpApi},
     data() {
       return {
-        reqType: Request.TYPES.HTTP,
         reqUrl: "",
         request: Sampler,
         response: {},
@@ -56,7 +55,6 @@
       }
       if (this.currentApi != null && this.currentApi.id != null) {
         this.reqUrl = "/api/definition/update";
-        this.currentApi.url = this.request.path;
       } else {
         this.reqUrl = "/api/definition/create";
         this.currentApi.id = getUUID().substring(0, 8);
@@ -64,10 +62,7 @@
     },
     methods: {
       runTest(data) {
-        data.projectId = this.currentProject.id;
-        this.request.hashTree[0].headers = this.headers;
-        data.request = this.request;
-        data.response = this.response;
+        this.setParameters(data);
         let bodyFiles = this.getBodyUploadFiles(data);
         this.$fileUpload(this.reqUrl, null, bodyFiles, data, () => {
           this.$success(this.$t('commons.save_success'));
@@ -88,10 +83,7 @@
         }
       },
       saveApi(data) {
-        data.projectId = this.currentProject.id;
-        this.request.hashTree[0].headers = this.headers;
-        data.request = this.request;
-        data.response = this.response;
+        this.setParameters(data);
         let bodyFiles = this.getBodyUploadFiles(data);
         this.$fileUpload(this.reqUrl, null, bodyFiles, data, () => {
           this.$success(this.$t('commons.save_success'));
@@ -99,6 +91,12 @@
           this.$emit('saveApi', data);
         });
 
+      },
+      setParameters(data) {
+        data.projectId = this.currentProject.id;
+        this.request.hashTree[0].headers = this.headers;
+        data.request = this.request;
+        data.response = this.response;
       },
       getBodyUploadFiles(data) {
         let bodyUploadFiles = [];

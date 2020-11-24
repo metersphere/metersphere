@@ -117,6 +117,7 @@
           this.apiTabs = [];
           this.apiDefaultTab = tabs.name;
           this.apiTabs.push(tabs);
+          this.refresh();
         }
         else {
           this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug");
@@ -138,6 +139,7 @@
           }
           this.apiDefaultTab = activeName;
           this.apiTabs = tabs.filter(tab => tab.name !== targetName);
+          this.refresh();
         } else {
           if (targetName === undefined || targetName === null) {
             targetName = this.$t('api_test.definition.request.title');

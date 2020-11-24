@@ -4,10 +4,10 @@
       <el-header style="width: 100% ;padding: 0px">
         <el-card>
           <el-row>
-            <el-col :span="3">
+            <el-col :span="api.protocol==='HTTP'? 3:5">
               <div class="variable-combine"> {{api.name}}</div>
             </el-col>
-            <el-col :span="1">
+            <el-col :span="api.protocol==='HTTP'? 1:3">
               <template>
                 <div>
                   <ms-tag v-if="api.status == 'Prepare'" type="info"
@@ -19,11 +19,11 @@
                 </div>
               </template>
             </el-col>
-            <el-col :span="4">
-              <div class="variable-combine">{{api.url ===undefined ? "暂无路径" : api.url}}</div>
+            <el-col :span="api.protocol==='HTTP'? 4:0">
+              <div class="variable-combine">{{api.path ===null ? " " : api.path}}</div>
             </el-col>
             <el-col :span="2">
-              <div>{{$t('test_track.plan_view.case_count')}}：5</div>
+              <div>{{$t('test_track.plan_view.case_count')}}：{{apiCaseList.length}}</div>
             </el-col>
             <el-col :span="4">
               <div>
