@@ -7,4 +7,5 @@ import lombok.Setter;
 @Setter
 public class QueryResourcePoolRequest {
     private String name;
+    private String status;
 }
