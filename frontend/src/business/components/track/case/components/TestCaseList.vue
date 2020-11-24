@@ -300,6 +300,9 @@ export default {
         // param.nodeIds = this.selectNodeIds;
         this.condition.nodeIds = this.selectNodeIds;
       }
+      this.getData();
+    },
+    getData() {
       if (this.currentProject) {
         this.condition.projectId = this.currentProject.id;
         this.result = this.$post(this.buildPagePath('/test/case/list'), this.condition, response => {
@@ -373,6 +376,10 @@ export default {
       // this.selectIds.clear();
       this.selectRows.clear();
       this.$emit('refresh');
+    },
+    showAll() {
+      this.condition = {components: TEST_CASE_CONFIGS};
+      this.getData();
     },
     showDetail(row, event, column) {
       this.$emit('testCaseDetail', row);
