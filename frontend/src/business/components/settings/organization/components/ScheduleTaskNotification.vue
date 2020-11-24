@@ -148,21 +148,21 @@ export default {
       data.isReadOnly = true;
       if (data.type === 'EMAIL') {
         data.isReadOnly = !data.isReadOnly;
-        data.webhook = ''
+        data.webhook = '';
       }
     },
     handleAddTaskModel(type) {
       let Task = {};
       Task.event = [];
       Task.userIds = [];
-      Task.type = "";
-      Task.webhook = "";
+      Task.type = '';
+      Task.webhook = '';
       Task.isSet = true;
-      Task.identification = "";
+      Task.identification = '';
       if (type === 'scheduleTask') {
-        Task.taskType = 'SCHEDULE_TASK'
-        Task.testId=this.testId
-        this.form.scheduleTask.push(Task)
+        Task.taskType = 'SCHEDULE_TASK';
+        Task.testId=this.testId;
+        this.form.scheduleTask.push(Task);
       }
     },
     handleEditTask(index,data) {
@@ -170,7 +170,7 @@ export default {
       data.testId = this.testId;
       if (data.type === 'EMAIL') {
         data.isReadOnly = false;
-        data.webhook = ''
+        data.webhook = '';
       } else {
         data.isReadOnly = true;
       }
@@ -196,7 +196,7 @@ export default {
       data.isSet = false;
       list.push(data);
       let param = {};
-      param.messageDetail = list
+      param.messageDetail = list;
       this.result = this.$post("/notice/save/message/task", param, () => {
         this.initForm()
         this.$success(this.$t('commons.save_success'));
@@ -206,7 +206,7 @@ export default {
       if (!data[index].identification) {
         data.splice(index, 1)
       } else {
-        data[index].isSet = false
+        data[index].isSet = false;
       }
     },
     deleteRowTask(index, data) { //删除

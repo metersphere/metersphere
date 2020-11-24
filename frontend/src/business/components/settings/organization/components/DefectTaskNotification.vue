@@ -145,14 +145,14 @@ export default {
       data.isReadOnly = true;
       if (data.type === 'EMAIL') {
         data.isReadOnly = !data.isReadOnly
-        data.webhook = ''
+        data.webhook = '';
       }
     },
     handleEditTask(index,data) {
       data.isSet = true
       if (data.type === 'EMAIL') {
         data.isReadOnly = false;
-        data.webhook = ''
+        data.webhook = '';
       } else {
         data.isReadOnly = true;
       }
