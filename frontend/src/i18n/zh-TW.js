@@ -472,7 +472,7 @@ export default {
       title: "jar包管理",
       jar_file: "jar包",
       delete_tip: "刪除需重啟服務後生效",
-      file_exist: "該項目下已存在改jar包",
+      file_exist: "該項目下已存在該jar包",
       upload_limit_size: "上傳文件大小不能超過 30MB!",
     },
     environment: {
@@ -840,6 +840,7 @@ export default {
       actual_start_time: "實際開始",
       actual_end_time: "實際結束",
       plan_delete_confirm: "將刪除該測試計劃下所有用例，確認刪除測試計劃: ",
+      plan_delete_tip: "該測試計劃正在進行中，請確認再刪除！",
       plan_delete: "刪除計劃",
     },
     review: {

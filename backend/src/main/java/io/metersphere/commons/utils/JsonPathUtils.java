@@ -48,10 +48,6 @@ public class JsonPathUtils {
             String o_json_path = "$" + jsonPath.next().replaceAll("/", ".");
             String value = JSONPath.eval(jsonObject, o_json_path).toString();
 
-            if(o_json_path.toLowerCase().contains("id")) {
-                continue;
-            }
-
             if(value.equals("") || value.equals("[]") || o_json_path.equals("")) {
                 continue;
             }
