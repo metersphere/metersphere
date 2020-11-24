@@ -96,7 +96,7 @@ public class TestPlanService {
     @Resource
     UserMapper userMapper;
 
-    public void addTestPlan(AddTestPlanRequest testPlan) {
+    public synchronized void addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
             MSException.throwException(Translator.get("plan_name_already_exists"));
         }
@@ -141,7 +141,7 @@ public class TestPlanService {
         }
     }
 
-    public synchronized List<TestPlan> getTestPlanByName(String name) {
+    public List<TestPlan> getTestPlanByName(String name) {
         TestPlanExample example = new TestPlanExample();
         example.createCriteria().andWorkspaceIdEqualTo(SessionUtils.getCurrentWorkspaceId())
                 .andNameEqualTo(name);
