@@ -37,6 +37,7 @@ import javax.mail.internet.MimeMessage;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
@@ -111,7 +112,9 @@ public class MailService {
         list.forEach(u -> {
             emails.add(u.getEmail());
         });
-        users = emails.toArray(new String[0]);
+        List<String> email = emails.stream().distinct().collect(Collectors.toList());
+        users = email.toArray(new String[0]);
+        LogUtil.info("收件人地址" + users);
         helper.setText(getContent(Template, context), true);
         helper.setTo(users);
         try {
@@ -143,9 +146,10 @@ public class MailService {
     }
 
     public void sendCommentNotice(MessageDetail messageDetail, List<String> userIds, SaveCommentRequest request, TestCaseWithBLOBs testCaseWithBLOBs, String eventType) {
+        User user = userMapper.selectByPrimaryKey(testCaseWithBLOBs.getMaintainer());
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         Map<String, String> context = new HashMap<>();
-        context.put("maintainer", testCaseWithBLOBs.getMaintainer());
+        context.put("maintainer", user.getName());
         context.put("testCaseName", testCaseWithBLOBs.getName());
         context.put("description", request.getDescription());
         context.put("url", baseSystemConfigDTO.getUrl());
@@ -183,7 +187,9 @@ public class MailService {
         list.forEach(u -> {
             emails.add(u.getEmail());
         });
-        users = emails.toArray(new String[0]);
+        List<String> email = emails.stream().distinct().collect(Collectors.toList());
+        users = email.toArray(new String[0]);
+        LogUtil.info("收件人地址" + users);
         helper.setText(getContent(Template, context), true);
         helper.setTo(users);
         if (users.length > 0) {
@@ -195,7 +201,8 @@ public class MailService {
 
     public void sendTestPlanStartNotice(MessageDetail messageDetail, List<String> userIds, AddTestPlanRequest testPlan, String eventType) {
         Map<String, String> context = getTestPlanContext(testPlan);
-        context.put("creator", testPlan.getCreator());
+        User user = userMapper.selectByPrimaryKey(testPlan.getCreator());
+        context.put("creator", user.getName());
         try {
             String endTemplate = IOUtils.toString(this.getClass().getResource("/mail/TestPlanStart.html"), StandardCharsets.UTF_8);
             sendTestPlanNotice(addresseeIdList(messageDetail, userIds, eventType), context, endTemplate);
@@ -205,8 +212,9 @@ public class MailService {
     }
 
     public void sendTestPlanEndNotice(MessageDetail messageDetail, List<String> userIds, AddTestPlanRequest testPlan, String eventType) {
+        User user = userMapper.selectByPrimaryKey(testPlan.getCreator());
         Map<String, String> context = getTestPlanContext(testPlan);
-        context.put("creator", userIds.toString());
+        context.put("creator", user.getName());
         try {
             String endTemplate = IOUtils.toString(this.getClass().getResource("/mail/TestPlanEnd.html"), StandardCharsets.UTF_8);
             sendTestPlanNotice(addresseeIdList(messageDetail, userIds, eventType), context, endTemplate);
@@ -216,8 +224,9 @@ public class MailService {
     }
 
     public void sendTestPlanDeleteNotice(MessageDetail messageDetail, List<String> userIds, AddTestPlanRequest testPlan, String eventType) {
+        User user = userMapper.selectByPrimaryKey(testPlan.getCreator());
         Map<String, String> context = getTestPlanContext(testPlan);
-        context.put("creator", userIds.toString());
+        context.put("creator", user.getName());
         try {
             String endTemplate = IOUtils.toString(this.getClass().getResource("/mail/TestPlanDelete.html"), StandardCharsets.UTF_8);
             sendTestPlanNotice(addresseeIdList(messageDetail, userIds, eventType), context, endTemplate);
@@ -241,7 +250,9 @@ public class MailService {
         list.forEach(u -> {
             emails.add(u.getEmail());
         });
-        users = emails.toArray(new String[0]);
+        List<String> email = emails.stream().distinct().collect(Collectors.toList());
+        users = email.toArray(new String[0]);
+        LogUtil.info("收件人地址" + users);
         helper.setText(getContent(Template, context), true);
         helper.setTo(users);
         javaMailSender.send(mimeMessage);
@@ -276,7 +287,9 @@ public class MailService {
         list.forEach(u -> {
             emails.add(u.getEmail());
         });
-        users = emails.toArray(new String[0]);
+        List<String> email = emails.stream().distinct().collect(Collectors.toList());
+        users = email.toArray(new String[0]);
+        LogUtil.info("收件人地址" + users);
         helper.setText(getContent(Template, context), true);
         helper.setTo(users);
         javaMailSender.send(mimeMessage);
@@ -381,7 +394,7 @@ public class MailService {
                 if (StringUtils.isNotBlank(context.get(k))) {
                     template = RegExUtils.replaceAll(template, "\\$\\{" + k + "}", context.get(k));
                 } else {
-                    template = RegExUtils.replaceAll(template, "\\$\\{" + k + "}", "");
+                    template = RegExUtils.replaceAll(template, "\\$\\{" + k + "}", "未设置");
                 }
             }
         }

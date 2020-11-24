@@ -8,20 +8,27 @@ import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.api.parse.ApiImportParserFactory;
+import io.metersphere.api.parse.JmeterDocumentParser;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiTestFileMapper;
 import io.metersphere.base.mapper.ApiTestMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestMapper;
-import io.metersphere.commons.constants.*;
+import io.metersphere.commons.constants.APITestStatus;
+import io.metersphere.commons.constants.FileType;
+import io.metersphere.commons.constants.ScheduleGroup;
+import io.metersphere.commons.constants.ScheduleType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiTestJob;
+import io.metersphere.notice.service.MailService;
+import io.metersphere.notice.service.NoticeService;
 import io.metersphere.service.FileService;
 import io.metersphere.service.QuotaService;
 import io.metersphere.service.ScheduleService;
+import io.metersphere.service.UserService;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.constants.CommonConstants;
@@ -40,6 +47,8 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class APITestService {
     @Resource
+    private UserService userService;
+    @Resource
     private ApiTestMapper apiTestMapper;
     @Resource
     private ExtApiTestMapper extApiTestMapper;
@@ -55,6 +64,11 @@ public class APITestService {
     private ScheduleService scheduleService;
     @Resource
     private TestCaseService testCaseService;
+    @Resource
+    private MailService mailService;
+    @Resource
+    private NoticeService noticeService;
+
 
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
@@ -72,19 +86,33 @@ public class APITestService {
         return extApiTestMapper.listByIds(request.getIds());
     }
 
-    public void create(SaveAPITestRequest request, List<MultipartFile> bodyFiles) {
+    public void create(SaveAPITestRequest request, MultipartFile file, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
-        ApiTest test = createTest(request);
+        ApiTest test = createTest(request, file);
         createBodyFiles(test, bodyUploadIds, bodyFiles);
     }
+    private ApiTest createTest(SaveAPITestRequest request, MultipartFile file) {
+        if (file == null) {
+            throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
+        }
+        checkQuota();
+        request.setBodyUploadIds(null);
+        ApiTest test = createTest(request);
+        saveFile(test.getId(), file);
+        return test;
+    }
 
-    public void update(SaveAPITestRequest request, List<MultipartFile> bodyFiles) {
+    public void update(SaveAPITestRequest request, MultipartFile file, List<MultipartFile> bodyFiles) {
+        if (file == null) {
+            throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
+        }
         deleteFileByTestId(request.getId());
 
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         request.setBodyUploadIds(null);
         ApiTest test = updateTest(request);
         createBodyFiles(test, bodyUploadIds, bodyFiles);
+        saveFile(test.getId(), file);
     }
 
     private void createBodyFiles(ApiTest test, List<String> bodyUploadIds, List<MultipartFile> bodyFiles) {
@@ -127,6 +155,14 @@ public class APITestService {
         copy.setStatus(APITestStatus.Saved.name());
         copy.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
         apiTestMapper.insert(copy);
+        // copy test file
+        ApiTestFile apiTestFile = getFileByTestId(request.getId());
+        if (apiTestFile != null) {
+            FileMetadata fileMetadata = fileService.copyFile(apiTestFile.getFileId());
+            apiTestFile.setTestId(copy.getId());
+            apiTestFile.setFileId(fileMetadata.getId());
+            apiTestFileMapper.insert(apiTestFile);
+        }
         copyBodyFiles(copy.getId(), request.getId());
     }
 

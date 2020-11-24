@@ -107,7 +107,7 @@ export default {
       jsonPathList.forEach(jsonPath => {
         let jsonItem = new JSONPath();
         jsonItem.expression = jsonPath.json_path;
-        jsonItem.expect = jsonPath.json_value;
+        jsonItem.expect = jsonPath.regular_expression;
         jsonItem.setJSONPathDescription();
         this.assertions.jsonPath.push(jsonItem);
       });

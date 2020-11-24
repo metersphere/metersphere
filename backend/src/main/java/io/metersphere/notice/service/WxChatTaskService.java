@@ -18,6 +18,7 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
@@ -50,7 +51,9 @@ public class WxChatTaskService {
         list.forEach(u -> {
             phoneList.add(u.getPhone());
         });
-        mentionedMobileList.addAll(phoneList);
+        LogUtil.info("收件人地址" + phoneList);
+        List<String> phoneLists = phoneList.stream().distinct().collect(Collectors.toList());
+        mentionedMobileList.addAll(phoneLists);
         message.setMentionedMobileList(mentionedMobileList);
         try {
             SendResult result = WxChatbotClient.send(Webhook, message);

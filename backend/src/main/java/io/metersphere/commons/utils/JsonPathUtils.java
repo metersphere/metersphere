@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
+import org.apache.commons.lang3.StringUtils;
 
 public class JsonPathUtils {
 
@@ -68,7 +69,24 @@ public class JsonPathUtils {
                         .compareTo( (String)b.get("json_path") )
         );
 
+        // 正则特殊字符转义
+        allJsons.forEach(item -> {
+            item.put("regular_expression", escapeExprSpecialWord((String) item.get("json_value")));
+        });
+
         return allJsons;
+    }
+
+    public static String escapeExprSpecialWord(String keyword) {
+        if (StringUtils.isNotBlank(keyword)) {
+            String[] fbsArr = {"\\", "$", "(", ")", "*", "+", ".", "[", "]", "?", "^", "{", "}", "|"};
+            for (String key : fbsArr) {
+                if (keyword.contains(key)) {
+                    keyword = keyword.replace(key, "\\" + key);
+                }
+            }
+        }
+        return keyword;
     }
 
     private static String  formatJson(String json_path){

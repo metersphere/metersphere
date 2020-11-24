@@ -151,27 +151,27 @@ export default {
     handleEdit(index, data) {
       data.isReadOnly = true;
       if (data.type === 'EMAIL') {
-        data.isReadOnly = !data.isReadOnly
-        data.webhook = ""
+        data.isReadOnly = !data.isReadOnly;
+        data.webhook = '';
       }
     },
     handleEditTask(index,data) {
-      data.isSet = true
+      data.isSet = true;
       if (data.type === 'EMAIL') {
-        data.isReadOnly = false
-        data.webhook = ""
+        data.isReadOnly = false;
+        data.webhook = '';
       } else {
-        data.isReadOnly = true
+        data.isReadOnly = true;
       }
     },
     handleAddTaskModel(type) {
       let Task = {};
       Task.event = [];
       Task.userIds = [];
-      Task.type = "";
-      Task.webhook = "";
+      Task.type = '';
+      Task.webhook = '';
       Task.isSet = true;
-      Task.identification = "";
+      Task.identification = '';
       if (type === 'jenkinsTask') {
         Task.taskType = 'JENKINS_TASK'
         this.form.jenkinsTask.push(Task)
@@ -207,13 +207,13 @@ export default {
       }
     },
     addTask(data) {
-      let list = []
-      data.isSet = false
-      list.push(data)
+      let list = [];
+      data.isSet = false;
+      list.push(data);
       let param = {};
-      param.messageDetail = list
+      param.messageDetail = list;
       this.result = this.$post("/notice/save/message/task", param, () => {
-        this.initForm()
+        this.initForm();
         this.$success(this.$t('commons.save_success'));
       })
     },
@@ -221,7 +221,7 @@ export default {
       if (!data[index].identification) {
         data.splice(index, 1)
       } else {
-        data[index].isSet = false
+        data[index].isSet = false;
       }
     },
     deleteRowTask(index, data) { //删除

@@ -301,7 +301,6 @@ export default {
       return path + "/" + this.currentPage + "/" + this.pageSize;
     },
     handleEdit(testCase, index) {
-      // console.log(testCase)
       this.isReadOnly = false;
       if (!checkoutTestManagerOrTestUser()) {
         this.isReadOnly = true;
