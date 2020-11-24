@@ -28,6 +28,12 @@
         init: {
           type: Function
         },
+        enableFormat: {
+          type: Boolean,
+          default() {
+            return true;
+          }
+        },
         readOnly: {
           type: Boolean,
           default() {
@@ -74,20 +80,24 @@
           }
         },
         format() {
-          switch (this.mode) {
-            case 'json':
-              this.formatData = formatJson(this.data);
-              break;
-            case 'html':
-              this.formatData = toDiffableHtml(this.data);
-              break;
-            case 'xml':
-              this.formatData = formatXml(this.data);
-              break;
-            default:
-              if (this.data) {
-                this.formatData = this.data;
-              }
+          if (this.enableFormat) {
+            switch (this.mode) {
+              case 'json':
+                this.formatData = formatJson(this.data);
+                break;
+              case 'html':
+                this.formatData = toDiffableHtml(this.data);
+                break;
+              case 'xml':
+                this.formatData = formatXml(this.data);
+                break;
+              default:
+                if (this.data) {
+                  this.formatData = this.data;
+                }
+            }
+          } else {
+            this.formatData = this.data;
           }
         }
       }
