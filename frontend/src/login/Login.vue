@@ -8,8 +8,7 @@
             <img v-else src="../assets/logo-dark-MeterSphere.svg" style="width: 224px; " alt="">
           </div>
           <div class="title">
-            <span id="s1">{{ $t('commons.login') }}</span>
-            <span id="s2">MeterSphere</span>
+            <span id="s1">{{ loginTitle }}</span>
           </div>
           <div class="border"></div>
           <div class="welcome">
@@ -28,7 +27,7 @@
             </el-form-item>
             <el-form-item prop="password">
               <el-input v-model="form.password" :placeholder="$t('commons.password')" show-password autocomplete="off"
-                        maxlength="20" show-word-limit/>
+                        maxlength="30" show-word-limit/>
             </el-form-item>
           </div>
           <div class="btn">
@@ -81,7 +80,7 @@ export default {
         ],
         password: [
           {required: true, message: this.$t('commons.input_password'), trigger: 'blur'},
-          {min: 6, max: 20, message: this.$t('commons.input_limit', [6, 20]), trigger: 'blur'}
+          {min: 6, max: 30, message: this.$t('commons.input_limit', [6, 30]), trigger: 'blur'}
         ]
       },
       msg: '',
@@ -89,13 +88,14 @@ export default {
       openLdap: false,
       loginLogoId: '_blank',
       loginImageId: '_blank',
+      loginTitle: this.$t("commons.login") + " MeterSphere"
     }
   },
   beforeCreate() {
     this.result = this.$get("/isLogin").then(response => {
 
       if (display.default !== undefined) {
-        display.default.valid(this);
+        display.default.showLogin(this);
       }
 
       if (!response.data.success) {
