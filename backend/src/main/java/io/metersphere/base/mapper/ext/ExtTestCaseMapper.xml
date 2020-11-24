@@ -258,7 +258,8 @@
     </select>
 
     <select id="list" resultType="io.metersphere.track.dto.TestCaseDTO">
-        select test_case.* from test_case
+        select <include refid="io.metersphere.base.mapper.TestCaseMapper.Base_Column_List"/>
+        from test_case
         <where>
             <if test="request.combine != null">
                 <include refid="combine">

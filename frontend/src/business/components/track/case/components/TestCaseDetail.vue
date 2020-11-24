@@ -161,6 +161,7 @@ export default {
   data() {
     return {
       result: {},
+      testCase: {},
       dialogFormVisible: false,
       readOnly: true,
       form: {
@@ -190,9 +191,15 @@ export default {
       ]
     };
   },
+  mounted() {
+    this.$get('test/case/get/' + this.testCaseId, response => {
+      this.testCase = response.data;
+    });
+  },
+  methods: {},
   props: {
-    testCase: {
-      type: Object
+    testCaseId: {
+      type: String
     }
   },
 }
