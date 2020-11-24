@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS `api_definition` (
     `name` varchar(64)  NOT NULL COMMENT 'Test name',
     `method` varchar(64)  NOT NULL COMMENT 'method',
     `protocol` varchar(255)  NOT NULL COMMENT 'request protocol',
+    `path` varchar(255)  DEFAULT NULL COMMENT 'request path',
     `module_path` varchar(1000)  COMMENT 'module path',
     `description` varchar(255)  DEFAULT NULL COMMENT 'Test description',
     `environment_id` varchar(50)  DEFAULT NULL COMMENT 'environment id',
