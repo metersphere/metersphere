@@ -11,6 +11,11 @@
         <br/>
       </el-col>
     </el-row>
+    <el-row class="tip" v-if="withTip">
+      <span>
+       <slot class="tip"></slot>
+      </span>
+    </el-row>
     <el-row>
       <el-col :span="15">
         <el-input v-model="value" :placeholder="$t('commons.input_content')"/>
@@ -40,6 +45,12 @@
           type: String,
           default() {
             return this.$t('commons.title')
+          }
+        },
+        withTip: {
+          type: Boolean,
+          default() {
+            return false
           }
         }
       },
@@ -80,5 +91,9 @@
     font-weight: bold;
   }
 
+  .tip {
+    margin-bottom: 20px;
+    color: red;
+  }
 
 </style>
