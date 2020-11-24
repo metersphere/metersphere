@@ -22,6 +22,7 @@ import io.metersphere.track.request.testreview.SaveTestCaseReviewRequest;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.mail.MailException;
@@ -353,13 +354,13 @@ public class MailService {
     }
 
 
-
-
     private JavaMailSenderImpl getMailSender() {
+        Properties props = new Properties();
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
         List<SystemParameter> paramList = systemParameterService.getParamList(ParamConstants.Classify.MAIL.getValue());
         javaMailSender.setDefaultEncoding("UTF-8");
-        javaMailSender.setProtocol("smtps");
+        javaMailSender.setProtocol("smtp");
+
         for (SystemParameter p : paramList) {
             switch (p.getParamKey()) {
                 case "smtp.host":
@@ -374,14 +375,24 @@ public class MailService {
                 case "smtp.password":
                     javaMailSender.setPassword(EncryptUtils.aesDecrypt(p.getParamValue()).toString());
                     break;
+                case "smtp.ssl":
+                    javaMailSender.setProtocol("smtps");
+                    if (BooleanUtils.toBoolean(p.getParamValue())) {
+                        props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+                    }
+                    break;
+                case "smtp.tls":
+                    String result = BooleanUtils.toString(BooleanUtils.toBoolean(p.getParamValue()), "true", "false");
+                    props.put("mail.smtp.starttls.enable", result);
+                    props.put("mail.smtp.starttls.required", result);
+                    break;
                 default:
                     break;
             }
         }
-        Properties props = new Properties();
+
         props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.starttls.required", "true");
+
         props.put("mail.smtp.timeout", "30000");
         props.put("mail.smtp.connectiontimeout", "5000");
         javaMailSender.setJavaMailProperties(props);
