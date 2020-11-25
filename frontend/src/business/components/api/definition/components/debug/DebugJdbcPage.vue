@@ -12,12 +12,12 @@
 
       <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
       <!-- HTTP 请求参数 -->
-      <ms-basis-parameters :request="request" :currentProject="currentProject"/>
+      <ms-basis-parameters :request="request" @callback="runDebug" :currentProject="currentProject" ref="requestForm"/>
 
 
       <!-- HTTP 请求返回数据 -->
       <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
-      <ms-request-result-tail  :response="responseData" ref="debugResult"/>
+      <ms-request-result-tail :response="responseData" :currentProtocol="currentProtocol"  ref="debugResult"/>
 
       <!-- 执行组件 -->
       <ms-run :debug="true" :reportId="reportId" :run-data="runData" @runRefresh="runRefresh" ref="runTest"/>
@@ -64,20 +64,7 @@
       }
     },
     created() {
-      switch (this.currentProtocol) {
-        case Request.TYPES.SQL:
-          this.request = createComponent("JDBCSampler");
-          break;
-        case Request.TYPES.DUBBO:
-          this.request = createComponent("JDBCSampler");
-          break;
-        case Request.TYPES.TCP:
-          this.request = createComponent("TCPSampler");
-          break;
-        default:
-          this.createHttp();
-          break;
-      }
+      this.request = createComponent("JDBCSampler");
     },
     watch: {
       debugResultId() {
@@ -89,14 +76,10 @@
         if (e === "save_as") {
           this.saveAs();
         } else {
-          this.runDebug();
+          this.$refs['requestForm'].validate();
         }
       },
-      createHttp() {
-        let header = createComponent("HeaderManager");
-        this.request = createComponent("HTTPSamplerProxy");
-        this.request.hashTree = [header];
-      },
+
       runDebug() {
         this.loading = true;
         this.request.name = getUUID().substring(0, 8);
@@ -111,18 +94,8 @@
         this.$refs.debugResult.reload();
       },
       saveAs() {
-        this.$refs['debugForm'].validate((valid) => {
-          if (valid) {
-            this.debugForm.request = JSON.stringify(this.request);
-            this.debugForm.userId = getCurrentUser().id;
-            this.debugForm.status = "Underway";
-            this.debugForm.protocol = this.currentProtocol;
-            this.$emit('saveAs', this.debugForm);
-          }
-          else {
-            return false;
-          }
-        })
+        let obj = {request: JSON.stringify(this.request)};
+        this.$emit('saveAs', obj);
       }
     }
   }

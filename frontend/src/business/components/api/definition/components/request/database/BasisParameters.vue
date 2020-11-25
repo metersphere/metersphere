@@ -3,7 +3,7 @@
     <el-row>
       <el-col :span="21" style="padding-bottom: 50px">
         <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin: 20px">
-          <el-form :model="request" ref="request" label-width="100px" :disabled="isReadOnly" style="margin: 20px">
+          <el-form :model="request" :rules="rules" ref="request" label-width="100px" :disabled="isReadOnly" style="margin: 20px">
 
             <el-row>
               <el-col :span="8">
@@ -131,6 +131,10 @@
         databaseConfigsOptions: [],
         isReloadData: false,
         activeName: "variables",
+        rules: {
+          environmentId: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
+          dataSource: [{required: true, message: this.$t('api_test.request.sql.dataSource'), trigger: 'change'}],
+        },
       }
     },
     created() {
@@ -168,12 +172,16 @@
           this.isReloadData = false
         })
       },
-      validateApi() {
+      validate() {
         if (this.currentProject === null) {
           this.$error(this.$t('api_test.select_project'), 2000);
           return;
         }
-        this.$refs['basicForm'].validate();
+        this.$refs['request'].validate((valid) => {
+          if (valid) {
+            this.$emit('callback');
+          }
+        })
       },
       saveApi() {
         this.basisData.method = this.basisData.protocol;

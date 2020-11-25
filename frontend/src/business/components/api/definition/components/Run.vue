@@ -96,7 +96,6 @@
         this.runData.forEach(item => {
           threadGroup.hashTree.push(item);
         })
-        console.log(testPlan)
         let reqObj = {id: this.reportId, testElement: testPlan};
         let bodyFiles = this.getBodyUploadFiles(reqObj);
         let url = "";

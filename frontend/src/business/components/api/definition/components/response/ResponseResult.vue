@@ -6,7 +6,8 @@
         <pre>{{ response.responseResult.headers }}</pre>
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.definition.request.response_body')" name="body" class="pane">
-        <ms-code-edit :mode="mode" :read-only="true" :modes="modes" :data.sync="response.responseResult.body" ref="codeEdit"/>
+        <ms-sql-result-table v-if="isSqlType" :body="response.responseResult.body"/>
+        <ms-code-edit v-if="!isSqlType" :mode="mode" :read-only="true" :modes="modes" :data.sync="response.responseResult.body" ref="codeEdit"/>
       </el-tab-pane>
       <el-tab-pane label="Cookie" name="cookie" class="pane cookie">
         <pre>{{response.cookies}}</pre>
@@ -27,7 +28,9 @@
 
       <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane cookie">
         <template v-slot:label>
-          <ms-dropdown :commands="modes" :default-command="mode" @command="modeChange"/>
+          <ms-dropdown v-if="currentProtocol==='SQL'" :commands="sqlModes" :default-command="mode" @command="sqlModeChange"/>
+          <ms-dropdown v-else :commands="modes" :default-command="mode" @command="modeChange"/>
+
         </template>
       </el-tab-pane>
     </el-tabs>
@@ -39,6 +42,7 @@
   import MsCodeEdit from "../MsCodeEdit";
   import MsDropdown from "../../../../common/components/MsDropdown";
   import {BODY_FORMAT} from "../../model/ApiTestModel";
+  import MsSqlResultTable from "./SqlResultTable";
 
   export default {
     name: "MsResponseResult",
@@ -47,10 +51,12 @@
       MsDropdown,
       MsCodeEdit,
       MsAssertionResults,
+      MsSqlResultTable
     },
 
     props: {
       response: Object,
+      currentProtocol: String,
     },
 
     data() {
@@ -58,11 +64,15 @@
         isActive: true,
         activeName: "headers",
         modes: ['text', 'json', 'xml', 'html'],
+        sqlModes: ['text', 'table'],
         mode: BODY_FORMAT.TEXT
       }
     },
     methods: {
       modeChange(mode) {
+        this.mode = mode;
+      },
+      sqlModeChange(mode) {
         this.mode = mode;
       }
     },
@@ -72,6 +82,11 @@
       }
       if (this.response.headers.indexOf("Content-Type: application/json") > 0) {
         this.mode = BODY_FORMAT.JSON;
+      }
+    },
+    computed: {
+      isSqlType() {
+        return (this.currentProtocol === "SQL" && this.response.responseResult.responseCode === '200' && this.mode ==='table');
       }
     }
   }

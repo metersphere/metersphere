@@ -1,7 +1,7 @@
 <template>
   <div class="request-result">
     <ms-request-metric :response="response"/>
-    <ms-response-result :response="response"/>
+    <ms-response-result :currentProtocol="currentProtocol" :response="response"/>
   </div>
 </template>
 
@@ -14,6 +14,7 @@
     components: {MsRequestMetric, MsResponseResult},
     props: {
       response: Object,
+      currentProtocol: String,
     },
 
     data() {

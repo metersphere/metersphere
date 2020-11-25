@@ -14,7 +14,6 @@ import org.apache.jmeter.protocol.jdbc.sampler.JDBCSampler;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
-import org.apache.jorphan.collections.ListedHashTree;
 
 import java.util.List;
 
@@ -40,10 +39,9 @@ public class MsJDBCSampler extends MsTestElement {
     private String environmentId;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree) {
-        final HashTree samplerHashTree = new ListedHashTree();
-        samplerHashTree.add(jdbcDataSource());
-        samplerHashTree.add(arguments(this.getName() + " Variables", this.getVariables()));
-        tree.set(jdbcSampler(), samplerHashTree);
+        final HashTree samplerHashTree = tree.add(jdbcSampler());
+        tree.add(jdbcDataSource());
+        tree.add(arguments(this.getName() + " Variables", this.getVariables()));
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
                 el.toHashTree(samplerHashTree, el.getHashTree());
@@ -53,13 +51,15 @@ public class MsJDBCSampler extends MsTestElement {
 
     private Arguments arguments(String name, List<KeyValue> variables) {
         Arguments arguments = new Arguments();
-        arguments.setEnabled(true);
-        arguments.setName(name);
-        arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
-        arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
-        variables.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
-                arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
-        );
+        if (!variables.isEmpty()) {
+            arguments.setEnabled(true);
+            arguments.setName(name);
+            arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
+            arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
+            variables.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
+                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
+            );
+        }
         return arguments;
     }
 
@@ -69,13 +69,13 @@ public class MsJDBCSampler extends MsTestElement {
         sampler.setProperty(TestElement.TEST_CLASS, JDBCSampler.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         // request.getDataSource() 是ID，需要转换为Name
-        sampler.setDataSource(this.dataSource.getName());
-        sampler.setQuery(this.getQuery());
-        sampler.setQueryTimeout(String.valueOf(this.getQueryTimeout()));
-        sampler.setResultVariable(this.getResultVariable());
-        sampler.setVariableNames(this.getVariableNames());
-        sampler.setResultSetHandler("Store as String");
-        sampler.setQueryType("Callable Statement");
+        sampler.setProperty("dataSource", this.dataSource.getName());
+        sampler.setProperty("query", this.getQuery());
+        sampler.setProperty("queryTimeout", String.valueOf(this.getQueryTimeout()));
+        sampler.setProperty("resultVariable", this.getResultVariable());
+        sampler.setProperty("variableNames", this.getVariableNames());
+        sampler.setProperty("resultSetHandler", "Store as String");
+        sampler.setProperty("queryType", "Callable Statement");
         return sampler;
     }
 
@@ -85,19 +85,19 @@ public class MsJDBCSampler extends MsTestElement {
         dataSourceElement.setName(this.getName() + " JDBCDataSource");
         dataSourceElement.setProperty(TestElement.TEST_CLASS, DataSourceElement.class.getName());
         dataSourceElement.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
-        dataSourceElement.setAutocommit(true);
-        dataSourceElement.setKeepAlive(true);
-        dataSourceElement.setPreinit(true);
-        dataSourceElement.setDataSource(dataSource.getName());
-        dataSourceElement.setDbUrl(dataSource.getDbUrl());
-        dataSourceElement.setDriver(dataSource.getDriver());
-        dataSourceElement.setUsername(dataSource.getUsername());
-        dataSourceElement.setPassword(dataSource.getPassword());
-        dataSourceElement.setPoolMax(String.valueOf(dataSource.getPoolMax()));
-        dataSourceElement.setTimeout(String.valueOf(dataSource.getTimeout()));
-        dataSourceElement.setConnectionAge("5000");
-        dataSourceElement.setTrimInterval("60000");
-        dataSourceElement.setTransactionIsolation("DEFAULT");
+        dataSourceElement.setProperty("autocommit", true);
+        dataSourceElement.setProperty("keepAlive", true);
+        dataSourceElement.setProperty("preinit", false);
+        dataSourceElement.setProperty("dataSource", dataSource.getName());
+        dataSourceElement.setProperty("dbUrl", dataSource.getDbUrl());
+        dataSourceElement.setProperty("driver", dataSource.getDriver());
+        dataSourceElement.setProperty("username", dataSource.getUsername());
+        dataSourceElement.setProperty("password", dataSource.getPassword());
+        dataSourceElement.setProperty("poolMax", dataSource.getPoolMax());
+        dataSourceElement.setProperty("timeout", String.valueOf(dataSource.getTimeout()));
+        dataSourceElement.setProperty("connectionAge", 5000);
+        dataSourceElement.setProperty("trimInterval", 6000);
+        dataSourceElement.setProperty("transactionIsolation", "DEFAULT");
         return dataSourceElement;
     }
 }
