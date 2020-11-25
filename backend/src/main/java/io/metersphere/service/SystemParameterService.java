@@ -87,7 +87,14 @@ public class SystemParameterService {
         javaMailSender.setUsername(hashMap.get(ParamConstants.MAIL.ACCOUNT.getKey()));
         javaMailSender.setPassword(hashMap.get(ParamConstants.MAIL.PASSWORD.getKey()));
         Properties props = new Properties();
-        props.put("mail.smtp.auth", "true");
+        boolean isAnon = Boolean.parseBoolean(hashMap.get(ParamConstants.MAIL.ANON.getKey()));
+        if (isAnon) {
+            props.put("mail.smtp.auth", "false");
+            javaMailSender.setUsername(null);
+            javaMailSender.setPassword(null);
+        } else {
+            props.put("mail.smtp.auth", "true");
+        }
         if (BooleanUtils.toBoolean(hashMap.get(ParamConstants.MAIL.SSL.getKey()))) {
             props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
         }

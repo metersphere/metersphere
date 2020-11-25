@@ -95,8 +95,7 @@ public interface ParamConstants {
         PASSWORD("smtp.password", 4),
         SSL("smtp.ssl", 5),
         TLS("smtp.tls", 6),
-        SMTP("smtp.smtp", 7);
-        /* ANON("smtp.anon", 7);*/
+        ANON("smtp.anon", 7);
 
         private String key;
         private Integer value;
