@@ -211,7 +211,7 @@
 
         this.$nextTick(function () {
           html2canvas(document.getElementById('testCaseReportExport'), {
-            // scale: 2
+            scale: 2
           }).then(function(canvas) {
             exportPdf(name, [canvas]);
             reset();
@@ -225,7 +225,7 @@
       },
     }
   }
-</script>
+</script>cd
 
 <style scoped>
 
