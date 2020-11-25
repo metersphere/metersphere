@@ -4,8 +4,7 @@
       <el-col :span="12">
         <el-form :model="form" :rules="rules" ref="form">
           <div class="logo">
-            <img v-if="loginLogoId" :src="'/display/file/' + loginLogoId" style="width: 224px;height: 45px;" alt="">
-            <img v-else src="../assets/logo-dark-MeterSphere.svg" style="width: 224px; " alt="">
+            <img :src="'/display/file/svg/loginLogo'" style="width: 224px;height: 45px;" alt="">
           </div>
           <div class="title">
             <span id="s1">{{ loginTitle }}</span>
@@ -41,8 +40,7 @@
         </el-form>
       </el-col>
       <el-col :span="12">
-        <img v-if="loginImageId" :src="'/display/file/' + loginImageId" style="height: 560px; width: 100%">
-        <img v-else src="../assets/info.png" style="height: 560px; width: 100%">
+        <img :src="'/display/file/png/loginImage'" style="height: 560px; width: 100%">
       </el-col>
     </el-row>
   </div>
@@ -86,8 +84,6 @@ export default {
       msg: '',
       ready: false,
       openLdap: false,
-      loginLogoId: '_blank',
-      loginImageId: '_blank',
       loginTitle: this.$t("commons.login") + " MeterSphere"
     }
   },
