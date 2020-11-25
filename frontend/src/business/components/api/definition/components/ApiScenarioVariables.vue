@@ -28,8 +28,8 @@
 </template>
 
 <script>
-  import {KeyValue} from "../../model/ApiTestModel";
-  import MsApiVariableInput from "../ApiVariableInput";
+  import {KeyValue} from "../model/ApiTestModel";
+  import MsApiVariableInput from "./ApiVariableInput";
 
   export default {
     name: "MsApiScenarioVariables",

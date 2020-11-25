@@ -2,18 +2,28 @@
 
   <div class="card-container">
     <!-- HTTP 请求参数 -->
-    <ms-add-complete-http-api @runTest="runTest" @saveApi="saveApi" :request="request" :headers="headers" :response="response" :basisData="currentApi"
-                              :moduleOptions="moduleOptions" :currentProject="currentProject"
-                              v-if="currentProtocol === 'HTTP'"/>
-
+    <ms-add-complete-http-api @runTest="runTest" @saveApi="saveApi" :request="request" :headers="headers" :response="response"
+                              :basisData="currentApi" :moduleOptions="moduleOptions" :currentProject="currentProject" v-if="currentProtocol === 'HTTP'"/>
     <!-- TCP -->
-    <ms-api-tcp-request-form :request="request" :currentProject="currentProject" :basisData="currentApi" :moduleOptions="moduleOptions" :maintainerOptions="maintainerOptions" v-if="currentProtocol === 'TCP'"/>
+    <ms-add-complete-tcp-api :request="request" @saveApi="saveApi" :currentProject="currentProject" :basisData="currentApi"
+                             :moduleOptions="moduleOptions" v-if="currentProtocol === 'TCP'"/>
+    <!--DUBBO-->
+    <ms-add-complete-dubbo-api :request="request" @saveApi="saveApi" :currentProject="currentProject" :basisData="currentApi"
+                               :moduleOptions="moduleOptions" v-if="currentProtocol === 'DUBBO'"/>
+    <!--SQL-->
+    <ms-add-complete-sql-api :request="request" @saveApi="saveApi" :currentProject="currentProject" :basisData="currentApi"
+                             :moduleOptions="moduleOptions" v-if="currentProtocol === 'SQL'"/>
+
+
   </div>
 </template>
 
 <script>
   import MsAddCompleteHttpApi from "./complete/AddCompleteHttpApi";
-  import MsApiTcpRequestForm from "./complete/ApiTcpRequestForm";
+  import MsAddCompleteTcpApi from "./complete/AddCompleteTcpApi";
+  import MsAddCompleteDubboApi from "./complete/AddCompleteDubboApi";
+  import MsAddCompleteSqlApi from "./complete/AddCompleteSqlApi";
+
   import {ResponseFactory, Body} from "../model/ApiTestModel";
   import {getUUID} from "@/common/js/utils";
   import {createComponent, Request} from "./jmeter/components";
@@ -23,7 +33,7 @@
 
   export default {
     name: "ApiConfig",
-    components: {MsAddCompleteHttpApi, MsApiTcpRequestForm},
+    components: {MsAddCompleteHttpApi, MsAddCompleteTcpApi, MsAddCompleteDubboApi, MsAddCompleteSqlApi},
     data() {
       return {
         reqUrl: "",
@@ -44,16 +54,16 @@
       this.getMaintainerOptions();
       switch (this.currentProtocol) {
         case Request.TYPES.SQL:
-          this.request = createComponent("SQL");
+          this.initSql();
           break;
         case Request.TYPES.DUBBO:
-          this.request = createComponent("JDBCSampler");
+          this.initDubbo();
           break;
         case Request.TYPES.TCP:
-          this.request = createComponent("TCPSampler");
+          this.initTcp();
           break;
         default:
-          this.createHttp();
+          this.initHttp();
           break;
       }
       if (this.currentApi.response != null && this.currentApi.response != 'null' && this.currentApi.response != undefined) {
@@ -84,8 +94,31 @@
           this.maintainerOptions = response.data;
         });
       },
-
-      createHttp() {
+      initSql() {
+        if (this.currentApi.request != undefined && this.currentApi.request != null) {
+          this.request = JSON.parse(this.currentApi.request);
+          this.currentApi.request = this.request;
+        } else {
+          this.request = createComponent("JDBCSampler");
+        }
+      },
+      initDubbo() {
+        if (this.currentApi.request != undefined && this.currentApi.request != null) {
+          this.request = JSON.parse(this.currentApi.request);
+          this.currentApi.request = this.request;
+        } else {
+          this.request = createComponent("DubboSampler");
+        }
+      },
+      initTcp() {
+        if (this.currentApi.request != undefined && this.currentApi.request != null) {
+          this.request = JSON.parse(this.currentApi.request);
+          this.currentApi.request = this.request;
+        } else {
+          this.request = createComponent("TCPSampler");
+        }
+      },
+      initHttp() {
         if (this.currentApi.request != undefined && this.currentApi.request != null) {
           this.request = JSON.parse(this.currentApi.request);
           this.currentApi.request = this.request;
@@ -108,8 +141,12 @@
 
       },
       setParameters(data) {
+        console.log(data)
         data.projectId = this.currentProject.id;
-        this.request.hashTree[0].headers = this.headers;
+        if (this.currentProtocol === 'HTTP') {
+          this.request.hashTree[0].headers = this.headers;
+        }
+        this.request.name = this.currentProject.name;
         data.request = this.request;
         data.response = this.response;
       },

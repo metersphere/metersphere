@@ -10,7 +10,10 @@ import io.metersphere.api.dto.definition.request.configurations.MsHeaderManager;
 import io.metersphere.api.dto.definition.request.extract.MsExtract;
 import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
+import io.metersphere.api.dto.definition.request.sampler.MsDubboSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
+import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
+import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.commons.utils.LogUtil;
 import lombok.Data;
 import org.apache.jmeter.protocol.http.control.AuthManager;
@@ -33,9 +36,14 @@ import java.util.List;
         @JsonSubTypes.Type(value = MsAuthManager.class, name = "AuthManager"),
         @JsonSubTypes.Type(value = MsAssertions.class, name = "Assertions"),
         @JsonSubTypes.Type(value = MsExtract.class, name = "Extract"),
+        @JsonSubTypes.Type(value = MsTCPSampler.class, name = "TCPSampler"),
+        @JsonSubTypes.Type(value = MsDubboSampler.class, name = "DubboSampler"),
+        @JsonSubTypes.Type(value = MsJDBCSampler.class, name = "JDBCSampler"),
 
 })
-@JSONType(seeAlso = {MsHTTPSamplerProxy.class, MsHeaderManager.class, MsJSR223PostProcessor.class, MsJSR223PreProcessor.class, MsTestPlan.class, MsThreadGroup.class, AuthManager.class, MsAssertions.class, MsExtract.class}, typeKey = "type")
+@JSONType(seeAlso = {MsHTTPSamplerProxy.class, MsHeaderManager.class, MsJSR223PostProcessor.class,
+        MsJSR223PreProcessor.class, MsTestPlan.class, MsThreadGroup.class, AuthManager.class, MsAssertions.class,
+        MsExtract.class, MsTCPSampler.class, MsDubboSampler.class, MsJDBCSampler.class}, typeKey = "type")
 @Data
 public abstract class MsTestElement {
     private String type;

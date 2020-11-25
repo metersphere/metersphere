@@ -87,7 +87,7 @@ import {TCPConfig} from "../../../model/ApiTestModel";
 export default {
   name: "MsTcpConfig",
   props: {
-    config: TCPConfig,
+    config: {},
     isReadOnly: {
       type: Boolean,
       default: false

@@ -15,7 +15,7 @@
 
 <script>
   import {CommonConfig, Environment} from "../../model/EnvironmentModel";
-  import MsApiScenarioVariables from "./ApiScenarioVariables";
+  import MsApiScenarioVariables from "../ApiScenarioVariables";
   import MsApiHostTable from "./ApiHostTable";
 
     export default {

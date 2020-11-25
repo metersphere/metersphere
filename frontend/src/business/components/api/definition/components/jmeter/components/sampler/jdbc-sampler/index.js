@@ -14,17 +14,19 @@ const DEFAULT_OPTIONS = {
 export default class JDBCSampler extends Sampler {
   constructor(options = DEFAULT_OPTIONS) {
     super(options);
-
-    this.dataSource = this.initStringProp("dataSource")
-    this.query = this.initStringProp("query")
-    this.queryType = this.initStringProp("queryType")
-    this.queryArguments = this.initStringProp("queryArguments")
-    this.queryArgumentsTypes = this.initStringProp("queryArgumentsTypes")
-    this.queryTimeout = this.initStringProp("queryTimeout")
-    this.resultSetHandler = this.initStringProp("resultSetHandler")
-    this.resultSetMaxRows = this.initStringProp("resultSetMaxRows")
-    this.resultVariable = this.initStringProp("resultVariable")
-    this.variableNames = this.initStringProp("variableNames")
+    this.type = "JDBCSampler";
+    this.hashTree = [];
+    this.variables = [];
+    this.dataSource = undefined;
+    this.query = undefined;
+    this.queryType = undefined;
+    this.queryArguments = undefined;
+    this.queryArgumentsTypes = undefined;
+    this.queryTimeout = undefined;
+    this.resultSetHandler = undefined;
+    this.resultSetMaxRows = undefined;
+    this.resultVariable = undefined;
+    this.variableNames = undefined;
   }
 }
 

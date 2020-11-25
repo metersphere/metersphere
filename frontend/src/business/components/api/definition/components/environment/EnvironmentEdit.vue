@@ -35,7 +35,7 @@
 </template>
 
 <script>
-  import MsApiScenarioVariables from "./ApiScenarioVariables";
+  import MsApiScenarioVariables from "../ApiScenarioVariables";
   import MsApiKeyValue from "../ApiKeyValue";
   import MsDialogFooter from "../../../../common/components/MsDialogFooter";
   import {REQUEST_HEADERS} from "@/common/js/constants";
