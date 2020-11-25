@@ -2,10 +2,7 @@ package io.metersphere.notice.service;
 
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.UserMapper;
-import io.metersphere.commons.constants.APITestStatus;
-import io.metersphere.commons.constants.NoticeConstants;
-import io.metersphere.commons.constants.ParamConstants;
-import io.metersphere.commons.constants.PerformanceTestStatus;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
@@ -321,6 +318,15 @@ public class MailService {
         context.put("start", start);
         context.put("end", end);
         context.put("id", reviewRequest.getId());
+        String status = "";
+        if (StringUtils.equals(TestPlanStatus.Underway.name(), reviewRequest.getStatus())) {
+            status = "进行中";
+        } else if (StringUtils.equals(TestPlanStatus.Prepare.name(), reviewRequest.getStatus())) {
+            status = "未开始";
+        } else if (StringUtils.equals(TestPlanStatus.Completed.name(), reviewRequest.getStatus())) {
+            status = "已完成";
+        }
+        context.put("status", status);
         return context;
     }
 
@@ -347,12 +353,19 @@ public class MailService {
         context.put("start", start);
         context.put("end", end);
         context.put("id", testPlan.getId());
+        String status = "";
+        if (StringUtils.equals(TestPlanStatus.Underway.name(), testPlan.getStatus())) {
+            status = "进行中";
+        } else if (StringUtils.equals(TestPlanStatus.Prepare.name(), testPlan.getStatus())) {
+            status = "未开始";
+        } else if (StringUtils.equals(TestPlanStatus.Completed.name(), testPlan.getStatus())) {
+            status = "已完成";
+        }
+        context.put("status", status);
         User user = userMapper.selectByPrimaryKey(testPlan.getCreator());
         context.put("creator", user.getName());
         return context;
     }
-
-
 
 
     private JavaMailSenderImpl getMailSender() {
@@ -396,6 +409,7 @@ public class MailService {
                 } else {
                     template = RegExUtils.replaceAll(template, "\\$\\{" + k + "}", "未设置");
                 }
+
             }
         }
         return template;
@@ -405,7 +419,7 @@ public class MailService {
         List<String> addresseeIdList = new ArrayList<>();
         if (StringUtils.equals(eventType, messageDetail.getEvent())) {
             messageDetail.getUserIds().forEach(u -> {
-                if (!StringUtils.equals(NoticeConstants.EXECUTOR, u) && !StringUtils.equals(NoticeConstants.EXECUTOR, u) && !StringUtils.equals(NoticeConstants.MAINTAINER, u)) {
+                if (!StringUtils.equals(NoticeConstants.EXECUTOR, u) && !StringUtils.equals(NoticeConstants.FOUNDER, u) && !StringUtils.equals(NoticeConstants.MAINTAINER, u)) {
                     addresseeIdList.add(u);
                 }
                 if (StringUtils.equals(NoticeConstants.CREATE, eventType) && StringUtils.equals(NoticeConstants.EXECUTOR, u)) {
