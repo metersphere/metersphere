@@ -157,7 +157,7 @@ export class Test extends BaseConfig {
   constructor(options) {
     super();
     this.type = "MS API CONFIG";
-    this.version = '1.4.0';
+    this.version = '1.5.0';
     this.id = uuid();
     this.name = undefined;
     this.projectId = undefined;
