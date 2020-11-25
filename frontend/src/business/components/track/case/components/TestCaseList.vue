@@ -8,7 +8,7 @@
                          :tip="$t('commons.search_by_name_or_id')"
                          :create-tip="$t('test_track.case.create')" @create="testCaseCreate">
           <template v-slot:title>
-            <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="showAll"/>
+            <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="refresh"/>
           </template>
           <template v-slot:button>
             <ms-table-button :is-tester-permission="true" icon="el-icon-download"
@@ -292,6 +292,8 @@ export default {
   },
   methods: {
     initTableData() {
+      this.condition.planId = "";
+      this.condition.nodeIds = [];
       if (this.planId) {
         // param.planId = this.planId;
         this.condition.planId = this.planId;
@@ -376,10 +378,6 @@ export default {
       // this.selectIds.clear();
       this.selectRows.clear();
       this.$emit('refresh');
-    },
-    showAll() {
-      this.condition = {components: TEST_CASE_CONFIGS};
-      this.getData();
     },
     showDetail(row, event, column) {
       this.$emit('testCaseDetail', row);
