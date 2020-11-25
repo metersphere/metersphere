@@ -4,7 +4,7 @@
       <el-col :span="12">
         <el-form :model="form" :rules="rules" ref="form">
           <div class="logo">
-            <img :src="'/display/file/svg/loginLogo'" style="width: 224px;height: 45px;" alt="">
+            <img :src="'/display/file/loginLogo'" style="width: 224px;height: 45px;" alt="">
           </div>
           <div class="title">
             <span id="s1">{{ loginTitle }}</span>
@@ -40,7 +40,7 @@
         </el-form>
       </el-col>
       <el-col :span="12">
-        <img :src="'/display/file/png/loginImage'" style="height: 560px; width: 100%">
+        <img :src="'/display/file/loginImage'" style="height: 560px; width: 100%">
       </el-col>
     </el-row>
   </div>
