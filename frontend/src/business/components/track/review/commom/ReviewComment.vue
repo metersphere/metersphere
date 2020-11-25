@@ -23,9 +23,10 @@
         resize="none"
         :autosize="{ minRows: 4, maxRows: 4}"
         @keyup.ctrl.enter.native="sendComment"
+        :disabled="isReadOnly"
       >
       </el-input>
-      <el-button type="primary" size="mini" class="send-btn" @click="sendComment">
+      <el-button type="primary" size="mini" class="send-btn" @click="sendComment" :disabled="isReadOnly">
         {{ $t('test_track.comment.send') }}
       </el-button>
     </div>
@@ -34,6 +35,7 @@
 
 <script>
 import ReviewCommentItem from "./ReviewCommentItem";
+import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
 
 export default {
   name: "ReviewComment",
@@ -47,7 +49,11 @@ export default {
     return {
       result: {},
       textarea: '',
+      isReadOnly: false
     }
+  },
+  created() {
+    this.isReadOnly = !checkoutTestManagerOrTestUser();
   },
   methods: {
     sendComment() {
