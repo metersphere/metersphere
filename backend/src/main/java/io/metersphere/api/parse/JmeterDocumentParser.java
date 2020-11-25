@@ -161,7 +161,9 @@ public class JmeterDocumentParser {
                 break;
             case "Argument.value":
                 String textContent = ele.getTextContent();
-                ele.setTextContent(ScriptEngineUtils.calculate(textContent));
+                if (StringUtils.startsWith(textContent, "@")) {
+                    ele.setTextContent(ScriptEngineUtils.calculate(textContent));
+                }
                 break;
             default:
                 break;
