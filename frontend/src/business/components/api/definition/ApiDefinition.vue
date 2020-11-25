@@ -44,7 +44,8 @@
 
           <!-- 快捷调试 -->
           <div v-else-if="item.type=== 'debug'">
-            <ms-debug-http-page :currentProtocol="currentProtocol" @saveAs="editApi"/>
+            <ms-debug-http-page :currentProtocol="currentProtocol" @saveAs="editApi" v-if="currentProtocol==='HTTP'"/>
+            <ms-debug-jdbc-page :currentProtocol="currentProtocol" :currentProject="currentProject" @saveAs="editApi" v-if="currentProtocol==='SQL'"/>
           </div>
 
           <!-- 测试-->
@@ -68,6 +69,8 @@
   import MsBottomContainer from "./components/BottomContainer";
   import MsApiConfig from "./components/ApiConfig";
   import MsDebugHttpPage from "./components/debug/DebugHttpPage";
+  import MsDebugJdbcPage from "./components/debug/DebugJdbcPage";
+
   import MsRunTestHttpPage from "./components/runtest/RunTestHttpPage";
   import {downloadFile, getCurrentUser, getUUID} from "@/common/js/utils";
 
@@ -82,7 +85,8 @@
       MsBottomContainer,
       MsApiConfig,
       MsDebugHttpPage,
-      MsRunTestHttpPage
+      MsRunTestHttpPage,
+      MsDebugJdbcPage
     },
     comments: {},
     data() {

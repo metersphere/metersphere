@@ -1,6 +1,6 @@
 <template>
 
-  <div class="card-container">
+  <div class="card-container" v-loading="loading">
     <el-card class="card-content">
       <el-form :model="debugForm" :rules="rules" ref="debugForm" :inline="true" label-position="right">
         <p class="tip">{{$t('test_track.plan_view.base_info')}} </p>
@@ -31,7 +31,7 @@
       </el-form>
       <!-- HTTP 请求返回数据 -->
       <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
-      <ms-request-result-tail v-loading="loading" :response="responseData" ref="debugResult"/>
+      <ms-request-result-tail  :response="responseData" ref="debugResult"/>
 
       <!-- 执行组件 -->
       <ms-run :debug="true" :reportId="reportId" :run-data="runData" @runRefresh="runRefresh" ref="runTest"/>

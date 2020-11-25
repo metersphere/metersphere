@@ -5,38 +5,43 @@
         <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin: 20px">
           <el-form :model="request" ref="request" label-width="100px" :disabled="isReadOnly" style="margin: 20px">
 
-            <div class="one-row">
-              <el-form-item prop="environmentId" :label="$t('api_test.definition.request.run_env')">
-                <el-select v-model="request.environmentId" size="small" class="ms-htt-width"
-                           :placeholder="$t('api_test.definition.request.run_env')"
-                           @change="environmentChange" clearable>
-                  <el-option v-for="(environment, index) in environments" :key="index"
-                             :label="environment.name + (environment.config.httpConfig.socket ? (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '')"
-                             :value="environment.id"/>
-                  <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
-                    {{ $t('api_test.environment.environment_config') }}
-                  </el-button>
-                  <template v-slot:empty>
-                    <div class="empty-environment">
-                      <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
-                        {{ $t('api_test.environment.environment_config') }}
-                      </el-button>
-                    </div>
-                  </template>
-                </el-select>
-              </el-form-item>
+            <el-row>
+              <el-col :span="8">
+                <el-form-item prop="environmentId" :label="$t('api_test.definition.request.run_env')">
+                  <el-select v-model="request.environmentId" size="small" class="ms-htt-width"
+                             :placeholder="$t('api_test.definition.request.run_env')"
+                             @change="environmentChange" clearable>
+                    <el-option v-for="(environment, index) in environments" :key="index"
+                               :label="environment.name + (environment.config.httpConfig.socket ? (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '')"
+                               :value="environment.id"/>
+                    <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
+                      {{ $t('api_test.environment.environment_config') }}
+                    </el-button>
+                    <template v-slot:empty>
+                      <div class="empty-environment">
+                        <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
+                          {{ $t('api_test.environment.environment_config') }}
+                        </el-button>
+                      </div>
+                    </template>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item :label="$t('api_test.request.sql.dataSource')" prop="dataSource" style="margin-left: 10px">
+                  <el-select v-model="request.dataSource" size="small">
+                    <el-option v-for="(item, index) in databaseConfigsOptions" :key="index" :value="item" :label="item.name"/>
+                  </el-select>
+                </el-form-item>
 
-              <el-form-item :label="$t('api_test.request.sql.dataSource')" prop="dataSource" style="margin-left: 10px">
-                <el-select v-model="request.dataSource" size="small">
-                  <el-option v-for="(item, index) in databaseConfigsOptions" :key="index" :value="item" :label="item.name"/>
-                </el-select>
-              </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item :label="$t('api_test.request.sql.timeout')" prop="queryTimeout" style="margin-left: 10px">
+                  <el-input-number :disabled="isReadOnly" size="small" v-model="request.queryTimeout" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
+                </el-form-item>
+              </el-col>
+            </el-row>
 
-              <el-form-item :label="$t('api_test.request.sql.timeout')" prop="queryTimeout" style="margin-left: 10px">
-                <el-input-number :disabled="isReadOnly" size="small" v-model="request.queryTimeout" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
-              </el-form-item>
-
-            </div>
 
             <el-form-item :label="$t('api_test.request.sql.result_variable')" prop="resultVariable">
               <el-input v-model="request.resultVariable" maxlength="300" show-word-limit/>

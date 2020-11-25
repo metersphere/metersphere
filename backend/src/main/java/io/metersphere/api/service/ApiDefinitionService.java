@@ -264,6 +264,8 @@ public class ApiDefinitionService {
         createBodyFiles(bodyUploadIds, bodyFiles);
 
         HashTree hashTree = request.getTestElement().generateHashTree();
+
+        request.getTestElement().getJmx(hashTree);
         // 调用执行方法
         jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), ApiRunMode.DELIMIT.name());
         return request.getId();

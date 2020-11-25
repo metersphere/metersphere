@@ -1,37 +1,23 @@
 <template>
 
-  <div class="card-container">
+  <div class="card-container" v-loading="loading">
     <el-card class="card-content">
-      <el-form :model="debugForm" :rules="rules" ref="debugForm" :inline="true" label-position="right">
-        <p class="tip">{{$t('test_track.plan_view.base_info')}} </p>
+      <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
+                   @command="handleCommand" size="small" style="float: right;margin-right: 20px">
+        {{$t('commons.test')}}
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item command="save_as">{{$t('api_test.definition.request.save_as')}}</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
 
-        <el-form-item :label="$t('api_report.request')" prop="url">
-          <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-model="debugForm.url"
-                    class="ms-http-input" size="small">
-            <el-select v-model="debugForm.method" slot="prepend" style="width: 100px" size="small">
-              <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
-            </el-select>
-          </el-input>
-        </el-form-item>
+      <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
+      <!-- HTTP 请求参数 -->
+      <ms-basis-parameters :request="request" :currentProject="currentProject"/>
 
-        <el-form-item>
-          <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
-                       @command="handleCommand" size="small">
-            {{$t('commons.test')}}
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="save_as">{{$t('api_test.definition.request.save_as')}}</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
-        </el-form-item>
 
-        <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
-        <!-- HTTP 请求参数 -->
-        <ms-api-request-form :headers="headers" :request="request"/>
-
-      </el-form>
       <!-- HTTP 请求返回数据 -->
       <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
-      <ms-request-result-tail v-loading="loading" :response="responseData" ref="debugResult"/>
+      <ms-request-result-tail  :response="responseData" ref="debugResult"/>
 
       <!-- 执行组件 -->
       <ms-run :debug="true" :reportId="reportId" :run-data="runData" @runRefresh="runRefresh" ref="runTest"/>
@@ -50,12 +36,14 @@
   import HeaderManager from "../jmeter/components/configurations/header-manager";
   import {REQ_METHOD} from "../../model/JsonData";
   import MsRequestResultTail from "../response/RequestResultTail";
+  import MsBasisParameters from "../request/database/BasisParameters";
 
   export default {
     name: "ApiConfig",
-    components: {MsRequestResultTail, MsResponseResult, MsApiRequestForm, MsRequestMetric, MsResponseText, MsRun},
+    components: {MsRequestResultTail, MsResponseResult, MsApiRequestForm, MsRequestMetric, MsResponseText, MsRun, MsBasisParameters},
     props: {
       currentProtocol: String,
+      currentProject: {},
     },
     data() {
       return {
@@ -76,9 +64,9 @@
       }
     },
     created() {
-      switch (this.protocol) {
+      switch (this.currentProtocol) {
         case Request.TYPES.SQL:
-          this.request = createComponent("SQL");
+          this.request = createComponent("JDBCSampler");
           break;
         case Request.TYPES.DUBBO:
           this.request = createComponent("JDBCSampler");
@@ -110,19 +98,12 @@
         this.request.hashTree = [header];
       },
       runDebug() {
-        this.$refs['debugForm'].validate((valid) => {
-          if (valid) {
-            this.loading = true;
-            this.request.url = this.debugForm.url;
-            this.request.method = this.debugForm.method;
-            this.request.hashTree[0].headers = this.headers;
-            this.request.name = getUUID().substring(0, 8);
-            this.runData = [];
-            this.runData.push(this.request);
-            /*触发执行操作*/
-            this.reportId = getUUID().substring(0, 8);
-          }
-        })
+        this.loading = true;
+        this.request.name = getUUID().substring(0, 8);
+        this.runData = [];
+        this.runData.push(this.request);
+        /*触发执行操作*/
+        this.reportId = getUUID().substring(0, 8);
       },
       runRefresh(data) {
         this.responseData = data;
