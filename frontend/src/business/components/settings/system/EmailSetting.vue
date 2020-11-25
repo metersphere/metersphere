@@ -45,7 +45,7 @@
         <el-checkbox v-model="formInline.TLS" :label="$t('system_parameter_setting.TLS')"></el-checkbox>
       </div>
       <div style="border: 0px;margin-bottom: 20px">
-        <el-checkbox v-model="formInline.SMTP" :label="$t('system_parameter_setting.SMTP')"></el-checkbox>
+        <el-checkbox v-model="formInline.ANON" :label="$t('system_parameter_setting.SMTP')"></el-checkbox>
       </div>
       <template v-slot:footer>
       </template>
@@ -120,7 +120,7 @@ export default {
         this.$set(this.formInline, "password", response.data[3].paramValue);
         this.$set(this.formInline, "SSL", JSON.parse(response.data[4].paramValue));
         this.$set(this.formInline, "TLS", JSON.parse(response.data[5].paramValue));
-        this.$set(this.formInline, "SMTP", JSON.parse(response.data[6].paramValue));
+        this.$set(this.formInline, "ANON", JSON.parse(response.data[6].paramValue));
         this.$nextTick(() => {
           this.$refs.formInline.clearValidate();
         })
@@ -143,7 +143,7 @@ export default {
         "smtp.password": this.formInline.password,
         "smtp.ssl": this.formInline.SSL,
         "smtp.tls": this.formInline.TLS,
-        "smtp.smtp": this.formInline.SMTP,
+        "smtp.anon": this.formInline.ANON,
       };
       this.$refs[formInline].validate((valid) => {
         if (valid) {
@@ -173,7 +173,7 @@ export default {
         {paramKey: "smtp.password", paramValue: this.formInline.password, type: "password", sort: 4},
         {paramKey: "smtp.ssl", paramValue: this.formInline.SSL, type: "text", sort: 5},
         {paramKey: "smtp.tls", paramValue: this.formInline.TLS, type: "text", sort: 6},
-        {paramKey: "smtp.smtp", paramValue: this.formInline.SMTP, type: "text", sort: 7}
+        {paramKey: "smtp.anon", paramValue: this.formInline.ANON, type: "text", sort: 7}
       ]
 
       this.$refs[formInline].validate(valid => {

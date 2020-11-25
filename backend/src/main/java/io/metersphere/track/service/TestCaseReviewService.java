@@ -187,27 +187,25 @@ public class TestCaseReviewService {
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
         List<String> userIds = new ArrayList<>();
         userIds.addAll(testCaseReview.getUserIds());
-        if (StringUtils.equals(TestPlanStatus.Completed.name(), testCaseReview.getStatus())) {
-            try {
-                String context = getReviewContext(testCaseReview, NoticeConstants.UPDATE);
-                MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
-                List<MessageDetail> taskList = messageSettingDetail.getReviewTask();
-                taskList.forEach(r -> {
-                    switch (r.getType()) {
-                        case NoticeConstants.NAIL_ROBOT:
-                            dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.UPDATE);
-                            break;
-                        case NoticeConstants.WECHAT_ROBOT:
-                            wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.UPDATE);
-                            break;
-                        case NoticeConstants.EMAIL:
-                            mailService.sendReviewerNotice(r, userIds, testCaseReview, NoticeConstants.UPDATE);
-                            break;
-                    }
-                });
-            } catch (Exception e) {
-                LogUtil.error(e);
-            }
+        try {
+            String context = getReviewContext(testCaseReview, NoticeConstants.UPDATE);
+            MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
+            List<MessageDetail> taskList = messageSettingDetail.getReviewTask();
+            taskList.forEach(r -> {
+                switch (r.getType()) {
+                    case NoticeConstants.NAIL_ROBOT:
+                        dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.UPDATE);
+                        break;
+                    case NoticeConstants.WECHAT_ROBOT:
+                        wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.UPDATE);
+                        break;
+                    case NoticeConstants.EMAIL:
+                        mailService.sendEndNotice(r, userIds, testCaseReview, NoticeConstants.UPDATE);
+                        break;
+                }
+            });
+        } catch (Exception e) {
+            LogUtil.error(e);
         }
 
     }
@@ -585,7 +583,15 @@ public class TestCaseReviewService {
         if (StringUtils.equals(NoticeConstants.CREATE, type)) {
             context = "测试评审任务通知：" + user.getName() + "发起的" + "'" + reviewRequest.getName() + "'" + "待开始，计划开始时间是" + start + "计划结束时间为" + end + "请跟进";
         } else if (StringUtils.equals(NoticeConstants.UPDATE, type)) {
-            context = "测试评审任务通知：" + user.getName() + "发起的" + "'" + reviewRequest.getName() + "'" + "已完成，计划开始时间是" + start + "计划结束时间为" + end + "已完成";
+            String status = "";
+            if (StringUtils.equals(TestPlanStatus.Underway.name(), reviewRequest.getStatus())) {
+                status = "进行中";
+            } else if (StringUtils.equals(TestPlanStatus.Prepare.name(), reviewRequest.getStatus())) {
+                status = "未开始";
+            } else if (StringUtils.equals(TestPlanStatus.Completed.name(), reviewRequest.getStatus())) {
+                status = "已完成";
+            }
+            context = "测试评审任务通知：" + user.getName() + "发起的" + "'" + reviewRequest.getName() + "'" + "计划开始时间是" + start + "计划结束时间为" + end + status;
         } else if (StringUtils.equals(NoticeConstants.DELETE, type)) {
             context = "测试评审任务通知：" + user.getName() + "发起的" + "'" + reviewRequest.getName() + "'" + "计划开始时间是" + start + "计划结束时间为" + end + "已删除";
         }

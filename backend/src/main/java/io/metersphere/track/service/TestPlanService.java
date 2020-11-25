@@ -159,13 +159,16 @@ public class TestPlanService {
         //进行中状态，写入实际开始时间
         if (TestPlanStatus.Underway.name().equals(testPlan.getStatus())) {
             testPlan.setActualStartTime(System.currentTimeMillis());
-
         } else if (TestPlanStatus.Completed.name().equals(testPlan.getStatus())) {
-            List<String> userIds = new ArrayList<>();
-            userIds.add(testPlan.getPrincipal());
-            AddTestPlanRequest testPlans = new AddTestPlanRequest();
             //已完成，写入实际完成时间
             testPlan.setActualEndTime(System.currentTimeMillis());
+
+        }
+        List<String> userIds = new ArrayList<>();
+        userIds.add(testPlan.getPrincipal());
+        AddTestPlanRequest testPlans = new AddTestPlanRequest();
+        int i = testPlanMapper.updateByPrimaryKeySelective(testPlan);
+        if (!StringUtils.isBlank(testPlan.getStatus())) {
             try {
                 BeanUtils.copyBean(testPlans, getTestPlan(testPlan.getId()));
                 String context = getTestPlanContext(testPlans, NoticeConstants.UPDATE);
@@ -180,7 +183,7 @@ public class TestPlanService {
                             wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.UPDATE);
                             break;
                         case NoticeConstants.EMAIL:
-                            mailService.sendTestPlanStartNotice(r, userIds, testPlans, NoticeConstants.UPDATE);
+                            mailService.sendTestPlanEndNotice(r, userIds, testPlans, NoticeConstants.UPDATE);
                             break;
                     }
                 });
@@ -188,8 +191,7 @@ public class TestPlanService {
                 LogUtil.error(e);
             }
         }
-
-        return testPlanMapper.updateByPrimaryKeySelective(testPlan);
+        return i;
     }
 
     private void editTestPlanProject(TestPlanDTO testPlan) {
@@ -557,11 +559,19 @@ public class TestPlanService {
         }
         String context = "";
         if (StringUtils.equals(NoticeConstants.CREATE, type)) {
-            context = "测试计划任务通知：" + user.getName() + "创建的" + "'" + testPlan.getName() + "'" + "待开始，计划开始时间是" + start + "计划结束时间为" + end + "请跟进";
+            context = "测试计划任务通知：" + user.getName() + "创建的" + "'" + testPlan.getName() + "'" + "待开始，计划开始时间是:" + "'" + start + "'" + ";" + "计划结束时间是:" + "'" + end + "'" + " " + "请跟进";
         } else if (StringUtils.equals(NoticeConstants.UPDATE, type)) {
-            context = "测试计划任务通知：" + user.getName() + "创建的" + "'" + testPlan.getName() + "'" + "已完成，计划开始时间是" + start + "计划结束时间为" + end + "已完成";
+            String status = "";
+            if (StringUtils.equals(TestPlanStatus.Underway.name(), testPlan.getStatus())) {
+                status = "进行中";
+            } else if (StringUtils.equals(TestPlanStatus.Prepare.name(), testPlan.getStatus())) {
+                status = "未开始";
+            } else if (StringUtils.equals(TestPlanStatus.Completed.name(), testPlan.getStatus())) {
+                status = "已完成";
+            }
+            context = "测试计划任务通知：" + user.getName() + "创建的" + "'" + testPlan.getName() + "'" + "计划开始时间是:" + "'" + start + "'" + ";" + "计划结束时间是:" + "'" + end + "'" + " " + status;
         } else if (StringUtils.equals(NoticeConstants.DELETE, type)) {
-            context = "测试计划任务通知：" + user.getName() + "创建的" + "'" + testPlan.getName() + "'" + "计划开始时间是" + start + "计划结束时间为" + end + "已删除";
+            context = "测试计划任务通知：" + user.getName() + "创建的" + "'" + testPlan.getName() + "'" + "计划开始时间是:" + "'" + start + "'" + ";" + "计划结束时间是:" + "'" + end + "'" + " " + "已删除";
         }
         return context;
     }
