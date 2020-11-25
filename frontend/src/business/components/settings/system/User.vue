@@ -338,6 +338,7 @@ import {hasRole, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import MsRolesTag from "../../common/components/MsRolesTag";
 import {ROLE_ADMIN} from "@/common/js/constants";
 import {getCurrentUser} from "../../../../common/js/utils";
+import {PHONE_REGEX} from "@/common/js/regex";
 
 export default {
   name: "MsUser",
@@ -401,7 +402,7 @@ export default {
           {required: true, message: this.$t('user.input_phone'), trigger: 'blur'},
           {
             required: true,
-            pattern: '^1(3|4|5|7|8)\\d{9}$',
+            pattern: PHONE_REGEX,
             message: this.$t('user.mobile_number_format_is_incorrect'),
             trigger: 'blur'
           }
