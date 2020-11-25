@@ -260,6 +260,10 @@ export default {
   background: url(../assets/info.png);
   height: 560px;
 }
+
+.login-logo {
+  background: url(../assets/logo-dark-MeterSphere.svg);
+}
 </style>
 
 <style>
