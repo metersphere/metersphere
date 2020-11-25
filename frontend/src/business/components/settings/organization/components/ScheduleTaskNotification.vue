@@ -2,7 +2,7 @@
   <div>
     <el-row>
       <el-col :span="10">
-        <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="handleAddTaskModel('scheduleTask')">
+        <el-button :disabled="!isTesterPermission" icon="el-icon-circle-plus-outline" plain size="mini" @click="handleAddTaskModel('scheduleTask')">
           {{ $t('organization.message.create_new_notification') }}
         </el-button>
       </el-col>
@@ -69,12 +69,14 @@
                 type="primary"
                 size="mini"
                 v-show="scope.row.isSet"
+                :disabled="!isTesterPermission"
                 @click="handleAddTask(scope.$index,scope.row)"
               >{{ $t('commons.add') }}
               </el-button>
               <el-button
                 size="mini"
                 v-show="scope.row.isSet"
+                :disabled="!isTesterPermission"
                 @click.native.prevent="removeRowTask(scope.$index,form.scheduleTask)"
               >{{ $t('commons.cancel') }}
               </el-button>
@@ -82,6 +84,7 @@
                 type="primary"
                 size="mini"
                 v-show="!scope.row.isSet"
+                :disabled="!isTesterPermission"
                 @click="handleEditTask(scope.$index,scope.row)"
               >{{ $t('commons.edit') }}</el-button>
               <el-button
@@ -89,6 +92,7 @@
                 icon="el-icon-delete"
                 size="mini"
                 v-show="!scope.row.isSet"
+                :disabled="!isTesterPermission"
                 @click.native.prevent="deleteRowTask(scope.$index,scope.row)"
               ></el-button>
             </template>
@@ -106,6 +110,10 @@ export default {
   props: {
     testId:String,
     scheduleReceiverOptions:Array,
+    isTesterPermission: {
+      type: Boolean,
+      default: true
+    }
   },
   data() {
     return {
@@ -120,7 +128,6 @@ export default {
           identification: "",
           isReadOnly: false,
           testId:this.testId,
-
         }],
       },
       scheduleEventOptions: [

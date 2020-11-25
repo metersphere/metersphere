@@ -497,7 +497,6 @@ export default {
     },
     showPopover(row, column, cell) {
       if (column.property === 'name') {
-        console.log(row, column);
         this.currentCaseId = row.id;
       }
     }
