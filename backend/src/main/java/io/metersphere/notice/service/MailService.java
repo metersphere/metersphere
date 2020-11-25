@@ -65,7 +65,7 @@ public class MailService {
             }
             sendApiOrLoadNotification(addresseeIdList(messageDetail, userIds, eventType), context, performanceTemplate, loadTestReport.getTriggerMode());
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -86,7 +86,7 @@ public class MailService {
             }
             sendApiOrLoadNotification(addresseeIdList(messageDetail, userIds, eventType), context, apiTemplate, apiTestReport.getTriggerMode());
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -118,7 +118,7 @@ public class MailService {
         try {
             javaMailSender.send(mimeMessage);
         } catch (MailException e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
     //测试评审
@@ -129,7 +129,7 @@ public class MailService {
             String endTemplate = IOUtils.toString(this.getClass().getResource("/mail/ReviewEnd.html"), StandardCharsets.UTF_8);
             sendReviewNotice(addresseeIdList(messageDetail, userIds, eventType), context, endTemplate);
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -139,7 +139,7 @@ public class MailService {
             String endTemplate = IOUtils.toString(this.getClass().getResource("/mail/ReviewDelete.html"), StandardCharsets.UTF_8);
             sendReviewNotice(addresseeIdList(messageDetail, userIds, eventType), context, endTemplate);
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -156,7 +156,7 @@ public class MailService {
             String commentTemplate = IOUtils.toString(this.getClass().getResource("/mail/ReviewComments.html"), StandardCharsets.UTF_8);
             sendReviewNotice(addresseeIdList(messageDetail, userIds, eventType), context, commentTemplate);
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -166,7 +166,7 @@ public class MailService {
             String reviewerTemplate = IOUtils.toString(this.getClass().getResource("/mail/ReviewInitiate.html"), StandardCharsets.UTF_8);
             sendReviewNotice(addresseeIdList(messageDetail, userIds, eventType), context, reviewerTemplate);
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -205,7 +205,7 @@ public class MailService {
             String endTemplate = IOUtils.toString(this.getClass().getResource("/mail/TestPlanStart.html"), StandardCharsets.UTF_8);
             sendTestPlanNotice(addresseeIdList(messageDetail, userIds, eventType), context, endTemplate);
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -217,7 +217,7 @@ public class MailService {
             String endTemplate = IOUtils.toString(this.getClass().getResource("/mail/TestPlanEnd.html"), StandardCharsets.UTF_8);
             sendTestPlanNotice(addresseeIdList(messageDetail, userIds, eventType), context, endTemplate);
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -229,7 +229,7 @@ public class MailService {
             String endTemplate = IOUtils.toString(this.getClass().getResource("/mail/TestPlanDelete.html"), StandardCharsets.UTF_8);
             sendTestPlanNotice(addresseeIdList(messageDetail, userIds, eventType), context, endTemplate);
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -266,7 +266,7 @@ public class MailService {
             String endTemplate = IOUtils.toString(this.getClass().getResource("/mail/IssuesCreate.html"), StandardCharsets.UTF_8);
             sendIssuesNotice(addresseeIdList(messageDetail, userIds, eventType), context, endTemplate);
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 

@@ -50,7 +50,7 @@ public class JmeterDocumentParser {
             }
             return documentToBytes(document);
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
             return source;
         }
     }

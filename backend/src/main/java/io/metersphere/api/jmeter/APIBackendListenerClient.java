@@ -161,13 +161,13 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                     testPlanTestCaseService.updateTestCaseStates(ids, TestPlanTestCaseStatus.Failure.name());
                 }
             } catch (Exception e) {
-                LogUtil.error(e);
+                LogUtil.error(e.getMessage(), e);
             }
         }
         try {
             sendTask(report, testResult);
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
 
     }

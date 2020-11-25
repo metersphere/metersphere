@@ -127,7 +127,7 @@ public class TestCaseReviewService {
                 }
             });
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
 
     }
@@ -205,7 +205,7 @@ public class TestCaseReviewService {
                 }
             });
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
 
     }
@@ -316,7 +316,7 @@ public class TestCaseReviewService {
                 }
             });
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
 
     }
@@ -466,7 +466,7 @@ public class TestCaseReviewService {
                     }
                 });
             } catch (Exception e) {
-                LogUtil.error(e);
+                LogUtil.error(e.getMessage(), e);
             }
         }
     }

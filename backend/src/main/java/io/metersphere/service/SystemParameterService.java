@@ -107,7 +107,7 @@ public class SystemParameterService {
         try {
             javaMailSender.testConnection();
         } catch (MessagingException e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
             MSException.throwException(Translator.get("connection_failed"));
         }
     }

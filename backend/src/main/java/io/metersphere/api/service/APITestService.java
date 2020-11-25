@@ -131,7 +131,7 @@ public class APITestService {
                 file.createNewFile();
                 FileUtil.copyStream(in, out);
             } catch (IOException e) {
-                LogUtil.error(e);
+                LogUtil.error(e.getMessage(), e);
                 MSException.throwException(Translator.get("upload_fail"));
             }
         }
@@ -174,7 +174,7 @@ public class APITestService {
             try {
                 FileUtil.copyDir(sourceFile, new File(targetDir));
             } catch (IOException e) {
-                LogUtil.error(e);
+                LogUtil.error(e.getMessage(), e);
                 MSException.throwException(Translator.get("upload_fail"));
             }
         }
@@ -437,7 +437,7 @@ public class APITestService {
             bytes = JmeterDocumentParser.parse(bytes);
             is = new ByteArrayInputStream(bytes);
         } catch (IOException e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
 
         jMeterService.run(request.getId(), reportId, is);

@@ -137,7 +137,7 @@ public class TestPlanService {
                 }
             });
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -188,7 +188,7 @@ public class TestPlanService {
                     }
                 });
             } catch (Exception e) {
-                LogUtil.error(e);
+                LogUtil.error(e.getMessage(), e);
             }
         }
         return i;
@@ -272,7 +272,7 @@ public class TestPlanService {
                 }
             });
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
         return num;
     }
@@ -513,7 +513,7 @@ public class TestPlanService {
                     }
                 });
             } catch (Exception e) {
-                LogUtil.error(e);
+                LogUtil.error(e.getMessage(), e);
             }
         }
 

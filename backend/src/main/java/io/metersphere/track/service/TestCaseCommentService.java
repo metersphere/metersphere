@@ -84,7 +84,7 @@ public class TestCaseCommentService {
                 }
             });
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
 
     }

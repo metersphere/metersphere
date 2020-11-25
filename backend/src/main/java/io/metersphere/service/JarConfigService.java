@@ -119,7 +119,7 @@ public class JarConfigService {
             file.createNewFile();
             FileUtil.copyStream(in, out);
         } catch (IOException e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
             MSException.throwException(Translator.get("upload_fail"));
         }
         return filePath;

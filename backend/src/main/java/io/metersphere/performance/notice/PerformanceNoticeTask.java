@@ -65,7 +65,7 @@ public class PerformanceNoticeTask {
                     //查询定时任务是否关闭
                     Thread.sleep(1000 * 30);// 每分钟检查 loadtest 的状态
                 } catch (InterruptedException e) {
-                    LogUtil.error(e);
+                    LogUtil.error(e.getMessage(), e);
                 }
             }
         });
