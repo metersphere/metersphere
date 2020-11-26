@@ -240,7 +240,7 @@
   .ms-api-buttion {
     position: absolute;
     top: 100px;
-    right: 20px;
+    right: 4px;
     padding: 0;
     background: 0 0;
     border: none;
@@ -251,10 +251,10 @@
   }
 
   /deep/ .el-tabs__header {
-    margin-right: 82px;
-  }
-  /deep/ .el-main{
-    overflow: hidden;
+    margin: 0 0 5px;
   }
 
+  /deep/ .el-main {
+    overflow: hidden;
+  }
 </style>
