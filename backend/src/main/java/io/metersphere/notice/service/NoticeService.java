@@ -51,7 +51,7 @@ public class NoticeService {
         long time = System.currentTimeMillis();
         String identification = UUID.randomUUID().toString();
         list.getUserIds().forEach(m -> {
-            checkUserIdExist(m, list);
+            checkUserIdExist(m, list,orgId);
             MessageTask message = new MessageTask();
             message.setId(UUID.randomUUID().toString());
             message.setEvent(list.getEvent());
@@ -68,9 +68,9 @@ public class NoticeService {
         });
     }
 
-    private void checkUserIdExist(String userId, MessageDetail list) {
+    private void checkUserIdExist(String userId, MessageDetail list,String orgId) {
         MessageTaskExample example = new MessageTaskExample();
-        example.createCriteria().andUserIdEqualTo(userId).andEventEqualTo(list.getEvent()).andTypeEqualTo(list.getType()).andTaskTypeEqualTo(list.getTaskType()).andWebhookEqualTo(list.getWebhook());
+        example.createCriteria().andUserIdEqualTo(userId).andEventEqualTo(list.getEvent()).andTypeEqualTo(list.getType()).andTaskTypeEqualTo(list.getTaskType()).andWebhookEqualTo(list.getWebhook()).andTestIdEqualTo(list.getTestId()).andOrganizationIdEqualTo(orgId);
         if (messageTaskMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("message_task_already_exists"));
         }
