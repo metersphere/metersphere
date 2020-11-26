@@ -6,7 +6,7 @@
       :title="$t('test_track.project')"
       @dataChange="changeProject" style="margin-bottom: 20px"/>
 
-    <el-select style="width: 100px ;height: 30px" size="small" v-model="value" @change="changeProtocol">
+    <el-select style="width: 100px ;height: 30px" size="small" v-model="protocol" @change="changeProtocol">
       <el-option
         v-for="item in options"
         :key="item.value"
@@ -18,15 +18,11 @@
     <el-input style="width: 175px; padding-left: 3px" :placeholder="$t('test_track.module.search')" v-model="filterText"
               size="small">
       <template v-slot:append>
-        <!--
-                <el-button icon="el-icon-folder-add" @click="addApi"></el-button>
-        -->
-        <el-dropdown size="small" split-button type="primary" class="ms-api-buttion" @click="handleCommand('add')"
+        <el-dropdown size="small" split-button type="primary" class="ms-api-buttion" @click="handleCommand('add-api')"
                      @command="handleCommand">
           <el-button icon="el-icon-folder-add" @click="addApi"></el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="add-api">{{$t('api_test.definition.request.title')}}</el-dropdown-item>
-            <!--<el-dropdown-item command="add-module">{{$t('api_test.definition.request.add_module')}}</el-dropdown-item>-->
             <el-dropdown-item command="debug">{{$t('api_test.definition.request.fast_debug')}}</el-dropdown-item>
             <el-dropdown-item command="import">{{$t('api_test.api_import.label')}}</el-dropdown-item>
             <el-dropdown-item command="export">{{$t('report.export')}}</el-dropdown-item>
@@ -93,7 +89,7 @@
         </span>
     </el-tree>
 
-    <ms-add-basis-http-api :current-protocol="value" ref="httpApi"></ms-add-basis-http-api>
+    <ms-add-basis-api :current-protocol="protocol" ref="basisApi"></ms-add-basis-api>
     <api-import ref="apiImport" @refresh="refresh"/>
 
   </div>
@@ -101,7 +97,7 @@
 </template>
 
 <script>
-  import MsAddBasisHttpApi from "./basis/AddBasisApi";
+  import MsAddBasisApi from "./basis/AddBasisApi";
   import SelectMenu from "../../../track/common/SelectMenu";
   import {OPTIONS, DEFAULT_DATA} from "../model/JsonData";
   import ApiImport from "./import/ApiImport";
@@ -109,16 +105,16 @@
   export default {
     name: 'MsApiModule',
     components: {
-      MsAddBasisHttpApi,
+      MsAddBasisApi,
       SelectMenu,
       ApiImport
     },
     data() {
       return {
         options: OPTIONS,
-        value: OPTIONS[0].value,
+        protocol: OPTIONS[0].value,
         httpVisible: false,
-        expandedNode: [],
+        expandedNode: ["root"],
         filterText: "",
         nextFlag: true,
         currentProject: {},
@@ -143,7 +139,7 @@
     methods: {
       getApiModuleTree() {
         if (this.currentProject) {
-          this.$get("/api/module/list/" + this.currentProject.id + "/" + this.value, response => {
+          this.$get("/api/module/list/" + this.currentProject.id + "/" + this.protocol, response => {
             if (response.data != undefined && response.data != null) {
               this.data[0].children = response.data;
               let moduleOptions = [];
@@ -365,6 +361,10 @@
       },
       // 保存或修改
       editApiModule(node, data) {
+        if (!this.currentProject) {
+          this.$error("$t('api_test.select_project')");
+          return;
+        }
         let url = "";
         if (data.id === "newId") {
           url = '/api/module/add';
@@ -379,7 +379,7 @@
           this.getChildNodeId(data, ids);
           data.nodeIds = ids;
         }
-        data.protocol = this.value;
+        data.protocol = this.protocol;
         data.projectId = this.currentProject.id;
         this.$post(url, data, () => {
           this.$success(this.$t('commons.save_success'));
@@ -416,7 +416,7 @@
         return data.name.indexOf(value) !== -1;
       },
       addApi() {
-        this.$refs.httpApi.open(this.currentModule);
+        this.$refs.basisApi.open(this.currentModule, this.currentProject.id);
       },
       // 项目相关方法
       changeProject(project) {
@@ -442,7 +442,8 @@
         }
       },
       changeProtocol() {
-        this.$emit('changeProtocol', this.value);
+        this.getApiModuleTree();
+        this.$emit('changeProtocol', this.protocol);
       }
     }
   }

@@ -140,12 +140,10 @@
               <div v-if="item.active">
                 <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
 
-                <ms-api-request-form :is-read-only="isReadOnly" :headers="item.request.hashTree[0].headers " :request="item.request"/>
-
-                <!-- <p class="tip">{{$t('api_test.definition.request.assertions_rule')}} </p>-->
-                <!--<ms-api-assertions :request="item.request" :is-read-only="isReadOnly"-->
-                <!--:assertions="item.request.assertions"/>-->
-
+                <ms-api-request-form :is-read-only="isReadOnly" :headers="item.request.hashTree[0].headers " :request="item.request" v-if="api.protocol==='HTTP'"/>
+                <ms-tcp-basis-parameters :request="item.request" :currentProject="currentProject" v-if="api.protocol==='TCP'"/>
+                <ms-sql-basis-parameters :request="item.request" :currentProject="currentProject" v-if="api.protocol==='SQL'"/>
+                <ms-dubbo-basis-parameters :request="item.request" :currentProject="currentProject" v-if="api.protocol==='DUBBO'"/>
                 <!-- 保存操作 -->
                 <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(item)">
                   {{$t('commons.save')}}
@@ -175,6 +173,9 @@
   import {PRIORITY, RESULT_MAP} from "../model/JsonData";
   import MsApiAssertions from "./assertion/ApiAssertions";
   import MsRun from "./Run";
+  import MsSqlBasisParameters from "./request/database/BasisParameters";
+  import MsTcpBasisParameters from "./request/tcp/BasisParameters";
+  import MsDubboBasisParameters from "./request/dubbo/BasisParameters";
 
   export default {
     name: 'ApiCaseList',
@@ -184,6 +185,9 @@
       MsApiRequestForm,
       ApiEnvironmentConfig,
       MsApiAssertions,
+      MsSqlBasisParameters,
+      MsTcpBasisParameters,
+      MsDubboBasisParameters,
       MsRun
     },
     props: {

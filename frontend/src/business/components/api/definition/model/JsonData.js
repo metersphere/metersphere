@@ -8,9 +8,9 @@ export const PRIORITY = [
 
 export const OPTIONS = [
   {value: 'HTTP', name: 'HTTP'},
-  {value: 'DUBBO', name: 'DUBBO'},
   {value: 'TCP', name: 'TCP'},
-  {value: 'SQL', name: 'SQL'}
+  {value: 'SQL', name: 'SQL'},
+  {value: 'DUBBO', name: 'DUBBO'}
 ]
 
 export const DEFAULT_DATA = [{
@@ -35,7 +35,7 @@ export const API_METHOD_COLOUR = [
   ['GET', "#61AFFE"], ['POST', '#49CC90'], ['PUT', '#fca130'],
   ['PATCH', '#E2EE11'], ['DELETE', '#f93e3d'], ['OPTIONS', '#0EF5DA'],
   ['HEAD', '#8E58E7'], ['CONNECT', '#90AFAE'],
-  ['DUBBO', '#C36EEF'], ['dubbo://', '#C36EEF'],['SQL', '#0AEAD4'], ['TCP', '#0A52DF'],
+  ['DUBBO', '#C36EEF'], ['dubbo://', '#C36EEF'], ['SQL', '#0AEAD4'], ['TCP', '#0A52DF'],
 ]
 
 export const REQUIRED = [
@@ -44,7 +44,7 @@ export const REQUIRED = [
 ]
 
 export const RESULT_MAP = new Map([
-  ['success','执行结果：通过'],
-  ['error','执行结果：未通过'],
-  ['default','执行结果：未执行']
+  ['success', '执行结果：通过'],
+  ['error', '执行结果：未通过'],
+  ['default', '执行结果：未执行']
 ]);

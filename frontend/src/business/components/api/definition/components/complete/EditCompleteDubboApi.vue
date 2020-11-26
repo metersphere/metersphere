@@ -6,7 +6,7 @@
       <el-col>
         <!--操作按钮-->
         <div style="float: right;margin-right: 20px;margin-top: 20px">
-          <el-button type="primary" size="small" @click="validateApi">{{$t('commons.save')}}</el-button>
+          <el-button type="primary" size="small" @click="saveApi">{{$t('commons.save')}}</el-button>
           <el-button type="primary" size="small" @click="runTest">{{$t('commons.test')}}</el-button>
         </div>
       </el-col>
@@ -16,7 +16,7 @@
     <br/>
     <el-row>
       <el-col>
-        <ms-basis-api :moduleOptions="moduleOptions" :basisData="basisData" ref="basicForm" @callback="saveApi"/>
+        <ms-basis-api :moduleOptions="moduleOptions" :basisData="basisData" ref="basicForm" @callback="callback"/>
       </el-col>
     </el-row>
 
@@ -47,8 +47,15 @@
         default: false
       }
     },
+    data() {
+      return {validated: false}
+    },
     methods: {
+      callback() {
+        this.validated = true;
+      },
       validateApi() {
+        this.validated = false;
         this.basisData.method = this.request.protocol;
         if (this.currentProject === null) {
           this.$error(this.$t('api_test.select_project'), 2000);
@@ -57,10 +64,18 @@
         this.$refs['basicForm'].validate();
       },
       saveApi() {
-        this.$emit('saveApi', this.basisData);
+        this.validateApi();
+        if (this.validated) {
+          this.basisData.request = this.request;
+          this.$emit('saveApi', this.basisData);
+        }
       },
       runTest() {
-
+        this.validateApi();
+        if (this.validated) {
+          this.basisData.request = this.request;
+          this.$emit('runTest', this.basisData);
+        }
       }
     },
 

@@ -38,8 +38,7 @@ public class ApiModuleService {
 
     public List<ApiModuleDTO> getNodeTreeByProjectId(String projectId, String protocol) {
         ApiModuleExample apiDefinitionNodeExample = new ApiModuleExample();
-        apiDefinitionNodeExample.createCriteria().andProjectIdEqualTo(projectId);
-        apiDefinitionNodeExample.createCriteria().andProtocolEqualTo(protocol);
+        apiDefinitionNodeExample.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol);
         apiDefinitionNodeExample.setOrderByClause("create_time asc");
         List<ApiModule> nodes = apiModuleMapper.selectByExample(apiDefinitionNodeExample);
         return getNodeTrees(nodes);

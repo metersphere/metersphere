@@ -11,13 +11,13 @@
       </el-dropdown>
 
       <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
-      <!-- JDBC 请求参数 -->
+      <!-- TCP 请求参数 -->
       <ms-basis-parameters :request="request" @callback="runDebug" :currentProject="currentProject" ref="requestForm"/>
 
 
-      <!-- JDBC 请求返回数据 -->
+      <!-- TCP 请求返回数据 -->
       <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
-      <ms-request-result-tail :response="responseData" :currentProtocol="currentProtocol"  ref="debugResult"/>
+      <ms-request-result-tail :response="responseData" :currentProtocol="currentProtocol" ref="debugResult"/>
 
       <!-- 执行组件 -->
       <ms-run :debug="true" :reportId="reportId" :run-data="runData" @runRefresh="runRefresh" ref="runTest"/>
@@ -35,7 +35,7 @@
   import {createComponent} from "../jmeter/components";
   import {REQ_METHOD} from "../../model/JsonData";
   import MsRequestResultTail from "../response/RequestResultTail";
-  import MsBasisParameters from "../request/database/BasisParameters";
+  import MsBasisParameters from "../request/tcp/BasisParameters";
 
   export default {
     name: "ApiConfig",
@@ -52,7 +52,7 @@
         },
         debugForm: {method: REQ_METHOD[0].id},
         options: [],
-        responseData: {type: 'JDBC', responseResult: {}, subRequestResults: []},
+        responseData: {type: 'TCP', responseResult: {}, subRequestResults: []},
         loading: false,
         debugResultId: "",
         runData: [],
@@ -63,7 +63,7 @@
       }
     },
     created() {
-      this.request = createComponent("JDBCSampler");
+      this.request = createComponent("TCPSampler");
     },
     watch: {
       debugResultId() {

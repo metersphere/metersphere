@@ -57,8 +57,9 @@
   import {WORKSPACE_ID} from '../../../../../../common/js/constants';
   import {REQ_METHOD} from "../../model/JsonData";
   import {getCurrentUser, getUUID} from "../../../../../../common/js/utils";
-  import {createComponent,Request} from "../jmeter/components";
+  import {createComponent, Request} from "../jmeter/components";
   import HeaderManager from "../jmeter/components/configurations/header-manager";
+
   export default {
     name: "MsAddBasisApi",
     components: {MsDialogFooter},
@@ -86,7 +87,8 @@
         value: REQ_METHOD[0].id,
         options: REQ_METHOD,
       }
-    },
+    }
+    ,
     methods: {
       saveApi(saveAs) {
         this.$refs['httpForm'].validate((valid) => {
@@ -94,15 +96,10 @@
             let bodyFiles = [];
             let path = "/api/definition/create";
             this.setParameter();
-            let header = createComponent("HeaderManager");
-            let request = createComponent("HTTPSamplerProxy");
-            request.path = this.httpForm.path;
-            request.hashTree = [header];
-            this.httpForm.request = request;
             this.result = this.$fileUpload(path, null, bodyFiles, this.httpForm, () => {
               this.httpVisible = false;
               if (saveAs) {
-                this.httpForm.request = JSON.stringify(request);
+                this.httpForm.request = JSON.stringify(this.httpForm.request);
                 this.$parent.saveAsEdit(this.httpForm);
               } else {
                 this.$parent.refresh(this.currentModule);
@@ -124,25 +121,44 @@
         }
         switch (this.currentProtocol) {
           case Request.TYPES.SQL:
-            this.httpForm.method = Request.TYPES.SQL;
+            this.initSQL();
             break;
           case Request.TYPES.DUBBO:
-            this.httpForm.method = "dubbo://";
+            this.initDUBBO();
             break;
           case Request.TYPES.TCP:
-            this.httpForm.method = Request.TYPES.TCP;
+            this.initTCP();
             break;
           default:
+            this.initHTTP();
             break;
         }
+      },
+      initHTTP() {
+        let header = createComponent("HeaderManager");
+        let request = createComponent("HTTPSamplerProxy");
+        request.path = this.httpForm.path;
+        request.hashTree = [header];
+        this.httpForm.request = request;
+      },
+      initSQL() {
+        this.httpForm.method = Request.TYPES.SQL;
+        this.httpForm.request = createComponent("JDBCSampler");
+      },
+      initTCP() {
+        this.httpForm.method = Request.TYPES.TCP;
+        this.httpForm.request = createComponent("TCPSampler");
+      },
+      initDUBBO() {
+        this.httpForm.method = "dubbo://";
+        this.httpForm.request = createComponent("DubboSampler");
       },
       getMaintainerOptions() {
         let workspaceId = localStorage.getItem(WORKSPACE_ID);
         this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
           this.maintainerOptions = response.data;
         });
-      }
-      ,
+      },
       open(currentModule, projectId) {
         this.httpForm = {method: REQ_METHOD[0].id, userId: getCurrentUser().id};
         this.currentModule = currentModule;
@@ -154,28 +170,3 @@
     }
   }
 </script>
-
-<style scoped>
-
-  .ht-btn-remove {
-    color: white;
-    background-color: #DCDFE6;
-  }
-
-  .ht-btn-confirm {
-    color: white;
-    background-color: #1483F6;
-  }
-
-  .ht-btn-add {
-    border: 0px;
-    margin-top: 10px;
-    color: #1483F6;
-    background-color: white;
-  }
-
-  .ht-tb {
-    background-color: white;
-    border: 0px;
-  }
-</style>

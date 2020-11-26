@@ -1,9 +1,9 @@
 <template>
   <div>
     <el-row>
-      <el-col :span="21" style="padding-bottom: 50px">
+      <el-col :span="21" style="padding-bottom: 20px">
         <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin: 20px">
-          <el-form class="tcp" :model="request" ref="request" label-width="auto" :disabled="isReadOnly" style="margin: 20px">
+          <el-form class="tcp" :model="request" :rules="rules" ref="request" label-width="auto" :disabled="isReadOnly" style="margin: 20px">
 
             <el-row :gutter="10">
               <el-col :span="9">
@@ -158,6 +158,11 @@
         classes: TCPSampler.CLASSES,
         isReloadData: false,
         options: API_STATUS,
+        rules: {
+          classname: [{required: true, message: "请选择TCPClient", trigger: 'change'}],
+          server: [{required: true, message: this.$t('api_test.request.tcp.server_cannot_be_empty'), trigger: 'blur'}],
+          port: [{required: true, message: this.$t('commons.port_cannot_be_empty'), trigger: 'change'}],
+        },
       }
     },
     created() {
@@ -209,7 +214,17 @@
       runTest() {
 
       },
-
+      validate() {
+        if (this.currentProject === null) {
+          this.$error(this.$t('api_test.select_project'), 2000);
+          return;
+        }
+        this.$refs['request'].validate((valid) => {
+          if (valid) {
+            this.$emit('callback');
+          }
+        })
+      },
       getEnvironments() {
         if (this.currentProject) {
           this.environments = [];

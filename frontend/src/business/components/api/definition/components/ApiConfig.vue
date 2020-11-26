@@ -2,27 +2,26 @@
 
   <div class="card-container">
     <!-- HTTP 请求参数 -->
-    <ms-add-complete-http-api @runTest="runTest" @saveApi="saveApi" :request="request" :headers="headers" :response="response"
+    <ms-edit-complete-http-api @runTest="runTest" @saveApi="saveApi" :request="request" :headers="headers" :response="response"
                               :basisData="currentApi" :moduleOptions="moduleOptions" :currentProject="currentProject" v-if="currentProtocol === 'HTTP'"/>
     <!-- TCP -->
-    <ms-add-complete-tcp-api :request="request" @saveApi="saveApi" :currentProject="currentProject" :basisData="currentApi"
+    <ms-edit-complete-tcp-api :request="request" @runTest="runTest" @saveApi="saveApi" :currentProject="currentProject" :basisData="currentApi"
                              :moduleOptions="moduleOptions" v-if="currentProtocol === 'TCP'"/>
     <!--DUBBO-->
-    <ms-add-complete-dubbo-api :request="request" @saveApi="saveApi" :currentProject="currentProject" :basisData="currentApi"
+    <ms-edit-complete-dubbo-api :request="request" @runTest="runTest" @saveApi="saveApi" :currentProject="currentProject" :basisData="currentApi"
                                :moduleOptions="moduleOptions" v-if="currentProtocol === 'DUBBO'"/>
     <!--SQL-->
-    <ms-add-complete-sql-api :request="request" @saveApi="saveApi" :currentProject="currentProject" :basisData="currentApi"
+    <ms-edit-complete-sql-api :request="request" @runTest="runTest" @saveApi="saveApi" :currentProject="currentProject" :basisData="currentApi"
                              :moduleOptions="moduleOptions" v-if="currentProtocol === 'SQL'"/>
-
 
   </div>
 </template>
 
 <script>
-  import MsAddCompleteHttpApi from "./complete/AddCompleteHttpApi";
-  import MsAddCompleteTcpApi from "./complete/AddCompleteTcpApi";
-  import MsAddCompleteDubboApi from "./complete/AddCompleteDubboApi";
-  import MsAddCompleteSqlApi from "./complete/AddCompleteSqlApi";
+  import MsEditCompleteHttpApi from "./complete/EditCompleteHTTPApi";
+  import MsEditCompleteTcpApi from "./complete/EditCompleteTCPApi";
+  import MsEditCompleteDubboApi from "./complete/EditCompleteDubboApi";
+  import MsEditCompleteSqlApi from "./complete/EditCompleteSQLApi";
 
   import {ResponseFactory, Body} from "../model/ApiTestModel";
   import {getUUID} from "@/common/js/utils";
@@ -33,7 +32,7 @@
 
   export default {
     name: "ApiConfig",
-    components: {MsAddCompleteHttpApi, MsAddCompleteTcpApi, MsAddCompleteDubboApi, MsAddCompleteSqlApi},
+    components: {MsEditCompleteHttpApi, MsEditCompleteTcpApi, MsEditCompleteDubboApi, MsEditCompleteSqlApi},
     data() {
       return {
         reqUrl: "",
@@ -86,7 +85,7 @@
           this.$success(this.$t('commons.save_success'));
           this.reqUrl = "/api/definition/update";
           this.$emit('runTest', data);
-        });
+        })
       },
       getMaintainerOptions() {
         let workspaceId = localStorage.getItem(WORKSPACE_ID);
@@ -138,15 +137,14 @@
           this.reqUrl = "/api/definition/update";
           this.$emit('saveApi', data);
         });
-
       },
       setParameters(data) {
-        console.log(data)
         data.projectId = this.currentProject.id;
         if (this.currentProtocol === 'HTTP') {
           this.request.hashTree[0].headers = this.headers;
         }
-        this.request.name = this.currentProject.name;
+        this.request.name = this.currentApi.name;
+        data.protocol = this.currentProtocol;
         data.request = this.request;
         data.response = this.response;
       },

@@ -20,6 +20,7 @@
         result: {},
         loading: false,
         runId: "",
+        reqNumber: 0,
       }
     },
 
@@ -43,7 +44,13 @@
               let data = JSON.parse(response.data.content);
               this.$emit('runRefresh', data);
             } else {
-              setTimeout(this.getResult, 2000);
+              if (this.reqNumber < 60) {
+                this.reqNumber++;
+                setTimeout(this.getResult, 2000);
+              } else {
+                this.$error("获取报告超时");
+                this.$emit('runRefresh', {});
+              }
             }
           });
         }

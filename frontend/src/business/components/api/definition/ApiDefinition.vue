@@ -46,11 +46,16 @@
           <div v-else-if="item.type=== 'debug'">
             <ms-debug-http-page :currentProtocol="currentProtocol" @saveAs="editApi" v-if="currentProtocol==='HTTP'"/>
             <ms-debug-jdbc-page :currentProtocol="currentProtocol" :currentProject="currentProject" @saveAs="editApi" v-if="currentProtocol==='SQL'"/>
+            <ms-debug-tcp-page :currentProtocol="currentProtocol" :currentProject="currentProject" @saveAs="editApi" v-if="currentProtocol==='TCP'"/>
+            <ms-debug-dubbo-page :currentProtocol="currentProtocol" :currentProject="currentProject" @saveAs="editApi" v-if="currentProtocol==='DUBBO'"/>
           </div>
 
           <!-- 测试-->
           <div v-else-if="item.type=== 'test'">
-            <ms-run-test-http-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject"/>
+            <ms-run-test-http-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject" v-if="currentProtocol==='HTTP'"/>
+            <ms-run-test-tcp-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject" v-if="currentProtocol==='TCP'"/>
+            <ms-run-test-sql-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject" v-if="currentProtocol==='SQL'"/>
+            <ms-run-test-dubbo-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject" v-if="currentProtocol==='DUBBO'"/>
           </div>
         </el-tab-pane>
 
@@ -70,8 +75,14 @@
   import MsApiConfig from "./components/ApiConfig";
   import MsDebugHttpPage from "./components/debug/DebugHttpPage";
   import MsDebugJdbcPage from "./components/debug/DebugJdbcPage";
+  import MsDebugTcpPage from "./components/debug/DebugTcpPage";
+  import MsDebugDubboPage from "./components/debug/DebugDubboPage";
 
-  import MsRunTestHttpPage from "./components/runtest/RunTestHttpPage";
+  import MsRunTestHttpPage from "./components/runtest/RunTestHTTPPage";
+  import MsRunTestTcpPage from "./components/runtest/RunTestTCPPage";
+  import MsRunTestSqlPage from "./components/runtest/RunTestSQLPage";
+  import MsRunTestDubboPage from "./components/runtest/RunTestDubboPage";
+
   import {downloadFile, getCurrentUser, getUUID} from "@/common/js/utils";
 
   export default {
@@ -86,7 +97,12 @@
       MsApiConfig,
       MsDebugHttpPage,
       MsRunTestHttpPage,
-      MsDebugJdbcPage
+      MsDebugJdbcPage,
+      MsDebugTcpPage,
+      MsDebugDubboPage,
+      MsRunTestTcpPage,
+      MsRunTestSqlPage,
+      MsRunTestDubboPage
     },
     comments: {},
     data() {

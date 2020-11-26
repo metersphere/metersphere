@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-row>
-      <el-col :span="21" style="padding-bottom: 50px">
+      <el-col :span="21" style="padding-bottom: 20px">
         <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin: 20px">
           <el-form :model="request" :rules="rules" ref="request" label-width="100px" :disabled="isReadOnly" style="margin: 20px">
 

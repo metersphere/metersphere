@@ -2,66 +2,25 @@
 
   <div class="card-container">
     <el-card class="card-content" v-loading="loading">
+      <!-- 操作按钮 -->
+      <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand('add')"
+                   @command="handleCommand" size="small" style="float: right;margin-right: 20px">
+        {{$t('commons.test')}}
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item command="load_case">{{$t('api_test.definition.request.load_case')}}
+          </el-dropdown-item>
+          <el-dropdown-item command="save_as_case">{{$t('api_test.definition.request.save_as_case')}}
+          </el-dropdown-item>
+          <el-dropdown-item command="update_api">{{$t('api_test.definition.request.update_api')}}</el-dropdown-item>
+          <el-dropdown-item command="save_as_api">{{$t('api_test.definition.request.save_as')}}</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
 
-      <el-form :model="api" :rules="rules" ref="apiData" :inline="true" label-position="right">
 
-        <p class="tip">{{$t('test_track.plan_view.base_info')}} </p>
-        <!-- 请求方法 -->
-        <el-form-item :label="$t('api_report.request')" prop="method">
-          <el-select v-model="api.request.method" style="width: 100px" size="small">
-            <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
-          </el-select>
-        </el-form-item>
+      <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
+      <!-- TCP 请求参数 -->
+      <ms-basis-parameters :request="currentRequest" @callback="runTest" :currentProject="currentProject" ref="requestForm"/>
 
-        <!-- 执行环境 -->
-        <el-form-item prop="environmentId">
-          <el-select v-model="api.environmentId" size="small" class="ms-htt-width"
-                     :placeholder="$t('api_test.definition.request.run_env')"
-                     @change="environmentChange" clearable>
-            <el-option v-for="(environment, index) in environments" :key="index"
-                       :label="environment.name + (environment.config.httpConfig.socket ? (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '')"
-                       :value="environment.id"/>
-            <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
-              {{ $t('api_test.environment.environment_config') }}
-            </el-button>
-            <template v-slot:empty>
-              <div class="empty-environment">
-                <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
-                  {{ $t('api_test.environment.environment_config') }}
-                </el-button>
-              </div>
-            </template>
-          </el-select>
-        </el-form-item>
-
-        <!-- 请求地址 -->
-        <el-form-item prop="url">
-          <el-input :placeholder="$t('api_test.definition.request.path_info')" v-model="api.request.path" class="ms-htt-width"
-                    size="small" :disabled="false"/>
-        </el-form-item>
-
-        <!-- 操作按钮 -->
-        <el-form-item>
-          <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand('add')"
-                       @command="handleCommand" size="small">
-            {{$t('commons.test')}}
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="load_case">{{$t('api_test.definition.request.load_case')}}
-              </el-dropdown-item>
-              <el-dropdown-item command="save_as_case">{{$t('api_test.definition.request.save_as_case')}}
-              </el-dropdown-item>
-              <el-dropdown-item command="update_api">{{$t('api_test.definition.request.update_api')}}</el-dropdown-item>
-              <el-dropdown-item command="save_as_api">{{$t('api_test.definition.request.save_as')}}</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
-
-        </el-form-item>
-
-        <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
-        <!-- HTTP 请求参数 -->
-        <ms-api-request-form :headers="api.request.hashTree[0].headers" :request="api.request"/>
-
-      </el-form>
       <!--返回结果-->
       <!-- HTTP 请求返回数据 -->
       <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
@@ -95,11 +54,12 @@
   import ApiEnvironmentConfig from "../environment/ApiEnvironmentConfig";
   import MsRequestResultTail from "../response/RequestResultTail";
   import MsRun from "../Run";
+  import MsBasisParameters from "../request/tcp/BasisParameters";
 
   import {REQ_METHOD} from "../../model/JsonData";
 
   export default {
-    name: "ApiConfig",
+    name: "RunTestTCPPage",
     components: {
       MsApiRequestForm,
       MsApiCaseList,
@@ -107,7 +67,8 @@
       MsBottomContainer,
       MsRequestResultTail,
       ApiEnvironmentConfig,
-      MsRun
+      MsRun,
+      MsBasisParameters
     },
     data() {
       return {
@@ -141,22 +102,17 @@
           case "save_as_api":
             return this.saveAsApi();
           default:
-            return this.runTest();
+            return this.$refs['requestForm'].validate();
         }
       },
       runTest() {
-        this.$refs['apiData'].validate((valid) => {
-          if (valid) {
-            this.loading = true;
-            this.api.request.name = this.api.id;
-            this.api.request.useEnvironment = this.api.environmentId;
-            this.api.protocol = this.currentProtocol;
-            this.runData = [];
-            this.runData.push(this.api.request);
-            /*触发执行操作*/
-            this.reportId = getUUID().substring(0, 8);
-          }
-        })
+        this.loading = true;
+        this.api.request.name = this.api.id;
+        this.api.protocol = this.currentProtocol;
+        this.runData = [];
+        this.runData.push(this.api.request);
+        /*触发执行操作*/
+        this.reportId = getUUID().substring(0, 8);
       },
       runRefresh(data) {
         this.responseData = data;
@@ -202,7 +158,6 @@
         let data = {};
         data.request = JSON.stringify(this.api.request);
         data.method = this.api.method;
-        data.url = this.api.url;
         data.status = this.api.status;
         data.userId = this.api.userId;
         data.description = this.api.description;
