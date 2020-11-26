@@ -70,7 +70,7 @@ public class NoticeService {
 
     private void checkUserIdExist(String userId, MessageDetail list) {
         MessageTaskExample example = new MessageTaskExample();
-        example.createCriteria().andUserIdEqualTo(userId).andEventEqualTo(list.getEvent()).andTypeEqualTo(list.getType()).andTaskTypeEqualTo(list.getTaskType()).andWebhookEqualTo(list.getWebhook());
+        example.createCriteria().andUserIdEqualTo(userId).andEventEqualTo(list.getEvent()).andTypeEqualTo(list.getType()).andTaskTypeEqualTo(list.getTaskType()).andWebhookEqualTo(list.getWebhook()).andTestIdEqualTo(list.getTestId()).andOrganizationIdEqualTo(list.getOrganizationId());
         if (messageTaskMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("message_task_already_exists"));
         }
