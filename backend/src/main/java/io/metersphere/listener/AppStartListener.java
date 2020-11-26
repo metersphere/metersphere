@@ -72,13 +72,15 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
      */
     private void loadJars() {
         List<JarConfig> jars = jarConfigService.list();
-        try {
-            jars.forEach(jarConfig -> {
+
+        jars.forEach(jarConfig -> {
+            try {
                 NewDriverManager.loadJar(jarConfig.getPath());
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-            LogUtil.error(e.getMessage(), e);
-        }
+            } catch (Exception e) {
+                e.printStackTrace();
+                LogUtil.error(e.getMessage(), e);
+            }
+        });
+
     }
 }

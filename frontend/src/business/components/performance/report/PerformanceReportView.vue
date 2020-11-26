@@ -272,7 +272,7 @@ export default {
 
       this.$nextTick(function () {
         html2canvas(document.getElementById('performanceReportExport'), {
-          // scale: 2
+          scale: 2
         }).then(function (canvas) {
           exportPdf(name, [canvas]);
           reset();

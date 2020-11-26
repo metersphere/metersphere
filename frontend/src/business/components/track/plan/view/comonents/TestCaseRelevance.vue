@@ -215,6 +215,16 @@
               item.checked = false;
             });
             flag ? this.testCases = tableData : this.testCases = this.testCases.concat(tableData);
+            // 去重处理
+            let hash = {}
+            this.testCases = this.testCases.reduce((item, next) => {
+              if (!hash[next.id]) {
+                hash[next.id] = true
+                item.push(next)
+              }
+              return item
+            }, [])
+
             this.lineStatus = tableData.length === 50 && this.testCases.length < this.total;
           });
         }

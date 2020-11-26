@@ -17,7 +17,6 @@
                      :scenario="scenario"
                      :extract="extract"
                      type="body"
-                     :description="$t('api_test.request.parameters_desc')"
                      v-if="body.isKV()"/>
     <div class="body-raw" v-if="body.type == 'Raw'">
       <ms-code-edit :mode="body.format" :enable-format="false" :read-only="isReadOnly" :data.sync="body.raw" :modes="modes" ref="codeEdit"/>
