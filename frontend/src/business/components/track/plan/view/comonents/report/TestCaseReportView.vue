@@ -210,14 +210,15 @@
         let reset = this.exportReportReset;
 
         this.$nextTick(function () {
-          html2canvas(document.getElementById('testCaseReportExport'), {
-            scale: 2
-          }).then(function(canvas) {
-            exportPdf(name, [canvas]);
-            reset();
-          });
+          setTimeout(() => {
+            html2canvas(document.getElementById('testCaseReportExport'), {
+              scale: 2
+            }).then(function(canvas) {
+              exportPdf(name, [canvas]);
+              reset();
+            });
+          }, 1000);
         });
-
       },
       exportReportReset() {
         this.reportExportVisible = false;
