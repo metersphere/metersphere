@@ -121,7 +121,9 @@
     </select>
 
     <select id="list" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
-        select test_case.remark, test_plan_test_case.id as id, test_plan_test_case.*,test_case.*,test_case_node.name as model, project.name as projectName
+        select test_plan_test_case.id as id, test_case.id as caseId, test_case.name, test_case.priority, test_case.type,
+        test_case.node_path, test_case.method, test_case.num, test_plan_test_case.executor, test_plan_test_case.status,
+        test_plan_test_case.update_time, test_case_node.name as model, project.name as projectName, test_plan_test_case.plan_id as planId
         from test_plan_test_case
         inner join test_case on test_plan_test_case.case_id = test_case.id
         left join test_case_node on test_case_node.id=test_case.node_id
@@ -134,7 +136,8 @@
                 </include>
             </if>
             <if test="request.name != null">
-                and (test_case.name like CONCAT('%', #{request.name},'%') or test_case.num like CONCAT('%', #{request.name},'%'))
+                and (test_case.name like CONCAT('%', #{request.name},'%') or test_case.num like
+                CONCAT('%',#{request.name},'%'))
             </if>
             <if test="request.id != null">
                 and test_case.id = #{request.id}
@@ -210,6 +213,23 @@
             </foreach>
         </if>
     </select>
+
+    <select id="getTestPlanTestCase" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
+        select test_case.remark, test_plan_test_case.id as id, test_plan_test_case.*,test_case.*,test_case_node.name as model, project.name as projectName
+        from test_plan_test_case
+        inner join test_case on test_plan_test_case.case_id = test_case.id
+        left join test_case_node on test_case_node.id=test_case.node_id
+        inner join project on project.id = test_case.project_id
+        where test_plan_test_case.id = #{request.id}
+    </select>
+
+    <select id="getTestPlanTestCaseList" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
+        select test_plan_test_case.id as id, test_case.name
+        from test_plan_test_case
+        inner join test_case on test_plan_test_case.case_id = test_case.id
+        where test_plan_test_case.plan_id = #{request.planId}
+    </select>
+
     <select id="listTestCaseByProjectIds" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
         select distinct * from test_plan_test_case, test_case
         where test_plan_test_case.case_id = test_case.id

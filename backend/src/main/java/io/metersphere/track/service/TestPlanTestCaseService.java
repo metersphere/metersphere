@@ -148,4 +148,8 @@ public class TestPlanTestCaseService {
     public int updateTestCaseStates(List<String> ids, String reportStatus) {
         return extTestPlanTestCaseMapper.updateTestCaseStates(ids, reportStatus);
     }
+
+    public TestPlanCaseDTO getTestPlanCase(QueryTestPlanCaseRequest request) {
+        return extTestPlanTestCaseMapper.getTestPlanTestCase(request);
+    }
 }
