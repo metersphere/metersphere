@@ -1,6 +1,6 @@
 <template>
   <el-aside :width="width" class="ms-aside-container"
-            :style="{'margin-left': !enableAsideHidden ? 0 : '-' + width}">
+              :style="{'margin-left': !enableAsideHidden ? 0 : '-' + width}">
     <slot></slot>
   </el-aside>
 </template>
@@ -23,9 +23,8 @@
 
 <style scoped>
   .ms-aside-container {
-    border: 1px solid #E6E6E6;
-    border-radius: 2px;
     margin-top: 10px;
+    height: 600px;
     box-sizing: border-box;
     background-color: #FFF;
   }

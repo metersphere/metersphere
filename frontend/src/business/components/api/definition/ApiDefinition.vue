@@ -1,6 +1,5 @@
 <template>
   <ms-container>
-
     <ms-aside-container>
       <ms-node-tree @selectModule="selectModule" @getApiModuleTree="initTree" @changeProject="changeProject" @changeProtocol="changeProtocol"
                     @refresh="refresh" @saveAsEdit="editApi" @debug="debug" @exportAPI="exportAPI"/>
@@ -61,6 +60,8 @@
 
       </el-tabs>
     </ms-main-container>
+
+
   </ms-container>
 
 </template>
@@ -71,7 +72,6 @@
   import MsContainer from "../../common/components/MsContainer";
   import MsMainContainer from "../../common/components/MsMainContainer";
   import MsAsideContainer from "../../common/components/MsAsideContainer";
-  import MsBottomContainer from "./components/BottomContainer";
   import MsApiConfig from "./components/ApiConfig";
   import MsDebugHttpPage from "./components/debug/DebugHttpPage";
   import MsDebugJdbcPage from "./components/debug/DebugJdbcPage";
@@ -93,7 +93,6 @@
       MsMainContainer,
       MsContainer,
       MsAsideContainer,
-      MsBottomContainer,
       MsApiConfig,
       MsDebugHttpPage,
       MsRunTestHttpPage,
@@ -253,6 +252,9 @@
 
   /deep/ .el-tabs__header {
     margin-right: 82px;
+  }
+  /deep/ .el-main{
+    overflow: hidden;
   }
 
 </style>

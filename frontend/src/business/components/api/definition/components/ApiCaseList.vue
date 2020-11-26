@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-container>
+    <el-container style="padding-bottom: 200px">
       <el-header style="width: 100% ;padding: 0px">
         <el-card>
           <el-row>
@@ -8,24 +8,17 @@
               <div class="variable-combine"> {{api.name}}</div>
             </el-col>
             <el-col :span="api.protocol==='HTTP'? 1:3">
-              <template>
-                <div>
-                  <ms-tag v-if="api.status == 'Prepare'" type="info"
-                          :content="$t('test_track.plan.plan_status_prepare')"/>
-                  <ms-tag v-if="api.status == 'Underway'" type="primary"
-                          :content="$t('test_track.plan.plan_status_running')"/>
-                  <ms-tag v-if="api.status == 'Completed'" type="success"
-                          :content="$t('test_track.plan.plan_status_completed')"/>
-                </div>
-              </template>
+              <ms-tag v-if="api.status == 'Prepare'" type="info" :content="$t('test_track.plan.plan_status_prepare')"/>
+              <ms-tag v-if="api.status == 'Underway'" type="primary" :content="$t('test_track.plan.plan_status_running')"/>
+              <ms-tag v-if="api.status == 'Completed'" type="success" :content="$t('test_track.plan.plan_status_completed')"/>
             </el-col>
             <el-col :span="api.protocol==='HTTP'? 4:0">
-              <div class="variable-combine">{{api.path ===null ? " " : api.path}}</div>
+              <div class="variable-combine" style="margin-left: 10px">{{api.path ===null ? " " : api.path}}</div>
             </el-col>
             <el-col :span="2">
               <div>{{$t('test_track.plan_view.case_count')}}：{{apiCaseList.length}}</div>
             </el-col>
-            <el-col :span="4">
+            <el-col :span="3">
               <div>
                 <el-select size="small" :placeholder="$t('api_test.definition.request.grade_info')" v-model="priorityValue"
                            class="ms-api-header-select" @change="getApiTest">
@@ -71,7 +64,7 @@
 
 
             </el-col>
-            <el-col :span="1">
+            <el-col :span="2">
               <button type="button" aria-label="Close" class="el-card-btn" @click="apiCaseClose()"><i
                 class="el-dialog__close el-icon el-icon-close"></i></button>
             </el-col>
@@ -87,10 +80,9 @@
       <!-- 用例部分 -->
       <el-main v-loading="loading">
         <div v-for="(item,index) in apiCaseList" :key="index">
-          <el-card style="margin-top: 10px" @click.native="selectTestCase(item,$event)">
+          <el-card style="margin-top: 5px" @click.native="selectTestCase(item,$event)">
             <el-row>
               <el-col :span="5">
-
                 <div class="el-step__icon is-text ms-api-col">
                   <div class="el-step__icon-inner">{{index+1}}</div>
                 </div>
@@ -100,14 +92,13 @@
                   <el-option v-for="grd in priority" :key="grd.id" :label="grd.name" :value="grd.id"/>
                 </el-select>
               </el-col>
-
               <el-col :span="10">
                 <i class="icon el-icon-arrow-right" :class="{'is-active': item.active}"
                    @click="active(item)"/>
+
                 <el-input v-if="item.type==='create'" size="small" v-model="item.name" :name="index" :key="index"
                           class="ms-api-header-select" style="width: 180px"
-                          @blur="saveTestCase(item)"
-                />
+                          @blur="saveTestCase(item)"/>
                 <span v-else>
                   {{item.type!= 'create' ? item.name:''}}
                   <i class="el-icon-edit" style="cursor:pointer" @click="showInput(item)"/>
@@ -117,6 +108,7 @@
                   <span> {{item.updateTime | timestampFormatDate }}</span> {{item.updateUser}} 更新
                 </div>
               </el-col>
+
               <el-col :span="4">
                 <ms-tip-button @click="singleRun(item)" :tip="$t('api_test.run')" icon="el-icon-video-play"
                                style="background-color: #409EFF;color: white" size="mini" circle/>
@@ -487,8 +479,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 14px;
-    width: 100%;
+    font-size: 10px;
   }
 
   .icon.is-active {
