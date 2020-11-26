@@ -200,7 +200,6 @@ export default {
     },
     addTask(data) {
       let list = [];
-      data.isSet = false;
       list.push(data);
       let param = {};
       param.messageDetail = list;
