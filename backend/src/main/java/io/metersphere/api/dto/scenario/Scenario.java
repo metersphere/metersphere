@@ -20,8 +20,6 @@ public class Scenario {
     private DubboConfig dubboConfig;
     private TCPConfig tcpConfig;
     private List<DatabaseConfig> databaseConfigs;
-    private Boolean enable;
-    private Boolean referenceEnable;
     private boolean enable = true;
     private Boolean referenceEnable;
 }
