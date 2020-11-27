@@ -38,6 +38,11 @@ export default {
       path: "report/view/:reportId",
       name: "ApiReportView",
       component: () => import('@/business/components/api/report/ApiReportView'),
-    }
+    },
+    {
+      path: "monitor/view",
+      name: "MsApiMonitor",
+      component: () => import('@/business/components/api/monitor/ApiMonitor'),
+    },
   ]
 }
