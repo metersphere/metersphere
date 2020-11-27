@@ -16,7 +16,6 @@
         </el-dropdown-menu>
       </el-dropdown>
 
-
       <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
       <!-- TCP 请求参数 -->
       <ms-basis-parameters :request="api.request" @callback="runTest" :currentProject="currentProject" ref="requestForm"/>
@@ -244,21 +243,11 @@
 </script>
 
 <style scoped>
-  .ms-htt-width {
-    width: 350px;
-  }
-
-  .environment-button {
-    margin-left: 20px;
-    padding: 7px;
-  }
-
   .tip {
     padding: 3px 5px;
     font-size: 16px;
     border-radius: 4px;
     border-left: 4px solid #783887;
-    margin: 20px 0;
   }
   /deep/.el-drawer{
     overflow: auto;

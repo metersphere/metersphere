@@ -3,8 +3,7 @@
     <el-row>
       <el-col :span="21" style="padding-bottom: 20px">
         <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin: 20px">
-          <el-form :model="request" :rules="rules" ref="request" label-width="100px" :disabled="isReadOnly" style="margin: 20px">
-
+          <el-form :model="request" :rules="rules" ref="request" label-width="100px" :disabled="isReadOnly" style="margin: 10px">
             <el-row>
               <el-col :span="8">
                 <el-form-item prop="environmentId" :label="$t('api_test.definition.request.run_env')">
