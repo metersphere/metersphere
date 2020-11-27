@@ -34,7 +34,7 @@
             ref="apiList"/>
 
           <!-- 添加测试窗口-->
-          <div v-else-if="item.type=== 'add'" style="overflow-y: auto;height:calc(100vh - 155px)">
+          <div v-else-if="item.type=== 'add'" class="ms-api-div">
             <ms-api-config @runTest="runTest" @saveApi="saveApi" :current-api="currentApi"
                            :currentProject="currentProject"
                            :currentProtocol="currentProtocol"
@@ -42,7 +42,7 @@
           </div>
 
           <!-- 快捷调试 -->
-          <div v-else-if="item.type=== 'debug'" style="overflow-y: auto;height:calc(100vh - 155px)">
+          <div v-else-if="item.type=== 'debug'" class="ms-api-div">
             <ms-debug-http-page :currentProtocol="currentProtocol" @saveAs="editApi" v-if="currentProtocol==='HTTP'"/>
             <ms-debug-jdbc-page :currentProtocol="currentProtocol" :currentProject="currentProject" @saveAs="editApi" v-if="currentProtocol==='SQL'"/>
             <ms-debug-tcp-page :currentProtocol="currentProtocol" :currentProject="currentProject" @saveAs="editApi" v-if="currentProtocol==='TCP'"/>
@@ -50,7 +50,7 @@
           </div>
 
           <!-- 测试-->
-          <div v-else-if="item.type=== 'test'" style="overflow-y: auto;height:calc(100vh - 155px)">
+          <div v-else-if="item.type=== 'test'" class="ms-api-div">
             <ms-run-test-http-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject" v-if="currentProtocol==='HTTP'"/>
             <ms-run-test-tcp-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject" v-if="currentProtocol==='TCP'"/>
             <ms-run-test-sql-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject" v-if="currentProtocol==='SQL'"/>
@@ -248,6 +248,11 @@
     cursor: pointer;
     margin-right: 10px;
     font-size: 16px;
+  }
+
+  .ms-api-div {
+    overflow-y: auto;
+    height: calc(100vh - 155px)
   }
 
   /deep/ .el-tabs__header {
