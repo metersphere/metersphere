@@ -129,8 +129,9 @@
         newLabel: ""
       }
     },
-    created() {
-      this.getApiGroupData()
+    mounted() {
+      this.getProjects();
+      this.changeProtocol();
     },
     watch: {
       currentProject() {
@@ -188,12 +189,6 @@
             this.buildNodePath(node.children[i], {path: option.path}, moduleOptions);
           }
         }
-      },
-      // 调api获取接口分组数据
-      getApiGroupData() {
-        this.getProjects();
-        this.getApiModuleTree();
-        this.changeProtocol();
       },
       findTreeByNodeId(rootNode, nodeId) {
         if (rootNode.id == nodeId) {
@@ -268,9 +263,9 @@
         this.getTreeNode(this.data, draggingNode.data.id, this.list);
 
         this.$post("/api/module/drag", param, () => {
-          this.getApiGroupData();
+          this.getApiModuleTree();
         }, (error) => {
-          this.getApiGroupData();
+          this.getApiModuleTree();
         });
       },
 
@@ -390,7 +385,7 @@
         data.projectId = this.currentProject.id;
         this.$post(url, data, () => {
           this.$success(this.$t('commons.save_success'));
-          this.getApiGroupData();
+          this.getApiModuleTree();
           this.nextFlag = true;
           return true;
         });
