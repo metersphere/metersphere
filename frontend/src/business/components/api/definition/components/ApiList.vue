@@ -24,10 +24,10 @@
             :label="$t('api_test.definition.api_status')"
             show-overflow-tooltip>
             <template v-slot:default="scope">
-              <ms-tag v-if="scope.row.status == 'Prepare'" type="info" :content="$t('test_track.plan.plan_status_prepare')"/>
-              <ms-tag v-if="scope.row.status == 'Underway'" type="primary" :content="$t('test_track.plan.plan_status_running')"/>
-              <ms-tag v-if="scope.row.status == 'Completed'" type="success" :content="$t('test_track.plan.plan_status_completed')"/>
-              <ms-tag v-if="scope.row.status == 'Trash'" type="danger" content="废弃"/>
+              <ms-tag v-if="scope.row.status == 'Prepare'" type="info" effect="plain" :content="$t('test_track.plan.plan_status_prepare')"/>
+              <ms-tag v-if="scope.row.status == 'Underway'" type="warning" effect="plain" :content="$t('test_track.plan.plan_status_running')"/>
+              <ms-tag v-if="scope.row.status == 'Completed'" type="success" effect="plain" :content="$t('test_track.plan.plan_status_completed')"/>
+              <ms-tag v-if="scope.row.status == 'Trash'" type="danger" effect="plain" content="废弃"/>
             </template>
           </el-table-column>
 

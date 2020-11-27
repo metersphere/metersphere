@@ -61,10 +61,10 @@
 
       <div v-for="row in request.hashTree" :key="row.id" v-loading="isReloadData">
         <!-- 前置脚本 -->
-        <ms-jsr233-processor v-if="row.label ==='JSR223 PreProcessor'" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.pre_script')" style-type="warning"
+        <ms-jsr233-processor v-if="row.label ==='JSR223 PreProcessor'" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.pre_script')" style-type="color: #B8741A;background-color: #F9F1EA"
                              :jsr223-processor="row"/>
         <!--后置脚本-->
-        <ms-jsr233-processor v-if="row.label ==='JSR223 PostProcessor'" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.post_script')" style-type="success"
+        <ms-jsr233-processor v-if="row.label ==='JSR223 PostProcessor'" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.post_script')" style-type="color: #783887;background-color: #F2ECF3"
                              :jsr223-processor="row"/>
         <!--断言规则-->
         <ms-api-assertions v-if="row.type==='Assertions'" @remove="remove" :is-read-only="isReadOnly" :assertions="row"/>
@@ -75,13 +75,13 @@
     </el-col>
     <!--操作按钮-->
     <el-col :span="3" class="ms-left-cell">
-      <el-button class="ms-left-buttion" size="small" type="warning" @click="addPre" plain>+{{$t('api_test.definition.request.pre_script')}}</el-button>
+      <el-button class="ms-left-buttion" size="small" style="color: #B8741A;background-color: #F9F1EA" @click="addPre">+{{$t('api_test.definition.request.pre_script')}}</el-button>
       <br/>
-      <el-button class="ms-left-buttion" size="small" type="success" @click="addPost" plain>+{{$t('api_test.definition.request.post_script')}}</el-button>
+      <el-button class="ms-left-buttion" size="small" style="color: #783887;background-color: #F2ECF3" @click="addPost">+{{$t('api_test.definition.request.post_script')}}</el-button>
       <br/>
-      <el-button class="ms-left-buttion" size="small" type="danger" @click="addAssertions" plain>+{{$t('api_test.definition.request.assertions_rule')}}</el-button>
+      <el-button class="ms-left-buttion" size="small" style="color: #A30014;background-color: #F7E6E9" @click="addAssertions">+{{$t('api_test.definition.request.assertions_rule')}}</el-button>
       <br/>
-      <el-button class="ms-left-buttion" size="small" type="info" @click="addExtract" plain>+{{$t('api_test.definition.request.extract_param')}}</el-button>
+      <el-button class="ms-left-buttion" size="small" style="color: #015478;background-color: #E6EEF2" @click="addExtract">+{{$t('api_test.definition.request.extract_param')}}</el-button>
     </el-col>
   </el-row>
 </template>

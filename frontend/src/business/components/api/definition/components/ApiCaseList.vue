@@ -8,9 +8,9 @@
               <div class="variable-combine"> {{api.name}}</div>
             </el-col>
             <el-col :span="api.protocol==='HTTP'? 1:3">
-              <ms-tag v-if="api.status == 'Prepare'" type="info" :content="$t('test_track.plan.plan_status_prepare')"/>
-              <ms-tag v-if="api.status == 'Underway'" type="primary" :content="$t('test_track.plan.plan_status_running')"/>
-              <ms-tag v-if="api.status == 'Completed'" type="success" :content="$t('test_track.plan.plan_status_completed')"/>
+              <ms-tag v-if="api.status == 'Prepare'" type="info" effect="plain" :content="$t('test_track.plan.plan_status_prepare')"/>
+              <ms-tag v-if="api.status == 'Underway'" type="warning" effect="plain" :content="$t('test_track.plan.plan_status_running')"/>
+              <ms-tag v-if="api.status == 'Completed'" type="success" effect="plain" :content="$t('test_track.plan.plan_status_completed')"/>
             </el-col>
             <el-col :span="api.protocol==='HTTP'? 4:0">
               <div class="variable-combine" style="margin-left: 10px">{{api.path ===null ? " " : api.path}}</div>

@@ -2,7 +2,7 @@
   <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin-top: 20px">
     <el-row>
       <div>
-        <el-button class="ms-left-buttion" size="small" :type="styleType" plain>{{title}}</el-button>
+        <el-button class="ms-left-buttion" size="small" :style="styleType" style="color: #B8741A;background-color: #F9F1EA">{{title}}</el-button>
         <i class="icon el-icon-arrow-right" :class="{'is-active': active}" @click="changeActive" style="margin-left: 20px"/>
         <el-input size="small" v-model="jsr223ProcessorData.name" class="ms-api-header-select" style="width: 380px"/>
         <el-button size="small" style="float: right" @click="remove">移除</el-button>
