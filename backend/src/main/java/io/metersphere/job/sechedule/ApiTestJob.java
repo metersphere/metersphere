@@ -2,7 +2,6 @@ package io.metersphere.job.sechedule;
 
 import io.metersphere.api.dto.SaveAPITestRequest;
 import io.metersphere.api.service.APITestService;
-import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -14,7 +13,6 @@ import org.quartz.TriggerKey;
 public class ApiTestJob extends MsScheduleJob {
 
     private APITestService apiTestService;
-
     public ApiTestJob() {
         apiTestService = (APITestService) CommonBeanFactory.getBean(APITestService.class);
     }
@@ -25,7 +23,7 @@ public class ApiTestJob extends MsScheduleJob {
         request.setId(resourceId);
         request.setUserId(userId);
         request.setTriggerMode(ReportTriggerMode.SCHEDULE.name());
-        apiTestService.run(request, ApiRunMode.RUN.name());
+        apiTestService.run(request);
     }
 
     public static JobKey getJobKey(String testId) {

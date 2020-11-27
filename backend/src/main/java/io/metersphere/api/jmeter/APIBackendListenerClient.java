@@ -47,13 +47,15 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
     private final List<SampleResult> queue = new ArrayList<>();
 
     private APITestService apiTestService;
+
     private APIReportService apiReportService;
+
     private TestPlanTestCaseService testPlanTestCaseService;
+
     private NoticeService noticeService;
+
     private MailService mailService;
-    private DingTaskService dingTaskService;
-    private WxChatTaskService wxChatTaskService;
-    private SystemParameterService systemParameterService;
+
     private ApiDefinitionService apiDefinitionService;
     private ApiDefinitionExecResultService apiDefinitionExecResultService;
 
@@ -63,6 +65,19 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
     private String testId;
 
     private String debugReportId;
+
+    //获得控制台内容
+    private PrintStream oldPrintStream = System.out;
+    private ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+    private void setConsole() {
+        System.setOut(new PrintStream(bos)); //设置新的out
+    }
+
+    private String getConsole() {
+        System.setOut(oldPrintStream);
+        return bos.toString();
+    }
 
     @Override
     public void setupTest(BackendListenerContext context) throws Exception {
@@ -89,18 +104,6 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         if (mailService == null) {
             LogUtil.error("mailService is required");
         }
-        dingTaskService = CommonBeanFactory.getBean(DingTaskService.class);
-        if (dingTaskService == null) {
-            LogUtil.error("dingTaskService is required");
-        }
-        wxChatTaskService = CommonBeanFactory.getBean(WxChatTaskService.class);
-        if (wxChatTaskService == null) {
-            LogUtil.error("wxChatTaskService is required");
-        }
-        systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
-        if (systemParameterService == null) {
-            LogUtil.error("systemParameterService is required");
-        }
         apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
         if (apiDefinitionService == null) {
             LogUtil.error("apiDefinitionService is required");
@@ -109,22 +112,9 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         if (apiDefinitionExecResultService == null) {
             LogUtil.error("apiDefinitionExecResultService is required");
         }
-
         super.setupTest(context);
     }
 
-    //获得控制台内容
-    private PrintStream oldPrintStream = System.out;
-    private ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-    private void setConsole() {
-        System.setOut(new PrintStream(bos)); //设置新的out
-    }
-
-    private String getConsole() {
-        System.setOut(oldPrintStream);
-        return bos.toString();
-    }
 
     @Override
     public void handleSampleResults(List<SampleResult> sampleResults, BackendListenerContext context) {
@@ -136,9 +126,10 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         TestResult testResult = new TestResult();
         testResult.setTestId(testId);
         testResult.setTotal(queue.size());
-        // 一个脚本里可能包含多个场景(MsThreadGroup)，所以要区分开，key: 场景Id
+
+        // 一个脚本里可能包含多个场景(ThreadGroup)，所以要区分开，key: 场景Id
         final Map<String, ScenarioResult> scenarios = new LinkedHashMap<>();
-            queue.forEach(result -> {
+        queue.forEach(result -> {
             // 线程名称: <场景名> <场景Index>-<请求Index>, 例如：Scenario 2-1
             String scenarioName = StringUtils.substringBeforeLast(result.getThreadName(), THREAD_SPLIT);
             String index = StringUtils.substringAfterLast(result.getThreadName(), THREAD_SPLIT);
@@ -176,12 +167,12 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             scenarioResult.addPassAssertions(requestResult.getPassAssertions());
             scenarioResult.addTotalAssertions(requestResult.getTotalAssertions());
         });
-
         testResult.getScenarios().addAll(scenarios.values());
         testResult.getScenarios().sort(Comparator.comparing(ScenarioResult::getId));
-        ApiTestReport report;
+        ApiTestReport report = null;
         if (StringUtils.equals(this.runMode, ApiRunMode.DEBUG.name())) {
             report = apiReportService.get(debugReportId);
+            apiReportService.complete(testResult, report);
         } else if (StringUtils.equals(this.runMode, ApiRunMode.DELIMIT.name())) {
             // 调试操作，不需要存储结果
             if (StringUtils.isBlank(debugReportId)) {
@@ -190,15 +181,15 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                 apiDefinitionService.addResult(testResult);
                 apiDefinitionExecResultService.saveApiResult(testResult);
             }
-            return;
         } else {
             apiTestService.changeStatus(testId, APITestStatus.Completed);
             report = apiReportService.getRunningReport(testResult.getTestId());
+            apiReportService.complete(testResult, report);
         }
-        apiReportService.complete(testResult, report);
         queue.clear();
         super.teardownTest(context);
 
+        TestPlanTestCaseService testPlanTestCaseService = CommonBeanFactory.getBean(TestPlanTestCaseService.class);
         List<String> ids = testPlanTestCaseService.getTestPlanTestCaseIds(testResult.getTestId());
         if (ids.size() > 0) {
             try {
@@ -219,7 +210,12 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
     }
 
-    private void sendTask(ApiTestReport report, TestResult testResult) {
+    private static void sendTask(ApiTestReport report, TestResult testResult) {
+        NoticeService noticeService = CommonBeanFactory.getBean(NoticeService.class);
+        MailService mailService = CommonBeanFactory.getBean(MailService.class);
+        DingTaskService dingTaskService = CommonBeanFactory.getBean(DingTaskService.class);
+        WxChatTaskService wxChatTaskService = CommonBeanFactory.getBean(WxChatTaskService.class);
+        SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
         if (StringUtils.equals(NoticeConstants.API, report.getTriggerMode()) || StringUtils.equals(NoticeConstants.SCHEDULE, report.getTriggerMode())) {
             List<String> userIds = new ArrayList<>();
             List<MessageDetail> taskList = new ArrayList<>();
@@ -288,6 +284,10 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             HTTPSampleResult res = (HTTPSampleResult) result;
             requestResult.setCookies(res.getCookies());
         }
+
+        for (SampleResult subResult : result.getSubResults()) {
+            requestResult.getSubRequestResults().add(getRequestResult(subResult));
+        }
         for (SampleResult subResult : result.getSubResults()) {
             requestResult.getSubRequestResults().add(getRequestResult(subResult));
         }
@@ -300,7 +300,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         responseResult.setResponseSize(result.getResponseData().length);
         responseResult.setResponseTime(result.getTime());
         responseResult.setResponseMessage(result.getResponseMessage());
-        responseResult.setConsole(getConsole());
+
         if (JMeterVars.get(result.hashCode()) != null) {
             List<String> vars = new LinkedList<>();
             JMeterVars.get(result.hashCode()).entrySet().parallelStream().reduce(vars, (first, second) -> {
@@ -323,6 +323,8 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             }
             responseResult.getAssertions().add(responseAssertionResult);
         }
+        responseResult.setConsole(getConsole());
+
         return requestResult;
     }
 

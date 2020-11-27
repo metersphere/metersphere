@@ -1218,13 +1218,13 @@ class JMXGenerator {
     }
     envArray.forEach(item => {
       let targetItem = targetMap.get(item.name);
-      let hasItem;
+      let hasItem = undefined;
       if (targetItem) {
-        hasItem = (targetItem.enable !== false);
+        hasItem = (targetItem.enable === false ? false : true);
       } else {
         hasItem = false;
       }
-      if (item.enable !== false && item.name && !hasItem) {
+      if (item.enable != false && item.name && !hasItem) {
         target.push(new KeyValue({name: item.name, value: item.value}));
       }
     })
@@ -1412,7 +1412,7 @@ class JMXGenerator {
     let hasContentType = false;
     for (let index in request.headers) {
       if (request.headers.hasOwnProperty(index)) {
-        if (request.headers[index].name === 'Content-Type' && request.headers[index].enable !== false) {
+        if (request.headers[index].name === 'Content-Type' && request.headers[index].enable != false) {
           hasContentType = true;
           break;
         }
@@ -1426,7 +1426,7 @@ class JMXGenerator {
   removeContentType(request) {
     for (let index in request.headers) {
       if (request.headers.hasOwnProperty(index)) {
-        if (request.headers[index].name === 'Content-Type' && request.headers[index].enable !== false) {
+        if (request.headers[index].name === 'Content-Type' && request.headers[index].enable != false) {
           request.headers.splice(index, 1);
           break;
         }
@@ -1524,7 +1524,7 @@ class JMXGenerator {
 
   getResponseAssertion(regex) {
     let name = regex.description;
-    let type = JMX_ASSERTION_CONDITION.CONTAINS;
+    let type = JMX_ASSERTION_CONDITION.CONTAINS; // 固定用Match，自己写正则
     let value = regex.expression;
     let assumeSuccess = regex.assumeSuccess;
     switch (regex.subject) {

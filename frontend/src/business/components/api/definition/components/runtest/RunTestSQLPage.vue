@@ -24,7 +24,7 @@
       <!--返回结果-->
       <!-- HTTP 请求返回数据 -->
       <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
-      <ms-request-result-tail :response="responseData" ref="runResult"/>
+      <ms-request-result-tail :response="responseData" :currentProtocol="currentProtocol" ref="runResult"/>
 
     </el-card>
 

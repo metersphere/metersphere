@@ -7,7 +7,6 @@ import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
 import io.metersphere.api.service.APITestService;
 import io.metersphere.base.domain.ApiTest;
 import io.metersphere.base.domain.Schedule;
-import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -15,12 +14,14 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.service.CheckOwnerService;
+
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+
 import java.util.HashMap;
 import java.util.List;
 
@@ -75,19 +76,18 @@ public class APITestController {
     }
 
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
-    public void create(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
-        apiTestService.create(request, bodyFiles);
+    public void create(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
+        apiTestService.create(request, file, bodyFiles);
     }
 
     @PostMapping(value = "/create/merge", consumes = {"multipart/form-data"})
-    public void mergeCreate(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "selectIds") List<String> selectIds) {
-        apiTestService.mergeCreate(request, selectIds);
+    public void mergeCreate(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "selectIds") List<String> selectIds) {
+        apiTestService.mergeCreate(request, file, selectIds);
     }
-
     @PostMapping(value = "/update", consumes = {"multipart/form-data"})
-    public void update(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
+    public void update(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         checkownerService.checkApiTestOwner(request.getId());
-        apiTestService.update(request, bodyFiles);
+        apiTestService.update(request, file, bodyFiles);
     }
 
     @PostMapping(value = "/copy")
@@ -101,25 +101,21 @@ public class APITestController {
         return apiTestService.get(testId);
     }
 
+
     @PostMapping("/delete")
     public void delete(@RequestBody DeleteAPITestRequest request) {
         checkownerService.checkApiTestOwner(request.getId());
         apiTestService.delete(request);
     }
 
-    @PostMapping(value = "/jmx")
-    public String getJMX(@RequestBody SaveAPITestRequest request) {
-        return apiTestService.getJMX(request);
-    }
-
     @PostMapping(value = "/run")
     public String run(@RequestBody SaveAPITestRequest request) {
-        return apiTestService.run(request, ApiRunMode.RUN.name());
+        return apiTestService.run(request);
     }
 
     @PostMapping(value = "/run/debug", consumes = {"multipart/form-data"})
-    public String runDebug(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
-        return apiTestService.runDebug(request, bodyFiles, ApiRunMode.DEBUG.name());
+    public String runDebug(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
+        return apiTestService.runDebug(request, file, bodyFiles);
     }
 
     @PostMapping(value = "/checkName")
@@ -140,7 +136,7 @@ public class APITestController {
 
     @PostMapping("/list/schedule/{goPage}/{pageSize}")
     public List<ScheduleDao> listSchedule(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryScheduleRequest request) {
-        PageHelper.startPage(goPage, pageSize, true);
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return apiTestService.listSchedule(request);
     }
 
