@@ -10,7 +10,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface ApiDefinitionMapper {
-    
+
     List<ApiDefinitionResult> list(@Param("request") ApiDefinitionRequest request);
 
     List<ApiComputeResult> selectByIds(@Param("ids") List<String> ids);
@@ -36,4 +36,7 @@ public interface ApiDefinitionMapper {
     int updateByPrimaryKeyWithBLOBs(ApiDefinition record);
 
     int updateByPrimaryKey(ApiDefinition record);
+
+    int removeToGc(@Param("ids") List<String> ids);
+
 }

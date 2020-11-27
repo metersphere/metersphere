@@ -252,6 +252,7 @@
 
   /deep/ .el-tabs__header {
     margin: 0 0 5px;
+    width: calc(100% - 90px);
   }
 
   /deep/ .el-main {

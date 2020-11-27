@@ -104,6 +104,17 @@ public class ApiTestCaseService {
         deleteBodyFiles(testId);
     }
 
+    public void deleteTestCase(String apiId) {
+        ApiTestCaseExample testCaseExample = new ApiTestCaseExample();
+        testCaseExample.createCriteria().andApiDefinitionIdEqualTo(apiId);
+        List<ApiTestCase> testCases = apiTestCaseMapper.selectByExample(testCaseExample);
+        if (testCases.size() > 0) {
+            for (ApiTestCase testCase : testCases) {
+                this.delete(testCase.getId());
+            }
+        }
+    }
+
     /**
      * 是否已经创建了测试用例
      */

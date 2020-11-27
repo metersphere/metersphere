@@ -52,6 +52,7 @@ public class ApiDefinitionService {
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
     @Resource
     private JMeterService jMeterService;
+
     private static Cache cache = Cache.newHardMemoryCache(0, 3600 * 24);
 
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
@@ -118,7 +119,7 @@ public class ApiDefinitionService {
     }
 
     public void delete(String apiId) {
-        apiTestCaseService.checkIsRelateTest(apiId);
+        apiTestCaseService.deleteTestCase(apiId);
         deleteFileByTestId(apiId);
         apiDefinitionExecResultMapper.deleteByResourceId(apiId);
         apiDefinitionMapper.deleteByPrimaryKey(apiId);
@@ -132,6 +133,9 @@ public class ApiDefinitionService {
         });
     }
 
+    public void removeToGc(List<String> apiIds) {
+        apiDefinitionMapper.removeToGc(apiIds);
+    }
 
     public void deleteBodyFiles(String apiId) {
         File file = new File(BODY_FILE_DIR + "/" + apiId);

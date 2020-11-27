@@ -57,6 +57,12 @@ public class ApiDefinitionController {
         apiDefinitionService.deleteBatch(ids);
     }
 
+    @PostMapping("/removeToGc")
+    public void removeToGc(@RequestBody List<String> ids) {
+        apiDefinitionService.removeToGc(ids);
+    }
+
+
     @GetMapping("/get/{id}")
     public ApiDefinition get(@PathVariable String id) {
         return apiDefinitionService.get(id);

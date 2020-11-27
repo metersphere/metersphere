@@ -14,6 +14,11 @@ export const OPTIONS = [
 ]
 
 export const DEFAULT_DATA = [{
+  "id": "gc",
+  "name": "回收站",
+  "level": 1,
+  "children": [],
+},{
   "id": "root",
   "name": "默认模块",
   "level": 0,

@@ -219,7 +219,6 @@
                     <property name="name" value="request.name"/>
                 </include>
             </if>
-
             <if test="request.name != null">
                 and api_definition.name like CONCAT('%', #{request.name},'%')
             </if>
@@ -251,15 +250,9 @@
                 </foreach>
             </if>
             <if test="request.filters != null and request.filters.size() > 0">
-                <foreach collection="request.filters.entrySet()" index="key" item="values">
-
-                    <if test="values != null and values.size() > 0">
-                        and api_definition.status in
-                        <foreach collection="values" item="value" separator="," open="(" close=")">
-                            #{value}
-                        </foreach>
-                    </if>
-
+                and api_definition.status in
+                <foreach collection="request.filters" item="value" separator="," open="(" close=")">
+                    #{value}
                 </foreach>
             </if>
         </where>
@@ -411,4 +404,14 @@
           update_time = #{updateTime,jdbcType=BIGINT}
         where id = #{id,jdbcType=VARCHAR}
   </update>
+
+    <update id="removeToGc">
+        update api_definition
+        set
+        status = 'Trash'
+        where id in
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </update>
 </mapper>

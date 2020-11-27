@@ -24,12 +24,10 @@
             :label="$t('api_test.definition.api_status')"
             show-overflow-tooltip>
             <template v-slot:default="scope">
-              <ms-tag v-if="scope.row.status == 'Prepare'" type="info"
-                      :content="$t('test_track.plan.plan_status_prepare')"/>
-              <ms-tag v-if="scope.row.status == 'Underway'" type="primary"
-                      :content="$t('test_track.plan.plan_status_running')"/>
-              <ms-tag v-if="scope.row.status == 'Completed'" type="success"
-                      :content="$t('test_track.plan.plan_status_completed')"/>
+              <ms-tag v-if="scope.row.status == 'Prepare'" type="info" :content="$t('test_track.plan.plan_status_prepare')"/>
+              <ms-tag v-if="scope.row.status == 'Underway'" type="primary" :content="$t('test_track.plan.plan_status_running')"/>
+              <ms-tag v-if="scope.row.status == 'Completed'" type="success" :content="$t('test_track.plan.plan_status_completed')"/>
+              <ms-tag v-if="scope.row.status == 'Trash'" type="danger" content="废弃"/>
             </template>
           </el-table-column>
 
@@ -38,9 +36,8 @@
             :label="$t('api_test.definition.api_type')"
             show-overflow-tooltip>
             <template v-slot:default="scope" class="request-method">
-              <el-tag size="mini"
-                      :style="{'background-color': getColor(true, scope.row.method)}" class="api-el-tag"> {{ scope.row.method
-                }}
+              <el-tag size="mini" :style="{'background-color': getColor(true, scope.row.method)}" class="api-el-tag">
+                {{ scope.row.method}}
               </el-tag>
             </template>
           </el-table-column>
@@ -112,7 +109,7 @@
   import MsContainer from "../../../common/components/MsContainer";
   import MsBottomContainer from "./BottomContainer";
   import ShowMoreBtn from "../../../../components/track/case/components/ShowMoreBtn";
-  import {API_METHOD_COLOUR} from "../model/JsonData";
+  import {API_METHOD_COLOUR, FILTER_MAP_1, FILTER_MAP_2} from "../model/JsonData";
 
   export default {
     name: "ApiList",
@@ -172,10 +169,15 @@
     },
     methods: {
       initApiTable() {
+        this.condition.filters = ["Prepare", "Underway", "Completed"];
         if (this.currentModule != null) {
           if (this.currentModule.id == "root") {
             this.condition.moduleIds = [];
-          } else {
+          } else if (this.currentModule.id == "gc") {
+            this.condition.moduleIds = [];
+            this.condition.filters = ["Trash"];
+          }
+          else {
             this.condition.moduleIds = this.currentModule.ids;
           }
         }
@@ -238,19 +240,35 @@
         this.$emit('editApi', row);
       },
       handleDeleteBatch() {
-        this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              let ids = Array.from(this.selectRows).map(row => row.id);
-              this.$post('/api/definition/deleteBatch/', ids, () => {
-                this.selectRows.clear();
-                this.initApiTable();
-                this.$success(this.$t('commons.delete_success'));
-              });
+        if (this.currentModule != undefined && this.currentModule.id == "gc") {
+          this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                let ids = Array.from(this.selectRows).map(row => row.id);
+                this.$post('/api/definition/deleteBatch/', ids, () => {
+                  this.selectRows.clear();
+                  this.initApiTable();
+                  this.$success(this.$t('commons.delete_success'));
+                });
+              }
             }
-          }
-        });
+          });
+        } else {
+          this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                let ids = Array.from(this.selectRows).map(row => row.id);
+                this.$post('/api/definition/removeToGc/', ids, () => {
+                  this.selectRows.clear();
+                  this.initApiTable();
+                  this.$success(this.$t('commons.delete_success'));
+                });
+              }
+            }
+          });
+        }
       },
       handleTestCase(testCase) {
         let h = window.screen.height;
@@ -266,10 +284,25 @@
         this.selectApi.url = request.path;
         this.isHide = false;
       },
-      handleDelete(testCase) {
-        this.$get('/api/definition/delete/' + testCase.id, () => {
-          this.$success(this.$t('commons.delete_success'));
-          this.initApiTable();
+      handleDelete(api) {
+        if (this.currentModule != undefined && this.currentModule.id == "gc") {
+          this.$get('/api/definition/delete/' + api.id, () => {
+            this.$success(this.$t('commons.delete_success'));
+            this.initApiTable();
+          });
+          return;
+        }
+        this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + api.name + " ？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              let ids = [api.id];
+              this.$post('/api/definition/removeToGc/', ids, () => {
+                this.$success(this.$t('commons.delete_success'));
+                this.initApiTable();
+              });
+            }
+          }
         });
       },
       apiCaseClose() {

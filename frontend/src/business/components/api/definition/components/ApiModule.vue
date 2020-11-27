@@ -54,11 +54,15 @@
                       class="ms-el-input" size="mini"></el-input>
           </template>
           <!-- 如果不是编辑状态 -->
-          <span class="node-title" v-else v-text="data.name"></span>
+          <div v-else>
+            <i class="el-icon-delete" v-if="data.id==='gc'"/>
+            <i class="el-icon-folder" v-else/>
+          <span class="node-title" v-text="data.name"></span>
+          </div>
 
           <span class="node-operate child">
             <el-tooltip
-              v-if="data.id!='root'"
+              v-if="data.id!='root' && data.id!='gc'"
               class="item"
               effect="dark"
               :open-delay="200"
@@ -68,6 +72,7 @@
             </el-tooltip>
 
             <el-tooltip
+              v-if="data.id!='gc'"
               class="item"
               effect="dark"
               :open-delay="200"
@@ -77,7 +82,7 @@
             </el-tooltip>
 
              <el-tooltip
-               v-if="data.id!='root'"
+               v-if="data.id!='root' && data.id!='gc'"
                class="item"
                effect="dark"
                :open-delay="200"
@@ -114,7 +119,7 @@
         options: OPTIONS,
         protocol: OPTIONS[0].value,
         httpVisible: false,
-        expandedNode: ["root"],
+        expandedNode: [],
         filterText: "",
         nextFlag: true,
         currentProject: {},
@@ -139,17 +144,19 @@
     methods: {
       getApiModuleTree() {
         if (this.currentProject) {
+          if (this.expandedNode.length === 0) {
+            this.expandedNode.push("root");
+          }
           this.$get("/api/module/list/" + this.currentProject.id + "/" + this.protocol, response => {
             if (response.data != undefined && response.data != null) {
-              this.data[0].children = response.data;
+              this.data[1].children = response.data;
               let moduleOptions = [];
-              this.data[0].children.forEach(node => {
+              this.data[1].children.forEach(node => {
                 this.buildNodePath(node, {path: ''}, moduleOptions);
               });
               this.$emit('getApiModuleTree', moduleOptions);
             }
           });
-
         }
       },
       handleCommand(e) {
