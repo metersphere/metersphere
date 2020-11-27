@@ -4,7 +4,7 @@ MAINTAINER FIT2CLOUD <support@fit2cloud.com>
 
 ARG MS_VERSION=dev
 
-RUN mkdir -p /opt/apps && mkdir -p /opt/jmeter
+RUN mkdir -p /opt/apps && mkdir -p /opt/jmeter/lib/junit
 
 COPY backend/target/backend-1.5.jar /opt/apps
 
