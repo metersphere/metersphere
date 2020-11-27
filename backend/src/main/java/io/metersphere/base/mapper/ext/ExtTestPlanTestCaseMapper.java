@@ -38,4 +38,5 @@ public interface ExtTestPlanTestCaseMapper {
      */
     List<TestPlanCaseDTO> listTestCaseByProjectIds(@Param("ids") List<String> ids);
 
+    TestPlanCaseDTO get(String testPlanTestCaseId);
 }
