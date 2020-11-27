@@ -66,7 +66,7 @@ public class DingTaskService {
         try {
             response = client.execute(request);
         } catch (ApiException e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
         System.out.println(response.getErrcode());
     }

@@ -138,7 +138,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         testResult.setTotal(queue.size());
         // 一个脚本里可能包含多个场景(MsThreadGroup)，所以要区分开，key: 场景Id
         final Map<String, ScenarioResult> scenarios = new LinkedHashMap<>();
-        queue.forEach(result -> {
+            queue.forEach(result -> {
             // 线程名称: <场景名> <场景Index>-<请求Index>, 例如：Scenario 2-1
             String scenarioName = StringUtils.substringBeforeLast(result.getThreadName(), THREAD_SPLIT);
             String index = StringUtils.substringAfterLast(result.getThreadName(), THREAD_SPLIT);
@@ -146,7 +146,12 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             ScenarioResult scenarioResult;
             if (!scenarios.containsKey(scenarioId)) {
                 scenarioResult = new ScenarioResult();
-                scenarioResult.setId(scenarioId);
+                try {
+                    scenarioResult.setId(Integer.parseInt(scenarioId));
+                } catch (Exception e) {
+                    scenarioResult.setId(0);
+                    LogUtil.error("场景ID转换异常: " + e.getMessage());
+                }
                 scenarioResult.setName(scenarioName);
                 scenarios.put(scenarioId, scenarioResult);
             } else {
@@ -203,13 +208,13 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                     testPlanTestCaseService.updateTestCaseStates(ids, TestPlanTestCaseStatus.Failure.name());
                 }
             } catch (Exception e) {
-                LogUtil.error(e);
+                LogUtil.error(e.getMessage(), e);
             }
         }
         try {
             sendTask(report, testResult);
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
 
     }

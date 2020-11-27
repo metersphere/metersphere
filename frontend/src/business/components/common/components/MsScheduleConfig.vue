@@ -73,7 +73,9 @@
         this.$emit('scheduleChange');
       },
       flashResultList() {
-        this.$refs.crontabResult.expressionChange();
+        if (this.$refs.crontabResult) {
+          this.$refs.crontabResult.expressionChange();
+        }
       },
       cancelRefresh() {
         if (this.refreshScheduler) {

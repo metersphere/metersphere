@@ -46,10 +46,9 @@ import MsScenarioResults from "./components/ScenarioResults";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import MsApiReportExport from "./ApiReportExport";
-import {exportPdf} from "@/common/js/utils";
-import html2canvas from "html2canvas";
 import MsApiReportViewHeader from "./ApiReportViewHeader";
 import {RequestFactory} from "../test/model/ScenarioModel";
+import {windowPrint} from "../../../../common/js/utils";
 
 export default {
   name: "MsApiReportViewDetail",
@@ -154,23 +153,16 @@ export default {
         this.scenarioName = requestResult.scenarioName;
       });
     },
-    handleExport(name) {
-      this.loading = true;
+    handleExport() {
       this.reportExportVisible = true;
       let reset = this.exportReportReset;
-
-      this.$nextTick(function () {
-        html2canvas(document.getElementById('apiTestReport'), {
-          // scale: 2,
-        }).then(function (canvas) {
-          exportPdf(name, [canvas]);
-          reset();
-        });
+      this.$nextTick(() => {
+        windowPrint('apiTestReport', 0.57);
+        reset();
       });
     },
     exportReportReset() {
-      this.reportExportVisible = false;
-      this.loading = false;
+      this.$router.go(0);
     }
   },
 

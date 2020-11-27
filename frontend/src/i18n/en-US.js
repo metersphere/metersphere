@@ -893,6 +893,7 @@ export default {
       actual_start_time: "Actual Start Time",
       actual_end_time: "Actual End Time",
       plan_delete_confirm: "All use cases under this plan will be deleted,confirm delete test plan: ",
+      plan_delete_tip: "The test plan is under way, please confirm and delete it!",
       plan_delete: "Delete test plan",
     },
     review: {

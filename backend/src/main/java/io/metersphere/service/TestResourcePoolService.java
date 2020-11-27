@@ -135,7 +135,7 @@ public class TestResourcePoolService {
                 MSException.throwException("Resource Pool is invalid.");
             }
         } catch (IllegalAccessException | InvocationTargetException e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -144,6 +144,9 @@ public class TestResourcePoolService {
         TestResourcePoolExample.Criteria criteria = example.createCriteria();
         if (StringUtils.isNotBlank(request.getName())) {
             criteria.andNameLike(StringUtils.wrapIfMissing(request.getName(), "%"));
+        }
+        if (StringUtils.isNotBlank(request.getStatus())) {
+            criteria.andStatusEqualTo(request.getStatus());
         }
         example.setOrderByClause("update_time desc");
         List<TestResourcePool> testResourcePools = testResourcePoolMapper.selectByExample(example);
@@ -158,7 +161,7 @@ public class TestResourcePoolService {
                 testResourcePoolDTO.setResources(testResources);
                 testResourcePoolDTOS.add(testResourcePoolDTO);
             } catch (IllegalAccessException | InvocationTargetException e) {
-                LogUtil.error(e);
+                LogUtil.error(e.getMessage(), e);
             }
         });
         return testResourcePoolDTOS;
@@ -207,7 +210,7 @@ public class TestResourcePoolService {
             ResponseEntity<String> entity = restTemplateWithTimeOut.getForEntity(String.format(nodeControllerUrl, node.getIp(), node.getPort()), String.class);
             return HttpStatus.OK.equals(entity.getStatusCode());
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
             return false;
         }
     }
@@ -232,7 +235,7 @@ public class TestResourcePoolService {
         return testResourcePoolMapper.selectByPrimaryKey(resourcePoolId);
     }
 
-    public List<TestResourcePool> listValidResourcePools() {
+    public List<TestResourcePoolDTO> listValidResourcePools() {
         QueryResourcePoolRequest request = new QueryResourcePoolRequest();
         List<TestResourcePoolDTO> testResourcePools = listResourcePools(request);
         // 重新校验 pool
@@ -249,16 +252,15 @@ public class TestResourcePoolService {
                 testResourcePoolMapper.updateByPrimaryKeySelective(pool);
             }
         }
-        TestResourcePoolExample example = new TestResourcePoolExample();
-        example.createCriteria().andStatusEqualTo(ResourceStatusEnum.VALID.name());
-        return testResourcePoolMapper.selectByExample(example);
+        request.setStatus(VALID.name());
+        return listResourcePools(request);
     }
 
-    public List<TestResourcePool> listValidQuotaResourcePools() {
+    public List<TestResourcePoolDTO> listValidQuotaResourcePools() {
         return filterQuota(listValidResourcePools());
     }
 
-    private List<TestResourcePool> filterQuota(List<TestResourcePool> list) {
+    private List<TestResourcePoolDTO> filterQuota(List<TestResourcePoolDTO> list) {
         QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
         if (quotaService != null) {
             Set<String> pools = quotaService.getQuotaResourcePools();

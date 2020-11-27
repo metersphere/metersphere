@@ -9,9 +9,7 @@
       </div>
     </div>
     <div class="report-right">
-      <div class="test">
-        <img class="logo" src="@/assets/logo-MeterSphere.png">
-      </div>
+      <img class="logo" src="@/assets/logo-MeterSphere.png">
     </div>
 
   </div>

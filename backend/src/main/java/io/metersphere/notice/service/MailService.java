@@ -2,10 +2,7 @@ package io.metersphere.notice.service;
 
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.UserMapper;
-import io.metersphere.commons.constants.APITestStatus;
-import io.metersphere.commons.constants.NoticeConstants;
-import io.metersphere.commons.constants.ParamConstants;
-import io.metersphere.commons.constants.PerformanceTestStatus;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
@@ -22,6 +19,7 @@ import io.metersphere.track.request.testreview.SaveTestCaseReviewRequest;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.mail.MailException;
@@ -67,7 +65,7 @@ public class MailService {
             }
             sendApiOrLoadNotification(addresseeIdList(messageDetail, userIds, eventType), context, performanceTemplate, loadTestReport.getTriggerMode());
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -88,7 +86,7 @@ public class MailService {
             }
             sendApiOrLoadNotification(addresseeIdList(messageDetail, userIds, eventType), context, apiTemplate, apiTestReport.getTriggerMode());
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -120,7 +118,7 @@ public class MailService {
         try {
             javaMailSender.send(mimeMessage);
         } catch (MailException e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
     //测试评审
@@ -131,7 +129,7 @@ public class MailService {
             String endTemplate = IOUtils.toString(this.getClass().getResource("/mail/ReviewEnd.html"), StandardCharsets.UTF_8);
             sendReviewNotice(addresseeIdList(messageDetail, userIds, eventType), context, endTemplate);
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -141,7 +139,7 @@ public class MailService {
             String endTemplate = IOUtils.toString(this.getClass().getResource("/mail/ReviewDelete.html"), StandardCharsets.UTF_8);
             sendReviewNotice(addresseeIdList(messageDetail, userIds, eventType), context, endTemplate);
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -158,7 +156,7 @@ public class MailService {
             String commentTemplate = IOUtils.toString(this.getClass().getResource("/mail/ReviewComments.html"), StandardCharsets.UTF_8);
             sendReviewNotice(addresseeIdList(messageDetail, userIds, eventType), context, commentTemplate);
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -168,7 +166,7 @@ public class MailService {
             String reviewerTemplate = IOUtils.toString(this.getClass().getResource("/mail/ReviewInitiate.html"), StandardCharsets.UTF_8);
             sendReviewNotice(addresseeIdList(messageDetail, userIds, eventType), context, reviewerTemplate);
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -207,7 +205,7 @@ public class MailService {
             String endTemplate = IOUtils.toString(this.getClass().getResource("/mail/TestPlanStart.html"), StandardCharsets.UTF_8);
             sendTestPlanNotice(addresseeIdList(messageDetail, userIds, eventType), context, endTemplate);
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -219,7 +217,7 @@ public class MailService {
             String endTemplate = IOUtils.toString(this.getClass().getResource("/mail/TestPlanEnd.html"), StandardCharsets.UTF_8);
             sendTestPlanNotice(addresseeIdList(messageDetail, userIds, eventType), context, endTemplate);
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -231,7 +229,7 @@ public class MailService {
             String endTemplate = IOUtils.toString(this.getClass().getResource("/mail/TestPlanDelete.html"), StandardCharsets.UTF_8);
             sendTestPlanNotice(addresseeIdList(messageDetail, userIds, eventType), context, endTemplate);
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -268,7 +266,7 @@ public class MailService {
             String endTemplate = IOUtils.toString(this.getClass().getResource("/mail/IssuesCreate.html"), StandardCharsets.UTF_8);
             sendIssuesNotice(addresseeIdList(messageDetail, userIds, eventType), context, endTemplate);
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -321,6 +319,15 @@ public class MailService {
         context.put("start", start);
         context.put("end", end);
         context.put("id", reviewRequest.getId());
+        String status = "";
+        if (StringUtils.equals(TestPlanStatus.Underway.name(), reviewRequest.getStatus())) {
+            status = "进行中";
+        } else if (StringUtils.equals(TestPlanStatus.Prepare.name(), reviewRequest.getStatus())) {
+            status = "未开始";
+        } else if (StringUtils.equals(TestPlanStatus.Completed.name(), reviewRequest.getStatus())) {
+            status = "已完成";
+        }
+        context.put("status", status);
         return context;
     }
 
@@ -347,19 +354,29 @@ public class MailService {
         context.put("start", start);
         context.put("end", end);
         context.put("id", testPlan.getId());
+        String status = "";
+        if (StringUtils.equals(TestPlanStatus.Underway.name(), testPlan.getStatus())) {
+            status = "进行中";
+        } else if (StringUtils.equals(TestPlanStatus.Prepare.name(), testPlan.getStatus())) {
+            status = "未开始";
+        } else if (StringUtils.equals(TestPlanStatus.Completed.name(), testPlan.getStatus())) {
+            status = "已完成";
+        }
+        context.put("status", status);
         User user = userMapper.selectByPrimaryKey(testPlan.getCreator());
         context.put("creator", user.getName());
         return context;
     }
 
 
-
-
     private JavaMailSenderImpl getMailSender() {
+        Properties props = new Properties();
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
         List<SystemParameter> paramList = systemParameterService.getParamList(ParamConstants.Classify.MAIL.getValue());
         javaMailSender.setDefaultEncoding("UTF-8");
-        javaMailSender.setProtocol("smtps");
+        javaMailSender.setProtocol("smtp");
+        props.put("mail.smtp.auth", "true");
+
         for (SystemParameter p : paramList) {
             switch (p.getParamKey()) {
                 case "smtp.host":
@@ -374,14 +391,30 @@ public class MailService {
                 case "smtp.password":
                     javaMailSender.setPassword(EncryptUtils.aesDecrypt(p.getParamValue()).toString());
                     break;
+                case "smtp.ssl":
+                    javaMailSender.setProtocol("smtps");
+                    if (BooleanUtils.toBoolean(p.getParamValue())) {
+                        props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+                    }
+                    break;
+                case "smtp.tls":
+                    String result = BooleanUtils.toString(BooleanUtils.toBoolean(p.getParamValue()), "true", "false");
+                    props.put("mail.smtp.starttls.enable", result);
+                    props.put("mail.smtp.starttls.required", result);
+                    break;
+                case "smtp.anon":
+                    boolean isAnon = BooleanUtils.toBoolean(p.getParamValue());
+                    if (isAnon) {
+                        props.put("mail.smtp.auth", "false");
+                        javaMailSender.setUsername(null);
+                        javaMailSender.setPassword(null);
+                    }
+                    break;
                 default:
                     break;
             }
         }
-        Properties props = new Properties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.starttls.required", "true");
+
         props.put("mail.smtp.timeout", "30000");
         props.put("mail.smtp.connectiontimeout", "5000");
         javaMailSender.setJavaMailProperties(props);
@@ -396,6 +429,7 @@ public class MailService {
                 } else {
                     template = RegExUtils.replaceAll(template, "\\$\\{" + k + "}", "未设置");
                 }
+
             }
         }
         return template;
@@ -405,7 +439,7 @@ public class MailService {
         List<String> addresseeIdList = new ArrayList<>();
         if (StringUtils.equals(eventType, messageDetail.getEvent())) {
             messageDetail.getUserIds().forEach(u -> {
-                if (!StringUtils.equals(NoticeConstants.EXECUTOR, u) && !StringUtils.equals(NoticeConstants.EXECUTOR, u) && !StringUtils.equals(NoticeConstants.MAINTAINER, u)) {
+                if (!StringUtils.equals(NoticeConstants.EXECUTOR, u) && !StringUtils.equals(NoticeConstants.FOUNDER, u) && !StringUtils.equals(NoticeConstants.MAINTAINER, u)) {
                     addresseeIdList.add(u);
                 }
                 if (StringUtils.equals(NoticeConstants.CREATE, eventType) && StringUtils.equals(NoticeConstants.EXECUTOR, u)) {

@@ -157,7 +157,7 @@ export class Test extends BaseConfig {
   constructor(options) {
     super();
     this.type = "MS API CONFIG";
-    this.version = '1.4.0';
+    this.version = '1.5.0';
     this.id = uuid();
     this.name = undefined;
     this.projectId = undefined;
@@ -609,8 +609,8 @@ export class DatabaseConfig extends BaseConfig {
     super();
     this.id = undefined;
     this.name = undefined;
-    this.poolMax = undefined;
-    this.timeout = undefined;
+    this.poolMax = 1;
+    this.timeout = 100000;
     this.driver = undefined;
     this.dbUrl = undefined;
     this.username = undefined;

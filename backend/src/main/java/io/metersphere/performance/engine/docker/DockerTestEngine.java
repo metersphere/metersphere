@@ -64,10 +64,10 @@ public class DockerTestEngine extends AbstractEngine {
         try {
             context = EngineFactory.createContext(loadTest, resource.getId(), ratio, this.getStartTime(), this.getReportId(), resourceIndex);
         } catch (MSException e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
             MSException.throwException(e);
         }
 

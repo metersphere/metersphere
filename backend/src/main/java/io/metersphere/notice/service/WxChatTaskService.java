@@ -59,7 +59,7 @@ public class WxChatTaskService {
             SendResult result = WxChatbotClient.send(Webhook, message);
             System.out.println(result);
         } catch (IOException e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 

@@ -137,7 +137,9 @@
 
     <test-report-template-list @openReport="openReport" ref="testReportTemplateList"/>
     <test-case-report-view @refresh="initTableData" ref="testCaseReportView"/>
-    <ms-delete-confirm :title="$t('test_track.plan.plan_delete')" @delete="_handleDelete" ref="deleteConfirm"/>
+    <ms-delete-confirm :title="$t('test_track.plan.plan_delete')" @delete="_handleDelete" ref="deleteConfirm" :with-tip="enableDeleteTip">
+      {{$t('test_track.plan.plan_delete_tip')}}
+    </ms-delete-confirm>
 
   </el-card>
 </template>
@@ -171,6 +173,7 @@ export default {
   data() {
     return {
       result: {},
+      enableDeleteTip: false,
       queryPath: "/test/plan/list",
       deletePath: "/test/plan/delete",
       condition: {
@@ -249,6 +252,7 @@ export default {
       });
     },
     handleDelete(testPlan) {
+      this.enableDeleteTip = testPlan.status === 'Underway' ? true : false;
       this.$refs.deleteConfirm.open(testPlan);
     },
     _handleDelete(testPlan) {

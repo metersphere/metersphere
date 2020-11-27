@@ -30,7 +30,7 @@
                   :placeholder="$t('load_test.input_thread_num')"
                   v-model="threadGroup.threadNumber"
                   @change="calculateChart(threadGroup)"
-                  :min="1"
+                  :min="resourcePoolResourceLength"
                   size="mini"/>
               </el-form-item>
               <br>
@@ -141,6 +141,7 @@ export default {
       activeNames: ["0"],
       threadGroups: [],
       serializeThreadgroups: false,
+      resourcePoolResourceLength: 1
     }
   },
   mounted() {
@@ -367,6 +368,11 @@ export default {
       }
       if (handler.rampUpTime < handler.step) {
         handler.step = handler.rampUpTime;
+      }
+      // 线程数不能小于资源池节点的数量
+      let resourcePool = this.resourcePools.filter(v => v.id === this.resourcePool)[0];
+      if (resourcePool) {
+        this.resourcePoolResourceLength = resourcePool.resources.length;
       }
       handler.options = {
         xAxis: {

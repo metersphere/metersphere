@@ -258,7 +258,7 @@ public class PerformanceTestService {
                 soc.close();
             }
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
             MSException.throwException(Translator.get("load_test_kafka_invalid"));
         }
     }
@@ -304,7 +304,7 @@ public class PerformanceTestService {
         } catch (MSException e) {
             // 启动失败之后清理任务
             engine.stop();
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
             loadTest.setStatus(PerformanceTestStatus.Error.name());
             loadTest.setDescription(e.getMessage());
             loadTestMapper.updateByPrimaryKeySelective(loadTest);

@@ -53,13 +53,13 @@ public class TestResourcePoolController {
 
     @GetMapping("list/all/valid")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
-    public List<TestResourcePool> listValidResourcePools() {
+    public List<TestResourcePoolDTO> listValidResourcePools() {
         return testResourcePoolService.listValidResourcePools();
     }
 
     @GetMapping("list/quota/valid")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
-    public List<TestResourcePool> listValidQuotaResourcePools() {
+    public List<TestResourcePoolDTO> listValidQuotaResourcePools() {
         return testResourcePoolService.listValidQuotaResourcePools();
     }
 

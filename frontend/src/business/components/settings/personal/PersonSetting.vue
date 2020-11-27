@@ -86,6 +86,7 @@
   import MsDialogFooter from "../../common/components/MsDialogFooter";
   import {getCurrentUser, listenGoBack, removeGoBackListener} from "../../../../common/js/utils";
   import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
+  import {PHONE_REGEX} from "@/common/js/regex";
 
   export default {
     name: "MsPersonSetting",
@@ -115,7 +116,7 @@
           phone: [
             {
               required: false,
-              pattern: '^1(3|4|5|7|8)\\d{9}$',
+              pattern: PHONE_REGEX,
               message: this.$t('member.mobile_number_format_is_incorrect'),
               trigger: 'blur'
             }

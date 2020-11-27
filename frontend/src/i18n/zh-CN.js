@@ -470,7 +470,7 @@ export default {
       title: "jar包管理",
       jar_file: "jar包",
       delete_tip: "删除需重启服务后生效",
-      file_exist: "该项目下已存在改jar包",
+      file_exist: "该项目下已存在该jar包",
       upload_limit_size: "上传文件大小不能超过 30MB!",
     },
     definition: {
@@ -896,6 +896,7 @@ export default {
       actual_start_time: "实际开始",
       actual_end_time: "实际结束",
       plan_delete_confirm: "将删除该测试计划下所有用例，确认删除测试计划: ",
+      plan_delete_tip: "该测试计划正在进行中，请确认再删除！",
       plan_delete: "删除计划",
     },
     review: {
@@ -1063,7 +1064,7 @@ export default {
     SMTP_password: 'SMTP密码',
     SSL: '开启SSL(如果SMTP端口是465，通常需要启用SSL)',
     TLS: '开启TLS(如果SMTP端口是587，通常需要启用TLS)',
-    SMTP: '是否匿名 SMTP',
+    SMTP: '是否免密 SMTP',
     host: '主机号不能为空',
     port: '端口号不能为空',
     account: '账户不能为空',

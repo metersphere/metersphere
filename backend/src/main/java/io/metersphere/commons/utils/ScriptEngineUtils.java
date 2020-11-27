@@ -18,7 +18,7 @@ public class ScriptEngineUtils {
             String script = IOUtils.toString(ScriptEngineUtils.class.getResource("/javascript/func.js"), StandardCharsets.UTF_8);
             engine.eval(script);
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -26,7 +26,7 @@ public class ScriptEngineUtils {
         try {
             return engine.eval("calculate('" + input + "')").toString();
         } catch (ScriptException e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
             return input;
         }
     }
