@@ -1,14 +1,21 @@
 package io.metersphere.api.parse;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.ApiTestImportRequest;
+import io.metersphere.api.dto.definition.ApiDefinitionResult;
+import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
+import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.dto.definition.request.configurations.MsHeaderManager;
+import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.parse.ApiImport;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.Scenario;
 import io.metersphere.api.dto.scenario.request.HttpRequest;
 import io.metersphere.api.dto.scenario.request.Request;
+import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.commons.constants.MsRequestBodyType;
 import io.metersphere.commons.constants.SwaggerParameterType;
 import io.swagger.models.*;
@@ -19,6 +26,7 @@ import io.swagger.models.properties.Property;
 import io.swagger.models.properties.RefProperty;
 import io.swagger.parser.SwaggerParser;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jorphan.collections.HashTree;
 
 import java.io.InputStream;
 import java.util.*;
@@ -37,6 +45,52 @@ public class Swagger2Parser extends ApiImportAbstractParser {
         apiImport.setScenarios(parseRequests(swagger));
         apiImport.getScenarios().forEach(scenario -> scenario.setEnvironmentId(request.getEnvironmentId()));
         return apiImport;
+    }
+
+    @Override
+    public ApiDefinitionImport parseApi(InputStream source, ApiTestImportRequest request) {
+        ApiImport apiImport = this.parse(source, request);
+        ApiDefinitionImport definitionImport = new ApiDefinitionImport();
+        definitionImport.setData(parseSwagger(apiImport));
+        return definitionImport;
+    }
+
+    private List<ApiDefinitionResult> parseSwagger(ApiImport apiImport) {
+        List<ApiDefinitionResult> results = new LinkedList<>();
+        apiImport.getScenarios().forEach(item -> {
+            item.getRequests().forEach(childItem -> {
+                if (childItem instanceof HttpRequest) {
+                    HttpRequest res = (HttpRequest) childItem;
+                    ApiDefinitionResult request = new ApiDefinitionResult();
+                    request.setName(res.getName());
+                    request.setPath(res.getPath());
+                    request.setMethod(res.getMethod());
+                    request.setProtocol(RequestType.HTTP);
+                    MsHTTPSamplerProxy requestElement = new MsHTTPSamplerProxy();
+                    requestElement.setName(res.getName() + "Postman MHTTPSamplerProxy");
+                    requestElement.setBody(res.getBody());
+                    requestElement.setArguments(res.getParameters());
+                    requestElement.setProtocol(RequestType.HTTP);
+                    requestElement.setPath(res.getPath());
+                    requestElement.setMethod(res.getMethod());
+                    requestElement.setId(UUID.randomUUID().toString());
+                    requestElement.setRest(new ArrayList<KeyValue>());
+                    MsHeaderManager headerManager = new MsHeaderManager();
+                    headerManager.setId(UUID.randomUUID().toString());
+                    headerManager.setName(res.getName() + "Postman MsHeaderManager");
+                    headerManager.setHeaders(res.getHeaders());
+                    HashTree tree = new HashTree();
+                    tree.add(headerManager);
+                    LinkedList<MsTestElement> list = new LinkedList<>();
+                    list.add(headerManager);
+                    requestElement.setHashTree(list);
+                    request.setRequest(JSON.toJSONString(requestElement));
+                    results.add(request);
+                }
+
+            });
+        });
+        return results;
     }
 
     private List<Scenario> parseRequests(Swagger swagger) {
@@ -141,7 +195,7 @@ public class Swagger2Parser extends ApiImportAbstractParser {
             Model model = definitions.get(simpleRef);
             HashSet<String> refSet = new HashSet<>();
             refSet.add(simpleRef);
-            if (model != null ) {
+            if (model != null) {
                 JSONObject bodyParameters = getBodyJSONObjectParameters(model.getProperties(), definitions, refSet);
                 body.setRaw(bodyParameters.toJSONString());
             }

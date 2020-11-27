@@ -2,7 +2,6 @@ package io.metersphere.job.sechedule;
 
 import io.metersphere.api.dto.SaveAPITestRequest;
 import io.metersphere.api.service.APITestService;
-import io.metersphere.notice.service.MailService;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CommonBeanFactory;

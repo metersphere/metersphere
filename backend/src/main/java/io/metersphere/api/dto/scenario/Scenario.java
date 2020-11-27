@@ -12,7 +12,7 @@ public class Scenario {
     private String name;
     private String url;
     private String environmentId;
-    private Boolean enableCookieShare;
+    private boolean enableCookieShare;
     private List<KeyValue> variables;
     private List<KeyValue> headers;
     private List<Request> requests;
@@ -21,5 +21,7 @@ public class Scenario {
     private TCPConfig tcpConfig;
     private List<DatabaseConfig> databaseConfigs;
     private Boolean enable;
+    private Boolean referenceEnable;
+    private boolean enable = true;
     private Boolean referenceEnable;
 }

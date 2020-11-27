@@ -1,5 +1,5 @@
 <template>
-  <el-tag :type="type" :effect="effect" size="mini">{{content}}</el-tag>
+  <el-tag :type="type" :effect="effect" :color="color" size="mini">{{content}}</el-tag>
 </template>
 
 <script>
@@ -9,6 +9,10 @@
         type: {
           type: String,
           default: 'primary',
+        },
+        color: {
+          type: String,
+          default: '',
         },
         content: {
           type: String

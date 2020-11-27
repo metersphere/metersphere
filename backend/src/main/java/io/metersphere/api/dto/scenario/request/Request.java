@@ -22,22 +22,25 @@ import lombok.Data;
 @JSONType(seeAlso = {HttpRequest.class, DubboRequest.class, SqlRequest.class, TCPRequest.class}, typeKey = "type")
 @Data
 public abstract class Request {
+    private String type;
     @JSONField(ordinal = 1)
     private String id;
     @JSONField(ordinal = 2)
     private String name;
     @JSONField(ordinal = 3)
-    private Boolean enable;
+    private boolean enable = true;
     @JSONField(ordinal = 4)
-    private Assertions assertions;
+    private boolean useEnvironment;
     @JSONField(ordinal = 5)
-    private Extract extract;
+    private Assertions assertions;
     @JSONField(ordinal = 6)
-    private JSR223PreProcessor jsr223PreProcessor;
+    private Extract extract;
     @JSONField(ordinal = 7)
-    private JSR223PostProcessor jsr223PostProcessor;
+    private JSR223PreProcessor jsr223PreProcessor;
     @JSONField(ordinal = 8)
-    private IfController controller;
+    private JSR223PostProcessor jsr223PostProcessor;
     @JSONField(ordinal = 9)
+    private IfController controller;
+    @JSONField(ordinal = 10)
     private ConstantTimer timer;
 }

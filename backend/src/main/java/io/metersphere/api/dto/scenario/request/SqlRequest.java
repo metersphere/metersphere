@@ -14,20 +14,16 @@ import java.util.List;
 public class SqlRequest extends Request {
     // type 必须放最前面，以便能够转换正确的类
     private String type = RequestType.SQL;
-    @JSONField(ordinal = 3)
+    @JSONField(ordinal = 50)
     private String dataSource;
-    @JSONField(ordinal = 4)
+    @JSONField(ordinal = 51)
     private String query;
-    @JSONField(ordinal = 5)
+    @JSONField(ordinal = 52)
     private long queryTimeout;
-    @JSONField(ordinal = 6)
-    private Boolean useEnvironment;
-    @JSONField(ordinal = 7)
-    private Boolean followRedirects;
-    @JSONField(ordinal = 13)
+    @JSONField(ordinal = 53)
     private String resultVariable;
-    @JSONField(ordinal = 14)
+    @JSONField(ordinal = 54)
     private String variableNames;
-    @JSONField(ordinal = 15)
+    @JSONField(ordinal = 55)
     private List<KeyValue> variables;
 }

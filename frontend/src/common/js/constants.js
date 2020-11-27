@@ -127,7 +127,7 @@ export const JMETER_FUNC = [
   {type: "Information", name: "${__logn}", description: "log (or display) a message (empty return value)"},
   {type: "Input", name: "${__StringFromFile}", description: "read a line from a file"},
   {type: "Input", name: "${__FileToString}", description: "read an entire file"},
-  {type: "Input", name: "${__CSVRead}", description: "read from CSV delimited file"},
+  {type: "Input", name: "${__CSVRead}", description: "read from CSV definitioned file"},
   {type: "Input", name: "${__XPath}", description: "Use an XPath expression to read from a file"},
   {type: "Calculation", name: "${__counter}", description: "generate an incrementing number"},
   {type: "Calculation", name: "${__intSum}", description: "add int numbers"},

@@ -8,6 +8,7 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
+
 @Data
 @ColumnWidth(15)
 public class TestCaseExcelDataUs extends TestCaseExcelData {
