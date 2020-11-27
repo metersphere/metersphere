@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.ApiTestImportRequest;
+import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.parse.ApiImport;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.commons.constants.MsRequestBodyType;
@@ -19,6 +20,13 @@ public class MsParser extends ApiImportAbstractParser {
         String testStr = getApiTestStr(source);
         ApiImport apiImport = JSON.parseObject(parsePluginFormat(testStr), ApiImport.class);
         apiImport.getScenarios().forEach(scenario -> setScenarioByRequest(scenario, request));
+        return apiImport;
+    }
+
+    @Override
+    public ApiDefinitionImport parseApi(InputStream source, ApiTestImportRequest request) {
+        String testStr = getApiTestStr(source);
+        ApiDefinitionImport apiImport = JSON.parseObject(testStr, ApiDefinitionImport.class);
         return apiImport;
     }
 

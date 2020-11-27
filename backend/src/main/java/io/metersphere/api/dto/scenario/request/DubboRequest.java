@@ -18,23 +18,23 @@ import java.util.List;
 public class DubboRequest extends Request {
     // type 必须放最前面，以便能够转换正确的类
     private String type = RequestType.DUBBO;
-    @JSONField(ordinal = 2)
+    @JSONField(ordinal = 52)
     private String protocol;
     @JsonProperty(value = "interface")
-    @JSONField(ordinal = 3, name = "interface")
+    @JSONField(ordinal = 53, name = "interface")
     private String _interface;
-    @JSONField(ordinal = 4)
+    @JSONField(ordinal = 54)
     private String method;
 
-    @JSONField(ordinal = 5)
+    @JSONField(ordinal = 55)
     private ConfigCenter configCenter;
-    @JSONField(ordinal = 6)
+    @JSONField(ordinal = 56)
     private RegistryCenter registryCenter;
-    @JSONField(ordinal = 7)
+    @JSONField(ordinal = 57)
     private ConsumerAndService consumerAndService;
 
-    @JSONField(ordinal = 8)
+    @JSONField(ordinal = 58)
     private List<KeyValue> args;
-    @JSONField(ordinal = 9)
+    @JSONField(ordinal = 59)
     private List<KeyValue> attachmentArgs;
 }

@@ -171,7 +171,11 @@ export default {
           let scenarios = [];
           this.test.scenarioDefinition.forEach(scenario => {
             if (scenario.isReference()) {
-              if (scenarioMap[scenario.id]) scenarios.push(scenarioMap[scenario.id]);
+              if (scenarioMap[scenario.id]) {
+                let item = scenarioMap[scenario.id];
+                item.referenceEnable = scenario.referenceEnable;
+                scenarios.push(item);
+              }
             } else {
               scenarios.push(scenario);
             }

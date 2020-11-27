@@ -2,6 +2,8 @@ package io.metersphere.api.jmeter;
 
 import io.metersphere.api.service.APIReportService;
 import io.metersphere.api.service.APITestService;
+import io.metersphere.api.service.ApiDefinitionExecResultService;
+import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.base.domain.ApiTestReport;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
@@ -20,11 +22,14 @@ import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.service.TestPlanTestCaseService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.AssertionResult;
+import org.apache.jmeter.protocol.http.sampler.HTTPSampleResult;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
 import org.apache.jmeter.visualizers.backend.BackendListenerContext;
 import org.springframework.http.HttpMethod;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.*;
 
@@ -51,6 +56,9 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
     private MailService mailService;
 
+    private ApiDefinitionService apiDefinitionService;
+    private ApiDefinitionExecResultService apiDefinitionExecResultService;
+
     public String runMode = ApiRunMode.RUN.name();
 
     // 测试ID
@@ -58,8 +66,22 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
     private String debugReportId;
 
+    //获得控制台内容
+    private PrintStream oldPrintStream = System.out;
+    private ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+    private void setConsole() {
+        System.setOut(new PrintStream(bos)); //设置新的out
+    }
+
+    private String getConsole() {
+        System.setOut(oldPrintStream);
+        return bos.toString();
+    }
+
     @Override
     public void setupTest(BackendListenerContext context) throws Exception {
+        setConsole();
         setParam(context);
         apiTestService = CommonBeanFactory.getBean(APITestService.class);
         if (apiTestService == null) {
@@ -82,6 +104,14 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         if (mailService == null) {
             LogUtil.error("mailService is required");
         }
+        apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
+        if (apiDefinitionService == null) {
+            LogUtil.error("apiDefinitionService is required");
+        }
+        apiDefinitionExecResultService = CommonBeanFactory.getBean(ApiDefinitionExecResultService.class);
+        if (apiDefinitionExecResultService == null) {
+            LogUtil.error("apiDefinitionExecResultService is required");
+        }
         super.setupTest(context);
     }
 
@@ -99,7 +129,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
         // 一个脚本里可能包含多个场景(ThreadGroup)，所以要区分开，key: 场景Id
         final Map<String, ScenarioResult> scenarios = new LinkedHashMap<>();
-            queue.forEach(result -> {
+        queue.forEach(result -> {
             // 线程名称: <场景名> <场景Index>-<请求Index>, 例如：Scenario 2-1
             String scenarioName = StringUtils.substringBeforeLast(result.getThreadName(), THREAD_SPLIT);
             String index = StringUtils.substringAfterLast(result.getThreadName(), THREAD_SPLIT);
@@ -137,17 +167,25 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             scenarioResult.addPassAssertions(requestResult.getPassAssertions());
             scenarioResult.addTotalAssertions(requestResult.getTotalAssertions());
         });
-
         testResult.getScenarios().addAll(scenarios.values());
         testResult.getScenarios().sort(Comparator.comparing(ScenarioResult::getId));
-        ApiTestReport report;
+        ApiTestReport report = null;
         if (StringUtils.equals(this.runMode, ApiRunMode.DEBUG.name())) {
             report = apiReportService.get(debugReportId);
+            apiReportService.complete(testResult, report);
+        } else if (StringUtils.equals(this.runMode, ApiRunMode.DELIMIT.name())) {
+            // 调试操作，不需要存储结果
+            if (StringUtils.isBlank(debugReportId)) {
+                apiDefinitionService.addResult(testResult);
+            } else {
+                apiDefinitionService.addResult(testResult);
+                apiDefinitionExecResultService.saveApiResult(testResult);
+            }
         } else {
             apiTestService.changeStatus(testId, APITestStatus.Completed);
             report = apiReportService.getRunningReport(testResult.getTestId());
+            apiReportService.complete(testResult, report);
         }
-        apiReportService.complete(testResult, report);
         queue.clear();
         super.teardownTest(context);
 
@@ -242,6 +280,14 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         requestResult.setTotalAssertions(result.getAssertionResults().length);
         requestResult.setSuccess(result.isSuccessful());
         requestResult.setError(result.getErrorCount());
+        if (result instanceof HTTPSampleResult) {
+            HTTPSampleResult res = (HTTPSampleResult) result;
+            requestResult.setCookies(res.getCookies());
+        }
+
+        for (SampleResult subResult : result.getSubResults()) {
+            requestResult.getSubRequestResults().add(getRequestResult(subResult));
+        }
         for (SampleResult subResult : result.getSubResults()) {
             requestResult.getSubRequestResults().add(getRequestResult(subResult));
         }
@@ -277,6 +323,8 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             }
             responseResult.getAssertions().add(responseAssertionResult);
         }
+        responseResult.setConsole(getConsole());
+
         return requestResult;
     }
 

@@ -44,5 +44,10 @@ export default {
       name: "MsApiMonitor",
       component: () => import('@/business/components/api/monitor/ApiMonitor'),
     },
+    {
+      path: "definition",
+      name: "ApiDefinition",
+      component: () => import('@/business/components/api/definition/ApiDefinition'),
+    }
   ]
 }

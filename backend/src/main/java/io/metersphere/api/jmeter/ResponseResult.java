@@ -25,6 +25,8 @@ public class ResponseResult {
 
     private String vars;
 
+    private String console;
+
     private final List<ResponseAssertionResult> assertions = new ArrayList<>();
 
 }

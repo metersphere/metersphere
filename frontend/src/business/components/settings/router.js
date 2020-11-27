@@ -36,7 +36,7 @@ export default {
     ...requireContext.keys().map(key => requireContext(key).license),
     ...requireContext.keys().map(key => requireContext(key).display),
     {
-      path: 'organizationmember',
+      path: 'organizationpmnmember',
       component: () => import('@/business/components/settings/organization/OrganizationMember'),
       meta: {organization: true, title: 'commons.member'}
     },
