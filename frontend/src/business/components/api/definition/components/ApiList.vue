@@ -1,12 +1,9 @@
 <template>
-
-
   <div id="svgBox" style="overflow: auto">
     <div id="svgTop" style="background-color: white">
       <el-card class="card-content">
-        <!--<ms-table-header :showCreate="false" :condition.sync="condition" @search="search"-->
-        <!--:title="$t('api_test.definition.api_title')"/>-->
         <el-input placeholder="搜索" @blur="search" style="float: right ;width: 300px;margin-bottom: 20px;margin-right: 20px" size="small" v-model="condition.name"/>
+
         <el-table border :data="tableData" row-key="id" class="test-content adjust-table"
                   @select-all="handleSelectAll"
                   @select="handleSelect" :height="screenHeight">
@@ -272,7 +269,6 @@
       },
       handleTestCase(testCase) {
         let h = window.screen.height;
-
         let svgTop = document.getElementById("svgTop");
         svgTop.style.height = h / 2 - 200 + "px";
 

@@ -78,7 +78,7 @@
       </el-header>
 
       <!-- 用例部分 -->
-      <el-main v-loading="loading">
+      <el-main v-loading="loading" style="overflow: auto">
         <div v-for="(item,index) in apiCaseList" :key="index">
           <el-card style="margin-top: 5px" @click.native="selectTestCase(item,$event)">
             <el-row>
@@ -188,6 +188,7 @@
       },
       loaded: Boolean,
       currentProject: {},
+      refreshSign: String,
     },
     data() {
       return {
@@ -213,6 +214,9 @@
       },
       currentProject() {
         this.getEnvironments();
+      },
+      refreshSign() {
+        this.getApiTest();
       }
     },
     created() {
