@@ -3,7 +3,7 @@
     <draggable :list="this.scenario.requests" group="Request" class="request-draggable" ghost-class="request-ghost"
                :disabled="isReference">
       <div class="request-item" v-for="(request, index) in this.scenario.requests" :key="index" @click="select(request)"
-           :class="{'selected': isSelected(request), 'disable-request': !request.enable || !scenario.enable}">
+           :class="{'selected': isSelected(request), 'disable-request': isEnable(request)}">
         <ms-condition-label :request="request"/>
         <el-row type="flex" align="middle">
           <div class="request-type">
@@ -180,7 +180,10 @@ export default {
       request.dubboConfig = this.scenario.dubboConfig;
       this.selected = request;
       this.$emit("select", request, this.scenario);
-    }
+    },
+    isEnable(request) {
+      return !request.enable || !this.scenario.isEnable();
+    },
   },
 
   created() {
