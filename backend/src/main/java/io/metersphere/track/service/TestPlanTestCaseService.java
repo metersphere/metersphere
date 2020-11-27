@@ -129,10 +129,8 @@ public class TestPlanTestCaseService {
         request.setExecutor(user.getId());
     }
 
-    public TestPlanCaseDTO get(String caseId) {
-        QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
-        request.setId(caseId);
-        return extTestPlanTestCaseMapper.list(request).get(0);
+    public TestPlanCaseDTO get(String testplanTestCaseId) {
+        return extTestPlanTestCaseMapper.get(testplanTestCaseId);
     }
 
     public void deleteTestCaseBath(TestPlanCaseBatchRequest request) {

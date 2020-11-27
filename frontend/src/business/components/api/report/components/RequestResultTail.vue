@@ -117,6 +117,12 @@
       }
     },
 
+    watch: {
+      'request.responseResult'() {
+        this.reload();
+      }
+    },
+
     computed: {
       assertion() {
         return this.request.passAssertions + " / " + this.request.totalAssertions;

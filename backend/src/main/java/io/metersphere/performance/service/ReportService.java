@@ -105,6 +105,9 @@ public class ReportService {
         example.createCriteria().andReportIdEqualTo(reportId);
         loadTestReportDetailMapper.deleteByExample(example);
 
+        // delete jtl file
+        fileService.deleteFileById(loadTestReport.getFileId());
+
         loadTestReportMapper.deleteByPrimaryKey(reportId);
     }
 
