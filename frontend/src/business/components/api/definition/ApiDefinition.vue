@@ -34,7 +34,7 @@
             ref="apiList"/>
 
           <!-- 添加测试窗口-->
-          <div v-else-if="item.type=== 'add'">
+          <div v-else-if="item.type=== 'add'" style="overflow-y: auto;height:calc(100vh - 155px)">
             <ms-api-config @runTest="runTest" @saveApi="saveApi" :current-api="currentApi"
                            :currentProject="currentProject"
                            :currentProtocol="currentProtocol"
@@ -42,7 +42,7 @@
           </div>
 
           <!-- 快捷调试 -->
-          <div v-else-if="item.type=== 'debug'">
+          <div v-else-if="item.type=== 'debug'" style="overflow-y: auto;height:calc(100vh - 155px)">
             <ms-debug-http-page :currentProtocol="currentProtocol" @saveAs="editApi" v-if="currentProtocol==='HTTP'"/>
             <ms-debug-jdbc-page :currentProtocol="currentProtocol" :currentProject="currentProject" @saveAs="editApi" v-if="currentProtocol==='SQL'"/>
             <ms-debug-tcp-page :currentProtocol="currentProtocol" :currentProject="currentProject" @saveAs="editApi" v-if="currentProtocol==='TCP'"/>
@@ -50,7 +50,7 @@
           </div>
 
           <!-- 测试-->
-          <div v-else-if="item.type=== 'test'">
+          <div v-else-if="item.type=== 'test'" style="overflow-y: auto;height:calc(100vh - 155px)">
             <ms-run-test-http-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject" v-if="currentProtocol==='HTTP'"/>
             <ms-run-test-tcp-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject" v-if="currentProtocol==='TCP'"/>
             <ms-run-test-sql-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject" v-if="currentProtocol==='SQL'"/>
