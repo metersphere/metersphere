@@ -58,7 +58,11 @@
           this.currentConfig = new DatabaseConfig();
         },
         rowSelect(config) {
-          this.currentConfig = config;
+          //防止清除后再点击该行无响应
+          this.currentConfig = {};
+          this.$nextTick(() => {
+            this.currentConfig = config;
+          });
         }
       }
     }
