@@ -1,7 +1,7 @@
 <template>
   <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin-top: 20px" v-loading="loading">
     <div>
-      <el-button class="ms-left-buttion" size="small" type="danger" plain>{{$t('api_test.definition.request.assertions_rule')}}</el-button>
+      <el-button class="ms-left-buttion" size="small" style="color: #A30014;background-color: #F7E6E9">{{$t('api_test.definition.request.assertions_rule')}}</el-button>
       <el-button size="small" style="float: right;margin-top: 0px" @click="remove">移除</el-button>
     </div>
     <div class="assertion-add">
