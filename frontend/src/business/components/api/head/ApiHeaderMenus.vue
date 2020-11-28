@@ -36,6 +36,11 @@
             <el-divider class="menu-divider"/>
             <ms-show-all :index="'/api/report/list/all'"/>
           </el-submenu>
+
+
+          <el-menu-item v-permission="['test_manager','test_user','test_viewer']" :index="'/api/monitor/view'">
+            {{ $t('commons.monitor') }}
+          </el-menu-item>
         </el-menu>
       </el-col>
       <el-col :span="8">

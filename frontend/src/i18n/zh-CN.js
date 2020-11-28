@@ -162,7 +162,8 @@ export default {
         between: "之间",
         current_user: "是当前用户"
       }
-    }
+    },
+    monitor: "监控"
   },
   license: {
     title: '授权管理',
@@ -765,6 +766,16 @@ export default {
     batch_delete: "批量删除报告",
     running: "测试报告导出中",
     not_exist: "测试报告不存在",
+  },
+  api_monitor: {
+    to:"至",
+    start_time:"开始日期",
+    end_time:"结束日期",
+    today:"今日",
+    this_week:"本周",
+    this_mouth:"本月",
+    please_search:"请搜索",
+    date:"日期"
   },
   test_track: {
     test_track: "测试跟踪",

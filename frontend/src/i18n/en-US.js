@@ -162,7 +162,8 @@ export default {
         between: "Between",
         current_user: "Current user"
       }
-    }
+    },
+    monitor:"monitor"
   },
   license: {
     title: 'Authorization management',
@@ -762,6 +763,16 @@ export default {
     batch_delete: "Delete reports in bulk",
     running: "The test is reporting",
     not_exist: "Test report does not exist",
+  },
+  api_monitor: {
+    to:"to",
+    start_time:"Start Time",
+    end_time:"End Time",
+    today:"Today",
+    this_week:"This Week",
+    this_mouth:"This Mouth",
+    please_search:"Please Search",
+    date:"Date"
   },
   test_track: {
     test_track: "Track",
