@@ -120,6 +120,29 @@ export function formatXml(text) {
   return outputText.replace(/\s+$/g, '').replace(/\r/g, '\r\n');
 }
 
+export function dateFormat(fmt, date) {
+  let ret;
+  const opt = {
+    'Y+': date.getFullYear().toString(),        // 年
+    'm+': (date.getMonth() + 1).toString(),     // 月
+    'd+': date.getDate().toString(),            // 日
+    'H+': date.getHours().toString(),           // 时
+    'M+': date.getMinutes().toString(),         // 分
+    'S+': date.getSeconds().toString()          // 秒
+    // 有其他格式化字符需求可以继续添加，必须转化成字符串
+  };
+  for (let k in opt) {
+    if (Object.prototype.hasOwnProperty.call(opt, k)) {
+      const ret = new RegExp('(' + k + ')').exec(fmt);
+      if (ret) {
+        const value=ret[1]
+        fmt = fmt.replace(value, (value.length === 1) ? (opt[k]) : (opt[k].padStart(value.length, '0')));
+      }
+    }
+  }
+  return fmt;
+}
+
 function getPrefix(prefixIndex) {
   var span = ' ';
   var output = [];

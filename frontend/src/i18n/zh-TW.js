@@ -710,6 +710,16 @@ export default {
     running: "測試報告導出中",
     not_exist: "測試報告不存在",
   },
+  api_monitor: {
+    to:"到",
+    start_time:"開始時間",
+    end_time:"結束時間",
+    today:"今天",
+    this_week:"本週",
+    this_mouth:"本月",
+    please_search:"請搜索",
+    date:"日期"
+  },
   test_track: {
     test_track: "測試跟蹤",
     confirm: "確 定",
