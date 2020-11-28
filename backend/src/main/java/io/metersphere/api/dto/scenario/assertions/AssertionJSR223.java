@@ -2,6 +2,7 @@ package io.metersphere.api.dto.scenario.assertions;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.StringUtils;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -16,5 +17,9 @@ public class AssertionJSR223 extends AssertionType {
 
     public AssertionJSR223() {
         setType(AssertionType.JSR223);
+    }
+
+    public boolean isValid() {
+        return StringUtils.isNotBlank(script) && StringUtils.isNotBlank(language);
     }
 }

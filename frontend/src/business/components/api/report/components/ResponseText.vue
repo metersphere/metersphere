@@ -7,8 +7,8 @@
     <el-collapse-transition>
       <el-tabs v-model="activeName" v-show="isActive">
         <el-tab-pane :class="'body-pane'" label="Body" name="body" class="pane">
-          <ms-sql-result-table v-if="isSqlType && mode == 'table'" :body="response.body"/>
-          <ms-code-edit v-if="mode != 'table'" :mode="mode" :read-only="true" :data="response.body" :modes="modes" ref="codeEdit"/>
+          <ms-sql-result-table v-if="isSqlType" :body="response.body"/>
+          <ms-code-edit v-if="!isSqlType" :mode="mode" :read-only="true" :data="response.body" :modes="modes" ref="codeEdit"/>
         </el-tab-pane>
         <el-tab-pane label="Headers" name="headers" class="pane">
           <pre>{{ response.headers }}</pre>

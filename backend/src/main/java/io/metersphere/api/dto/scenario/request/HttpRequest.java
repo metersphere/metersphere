@@ -2,6 +2,7 @@ package io.metersphere.api.dto.scenario.request;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
+import io.metersphere.api.dto.scenario.AuthConfig;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
 import lombok.Data;
@@ -15,26 +16,32 @@ import java.util.List;
 public class HttpRequest extends Request {
     // type 必须放最前面，以便能够转换正确的类
     private String type = RequestType.HTTP;
-    @JSONField(ordinal = 2)
+    @JSONField(ordinal = 50)
     private String url;
-    @JSONField(ordinal = 3)
+    @JSONField(ordinal = 51)
     private String method;
-    @JSONField(ordinal = 4)
+    @JSONField(ordinal = 52)
     private String path;
-    @JSONField(ordinal = 5)
-    private Boolean useEnvironment;
-    @JSONField(ordinal = 6)
+    @JSONField(ordinal = 53)
     private List<KeyValue> parameters;
-    @JSONField(ordinal = 7)
+    @JSONField(ordinal = 54)
     private List<KeyValue> headers;
-    @JSONField(ordinal = 8)
+    @JSONField(ordinal = 55)
     private Body body;
-    @JSONField(ordinal = 14)
-    private Long connectTimeout;
-    @JSONField(ordinal = 15)
-    private Long responseTimeout;
-    @JSONField(ordinal = 16)
-    private Boolean followRedirects;
-    @JSONField(ordinal = 17)
-    private Boolean doMultipartPost;
+    @JSONField(ordinal = 56)
+    private String connectTimeout;
+    @JSONField(ordinal = 57)
+    private String responseTimeout;
+    @JSONField(ordinal = 58)
+    private boolean followRedirects;
+    @JSONField(ordinal = 59)
+    private boolean doMultipartPost;
+    @JSONField(ordinal = 60)
+    private List<KeyValue> rest;
+    @JSONField(ordinal = 61)
+    private AuthConfig authConfig;
+    // 和接口定义模块用途区分
+    @JSONField(ordinal = 62)
+    private boolean isDefinition;
+
 }

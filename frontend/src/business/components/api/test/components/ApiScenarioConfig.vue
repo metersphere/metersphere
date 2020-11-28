@@ -5,7 +5,7 @@
         <ms-api-collapse v-model="activeName" @change="handleChange">
           <draggable :list="scenarios" group="Scenario" class="scenario-draggable" ghost-class="scenario-ghost">
             <ms-api-collapse-item v-for="(scenario, index) in scenarios" :key="index"
-                                  :title="scenario.name" :name="index" :class="{'disable-scenario': !scenario.enable}">
+                                  :title="scenario.name" :name="index" :class="{'disable-scenario': !scenario.isEnable()}">
               <template slot="title">
                 <div class="scenario-name">
                   <el-tag type="info" size="small" v-if="scenario.isReference()">{{
@@ -26,11 +26,11 @@
                     <el-dropdown-item :disabled="isReadOnly" :command="{type:'delete', index:index}">
                       {{ $t('api_test.scenario.delete') }}
                     </el-dropdown-item>
-                    <el-dropdown-item v-if="scenario.enable" :disabled="isReadOnly"
+                    <el-dropdown-item v-if="scenario.isEnable()" :disabled="isReadOnly"
                                       :command="{type:'disable', index:index}">
                       {{ $t('api_test.scenario.disable') }}
                     </el-dropdown-item>
-                    <el-dropdown-item v-if="!scenario.enable" :disabled="isReadOnly"
+                    <el-dropdown-item v-if="!scenario.isEnable()" :disabled="isReadOnly"
                                       :command="{type:'enable', index:index}">
                       {{ $t('api_test.scenario.enable') }}
                     </el-dropdown-item>
@@ -156,10 +156,20 @@ export default {
       }
     },
     disableScenario(index) {
-      this.scenarios[index].enable = false;
+      let scenario = this.scenarios[index];
+      if (scenario.isReference()) {
+        scenario.referenceEnable = false;
+      } else {
+        scenario.enable = false;
+      }
     },
     enableScenario(index) {
-      this.scenarios[index].enable = true;
+      let scenario = this.scenarios[index];
+      if (scenario.isReference()) {
+        scenario.referenceEnable = true;
+      } else {
+        scenario.enable = true;
+      }
     },
     handleChange(index) {
       this.select(this.scenarios[index]);

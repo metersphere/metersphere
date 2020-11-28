@@ -85,7 +85,7 @@
         });
       },
       editTestCase(row, event, column) {
-        this.$router.push('/track/plan/view/edit/' + row.caseId)
+        this.$router.push('/track/plan/view/edit/' + row.id)
       }
     }
   }

@@ -491,9 +491,9 @@ public class JmeterDocumentParser implements DocumentParser {
             setupElement.setAttribute("testclass", "SetupThreadGroup");
             setupElement.setAttribute("testname", "setUp Thread Group");
             setupElement.setAttribute("enabled", "true");
-            setupElement.appendChild(createStringProp(document, "ThreadGroup.on_sample_error", "stoptestnow"));
+            setupElement.appendChild(createStringProp(document, "MsThreadGroup.on_sample_error", "stoptestnow"));
             Element elementProp = document.createElement("elementProp");
-            elementProp.setAttribute("name", "ThreadGroup.main_controller");
+            elementProp.setAttribute("name", "MsThreadGroup.main_controller");
             elementProp.setAttribute("elementType", "LoopController");
             elementProp.setAttribute("guiclass", "LoopControlPanel");
             elementProp.setAttribute("testclass", "LoopController");
@@ -502,12 +502,12 @@ public class JmeterDocumentParser implements DocumentParser {
             elementProp.appendChild(createBoolProp(document, "LoopController.continue_forever", false));
             elementProp.appendChild(createIntProp(document, "LoopController.loops", 1));
             setupElement.appendChild(elementProp);
-            setupElement.appendChild(createStringProp(document, "ThreadGroup.num_threads", "1"));
-            setupElement.appendChild(createStringProp(document, "ThreadGroup.ramp_time", "1"));
-            setupElement.appendChild(createStringProp(document, "ThreadGroup.duration", ""));
-            setupElement.appendChild(createStringProp(document, "ThreadGroup.delay", ""));
-            setupElement.appendChild(createBoolProp(document, "ThreadGroup.scheduler", false));
-            setupElement.appendChild(createBoolProp(document, "ThreadGroup.same_user_on_next_iteration", true));
+            setupElement.appendChild(createStringProp(document, "MsThreadGroup.num_threads", "1"));
+            setupElement.appendChild(createStringProp(document, "MsThreadGroup.ramp_time", "1"));
+            setupElement.appendChild(createStringProp(document, "MsThreadGroup.duration", ""));
+            setupElement.appendChild(createStringProp(document, "MsThreadGroup.delay", ""));
+            setupElement.appendChild(createBoolProp(document, "MsThreadGroup.scheduler", false));
+            setupElement.appendChild(createBoolProp(document, "MsThreadGroup.same_user_on_next_iteration", true));
             hashTree.appendChild(setupElement);
 
             Element setupHashTree = document.createElement(HASH_TREE_ELEMENT);
@@ -568,17 +568,17 @@ public class JmeterDocumentParser implements DocumentParser {
         }
         /*
         <PostThreadGroup guiclass="PostThreadGroupGui" testclass="PostThreadGroup" testname="tearDown Thread Group" enabled="true">
-        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+        <stringProp name="MsThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="MsThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <stringProp name="LoopController.loops">1</stringProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">1</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
-        <boolProp name="ThreadGroup.scheduler">false</boolProp>
-        <stringProp name="ThreadGroup.duration"></stringProp>
-        <stringProp name="ThreadGroup.delay"></stringProp>
-        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <stringProp name="MsThreadGroup.num_threads">1</stringProp>
+        <stringProp name="MsThreadGroup.ramp_time">1</stringProp>
+        <boolProp name="MsThreadGroup.scheduler">false</boolProp>
+        <stringProp name="MsThreadGroup.duration"></stringProp>
+        <stringProp name="MsThreadGroup.delay"></stringProp>
+        <boolProp name="MsThreadGroup.same_user_on_next_iteration">true</boolProp>
       </PostThreadGroup>
          */
         Element tearDownElement = document.createElement("PostThreadGroup");
@@ -586,15 +586,15 @@ public class JmeterDocumentParser implements DocumentParser {
         tearDownElement.setAttribute("testclass", "PostThreadGroup");
         tearDownElement.setAttribute("testname", "tearDown Thread Group");
         tearDownElement.setAttribute("enabled", "true");
-        tearDownElement.appendChild(createStringProp(document, "ThreadGroup.on_sample_error", "continue"));
-        tearDownElement.appendChild(createStringProp(document, "ThreadGroup.num_threads", "1"));
-        tearDownElement.appendChild(createStringProp(document, "ThreadGroup.ramp_time", "1"));
-        tearDownElement.appendChild(createStringProp(document, "ThreadGroup.duration", ""));
-        tearDownElement.appendChild(createStringProp(document, "ThreadGroup.delay", ""));
-        tearDownElement.appendChild(createBoolProp(document, "ThreadGroup.scheduler", false));
-        tearDownElement.appendChild(createBoolProp(document, "ThreadGroup.same_user_on_next_iteration", true));
+        tearDownElement.appendChild(createStringProp(document, "MsThreadGroup.on_sample_error", "continue"));
+        tearDownElement.appendChild(createStringProp(document, "MsThreadGroup.num_threads", "1"));
+        tearDownElement.appendChild(createStringProp(document, "MsThreadGroup.ramp_time", "1"));
+        tearDownElement.appendChild(createStringProp(document, "MsThreadGroup.duration", ""));
+        tearDownElement.appendChild(createStringProp(document, "MsThreadGroup.delay", ""));
+        tearDownElement.appendChild(createBoolProp(document, "MsThreadGroup.scheduler", false));
+        tearDownElement.appendChild(createBoolProp(document, "MsThreadGroup.same_user_on_next_iteration", true));
         Element elementProp = document.createElement("elementProp");
-        elementProp.setAttribute("name", "ThreadGroup.main_controller");
+        elementProp.setAttribute("name", "MsThreadGroup.main_controller");
         elementProp.setAttribute("elementType", "LoopController");
         elementProp.setAttribute("guiclass", "LoopControlPanel");
         elementProp.setAttribute("testclass", "LoopController");
@@ -760,8 +760,8 @@ public class JmeterDocumentParser implements DocumentParser {
         threadGroup.setAttribute("guiclass", CONCURRENCY_THREAD_GROUP + "Gui");
         threadGroup.setAttribute("testclass", CONCURRENCY_THREAD_GROUP);
         /*
-        <elementProp name="ThreadGroup.main_controller" elementType="com.blazemeter.jmeter.control.VirtualUserController"/>
-        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="MsThreadGroup.main_controller" elementType="com.blazemeter.jmeter.control.VirtualUserController"/>
+        <stringProp name="MsThreadGroup.on_sample_error">continue</stringProp>
         <stringProp name="TargetLevel">2</stringProp>
         <stringProp name="RampUp">12</stringProp>
         <stringProp name="Steps">2</stringProp>
@@ -773,11 +773,11 @@ public class JmeterDocumentParser implements DocumentParser {
         removeChildren(threadGroup);
         // elementProp
         Element elementProp = document.createElement("elementProp");
-        elementProp.setAttribute("name", "ThreadGroup.main_controller");
+        elementProp.setAttribute("name", "MsThreadGroup.main_controller");
         elementProp.setAttribute("elementType", "com.blazemeter.jmeter.control.VirtualUserController");
         threadGroup.appendChild(elementProp);
 
-        threadGroup.appendChild(createStringProp(document, "ThreadGroup.on_sample_error", "continue"));
+        threadGroup.appendChild(createStringProp(document, "MsThreadGroup.on_sample_error", "continue"));
         threadGroup.appendChild(createStringProp(document, "TargetLevel", "2"));
         threadGroup.appendChild(createStringProp(document, "RampUp", "12"));
         threadGroup.appendChild(createStringProp(document, "Steps", "2"));

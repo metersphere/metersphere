@@ -39,9 +39,10 @@
 
       <el-form-item>
         <div class="buttons">
-          <el-button type="primary" v-show="currentConfig.id" size="small" @click="validate()">{{$t('commons.validate')}}</el-button>
+          <el-button type="primary" v-show="currentConfig.id" size="small" @click="validate">{{$t('commons.validate')}}</el-button>
           <el-button type="primary" v-show="currentConfig.id" size="small" @click="save('update')">{{$t('commons.update')}}</el-button>
-          <el-button type="primary" size="small" @click="save('add')">{{$t('commons.add')}}</el-button>
+          <el-button type="primary" v-show="currentConfig.id" size="small" @click="clear">{{$t('commons.clear')}}</el-button>
+          <el-button type="primary" v-show="!currentConfig.id"  size="small" @click="save('add')">{{$t('commons.add')}}</el-button>
         </div>
       </el-form-item>
 
@@ -126,6 +127,9 @@
               return false;
             }
           });
+        },
+        clear() {
+          this.currentConfig = new DatabaseConfig();
         },
         validate() {
           this.result = this.$post('/api/database/validate', this.currentConfig, () => {
