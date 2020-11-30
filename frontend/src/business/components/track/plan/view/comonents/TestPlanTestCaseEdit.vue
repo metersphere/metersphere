@@ -474,11 +474,16 @@ export default {
     getTestCase(index) {
       let testCase = this.testCases[index];
       // id 为 TestPlanTestCase 的 id
-      this.result = this.$post('/test/plan/case/get', {id: testCase.id}, response => {
+      this.result = this.$get('/test/plan/case/get/' + testCase.id, response => {
         let item = {};
         Object.assign(item, response.data);
         item.results = JSON.parse(item.results);
         item.steps = JSON.parse(item.steps);
+        if (item.issues) {
+          item.issues = JSON.parse(item.issues);
+        } else {
+          item.issues = {};
+        }
         item.steptResults = [];
         for (let i = 0; i < item.steps.length; i++) {
           if (item.results[i]) {
@@ -488,8 +493,10 @@ export default {
           item.steptResults.push(item.steps[i]);
         }
         this.testCase = item;
+        this.getRelatedTest();
+        this.initTest();
       })
-      this.initTest();
+
       this.getIssues(testCase.caseId);
       this.stepResultChange();
       this.getFileMetaData(testCase);
@@ -518,12 +525,13 @@ export default {
     },
     initTest() {
       this.$nextTick(() => {
-        if (this.testCase.method === 'auto') {
-          if (this.$refs.apiTestDetail && this.testCase.type === 'api') {
-
-            this.$refs.apiTestDetail.init();
-          } else if (this.testCase.type === 'performance') {
-            this.$refs.performanceTestDetail.init();
+        if (this.testCase.testId && this.testCase.testId !== 'other') {
+          if (this.testCase.method === 'auto') {
+            if (this.$refs.apiTestDetail && this.testCase.type === 'api') {
+              this.$refs.apiTestDetail.init();
+            } else if (this.testCase.type === 'performance') {
+              this.$refs.performanceTestDetail.init();
+            }
           }
         }
       });
@@ -549,7 +557,6 @@ export default {
           if (this.testCases[i].id === testCase.id) {
             this.index = i;
             this.getTestCase(i);
-            this.getRelatedTest();
           }
         }
       });

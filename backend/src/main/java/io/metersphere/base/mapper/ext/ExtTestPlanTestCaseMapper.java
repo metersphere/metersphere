@@ -39,12 +39,6 @@ public interface ExtTestPlanTestCaseMapper {
     List<TestPlanCaseDTO> listTestCaseByProjectIds(@Param("ids") List<String> ids);
 
     TestPlanCaseDTO get(String testPlanTestCaseId);
-    /**
-     * 获取完整的测试计划下用例的详细信息
-     * @param request id(test_plan_test_case.id) 不能为空
-     * @return TestPlanCaseDTO
-     */
-    TestPlanCaseDTO getTestPlanTestCase(@Param("request") QueryTestPlanCaseRequest request);
 
     /**
      * 获取测试计划下的 TestPlanTestCaseID 和 TestCaseName

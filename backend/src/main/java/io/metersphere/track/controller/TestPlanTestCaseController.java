@@ -88,11 +88,6 @@ public class TestPlanTestCaseController {
         return testPlanTestCaseService.list(request);
     }
 
-    @PostMapping("/get")
-    public TestPlanCaseDTO getTestPlanCase(@RequestBody QueryTestPlanCaseRequest request) {
-        return testPlanTestCaseService.getTestPlanCase(request);
-    }
-
     @PostMapping("/edit")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void editTestCase(@RequestBody TestPlanTestCaseWithBLOBs testPlanTestCase) {
