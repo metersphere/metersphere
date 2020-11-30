@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ApiDefinitionHistoryMapper">
+
+    <delete id="deleteByApiDefinitionId" parameterType="java.lang.String">
+      delete from api_definition_history  where api_definition_id = #{id,jdbcType=VARCHAR}
+    </delete>
+
+    <insert id="insert" parameterType="io.metersphere.base.domain.ApiDefinitionHistory">
+        insert into api_definition_history
+            (id, api_definition_id,content, user_id, create_time, update_time)
+        values
+           (#{id,jdbcType=VARCHAR}, #{apiDefinitionId,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR},
+            #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT})
+    </insert>
+
+    <select id="selectByApiDefinitionId" parameterType="java.lang.String" resultType="io.metersphere.base.domain.ApiDefinitionHistory">
+        select  * from api_definition_history where api_definition_id = #{id,jdbcType=VARCHAR}
+    </select>
+
+</mapper>
