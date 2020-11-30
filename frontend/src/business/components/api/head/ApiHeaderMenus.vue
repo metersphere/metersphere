@@ -1,7 +1,7 @@
 <template>
   <div id="menu-bar" v-if="isRouterAlive">
     <el-row type="flex">
-      <el-col :span="8">
+      <el-col :span="10">
         <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router :default-active='$route.path'>
           <el-menu-item :index="'/api/home'">
             {{ $t("i18n.home") }}
@@ -9,6 +9,10 @@
 
           <el-menu-item :index="'/api/definition'">
             {{ $t("i18n.definition") }}
+          </el-menu-item>
+
+          <el-menu-item :index="'/api/automation'">
+            {{ $t("i18n.automation") }}
           </el-menu-item>
 
           <el-submenu :class="{'deactivation':!isProjectActivation}" v-permission="['test_manager','test_user','test_viewer']" index="3">
@@ -43,7 +47,7 @@
           <ms-create-test :to="'/api/test/create'"/>
         </el-row>
       </el-col>
-      <el-col :span="8"/>
+      <el-col :span="6"/>
     </el-row>
   </div>
 

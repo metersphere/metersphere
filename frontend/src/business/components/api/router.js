@@ -43,6 +43,11 @@ export default {
       path: "definition",
       name: "ApiDefinition",
       component: () => import('@/business/components/api/definition/ApiDefinition'),
+    },
+    {
+      path: "automation",
+      name: "ApiAutomation",
+      component: () => import('@/business/components/api/automation/ApiAutomation'),
     }
   ]
 }

@@ -1069,7 +1069,8 @@ export default {
   },
   i18n: {
     home: 'Home',
-    definition: 'ApiDefinition',
+    definition: 'Api Definition',
+    automation: 'Api Automation',
   },
   ldap: {
     url: 'LDAP URL',
