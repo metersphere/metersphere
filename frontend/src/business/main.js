@@ -11,7 +11,7 @@ import YanProgress from 'yan-progress';
 import './permission' // permission control
 import i18n from "../i18n/i18n";
 import store from "./store";
-import {permission, roles} from './permission'
+import {permission, roles, xpack} from './permission'
 import chart from "../common/js/chart";
 import CalendarHeatmap from "../common/js/calendar-heatmap";
 import '../common/css/menu-header.css';
@@ -36,6 +36,8 @@ Vue.directive('permission', permission);
 
 // v-roles
 Vue.directive('roles', roles);
+
+Vue.directive('xpack', xpack);
 
 new Vue({
   el: '#app',

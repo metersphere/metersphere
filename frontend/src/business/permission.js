@@ -1,5 +1,5 @@
 import router from './components/common/router/router'
-import {TokenKey} from '@/common/js/constants';
+import {LicenseKey, TokenKey} from '@/common/js/constants';
 import {hasRolePermissions, hasRoles} from "@/common/js/utils";
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
@@ -18,6 +18,20 @@ export const roles = {
     checkRolePermission(el, binding, 'roles');
   }
 };
+
+export const xpack = {
+  inserted(el, binding) {
+    checkLicense(el, binding);
+  }
+};
+
+function checkLicense(el, binding, type) {
+  let v = localStorage.getItem(LicenseKey);
+
+  if (v !== 'valid') {
+    el.parentNode && el.parentNode.removeChild(el)
+  }
+}
 
 function checkRolePermission(el, binding, type) {
   const {value} = binding;
