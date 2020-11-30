@@ -8,27 +8,21 @@ import java.io.Serializable;
 public class ApiScenarioReport implements Serializable {
     private String id;
 
-    private String projectId;
+    private String apiScenarioId;
 
     private String name;
 
-    private String scenarioId;
-
-    private String level;
-
-    private String status;
-
-    private String principal;
-
-    private String followPeople;
-
     private String description;
-
-    private String scenarioDefinition;
-
-    private String userId;
 
     private Long createTime;
 
     private Long updateTime;
+
+    private String status;
+
+    private String userId;
+
+    private String triggerMode;
+
+    private static final long serialVersionUID = 1L;
 }
