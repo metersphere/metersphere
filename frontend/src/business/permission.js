@@ -1,6 +1,6 @@
 import router from './components/common/router/router'
-import {LicenseKey, TokenKey} from '@/common/js/constants';
-import {hasRolePermissions, hasRoles} from "@/common/js/utils";
+import {TokenKey} from '@/common/js/constants';
+import {hasLicense, hasRolePermissions, hasRoles} from "@/common/js/utils";
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 const whiteList = ['/login']; // no redirect whitelist
@@ -26,9 +26,9 @@ export const xpack = {
 };
 
 function checkLicense(el, binding, type) {
-  let v = localStorage.getItem(LicenseKey);
+  let v = hasLicense()
 
-  if (v !== 'valid') {
+  if (v) {
     el.parentNode && el.parentNode.removeChild(el)
   }
 }
