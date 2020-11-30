@@ -5,6 +5,10 @@ import i18n from '../../i18n/i18n'
 
 export default {
   install(Vue) {
+
+    // 登入请求不重定向
+    let unRedirectUrls = new Set(['signin']);
+
     if (!axios) {
       window.console.error('You have to install axios');
       return
@@ -50,12 +54,12 @@ export default {
       result.loading = false;
     }
 
-    function exception(error, result) {
-      if (error.response && error.response.status === 401) {
+    function exception(error, result, url) {
+      if (error.response && error.response.status === 401 && !unRedirectUrls.has(url)) {
         login();
         return;
       }
-      if (error.response && error.response.status === 403) {
+      if (error.response && error.response.status === 403 && !unRedirectUrls.has(url)) {
         window.location.href = "/";
         return;
       }
@@ -78,7 +82,7 @@ export default {
         axios.get(url, {params: data}).then(response => {
           then(success, response, result);
         }).catch(error => {
-          exception(error, result);
+          exception(error, result, url);
         });
         return result;
       }
@@ -92,7 +96,7 @@ export default {
         axios.get(url).then(response => {
           then(success, response, result);
         }).catch(error => {
-          exception(error, result);
+          exception(error, result, url);
         });
         return result;
       }
@@ -106,7 +110,7 @@ export default {
         axios.post(url, data).then(response => {
           then(success, response, result);
         }).catch(error => {
-          exception(error, result);
+          exception(error, result, url);
           if (failure) {
             then(failure, error, result);
           }
