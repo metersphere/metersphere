@@ -473,26 +473,30 @@ export default {
     },
     getTestCase(index) {
       let testCase = this.testCases[index];
-      let item = {};
-      Object.assign(item, testCase);
-      item.results = JSON.parse(item.results);
-      item.steps = JSON.parse(item.steps);
-      if (item.issues) {
-        item.issues = JSON.parse(item.issues);
-      } else {
-        item.issues = {};
-        item.issues.hasIssues = false;
-      }
-      item.steptResults = [];
-      for (let i = 0; i < item.steps.length; i++) {
-        if (item.results[i]) {
-          item.steps[i].actualResult = item.results[i].actualResult;
-          item.steps[i].executeResult = item.results[i].executeResult;
+      // id 为 TestPlanTestCase 的 id
+      this.result = this.$get('/test/plan/case/get/' + testCase.id, response => {
+        let item = {};
+        Object.assign(item, response.data);
+        item.results = JSON.parse(item.results);
+        item.steps = JSON.parse(item.steps);
+        if (item.issues) {
+          item.issues = JSON.parse(item.issues);
+        } else {
+          item.issues = {};
         }
-        item.steptResults.push(item.steps[i]);
-      }
-      this.testCase = item;
-      this.initTest();
+        item.steptResults = [];
+        for (let i = 0; i < item.steps.length; i++) {
+          if (item.results[i]) {
+            item.steps[i].actualResult = item.results[i].actualResult;
+            item.steps[i].executeResult = item.results[i].executeResult;
+          }
+          item.steptResults.push(item.steps[i]);
+        }
+        this.testCase = item;
+        this.getRelatedTest();
+        this.initTest();
+      })
+
       this.getIssues(testCase.caseId);
       this.stepResultChange();
       this.getFileMetaData(testCase);
@@ -521,12 +525,13 @@ export default {
     },
     initTest() {
       this.$nextTick(() => {
-        if (this.testCase.method === 'auto') {
-          if (this.$refs.apiTestDetail && this.testCase.type === 'api') {
-
-            this.$refs.apiTestDetail.init();
-          } else if (this.testCase.type === 'performance') {
-            this.$refs.performanceTestDetail.init();
+        if (this.testCase.testId && this.testCase.testId !== 'other') {
+          if (this.testCase.method === 'auto') {
+            if (this.$refs.apiTestDetail && this.testCase.type === 'api') {
+              this.$refs.apiTestDetail.init();
+            } else if (this.testCase.type === 'performance') {
+              this.$refs.performanceTestDetail.init();
+            }
           }
         }
       });
@@ -546,13 +551,12 @@ export default {
       this.$post('/test/plan/case/edit', {id: this.testCase.id, reportId: reportId});
     },
     initData(testCase) {
-      this.result = this.$post('/test/plan/case/list/all', this.searchParam, response => {
+      this.result = this.$post('/test/plan/case/list/ids', this.searchParam, response => {
         this.testCases = response.data;
         for (let i = 0; i < this.testCases.length; i++) {
           if (this.testCases[i].id === testCase.id) {
             this.index = i;
             this.getTestCase(i);
-            this.getRelatedTest();
           }
         }
       });
