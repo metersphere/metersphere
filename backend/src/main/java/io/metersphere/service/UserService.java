@@ -552,7 +552,6 @@ public class UserService {
 
     public ResultHolder login(LoginRequest request) {
         String login = (String) SecurityUtils.getSubject().getSession().getAttribute("authenticate");
-        String msg;
         String username = StringUtils.trim(request.getUsername());
         String password = "";
         if (!StringUtils.equals(login, UserSource.LDAP.name())) {
@@ -564,7 +563,6 @@ public class UserService {
 
         UsernamePasswordToken token = new UsernamePasswordToken(username, password);
         Subject subject = SecurityUtils.getSubject();
-
         try {
             subject.login(token);
             if (subject.isAuthenticated()) {
@@ -588,20 +586,18 @@ public class UserService {
                 return ResultHolder.error(Translator.get("login_fail"));
             }
         } catch (ExcessiveAttemptsException e) {
-            msg = Translator.get("excessive_attempts");
+            throw new ExcessiveAttemptsException(Translator.get("excessive_attempts"));
         } catch (LockedAccountException e) {
-            msg = Translator.get("user_locked");
+            throw new LockedAccountException(Translator.get("user_locked"));
         } catch (DisabledAccountException e) {
-            msg = Translator.get("user_has_been_disabled");
+            throw new DisabledAccountException(Translator.get("user_has_been_disabled"));
         } catch (ExpiredCredentialsException e) {
-            msg = Translator.get("user_expires");
+            throw new ExpiredCredentialsException(Translator.get("user_expires"));
         } catch (AuthenticationException e) {
-            msg = e.getMessage();
+            throw new AuthenticationException(e.getMessage());
         } catch (UnauthorizedException e) {
-            msg = Translator.get("not_authorized") + e.getMessage();
+            throw new UnauthorizedException(Translator.get("not_authorized") + e.getMessage());
         }
-        MSException.throwException(msg);
-        return null;
     }
 
     public List<User> searchUser(String condition) {
