@@ -95,7 +95,7 @@ export default {
         {'apiUrl': this.apiUrl}, response => {
           Object.values(response.data).forEach(value => {
             this.rspCodexAxis.push(value.startTime);
-            this.rspCodeData.push(value.responseTime);
+            this.rspCodeData.push(value.responseCode);
           });
         });
     },
