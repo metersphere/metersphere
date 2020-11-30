@@ -70,11 +70,11 @@
     </el-card>
 
     <!-- 加载用例 -->
-    <ms-bottom-container v-bind:enableAsideHidden="isHide">
-      <ms-api-case-list @apiCaseClose="apiCaseClose" @selectTestCase="selectTestCase" :api="api"
+    <el-drawer :visible.sync="visible" direction="btt" :with-header="false" :modal="false" size="50%">
+      <ms-api-case-list @apiCaseClose="apiCaseClose" @selectTestCase="selectTestCase" :api="api" :refreshSign="refreshSign"
                         :currentProject="currentProject" :loaded="loaded"
                         ref="caseList"/>
-    </ms-bottom-container>
+    </el-drawer>
 
     <!-- 环境 -->
     <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
@@ -90,7 +90,6 @@
   import {downloadFile, getUUID} from "@/common/js/utils";
   import MsApiCaseList from "../ApiCaseList";
   import MsContainer from "../../../../common/components/MsContainer";
-  import MsBottomContainer from "../BottomContainer";
   import {parseEnvironment} from "../../model/EnvironmentModel";
   import ApiEnvironmentConfig from "../environment/ApiEnvironmentConfig";
   import MsRequestResultTail from "../response/RequestResultTail";
@@ -104,18 +103,18 @@
       MsApiRequestForm,
       MsApiCaseList,
       MsContainer,
-      MsBottomContainer,
       MsRequestResultTail,
       ApiEnvironmentConfig,
       MsRun
     },
     data() {
       return {
-        isHide: true,
+        visible: false,
         api: {},
         loaded: false,
         loading: false,
         currentRequest: {},
+        refreshSign:"",
         responseData: {type: 'HTTP', responseResult: {}, subRequestResults: []},
         reqOptions: REQ_METHOD,
         environments: [],
@@ -166,11 +165,12 @@
         this.$emit('saveAs', this.api);
       },
       loadCase() {
+        this.refreshSign = getUUID();
         this.loaded = true;
-        this.isHide = false;
+        this.visible = true;
       },
       apiCaseClose() {
-        this.isHide = true;
+        this.visible = false;
       },
       getBodyUploadFiles() {
         let bodyUploadFiles = [];
@@ -194,9 +194,8 @@
         return bodyUploadFiles;
       },
       saveAsCase() {
-        this.isHide = false;
+        this.visible = false;
         this.loaded = false;
-        this.$refs.caseList.addCase();
       },
       saveAsApi() {
         let data = {};
@@ -301,6 +300,8 @@
     font-size: 16px;
     border-radius: 4px;
     border-left: 4px solid #783887;
-    margin: 20px 0;
+  }
+  /deep/.el-drawer{
+    overflow: auto;
   }
 </style>

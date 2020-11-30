@@ -19,7 +19,7 @@
 
       <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
       <!-- TCP 请求参数 -->
-      <ms-basis-parameters :request="currentRequest" @callback="runTest" :currentProject="currentProject" ref="requestForm"/>
+      <ms-basis-parameters :request="api.request" @callback="runTest" :currentProject="currentProject" ref="requestForm"/>
 
       <!--返回结果-->
       <!-- HTTP 请求返回数据 -->
@@ -29,11 +29,12 @@
     </el-card>
 
     <!-- 加载用例 -->
-    <ms-bottom-container v-bind:enableAsideHidden="isHide">
-      <ms-api-case-list @apiCaseClose="apiCaseClose" @selectTestCase="selectTestCase" :api="api"
+    <el-drawer :visible.sync="visible" direction="btt" :with-header="false" :modal="false" size="50%">
+      <ms-api-case-list @apiCaseClose="apiCaseClose" @selectTestCase="selectTestCase" :api="api" :refreshSign="refreshSign"
                         :currentProject="currentProject" :loaded="loaded"
                         ref="caseList"/>
-    </ms-bottom-container>
+    </el-drawer>
+    >
 
     <!-- 环境 -->
     <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
@@ -72,7 +73,7 @@
     },
     data() {
       return {
-        isHide: true,
+        visible: false,
         api: {},
         loaded: false,
         loading: false,
@@ -80,6 +81,7 @@
         responseData: {type: 'HTTP', responseResult: {}, subRequestResults: []},
         reqOptions: REQ_METHOD,
         environments: [],
+        refreshSign: "",
         rules: {
           method: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
           url: [{required: true, message: this.$t('api_test.definition.request.path_info'), trigger: 'blur'}],
@@ -122,11 +124,12 @@
         this.$emit('saveAs', this.api);
       },
       loadCase() {
+        this.refreshSign = getUUID();
         this.loaded = true;
-        this.isHide = false;
+        this.visible = true;
       },
       apiCaseClose() {
-        this.isHide = true;
+        this.visible = false;
       },
       getBodyUploadFiles() {
         let bodyUploadFiles = [];
@@ -150,7 +153,7 @@
         return bodyUploadFiles;
       },
       saveAsCase() {
-        this.isHide = false;
+        this.visible = false;
         this.loaded = false;
         this.$refs.caseList.addCase();
       },
@@ -256,6 +259,9 @@
     font-size: 16px;
     border-radius: 4px;
     border-left: 4px solid #783887;
-    margin: 20px 0;
+  }
+
+  /deep/ .el-drawer {
+    overflow: auto;
   }
 </style>
