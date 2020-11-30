@@ -2,7 +2,7 @@
   <div>
     <el-row>
       <el-col :span="10">
-        <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="handleAddTaskModel('scheduleTask')">
+        <el-button :disabled="!isTesterPermission" icon="el-icon-circle-plus-outline" plain size="mini" @click="handleAddTaskModel('scheduleTask')">
           {{ $t('organization.message.create_new_notification') }}
         </el-button>
       </el-col>
@@ -69,12 +69,14 @@
                 type="primary"
                 size="mini"
                 v-show="scope.row.isSet"
+                :disabled="!isTesterPermission"
                 @click="handleAddTask(scope.$index,scope.row)"
               >{{ $t('commons.add') }}
               </el-button>
               <el-button
                 size="mini"
                 v-show="scope.row.isSet"
+                :disabled="!isTesterPermission"
                 @click.native.prevent="removeRowTask(scope.$index,form.scheduleTask)"
               >{{ $t('commons.cancel') }}
               </el-button>
@@ -82,6 +84,7 @@
                 type="primary"
                 size="mini"
                 v-show="!scope.row.isSet"
+                :disabled="!isTesterPermission"
                 @click="handleEditTask(scope.$index,scope.row)"
               >{{ $t('commons.edit') }}</el-button>
               <el-button
@@ -89,6 +92,7 @@
                 icon="el-icon-delete"
                 size="mini"
                 v-show="!scope.row.isSet"
+                :disabled="!isTesterPermission"
                 @click.native.prevent="deleteRowTask(scope.$index,scope.row)"
               ></el-button>
             </template>
@@ -106,6 +110,10 @@ export default {
   props: {
     testId:String,
     scheduleReceiverOptions:Array,
+    isTesterPermission: {
+      type: Boolean,
+      default: true
+    }
   },
   data() {
     return {
@@ -120,7 +128,6 @@ export default {
           identification: "",
           isReadOnly: false,
           testId:this.testId,
-
         }],
       },
       scheduleEventOptions: [
@@ -147,32 +154,32 @@ export default {
     handleEdit(index, data) {
       data.isReadOnly = true;
       if (data.type === 'EMAIL') {
-        data.isReadOnly = !data.isReadOnly
-        data.webhook = ""
+        data.isReadOnly = !data.isReadOnly;
+        data.webhook = '';
       }
     },
     handleAddTaskModel(type) {
       let Task = {};
       Task.event = [];
       Task.userIds = [];
-      Task.type = "";
-      Task.webhook = "";
+      Task.type = '';
+      Task.webhook = '';
       Task.isSet = true;
-      Task.identification = "";
+      Task.identification = '';
       if (type === 'scheduleTask') {
-        Task.taskType = 'SCHEDULE_TASK'
-        Task.testId=this.testId
-        this.form.scheduleTask.push(Task)
+        Task.taskType = 'SCHEDULE_TASK';
+        Task.testId=this.testId;
+        this.form.scheduleTask.push(Task);
       }
     },
     handleEditTask(index,data) {
-      data.isSet = true
-      data.testId = this.testId
+      data.isSet = true;
+      data.testId = this.testId;
       if (data.type === 'EMAIL') {
-        data.isReadOnly = false
-        data.webhook = ""
+        data.isReadOnly = false;
+        data.webhook = '';
       } else {
-        data.isReadOnly = true
+        data.isReadOnly = true;
       }
     },
     handleAddTask(index, data) {
@@ -192,11 +199,10 @@ export default {
       }
     },
     addTask(data) {
-      let list = []
-      data.isSet = false
-      list.push(data)
+      let list = [];
+      list.push(data);
       let param = {};
-      param.messageDetail = list
+      param.messageDetail = list;
       this.result = this.$post("/notice/save/message/task", param, () => {
         this.initForm()
         this.$success(this.$t('commons.save_success'));
@@ -206,7 +212,7 @@ export default {
       if (!data[index].identification) {
         data.splice(index, 1)
       } else {
-        data[index].isSet = false
+        data[index].isSet = false;
       }
     },
     deleteRowTask(index, data) { //删除

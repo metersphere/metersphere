@@ -231,7 +231,7 @@ public class XmindCaseParser {
                 JSONObject step = new JSONObject(true);
                 step.put("num", i + 1);
                 step.put("desc", attacheds.get(i).getTitle());
-                if (attacheds.get(i) != null && attacheds.get(i).getChildren() != null &&  attacheds.get(i).getChildren().getAttached()!=null) {
+                if (attacheds.get(i) != null && attacheds.get(i).getChildren() != null && attacheds.get(i).getChildren().getAttached() != null) {
                     step.put("result", attacheds.get(i).getChildren().getAttached().get(0).getTitle());
                 }
                 jsonArray.add(step);
@@ -283,17 +283,20 @@ public class XmindCaseParser {
 
         // 测试步骤处理
         List<Attached> steps = new LinkedList<>();
+        StringBuilder rc = new StringBuilder();
         if (attacheds != null && !attacheds.isEmpty()) {
             attacheds.forEach(item -> {
                 if (isAvailable(item.getTitle(), PC_REGEX)) {
                     testCase.setPrerequisite(replace(item.getTitle(), PC_REGEX));
                 } else if (isAvailable(item.getTitle(), RC_REGEX)) {
-                    testCase.setRemark(replace(item.getTitle(), RC_REGEX));
+                    rc.append(replace(item.getTitle(), RC_REGEX));
+                    rc.append("\n");
                 } else {
                     steps.add(item);
                 }
             });
         }
+        testCase.setRemark(rc.toString());
         testCase.setSteps(this.getSteps(steps));
         testCases.add(testCase);
         // 校验合规性

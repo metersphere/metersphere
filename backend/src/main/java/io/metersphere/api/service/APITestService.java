@@ -25,7 +25,10 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiTestJob;
 import io.metersphere.notice.service.MailService;
 import io.metersphere.notice.service.NoticeService;
-import io.metersphere.service.*;
+import io.metersphere.service.FileService;
+import io.metersphere.service.QuotaService;
+import io.metersphere.service.ScheduleService;
+import io.metersphere.service.UserService;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.constants.CommonConstants;
@@ -65,6 +68,7 @@ public class APITestService {
     private MailService mailService;
     @Resource
     private NoticeService noticeService;
+
 
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
@@ -127,7 +131,7 @@ public class APITestService {
                 file.createNewFile();
                 FileUtil.copyStream(in, out);
             } catch (IOException e) {
-                LogUtil.error(e);
+                LogUtil.error(e.getMessage(), e);
                 MSException.throwException(Translator.get("upload_fail"));
             }
         }
@@ -170,7 +174,7 @@ public class APITestService {
             try {
                 FileUtil.copyDir(sourceFile, new File(targetDir));
             } catch (IOException e) {
-                LogUtil.error(e);
+                LogUtil.error(e.getMessage(), e);
                 MSException.throwException(Translator.get("upload_fail"));
             }
         }
@@ -433,7 +437,7 @@ public class APITestService {
             bytes = JmeterDocumentParser.parse(bytes);
             is = new ByteArrayInputStream(bytes);
         } catch (IOException e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
 
         jMeterService.run(request.getId(), reportId, is);

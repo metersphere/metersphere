@@ -204,6 +204,7 @@ export default {
         });
       }
     },
+
     submit(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -282,7 +283,18 @@ export default {
     },
     openEnvironmentConfig(project) {
       this.$refs.environmentConfig.open(project.id);
-    }
+    },
+    handleEvent(event) {
+      if (event.keyCode === 13) {
+       this.submit('form')
+      }
+    },
+  },
+  created() {
+    document.addEventListener('keydown', this.handleEvent)
+  },
+  beforeDestroy() {
+    document.removeEventListener('keydown', this.handleEvent);
   }
 }
 </script>

@@ -313,6 +313,7 @@ export default {
     repeat_password: '确认密码',
     inconsistent_passwords: '两次输入的密码不一致',
     remove_member: '确定要移除该成员吗',
+    org_remove_member: '将该用户从组织中移除，将同时移除该组织下所有工作空间的权限，确定要移除该成员吗？',
     input_id_or_email: '请输入用户 ID, 或者 用户邮箱',
     no_such_user: '无此用户信息, 请输入正确的用户 ID 或者 用户邮箱！',
   },
@@ -469,7 +470,7 @@ export default {
       title: "jar包管理",
       jar_file: "jar包",
       delete_tip: "删除需重启服务后生效",
-      file_exist: "该项目下已存在改jar包",
+      file_exist: "该项目下已存在该jar包",
       upload_limit_size: "上传文件大小不能超过 30MB!",
     },
     environment: {
@@ -838,6 +839,7 @@ export default {
       actual_start_time: "实际开始",
       actual_end_time: "实际结束",
       plan_delete_confirm: "将删除该测试计划下所有用例，确认删除测试计划: ",
+      plan_delete_tip: "该测试计划正在进行中，请确认再删除！",
       plan_delete: "删除计划",
     },
     review: {

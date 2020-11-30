@@ -139,10 +139,10 @@ public class EngineFactory {
             String content = engineSourceParser.parse(engineContext, source);
             engineContext.setContent(content);
         } catch (MSException e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
             MSException.throwException(e);
         }
 

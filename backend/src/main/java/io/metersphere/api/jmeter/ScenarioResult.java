@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 public class ScenarioResult {
 
-    private String id;
+    private Integer id;
 
     private String name;
 

@@ -230,6 +230,7 @@ export class Scenario extends BaseConfig {
     this.databaseConfigs = [];
     this.tcpConfig = undefined;
     this.assertions = undefined;
+    this.referenceEnable = undefined;
 
     this.set(options);
     this.sets({
@@ -270,6 +271,14 @@ export class Scenario extends BaseConfig {
 
   isReference() {
     return this.id.indexOf("#") !== -1
+  }
+
+  isEnable() {
+    if (this.isReference()) {
+      return this.referenceEnable;
+    } else {
+      return this.enable;
+    }
   }
 }
 
@@ -609,8 +618,8 @@ export class DatabaseConfig extends BaseConfig {
     super();
     this.id = undefined;
     this.name = undefined;
-    this.poolMax = undefined;
-    this.timeout = undefined;
+    this.poolMax = 1;
+    this.timeout = 100000;
     this.driver = undefined;
     this.dbUrl = undefined;
     this.username = undefined;
@@ -1144,7 +1153,7 @@ class JMXGenerator {
   addScenarios(testPlan, testId, scenarios) {
     scenarios.forEach(s => {
 
-      if (s.enable) {
+      if (s.isEnable()) {
         let scenario = s.clone();
 
         let threadGroup = new ThreadGroup(scenario.name || "");

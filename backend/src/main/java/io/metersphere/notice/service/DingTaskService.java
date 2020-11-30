@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
@@ -57,13 +58,15 @@ public class DingTaskService {
         list.forEach(u -> {
             phoneList.add(u.getPhone());
         });
-        at.setAtMobiles(phoneList);
+        LogUtil.info("收件人地址" + phoneList);
+        List<String> phoneLists = phoneList.stream().distinct().collect(Collectors.toList());
+        at.setAtMobiles(phoneLists);
         request.setAt(at);
         OapiRobotSendResponse response = null;
         try {
             response = client.execute(request);
         } catch (ApiException e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
         System.out.println(response.getErrcode());
     }

@@ -3,8 +3,10 @@ package io.metersphere.track.service;
 import io.metersphere.base.domain.TestCaseComment;
 import io.metersphere.base.domain.TestCaseCommentExample;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
+import io.metersphere.base.domain.User;
 import io.metersphere.base.mapper.TestCaseCommentMapper;
 import io.metersphere.base.mapper.TestCaseMapper;
+import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseCommentMapper;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.exception.MSException;
@@ -48,7 +50,8 @@ public class TestCaseCommentService {
     private NoticeService noticeService;
     @Resource
     private ExtTestCaseCommentMapper extTestCaseCommentMapper;
-
+    @Resource
+    private UserMapper userMapper;
 
     public void saveComment(SaveCommentRequest request) {
         TestCaseComment testCaseComment = new TestCaseComment();
@@ -81,7 +84,7 @@ public class TestCaseCommentService {
                 }
             });
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
 
     }
@@ -97,6 +100,7 @@ public class TestCaseCommentService {
     }
 
     private String getReviewContext(TestCaseComment testCaseComment, TestCaseWithBLOBs testCaseWithBLOBs) {
+        User user = userMapper.selectByPrimaryKey(testCaseComment.getAuthor());
         Long startTime = testCaseComment.getCreateTime();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String start = null;
@@ -105,7 +109,7 @@ public class TestCaseCommentService {
             start = sdf.format(new Date(Long.parseLong(sTime)));
         }
         String context = "";
-        context = "测试评审任务通知：" + testCaseComment.getAuthor() + "在" + start + "为" + "'" + testCaseWithBLOBs.getName() + "'" + "添加评论:" + testCaseComment.getDescription();
+        context = "测试评审任务通知：" + user.getName() + "在" + start + "为" + "'" + testCaseWithBLOBs.getName() + "'" + "添加评论:" + testCaseComment.getDescription();
         return context;
     }
 

@@ -31,7 +31,7 @@
             </el-dialog>
           </el-tab-pane>
           <el-tab-pane :label="$t('schedule.task_notification')" name="second">
-          <schedule-task-notification :test-id="testId" :schedule-receiver-options="scheduleReceiverOptions"></schedule-task-notification>
+          <schedule-task-notification :is-tester-permission="isTesterPermission" :test-id="testId" :schedule-receiver-options="scheduleReceiverOptions"></schedule-task-notification>
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -46,6 +46,7 @@ import CrontabResult from "../cron/CrontabResult";
 import {cronValidate} from "@/common/js/cron";
 import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import ScheduleTaskNotification from "../../settings/organization/components/ScheduleTaskNotification";
+import {checkoutTestManagerOrTestUser} from "../../../../common/js/utils";
 function defaultCustomValidate() {
   return {pass: true};
 }
@@ -113,10 +114,13 @@ export default {
         name: '',
         organizationId: this.currentUser().lastOrganizationId
       };
-      this.result = this.$post('user/org/member/list/all', param, response => {
-        this.scheduleReceiverOptions = response.data
 
-      });
+      if (this.isTesterPermission) {
+        this.result = this.$post('user/org/member/list/all', param, response => {
+          this.scheduleReceiverOptions = response.data
+        });
+      }
+
     },
    /* handleClick() {
       if (this.activeName === "second") {
@@ -188,6 +192,11 @@ export default {
       let time1 = new Date(resultList[0]);
       let time2 = new Date(resultList[1]);
       return time2 - time1;
+    },
+  },
+  computed: {
+    isTesterPermission() {
+      return checkoutTestManagerOrTestUser();
     }
   }
 }

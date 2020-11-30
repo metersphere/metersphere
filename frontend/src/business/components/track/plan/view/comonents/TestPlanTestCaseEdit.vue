@@ -94,13 +94,20 @@
             </el-row>
 
             <el-row>
+              <el-col :span="4" :offset="1" v-if="testCase.testId == 'other'">
+                <span class="cast_label">{{ $t('test_track.case.test_name') }}：</span>
+                <span class="cast_item">{{ testCase.otherTestName }}</span>
+              </el-col>
+            </el-row>
+
+            <el-row>
               <el-col :offset="1">
                 <span class="cast_label">{{ $t('test_track.case.prerequisite') }}：</span>
                 <span class="cast_item"><p>{{ testCase.prerequisite }}</p></span>
               </el-col>
             </el-row>
 
-            <el-row v-if="testCase.method === 'auto' && testCase.testId">
+            <el-row v-if="testCase.method === 'auto' && testCase.testId && testCase.testId != 'other'">
               <el-col class="test-detail" :span="20" :offset="1">
                 <el-tabs v-model="activeTab" type="border-card" @tab-click="testTabChange">
                   <el-tab-pane name="detail" :label="$t('test_track.plan_view.test_detail')">

@@ -21,4 +21,5 @@ public class Scenario {
     private TCPConfig tcpConfig;
     private List<DatabaseConfig> databaseConfigs;
     private Boolean enable;
+    private Boolean referenceEnable;
 }

@@ -135,7 +135,7 @@ public class TestResourcePoolService {
                 MSException.throwException("Resource Pool is invalid.");
             }
         } catch (IllegalAccessException | InvocationTargetException e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -161,7 +161,7 @@ public class TestResourcePoolService {
                 testResourcePoolDTO.setResources(testResources);
                 testResourcePoolDTOS.add(testResourcePoolDTO);
             } catch (IllegalAccessException | InvocationTargetException e) {
-                LogUtil.error(e);
+                LogUtil.error(e.getMessage(), e);
             }
         });
         return testResourcePoolDTOS;
@@ -210,7 +210,7 @@ public class TestResourcePoolService {
             ResponseEntity<String> entity = restTemplateWithTimeOut.getForEntity(String.format(nodeControllerUrl, node.getIp(), node.getPort()), String.class);
             return HttpStatus.OK.equals(entity.getStatusCode());
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
             return false;
         }
     }

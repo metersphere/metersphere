@@ -259,3 +259,17 @@ export function exportPdf(name, canvasList) {
 
 }
 
+export function windowPrint(id, zoom) {
+  //根据div标签ID拿到div中的局部内容
+  let bdhtml=window.document.body.innerHTML;
+  let el = document.getElementById(id);
+  var jubuData = el.innerHTML;
+  document.getElementsByTagName('body')[0].style.zoom=zoom;
+  //把获取的 局部div内容赋给body标签, 相当于重置了 body里的内容
+  window.document.body.innerHTML= jubuData;
+  //调用打印功能
+  window.print();
+  window.document.body.innerHTML=bdhtml;//重新给页面内容赋值；
+  return false;
+}
+

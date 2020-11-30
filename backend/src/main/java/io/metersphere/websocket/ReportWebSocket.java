@@ -106,7 +106,7 @@ public class ReportWebSocket {
                     }
                     Thread.sleep(20 * 1000L);
                 } catch (Exception e) {
-                    LogUtil.error(e);
+                    LogUtil.error(e.getMessage(), e);
                 }
             }
         }

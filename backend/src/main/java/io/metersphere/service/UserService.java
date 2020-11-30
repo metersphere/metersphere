@@ -318,6 +318,17 @@ public class UserService {
     }
 
     public void updateUser(User user) {
+        // todo 提取重复代码
+        if (StringUtils.isNotBlank(user.getEmail())) {
+            UserExample example = new UserExample();
+            UserExample.Criteria criteria = example.createCriteria();
+            criteria.andEmailEqualTo(user.getEmail());
+            criteria.andIdNotEqualTo(user.getId());
+            if (userMapper.countByExample(example) > 0) {
+                MSException.throwException(Translator.get("user_email_already_exists"));
+            }
+        }
+
         user.setUpdateTime(System.currentTimeMillis());
         userMapper.updateByPrimaryKeySelective(user);
         // 禁用用户之后，剔除在线用户
@@ -424,8 +435,12 @@ public class UserService {
     }
 
     public void delOrganizationMember(String organizationId, String userId) {
+
+        List<String> resourceIds = workspaceService.getWorkspaceIdsOrgId(organizationId);
+        resourceIds.add(organizationId);
+
         UserRoleExample userRoleExample = new UserRoleExample();
-        userRoleExample.createCriteria().andRoleIdLike("%org%").andUserIdEqualTo(userId).andSourceIdEqualTo(organizationId);
+        userRoleExample.createCriteria().andUserIdEqualTo(userId).andSourceIdIn(resourceIds);
 
         User user = userMapper.selectByPrimaryKey(userId);
         if (StringUtils.equals(organizationId, user.getLastOrganizationId())) {

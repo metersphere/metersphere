@@ -43,7 +43,9 @@ export default {
         success(response.data);
       } else {
         window.console.warn(response.data);
-        Message.warning(response.data.message);
+        if (response.data.message) {
+          Message.warning(response.data.message);
+        }
       }
       result.loading = false;
     }

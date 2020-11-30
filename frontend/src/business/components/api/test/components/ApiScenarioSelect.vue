@@ -72,6 +72,7 @@ export default {
   methods: {
     search() {
       this.condition.excludeId = this.excludeId;
+      this.condition.projectId = this.projectId;
       let url = "/api/list/" + this.currentPage + "/" + this.pageSize;
       this.result = this.$post(url, this.condition, response => {
         let data = response.data;

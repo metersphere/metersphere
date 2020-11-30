@@ -101,7 +101,6 @@ export default {
                   this.request.debugScenario = new Scenario();
                   this.request.debugRequestResult = {responseResult: {}, subRequestResults: []};
                 }
-                this.$refs.msDebugResult.reload();
               } else {
                 setTimeout(this.getReport, 2000)
               }

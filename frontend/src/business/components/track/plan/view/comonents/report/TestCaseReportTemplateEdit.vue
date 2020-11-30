@@ -127,7 +127,7 @@
           this.listenGoBack();
         },
         initComponents() {
-          this.componentMap.forEach((value, key) =>{
+          this.componentMap.forEach((value, key) => {
             if (this.template.content.components.indexOf(key) < 0 && this.components.indexOf(key) < 0) {
               this.components.push(key);
             }
@@ -205,7 +205,7 @@
           if (this.isReport) {
             url = '/case/report/get/';
           }
-          this.$get(url + id, (response) =>{
+          this.$get(url + id, (response) => {
             this.template = response.data;
             this.template.content = JSON.parse(response.data.content);
             if (this.template.content.customComponent) {
@@ -238,7 +238,7 @@
           if (this.isReport) {
             url = '/case/report/';
           }
-          this.$post(url + this.type, param, () =>{
+          this.$post(url + this.type, param, () => {
             this.$success(this.$t('commons.save_success'));
             this.handleClose();
             this.$emit('refresh');

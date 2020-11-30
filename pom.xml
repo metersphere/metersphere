@@ -13,7 +13,7 @@
         <version>2.2.6.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    
+
     <name>metersphere</name>
     <modules>
         <module>frontend</module>

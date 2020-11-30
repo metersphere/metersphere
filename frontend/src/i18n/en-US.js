@@ -314,6 +314,7 @@ export default {
     repeat_password: 'Repeat',
     inconsistent_passwords: 'The two passwords entered are inconsistent',
     remove_member: 'Are you sure you want to remove this member',
+    org_remove_member: 'Removing the user from the organization will also remove permissions from all workspaces under the organization. Are you sure you want to remove the member ?',
     input_id_or_email: 'Please enter user ID, or user Email',
     no_such_user: 'Without this user information, please enter the correct user ID or user Email!',
   },
@@ -836,6 +837,7 @@ export default {
       actual_start_time: "Actual Start Time",
       actual_end_time: "Actual End Time",
       plan_delete_confirm: "All use cases under this plan will be deleted,confirm delete test plan: ",
+      plan_delete_tip: "The test plan is under way, please confirm and delete it!",
       plan_delete: "Delete test plan",
     },
     review: {

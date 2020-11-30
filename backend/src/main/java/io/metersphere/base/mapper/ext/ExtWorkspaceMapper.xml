@@ -13,4 +13,9 @@
           order by w.update_time desc
     </select>
 
+    <select id="getWorkspaceIdsByOrgId" resultType="java.lang.String">
+        select id from workspace
+        where organization_id = #{orgId}
+    </select>
+
 </mapper>

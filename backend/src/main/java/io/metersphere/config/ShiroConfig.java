@@ -44,7 +44,7 @@ public class ShiroConfig implements EnvironmentAware {
         Map<String, String> filterChainDefinitionMap = shiroFilterFactoryBean.getFilterChainDefinitionMap();
         ShiroUtils.loadBaseFilterChain(filterChainDefinitionMap);
         filterChainDefinitionMap.put("/display/info", "anon");
-        filterChainDefinitionMap.put("/display/file/*", "anon");
+        filterChainDefinitionMap.put("/display/file/**", "anon");
         filterChainDefinitionMap.put("/**", "apikey, authc");
         return shiroFilterFactoryBean;
     }

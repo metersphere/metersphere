@@ -133,6 +133,7 @@
         LEFT JOIN user ON user.id = r.user_id
         <where>
             r.test_id = #{testId}
+            and r.status != 'Debug'
         </where>
         ORDER BY r.update_time DESC
     </select>

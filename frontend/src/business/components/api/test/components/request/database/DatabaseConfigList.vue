@@ -80,4 +80,8 @@
     float: right;
   }
 
+  .el-table {
+    cursor: pointer;
+  }
+
 </style>

@@ -292,6 +292,8 @@ export default {
   },
   methods: {
     initTableData() {
+      this.condition.planId = "";
+      this.condition.nodeIds = [];
       if (this.planId) {
         // param.planId = this.planId;
         this.condition.planId = this.planId;
@@ -300,6 +302,9 @@ export default {
         // param.nodeIds = this.selectNodeIds;
         this.condition.nodeIds = this.selectNodeIds;
       }
+      this.getData();
+    },
+    getData() {
       if (this.currentProject) {
         this.condition.projectId = this.currentProject.id;
         this.result = this.$post(this.buildPagePath('/test/case/list'), this.condition, response => {
@@ -492,7 +497,6 @@ export default {
     },
     showPopover(row, column, cell) {
       if (column.property === 'name') {
-        console.log(row, column);
         this.currentCaseId = row.id;
       }
     }

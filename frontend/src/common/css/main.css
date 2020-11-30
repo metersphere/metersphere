@@ -108,3 +108,9 @@ body {
   margin: 5px 0;
   border-radius: 5px;
 }
+
+/* 修复带长度限制的文本框，内容太长造成的无法查看内容的问题 */
+
+.el-input__inner[maxlength] {
+  padding-right: 60px;
+}

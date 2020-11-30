@@ -219,6 +219,15 @@
               item.checked = false;
             });
             flag ? this.testReviews = tableData : this.testReviews = this.testReviews.concat(tableData);
+            // 去重处理
+            let hash = {}
+            this.testReviews = this.testReviews.reduce((item, next) => {
+              if (!hash[next.id]) {
+                hash[next.id] = true
+                item.push(next)
+              }
+              return item
+            }, [])
             this.lineStatus = tableData.length === 50 && this.testReviews.length < this.total;
 
           });
@@ -231,7 +240,6 @@
             this.selectIds.add(item.id);
           });
         } else {
-          // this.selectIds.clear();
           this.testReviews.forEach(item => {
             if (this.selectIds.has(item.id)) {
               this.selectIds.delete(item.id);
