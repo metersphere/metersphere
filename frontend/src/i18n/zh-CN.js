@@ -1072,6 +1072,7 @@ export default {
   i18n: {
     home: '首页',
     definition: '接口定义',
+    automation: '接口自动化',
   },
   ldap: {
     url: 'LDAP地址',
