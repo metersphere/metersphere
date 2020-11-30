@@ -42,7 +42,8 @@ public class JMeterService {
             Object scriptWrapper = SaveService.loadElement(is);
             HashTree testPlan = getHashTree(scriptWrapper);
             JMeterVars.addJSR223PostProcessor(testPlan);
-            addBackendListener(testId, debugReportId, ApiRunMode.DEBUG.name(), testPlan);
+            String runMode = StringUtils.isBlank(debugReportId) ? ApiRunMode.RUN.name() : ApiRunMode.DEBUG.name();
+            addBackendListener(testId, debugReportId, runMode, testPlan);
             LocalRunner runner = new LocalRunner(testPlan);
             runner.run();
         } catch (Exception e) {
