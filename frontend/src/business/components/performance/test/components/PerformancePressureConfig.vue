@@ -460,7 +460,13 @@ export default {
 
       for (let i = 0; i < this.threadGroups.length; i++) {
         if (!this.threadGroups[i].threadNumber || !this.threadGroups[i].duration
-          || !this.threadGroups[i].rampUpTime || !this.threadGroups[i].step || !this.threadGroups[i].rpsLimit) {
+          || !this.threadGroups[i].rampUpTime || !this.threadGroups[i].step) {
+          this.$warning(this.$t('load_test.pressure_config_params_is_empty'));
+          this.$emit('changeActive', '1');
+          return false;
+        }
+
+        if (this.threadGroups[i].rpsLimitEnable && !this.threadGroups[i].rpsLimit) {
           this.$warning(this.$t('load_test.pressure_config_params_is_empty'));
           this.$emit('changeActive', '1');
           return false;
