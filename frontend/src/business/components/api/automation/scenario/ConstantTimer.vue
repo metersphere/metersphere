@@ -29,14 +29,15 @@
   export default {
     name: "MsConstantTimer",
     props: {
-      timer: {}
+      timer: {},
+      node: {},
     },
     data() {
       return {}
     },
     methods: {
       remove() {
-        this.$emit('remove', this.timer);
+        this.$emit('remove', this.timer,this.node);
       }
     }
   }

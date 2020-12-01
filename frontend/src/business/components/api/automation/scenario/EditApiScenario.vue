@@ -151,7 +151,7 @@
                  <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                     <template>
                       <!-- 场景 -->
-                      <el-card @click.native="selectItem(data,$event)" v-if="data.type==='scenario'">
+                      <el-card v-if="data.type==='scenario'">
                         <el-row>
                             <div class="el-step__icon is-text ms-api-col" style="float: left">
                               <div class="el-step__icon-inner">{{data.$treeNodeId}}</div>
@@ -160,24 +160,24 @@
                         </el-row>
                       </el-card>
                       <!--条件控制器-->
-                      <ms-if-controller :controller="data" v-if="data.type==='IfController'" @remove="remove"/>
+                      <ms-if-controller :controller="data" :node="node" v-if="data.type==='IfController'" @remove="remove"/>
                       <!--等待控制器-->
-                      <ms-constant-timer :timer="data" v-if="data.type==='ConstantTimer'" @remove="remove"/>
+                      <ms-constant-timer :timer="data" :node="node" v-if="data.type==='ConstantTimer'" @remove="remove"/>
                       <!--自定义脚本-->
                       <ms-jsr233-processor v-if="data.type==='JSR223Processor'" @remove="remove" :title="$t('api_test.automation.customize_script')"
-                                           style-type="color: #7B4D12;background-color: #F1EEE9" :jsr223-processor="data"/>
+                                           style-type="color: #7B4D12;background-color: #F1EEE9" :jsr223-processor="data" :node="node"/>
                       <!--前置脚本-->
                       <ms-jsr233-processor v-if="data.type==='JSR223PreProcessor'" @remove="remove" :title="$t('api_test.definition.request.pre_script')"
-                                           style-type="color: #B8741A;background-color: #F9F1EA" :jsr223-processor="data"/>
+                                           style-type="color: #B8741A;background-color: #F9F1EA" :jsr223-processor="data" :node="node"/>
                       <!--后置脚本-->
                       <ms-jsr233-processor v-if="data.type==='JSR223PostProcessor'" @remove="remove" :title="$t('api_test.definition.request.post_script')"
-                                           style-type="color: #783887;background-color: #F2ECF3" :jsr223-processor="data"/>
+                                           style-type="color: #783887;background-color: #F2ECF3" :jsr223-processor="data" :node="node"/>
                       <!--断言规则-->
-                      <ms-api-assertions v-if="data.type==='Assertions'" @remove="remove" customizeStyle="margin-top: 0px" :assertions="data"/>
+                      <ms-api-assertions v-if="data.type==='Assertions'" @remove="remove" customizeStyle="margin-top: 0px" :assertions="data" :node="node"/>
                       <!--提取规则-->
-                      <ms-api-extract @remove="remove" v-if="data.type==='Extract'" customizeStyle="margin-top: 0px" :extract="data"/>
+                      <ms-api-extract @remove="remove" v-if="data.type==='Extract'" customizeStyle="margin-top: 0px" :extract="data" :node="node"/>
                       <!--API 导入 -->
-                      <ms-api-component :data="data" current-project="currentProject" v-if="data.type==='API' || data.type==='CASE'"/>
+                      <ms-api-component :data="data" @remove="remove" current-project="currentProject" v-if="data.type==='API' || data.type==='CASE'" :node="node"/>
                     </template>
                    </span>
               </el-tree>
@@ -192,34 +192,34 @@
                 <el-button class="ms-right-buttion" size="small" style="color: #F56C6C;background-color: #FCF1F1" @click="apiListImport">+{{$t('api_test.automation.api_list_import')}}</el-button>
               </div>
               <div v-if="operatingElements.indexOf('OT_IMPORT')>0">
-                <el-button class="ms-right-buttion" size="small" style="color: #409EFF;background-color: #EEF5FE" @click="addPre">+{{$t('api_test.automation.external_import')}}</el-button>
+                <el-button class="ms-right-buttion" size="small" style="color: #409EFF;background-color: #EEF5FE" @click="addComponent('OT_IMPORT')">+{{$t('api_test.automation.external_import')}}</el-button>
               </div>
               <div v-if="operatingElements.indexOf('ConstantTimer')>0">
-                <el-button class="ms-right-buttion" size="small" style="color: #67C23A;background-color: #F2F9EE" @click="addPre">+{{$t('api_test.automation.wait_controller')}}</el-button>
+                <el-button class="ms-right-buttion" size="small" style="color: #67C23A;background-color: #F2F9EE" @click="addComponent('ConstantTimer')">+{{$t('api_test.automation.wait_controller')}}</el-button>
               </div>
               <div v-if="operatingElements.indexOf('IfController')>0">
-                <el-button class="ms-right-buttion" size="small" style="color: #E6A23C;background-color: #FCF6EE" @click="addPre">+{{$t('api_test.automation.if_controller')}}</el-button>
+                <el-button class="ms-right-buttion" size="small" style="color: #E6A23C;background-color: #FCF6EE" @click="addComponent('IfController')">+{{$t('api_test.automation.if_controller')}}</el-button>
               </div>
               <div v-if="operatingElements.indexOf('scenario')===0">
-                <el-button class="ms-right-buttion" size="small" style="color: #606266;background-color: #F4F4F5" @click="addPre">+{{$t('api_test.automation.scenario_import')}}</el-button>
+                <el-button class="ms-right-buttion" size="small" style="color: #606266;background-color: #F4F4F5" @click="addComponent('scenario')">+{{$t('api_test.automation.scenario_import')}}</el-button>
               </div>
               <div v-if="operatingElements.indexOf('JSR223Processor')>0">
-                <el-button class="ms-right-buttion" size="small" style="color: #7B4D12;background-color: #F1EEE9" @click="addPre">+{{$t('api_test.automation.customize_script')}}</el-button>
+                <el-button class="ms-right-buttion" size="small" style="color: #7B4D12;background-color: #F1EEE9" @click="addComponent('JSR223Processor')">+{{$t('api_test.automation.customize_script')}}</el-button>
               </div>
               <div v-if="operatingElements.indexOf('CustomizeReq')>0">
-                <el-button class="ms-right-buttion" size="small" style="color: #008080;background-color: #EBF2F2" @click="addPre">+{{$t('api_test.automation.customize_req')}}</el-button>
+                <el-button class="ms-right-buttion" size="small" style="color: #008080;background-color: #EBF2F2" @click="addComponent('CustomizeReq')">+{{$t('api_test.automation.customize_req')}}</el-button>
               </div>
               <div v-if="operatingElements.indexOf('JSR223PreProcessor')>0">
-                <el-button class="ms-right-buttion" size="small" style="color: #B8741A;background-color: #F9F1EA" @click="addPre">+{{$t('api_test.definition.request.pre_script')}}</el-button>
+                <el-button class="ms-right-buttion" size="small" style="color: #B8741A;background-color: #F9F1EA" @click="addComponent('JSR223PreProcessor')">+{{$t('api_test.definition.request.pre_script')}}</el-button>
               </div>
               <div v-if="operatingElements.indexOf('JSR223PostProcessor')>0">
-                <el-button class="ms-right-buttion" size="small" style="color: #783887;background-color: #F2ECF3" @click="addPost">+{{$t('api_test.definition.request.post_script')}}</el-button>
+                <el-button class="ms-right-buttion" size="small" style="color: #783887;background-color: #F2ECF3" @click="addComponent('JSR223PostProcessor')">+{{$t('api_test.definition.request.post_script')}}</el-button>
               </div>
               <div v-if="operatingElements.indexOf('Assertions')>0">
-                <el-button class="ms-right-buttion" size="small" style="color: #A30014;background-color: #F7E6E9" @click="addAssertions">+{{$t('api_test.definition.request.assertions_rule')}}</el-button>
+                <el-button class="ms-right-buttion" size="small" style="color: #A30014;background-color: #F7E6E9" @click="addComponent('Assertions')">+{{$t('api_test.definition.request.assertions_rule')}}</el-button>
               </div>
               <div v-if="operatingElements.indexOf('Extract')>0">
-                <el-button class="ms-right-buttion" size="small" style="color: #015478;background-color: #E6EEF2" @click="addExtract">+{{$t('api_test.definition.request.extract_param')}}</el-button>
+                <el-button class="ms-right-buttion" size="small" style="color: #015478;background-color: #E6EEF2" @click="addComponent('Extract')">+{{$t('api_test.definition.request.extract_param')}}</el-button>
               </div>
             </el-col>
           </div>
@@ -239,7 +239,7 @@
   import {API_STATUS} from "../../definition/model/JsonData";
   import {WORKSPACE_ID} from '@/common/js/constants';
   import {createComponent} from "../../definition/components/jmeter/components";
-  import {Assertions, Extract, IfController, JSR223Processor} from "../../definition/model/ApiTestModel";
+  import {Assertions, Extract, IfController, JSR223Processor, ConstantTimer} from "../../definition/model/ApiTestModel";
   import MsJsr233Processor from "./Jsr233Processor";
   import {parseEnvironment} from "../../definition/model/EnvironmentModel";
   import MsConstantTimer from "./ConstantTimer";
@@ -248,7 +248,7 @@
   import MsApiExtract from "../../definition/components/extract/ApiExtract";
   import MsApiDefinition from "../../definition/ApiDefinition";
   import MsApiComponent from "./ApiComponent";
-  import {ELEMENTS} from "./Setting";
+  import {ELEMENTS, ELEMENT_TYPE} from "./Setting";
 
 
   export default {
@@ -279,18 +279,12 @@
         apiListVisible: false,
         operatingElements: [],
         currentRow: {cases: [], apis: []},
-        selectedTreeNode: {},
-        scenarioDefinition: [{index: 1, id: "xx", type: "scenario", name: "test"}, {index: 2, id: "2", type: "ConstantTimer"}]
+        selectedTreeNode: undefined,
+        scenarioDefinition: [{index: 1, id: "xx", type: "scenario", name: "test", children: []}, {index: 2, id: "2", type: "ConstantTimer", children: []}]
       }
     },
     created() {
-      this.scenarioDefinition.push(new IfController());
-      this.scenarioDefinition.push(new JSR223Processor());
-      this.scenarioDefinition.push(new JSR223Processor({type: "JSR223PreProcessor"}));
-      this.scenarioDefinition.push(new JSR223Processor({type: "JSR223PostProcessor"}));
-      this.scenarioDefinition.push(new Assertions());
-      this.scenarioDefinition.push(new Extract());
-
+      this.operatingElements = ELEMENTS.get("ALL");
       this.getMaintainerOptions();
     },
     watch: {},
@@ -308,6 +302,41 @@
       apiListImport() {
         this.apiListVisible = true;
       },
+      addComponent(type) {
+        switch (type) {
+          case ELEMENT_TYPE.IfController:
+            this.selectedTreeNode != undefined ? this.selectedTreeNode.children.push(new IfController()) :
+              this.scenarioDefinition.push(new IfController());
+            break;
+          case ELEMENT_TYPE.ConstantTimer:
+            this.selectedTreeNode != undefined ? this.selectedTreeNode.children.push(new ConstantTimer()) :
+              this.scenarioDefinition.push(new ConstantTimer());
+            break;
+          case ELEMENT_TYPE.JSR223Processor:
+            this.selectedTreeNode != undefined ? this.selectedTreeNode.children.push(new JSR223Processor()) :
+              this.scenarioDefinition.push(new JSR223Processor());
+            break;
+          case ELEMENT_TYPE.JSR223PreProcessor:
+            this.selectedTreeNode != undefined ? this.selectedTreeNode.children.push(new JSR223Processor({type: "JSR223PreProcessor"})) :
+              this.scenarioDefinition.push(new JSR223Processor({type: "JSR223PreProcessor"}));
+            break;
+          case ELEMENT_TYPE.JSR223PostProcessor:
+            this.selectedTreeNode != undefined ? this.selectedTreeNode.children.push(new JSR223Processor({type: "JSR223PostProcessor"})) :
+              this.scenarioDefinition.push(new JSR223Processor({type: "JSR223PostProcessor"}));
+            break;
+          case ELEMENT_TYPE.Assertions:
+            this.selectedTreeNode != undefined ? this.selectedTreeNode.children.push(new Assertions()) :
+              this.scenarioDefinition.push(new Assertions());
+            break;
+          case ELEMENT_TYPE.Extract:
+            this.selectedTreeNode != undefined ? this.selectedTreeNode.children.push(new Extract()) :
+              this.scenarioDefinition.push(new Extract());
+            break;
+          default:
+            break;
+        }
+
+      },
       addReferenceApi() {
         if (this.currentRow.cases.length === 0 && this.currentRow.apis.length === 0) {
           this.$warning(this.$t('api_test.automation.reference_info'));
@@ -317,9 +346,6 @@
           item.referenced = true;
           item.active = false;
           if (this.selectedTreeNode != undefined) {
-            if (this.selectedTreeNode.children === undefined) {
-              this.selectedTreeNode.children = [];
-            }
             this.selectedTreeNode.children.push(item);
           } else {
             this.scenarioDefinition.push(item);
@@ -330,9 +356,6 @@
           item.active = false;
           item.request = JSON.parse(item.request);
           if (this.selectedTreeNode != undefined) {
-            if (this.selectedTreeNode.children === undefined) {
-              this.selectedTreeNode.children = [];
-            }
             this.selectedTreeNode.children.push(item);
           } else {
             this.scenarioDefinition.push(item);
@@ -380,8 +403,11 @@
         this.request.hashTree.push(jsonPostProcessor);
         this.reload();
       },
-      remove(row) {
-        this.scenarioDefinition.splice(this.scenarioDefinition.indexOf(row), 1);
+      remove(row, node) {
+        const parent = node.parent
+        const children = parent.data.children || parent.data;
+        const index = children.findIndex(d => d.id != undefined && row.id != undefined && d.id === row.id)
+        children.splice(index, 1);
         this.reload();
       },
       reload() {
@@ -444,9 +470,6 @@
       },
       allowDrag() {
 
-      },
-      selectItem(v, e) {
-        console.log(v)
       },
     }
   }

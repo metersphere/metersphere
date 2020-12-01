@@ -47,6 +47,7 @@
 
     props: {
       extract: {},
+      node: {},
       customizeStyle: {
         type: String,
         default: "margin-top: 10px"
@@ -71,7 +72,7 @@
         this.reloadData = getUUID().substring(0, 8);
       },
       remove() {
-        this.$emit('remove', this.extract);
+        this.$emit('remove', this.extract, this.node);
       },
 
     },

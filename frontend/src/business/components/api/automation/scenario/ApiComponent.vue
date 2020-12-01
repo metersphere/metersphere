@@ -12,6 +12,9 @@
         <i class="icon el-icon-arrow-right" :class="{'is-active': data.active}"
            @click="active(data)"/>
         <span>{{data.type!= 'create' ? data.name:''}} </span>
+
+        <el-button size="mini" type="danger" icon="el-icon-delete" circle @click="remove" style="margin-right: 20px; float: right"/>
+
       </el-row>
       <!-- 请求参数-->
       <el-collapse-transition>
@@ -41,6 +44,7 @@
     name: "MsApiComponent",
     props: {
       data: {},
+      node: {},
       currentProject: {},
     },
     components: {MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm},
@@ -49,7 +53,7 @@
     },
     methods: {
       remove() {
-        this.$emit('remove', this.data);
+        this.$emit('remove', this.data, this.node);
       },
       active(item) {
         item.active = !item.active;

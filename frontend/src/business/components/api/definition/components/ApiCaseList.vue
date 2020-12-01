@@ -462,6 +462,7 @@
       },
       caseChecked(row) {
         row.type = "CASE";
+        row.protocol = this.api.protocol;
         if (this.checkedCases.has(row)) {
           this.checkedCases.delete(row);
         } else {

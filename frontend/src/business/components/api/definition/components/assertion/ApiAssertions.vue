@@ -89,6 +89,7 @@
 
     props: {
       assertions: {},
+      node: {},
       request: {},
       customizeStyle: {
         type:String,
@@ -131,7 +132,7 @@
         })
       },
       remove() {
-        this.$emit('remove', this.assertions);
+        this.$emit('remove', this.assertions,this.node);
       },
       addJsonpathSuggest(jsonPathList) {
         jsonPathList.forEach(jsonPath => {

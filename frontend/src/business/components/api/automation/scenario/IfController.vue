@@ -35,7 +35,8 @@
   export default {
     name: "MsIfController",
     props: {
-      controller: {}
+      controller: {},
+      node: {},
     },
     data() {
       return {
@@ -77,7 +78,7 @@
     },
     methods: {
       remove() {
-        this.$emit('remove', this.timer);
+        this.$emit('remove', this.controller, this.node);
       },
       change(value) {
         if (value.indexOf("empty") > 0 && !!this.controller.value) {
