@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS `api_module` (
 CREATE TABLE IF NOT EXISTS `api_definition` (
     `id` varchar(50)  NOT NULL COMMENT 'Test ID',
     `project_id` varchar(50)  NOT NULL COMMENT 'Project ID this test belongs to',
-    `name` varchar(64)  NOT NULL COMMENT 'Test name',
+    `name` varchar(255)  NOT NULL COMMENT 'Test name',
     `method` varchar(64)  NOT NULL COMMENT 'method',
     `protocol` varchar(255)  NOT NULL COMMENT 'request protocol',
     `path` varchar(255)  DEFAULT NULL COMMENT 'request path',

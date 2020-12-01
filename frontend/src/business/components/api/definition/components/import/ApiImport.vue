@@ -1,5 +1,6 @@
 <template>
-  <el-dialog :close-on-click-modal="false" :title="$t('api_test.api_import.title')" :visible.sync="visible" class="api-import" v-loading="result.loading" @close="close">
+  <el-dialog :close-on-click-modal="false" :title="$t('api_test.api_import.title')" width="30%"
+             :visible.sync="visible" class="api-import" v-loading="result.loading" @close="close">
 
     <div class="header-bar">
       <div>{{$t('api_test.api_import.data_format')}}</div>
@@ -18,64 +19,35 @@
     </div>
 
     <el-form :model="formData" :rules="rules" label-width="100px" v-loading="result.loading" ref="form">
-      <el-row>
-        <el-col :span="11">
-          <el-form-item :label="$t('commons.name')" prop="name">
-            <el-input size="small" class="name-input" v-model="formData.name" clearable show-word-limit/>
-          </el-form-item>
-          <el-form-item :label="$t('commons.project')" prop="projectId">
-            <el-select size="small" v-model="formData.projectId" class="project-select" clearable>
-              <el-option v-for="(project, index) in projects" :key="index" :label="project.name" :value="project.id"/>
-            </el-select>
-          </el-form-item>
-          <el-form-item v-if="useEnvironment || selectedPlatformValue == 'Swagger2'" :label="$t('api_test.environment.environment_config')" prop="environmentId">
-            <el-select v-if="showEnvironmentSelect" size="small" v-model="formData.environmentId" class="environment-select" clearable>
-              <el-option v-for="(environment, index) in environments" :key="index" :label="environment.name" :value="environment.id"/>
-              <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">{{$t('api_test.environment.environment_config')}}</el-button>
-              <template v-slot:empty>
-                <div class="empty-environment">
-                  <el-button :disabled="formData.projectId == ''" class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">{{$t('api_test.environment.environment_config')}}</el-button>
-                </div>
-              </template>
-            </el-select>
-          </el-form-item>
-          <el-form-item v-if="selectedPlatformValue != 'Swagger2'" prop="useEnvironment">
-            <el-checkbox v-model="useEnvironment">{{$t('api_test.environment.config_environment')}}</el-checkbox>
-          </el-form-item>
 
-          <el-form-item :label="'Swagger URL'" prop="wgerUrl" v-if="selectedPlatformValue == 'Swagger2' && swaggerUrlEable">
-            <el-input size="small" v-model="formData.swaggerUrl" clearable show-word-limit/>
-          </el-form-item>
+      <el-upload
+        v-if="selectedPlatformValue != 'Swagger2' || (selectedPlatformValue == 'Swagger2' && !swaggerUrlEable)"
+        class="api-upload"
+        drag
+        action=""
+        :http-request="upload"
+        :limit="1"
+        :beforeUpload="uploadValidate"
+        :on-remove="handleRemove"
+        :file-list="fileList"
+        :on-exceed="handleExceed"
+        multiple>
+        <i class="el-icon-upload"></i>
+        <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
+        <div class="el-upload__tip" slot="tip">{{$t('api_test.api_import.file_size_limit')}}</div>
+      </el-upload>
 
-          <el-form-item v-if="selectedPlatformValue == 'Swagger2'">
-            <el-switch
-              v-model="swaggerUrlEable"
-              :active-text="$t('api_test.api_import.swagger_url_import')">
-            </el-switch>
-          </el-form-item>
-        </el-col>
+      <el-form-item :label="'Swagger URL'" prop="wgerUrl" v-if="isSwagger2 && swaggerUrlEable" class="swagger-url">
+        <el-input size="small" v-model="formData.swaggerUrl" clearable show-word-limit/>
+      </el-form-item>
 
-        <el-col :span="1" v-if="selectedPlatformValue != 'Swagger2' || (selectedPlatformValue == 'Swagger2' && !swaggerUrlEable)">
-          <el-divider direction="vertical"/>
-        </el-col>
-        <el-col :span="12" v-if="selectedPlatformValue != 'Swagger2' || (selectedPlatformValue == 'Swagger2' && !swaggerUrlEable)">
-          <el-upload
-            class="api-upload"
-            drag
-            action=""
-            :http-request="upload"
-            :limit="1"
-            :beforeUpload="uploadValidate"
-            :on-remove="handleRemove"
-            :file-list="fileList"
-            :on-exceed="handleExceed"
-            multiple>
-            <i class="el-icon-upload"></i>
-            <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
-            <div class="el-upload__tip" slot="tip">{{$t('api_test.api_import.file_size_limit')}}</div>
-          </el-upload>
-        </el-col>
-      </el-row>
+      <el-form-item v-if="isSwagger2" class="swagger-enable" :class="{'swagger-url-disable': !swaggerUrlEable}">
+        <el-switch
+          v-model="swaggerUrlEable"
+          :active-text="$t('api_test.api_import.swagger_url_import')">
+        </el-switch>
+      </el-form-item>
+
     </el-form>
 
     <div class="format-tip">
@@ -87,19 +59,16 @@
       </div>
     </div>
 
-    <api-environment-config ref="environmentConfig" @close="getEnvironments"/>
-
   </el-dialog>
 </template>
 
 <script>
   import MsDialogFooter from "../../../../common/components/MsDialogFooter";
-  import ApiEnvironmentConfig from "../environment/ApiEnvironmentConfig";
   import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
 
   export default {
     name: "ApiImport",
-    components: {ApiEnvironmentConfig, MsDialogFooter},
+    components: {MsDialogFooter},
     data() {
       return {
         visible: false,
@@ -135,31 +104,18 @@
         environments: [],
         useEnvironment: false,
         formData: {
-          name: '',
-          environmentId: '',
           projectId: '',
           file: undefined,
           swaggerUrl: ''
         },
+        rules: {},
         currentModule: {},
-        rules: {
-          name: [
-            {required: true, message: this.$t('commons.input_name'), trigger: 'blur'},
-            {max: 60, message: this.$t('commons.input_limit', [1, 60]), trigger: 'blur'}
-          ],
-          environmentId: [
-            {required: true, message: this.$t('api_test.environment.select_environment'), trigger: 'blur'},
-          ],
-          projectId: [
-            {required: true, message: this.$t('api_test.select_project'), trigger: 'blur'},
-          ]
-        },
         fileList: []
       }
     },
+    props: ['projectId'],
     activated() {
       this.selectedPlatform = this.platforms[0];
-      this.getProjects();
     },
     watch: {
       selectedPlatformValue() {
@@ -170,8 +126,10 @@
           }
         }
       },
-      'formData.projectId'() {
-        this.getEnvironments();
+    },
+    computed: {
+      isSwagger2() {
+        return this.selectedPlatformValue === 'Swagger2';
       }
     },
     methods: {
@@ -195,63 +153,21 @@
           this.$warning(this.$t('api_test.api_import.suffixFormatErr'));
           return false;
         }
-
         if (file.size / 1024 / 1024 > 20) {
           this.$warning(this.$t('test_track.case.import.upload_limit_size'));
           return false;
         }
         return true;
       },
-      getEnvironments() {
-        if (this.formData.projectId) {
-          this.$get('/api/environment/list/' + this.formData.projectId, response => {
-            this.environments = response.data;
-            let hasEnvironmentId = false;
-            this.environments.forEach(env => {
-              if (env.id === this.formData.environmentId) {
-                hasEnvironmentId = true;
-              }
-            });
-            if (!hasEnvironmentId) {
-              this.formData.environmentId = '';
-            }
-          });
-        } else {
-          this.environments = [];
-          this.formData.environmentId = '';
-        }
-      },
-      getProjects() {
-        this.result = this.$get("/project/listAll", response => {
-          this.projects = response.data;
-        })
-      },
-      openEnvironmentConfig() {
-        if (!this.formData.projectId) {
-          this.$error(this.$t('api_test.select_project'));
-          return;
-        }
-        this.showEnvironmentSelect = false;
-        this.$refs.environmentConfig.open(this.formData.projectId);
-        this.showEnvironmentSelect = true;
-      },
       save() {
         this.$refs.form.validate(valid => {
           if (valid) {
-            let param = {};
-            Object.assign(param, this.formData);
-            param.platform = this.selectedPlatformValue;
-            param.useEnvironment = this.useEnvironment;
-            param.moduleId = this.currentModule.id;
-            param.modulePath = this.currentModule.path;
             if ((this.selectedPlatformValue != 'Swagger2' || (this.selectedPlatformValue == 'Swagger2' && !this.swaggerUrlEable)) && !this.formData.file) {
               this.$warning(this.$t('commons.please_upload'));
               return;
             }
-            if (!this.swaggerUrlEable) {
-              param.swaggerUrl = undefined;
-            }
-            this.result = this.$fileUpload('/api/definition/import', param.file, null, param, response => {
+            let param = this.buildParam();
+            this.result = this.$fileUpload('/api/definition/import', param.file, null, this.buildParam(), response => {
               let res = response.data;
               this.$success(this.$t('test_track.case.import.success'));
               this.visible = false;
@@ -262,11 +178,20 @@
           }
         });
       },
+      buildParam() {
+        let param = {};
+        Object.assign(param, this.formData);
+        param.platform = this.selectedPlatformValue;
+        param.moduleId = this.currentModule.id;
+        param.modulePath = this.currentModule.path;
+        param.projectId = this.projectId;
+        if (!this.swaggerUrlEable) {
+          param.swaggerUrl = undefined;
+        }
+        return param;
+      },
       close() {
         this.formData = {
-          name: '',
-          environmentId: '',
-          projectId: '',
           file: undefined,
           swaggerUrl: ''
         };
@@ -279,6 +204,10 @@
 </script>
 
 <style scoped>
+
+  .api-import >>> .el-dialog {
+    min-width: 700px;
+  }
 
   .format-tip {
     background: #EDEDED;
@@ -325,29 +254,18 @@
     margin-left: 10px;
   }
 
-  .environment-button {
-    margin-left: 20px;
-    padding: 7px;
-  }
-
-  .empty-environment {
-    padding: 10px 0px;
-  }
-
   .el-form {
     padding: 30px 10px;
   }
 
-  .el-divider {
-    height: 200px;
-  }
-
-  .name-input {
-    max-width: 195px;
-  }
-
   .dialog-footer {
     float: right;
+  }
+
+  .swagger-url-disable {
+    margin-top: 10px;
+
+    margin-left: 80px;
   }
 
 </style>

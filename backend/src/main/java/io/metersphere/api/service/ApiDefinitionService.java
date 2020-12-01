@@ -19,11 +19,15 @@ import io.metersphere.base.mapper.ext.ExtApiDefinitionMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.FileService;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jorphan.collections.HashTree;
 import org.aspectj.util.FileUtil;
 import org.springframework.stereotype.Service;
@@ -55,6 +59,8 @@ public class ApiDefinitionService {
     private ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
     @Resource
     private JMeterService jMeterService;
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
 
     private static Cache cache = Cache.newHardMemoryCache(0, 3600 * 24);
 
@@ -218,38 +224,26 @@ public class ApiDefinitionService {
         return test;
     }
 
-    private ApiDefinition createTest(ApiDefinitionResult request) {
+    private ApiDefinition createTest(ApiDefinitionResult request, ApiDefinitionMapper batchMapper) {
         SaveApiDefinitionRequest saveReq = new SaveApiDefinitionRequest();
+        BeanUtils.copyBean(saveReq, request);
         saveReq.setId(UUID.randomUUID().toString());
-        saveReq.setName(request.getName());
-        saveReq.setProtocol(request.getProtocol());
-        saveReq.setProjectId(request.getProjectId());
-        saveReq.setPath(request.getPath());
         checkNameExist(saveReq);
         final ApiDefinitionWithBLOBs test = new ApiDefinitionWithBLOBs();
-        test.setId(request.getId());
-        test.setName(request.getName());
-        test.setProtocol(request.getProtocol());
-        test.setMethod(request.getMethod());
-        test.setPath(request.getPath());
-        test.setModuleId(request.getModuleId());
-        test.setProjectId(request.getProjectId());
-        test.setRequest(request.getRequest());
+        BeanUtils.copyBean(test, request);
         test.setCreateTime(System.currentTimeMillis());
         test.setUpdateTime(System.currentTimeMillis());
         test.setStatus(APITestStatus.Underway.name());
-        test.setModulePath(request.getModulePath());
-        test.setResponse(request.getResponse());
-        test.setEnvironmentId(request.getEnvironmentId());
         if (request.getUserId() == null) {
             test.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
         } else {
             test.setUserId(request.getUserId());
         }
         test.setDescription(request.getDescription());
-        apiDefinitionMapper.insert(test);
+        batchMapper.insert(test);
         return test;
     }
+
 
     private void deleteFileByTestId(String apiId) {
         ApiTestFileExample apiTestFileExample = new ApiTestFileExample();
@@ -337,15 +331,23 @@ public class ApiDefinitionService {
     }
 
     private void importApiTest(ApiTestImportRequest importRequest, ApiDefinitionImport apiImport) {
-        apiImport.getData().forEach(item -> {
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ApiDefinitionMapper batchMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
+        List<ApiDefinitionResult> data = apiImport.getData();
+        for (int i = 0; i < data.size(); i++) {
+            ApiDefinitionResult item = data.get(i);
             item.setProjectId(importRequest.getProjectId());
             item.setModuleId(importRequest.getModuleId());
             item.setModulePath(importRequest.getModulePath());
             item.setEnvironmentId(importRequest.getEnvironmentId());
             item.setId(UUID.randomUUID().toString());
             item.setUserId(null);
-            createTest(item);
-        });
+            createTest(item, batchMapper);
+            if (i % 300 == 0) {
+                sqlSession.flushStatements();
+            }
+        }
+        sqlSession.flushStatements();
     }
 
 }
