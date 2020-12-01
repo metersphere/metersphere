@@ -34,7 +34,6 @@ export default {
     },
     ...requireContext.keys().map(key => requireContext(key).system),
     ...requireContext.keys().map(key => requireContext(key).license),
-    ...requireContext.keys().map(key => requireContext(key).display),
     {
       path: 'organizationpmnmember',
       component: () => import('@/business/components/settings/organization/OrganizationMember'),
