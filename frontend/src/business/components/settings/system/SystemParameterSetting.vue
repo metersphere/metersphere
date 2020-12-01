@@ -11,6 +11,9 @@
       <el-tab-pane :label="$t('system_parameter_setting.ldap_setting')" name="ldap">
         <ldap-setting/>
       </el-tab-pane>
+      <el-tab-pane v-if="hasLicense()" :label="$t('display.title')" name="display">
+        <ms-display/>
+      </el-tab-pane>
     </el-tabs>
   </el-card>
 </template>
@@ -19,17 +22,26 @@
 import EmailSetting from "./EmailSetting";
 import LdapSetting from "./LdapSetting";
 import BaseSetting from "./BaseSetting";
+import {hasLicense} from '@/common/js/utils';
+
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const display = requireComponent.keys().length > 0 ? requireComponent("./display/Display.vue") : {};
 
 export default {
   name: "SystemParameterSetting",
   components: {
     BaseSetting,
-    EmailSetting, LdapSetting
+    EmailSetting,
+    LdapSetting,
+    "MsDisplay": display.default
   },
   data() {
     return {
-      activeName: 'base'
+      activeName: 'base',
     }
+  },
+  methods: {
+    hasLicense,
   }
 }
 </script>

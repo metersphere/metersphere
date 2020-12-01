@@ -10,7 +10,7 @@
           <img class="platform" src="../../../../assets/jira.png" alt="Jira"/>
         </el-radio>
         <el-radio label="Zentao">
-          <img class="platform" src="../../../../assets/zentao.jpg" alt="Zentao"/>
+          <img class="zentao_platform" src="../../../../assets/zentao.jpg" alt="Zentao"/>
         </el-radio>
       </el-radio-group>
     </div>
@@ -66,7 +66,12 @@ export default {
 }
 
 .platform {
-  height: 90px;
+  height: 80px;
+  vertical-align: middle
+}
+
+.zentao_platform {
+  height: 100px;
   vertical-align: middle
 }
 </style>

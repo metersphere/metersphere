@@ -44,7 +44,7 @@ public class TestReviewTestCaseController {
     }
 
     @PostMapping("/list/all")
-    public List<TestReviewCaseDTO> getTestPlanCases(@RequestBody QueryCaseReviewRequest request) {
+    public List<TestReviewCaseDTO> getTestReviewCases(@RequestBody QueryCaseReviewRequest request) {
         return testReviewTestCaseService.list(request);
     }
 
@@ -53,4 +53,17 @@ public class TestReviewTestCaseController {
     public void editTestCase(@RequestBody TestCaseReviewTestCase testCaseReviewTestCase) {
         testReviewTestCaseService.editTestCase(testCaseReviewTestCase);
     }
+
+    @GetMapping("/get/{reviewId}")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
+    public TestReviewCaseDTO get(@PathVariable String reviewId) {
+        return testReviewTestCaseService.get(reviewId);
+    }
+
+    @PostMapping("/list/ids")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
+    public List<TestReviewCaseDTO> getTestReviewCaseList(@RequestBody QueryCaseReviewRequest request) {
+        return testReviewTestCaseService.getTestCaseReviewDTOList(request);
+    }
+
 }
