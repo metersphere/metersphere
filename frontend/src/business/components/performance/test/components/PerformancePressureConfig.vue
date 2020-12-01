@@ -27,7 +27,6 @@
               <el-form-item :label="$t('load_test.thread_num')">
                 <el-input-number
                   :disabled="isReadOnly"
-                  :placeholder="$t('load_test.input_thread_num')"
                   v-model="threadGroup.threadNumber"
                   @change="calculateChart(threadGroup)"
                   :min="resourcePoolResourceLength"
@@ -37,7 +36,6 @@
               <el-form-item :label="$t('load_test.duration')">
                 <el-input-number
                   :disabled="isReadOnly"
-                  :placeholder="$t('load_test.duration')"
                   v-model="threadGroup.duration"
                   :min="1"
                   @change="calculateChart(threadGroup)"
@@ -49,7 +47,6 @@
                 &nbsp;
                 <el-input-number
                   :disabled="isReadOnly || !threadGroup.rpsLimitEnable"
-                  :placeholder="$t('load_test.input_rps_limit')"
                   v-model="threadGroup.rpsLimit"
                   @change="calculateChart(threadGroup)"
                   :min="1"
@@ -59,7 +56,6 @@
               <el-form-item :label="$t('load_test.ramp_up_time_within')">
                 <el-input-number
                   :disabled="isReadOnly"
-                  placeholder=""
                   :min="1"
                   :max="threadGroup.duration"
                   v-model="threadGroup.rampUpTime"
@@ -69,7 +65,6 @@
               <el-form-item :label="$t('load_test.ramp_up_time_minutes')">
                 <el-input-number
                   :disabled="isReadOnly"
-                  placeholder=""
                   :min="1"
                   :max="Math.min(threadGroup.threadNumber, threadGroup.rampUpTime)"
                   v-model="threadGroup.step"
