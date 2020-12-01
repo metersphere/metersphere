@@ -12,7 +12,7 @@
         <ldap-setting/>
       </el-tab-pane>
       <el-tab-pane v-if="hasLicense()" :label="$t('display.title')" name="display">
-        <component :is="displayComponent"></component>
+        <ms-display/>
       </el-tab-pane>
     </el-tabs>
   </el-card>
@@ -38,12 +38,6 @@ export default {
   data() {
     return {
       activeName: 'base',
-      displayComponent: null,
-    }
-  },
-  mounted() {
-    if (display.default !== undefined) {
-      this.displayComponent = "MsDisplay";
     }
   },
   methods: {
