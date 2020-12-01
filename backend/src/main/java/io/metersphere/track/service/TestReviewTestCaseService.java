@@ -128,4 +128,13 @@ public class TestReviewTestCaseService {
         testCase.setReviewStatus(testCaseReviewTestCase.getStatus());
         testCaseMapper.updateByPrimaryKeySelective(testCase);
     }
+
+    public List<TestReviewCaseDTO> getTestCaseReviewDTOList(QueryCaseReviewRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        return extTestReviewCaseMapper.list(request);
+    }
+
+    public TestReviewCaseDTO get(String reviewId) {
+        return extTestReviewCaseMapper.get(reviewId);
+    }
 }
