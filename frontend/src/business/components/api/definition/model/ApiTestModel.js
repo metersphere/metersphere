@@ -980,7 +980,7 @@ export class IfController extends Controller {
     this.variable;
     this.operator;
     this.value;
-
+    this.children=[];
     this.set(options);
   }
 
@@ -1020,6 +1020,7 @@ export class ConstantTimer extends Timer {
     super(Timer.TYPES.CONSTANT_TIMER, options);
     this.delay;
     this.type = "ConstantTimer";
+    this.children=[];
     this.set(options);
   }
 

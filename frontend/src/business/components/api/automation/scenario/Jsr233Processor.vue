@@ -104,23 +104,19 @@
         type: Boolean,
         default:
           false
-      }
-      ,
+      },
       jsr223Processor: {
         type: Object,
-      }
-      ,
+      },
       isPreProcessor: {
         type: Boolean,
         default:
           false
-      }
-      ,
+      },
       title: String,
-      styleType:
-      String,
-    }
-    ,
+      styleType: String,
+      node: {},
+    },
     watch: {
       jsr223Processor() {
         this.reload();
@@ -139,7 +135,7 @@
         this.reload();
       },
       remove() {
-        this.$emit('remove', this.jsr223ProcessorData);
+        this.$emit('remove', this.jsr223ProcessorData,this.node);
       },
       reload() {
         this.isCodeEditAlive = false;
