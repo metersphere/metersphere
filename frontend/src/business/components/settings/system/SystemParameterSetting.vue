@@ -12,7 +12,7 @@
         <ldap-setting/>
       </el-tab-pane>
       <el-tab-pane v-if="hasLicense()" :label="$t('display.title')" name="display">
-        <ms-display/>
+        <component :is="displayComponent"></component>
       </el-tab-pane>
     </el-tabs>
   </el-card>
@@ -22,19 +22,28 @@
 import EmailSetting from "./EmailSetting";
 import LdapSetting from "./LdapSetting";
 import BaseSetting from "./BaseSetting";
-import MsDisplay from "@/business/components/xpack/display/Display";
 import {hasLicense} from '@/common/js/utils';
+
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const display = requireComponent.keys().length > 0 ? requireComponent("./display/Display.vue") : {};
 
 export default {
   name: "SystemParameterSetting",
   components: {
-    MsDisplay,
     BaseSetting,
-    EmailSetting, LdapSetting
+    EmailSetting,
+    LdapSetting,
+    "MsDisplay": display.default
   },
   data() {
     return {
-      activeName: 'base'
+      activeName: 'base',
+      displayComponent: null,
+    }
+  },
+  mounted() {
+    if (display.default !== undefined) {
+      this.displayComponent = "MsDisplay";
     }
   },
   methods: {
