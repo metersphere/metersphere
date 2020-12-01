@@ -2,8 +2,12 @@
   <ms-container>
     <ms-main-container>
       <el-alert
-        :title="$t('organization.message.notes')"
-        type="info">
+        title="Notice:"
+        type="info"
+        show-icon>
+        <template v-slot:default>
+          {{ $t('organization.message.notes') }}
+        </template>
       </el-alert>
       <jenkins-notification :jenkins-receiver-options="jenkinsReceiverOptions"/>
       <test-plan-task-notification :test-plan-receiver-options="testPlanReceiverOptions"/>
