@@ -15,13 +15,11 @@ import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
+import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
-import io.metersphere.notice.domain.MessageDetail;
-import io.metersphere.notice.domain.MessageSettingDetail;
-import io.metersphere.notice.service.DingTaskService;
-import io.metersphere.notice.service.MailService;
-import io.metersphere.notice.service.NoticeService;
-import io.metersphere.notice.service.WxChatTaskService;
+import io.metersphere.notice.sender.NoticeModel;
+import io.metersphere.notice.service.NoticeSendService;
+import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.Factory.ReportComponentFactory;
 import io.metersphere.track.domain.ReportComponent;
 import io.metersphere.track.dto.TestCaseReportMetricDTO;
@@ -51,32 +49,23 @@ import java.util.stream.Collectors;
 public class TestPlanService {
     @Resource
     TestPlanMapper testPlanMapper;
-
     @Resource
     ExtTestPlanMapper extTestPlanMapper;
-
     @Resource
     ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
-
     @Resource
     TestCaseMapper testCaseMapper;
-
     @Resource
     TestPlanTestCaseMapper testPlanTestCaseMapper;
-
     @Resource
     SqlSessionFactory sqlSessionFactory;
-
     @Lazy
     @Resource
     TestPlanTestCaseService testPlanTestCaseService;
-
     @Resource
     ExtProjectMapper extProjectMapper;
-
     @Resource
     TestCaseReportMapper testCaseReportMapper;
-
     @Resource
     TestPlanProjectMapper testPlanProjectMapper;
     @Resource
@@ -86,15 +75,11 @@ public class TestPlanService {
     @Resource
     ExtTestCaseMapper extTestCaseMapper;
     @Resource
-    NoticeService noticeService;
-    @Resource
-    MailService mailService;
-    @Resource
-    DingTaskService dingTaskService;
-    @Resource
-    WxChatTaskService wxChatTaskService;
-    @Resource
     UserMapper userMapper;
+    @Resource
+    private NoticeSendService noticeSendService;
+    @Resource
+    private SystemParameterService systemParameterService;
 
     public synchronized void addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -117,28 +102,21 @@ public class TestPlanService {
         testPlan.setUpdateTime(System.currentTimeMillis());
         testPlan.setCreator(SessionUtils.getUser().getId());
         testPlanMapper.insert(testPlan);
+
         List<String> userIds = new ArrayList<>();
         userIds.add(testPlan.getPrincipal());
-        try {
-            String context = getTestPlanContext(testPlan, NoticeConstants.CREATE);
-            MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
-            List<MessageDetail> taskList = messageSettingDetail.getTestCasePlanTask();
-            taskList.forEach(r -> {
-                switch (r.getType()) {
-                    case NoticeConstants.NAIL_ROBOT:
-                        dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.CREATE);
-                        break;
-                    case NoticeConstants.WECHAT_ROBOT:
-                        wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.CREATE);
-                        break;
-                    case NoticeConstants.EMAIL:
-                        mailService.sendTestPlanStartNotice(r, userIds, testPlan, NoticeConstants.CREATE);
-                        break;
-                }
-            });
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
-        }
+        String context = getTestPlanContext(testPlan, NoticeConstants.Event.CREATE);
+        User user = userMapper.selectByPrimaryKey(testPlan.getCreator());
+        Map<String, Object> paramMap = getTestPlanParamMap(testPlan);
+        paramMap.put("creator", user.getName());
+        NoticeModel noticeModel = NoticeModel.builder()
+                .context(context)
+                .relatedUsers(userIds)
+                .subject(Translator.get("test_plan_notification"))
+                .mailTemplate("TestPlanStart")
+                .paramMap(paramMap)
+                .build();
+        noticeSendService.send(NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
     }
 
     public List<TestPlan> getTestPlanByName(String name) {
@@ -169,27 +147,19 @@ public class TestPlanService {
         AddTestPlanRequest testPlans = new AddTestPlanRequest();
         int i = testPlanMapper.updateByPrimaryKeySelective(testPlan);
         if (!StringUtils.isBlank(testPlan.getStatus())) {
-            try {
-                BeanUtils.copyBean(testPlans, getTestPlan(testPlan.getId()));
-                String context = getTestPlanContext(testPlans, NoticeConstants.UPDATE);
-                MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
-                List<MessageDetail> taskList = messageSettingDetail.getTestCasePlanTask();
-                taskList.forEach(r -> {
-                    switch (r.getType()) {
-                        case NoticeConstants.NAIL_ROBOT:
-                            dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.UPDATE);
-                            break;
-                        case NoticeConstants.WECHAT_ROBOT:
-                            wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.UPDATE);
-                            break;
-                        case NoticeConstants.EMAIL:
-                            mailService.sendTestPlanEndNotice(r, userIds, testPlans, NoticeConstants.UPDATE);
-                            break;
-                    }
-                });
-            } catch (Exception e) {
-                LogUtil.error(e.getMessage(), e);
-            }
+            BeanUtils.copyBean(testPlans, getTestPlan(testPlan.getId()));
+            String context = getTestPlanContext(testPlans, NoticeConstants.Event.UPDATE);
+            User user = userMapper.selectByPrimaryKey(testPlan.getCreator());
+            Map<String, Object> paramMap = getTestPlanParamMap(testPlan);
+            paramMap.put("creator", user.getName());
+            NoticeModel noticeModel = NoticeModel.builder()
+                    .context(context)
+                    .relatedUsers(userIds)
+                    .subject(Translator.get("test_plan_notification"))
+                    .mailTemplate("TestPlanEnd")
+                    .paramMap(paramMap)
+                    .build();
+            noticeSendService.send(NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
         }
         return i;
     }
@@ -232,6 +202,44 @@ public class TestPlanService {
         }
     }
 
+    //计划内容
+    private Map<String, Object> getTestPlanParamMap(TestPlan testPlan) {
+        Long startTime = testPlan.getPlannedStartTime();
+        Long endTime = testPlan.getPlannedEndTime();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String start = null;
+        String sTime = String.valueOf(startTime);
+        String eTime = String.valueOf(endTime);
+        if (!sTime.equals("null")) {
+            start = sdf.format(new Date(Long.parseLong(sTime)));
+        }
+        String end = null;
+        if (!eTime.equals("null")) {
+            end = sdf.format(new Date(Long.parseLong(eTime)));
+        }
+
+        Map<String, Object> context = new HashMap<>();
+        BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
+        context.put("url", baseSystemConfigDTO.getUrl());
+        context.put("testPlanName", testPlan.getName());
+        context.put("start", start);
+        context.put("end", end);
+        context.put("id", testPlan.getId());
+        String status = "";
+        if (StringUtils.equals(TestPlanStatus.Underway.name(), testPlan.getStatus())) {
+            status = "进行中";
+        } else if (StringUtils.equals(TestPlanStatus.Prepare.name(), testPlan.getStatus())) {
+            status = "未开始";
+        } else if (StringUtils.equals(TestPlanStatus.Completed.name(), testPlan.getStatus())) {
+            status = "已完成";
+        }
+        context.put("status", status);
+        User user = userMapper.selectByPrimaryKey(testPlan.getCreator());
+        context.put("creator", user.getName());
+        return context;
+    }
+
+
     private void checkTestPlanExist(TestPlan testPlan) {
         if (testPlan.getName() != null) {
             TestPlanExample example = new TestPlanExample();
@@ -255,22 +263,18 @@ public class TestPlanService {
         userIds.add(testPlan.getCreator());
         try {
             BeanUtils.copyBean(testPlans, testPlan);
-            String context = getTestPlanContext(testPlans, NoticeConstants.DELETE);
-            MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
-            List<MessageDetail> taskList = messageSettingDetail.getTestCasePlanTask();
-            taskList.forEach(r -> {
-                switch (r.getType()) {
-                    case NoticeConstants.NAIL_ROBOT:
-                        dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.DELETE);
-                        break;
-                    case NoticeConstants.WECHAT_ROBOT:
-                        wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.DELETE);
-                        break;
-                    case NoticeConstants.EMAIL:
-                        mailService.sendTestPlanDeleteNotice(r, userIds, testPlans, NoticeConstants.DELETE);
-                        break;
-                }
-            });
+            String context = getTestPlanContext(testPlans, NoticeConstants.Event.DELETE);
+            User user = userMapper.selectByPrimaryKey(testPlan.getCreator());
+            Map<String, Object> paramMap = getTestPlanParamMap(testPlan);
+            paramMap.put("creator", user.getName());
+            NoticeModel noticeModel = NoticeModel.builder()
+                    .context(context)
+                    .relatedUsers(userIds)
+                    .subject(Translator.get("test_plan_notification"))
+                    .mailTemplate("TestPlanDelete")
+                    .paramMap(paramMap)
+                    .build();
+            noticeSendService.send(NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
         }
@@ -496,22 +500,18 @@ public class TestPlanService {
         if (StringUtils.equals(TestPlanStatus.Completed.name(), testPlans.getStatus())) {
             try {
                 BeanUtils.copyBean(_testPlans, testPlans);
-                String context = getTestPlanContext(_testPlans, NoticeConstants.UPDATE);
-                MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
-                List<MessageDetail> taskList = messageSettingDetail.getTestCasePlanTask();
-                taskList.forEach(r -> {
-                    switch (r.getType()) {
-                        case NoticeConstants.NAIL_ROBOT:
-                            dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.UPDATE);
-                            break;
-                        case NoticeConstants.WECHAT_ROBOT:
-                            wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.UPDATE);
-                            break;
-                        case NoticeConstants.EMAIL:
-                            mailService.sendTestPlanEndNotice(r, userIds, _testPlans, NoticeConstants.UPDATE);
-                            break;
-                    }
-                });
+                String context = getTestPlanContext(_testPlans, NoticeConstants.Event.UPDATE);
+                User user = userMapper.selectByPrimaryKey(testPlan.getCreator());
+                Map<String, Object> paramMap = getTestPlanParamMap(testPlan);
+                paramMap.put("creator", user.getName());
+                NoticeModel noticeModel = NoticeModel.builder()
+                        .context(context)
+                        .relatedUsers(userIds)
+                        .subject(Translator.get("test_plan_notification"))
+                        .mailTemplate("TestPlanEnd")
+                        .paramMap(paramMap)
+                        .build();
+                noticeSendService.send(NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
             } catch (Exception e) {
                 LogUtil.error(e.getMessage(), e);
             }
@@ -558,9 +558,9 @@ public class TestPlanService {
             end = "未设置";
         }
         String context = "";
-        if (StringUtils.equals(NoticeConstants.CREATE, type)) {
+        if (StringUtils.equals(NoticeConstants.Event.CREATE, type)) {
             context = "测试计划任务通知：" + user.getName() + "创建的" + "'" + testPlan.getName() + "'" + "待开始，计划开始时间是:" + "'" + start + "'" + ";" + "计划结束时间是:" + "'" + end + "'" + " " + "请跟进";
-        } else if (StringUtils.equals(NoticeConstants.UPDATE, type)) {
+        } else if (StringUtils.equals(NoticeConstants.Event.UPDATE, type)) {
             String status = "";
             if (StringUtils.equals(TestPlanStatus.Underway.name(), testPlan.getStatus())) {
                 status = "进行中";
@@ -570,7 +570,7 @@ public class TestPlanService {
                 status = "已完成";
             }
             context = "测试计划任务通知：" + user.getName() + "创建的" + "'" + testPlan.getName() + "'" + "计划开始时间是:" + "'" + start + "'" + ";" + "计划结束时间是:" + "'" + end + "'" + " " + status;
-        } else if (StringUtils.equals(NoticeConstants.DELETE, type)) {
+        } else if (StringUtils.equals(NoticeConstants.Event.DELETE, type)) {
             context = "测试计划任务通知：" + user.getName() + "创建的" + "'" + testPlan.getName() + "'" + "计划开始时间是:" + "'" + start + "'" + ";" + "计划结束时间是:" + "'" + end + "'" + " " + "已删除";
         }
         return context;

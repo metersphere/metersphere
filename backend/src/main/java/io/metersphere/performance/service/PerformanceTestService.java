@@ -232,7 +232,7 @@ public class PerformanceTestService {
         startEngine(loadTest, engine, request.getTriggerMode());
 
         LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(engine.getReportId());
-        if (StringUtils.equals(NoticeConstants.API, loadTestReport.getTriggerMode()) || StringUtils.equals(NoticeConstants.SCHEDULE, loadTestReport.getTriggerMode())) {
+        if (StringUtils.equals(NoticeConstants.Mode.API, loadTestReport.getTriggerMode()) || StringUtils.equals(NoticeConstants.Mode.SCHEDULE, loadTestReport.getTriggerMode())) {
             performanceNoticeTask.registerNoticeTask(loadTestReport);
         }
         return engine.getReportId();

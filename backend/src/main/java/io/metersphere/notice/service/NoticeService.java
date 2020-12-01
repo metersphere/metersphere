@@ -3,15 +3,11 @@ package io.metersphere.notice.service;
 import io.metersphere.base.domain.MessageTask;
 import io.metersphere.base.domain.MessageTaskExample;
 import io.metersphere.base.mapper.MessageTaskMapper;
-import io.metersphere.base.mapper.ext.ExtMessageMapper;
-import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
-import io.metersphere.notice.controller.request.MessageRequest;
 import io.metersphere.notice.domain.MessageDetail;
-import io.metersphere.notice.domain.MessageSettingDetail;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -26,129 +22,123 @@ import java.util.stream.Collectors;
 public class NoticeService {
     @Resource
     private MessageTaskMapper messageTaskMapper;
-    @Resource
-    private ExtMessageMapper extMessageMapper;
 
-
-    public void saveMessageTask(MessageRequest messageRequest) {
-        messageRequest.getMessageDetail().forEach(list -> {
-            MessageTaskExample example = new MessageTaskExample();
-            example.createCriteria().andIdentificationEqualTo(list.getIdentification());
-            List<MessageTask> messageTaskLists = messageTaskMapper.selectByExample(example);
-            if (messageTaskLists.size() > 0) {
-                delMessage(list.getIdentification());
-                getSaveMessageTask(list);
-            }
-            if (messageTaskLists.size() <= 0) {
-                getSaveMessageTask(list);
-            }
-        });
-    }
-
-    public void getSaveMessageTask(MessageDetail list) {
+    public void saveMessageTask(MessageDetail messageDetail) {
+        MessageTaskExample example = new MessageTaskExample();
+        example.createCriteria().andIdentificationEqualTo(messageDetail.getIdentification());
+        List<MessageTask> messageTaskLists = messageTaskMapper.selectByExample(example);
+        if (messageTaskLists.size() > 0) {
+            delMessage(messageDetail.getIdentification());
+        }
         SessionUser user = SessionUtils.getUser();
-        assert user != null;
         String orgId = user.getLastOrganizationId();
         long time = System.currentTimeMillis();
         String identification = UUID.randomUUID().toString();
-        list.getUserIds().forEach(m -> {
-            checkUserIdExist(m, list,orgId);
-            MessageTask message = new MessageTask();
-            message.setId(UUID.randomUUID().toString());
-            message.setEvent(list.getEvent());
-            message.setTaskType(list.getTaskType());
-            message.setUserId(m);
-            message.setType(list.getType());
-            message.setWebhook(list.getWebhook());
-            message.setIdentification(identification);
-            message.setIsSet(false);
-            message.setOrganizationId(orgId);
-            message.setTestId(list.getTestId());
-            message.setCreateTime(time);
-            messageTaskMapper.insert(message);
+        messageDetail.getUserIds().forEach(m -> {
+            checkUserIdExist(m, messageDetail, orgId);
+            MessageTask messageTask = new MessageTask();
+            messageTask.setId(UUID.randomUUID().toString());
+            messageTask.setEvent(messageDetail.getEvent());
+            messageTask.setTaskType(messageDetail.getTaskType());
+            messageTask.setUserId(m);
+            messageTask.setType(messageDetail.getType());
+            messageTask.setWebhook(messageDetail.getWebhook());
+            messageTask.setIdentification(identification);
+            messageTask.setIsSet(false);
+            messageTask.setOrganizationId(orgId);
+            messageTask.setTestId(messageDetail.getTestId());
+            messageTask.setCreateTime(time);
+            messageTaskMapper.insert(messageTask);
         });
     }
 
-    private void checkUserIdExist(String userId, MessageDetail list,String orgId) {
+    private void checkUserIdExist(String userId, MessageDetail list, String orgId) {
         MessageTaskExample example = new MessageTaskExample();
         if (StringUtils.isBlank(list.getTestId())) {
-            example.createCriteria().andUserIdEqualTo(userId).andEventEqualTo(list.getEvent()).andTypeEqualTo(list.getType()).andTaskTypeEqualTo(list.getTaskType()).andWebhookEqualTo(list.getWebhook()).andOrganizationIdEqualTo(orgId);
+            example.createCriteria()
+                    .andUserIdEqualTo(userId)
+                    .andEventEqualTo(list.getEvent())
+                    .andTypeEqualTo(list.getType())
+                    .andTaskTypeEqualTo(list.getTaskType())
+                    .andWebhookEqualTo(list.getWebhook())
+                    .andOrganizationIdEqualTo(orgId);
         } else {
-            example.createCriteria().andUserIdEqualTo(userId).andEventEqualTo(list.getEvent()).andTypeEqualTo(list.getType()).andTaskTypeEqualTo(list.getTaskType()).andWebhookEqualTo(list.getWebhook()).andTestIdEqualTo(list.getTestId()).andOrganizationIdEqualTo(orgId);
+            example.createCriteria()
+                    .andUserIdEqualTo(userId)
+                    .andEventEqualTo(list.getEvent())
+                    .andTypeEqualTo(list.getType())
+                    .andTaskTypeEqualTo(list.getTaskType())
+                    .andWebhookEqualTo(list.getWebhook())
+                    .andTestIdEqualTo(list.getTestId())
+                    .andOrganizationIdEqualTo(orgId);
         }
         if (messageTaskMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("message_task_already_exists"));
         }
     }
 
-    public List<MessageDetail> searchMessageSchedule(String testId) {
-        List<MessageTask> messageTaskLists = extMessageMapper.searchMessageByTestId(testId);
+    public List<MessageDetail> searchMessageByTestId(String testId) {
+        MessageTaskExample example = new MessageTaskExample();
+        example.createCriteria().andTestIdEqualTo(testId);
+        List<MessageTask> messageTaskLists = messageTaskMapper.selectByExample(example);
         List<MessageDetail> scheduleMessageTask = new ArrayList<>();
         Map<String, List<MessageTask>> MessageTaskMap = messageTaskLists.stream().collect(Collectors.groupingBy(MessageTask::getIdentification));
         MessageTaskMap.forEach((k, v) -> {
-            Set<String> userIds = new HashSet<>();
-            MessageDetail messageDetail = new MessageDetail();
-            for (MessageTask m : v) {
-                userIds.add(m.getUserId());
-                messageDetail.setEvent(m.getEvent());
-                messageDetail.setTaskType(m.getTaskType());
-                messageDetail.setWebhook(m.getWebhook());
-                messageDetail.setIdentification(m.getIdentification());
-                messageDetail.setType(m.getType());
-                messageDetail.setIsSet(m.getIsSet());
-                messageDetail.setCreateTime(m.getCreateTime());
-            }
-            if (CollectionUtils.isNotEmpty(userIds)) {
-                messageDetail.setUserIds(new ArrayList<>(userIds));
-            }
+            MessageDetail messageDetail = getMessageDetail(v);
             scheduleMessageTask.add(messageDetail);
         });
         scheduleMessageTask.sort(Comparator.comparing(MessageDetail::getCreateTime, Comparator.nullsLast(Long::compareTo)).reversed());
         return scheduleMessageTask;
     }
 
-    public MessageSettingDetail searchMessage() {
+    public List<MessageDetail> searchMessageByType(String type) {
         SessionUser user = SessionUtils.getUser();
-        assert user != null;
         String orgId = user.getLastOrganizationId();
-        List<MessageTask> messageTaskLists;
-        MessageSettingDetail messageSettingDetail = new MessageSettingDetail();
-        List<MessageDetail> MessageDetailList = new ArrayList<>();
-        messageTaskLists = extMessageMapper.searchMessageByOrganizationId(orgId);
-        Map<String, List<MessageTask>> MessageTaskMap = messageTaskLists.stream().collect(Collectors.groupingBy(NoticeService::fetchGroupKey));
-        MessageTaskMap.forEach((k, v) -> {
-            Set<String> userIds = new HashSet<>();
-            MessageDetail messageDetail = new MessageDetail();
-            for (MessageTask m : v) {
-                userIds.add(m.getUserId());
-                messageDetail.setEvent(m.getEvent());
-                messageDetail.setTaskType(m.getTaskType());
-                messageDetail.setWebhook(m.getWebhook());
-                messageDetail.setIdentification(m.getIdentification());
-                messageDetail.setType(m.getType());
-                messageDetail.setIsSet(m.getIsSet());
-                messageDetail.setCreateTime(m.getCreateTime());
-            }
-            messageDetail.setUserIds(new ArrayList<String>(userIds));
-            MessageDetailList.add(messageDetail);
+        List<MessageDetail> messageDetails = new ArrayList<>();
+
+        MessageTaskExample example = new MessageTaskExample();
+        example.createCriteria()
+                .andTaskTypeEqualTo(type)
+                .andOrganizationIdEqualTo(orgId);
+        List<MessageTask> messageTaskLists = messageTaskMapper.selectByExample(example);
+
+        Map<String, List<MessageTask>> messageTaskMap = messageTaskLists.stream()
+                .collect(Collectors.groupingBy(NoticeService::fetchGroupKey));
+        messageTaskMap.forEach((k, v) -> {
+            MessageDetail messageDetail = getMessageDetail(v);
+            messageDetails.add(messageDetail);
         });
-        List<MessageDetail> jenkinsTask = (MessageDetailList.stream().filter(a -> a.getTaskType().equals(NoticeConstants.JENKINS_TASK)).sorted(Comparator.comparing(
-                MessageDetail::getCreateTime, Comparator.nullsLast(Long::compareTo)).reversed()).collect(Collectors.toList())).stream().distinct().collect(Collectors.toList());
-        List<MessageDetail> testCasePlanTask = (MessageDetailList.stream().filter(a -> a.getTaskType().equals(NoticeConstants.TEST_PLAN_TASK)).sorted(Comparator.comparing(
-                MessageDetail::getCreateTime, Comparator.nullsLast(Long::compareTo)).reversed()).collect(Collectors.toList())).stream().distinct().collect(Collectors.toList());
-        List<MessageDetail> reviewTask = (MessageDetailList.stream().filter(a -> a.getTaskType().equals(NoticeConstants.REVIEW_TASK)).sorted(Comparator.comparing(
-                MessageDetail::getCreateTime, Comparator.nullsLast(Long::compareTo)).reversed()).collect(Collectors.toList())).stream().distinct().collect(Collectors.toList());
-        List<MessageDetail> defectTask = (MessageDetailList.stream().filter(a -> a.getTaskType().equals(NoticeConstants.DEFECT_TASK)).sorted(Comparator.comparing(
-                MessageDetail::getCreateTime, Comparator.nullsLast(Long::compareTo)).reversed()).collect(Collectors.toList())).stream().distinct().collect(Collectors.toList());
-        messageSettingDetail.setJenkinsTask(jenkinsTask);
-        messageSettingDetail.setTestCasePlanTask(testCasePlanTask);
-        messageSettingDetail.setReviewTask(reviewTask);
-        messageSettingDetail.setDefectTask(defectTask);
-        return messageSettingDetail;
+
+        return messageDetails.stream()
+                .sorted(Comparator.comparing(MessageDetail::getCreateTime, Comparator.nullsLast(Long::compareTo)).reversed())
+                .collect(Collectors.toList())
+                .stream()
+                .distinct()
+                .collect(Collectors.toList());
     }
 
-    private static String fetchGroupKey(MessageTask user) {
-        return user.getTaskType() + "#" + user.getIdentification();
+    private MessageDetail getMessageDetail(List<MessageTask> messageTasks) {
+        Set<String> userIds = new HashSet<>();
+
+        MessageDetail messageDetail = new MessageDetail();
+        for (MessageTask m : messageTasks) {
+            userIds.add(m.getUserId());
+            messageDetail.setEvent(m.getEvent());
+            messageDetail.setTaskType(m.getTaskType());
+            messageDetail.setWebhook(m.getWebhook());
+            messageDetail.setIdentification(m.getIdentification());
+            messageDetail.setType(m.getType());
+            messageDetail.setIsSet(m.getIsSet());
+            messageDetail.setCreateTime(m.getCreateTime());
+        }
+        if (CollectionUtils.isNotEmpty(userIds)) {
+            messageDetail.setUserIds(new ArrayList<>(userIds));
+        }
+        return messageDetail;
+    }
+
+    private static String fetchGroupKey(MessageTask messageTask) {
+        return messageTask.getTaskType() + "#" + messageTask.getIdentification();
     }
 
     public int delMessage(String identification) {

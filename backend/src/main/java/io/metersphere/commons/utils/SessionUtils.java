@@ -24,7 +24,9 @@ public class SessionUtils {
         try {
             Subject subject = SecurityUtils.getSubject();
             Session session = subject.getSession();
-            return (SessionUser) session.getAttribute(ATTR_USER);
+            SessionUser user = (SessionUser) session.getAttribute(ATTR_USER);
+            assert user != null;
+            return user;
         } catch (Exception e) {
             return null;
         }
