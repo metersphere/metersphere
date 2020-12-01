@@ -12,9 +12,10 @@ import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.api.parse.ApiImportParserFactory;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiTestFileMapper;
+import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
+import io.metersphere.base.mapper.ext.ExtApiDefinitionMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
@@ -41,6 +42,8 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class ApiDefinitionService {
     @Resource
+    private ExtApiDefinitionMapper extApiDefinitionMapper;
+    @Resource
     private ApiDefinitionMapper apiDefinitionMapper;
     @Resource
     private ApiTestFileMapper apiTestFileMapper;
@@ -49,7 +52,7 @@ public class ApiDefinitionService {
     @Resource
     private ApiTestCaseService apiTestCaseService;
     @Resource
-    private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
+    private ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
     @Resource
     private JMeterService jMeterService;
 
@@ -59,10 +62,10 @@ public class ApiDefinitionService {
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        List<ApiDefinitionResult> resList = apiDefinitionMapper.list(request);
+        List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
         if (!resList.isEmpty()) {
             List<String> ids = resList.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList());
-            List<ApiComputeResult> results = apiDefinitionMapper.selectByIds(ids);
+            List<ApiComputeResult> results = extApiDefinitionMapper.selectByIds(ids);
             Map<String, ApiComputeResult> resultMap = results.stream().collect(Collectors.toMap(ApiComputeResult::getApiDefinitionId, Function.identity()));
             for (ApiDefinitionResult res : resList) {
                 ApiComputeResult compRes = resultMap.get(res.getId());
@@ -121,7 +124,7 @@ public class ApiDefinitionService {
     public void delete(String apiId) {
         apiTestCaseService.deleteTestCase(apiId);
         deleteFileByTestId(apiId);
-        apiDefinitionExecResultMapper.deleteByResourceId(apiId);
+        extApiDefinitionExecResultMapper.deleteByResourceId(apiId);
         apiDefinitionMapper.deleteByPrimaryKey(apiId);
         deleteBodyFiles(apiId);
     }
@@ -134,7 +137,7 @@ public class ApiDefinitionService {
     }
 
     public void removeToGc(List<String> apiIds) {
-        apiDefinitionMapper.removeToGc(apiIds);
+        extApiDefinitionMapper.removeToGc(apiIds);
     }
 
     public void deleteBodyFiles(String apiId) {
@@ -148,12 +151,16 @@ public class ApiDefinitionService {
     private void checkNameExist(SaveApiDefinitionRequest request) {
         ApiDefinitionExample example = new ApiDefinitionExample();
         if (request.getProtocol().equals(RequestType.HTTP)) {
-            example.createCriteria().andProtocolEqualTo(request.getProtocol()).andPathEqualTo(request.getPath()).andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
+            example.createCriteria().andMethodEqualTo(request.getMethod())
+                    .andProtocolEqualTo(request.getProtocol()).andPathEqualTo(request.getPath())
+                    .andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
             if (apiDefinitionMapper.countByExample(example) > 0) {
                 MSException.throwException(Translator.get("api_definition_url_not_repeating"));
             }
         } else {
-            example.createCriteria().andProtocolEqualTo(request.getProtocol()).andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
+            example.createCriteria().andProtocolEqualTo(request.getProtocol())
+                    .andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId())
+                    .andIdNotEqualTo(request.getId());
             if (apiDefinitionMapper.countByExample(example) > 0) {
                 MSException.throwException(Translator.get("load_test_already_exists"));
             }
@@ -163,7 +170,7 @@ public class ApiDefinitionService {
 
     private ApiDefinition updateTest(SaveApiDefinitionRequest request) {
         checkNameExist(request);
-        final ApiDefinition test = new ApiDefinition();
+        final ApiDefinitionWithBLOBs test = new ApiDefinitionWithBLOBs();
         test.setId(request.getId());
         test.setName(request.getName());
         test.setPath(request.getPath());
@@ -186,7 +193,7 @@ public class ApiDefinitionService {
 
     private ApiDefinition createTest(SaveApiDefinitionRequest request) {
         checkNameExist(request);
-        final ApiDefinition test = new ApiDefinition();
+        final ApiDefinitionWithBLOBs test = new ApiDefinitionWithBLOBs();
         test.setId(request.getId());
         test.setName(request.getName());
         test.setProtocol(request.getProtocol());
@@ -219,7 +226,7 @@ public class ApiDefinitionService {
         saveReq.setProjectId(request.getProjectId());
         saveReq.setPath(request.getPath());
         checkNameExist(saveReq);
-        final ApiDefinition test = new ApiDefinition();
+        final ApiDefinitionWithBLOBs test = new ApiDefinitionWithBLOBs();
         test.setId(request.getId());
         test.setName(request.getName());
         test.setProtocol(request.getProtocol());
@@ -306,7 +313,7 @@ public class ApiDefinitionService {
      * @return
      */
     public APIReportResult getDbResult(String testId) {
-        ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByResourceId(testId);
+        ApiDefinitionExecResult result = extApiDefinitionExecResultMapper.selectByResourceId(testId);
         if (result == null) {
             return null;
         }

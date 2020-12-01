@@ -830,6 +830,7 @@ export class BeanShellProcessor extends BaseConfig {
 export class JSR223Processor extends BaseConfig {
   constructor(options) {
     super();
+    this.type = "JSR223Processor";
     this.script = undefined;
     this.language = "beanshell";
     this.set(options);
@@ -975,6 +976,7 @@ export class Controller extends BaseConfig {
 export class IfController extends Controller {
   constructor(options = {}) {
     super(Controller.TYPES.IF_CONTROLLER, options);
+    this.type = "IfController";
     this.variable;
     this.operator;
     this.value;
@@ -1017,7 +1019,7 @@ export class ConstantTimer extends Timer {
   constructor(options = {}) {
     super(Timer.TYPES.CONSTANT_TIMER, options);
     this.delay;
-
+    this.type = "ConstantTimer";
     this.set(options);
   }
 

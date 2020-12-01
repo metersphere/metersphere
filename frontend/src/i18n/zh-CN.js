@@ -527,8 +527,22 @@ export default {
         post_script: "后置脚本",
         extract_param: "提取参数",
         add_module: "创建模块",
-
       }
+    },
+    automation: {
+      follow_people: "关注人",
+      create_tag: "创建Tag",
+      scenario_step: "场景步骤",
+      step_total: "步骤总数",
+      scenario_total: "场景公共参数",
+      api_list_import: "接口列表导入",
+      external_import: "外部导入",
+      wait_controller: "等待控制器",
+      if_controller: "条件控制器",
+      scenario_import: "场景导入",
+      customize_script: "自定义脚本",
+      customize_req: "自定义请求",
+      reference_info: "请选择接口或用例"
     },
     environment: {
       name: "环境名称",

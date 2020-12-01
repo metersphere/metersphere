@@ -18,10 +18,6 @@ public class ApiTestCase implements Serializable {
 
     private String description;
 
-    private String request;
-
-    private String response;
-
     private String createUserId;
 
     private String updateUserId;
