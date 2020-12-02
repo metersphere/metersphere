@@ -75,6 +75,14 @@ export default {
       total: 0,
     }
   },
+  watch:{
+    currentProject() {
+      this.search();
+    },
+    currentModule() {
+      this.search();
+    },
+  },
   methods: {
     search() {
       this.condition.filters = ["Saved", "Success", "Fail"];
