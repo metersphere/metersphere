@@ -1,18 +1,22 @@
 <template>
-  <div> apiAutomation</div>
+  <div>
+    <ms-edit-api-scenario/>
+  </div>
 </template>
 
 <script>
+  import MsEditApiScenario from "./scenario/EditApiScenario";
 
   export default {
     name: "ApiAutomation",
-    components: {},
+    components: {MsEditApiScenario},
     comments: {},
     data() {
       return {}
     },
     watch: {},
-    methods: {}
+    methods: {
+    }
   }
 </script>
 

@@ -73,7 +73,6 @@
         this.reqUrl = "/api/definition/update";
       } else {
         this.reqUrl = "/api/definition/create";
-        this.currentApi.id = getUUID().substring(0, 8);
       }
     },
     methods: {
@@ -139,6 +138,9 @@
         this.request.name = this.currentApi.name;
         data.protocol = this.currentProtocol;
         data.request = this.request;
+        data.request.name = data.name;
+        data.request.protocol = this.currentProtocol;
+        data.id = data.request.id;
         data.response = this.response;
       },
       getBodyUploadFiles(data) {

@@ -111,14 +111,6 @@
         })
       },
       setParameter() {
-        this.httpForm.bodyUploadIds = [];
-        this.httpForm.projectId = this.projectId;
-        this.httpForm.id = getUUID().substring(0, 8);
-        this.httpForm.protocol = this.currentProtocol;
-        if (this.currentModule != null) {
-          this.httpForm.modulePath = this.currentModule.method != undefined ? this.currentModule.method : null;
-          this.httpForm.moduleId = this.currentModule.id;
-        }
         switch (this.currentProtocol) {
           case Request.TYPES.SQL:
             this.initSQL();
@@ -133,6 +125,22 @@
             this.initHTTP();
             break;
         }
+        this.httpForm.bodyUploadIds = [];
+        this.httpForm.projectId = this.projectId;
+        this.httpForm.id = this.httpForm.request.id;
+        this.httpForm.protocol = this.currentProtocol;
+
+        this.httpForm.request.name = this.httpForm.name;
+        this.httpForm.request.protocol = this.currentProtocol;
+        if (this.currentProtocol === 'HTTP') {
+          this.httpForm.request.method = this.httpForm.method;
+          this.httpForm.request.path = this.httpForm.path;
+        }
+        if (this.currentModule != null) {
+          this.httpForm.modulePath = this.currentModule.method != undefined ? this.currentModule.method : null;
+          this.httpForm.moduleId = this.currentModule.id;
+        }
+
       },
       initHTTP() {
         let request = createComponent("HTTPSamplerProxy");
