@@ -135,10 +135,8 @@
         }
       },
       initHTTP() {
-        let header = createComponent("HeaderManager");
         let request = createComponent("HTTPSamplerProxy");
         request.path = this.httpForm.path;
-        request.hashTree = [header];
         this.httpForm.request = request;
       },
       initSQL() {

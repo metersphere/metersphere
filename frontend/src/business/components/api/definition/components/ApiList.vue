@@ -198,6 +198,7 @@
       },
       handleSelect(selection, row) {
         row.type = "API";
+        row.hashTree = [];
         if (this.selectRows.has(row)) {
           this.$set(row, "showMore", false);
           this.selectRows.delete(row);
@@ -207,7 +208,9 @@
         }
 
         let arr = Array.from(this.selectRows);
-        this.currentRow.apis = arr;
+        if (this.currentRow) {
+          this.currentRow.apis = arr;
+        }
         // 选中1个以上的用例时显示更多操作
         if (this.selectRows.size === 1) {
           this.$set(arr[0], "showMore", false);
@@ -221,10 +224,12 @@
         if (selection.length > 0) {
           if (selection.length === 1) {
             selection.type = "API";
+            selection.hashTree = [];
             this.selectRows.add(selection[0]);
           } else {
             this.tableData.forEach(item => {
               item.type = "API";
+              item.hashTree = [];
               this.$set(item, "showMore", true);
               this.selectRows.add(item);
             });
@@ -235,8 +240,10 @@
             this.$set(row, "showMore", false);
           })
         }
-        let arr = Array.from(this.selectRows);
-        this.currentRow.apis = arr;
+        if (this.currentRow) {
+          let arr = Array.from(this.selectRows);
+          this.currentRow.apis = arr;
+        }
       },
       search() {
         this.initApiTable();

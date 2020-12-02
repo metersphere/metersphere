@@ -136,7 +136,7 @@
               <div v-if="item.active">
                 <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
 
-                <ms-api-request-form :is-read-only="isReadOnly" :headers="item.request.hashTree[0].headers " :request="item.request" v-if="api.protocol==='HTTP'"/>
+                <ms-api-request-form :is-read-only="isReadOnly" :headers="item.request.headers " :request="item.request" v-if="api.protocol==='HTTP'"/>
                 <ms-tcp-basis-parameters :request="item.request" :currentProject="currentProject" v-if="api.protocol==='TCP'"/>
                 <ms-sql-basis-parameters :request="item.request" :currentProject="currentProject" v-if="api.protocol==='SQL'"/>
                 <ms-dubbo-basis-parameters :request="item.request" :currentProject="currentProject" v-if="api.protocol==='DUBBO'"/>
@@ -463,6 +463,7 @@
       caseChecked(row) {
         row.type = "CASE";
         row.protocol = this.api.protocol;
+        row.hashTree = [];
         if (this.checkedCases.has(row)) {
           this.checkedCases.delete(row);
         } else {

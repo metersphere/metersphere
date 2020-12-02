@@ -2,17 +2,17 @@
 
   <div class="card-container">
     <!-- HTTP 请求参数 -->
-    <ms-edit-complete-http-api @runTest="runTest" @saveApi="saveApi" :request="request" :headers="headers" :response="response"
-                              :basisData="currentApi" :moduleOptions="moduleOptions" :currentProject="currentProject" v-if="currentProtocol === 'HTTP'"/>
+    <ms-edit-complete-http-api @runTest="runTest" @saveApi="saveApi" :request="request" :response="response"
+                               :basisData="currentApi" :moduleOptions="moduleOptions" :currentProject="currentProject" v-if="currentProtocol === 'HTTP'"/>
     <!-- TCP -->
     <ms-edit-complete-tcp-api :request="request" @runTest="runTest" @saveApi="saveApi" :currentProject="currentProject" :basisData="currentApi"
-                             :moduleOptions="moduleOptions" v-if="currentProtocol === 'TCP'"/>
+                              :moduleOptions="moduleOptions" v-if="currentProtocol === 'TCP'"/>
     <!--DUBBO-->
     <ms-edit-complete-dubbo-api :request="request" @runTest="runTest" @saveApi="saveApi" :currentProject="currentProject" :basisData="currentApi"
-                               :moduleOptions="moduleOptions" v-if="currentProtocol === 'DUBBO'"/>
+                                :moduleOptions="moduleOptions" v-if="currentProtocol === 'DUBBO'"/>
     <!--SQL-->
     <ms-edit-complete-sql-api :request="request" @runTest="runTest" @saveApi="saveApi" :currentProject="currentProject" :basisData="currentApi"
-                             :moduleOptions="moduleOptions" v-if="currentProtocol === 'SQL'"/>
+                              :moduleOptions="moduleOptions" v-if="currentProtocol === 'SQL'"/>
 
   </div>
 </template>
@@ -39,7 +39,6 @@
         request: Sampler,
         config: {},
         response: {},
-        headers: [],
         maintainerOptions: [],
       }
     },
@@ -121,11 +120,8 @@
         if (this.currentApi.request != undefined && this.currentApi.request != null) {
           this.request = JSON.parse(this.currentApi.request);
           this.currentApi.request = this.request;
-          this.headers = this.request.hashTree[0].headers;
         } else {
-          let header = createComponent("HeaderManager");
           this.request = createComponent("HTTPSamplerProxy");
-          this.request.hashTree = [header];
           this.currentApi.request = this.request;
         }
       },
@@ -140,9 +136,6 @@
       },
       setParameters(data) {
         data.projectId = this.currentProject.id;
-        if (this.currentProtocol === 'HTTP') {
-          this.request.hashTree[0].headers = this.headers;
-        }
         this.request.name = this.currentApi.name;
         data.protocol = this.currentProtocol;
         data.request = this.request;
