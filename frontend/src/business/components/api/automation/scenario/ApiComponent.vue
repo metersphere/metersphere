@@ -3,10 +3,10 @@
     <el-card>
       <el-row>
         <div class="el-step__icon is-text ms-api-col" v-if="request.referenced">
-          <div class="el-step__icon-inner">{{request.$treeNodeId}}</div>
+          <div class="el-step__icon-inner">{{request.index}}</div>
         </div>
         <div class="el-step__icon is-text ms-api-col-create" v-else>
-          <div class="el-step__icon-inner">{{request.$treeNodeId}}</div>
+          <div class="el-step__icon-inner">{{request.index}}</div>
         </div>
 
         <i class="icon el-icon-arrow-right" :class="{'is-active': request.active}"

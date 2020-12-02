@@ -6,6 +6,7 @@ import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.SaveApiScenarioRequest;
 import io.metersphere.api.service.ApiAutomationService;
+import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -14,9 +15,8 @@ import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 import javax.annotation.Resource;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/automation")
@@ -57,5 +57,11 @@ public class ApiAutomationController {
     public void removeToGc(@RequestBody List<String> ids) {
         apiAutomationService.removeToGc(ids);
     }
+
+    @GetMapping("/getApiScenario/{id}")
+    public ApiScenario getScenarioDefinition(@PathVariable String id) {
+        return apiAutomationService.getApiScenario(id);
+    }
+
 }
 

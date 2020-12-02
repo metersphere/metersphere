@@ -14,10 +14,8 @@ import io.metersphere.i18n.Translator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Objects;
-
 import javax.annotation.Resource;
+import java.util.List;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -109,5 +107,9 @@ public class ApiAutomationService {
         if (apiScenarioMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("automation_name_already_exists"));
         }
+    }
+
+    public ApiScenario getApiScenario(String id) {
+        return apiScenarioMapper.selectByPrimaryKey(id);
     }
 }

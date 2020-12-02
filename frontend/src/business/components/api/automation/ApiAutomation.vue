@@ -21,7 +21,7 @@
           :name="item.name"
           closable>
           <div class="ms-api-scenario-div">
-            {{ item.name }}
+            <ms-edit-api-scenario :current-project="currentProject" :currentScenario="currentScenario" :moduleOptions="moduleOptions"/>
           </div>
         </el-tab-pane>
 
@@ -43,10 +43,11 @@ import MsMainContainer from "@/business/components/common/components/MsMainConta
 import MsApiScenarioList from "@/business/components/api/automation/scenario/ApiScenarioList";
 import {getUUID} from "@/common/js/utils";
 import MsApiScenarioModule from "@/business/components/api/automation/scenario/ApiScenarioModule";
+import MsEditApiScenario from "./scenario/EditApiScenario";
 
 export default {
   name: "ApiAutomation",
-  components: {MsApiScenarioModule, MsApiScenarioList, MsMainContainer, MsAsideContainer, MsContainer},
+  components: {MsApiScenarioModule, MsApiScenarioList, MsMainContainer, MsAsideContainer, MsContainer,MsEditApiScenario},
   comments: {},
   data() {
     return {
@@ -104,6 +105,7 @@ export default {
     },
     editScenario(row) {
       this.currentScenario = row;
+      console.log(row)
       this.addTab({name: 'add'});
     },
   }

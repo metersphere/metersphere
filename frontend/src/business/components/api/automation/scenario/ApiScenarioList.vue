@@ -118,7 +118,7 @@ export default {
       console.log(selection)
     },
     edit(row) {
-
+      this.$emit('edit', row);
     },
     execute(row) {
 

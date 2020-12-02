@@ -1,18 +1,26 @@
 <template>
   <el-card class="card-content">
     <div style="background-color: white;">
-      <p class="tip">{{$t('test_track.plan_view.base_info')}} </p>
-      <el-form :model="basicForm" label-position="right" label-width="80px" size="small" :rules="rules" ref="basicForm" style="margin-right: 20px">
+      <el-row>
+        <el-col>
+          <!--操作按钮-->
+          <div style="float: right;margin-right: 20px">
+            <el-button type="primary" size="small" @click="editScenario">{{$t('commons.save')}}</el-button>
+          </div>
+        </el-col>
+      </el-row>
+      <div class="tip">{{$t('test_track.plan_view.base_info')}}</div>
+      <el-form :model="currentScenario" label-position="right" label-width="80px" size="small" :rules="rules" ref="currentScenario" style="margin-right: 20px">
         <!-- 基础信息 -->
         <el-row>
           <el-col :span="12">
             <el-form-item :label="$t('commons.name')" prop="name">
-              <el-input class="ms-scenario-input" size="small" v-model="basicForm.name"/>
+              <el-input class="ms-scenario-input" size="small" v-model="currentScenario.name"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item :label="$t('test_track.module.module')" prop="moduleId">
-              <el-select class="ms-scenario-input" size="small" v-model="basicForm.moduleId">
+            <el-form-item :label="$t('test_track.module.module')" prop="apiScenarioModuleId">
+              <el-select class="ms-scenario-input" size="small" v-model="currentScenario.apiScenarioModuleId">
                 <el-option v-for="item in moduleOptions" :key="item.id" :label="item.path" :value="item.id"/>
               </el-select>
             </el-form-item>
@@ -21,14 +29,14 @@
         <el-row>
           <el-col :span="12">
             <el-form-item :label="$t('commons.status')" prop="status">
-              <el-select class="ms-scenario-input" size="small" v-model="basicForm.status">
+              <el-select class="ms-scenario-input" size="small" v-model="currentScenario.status">
                 <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id"/>
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('api_test.definition.request.responsible')" prop="principal">
-              <el-select v-model="basicForm.principal"
+              <el-select v-model="currentScenario.principal"
                          :placeholder="$t('api_test.definition.request.responsible')" filterable size="small"
                          class="ms-scenario-input">
                 <el-option
@@ -46,14 +54,14 @@
         <el-row>
           <el-col :span="12">
             <el-form-item :label="$t('test_track.case.priority')" prop="level">
-              <el-select class="ms-scenario-input" size="small" v-model="basicForm.level">
+              <el-select class="ms-scenario-input" size="small" v-model="currentScenario.level">
                 <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id"/>
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('api_test.automation.follow_people')" prop="followPeople">
-              <el-select v-model="basicForm.followPeople"
+              <el-select v-model="currentScenario.followPeople"
                          :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
                          class="ms-scenario-input">
                 <el-option
@@ -71,10 +79,10 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="Tag" prop="tagId">
-              <el-select v-model="basicForm.tagId" size="small" class="ms-scenario-input" placeholder="Tag"
+              <el-select v-model="currentScenario.tagId" size="small" class="ms-scenario-input" placeholder="Tag"
                          @change="tagChange" :multiple="true">
                 <el-option
-                  v-for="item in maintainerOptions"
+                  v-for="item in tags"
                   :key="item.id"
                   :label="item.id + ' (' + item.name + ')'"
                   :value="item.id"/>
@@ -83,7 +91,7 @@
                 </el-button>
                 <template v-slot:empty>
                   <div>
-                    <el-button size="mini" type="primary" @click="closeTagConfig" class="ms-scenario-button">
+                    <el-button size="mini" type="primary" @click="openTagConfig" class="ms-scenario-button">
                       {{ $t('api_test.automation.create_tag') }}
                     </el-button>
                   </div>
@@ -95,13 +103,14 @@
           <el-col :span="12">
             <el-form-item :label="$t('commons.description')" prop="description">
               <el-input class="ms-http-textarea"
-                        v-model="basicForm.description"
+                        v-model="currentScenario.description"
                         type="textarea"
                         :autosize="{ minRows: 2, maxRows: 10}"
                         :rows="2" size="small"/>
             </el-form-item>
           </el-col>
         </el-row>
+
       </el-form>
 
       <!-- 场景步骤-->
@@ -109,20 +118,21 @@
         <p class="tip">{{$t('api_test.automation.scenario_step')}} </p>
         <el-row>
           <el-col :span="21">
+            <!-- 调试部分 -->
             <div style="margin-left: 20px;border:1px #DCDFE6 solid;border-radius: 4px;margin-right: 10px">
               <el-row style="margin: 5px">
                 <el-col :span="6" class="ms-col-one">
-                  {{basicForm.name ===undefined || ''? $t('api_test.scenario.name') : basicForm.name}}
+                  {{currentScenario.name ===undefined || ''? $t('api_test.scenario.name') : currentScenario.name}}
                 </el-col>
-                <el-col :span="5" class="ms-col-one">
-                  {{$t('api_test.automation.step_total')}}:
+                <el-col :span="4" class="ms-col-one">
+                  {{$t('api_test.automation.step_total')}}:{{scenarioDefinition.length}}
                 </el-col>
-                <el-col :span="5" class="ms-col-one">
+                <el-col :span="4" class="ms-col-one">
                   {{$t('api_test.automation.scenario_total')}}:
                 </el-col>
-                <el-col :span="6">
+                <el-col :span="8">
                   {{$t('api_test.definition.request.run_env')}}:
-                  <el-select v-model="basicForm.environmentId" size="small" class="ms-htt-width"
+                  <el-select v-model="currentScenario.environmentId" size="small" class="ms-htt-width"
                              :placeholder="$t('api_test.definition.request.run_env')"
                              @change="environmentChange" clearable>
                     <el-option v-for="(environment, index) in environments" :key="index"
@@ -159,7 +169,7 @@
                       <el-card v-if="data.type==='scenario'">
                         <el-row>
                             <div class="el-step__icon is-text ms-api-col" style="float: left">
-                              <div class="el-step__icon-inner">{{data.$treeNodeId}}</div>
+                              <div class="el-step__icon-inner">{{index}}</div>
                             </div>
                             <div style="margin-left: 20px;float: left"> {{data.name}}</div>
                         </el-row>
@@ -182,7 +192,7 @@
                       <!--提取规则-->
                       <ms-api-extract @remove="remove" v-if="data.type==='Extract'" customizeStyle="margin-top: 0px" :extract="data" :node="node"/>
                       <!--API 导入 -->
-                      <ms-api-component :request="data" @remove="remove" current-project="currentProject" v-if="data.type==='HTTPSamplerProxy'||'DubboSampler'||'JDBCSampler'||'TCPSampler'" :node="node"/>
+                      <ms-api-component :request="data" @remove="remove" current-project="currentProject" v-if="data.type==='HTTPSamplerProxy'||data.type==='DubboSampler'||data.type==='JDBCSampler'||data.type==='TCPSampler'" :node="node"/>
                     </template>
                    </span>
               </el-tree>
@@ -242,6 +252,12 @@
         <ms-api-customize :request="customizeRequest" @addCustomizeApi="addCustomizeApi" :current-project="currentProject"/>
         <!--<el-button style="float: right;margin: 20px" @click="addCustomizeApi">{{$t('commons.save')}}</el-button>-->
       </el-drawer>
+
+      <!-- 环境 -->
+      <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
+
+      <!--TAG-->
+      <ms-add-tag @refreshTags="refreshTags" ref="tag"/>
     </div>
   </el-card>
 </template>
@@ -249,7 +265,6 @@
 <script>
   import {API_STATUS} from "../../definition/model/JsonData";
   import {WORKSPACE_ID} from '@/common/js/constants';
-  import {createComponent} from "../../definition/components/jmeter/components";
   import {Assertions, Extract, IfController, JSR223Processor, ConstantTimer} from "../../definition/model/ApiTestModel";
   import MsJsr233Processor from "./Jsr233Processor";
   import {parseEnvironment} from "../../definition/model/EnvironmentModel";
@@ -262,14 +277,17 @@
   import {ELEMENTS, ELEMENT_TYPE} from "./Setting";
   import MsApiCustomize from "./ApiCustomize";
   import {getUUID} from "@/common/js/utils";
+  import ApiEnvironmentConfig from "../../definition/components/environment/ApiEnvironmentConfig";
+  import MsAddTag from "./AddTag";
 
   export default {
     name: "EditApiScenario",
     props: {
       moduleOptions: Array,
-      currentProject: {}
+      currentProject: {},
+      currentScenario: {},
     },
-    components: {MsJsr233Processor, MsConstantTimer, MsIfController, MsApiAssertions, MsApiExtract, MsApiDefinition, MsApiComponent, MsApiCustomize},
+    components: {ApiEnvironmentConfig, MsAddTag, MsJsr233Processor, MsConstantTimer, MsIfController, MsApiAssertions, MsApiExtract, MsApiDefinition, MsApiComponent, MsApiCustomize},
     data() {
       return {
         props: {
@@ -282,11 +300,12 @@
             {max: 50, message: this.$t('test_track.length_less_than') + '50', trigger: 'blur'}
           ],
           userId: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
-          moduleId: [{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
+          apiScenarioModuleId: [{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
           status: [{required: true, message: this.$t('commons.please_select'), trigger: 'change'}],
         },
-        basicForm: {},
         environments: [],
+        tags: [],
+        currentEnvironment: {},
         maintainerOptions: [],
         value: API_STATUS[0].id,
         options: API_STATUS,
@@ -299,17 +318,19 @@
         currentRow: {cases: [], apis: []},
         selectedTreeNode: undefined,
         expandedNode: [],
-        scenarioDefinition: []
+        scenarioDefinition: [],
+        path: "/api/automation/create",
       }
     },
     created() {
       this.operatingElements = ELEMENTS.get("ALL");
       this.getMaintainerOptions();
+      this.getApiScenario();
+      this.refreshTags();
     },
     watch: {},
     methods: {
       nodeClick(e) {
-        console.log(e)
         this.operatingElements = ELEMENTS.get(e.type);
         this.selectedTreeNode = e;
       },
@@ -320,6 +341,22 @@
       },
       apiListImport() {
         this.apiListVisible = true;
+      },
+      recursiveSorting(arr) {
+        for (let i in arr) {
+          arr[i].index = Number(i) + 1;
+          if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
+            this.recursiveSorting(arr[i].hashTree);
+          }
+        }
+      },
+      sort() {
+        for (let i in this.scenarioDefinition) {
+          this.scenarioDefinition[i].index = Number(i) + 1;
+          if (this.scenarioDefinition[i].hashTree != undefined && this.scenarioDefinition[i].hashTree.length > 0) {
+            this.recursiveSorting(this.scenarioDefinition[i].hashTree);
+          }
+        }
       },
       addComponent(type) {
         switch (type) {
@@ -358,6 +395,7 @@
           default:
             break;
         }
+        this.sort();
         this.reload();
       },
       addCustomizeApi(request) {
@@ -368,6 +406,7 @@
           this.scenarioDefinition.push(request);
         }
         this.customizeRequest = {};
+        this.sort();
         this.reload();
       },
       addReferenceApi() {
@@ -410,6 +449,7 @@
           }
         })
         this.apiListVisible = false;
+        this.sort();
         this.reload();
       },
       getMaintainerOptions() {
@@ -426,36 +466,20 @@
           this.$error(this.$t('api_test.select_project'));
           return;
         }
-        this.$refs.environmentConfig.open(this.currentProject.id);
+        this.$refs.tag.open(this.currentProject.id);
       },
-      closeTagConfig() {
-
-      },
-      addPre() {
-        let jsr223PreProcessor = createComponent("JSR223PreProcessor");
-        this.request.hashTree.push(jsr223PreProcessor);
-        this.reload();
-      },
-      addPost() {
-        let jsr223PostProcessor = createComponent("JSR223PostProcessor");
-        this.request.hashTree.push(jsr223PostProcessor);
-        this.reload();
-      },
-      addAssertions() {
-        let assertions = new Assertions();
-        this.request.hashTree.push(assertions);
-        this.reload();
-      },
-      addExtract() {
-        let jsonPostProcessor = new Extract();
-        this.request.hashTree.push(jsonPostProcessor);
-        this.reload();
+      refreshTags() {
+        let obj = {projectId: this.currentProject.id};
+        this.$post('/api/tag/list', obj, response => {
+          this.tags = response.data;
+        });
       },
       remove(row, node) {
         const parent = node.parent
         const hashTree = parent.data.hashTree || parent.data;
         const index = hashTree.findIndex(d => d.id != undefined && row.id != undefined && d.id === row.id)
         hashTree.splice(index, 1);
+        this.sort();
         this.reload();
       },
       reload() {
@@ -474,22 +498,7 @@
             this.environments.forEach(environment => {
               parseEnvironment(environment);
             });
-            let hasEnvironment = false;
-            for (let i in this.environments) {
-              if (this.environments[i].id === this.api.environmentId) {
-                this.api.environment = this.environments[i];
-                hasEnvironment = true;
-                break;
-              }
-            }
-            if (!hasEnvironment) {
-              this.api.environmentId = '';
-              this.api.environment = undefined;
-            }
           });
-        } else {
-          this.api.environmentId = '';
-          this.api.environment = undefined;
         }
       },
       openEnvironmentConfig() {
@@ -502,7 +511,7 @@
       environmentChange(value) {
         for (let i in this.environments) {
           if (this.environments[i].id === value) {
-            this.api.request.useEnvironment = this.environments[i].id;
+            this.currentEnvironment = this.environments[i].id;
             break;
           }
         }
@@ -517,7 +526,7 @@
         return false;
       },
       allowDrag() {
-
+        this.sort();
       },
       nodeExpand(data) {
         if (data.resourceId) {
@@ -527,6 +536,49 @@
       nodeCollapse(data) {
         if (data.resourceId) {
           this.expandedNode.splice(this.expandedNode.indexOf(data.resourceId), 1);
+        }
+      },
+      getPath(id) {
+        if (id === null) {
+          return null;
+        }
+        let path = this.moduleOptions.filter(function (item) {
+          return item.id === id ? item.path : "";
+        });
+        return path[0].path;
+      },
+      editScenario() {
+        this.$refs['currentScenario'].validate((valid) => {
+          if (valid) {
+            this.setParameter();
+            this.result = this.$post(this.path, this.currentScenario, () => {
+              this.$success(this.$t('commons.save_success'));
+              this.path = "/api/automation/update";
+            })
+          }
+        })
+      },
+      getApiScenario() {
+        if (this.currentScenario.id) {
+          this.path = "/api/automation/update";
+          this.result = this.$get("/api/automation/getApiScenario/" + this.currentScenario.id, response => {
+            if (response.data) {
+              this.scenarioDefinition = JSON.parse(response.data.scenarioDefinition);
+            }
+          })
+        }
+      },
+      setParameter() {
+        this.currentScenario.projectId = this.currentProject.id;
+        if (!this.currentScenario.id) {
+          this.currentScenario.id = getUUID().substring(0, 8);
+        }
+        this.currentScenario.modulePath = this.getPath(this.currentScenario.apiScenarioModuleId);
+        this.currentScenario.scenarioDefinition = JSON.stringify(this.scenarioDefinition);
+        this.currentScenario.tagId = JSON.stringify(this.currentScenario.tagId);
+        if (this.currentModule != null) {
+          this.currentScenario.modulePath = this.currentModule.method !== undefined ? this.currentModule.method : null;
+          this.currentScenario.apiScenarioModuleId = this.currentModule.id;
         }
       },
     }
@@ -539,7 +591,7 @@
   }
 
   .ms-scenario-button {
-    margin-left: 45%;
+    margin-left: 30%;
     padding: 7px;
   }
 
