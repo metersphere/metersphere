@@ -6,15 +6,10 @@
     </template>
 
     <el-table ref="scenarioTable" border :data="tableData" class="adjust-table" @select-all="select" @select="select">
-      <el-table-column width="100">
-        <template v-slot:header="{row}">
-          <el-dropdown id="select" size="small" split-button @command="handleCommand">
-            <el-checkbox @change="selectAllChange"></el-checkbox>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="table">{{ $t('api_test.automation.scenario.select_table') }}</el-dropdown-item>
-              <el-dropdown-item command="all">{{ $t('api_test.automation.scenario.select_all') }}</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
+      <el-table-column type="selection"/>
+      <el-table-column width="40" :resizable="false" align="center">
+        <template v-slot:default="{row}">
+          <show-more-btn :is-show="isSelect(row)" :buttons="buttons" :size="selection.length"/>
         </template>
       </el-table-column>
       <el-table-column prop="name" :label="$t('api_test.automation.scenario_name')" width="200"
@@ -56,10 +51,11 @@
 <script>
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
+import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 
 export default {
   name: "MsApiScenarioList",
-  components: {MsTablePagination, MsTableHeader},
+  components: {ShowMoreBtn, MsTablePagination, MsTableHeader},
   props: {
     currentProject: Object,
     currentModule: Object,
@@ -69,11 +65,27 @@ export default {
       result: {},
       condition: {},
       selectAll: false,
+      selection: [],
       tableData: [],
       currentPage: 1,
       pageSize: 10,
       total: 0,
+      buttons: [
+        {
+          name: this.$t('api_test.automation.batch_add_plan'), handleClick: this.handleBatchAddCase
+        }, {
+          name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleBatchExecute
+        }
+      ],
     }
+  },
+  watch: {
+    currentProject() {
+      this.search();
+    },
+    currentModule() {
+      this.search();
+    },
   },
   methods: {
     search() {
@@ -111,11 +123,22 @@ export default {
           break
       }
     },
+    handleBatchAddCase() {
+
+    },
+    handleBatchExecute() {
+
+    },
     selectAllChange() {
       this.handleCommand("table");
     },
     select(selection) {
-      console.log(selection)
+      this.selection = selection.map(s => s.id);
+      console.log(this.selection)
+    },
+    isSelect(row) {
+      console.log(this.selection.includes(row.id))
+      return this.selection.includes(row.id)
     },
     edit(row) {
       this.$emit('edit', row);
@@ -152,7 +175,5 @@ export default {
 </script>
 
 <style scoped>
-#select >>> .el-button-group > .el-button:first-child {
-  padding: 7px 15px;
-}
+
 </style>

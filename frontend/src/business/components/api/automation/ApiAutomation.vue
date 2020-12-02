@@ -88,7 +88,6 @@ export default {
     },
     selectModule(data) {
       this.currentModule = data;
-      this.$refs.apiScenarioList.search(data);
     },
     saveScenario(data) {
       this.setTabLabel(data);

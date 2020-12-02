@@ -561,6 +561,8 @@ export default {
       execute: "执行",
       copy: "复制",
       remove: "删除",
+      batch_add_plan: "批量添加到测试计划",
+      batch_execute: "批量执行",
       scenario: {
         principal: "责任人",
         select_principal: "请选择责任人",
