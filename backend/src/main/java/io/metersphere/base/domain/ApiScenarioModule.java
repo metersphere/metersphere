@@ -1,8 +1,7 @@
 package io.metersphere.base.domain;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class ApiScenarioModule implements Serializable {
@@ -12,14 +11,13 @@ public class ApiScenarioModule implements Serializable {
 
     private String name;
 
-    private String userId;
-
     private String parentId;
 
-    private String level;
+    private Integer level;
 
     private Long createTime;
 
     private Long updateTime;
 
+    private static final long serialVersionUID = 1L;
 }

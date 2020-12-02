@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtApiScenarioMapper">
+
+    <resultMap id="BaseResultMap" type="io.metersphere.api.dto.automation.ApiScenarioDTO"
+               extends="io.metersphere.base.mapper.ApiScenarioMapper.BaseResultMap">
+        <result column="project_name" property="projectName"/>
+        <result column="user_name" property="userName"/>
+    </resultMap>
+
+    <select id="list" resultMap="BaseResultMap">
+        select api_scenario.id, api_scenario.project_id, api_scenario.tag_id, api_scenario.user_id,
+        api_scenario.api_scenario_module_id,api_scenario.module_path, api_scenario.name, api_scenario.level,
+        api_scenario.status, api_scenario.principal, api_scenario.step_total, api_scenario.follow_people,
+        api_scenario.schedule, api_scenario.description, api_scenario.create_time, api_scenario.update_time,
+        project.name as project_name, user.name as user_name
+        from api_scenario
+        left join project on api_scenario.project_id = project.id
+        left join user on api_scenario.user_id = user.id
+        <where>
+            <if test="request.name != null">
+                and api_scenario.name like CONCAT('%', #{request.name},'%')
+            </if>
+            <if test="request.workspaceId != null">
+                AND project.workspace_id = #{request.workspaceId}
+            </if>
+            <if test="request.projectId != null">
+                AND project.id = #{request.projectId}
+            </if>
+            <if test="request.id != null">
+                AND api_scenario.id = #{request.id}
+            </if>
+            <if test="request.userId != null">
+                AND api_scenario.user_id = #{request.userId}
+            </if>
+            <if test="request.moduleId != null">
+                AND api_scenario.api_scenario_module_id = #{request.moduleId}
+            </if>
+            <if test="request.projectId != null">
+                AND api_scenario.project_id = #{request.projectId}
+            </if>
+            <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+                AND api_scenario.api_scenario_module_id in
+                <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                    #{nodeId}
+                </foreach>
+            </if>
+            <if test="request.filters != null and request.filters.size() > 0">
+                and api_scenario.status in
+                <foreach collection="request.filters" item="value" separator="," open="(" close=")">
+                    #{value}
+                </foreach>
+            </if>
+        </where>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                api_scenario.${order.name} ${order.type}
+            </foreach>
+        </if>
+    </select>
+
+</mapper>

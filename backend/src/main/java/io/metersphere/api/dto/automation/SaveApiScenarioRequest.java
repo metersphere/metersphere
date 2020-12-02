@@ -1,10 +1,11 @@
-package io.metersphere.base.domain;
+package io.metersphere.api.dto.automation;
 
-import java.io.Serializable;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-public class ApiScenario implements Serializable {
+@Setter
+@Getter
+public class SaveApiScenarioRequest {
     private String id;
 
     private String projectId;
@@ -33,11 +34,5 @@ public class ApiScenario implements Serializable {
 
     private String description;
 
-    private Long createTime;
-
-    private Long updateTime;
-
     private String scenarioDefinition;
-
-    private static final long serialVersionUID = 1L;
 }
