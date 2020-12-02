@@ -1,8 +1,10 @@
 export const ELEMENTS = new Map([
-  ['ALL', ["scenario", "API", "CASE", "OT_IMPORT", "IfController", "ConstantTimer", "JSR223Processor", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract", "CustomizeReq"]],
+  ['ALL', ["scenario", "HTTPSamplerProxy", "DubboSampler","JDBCSampler","TCPSampler","OT_IMPORT", "IfController", "ConstantTimer", "JSR223Processor", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract", "CustomizeReq"]],
   ['scenario', ["API", "CASE", "OT_IMPORT", "IfController", "ConstantTimer", "JSR223Processor", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract", "CustomizeReq"]],
-  ['API', ["IfController", "ConstantTimer", "JSR223Processor", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract"]],
-  ['CASE', ["IfController", "ConstantTimer", "JSR223Processor", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract"]],
+  ['HTTPSamplerProxy', ["IfController", "ConstantTimer", "JSR223Processor", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract"]],
+  ['DubboSampler', ["IfController", "ConstantTimer", "JSR223Processor", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract"]],
+  ['JDBCSampler', ["IfController", "ConstantTimer", "JSR223Processor", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract"]],
+  ['TCPSampler', ["IfController", "ConstantTimer", "JSR223Processor", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract"]],
   ['OT_IMPORT', []],
   ['IfController', ["API", "CASE", "OT_IMPORT", "ConstantTimer", "JSR223Processor", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract", "CustomizeReq"]],
   ['ConstantTimer', ["API", "CASE", "OT_IMPORT", "IfController", "JSR223Processor", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract", "CustomizeReq"]],
@@ -16,8 +18,7 @@ export const ELEMENTS = new Map([
 
 export const ELEMENT_TYPE = {
   scenario: "scenario",
-  API: "API",
-  CASE: "CASE",
+  HTTPSamplerProxy: "HTTPSamplerProxy",
   OT_IMPORT: "OT_IMPORT",
   IfController: "IfController",
   ConstantTimer: "ConstantTimer",

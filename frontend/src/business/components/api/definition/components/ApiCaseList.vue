@@ -461,7 +461,6 @@
 
       },
       caseChecked(row) {
-        row.type = "CASE";
         row.protocol = this.api.protocol;
         row.hashTree = [];
         if (this.checkedCases.has(row)) {

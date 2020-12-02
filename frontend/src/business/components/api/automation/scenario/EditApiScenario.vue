@@ -146,8 +146,13 @@
               </el-row>
             </div>
             <!-- 场景步骤内容 -->
-            <div style="margin-top: 10px">
-              <el-tree node-key="id" :data="scenarioDefinition" :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" draggable v-loading="isReloadData">
+            <div style="margin-top: 10px" v-loading="isReloadData">
+              <el-tree node-key="resourceId" :props="props" :data="scenarioDefinition"
+                       :default-expanded-keys="expandedNode"
+                       :expand-on-click-node="false"
+                       @node-expand="nodeExpand"
+                       @node-collapse="nodeCollapse"
+                       :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" v-if="!isReloadData" draggable>
                  <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                     <template>
                       <!-- 场景 -->
@@ -177,7 +182,7 @@
                       <!--提取规则-->
                       <ms-api-extract @remove="remove" v-if="data.type==='Extract'" customizeStyle="margin-top: 0px" :extract="data" :node="node"/>
                       <!--API 导入 -->
-                      <ms-api-component :data="data" @remove="remove" current-project="currentProject" v-if="data.type==='API' || data.type==='CASE'" :node="node"/>
+                      <ms-api-component :request="data" @remove="remove" current-project="currentProject" v-if="data.type==='HTTPSamplerProxy'||'DubboSampler'||'JDBCSampler'||'TCPSampler'" :node="node"/>
                     </template>
                    </span>
               </el-tree>
@@ -188,7 +193,7 @@
             <el-col :span="3" class="ms-left-cell">
               <el-button type="primary" icon="el-icon-refresh" size="small" @click="showAll">{{$t('commons.show_all')}}</el-button>
               <br/>
-              <div v-if="operatingElements.indexOf('API')>0 || operatingElements.indexOf('CASE')>0">
+              <div v-if="operatingElements.indexOf('HTTPSamplerProxy')>0 || operatingElements.indexOf('DubboSampler')>0 || operatingElements.indexOf('JDBCSampler')>0 || operatingElements.indexOf('TCPSampler')>0 ">
                 <el-button class="ms-right-buttion" size="small" style="color: #F56C6C;background-color: #FCF1F1" @click="apiListImport">+{{$t('api_test.automation.api_list_import')}}</el-button>
               </div>
               <div v-if="operatingElements.indexOf('OT_IMPORT')>0">
@@ -227,9 +232,15 @@
       </div>
 
       <!--接口列表-->
-      <el-drawer :visible.sync="apiListVisible" direction="ltr" :with-header="false" :modal="false" size="90%">
+      <el-drawer :visible.sync="apiListVisible" :destroy-on-close="true" direction="ltr" :title="$t('api_test.automation.api_list_import')" :modal="false" size="90%">
         <ms-api-definition :visible="true" :currentRow="currentRow"/>
         <el-button style="float: right;margin: 20px" @click="addReferenceApi">{{$t('api_test.scenario.reference')}}</el-button>
+      </el-drawer>
+
+      <!--自定义接口-->
+      <el-drawer :visible.sync="customizeVisible" :destroy-on-close="true" direction="ltr" :title="$t('api_test.automation.customize_req')" style="overflow: auto" :modal="false" size="90%">
+        <ms-api-customize :request="customizeRequest" @addCustomizeApi="addCustomizeApi" :current-project="currentProject"/>
+        <!--<el-button style="float: right;margin: 20px" @click="addCustomizeApi">{{$t('commons.save')}}</el-button>-->
       </el-drawer>
     </div>
   </el-card>
@@ -249,7 +260,8 @@
   import MsApiDefinition from "../../definition/ApiDefinition";
   import MsApiComponent from "./ApiComponent";
   import {ELEMENTS, ELEMENT_TYPE} from "./Setting";
-
+  import MsApiCustomize from "./ApiCustomize";
+  import {getUUID} from "@/common/js/utils";
 
   export default {
     name: "EditApiScenario",
@@ -257,9 +269,13 @@
       moduleOptions: Array,
       currentProject: {}
     },
-    components: {MsJsr233Processor, MsConstantTimer, MsIfController, MsApiAssertions, MsApiExtract, MsApiDefinition, MsApiComponent},
+    components: {MsJsr233Processor, MsConstantTimer, MsIfController, MsApiAssertions, MsApiExtract, MsApiDefinition, MsApiComponent, MsApiCustomize},
     data() {
       return {
+        props: {
+          label: "label",
+          children: "hashTree"
+        },
         rules: {
           name: [
             {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
@@ -277,10 +293,13 @@
         scenario: {},
         isReloadData: false,
         apiListVisible: false,
+        customizeVisible: false,
+        customizeRequest: {protocol: "HTTP", type: "API", hashTree: [], referenced: false, active: false},
         operatingElements: [],
         currentRow: {cases: [], apis: []},
         selectedTreeNode: undefined,
-        scenarioDefinition: [{index: 1, id: "xx", type: "scenario", name: "test", children: []}, {index: 2, id: "2", type: "ConstantTimer", children: []}]
+        expandedNode: [],
+        scenarioDefinition: []
       }
     },
     created() {
@@ -290,9 +309,9 @@
     watch: {},
     methods: {
       nodeClick(e) {
+        console.log(e)
         this.operatingElements = ELEMENTS.get(e.type);
         this.selectedTreeNode = e;
-        this.reload();
       },
       showAll() {
         this.operatingElements = ELEMENTS.get("ALL");
@@ -305,37 +324,51 @@
       addComponent(type) {
         switch (type) {
           case ELEMENT_TYPE.IfController:
-            this.selectedTreeNode != undefined ? this.selectedTreeNode.children.push(new IfController()) :
+            this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new IfController()) :
               this.scenarioDefinition.push(new IfController());
             break;
           case ELEMENT_TYPE.ConstantTimer:
-            this.selectedTreeNode != undefined ? this.selectedTreeNode.children.push(new ConstantTimer()) :
+            this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new ConstantTimer()) :
               this.scenarioDefinition.push(new ConstantTimer());
             break;
           case ELEMENT_TYPE.JSR223Processor:
-            this.selectedTreeNode != undefined ? this.selectedTreeNode.children.push(new JSR223Processor()) :
+            this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new JSR223Processor()) :
               this.scenarioDefinition.push(new JSR223Processor());
             break;
           case ELEMENT_TYPE.JSR223PreProcessor:
-            this.selectedTreeNode != undefined ? this.selectedTreeNode.children.push(new JSR223Processor({type: "JSR223PreProcessor"})) :
+            this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new JSR223Processor({type: "JSR223PreProcessor"})) :
               this.scenarioDefinition.push(new JSR223Processor({type: "JSR223PreProcessor"}));
             break;
           case ELEMENT_TYPE.JSR223PostProcessor:
-            this.selectedTreeNode != undefined ? this.selectedTreeNode.children.push(new JSR223Processor({type: "JSR223PostProcessor"})) :
+            this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new JSR223Processor({type: "JSR223PostProcessor"})) :
               this.scenarioDefinition.push(new JSR223Processor({type: "JSR223PostProcessor"}));
             break;
           case ELEMENT_TYPE.Assertions:
-            this.selectedTreeNode != undefined ? this.selectedTreeNode.children.push(new Assertions()) :
+            this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new Assertions()) :
               this.scenarioDefinition.push(new Assertions());
             break;
           case ELEMENT_TYPE.Extract:
-            this.selectedTreeNode != undefined ? this.selectedTreeNode.children.push(new Extract()) :
+            this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new Extract()) :
               this.scenarioDefinition.push(new Extract());
+            break;
+          case ELEMENT_TYPE.CustomizeReq:
+            this.customizeRequest = {protocol: "HTTP", type: "API", hashTree: [], referenced: false, active: false};
+            this.customizeVisible = true;
             break;
           default:
             break;
         }
-
+        this.reload();
+      },
+      addCustomizeApi(request) {
+        this.customizeVisible = false;
+        if (this.selectedTreeNode != undefined) {
+          this.selectedTreeNode.hashTree.push(request);
+        } else {
+          this.scenarioDefinition.push(request);
+        }
+        this.customizeRequest = {};
+        this.reload();
       },
       addReferenceApi() {
         if (this.currentRow.cases.length === 0 && this.currentRow.apis.length === 0) {
@@ -343,22 +376,37 @@
           return;
         }
         this.currentRow.cases.forEach(item => {
-          item.referenced = true;
-          item.active = false;
-          if (this.selectedTreeNode != undefined) {
-            this.selectedTreeNode.children.push(item);
+          let request = {};
+          if (Object.prototype.toString.call(item.request).indexOf("String") > 0) {
+            request = JSON.parse(item.request);
           } else {
-            this.scenarioDefinition.push(item);
+            request = item.request;
+          }
+          request.referenced = true;
+          request.active = false;
+          request.resourceId = getUUID();
+
+          if (this.selectedTreeNode != undefined) {
+            this.selectedTreeNode.hashTree.push(request);
+          } else {
+            this.scenarioDefinition.push(request);
           }
         })
         this.currentRow.apis.forEach(item => {
-          item.referenced = true;
-          item.active = false;
-          item.request = JSON.parse(item.request);
-          if (this.selectedTreeNode != undefined) {
-            this.selectedTreeNode.children.push(item);
+          let request = {};
+          if (Object.prototype.toString.call(item.request).indexOf("String") > 0) {
+            request = JSON.parse(item.request);
           } else {
-            this.scenarioDefinition.push(item);
+            request = item.request;
+          }
+          request.referenced = true;
+          request.active = false;
+          request.resourceId = getUUID();
+
+          if (this.selectedTreeNode != undefined) {
+            this.selectedTreeNode.hashTree.push(request);
+          } else {
+            this.scenarioDefinition.push(request);
           }
         })
         this.apiListVisible = false;
@@ -405,9 +453,9 @@
       },
       remove(row, node) {
         const parent = node.parent
-        const children = parent.data.children || parent.data;
-        const index = children.findIndex(d => d.id != undefined && row.id != undefined && d.id === row.id)
-        children.splice(index, 1);
+        const hashTree = parent.data.hashTree || parent.data;
+        const index = hashTree.findIndex(d => d.id != undefined && row.id != undefined && d.id === row.id)
+        hashTree.splice(index, 1);
         this.reload();
       },
       reload() {
@@ -471,6 +519,16 @@
       allowDrag() {
 
       },
+      nodeExpand(data) {
+        if (data.resourceId) {
+          this.expandedNode.push(data.resourceId);
+        }
+      },
+      nodeCollapse(data) {
+        if (data.resourceId) {
+          this.expandedNode.splice(this.expandedNode.indexOf(data.resourceId), 1);
+        }
+      },
     }
   }
 </script>
@@ -515,6 +573,10 @@
 
   /deep/ .el-card__body {
     padding: 15px;
+  }
+
+  /deep/ .el-drawer__body {
+    overflow: auto;
   }
 
 </style>
