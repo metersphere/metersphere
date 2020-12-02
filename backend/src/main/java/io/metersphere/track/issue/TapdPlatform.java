@@ -21,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -74,6 +75,16 @@ public class TapdPlatform extends AbstractIssuePlatform {
         JSONObject bug = jsonObject.getJSONObject("Bug");
         Long created = bug.getLong("created");
         Issues issues = jsonObject.getObject("Bug", Issues.class);
+
+        // 获取工作流中缺陷状态名称
+        String workflow = "https://api.tapd.cn/workflows/status_map?workspace_id=" + projectId + "&system=bug";
+        ResultHolder resultHolder = call(workflow);
+        String workflowJson = JSON.toJSONString(resultHolder.getData());
+        if (!StringUtils.equals(Boolean.FALSE.toString(), workflowJson)) {
+            Map map = (Map) JSONObject.parse(workflowJson);
+            issues.setStatus((String) map.get(issues.getStatus()));
+        }
+
         issues.setCreateTime(created);
         return issues;
     }
