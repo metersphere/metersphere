@@ -237,7 +237,7 @@ export default {
       mail: '邮件',
       nail_robot: '钉钉机器人',
       enterprise_wechat_robot: '企业微信机器人',
-      notes: '注意:1.钉钉和企业群里新建一个自定义机器人，然后复制 webhook 地址在我们平台上;\n' +
+      notes: '1.钉钉和企业群里新建一个自定义机器人，然后复制 webhook 地址在我们平台上;\n' +
         '       2.机器人选择为群机器人，安全验证选择“自定义关键词” ："任务通知";\n' +
         '       3.选择接收人时必须是你所建的群里包含的人,接收人手机号为必填项且为钉钉企业所使用的手机号,',
       message: '事件，接收人，接收方式为必填项',
@@ -527,10 +527,22 @@ export default {
         post_script: "后置脚本",
         extract_param: "提取参数",
         add_module: "创建模块",
-
       }
     },
     automation: {
+      follow_people: "关注人",
+      create_tag: "创建Tag",
+      scenario_step: "场景步骤",
+      step_total: "步骤总数",
+      scenario_total: "场景公共参数",
+      api_list_import: "接口列表导入",
+      external_import: "外部导入",
+      wait_controller: "等待控制器",
+      if_controller: "条件控制器",
+      scenario_import: "场景导入",
+      customize_script: "自定义脚本",
+      customize_req: "自定义请求",
+      reference_info: "请选择接口或用例",
       scenario_test: "场景",
       add_scenario: "创建场景",
       scenario_name: "场景名称",

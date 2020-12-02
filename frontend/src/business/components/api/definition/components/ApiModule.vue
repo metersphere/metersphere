@@ -95,7 +95,7 @@
     </el-tree>
 
     <ms-add-basis-api :current-protocol="protocol" ref="basisApi"></ms-add-basis-api>
-    <api-import ref="apiImport" @refresh="refresh"/>
+    <api-import ref="apiImport" :project-id="currentProject.id" @refresh="refresh"/>
 
   </div>
 

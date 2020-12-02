@@ -5,9 +5,10 @@ import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseResult;
 import io.metersphere.api.dto.definition.SaveApiTestCaseRequest;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.ApiTestFileMapper;
+import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
+import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
@@ -36,17 +37,19 @@ public class ApiTestCaseService {
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
+    private ExtApiTestCaseMapper extApiTestCaseMapper;
+    @Resource
     private ApiTestFileMapper apiTestFileMapper;
     @Resource
     private FileService fileService;
     @Resource
-    private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
+    private ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
 
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
     public List<ApiTestCaseResult> list(ApiTestCaseRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        return apiTestCaseMapper.list(request);
+        return extApiTestCaseMapper.list(request);
     }
 
     public ApiTestCase get(String id) {
@@ -99,7 +102,7 @@ public class ApiTestCaseService {
 
     public void delete(String testId) {
         deleteFileByTestId(testId);
-        apiDefinitionExecResultMapper.deleteByResourceId(testId);
+        extApiDefinitionExecResultMapper.deleteByResourceId(testId);
         apiTestCaseMapper.deleteByPrimaryKey(testId);
         deleteBodyFiles(testId);
     }
@@ -151,7 +154,7 @@ public class ApiTestCaseService {
 
     private ApiTestCase updateTest(SaveApiTestCaseRequest request) {
         checkNameExist(request);
-        final ApiTestCase test = new ApiTestCase();
+        final ApiTestCaseWithBLOBs test = new ApiTestCaseWithBLOBs();
         test.setId(request.getId());
         test.setName(request.getName());
         test.setApiDefinitionId(request.getApiDefinitionId());
@@ -169,7 +172,7 @@ public class ApiTestCaseService {
     private ApiTestCase createTest(SaveApiTestCaseRequest request) {
         request.setId(UUID.randomUUID().toString());
         checkNameExist(request);
-        final ApiTestCase test = new ApiTestCase();
+        final ApiTestCaseWithBLOBs test = new ApiTestCaseWithBLOBs();
         test.setId(request.getId());
         test.setName(request.getName());
         test.setApiDefinitionId(request.getApiDefinitionId());

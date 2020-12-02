@@ -1,39 +1,25 @@
 <template>
 
-  <ms-container>
-
-    <ms-aside-container>
-      <select-menu
-        :data="testPlans"
-        :current-data="currentPlan"
-        :title="$t('test_track.plan_view.plan')"
-        @dataChange="changePlan"/>
-      <node-tree class="node-tree"
-                 v-loading="result.loading"
-                 @nodeSelectEvent="nodeChange"
-                 @refresh="refresh"
-                 :tree-nodes="treeNodes"
-                 :draggable="false"
-                 ref="nodeTree"/>
-    </ms-aside-container>
-
-    <ms-main-container>
-        <test-plan-test-case-list
-          class="table-list"
-          @openTestCaseRelevanceDialog="openTestCaseRelevanceDialog"
-          @refresh="refresh"
-          :plan-id="planId"
-          :select-node-ids="selectNodeIds"
-          :select-parent-nodes="selectParentNodes"
-          ref="testPlanTestCaseList"/>
-    </ms-main-container>
-
-    <test-case-relevance
-      @refresh="refresh"
-      :plan-id="planId"
-      ref="testCaseRelevance"/>
-
-  </ms-container>
+  <div>
+    <ms-test-plan-header-bar>
+      <template v-slot:info>
+        <select-menu
+          :data="testPlans"
+          :current-data="currentPlan"
+          :title="$t('test_track.plan_view.plan')"
+          @dataChange="changePlan"/>
+      </template>
+      <template v-slot:menu>
+        <el-menu active-text-color="#6d317c" :default-active="activeIndex"
+                 class="el-menu-demo header-menu" mode="horizontal" @select="handleSelect">
+          <el-menu-item index="functional">功能测试用例</el-menu-item>
+          <el-menu-item index="api">接口测试用例</el-menu-item>
+        </el-menu>
+      </template>
+    </ms-test-plan-header-bar>
+    <test-plan-functional v-if="activeIndex === 'functional'" :plan-id="planId"/>
+    <test-plan-api v-if="activeIndex === 'api'" :plan-id="planId"/>
+  </div>
 
 </template>
 
@@ -46,20 +32,23 @@
     import MsContainer from "../../../common/components/MsContainer";
     import MsAsideContainer from "../../../common/components/MsAsideContainer";
     import MsMainContainer from "../../../common/components/MsMainContainer";
+    import MsTestPlanHeaderBar from "./comonents/head/TestPlanHeaderBar";
+    import TestPlanFunctional from "./comonents/functional/TestPlanFunctional";
+    import TestPlanApi from "./comonents/api/TestPlanApi";
 
     export default {
       name: "TestPlanView",
       components: {
+        TestPlanApi,
+        TestPlanFunctional,
+        MsTestPlanHeaderBar,
         MsMainContainer,
         MsAsideContainer, MsContainer, NodeTree, TestPlanTestCaseList, TestCaseRelevance, SelectMenu},
       data() {
         return {
-          result: {},
           testPlans: [],
           currentPlan: {},
-          selectNodeIds: [],
-          selectParentNodes: [],
-          treeNodes: []
+          activeIndex: "functional"
         }
       },
       computed: {
@@ -68,33 +57,11 @@
         }
       },
       mounted() {
-        this.initData();
-        this.openTestCaseEdit(this.$route.path);
-      },
-      watch: {
-        '$route'(to, from) {
-          this.openTestCaseEdit(to.path);
-        },
-        planId() {
-          this.initData();
-        }
+        this.getTestPlans();
       },
       methods: {
-        refresh() {
-          this.selectNodeIds = [];
-          this.selectParentNodes = [];
-          this.$refs.testCaseRelevance.search();
-          this.getNodeTreeByPlanId();
-        },
-        initData() {
-          this.getTestPlans();
-          this.getNodeTreeByPlanId();
-        },
-        openTestCaseRelevanceDialog() {
-          this.$refs.testCaseRelevance.openTestCaseRelevanceDialog();
-        },
         getTestPlans() {
-          this.result = this.$post('/test/plan/list/all', {}, response => {
+          this.$post('/test/plan/list/all', {}, response => {
             this.testPlans = response.data;
             this.testPlans.forEach(plan => {
               if (this.planId && plan.id === this.planId) {
@@ -103,39 +70,36 @@
             });
           });
         },
-        nodeChange(nodeIds, pNodes) {
-          this.selectNodeIds = nodeIds;
-          this.selectParentNodes = pNodes;
-          // 切换node后，重置分页数
-          this.$refs.testPlanTestCaseList.currentPage = 1;
-          this.$refs.testPlanTestCaseList.pageSize = 10;
-        },
         changePlan(plan) {
           this.currentPlan = plan;
           this.$router.push('/track/plan/view/' + plan.id);
         },
-        getNodeTreeByPlanId() {
-          if(this.planId){
-            this.result = this.$get("/case/node/list/plan/" + this.planId, response => {
-              this.treeNodes = response.data;
-            });
-          }
-        },
-        openTestCaseEdit(path) {
-          if (path.indexOf("/plan/view/edit") >= 0){
-            let caseId = this.$route.params.caseId;
-            this.$get('/test/plan/case/get/' + caseId, response => {
-              let testCase = response.data;
-              if (testCase) {
-                this.$refs.testPlanTestCaseList.handleEdit(testCase);
-                this.$router.push('/track/plan/view/' + testCase.planId);
-              }
-            });
-          }
+        handleSelect(key) {
+          this.activeIndex = key;
         }
       }
     }
 </script>
 
 <style scoped>
+
+  .select-menu {
+    display: inline-block;
+  }
+
+  .ms-main-container {
+    height: calc(100vh - 80px - 50px);
+  }
+
+  .ms-aside-container {
+    height: calc(100vh - 80px - 51px);
+    margin-top: 1px;
+  }
+
+  .header-menu.el-menu--horizontal > li {
+    height: 49px;
+    line-height: 50px;
+    color: dimgray;
+  }
+
 </style>

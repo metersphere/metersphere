@@ -189,12 +189,6 @@ public class ApiModuleExample {
             return (Criteria) this;
         }
 
-
-        public Criteria andProtocolEqualTo(String value) {
-            addCriterion("protocol =", value, "protocol");
-            return (Criteria) this;
-        }
-
         public Criteria andProjectIdNotEqualTo(String value) {
             addCriterion("project_id <>", value, "projectId");
             return (Criteria) this;
@@ -251,72 +245,142 @@ public class ApiModuleExample {
         }
 
         public Criteria andNameIsNull() {
-            addCriterion("name is null");
+            addCriterion("`name` is null");
             return (Criteria) this;
         }
 
         public Criteria andNameIsNotNull() {
-            addCriterion("name is not null");
+            addCriterion("`name` is not null");
             return (Criteria) this;
         }
 
         public Criteria andNameEqualTo(String value) {
-            addCriterion("name =", value, "name");
+            addCriterion("`name` =", value, "name");
             return (Criteria) this;
         }
 
         public Criteria andNameNotEqualTo(String value) {
-            addCriterion("name <>", value, "name");
+            addCriterion("`name` <>", value, "name");
             return (Criteria) this;
         }
 
         public Criteria andNameGreaterThan(String value) {
-            addCriterion("name >", value, "name");
+            addCriterion("`name` >", value, "name");
             return (Criteria) this;
         }
 
         public Criteria andNameGreaterThanOrEqualTo(String value) {
-            addCriterion("name >=", value, "name");
+            addCriterion("`name` >=", value, "name");
             return (Criteria) this;
         }
 
         public Criteria andNameLessThan(String value) {
-            addCriterion("name <", value, "name");
+            addCriterion("`name` <", value, "name");
             return (Criteria) this;
         }
 
         public Criteria andNameLessThanOrEqualTo(String value) {
-            addCriterion("name <=", value, "name");
+            addCriterion("`name` <=", value, "name");
             return (Criteria) this;
         }
 
         public Criteria andNameLike(String value) {
-            addCriterion("name like", value, "name");
+            addCriterion("`name` like", value, "name");
             return (Criteria) this;
         }
 
         public Criteria andNameNotLike(String value) {
-            addCriterion("name not like", value, "name");
+            addCriterion("`name` not like", value, "name");
             return (Criteria) this;
         }
 
         public Criteria andNameIn(List<String> values) {
-            addCriterion("name in", values, "name");
+            addCriterion("`name` in", values, "name");
             return (Criteria) this;
         }
 
         public Criteria andNameNotIn(List<String> values) {
-            addCriterion("name not in", values, "name");
+            addCriterion("`name` not in", values, "name");
             return (Criteria) this;
         }
 
         public Criteria andNameBetween(String value1, String value2) {
-            addCriterion("name between", value1, value2, "name");
+            addCriterion("`name` between", value1, value2, "name");
             return (Criteria) this;
         }
 
         public Criteria andNameNotBetween(String value1, String value2) {
-            addCriterion("name not between", value1, value2, "name");
+            addCriterion("`name` not between", value1, value2, "name");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolIsNull() {
+            addCriterion("protocol is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolIsNotNull() {
+            addCriterion("protocol is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolEqualTo(String value) {
+            addCriterion("protocol =", value, "protocol");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolNotEqualTo(String value) {
+            addCriterion("protocol <>", value, "protocol");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolGreaterThan(String value) {
+            addCriterion("protocol >", value, "protocol");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolGreaterThanOrEqualTo(String value) {
+            addCriterion("protocol >=", value, "protocol");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolLessThan(String value) {
+            addCriterion("protocol <", value, "protocol");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolLessThanOrEqualTo(String value) {
+            addCriterion("protocol <=", value, "protocol");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolLike(String value) {
+            addCriterion("protocol like", value, "protocol");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolNotLike(String value) {
+            addCriterion("protocol not like", value, "protocol");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolIn(List<String> values) {
+            addCriterion("protocol in", values, "protocol");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolNotIn(List<String> values) {
+            addCriterion("protocol not in", values, "protocol");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolBetween(String value1, String value2) {
+            addCriterion("protocol between", value1, value2, "protocol");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolNotBetween(String value1, String value2) {
+            addCriterion("protocol not between", value1, value2, "protocol");
             return (Criteria) this;
         }
 
@@ -391,62 +455,62 @@ public class ApiModuleExample {
         }
 
         public Criteria andLevelIsNull() {
-            addCriterion("level is null");
+            addCriterion("`level` is null");
             return (Criteria) this;
         }
 
         public Criteria andLevelIsNotNull() {
-            addCriterion("level is not null");
+            addCriterion("`level` is not null");
             return (Criteria) this;
         }
 
         public Criteria andLevelEqualTo(Integer value) {
-            addCriterion("level =", value, "level");
+            addCriterion("`level` =", value, "level");
             return (Criteria) this;
         }
 
         public Criteria andLevelNotEqualTo(Integer value) {
-            addCriterion("level <>", value, "level");
+            addCriterion("`level` <>", value, "level");
             return (Criteria) this;
         }
 
         public Criteria andLevelGreaterThan(Integer value) {
-            addCriterion("level >", value, "level");
+            addCriterion("`level` >", value, "level");
             return (Criteria) this;
         }
 
         public Criteria andLevelGreaterThanOrEqualTo(Integer value) {
-            addCriterion("level >=", value, "level");
+            addCriterion("`level` >=", value, "level");
             return (Criteria) this;
         }
 
         public Criteria andLevelLessThan(Integer value) {
-            addCriterion("level <", value, "level");
+            addCriterion("`level` <", value, "level");
             return (Criteria) this;
         }
 
         public Criteria andLevelLessThanOrEqualTo(Integer value) {
-            addCriterion("level <=", value, "level");
+            addCriterion("`level` <=", value, "level");
             return (Criteria) this;
         }
 
         public Criteria andLevelIn(List<Integer> values) {
-            addCriterion("level in", values, "level");
+            addCriterion("`level` in", values, "level");
             return (Criteria) this;
         }
 
         public Criteria andLevelNotIn(List<Integer> values) {
-            addCriterion("level not in", values, "level");
+            addCriterion("`level` not in", values, "level");
             return (Criteria) this;
         }
 
         public Criteria andLevelBetween(Integer value1, Integer value2) {
-            addCriterion("level between", value1, value2, "level");
+            addCriterion("`level` between", value1, value2, "level");
             return (Criteria) this;
         }
 
         public Criteria andLevelNotBetween(Integer value1, Integer value2) {
-            addCriterion("level not between", value1, value2, "level");
+            addCriterion("`level` not between", value1, value2, "level");
             return (Criteria) this;
         }
 

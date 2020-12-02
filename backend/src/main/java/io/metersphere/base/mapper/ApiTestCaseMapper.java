@@ -1,32 +1,38 @@
 package io.metersphere.base.mapper;
 
-import io.metersphere.api.dto.definition.ApiTestCaseRequest;
-import io.metersphere.api.dto.definition.ApiTestCaseResult;
 import io.metersphere.base.domain.ApiTestCase;
 import io.metersphere.base.domain.ApiTestCaseExample;
+import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 public interface ApiTestCaseMapper {
-    
-    List<ApiTestCaseResult> list(@Param("request") ApiTestCaseRequest request);
-
     long countByExample(ApiTestCaseExample example);
 
     int deleteByExample(ApiTestCaseExample example);
 
     int deleteByPrimaryKey(String id);
 
-    int insert(ApiTestCase record);
+    int insert(ApiTestCaseWithBLOBs record);
 
-    List<ApiTestCase> selectByExampleWithBLOBs(ApiTestCaseExample example);
+    int insertSelective(ApiTestCaseWithBLOBs record);
+
+    List<ApiTestCaseWithBLOBs> selectByExampleWithBLOBs(ApiTestCaseExample example);
 
     List<ApiTestCase> selectByExample(ApiTestCaseExample example);
 
-    ApiTestCase selectByPrimaryKey(String id);
+    ApiTestCaseWithBLOBs selectByPrimaryKey(String id);
 
-    int updateByPrimaryKeySelective(ApiTestCase record);
+    int updateByExampleSelective(@Param("record") ApiTestCaseWithBLOBs record, @Param("example") ApiTestCaseExample example);
+
+    int updateByExampleWithBLOBs(@Param("record") ApiTestCaseWithBLOBs record, @Param("example") ApiTestCaseExample example);
+
+    int updateByExample(@Param("record") ApiTestCase record, @Param("example") ApiTestCaseExample example);
+
+    int updateByPrimaryKeySelective(ApiTestCaseWithBLOBs record);
+
+    int updateByPrimaryKeyWithBLOBs(ApiTestCaseWithBLOBs record);
 
     int updateByPrimaryKey(ApiTestCase record);
 }

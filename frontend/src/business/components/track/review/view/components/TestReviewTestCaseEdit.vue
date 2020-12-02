@@ -102,10 +102,11 @@
                     <el-col class="test-detail" :span="20" :offset="1">
                       <el-tabs v-model="activeTab" type="border-card">
                         <el-tab-pane name="detail" :label="$t('test_track.plan_view.test_detail')">
-                          <api-test-detail :is-read-only="true" v-if="testCase.type === 'api'" @runTest="testRun"
+                          <api-test-detail :is-read-only="true" v-if="testCase.type === 'api'"
                                            :id="testCase.testId" ref="apiTestDetail"/>
-                          <performance-test-detail :is-read-only="true" v-if="testCase.type === 'performance'"
-                                                   @runTest="testRun" :id="testCase.testId"
+                          <performance-test-detail v-if="testCase.type === 'performance'"
+                                                   :is-read-only="true"
+                                                   :id="testCase.testId"
                                                    ref="performanceTestDetail"/>
                         </el-tab-pane>
                       </el-tabs>
@@ -211,7 +212,6 @@
                         <test-case-attachment :table-data="tableData"
                                               :read-only="false"
                                               :is-delete="false"
-                                              @handleDelete="handleDelete"
                         />
                       </div>
                     </el-col>
@@ -338,20 +338,26 @@ export default {
       this.getTestCase(this.index);
     },
     getTestCase(index) {
+      this.testCase = {};
       let testCase = this.testCases[index];
-      let item = {};
-      Object.assign(item, testCase);
-      item.steps = JSON.parse(item.steps);
-      item.steptResults = [];
-      for (let i = 0; i < item.steps.length; i++) {
-        item.steps[i].actualResult = '';
-        item.steps[i].executeResult = '';
-        item.steptResults.push(item.steps[i]);
-      }
-      this.testCase = item;
-      this.getComments(item);
-      this.initTest();
-      this.getFileMetaData(testCase);
+      this.result = this.$get("/test/review/case/get/" + testCase.id, response => {
+        let item = {};
+        let data = response.data;
+        Object.assign(item, data);
+        item.steps = JSON.parse(item.steps);
+        item.steptResults = [];
+        for (let i = 0; i < item.steps.length; i++) {
+          item.steps[i].actualResult = '';
+          item.steps[i].executeResult = '';
+          item.steptResults.push(item.steps[i]);
+        }
+        this.testCase = item;
+        this.getRelatedTest();
+        this.getComments(item);
+        this.initTest();
+        this.getFileMetaData(data);
+      })
+
     },
     getFileMetaData(testCase) {
       this.tableData = [];
@@ -375,21 +381,16 @@ export default {
     },
     initTest() {
       this.$nextTick(() => {
-        if (this.testCase.method === 'auto') {
-          if (this.$refs.apiTestDetail && this.testCase.type === 'api') {
-            this.$refs.apiTestDetail.init();
-          } else if (this.testCase.type === 'performance') {
-            this.$refs.performanceTestDetail.init();
+        if (this.testCase.testId && this.testCase.testId !== 'other') {
+          if (this.testCase.method === 'auto') {
+            if (this.$refs.apiTestDetail && this.testCase.type === 'api') {
+              this.$refs.apiTestDetail.init();
+            } else if (this.testCase.type === 'performance') {
+              this.$refs.performanceTestDetail.init();
+            }
           }
         }
       });
-    },
-    testRun(reportId) {
-      this.testCase.reportId = reportId;
-      this.saveReport(reportId);
-    },
-    saveReport(reportId) {
-
     },
     getComments(testCase) {
       let id = '';
@@ -403,13 +404,12 @@ export default {
       })
     },
     initData(testCase) {
-      this.result = this.$post('/test/review/case/list/all', this.searchParam, response => {
+      this.result = this.$post('/test/review/case/list/ids', this.searchParam, response => {
         this.testCases = response.data;
         for (let i = 0; i < this.testCases.length; i++) {
           if (this.testCases[i].id === testCase.id) {
             this.index = i;
             this.getTestCase(i);
-            this.getRelatedTest();
           }
         }
       });
@@ -439,9 +439,6 @@ export default {
         }).length > 0;
       }
     },
-    handleDelete() {
-
-    }
   }
 }
 </script>

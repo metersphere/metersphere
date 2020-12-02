@@ -197,6 +197,16 @@ export class Test extends BaseConfig {
   }
 }
 
+export class ScenarioObj extends BaseConfig {
+  constructor(options = {}) {
+    super();
+    this.id = undefined;
+    this.name = undefined;
+    this.type = "scenario";
+    this.hashTree = [];
+  }
+}
+
 export class Scenario extends BaseConfig {
   constructor(options = {}) {
     super();
@@ -761,6 +771,7 @@ export class KeyValue extends BaseConfig {
 export class Assertions extends BaseConfig {
   constructor(options) {
     super();
+    this.resourceId = uuid();
     this.type = "Assertions";
     this.text = [];
     this.regex = [];
@@ -830,6 +841,9 @@ export class BeanShellProcessor extends BaseConfig {
 export class JSR223Processor extends BaseConfig {
   constructor(options) {
     super();
+    this.resourceId = uuid();
+    this.active = false;
+    this.type = "JSR223Processor";
     this.script = undefined;
     this.language = "beanshell";
     this.set(options);
@@ -901,6 +915,7 @@ export class Duration extends AssertionType {
 export class Extract extends BaseConfig {
   constructor(options) {
     super();
+    this.resourceId = uuid();
     this.type = "Extract";
     this.regex = [];
     this.json = [];
@@ -968,6 +983,7 @@ export class Controller extends BaseConfig {
     super();
     this.type = type
     options.id = options.id || uuid();
+    options.resourceId = options.resourceId || uuid();
     options.enable = options.enable === undefined ? true : options.enable;
   }
 }
@@ -975,10 +991,11 @@ export class Controller extends BaseConfig {
 export class IfController extends Controller {
   constructor(options = {}) {
     super(Controller.TYPES.IF_CONTROLLER, options);
+    this.type = "IfController";
     this.variable;
     this.operator;
     this.value;
-
+    this.hashTree = [];
     this.set(options);
   }
 
@@ -1009,6 +1026,7 @@ export class Timer extends BaseConfig {
     super();
     this.type = type;
     options.id = options.id || uuid();
+    options.resourceId = options.resourceId || uuid();
     options.enable = options.enable === undefined ? true : options.enable;
   }
 }
@@ -1017,7 +1035,8 @@ export class ConstantTimer extends Timer {
   constructor(options = {}) {
     super(Timer.TYPES.CONSTANT_TIMER, options);
     this.delay;
-
+    this.type = "ConstantTimer";
+    this.hashTree = [];
     this.set(options);
   }
 

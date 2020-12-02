@@ -237,7 +237,7 @@ export default {
       mail: '郵件',
       nail_robot: '釘釘機器人',
       enterprise_wechat_robot: '企業微信機器人',
-      notes: '註意: 1.事件，接收方式，接收人為必填項；\n' +
+      notes: '1.事件，接收方式，接收人為必填項；\n' +
         '         2.接收方式除郵件外webhook為必填；\n' +
         '         3.機器人選擇為群機器人，安全驗證選擇“自定義關鍵詞” ："任務通知"',
       message: '事件，接收人，接收方式為必填項',
@@ -528,6 +528,22 @@ export default {
         extract_param: "提取參數",
         add_module: "創建模塊",
       }
+    },
+    automation: {
+      follow_people: "關註人",
+      create_tag: "創建Tag",
+      scenario_step: "場景步驟",
+      step_total: "步驟總數",
+      scenario_total: "場景公共參數",
+      api_list_import: "接口列表導入",
+      external_import: "外部導入",
+      wait_controller: "等待控制器",
+      if_controller: "條件控制器",
+      scenario_import: "場景導入",
+      customize_script: "自定義腳本",
+      customize_req: "自定義請求",
+      reference_info: "請選擇接口或用例"
+
     },
     environment: {
       name: "環境名稱",

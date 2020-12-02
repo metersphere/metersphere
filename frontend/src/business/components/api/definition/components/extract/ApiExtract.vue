@@ -1,32 +1,33 @@
 <template>
-  <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin-top: 20px">
-    <el-button class="ms-left-buttion" size="small" style="color: #015478;background-color: #E6EEF2">{{$t('api_test.definition.request.extract_param')}}</el-button>
-    <el-button size="small" style="float: right;margin-top: 0px" @click="remove">移除</el-button>
+  <div :style="customizeStyle">
+    <el-card>
+      <el-button class="ms-left-buttion" size="small" style="color: #015478;background-color: #E6EEF2">{{$t('api_test.definition.request.extract_param')}}</el-button>
+      <el-button size="small" style="float: right;margin-top: 0px" @click="remove">移除</el-button>
 
-    <div style="margin: 20px">
-      <div class="extract-description">
-        {{$t('api_test.request.extract.description')}}
+      <div style="margin: 20px">
+        <div class="extract-description">
+          {{$t('api_test.request.extract.description')}}
+        </div>
+        <div class="extract-add">
+          <el-row :gutter="10">
+            <el-col :span="2">
+              <el-select :disabled="isReadOnly" class="extract-item" v-model="type" :placeholder="$t('api_test.request.extract.select_type')"
+                         size="small">
+                <el-option :label="$t('api_test.request.extract.regex')" :value="options.REGEX"/>
+                <el-option label="JSONPath" :value="options.JSON_PATH"/>
+                <el-option label="XPath" :value="options.XPATH"/>
+              </el-select>
+            </el-col>
+            <el-col :span="22">
+              <ms-api-extract-common :is-read-only="isReadOnly" :extract-type="type" :list="list" v-if="type" :callback="after"/>
+            </el-col>
+
+            <el-button v-if="!type" :disabled="true" type="primary" size="small">Add</el-button>
+          </el-row>
+        </div>
+        <ms-api-extract-edit :is-read-only="isReadOnly" :reloadData="reloadData" :extract="extract"/>
       </div>
-      <div class="extract-add">
-        <el-row :gutter="10">
-          <el-col :span="2">
-            <el-select :disabled="isReadOnly" class="extract-item" v-model="type" :placeholder="$t('api_test.request.extract.select_type')"
-                       size="small">
-              <el-option :label="$t('api_test.request.extract.regex')" :value="options.REGEX"/>
-              <el-option label="JSONPath" :value="options.JSON_PATH"/>
-              <el-option label="XPath" :value="options.XPATH"/>
-            </el-select>
-          </el-col>
-          <el-col :span="22">
-            <ms-api-extract-common :is-read-only="isReadOnly" :extract-type="type" :list="list" v-if="type" :callback="after"/>
-          </el-col>
-
-          <el-button v-if="!type" :disabled="true" type="primary" size="small">Add</el-button>
-        </el-row>
-      </div>
-
-      <ms-api-extract-edit :is-read-only="isReadOnly" :reloadData="reloadData" :extract="extract"/>
-    </div>
+    </el-card>
   </div>
 </template>
 
@@ -46,6 +47,11 @@
 
     props: {
       extract: {},
+      node: {},
+      customizeStyle: {
+        type: String,
+        default: "margin-top: 10px"
+      },
       isReadOnly: {
         type: Boolean,
         default: false
@@ -66,7 +72,7 @@
         this.reloadData = getUUID().substring(0, 8);
       },
       remove() {
-        this.$emit('remove', this.extract);
+        this.$emit('remove', this.extract, this.node);
       },
 
     },

@@ -236,7 +236,7 @@ export default {
       mail: 'mail',
       nail_robot: 'Nail robot',
       enterprise_wechat_robot: 'Enterprise wechat robot',
-      notes: 'Note: 1. Nail and create a custom robot in the enterprise group, and then copy the webhook address on our platform;\n' +
+      notes: '1. Nail and create a custom robot in the enterprise group, and then copy the webhook address on our platform;\n' +
         '\n' +
         '2. Robots are selected as swarm robots, and "custom keyword" is selected for security verification: "task notification";\n' +
         '\n' +
@@ -526,8 +526,22 @@ export default {
         post_script: "Postscript",
         extract_param: "Extract parameters",
         add_module: "Add module",
-
       }
+    },
+    automation: {
+      follow_people: "Follow people",
+      create_tag: "Create tag",
+      scenario_step: "Scenario step",
+      step_total: "Step total",
+      scenario_total: "Scene public parameters",
+      api_list_import: "Interface list import",
+      external_import: "External import",
+      wait_controller: "Waiting for controller",
+      if_controller: "Condition controller",
+      scenario_import: "Scene import",
+      customize_script: "Custom script",
+      customize_req: "Custom request",
+      reference_info: "Please select interface or use case",
     },
     environment: {
       name: "Environment Name",

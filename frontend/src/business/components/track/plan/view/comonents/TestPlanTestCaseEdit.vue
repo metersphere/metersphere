@@ -472,6 +472,7 @@ export default {
       this.getTestCase(this.index);
     },
     getTestCase(index) {
+      this.testCase = {};
       let testCase = this.testCases[index];
       // id 为 TestPlanTestCase 的 id
       this.result = this.$get('/test/plan/case/get/' + testCase.id, response => {
@@ -495,11 +496,10 @@ export default {
         this.testCase = item;
         this.getRelatedTest();
         this.initTest();
+        this.getIssues(item.caseId);
+        this.stepResultChange();
+        this.getFileMetaData(item);
       })
-
-      this.getIssues(testCase.caseId);
-      this.stepResultChange();
-      this.getFileMetaData(testCase);
     },
     getFileMetaData(testCase) {
       this.tableData = [];

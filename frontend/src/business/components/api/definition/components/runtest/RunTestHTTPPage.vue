@@ -35,7 +35,7 @@
         </el-form-item>
 
         <!-- 请求地址 -->
-        <el-form-item prop="url">
+        <el-form-item prop="path">
           <el-input :placeholder="$t('api_test.definition.request.path_info')" v-model="api.request.path" class="ms-htt-width"
                     size="small" :disabled="false"/>
         </el-form-item>
@@ -59,7 +59,7 @@
 
         <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
         <!-- HTTP 请求参数 -->
-        <ms-api-request-form :headers="api.request.hashTree[0].headers" :request="api.request"/>
+        <ms-api-request-form :headers="api.request.headers" :request="api.request"/>
 
       </el-form>
       <!--返回结果-->
@@ -120,7 +120,7 @@
         environments: [],
         rules: {
           method: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
-          url: [{required: true, message: this.$t('api_test.definition.request.path_info'), trigger: 'blur'}],
+          path: [{required: true, message: this.$t('api_test.definition.request.path_info'), trigger: 'blur'}],
           environmentId: [{required: true, message: this.$t('api_test.definition.request.run_env'), trigger: 'change'}],
         },
         runData: [],

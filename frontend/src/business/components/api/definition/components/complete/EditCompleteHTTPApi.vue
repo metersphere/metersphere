@@ -61,7 +61,7 @@
         <!-- 请求参数 -->
         <div>
           <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
-          <ms-api-request-form :request="request" :headers="headers" :isShowEnable="isShowEnable"/>
+          <ms-api-request-form :request="request" :headers="request.headers" :isShowEnable="isShowEnable"/>
         </div>
 
       </el-form>
@@ -103,7 +103,7 @@
         options: API_STATUS,
       }
     },
-    props: {moduleOptions: {}, currentProject: {}, headers: Array, request: {}, response: {}, basisData: {}},
+    props: {moduleOptions: {}, currentProject: {}, request: {}, response: {}, basisData: {}},
     methods: {
       runTest() {
         if (this.currentProject === null) {

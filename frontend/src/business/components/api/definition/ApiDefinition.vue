@@ -31,6 +31,8 @@
             :current-module="currentModule"
             @editApi="editApi"
             @handleCase="handleCase"
+            :visible="visible"
+            :currentRow="currentRow"
             ref="apiList"/>
 
           <!-- 添加测试窗口-->
@@ -86,7 +88,7 @@
   import {downloadFile, getCurrentUser, getUUID} from "@/common/js/utils";
 
   export default {
-    name: "TestCase",
+    name: "ApiDefinition",
     components: {
       MsNodeTree,
       MsApiList,
@@ -103,7 +105,15 @@
       MsRunTestSqlPage,
       MsRunTestDubboPage
     },
-    comments: {},
+    props: {
+      visible: {
+        type: Boolean,
+        default: false,
+      },
+      currentRow: {
+        type: Object,
+      }
+    },
     data() {
       return {
         isHide: true,

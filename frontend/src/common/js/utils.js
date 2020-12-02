@@ -1,12 +1,12 @@
 import {
+  LicenseKey,
   REFRESH_SESSION_USER_URL,
-  ROLE_ORG_ADMIN,
   ROLE_ADMIN,
+  ROLE_ORG_ADMIN,
   ROLE_TEST_MANAGER,
   ROLE_TEST_USER,
   ROLE_TEST_VIEWER,
-  TokenKey,
-  LicenseKey
+  TokenKey
 } from "./constants";
 import axios from "axios";
 import {jsPDF} from "jspdf";
@@ -43,6 +43,11 @@ export function hasRolePermission(role) {
     }
   }
   return false
+}
+
+export function hasLicense() {
+  let v = localStorage.getItem(LicenseKey);
+  return v === 'valid';
 }
 
 //是否含有对应组织或工作空间的角色
@@ -238,7 +243,7 @@ export function exportPdf(name, canvasList) {
 
       // html页面生成的canvas在pdf中图片的宽高
       let imgWidth = a4Width;
-      let imgHeight = a4Width/contentWidth * contentHeight;
+      let imgHeight = a4Width / contentWidth * contentHeight;
 
       let pageData = canvas.toDataURL('image/jpeg', 1.0);
 
@@ -251,7 +256,7 @@ export function exportPdf(name, canvasList) {
       if (leftHeight > blankHeight) {
         //页面偏移
         let position = 0;
-        while(leftHeight > 0) {
+        while (leftHeight > 0) {
           // 本次添加占用的高度
           let occupation = a4Height - currentHeight;
           pdf.addImage(pageData, 'JPEG', 0, position + currentHeight, imgWidth, imgHeight);
@@ -259,7 +264,7 @@ export function exportPdf(name, canvasList) {
           leftHeight -= occupation;
           position -= occupation;
           //避免添加空白页
-          if(leftHeight > 0) {
+          if (leftHeight > 0) {
             pdf.addPage();
             currentHeight = 0;
           }
@@ -277,15 +282,15 @@ export function exportPdf(name, canvasList) {
 
 export function windowPrint(id, zoom) {
   //根据div标签ID拿到div中的局部内容
-  let bdhtml=window.document.body.innerHTML;
+  let bdhtml = window.document.body.innerHTML;
   let el = document.getElementById(id);
   var jubuData = el.innerHTML;
-  document.getElementsByTagName('body')[0].style.zoom=zoom;
+  document.getElementsByTagName('body')[0].style.zoom = zoom;
   //把获取的 局部div内容赋给body标签, 相当于重置了 body里的内容
-  window.document.body.innerHTML= jubuData;
+  window.document.body.innerHTML = jubuData;
   //调用打印功能
   window.print();
-  window.document.body.innerHTML=bdhtml;//重新给页面内容赋值；
+  window.document.body.innerHTML = bdhtml;//重新给页面内容赋值；
   return false;
 }
 
