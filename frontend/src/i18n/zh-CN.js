@@ -530,6 +530,33 @@ export default {
 
       }
     },
+    automation: {
+      scenario_test: "场景",
+      add_scenario: "创建场景",
+      scenario_name: "场景名称",
+      case_level: "用例等级",
+      tag: "标签",
+      creator: "创建人",
+      update_time: "最后更新时间",
+      step: "步骤数",
+      last_result: "最后结果",
+      passing_rate: "通过率",
+      success: "通过",
+      fail: "失败",
+      saved: "保存",
+      trash: "回收",
+      edit: "编辑",
+      execute: "执行",
+      copy: "复制",
+      remove: "删除",
+      scenario: {
+        principal: "责任人",
+        select_principal: "请选择责任人",
+        follow_people: "关注人",
+        select_table: "选择可见数据",
+        select_all: "选择全部数据"
+      }
+    },
     environment: {
       name: "环境名称",
       socket: "环境域名",
