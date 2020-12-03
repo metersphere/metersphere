@@ -18,8 +18,10 @@ jobs:
     name: Build Docker Image and Push
     steps:
     - uses: actions/checkout@v2
-    - name: Checkout submodules
-      run: git submodule update --init --recursive
+      with:
+        submodules: true
+        token: ${{ secrets.ACCESS_TOKEN }}
+
     - name: Inject slug/short variables
       uses: rlespinasse/github-slug-action@v3.x
     - name: Cache node modules
