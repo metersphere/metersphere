@@ -115,6 +115,7 @@ public class TestPlanService {
                 .subject(Translator.get("test_plan_notification"))
                 .mailTemplate("TestPlanStart")
                 .paramMap(paramMap)
+                .event(NoticeConstants.Event.CREATE)
                 .build();
         noticeSendService.send(NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
     }
@@ -158,6 +159,7 @@ public class TestPlanService {
                     .subject(Translator.get("test_plan_notification"))
                     .mailTemplate("TestPlanEnd")
                     .paramMap(paramMap)
+                    .event(NoticeConstants.Event.UPDATE)
                     .build();
             noticeSendService.send(NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
         }
@@ -258,9 +260,9 @@ public class TestPlanService {
         deleteTestCaseByPlanId(planId);
         testPlanProjectService.deleteTestPlanProjectByPlanId(planId);
         int num = testPlanMapper.deleteByPrimaryKey(planId);
-        List<String> userIds = new ArrayList<>();
+        List<String> relatedUsers = new ArrayList<>();
         AddTestPlanRequest testPlans = new AddTestPlanRequest();
-        userIds.add(testPlan.getCreator());
+        relatedUsers.add(testPlan.getCreator());
         try {
             BeanUtils.copyBean(testPlans, testPlan);
             String context = getTestPlanContext(testPlans, NoticeConstants.Event.DELETE);
@@ -269,10 +271,11 @@ public class TestPlanService {
             paramMap.put("creator", user.getName());
             NoticeModel noticeModel = NoticeModel.builder()
                     .context(context)
-                    .relatedUsers(userIds)
+                    .relatedUsers(relatedUsers)
                     .subject(Translator.get("test_plan_notification"))
                     .mailTemplate("TestPlanDelete")
                     .paramMap(paramMap)
+                    .event(NoticeConstants.Event.DELETE)
                     .build();
             noticeSendService.send(NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
         } catch (Exception e) {
@@ -510,6 +513,7 @@ public class TestPlanService {
                         .subject(Translator.get("test_plan_notification"))
                         .mailTemplate("TestPlanEnd")
                         .paramMap(paramMap)
+                        .event(NoticeConstants.Event.UPDATE)
                         .build();
                 noticeSendService.send(NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
             } catch (Exception e) {

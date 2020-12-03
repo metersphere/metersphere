@@ -1,6 +1,5 @@
 package io.metersphere.api.dto.definition.request.sampler;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
@@ -9,7 +8,6 @@ import io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
-import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -23,16 +21,13 @@ import org.apache.jmeter.protocol.http.control.Header;
 import org.apache.jmeter.protocol.http.control.HeaderManager;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.protocol.http.util.HTTPArgument;
-import org.apache.jmeter.protocol.http.util.HTTPFileArg;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -142,39 +137,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (CollectionUtils.isNotEmpty(this.getArguments())) {
             sampler.setArguments(httpArguments(this.getArguments()));
         }
+
         // 请求体
         if (!StringUtils.equals(this.getMethod(), "GET")) {
-            List<KeyValue> body = new ArrayList<>();
-            if (this.getBody().isKV() || this.getBody().isBinary()) {
-                body = this.getBody().getKvs().stream().filter(KeyValue::isValid).collect(Collectors.toList());
-                HTTPFileArg[] httpFileArgs = httpFileArgs();
-                // 文件上传
-                if (httpFileArgs.length > 0) {
-                    sampler.setHTTPFiles(httpFileArgs());
-                    sampler.setDoMultipart(true);
-                }
-            } else if (this.getBody().isJson()) {
-                KeyValue keyValue = new KeyValue("", JSON.toJSONString(this.getBody().getJson()));
-                keyValue.setEnable(true);
-                keyValue.setEncode(false);
-                body.add(keyValue);
-            } else {
-                if (StringUtils.isNotBlank(this.getBody().getRaw())) {
-                    sampler.setPostBodyRaw(true);
-                    KeyValue keyValue = new KeyValue("", this.getBody().getRaw());
-                    keyValue.setEnable(true);
-                    keyValue.setEncode(false);
-                    body.add(keyValue);
-                }
-                if (StringUtils.isNotBlank(this.getBody().getXml())) {
-                    sampler.setPostBodyRaw(true);
-                    KeyValue keyValue = new KeyValue("", this.getBody().getXml());
-                    keyValue.setEnable(true);
-                    keyValue.setEncode(false);
-                    body.add(keyValue);
-                }
-            }
-            sampler.setArguments(httpArguments(body));
+            List<KeyValue> bodyParams = this.body.getBodyParams(sampler, this.getId());
+            sampler.setArguments(httpArguments(bodyParams));
         }
 
         final HashTree httpSamplerTree = tree.add(sampler);
@@ -223,29 +190,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 }
         );
         return arguments;
-    }
-
-    private void setFileArg(List<HTTPFileArg> list, List<BodyFile> files, KeyValue keyValue) {
-        final String BODY_FILE_DIR = "/opt/metersphere/data/body";
-        if (files != null) {
-            files.forEach(file -> {
-                String paramName = keyValue.getName() == null ? this.getId() : keyValue.getName();
-                String path = BODY_FILE_DIR + '/' + file.getId() + '_' + file.getName();
-                String mimetype = keyValue.getContentType();
-                list.add(new HTTPFileArg(path, paramName, mimetype));
-            });
-        }
-    }
-
-    private HTTPFileArg[] httpFileArgs() {
-        List<HTTPFileArg> list = new ArrayList<>();
-        this.getBody().getKvs().stream().filter(KeyValue::isFile).filter(KeyValue::isEnable).forEach(keyValue -> {
-            setFileArg(list, keyValue.getFiles(), keyValue);
-        });
-        this.getBody().getBinary().stream().filter(KeyValue::isFile).filter(KeyValue::isEnable).forEach(keyValue -> {
-            setFileArg(list, keyValue.getFiles(), keyValue);
-        });
-        return list.toArray(new HTTPFileArg[0]);
     }
 
     public void setHeader(HashTree tree) {

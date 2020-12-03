@@ -720,12 +720,9 @@ export class Body extends BaseConfig {
     this.type = "KeyValue";
     this.raw = undefined;
     this.kvs = [];
-    this.fromUrlencoded = [];
     this.binary = [];
-    this.xml = undefined;
-    this.json = undefined;
     this.set(options);
-    this.sets({kvs: KeyValue}, {fromUrlencoded: KeyValue}, {binary: KeyValue}, options);
+    this.sets({kvs: KeyValue}, {binary: KeyValue}, options);
   }
 
   isValid() {
@@ -739,7 +736,7 @@ export class Body extends BaseConfig {
   }
 
   isKV() {
-    return this.type === BODY_TYPE.KV;
+    return [BODY_TYPE.FORM_DATA, BODY_TYPE.WWW_FORM, BODY_TYPE.BINARY].indexOf(this.type) > 0;
   }
 }
 

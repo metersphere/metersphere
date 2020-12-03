@@ -100,6 +100,7 @@ public class IssuesService {
                 .subject(Translator.get("task_defect_notification"))
                 .mailTemplate("IssuesCreate")
                 .paramMap(paramMap)
+                .event(NoticeConstants.Event.CREATE)
                 .build();
         noticeSendService.send(NoticeConstants.TaskType.DEFECT_TASK, noticeModel);
     }
