@@ -31,7 +31,8 @@
             </el-dialog>
           </el-tab-pane>
           <el-tab-pane :label="$t('schedule.task_notification')" name="second">
-          <schedule-task-notification :is-tester-permission="isTesterPermission" :test-id="testId" :schedule-receiver-options="scheduleReceiverOptions"></schedule-task-notification>
+            <schedule-task-notification :is-tester-permission="isTesterPermission" :test-id="testId"
+                                        :schedule-receiver-options="scheduleReceiverOptions"/>
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -40,20 +41,19 @@
 </template>
 
 <script>
-import {getCurrentUser} from "@/common/js/utils";
+import {checkoutTestManagerOrTestUser, getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import Crontab from "../cron/Crontab";
 import CrontabResult from "../cron/CrontabResult";
 import {cronValidate} from "@/common/js/cron";
-import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import ScheduleTaskNotification from "../../settings/organization/components/ScheduleTaskNotification";
-import {checkoutTestManagerOrTestUser} from "../../../../common/js/utils";
+
 function defaultCustomValidate() {
   return {pass: true};
 }
 
 export default {
   name: "MsScheduleEdit",
-  components: {CrontabResult, Crontab,ScheduleTaskNotification},
+  components: {CrontabResult, Crontab, ScheduleTaskNotification},
   props: {
     testId: String,
     save: Function,
@@ -92,7 +92,7 @@ export default {
       }
     };
     return {
-      scheduleReceiverOptions:[],
+      scheduleReceiverOptions: [],
       operation: true,
       dialogVisible: false,
       showCron: false,
@@ -122,13 +122,13 @@ export default {
       }
 
     },
-   /* handleClick() {
-      if (this.activeName === "second") {
-          this.result = this.$get('/notice/search/message/'+this.testId, response => {
-            this.scheduleTask = response.data;
-          })
-      }
-    },*/
+    /* handleClick() {
+       if (this.activeName === "second") {
+           this.result = this.$get('/notice/search/message/'+this.testId, response => {
+             this.scheduleTask = response.data;
+           })
+       }
+     },*/
     buildParam() {
       let param = {};
       param.notices = this.tableData
