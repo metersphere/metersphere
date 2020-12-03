@@ -11,7 +11,6 @@ import io.metersphere.api.dto.parse.ApiImport;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.request.RequestType;
-import io.metersphere.commons.constants.MsRequestBodyType;
 import io.metersphere.commons.constants.SwaggerParameterType;
 import io.swagger.models.*;
 import io.swagger.models.parameters.*;
@@ -64,6 +63,7 @@ public class Swagger2Parser extends ApiImportAbstractParser {
                 MsHTTPSamplerProxy request = buildRequest(operation, pathName, method.name());
                 parseParameters(operation, request);
                 apiDefinition.setRequest(JSON.toJSONString(request));
+                apiDefinition.setId(request.getId());
                 results.add(apiDefinition);
 
 

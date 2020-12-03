@@ -103,24 +103,20 @@
       modeChange(mode) {
         switch (this.body.type) {
           case "JSON":
-            this.body.format = "json";
             this.setContentType("application/json");
             break;
           case "XML":
-            this.body.format = "xml";
             this.setContentType("text/xml");
             break;
           case "WWW_FORM":
-            this.body.format = "form";
             this.setContentType("application/x-www-form-urlencoded");
             break;
+          // todo from data
           case "BINARY":
-            this.body.format = "binary";
             this.setContentType("application/octet-stream");
             break;
           default:
             this.removeContentType();
-            this.body.format = mode;
             break;
         }
       },
@@ -154,10 +150,7 @@
 
     created() {
       if (!this.body.type) {
-        this.body.type = BODY_TYPE.KV;
-      }
-      if (!this.body.format) {
-        this.body.format = BODY_FORMAT.TEXT;
+        this.body.type = BODY_TYPE.FORM_DATA;
       }
       this.body.kvs.forEach(param => {
         if (!param.type) {

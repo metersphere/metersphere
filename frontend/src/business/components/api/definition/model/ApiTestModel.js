@@ -736,7 +736,7 @@ export class Body extends BaseConfig {
   }
 
   isKV() {
-    return this.type === BODY_TYPE.KV;
+    return [BODY_TYPE.FORM_DATA, BODY_TYPE.WWW_FORM, BODY_TYPE.BINARY].indexOf(this.type) > 0;
   }
 }
 

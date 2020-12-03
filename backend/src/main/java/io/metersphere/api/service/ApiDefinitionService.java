@@ -227,7 +227,6 @@ public class ApiDefinitionService {
     private ApiDefinition createTest(ApiDefinitionResult request, ApiDefinitionMapper batchMapper) {
         SaveApiDefinitionRequest saveReq = new SaveApiDefinitionRequest();
         BeanUtils.copyBean(saveReq, request);
-        saveReq.setId(UUID.randomUUID().toString());
         checkNameExist(saveReq);
         final ApiDefinitionWithBLOBs test = new ApiDefinitionWithBLOBs();
         BeanUtils.copyBean(test, request);
@@ -340,7 +339,6 @@ public class ApiDefinitionService {
             item.setModuleId(importRequest.getModuleId());
             item.setModulePath(importRequest.getModulePath());
             item.setEnvironmentId(importRequest.getEnvironmentId());
-            item.setId(UUID.randomUUID().toString());
             item.setUserId(null);
             createTest(item, batchMapper);
             if (i % 300 == 0) {
