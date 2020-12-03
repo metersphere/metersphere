@@ -3,12 +3,14 @@ name: Build Docker Image and Push
 on:
   push:
     branches:
-      - main
+      - master
       - v1*
   pull_request:
     branches:
-      - main
+      - master
       - v1*
+  
+  workflow_dispatch:
   
 jobs:
   build_push:
