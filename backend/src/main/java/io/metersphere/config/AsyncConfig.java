@@ -6,7 +6,7 @@ import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-@EnableAsync
+@EnableAsync(proxyTargetClass = true)
 @Configuration
 public class AsyncConfig {
 
