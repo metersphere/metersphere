@@ -1,20 +1,31 @@
 package io.metersphere.api.service;
 
+import com.alibaba.fastjson.JSON;
+import com.google.gson.Gson;
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.SaveApiScenarioRequest;
 import io.metersphere.api.dto.automation.ScenarioStatus;
+import io.metersphere.api.dto.definition.RunDefinitionRequest;
+import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiScenarioExample;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
+import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
+import org.apache.jorphan.collections.HashTree;
+import org.aspectj.util.FileUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -24,6 +35,10 @@ public class ApiAutomationService {
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
+    @Resource
+    private JMeterService jMeterService;
+
+    private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
     public List<ApiScenarioDTO> list(ApiScenarioRequest request) {
         return extApiScenarioMapper.list(request);
@@ -112,4 +127,55 @@ public class ApiAutomationService {
     public ApiScenario getApiScenario(String id) {
         return apiScenarioMapper.selectByPrimaryKey(id);
     }
+
+    private void createBodyFiles(List<String> bodyUploadIds, List<MultipartFile> bodyFiles) {
+        if (!bodyUploadIds.isEmpty()) {
+            File testDir = new File(BODY_FILE_DIR);
+            if (!testDir.exists()) {
+                testDir.mkdirs();
+            }
+            for (int i = 0; i < bodyUploadIds.size(); i++) {
+                MultipartFile item = bodyFiles.get(i);
+                File file = new File(BODY_FILE_DIR + "/" + bodyUploadIds.get(i) + "_" + item.getOriginalFilename());
+                try (InputStream in = item.getInputStream(); OutputStream out = new FileOutputStream(file)) {
+                    file.createNewFile();
+                    FileUtil.copyStream(in, out);
+                } catch (IOException e) {
+                    LogUtil.error(e);
+                    MSException.throwException(Translator.get("upload_fail"));
+                }
+            }
+        }
+    }
+
+    public void deleteTag(String id) {
+        List<ApiScenario> list = extApiScenarioMapper.selectByTagId(id);
+        if (!list.isEmpty()) {
+            Gson gs = new Gson();
+            list.forEach(item -> {
+                List<String> tagIds = gs.fromJson(item.getTagId(), List.class);
+                tagIds.remove(id);
+                item.setTagId(JSON.toJSONString(tagIds));
+            });
+            extApiScenarioMapper.batchUpdate(list);
+        }
+    }
+
+    /**
+     * 场景测试执行
+     *
+     * @param request
+     * @param bodyFiles
+     * @return
+     */
+    public String run(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
+        List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
+        createBodyFiles(bodyUploadIds, bodyFiles);
+        HashTree hashTree = request.getTestElement().generateHashTree();
+        request.getTestElement().getJmx(hashTree);
+        // 调用执行方法
+        jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
+        return request.getId();
+    }
+
 }

@@ -1,9 +1,6 @@
 package io.metersphere.api.jmeter;
 
-import io.metersphere.api.service.APIReportService;
-import io.metersphere.api.service.APITestService;
-import io.metersphere.api.service.ApiDefinitionExecResultService;
-import io.metersphere.api.service.ApiDefinitionService;
+import io.metersphere.api.service.*;
 import io.metersphere.base.domain.ApiTestReport;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
@@ -57,7 +54,10 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
     private MailService mailService;
 
     private ApiDefinitionService apiDefinitionService;
+
     private ApiDefinitionExecResultService apiDefinitionExecResultService;
+
+    private ApiScenarioReportService apiScenarioReportService;
 
     public String runMode = ApiRunMode.RUN.name();
 
@@ -112,6 +112,12 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         if (apiDefinitionExecResultService == null) {
             LogUtil.error("apiDefinitionExecResultService is required");
         }
+
+        apiScenarioReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);
+        if (apiScenarioReportService == null) {
+            LogUtil.error("apiScenarioReportService is required");
+        }
+
         super.setupTest(context);
     }
 
@@ -170,6 +176,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         testResult.getScenarios().addAll(scenarios.values());
         testResult.getScenarios().sort(Comparator.comparing(ScenarioResult::getId));
         ApiTestReport report = null;
+        // 这部分后续优化只留 DELIMIT 和 SCENARIO 两部分
         if (StringUtils.equals(this.runMode, ApiRunMode.DEBUG.name())) {
             report = apiReportService.get(debugReportId);
             apiReportService.complete(testResult, report);
@@ -180,6 +187,14 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             } else {
                 apiDefinitionService.addResult(testResult);
                 apiDefinitionExecResultService.saveApiResult(testResult);
+            }
+        } else if (StringUtils.equals(this.runMode, ApiRunMode.SCENARIO.name())) {
+            // 调试操作，不需要存储结果
+            if (StringUtils.isBlank(debugReportId)) {
+                apiScenarioReportService.addResult(testResult);
+            } else {
+                apiScenarioReportService.addResult(testResult);
+                //apiScenarioReportService.saveApiResult(testResult);
             }
         } else {
             apiTestService.changeStatus(testId, APITestStatus.Completed);

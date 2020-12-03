@@ -84,7 +84,7 @@
                 <el-option
                   v-for="item in tags"
                   :key="item.id"
-                  :label="item.id + ' (' + item.name + ')'"
+                  :label="item.name"
                   :value="item.id"/>
                 <el-button size="mini" type="primary" @click="openTagConfig" class="ms-scenario-button">
                   {{ $t('api_test.automation.create_tag') }}
@@ -258,6 +258,9 @@
 
       <!--TAG-->
       <ms-add-tag @refreshTags="refreshTags" ref="tag"/>
+      <!--执行组件-->
+      <ms-run :debug="true" :environment="currentEnvironment" :reportId="reportId" :run-data="scenarioDefinition"
+              @runRefresh="runRefresh" ref="runTest"/>
     </div>
   </el-card>
 </template>
@@ -279,6 +282,7 @@
   import {getUUID} from "@/common/js/utils";
   import ApiEnvironmentConfig from "../../definition/components/environment/ApiEnvironmentConfig";
   import MsAddTag from "./AddTag";
+  import MsRun from "./Run";
 
   export default {
     name: "EditApiScenario",
@@ -287,7 +291,7 @@
       currentProject: {},
       currentScenario: {},
     },
-    components: {ApiEnvironmentConfig, MsAddTag, MsJsr233Processor, MsConstantTimer, MsIfController, MsApiAssertions, MsApiExtract, MsApiDefinition, MsApiComponent, MsApiCustomize},
+    components: {ApiEnvironmentConfig, MsAddTag, MsRun, MsJsr233Processor, MsConstantTimer, MsIfController, MsApiAssertions, MsApiExtract, MsApiDefinition, MsApiComponent, MsApiCustomize},
     data() {
       return {
         props: {
@@ -320,6 +324,7 @@
         expandedNode: [],
         scenarioDefinition: [],
         path: "/api/automation/create",
+        reportId: "",
       }
     },
     created() {
@@ -327,6 +332,7 @@
       this.getMaintainerOptions();
       this.getApiScenario();
       this.refreshTags();
+      this.getEnvironments();
     },
     watch: {},
     methods: {
@@ -470,9 +476,14 @@
       },
       refreshTags() {
         let obj = {projectId: this.currentProject.id};
+        let tagIds = [];
         this.$post('/api/tag/list', obj, response => {
           this.tags = response.data;
+          this.tags.forEach(item => {
+            tagIds.push(item.id);
+          })
         });
+
       },
       remove(row, node) {
         const parent = node.parent
@@ -489,7 +500,9 @@
         })
       },
       runDebug() {
-
+        /*触发执行操作*/
+        this.reportId = getUUID().substring(0, 8);
+        //this.isReloadData = true;
       },
       getEnvironments() {
         if (this.currentProject) {
@@ -511,7 +524,7 @@
       environmentChange(value) {
         for (let i in this.environments) {
           if (this.environments[i].id === value) {
-            this.currentEnvironment = this.environments[i].id;
+            this.currentEnvironment = this.environments[i];
             break;
           }
         }
@@ -559,6 +572,7 @@
         })
       },
       getApiScenario() {
+        this.currentScenario.tagId = JSON.parse(this.currentScenario.tagId);
         if (this.currentScenario.id) {
           this.path = "/api/automation/update";
           this.result = this.$get("/api/automation/getApiScenario/" + this.currentScenario.id, response => {
@@ -581,6 +595,9 @@
           this.currentScenario.apiScenarioModuleId = this.currentModule.id;
         }
       },
+      runRefresh() {
+        this.isReloadData = false;
+      }
     }
   }
 </script>

@@ -1,10 +1,11 @@
 package io.metersphere.api.service;
 
-import io.metersphere.api.dto.automation.ApiApiRequest;
+import io.metersphere.api.dto.automation.ApiTagRequest;
 import io.metersphere.api.dto.automation.SaveApiTagRequest;
 import io.metersphere.base.domain.ApiTag;
 import io.metersphere.base.domain.ApiTagExample;
 import io.metersphere.base.mapper.ApiTagMapper;
+import io.metersphere.base.mapper.ext.ExtApiTagMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.SessionUtils;
 import org.springframework.stereotype.Service;
@@ -18,11 +19,19 @@ import java.util.List;
 public class ApiTagService {
     @Resource
     private ApiTagMapper apiTagMapper;
+    @Resource
+    private ExtApiTagMapper extApiTagMapper;
+    @Resource
+    private ApiAutomationService apiAutomationService;
 
-    public List<ApiTag> list(ApiApiRequest request) {
+    public List<ApiTag> list(ApiTagRequest request) {
         ApiTagExample example = new ApiTagExample();
         example.createCriteria().andProjectIdEqualTo(request.getProjectId());
         return apiTagMapper.selectByExample(example);
+    }
+
+    public List<ApiTag> getTgas(ApiTagRequest request) {
+        return extApiTagMapper.list(request);
     }
 
     public void create(SaveApiTagRequest request) {
@@ -54,6 +63,7 @@ public class ApiTagService {
 
     public void delete(String id) {
         apiTagMapper.deleteByPrimaryKey(id);
+        apiAutomationService.deleteTag(id);
     }
 
     private void checkNameExist(SaveApiTagRequest request) {

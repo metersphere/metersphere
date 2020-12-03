@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.SaveApiScenarioRequest;
+import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.commons.constants.RoleConstants;
@@ -14,6 +15,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -61,6 +63,11 @@ public class ApiAutomationController {
     @GetMapping("/getApiScenario/{id}")
     public ApiScenario getScenarioDefinition(@PathVariable String id) {
         return apiAutomationService.getApiScenario(id);
+    }
+
+    @PostMapping(value = "/run/debug")
+    public void runDebug(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
+        apiAutomationService.run(request, bodyFiles);
     }
 
 }
