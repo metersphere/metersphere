@@ -1,4 +1,4 @@
-package io.metersphere.api.parse;
+package io.metersphere.api.parse.old;
 
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.scenario.KeyValue;

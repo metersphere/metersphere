@@ -1,4 +1,4 @@
-package io.metersphere.api.parse;
+package io.metersphere.api.parse.old;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -79,8 +79,8 @@ public class Swagger2Parser extends ApiImportAbstractParser {
                     headerManager.setId(UUID.randomUUID().toString());
                     headerManager.setName(res.getName() + "Postman MsHeaderManager");
                     headerManager.setHeaders(res.getHeaders());
-                    HashTree tree = new HashTree();
-                    tree.add(headerManager);
+//                    HashTree tree = new HashTree();
+//                    tree.add(headerManager);
                     LinkedList<MsTestElement> list = new LinkedList<>();
                     list.add(headerManager);
                     requestElement.setHashTree(list);

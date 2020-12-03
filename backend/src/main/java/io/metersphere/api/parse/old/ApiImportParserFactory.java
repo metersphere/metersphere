@@ -1,4 +1,4 @@
-package io.metersphere.api.parse;
+package io.metersphere.api.parse.old;
 
 import io.metersphere.commons.constants.ApiImportPlatform;
 import org.apache.commons.lang3.StringUtils;
