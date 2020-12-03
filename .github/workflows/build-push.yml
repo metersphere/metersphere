@@ -16,7 +16,6 @@ jobs:
       env:
         cache-name: cache-node-modules
       with:
-        # npm cache files are stored in `~/.npm` on Linux/macOS
         path: ~/.npm
         key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
@@ -29,11 +28,10 @@ jobs:
       env:
         cache-name: cache-maven-deps
       with:
-        # npm cache files are stored in `~/.npm` on Linux/macOS
         path: ~/.m2
         key: ${{ runner.os }}-build-${{ env.cache-name }}
         restore-keys: |
-          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-${{ env.cache-name }}
           ${{ runner.os }}-build-
           ${{ runner.os }}-
 
@@ -59,5 +57,5 @@ jobs:
     - name: Build Docker Image
       uses: docker/build-push-action@v2.2.0
       with:
-        build-args: MS_VERSION=${BRANCH_NAME}-b${GITHUB_RUN_NUMBER} 
-        tags: metersphere/metersphere:${BRANCH_NAME}
+        build-args: MS_VERSION=${{ env.BRANCH_NAME }}-b${{ env.GITHUB_RUN_NUMBER }} 
+        tags: metersphere/metersphere:${{ env.BRANCH_NAME }}
